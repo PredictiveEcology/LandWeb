@@ -2,7 +2,7 @@
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
-  name = "vanWagner",
+  name = "fireNull",
   description = "insert module description here",
   keywords = c("insert key words here"),
   authors = c(person(c("Steve", "G"), "Cumming", email="stevec@sbf.ulaval.ca", role=c("aut", "cre"))),
@@ -12,7 +12,7 @@ defineModule(sim, list(
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
-  documentation = list("README.txt", "vanWagner.Rmd"),
+  documentation = list("README.txt", "fireNull.Rmd"),
   reqdPkgs = list(),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
@@ -43,19 +43,19 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initialiazationlob
 
-doEvent.vanWagner = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
     #browser()
     # do stuff for this event
-    sim <- sim$vanWagnerInit(sim)
+    sim <- sim$fireNullInit(sim)
     
     # schedule future event(s)
-    sim <- scheduleEvent(sim, params(sim)$vanWagner$startTime, "vanWagner", "burn")
-    sim <- scheduleEvent(sim, params(sim)$vanWagner$.plotInitialTime, "vanWagner", "plot")
-    sim <- scheduleEvent(sim, params(sim)$vanWagner$.saveInitialTime, "vanWagner", "save")
-    sim <- scheduleEvent(sim, params(sim)$vanWagner$.statsInitialTime, "vanWagner", "stats")
+    sim <- scheduleEvent(sim, params(sim)$fireNull$startTime, "fireNull", "burn")
+    sim <- scheduleEvent(sim, params(sim)$fireNull$.plotInitialTime, "fireNull", "plot")
+    sim <- scheduleEvent(sim, params(sim)$fireNull$.saveInitialTime, "fireNull", "save")
+    sim <- scheduleEvent(sim, params(sim)$fireNull$.statsInitialTime, "fireNull", "stats")
   } else if (eventType == "plot") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -64,7 +64,7 @@ doEvent.vanWagner = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
     
     # e.g.,
-    sim <- scheduleEvent(sim, params(sim)$vanWagner$.plotInitialTime, "vanWagner", "plot")
+    sim <- scheduleEvent(sim, params(sim)$fireNull$.plotInitialTime, "fireNull", "plot")
     
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "save") {
@@ -77,17 +77,17 @@ doEvent.vanWagner = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
     
     # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, "vanWagner", "save")
+    # sim <- scheduleEvent(sim, time(sim) + increment, "fireNull", "save")
     
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "burn") {
     # ! ----- EDIT BELOW ----- ! #
-    sim <- vanWagnerBurn(sim)
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$vanWagner$returnInterval, "vanWagner", "burn")
+    sim <- fireNullBurn(sim)
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "burn")
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "stats"){
-    sim <- vanWagnerStatsF(sim)
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$vanWagner$returnInterval, "vanWagner", "stats")
+    sim <- fireNullStatsF(sim)
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "stats")
   }
   else {
     warning(paste("Undefined event type: '", events(sim)[1, "eventType", with = FALSE],
@@ -102,15 +102,15 @@ doEvent.vanWagner = function(sim, eventTime, eventType, debug = FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initialization
-vanWagnerInit <- function(sim) {
+fireNullInit <- function(sim) {
   
-  sim$vanWagnerStats<-list(N=numeric(0),p=numeric(0),rate=numeric(0))
+  sim$fireNullStats<-list(N=numeric(0),p=numeric(0),rate=numeric(0))
   
   return(invisible(sim))
 }
 
 ### template for save events
-vanWagnerSave <- function(sim) {
+fireNullSave <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   sim <- saveFiles(sim)
@@ -120,7 +120,7 @@ vanWagnerSave <- function(sim) {
 }
 
 ### template for plot events
-vanWagnerPlot <- function(sim) {
+fireNullPlot <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot("object")
@@ -130,20 +130,20 @@ vanWagnerPlot <- function(sim) {
 }
 
 
-vanWagnerBurn <- function(sim) {
+fireNullBurn <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   #note that this assumes square maps with no holes.
   N<-prod(dim(sim$ageMap))
-  sim$ignitionLoci<-which(runif(N) < params(sim)$vanWagner$pBurn)
+  sim$ignitionLoci<-which(runif(N) < params(sim)$fireNull$pBurn)
   sim$ageMap[sim$ignitionLoci]<-0  
   return(invisible(sim))
 }
 
-vanWagnerStatsF<-function(sim){
+fireNullStatsF<-function(sim){
   N<-prod(dim(sim$ageMap))
-  sim$vanWagnerStats$rate<-c(sim$vanWagnerStats$rate,length(sim$ignitionLoci)/N)
-  sim$vanWagnerStats$p<-c(sim$vanWagnerStats$p,params(sim)$vanWagner$pBurn)
-  sim$vanWagnerStats$N<-c(sim$vanWagnerStats$N,length(sim$ignitionLoci))
+  sim$fireNullStats$rate<-c(sim$fireNullStats$rate,length(sim$ignitionLoci)/N)
+  sim$fireNullStats$p<-c(sim$fireNullStats$p,params(sim)$fireNull$pBurn)
+  sim$fireNullStats$N<-c(sim$fireNullStats$N,length(sim$ignitionLoci))
   return(invisible(sim))
 }
 .init = function(sim) {
