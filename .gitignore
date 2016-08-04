@@ -1,8 +1,8 @@
 .Rapp.history
+.RData
 .Rhistory
-.Rproj.user
 .log
+.csv
 last.dump.rda
-LandWeb/.Rproj.user/
-LandWeb/.Rhistory
-./landWebParent/data/
+.Rproj.user/
+landWebParent/data/
