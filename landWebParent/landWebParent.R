@@ -48,7 +48,7 @@ browser()
     # do stuff for this event
     sim <- sim$landWebParentInit(sim)
     sim <- sim$landWebParentEvent1(sim)
-    sim <- scheduleEvent(sim, time(sim), "landWebParent", "Event1")
+    sim <- scheduleEvent(sim, time(sim), "landWebParent", "event1")
 
     # schedule future event(s)
     sim <- scheduleEvent(sim, p(sim)$.plotInitialTime, "landWebParent", "plot")
