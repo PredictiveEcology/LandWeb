@@ -159,14 +159,28 @@ fireNullStatsF<-function(sim){
   
   pBurn <- 1/sim$shapeFileFireRegime$fireReturnInterval
   sim$burnProbMap <- rasterise(sim$shapeFileFireRegime,sim$studyAreaRaster,field=pBurn, mask=TRUE)
-  #now we need to access the flammability map, and mask to 0 any nonflammable cells.
-  ##
+ 
+  ##THIS should move to parent .init
+  if (exists(flammableMap, where=envir(sim))){
+    nonFlammClasses<-c(36,37,38,39)
+    oldClass <- 0:39
+    newClass <- ifelse(oldClass %in% nonFlammClasses,1,0)   #1 codes for non flammable 
+    #see mask argument for SpaDES::spread()
+    flammableTable <- cbind(oldClass, newClass)
+    sim$flammableMap <- ratify(reclassify(sim$vegMap, flammableTable,count=TRUE))
+    setColors(sim$flammableMap,n=2) <- colorRampPalette(c("blue", "red"))(2) 
+    
+    sim$burnProbMap[which(sim$flammableMap == 0)] <- 0 #this could turn some NAs to 0s. 
+  }
+  
   #for any stats, we need to caclulate how many burnable cells there are
   N<- sum(!is.na(sim$burnProbMap)) 
   N<- N - which(sim$burnProbMap == 0) # we will "mask" the lakes etc. with 0, not NA
   sim$nBurnableCells <- N
   sim$burnLoci <- vector("numeric")
-  #and yes, we could regionalise this.
+  ##
+  
+ 
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above

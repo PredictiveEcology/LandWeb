@@ -88,7 +88,7 @@ __shapeFileFireRegime__ is defines the regions and species fire return interval
 
 __studyAreaRaster__ is the template raster for the study region
 
-At a later point, will add a "flammability layer" to be defined in the parent .init
+__flammableMap__ if it exists, we assume its logical and confcorms with the templatem abd that 0s are unburny. 
 
 ## Output data
 
