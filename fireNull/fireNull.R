@@ -151,7 +151,7 @@ fireNullStatsF<-function(sim){
 }
 .init = function(sim) {
   
-  if (!exists(shapeFileFireRegime,where=envir(sim) ||
+  if (!exists(shapeFileFireRegime,where=envir(sim)) ||
       TRUE # test if it is a proper shapefile
       ){ 
     stop("missing or invalid shapefile: how did you even get here?")

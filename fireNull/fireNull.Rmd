@@ -76,14 +76,27 @@ No plots are generated
 
 No files or state are saved
 
+## Stats
+
+Some summary statistics are gathered, inherited from Cumming's vanWagner module. 
+
 # Data dependencies
 
 ## Input data
 
+__shapeFileFireRegime__ is defines the regions and species fire return interval
+
+__studyAreaRaster__ is the template raster for the study region
+
+At a later point, will add a "flammability layer" to be defined in the parent .init
 
 ## Output data
 
 Description of the module outputs.
+
+__burnLoci__ a numeric vector of locations of burned cells relative to the template raster
+
+__currentBurnMap__ a logical map of the currently burned locations, just a very long-winded representation of __burnLoci__
 
 # Links to other modules
 
