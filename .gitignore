@@ -5,8 +5,6 @@
 .csv
 last.dump.rda
 .Rproj.user/
-landWebParent/data/*/
-landWebParent/data/*.zip
-landWebParent/data/*.tar
+landWebParent/data/
 
 
