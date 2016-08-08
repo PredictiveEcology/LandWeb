@@ -2,21 +2,22 @@
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
-  name = "vanWagner",
-  description = "insert module description here",
-  keywords = c("insert key words here"),
-  authors = c(person(c("Steve", "G"), "Cumming", email="stevec@sbf.ulaval.ca", role=c("aut", "cre"))),
+  name = "fireNull",
+  description = "implement a spatially stratified vanWagner fire model",
+  keywords = c("fire cycle", "burn probability"),
+  authors = c(person(c("Steven", "G"), "Cumming", email="stevec@sbf.ulaval.ca", role=c("aut", "cre"))),
   childModules = character(),
   version = numeric_version("1.1.1.9001"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
-  documentation = list("README.txt", "vanWagner.Rmd"),
-  reqdPkgs = list(),
+  documentation = list("README.txt", "fireNull.Rmd"),
+  reqdPkgs = list("raster","sp"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
-    defineParameter("pBurn", "numeric", 0.01, 0, 1, desc="the rate of burn"),
+    #defineParameter("pBurn", "numeric", 0.01, 0, 1, desc="the rate of burn"),
+    defineParameter("doAgeMapping", "logical", FALSE, TRUE, FALSE, desc="keep track of time since fire?"),
     defineParameter("returnInterval", "numeric", 1.0, NA, NA, desc="interval between main events"),
     defineParameter("startTime","numeric", 0, NA, NA, desc="time of first burn event"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, desc="This describes the simulation time at which the first plot event should occur"),
@@ -26,68 +27,57 @@ defineModule(sim, list(
     defineParameter(".statsInitialTime", "numeric", 0, NA, NA, desc="This describes the simulation time at which the first stats event should occur")
   ),
   inputObjects = data.frame(
-    objectName = "ageMap",
-    objectClass = "RasterLayer",
+    objectName = "",
+    objectClass = "",
     sourceURL = "",
     other = NA_character_,
     stringsAsFactors = FALSE
   ),
   outputObjects = data.frame(
-    objectName = c("ageMap","ignitionLoci"),
-    objectClass = c("RasterLayer","vector"),
+    objectName = c("timeSinceFireMap","burnLoci","currentBurnMap"),
+    objectClass = c("RasterLayer","vector", "RasterLayer"),
     other = NA_character_,
     stringsAsFactors = FALSE
   )
 ))
 
 ## event types
-#   - type `init` is required for initialiazationlob
+#   - type `init` is required for initialiazation
 
-doEvent.vanWagner = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
-    ### check for more detailed object dependencies:
-    ### (use `checkObject` or similar)
-    #browser()
     # do stuff for this event
-    sim <- sim$vanWagnerInit(sim)
-    
+    sim <- sim$fireNullInit(sim)
     # schedule future event(s)
-    sim <- scheduleEvent(sim, params(sim)$vanWagner$startTime, "vanWagner", "burn")
-    sim <- scheduleEvent(sim, params(sim)$vanWagner$.plotInitialTime, "vanWagner", "plot")
-    sim <- scheduleEvent(sim, params(sim)$vanWagner$.saveInitialTime, "vanWagner", "save")
-    sim <- scheduleEvent(sim, params(sim)$vanWagner$.statsInitialTime, "vanWagner", "stats")
+    sim <- scheduleEvent(sim, params(sim)$fireNull$startTime, "fireNull", "burn")
+    sim <- scheduleEvent(sim, params(sim)$fireNull$.plotInitialTime, "fireNull", "plot")
+    sim <- scheduleEvent(sim, params(sim)$fireNull$.saveInitialTime, "fireNull", "save")
+    sim <- scheduleEvent(sim, params(sim)$fireNull$.statsInitialTime, "fireNull", "stats")
   } else if (eventType == "plot") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
-    
+    if (params(sim)$fireNull$doAgeMapping == TRUE){
+      Plot(sim$timeSinceFireMap)
+    }
     #Plot(objectFromModule) # uncomment this, replace with object to plot
     # schedule future event(s)
     
     # e.g.,
-    sim <- scheduleEvent(sim, params(sim)$vanWagner$.plotInitialTime, "vanWagner", "plot")
-    
+    sim <- scheduleEvent(sim, params(sim)$fireNull$.plotInitialTime, "fireNull", "plot")
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "save") {
-    # ! ----- EDIT BELOW ----- ! #
-    # do stuff for this event
-    
-    # e.g., call your custom functions/methods here
-    # you can define your own methods below this `doEvent` function
-    
-    # schedule future event(s)
-    
-    # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, "vanWagner", "save")
-    
-    # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "burn") {
-    # ! ----- EDIT BELOW ----- ! #
-    sim <- vanWagnerBurn(sim)
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$vanWagner$returnInterval, "vanWagner", "burn")
-    # ! ----- STOP EDITING ----- ! #
+    sim <- fireNullBurn(sim)
+    #do some book-keeping not part of the actual fire process
+    if (params(sim)$fireNull$doAgeMapping == TRUE){
+      sim$timeSinceFireMap <- sim$timeSinceFireMap + 1
+      sim$timeSinceFireMap[sim$burnLoci] = 0 
+    }
+    #schedule next burn event
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "burn")
   } else if (eventType == "stats"){
-    sim <- vanWagnerStatsF(sim)
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$vanWagner$returnInterval, "vanWagner", "stats")
+    sim <- fireNullStatsF(sim)
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "stats")
   }
   else {
     warning(paste("Undefined event type: '", events(sim)[1, "eventType", with = FALSE],
@@ -102,15 +92,22 @@ doEvent.vanWagner = function(sim, eventTime, eventType, debug = FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initialization
-vanWagnerInit <- function(sim) {
+fireNullInit <- function(sim) {
   
-  sim$vanWagnerStats<-list(N=numeric(0),p=numeric(0),rate=numeric(0))
+  sim$currentBurnMap <- sim$burnProbMap * 0
+  
+  if (params(sim)$fireNull$doAgeMapping == TRUE){
+    sim$timeSinceFireMap <- sim$burnProbMap * 0
+    #assign legend and colours if you are serious
+  }
+  
+  sim$fireNullStats<-list(N=numeric(0),p=numeric(0),rate=numeric(0))
   
   return(invisible(sim))
 }
 
 ### template for save events
-vanWagnerSave <- function(sim) {
+fireNullSave <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   sim <- saveFiles(sim)
@@ -120,7 +117,7 @@ vanWagnerSave <- function(sim) {
 }
 
 ### template for plot events
-vanWagnerPlot <- function(sim) {
+fireNullPlot <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot("object")
@@ -130,29 +127,60 @@ vanWagnerPlot <- function(sim) {
 }
 
 
-vanWagnerBurn <- function(sim) {
+fireNullBurn <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   #note that this assumes square maps with no holes.
-  N<-prod(dim(sim$ageMap))
-  sim$ignitionLoci<-which(runif(N) < params(sim)$vanWagner$pBurn)
-  sim$ageMap[sim$ignitionLoci]<-0  
+  #we could filyter out the NAs and 0s, 
+  #but I bet it is faster to ignore them. 
+  
+  N<-prod(dim(sim$burnProbMap))
+  sim$currentBurnMap<-sim$currentBurnMap*0 #zero, but preserve NAs
+  sim$burnLoci<-which(runif(N) < sim$burnProbMap)
+  sim$currentBurnMap[sim$burnLoci]<-1
+  
   return(invisible(sim))
 }
 
-vanWagnerStatsF<-function(sim){
-  N<-prod(dim(sim$ageMap))
-  sim$vanWagnerStats$rate<-c(sim$vanWagnerStats$rate,length(sim$ignitionLoci)/N)
-  sim$vanWagnerStats$p<-c(sim$vanWagnerStats$p,params(sim)$vanWagner$pBurn)
-  sim$vanWagnerStats$N<-c(sim$vanWagnerStats$N,length(sim$ignitionLoci))
+fireNullStatsF<-function(sim){
+  N<- sim$nBurnableCells
+  
+  sim$fireNullStats$rate<-c(sim$fireNullStats$rate,length(sim$burnLoci)/N)
+  sim$fireNullStats$p<-c(sim$fireNullStats$p,params(sim)$fireNull$pBurn)
+  sim$fireNullStats$N<-c(sim$fireNullStats$N,length(sim$burnLoci))
   return(invisible(sim))
 }
 .init = function(sim) {
-  # Any code written here will be run during the simInit and subsequently deleted
-  # This is useful if there is something required before simulation, such as data downloading, e.g.,
-  # downloadData("LCC2005", modulePath(sim))
-  # ! ----- EDIT BELOW ----- ! #
-
-  # ! ----- STOP EDITING ----- ! #
+  
+  if (!exists(shapeFileFireRegime,where=envir(sim)) ||
+      TRUE # test if it is a proper shapefile
+      ){ 
+    stop("missing or invalid shapefile: how did you even get here?")
+  }
+  
+  pBurn <- 1/sim$shapeFileFireRegime$fireReturnInterval
+  sim$burnProbMap <- rasterise(sim$shapeFileFireRegime,sim$studyAreaRaster,field=pBurn, mask=TRUE)
+ 
+  ##THIS should move to parent .init
+  if (exists(flammableMap, where=envir(sim))){
+    nonFlammClasses<-c(36,37,38,39)
+    oldClass <- 0:39
+    newClass <- ifelse(oldClass %in% nonFlammClasses,1,0)   #1 codes for non flammable 
+    #see mask argument for SpaDES::spread()
+    flammableTable <- cbind(oldClass, newClass)
+    sim$flammableMap <- ratify(reclassify(sim$vegMap, flammableTable,count=TRUE))
+    setColors(sim$flammableMap,n=2) <- colorRampPalette(c("blue", "red"))(2) 
+    
+    sim$burnProbMap[which(sim$flammableMap == 0)] <- 0 #this could turn some NAs to 0s. 
+  }
+  
+  #for any stats, we need to caclulate how many burnable cells there are
+  N<- sum(!is.na(sim$burnProbMap)) 
+  N<- N - which(sim$burnProbMap == 0) # we will "mask" the lakes etc. with 0, not NA
+  sim$nBurnableCells <- N
+  sim$burnLoci <- vector("numeric")
+  ##
+  
+ 
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
