@@ -197,10 +197,7 @@ landWebParentEvent2 = function(sim) {
     unlink(file.path(dataPath, "Ecodistricts"), recursive = TRUE) 
     rm(filenames)
   }
-  
   ecoDistrict <- raster::shapefile(file.path(dataPath, "ecodistricts.shp"))
-  
-  
   if(!all(c("ecoregions.dbf", "ecoregions.prj", "ecoregions.sbn", 
             "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% checkContent_passed)){
     unzip(zipfile = file.path(dataPath, "ecoregion_shp.zip"),
@@ -213,9 +210,6 @@ landWebParentEvent2 = function(sim) {
     rm(filenames)
   } 
   ecoRegion <- raster::shapefile(file.path(dataPath, "ecoregions.shp"))
-  
-  
-  
   if(!all(c("ecoregions.dbf", "ecoregions.prj", "ecoregions.sbn", 
             "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% checkContent_passed)){
     unzip(zipfile = file.path(dataPath, "ecozone_shp.zip"),
@@ -265,7 +259,7 @@ landWebParentEvent2 = function(sim) {
                     "Betu_Pap", "Pice_Gla", "Pice_Mar", 
                     "Pinu_Ban", "Pinu_Con", "Pinu_Str",
                     "Popu_Tre", "Pseu_Men")
-   i <- 1
+  i <- 1
   for(indispecies in speciesnames){
     if(!all(paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.tif",
                   c("",".aux.xml", ".xml"), sep = "") %in% checkContent_passed)){
@@ -291,96 +285,89 @@ landWebParentEvent2 = function(sim) {
     unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
           exdir = dataPath)
   }
-    LCC05 <- raster::raster(file.path(dataPath, "LCC2005_V1_4a.tif"))
+  LCC05 <- raster::raster(file.path(dataPath, "LCC2005_V1_4a.tif"))
   
-  browser()
-   source('~/GitHub/landwebNRV/landwebNRV/R/initialCommunityMapProducer_kNN.R')
-   initialCommFiles <- initialCommunityMapProducer_kNN(speciesLayers = specieslayers, 
-                                                       speciesPresence = 50,
-                                                       studyArea = studyArea)
-   ecoregionstatus <- data.table(active = "yes",
-                                 ecoregion = 1:1031)
-   source('~/GitHub/landwebNRV/landwebNRV/R/ecoregionMapProducer.R')
-   ecoregionFiles <- ecoregionMapProducer(studyAreaRaster = initialCommFiles$initialCommunityMap,
-                                          ecoregionMapFull = ecoDistrict,
-                                          ecoregionName = "ECODISTRIC",
-                                          ecoregionActiveStatus = ecoregionstatus,
-                                          studyArea = studyArea)
-   
-   
+  source('~/GitHub/landwebNRV/landwebNRV/R/initialCommunityMapProducer_kNN.R')
+  initialCommFiles <- initialCommunityMapProducer_kNN(speciesLayers = specieslayers, 
+                                                      speciesPresence = 50,
+                                                      studyArea = studyArea)
+  ecoregionstatus <- data.table(active = "yes",
+                                ecoregion = 1:1031)
+  source('~/GitHub/landwebNRV/landwebNRV/R/ecoregionMapProducer.R')
+  ecoregionFiles <- ecoregionMapProducer(studyAreaRaster = initialCommFiles$initialCommunityMap,
+                                         ecoregionMapFull = ecoDistrict,
+                                         ecoregionName = "ECODISTRIC",
+                                         ecoregionActiveStatus = ecoregionstatus,
+                                         studyArea = studyArea)
+
   
-   activeStatusTable <- data.table(active = c(rep("yes", 15), rep("no", 25)),
-                                   mapcode = 1:40)  # this is based on description
-   source('~/GitHub/landwebNRV/landwebNRV/R/nonactiveEcoFromRaster.R')
-   simulationMaps <- nonactiveEcoFromRaster(nonactiveRaster = LCC05,
-                                            activeStatus = activeStatusTable,
-                                            ecoregionMap = ecoregionFiles$ecoregionMap,
-                                            ecoregion = ecoregionFiles$ecoregion,
-                                            initialCommunityMap = initialCommFiles$initialCommunityMap,
-                                            initialCommunity = initialCommFiles$initialCommunity)
-   source('~/GitHub/landwebNRV/landwebNRV/R/biomassAttributes_kNN.R')
-   speciesEcoregionTable <- biomassAttributes_kNN(speciesLayers = specieslayers,
-                                                  biomassLayer = biomassMap,
-                                                  SALayer = standAgeMap,
-                                                  ecoregionMap = simulationMaps$ecoregionMap)
-   browser()
-   source('~/GitHub/landwebNRV/landwebNRV/R/speciesRelativeAbundance_kNN.R')
-   speciesSEP <- speciesRelativeAbundance_kNN(ecoregionMap = simulationMaps$ecoregionMap,
-                                              speciesLayers = specieslayers)
-  # 
-  # 
-   septable <- speciesSEP$speciesAbundanceTable
-  # sepmaps <- speciesSEP$speciesAbundanceMaps
-   names(septable) <- c("ecoregion", "species", "SEP")
-   septable[, SEP:=round(SEP, 2)]
-  # 
-  # 
-   speciesEcoregionTable <- left_join(speciesEcoregionTable, septable, by = c("ecoregion", "species")) %>%
-     data.table
-  # 
-   speciesEcoregionTable[SEP==0, ':='(maxBiomass = 0, maxANPP = 0)]
-  # 
-   NON_NAdata <- speciesEcoregionTable[!is.na(maxBiomass),]
-  # 
-   NAdata <- speciesEcoregionTable[is.na(maxBiomass),]
-  # 
-  # # replace NA values with ecoregion  value
-   source('~/GitHub/landwebNRV/landwebNRV/R/biomassAttributes_kNN_biggerEcoAddition.R')
-  # 
-   dd <- biomassAttributes_kNN_biggerEcoAddition(speciesLayers = specieslayers,
+  
+  activeStatusTable <- data.table(active = c(rep("yes", 15), rep("no", 25)),
+                                  mapcode = 1:40)  # this is based on description
+  source('~/GitHub/landwebNRV/landwebNRV/R/nonactiveEcoFromRaster.R')
+  simulationMaps <- nonactiveEcoFromRaster(nonactiveRaster = LCC05,
+                                           activeStatus = activeStatusTable,
+                                           ecoregionMap = ecoregionFiles$ecoregionMap,
+                                           ecoregion = ecoregionFiles$ecoregion,
+                                           initialCommunityMap = initialCommFiles$initialCommunityMap,
+                                           initialCommunity = initialCommFiles$initialCommunity)
+  
+  source('~/GitHub/landwebNRV/landwebNRV/R/biomassAttributes_kNN.R')
+  speciesEcoregionTable <- biomassAttributes_kNN(speciesLayers = specieslayers,
                                                  biomassLayer = biomassMap,
                                                  SALayer = standAgeMap,
-                                                 ecoregionMap = simulationMaps$ecoregionMap,
-                                                 biggerEcoMap = ecoRegion,
-                                                 NAData = NAdata)
-  # 
-  # names(NON_NAdata)
-  # biggerEcoMap<- shapefile("M:/data/ecoFramework/Ecoregions/ecoregions.shp")
-  # NON_NAdata <- rbind(NON_NAdata, dd$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
-  # 
-  # NAdata <- dd$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
-  # 
-  # biggerEcoMap1<- shapefile("M:/data/ecoFramework/Ecozones/ecozones.shp")
-  # 
-  # names(biggerEcoMap1@data)[grep("ECOZONE",names(biggerEcoMap1@data))] <- "ECOREGION"
-  # source('~/GitHub/landwebNRV/landwebNRV/R/biomassAttributes_kNN_biggerEcoAddition.R')
-  # ecozoneValues <- biomassAttributes_kNN_biggerEcoAddition(speciesLayers = specieslayersfull,
-  #                                                          biomassLayer = biomassmap,
-  #                                                          SALayer = samap,
-  #                                                          ecoregionMap = simulationMaps$ecoregionMap,
-  #                                                          biggerEcoMap = biggerEcoMap1,
-  #                                                          NAData = NAdata)
+                                                 ecoregionMap = simulationMaps$ecoregionMap)
+  source('~/GitHub/landwebNRV/landwebNRV/R/speciesRelativeAbundance_kNN.R')
+  speciesSEP <- speciesRelativeAbundance_kNN(ecoregionMap = simulationMaps$ecoregionMap,
+                                             speciesLayers = specieslayers)
   # 
   # 
+  septable <- speciesSEP$speciesAbundanceTable
+  # sepmaps <- speciesSEP$speciesAbundanceMaps
+  names(septable) <- c("ecoregion", "species", "SEP")
+  septable[, SEP:=round(SEP, 2)]
   # 
   # 
-  
-  
-  
-  # Any code written here will be run during the simInit and subsequently deleted
-  # This is useful if there is something required before simulation, such as data downloading, e.g.,
-  # downloadData("LCC2005", modulePath(sim))
-  # ! ----- EDIT BELOW ----- ! #
+  speciesEcoregionTable[, species:=as.character(species)]
+  septable[,species:=as.character(species)]
+  speciesEcoregionTable <- left_join(speciesEcoregionTable, septable, by = c("ecoregion", "species")) %>%
+    data.table
+  # 
+  speciesEcoregionTable[SEP==0, ':='(maxBiomass = 0, maxANPP = 0)]
+  # 
+  NON_NAdata <- speciesEcoregionTable[!is.na(maxBiomass),]
+  # 
+  NAdata <- speciesEcoregionTable[is.na(maxBiomass),]
+  if(nrow(NAdata) > 1){
+    # # replace NA values with ecoregion  value
+    source('~/GitHub/landwebNRV/landwebNRV/R/biomassAttributes_kNN_biggerEcoAddition.R')
+    # 
+    biomassFrombiggerMap <- biomassAttributes_kNN_biggerEcoAddition(speciesLayers = specieslayers,
+                                                                    biomassLayer = biomassMap,
+                                                                    SALayer = standAgeMap,
+                                                                    ecoregionMap = simulationMaps$ecoregionMap,
+                                                                    biggerEcoMap = ecoRegion,
+                                                                    NAData = NAdata)
+    NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
+    NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
+  }
+  if(nrow(NAdata) > 1){
+    names(ecoZone@data)[grep("ECOZONE",names(ecoZone@data))] <- "ECOREGION"
+    biomassFrombiggerMap <- biomassAttributes_kNN_biggerEcoAddition(speciesLayers = specieslayers,
+                                                                    biomassLayer = biomassMap,
+                                                                    SALayer = standAgeMap,
+                                                                    ecoregionMap = simulationMaps$ecoregionMap,
+                                                                    biggerEcoMap = ecoZone,
+                                                                    NAData = NAdata)
+    NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
+    NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
+  }
+  NAdata[,':='(maxBiomass=0, maxANPP=0, SEP=0)]
+  sim$speciesEcoregion <- rbind(NON_NAdata,NAdata)
+  sim$ecoregion <- simulationMaps$ecoregion
+  sim$ecoregionMap <- simulationMaps$ecoregionMap
+  sim$initialCommunities <- simulationMaps$initialCommunity
+  sim$initialCommunitiesMap <- simulationMaps$initialCommunityMap
   
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
