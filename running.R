@@ -1,6 +1,8 @@
 rm(list=ls())
 library(SpaDES)
 library(raster)
+library(data.table)
+library(dplyr)
 objects <- list(studyArea = "a",
                 successionTimeStep = 4)
 parameters <- list()
