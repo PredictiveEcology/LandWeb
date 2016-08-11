@@ -24,7 +24,6 @@
 "kNN-StructureBiomass.tar" "593974f34d0fa4502d5dc0564dcf24f7"
 "kNN-StructureStandVolume.tar" "88c96d410e77b6d4616c70d8729d27f4"
 "LandCoverOfCanada2005_V1_4.zip" "f6c0bc08fd07166e87c6235ad9254157"
-"LCC05.zip" "f6c0bc08fd07166e87c6235ad9254157"
 "LCC2005_V1_4a.tif" "d2a7655210375687632cd4c04bf987f2"
 "NFI_MODIS250m_kNN_Species_Abie_Bal_v0.tif" "c56d902d272b41dad2daf17ec434e292"
 "NFI_MODIS250m_kNN_Species_Abie_Bal_v0.tif.aux.xml" "1d89943ac16507761b760f296f1a1965"
@@ -62,4 +61,4 @@
 "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif" "787a918e87ee91e8c8cb01b4cd288e9e"
 "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.aux.xml" "54fa2bf366df1d056cb6171555dd2be0"
 "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.xml" "0e9517a219ff00b2bac4a7c8b0ec7cf7"
-"studyarea.rds" "29cd8c5b09b80e0b5d0d14254afee722"
+"studyarea.rds" "e822d38ac64ea157bdb5f9a084ce4822"
