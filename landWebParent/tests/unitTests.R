@@ -3,7 +3,7 @@
 # please specify the package you need to run the sim function in the test files.
 
 # to test all the test files in the tests folder:
-test_dir("C:/Users/yonluo/Documents/GitHub/landWebParent/landWebParent/tests/testthat")
+test_dir("C:/Users/yonluo/Documents/GitHub/LandWeb/landWebParent/tests/testthat")
 
 # Alternative, you can use test_file to test individual test file, e.g.:
-test_file("C:/Users/yonluo/Documents/GitHub/landWebParent/landWebParent/tests/testthat/test-template.R")
+test_file("C:/Users/yonluo/Documents/GitHub/LandWeb/landWebParent/tests/testthat/test-template.R")

@@ -3,15 +3,15 @@
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
   name = "landWebParent",
-  description = "higher level control module for Fire, vegetation and 
-  output metrics modules that specifical for LandWeb project",
+  description = "does two major things: 1. gathering the simulation inputs at .inputObjects stage as default,
+  2. connecting two childern modules, fire and veg",
   keywords = c("insert key words here"),
-  authors = c(person(c("Yong"), "Luo", email="yluo1@lakeheadu.ca", role=c("aut", "cre"))),
-  childModules = character(),#c("testmodule"), #c("biomassSuccessionLANDIS"),
-  version = numeric_version("1.2.0.9004"),
+  authors = c(person(c("First", "Middle"), "Last", email="email@example.com", role=c("aut", "cre"))),
+  childModules = character(),
+  version = numeric_version("1.2.0.9006"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
-  timeunit = "year", # e.g., "year",
+  timeunit = NA_character_, # e.g., "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "landWebParent.Rmd"),
   reqdPkgs = list(),
@@ -23,16 +23,9 @@ defineModule(sim, list(
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur")
   ),
   inputObjects = data.frame(
-    objectName = c("ecoDistrict", "ecoRegion", "ecoZone", "biomassMap",
-                   "standAgeMap", "speciesMap", "LCC2005"),
+    objectName = NA_character_,
     objectClass = NA_character_,
-    sourceURL = c("http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip",
-                  "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip",
-                  "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
-                  "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar",
-                  "http://tree.pfc.forestry.ca/kNN-StructureStandVolume.tar",
-                  "http://tree.pfc.forestry.ca/kNN-Species.tar",
-                  "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip"),
+    sourceURL = "",
     other = NA_character_,
     stringsAsFactors = FALSE
   ),
@@ -51,65 +44,62 @@ doEvent.landWebParent = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
-    browser()
+
     # do stuff for this event
     sim <- sim$landWebParentInit(sim)
-    sim <- sim$landWebParentEvent1(sim)
-    sim <- scheduleEvent(sim, time(sim), "landWebParent", "event1")
-    
+
     # schedule future event(s)
     sim <- scheduleEvent(sim, p(sim)$.plotInitialTime, "landWebParent", "plot")
     sim <- scheduleEvent(sim, p(sim)$.saveInitialTime, "landWebParent", "save")
   } else if (eventType == "plot") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
-    
+
     #Plot(objectFromModule) # uncomment this, replace with object to plot
     # schedule future event(s)
-    
+
     # e.g.,
     #sim <- scheduleEvent(sim, p(sim)$.plotInitialTime, "landWebParent", "plot")
-    
+
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "save") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
-    
+
     # e.g., call your custom functions/methods here
     # you can define your own methods below this `doEvent` function
-    
+
     # schedule future event(s)
-    
+
     # e.g.,
     # sim <- scheduleEvent(sim, time(sim) + increment, "landWebParent", "save")
-    
+
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "event1") {
-    
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
-    
+
     # e.g., call your custom functions/methods here
     # you can define your own methods below this `doEvent` function
-    
+
     # schedule future event(s)
-    
+
     # e.g.,
     # sim <- scheduleEvent(sim, time(sim) + increment, "landWebParent", "templateEvent")
-    
+
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "event2") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
-    
+
     # e.g., call your custom functions/methods here
     # you can define your own methods below this `doEvent` function
-    
+
     # schedule future event(s)
-    
+
     # e.g.,
     # sim <- scheduleEvent(sim, time(sim) + increment, "landWebParent", "templateEvent")
-    
+
     # ! ----- STOP EDITING ----- ! #
   } else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
@@ -126,10 +116,9 @@ doEvent.landWebParent = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 landWebParentInit <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  browser()
-  
+
   # ! ----- STOP EDITING ----- ! #
-  
+
   return(invisible(sim))
 }
 
@@ -138,7 +127,7 @@ landWebParentSave <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   sim <- saveFiles(sim)
-  
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -148,7 +137,7 @@ landWebParentPlot <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot("object")
-  
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -159,9 +148,8 @@ landWebParentEvent1 <- function(sim) {
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   sim$event1Test1 <- " this is test for event 1. " # for dummy unit test
   sim$event1Test2 <- 999 # for dummy unit test
-  
-  browser()
-  print(time(sim))
+
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -172,207 +160,33 @@ landWebParentEvent2 = function(sim) {
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   sim$event2Test1 <- " this is test for event 2. " # for dummy unit test
   sim$event2Test2 <- 777  # for dummy unit test
-  
-  
+
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
 
-.init = function(sim) {
-  dataPath <- file.path(modulePath(sim), "landWebParent", "data")
-  checkTable <- data.table(downloadData(module = "landWebParent", path = modulePath(sim)))
-  checkContent_passed <- checkTable[result == "OK",]$expectedFile
-  # study area should be provided by Dr. David Anderson
-  # Dr. Steve Cumming will provide a temperary one
-  studyArea <- readRDS(file.path(dataPath, "studyarea.rds"))
+.inputObjects = function(sim) {
+  browser()
+  # inputObjects for biomassSuccessionLANDIS include
+  # "initialCommunities"=initialCommunities,
+  # "species"=species,
+  # "ecoregionMap"=ecoregionMap,
+  # "initialCommunitiesMap"=initialCommunitiesMap,
+  # "spinupMortalityfraction"=spinupMortalityfraction,
+  # "speciesEcoregion"=speciesEcoregion,
+  # "ecoregion"=ecoregion,
+  # "minRelativeB"=minRelativeB,
+  # "sufficientLight"=sufficientLight,
+  # "successionTimestep"=successionTimestep,
+  # "cellSize"=cellSize,
+  # "seedingAlgorithm"=seedingAlgorithm,
+  # "useCache"=useCache,
+  # "calibrate" = calibrate
   
-  if(!all(c("ecodistricts.dbf", "ecodistricts.prj", "ecodistricts.sbn", 
-            "ecodistricts.sbx", "ecodistricts.shp", "ecodistricts.shx") %in% checkContent_passed)){
-    unzip(zipfile = file.path(dataPath, "ecodistrict_shp.zip"),
-          exdir = dataPath)
-    filenames <- dir(file.path(dataPath, "Ecodistricts"))
-    file.copy(from = file.path(dataPath, "Ecodistricts", filenames),
-              to = file.path(dataPath, filenames),
-              overwrite = TRUE)
-    unlink(file.path(dataPath, "Ecodistricts"), recursive = TRUE) 
-    rm(filenames)
-  }
-  ecoDistrict <- raster::shapefile(file.path(dataPath, "ecodistricts.shp"))
-  if(!all(c("ecoregions.dbf", "ecoregions.prj", "ecoregions.sbn", 
-            "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% checkContent_passed)){
-    unzip(zipfile = file.path(dataPath, "ecoregion_shp.zip"),
-          exdir = dataPath)
-    filenames <- dir(file.path(dataPath, "Ecoregions"))
-    file.copy(from = file.path(dataPath, "Ecoregions", filenames),
-              to = file.path(dataPath, filenames),
-              overwrite = TRUE)
-    unlink(file.path(dataPath, "Ecoregions"), recursive = TRUE) 
-    rm(filenames)
-  } 
-  ecoRegion <- raster::shapefile(file.path(dataPath, "ecoregions.shp"))
-  if(!all(c("ecoregions.dbf", "ecoregions.prj", "ecoregions.sbn", 
-            "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% checkContent_passed)){
-    unzip(zipfile = file.path(dataPath, "ecozone_shp.zip"),
-          exdir = dataPath)
-    filenames <- dir(file.path(dataPath, "Ecozones"))
-    file.copy(from = file.path(dataPath, "Ecozones", filenames),
-              to = file.path(dataPath, filenames),
-              overwrite = TRUE)
-    unlink(file.path(dataPath, "Ecozones"), recursive = TRUE) 
-  } 
-  ecoZone <- raster::shapefile(file.path(dataPath, "ecozones.shp"))
-  
-  
-  if(!all(c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
-            "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
-            "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml") %in%
-          checkContent_passed)){
-    untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
-          files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
-          exdir = dataPath)
-    biomassMaps <- unzip(file.path(dataPath,
-                                   "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
-                         exdir = dataPath)
-    file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
-  }
-  biomassMap <- raster(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif"))
-  
-  
-  # 2. stand age map
-  if(!all(c("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif",
-            "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.aux.xml",
-            "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.xml") %in% checkContent_passed)){
-    untar(file.path(dataPath, "kNN-StructureStandVolume.tar"),
-          files = "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip",
-          exdir = dataPath)
-    unzip(file.path(dataPath,
-                    "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
-          exdir = dataPath)
-    file.remove(file.path(dataPath,
-                          "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"))
-  }
-  standAgeMap <- raster(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif"))
-  
-  # 3. species maps
-  specieslayers <- stack()
-  speciesnames <- c("Abie_Bal", "Abie_Las",
-                    "Betu_Pap", "Pice_Gla", "Pice_Mar", 
-                    "Pinu_Ban", "Pinu_Con", "Pinu_Str",
-                    "Popu_Tre", "Pseu_Men")
-  i <- 1
-  for(indispecies in speciesnames){
-    if(!all(paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.tif",
-                  c("",".aux.xml", ".xml"), sep = "") %in% checkContent_passed)){
-      untar(file.path(dataPath, "kNN-Species.tar"),
-            files = paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
-                          sep = ""),
-            exdir = dataPath)
-      unzip(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
-                                      sep = "")),
-            exdir = dataPath)
-      file.remove(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
-                                            sep = ""))) 
-      
-    }
-    speciesmap <- raster(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies,
-                                                   "_v0.tif", sep = "")))
-    specieslayers <- stack(specieslayers, speciesmap)
-    names(specieslayers)[i] <- indispecies
-    i <- i+1
-  }
-  
-  if(!("LCC2005_V1_4a.tif" %in% checkContent_passed)){
-    unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
-          exdir = dataPath)
-  }
-  LCC05 <- raster::raster(file.path(dataPath, "LCC2005_V1_4a.tif"))
-  
-  source('~/GitHub/landwebNRV/landwebNRV/R/initialCommunityMapProducer_kNN.R')
-  initialCommFiles <- initialCommunityMapProducer_kNN(speciesLayers = specieslayers, 
-                                                      speciesPresence = 50,
-                                                      studyArea = studyArea)
-  ecoregionstatus <- data.table(active = "yes",
-                                ecoregion = 1:1031)
-  source('~/GitHub/landwebNRV/landwebNRV/R/ecoregionMapProducer.R')
-  ecoregionFiles <- ecoregionMapProducer(studyAreaRaster = initialCommFiles$initialCommunityMap,
-                                         ecoregionMapFull = ecoDistrict,
-                                         ecoregionName = "ECODISTRIC",
-                                         ecoregionActiveStatus = ecoregionstatus,
-                                         studyArea = studyArea)
 
-  
-  
-  activeStatusTable <- data.table(active = c(rep("yes", 15), rep("no", 25)),
-                                  mapcode = 1:40)  # this is based on description
-  source('~/GitHub/landwebNRV/landwebNRV/R/nonactiveEcoFromRaster.R')
-  simulationMaps <- nonactiveEcoFromRaster(nonactiveRaster = LCC05,
-                                           activeStatus = activeStatusTable,
-                                           ecoregionMap = ecoregionFiles$ecoregionMap,
-                                           ecoregion = ecoregionFiles$ecoregion,
-                                           initialCommunityMap = initialCommFiles$initialCommunityMap,
-                                           initialCommunity = initialCommFiles$initialCommunity)
-  
-  source('~/GitHub/landwebNRV/landwebNRV/R/biomassAttributes_kNN.R')
-  speciesEcoregionTable <- biomassAttributes_kNN(speciesLayers = specieslayers,
-                                                 biomassLayer = biomassMap,
-                                                 SALayer = standAgeMap,
-                                                 ecoregionMap = simulationMaps$ecoregionMap)
-  source('~/GitHub/landwebNRV/landwebNRV/R/speciesRelativeAbundance_kNN.R')
-  speciesSEP <- speciesRelativeAbundance_kNN(ecoregionMap = simulationMaps$ecoregionMap,
-                                             speciesLayers = specieslayers)
-  # 
-  # 
-  septable <- speciesSEP$speciesAbundanceTable
-  # sepmaps <- speciesSEP$speciesAbundanceMaps
-  names(septable) <- c("ecoregion", "species", "SEP")
-  septable[, SEP:=round(SEP, 2)]
-  # 
-  # 
-  speciesEcoregionTable[, species:=as.character(species)]
-  septable[,species:=as.character(species)]
-  speciesEcoregionTable <- left_join(speciesEcoregionTable, septable, by = c("ecoregion", "species")) %>%
-    data.table
-  # 
-  speciesEcoregionTable[SEP==0, ':='(maxBiomass = 0, maxANPP = 0)]
-  # 
-  NON_NAdata <- speciesEcoregionTable[!is.na(maxBiomass),]
-  # 
-  NAdata <- speciesEcoregionTable[is.na(maxBiomass),]
-  if(nrow(NAdata) > 1){
-    # # replace NA values with ecoregion  value
-    source('~/GitHub/landwebNRV/landwebNRV/R/biomassAttributes_kNN_biggerEcoAddition.R')
-    # 
-    biomassFrombiggerMap <- biomassAttributes_kNN_biggerEcoAddition(speciesLayers = specieslayers,
-                                                                    biomassLayer = biomassMap,
-                                                                    SALayer = standAgeMap,
-                                                                    ecoregionMap = simulationMaps$ecoregionMap,
-                                                                    biggerEcoMap = ecoRegion,
-                                                                    NAData = NAdata)
-    NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
-    NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
-  }
-  if(nrow(NAdata) > 1){
-    names(ecoZone@data)[grep("ECOZONE",names(ecoZone@data))] <- "ECOREGION"
-    biomassFrombiggerMap <- biomassAttributes_kNN_biggerEcoAddition(speciesLayers = specieslayers,
-                                                                    biomassLayer = biomassMap,
-                                                                    SALayer = standAgeMap,
-                                                                    ecoregionMap = simulationMaps$ecoregionMap,
-                                                                    biggerEcoMap = ecoZone,
-                                                                    NAData = NAdata)
-    NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
-    NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
-  }
-  NAdata[,':='(maxBiomass=0, maxANPP=0, SEP=0)]
-  sim$speciesEcoregion <- rbind(NON_NAdata,NAdata)
-  sim$ecoregion <- simulationMaps$ecoregion
-  sim$ecoregionMap <- simulationMaps$ecoregionMap
-  sim$initialCommunities <- simulationMaps$initialCommunity
-  sim$initialCommunitiesMap <- simulationMaps$initialCommunityMap
-  
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
-
-
-
