@@ -6,7 +6,7 @@ library(dplyr)
 objects <- list()
 parameters <- list()
 times <- list(start = 0, end = 8)
-modules <- list("landWebParent")
+modules <- list("landWebDataPrep")
 path <- list(modulePath = file.path("~/GitHub/LandWeb"),
              outputPath="~/output")
 
