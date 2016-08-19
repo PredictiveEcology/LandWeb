@@ -362,10 +362,22 @@ landWebDataPrepEvent2 = function(sim) {
   sim$ecoregionMap <- simulationMaps$ecoregionMap
   sim$initialCommunities <- simulationMaps$initialCommunity
   sim$initialCommunitiesMap <- simulationMaps$initialCommunityMap
-  # species traits inputs
-  
+  saveRDS(simulationMaps$ecoregionMap,
+          file.path(modulePath(sim), "landWebDataPrep", "outputs", "ecoregionMap.rds"))
+  saveRDS(simulationMaps$initialCommunityMap,
+          file.path(modulePath(sim), "landWebDataPrep", "outputs", "initialCommunitiesMap.rds"))
+  write.csv(simulationMaps$ecoregion,
+            file.path(modulePath(sim), "landWebDataPrep", "outputs", "ecoregion.csv"),
+            row.names = FALSE)
+  write.csv(simulationMaps$initialCommunity,
+            file.path(modulePath(sim), "landWebDataPrep", "outputs", "initialCommunities.csv"),
+            row.names = FALSE)
+  write.csv(sim$speciesEcoregion,
+            file.path(modulePath(sim), "landWebDataPrep", "outputs", "speciesEcoregion.csv"),
+            row.names = FALSE)
 
-  speciesTable <- read.csv(file.path(dataPath, "species.csv"), header = TRUE,
+  # species traits inputs
+  speciesTable <- read.csv(file.path(dataPath, "speciesTraits.csv"), header = TRUE,
                       stringsAsFactors = FALSE) %>%
     data.table
   names(speciesTable) <- c("species", "Area", "longevity", "sexualmature", "shadetolerance", "firetolerance", 
@@ -373,6 +385,8 @@ landWebDataPrepEvent2 = function(sim) {
                            "resproutage_max", "postfireregen", "leaflongevity", "wooddecayrate", 
                            "mortalityshape", "growthcurve", "leafLignin", "hardsoft")
   speciesTable[,':='(Area = NULL, hardsoft = NULL)]
+  set(speciesTable, ,c("species1", "species2"), NA)
+  speciesTable[,':='(species1=NA, species2=NA)]
   speciesTable[, ':='(species1 = as.character(substring(species, 1, 4)),
                       species2 = as.character(substring(species, 6, nchar(species))))]
   
@@ -388,23 +402,10 @@ landWebDataPrepEvent2 = function(sim) {
   
   speciesTable <- speciesTable[species %in% speciesnames,][, ':='(species1 = NULL, species2 = NULL)]
   sim$speciesTable <- unique(speciesTable, by = "species")
-  # save the tables and maps
-  saveRDS(simulationMaps$ecoregionMap,
-          file.path(modulePath(sim), "landWebDataPrep", "outputs", "ecoregionMap.rds"))
-  saveRDS(simulationMaps$initialCommunityMap,
-          file.path(modulePath(sim), "landWebDataPrep", "outputs", "initialCommunitiesMap.rds"))
-  write.csv(simulationMaps$ecoregion,
-            file.path(modulePath(sim), "landWebDataPrep", "outputs", "ecoregion.csv"),
-            row.names = FALSE)
-  write.csv(simulationMaps$initialCommunity,
-            file.path(modulePath(sim), "landWebDataPrep", "outputs", "initialCommunities.csv"),
-            row.names = FALSE)
-  write.csv(sim$speciesEcoregion,
-            file.path(modulePath(sim), "landWebDataPrep", "outputs", "speciesEcoregion.csv"),
-            row.names = FALSE)
   write.csv(sim$speciesTable,
             file.path(modulePath(sim), "landWebDataPrep", "outputs", "speciesTable.csv"),
             row.names = FALSE)
+  # save the tables and maps
   # split initial community map and ecoregion map 5*5 with 100 pixels buffer (25000m buffer)
   # and save them for the simulation
   names(simulationMaps$ecoregionMap) <- "ecoregionMap"
