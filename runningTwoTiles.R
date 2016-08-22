@@ -1,6 +1,32 @@
 rm(list=ls())
 workingPath <- "~/GitHub/LandWeb/landWebDataPrep/outputs"
-load(file.path(workingPath, paste("simulationInputs_Tile", 17, ".RData", sep = "")))
+for(i in c(17, 18)){
+  load(file.path(workingPath, paste("simulationInputs_Tile", i, ".RData", sep = "")))
+  if(i == 17){
+    firstecoregionMap <- ecoregionMap
+    firstiniCommMap <- initialCommunitiesMap
+    firstIniComm <- initialCommunities
+    firstecoregion <- ecoregionTable
+    firstspecie <- speciesTable
+    firstspeciesEco <- speciesEcoregion
+    firstMinRe <- minRelativeB
+  } else {
+    ecoregionMap <- merge(ecoregionMap, firstecoregionMap)
+    initialCommunitiesMap <- merge(initialCommunitiesMap, firstiniCommMap)
+    initialCommunities <- rbind(initialCommunities, firstIniComm)  %>%
+      unique(., by = c("mapcode", "species"))
+    ecoregionTable <- rbind(ecoregionTable, firstecoregion) %>%
+      unique(., by = "mapcode")
+    speciesTable <- rbind(speciesTable, firstspecie) %>%
+      unique(., by = "species")
+    speciesEcoregion <- rbind(speciesEcoregion, firstspeciesEco) %>%
+      unique(., by = c("ecoregion", "species"))
+    minRelativeB <- rbind(minRelativeB, firstMinRe) %>%
+      unique(., by = "ecoregion")
+  }
+  
+}
+
 modules <- list("biomassSuccessionLANDIS")
 path <- list(modulePath=file.path("~/GitHub/LandWeb"),
              outputPath="~/output")
@@ -32,6 +58,6 @@ simuTimeR <- mySim$timeRecorder
 simuTimeR$FinT <- shift(simuTimeR[,.(systemTime)], fill = NA,
                         type = "lead")
 simuTimeR <- simuTimeR[!is.na(FinT),][, runningTime := FinT-systemTime]
-save.image("oneTilesimu.RData")
+save.image("twoTilesimu.RData")
 
 
