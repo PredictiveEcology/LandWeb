@@ -131,6 +131,7 @@ biomassSuccessionLANDISInit = function(sim) {
             communityGroup = as.integer(mapcode),
             mapcode = NULL)] %>%
     unique(., by = c("communityGroup", "species", "age"))
+  browser()
   species <- data.table(sim$species)[,speciesCode:=as.integer(as.factor(species))]
   tempspecies <- setkey(species[,.(species,speciesCode)], species)
   communities <- setkey(communities, species)[tempspecies, nomatch=0]
@@ -178,6 +179,7 @@ biomassSuccessionLANDISInit = function(sim) {
                                  successionTimestep = sim$successionTimestep,
                                  spinupMortalityfraction = sim$spinupMortalityfraction,
                                  species = sim$species)
+  browser()
   cohortData <- spinupstage$cohortData
   if(sim$calibrate){
     sim$spinupOutput <- spinupstage$spinupOutput
@@ -214,6 +216,7 @@ biomassSuccessionLANDISInit = function(sim) {
   sim$speciesEcoregion <- rbindlist(list(speciesEcoregion_True_addon, speciesEcoregion_True))[
     ,':='(year = year - min(year), identifier = NULL)]
   sim$lastFireYear <- "noFire"
+  sim$timeRecorder <- data.table(simuTime = numeric(), systemTime = numeric())
   return(invisible(sim))
 }
 
@@ -862,8 +865,12 @@ biomassSuccessionLANDISPlot = function(sim) {
   seekViewport("ANPPMap")
   grid.rect(1.02,1.07,width = 0.4,height = 0.1,gp = gpar(fill = "white", col = "white"))
   grid.text(label = paste0("Year = ",round(time(sim))),x = 1.02, y = 1.07)
-  landWebOutput(cohortdata = sim$cohortData, pixelgroupmap = sim$pixelGroupMap,
-                species = sim$species, year = time(sim), outputpath = paths(sim)$outputPath)
+  
+  # landWebOutput(cohortdata = sim$cohortData, pixelgroupmap = sim$pixelGroupMap,
+  #               species = sim$species, year = time(sim), outputpath = paths(sim)$outputPath)
+  sim$timeRecorder <- rbind(sim$timeRecorder,
+                            data.table(simuTime = as.numeric(time(sim)),
+                                       systemTime = as.numeric(Sys.time())))
   if(is.null(sim$produceMap)){sim$produceMap <- FALSE}
   if(sim$produceMap == TRUE){
     writeRaster(biomassMap, paste("biomassMap", round(time(sim)), ".tif",sep=""), datatype='INT4S',
