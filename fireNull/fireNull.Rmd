@@ -49,6 +49,8 @@ rm(foo)
 
 inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), "outputs")
+tmpDir <- file.path("/tmp","SpaDES") %>% checkPath(create=TRUE)
+
 times <- list(start = 0, end = 10)
 parameters <- list(
   # .progress = list(type = "text", interval = 1), # for a progress bar
@@ -64,7 +66,7 @@ modules <- list("initBaseMaps","fireDataPrep","fireNull")
 objects <- list(LCC05X=LCC05,shpStudyRegionX=shpStudyRegion)
 
 paths <- list(
-  cachePath = file.path(outputDir, "cache"),
+  cachePath = file.path(tmpDir, "cache"),
   modulePath = file.path("."), #SGC: is this really a sensible default?
   inputPath = inputDir,
   outputPath = outputDir

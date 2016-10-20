@@ -106,8 +106,8 @@ fireNullInit <- function(sim) {
   }
   
   #for any stats, we need to caculate how many burnable cells there are
-  N<- sum(!is.na(sim$rstBurnProb)) 
-  N<- N - which(sim$rstBurnProb[] == 1) # we will "mask" the lakes etc. with 0, not NA
+  N<- sum(!is.na(sim$rstBurnProb[]))
+  N<- N - length(which(sim$rstBurnProb[] == 1)) # we will "mask" the lakes etc. with 0, not NA
   sim$nBurnableCells <- N
   sim$burnLoci <- vector("numeric")
   ##
@@ -140,10 +140,10 @@ fireNullPlot <- function(sim) {
 fireNullBurn <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   browser()
-  N<-prod(dim(sim$rasterBurnProb))
-  sim$rasterCurrentBurn<-sim$rasterCurrentBurn*0 #zero, but preserve NAs
-  sim$burnLoci<-which(runif(N) < sim$rasterBurnProb) #this ignores any NAs in the map.
-  sim$rasterCurrentBurn[sim$burnLoci]<-1 #mark as burned.
+  N<-ncell(sim$rstBurnProb)
+  sim$rstCurrentBurn<-sim$rstCurrentBurn*0 #zero, but preserve NAs
+  sim$burnLoci<-which(runif(N) < sim$rstBurnProb) #this ignores any NAs in the map.
+  sim$rstCurrentBurn[sim$burnLoci]<-1 #mark as burned.
   
   return(invisible(sim))
 }
