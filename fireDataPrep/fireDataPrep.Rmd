@@ -1,0 +1,21 @@
+---
+title: "fireDataPrep"
+author: "Steve Cumming"
+date: "14 October 2016"
+output: pdf_document
+---
+
+# Overview
+
+Reclassify **sim$LCC05** into a binary **rstFlammable** where 1 codes for nonFlammable cells, 0 codes for flammable.
+
+Use **sim$shpStudyRegion** to generate **rstBurnProb** by rasterising the spatial polygon attribute **fireReturnInterval**.
+
+## RMarkdown
+
+
+# Events
+
+There is only an init event which does the reclassification and rasterising, placeing the results in the **sim** enviroinment
+
+
