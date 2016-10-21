@@ -8,7 +8,7 @@ bibliography: citation.bib
 
 # Overview
 
-This module provide a basic representation of spatially variable fire regime for the LandWeb study region. It can be used as a null fire model in any LandWeb simulation. 
+This module provide a basic representation of spatially variable fire regime. It is designed for use as a null fire model in LandWeb simulation. 
 
 The spatially variable fire regime paramater is the
 __Fire Return Interval__. We expect the parent LandWeb module to provide a shapefile in the sim environment that contains this element. The expected shapefile name is
@@ -35,7 +35,11 @@ inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), "outputs")
 times <- list(start = 0, end = 10)
 parameters <- list(
-  .globals = list(burnStats = "nPixelsBurned"),
+  fireNULL = list(startTime = 1,
+                  returnInterval = 1,
+                  doAgeMapping = FALSE,
+                  .statsInitialTime = 1
+  )
   #.progress = list(type = "text", interval = 1), # for a progress bar
   ## If there are further modules, each can have its own set of parameters:
   #module1 = list(param1 = value1, param2 = value2),
@@ -45,7 +49,7 @@ modules <- list("fireNull")
 objects <- list()
 paths <- list(
   cachePath = file.path(outputDir, "cache"),
-  modulePath = file.path(".."),
+  modulePath = file.path(".."), #SGC: is this really a sensible default?
   inputPath = inputDir,
   outputPath = outputDir
 )
@@ -70,7 +74,7 @@ If the __timeSinceFireMap__ exists, it is updated.
 
 ## Plotting
 
-No plots are generated
+No plots are generated unless the param doAgeMapping is TRUE, in which case the time since fire map is plotted.
 
 ## Saving
 
@@ -84,19 +88,23 @@ Some summary statistics are gathered, inherited from Cumming's vanWagner module.
 
 ## Input data
 
-__shapeFileFireRegime__ is defines the regions and species fire return interval
+__shapeFileFireRegime__ is defines the regions and species their fire return intervals; this value is expected in a field/collumn named __fireReturnInterval__
 
-__studyAreaRaster__ is the template raster for the study region
+__rasterStudyArea__ is the template raster for the study region
 
-__flammableMap__ if it exists, we assume its logical and confcorms with the templatem abd that 0s are unburny. 
+__LCC05__ raster of Land Cover. Must conform to rasterStudyArea. 
 
 ## Output data
 
 Description of the module outputs.
 
-__burnLoci__ a numeric vector of locations of burned cells relative to the template raster
+__rasterFlammable__ derived from __LCC05__ in the init module,
 
-__currentBurnMap__ a logical map of the currently burned locations, just a very long-winded representation of __burnLoci__
+__rasterBurnProb__ created in the init event from the shapefile and the template raster, but with non flammable cells set to 0. 
+
+__burnLoci__ annual: a numeric vector of locations of burned cells relative to the template raster
+
+__currentBurnMap__ annual: a logical map of the currently burned locations, just a very long-winded representation of __burnLoci__. This map conforms to the template raster.
 
 # Links to other modules
 
