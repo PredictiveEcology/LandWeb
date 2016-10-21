@@ -55,7 +55,7 @@ doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 initBaseMapsInit <- function(sim) {
  # 
-  browser()
+  #browser()
   simProjection <- crs(sim$LCC05X)
   #reproject sim$shpStudyRegion to accord with LCC05
   sim$shpStudyRegion <- spTransform(sim$shpStudyRegionX, CRSobj=simProjection)
@@ -64,8 +64,10 @@ initBaseMapsInit <- function(sim) {
   sim$LCC05[]<-sim$LCC05[] #this kludge has the effect of forcing hthe raster in memory.
   crs(sim$LCC05) <- simProjection #somebody once thought that crop does not preserve projections
                                   #so we are blindly propagating this code.  
-  tmp<-getColors(sim$lcc05)[[1]]
-  sim$LCC05 <- mask(sim$LCC05,sim$shpStudyRegion)
+  tmp<-getColors(sim$LCC05)[[1]]
+  sim$LCC05 <- SpaDES::cache(cachePath(sim),
+                                   mask,x=sim$LCC05,mask=sim$shpStudyRegion)
+  #sim$LCC05 <- mask(sim$LCC05,sim$shpStudyRegion)
   setColors(sim$LCC05, n = 256) <-  tmp #mask removes colors!
   return(invisible(sim))
 }

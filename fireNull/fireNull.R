@@ -45,6 +45,7 @@ defineModule(sim, list(
 doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     # do stuff for this event
+    #browser()
     sim <- sim$fireNullInit(sim)
     # schedule future event(s)
     sim <- scheduleEvent(sim, params(sim)$fireNull$startTime, "fireNull", "burn")
@@ -73,6 +74,7 @@ doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
     #schedule next burn event
     sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "burn")
   } else if (eventType == "stats"){
+    #browser()
     sim <- fireNullStatsF(sim)
     sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "stats")
   }
@@ -90,8 +92,9 @@ doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
 
 ### template initialization
 fireNullInit <- function(sim) {
-  browser()
+  #browser()
   sim$rstCurrentBurn <- sim$rstBurnProb * 0 #this conserves NAs
+  sim$rstCurrentBurn[] <- sim$rstCurrentBurn[]
   setColors(sim$rstCurrentBurn,n=2) <- colorRampPalette(c("grey90", "red"))(2)
  
    if (params(sim)$fireNull$doAgeMapping == TRUE){
@@ -107,7 +110,7 @@ fireNullInit <- function(sim) {
   
   #for any stats, we need to caculate how many burnable cells there are
   N<- sum(!is.na(sim$rstBurnProb[]))
-  N<- N - length(which(sim$rstBurnProb[] == 1)) # we will "mask" the lakes etc. with 0, not NA
+  N<- N - length(which(sim$rstBurnProb[] == 0)) # we will "mask" the lakes etc. with 0, not NA
   sim$nBurnableCells <- N
   sim$burnLoci <- vector("numeric")
   ##
@@ -139,10 +142,10 @@ fireNullPlot <- function(sim) {
 
 fireNullBurn <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
-  browser()
+  #browser()
   N<-ncell(sim$rstBurnProb)
   sim$rstCurrentBurn<-sim$rstCurrentBurn*0 #zero, but preserve NAs
-  sim$burnLoci<-which(runif(N) < sim$rstBurnProb) #this ignores any NAs in the map.
+  sim$burnLoci<-which(runif(N) < sim$rstBurnProb[]) #this ignores any NAs in the map.
   sim$rstCurrentBurn[sim$burnLoci]<-1 #mark as burned.
   
   return(invisible(sim))
@@ -150,7 +153,6 @@ fireNullBurn <- function(sim) {
 
 fireNullStatsF<-function(sim){
   N<- sim$nBurnableCells
-  
   sim$fireNullStats$rate<-c(sim$fireNullStats$rate,length(sim$burnLoci)/N)
   sim$fireNullStats$N<-c(sim$fireNullStats$N,length(sim$burnLoci))
   return(invisible(sim))

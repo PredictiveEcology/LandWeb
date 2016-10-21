@@ -59,9 +59,10 @@ doEvent.fireDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initialization
+
 fireDataPrepInit <- function(sim) {
   
-    browser()
+    #browser()
     nonFlammClasses<-c(36,37,38,39)
     oldClass <- 0:39
     newClass <- ifelse(oldClass %in% nonFlammClasses,1,0)   #1 codes for non flammable 

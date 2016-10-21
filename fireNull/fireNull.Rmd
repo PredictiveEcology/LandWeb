@@ -32,6 +32,7 @@ library(igraph)
 library(rgdal)
 library(raster)
 library(magrittr)
+library(archivist)
 library(SpaDES)
 
 
@@ -46,15 +47,17 @@ shpStudyRegion <- readOGR(foo,"shpLandweb")
 shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC #because of course it does.
 rm(foo)
 
-
+parentModule <- "fireNull" #which module should hold the cached data for GitHub
+                           #this would normally be a parent module, hence the name
 inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), "outputs")
-tmpDir <- file.path("/tmp","SpaDES") %>% checkPath(create=TRUE)
+moduleDir <- file.path(".")
+cacheDir <- file.path(moduleDir,parentModule,"data", "cache") %>% checkPath(create = TRUE)
 
-times <- list(start = 0, end = 10)
+times <- list(start = 0, end = 80)
 parameters <- list(
   # .progress = list(type = "text", interval = 1), # for a progress bar
-  fireNULL = list(startTime = 1,
+  fireNull = list(startTime = 1,
                   returnInterval = 1,
                   doAgeMapping = FALSE,
                   .statsInitialTime = 1
@@ -66,14 +69,15 @@ modules <- list("initBaseMaps","fireDataPrep","fireNull")
 objects <- list(LCC05X=LCC05,shpStudyRegionX=shpStudyRegion)
 
 paths <- list(
-  cachePath = file.path(tmpDir, "cache"),
-  modulePath = file.path("."), #SGC: is this really a sensible default?
+  modulePath = moduleDir,
+  cachePath = cacheDir,
   inputPath = inputDir,
   outputPath = outputDir
 )
 
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
+archivist::createLocalRepo(cachePath(mySim))
 #nxtSim<-spades(mySim)
 ```
 
