@@ -54,7 +54,7 @@ outputDir <- file.path(tempdir(), "outputs")
 moduleDir <- file.path(".")
 cacheDir <- file.path(moduleDir,parentModule,"data", "cache") %>% checkPath(create = TRUE)
 
-times <- list(start = 0, end = 80)
+times <- list(start = 0, end = 10)
 parameters <- list(
   # .progress = list(type = "text", interval = 1), # for a progress bar
   fireNull = list(startTime = 1,
