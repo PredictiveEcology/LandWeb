@@ -53,8 +53,9 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, params(sim)$timeSinceFire$.saveInitialTime, "timeSinceFire", "save")
     sim <- scheduleEvent(sim, params(sim)$timeSinceFire$startTime, "timeSinceFire", "age")
   } else if (eventType == "age") {
-    sim$rasterTimeSinceFire <- sim$rasterTimeSinceFire + params(sim)$fireNull$returnInterval #preserves NAs
-    sim$rasterTimeSinceFire[sim$burnLoci] = 0
+    #browser()
+    sim$rstTimeSinceFire <- sim$rstTimeSinceFire + params(sim)$timeSinceFire$returnInterval #preserves NAs
+    sim$rstTimeSinceFire[sim$burnLoci] <- 0
     #schedule next age event
     sim <- scheduleEvent(sim, time(sim) + params(sim)$timeSinceFire$returnInterval, "timeSinceFire", "age")
   } else if (eventType == "plot") {
@@ -90,11 +91,10 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
 
 ### template initialization
 timeSinceFireInit <- function(sim) {
-    #ideally, we would have loaded an actual initial age map based e.g.
-    #on inventory and or the national product that BEACONs uses 
-    #(see the BEACONs modules for details and source)
-    #sim$rasterTimeSinceFire <- sim$rasterBurnProb * 0 #this conserves NAs
-    sim$rstTimeSinceFire <- rasterize(sim$shpStudyRegion,sim$LCC05,field=tsf, mask=TRUE)
+    #browser()
+    FRI<-sim$shpStudyRegion$fireReturnInterval
+    sim$rstTimeSinceFire <- SpaDES::cache(cachePath(sim),
+                                           rasterize,x=sim$shpStudyRegion,y=sim$LCC05,field=FRI) #interesting bug
     sim$rstTimeSinceFire[] <- sim$rstTimeSinceFire[]   #force into memory
     sim$rstTimeSinceFire[which(sim$rstFlammable[] == 1)] <- NA #non-flammable areas are permanent.
     #assign legend and colours if you are serious
