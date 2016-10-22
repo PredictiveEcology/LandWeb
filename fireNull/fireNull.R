@@ -16,7 +16,6 @@ defineModule(sim, list(
   reqdPkgs = list("raster"),
   parameters = rbind( #should initial times be 0 or 1?
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
-    defineParameter("doAgeMapping", "logical", FALSE, FALSE, TRUE, desc="keep track of time since fire?"),
     defineParameter("returnInterval", "numeric", 1.0, NA, NA, desc="interval between main events"),
     defineParameter("startTime","numeric", 0, NA, NA, desc="time of first burn event"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, desc="This describes the simulation time at which the first plot event should occur"),
@@ -35,8 +34,8 @@ defineModule(sim, list(
     stringsAsFactors = FALSE
   ),
   outputObjects = data.frame(
-    objectName = c("burnLoci","rstCurrentBurn","rstTimeSinceFire"),
-    objectClass = c("vector", "RasterLayer", "RasterLayer"),
+    objectName = c("burnLoci","rstCurrentBurn"),
+    objectClass = c("vector", "RasterLayer"),
     other = NA_character_,
     stringsAsFactors = FALSE
   )
@@ -53,11 +52,6 @@ doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, params(sim)$fireNull$.saveInitialTime, "fireNull", "save")
     sim <- scheduleEvent(sim, params(sim)$fireNull$.statsInitialTime, "fireNull", "stats")
   } else if (eventType == "plot") {
-    # ! ----- EDIT BELOW ----- ! #
-    # do stuff for this event
-    if (params(sim)$fireNull$doAgeMapping == TRUE){
-      Plot(sim$timeSinceFireMap)
-    }
     Plot(sim$rstCurrentBurn)
     # e.g.,
     sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$.plotInterval, "fireNull", "plot")
@@ -66,12 +60,6 @@ doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$.saveInterval, "fireNull", "save")
   } else if (eventType == "burn") {
     sim <- fireNullBurn(sim)
-    #do some book-keeping, not part of the actual fire process
-    if (params(sim)$fireNull$doAgeMapping == TRUE){
-      sim$rasterTimeSinceFire <- sim$rasterTimeSinceFire + params(sim)$fireNull$returnInterval
-      sim$rasterTimeSinceFire[sim$burnLoci] = 0 
-    }
-    #schedule next burn event
     sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "burn")
   } else if (eventType == "stats"){
     #browser()
@@ -96,17 +84,6 @@ fireNullInit <- function(sim) {
   sim$rstCurrentBurn <- sim$rstBurnProb * 0 #this conserves NAs
   sim$rstCurrentBurn[] <- sim$rstCurrentBurn[]
   setColors(sim$rstCurrentBurn,n=2) <- colorRampPalette(c("grey90", "red"))(2)
- 
-   if (params(sim)$fireNull$doAgeMapping == TRUE){
-    #ideally, we would have loaded an actual initial age map based e.g.
-    #on inventory and or the national product that BEACONs uses 
-    #(see the BEACONs modules for details and source)
-    #sim$rasterTimeSinceFire <- sim$rasterBurnProb * 0 #this conserves NAs
-    tsf <- sim$shpStudyRegion$fireReturnInterval
-    sim$rstTimeSinceFire <- rasterize(sim$shpStudyRegion,sim$LCC05,field=tsf, mask=TRUE)
-    sim$rstTimeSinceFire[which(sim$rstFlammable[] == 1)] <- NA #non-flammable areas are permanent.
-    #assign legend and colours if you are serious
-  }
   
   #for any stats, we need to caculate how many burnable cells there are
   N<- sum(!is.na(sim$rstBurnProb[]))

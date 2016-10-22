@@ -1,0 +1,77 @@
+---
+title: "timeSinceFire"
+author: "Steve Cummming"
+date: "21 October 2016"
+output: pdf_document
+---
+
+# Overview
+
+Yet Another Age Map Maintainer.
+
+This one is peculiar to the LandWEB application.
+
+AgeMap is incremented without bound on all flammable cells;
+Cells identified as having been burned are set to 0.
+
+Any statistics on age structure are to be calculated here. 
+
+#
+
+```{r module_usage}
+library(SpaDES)
+library(magrittr)
+
+inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
+outputDir <- file.path(tempdir(), "outputs")
+times <- list(start = 0, end = 10)
+parameters <- list(
+  .globals = list(burnStats = "nPixelsBurned"),
+  #.progress = list(type = "text", interval = 1), # for a progress bar
+  ## If there are further modules, each can have its own set of parameters:
+  #module1 = list(param1 = value1, param2 = value2),
+  #module2 = list(param1 = value1, param2 = value2)
+)
+modules <- list("timeSinceFire")
+objects <- list()
+paths <- list(
+  cachePath = file.path(outputDir, "cache"),
+  modulePath = file.path(".."),
+  inputPath = inputDir,
+  outputPath = outputDir
+)
+
+mySim <- simInit(times = times, params = parameters, modules = modules,
+                 objects = objects, paths = paths)
+
+spades(mySim)
+```
+
+# Events
+
+Describe what happens for each event type.
+
+## Plotting
+
+Write what is plotted.
+
+## Saving
+
+Write what is saved.
+
+# Data dependencies
+
+## Input data
+
+How to obtain input data, and a description of the data required by the module.
+If `sourceURL` is specified, `downloadData("timeSinceFire", "path/to/modules/dir")` may be sufficient.
+
+## Output data
+
+Description of the module outputs.
+
+# Links to other modules
+
+Describe any anticipated linkages to other modules.
+
+
