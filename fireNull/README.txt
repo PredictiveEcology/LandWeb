@@ -1,3 +1,2 @@
 
-Any other details that a user may need to know, like where to get more information,
-where to download data, etc.
+This is neutral landscape fire model implementing the van Wagner model with regionally variable burn rates

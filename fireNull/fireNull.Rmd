@@ -28,36 +28,60 @@ According to @reed2006note, the equation relating __p__ and __f__ only applies i
 # Usage
 
 ```{r module_usage,eval=FALSE}
-library(SpaDES)
+library(igraph)
+library(rgdal)
+library(raster)
 library(magrittr)
+library(archivist)
+library(SpaDES)
 
+
+baseDir<-file.path("~","Dropbox","SpaDES","Data")
+LCC05 <-SpaDES::rasterToMemory(file.path(baseDir, 
+                                  "LandCoverOfCanada2005_V1_4",
+                                  "LCC2005_V1_4a.tif")
+                        )
+
+foo<-path.expand(file.path(baseDir,"LandWEB","shp")) #somebody does not like ~s
+shpStudyRegion <- readOGR(foo,"shpLandweb")
+shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC #because of course it does.
+rm(foo)
+
+parentModule <- "fireNull" #which module should hold the cached data for GitHub
+                           #this would normally be a parent module, hence the name
 inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), "outputs")
+moduleDir <- file.path(".")
+cacheDir <- file.path(moduleDir,parentModule,"data", "cache") %>% checkPath(create = TRUE)
+
 times <- list(start = 0, end = 10)
 parameters <- list(
-  fireNULL = list(startTime = 1,
+  # .progress = list(type = "text", interval = 1), # for a progress bar
+  fireNull = list(startTime = 1,
                   returnInterval = 1,
-                  doAgeMapping = FALSE,
                   .statsInitialTime = 1
-  )
-  #.progress = list(type = "text", interval = 1), # for a progress bar
-  ## If there are further modules, each can have its own set of parameters:
-  #module1 = list(param1 = value1, param2 = value2),
-  #module2 = list(param1 = value1, param2 = value2)
+  ),
+  timsSinceFire = list(startTime = 1,
+                  returnInterval = 1,
+                  .statsInitialTime = 1
+  ),
+  initBaseMaps = list(),
+  fireDataPrep = list()
 )
-modules <- list("fireNull")
-objects <- list()
+modules <- list("initBaseMaps","fireDataPrep","fireNull","timeSinceFire")
+objects <- list(LCC05X=LCC05,shpStudyRegionX=shpStudyRegion)
+
 paths <- list(
-  cachePath = file.path(outputDir, "cache"),
-  modulePath = file.path(".."), #SGC: is this really a sensible default?
+  modulePath = moduleDir,
+  cachePath = cacheDir,
   inputPath = inputDir,
   outputPath = outputDir
 )
 
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
-
-spades(mySim)
+#archivist::createLocalRepo(cachePath(mySim))
+#nxtSim<-spades(mySim)
 ```
 
 # Events
