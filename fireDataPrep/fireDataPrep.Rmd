@@ -7,7 +7,7 @@ output: pdf_document
 
 # Overview
 
-Reclassify **sim$LCC05** into a binary **rstFlammable** where 1 codes for nonFlammable cells, 0 codes for flammable.
+Reclassify **sim$LCC05** into a binary **rstFlammable** where 1 codes for nonFlammable cells, 0 codes for flammable. 
 
 Use **sim$shpStudyRegion** to generate **rstBurnProb** by rasterising the spatial polygon attribute **fireReturnInterval**.
 
@@ -16,6 +16,6 @@ Use **sim$shpStudyRegion** to generate **rstBurnProb** by rasterising the spatia
 
 # Events
 
-There is only an init event which does the reclassification and rasterising, placeing the results in the **sim** enviroinment
+There is only an init event which does the reclassification and rasterising, placeing the results in the **sim** environment
 
 
