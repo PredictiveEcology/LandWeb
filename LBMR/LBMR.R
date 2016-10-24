@@ -291,7 +291,7 @@ cacheSpinUpFunction <- function(sim, cachePath) {
     }
     # Step 2 - create a version of every function that is slow that includes the caching implicitly
     sim$spinUpCache <- function(...) {
-      archivist::cache(cacheRepo = sim$cacheLoc, FUN = spinUp, ...)
+      SpaDES::cache(cacheRepo = sim$cacheLoc, FUN = spinUp, ...)
     }
   } else {
     # Step 3 - create a non-caching version in case caching is not desired
