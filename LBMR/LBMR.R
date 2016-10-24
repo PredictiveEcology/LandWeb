@@ -1,3 +1,9 @@
+usesSpaDESVersion <- "1.3.1.9007"
+if (packageVersion("SpaDES") < usesSpaDESVersion) {
+  stop("This LBMR module was built with SpaDES version", usesSpaDESVersion,
+       "Please update SpaDES to use this module")
+}
+rm(usesSpaDESVersion)
 
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
@@ -9,7 +15,7 @@ defineModule(sim, list(
               person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@canada.ca", role=c("aut", "cre")),
               person(c("Jean"), "Marchal", email="jean.d.marchal@gmail.com", role=c("aut", "cre"))),
   childModules = character(0),
-  version = numeric_version("1.2.0.9010"),
+  version = numeric_version("1.2.0.9011"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
