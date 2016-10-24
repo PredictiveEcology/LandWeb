@@ -287,7 +287,7 @@ cacheSpinUpFunction <- function(sim, cachePath) {
     # Step 1a - check whether that location already exists
     if(!dir.exists(sim$cacheLoc) ){
       # Step 1b - if not, create it
-      archivist::createEmptyRepo(file.path(cachePath, "spinUp"))
+      archivist::createLocalRepo(file.path(cachePath, "spinUp"))
     }
     # Step 2 - create a version of every function that is slow that includes the caching implicitly
     sim$spinUpCache <- function(...) {
