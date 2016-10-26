@@ -81,7 +81,7 @@ fireDataPrepInit <- function(sim) {
     #                                 rasterize,x=sim$shpStudyRegion,y=sim$LCC05,field=pBurn)
     #doing this here ensures non-flammable cells are accounted for, 
     #no matter when/where rasterBurnProb and rasterFlammable are created.
-    sim$rstBurnProb[which(sim$rstFlammable[] == 1)] <- 0 #this could turn some NAs to 0s.
+    sim$rstBurnProb[sim$rstFlammable[] == 1] <- 0 #this could turn some NAs to 0s.
     
   return(invisible(sim))
 }
