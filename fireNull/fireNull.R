@@ -132,6 +132,7 @@ fireNullBurn <- function(sim) {
   sim$rstCurrentBurn<-sim$rstCurrentBurn*0 #zero, but preserve NAs
   sim$rstCurrentBurn[sim$burnLoci]<-1 #mark as burned.
   #sim$burnLoci<-runif(N) < sim$rstBurnProb[] #this ignores any NAs in the map.
+  sim$burnLoci<-which(sim$runifC(N) < sim$rstBurnProb[]) #this ignores any NAs in the map.
   
   return(invisible(sim))
 }
