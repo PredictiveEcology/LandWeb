@@ -90,6 +90,7 @@ fireNullInit <- function(sim) {
               return X;
               }", 
               env = envir(sim), cacheDir = cachePath(sim))
+  sim$rstZero <- sim$rstCurrentBurn
   setColors(sim$rstCurrentBurn,n=2) <- colorRampPalette(c("grey90", "red"))(2)
   
   #for any stats, we need to caculate how many burnable cells there are
