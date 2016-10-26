@@ -69,8 +69,8 @@ defineModule(sim, list(
                  desc = "should the detailed simulation information be outputed in 
                  spinupOutput and simulationTreeOutput, default is FALSE", 
                  sourceURL = "NA"),
-    expectsInput(objectName = "fireMap", objectClass = "RasterLayer", 
-                 desc = "a fire presence map, 0s and 1s", sourceURL = "NA")
+    expectsInput(objectName = "burnLoci", objectClass = "numeric", 
+                 desc = "a vector of pixel indices where a fire occured", sourceURL = "NA")
     ),
   outputObjects = bind_rows(
     createsOutput(objectName = "simulationOutput", objectClass = "data.table", 
