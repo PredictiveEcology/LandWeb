@@ -13,7 +13,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "fireNull.Rmd"),
-  reqdPkgs = list("raster"),
+  reqdPkgs = list("raster", "Rcpp"),
   parameters = rbind( #should initial times be 0 or 1?
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter("returnInterval", "numeric", 1.0, NA, NA, desc="interval between main events"),
@@ -83,6 +83,13 @@ fireNullInit <- function(sim) {
   #browser()
   sim$rstCurrentBurn <- sim$rstBurnProb * 0 #this conserves NAs
   sim$rstCurrentBurn[] <- sim$rstCurrentBurn[]
+  # Use Rcpp sugar runif function which is faster than R runif
+  cppFunction("NumericVector runifC(const int N) {
+              NumericVector X(N);
+              X = runif(N);
+              return X;
+              }", 
+              env = envir(sim), cacheDir = cachePath(sim))
   setColors(sim$rstCurrentBurn,n=2) <- colorRampPalette(c("grey90", "red"))(2)
   
   #for any stats, we need to caculate how many burnable cells there are
@@ -122,8 +129,8 @@ fireNullBurn <- function(sim) {
   #browser()
   N<-ncell(sim$rstBurnProb)
   sim$rstCurrentBurn<-sim$rstCurrentBurn*0 #zero, but preserve NAs
-  sim$burnLoci<-which(runif(N) < sim$rstBurnProb[]) #this ignores any NAs in the map.
   sim$rstCurrentBurn[sim$burnLoci]<-1 #mark as burned.
+  #sim$burnLoci<-runif(N) < sim$rstBurnProb[] #this ignores any NAs in the map.
   
   return(invisible(sim))
 }
