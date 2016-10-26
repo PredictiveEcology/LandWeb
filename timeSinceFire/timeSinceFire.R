@@ -53,7 +53,6 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, params(sim)$timeSinceFire$.saveInitialTime, "timeSinceFire", "save")
     sim <- scheduleEvent(sim, params(sim)$timeSinceFire$startTime, "timeSinceFire", "age")
   } else if (eventType == "age") {
-    #browser()
     sim$rstTimeSinceFire <- sim$rstTimeSinceFire + params(sim)$timeSinceFire$returnInterval #preserves NAs
     sim$rstTimeSinceFire[sim$burnLoci] <- 0
     #schedule next age event
@@ -92,11 +91,21 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 timeSinceFireInit <- function(sim) {
     #browser()
-    FRI<-sim$shpStudyRegion$fireReturnInterval
-    sim$rstTimeSinceFire <- SpaDES::cache(cachePath(sim),
-                                           rasterize,x=sim$shpStudyRegion,y=sim$LCC05,field=FRI) #interesting bug
-    sim$rstTimeSinceFire[] <- sim$rstTimeSinceFire[]   #force into memory
-    sim$rstTimeSinceFire[which(sim$rstFlammable[] == 1)] <- NA #non-flammable areas are permanent.
+  
+  # Much faster than call rasterize again
+  sim$rstTimeSinceFire <- raster(sim$shpStudyRegionRas)
+  sim$rstTimeSinceFire[] <- shpStudyRegion$LTHRC[sim$shpStudyRegionRas[]]
+  #print(all.equal(sim$rstTimeSinceFire1, sim$rstTimeSinceFire))
+  
+    #FRI<-sim$shpStudyRegion$fireReturnInterval
+    #browser()
+    #sim$rstTimeSinceFire <- SpaDES::cache(cachePath(sim),
+    #                                      rasterize,x=sim$shpStudyRegion,
+    #                                      y=sim$LCC05,
+    #                                      field=FRI) #interesting bug
+    #if(!inMemory(sim$rstTimeSinceFire))
+    #  sim$rstTimeSinceFire[] <- sim$rstTimeSinceFire[]   #force into memory
+    sim$rstTimeSinceFire[sim$rstFlammable[] == 1] <- NA #non-flammable areas are permanent.
     #assign legend and colours if you are serious
   return(invisible(sim))
 }

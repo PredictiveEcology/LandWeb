@@ -55,18 +55,26 @@ doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 initBaseMapsInit <- function(sim) {
  # 
-  #browser()
   simProjection <- crs(sim$LCC05X)
   #reproject sim$shpStudyRegion to accord with LCC05
-  sim$shpStudyRegion <- spTransform(sim$shpStudyRegionX, CRSobj=simProjection)
-  sim$LCC05 <- crop(sim$LCC05X,sim$shpStudyRegion)
+  sim$shpStudyRegion <- SpaDES::cache(cachePath(sim), 
+                                      spTransform, 
+                                      sim$shpStudyRegionX, CRSobj=simProjection)
+  sim$LCC05 <- SpaDES::cache(cachePath(sim),
+                             crop,sim$LCC05X,sim$shpStudyRegion)
   rm(LCC05X,envir=envir(sim))
-  sim$LCC05[]<-sim$LCC05[] #this kludge has the effect of forcing hthe raster in memory.
-  crs(sim$LCC05) <- simProjection #somebody once thought that crop does not preserve projections
+  #sim$LCC05[]<-sim$LCC05[] #this kludge has the effect of forcing hthe raster in memory.
+  #crs(sim$LCC05) <- simProjection #somebody once thought that crop does not preserve projections
                                   #so we are blindly propagating this code.  
   tmp<-getColors(sim$LCC05)[[1]]
-  sim$LCC05 <- SpaDES::cache(cachePath(sim),
-                                   mask,x=sim$LCC05,mask=sim$shpStudyRegion)
+  sim$shpStudyRegionRas <- SpaDES::cache(cachePath(sim),
+                                         rasterize, 
+                                         x = sim$shpStudyRegion,
+                                         y = sim$LCC05)#,
+                                         #field = "LTHRC") # Don't use field
+  
+  # Instead of mask, just use indexing
+  sim$LCC05[is.na(sim$shpStudyRegionRas[])] <- NA
   #sim$LCC05 <- mask(sim$LCC05,sim$shpStudyRegion)
   setColors(sim$LCC05, n = 256) <-  tmp #mask removes colors!
   return(invisible(sim))
