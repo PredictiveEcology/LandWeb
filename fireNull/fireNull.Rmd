@@ -35,17 +35,8 @@ library(magrittr)
 library(archivist)
 library(SpaDES)
 
-
+rasterOptions(maxmemory = 1e9)
 baseDir<-file.path("~","Dropbox","SpaDES","Data")
-LCC05 <-SpaDES::rasterToMemory(file.path(baseDir, 
-                                  "LandCoverOfCanada2005_V1_4",
-                                  "LCC2005_V1_4a.tif")
-                        )
-
-foo<-path.expand(file.path(baseDir,"LandWEB","shp")) #somebody does not like ~s
-shpStudyRegion <- readOGR(foo,"shpLandweb")
-shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC #because of course it does.
-rm(foo)
 
 parentModule <- "fireNull" #which module should hold the cached data for GitHub
                            #this would normally be a parent module, hence the name
@@ -54,7 +45,22 @@ outputDir <- file.path(tempdir(), "outputs")
 moduleDir <- file.path(".")
 cacheDir <- file.path(moduleDir,parentModule,"data", "cache") %>% checkPath(create = TRUE)
 
-times <- list(start = 0, end = 10)
+LCC05 <-raster(file.path(baseDir, 
+                                  "LandCoverOfCanada2005_V1_4",
+                                  "LCC2005_V1_4a.tif")
+                        )
+
+foo<-path.expand(file.path(baseDir,"LandWEB","shp")) #somebody does not like ~s
+shpStudyRegion <- SpaDES::cache(cacheDir, readOGR, foo,"shpLandWEB")
+shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC #because of course it does.
+rm(foo)
+
+colrs <- colorRampPalette(colors = c("red", "dark green"))(max(shpStudyRegion$fireReturnInterval))[shpStudyRegion$fireReturnInterval]
+
+spplot(shpStudyRegion["fireReturnInterval"])
+
+
+times <- list(start = 0, end =10)
 parameters <- list(
   # .progress = list(type = "text", interval = 1), # for a progress bar
   fireNull = list(startTime = 1,
@@ -77,11 +83,12 @@ paths <- list(
   inputPath = inputDir,
   outputPath = outputDir
 )
-
-mySim <- simInit(times = times, params = parameters, modules = modules,
-                 objects = objects, paths = paths)
+#devtools::load_all("~/GitHub/SpaDES/.")
+system.time(mySim <- simInit(times = times, params = parameters, 
+                       modules = modules, objects = objects, 
+                       paths = paths))
 #archivist::createLocalRepo(cachePath(mySim))
-#nxtSim<-spades(mySim)
+set.seed(123);system.time(nxtSim<-spades(SpaDES::copy(mySim), debug = TRUE))
 ```
 
 # Events
