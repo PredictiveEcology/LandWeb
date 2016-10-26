@@ -80,9 +80,6 @@ doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
 
 ### template initialization
 fireNullInit <- function(sim) {
-  #browser()
-  sim$rstCurrentBurn <- sim$rstBurnProb * 0 #this conserves NAs
-  sim$rstCurrentBurn[] <- sim$rstCurrentBurn[]
   # Use Rcpp sugar runif function which is faster than R runif
   cppFunction("NumericVector runifC(const int N) {
               NumericVector X(N);
@@ -90,19 +87,24 @@ fireNullInit <- function(sim) {
               return X;
               }", 
               env = envir(sim), cacheDir = cachePath(sim))
+  
+  sim$rstCurrentBurn <- raster(sim$rstBurnProb) 
+  sim$rstCurrentBurn[] <- sim$rstBurnProb[] * 0 #this conserves NAs
   sim$rstZero <- sim$rstCurrentBurn
+  #sim$rstCurrentBurn[] <- sim$rstCurrentBurn[]
   setColors(sim$rstCurrentBurn,n=2) <- colorRampPalette(c("grey90", "red"))(2)
   
   #for any stats, we need to caculate how many burnable cells there are
-  N<- sum(!is.na(sim$rstBurnProb[]))
-  N<- N - length(which(sim$rstBurnProb[] == 0)) # we will "mask" the lakes etc. with 0, not NA
+  N<- sum(sim$rstBurnProb[]>0, na.rm=TRUE) # can do in one step with na.rm = TRUE
+  #N<- sum(!is.na(sim$rstBurnProb[]))
+  #N<- N - sum(sim$rstBurnProb[] == 0, na.rm = TRUE) # we will "mask" the lakes etc. with 0, not NA
   sim$nBurnableCells <- N
   sim$burnLoci <- vector("numeric")
   ##
   sim$fireNullStats<-list(N=numeric(0),rate=numeric(0))
   
   return(invisible(sim))
-}
+  }
 
 ### template for save events
 fireNullSave <- function(sim) {
@@ -128,17 +130,27 @@ fireNullPlot <- function(sim) {
 fireNullBurn <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   #browser()
+  #currentBurn <- sim$rstZero[]
+  sim$rstCurrentBurn<-sim$rstZero #zero, but preserve NAs
+  ###
+  #notNAs <- which(!is.na(sim$rstCurrentBurn[]))
+  #N <- length(notNAs)
+  #sim$burnLoci<-notNAs[sim$runifC(N) < (sim$rstBurnProb[][notNAs])] #this ignores any NAs in the map.
+  
   N<-ncell(sim$rstBurnProb)
-  sim$rstCurrentBurn<-sim$rstCurrentBurn*0 #zero, but preserve NAs
-  sim$rstCurrentBurn[sim$burnLoci]<-1 #mark as burned.
   #sim$burnLoci<-runif(N) < sim$rstBurnProb[] #this ignores any NAs in the map.
   sim$burnLoci<-which(sim$runifC(N) < sim$rstBurnProb[]) #this ignores any NAs in the map.
+  ###
+  #currentBurn[sim$burnLoci] <- 1
+  sim$rstCurrentBurn[sim$burnLoci]<- 1 #currentBurn #mark as burned.
   
   return(invisible(sim))
 }
 
 fireNullStatsF<-function(sim){
   N<- sim$nBurnableCells
+  #sim$fireNullStats$rate<-c(sim$fireNullStats$rate,sum(sim$burnLoci)/N)
+  #sim$fireNullStats$N<-c(sim$fireNullStats$N,sum(sim$burnLoci))
   sim$fireNullStats$rate<-c(sim$fireNullStats$rate,length(sim$burnLoci)/N)
   sim$fireNullStats$N<-c(sim$fireNullStats$N,length(sim$burnLoci))
   return(invisible(sim))
