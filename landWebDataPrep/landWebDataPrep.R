@@ -36,12 +36,48 @@ defineModule(sim, list(
     other = NA_character_,
     stringsAsFactors = FALSE
   ),
-  outputObjects = data.frame(
-    objectName = NA_character_,
-    objectClass = NA_character_,
-    other = NA_character_,
-    stringsAsFactors = FALSE
-  )
+  outputObjects = bind_rows(
+    createsOutput(objectName = "initialCommunities", objectClass = "data.table",
+                 desc = "initial community table", 
+                 sourceURL = "https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/initial-communities.txt"),
+    createsOutput(objectName = "species", objectClass = "data.table", 
+                 desc = "a table that has species traits such as longevity...", 
+                 sourceURL = "https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/species.txt"),
+    createsOutput(objectName = "ecoregionMap", objectClass = "RasterLayer", 
+                 desc = "ecoregion map that has mapcodes match ecoregion table and speciesEcoregion table",
+                 sourceURL = "https://github.com/LANDIS-II-Foundation/Extensions-Succession/raw/master/biomass-succession-archive/trunk/tests/v6.0-2.0/ecoregions.gis"),
+    createsOutput(objectName = "initialCommunitiesMap", objectClass = "RasterLayer", 
+                 desc = "initial community map that has mapcodes match initial community table", 
+                 sourceURL = "https://github.com/LANDIS-II-Foundation/Extensions-Succession/raw/master/biomass-succession-archive/trunk/tests/v6.0-2.0/initial-communities.gis"),
+    createsOutput(objectName = "ecoregion", objectClass = "data.table", 
+                 desc = "ecoregion look up table", 
+                 sourceURL = "https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/ecoregions.txt"),
+    createsOutput(objectName = "speciesEcoregion", objectClass = "data.table", 
+                 desc = "define the maxANPP, maxB and SEP change with both ecoregion and simulation time", 
+                 sourceURL = "https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/biomass-succession-dynamic-inputs_test.txt"),
+    createsOutput(objectName = "minRelativeB", objectClass = "data.frame", 
+                 desc = "define the cut points to classify stand shadeness", 
+                 sourceURL = "https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/biomass-succession_test.txt"),
+    createsOutput(objectName = "sufficientLight", objectClass = "data.frame", 
+                 desc = "define how the species with different shade tolerance respond to stand shadeness",
+                 sourceURL = "https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/biomass-succession_test.txt"),
+    createsOutput(objectName = "spinupMortalityfraction", objectClass = "numeric", 
+                 desc = "define the mortality loss fraction in spin up-stage simulation, default is 0.001", 
+                 sourceURL = "NA"),
+    createsOutput(objectName = "successionTimestep", objectClass = "numeric", 
+                 desc = "define the simulation time step, default is 10 years", sourceURL = "NA"),
+    createsOutput(objectName = "cellSize", objectClass = "numeric", 
+                 desc = "define the cell size", sourceURL = "NA"),
+    createsOutput(objectName = "seedingAlgorithm", objectClass = "character", 
+                 desc = "choose which seeding algorithm will be used among noDispersal, universalDispersal,
+                 and wardDispersal, default is wardDispersal", sourceURL = "NA"),
+    createsOutput(objectName = "useCache", objectClass = "logic", 
+                 desc = "define which the caching for spinup simulation should be used, default is TRUE",
+                 sourceURL = "NA"),
+    createsOutput(objectName = "calibrate", objectClass = "logic", 
+                 desc = "should the detailed simulation information be outputed in 
+                 spinupOutput and simulationTreeOutput, default is FALSE", 
+                 sourceURL = "NA")
 ))
 
 ## event types
