@@ -35,6 +35,8 @@ library(magrittr)
 library(archivist)
 library(SpaDES)
 
+SMALL <- FALSE # change this if you want to run on just a small area for testing
+
 rasterOptions(maxmemory = 1e9)
 baseDir<-file.path("~","Dropbox","SpaDES","Data")
 
@@ -43,7 +45,10 @@ parentModule <- "fireNull" #which module should hold the cached data for GitHub
 inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), "outputs")
 moduleDir <- file.path(".")
-cacheDir <- file.path(moduleDir,parentModule,"data", "cache") %>% checkPath(create = TRUE)
+
+# For now, we can't share cache directory between people, so use one NOT in git repo
+setPaths() # sets default paths, including cachePath
+#cacheDir <- file.path(moduleDir,parentModule,"data", "cache") %>% checkPath(create = TRUE)
 
 LCC05 <-raster(file.path(baseDir, 
                                   "LandCoverOfCanada2005_V1_4",
@@ -51,16 +56,24 @@ LCC05 <-raster(file.path(baseDir,
                         )
 
 foo<-path.expand(file.path(baseDir,"LandWEB","shp")) #somebody does not like ~s
-shpStudyRegion <- SpaDES::cache(cacheDir, readOGR, foo,"shpLandWEB")
+shpStudyRegion <- SpaDES::cache(cacheDir, readOGR, foo,"shpLandWEB")#, notOlderThan = Sys.time())
 shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC #because of course it does.
 rm(foo)
+
+# small polygon for testing
+if(SMALL) {
+  smallExt <- new("Extent" , xmin = -983660, xmax = -899973, 
+                  ymin = 8007529, ymax = 8085986)
+  shpStudyRegion2 <- spTransform(shpStudyRegion, crs(LCC05))
+  shpStudyRegion <- crop(shpStudyRegion2, smallExt)
+}
 
 colrs <- colorRampPalette(colors = c("red", "dark green"))(max(shpStudyRegion$fireReturnInterval))[shpStudyRegion$fireReturnInterval]
 
 spplot(shpStudyRegion["fireReturnInterval"])
 
 
-times <- list(start = 0, end =10)
+times <- list(start = 0, end = 10)
 parameters <- list(
   # .progress = list(type = "text", interval = 1), # for a progress bar
   fireNull = list(startTime = 1,
@@ -79,7 +92,7 @@ objects <- list(LCC05X=LCC05,shpStudyRegionX=shpStudyRegion)
 
 paths <- list(
   modulePath = moduleDir,
-  cachePath = cacheDir,
+#  cachePath = cacheDir,
   inputPath = inputDir,
   outputPath = outputDir
 )
