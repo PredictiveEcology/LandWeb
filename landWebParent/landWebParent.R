@@ -7,7 +7,7 @@ defineModule(sim, list(
   2. connecting two childern modules, fire and veg",
   keywords = c("insert key words here"),
   authors = c(person(c("First", "Middle"), "Last", email="email@example.com", role=c("aut", "cre"))),
-  childModules = character(),
+  childModules = c("FireNull", "LBMR"),
   version = numeric_version("1.2.0.9006"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
