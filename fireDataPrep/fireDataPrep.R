@@ -22,8 +22,8 @@ defineModule(sim, list(
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur")
   ),
   inputObjects = data.frame(
-    objectName = c("LCC05", "shpStudyRegion"), 
-    objectClass = c("RasterLayer","SpatialPolygonsDataFrame"),
+    objectName = c("LCC05", "shpStudyRegion", "rasStudyRegion"), 
+    objectClass = c("RasterLayer","SpatialPolygonsDataFrame", "RasterLayer"),
     sourceURL = "",
     other = NA_character_,
     stringsAsFactors = FALSE
