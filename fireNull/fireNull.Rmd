@@ -74,7 +74,7 @@ parameters <- list(
   initBaseMaps = list(),
   fireDataPrep = list()
 )
-modules <- list("initBaseMaps","fireDataPrep","fireNull","timeSinceFire")
+modules <- list("initBaseMaps","fireDataPrep","fireNull","timeSinceFire")#, #"landWebDataPrep", "LBMR")
 objects <- list(LCC05X=LCC05,shpStudyRegionX=shpStudyRegion)
 
 paths <- list(
@@ -87,6 +87,7 @@ paths <- list(
 system.time(mySim <- simInit(times = times, params = parameters, 
                        modules = modules, objects = objects, 
                        paths = paths))
+
 #archivist::createLocalRepo(cachePath(mySim))
 set.seed(123);system.time(nxtSim<-spades(SpaDES::copy(mySim), debug = TRUE))
 ```

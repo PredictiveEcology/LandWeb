@@ -16,7 +16,8 @@ defineModule(sim, list(
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
-    defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur")
+    defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
+    defineParameter(".useCache", "numeric", TRUE, NA, NA, "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = data.frame(
     objectName = c("LCC05X", "shpStudyRegionX"),
@@ -26,8 +27,8 @@ defineModule(sim, list(
     stringsAsFactors = FALSE
   ),
   outputObjects = data.frame(
-    objectName = c("LCC05", "shpStudyRegion"),
-    objectClass = c("RasterLayer","SpatialPolygonsDataFrame"),
+    objectName = c("LCC05", "shpStudyRegion", "shpStudyRegionRas"),
+    objectClass = c("RasterLayer","SpatialPolygonsDataFrame", "RasterLayer"),
     other = NA_character_,
     stringsAsFactors = FALSE
   )
@@ -54,29 +55,31 @@ doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
 
 ### template initialization
 initBaseMapsInit <- function(sim) {
- # 
   simProjection <- crs(sim$LCC05X)
   #reproject sim$shpStudyRegion to accord with LCC05
-  sim$shpStudyRegion <- SpaDES::cache(cachePath(sim), 
-                                      spTransform, 
-                                      sim$shpStudyRegionX, CRSobj=simProjection)
+  sim$shpStudyRegion <- Cache(
+  #sim$shpStudyRegion <- SpaDES::cache(cachePath(sim), 
+                                       spTransform, 
+                                       sim$shpStudyRegionX, CRSobj=simProjection)
+  #sim$shpStudyRegion <- spTransform(sim$shpStudyRegionX, CRSobj=simProjection)
+  #sim$LCC05 <- crop(sim$LCC05X,sim$shpStudyRegion)
   sim$LCC05 <- SpaDES::cache(cachePath(sim),
-                             crop,sim$LCC05X,sim$shpStudyRegion)
+                              crop,sim$LCC05X,sim$shpStudyRegion)
   rm(LCC05X,envir=envir(sim))
-  #sim$LCC05[]<-sim$LCC05[] #this kludge has the effect of forcing hthe raster in memory.
-  #crs(sim$LCC05) <- simProjection #somebody once thought that crop does not preserve projections
-                                  #so we are blindly propagating this code.  
+  # #sim$LCC05[]<-sim$LCC05[] #this kludge has the effect of forcing hthe raster in memory.
+  # #crs(sim$LCC05) <- simProjection #somebody once thought that crop does not preserve projections
+  #                                 #so we are blindly propagating this code.  
   tmp<-getColors(sim$LCC05)[[1]]
   sim$shpStudyRegionRas <- SpaDES::cache(cachePath(sim),
-                                         rasterize, 
-                                         x = sim$shpStudyRegion,
-                                         y = sim$LCC05)#,
-                                         #field = "LTHRC") # Don't use field
-  
-  # Instead of mask, just use indexing
+                          rasterize,
+                                          x = sim$shpStudyRegion,
+                                          y = sim$LCC05)#,
+                                          #field = "LTHRC") # Don't use field
+  # 
+  # # Instead of mask, just use indexing
   sim$LCC05[is.na(sim$shpStudyRegionRas[])] <- NA
-  #sim$LCC05 <- mask(sim$LCC05,sim$shpStudyRegion)
-  setColors(sim$LCC05, n = 256) <-  tmp #mask removes colors!
+  # #sim$LCC05 <- mask(sim$LCC05,sim$shpStudyRegion)
+  # setColors(sim$LCC05, n = 256) <-  tmp #mask removes colors!
   return(invisible(sim))
 }
 

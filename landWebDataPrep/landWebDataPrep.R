@@ -624,19 +624,6 @@ landWebDataPrepEvent2 <- function(sim) {
                     "Popu_Tre", "Pseu_Men")
   i <- 1
   for(indispecies in speciesnames){
-    if(!all(paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.tif",
-                  c("",".aux.xml", ".xml"), sep = "") %in% checkContent_passed)){
-      untar(file.path(dataPath, "kNN-Species.tar"),
-            files = paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
-                          sep = ""),
-            exdir = dataPath)
-      unzip(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
-                                      sep = "")),
-            exdir = dataPath)
-      file.remove(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
-                                            sep = ""))) 
-      
-    }
     speciesmap <- raster(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies,
                                                    "_v0.tif", sep = "")))
     sim$specieslayers <- stack(sim$specieslayers, speciesmap)
