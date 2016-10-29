@@ -24,22 +24,23 @@ For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 rm(list = ls())
 library(igraph)
 library(SpaDES)
+library(raster)
 canadamap <- shapefile("~/GIS DataBase/Canada/Canada.shp")
 dev(4)
 clearPlot()
 Plot(canadamap)
-
 severalrandompoints <- clickCoordinates(10)
 studyarea <- SpatialPolygons(list(Polygons(list(Polygon(severalrandompoints$coords)), ID = 1)),
                              proj4string = crs(canadamap))
-
 inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), "outputs")
 times <- list(start = 0, end = 10)
 parameters <- list()
-modules <- list("landWeb_LBMRDataPrep")
+modules <- list("landWeb_LBMRDataPrep", "LBMR")
+# studyarea <- shapefile(file.path(".", "landWeb_LBMRDataPrep", "data", "shpLandWEB.shp"))
 objects <- list("studyArea" = studyarea,
-                "useCache" = FALSE)
+                "useCache" = TRUE,
+                "successionTimestep" = 2)
 paths <- list(
   cachePath = file.path("~", "landWeb_LBMRDataPrep", "cache"),
   modulePath = file.path("."),
@@ -50,6 +51,10 @@ mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
 simulation <- spades(mySim)
+
+
+
+
 ```
 
 # Events
