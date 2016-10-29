@@ -930,7 +930,8 @@ LBMRWardDispersalSeeding = function(sim) {
                               species = sim$species,
                               reducedPixelGroupMap,
                               maxPotentialsLength = 3e5,
-                              verbose = globals(sim)$verbose)
+                              verbose = FALSE)
+                              # verbose = globals(sim)$verbose)
     rm(seedReceive, seedSource)
     if(NROW(seedingData) > 0) {
       seedingData$ecoregionGroup <- getValues(sim$ecoregionMap)[seedingData$pixelIndex]
