@@ -288,16 +288,8 @@ LBMRInit <- function(sim) {
 cacheSpinUpFunction <- function(sim, cachePath) {
   # for slow functions, add cached versions. Then use sim$xxx() throughout module instead of xxx()
   if(sim$useCache) {
-    # Step 1 - create a location for the cached data
-    sim$cacheLoc <- file.path(cachePath, "spinUp")
-    # Step 1a - check whether that location already exists
-    if(!dir.exists(sim$cacheLoc) ){
-      # Step 1b - if not, create it
-      archivist::createLocalRepo(file.path(cachePath, "spinUp"))
-    }
-    # Step 2 - create a version of every function that is slow that includes the caching implicitly
     sim$spinUpCache <- function(...) {
-      SpaDES::cache(cacheRepo = sim$cacheLoc, FUN = spinUp, ...)
+      SpaDES::Cache(FUN = spinUp, ...)
     }
   } else {
     # Step 3 - create a non-caching version in case caching is not desired
