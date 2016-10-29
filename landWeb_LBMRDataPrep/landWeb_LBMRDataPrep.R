@@ -130,13 +130,13 @@ landWeb_LBMRDataPrepInit <- function(sim) {
     sim$standAgeMap <- projectRaster(sim$standAgeMap, crs = crs(sim$specieslayers),
                                      res = c(specieslayers_xres, specieslayers_yres)) 
   }
-  if(as.character(crs(sim$LCC05)) != specieslayers_crs |
-     xres(sim$LCC05) != specieslayers_xres |
-     yres(sim$LCC05) != specieslayers_yres){
-    sim$LCC05 <- sim$projectRasterCached(sim$LCC05, crs = crs(sim$specieslayers),
-                               res = c(specieslayers_xres, specieslayers_yres)) 
-  }
-  
+  # if(as.character(crs(sim$LCC05)) != specieslayers_crs |
+  #    xres(sim$LCC05) != specieslayers_xres |
+  #    yres(sim$LCC05) != specieslayers_yres){
+  #   sim$LCC05 <- sim$projectRasterCached(sim$LCC05, crs = crs(sim$specieslayers),
+  #                              res = c(specieslayers_xres, specieslayers_yres)) 
+  # }
+  # 
   # for the spatial polygons
   sim$studyArea <- spTransform(sim$studyArea, crs(sim$specieslayers))
   sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
@@ -185,33 +185,40 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   speciesEcoregionTable[SEP==0, ':='(maxBiomass = 0, maxANPP = 0)]
   NON_NAdata <- speciesEcoregionTable[!is.na(maxBiomass),]
   NAdata <- speciesEcoregionTable[is.na(maxBiomass),]
-  if(nrow(NAdata) > 1){
-    # # replace NA values with ecoregion  value
-    biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
-                                                                         biomassLayer = sim$biomassMap,
-                                                                         SALayer = sim$standAgeMap,
-                                                                         ecoregionMap = simulationMaps$ecoregionMap,
-                                                                         biggerEcoArea = sim$ecoRegion,
-                                                                         NAData = NAdata)
-    NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
-    NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
-  }
-  if(nrow(NAdata) > 1){
-    names(ecoZone@data)[grep("ECOZONE",names(ecoZone@data))] <- "ECOREGION"
-    biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
-                                                                         biomassLayer = sim$biomassMap,
-                                                                         SALayer = sim$standAgeMap,
-                                                                         ecoregionMap = simulationMaps$ecoregionMap,
-                                                                         biggerEcoArea = sim$ecoZone,
-                                                                         NAData = NAdata)
-    NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
-    NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
-  }
-  NAdata[,':='(maxBiomass=0, maxANPP=0, SEP=0)]
-  sim$speciesEcoregion <- rbind(NON_NAdata,NAdata)
+  # if(nrow(NAdata) > 1){
+  #   # # replace NA values with ecoregion  value
+  #   biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
+  #                                                                        biomassLayer = sim$biomassMap,
+  #                                                                        SALayer = sim$standAgeMap,
+  #                                                                        ecoregionMap = simulationMaps$ecoregionMap,
+  #                                                                        biggerEcoArea = sim$ecoRegion,
+  #                                                                        NAData = NAdata)
+  #   NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
+  #   NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
+  # }
+  # if(nrow(NAdata) > 1){
+  #   names(ecoZone@data)[grep("ECOZONE",names(ecoZone@data))] <- "ECOREGION"
+  #   biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
+  #                                                                        biomassLayer = sim$biomassMap,
+  #                                                                        SALayer = sim$standAgeMap,
+  #                                                                        ecoregionMap = simulationMaps$ecoregionMap,
+  #                                                                        biggerEcoArea = sim$ecoZone,
+  #                                                                        NAData = NAdata)
+  #   NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
+  #   NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
+  # }
+  # NAdata[,':='(maxBiomass=0, maxANPP=0, SEP=0)]
+  # speciesEcoregion <- rbind(NON_NAdata,NAdata)
+  speciesEcoregion <- NON_NAdata
+  setnames(speciesEcoregion, "ecoregion", "mapcode")
+  speciesEcoregion <- setkey(speciesEcoregion,
+                             mapcode)[setkey(simulationMaps$ecoregion, mapcode),
+                                      nomatch = 0][,.(year = 0, ecoregion, species,
+                                                      maxB = maxBiomass,
+                                                      maxANPP, establishprob = SEP)]
+  sim$speciesEcoregion <- speciesEcoregion
   sim$ecoregion <- simulationMaps$ecoregion
   sim$ecoregionMap <- simulationMaps$ecoregionMap
-  sim$initialCommunities <- simulationMaps$initialCommunity
   sim$initialCommunitiesMap <- simulationMaps$initialCommunityMap
   
   # species traits inputs
@@ -231,8 +238,23 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   speciesTable[species == "Pinu_Con.lat", species:="Pinu_Con"]
   
   
-  speciesTable <- speciesTable[species %in% names(sim$specieslayers),][, ':='(species1 = NULL, species2 = NULL)]
-  sim$species <- unique(speciesTable, by = "species")
+  speciesTable <- speciesTable[species %in% names(sim$specieslayers),][
+    , ':='(species1 = NULL, species2 = NULL)] %>%
+    unique(., by = "species")
+  initialCommunities <- simulationMaps$initialCommunity[,.(mapcode, description = NA,
+                                                           species)]
+  set(initialCommunities, , paste("age", 1:15, sep = ""), NA)
+  initialCommunities <- data.frame(initialCommunities)
+  set.seed(1)
+  for(i in 1:nrow(initialCommunities)){
+    agelength <- sample(1:15, 1)
+    ages <- sort(sample(1:speciesTable[species == initialCommunities$species[i],]$longevity,
+                   agelength))
+    initialCommunities[i, 4:(agelength+3)] <- ages
+  }
+  sim$initialCommunities <- data.table::data.table(initialCommunities)
+    
+  sim$species <- speciesTable
   sim$minRelativeB <- data.frame(ecoregion = sim$ecoregion[active == "yes",]$ecoregion, 
                                  X1 = 0.2, X2 = 0.4, X3 = 0.5, 
                                  X4 = 0.7, X5 = 0.9)
@@ -652,6 +674,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   sim$seedingAlgorithm <- "wardDispersal"
   sim$spinupMortalityfraction <- 0.002
   sim$cellSize <- 200
+  sim$successionTimeStep <- 10
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
