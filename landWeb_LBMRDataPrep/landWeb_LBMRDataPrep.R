@@ -190,17 +190,18 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                                          SALayer = sim$standAgeMap,
                                                                          ecoregionMap = simulationMaps$ecoregionMap,
                                                                          biggerEcoArea = sim$ecoRegion,
+                                                                         biggerEcoAreaSource = "ecoRegion",
                                                                          NAData = NAdata)
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
   }
   if(nrow(NAdata) > 1){
-    names(ecoZone@data)[grep("ECOZONE",names(ecoZone@data))] <- "ECOREGION"
     biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
                                                                          biomassLayer = sim$biomassMap,
                                                                          SALayer = sim$standAgeMap,
                                                                          ecoregionMap = simulationMaps$ecoregionMap,
                                                                          biggerEcoArea = sim$ecoZone,
+                                                                         biggerEcoAreaSource = "ecoZone",
                                                                          NAData = NAdata)
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
@@ -498,16 +499,26 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                                               SALayer,
                                               ecoregionMap,
                                               biggerEcoArea,
+                                              biggerEcoAreaSource,
                                               NAData) {
   subEcoregion <- ecoregionMap
   subEcoregion[!(getValues(subEcoregion) %in% unique(NAData$ecoregion))] <- NA
   subbiggerEcoMap <- raster::crop(biggerEcoArea, subEcoregion)
-  subbiggerEcoLevel <- unique(subbiggerEcoMap@data$ECOREGION)
-  subbigEcoMap <- biggerEcoArea[biggerEcoArea@data$ECOREGION %in% subbiggerEcoLevel,]
+  if(biggerEcoAreaSource == "ecoRegion"){
+    subbiggerEcoLevel <- unique(subbiggerEcoMap@data$ECOREGION)
+    subbigEcoMap <- biggerEcoArea[biggerEcoArea@data$ECOREGION %in% subbiggerEcoLevel,]
+  } else if (biggerEcoAreaSource == "ecoZone"){
+    subbiggerEcoLevel <- unique(subbiggerEcoMap@data$ECOZONE)
+    subbigEcoMap <- biggerEcoArea[biggerEcoArea@data$ECOZONE %in% subbiggerEcoLevel,]
+  }
   subbiggerEcoMap_Raster <- crop(biomassLayer, subbigEcoMap)
   subbiggerEcoMap_Raster <- setValues(subbiggerEcoMap_Raster, NA)
   for(indiEcoregion in subbiggerEcoLevel){
-    indiSubBiggerEcoMap <- subbigEcoMap[subbigEcoMap@data$ECOREGION == indiEcoregion,]
+    if(biggerEcoAreaSource == "ecoRegion"){
+      indiSubBiggerEcoMap <- subbigEcoMap[subbigEcoMap@data$ECOREGION == indiEcoregion,]
+    } else if (biggerEcoAreaSource == "ecoZone"){
+      indiSubBiggerEcoMap <- subbigEcoMap[subbigEcoMap@data$ECOZONE == indiEcoregion,]
+    }
     indiEcoMapRaster <- setValues(subbiggerEcoMap_Raster, indiEcoregion) 
     indiEcoMapRaster <- crop(indiEcoMapRaster, indiSubBiggerEcoMap)
     indiEcoMapRaster <- suppressWarnings(mask(indiEcoMapRaster, indiSubBiggerEcoMap))
