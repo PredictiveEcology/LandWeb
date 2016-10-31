@@ -48,7 +48,7 @@ moduleDir <- file.path(".")
 
 # For now, we can't share cache directory between people, so use one NOT in git repo
 setPaths() # sets default paths, including cachePath
-#cacheDir <- file.path(moduleDir,parentModule,"data", "cache") %>% checkPath(create = TRUE)
+cacheDir <- file.path(moduleDir,parentModule,"data", "cache") %>% checkPath(create = TRUE)
 
 LCC05 <-raster(file.path(baseDir, 
                                   "LandCoverOfCanada2005_V1_4",
@@ -102,7 +102,7 @@ system.time(mySim <- simInit(times = times, params = parameters,
                        paths = paths))
 
 #archivist::createLocalRepo(cachePath(mySim))
-set.seed(123);system.time(nxtSim<-spades(SpaDES::copy(mySim), debug = TRUE))
+#set.seed(123);system.time(nxtSim<-spades(SpaDES::copy(mySim), debug = TRUE))
 ```
 
 # Events
