@@ -27,7 +27,7 @@ defineModule(sim, list(
     stringsAsFactors = FALSE
   ),
   outputObjects = data.frame(
-    objectName = c("LCC05", "shpStudyRegion", "shpStudyRegionRas"),
+    objectName = c("LCC05", "shpStudyRegion", "rstStudyRegion"),
     objectClass = c("RasterLayer","SpatialPolygonsDataFrame", "RasterLayer"),
     other = NA_character_,
     stringsAsFactors = FALSE
@@ -70,14 +70,14 @@ initBaseMapsInit <- function(sim) {
   # #crs(sim$LCC05) <- simProjection #somebody once thought that crop does not preserve projections
   #                                 #so we are blindly propagating this code.  
   tmp<-getColors(sim$LCC05)[[1]]
-  sim$shpStudyRegionRas <- SpaDES::cache(cachePath(sim),
+  sim$rstStudyRegion <- SpaDES::cache(cachePath(sim),
                           rasterize,
                                           x = sim$shpStudyRegion,
                                           y = sim$LCC05)#,
                                           #field = "LTHRC") # Don't use field
   # 
   # # Instead of mask, just use indexing
-  sim$LCC05[is.na(sim$shpStudyRegionRas[])] <- NA
+  sim$LCC05[is.na(sim$rstStudyRegion[])] <- NA
   # #sim$LCC05 <- mask(sim$LCC05,sim$shpStudyRegion)
   # setColors(sim$LCC05, n = 256) <-  tmp #mask removes colors!
   return(invisible(sim))
