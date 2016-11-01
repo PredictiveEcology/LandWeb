@@ -44,7 +44,6 @@ doEvent.fireDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
-
     # do stuff for this event
     sim <- sim$fireDataPrepInit(sim)
   } else {
@@ -62,7 +61,6 @@ doEvent.fireDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 
 fireDataPrepInit <- function(sim) {
-  
     nonFlammClasses<-c(36,37,38,39)
     oldClass <- 0:39
     newClass <- ifelse(oldClass %in% nonFlammClasses,1,0)   #1 codes for non flammable 
@@ -73,8 +71,8 @@ fireDataPrepInit <- function(sim) {
     setColors(sim$rstFlammable,n=2) <- colorRampPalette(c("blue", "red"))(2) 
   
     # Much faster than call rasterize again
-    sim$rstBurnProb <- raster(sim$shpStudyRegionRas)
-    sim$rstBurnProb[] <- 1/(shpStudyRegion$LTHRC[sim$shpStudyRegionRas[]])
+    sim$rstBurnProb <- raster(sim$rstStudyRegion)
+    sim$rstBurnProb[] <- 1/(shpStudyRegion$LTHRC[sim$rstStudyRegion[]])
     
     #pBurn <- 1/sim$shpStudyRegion$fireReturnInterval
     #sim$rstBurnProb <- SpaDES::cache(cachePath(sim),
