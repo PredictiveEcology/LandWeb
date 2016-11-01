@@ -48,7 +48,7 @@ moduleDir <- file.path(".")
 
 # For now, we can't share cache directory between people, so use one NOT in git repo
 setPaths() # sets default paths, including cachePath
-cacheDir <- file.path(moduleDir,parentModule,"data", "cache") %>% checkPath(create = TRUE)
+cacheDir <- .paths()$cachePath
 
 LCC05 <-raster(file.path(baseDir, 
                                   "LandCoverOfCanada2005_V1_4",
