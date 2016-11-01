@@ -47,10 +47,12 @@ doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
     #browser()
     sim <- sim$fireNullInit(sim)
     # schedule future event(s)
-    sim <- scheduleEvent(sim, params(sim)$fireNull$startTime, "fireNull", "burn")
+    sim <- scheduleEvent(sim, params(sim)$fireNull$startTime, "fireNull", "burn",
+                         eventPriority = 1)
     sim <- scheduleEvent(sim, params(sim)$fireNull$.plotInitialTime, "fireNull", "plot")
     sim <- scheduleEvent(sim, params(sim)$fireNull$.saveInitialTime, "fireNull", "save")
-    sim <- scheduleEvent(sim, params(sim)$fireNull$.statsInitialTime, "fireNull", "stats")
+    sim <- scheduleEvent(sim, params(sim)$fireNull$.statsInitialTime, "fireNull", "stats",
+                         eventPriority = 2)
   } else if (eventType == "plot") {
     Plot(sim$rstCurrentBurn)
     # e.g.,
@@ -60,11 +62,13 @@ doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$.saveInterval, "fireNull", "save")
   } else if (eventType == "burn") {
     sim <- fireNullBurn(sim)
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "burn")
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "burn",
+                         eventPriority = 1)
   } else if (eventType == "stats"){
     #browser()
     sim <- fireNullStatsF(sim)
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "stats")
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "stats",
+                         eventPriority = 2)
   }
   else {
     warning(paste("Undefined event type: '", events(sim)[1, "eventType", with = FALSE],
