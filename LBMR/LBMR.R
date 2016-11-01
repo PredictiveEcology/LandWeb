@@ -1,10 +1,3 @@
-usesSpaDESVersion <- "1.3.1.9007"
-if (packageVersion("SpaDES") < usesSpaDESVersion) {
-  stop("This LBMR module was built with SpaDES version", usesSpaDESVersion,
-       "Please update SpaDES to use this module")
-}
-rm(usesSpaDESVersion)
-
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
@@ -69,6 +62,9 @@ defineModule(sim, list(
                  desc = "should the detailed simulation information be outputed in 
                  spinupOutput and simulationTreeOutput, default is FALSE", 
                  sourceURL = "NA"),
+    expectsInput(objectName = "rstCurrentBurn", objectClass = "RasterLayer", 
+                 desc = "a fire burn raster", 
+                 sourceURL = "NA"),
     expectsInput(objectName = "burnLoci", objectClass = "numeric", 
                  desc = "a vector of pixel indices where a fire occured", sourceURL = "NA")
     ),
@@ -101,71 +97,71 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$LBMRInit(sim)
     if(sim$successionTimestep != 1){
       sim <- scheduleEvent(sim, start(sim) + 2*sim$successionTimestep - 1, "LBMR",
-                           "cohortAgeReclassification")
+                           "cohortAgeReclassification", eventPriority = 0.5)
     }
     sim <- scheduleEvent(sim, start(sim) + params(sim)$LBMR$growthInitialTime,
-                         "LBMR", "mortalityAndGrowth")
+                         "LBMR", "mortalityAndGrowth", eventPriority = 8)
     sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
-                         "LBMR", "summaryBGM")
-    if(!is.null(sim$fireMap)){ # anything related to fire disturbance
+                         "LBMR", "summaryBGM", eventPriority = 6)
+    if(!is.null(sim$rstCurrentBurn)){ # anything related to fire disturbance
       sim <- scheduleEvent(sim, start(sim) + params(sim)$LBMR$fireDisturbanceInitialTime,
-                           "LBMR", "fireDisturbance")
+                           "LBMR", "fireDisturbance", eventPriority = 3)
     }
     if(sim$seedingAlgorithm == "noDispersal"){
-      sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep - 0.003,
-                           "LBMR", "noDispersalSeeding")
+      sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
+                           "LBMR", "noDispersalSeeding", eventPriority = 4)
     } else if(sim$seedingAlgorithm == "universalDispersal"){
-      sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep - 0.003,
-                           "LBMR", "universalDispersalSeeding")
+      sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
+                           "LBMR", "universalDispersalSeeding", eventPriority = 4)
     } else if(sim$seedingAlgorithm == "wardDispersal"){
-      sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep - 0.003,
-                           "LBMR", "wardDispersalSeeding")
+      sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
+                           "LBMR", "wardDispersalSeeding", eventPriority = 4)
     } else {
       stop("Undefined seed dispersal type!")
     }
-    sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep - 0.002,
-                         "LBMR", "summaryRegen")
     sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
-                         "LBMR", "plot")
+                         "LBMR", "summaryRegen", eventPriority = 5)
+    sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
+                         "LBMR", "plot", eventPriority = 7)
     sim <- scheduleEvent(sim, params(sim)$LBMR$.saveInitialTime,
                          "LBMR", "save")
-    
-    
   } else if (eventType == "mortalityAndGrowth") {
     sim <- LBMRMortalityAndGrowth(sim)
-    sim <- scheduleEvent(sim, time(sim) + 1, "LBMR", "mortalityAndGrowth")
+    sim <- scheduleEvent(sim, time(sim) + 1, "LBMR", "mortalityAndGrowth", eventPriority = 8)
   } else if (eventType == "summaryBGM"){
     sim <- LBMRSummaryBGM(sim)
     sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
-                         "LBMR", "summaryBGM")
-  } else if (eventType == "fireDisturbance" & !is.null(sim$fireMap)) {
+                         "LBMR", "summaryBGM",
+                         eventPriority = 6)
+  } else if (eventType == "fireDisturbance" & !is.null(sim$rstCurrentBurn)) {
     sim <- LBMRFireDisturbance(sim)
-    sim <- scheduleEvent(sim, time(sim) + sim$fireTimeStep,
-                         "LBMR", "fireDisturbance")
+    sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
+                         "LBMR", "fireDisturbance", 
+                         eventPriority = 3)
   } else if (eventType == "noDispersalSeeding" | eventType=="universalDispersalSeeding" | eventType=="wardDispersalSeeding") {
     if(sim$seedingAlgorithm=="noDispersal"){
       sim <- LBMRNoDispersalSeeding(sim)
       sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep, 
-                           "LBMR", "noDispersalSeeding")
+                           "LBMR", "noDispersalSeeding", eventPriority = 4)
     }
     if(sim$seedingAlgorithm == "universalDispersal"){
       sim <- LBMRUniversalDispersalSeeding(sim)
       sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep, 
-                           "LBMR", "universalDispersalSeeding")
+                           "LBMR", "universalDispersalSeeding", eventPriority = 4)
     }
     if(sim$seedingAlgorithm == "wardDispersal"){
       sim <- LBMRWardDispersalSeeding(sim)
       sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
-                           "LBMR", "wardDispersalSeeding")
+                           "LBMR", "wardDispersalSeeding", eventPriority = 4)
     }
   } else if (eventType == "summaryRegen"){
     sim <- LBMRSummaryRegen(sim)
     sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
-                         "LBMR", "summaryRegen")
+                         "LBMR", "summaryRegen", eventPriority = 5)
   } else if (eventType == "plot") {
     sim <- LBMRPlot(sim)
     sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
-                         "LBMR", "plot")
+                         "LBMR", "plot", eventPriority = 7)
   } else if (eventType == "save") {
     sim <- LBMRSave(sim)
     sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
@@ -173,7 +169,8 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
   } else if (eventType == "cohortAgeReclassification" & sim$successionTimestep != 1) {
     sim <- LBMRCohortAgeReclassification(sim)
     sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
-                         "LBMR", "cohortAgeReclassification")
+                         "LBMR", "cohortAgeReclassification",
+                         eventPriority = 0.5)
   } else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
@@ -574,13 +571,18 @@ LBMRFireDisturbance = function(sim) {
                                            species = character(), 
                                            numberOfRegen = numeric())
   }
-  if(length(sim$inactivePixelIndex) > 0){
-    sim$fireMap[sim$inactivePixelIndex] <- 0 # this is to prevent avaluating the pixels that are inactive
+  if(extent(sim$rstCurrentBurn) != extent(sim$pixelGroupMap)){
+   sim$rstCurrentBurn <- raster::crop(sim$rstCurrentBurn, extent(sim$pixelGroupMap))
+   sim$burnLoci <- Which(sim$rstCurrentBurn == 1, cell = TRUE)
   }
-  firePixelTable <- data.table(cbind(pixelIndex = Which(sim$fireMap == 1, cell = TRUE),
-                                     pixelGroup = sim$pixelGroupMap[Which(sim$fireMap == 1, cell = TRUE)]))
-  sim$pixelGroupMap[firePixelTable$pixelIndex] <- 0 # 0 is the fire burnt pixels without regenerations
-  burnedcohortData <- sim$cohortData[pixelGroup %in% unique(firePixelTable$pixelGroup)]
+  if(length(sim$inactivePixelIndex) > 0){
+    sim$burnLoci <- sim$burnLoci[!(sim$burnLoci %in% sim$inactivePixelIndex)] # this is to prevent avaluating the pixels that are inactive
+  }
+  firePixelTable <- data.table(cbind(pixelIndex = sim$burnLoci,
+                                     pixelGroup = sim$pixelGroupMap[sim$burnLoci]))
+  burnPixelGroup <- unique(firePixelTable$pixelGroup)
+  sim$pixelGroupMap[sim$burnLoci] <- 0 # 0 is the fire burnt pixels without regenerations
+  burnedcohortData <- sim$cohortData[pixelGroup %in% burnPixelGroup]
   set(burnedcohortData, ,c("B", "mortality", "aNPPAct"), NULL)
   #   set(burnedcohortData, ,c("sumB", "siteShade"), 0) # assume the fire burns all cohorts on site
   setkey(burnedcohortData, speciesCode)
@@ -982,11 +984,12 @@ LBMRPlot = function(sim) {
   ANPPMap <- sim$ANPPMap
   mortalityMap <- sim$mortalityMap
   reproductionMap <- sim$reproductionMap
+  fireMap <- sim$rstCurrentBurn
   dev(4)
   if(time(sim) == sim$successionTimestep){
     clearPlot()
   }
-  Plot(biomassMap, ANPPMap, mortalityMap, reproductionMap, new = TRUE, speedup = 1)
+  Plot(fireMap, biomassMap, ANPPMap, mortalityMap, reproductionMap, new = TRUE, speedup = 1)
   grid.rect(0.93, 0.97, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
   grid.text(label = paste0("Year = ",round(time(sim))), x = 0.93, y = 0.97)
   if(is.null(sim$produceMap)){sim$produceMap <- FALSE}
@@ -1199,8 +1202,8 @@ calcSiteShade <- function(time, cohortData, speciesEcoregion, minRelativeB) {
   setkey(minRelativeB, ecoregionGroup)
   bAMterm1 <- bAMterm1[minRelativeB, nomatch = 0]
   bAMterm1$bAM <- round(bAMterm1$bAM, 3)
-  bAMterm1[,siteShade := cut(bAM,c(0, X1, X2, X3, X4, X5, 1),
-                             labels = FALSE, right = FALSE, include.lowest = TRUE) - 1,by = pixelGroup]
+  bAMterm1[,siteShade := cut(bAM,sort(unique(c(0, X1, X2, X3, X4, X5, 1))),
+                             labels = FALSE, right = FALSE, include.lowest = TRUE) - 1, by = pixelGroup]
   bAMterm1 <- bAMterm1[,.(pixelGroup, siteShade)]
   return(bAMterm1)
 }
