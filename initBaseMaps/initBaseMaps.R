@@ -39,11 +39,6 @@ defineModule(sim, list(
 
 doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
-    ### check for more detailed object dependencies:
-    ### (use `checkObject` or similar)
-
-    # do stuff for this event
-    #sim <- initBaseMapCache(sim)
     sim <- sim$initBaseMapsInit(sim)
   } 
   else {
@@ -66,9 +61,6 @@ initBaseMapsInit <- function(sim) {
   sim$LCC05 <- SpaDES::cache(cachePath(sim),
                               crop,sim$LCC05X,sim$shpStudyRegion)
   rm(LCC05X,envir=envir(sim))
-  # #sim$LCC05[]<-sim$LCC05[] #this kludge has the effect of forcing hthe raster in memory.
-  # #crs(sim$LCC05) <- simProjection #somebody once thought that crop does not preserve projections
-  #                                 #so we are blindly propagating this code.  
   tmp<-getColors(sim$LCC05)[[1]]
   sim$rstStudyRegion <- SpaDES::cache(cachePath(sim),
                           rasterize,
@@ -78,8 +70,6 @@ initBaseMapsInit <- function(sim) {
   # 
   # # Instead of mask, just use indexing
   sim$LCC05[is.na(sim$rstStudyRegion[])] <- NA
-  # #sim$LCC05 <- mask(sim$LCC05,sim$shpStudyRegion)
-  # setColors(sim$LCC05, n = 256) <-  tmp #mask removes colors!
   return(invisible(sim))
 }
 

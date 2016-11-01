@@ -23,8 +23,8 @@ defineModule(sim, list(
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur")
   ),
   inputObjects = data.frame(
-    objectName = c("LCC05","rstFlammable","shpStudyRegion","burnLoci"),
-    objectClass = c("RasterLayer","RasterLayer","SpatialPolygonDataFrame","vector"),
+    objectName = c("LCC05","rstFlammable","rstStudyRegion","burnLoci"),
+    objectClass = c("RasterLayer","RasterLayer","RasterLayer","vector"),
     sourceURL = "",
     other = NA_character_,
     stringsAsFactors = FALSE
@@ -93,20 +93,10 @@ timeSinceFireInit <- function(sim) {
     #browser()
   
   # Much faster than call rasterize again
-  sim$rstTimeSinceFire <- raster(sim$shpStudyRegionRas)
-  sim$rstTimeSinceFire[] <- shpStudyRegion$LTHRC[sim$shpStudyRegionRas[]]
-  #print(all.equal(sim$rstTimeSinceFire1, sim$rstTimeSinceFire))
-  
-    #FRI<-sim$shpStudyRegion$fireReturnInterval
-    #browser()
-    #sim$rstTimeSinceFire <- SpaDES::cache(cachePath(sim),
-    #                                      rasterize,x=sim$shpStudyRegion,
-    #                                      y=sim$LCC05,
-    #                                      field=FRI) #interesting bug
-    #if(!inMemory(sim$rstTimeSinceFire))
-    #  sim$rstTimeSinceFire[] <- sim$rstTimeSinceFire[]   #force into memory
-    sim$rstTimeSinceFire[sim$rstFlammable[] == 1] <- NA #non-flammable areas are permanent.
-    #assign legend and colours if you are serious
+  sim$rstTimeSinceFire <- raster(sim$rstStudyRegion)
+  sim$rstTimeSinceFire[] <- shpStudyRegion$LTHRC[sim$rstStudyRegion[]]
+  sim$rstTimeSinceFire[sim$rstFlammable[] == 1] <- NA #non-flammable areas are permanent.
+  #assign legend and colours if you are serious
   return(invisible(sim))
 }
 

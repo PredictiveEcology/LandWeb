@@ -1,4 +1,4 @@
-
+o
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
@@ -88,7 +88,7 @@ fireNullInit <- function(sim) {
               }", 
               env = envir(sim), cacheDir = cachePath(sim))
   
-  sim$rstCurrentBurn <- raster(sim$rstBurnProb) 
+  sim$rstCurrentBurn <- raster(sim$rstBurnProb) #the rhs is an input object
   sim$rstCurrentBurn[] <- sim$rstBurnProb[] * 0 #this conserves NAs
   sim$rstZero <- sim$rstCurrentBurn
   #sim$rstCurrentBurn[] <- sim$rstCurrentBurn[]
@@ -96,8 +96,7 @@ fireNullInit <- function(sim) {
   
   #for any stats, we need to caculate how many burnable cells there are
   N<- sum(sim$rstBurnProb[]>0, na.rm=TRUE) # can do in one step with na.rm = TRUE
-  #N<- sum(!is.na(sim$rstBurnProb[]))
-  #N<- N - sum(sim$rstBurnProb[] == 0, na.rm = TRUE) # we will "mask" the lakes etc. with 0, not NA
+  #Lakes etc are coded 0, the crop is NA 
   sim$nBurnableCells <- N
   sim$burnLoci <- vector("numeric")
   ##
@@ -128,30 +127,19 @@ fireNullPlot <- function(sim) {
 
 
 fireNullBurn <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  #browser()
-  #currentBurn <- sim$rstZero[]
+  
   sim$rstCurrentBurn<-sim$rstZero #zero, but preserve NAs
-  ###
-  # notNAs <- which(!is.na(sim$rstCurrentBurn[]))
-  # N <- length(notNAs)
-  # sim$burnLoci<-notNAs[sim$runifC(N) < (sim$rstBurnProb[][notNAs])] #this ignores any NAs in the map.
   
   N<-ncell(sim$rstBurnProb)
   ###sim$burnLoci<-runif(N) < sim$rstBurnProb[] #this ignores any NAs in the map.
   sim$burnLoci<-which(sim$runifC(N) < sim$rstBurnProb[]) #this ignores any NAs in the map.
-  ###
-  #currentBurn[sim$burnLoci] <- 1
-  #browser()
   sim$rstCurrentBurn[sim$burnLoci]<- 1 #currentBurn #mark as burned.
-  
+
   return(invisible(sim))
 }
 
 fireNullStatsF<-function(sim){
   N<- sim$nBurnableCells
-  #sim$fireNullStats$rate<-c(sim$fireNullStats$rate,sum(sim$burnLoci)/N)
-  #sim$fireNullStats$N<-c(sim$fireNullStats$N,sum(sim$burnLoci))
   sim$fireNullStats$rate<-c(sim$fireNullStats$rate,length(sim$burnLoci)/N)
   sim$fireNullStats$N<-c(sim$fireNullStats$N,length(sim$burnLoci))
   return(invisible(sim))
