@@ -73,12 +73,11 @@ fireDataPrepInit <- function(sim) {
     setColors(sim$rstFlammable,n=2) <- colorRampPalette(c("blue", "red"))(2) 
   
     # Much faster than call rasterize again
-    sim$rstBurnProb <- raster(sim$shpStudyRegionRas)
-    sim$rstBurnProb[] <- 1/(shpStudyRegion$LTHRC[sim$shpStudyRegionRas[]])
+    sim$rstBurnProb <- raster(sim$rstStudyRegion)
+    #LTHRC is for some reason the field name of the regional fire cycles according to DA
+    sim$rstBurnProb[] <- (1/shpStudyRegion$LTHRC)[sim$rstStudyRegion[]]
     
-    #pBurn <- 1/sim$shpStudyRegion$fireReturnInterval
-    #sim$rstBurnProb <- SpaDES::cache(cachePath(sim),
-    #                                 rasterize,x=sim$shpStudyRegion,y=sim$LCC05,field=pBurn)
+  
     #doing this here ensures non-flammable cells are accounted for, 
     #no matter when/where rasterBurnProb and rasterFlammable are created.
     sim$rstBurnProb[sim$rstFlammable[] == 1] <- 0 #this could turn some NAs to 0s.
