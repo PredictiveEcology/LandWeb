@@ -114,30 +114,6 @@ doEvent.landWeb_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE
 ### template initialization
 landWeb_LBMRDataPrepInit <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  specieslayers_crs <- as.character(crs(sim$specieslayers))
-  specieslayers_xres <- xres(sim$specieslayers)
-  specieslayers_yres <- yres(sim$specieslayers)
-  
-  if(as.character(crs(sim$biomassMap)) != specieslayers_crs |
-     xres(sim$biomassMap) != specieslayers_xres |
-     yres(sim$biomassMap) != specieslayers_yres){
-    sim$biomassMap <- projectRaster(sim$biomassMap, crs = crs(sim$specieslayers),
-                                    res = c(specieslayers_xres, specieslayers_yres)) 
-  }
-  if(as.character(crs(sim$standAgeMap)) != specieslayers_crs |
-     xres(sim$standAgeMap) != specieslayers_xres |
-     yres(sim$standAgeMap) != specieslayers_yres){
-    sim$standAgeMap <- projectRaster(sim$standAgeMap, crs = crs(sim$specieslayers),
-                                     res = c(specieslayers_xres, specieslayers_yres)) 
-  }
-  # if(as.character(crs(sim$LCC05)) != specieslayers_crs |
-  #    xres(sim$LCC05) != specieslayers_xres |
-  #    yres(sim$LCC05) != specieslayers_yres){
-  #   sim$LCC05 <- sim$projectRasterCached(sim$LCC05, crs = crs(sim$specieslayers),
-  #                              res = c(specieslayers_xres, specieslayers_yres)) 
-  # }
-  # 
-  # for the spatial polygons
   sim$studyArea <- spTransform(sim$studyArea, crs(sim$specieslayers))
   sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
   sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$specieslayers))
@@ -159,7 +135,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   
   activeStatusTable <- data.table(active = c(rep("yes", 15), rep("no", 25)),
                                   mapcode = 1:40)  # this is based on description
-  simulationMaps <- sim$nonActiveEcoregionProducerCached(nonactiveRaster = sim$LCC05,
+  simulationMaps <- sim$nonActiveEcoregionProducerCached(nonactiveRaster = sim$LCC2005,
                                                          activeStatus = activeStatusTable,
                                                          ecoregionMap = ecoregionFiles$ecoregionMap,
                                                          ecoregion = ecoregionFiles$ecoregion,
@@ -668,7 +644,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
           exdir = dataPath)
   }
-  sim$LCC05 <- raster(file.path(dataPath, "LCC2005_V1_4a.tif"))
+  # sim$LCC2005 <- raster(file.path(dataPath, "LCC2005_V1_4a.tif"))
+  # projection(sim$LCC2005) <- projection(sim$specieslayers)
   sim$speciesTable <- read.csv(file.path(dataPath, "speciesTraits.csv"), header = TRUE,
                                stringsAsFactors = FALSE) %>%
     data.table
