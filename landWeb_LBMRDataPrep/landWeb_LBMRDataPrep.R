@@ -114,30 +114,6 @@ doEvent.landWeb_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE
 ### template initialization
 landWeb_LBMRDataPrepInit <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  specieslayers_crs <- as.character(crs(sim$specieslayers))
-  specieslayers_xres <- xres(sim$specieslayers)
-  specieslayers_yres <- yres(sim$specieslayers)
-  
-  if(as.character(crs(sim$biomassMap)) != specieslayers_crs |
-     xres(sim$biomassMap) != specieslayers_xres |
-     yres(sim$biomassMap) != specieslayers_yres){
-    sim$biomassMap <- projectRaster(sim$biomassMap, crs = crs(sim$specieslayers),
-                                    res = c(specieslayers_xres, specieslayers_yres)) 
-  }
-  if(as.character(crs(sim$standAgeMap)) != specieslayers_crs |
-     xres(sim$standAgeMap) != specieslayers_xres |
-     yres(sim$standAgeMap) != specieslayers_yres){
-    sim$standAgeMap <- projectRaster(sim$standAgeMap, crs = crs(sim$specieslayers),
-                                     res = c(specieslayers_xres, specieslayers_yres)) 
-  }
-  # if(as.character(crs(sim$LCC05)) != specieslayers_crs |
-  #    xres(sim$LCC05) != specieslayers_xres |
-  #    yres(sim$LCC05) != specieslayers_yres){
-  #   sim$LCC05 <- sim$projectRasterCached(sim$LCC05, crs = crs(sim$specieslayers),
-  #                              res = c(specieslayers_xres, specieslayers_yres)) 
-  # }
-  # 
-  # for the spatial polygons
   sim$studyArea <- spTransform(sim$studyArea, crs(sim$specieslayers))
   sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
   sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$specieslayers))
@@ -159,7 +135,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   
   activeStatusTable <- data.table(active = c(rep("yes", 15), rep("no", 25)),
                                   mapcode = 1:40)  # this is based on description
-  simulationMaps <- sim$nonActiveEcoregionProducerCached(nonactiveRaster = sim$LCC05,
+  simulationMaps <- sim$nonActiveEcoregionProducerCached(nonactiveRaster = sim$LCC2005,
                                                          activeStatus = activeStatusTable,
                                                          ecoregionMap = ecoregionFiles$ecoregionMap,
                                                          ecoregion = ecoregionFiles$ecoregion,
@@ -568,74 +544,88 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   # }
   # ! ----- EDIT BELOW ----- ! #
   dataPath <- file.path(modulePath(sim), "landWeb_LBMRDataPrep", "data")
-  checkTable <- data.table(downloadData(module = "landWeb_LBMRDataPrep", path = modulePath(sim)))
-  checkContent_passed <- checkTable[result == "OK",]$expectedFile
-  # study area should be provided by Dr. David Anderson
-  # Dr. Steve Cumming will provide a temperary one
-  if(!all(c("ecodistricts.dbf", "ecodistricts.prj", "ecodistricts.sbn", 
-            "ecodistricts.sbx", "ecodistricts.shp", "ecodistricts.shx") %in% checkContent_passed)){
-    unzip(zipfile = file.path(dataPath, "ecodistrict_shp.zip"),
-          exdir = dataPath)
-    filenames <- dir(file.path(dataPath, "Ecodistricts"))
-    file.copy(from = file.path(dataPath, "Ecodistricts", filenames),
-              to = file.path(dataPath, filenames),
-              overwrite = TRUE)
-    unlink(file.path(dataPath, "Ecodistricts"), recursive = TRUE) 
-    rm(filenames)
+  fileNames <- dir(dataPath, full.names = TRUE)
+  allFiles <- lapply(fileNames, function(x) {
+    file.info(x)[,"size"]}
+    )
+  names(allFiles) <- unlist(lapply(fileNames, basename))
+  needDownload <- digest::digest(allFiles) != "3a12d4ef15d1d416d016a55faba0922f"
+    
+  if(needDownload) {
+    
+    
+    checkTable <- data.table(downloadData(module = "landWeb_LBMRDataPrep", path = modulePath(sim)))
+    checkContent_passed <- checkTable[result == "OK",]$expectedFile
+    # study area should be provided by Dr. David Anderson
+    # Dr. Steve Cumming will provide a temperary one
+    if(!all(c("ecodistricts.dbf", "ecodistricts.prj", "ecodistricts.sbn", 
+              "ecodistricts.sbx", "ecodistricts.shp", "ecodistricts.shx") %in% checkContent_passed)){
+      unzip(zipfile = file.path(dataPath, "ecodistrict_shp.zip"),
+            exdir = dataPath)
+      filenames <- dir(file.path(dataPath, "Ecodistricts"))
+      file.copy(from = file.path(dataPath, "Ecodistricts", filenames),
+                to = file.path(dataPath, filenames),
+                overwrite = TRUE)
+      unlink(file.path(dataPath, "Ecodistricts"), recursive = TRUE) 
+      rm(filenames)
+    }
+    if(!all(c("ecoregions.dbf", "ecoregions.prj", "ecoregions.sbn", 
+              "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% checkContent_passed)){
+      unzip(zipfile = file.path(dataPath, "ecoregion_shp.zip"),
+            exdir = dataPath)
+      filenames <- dir(file.path(dataPath, "Ecoregions"))
+      file.copy(from = file.path(dataPath, "Ecoregions", filenames),
+                to = file.path(dataPath, filenames),
+                overwrite = TRUE)
+      unlink(file.path(dataPath, "Ecoregions"), recursive = TRUE) 
+      rm(filenames)
+    } 
+    if(!all(c("ecoregions.dbf", "ecoregions.prj", "ecoregions.sbn", 
+              "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% checkContent_passed)){
+      unzip(zipfile = file.path(dataPath, "ecozone_shp.zip"),
+            exdir = dataPath)
+      filenames <- dir(file.path(dataPath, "Ecozones"))
+      file.copy(from = file.path(dataPath, "Ecozones", filenames),
+                to = file.path(dataPath, filenames),
+                overwrite = TRUE)
+      unlink(file.path(dataPath, "Ecozones"), recursive = TRUE) 
+    } 
+    if(!all(c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
+              "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
+              "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml") %in%
+            checkContent_passed)){
+      untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
+            files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
+            exdir = dataPath)
+      biomassMaps <- unzip(file.path(dataPath,
+                                     "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
+                           exdir = dataPath)
+      file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
+    }
+    
+    
+    # 2. stand age map
+    if(!all(c("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif",
+              "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.aux.xml",
+              "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.xml") %in% checkContent_passed)){
+      untar(file.path(dataPath, "kNN-StructureStandVolume.tar"),
+            files = "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip",
+            exdir = dataPath)
+      unzip(file.path(dataPath,
+                      "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
+            exdir = dataPath)
+      file.remove(file.path(dataPath,
+                            "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"))
+    }
+  } else {
+    message("  Download data step skipped for module landWeb_LBMRDataPrep. Local copy exists")
   }
   sim$ecoDistrict <- raster::shapefile(file.path(dataPath, "ecodistricts.shp"))
-  if(!all(c("ecoregions.dbf", "ecoregions.prj", "ecoregions.sbn", 
-            "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% checkContent_passed)){
-    unzip(zipfile = file.path(dataPath, "ecoregion_shp.zip"),
-          exdir = dataPath)
-    filenames <- dir(file.path(dataPath, "Ecoregions"))
-    file.copy(from = file.path(dataPath, "Ecoregions", filenames),
-              to = file.path(dataPath, filenames),
-              overwrite = TRUE)
-    unlink(file.path(dataPath, "Ecoregions"), recursive = TRUE) 
-    rm(filenames)
-  } 
   sim$ecoRegion <- raster::shapefile(file.path(dataPath, "ecoregions.shp"))
-  if(!all(c("ecoregions.dbf", "ecoregions.prj", "ecoregions.sbn", 
-            "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% checkContent_passed)){
-    unzip(zipfile = file.path(dataPath, "ecozone_shp.zip"),
-          exdir = dataPath)
-    filenames <- dir(file.path(dataPath, "Ecozones"))
-    file.copy(from = file.path(dataPath, "Ecozones", filenames),
-              to = file.path(dataPath, filenames),
-              overwrite = TRUE)
-    unlink(file.path(dataPath, "Ecozones"), recursive = TRUE) 
-  } 
   sim$ecoZone <- raster::shapefile(file.path(dataPath, "ecozones.shp"))
-  if(!all(c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
-            "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
-            "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml") %in%
-          checkContent_passed)){
-    untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
-          files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
-          exdir = dataPath)
-    biomassMaps <- unzip(file.path(dataPath,
-                                   "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
-                         exdir = dataPath)
-    file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
-  }
   sim$biomassMap <- raster(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif"))
-  
-  
-  # 2. stand age map
-  if(!all(c("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif",
-            "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.aux.xml",
-            "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.xml") %in% checkContent_passed)){
-    untar(file.path(dataPath, "kNN-StructureStandVolume.tar"),
-          files = "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip",
-          exdir = dataPath)
-    unzip(file.path(dataPath,
-                    "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
-          exdir = dataPath)
-    file.remove(file.path(dataPath,
-                          "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"))
-  }
   sim$standAgeMap <- raster(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif"))
+  
   
   # 3. species maps
   sim$specieslayers <- stack()
@@ -645,18 +635,21 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                     "Popu_Tre", "Pseu_Men")
   i <- 1
   for(indispecies in speciesnames){
-    if(!all(paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.tif",
-                  c("",".aux.xml", ".xml"), sep = "") %in% checkContent_passed)){
-      untar(file.path(dataPath, "kNN-Species.tar"),
-            files = paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
-                          sep = ""),
-            exdir = dataPath)
-      unzip(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
-                                      sep = "")),
-            exdir = dataPath)
-      file.remove(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
-                                            sep = ""))) 
+    if(needDownload) {
       
+      if(!all(paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.tif",
+                    c("",".aux.xml", ".xml"), sep = "") %in% checkContent_passed)){
+        untar(file.path(dataPath, "kNN-Species.tar"),
+              files = paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
+                            sep = ""),
+              exdir = dataPath)
+        unzip(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
+                                        sep = "")),
+              exdir = dataPath)
+        file.remove(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
+                                              sep = ""))) 
+        
+      }
     }
     speciesmap <- raster(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies,
                                                    "_v0.tif", sep = "")))
@@ -664,11 +657,16 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     names(sim$specieslayers)[i] <- indispecies
     i <- i+1
   }
-  if(!("LCC2005_V1_4a.tif" %in% checkContent_passed)){
-    unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
-          exdir = dataPath)
+  
+  if(needDownload) {
+    
+    if(!("LCC2005_V1_4a.tif" %in% checkContent_passed)){
+      unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
+            exdir = dataPath)
+    }
   }
-  sim$LCC05 <- raster(file.path(dataPath, "LCC2005_V1_4a.tif"))
+  sim$LCC2005 <- raster(file.path(dataPath, "LCC2005_V1_4a.tif"))
+  # projection(sim$LCC2005) <- projection(sim$specieslayers)
   sim$speciesTable <- read.csv(file.path(dataPath, "speciesTraits.csv"), header = TRUE,
                                stringsAsFactors = FALSE) %>%
     data.table
@@ -681,7 +679,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   
   sim$seedingAlgorithm <- "wardDispersal"
   sim$spinupMortalityfraction <- 0.002
-  sim$cellSize <- 200
+  sim$cellSize <- 250
   sim$successionTimeStep <- 10
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
