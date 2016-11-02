@@ -44,7 +44,6 @@ doEvent.fireDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
-
     # do stuff for this event
     sim <- sim$fireDataPrepInit(sim)
   } else {
@@ -62,7 +61,6 @@ doEvent.fireDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 
 fireDataPrepInit <- function(sim) {
-  
     nonFlammClasses<-c(36,37,38,39)
     oldClass <- 0:39
     newClass <- ifelse(oldClass %in% nonFlammClasses,1,0)   #1 codes for non flammable 
