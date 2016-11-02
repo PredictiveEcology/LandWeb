@@ -1,4 +1,4 @@
-o
+
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
@@ -89,23 +89,23 @@ fireNullInit <- function(sim) {
               NumericVector X(N);
               X = runif(N);
               return X;
-              }", 
+              }",
               env = envir(sim), cacheDir = cachePath(sim))
-  
+
   sim$rstCurrentBurn <- raster(sim$rstBurnProb) #the rhs is an input object
   sim$rstCurrentBurn[] <- sim$rstBurnProb[] * 0 #this conserves NAs
   sim$rstZero <- sim$rstCurrentBurn
   #sim$rstCurrentBurn[] <- sim$rstCurrentBurn[]
   setColors(sim$rstCurrentBurn,n=2) <- colorRampPalette(c("grey90", "red"))(2)
-  
+
   #for any stats, we need to caculate how many burnable cells there are
   N<- sum(sim$rstBurnProb[]>0, na.rm=TRUE) # can do in one step with na.rm = TRUE
-  #Lakes etc are coded 0, the crop is NA 
+  #Lakes etc are coded 0, the crop is NA
   sim$nBurnableCells <- N
   sim$burnLoci <- vector("numeric")
   ##
   sim$fireNullStats<-list(N=numeric(0),rate=numeric(0))
-  
+
   return(invisible(sim))
   }
 
@@ -114,7 +114,7 @@ fireNullSave <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   sim <- saveFiles(sim)
-  
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -124,16 +124,16 @@ fireNullPlot <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot("object")
-  
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
 
 
 fireNullBurn <- function(sim) {
-  
+
   sim$rstCurrentBurn<-sim$rstZero #zero, but preserve NAs
-  
+
   N<-ncell(sim$rstBurnProb)
   ###sim$burnLoci<-runif(N) < sim$rstBurnProb[] #this ignores any NAs in the map.
   sim$burnLoci<-which(sim$runifC(N) < sim$rstBurnProb[]) #this ignores any NAs in the map.
@@ -150,13 +150,13 @@ fireNullStatsF<-function(sim){
 }
 
 .init = function(sim) {
-  
+
   #if (!exists("shpStudyRegion",where=envir(sim)) ||
   #    TRUE # test if it is a proper shapefile
-  #    ){ 
+  #    ){
   #  stop("missing or invalid shapefile: how did you even get here?")
   #}
-  
+
   return(invisible(sim))
 }
 
