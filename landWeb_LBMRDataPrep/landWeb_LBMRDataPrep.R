@@ -665,7 +665,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
             exdir = dataPath)
     }
   }
-  # sim$LCC2005 <- raster(file.path(dataPath, "LCC2005_V1_4a.tif"))
+  sim$LCC2005 <- raster(file.path(dataPath, "LCC2005_V1_4a.tif"))
   # projection(sim$LCC2005) <- projection(sim$specieslayers)
   sim$speciesTable <- read.csv(file.path(dataPath, "speciesTraits.csv"), header = TRUE,
                                stringsAsFactors = FALSE) %>%

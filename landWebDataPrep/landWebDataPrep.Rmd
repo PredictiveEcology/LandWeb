@@ -63,9 +63,9 @@ parameters <- list(fireNull = list(startTime = 1,
                   .statsInitialTime = 1))
 
 mySim <- simInit(times = times, params = parameters, modules = modules,
-                 objects = objects, paths = paths)
+                 objects = objects, paths = paths, loadOrder = c("landWebDataPrep", "fireDataPrep", "initBaseMaps",  "fireNull", "landWeb_LBMRDataPrep", "LBMR"))
 
-a <- spades(mySim, debug = TRUE)
+a <- spades(SpaDES::copy(mySim), debug = TRUE)
 ```
 
 # Events
