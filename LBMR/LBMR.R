@@ -18,6 +18,7 @@ defineModule(sim, list(
                   "fpCompare", "grid", "archivist", "tidyr", "Rcpp", "scales"),
   parameters = rbind(
     defineParameter("growthInitialTime", "numeric", 0, NA_real_, NA_real_, "Initial time for the growth event to occur"),
+    defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter("fireDisturbanceInitialTime", "numeric", 1, NA_real_, NA_real_, "Initial time for the post fire reproduction event to occur")
   ),
   inputObjects = bind_rows(
@@ -121,7 +122,8 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
     }
     sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
                          "LBMR", "summaryRegen", eventPriority = 5)
-    sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
+    browser()
+    sim <- scheduleEvent(sim, params(sim)$LBMR$.plotInitialTime + sim$successionTimestep,
                          "LBMR", "plot", eventPriority = 7)
     sim <- scheduleEvent(sim, params(sim)$LBMR$.saveInitialTime,
                          "LBMR", "save")
@@ -1306,8 +1308,18 @@ addNewCohorts <- function(newCohortData, cohortData, pixelGroupMap, time, specie
   # ! ----- EDIT BELOW ----- ! #
   # check local existence
   dataPath <- file.path(modulePath(sim), "LBMR", "data")
-  checkTable <- data.table(downloadData(module = "LBMR", path = modulePath(sim)))
-  checkContent_passed <- checkTable[result == "OK",]$expectedFile
+  fileNames <- c("biomass-succession_test.txt", "biomass-succession-dynamic-inputs_test.txt",
+                 "ecoregions.gis", "ecoregions.txt", "initial-communities.gis", "initial-communities.txt",
+                 "species.txt")
+  fileNames <- lapply(fileNames, function(x){file.path(dataPath, x)})
+  allFiles <- lapply(fileNames, function(x) {
+    file.info(x)[,"size"]}
+  )
+  names(allFiles) <- unlist(lapply(fileNames, basename))
+  needDownload <- digest::digest(allFiles) != "6e31b97b0fc075f46c44f07d1c94a71f"
+  if(needDownload){
+   checkTable <- data.table(downloadData(module = "LBMR", path = modulePath(sim))) 
+  }
   # convert inititial communities txt to data table
   # input initial communities
   maxcol <- max(count.fields(file.path(dataPath, "initial-communities.txt"), sep = ""))
