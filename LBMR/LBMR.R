@@ -980,16 +980,12 @@ LBMRSummaryRegen = function(sim){
 }
 
 LBMRPlot = function(sim) {
-  biomassMap <- sim$biomassMap
-  ANPPMap <- sim$ANPPMap
-  mortalityMap <- sim$mortalityMap
-  reproductionMap <- sim$reproductionMap
-  fireMap <- sim$rstCurrentBurn
   dev(4)
   if(time(sim) == sim$successionTimestep){
     clearPlot()
   }
-  Plot(fireMap, biomassMap, ANPPMap, mortalityMap, reproductionMap, new = TRUE, speedup = 1)
+  Plot(sim$rstCurrentBurn, sim$biomassMap, sim$ANPPMap, sim$mortalityMap, sim$reproductionMap, 
+       title = c("fireMap", "Biomass", "ANPP", "mortality", "reproduction"), new = TRUE, speedup = 1)
   grid.rect(0.93, 0.97, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
   grid.text(label = paste0("Year = ",round(time(sim))), x = 0.93, y = 0.97)
   if(is.null(sim$produceMap)){sim$produceMap <- FALSE}
@@ -1003,8 +999,8 @@ LBMRPlot = function(sim) {
     writeRaster(reproductionMap, paste("reproductionMap", round(time(sim)), ".tif",sep=""), datatype = 'INT4S',
                 overwrite = TRUE)
   }
-  rm(biomassMap, ANPPMap, mortalityMap, reproductionMap)
-  gc()
+  #rm(biomassMap, ANPPMap, mortalityMap, reproductionMap)
+  #gc()
   return(invisible(sim))
 }
 
