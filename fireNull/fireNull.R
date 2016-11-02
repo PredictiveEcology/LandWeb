@@ -1,4 +1,4 @@
-
+o
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
@@ -47,12 +47,10 @@ doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
     #browser()
     sim <- sim$fireNullInit(sim)
     # schedule future event(s)
-    sim <- scheduleEvent(sim, params(sim)$fireNull$startTime, "fireNull", "burn",
-                         eventPriority = 1)
+    sim <- scheduleEvent(sim, params(sim)$fireNull$startTime, "fireNull", "burn")
     sim <- scheduleEvent(sim, params(sim)$fireNull$.plotInitialTime, "fireNull", "plot")
     sim <- scheduleEvent(sim, params(sim)$fireNull$.saveInitialTime, "fireNull", "save")
-    sim <- scheduleEvent(sim, params(sim)$fireNull$.statsInitialTime, "fireNull", "stats",
-                         eventPriority = 2)
+    sim <- scheduleEvent(sim, params(sim)$fireNull$.statsInitialTime, "fireNull", "stats")
   } else if (eventType == "plot") {
     Plot(sim$rstCurrentBurn)
     # e.g.,
@@ -62,13 +60,11 @@ doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$.saveInterval, "fireNull", "save")
   } else if (eventType == "burn") {
     sim <- fireNullBurn(sim)
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "burn",
-                         eventPriority = 1)
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "burn")
   } else if (eventType == "stats"){
     #browser()
     sim <- fireNullStatsF(sim)
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "stats",
-                         eventPriority = 2)
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireNull$returnInterval, "fireNull", "stats")
   }
   else {
     warning(paste("Undefined event type: '", events(sim)[1, "eventType", with = FALSE],
@@ -89,23 +85,23 @@ fireNullInit <- function(sim) {
               NumericVector X(N);
               X = runif(N);
               return X;
-              }",
+              }", 
               env = envir(sim), cacheDir = cachePath(sim))
-
+  
   sim$rstCurrentBurn <- raster(sim$rstBurnProb) #the rhs is an input object
   sim$rstCurrentBurn[] <- sim$rstBurnProb[] * 0 #this conserves NAs
   sim$rstZero <- sim$rstCurrentBurn
   #sim$rstCurrentBurn[] <- sim$rstCurrentBurn[]
   setColors(sim$rstCurrentBurn,n=2) <- colorRampPalette(c("grey90", "red"))(2)
-
+  
   #for any stats, we need to caculate how many burnable cells there are
   N<- sum(sim$rstBurnProb[]>0, na.rm=TRUE) # can do in one step with na.rm = TRUE
-  #Lakes etc are coded 0, the crop is NA
+  #Lakes etc are coded 0, the crop is NA 
   sim$nBurnableCells <- N
   sim$burnLoci <- vector("numeric")
   ##
   sim$fireNullStats<-list(N=numeric(0),rate=numeric(0))
-
+  
   return(invisible(sim))
   }
 
@@ -114,7 +110,7 @@ fireNullSave <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   sim <- saveFiles(sim)
-
+  
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -124,16 +120,16 @@ fireNullPlot <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot("object")
-
+  
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
 
 
 fireNullBurn <- function(sim) {
-
+  
   sim$rstCurrentBurn<-sim$rstZero #zero, but preserve NAs
-
+  
   N<-ncell(sim$rstBurnProb)
   ###sim$burnLoci<-runif(N) < sim$rstBurnProb[] #this ignores any NAs in the map.
   sim$burnLoci<-which(sim$runifC(N) < sim$rstBurnProb[]) #this ignores any NAs in the map.
@@ -150,13 +146,13 @@ fireNullStatsF<-function(sim){
 }
 
 .init = function(sim) {
-
+  
   #if (!exists("shpStudyRegion",where=envir(sim)) ||
   #    TRUE # test if it is a proper shapefile
-  #    ){
+  #    ){ 
   #  stop("missing or invalid shapefile: how did you even get here?")
   #}
-
+  
   return(invisible(sim))
 }
 
