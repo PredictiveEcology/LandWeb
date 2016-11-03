@@ -25,7 +25,6 @@ library(SpaDES)
 library(magrittr)
 library(raster)
 inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
-outputDir <- file.path(tempdir(), "outputs")
 times <- list(start = 0, end = 10)
 library(rgdal)
 if(Sys.info()[1] == "Linux"){
@@ -39,12 +38,12 @@ shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
 shpStudyRegion@data <- shpStudyRegion@data[,!(names(shpStudyRegion) %in% "ECODISTRIC")]
 
 biomassMap <- raster(file.path(curDir,"landWebDataPrep", "data",                               "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif"))
-SMALL <- TRUE
+SMALL <- FALSE
 if(SMALL) {
   smallExt <- new("Extent" , xmin = -983660, xmax = -899973, 
                   ymin = 8007529, ymax = 8085986)
   shpStudyRegion2 <- spTransform(shpStudyRegion, crs(biomassMap))
-  shpStudyRegion3 <- crop(shpStudyRegion2, smallExt)
+  shpStudyRegion <- crop(shpStudyRegion2, smallExt)
 }
 
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull", "landWeb_LBMRDataPrep", "LBMR")
@@ -52,13 +51,13 @@ modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull", "
 #modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull")
 
 successionTimestep <- 2
-objects <- list("shpStudyRegionX" = shpStudyRegion3,
+objects <- list("shpStudyRegionX" = shpStudyRegion,
                 "successionTimestep" = successionTimestep)
 paths <- list(
   cachePath = file.path("~", "CachedFiles"),
   modulePath = curDir,
   inputPath = inputDir,
-  outputPath = outputDir
+  outputPath = file.path("~", "simulationOutput")
 )
 parameters <- list(fireNull = list(startTime = 1,
                   returnInterval = 1,
