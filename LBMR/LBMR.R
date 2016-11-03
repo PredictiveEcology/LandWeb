@@ -122,7 +122,6 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
     }
     sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
                          "LBMR", "summaryRegen", eventPriority = 5)
-    browser()
     sim <- scheduleEvent(sim, params(sim)$LBMR$.plotInitialTime + sim$successionTimestep,
                          "LBMR", "plot", eventPriority = 7)
     sim <- scheduleEvent(sim, params(sim)$LBMR$.saveInitialTime,
