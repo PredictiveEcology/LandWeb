@@ -1319,6 +1319,8 @@ addNewCohorts <- function(newCohortData, cohortData, pixelGroupMap, time, specie
   needDownload <- digest::digest(allFiles) != "6e31b97b0fc075f46c44f07d1c94a71f"
   if(needDownload){
    checkTable <- data.table(downloadData(module = "LBMR", path = modulePath(sim))) 
+  } else {
+    message("  Download data step skipped for module LBMR. Local copy exists")
   }
   # convert inititial communities txt to data table
   # input initial communities
