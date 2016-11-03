@@ -28,8 +28,6 @@ inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), "outputs")
 times <- list(start = 0, end = 40)
 library(rgdal)
-
-baseDir<-file.path("~","Dropbox","SpaDES","Data")
 curDir <- file.path("~", "GitHub", "LandWeb")
 
 shpStudyRegion <- shapefile(file.path(curDir,"landWebDataPrep", "data", "shpLandWEB.shp"))
@@ -47,13 +45,12 @@ if(SMALL) {
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull", "landWeb_LBMRDataPrep", "LBMR")
 
 #modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull")
-LCC05 <- raster(file.path(curDir, "landWebDataPrep", "data",
-                               "LCC2005_V1_4a.tif"))
+
 successionTimestep <- 2
 objects <- list("shpStudyRegionX" = shpStudyRegion3,
                 "successionTimestep" = successionTimestep)
 paths <- list(
-  cachePath = file.path("~", "testLandWebDataPrep", "cache"),
+  cachePath = file.path("M", "data", "landWebDataPrepCachedFiles"),
   modulePath = curDir,
   inputPath = inputDir,
   outputPath = outputDir

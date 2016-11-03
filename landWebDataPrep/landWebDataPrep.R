@@ -152,12 +152,18 @@ landWebDataPrepPlot <- function(sim) {
   # }
   # ! ----- EDIT BELOW ----- ! #
   dataPath <- file.path(modulePath(sim), "landWebDataPrep", "data")
-  checkTable <- data.table(downloadData(module = "landWebDataPrep", path = modulePath(sim)))
-  checkContent_passed <- checkTable[result == "OK",]$expectedFile
-  if(!all(c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
-            "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
-            "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml") %in%
-          checkContent_passed)){
+  fileNames <- c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
+                 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
+                 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml",
+                 "LCC2005_V1_4a.tif")
+  fileNames <- lapply(fileNames, function(x){file.path(dataPath, x)})
+  allFiles <- lapply(fileNames, function(x) {
+    file.info(x)[,"size"]}
+  )
+  names(allFiles) <- unlist(lapply(fileNames, basename))
+  needDownload <- digest::digest(allFiles) != "ea72c7607d0ea744b64e182459c940bc"
+  if(needDownload){
+    checkTable <- data.table(downloadData(module = "landWebDataPrep", path = modulePath(sim)))
     untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
           files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
           exdir = dataPath)
@@ -165,12 +171,13 @@ landWebDataPrepPlot <- function(sim) {
                                    "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                          exdir = dataPath)
     file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
+    
+    unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
+          exdir = dataPath) 
+  } else {
+    message("  Download data step skipped for module landWebDataPrep. Local copy exists")
   }
   sim$biomassMap <- raster(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif"))
-  if(!("LCC2005_V1_4a.tif" %in% checkContent_passed)){
-    unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
-          exdir = dataPath)
-  }
   sim$LCC2005Orig <- raster(file.path(dataPath, "LCC2005_V1_4a.tif"))
   sim$calibrate <- FALSE
   # ! ----- STOP EDITING ----- ! #
