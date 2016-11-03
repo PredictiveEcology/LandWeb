@@ -36,7 +36,7 @@ inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), "outputs")
 times <- list(start = 0, end = 10)
 parameters <- list()
-modules <- list("landWeb_LBMRDataPrep", "LBMR")
+modules <- list("landWeb_LBMRDataPrep")
 # studyarea <- shapefile(file.path(".", "landWeb_LBMRDataPrep", "data", "shpLandWEB.shp"))
 objects <- list("studyArea" = studyarea,
                 "useCache" = TRUE,

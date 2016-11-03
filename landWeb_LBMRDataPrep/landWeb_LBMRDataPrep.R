@@ -545,15 +545,38 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   # ! ----- EDIT BELOW ----- ! #
   dataPath <- file.path(modulePath(sim), "landWeb_LBMRDataPrep", "data")
   fileNames <- dir(dataPath, full.names = TRUE)
+  fileNames <- c("ecodistricts.dbf", "ecodistricts.prj", "ecodistricts.sbn", "ecodistricts.sbx", 
+                 "ecodistricts.shp", "ecodistricts.shx", "ecoregions.dbf", "ecoregions.prj", 
+                 "ecoregions.sbn", "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx", "ecozones.dbf", 
+                 "ecozones.prj", "ecozones.sbn", "ecozones.sbx", "ecozones.shp", "ecozones.shx", 
+                 "LCC2005_V1_4a.tif", "NFI_MODIS250m_kNN_Species_Abie_Bal_v0.tif", 
+                 "NFI_MODIS250m_kNN_Species_Abie_Bal_v0.tif.aux.xml", "NFI_MODIS250m_kNN_Species_Abie_Bal_v0.tif.xml", 
+                 "NFI_MODIS250m_kNN_Species_Abie_Las_v0.tif", "NFI_MODIS250m_kNN_Species_Abie_Las_v0.tif.aux.xml", 
+                 "NFI_MODIS250m_kNN_Species_Abie_Las_v0.tif.xml", "NFI_MODIS250m_kNN_Species_Betu_Pap_v0.tif", 
+                 "NFI_MODIS250m_kNN_Species_Betu_Pap_v0.tif.aux.xml", "NFI_MODIS250m_kNN_Species_Betu_Pap_v0.tif.xml", 
+                 "NFI_MODIS250m_kNN_Species_Pice_Gla_v0.tif", "NFI_MODIS250m_kNN_Species_Pice_Gla_v0.tif.aux.xml", 
+                 "NFI_MODIS250m_kNN_Species_Pice_Gla_v0.tif.xml", "NFI_MODIS250m_kNN_Species_Pice_Mar_v0.tif", 
+                 "NFI_MODIS250m_kNN_Species_Pice_Mar_v0.tif.aux.xml", "NFI_MODIS250m_kNN_Species_Pice_Mar_v0.tif.xml", 
+                 "NFI_MODIS250m_kNN_Species_Pinu_Ban_v0.tif", "NFI_MODIS250m_kNN_Species_Pinu_Ban_v0.tif.aux.xml", 
+                 "NFI_MODIS250m_kNN_Species_Pinu_Ban_v0.tif.xml", "NFI_MODIS250m_kNN_Species_Pinu_Con_v0.tif", 
+                 "NFI_MODIS250m_kNN_Species_Pinu_Con_v0.tif.aux.xml", "NFI_MODIS250m_kNN_Species_Pinu_Con_v0.tif.xml", 
+                 "NFI_MODIS250m_kNN_Species_Pinu_Str_v0.tif", "NFI_MODIS250m_kNN_Species_Pinu_Str_v0.tif.aux.xml", 
+                 "NFI_MODIS250m_kNN_Species_Pinu_Str_v0.tif.xml", "NFI_MODIS250m_kNN_Species_Popu_Tre_v0.tif", 
+                 "NFI_MODIS250m_kNN_Species_Popu_Tre_v0.tif.aux.xml", "NFI_MODIS250m_kNN_Species_Popu_Tre_v0.tif.xml", 
+                 "NFI_MODIS250m_kNN_Species_Pseu_Men_v0.tif", "NFI_MODIS250m_kNN_Species_Pseu_Men_v0.tif.aux.xml", 
+                 "NFI_MODIS250m_kNN_Species_Pseu_Men_v0.tif.xml", "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif", 
+                 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml", 
+                 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml", 
+                 "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif", "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.aux.xml", 
+                 "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.xml", 
+                 "speciesTraits.csv")
+  fileNames <- lapply(fileNames, function(x){file.path(dataPath, x)})
   allFiles <- lapply(fileNames, function(x) {
     file.info(x)[,"size"]}
     )
   names(allFiles) <- unlist(lapply(fileNames, basename))
-  needDownload <- digest::digest(allFiles) != "3a12d4ef15d1d416d016a55faba0922f"
-    
+  needDownload <- digest::digest(allFiles) != "05a98a7eab2fcd0ebef7cc21fbfdf75b"
   if(needDownload) {
-    
-    
     checkTable <- data.table(downloadData(module = "landWeb_LBMRDataPrep", path = modulePath(sim)))
     checkContent_passed <- checkTable[result == "OK",]$expectedFile
     # study area should be provided by Dr. David Anderson
@@ -679,7 +702,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   
   sim$seedingAlgorithm <- "wardDispersal"
   sim$spinupMortalityfraction <- 0.002
-  sim$cellSize <- 200
+  sim$cellSize <- 250
   sim$successionTimeStep <- 10
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
