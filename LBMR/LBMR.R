@@ -19,6 +19,7 @@ defineModule(sim, list(
   parameters = rbind(
     defineParameter("growthInitialTime", "numeric", 0, NA_real_, NA_real_, "Initial time for the growth event to occur"),
     defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "This describes the simulation time at which the first plot event should occur"),
+    defineParameter(".saveInitialTime", "numeric", 0, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter("fireDisturbanceInitialTime", "numeric", 1, NA_real_, NA_real_, "Initial time for the post fire reproduction event to occur")
   ),
   inputObjects = bind_rows(
@@ -122,11 +123,10 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
     }
     sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
                          "LBMR", "summaryRegen", eventPriority = 5)
-    browser()
     sim <- scheduleEvent(sim, params(sim)$LBMR$.plotInitialTime + sim$successionTimestep,
                          "LBMR", "plot", eventPriority = 7)
-    sim <- scheduleEvent(sim, params(sim)$LBMR$.saveInitialTime,
-                         "LBMR", "save")
+    sim <- scheduleEvent(sim, params(sim)$LBMR$.saveInitialTime + sim$successionTimestep,
+                         "LBMR", "save", eventPriority = 7.5)
   } else if (eventType == "mortalityAndGrowth") {
     sim <- LBMRMortalityAndGrowth(sim)
     sim <- scheduleEvent(sim, time(sim) + 1, "LBMR", "mortalityAndGrowth", eventPriority = 8)
@@ -167,7 +167,7 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
   } else if (eventType == "save") {
     sim <- LBMRSave(sim)
     sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
-                         "LBMR", "save")
+                         "LBMR", "save", eventPriority = 7.5)
   } else if (eventType == "cohortAgeReclassification" & sim$successionTimestep != 1) {
     sim <- LBMRCohortAgeReclassification(sim)
     sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
@@ -990,24 +990,28 @@ LBMRPlot = function(sim) {
        title = c("fireMap", "Biomass", "ANPP", "mortality", "reproduction"), new = TRUE, speedup = 1)
   grid.rect(0.93, 0.97, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
   grid.text(label = paste0("Year = ",round(time(sim))), x = 0.93, y = 0.97)
-  if(is.null(sim$produceMap)){sim$produceMap <- FALSE}
-  if(sim$produceMap == TRUE){
-    writeRaster(biomassMap, paste("biomassMap", round(time(sim)), ".tif",sep=""), datatype='INT4S',
-                overwrite = TRUE)
-    writeRaster(ANPPMap, paste("ANPPMap", round(time(sim)), ".tif",sep=""), datatype = 'INT4S',
-                overwrite = TRUE)
-    writeRaster(mortalityMap, paste("mortalityMap", round(time(sim)), ".tif", sep=""),datatype = 'INT4S',
-                overwrite = TRUE)
-    writeRaster(reproductionMap, paste("reproductionMap", round(time(sim)), ".tif",sep=""), datatype = 'INT4S',
-                overwrite = TRUE)
-  }
   #rm(biomassMap, ANPPMap, mortalityMap, reproductionMap)
   #gc()
   return(invisible(sim))
 }
 
 LBMRSave = function(sim) {
-  saveFiles(sim)
+  raster::projection(sim$biomassMap) <- raster::projection(sim$ecoregionMap)
+  raster::projection(sim$ANPPMap) <- raster::projection(sim$ecoregionMap)
+  raster::projection(sim$mortalityMap) <- raster::projection(sim$ecoregionMap)
+  raster::projection(sim$reproductionMap) <- raster::projection(sim$ecoregionMap)
+  writeRaster(sim$biomassMap, 
+              file.path(outputPath(sim), paste("biomassMap_Year", round(time(sim)), ".tif",sep="")), datatype='INT4S',
+              overwrite = TRUE)
+  writeRaster(sim$ANPPMap,
+              file.path(outputPath(sim), paste("ANPP_Year", round(time(sim)), ".tif",sep="")), datatype='INT4S',
+              overwrite = TRUE)
+  writeRaster(sim$mortalityMap, 
+              file.path(outputPath(sim), paste("mortalityMap_Year", round(time(sim)), ".tif",sep="")), datatype='INT4S',
+              overwrite = TRUE)
+  writeRaster(sim$reproductionMap, 
+              file.path(outputPath(sim), paste("regenerationMap_Year", round(time(sim)), ".tif",sep="")), datatype='INT4S',
+              overwrite = TRUE)
   return(invisible(sim))
 }
 
