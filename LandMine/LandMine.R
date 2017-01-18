@@ -13,9 +13,11 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandMine.Rmd"),
-  reqdPkgs = list("raster", "RColorBrewer", "data.table"),
+  reqdPkgs = list("raster", "RColorBrewer", "data.table", "VGAM"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
+    defineParameter("fireTimestep", "numeric", 1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
+    defineParameter("fireReturnInterval", "Raster", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter("burnInitialTime", "numeric", start(sim), NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter("burnFrequency", "numeric", 1, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -85,7 +87,8 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
 
     # e.g.,
     # sim <- scheduleEvent(sim, time(sim) + increment, "LandMine", "templateEvent")
-
+    sim <- scheduleEvent(sim, P(sim)$fireTimestep, "LandMine", "LandMineBurn")
+    
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "event2") {
     # ! ----- EDIT BELOW ----- ! #
@@ -115,6 +118,7 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 LandMineInit <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
+  Plot(sim$fireReturnInterval, speedup = 3, new=TRUE)
 
   # ! ----- STOP EDITING ----- ! #
 
@@ -147,18 +151,26 @@ LandMineBurn <- function(sim) {
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   dev();
   seed <- sample(1e6,1)
-  #seed <- 692774
+  #seed <- 245730
   set.seed(seed); print(seed)
-  maxSizes <- rexp(length(sim$startCells), rate = 1/500)
-  fires <- sim$burn(sim$hab, startCells = sim$startCells, 
-                    maxSizes = maxSizes)
-  if(any(fires[,.N,by=id]$N < floor(maxSizes))) stop("Fire weren't exact")
-  firesRas <- raster(sim$hab)
-  firesRas[] <- 0
-  firesRas[fires$indices] <- fires$id
-  Plot(firesRas,new=TRUE, cols = c("red", "yellow"),
-       zero.color = "white")
-  Plot(hist(fires[,.N,by=id]$N), title = "fire size distribution")
+  #browser()
+  numFires <- rpois(length(sim$numFiresPerYear), lambda=sim$numFiresPerYear)
+  wh <- split(1:ncell(sim@.envir$fireReturnInterval),sim@.envir$fireReturnInterval[])
+  sim$startCells <- unlist(lapply(seq_along(wh), function(y) {
+    sample(wh[[y]], size=numFires[[y]])
+  }))
+  
+  fireSizes <- pmax(1, rtruncpareto(length(sim$startCells), 1, 1e4, 0.4))
+  #fireSizes <- pmax(1,rexp(length(sim$startCells), rate = 1/sim@.envir$avgFireSize))
+  fires <- sim$burn(sim$fireReturnInterval, startCells = sim$startCells, 
+                    maxSizes = fireSizes)
+  if(any(fires[,.N,by=id]$N < floor(fireSizes))) stop("Fire weren't exact")
+  sim$firesRas <- raster(sim$fireReturnInterval)
+  sim$firesRas[] <- 0
+  sim$firesRas[fires$indices] <- time(sim)+1
+  Plot(sim$firesRas,new=time(sim)==0, cols = c("red", "yellow"),
+       zero.color = "transparent", legendRange = c(0, 4))
+  #Plot(hist(fires[,.N,by=id]$N), title = "fire size distribution")
   
 
   # ! ----- STOP EDITING ----- ! #
@@ -195,8 +207,22 @@ LandMineEvent2 <- function(sim) {
   
   # Make random forest cover map
   emptyRas <- raster(extent(0, 1e3, 0, 1e3), res = 1)
-  sim$hab <- randomPolygons(emptyRas, numTypes = 40)
-  names(sim$hab) <- "hab"
+  #browser()
+  sim$fireReturnInterval <- Cache(randomPolygons, emptyRas, numTypes = 4)#, notOlderThan = Sys.time())
+
+  vals <- factor(sim$fireReturnInterval[], 
+                 levels = 1:4, 
+                 labels=c(60, 100, 150, 250))
+  sim$fireReturnInterval[] <- as.numeric(as.character(vals))
+  
+  names(sim$fireReturnInterval) <- "fireReturnInterval"
+  
+  numPixelsPerZone <- tabulate(vals)
+  returnInterval <- as.numeric(levels(vals))
+  sim$avgFireSize <- rep(100, length(returnInterval))
+  numFires <- round(numPixelsPerZone/sim$avgFireSize)
+  sim$numFiresPerYear <- numFires/returnInterval
+  
   mask <- raster(emptyRas)
   mask <- setValues(mask, 0)
   mask[1:5000] <- 1
@@ -205,17 +231,11 @@ LandMineEvent2 <- function(sim) {
   directions <- 8
   
   # Can use transparent as a color
-  setColors(sim$hab) <- paste(c("transparent", brewer.pal(8, "Greys")))
+  setColors(sim$fireReturnInterval) <- paste(c("transparent", brewer.pal(8, "Greys")))
   
   # note speedup is equivalent to making pyramids, so, some details are lost
-  if (interactive()) {
-    clearPlot()
-    Plot(sim$hab, speedup = 3)
-  }
-  
   # initiate 10 fires
-  sim$startCells <- as.integer(sample(1:ncell(emptyRas),10))
-  
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
