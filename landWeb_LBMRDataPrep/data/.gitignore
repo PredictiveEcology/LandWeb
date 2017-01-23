@@ -28,7 +28,12 @@ Yesterday*.txt
 *.shp
 *.shx
 *.sbx
+*.sbn
 *.tar
+*.zip
+*.cpg
+*.csv
+data
 
 
 #################
