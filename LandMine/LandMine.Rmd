@@ -28,12 +28,11 @@ moduleDir <- file.path("c:/Eliot/GitHub/LandWeb")
 inputDir <- file.path(moduleDir, "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(moduleDir, "outputs")
 cacheDir <- file.path(outputDir, "cache")
-times <- list(start = 0, end = 3)
+times <- list(start = 0, end = 13)
 parameters <- list(
   #.progress = list(type = "text", interval = 1), # for a progress bar
   ## If there are further modules, each can have its own set of parameters:
-  #module1 = list(param1 = value1, param2 = value2),
-  #module2 = list(param1 = value1, param2 = value2)
+  #LandMine = list(flushCachedRandomFRI = TRUE) 
 )
 modules <- list("LandMine")
 objects <- list()
@@ -47,7 +46,7 @@ paths <- list(
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
-spades(mySim)
+spades(mySim, .plotInitialTime = times$start, progress = TRUE)
 ```
 
 # Events
