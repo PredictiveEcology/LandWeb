@@ -64,11 +64,13 @@ defineModule(sim, list(
                  desc = "should the detailed simulation information be outputed in 
                  spinupOutput and simulationTreeOutput, default is FALSE", 
                  sourceURL = "NA"),
+    # For inputs from optional fire module
+    expectsInput(objectName = "fireTimestep", objectClass = "numeric", 
+                 desc = "The number of time units between successive fire events in a fire module", 
+                 sourceURL = "NA"),
     expectsInput(objectName = "rstCurrentBurn", objectClass = "RasterLayer", 
                  desc = "a fire burn raster", 
-                 sourceURL = "NA"),
-    expectsInput(objectName = "burnLoci", objectClass = "numeric", 
-                 desc = "a vector of pixel indices where a fire occured", sourceURL = "NA")
+                 sourceURL = "NA")
     ),
   outputObjects = bind_rows(
     createsOutput(objectName = "simulationOutput", objectClass = "data.table", 
@@ -137,7 +139,7 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
                          eventPriority = 6)
   } else if (eventType == "fireDisturbance" & !is.null(sim$rstCurrentBurn)) {
     sim <- LBMRFireDisturbance(sim)
-    sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
+    sim <- scheduleEvent(sim, time(sim) + sim$fireTimestep,
                          "LBMR", "fireDisturbance", 
                          eventPriority = 3)
   } else if (eventType == "noDispersalSeeding" | eventType=="universalDispersalSeeding" | eventType=="wardDispersalSeeding") {
@@ -162,7 +164,7 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
                          "LBMR", "summaryRegen", eventPriority = 5)
   } else if (eventType == "plot") {
     sim <- LBMRPlot(sim)
-    sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
+    sim <- scheduleEvent(sim, time(sim) + pmin(sim$successionTimestep, sim$fireTimestep),
                          "LBMR", "plot", eventPriority = 7)
   } else if (eventType == "save") {
     sim <- LBMRSave(sim)
@@ -575,8 +577,8 @@ LBMRFireDisturbance = function(sim) {
   }
   if(extent(sim$rstCurrentBurn) != extent(sim$pixelGroupMap)){
    sim$rstCurrentBurn <- raster::crop(sim$rstCurrentBurn, extent(sim$pixelGroupMap))
-   sim$burnLoci <- Which(sim$rstCurrentBurn == 1, cell = TRUE)
   }
+  sim$burnLoci <- Which(sim$rstCurrentBurn == 1, cell = TRUE)
   if(length(sim$inactivePixelIndex) > 0){
     sim$burnLoci <- sim$burnLoci[!(sim$burnLoci %in% sim$inactivePixelIndex)] # this is to prevent avaluating the pixels that are inactive
   }
@@ -887,9 +889,9 @@ LBMRWardDispersalSeeding = function(sim) {
     #  Seed Receiving cells:
     #  1. Must be sufficient light 
     # seed receive just for the species that are seed source
-    tempspeices <- sim$species[speciesCode %in% unique(matureCohorts$speciesCode),][
+    tempspecies1 <- sim$species[speciesCode %in% unique(matureCohorts$speciesCode),][
       ,.(speciesCode, shadetolerance, seeddistance_eff, seeddistance_max)]
-    seedReceive = setkey(tempspeices[,c(k = 1, .SD)], k)[setkey(siteShade[,c(k = 1, .SD)], k), allow.cartesian=TRUE][
+    seedReceive = setkey(tempspecies1[,c(k = 1, .SD)], k)[setkey(siteShade[,c(k = 1, .SD)], k), allow.cartesian=TRUE][
       ,k:=NULL]
     seedReceive <- assignLightProb(sufficientLight = sim$sufficientLight, seedReceive)
     set(seedReceive, ,"siteShade", NULL)
