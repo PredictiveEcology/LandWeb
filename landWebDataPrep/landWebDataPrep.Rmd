@@ -32,13 +32,20 @@ if(Sys.info()[1] == "Linux"){
 } else {
   curDir <- file.path("~", "GitHub", "LandWeb")
 }
+paths <- list(
+  cachePath = file.path("~", "CachedFiles"),
+  modulePath = curDir,
+  inputPath = inputDir,
+  outputPath = file.path("~", "simulationOutput")
+)
 
-shpStudyRegion <- shapefile(file.path(curDir,"landWebDataPrep", "data", "shpLandWEB.shp"))
+shpStudyRegion <- Cache(shapefile, file.path(curDir,"landWebDataPrep", "data", "shpLandWEB.shp"),
+                        cacheRepo = paths$cachePath)
 shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
 shpStudyRegion@data <- shpStudyRegion@data[,!(names(shpStudyRegion) %in% "ECODISTRIC")]
 
 biomassMap <- raster(file.path(curDir,"landWebDataPrep", "data",                               "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif"))
-SMALL <- FALSE
+SMALL <- TRUE
 if(SMALL) {
   smallExt <- new("Extent" , xmin = -983660, xmax = -899973, 
                   ymin = 8007529, ymax = 8085986)
@@ -46,28 +53,27 @@ if(SMALL) {
   shpStudyRegion <- crop(shpStudyRegion2, smallExt)
 }
 
-modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull", "landWeb_LBMRDataPrep", "LBMR")
+#modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull", "landWeb_LBMRDataPrep", "LBMR")
 
 #modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull")
+#modules <- list("landWebDataPrep", "initBaseMaps", "LandMine")
+
+modules <- list("landWebDataPrep", "initBaseMaps", "LandMine", "landWeb_LBMRDataPrep", "LBMR")
 
 successionTimestep <- 2
 objects <- list("shpStudyRegionX" = shpStudyRegion,
                 "successionTimestep" = successionTimestep)
-paths <- list(
-  cachePath = file.path("~", "CachedFiles"),
-  modulePath = curDir,
-  inputPath = inputDir,
-  outputPath = file.path("~", "simulationOutput")
-)
 parameters <- list(fireNull = list(startTime = 1,
                   returnInterval = 1,
                   .statsInitialTime = 1),
-                  LBMR = list(.plotInitialTime = NA))
+                  LBMR = list(.plotInitialTime = times$start),
+                  initBaseMaps = list(.useCache=TRUE))
 
+devtools::load_all("~/GitHub/SpaDES/.")
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
-a <- spades(mySim, debug = TRUE)
+a <- spades(Copy(mySim), debug = TRUE)
 ```
 
 # Events
