@@ -17,9 +17,7 @@ defineModule(sim, list(
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter("fireTimestep", "numeric", 1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
-    defineParameter("fireReturnInterval", "Raster", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
-    defineParameter("burnInitialTime", "numeric", start(sim), NA, NA, "This describes the simulation time at which the first plot event should occur"),
-    defineParameter("burnFrequency", "numeric", 1, NA, NA, "This describes the simulation time interval between plot events"),
+    defineParameter("burnInitialTime", "numeric", sim$startPlus1(sim), NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter("flushCachedRandomFRI", "logical", FALSE, NA, NA, "If no Fire Return Interval map is supplied, then a random one will be created and cached. Use this to make a new one."),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between plot events"),
@@ -27,16 +25,25 @@ defineModule(sim, list(
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
     defineParameter(".useCache", "numeric", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
-  inputObjects = bind_rows(
-    #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
-    expectsInput(objectName = NA, objectClass = NA, desc = NA, sourceURL = NA)
+  inputObjects = data.frame(
+    objectName = c("rstStudyRegion"),
+    objectClass = c("Raster"),
+    sourceURL = "",
+    other = NA_character_,
+    stringsAsFactors = FALSE
   ),
   outputObjects = bind_rows(
     #createsOutput("objectName", "objectClass", "output object description", ...),
-    createsOutput("Fires", "RasterLayer", paste(
+    createsOutput("rstCurrentBurn", "RasterLayer", paste(
                   "A raster layer, produced at each timestep, where each",
                   "pixel is either 1 or 0 indicating burned or not burned")
                   ),
+    createsOutput("fireTimestep", "numeric", 
+      "The number of time units between successive fire events in a fire module"
+    ),
+    createsOutput("numFiresPerYear", "numeric", paste(
+      "The average number of fires per year, by fire return interval level on rstCurrentBurn")
+    ),
     createsOutput(objectName = NA, objectClass = NA, desc = NA)
   )
 ))
@@ -53,7 +60,7 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$LandMineInit(sim)
     
     # schedule future event(s)
-    sim <- scheduleEvent(sim, P(sim)$burnInitialTime, "LandMine", "LandMineBurn")
+    sim <- scheduleEvent(sim, P(sim)$burnInitialTime, "LandMine", "LandMineBurn", 2.5)
     sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "LandMine", "plot")
     sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "LandMine", "save")
   } else if (eventType == "plot") {
@@ -92,7 +99,7 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
 
     # e.g.,
     # sim <- scheduleEvent(sim, time(sim) + increment, "LandMine", "templateEvent")
-    sim <- scheduleEvent(sim, P(sim)$fireTimestep, "LandMine", "LandMineBurn")
+    sim <- scheduleEvent(sim, time(sim) + P(sim)$fireTimestep, "LandMine", "LandMineBurn", 2.5)
     
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "event2") {
@@ -123,6 +130,26 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 LandMineInit <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
+  sim$fireTimestep <- P(sim)$fireTimestep
+  
+  vals <- factorValues(sim$rstStudyRegion, sim$rstStudyRegion[], att="LTHRC")
+  vals <- factor(vals$LTHRC)
+  #vals <- factor(sim$fireReturnInterval[], 
+  #               levels = 1:4, 
+  #               labels=c(60, 1000, 1050, 1250))
+  numPixelsPerZone <- tabulate(vals)
+  returnInterval <- as.numeric(levels(vals))
+  sim$avgFireSize <- rep(100, length(returnInterval))
+  numFires <- round(numPixelsPerZone/sim$avgFireSize)
+  sim$numFiresPerYear <- numFires/returnInterval
+  
+  sim$fireReturnInterval <- raster(sim$rstStudyRegion)
+  sim$fireReturnInterval[] <- as.numeric(as.character(vals))
+  
+  sim$rstCurrentBurn <- raster(sim$fireReturnInterval)
+  
+  
+  
   if(!is.na(P(sim)$.plotInitialTime)) {
     Plot(sim$fireReturnInterval, speedup = 3, new=TRUE)
   }
@@ -161,20 +188,19 @@ LandMineBurn <- function(sim) {
   #set.seed(seed); #print(seed)
   numFires <- rpois(length(sim$numFiresPerYear), lambda=sim$numFiresPerYear)
   
-  sim$startCells <- data.table(pixel=1:ncell(sim@.envir$fireReturnInterval),
+  sim$startCells <- data.table(pixel=1:ncell(sim@.envir$rstStudyRegion),
                                 fri=sim@.envir$fireReturnInterval[],key="fri") %>%
-                       .[,SpaDES::resample(pixel,numFires[.GRP]),by=fri] %>% 
+                       .[,SpaDES:::resample(pixel,numFires[.GRP]),by=fri] %>% 
                        .$V1
   fireSizes <- pmax(1, rtruncpareto(length(sim$startCells), 1, 1e4, 0.4))
   #fireSizes <- pmax(1,rexp(length(sim$startCells), rate = 1/sim@.envir$avgFireSize))
   fires <- sim$burn(sim$fireReturnInterval, startCells = sim$startCells, 
                     fireSizes = fireSizes)
   if(any(fires[,.N,by=id]$N < floor(fireSizes))) stop("Fire weren't exact")
-  sim$Fires <- raster(sim$fireReturnInterval)
-  sim$Fires[] <- 0
-  sim$Fires[fires$indices] <- time(sim)+1
+  sim$rstCurrentBurn[] <- 0
+  sim$rstCurrentBurn[fires$indices] <- 1 # time(sim)+1
   if(!is.na(P(sim)$.plotInitialTime)) {
-    Plot(sim$Fires,new=time(sim)==0, cols = c("red", "yellow"),
+    Plot(sim$rstCurrentBurn,new=time(sim)==0, cols = c("red", "yellow"),
          zero.color = "transparent", legendRange = c(0, end(sim)))
   }
   #Plot(hist(fires[,.N,by=id]$N), title = "fire size distribution")
@@ -225,20 +251,6 @@ LandMineEvent2 <- function(sim) {
   sim$fireReturnInterval[] <- as.numeric(as.character(vals))
   
   names(sim$fireReturnInterval) <- "fireReturnInterval"
-  
-  numPixelsPerZone <- tabulate(vals)
-  returnInterval <- as.numeric(levels(vals))
-  sim$avgFireSize <- rep(100, length(returnInterval))
-  numFires <- round(numPixelsPerZone/sim$avgFireSize)
-  sim$numFiresPerYear <- numFires/returnInterval
-  
-  mask <- raster(emptyRas)
-  mask <- setValues(mask, 0)
-  mask[1:5000] <- 1
-  numCol <- ncol(emptyRas)
-  numCell <- ncell(emptyRas)
-  directions <- 8
-  
   # Can use transparent as a color
   setColors(sim$fireReturnInterval) <- paste(c("transparent", brewer.pal(8, "Greys")))
   
@@ -250,3 +262,6 @@ LandMineEvent2 <- function(sim) {
 }
 ### add additional events as needed by copy/pasting from above
 
+startPlus1 <- function(sim) {
+  start(sim) + 1
+}
