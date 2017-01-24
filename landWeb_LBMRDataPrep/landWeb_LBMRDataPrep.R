@@ -219,14 +219,18 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                            species)]
   set(initialCommunities, , paste("age", 1:15, sep = ""), NA)
   initialCommunities <- data.frame(initialCommunities)
-  set.seed(1)
-  for(i in 1:nrow(initialCommunities)){
-    agelength <- sample(1:15, 1)
-    ages <- sort(sample(1:speciesTable[species == initialCommunities$species[i],]$longevity,
-                        agelength))
-    initialCommunities[i, 4:(agelength+3)] <- ages
+  
+  fn <- function(initialCommunities, speciesTable) {
+    for(i in 1:nrow(initialCommunities)){
+      agelength <- sample(1:15, 1)
+      ages <- sort(sample(1:speciesTable[species == initialCommunities$species[i],]$longevity,
+                          agelength))
+      initialCommunities[i, 4:(agelength+3)] <- ages
+    }
+    data.table::data.table(initialCommunities)
   }
-  sim$initialCommunities <- data.table::data.table(initialCommunities)
+
+  sim$initialCommunities <- Cache(fn, initialCommunities, speciesTable)
   
   sim$species <- speciesTable
   sim$minRelativeB <- data.frame(ecoregion = sim$ecoregion[active == "yes",]$ecoregion, 
@@ -575,7 +579,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     file.info(x)[,"size"]}
     )
   names(allFiles) <- unlist(lapply(fileNames, basename))
-  needDownload <- digest::digest(allFiles) != "05a98a7eab2fcd0ebef7cc21fbfdf75b"
+  needDownload <- digest::digest(allFiles) != "9a99479fea036a03f188f71cbabca49e"#"05a98a7eab2fcd0ebef7cc21fbfdf75b"
   if(needDownload) {
     checkTable <- data.table(downloadData(module = "landWeb_LBMRDataPrep", path = modulePath(sim)))
     checkContent_passed <- checkTable[result == "OK",]$expectedFile
@@ -643,15 +647,15 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   } else {
     message("  Download data step skipped for module landWeb_LBMRDataPrep. Local copy exists")
   }
-  sim$ecoDistrict <- raster::shapefile(file.path(dataPath, "ecodistricts.shp"))
-  sim$ecoRegion <- raster::shapefile(file.path(dataPath, "ecoregions.shp"))
-  sim$ecoZone <- raster::shapefile(file.path(dataPath, "ecozones.shp"))
+  sim$ecoDistrict <- Cache(raster::shapefile, file.path(dataPath, "ecodistricts.shp"))
+  sim$ecoRegion <- Cache(raster::shapefile, file.path(dataPath, "ecoregions.shp"))
+  sim$ecoZone <- Cache(raster::shapefile, file.path(dataPath, "ecozones.shp"))
   sim$biomassMap <- raster(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif"))
   sim$standAgeMap <- raster(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif"))
   
   
   # 3. species maps
-  sim$specieslayers <- stack()
+  sim$specieslayers <- raster::stack()
   speciesnames <- c("Abie_Las",
                     "Pice_Gla", "Pice_Mar", 
                     "Pinu_Ban", "Pinu_Con", 
@@ -703,7 +707,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   sim$seedingAlgorithm <- "wardDispersal"
   sim$spinupMortalityfraction <- 0.002
   sim$cellSize <- 250
-  sim$successionTimeStep <- 10
+  sim$successionTimestep <- 10
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
