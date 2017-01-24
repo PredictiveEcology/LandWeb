@@ -62,10 +62,10 @@ burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36)
     # spawnNewActive must be joined sent in here as list...
     b <- b[a]
     a <- spread(landscape, spreadProb = 1, spreadState = a, persistence = 0,
-           neighProbs = transpose(as.list(b[active==TRUE,c("pNoNewSpawn", "pSpawnNewActive")])), 
-           iterations = 1,
-           mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
-           id = TRUE, plot.it = FALSE, exactSizes = TRUE)
+                neighProbs = transpose(as.list(b[active==TRUE,c("pNoNewSpawn", "pSpawnNewActive")])), 
+                iterations = 1,
+                mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
+                id = TRUE, plot.it = FALSE, exactSizes = TRUE)
   }       
   return(a)  
 }
