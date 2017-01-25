@@ -63,13 +63,13 @@ modules <- list("landWebDataPrep", "initBaseMaps", "LandMine", "landWeb_LBMRData
 successionTimestep <- 2
 objects <- list("shpStudyRegionX" = shpStudyRegion,
                 "successionTimestep" = successionTimestep)
-parameters <- list(fireNull = list(startTime = 1,
+parameters <- list(fireNull = list(burnInitialTime = 1,
                   returnInterval = 1,
                   .statsInitialTime = 1),
                   LBMR = list(.plotInitialTime = times$start),
                   initBaseMaps = list(.useCache=TRUE))
 
-devtools::load_all("~/GitHub/SpaDES/.")
+
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
