@@ -104,7 +104,7 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
                            "cohortAgeReclassification", eventPriority = 0.5)
     }
     sim <- scheduleEvent(sim, start(sim) + params(sim)$LBMR$growthInitialTime,
-                         "LBMR", "mortalityAndGrowth", eventPriority = 8)
+                         "LBMR", "mortalityAndGrowth", eventPriority = 5)
     sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
                          "LBMR", "summaryBGM", eventPriority = 6)
     if(!is.null(sim$rstCurrentBurn)){ # anything related to fire disturbance
@@ -124,14 +124,15 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
       stop("Undefined seed dispersal type!")
     }
     sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
-                         "LBMR", "summaryRegen", eventPriority = 5)
+                         "LBMR", "summaryRegen", eventPriority = 5.5)
     sim <- scheduleEvent(sim, params(sim)$LBMR$.plotInitialTime + sim$successionTimestep,
                          "LBMR", "plot", eventPriority = 7)
     sim <- scheduleEvent(sim, params(sim)$LBMR$.saveInitialTime + sim$successionTimestep,
                          "LBMR", "save", eventPriority = 7.5)
   } else if (eventType == "mortalityAndGrowth") {
     sim <- LBMRMortalityAndGrowth(sim)
-    sim <- scheduleEvent(sim, time(sim) + 1, "LBMR", "mortalityAndGrowth", eventPriority = 8)
+    sim <- scheduleEvent(sim, time(sim) + 1, "LBMR", "mortalityAndGrowth", 
+                         eventPriority = 5)
   } else if (eventType == "summaryBGM"){
     sim <- LBMRSummaryBGM(sim)
     sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
@@ -161,7 +162,7 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
   } else if (eventType == "summaryRegen"){
     sim <- LBMRSummaryRegen(sim)
     sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
-                         "LBMR", "summaryRegen", eventPriority = 5)
+                         "LBMR", "summaryRegen", eventPriority = 5.5)
   } else if (eventType == "plot") {
     sim <- LBMRPlot(sim)
     sim <- scheduleEvent(sim, time(sim) + pmin(sim$successionTimestep, sim$fireTimestep),
@@ -967,7 +968,7 @@ LBMRSummaryRegen = function(sim){
   pixelGroupMap <- sim$pixelGroupMap
   names(pixelGroupMap) <- "pixelGroup"
   # please note that the calculation of reproduction is based on successioinTime step interval,
-  pixelAll <- cohortData[age == 1,
+  pixelAll <- cohortData[age <= sim$successionTimestep,
                          .(uniqueSumReproduction = sum(B, na.rm=TRUE)),
                          by = pixelGroup]
   if(NROW(pixelAll)>0){

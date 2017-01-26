@@ -345,8 +345,7 @@ setMethod("LANDISDisp",
                                 plot.it=FALSE, maxPotentialsLength, verbose, ...) {
             cellSize=unique(res(pixelGroupMap))
             pixelGroupMapVec <- getValues(pixelGroupMap)
-            
-            seedsReceived <- raster(pixelGroupMap); 
+            seedsReceived <- raster(pixelGroupMap) 
             seedsReceived[] <- 0
             sc <- species %>%
               dplyr::select(speciesCode, seeddistance_eff, seeddistance_max) %>%
@@ -423,6 +422,7 @@ setMethod("LANDISDisp",
               
               
               # Go to species level
+              
               spRcvCommCodes <- speciesComm(unique(speciesRcvPool$speciesRcvPool), sc=sc)
               #spRcvCommCodes <- speciesComm(unique(potentials$RcvCommunity))
               setkey(spRcvCommCodes, RcvCommunity)
@@ -451,7 +451,7 @@ setMethod("LANDISDisp",
                 
                 # because there will be duplicate "from - to" pairs, say from 2 different species, only calculate
                 #   distance once, then re-join the shorter version back to longer version by species
-                shortPotentials <- setkey(potentials, fromInit, to) %>% unique %>% .[,list(fromInit, to)] 
+                shortPotentials <- setkey(potentials, fromInit, to) %>% unique(., by = c("fromInit", "to")) %>% .[,list(fromInit, to)] 
                 set(shortPotentials, , "dis", pointDistance(xysAll[shortPotentials[,fromInit],], xysAll[shortPotentials[,to],], 
                                                             lonlat=FALSE)) 
                 
@@ -484,6 +484,8 @@ setMethod("LANDISDisp",
                   set(potentials,,"pixelGroup",pixelGroupMapVec[potentials[,to]])
                   setkey(dtSrcShort, speciesCode, pixelGroup)
                   setkey(potentials, speciesCode, pixelGroup)
+
+                  
                   potentialsWithSeedDT <- potentials[dtSrcShort, nomatch=0]
                   if(NROW(potentialsWithSeedDT)>0) {
                     #                     cat("\n Year:",round(time(sim)),"\n")
