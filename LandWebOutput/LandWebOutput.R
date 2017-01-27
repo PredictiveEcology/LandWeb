@@ -25,10 +25,7 @@ defineModule(sim, list(
     expectsInput(objectName = "summaryPeriod", objectClass = "numeric", 
                  desc = "a numeric vector contains the start year and end year of summary", 
                  sourceURL = NA),
-    expectsInput(objectName = "summaryUnit", objectClass = "sptialPolygons", 
-                 desc = "a forest management unit map or something like this, default is ecodistrict", 
-                 sourceURL = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip"),
-    expectsInput(objectName = "seralStage", objectClass = "data.frame", 
+    expectsInput(objectName = "seralStageTable", objectClass = "data.frame", 
                  desc = "a data frame contains how to define seral stage by stand age,
                  how each stage is named", 
                  sourceURL = NA),
@@ -38,8 +35,8 @@ defineModule(sim, list(
     expectsInput(objectName = "patchSize", objectClass = "numeric", 
                  desc = "A number to define patche, ie., bigger than or equal to this size", 
                  sourceURL = NA),
-    expectsInput(objectName = "timeSinceFire", objectClass = "RasterLayer", 
-                 desc = "a time since fire map", 
+    expectsInput(objectName = "rstTimeSinceFire", objectClass = "raster", 
+                 desc = "a time since fire raster layer", 
                  sourceURL = NA),
     expectsInput(objectName = "cohortData", objectClass = "data.table", 
                  desc = "age cohort-biomass table hooked to pixel group map by pixelGroupIndex at
@@ -64,13 +61,15 @@ doEvent.LandWebOutput = function(sim, eventTime, eventType, debug = FALSE) {
                          eventPriority = 7.5)
     sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "save",
                          eventPriority = 8)
-  }   else if (eventType == "allEvents" & time(sim) <= sim$summaryPeriod[2]) {
+  }   else if (time(sim) >= sim$summaryPeriod[1] & eventType == "allEvents" & 
+               time(sim) <= sim$summaryPeriod[2]) {
+    sim <- sim$LandWebOutputAllEvents(sim)
     sim <- scheduleEvent(sim,  time(sim) + P(sim)$summaryInterval,
                          "LandWebOutput", "allEvents", eventPriority = 7.5)
   } else if (eventType == "save") {
+    sim <- sim$LandWebOutputSave(sim)
     sim <- scheduleEvent(sim, time(sim) + P(sim)$summaryInterval, 
                          "LandWebOutput", "save", eventPriority = 8)
-    
   } else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
@@ -92,45 +91,29 @@ LandWebOutputInit <- function(sim) {
   return(invisible(sim))
 }
 
-### template for save events
-LandWebOutputSave <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # do stuff for this event
-  sim <- saveFiles(sim)
-  
-  # ! ----- STOP EDITING ----- ! #
-  return(invisible(sim))
-}
-
-### template for plot events
-LandWebOutputPlot <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # do stuff for this event
-  #Plot("object")
-  
-  # ! ----- STOP EDITING ----- ! #
-  return(invisible(sim))
-}
-
 ### template for your event1
 LandWebOutputAllEvents <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
-  
   # seral stage summary 
-  SAdata <- cohortdata[,.(SA=max(age, na.rm = TRUE)), by = pixelGroup] 
-  SAdata[SA < 40, SAStage:=1] # stage 1 young forests 
-  SAdata[SA >= 40 & SA < 80, SAStage:=2] # stage 2 mature forests 
-  SAdata[SA >= 80 & SA < 100, SAStage:=3] # stage 3 old forests 
-  SAdata[SA >= 100, SAStage:=4] # stage 4 overold forests 
-  names(pixelGroupMap) <- "pixelGroup" 
-  seralStageMap <- rasterizeReduced(SAdata, pixelGroupMap, "SAStage") 
-  
+  nonActivePixels <- Which(sim$pixelGroupMap == -1, cell = TRUE)
+  seralStageMap <- sim$rstTimeSinceFire
+  seralStageMap[nonActivePixels] <- NA
+  SAPixelTable <- data.table(pixelIndex = 1:ncell(seralStageMap),
+                            SA = getValues(seralStageMap))[!is.na(SA),]
+  SAPixelTable[, seralStage:=cut(SA, breaks = c(seralStageTable$SA, max(SAPixelTable$SA)), 
+                                 labels = seralStageTable$seralName,
+                                 include.lowest = TRUE)]
+  SAPixelTable[, Classification:=as.numeric(seralStage)]
+  seralStageMap[SAPixelTable$pixelIndex] <- SAPixelTable$Classification
+  sim$seralStageMap <- seralStageMap
   # vegetation type summary 
-  species[species == "PINU.BAN" | species == "PINU.CON", speciesGroup := "PINU"] 
-  species[species == "BETU.PAP" | species == "POPU.BAL" | 
-            species == "POPU.TRE" | species == "LARI.LAR", speciesGroup := "DECI"] 
-  species[species == "PICE.MAR" | species == "PICE.GLA", speciesGroup := "PICE"] 
+  species <- sim$species
+  species[species == "Pinu_Ban" | species == "Pinu_Con", speciesGroup := "Pinu"] 
+  species[species == "Betu_Pap" | species == "Popu_Bal"| 
+            species == "Popu_Tre" | species == "Lari_Lar", speciesGroup := "DECI"] 
+  species[species == "Pice_Mar" | species == "Pice_Gla", speciesGroup := "PICE"] 
+  cohortdata <- sim$cohortData
   shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,.(speciesCode, speciesGroup)], 
                                                             speciesCode), nomatch = 0] 
   shortcohortdata[, totalB := sum(B, na.rm = TRUE), by = pixelGroup] 
@@ -138,29 +121,73 @@ LandWebOutputAllEvents <- function(sim) {
                                         totalB = mean(totalB, na.rm = TRUE)), 
                                      by = c("pixelGroup", "speciesGroup")] 
   shortcohortdata[,speciesPercentage:=speciesGroupB/totalB] 
-  shortcohortdata[speciesGroup == "PINU" & speciesPercentage > 0.5, speciesLeading := 1]# pine leading 
-  shortcohortdata[speciesGroup == "DECI" & speciesPercentage > 0.5, speciesLeading := 2]# deciduous leading 
-  shortcohortdata[speciesGroup == "PICE" & speciesPercentage > 0.5, speciesLeading := 3]# spruce leading 
+  shortcohortdata[speciesGroup == "PINU" & speciesPercentage > vegLeadingPercent,
+                  speciesLeading := 1]# pine leading 
+  shortcohortdata[speciesGroup == "DECI" & speciesPercentage > vegLeadingPercent,
+                  speciesLeading := 2]# deciduous leading 
+  shortcohortdata[speciesGroup == "PICE" & speciesPercentage > vegLeadingPercent,
+                  speciesLeading := 3]# spruce leading 
   shortcohortdata[is.na(speciesLeading), speciesLeading := 0] 
   shortcohortdata[,speciesLeading:=max(speciesLeading, na.rm = TRUE), by = pixelGroup] 
   shortcohortdata <- unique(shortcohortdata[,.(pixelGroup, speciesLeading)], by = "pixelGroup") 
   shortcohortdata[speciesLeading == 0, speciesLeading := 4] # 4 is mixed forests 
+  pixelGroupMap <- sim$pixelGroupMap
   vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading") 
-  writeRaster(seralStageMap, file.path(outputpath, 
-                                       paste("seralStageMap_Year", year, ".tif", sep = "")), 
-              overwrite = TRUE) 
-  writeRaster(vegTypeMap, file.path(outputpath, 
-                                    paste("vegTypeMap_Year", year, ".tif", sep = "")), 
-              overwrite = TRUE) 
-
+  sim$vegTypeMap <- vegTypeMap
+  oldSeral <- raster(seralStageMap)
+  seralStageTable <- data.table(seralStageTable)
+  oldSeralClass <- unique(SAPixelTable[,.(seralStage, Classification)], by = "seralStage")[seralStage == seralStageTable[SA == max(seralStageTable$SA),]$seralName,]$Classification
+  if(length(oldSeralClass) == 0){
+    sim$oldBigPatch <- oldSeral
+  } else {
+    oldSeral[Which(seralStageMap==oldSeralClass, cell = TRUE)] <- 1
+    oldSeral[Which(seralStageMap==3, cell = TRUE)] <- 1
+    oldPatchs <- clump(oldSeral, directions = 8)
+    freqTable <- data.table(freq(oldPatchs))[!is.na(value),][, area:=count*(res(oldPatchs)[1]^2)/10000]
+    targetPatchs <- freqTable[area >= patchSize,][,newValue:=as.numeric(as.factor(value))]
+    oldBigPatch <- raster(seralStageMap)
+    if(nrow(targetPatchs)==0){
+      sim$oldBigPatch <- oldBigPatch
+    } else {
+      for(i in 1:nrow(targetPatchs)){
+      oldBigPatch[Which(oldPatchs==targetPatchs$value[i], cell = TRUE)] <- targetPatchs$newValue[i]
+      }
+      sim$oldBigPatch <- oldBigPatch
+    }
+  }
 # ! ----- STOP EDITING ----- ! #
 return(invisible(sim))
 }
 
+### template for save events
+LandWebOutputSave <- function(sim) {
+  # ! ----- EDIT BELOW ----- ! #
+  # do stuff for this event
+  if(!dir.exists(file.path(outputPath(sim), "seralStageMaps"))){
+    dir.create(file.path(outputPath(sim), "seralStageMaps"))
+  }
+  if(!dir.exists(file.path(outputPath(sim), "vegLeadingMaps"))){
+    dir.create(file.path(outputPath(sim), "vegLeadingMaps"))
+  }
+  if(!dir.exists(file.path(outputPath(sim), "patchMaps"))){
+    dir.create(file.path(outputPath(sim), "patchMaps"))
+  }
+  writeRaster(sim$seralStageMap, file.path(outputPath(sim), "seralStageMaps",
+                                       paste("seralStageMap_Year", time(sim), ".tif", sep = "")), 
+              overwrite = TRUE) 
+  writeRaster(sim$vegTypeMap, file.path(outputPath(sim), "vegLeadingMaps",
+                                    paste("vegTypeMap_Year", time(sim), ".tif", sep = "")), 
+              overwrite = TRUE) 
+  writeRaster(sim$oldBigPatch, file.path(outputPath(sim), "patchMaps",
+                                        paste("patchMap_Year", time(sim), ".tif", sep = "")), 
+              overwrite = TRUE)
+  # ! ----- STOP EDITING ----- ! #
+  return(invisible(sim))
+}
 
 .inputObjects = function(sim) {
   sim$summaryPeriod <- c(1000, 1500)
-  sim$seralStage <- data.frame(SA = c(0, 40, 80, 120), 
+  sim$seralStageTable <- data.frame(SA = c(0, 40, 80, 120), 
                                seralName = c("Young", "Immature", "Mature", "Old"))
   sim$patchSize <- 5000
   sim$vegLeadingPercent <- 0.80
