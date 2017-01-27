@@ -23,8 +23,8 @@ defineModule(sim, list(
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur")
   ),
   inputObjects = data.frame(
-    objectName = c("LCC05","rstFlammable","rstStudyRegion","burnLoci"),
-    objectClass = c("RasterLayer","RasterLayer","RasterLayer","vector"),
+    objectName = c("LCC05","rstFlammable","rstStudyRegion","burnLoci", "rstCurrentBurn"),
+    objectClass = c("RasterLayer","RasterLayer","RasterLayer","vector", "RasterLayer"),
     sourceURL = "",
     other = NA_character_,
     stringsAsFactors = FALSE
@@ -53,6 +53,7 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, params(sim)$timeSinceFire$.saveInitialTime, "timeSinceFire", "save")
     sim <- scheduleEvent(sim, params(sim)$timeSinceFire$startTime, "timeSinceFire", "age")
   } else if (eventType == "age") {
+    sim$burnLoci <- Which(sim$rstCurrentBurn==1, cell = TRUE)
     sim$rstTimeSinceFire <- sim$rstTimeSinceFire + params(sim)$timeSinceFire$returnInterval #preserves NAs
     sim$rstTimeSinceFire[sim$burnLoci] <- 0
     #schedule next age event
@@ -91,7 +92,9 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 timeSinceFireInit <- function(sim) {
     #browser()
-  
+  if(is.null(sim$burnLoci)){
+    sim$burnLoci <- Which(sim$rstCurrentBurn==1, cell = TRUE)
+  }
   # Much faster than call rasterize again
   sim$rstTimeSinceFire <- raster(sim$rstStudyRegion)
   sim$rstTimeSinceFire[] <- shpStudyRegion$LTHRC[sim$rstStudyRegion[]]
