@@ -655,7 +655,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   
   
   # 3. species maps
-  sim$specieslayers <- raster::stack()
+  sim$specieslayers <- stack()
   speciesnames <- c("Abie_Las",
                     "Pice_Gla", "Pice_Mar", 
                     "Pinu_Ban", "Pinu_Con", 
