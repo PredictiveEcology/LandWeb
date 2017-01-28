@@ -1,16 +1,14 @@
-*.cpg
 *.csv
-*.dat
 *.dbf
-*.gz
-*.hdr
 *.prj
+*.rds
 *.sbn
 *.sbx
 *.shp
 *.shx
 *.tar
 *.tif
-*.xml
+*.tif.aux.xml
+*.tif.xml
 *.zip
 
