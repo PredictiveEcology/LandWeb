@@ -1,6 +1,7 @@
 .Rapp.history
 .RData
 .Rhistory
+.Rproj.user
 .log
 .csv
 last.dump.rda
@@ -9,5 +10,3 @@ landWebParent/data/
 landWebDataPrep/data/
 landWebDataPrep/outputs/
 
-
-.Rproj.user
