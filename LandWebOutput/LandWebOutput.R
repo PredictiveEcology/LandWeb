@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandWebOutput.Rmd"),
-  reqdPkgs = list(),
+  reqdPkgs = list("SpaDES"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter("summaryInterval", "numeric", 50, NA, NA, "This describes summary interval for this module"),
