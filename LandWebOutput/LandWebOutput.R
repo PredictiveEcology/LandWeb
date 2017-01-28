@@ -106,6 +106,7 @@ LandWebOutputAllEvents <- function(sim) {
                                  include.lowest = TRUE)]
   SAPixelTable[, Classification:=as.numeric(seralStage)]
   seralStageMap[SAPixelTable$pixelIndex] <- SAPixelTable$Classification
+  levels(seralStageMap) <- as.data.frame(unique(SAPixelTable[,.(ID=Classification, factor = seralStage)], by = "ID"))
   sim$seralStageMap <- seralStageMap
   # vegetation type summary 
   species <- sim$species
@@ -131,8 +132,15 @@ LandWebOutputAllEvents <- function(sim) {
   shortcohortdata[,speciesLeading:=max(speciesLeading, na.rm = TRUE), by = pixelGroup] 
   shortcohortdata <- unique(shortcohortdata[,.(pixelGroup, speciesLeading)], by = "pixelGroup") 
   shortcohortdata[speciesLeading == 0, speciesLeading := 4] # 4 is mixed forests 
+  attritable <- data.table(ID = unique(shortcohortdata$speciesLeading))
+  attritable[ID == 1, Factor := "Pine leading"]
+  attritable[ID == 2, Factor := "Deciduous leading"]
+  attritable[ID == 3, Factor := "Spruce leading"]
+  attritable[ID == 4, Factor := "Mixed"]
   pixelGroupMap <- sim$pixelGroupMap
   vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading") 
+  levels(vegTypeMap) <- as.data.frame(attritable)
+  projection(vegTypeMap) <- projection(sim$pixelGroupMap)
   sim$vegTypeMap <- vegTypeMap
   oldSeral <- raster(seralStageMap)
   seralStageTable <- data.table(seralStageTable)
@@ -173,13 +181,13 @@ LandWebOutputSave <- function(sim) {
     dir.create(file.path(outputPath(sim), "patchMaps"))
   }
   writeRaster(sim$seralStageMap, file.path(outputPath(sim), "seralStageMaps",
-                                       paste("seralStageMap_Year", time(sim), ".tif", sep = "")), 
+                                       paste("seralStageMap_Year", time(sim), ".grd", sep = "")), 
               overwrite = TRUE) 
   writeRaster(sim$vegTypeMap, file.path(outputPath(sim), "vegLeadingMaps",
-                                    paste("vegTypeMap_Year", time(sim), ".tif", sep = "")), 
+                                    paste("vegTypeMap_Year", time(sim), ".grd", sep = "")), 
               overwrite = TRUE) 
   writeRaster(sim$oldBigPatch, file.path(outputPath(sim), "patchMaps",
-                                        paste("patchMap_Year", time(sim), ".tif", sep = "")), 
+                                        paste("patchMap_Year", time(sim), ".grd", sep = "")), 
               overwrite = TRUE)
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
