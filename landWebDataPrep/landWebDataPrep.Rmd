@@ -24,9 +24,12 @@ For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 library(SpaDES)
 library(magrittr)
 library(raster)
-inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
-times <- list(start = 0, end = 100)
 library(rgdal)
+
+inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
+
+times <- list(start = 0, end = 100)
+
 if (Sys.info()[1] == "Linux") {
   curDir <- file.path("~", "Documents", "GitHub", "LandWeb")
 } else {
@@ -83,13 +86,12 @@ objects <- list("shpStudyRegionX" = shpStudyRegion,
                 "successionTimestep" = successionTimestep,
                 "summaryPeriod" = c(10, 20))
 
-parameters <- list(fireNull = list(burnInitialTime = 1,
-                  returnInterval = 1,
-                  .statsInitialTime = 1),
-                  LandWebOutput = list(summaryInterval = 2),
-                  LBMR = list(.plotInitialTime = times$start),
-                  initBaseMaps = list(.useCache = TRUE))
-
+parameters <- list(
+  fireNull = list(burnInitialTime = 1, returnInterval = 1, .statsInitialTime = 1),
+  LandWebOutput = list(summaryInterval = 2),
+  LBMR = list(.plotInitialTime = times$start),
+  initBaseMaps = list(.useCache = TRUE)
+)
 
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
