@@ -94,6 +94,19 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
+## ensure all required packages are installed
+needsInstall <- sapply(packages(mySim), function(pkg) {
+  !require(pkg, character.only = TRUE, quietly = TRUE)
+})
+if (any(needsInstall)) {
+  stop("Some required packages are missing. Use the following to install them:\n",
+       "  install.packages(names(which(needsInstall)))")
+}
+
+## don't use Rstudio graphics
+dev.useRSGD(FALSE)
+
+##run the model
 a <- spades(Copy(mySim), debug = TRUE)
 ```
 
