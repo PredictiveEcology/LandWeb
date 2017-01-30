@@ -48,12 +48,19 @@ paths <- if (Sys.info()[["user"]] == "achubaty") {
   )
 }
 
-shpStudyRegion <- Cache(shapefile, file.path(curDir,"landWebDataPrep", "data", "shpLandWEB.shp"),
-                        cacheRepo = paths$cachePath)
+f <- file.path(curDir,"landWebDataPrep", "data", "shpLandWEB.shp")
+if (!file.exists(f)) {
+  ## TO DO: need to download if doesn't exist
+}
+shpStudyRegion <- Cache(shapefile, f, cacheRepo = paths$cachePath)
 shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
-shpStudyRegion@data <- shpStudyRegion@data[,!(names(shpStudyRegion) %in% "ECODISTRIC")]
+shpStudyRegion@data <- shpStudyRegion@data[, !(names(shpStudyRegion) %in% "ECODISTRIC")]
 
-biomassMap <- raster(file.path(curDir,"landWebDataPrep", "data",                               "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif"))
+r <- file.path(curDir,"landWebDataPrep", "data",  "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
+if (!file.exists(r)) {
+  ## TO DO: need to download if doesn't exist
+}
+biomassMap <- raster(r)
 SMALL <- TRUE
 if (SMALL) {
   smallExt <- new("Extent" , xmin = -983660, xmax = -899973, ymin = 8007529, ymax = 8085986)
@@ -71,9 +78,11 @@ modules <- list("landWebDataPrep", "initBaseMaps", "LandMine", "landWeb_LBMRData
 fireModules <- list("landWebDataPrep", "initBaseMaps", "LandMine", "timeSinceFire", "LandWebOutput")
 
 successionTimestep <- 2
+
 objects <- list("shpStudyRegionX" = shpStudyRegion,
                 "successionTimestep" = successionTimestep,
                 "summaryPeriod" = c(10, 20))
+
 parameters <- list(fireNull = list(burnInitialTime = 1,
                   returnInterval = 1,
                   .statsInitialTime = 1),

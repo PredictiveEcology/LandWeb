@@ -29,7 +29,7 @@ defineModule(sim, list(
                  sourceURL = NA),
     expectsInput(objectName = "shpStudyRegionX", objectClass = "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: study area and fire return interval", 
-                 sourceURL = NA), # i guess this is study area and fire return interval
+                 sourceURL = "https://ln.sync.com/dl/4c0ccab80#txwgbma8-d7ta56ar-4pf8rp5d-icpis7ga"), # i guess this is study area and fire return interval
     expectsInput(objectName = "biomassMap", objectClass = "RasterLayer", 
                  desc = "total biomass raster layer in study area, default is canada national biomass map", 
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar"),
@@ -158,11 +158,11 @@ landWebDataPrepPlot <- function(sim) {
                  "LCC2005_V1_4a.tif")
   fileNames <- lapply(fileNames, function(x){file.path(dataPath, x)})
   allFiles <- lapply(fileNames, function(x) {
-    file.info(x)[,"size"]}
+    file.info(x)[, "size"]}
   )
   names(allFiles) <- unlist(lapply(fileNames, basename))
   needDownload <- digest::digest(allFiles) != "ea72c7607d0ea744b64e182459c940bc"
-  if(needDownload){
+  if (needDownload) {
     checkTable <- data.table(downloadData(module = "landWebDataPrep", path = modulePath(sim)))
     untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
           files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
