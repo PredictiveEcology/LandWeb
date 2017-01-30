@@ -27,17 +27,26 @@ library(raster)
 inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 times <- list(start = 0, end = 100)
 library(rgdal)
-if(Sys.info()[1] == "Linux"){
+if (Sys.info()[1] == "Linux") {
   curDir <- file.path("~", "Documents", "GitHub", "LandWeb")
 } else {
   curDir <- file.path("~", "GitHub", "LandWeb")
 }
-paths <- list(
-  cachePath = file.path("~", "CachedFiles"),
-  modulePath = curDir,
-  inputPath = inputDir,
-  outputPath = file.path("~", "simulationOutput")
-)
+paths <- if (Sys.info()[["user"]] == "achubaty") {
+  list(
+    cachePath = file.path("~/SpaDES/cache"),
+    modulePath = curDir,
+    inputPath = inputDir,
+    outputPath = file.path("~/SpaDES/outputs")
+  )
+} else {
+  list(
+    cachePath = file.path("~", "CachedFiles"),
+    modulePath = curDir,
+    inputPath = inputDir,
+    outputPath = file.path("~", "simulationOutput")
+  )
+}
 
 shpStudyRegion <- Cache(shapefile, file.path(curDir,"landWebDataPrep", "data", "shpLandWEB.shp"),
                         cacheRepo = paths$cachePath)
@@ -46,9 +55,8 @@ shpStudyRegion@data <- shpStudyRegion@data[,!(names(shpStudyRegion) %in% "ECODIS
 
 biomassMap <- raster(file.path(curDir,"landWebDataPrep", "data",                               "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif"))
 SMALL <- TRUE
-if(SMALL) {
-  smallExt <- new("Extent" , xmin = -983660, xmax = -899973, 
-                  ymin = 8007529, ymax = 8085986)
+if (SMALL) {
+  smallExt <- new("Extent" , xmin = -983660, xmax = -899973, ymin = 8007529, ymax = 8085986)
   shpStudyRegion2 <- spTransform(shpStudyRegion, crs(biomassMap))
   shpStudyRegion <- crop(shpStudyRegion2, smallExt)
 }
@@ -71,7 +79,7 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                   .statsInitialTime = 1),
                   LandWebOutput = list(summaryInterval = 2),
                   LBMR = list(.plotInitialTime = times$start),
-                  initBaseMaps = list(.useCache=TRUE))
+                  initBaseMaps = list(.useCache = TRUE))
 
 
 mySim <- simInit(times = times, params = parameters, modules = modules,
