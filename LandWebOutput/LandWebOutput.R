@@ -61,16 +61,20 @@ doEvent.LandWebOutput = function(sim, eventTime, eventType, debug = FALSE) {
                          eventPriority = 7.5)
     sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "save",
                          eventPriority = 8)
-  }   else if (time(sim) >= sim$summaryPeriod[1] & eventType == "allEvents" & 
-               time(sim) <= sim$summaryPeriod[2]) {
-    sim <- sim$LandWebOutputAllEvents(sim)
-    sim <- scheduleEvent(sim,  time(sim) + P(sim)$summaryInterval,
-                         "LandWebOutput", "allEvents", eventPriority = 7.5)
+  } else if (eventType == "allEvents") {
+    if(time(sim) >= sim$summaryPeriod[1] & time(sim) <= sim$summaryPeriod[2]){
+      sim <- sim$LandWebOutputAllEvents(sim)
+      sim <- scheduleEvent(sim,  time(sim) + P(sim)$summaryInterval,
+                           "LandWebOutput", "allEvents", eventPriority = 7.5)
+    }
   } else if (eventType == "save") {
-    sim <- sim$LandWebOutputSave(sim)
-    sim <- scheduleEvent(sim, time(sim) + P(sim)$summaryInterval, 
-                         "LandWebOutput", "save", eventPriority = 8)
+    if(time(sim) >= sim$summaryPeriod[1] & time(sim) <= sim$summaryPeriod[2]){
+      sim <- sim$LandWebOutputSave(sim)
+      sim <- scheduleEvent(sim, time(sim) + P(sim)$summaryInterval, 
+                           "LandWebOutput", "save", eventPriority = 8)
+    }
   } else {
+    browser()
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
   }
@@ -100,7 +104,7 @@ LandWebOutputAllEvents <- function(sim) {
   seralStageMap <- sim$rstTimeSinceFire
   seralStageMap[nonActivePixels] <- NA
   SAPixelTable <- data.table(pixelIndex = 1:ncell(seralStageMap),
-                            SA = getValues(seralStageMap))[!is.na(SA),]
+                             SA = getValues(seralStageMap))[!is.na(SA),]
   SAPixelTable[, seralStage:=cut(SA, breaks = c(seralStageTable$SA, max(SAPixelTable$SA)), 
                                  labels = seralStageTable$seralName,
                                  include.lowest = TRUE)]
@@ -158,13 +162,13 @@ LandWebOutputAllEvents <- function(sim) {
       sim$oldBigPatch <- oldBigPatch
     } else {
       for(i in 1:nrow(targetPatchs)){
-      oldBigPatch[Which(oldPatchs==targetPatchs$value[i], cell = TRUE)] <- targetPatchs$newValue[i]
+        oldBigPatch[Which(oldPatchs==targetPatchs$value[i], cell = TRUE)] <- targetPatchs$newValue[i]
       }
       sim$oldBigPatch <- oldBigPatch
     }
   }
-# ! ----- STOP EDITING ----- ! #
-return(invisible(sim))
+  # ! ----- STOP EDITING ----- ! #
+  return(invisible(sim))
 }
 
 ### template for save events
@@ -180,15 +184,15 @@ LandWebOutputSave <- function(sim) {
   if(!dir.exists(file.path(outputPath(sim), "patchMaps"))){
     dir.create(file.path(outputPath(sim), "patchMaps"))
   }
-  writeRaster(sim$seralStageMap, file.path(outputPath(sim), "seralStageMaps",
-                                       paste("seralStageMap_Year", time(sim), ".grd", sep = "")), 
-              overwrite = TRUE) 
-  writeRaster(sim$vegTypeMap, file.path(outputPath(sim), "vegLeadingMaps",
-                                    paste("vegTypeMap_Year", time(sim), ".grd", sep = "")), 
-              overwrite = TRUE) 
-  writeRaster(sim$oldBigPatch, file.path(outputPath(sim), "patchMaps",
-                                        paste("patchMap_Year", time(sim), ".grd", sep = "")), 
-              overwrite = TRUE)
+  suppressWarnings(writeRaster(sim$seralStageMap, file.path(outputPath(sim), "seralStageMaps",
+                                                            paste("seralStageMap_Year", time(sim), ".grd", sep = "")), 
+                               overwrite = TRUE)) 
+  suppressWarnings(writeRaster(sim$vegTypeMap, file.path(outputPath(sim), "vegLeadingMaps",
+                                                         paste("vegTypeMap_Year", time(sim), ".grd", sep = "")), 
+                               overwrite = TRUE)) 
+  suppressWarnings(writeRaster(sim$oldBigPatch, file.path(outputPath(sim), "patchMaps",
+                                                          paste("patchMap_Year", time(sim), ".grd", sep = "")), 
+                               overwrite = TRUE))
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -196,7 +200,7 @@ LandWebOutputSave <- function(sim) {
 .inputObjects = function(sim) {
   sim$summaryPeriod <- c(1000, 1500)
   sim$seralStageTable <- data.frame(SA = c(0, 40, 80, 120), 
-                               seralName = c("Young", "Immature", "Mature", "Old"))
+                                    seralName = c("Young", "Immature", "Mature", "Old"))
   sim$patchSize <- 5000
   sim$vegLeadingPercent <- 0.80
   return(invisible(sim))
