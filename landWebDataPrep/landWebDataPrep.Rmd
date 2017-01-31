@@ -28,7 +28,7 @@ library(rgdal)
 
 inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 
-times <- list(start = 0, end = 100)
+times <- list(start = 0, end = 30)
 
 if (Sys.info()[1] == "Linux") {
   curDir <- file.path("~", "Documents", "GitHub", "LandWeb")
