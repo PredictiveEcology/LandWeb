@@ -51,7 +51,7 @@ paths <- if (Sys.info()[["user"]] == "achubaty") {
   )
 }
 
-f <- file.path(curDir,"landWebDataPrep", "data", "shpLandWEB.shp")
+f <- file.path(curDir, "landWebDataPrep", "data", "shpLandWEB.shp")
 if (!file.exists(f)) {
   ## TO DO: need to download if doesn't exist
 }
