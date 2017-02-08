@@ -70,7 +70,8 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                   returnInterval = 1,
                   .statsInitialTime = 1),
                   LandWebOutput = list(summaryInterval = 2),
-                  LBMR = list(.plotInitialTime = times$start),
+                  LBMR = list(.plotInitialTime = times$start,
+                              .saveInitialTime = NA),
                   initBaseMaps = list(.useCache=TRUE))
 
 
