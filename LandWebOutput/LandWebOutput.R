@@ -33,7 +33,7 @@ defineModule(sim, list(
                  desc = "a number that define whether a species is lead for a given pixel", 
                  sourceURL = NA),
     expectsInput(objectName = "patchSize", objectClass = "numeric", 
-                 desc = "A number to define patche, ie., bigger than or equal to this size", 
+                 desc = "A number, in ha, to define patch size, ie., bigger than or equal to this size", 
                  sourceURL = NA),
     expectsInput(objectName = "rstTimeSinceFire", objectClass = "raster", 
                  desc = "a time since fire raster layer", 
@@ -180,15 +180,15 @@ LandWebOutputSave <- function(sim) {
   if(!dir.exists(file.path(outputPath(sim), "patchMaps"))){
     dir.create(file.path(outputPath(sim), "patchMaps"))
   }
-  writeRaster(sim$seralStageMap, file.path(outputPath(sim), "seralStageMaps",
-                                       paste("seralStageMap_Year", time(sim), ".grd", sep = "")), 
-              overwrite = TRUE) 
-  writeRaster(sim$vegTypeMap, file.path(outputPath(sim), "vegLeadingMaps",
-                                    paste("vegTypeMap_Year", time(sim), ".grd", sep = "")), 
-              overwrite = TRUE) 
-  writeRaster(sim$oldBigPatch, file.path(outputPath(sim), "patchMaps",
-                                        paste("patchMap_Year", time(sim), ".grd", sep = "")), 
-              overwrite = TRUE)
+  #writeRaster(sim$seralStageMap, file.path(outputPath(sim), "seralStageMaps",
+  #                                     paste("seralStageMap_Year", time(sim), ".grd", sep = "")), 
+  #            overwrite = TRUE) 
+  #writeRaster(sim$vegTypeMap, file.path(outputPath(sim), "vegLeadingMaps",
+  #                                  paste("vegTypeMap_Year", time(sim), ".grd", sep = "")), 
+  #            overwrite = TRUE) 
+  #writeRaster(sim$oldBigPatch, file.path(outputPath(sim), "patchMaps",
+  #                                      paste("patchMap_Year", time(sim), ".grd", sep = "")), 
+  #            overwrite = TRUE)
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
