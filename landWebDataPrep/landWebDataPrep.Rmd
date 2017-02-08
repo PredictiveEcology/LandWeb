@@ -64,11 +64,41 @@ if (!file.exists(r)) {
   ## TO DO: need to download if doesn't exist
 }
 biomassMap <- raster(r)
-SMALL <- TRUE
-if (SMALL) {
+studyArea <- "medium"
+if (studyArea == "SMALL") {
   smallExt <- new("Extent" , xmin = -983660, xmax = -899973, ymin = 8007529, ymax = 8085986)
   shpStudyRegion2 <- spTransform(shpStudyRegion, crs(biomassMap))
   shpStudyRegion <- crop(shpStudyRegion2, smallExt)
+} if (studyArea == "medium"){
+  shpStudyRegionOrig <- spTransform(shpStudyRegion, crs(biomassMap))
+  set.seed(2)#set.seed(5567913)
+  areaKm2 <- 80000#700000#2000#600000#too big for laptop
+  minX <- -1202250.2
+  maxX <- minX+sqrt(areaKm2*1e6)
+  minY <- 7008877-1.6e5
+  maxY <- minY+sqrt(areaKm2*1e6)
+  meanY <- mean(c(minY, maxY))
+  
+  # Add random noise to polygon
+  xAdd <- round(runif(1,-5e5,1.5e6))
+  yAdd <- round(runif(1,1e5,5e5))-xAdd/2
+  nPoints <- 20
+  betaPar=0.6
+  X = c(jitter(sort(rbeta(nPoints, betaPar, betaPar)*(maxX-minX)+minX)),
+        jitter(sort(rbeta(nPoints, betaPar, betaPar)*(maxX-minX)+minX, decreasing = TRUE)))
+  Y = c(jitter(sort(rbeta(nPoints/2, betaPar, betaPar)*(maxY-meanY)+meanY)),
+        jitter(sort(rbeta(nPoints, betaPar, betaPar)*(maxY-minY)+minY, decreasing = TRUE)),
+        jitter(sort(rbeta(nPoints/2, betaPar, betaPar)*(meanY-minY)+minY)))
+  
+  Sr1 <- Polygon(cbind(X+xAdd,Y+yAdd))
+  Srs1 = Polygons(list(Sr1), "s1")
+  inputMapPolygon <- SpatialPolygons(list(Srs1), 1L)
+  crs(inputMapPolygon) <- crs(biomassMap)
+  dev(4)
+  clearPlot()
+  Plot(shpStudyRegionOrig)
+  Plot(inputMapPolygon, addTo = "shpStudyRegionOrig", col = "red")
+  shpStudyRegion <- intersect(shpStudyRegionOrig, inputMapPolygon)
 }
 
 #modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull", "landWeb_LBMRDataPrep", "LBMR")
