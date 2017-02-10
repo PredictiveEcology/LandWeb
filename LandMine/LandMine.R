@@ -1,6 +1,4 @@
 
-# Everything in this file gets sourced during simInit, and all functions and objects
-# are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
   name = "LandMine",
   description = "insert module description here",
@@ -33,7 +31,6 @@ defineModule(sim, list(
     stringsAsFactors = FALSE
   ),
   outputObjects = bind_rows(
-    #createsOutput("objectName", "objectClass", "output object description", ...),
     createsOutput("rstCurrentBurn", "RasterLayer", paste(
                   "A raster layer, produced at each timestep, where each",
                   "pixel is either 1 or 0 indicating burned or not burned")
@@ -51,8 +48,6 @@ defineModule(sim, list(
   )
 ))
 
-## event types
-#   - type `init` is required for initialiazation
 
 doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
@@ -74,52 +69,10 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
     
     #Plot(objectFromModule) # uncomment this, replace with object to plot
     # schedule future event(s)
-
-    # e.g.,
-    #sim <- scheduleEvent(sim, time(sim) + P(sim)$.plotInterval, "LandMine", "plot")
-
-    # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "save") {
-    # ! ----- EDIT BELOW ----- ! #
-    # do stuff for this event
-
-    # e.g., call your custom functions/methods here
-    # you can define your own methods below this `doEvent` function
-
-    # schedule future event(s)
-
-    # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + P(sim)$.saveInterval, "LandMine", "save")
-
-    # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "LandMineBurn") {
-    # ! ----- EDIT BELOW ----- ! #
-    # do stuff for this event
-
-    # e.g., call your custom functions/methods here
-    # you can define your own methods below this `doEvent` function
-
     sim <- sim$LandMineBurn(sim)
-    # schedule future event(s)
-
-    # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, "LandMine", "templateEvent")
     sim <- scheduleEvent(sim, time(sim) + P(sim)$fireTimestep, "LandMine", "LandMineBurn", 2.5)
-    
-    # ! ----- STOP EDITING ----- ! #
-  } else if (eventType == "event2") {
-    # ! ----- EDIT BELOW ----- ! #
-    # do stuff for this event
-
-    # e.g., call your custom functions/methods here
-    # you can define your own methods below this `doEvent` function
-
-    # schedule future event(s)
-
-    # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, "LandMine", "templateEvent")
-
-    # ! ----- STOP EDITING ----- ! #
   } else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
@@ -127,21 +80,13 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
   return(invisible(sim))
 }
 
-## event functions
-#   - follow the naming convention `modulenameEventtype()`;
-#   - `modulenameInit()` function is required for initiliazation;
-#   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initialization
 LandMineInit <- function(sim) {
-  # # ! ----- EDIT BELOW ----- ! #
   sim$fireTimestep <- P(sim)$fireTimestep
   
   vals <- factorValues(sim$rstStudyRegion, sim$rstStudyRegion[], att="LTHRC")
   vals <- factor(vals$LTHRC)
-  #vals <- factor(sim$fireReturnInterval[], 
-  #               levels = 1:4, 
-  #               labels=c(60, 1000, 1050, 1250))
   numPixelsPerZone <- tabulate(vals)
   returnInterval <- as.numeric(levels(vals))
   sim$avgFireSize <- rep(100, length(returnInterval))
@@ -161,16 +106,10 @@ LandMineInit <- function(sim) {
   if(!is.na(P(sim)$.plotInitialTime)) {
     Plot(sim$fireReturnInterval, speedup = 3, new=TRUE)
   }
-  # ! ----- STOP EDITING ----- ! #
 
   return(invisible(sim))
 }
 
-### template for save events
-LandMineSave <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # do stuff for this event
-  sim <- saveFiles(sim)
 
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
@@ -191,12 +130,6 @@ LandMinePlot <- function(sim) {
 
 ### template for your event1
 LandMineBurn <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
-  #dev();
-  #seed <- sample(1e6,1)
-  #seed <- 340015
-  #set.seed(seed); #print(seed)
   numFires <- rpois(length(sim$numFiresPerYear), lambda=sim$numFiresPerYear)
   
   sim$startCells <- data.table(pixel=1:ncell(sim@.envir$rstStudyRegion),
@@ -205,7 +138,6 @@ LandMineBurn <- function(sim) {
                        .[,SpaDES:::resample(pixel,numFires[.GRP]),by=fri] %>% 
                        .$V1
   fireSizes <- pmax(1, rtruncpareto(length(sim$startCells), 1, 1e4, 0.4))
-  #fireSizes <- pmax(1,rexp(length(sim$startCells), rate = 1/sim@.envir$avgFireSize))
   fires <- sim$burn(sim$fireReturnInterval, startCells = sim$startCells, 
                     fireSizes = fireSizes, spreadProb = sim$rstFlammableNum)
   
@@ -222,34 +154,9 @@ LandMineBurn <- function(sim) {
   return(invisible(sim))
 }
 
-### template for your event2
-LandMineEvent2 <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
-  sim$event2Test1 <- " this is test for event 2. " # for dummy unit test
-  sim$event2Test2 <- 777  # for dummy unit test
-
-
-  # ! ----- STOP EDITING ----- ! #
-  return(invisible(sim))
-}
 
 .inputObjects = function(sim) {
-  # Any code written here will be run during the simInit for the purpose of creating
-  # any objects required by this module and identified in the inputObjects element of defineModule.
-  # This is useful if there is something required before simulation to produce the module
-  # object dependencies, including such things as downloading default datasets, e.g.,
-  # downloadData("LCC2005", modulePath(sim)).
-  # Nothing should be created here that does not create an named object in inputObjects.
-  # Any other initiation procedures should be put in "init" eventType of the doEvent function.
-  # Note: the module developer can use 'sim$.userSuppliedObjNames' in their function below to
-  # selectively skip unnecessary steps because the user has provided those inputObjects in the
-  # simInit call. e.g.,
-  # if (!('defaultColor' %in% sim$.userSuppliedObjNames)) {
-  #  sim$defaultColor <- 'red'
-  # }
-  # ! ----- EDIT BELOW ----- ! #
-  
+
   # Make random forest cover map
   emptyRas <- raster(extent(0, 1e3, 0, 1e3), res = 1)
 
@@ -263,16 +170,8 @@ LandMineEvent2 <- function(sim) {
   sim$fireReturnInterval[] <- as.numeric(as.character(vals))
   
   names(sim$fireReturnInterval) <- "fireReturnInterval"
-  # Can use transparent as a color
-  setColors(sim$fireReturnInterval) <- paste(c("transparent", brewer.pal(8, "Greys")))
-  
-  # note speedup is equivalent to making pyramids, so, some details are lost
-  # initiate 10 fires
-
-  # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
-### add additional events as needed by copy/pasting from above
 
 startPlus1 <- function(sim) {
   start(sim) + 1

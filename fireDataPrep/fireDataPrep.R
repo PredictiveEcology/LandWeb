@@ -23,7 +23,7 @@ defineModule(sim, list(
     defineParameter(".useCache", "numeric", FALSE, NA, NA, "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = data.frame(
-    objectName = c("LCC05", "shpStudyRegion", "rstStudyRegion"), 
+    objectName = c("LCC05", "shpStudyRegion", "rstStudyRegion"),
     objectClass = c("RasterLayer","SpatialPolygonsDataFrame", "RasterLayer"),
     sourceURL = "",
     other = NA_character_,
@@ -31,7 +31,7 @@ defineModule(sim, list(
   ),
   outputObjects = data.frame(
     objectName = c("rstFlammable", "rstBurnProb"),
-    objectClass = c("RasterLayer", "RasterLayer"), 
+    objectClass = c("RasterLayer", "RasterLayer"),
     other = NA_character_,
     stringsAsFactors = FALSE
   )
