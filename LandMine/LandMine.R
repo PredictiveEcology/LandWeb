@@ -111,9 +111,6 @@ LandMineInit <- function(sim) {
 }
 
 
-  # ! ----- STOP EDITING ----- ! #
-  return(invisible(sim))
-}
 
 ### template for plot events
 LandMinePlot <- function(sim) {
