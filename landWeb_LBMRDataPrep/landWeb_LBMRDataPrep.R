@@ -578,7 +578,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     file.info(x)[,"size"]}
     )
   names(allFiles) <- unlist(lapply(fileNames, basename))
-  needDownload <- digest::digest(allFiles) != "05a98a7eab2fcd0ebef7cc21fbfdf75b"#"05a98a7eab2fcd0ebef7cc21fbfdf75b"
+  needDownload <- all(digest::digest(allFiles) != c("9a99479fea036a03f188f71cbabca49e",
+                                                "05a98a7eab2fcd0ebef7cc21fbfdf75b"))
   if(needDownload) {
     checkTable <- data.table(downloadData(module = "landWeb_LBMRDataPrep", 
                                           path = modulePath(sim)))
