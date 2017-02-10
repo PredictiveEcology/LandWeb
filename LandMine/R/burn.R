@@ -45,8 +45,8 @@
 #' @return 
 #'   A \code{data.table} with 4 columns
 burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
-                 sizeCutoffs = c(8e3, 2e4)) {
-  a = spread(landscape, loci = startCells, spreadProb = 1, persistence = 0,
+                 sizeCutoffs = c(8e3, 2e4), spreadProb = 1) {
+  a = spread(landscape, loci = startCells, spreadProb = spreadProb, persistence = 0,
              neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
              mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
              id = TRUE, plot.it = FALSE, exactSizes = TRUE);
@@ -60,7 +60,7 @@ burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36)
     
     # spawnNewActive must be joined sent in here as list...
     b <- b[a]
-    a <- spread(landscape, spreadProb = 1, spreadState = a, persistence = 0,
+    a <- spread(landscape, spreadProb = spreadProb, spreadState = a, persistence = 0,
                 neighProbs = transpose(as.list(b[active==TRUE,c("pNoNewSpawn", "pSpawnNewActive")])), 
                 iterations = 1,
                 mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
