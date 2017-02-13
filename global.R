@@ -300,10 +300,10 @@ if (TRUE) {
 # 
 library(parallel)
 # try(stopCluster(cl), silent = TRUE)
- if (FALSE) {#!exists("cl")) {
-   cl <- makeCluster(detectCores()-1)
-   clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
- }
+if (!exists("cl")) {
+ cl <- makeCluster(detectCores() - 1)
+ clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
+}
 # try(stopCluster(cl4), silent = TRUE)
 # cl4 <- makeCluster(4)
 # 
@@ -311,12 +311,12 @@ message("Running Experiment")
 mySimOut <- Cache(experiment, mySim, replicates = 3, debug = TRUE, #cache = TRUE, 
                                     cl = cl, 
                   .plotInitialTime = NA,
-                  clearSimEnv = TRUE
-                  #,notOlderThan = Sys.time()
+                  clearSimEnv = TRUE#, 
+                  #notOlderThan = Sys.time()
                   )
 
 grds <- unlist(lapply(seq_along(mySimOut), function(x) {
-  grep(pattern = ".grd$", outputs(mySimOut[[x]])$file, value= TRUE)
+  grep(pattern = ".grd$", outputs(mySimOut[[x]])$file, value = TRUE)
 }))
 
 tsf <- grep(pattern = "rstTimeSinceFire", grds, value = TRUE)
@@ -946,3 +946,4 @@ leafletMap <- function(input, output, session, ecodistrictsFullLFLT) {
   #   }
   # })
 }
+  
