@@ -296,10 +296,10 @@ if(TRUE) {
 # 
 library(parallel)
 # try(stopCluster(cl), silent = TRUE)
- if(FALSE) {#!exists("cl")) {
-   cl <- makeCluster(detectCores()-1)
-   clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
- }
+if(!exists("cl")) {
+ cl <- makeCluster(detectCores()-1)
+ clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
+}
 # try(stopCluster(cl4), silent = TRUE)
 # cl4 <- makeCluster(4)
 # 
