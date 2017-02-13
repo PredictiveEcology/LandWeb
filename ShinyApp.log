@@ -1,0 +1,380 @@
+library paths:
+...  C:/Users/emcintir.L-VIC-A023744/Documents/R/win-library/3.3
+...  C:/Eliot/Sync/LandwebApp/R-Portable/App/R-Portable/library
+Loading required package: shiny
+Loading required package: methods
+
+Attaching package: 'shinydashboard'
+
+The following object is masked from 'package:graphics':
+
+    box
+
+
+Attaching package: 'R.oo'
+
+The following object is masked from 'package:RCurl':
+
+    clone
+
+The following object is masked from 'package:shiny':
+
+    printStackTrace
+
+The following objects are masked from 'package:methods':
+
+    getClasses, getMethods
+
+The following objects are masked from 'package:base':
+
+    attach, detach, gc, load, save
+
+Default paths for SpaDES directories set to:
+  cachePath:  C:\Temp\RtmpA3kaCG/SpaDES/cache
+  inputPath:  C:\Temp\RtmpA3kaCG/SpaDES/inputs
+  modulePath: C:\Temp\RtmpA3kaCG/SpaDES/modules
+  outputPath: C:\Temp\RtmpA3kaCG/SpaDES/outputs
+These can be changed using 'setPaths()'. See '?setPaths'.
+
+Attaching package: 'SpaDES'
+
+The following object is masked from 'package:R.oo':
+
+    clearCache
+
+The following objects are masked from 'package:stats':
+
+    end, start, time
+
+
+Attaching package: 'igraph'
+
+The following object is masked from 'package:visNetwork':
+
+    %>%
+
+The following object is masked from 'package:R.oo':
+
+    hierarchy
+
+The following objects are masked from 'package:stats':
+
+    decompose, spectrum
+
+The following object is masked from 'package:base':
+
+    union
+
+
+Attaching package: 'influenceR'
+
+The following objects are masked from 'package:igraph':
+
+    betweenness, constraint
+
+Attaching package bit
+package:bit (c) 2008-2012 Jens Oehlschlaegel (GPL-2)
+creators: bit bitwhich
+coercion: as.logical as.integer as.bit as.bitwhich which
+operator: ! & | xor != ==
+querying: print length any all min max range sum summary
+bit access: length<- [ [<- [[ [[<-
+for more help type ?bit
+
+Attaching package: 'bit'
+
+The following object is masked from 'package:R.oo':
+
+    clone
+
+The following object is masked from 'package:RCurl':
+
+    clone
+
+The following object is masked from 'package:base':
+
+    xor
+
+
+Attaching package: 'devtools'
+
+The following objects are masked from 'package:R.oo':
+
+    check, unload
+
+
+Attaching package: 'raster'
+
+The following objects are masked from 'package:R.oo':
+
+    extend, trim
+
+rgeos version: 0.3-22, (SVN revision 544)
+ GEOS runtime version: 3.5.0-CAPI-1.9.0 r4084 
+ Linking to sp version: 1.2-4 
+ Polygon checking: TRUE 
+
+
+Attaching package: 'magrittr'
+
+The following object is masked from 'package:raster':
+
+    extract
+
+The following object is masked from 'package:igraph':
+
+    %>%
+
+The following object is masked from 'package:R.oo':
+
+    equals
+
+
+Attaching package: 'dplyr'
+
+The following objects are masked from 'package:rgeos':
+
+    intersect, setdiff, union
+
+The following objects are masked from 'package:raster':
+
+    intersect, select, union
+
+The following objects are masked from 'package:igraph':
+
+    %>%, as_data_frame, groups, union
+
+The following objects are masked from 'package:stats':
+
+    filter, lag
+
+The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union
+
+Checking rgeos availability: TRUE
+
+Attaching package: 'ggvis'
+
+The following object is masked from 'package:ggplot2':
+
+    resolution
+
+The following object is masked from 'package:igraph':
+
+    %>%
+
+rgdal: version: 1.2-5, (SVN revision 648)
+ Geospatial Data Abstraction Library extensions to R successfully loaded
+ Loaded GDAL runtime: GDAL 2.0.1, released 2015/09/15
+ Path to GDAL shared files: C:/Eliot/Sync/LandwebApp/R-Portable/App/R-Portable/library/rgdal/gdal
+ Loaded PROJ.4 runtime: Rel. 4.9.2, 08 September 2015, [PJ_VERSION: 492]
+ Path to PROJ.4 shared files: C:/Eliot/Sync/LandwebApp/R-Portable/App/R-Portable/library/rgdal/proj
+ Linking to sp version: 1.2-4 
+
+Attaching package: 'rgdal'
+
+The following object is masked from 'package:R.oo':
+
+    getDescription
+
+
+Attaching package: 'grid'
+
+The following object is masked from 'package:SpaDES':
+
+    gpar
+
+
+Attaching package: 'leaflet'
+
+The following object is masked from 'package:igraph':
+
+    %>%
+
+
+Attaching package: 'plotly'
+
+The following objects are masked from 'package:ggvis':
+
+    add_data, hide_legend
+
+The following object is masked from 'package:ggplot2':
+
+    last_plot
+
+The following object is masked from 'package:raster':
+
+    select
+
+The following objects are masked from 'package:igraph':
+
+    %>%, groups
+
+The following object is masked from 'package:stats':
+
+    filter
+
+The following object is masked from 'package:graphics':
+
+    layout
+
+Loading required package: RandomFields
+This is RandomFields Version: 3.1.36
+
+Attaching package: 'RandomFields'
+
+The following object is masked from 'package:raster':
+
+    atan2
+
+The following object is masked from 'package:RandomFieldsUtils':
+
+    RFoptions
+
+The following objects are masked from 'package:base':
+
+    abs, acosh, asin, asinh, atan, atan2, atanh, cos, cosh, exp, expm1,
+    floor, gamma, lgamma, log, log1p, log2, logb, max, min, round, sin,
+    sinh, sqrt, tan, tanh, trunc
+
+------------------------------------------------------------------------------
+data.table + dplyr code now lives in dtplyr.
+Please library(dtplyr)!
+------------------------------------------------------------------------------
+
+Attaching package: 'data.table'
+
+The following objects are masked from 'package:dplyr':
+
+    between, first, last
+
+The following object is masked from 'package:raster':
+
+    shift
+
+The following object is masked from 'package:bit':
+
+    setattr
+
+The following object is masked from 'package:SpaDES':
+
+    copy
+
+Skipping install of 'SpaDES' from a github remote, the SHA1 (2f23e48e) has not changed since last install.
+  Use `force = TRUE` to force installation
+Running .inputObjects for landWebDataPrep
+  Download data step skipped for module landWebDataPrep. Local copy exists
+Running .inputObjects for LandMine
+Running .inputObjects for LW_LBMRDataPrep
+  Download data step skipped for module LW_LBMRDataPrep. Local copy exists
+Running .inputObjects for LBMR
+  Download data step skipped for module LBMR. Local copy exists
+Running .inputObjects for LandWebOutput
+Running Experiment
+This is the current event, printed as it is happening:
+eventTime moduleName eventType eventPriority
+0         checkpoint init      5            
+0         save       init      5            
+0         progress   init      5            
+0         load       init      5            
+0         landWebDataPrep init      5            
+0         LW_LBMRDataPrep init      5            
+0         initBaseMaps    init      5            
+0         fireDataPrep    init      5            
+0         LandMine        init      5            
+0         LBMR            init      5            
+0         timeSinceFire   init      5            
+0         LandWebOutput   init      5            
+0         LBMR            mortalityAndGrowth 5            
+0         timeSinceFire   age                5            
+1         LandMine        LandMineBurn       2.5          
+1         LBMR            fireDisturbance    3            
+1         LBMR            mortalityAndGrowth 5            
+1         timeSinceFire   age                5            
+2         LandMine        LandMineBurn       2.5          
+2         LBMR            fireDisturbance    3            
+2         LBMR            wardDispersalSeeding 4            
+2         LBMR            mortalityAndGrowth   5            
+2         timeSinceFire   age                  5            
+2         LBMR            summaryRegen         5.5          
+2         LBMR            summaryBGM           6            
+2         LandWebOutput   allEvents            7.5          
+2         LandWebOutput   save                 8            
+2         save            spades               10           
+Warning in .local(x, filename, ...) : all cell values are NA
+3         LBMR            cohortAgeReclassification 0.5          
+3         LandMine        LandMineBurn              2.5          
+3         LBMR            fireDisturbance           3            
+3         LBMR            mortalityAndGrowth        5            
+3         timeSinceFire   age                       5            
+4         LandMine        LandMineBurn              2.5          
+4         LBMR            fireDisturbance           3            
+4         LBMR            wardDispersalSeeding      4            
+4         LBMR            mortalityAndGrowth        5            
+4         timeSinceFire   age                       5            
+4         LBMR            summaryRegen              5.5          
+4         LBMR            summaryBGM                6            
+4         LandWebOutput   allEvents                 7.5          
+4         LandWebOutput   save                      8            
+4         save            later                     10           
+Warning in .local(x, filename, ...) : all cell values are NA
+This is the current event, printed as it is happening:
+eventTime moduleName eventType eventPriority
+0         checkpoint init      5            
+0         save       init      5            
+0         progress   init      5            
+0         load       init      5            
+0         landWebDataPrep init      5            
+0         LW_LBMRDataPrep init      5            
+0         initBaseMaps    init      5            
+0         fireDataPrep    init      5            
+0         LandMine        init      5            
+0         LBMR            init      5            
+0         timeSinceFire   init      5            
+0         LandWebOutput   init      5            
+0         LBMR            mortalityAndGrowth 5            
+0         timeSinceFire   age                5            
+1         LandMine        LandMineBurn       2.5          
+1         LBMR            fireDisturbance    3            
+1         LBMR            mortalityAndGrowth 5            
+1         timeSinceFire   age                5            
+2         LandMine        LandMineBurn       2.5          
+2         LBMR            fireDisturbance    3            
+2         LBMR            wardDispersalSeeding 4            
+2         LBMR            mortalityAndGrowth   5            
+2         timeSinceFire   age                  5            
+2         LBMR            summaryRegen         5.5          
+2         LBMR            summaryBGM           6            
+2         LandWebOutput   allEvents            7.5          
+2         LandWebOutput   save                 8            
+2         save            spades               10           
+Warning in .local(x, filename, ...) : all cell values are NA
+3         LBMR            cohortAgeReclassification 0.5          
+3         LandMine        LandMineBurn              2.5          
+3         LBMR            fireDisturbance           3            
+3         LBMR            mortalityAndGrowth        5            
+3         timeSinceFire   age                       5            
+4         LandMine        LandMineBurn              2.5          
+4         LBMR            fireDisturbance           3            
+4         LBMR            wardDispersalSeeding      4            
+4         LBMR            mortalityAndGrowth        5            
+4         timeSinceFire   age                       5            
+4         LBMR            summaryRegen              5.5          
+4         LBMR            summaryBGM                6            
+4         LandWebOutput   allEvents                 7.5          
+4         LandWebOutput   save                      8            
+4         save            later                     10           
+Warning in .local(x, filename, ...) : all cell values are NA
+Running leadingByStage
+Running largePatches
+
+Listening on http://127.0.0.1:3544
+ERROR: [on_request_read] connection reset by peer
+ERROR: [on_request_read] connection reset by peer
+ERROR: [on_request_read] connection reset by peer
+ERROR: [on_request_read] connection reset by peer
+ERROR: [on_request_read] connection reset by peer
+ERROR: [on_request_read] connection reset by peer
+ERROR: [on_request_read] connection reset by peer
+^C^C
