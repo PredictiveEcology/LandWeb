@@ -1,8 +1,9 @@
+.Rhistory
+.Rproj.user
 
 appCache
-R-Portable
 outputs
-
-
-\.Rhistory
-.Rproj.user
+mySimDigestSaved.rds
+mySimSaved.rds
+R-Portable/
+ShinyApp.log
