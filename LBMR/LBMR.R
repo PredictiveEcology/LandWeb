@@ -4,9 +4,9 @@ defineModule(sim, list(
   name = "LBMR",
   description = "A fast and large landscape biomass succession model modified from LANDIS II",
   keywords = c("forest succession", "LANDIS II", "Biomass"),
-  authors = c(person(c("Yong"), "Luo", email = "Yong.Luo@canada.ca", role = c("aut", "cre")),
-              person(c("Eliot", "J", "B"), "McIntire", email = "Eliot.McIntire@canada.ca", role = c("aut")),
-              person(c("Jean"), "Marchal", email = "jean.d.marchal@gmail.com", role = c("aut"))),
+  authors = c(person(c("Yong"), "Luo", email="Yong.Luo@canada.ca", role=c("aut", "cre")),
+              person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@canada.ca", role=c("aut", "cre")),
+              person(c("Jean"), "Marchal", email="jean.d.marchal@gmail.com", role=c("aut", "cre"))),
   childModules = character(0),
   version = numeric_version("1.2.0.9011"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
@@ -183,16 +183,10 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
   return(invisible(sim))
 }
 
-## event functions
-#   - follow the naming convention `modulenameEventtype()`;
-#   - `modulenameInit()` function is required for initiliazation;
-#   - keep event functions short and clean, modularize by calling subroutines from section below.
-
-### template initialization
 LBMRInit <- function(sim) {
   communities <- sim$initialCommunities %>%
-    gather(key = cohort, value = age, -mapcode, -description, -species, na.rm = TRUE) %>%
-    data.table() %>%
+    gather(key=cohort, value=age, -mapcode,-description,-species,na.rm=TRUE) %>%
+    data.table %>%
     .[,`:=`(age = as.integer(ceiling(as.numeric(age)/sim$successionTimestep) * sim$successionTimestep),
             communityGroup = as.integer(mapcode),
             mapcode = NULL)] %>%
@@ -985,12 +979,11 @@ LBMRSummaryRegen = function(sim){
 }
 
 LBMRPlot = function(sim) {
-  dev(4)
-  if(time(sim) == sim$successionTimestep){
-    clearPlot()
-  }
-  Plot(sim$rstCurrentBurn, sim$biomassMap, sim$ANPPMap, sim$mortalityMap, sim$reproductionMap, 
-       title = c("fireMap", "Biomass", "ANPP", "mortality", "reproduction"), new = TRUE, speedup = 1)
+  # if(time(sim) == sim$successionTimestep){
+  #   clearPlot()
+  # }
+  Plot(sim$biomassMap, sim$ANPPMap, sim$mortalityMap, sim$reproductionMap, 
+       title = c("Biomass", "ANPP", "mortality", "reproduction"), new = TRUE, speedup = 1)
   grid.rect(0.93, 0.97, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
   grid.text(label = paste0("Year = ",round(time(sim))), x = 0.93, y = 0.97)
   #rm(biomassMap, ANPPMap, mortalityMap, reproductionMap)
@@ -1504,3 +1497,4 @@ addNewCohorts <- function(newCohortData, cohortData, pixelGroupMap, time, specie
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
+

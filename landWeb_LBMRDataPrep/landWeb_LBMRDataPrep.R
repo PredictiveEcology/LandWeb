@@ -548,7 +548,6 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   # }
   # ! ----- EDIT BELOW ----- ! #
   dataPath <- file.path(modulePath(sim), "landWeb_LBMRDataPrep", "data")
-  fileNames <- dir(dataPath, full.names = TRUE)
   fileNames <- c("ecodistricts.dbf", "ecodistricts.prj", "ecodistricts.sbn", "ecodistricts.sbx", 
                  "ecodistricts.shp", "ecodistricts.shx", "ecoregions.dbf", "ecoregions.prj", 
                  "ecoregions.sbn", "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx", "ecozones.dbf", 
@@ -579,9 +578,11 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     file.info(x)[,"size"]}
     )
   names(allFiles) <- unlist(lapply(fileNames, basename))
-  needDownload <- digest::digest(allFiles) != "9a99479fea036a03f188f71cbabca49e"#"05a98a7eab2fcd0ebef7cc21fbfdf75b"
+  needDownload <- all(digest::digest(allFiles) != c("9a99479fea036a03f188f71cbabca49e",
+                                                "05a98a7eab2fcd0ebef7cc21fbfdf75b"))
   if(needDownload) {
-    checkTable <- data.table(downloadData(module = "landWeb_LBMRDataPrep", path = modulePath(sim)))
+    checkTable <- data.table(downloadData(module = "landWeb_LBMRDataPrep", 
+                                          path = modulePath(sim)))
     checkContent_passed <- checkTable[result == "OK",]$expectedFile
     # study area should be provided by Dr. David Anderson
     # Dr. Steve Cumming will provide a temperary one
