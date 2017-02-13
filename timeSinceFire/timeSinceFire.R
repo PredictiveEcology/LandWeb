@@ -97,7 +97,7 @@ timeSinceFireInit <- function(sim) {
   }
   # Much faster than call rasterize again
   sim$rstTimeSinceFire <- raster(sim$rstStudyRegion)
-  sim$rstTimeSinceFire[] <- shpStudyRegion$LTHRC[sim$rstStudyRegion[]]
+  sim$rstTimeSinceFire[] <- sim$shpStudyRegion$LTHRC[sim$rstStudyRegion[]]
   sim$rstTimeSinceFire[sim$rstFlammable[] == 1] <- NA #non-flammable areas are permanent.
   #assign legend and colours if you are serious
   return(invisible(sim))
@@ -115,7 +115,7 @@ timeSinceFireSave <- function(sim) {
 
 ### template for plot events
 timeSinceFirePlot <- function(sim) {
-  
+
   return(invisible(sim))
 }
 

@@ -20,10 +20,10 @@ defineModule(sim, list(
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
-    defineParameter(".useCache", "numeric", TRUE, NA, NA, "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant")
+    defineParameter(".useCache", "numeric", FALSE, NA, NA, "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = data.frame(
-    objectName = c("LCC05", "shpStudyRegion", "rstStudyRegion"), 
+    objectName = c("LCC05", "shpStudyRegion", "rstStudyRegion"),
     objectClass = c("RasterLayer","SpatialPolygonsDataFrame", "RasterLayer"),
     sourceURL = "",
     other = NA_character_,
@@ -31,7 +31,7 @@ defineModule(sim, list(
   ),
   outputObjects = data.frame(
     objectName = c("rstFlammable", "rstBurnProb"),
-    objectClass = c("RasterLayer", "RasterLayer"), 
+    objectClass = c("RasterLayer", "RasterLayer"),
     other = NA_character_,
     stringsAsFactors = FALSE
   )
@@ -61,25 +61,25 @@ doEvent.fireDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 
 fireDataPrepInit <- function(sim) {
-    nonFlammClasses<-c(36,37,38,39)
-    oldClass <- 0:39
-    newClass <- ifelse(oldClass %in% nonFlammClasses,1,0)   #1 codes for non flammable 
-    #see mask argument for SpaDES::spread()
-    flammableTable <- cbind(oldClass, newClass)
-    #according to Yong, Canada Landcover 2005 is loaded as LCC05 
-    sim$rstFlammable <- ratify(reclassify(sim$LCC05, flammableTable,count=TRUE))
-    setColors(sim$rstFlammable,n=2) <- colorRampPalette(c("blue", "red"))(2) 
+  nonFlammClasses<-c(36,37,38,39)
+  oldClass <- 0:39
+  newClass <- ifelse(oldClass %in% nonFlammClasses,1,0)   #1 codes for non flammable 
+  #see mask argument for SpaDES::spread()
+  flammableTable <- cbind(oldClass, newClass)
+  #according to Yong, Canada Landcover 2005 is loaded as LCC05 
+  sim$rstFlammable <- ratify(reclassify(sim$LCC05, flammableTable,count=TRUE))
+  setColors(sim$rstFlammable,n=2) <- colorRampPalette(c("blue", "red"))(2) 
   
-    # Much faster than call rasterize again
-    sim$rstBurnProb <- raster(sim$rstStudyRegion)
-    #LTHRC is for some reason the field name of the regional fire cycles according to DA
-    sim$rstBurnProb[] <- (1/shpStudyRegion$LTHRC)[sim$rstStudyRegion[]]
-    
+  # Much faster than call rasterize again
+  sim$rstBurnProb <- raster(sim$rstStudyRegion)
+  #LTHRC is for some reason the field name of the regional fire cycles according to DA
+  sim$rstBurnProb[] <- (1/shpStudyRegion$LTHRC)[sim$rstStudyRegion[]]
   
-    #doing this here ensures non-flammable cells are accounted for, 
-    #no matter when/where rasterBurnProb and rasterFlammable are created.
-    sim$rstBurnProb[sim$rstFlammable[] == 1] <- 0 #this could turn some NAs to 0s.
-    
+  
+  #doing this here ensures non-flammable cells are accounted for, 
+  #no matter when/where rasterBurnProb and rasterFlammable are created.
+  sim$rstBurnProb[sim$rstFlammable[] == 1] <- 0 #this could turn some NAs to 0s.
+  
   return(invisible(sim))
 }
 
@@ -89,7 +89,7 @@ fireDataPrepInit <- function(sim) {
   # This is useful if there is something required before simulation, such as data downloading, e.g.,
   # downloadData("LCC2005", modulePath(sim))
   # ! ----- EDIT BELOW ----- ! #
-
+  
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
