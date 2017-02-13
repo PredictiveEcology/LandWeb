@@ -1,22 +1,24 @@
-if(FALSE) { # For pushing to shinyapps.io
+if (FALSE) { # For pushing to shinyapps.io
   allFiles <- dir(recursive = TRUE)
-  allFiles <- grep(allFiles, pattern="R-Portable", invert = TRUE, value = TRUE)
+  allFiles <- grep(allFiles, pattern = "R-Portable", invert = TRUE, value = TRUE)
   rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
                        contentCategory = "application")  
 }
 
 #.libPaths("TEMP")
-if(FALSE){
+if (FALSE) {
   pkgNamespaces <- c("shiny", "shinydashboard", "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES",
                      "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "htmlwidgets", "bit", "parallel",
                      "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp", "dplyr", "ggplot2", "maptools",
                      "broom", "ggvis", "rgdal", "grid", "leaflet", "plotly", "VGAM")
-  lapply(pkgNamespaces, function(p) if(!require(p, quietly = TRUE, character.only = TRUE)) {
-    install.packages(p, dependencies = TRUE)
-  }   )
-  if(!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
-  if(!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
-  if(tryCatch(packageVersion("SpaDES1")<"1.3.1.9041", error=function(x) TRUE))
+  lapply(pkgNamespaces, function(p) {
+    if (!require(p, quietly = TRUE, character.only = TRUE)) {
+      install.packages(p, dependencies = TRUE)
+    }
+  })
+  if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
+  if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
+  if (tryCatch(packageVersion("SpaDES") < "1.3.1.9041", error = function(x) TRUE))
     devtools::install_github("PredictiveEcology/SpaDES@development")  
 }
 pkgs <- c("shiny", "shinydashboard", "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2","VGAM",
@@ -24,7 +26,7 @@ pkgs <- c("shiny", "shinydashboard", "broom", "rgeos", "raster", "rgdal", "grid"
           "ggvis")
 lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
 
-if(FALSE) { # For shinyapps.io -- needs to see explicit require statements
+if (FALSE) { # For shinyapps.io -- needs to see explicit require statements
   require(shiny)
   require(shinydashboard)
   require(BH)
@@ -100,59 +102,61 @@ vegTypeData <- readRDS(file.path(paths$inputPath, "vegTypeData.rds"))
 availableRegions <- unique(vegTypeData$ecoregion)
 
 
-shpStudyRegionFull <- SpaDES::Cache(shapefile, file.path(paths$inputPath,"shpLandWEB.shp"),
+shpStudyRegionFull <- SpaDES::Cache(shapefile, file.path(paths$inputPath, "shpLandWEB.shp"),
                                     cacheRepo = paths$cachePath)
 shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
-shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
+shpStudyRegionFull@data <- shpStudyRegionFull@data[, !(names(shpStudyRegionFull) %in% "ECODISTRIC")]
 
-#biomassMap <- raster(file.path(paths$modulePath,"landWebDataPrep", "data", 
+#biomassMap <- raster(file.path(paths$modulePath, "landWebDataPrep", "data", 
 #                               "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif"))
 crsKNNMaps <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
 studyArea <- "SMALL"
 set.seed(2)#set.seed(5567913)
-if(studyArea == "SMALL") {
+if (studyArea == "SMALL") {
   # #smallExt <- clickExtent()
-  # smallExt <- new("Extent" , xmin = -983660, xmax = -899973, 
+  # smallExt <- new("Extent", xmin = -983660, xmax = -899973, 
   #                 ymin = 8007529, ymax = 8085986)
-  # #smallExt <- new("Extent" , xmin = -1276390, xmax = -1181880, 
+  # #smallExt <- new("Extent", xmin = -1276390, xmax = -1181880, 
   # #                ymin = 7637258, ymax = 7706827)
   # shpStudyRegion2 <- spTransform(shpStudyRegion, crsKNNMaps)
   # shpStudyRegion <- crop(shpStudyRegion2, smallExt)
   # shpStudyRegionCan <- spTransform(shpStudyRegion, crs(CanadaMap))
   areaKm2 <- 10000#700000#2000#600000#too big for laptop
-  minY <- 7508877-1.6e5
-} else if (studyArea == "medium"){
-  areaKm2 <- 80000#700000#2000#600000#too big for laptop
-  minY <- 7008877-1.6e5
+  minY <- 7508877 - 1.6e5
+} else if (studyArea == "medium") {
+  areaKm2 <- 80000 #700000#2000#600000#too big for laptop
+  minY <- 7008877 - 1.6e5
 }
 shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
 minX <- -1202250.2
-maxX <- minX+sqrt(areaKm2*1e6)
-maxY <- minY+sqrt(areaKm2*1e6)
+maxX <- minX + sqrt(areaKm2 * 1e6)
+maxY <- minY + sqrt(areaKm2 * 1e6)
 meanY <- mean(c(minY, maxY))
 
 # Add random noise to polygon
-xAdd <- round(runif(1,-5e5,1.5e6))
-yAdd <- round(runif(1,1e5,5e5))-xAdd/2
+xAdd <- round(runif(1, -5e5, 1.5e6))
+yAdd <- round(runif(1, 1e5, 5e5)) - xAdd / 2
 nPoints <- 20
-betaPar=0.6
-X = c(jitter(sort(rbeta(nPoints, betaPar, betaPar)*(maxX-minX)+minX)),
-      jitter(sort(rbeta(nPoints, betaPar, betaPar)*(maxX-minX)+minX, decreasing = TRUE)))
-Y = c(jitter(sort(rbeta(nPoints/2, betaPar, betaPar)*(maxY-meanY)+meanY)),
-      jitter(sort(rbeta(nPoints, betaPar, betaPar)*(maxY-minY)+minY, decreasing = TRUE)),
-      jitter(sort(rbeta(nPoints/2, betaPar, betaPar)*(meanY-minY)+minY)))
+betaPar <- 0.6
+X <- c(jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxX - minX) + minX)),
+      jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxX - minX) + minX, decreasing = TRUE)))
+Y <- c(jitter(sort(rbeta(nPoints/2, betaPar, betaPar) * (maxY - meanY) + meanY)),
+      jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxY - minY) + minY, decreasing = TRUE)),
+      jitter(sort(rbeta(nPoints/2, betaPar, betaPar) * (meanY - minY) + minY)))
 
-Sr1 <- Polygon(cbind(X+xAdd,Y+yAdd))
-Srs1 = Polygons(list(Sr1), "s1")
+Sr1 <- Polygon(cbind(X + xAdd, Y + yAdd))
+Srs1 <- Polygons(list(Sr1), "s1")
 inputMapPolygon <- SpatialPolygons(list(Srs1), 1L)
 crs(inputMapPolygon) <- crsKNNMaps
 shpStudyRegion <- raster::intersect(shpStudyRegionFull, inputMapPolygon)
 
 prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
-  shpStudyAreaFort <- tidy(shpStudyRegion, region='Name_1') 
-  shpStudyAreaFort <- left_join(shpStudyAreaFort, shpStudyRegion@data[,c("Name_1", "fireReturnInterval")], by=c("id" = "Name_1"))
-  shpStudyAreaOrigFort <- tidy(shpStudyRegionFull, region='Name_1') 
-  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[,c("Name_1", "fireReturnInterval")], by=c("id" = "Name_1"))
+  shpStudyAreaFort <- tidy(shpStudyRegion, region = 'Name_1') 
+  shpStudyAreaFort <- left_join(shpStudyAreaFort, shpStudyRegion@data[, c("Name_1", "fireReturnInterval")],
+                                by = c("id" = "Name_1"))
+  shpStudyAreaOrigFort <- tidy(shpStudyRegionFull, region = 'Name_1') 
+  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[, c("Name_1", "fireReturnInterval")],
+                                    by = c("id" = "Name_1"))
   #shpStudyAreaOrigFort<-shpStudyAreaOrigFort[order(shpStudyAreaOrigFort$order), ]
   
   # ggplotStudyRegionSmall <- ggplot() +
@@ -169,18 +173,18 @@ prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
   #map <- ggplot2::fortify(maine, region="name")
   
   wdth <- 650
-  ht <- wdth * (ymax(shpStudyRegionFull) -ymin(shpStudyRegionFull))/
-    (xmax(shpStudyRegionFull) -xmin(shpStudyRegionFull))
-  df2 <- data.frame(fri=unique(shpStudyAreaOrigFort$fireReturnInterval), 
-                    colrs = 
-                      colorRampPalette(c("orange", "dark green"))(diff(range(shpStudyAreaOrigFort$fireReturnInterval)))[unique(shpStudyAreaOrigFort$fireReturnInterval) - min(shpStudyAreaOrigFort$fireReturnInterval) + 1]
+  ht <- wdth * (ymax(shpStudyRegionFull) - ymin(shpStudyRegionFull)) /
+    (xmax(shpStudyRegionFull) - xmin(shpStudyRegionFull))
+  df2 <- data.frame(fri = unique(shpStudyAreaOrigFort$fireReturnInterval),
+                    colrs = colorRampPalette(c("orange", "dark green"))(diff(range(shpStudyAreaOrigFort$fireReturnInterval)))[
+                      unique(shpStudyAreaOrigFort$fireReturnInterval) - min(shpStudyAreaOrigFort$fireReturnInterval) + 1]
   )
-  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, df2, by = c("fireReturnInterval"= "fri"))
-  # 
+  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, df2, by = c("fireReturnInterval" = "fri"))
+  
   a <- shpStudyAreaOrigFort %>%
     ggvis(~long, ~lat) %>%
     group_by(group, id) %>%
-    layer_paths(strokeOpacity:=0.5, stroke:="#7f7f7f",
+    layer_paths(strokeOpacity := 0.5, stroke := "#7f7f7f",
                 fill := ~fireReturnInterval) %>%
     add_tooltip(function(data){
       paste0("Fire Return Interval: ", data$fireReturnInterval)
@@ -190,7 +194,7 @@ prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
     #hide_legend("fill") %>%
     hide_axis("x") %>% hide_axis("y") %>%
     #set_options(width=400, height=800)#, keep_aspect=TRUE)
-    set_options(keep_aspect=TRUE, width = wdth, height=ht)
+    set_options(keep_aspect = TRUE, width = wdth, height = ht)
   
 }
 #ggStudyRegion <- Cache(prepare1, shpStudyRegion, 
@@ -207,7 +211,7 @@ ggStudyRegion <- prepare1(shpStudyRegion, shpStudyRegionFull)
 
 
 
-if(TRUE) {
+if (TRUE) {
   AlbertaFMUFull <- Cache(shapefile, file.path(curDir,"FMU_Alberta_2015-11", "FMU_Alberta_2015-11"),
                           cacheRepo = paths$cachePath)
   AlbertaFMUFull <- Cache(spTransform, AlbertaFMUFull, crs(shpStudyRegion), cacheRepo = paths$cachePath)
@@ -239,14 +243,14 @@ times <- list(start = 0, end = 4)
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
                 "successionTimestep" = successionTimestep,
-                "summaryPeriod" = c(pmax((times$end - times$start)/2), times$end))
+                "summaryPeriod" = c(pmax((times$end - times$start) / 2), times$end))
 parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
                    LandWebOutput = list(summaryInterval = summaryInterval),
                    LBMR = list(.plotInitialTime = times$start,
                                .saveInitialTime = NA),
-                   initBaseMaps = list(.useCache=FALSE))
+                   initBaseMaps = list(.useCache = FALSE))
 outputs <- data.frame(stringsAsFactors = FALSE,
                       expand.grid(
                         objectName = c("rstTimeSinceFire", "seralStageMap", "vegTypeMap", "oldBigPatch"),
@@ -261,9 +265,9 @@ outputs2 <- data.frame(stringsAsFactors = FALSE,
 outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE)), NROW(outputs)))
 outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
 
-if(TRUE) {
-  if(exists("mySim")) {
-    if(readRDS(file = "mySimDigestSaved.rds")==digest::digest(mySim)) {
+if (TRUE) {
+  if (exists("mySim")) {
+    if (readRDS(file = "mySimDigestSaved.rds") == digest::digest(mySim)) {
       needMySim <- FALSE
     } else {
       needMySim <- TRUE
@@ -271,7 +275,7 @@ if(TRUE) {
   } else {
     needMySim <- TRUE
   }
-  if(needMySim) {
+  if (needMySim) {
     mySim <- simInit(times = times, params = parameters, modules = modules,
                      objects = objects, paths = paths, outputs = outputs)
     # 
@@ -296,7 +300,7 @@ if(TRUE) {
 # 
 library(parallel)
 # try(stopCluster(cl), silent = TRUE)
- if(FALSE) {#!exists("cl")) {
+ if (FALSE) {#!exists("cl")) {
    cl <- makeCluster(detectCores()-1)
    clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
  }
@@ -307,8 +311,9 @@ message("Running Experiment")
 mySimOut <- Cache(experiment, mySim, replicates = 3, debug = TRUE, #cache = TRUE, 
                                     cl = cl, 
                   .plotInitialTime = NA,
-                  clearSimEnv = TRUE, 
-                  notOlderThan = Sys.time())
+                  clearSimEnv = TRUE
+                  #,notOlderThan = Sys.time()
+                  )
 
 grds <- unlist(lapply(seq_along(mySimOut), function(x) {
   grep(pattern = ".grd$", outputs(mySimOut[[x]])$file, value= TRUE)
@@ -352,7 +357,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                            ageClasses, cl) {
   
   
-  if(missing(cl)) {
+  if (missing(cl)) {
     lapplyFn <- "lapply" 
   } else {
     lapplyFn <- "parLapplyLB"
@@ -364,7 +369,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   }
   out <- lapply(ageCutoffs, function(ages) {
     y <- match(ages, ageCutoffs)
-    if(tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
+    if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
       startList <- list(cl = cl)
     } else {
       startList <- list()
@@ -377,7 +382,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                     timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
                     leadingRast <- raster(vegTypeMapFiles[x])
                     leadingRast[timeSinceFireFilesRast[]<ageCutoffs[y]] <- NA
-                    if((y+1) < length(ageCutoffs))
+                    if ((y+1) < length(ageCutoffs))
                       leadingRast[timeSinceFireFilesRast[]>=ageCutoffs[y+1]] <- NA
                     
                     aa <- extract(leadingRast, polygonToSummarizeBy, fun = function(x, ...) {
@@ -388,14 +393,14 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                       props <- vals/length(nonNACells)  
                     })
                   })))
-    names(out1) <- paste(basename(dirname(tsf)),basename(tsf),sep="_")
+    names(out1) <- paste(basename(dirname(tsf)), basename(tsf), sep = "_")
     out1
-  }
-  )
+  })
   names(out) <- ageClasses
   out
 }
 
+## TO DO: move this out of global init
 message("Running leadingByStage")
 leading <- Cache(leadingByStage, tsf, vtm, ecodistricts, polygonNames = ecodistricts$ECODISTRIC, 
                  #cl=cl, 
@@ -419,7 +424,7 @@ countNumPatches <- function(ras, patchSize, ...) {
 largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy, #polygonNames, 
                            ageCutoffs = c(0, 40, 80, 120), patchSize = 1000, 
                            ageClasses, cl, notOlderThan = Sys.time() - 1e7) {
-  if(missing(cl)) {
+  if (missing(cl)) {
     lapplyFn <- "lapply"
   } else {
     lapplyFn <- "parLapplyLB"
@@ -437,7 +442,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   
   out <- lapply(ageCutoffs, function(ages) {
     y <- match(ages, ageCutoffs)
-    if(tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
+    if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
       startList <- list(cl = cl)
     } else {
       startList <- list()
@@ -449,7 +454,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                     timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
                     leadingRast <- raster(vegTypeMapFiles[x])
                     leadingRast[timeSinceFireFilesRast[]<ageCutoffs[y]] <- NA
-                    if((y+1) < length(ageCutoffs))
+                    if ((y+1) < length(ageCutoffs))
                       leadingRast[timeSinceFireFilesRast[]>=ageCutoffs[y+1]] <- NA
                     
                     clumpedRasts <- lapply(levels(leadingRast)[[1]]$ID, function(ID) {
@@ -485,8 +490,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   out
 }
 
-
-if(TRUE) {
+if (FALSE) {
   for(iii in largePatchSizeOptions[3]) {
     message("Running largePatches")
     largePatches <- Cache(largePatchesFn, timeSinceFireFiles=tsf, 
@@ -496,30 +500,24 @@ if(TRUE) {
                           #, cl=cl
                           , cacheRepo = paths$cachePath#, notOlderThan = Sys.time() 
                           , ageClasses = ageClasses, patchSize = as.integer(iii)
-                          
-                          
     )
   }
 }
 
 omitted <- lapply(leading, function(x) lapply(x, function(y) attr(na.omit(y), "na.action")))
-polygonsWithData <- 
-  lapply(seq_along(leading), function(x) {
-    
+polygonsWithData <- lapply(seq_along(leading), function(x) {
     unlist(lapply(x, function(y) {
-      if(!is.null(omitted[[x]][[y]])) {
+      if (!is.null(omitted[[x]][[y]])) {
         seq_len(NROW(leading[[x]][[y]]))[-omitted[[x]][[y]]]
       } else {
         seq_len(NROW(leading[[x]][[y]]))
       }
-      
     }))
   }) %>%
   setNames(ageClasses)
 vegLeadingTypes <- unique(unlist(lapply(leading, function(x) lapply(x, function(y) colnames(y)))))
 
-
-if(FALSE) {
+if (FALSE) {
   initialCommunityMap <- raster("initialCommunitiesMap.tif")
   ecoregionMap <- raster("landtypes_BP.tif")
   
