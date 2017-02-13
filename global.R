@@ -307,8 +307,9 @@ message("Running Experiment")
 mySimOut <- Cache(experiment, mySim, replicates = 3, debug = TRUE, #cache = TRUE, 
                                     cl = cl, 
                   .plotInitialTime = NA,
-                  clearSimEnv = TRUE, 
-                  notOlderThan = Sys.time())
+                  clearSimEnv = TRUE#, 
+                  #notOlderThan = Sys.time()
+                  )
 
 grds <- unlist(lapply(seq_along(mySimOut), function(x) {
   grep(pattern = ".grd$", outputs(mySimOut[[x]])$file, value= TRUE)
@@ -948,3 +949,4 @@ leafletMap <- function(input, output, session, ecodistrictsFullLFLT) {
   #   }
   # })
 }
+  
