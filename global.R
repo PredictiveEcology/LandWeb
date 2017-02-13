@@ -486,7 +486,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
 }
 
 
-if(TRUE) {
+if(FALSE) {
   for(iii in largePatchSizeOptions[3]) {
     message("Running largePatches")
     largePatches <- Cache(largePatchesFn, timeSinceFireFiles=tsf, 
