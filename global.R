@@ -308,8 +308,8 @@ if (!exists("cl")) {
 # cl4 <- makeCluster(4)
 # 
 message("Running Experiment")
-mySimOut <- Cache(experiment, mySim, replicates = 3, debug = TRUE, #cache = TRUE, 
-                                    cl = cl, 
+mySimOut <- Cache(experiment, mySim, replicates = 3, debug = TRUE, #cache = TRUE,
+                  cl = cl, 
                   .plotInitialTime = NA,
                   clearSimEnv = TRUE#, 
                   #notOlderThan = Sys.time()
