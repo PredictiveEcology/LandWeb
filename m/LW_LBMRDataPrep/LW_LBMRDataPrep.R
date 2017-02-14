@@ -578,23 +578,23 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                  "speciesTraits.csv")
   fileNames <- lapply(fileNames, function(x){file.path(dataPath, x)})
   allFiles <- lapply(fileNames, function(x) {
-    file.info(x)[, "size"]
-  })
+    file.info(x)[,"size"]}
+    )
   names(allFiles) <- unlist(lapply(fileNames, basename))
   allFilesDigest <- digest::digest(allFiles)
 
   # LCC2005 may be loaded by other modules
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
-  if (!is.null(sim$LCC2005)) lcc2005Filename <- filename(sim$LCC2005)
+  if(!is.null(sim$LCC2005)) lcc2005Filename <- filename(sim$LCC2005)
   
   needDownload <- all(!(allFilesDigest %in% c("9a99479fea036a03f188f71cbabca49e",
-                                              "05a98a7eab2fcd0ebef7cc21fbfdf75b",
+                                                        "05a98a7eab2fcd0ebef7cc21fbfdf75b",
                                               "9bf998a69e4ea74f52c3dd20c5e5b17d",
                                               "5173505a6b80f268c09d4967497cdfe3")))
   needShinking <- all(!(allFilesDigest %in% c("9bf998a69e4ea74f52c3dd20c5e5b17d",
                                               "5173505a6b80f268c09d4967497cdfe3")))
   
-  if (needDownload) {
+  if(needDownload) {
     checkTable <- data.table(downloadData(module = "LW_LBMRDataPrep", 
                                           path = modulePath(sim)))
     checkContent_passed <- checkTable[result == "OK",]$expectedFile
