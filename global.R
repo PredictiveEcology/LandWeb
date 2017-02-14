@@ -313,22 +313,18 @@ if (!exists("cl")) {
 ######### Modules
 
 vegAgeModUI <- function(id, vegLeadingTypes) {
-  #decidOldModUI <- function(id) {
   ns <- NS(id)
   
   ids <- strsplit(id, split = "_")[[1]]
   i <- as.numeric(ids[1])
   j <- as.numeric(ids[2])
   k <- as.numeric(ids[3])
-  browser()
   tagList(
     box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
         title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in Ecodistrict ", ecodistricts$ECODISTRIC[j]),
-        #splitLayout(cellWidths=c("75%","25%"),
-        plotOutput(ns("g"), height = 300)#,
-        #radioButtons(ns("radio"),label = "buttons",
-        #             choices = list("with intercept"=1,"without intersept"=2),
-        #             selected = 1))      
+        h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+           "The totals sum to 1 across Leading Vegetation type, within each Age Class")),
+        plotOutput(ns("g"), height = 300)
     )
   )
   
@@ -375,11 +371,8 @@ clumpModOutput <- function(id, vegLeadingTypes) {
   #tagList(
   box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
       title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in ", ecodistricts$ECODISTRIC[j]),
-      #splitLayout(cellWidths=c("75%","25%"),
-      plotOutput(ns("h"), height = 300)#,
-      #radioButtons(ns("radio"),label = "buttons",
-      #             choices = list("with intercept"=1,"without intersept"=2),
-      #             selected = 1))      
+      h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon"),
+      plotOutput(ns("h"), height = 300)
   )
   
 } 
