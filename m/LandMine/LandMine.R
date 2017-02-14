@@ -1,11 +1,11 @@
 
 defineModule(sim, list(
   name = "LandMine",
-  description = "insert module description here",
-  keywords = c("insert key words here"),
+  description = "Rewrite of Andison (1999) LandMine fire model",
+  keywords = c("Fire", "Landscape", "Percolation", "Pixel-based"),
   authors = person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
   childModules = character(0),
-  version = numeric_version("1.3.1.9022"),
+  version = numeric_version("0.0.1"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
