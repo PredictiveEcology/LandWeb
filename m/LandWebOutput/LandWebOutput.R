@@ -96,7 +96,6 @@ LandWebOutputInit <- function(sim) {
 
 ### template for your event1
 LandWebOutputAllEvents <- function(sim) {
-  browser()
   # ! ----- EDIT BELOW ----- ! #
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   # seral stage summary 

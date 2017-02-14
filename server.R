@@ -139,7 +139,6 @@ function(input, output, session) {
   
   
   output$seralStagePctCoverMap <- renderPlot({
-    browser()
     if(is.null(input$regionSelector)) regionNum <- 139 else regionNum <- as.numeric(input$regionSelector)
     num <- match(regionNum, availableRegions)
     toMap <- get(paste0("seralMapExampleRegion",num))
