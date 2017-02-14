@@ -232,7 +232,7 @@ timeSinceFirePalette <- colorNumeric(
 
 #### Some variables
 largePatchSizeOptions <- c(100, 200, 500, 1000)
-largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
+largePatchesFnLoop <- length(largePatchSizeOptions) - 4 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 experimentReps <- 6
 
