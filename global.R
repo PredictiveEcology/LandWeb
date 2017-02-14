@@ -529,8 +529,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
 timeSinceFireModUI <- function(id, tsf) {
   ns <- NS(id)
   tagList(
-    box(width = 12, 
-        solidHeader = TRUE, collapsible = TRUE, 
+    box(width = 12, solidHeader = TRUE, collapsible = TRUE, 
         title = "Time Since Fire maps",
         leafletOutput(ns("timeSinceFire1"), height = 600),
         sliderInput(ns("timeSinceFire1Slider"), 
