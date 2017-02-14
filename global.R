@@ -281,23 +281,25 @@ if (exists("mySim")) {
 if (needMySim) {
   mySim <- simInit(times = times, params = parameters, modules = modules,
                    objects = objects, paths = paths, outputs = outputs)
-  
   saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
-  
 } 
-#if (Sys.info()[["user"]] %in% c("emcintir", "achubaty")) {
+
 if (!exists("cl")) {
   library(parallel)
   # try(stopCluster(cl), silent = TRUE)
-  ncores <- pmin(8, detectCores() - 1) # Currently using ~700MB RAM, limited to 8GB on shinyapps.io
-  message("Spawning ",ncores," threads")
-  if(Sys.info()[["sysname"]]=="Windows") {
-    clusterType="SOCK"
+  ncores <- if (Sys.info()[["user"]] == "achubaty") {
+    pmin(8, detectCores() / 2)
   } else {
-    clusterType="FORK"
+    pmin(8, detectCores() - 1) # Currently using ~700MB RAM, limited to 8GB on shinyapps.io
+  }
+  message("Spawning ", ncores, " threads")
+  if (Sys.info()[["sysname"]] == "Windows") {
+    clusterType = "SOCK"
+  } else {
+    clusterType = "FORK"
   }
   cl <- makeCluster(ncores, type = clusterType)
-  if(Sys.info()[["sysname"]]=="Windows") {
+  if (Sys.info()[["sysname"]] == "Windows") {
     clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
   }
   message("  Finished Spawning multiple threads")
