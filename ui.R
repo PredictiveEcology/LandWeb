@@ -4,6 +4,9 @@ dashboardPage(skin = "green",
   dashboardHeader(title = "LandWeb"),
   dashboardSidebar(width = 300,
     sidebarMenu(
+      menuItem("Model overview", icon = icon("info"),
+               menuSubItem("Simulation Diagrams", tabName = "simDiagrams", icon = icon("sitemap"))#,
+               ),
       menuItem("Large Patches", icon = icon("bar-chart"),
                menuSubItem("Young", tabName = "ClumpsYoung", icon = icon("tree")),
                menuSubItem("Immature", tabName = "ClumpsImmature", icon = icon("tree")),
@@ -32,7 +35,7 @@ dashboardPage(skin = "green",
                   width = 12,
                   height = 900,
                   solidHeader = TRUE,
-                 status = "success",
+                  status = "success",
                   title = "LandWeb Study Area, with sub region currently in Demo",
                   #plotOutput("StudyRegion", width = "100%")#, height = "100%")
                   #plotlyOutput("StudyRegion", width = "100%")#, height = "100%")
@@ -40,6 +43,7 @@ dashboardPage(skin = "green",
                 )
               )
       ),
+      tabItem("simDiagrams", simInfoUI("simInfoTabs")),
       tabItem("ClumpsYoung",
               fluidRow(uiOutput("ClumpsYoungUI"))
       ),

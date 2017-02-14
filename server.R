@@ -1,6 +1,6 @@
 function(input, output, session) {
   
-  react <- reactiveValues()
+  #react <- reactiveValues()
   
   if (TRUE) {
       # # Do an initial run for each given study area so that all the data prep can be done once only
@@ -20,6 +20,8 @@ function(input, output, session) {
       })
       
   }
+  
+  callModule(simInfo, "simInfoTabs", initialRun)
   
   message("Running Experiment")
   mySimOut <- Cache(experiment, mySim, replicates = 3, debug = TRUE, cache = TRUE, 
