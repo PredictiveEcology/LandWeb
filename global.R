@@ -75,18 +75,12 @@ if(FALSE) { # For shinyapps.io -- needs to see explicit require statements
 #library(maptools); library(dplyr); library(data.table)
 #library(plotly)
 
+
 curDir <- getwd()
 setwd(curDir)
-#inputDir <- "~/Dropbox/Projects/Landweb/Sim/inputs/"
-
-#CanadaMap <- shapefile(file.path(inputDir, "Canada.shp"))
-#saveRDS(CanadaMap, file = "CanadaMap.rds")
 
 
-#library(SpaDES)
-#library(magrittr)
-#inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
-
+#### Maps
 paths <- list(
   #cachePath = file.path(curDir, "cache"),
   cachePath = "appCache",
@@ -201,16 +195,6 @@ prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
 #                       shpStudyRegionFull, cacheRepo = paths$cachePath)
 ggStudyRegion <- prepare1(shpStudyRegion, shpStudyRegionFull)
 
-
-#shpStudyAreaFort<-shpStudyAreaFort[order(shpStudyAreaFort$order), ]
-#shpStudyAreaFort <- data.table(shpStudyAreaFort, key="id")
-#tmp <- countryCodes[,CountryCode:=as.character(CountryCode)]
-#setkey(countryCodes, "CountryCode")
-#shpStudyAreaFort<-shpStudyAreaFort[countryCodes]
-
-
-
-
 if(TRUE) {
   AlbertaFMUFull <- Cache(shapefile, file.path(curDir,"FMU_Alberta_2015-11", "FMU_Alberta_2015-11"),
                           cacheRepo = paths$cachePath)
@@ -227,14 +211,44 @@ ecodistrictsStudyRegion <- Cache(crop, ecodistricts, shpStudyRegionEco, cacheRep
 ecodistrictsCan <- spTransform(ecodistrictsStudyRegion, crs(CanadaMap))
 ecodistricts <- spTransform(ecodistrictsStudyRegion, crs(shpStudyRegion))
 
-#modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull", "LW_LBMRDataPrep", "LBMR")
+lflt = "+init=epsg:4326"
 
-#modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull")
-#modules <- list("landWebDataPrep", "initBaseMaps", "LandMine")
+# Available polygons
+ecodistrictsDemoLFLT <- spTransform(ecodistricts, sp::CRS(lflt))
+ecodistrictsFullLFLT <- spTransform(ecodistrictsFull, sp::CRS(lflt))
+AlbertaFMUDemoLFLT <- spTransform(AlbertaFMU, sp::CRS(lflt))
+AlbertaFMUFullLFLT <- spTransform(AlbertaFMUFull, sp::CRS(lflt))
+ecodistrictsDemo <- ecodistricts
+ecodistrictsFull <- ecodistrictsFull
+AlbertaFMUDemo <- AlbertaFMU
+AlbertaFMUFull <- AlbertaFMUFull
 
+availablePolygons <- c("ecodistricts", "AlbertaFMU")
+availableProjections <- c("", "LFLT")
+availableScales <- c("Full", "Demo")
+available <- data.frame(stringsAsFactors = FALSE,
+                        expand.grid(stringsAsFactors = FALSE,
+                                    polygons=availablePolygons, scales=availableScales, projections=availableProjections),
+                        names = rep(c("Ecodistricts Full", "Alberta FMUs Full", "Ecodistricts Demo", "Alberta FMUs Demo"),2))
+polygons <- lapply(seq_len(NROW(available)), function(ii) {
+  get(paste0(available$polygons[ii], available$scales[ii], available$projections[ii]))}) %>%
+  setNames(available$names)
+
+polygonColours <- c(rep(c("red", "blue"),2))
+polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(polygons[7:8]))
+
+timeSinceFirePalette <- 
+  colorNumeric(c(rep("red",10),paste0(colorRampPalette(c("light green", "dark green"))(100),"FF")), 
+               domain = NULL)
+
+#### Some variables
+largePatchSizeOptions <- c(100, 200, 500, 1000)
+ageClasses <- c("Young", "Immature", "Mature", "Old")
+
+
+
+# CReate mySim
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine", "LW_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
-
-fireModules <- list("landWebDataPrep", "initBaseMaps", "LandMine", "timeSinceFire", "LandWebOutput")
 
 successionTimestep <- 2
 summaryInterval <- 2
@@ -265,412 +279,39 @@ outputs2 <- data.frame(stringsAsFactors = FALSE,
 outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE)), NROW(outputs)))
 outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
 
-if(TRUE) {
-  if(exists("mySim")) {
-    if(readRDS(file = "mySimDigestSaved.rds")==digest::digest(mySim)) {
-      needMySim <- FALSE
-    } else {
-      needMySim <- TRUE
-    }
+if(exists("mySim")) {
+  if(readRDS(file = "mySimDigestSaved.rds")==digest::digest(mySim)) {
+    needMySim <- FALSE
   } else {
     needMySim <- TRUE
   }
-  if(needMySim) {
-    mySim <- simInit(times = times, params = parameters, modules = modules,
-                     objects = objects, paths = paths, outputs = outputs)
-    # 
-    # # Do an initial run for each given study area so that all the data prep can be done once only
-    #initialRun1 <- spades(Copy(mySim), debug = TRUE)
-    # 5 minutes for 6e3 km2
-    # 30 minutes for 6e4 km2
-    message("Running Initial spades call")
-    initialRun <- Cache(spades, sim = Copy(mySim), debug = TRUE, objects = "shpStudyRegion", 
-                        cacheRepo = file.path(cachePath(mySim), "studyRegion"))
-    try(silent = TRUE, {
-      filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
-      filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
-      filesToRemove <- unlist(lapply(strsplit(basename(outputs(initialRun)$file), split = "\\."), function(x) x[1])) %>%
-        lapply(function(y) grep(filesPresent, pattern = y)) %>%
-        unlist()
-      file.remove(filesPresentFull[filesToRemove])
-    })
-    
-    saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
-  }
+} else {
+  needMySim <- TRUE
 }
-# 
-library(parallel)
-# try(stopCluster(cl), silent = TRUE)
+if(needMySim) {
+  mySim <- simInit(times = times, params = parameters, modules = modules,
+                   objects = objects, paths = paths, outputs = outputs)
+  
+  saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
+  
+} 
 if(Sys.info()[["user"]] %in% c("emcintir", "achubaty")){
   if(!exists("cl")) {
-   cl <- makeCluster(detectCores()-1)
-   clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
-  }
-}
-# try(stopCluster(cl4), silent = TRUE)
-# cl4 <- makeCluster(4)
-# 
-message("Running Experiment")
-mySimOut <- Cache(experiment, mySim, replicates = 3, debug = TRUE, cache = TRUE, 
-                  #cl = cl, 
-                  .plotInitialTime = NA,
-                  clearSimEnv = TRUE#, 
-                  #notOlderThan = Sys.time()
-                  )
-message("Finished Experiment")
-
-grds <- unlist(lapply(seq_along(mySimOut), function(x) {
-  grep(pattern = ".grd$", outputs(mySimOut[[x]])$file, value= TRUE)
-}))
-
-tsf <- grep(pattern = "rstTimeSinceFire", grds, value = TRUE)
-vtm <- grep(pattern = "vegTypeMap", grds, value = TRUE)
-
-# timeSinceFire <- Cache(cacheRepo = paths$cachePath, lapply, tsf, function(x) {
-#   xrast <- raster(x)
-#   sum(xrast[]>80)/ncell(xrast)
-# })
-
-
-
-
-
-# timeSinceFireHist <- hist(unlist(timeSinceFire), plot = FALSE)
-# 
-# leading <- Cache(cacheRepo = paths$cachePath, lapply, vtm, function(x) {
-#   xrast <- raster(x)
-#   #table1 <- table(factorValues(xrast, xrast[])) # slower than tabulate directly
-#   nonNACells <- na.omit(xrast[])
-#   vals <- tabulate(nonNACells, max(levels(xrast)[[1]]$ID))
-#   names(vals)[levels(xrast)[[1]]$ID] <- levels(xrast)[[1]]$Factor
-#   vals <- vals[!is.na(names(vals))]
-#   props <- vals/length(nonNACells)
-# })
-# 
-# spruce <- hist(unlist(lapply(leading, function(x) x["Spruce leading"])), plot = FALSE)
-# mixed <- hist(unlist(lapply(leading, function(x) x["Mixed"])), plot = FALSE)
-# deciduous <- hist(unlist(lapply(leading, function(x) x["Deciduous leading"])), plot = FALSE)
-
-#Cache(cacheRepo = paths$cachePath, 
-
-
-ageClasses <- c("Young", "Immature", "Mature", "Old")
-
-leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy, polygonNames, 
-                           ageCutoffs = c(0, 40, 80, 120), 
-                           ageClasses, cl) {
-  
-  
-  if(missing(cl)) {
-    lapplyFn <- "lapply" 
-  } else {
-    lapplyFn <- "parLapplyLB"
-    clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
-                  envir = environment())
-    clusterEvalQ(cl = cl, {
-      library(raster)
-    })
-  }
-  out <- lapply(ageCutoffs, function(ages) {
-    y <- match(ages, ageCutoffs)
-    if(tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
-      startList <- list(cl = cl)
-    } else {
-      startList <- list()
-    }
-    startList <- append(startList, list(y = y))
+    library(parallel)
+    # try(stopCluster(cl), silent = TRUE)
+    message("Spawning multiple threads")
     
-    out1 <- Cache(cacheRepo = paths$cachePath, 
-                  do.call, lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
-                    x <- match(x, timeSinceFireFiles)
-                    timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
-                    leadingRast <- raster(vegTypeMapFiles[x])
-                    leadingRast[timeSinceFireFilesRast[]<ageCutoffs[y]] <- NA
-                    if((y+1) < length(ageCutoffs))
-                      leadingRast[timeSinceFireFilesRast[]>=ageCutoffs[y+1]] <- NA
-                    
-                    aa <- extract(leadingRast, polygonToSummarizeBy, fun = function(x, ...) {
-                      nonNACells <- na.omit(x)
-                      vals <- tabulate(nonNACells, max(levels(leadingRast)[[1]]$ID))
-                      names(vals)[levels(leadingRast)[[1]]$ID] <- levels(leadingRast)[[1]]$Factor
-                      vals <- vals[!is.na(names(vals))]
-                      props <- vals/length(nonNACells)  
-                    })
-                  })))
-    names(out1) <- paste(basename(dirname(tsf)),basename(tsf),sep="_")
-    out1
-  }
-  )
-  names(out) <- ageClasses
-  out
-}
-
-message("Running leadingByStage")
-leading <- Cache(leadingByStage, tsf, vtm, ecodistricts, polygonNames = ecodistricts$ECODISTRIC, 
-                 #cl=cl, 
-                 ageClasses = ageClasses, cacheRepo = paths$cachePath)
-message("Finished leadingByStage")
-
-# Large patches
-
-largePatchSizeOptions <- c(100, 200, 500, 1000)
-
-
-countNumPatches <- function(ras, patchSize, ...) {
-  clumpedRas <- clump(ras, ...)
-  freqTable <- data.table(freq(clumpedRas))[!is.na(value), ][
-    , area := count * (res(clumpedRas)[1] ^ 2) / 10000]
-  largeEnoughPatches <- freqTable[area >= patchSize, ][, newValue := as.numeric(as.factor(value))]
-  clumpedRas[!(clumpedRas %in% largeEnoughPatches$value)] <- NA
-  list(ras = clumpedRas, count = largeEnoughPatches)
-}
-
-largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy, #polygonNames, 
-                           ageCutoffs = c(0, 40, 80, 120), patchSize = 1000, 
-                           ageClasses, cl, notOlderThan = Sys.time() - 1e7) {
-  if(missing(cl)) {
-    lapplyFn <- "lapply"
-  } else {
-    lapplyFn <- "parLapplyLB"
-    clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy",
-                                          "countNumPatches", "paths", "ageCutoffs", "patchSize",
-                                          "ageClasses"),
-                  envir = environment())
-    clusterEvalQ(cl = cl, {
-      library(raster)
-      library(magrittr)
-      library(SpaDES)
-      library(data.table)
-    })
-  }
-  
-  out <- lapply(ageCutoffs, function(ages) {
-    y <- match(ages, ageCutoffs)
-    if(tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
-      startList <- list(cl = cl)
-    } else {
-      startList <- list()
-    }
-    startList <- append(startList, list(y = y))
-    out1 <- Cache(cacheRepo = paths$cachePath, #notOlderThan = Sys.time(),
-                  do.call, lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
-                    x <- match(x, timeSinceFireFiles)
-                    timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
-                    leadingRast <- raster(vegTypeMapFiles[x])
-                    leadingRast[timeSinceFireFilesRast[]<ageCutoffs[y]] <- NA
-                    if((y+1) < length(ageCutoffs))
-                      leadingRast[timeSinceFireFilesRast[]>=ageCutoffs[y+1]] <- NA
-                    
-                    clumpedRasts <- lapply(levels(leadingRast)[[1]]$ID, function(ID) {
-                      spRas <- leadingRast
-                      spRas[spRas == ID] <- NA
-                      #Cache(cacheRepo = paths$cachePath, notOlderThan = Sys.time(),
-                      countNumPatches(spRas, patchSize, directions = 8)
-                    })
-                    names(clumpedRasts) <- levels(leadingRast)[[1]]$Factor
-                    clumpedRasts <- append(clumpedRasts,
-                                           list(speciesAgnostic =
-                                                  #Cache(notOlderThan = Sys.time(),
-                                                  countNumPatches(leadingRast, patchSize, directions = 8
-                                                                  #, cacheRepo = paths$cachePath)
-                                                  )
-                                           ))
-                    
-                    out2 <- lapply(clumpedRasts, function(ras) {
-                      aa <- #Cache(notOlderThan = Sys.time(),
-                        extract(ras[[1]], polygonToSummarizeBy, fun = function(x, ...) {
-                          nonNACells <- na.omit(x)
-                          length(unique(nonNACells))
-                        }, cacheRepo = paths$cachePath)
-                    }) %>% setNames(names(clumpedRasts))
-                    out2
-                    
-                  })))
-    names(out1) <- paste(basename(dirname(timeSinceFireFiles)),basename(timeSinceFireFiles),sep="_")
-    out1
-  }
-  )
-  names(out) <- ageClasses
-  out
-}
-
-
-if(FALSE) {
-  for(iii in largePatchSizeOptions[3]) {
-    message("Running largePatches")
-    largePatches <- Cache(largePatchesFn, timeSinceFireFiles=tsf, 
-                          vegTypeMapFiles=vtm, 
-                          polygonToSummarizeBy = ecodistricts
-                          #, polygonNames = ecodistricts$ECODISTRIC 
-                          #, cl=cl
-                          , cacheRepo = paths$cachePath#, notOlderThan = Sys.time() 
-                          , ageClasses = ageClasses, patchSize = as.integer(iii)
-                          
-                          
-    )
+    cl <- makeCluster(detectCores()-1)
+    clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
+    message("  Finished Spawning multiple threads")
   }
 }
 
-omitted <- lapply(leading, function(x) lapply(x, function(y) attr(na.omit(y), "na.action")))
-polygonsWithData <- 
-  lapply(seq_along(leading), function(x) {
-    
-    unlist(lapply(x, function(y) {
-      if(!is.null(omitted[[x]][[y]])) {
-        seq_len(NROW(leading[[x]][[y]]))[-omitted[[x]][[y]]]
-      } else {
-        seq_len(NROW(leading[[x]][[y]]))
-      }
-      
-    }))
-  }) %>%
-  setNames(ageClasses)
-vegLeadingTypes <- unique(unlist(lapply(leading, function(x) lapply(x, function(y) colnames(y)))))
-
-message("Finished global.R")
-
-if(FALSE) {
-  initialCommunityMap <- raster("initialCommunitiesMap.tif")
-  ecoregionMap <- raster("landtypes_BP.tif")
   
-  spruceleadingpatchmapRegion1_5000 <- readRDS("spruceleadingpatchmapRegion1_5000.rds")
-  spruceleadingpatchmapRegion2_5000 <- readRDS("spruceleadingpatchmapRegion2_5000.rds")
-  aspenleadingpatchmapRegion1_5000 <- readRDS("aspenleadingpatchmapRegion1_5000.rds")
-  aspenleadingpatchmapRegion2_5000 <- readRDS("aspenleadingpatchmapRegion2_5000.rds")
-  overoldpatchmapRegion1_5000 <- readRDS("overoldpatchmapRegion1_5000.rds")
-  overoldpatchmapRegion2_5000 <- readRDS("overoldpatchmapRegion2_5000.rds")
-  
-  #CanadaMap <- spTransform(CanadaMap, crs(ecoregionMap))
-  #studyArea <- crop(CanadaMap, ecoregionMap)
-  
-  #CanadaMap <- fortify(CanadaMap, region = "NAME") 
-  #CanadaMap <- data.table(CanadaMap)
-  #saveRDS(CanadaMap, file = "CanadaMap.rds")
-  #CanadaMap <-readRDS("CanadaMap.rds")
-  #CanadaMap1 <- CanadaMap[long<=1.5e+06, ] %>%
-  #  data.frame
-  
-  # figure1 <- ggplot(CanadaMap, aes(x = long, y = lat, col = "grey")) +
-  #   geom_rect(aes(xmin = xmin(studyArea), xmax = xmax(studyArea),
-  #                 ymin = ymin(studyArea), ymax = ymax(studyArea)),
-  #             fill = "white", col = "red")+
-  #   geom_path(aes(group = group))+
-  #   scale_color_manual(values = "grey", label = "border") +
-  #   #geom_rect(aes(xmin = 0.8e+06, xmax = 3e+06,
-  #   #          ymin = 8.5e+06, ymax = 1.09e+07), fill = "white", col = "white")+
-  #   #geom_rect(aes(xmin = 0.8e+06, xmax = 3e+06,
-  #   #              ymin = 6e+06, ymax = 8.4e+06), fill = "white", col = "white")#+
-  #   
-  #   #annotation_raster(as.raster(ecoregionMap), xmin = 0.8e+06, xmax = 3e+06,
-  #   #                  ymin = 8.5e+06, ymax = 1.05e+07)+
-  #   #annotation_raster(as.raster(initialCommunityMap), xmin = 0.8e+06, xmax = 3e+06,
-  #   #                  ymin = 6e+06, ymax = 8e+06)+
-  #   #annotate("text", x = 1.9e+06, y = 1.075e+7, label = "Ecoregions (N=163)", size = 5)+
-  #   #annotate("text", x = 1.9e+06, y = 8.25e+6, label = "Initial Communities (N=442)", size = 5)+
-  # theme_bw()+
-  #   theme(panel.grid.major = element_blank(),
-  #         panel.grid.minor = element_blank(),
-  #         panel.border = element_blank(),
-  #         axis.title = element_blank(),
-  #         axis.text = element_blank(),
-  #         axis.ticks = element_blank(),
-  #         legend.position = "none")
-  # figure1
-  
-  
-  #ecoRegionFig <- as.raster(ecoregionMap)
-  #saveRDS(ecoRegionFig, file = "ecoregionFig.rds")
-  #ecoregionFig <- readRDS("ecoregionFig.rds")
-  
-  
-  #initialCommunityMap <- as.raster(initialCommunityMap)
-  #saveRDS(initialCommunityMap, file = "initialCommunityMap.rds")
-  #initialCommunityMap <- readRDS("initialCommunityMap.rds")
-  
-  crsICM <- crs(initialCommunityMap)
-  extInit <- extent(initialCommunityMap)
-  X = extInit[c(1,1,2,2,1)]
-  Y = extInit[c(3,4,4,3,3)]
-  
-  Sr1 <- Polygon(cbind(X,Y))
-  Srs1 = Polygons(list(Sr1), "s1")
-  inputMapPolygon <- SpatialPolygons(list(Srs1), 1L)
-  crs(inputMapPolygon) <- crsICM
-  crsCanadaMap <- crs(CanadaMap)
-  inputMapPolygon <- spTransform(inputMapPolygon, crsCanadaMap)
-  
-  
-  
-  #landisInputs <- read.table(file = "clipboard")
-  #colnames(landisInputs) <- c("Longevity", "Sexual Maturity", "Shade tolerance", "Effective Seed Distance", "Maximum Seed Distance")
-  #landisInputs <- data.frame(Species = landisInputsRowNames$V1, landisInputs)
-  #saveRDS(landisInputs, file = "landisInputs.rds")
-  # SpEcoReg <- read.table(file = "clipboard", header=TRUE, stringsAsFactors = FALSE)
-  # saveRDS(SpEcoReg, "SpEcoReg.rds")
-  
-  seralStageData <- readRDS("seralStageData.rds")
-  seralStageDataFig5 <- readRDS("seralStageDataFig5.rds")
-  vegTypeDataFig6 <- readRDS("vegTypeDataFig6.rds")
-  
-  ### Fig 2
-  
-  MapRegion1 <- readRDS("MapRegion1.rds")
-  MapRegion2 <- readRDS("MapRegion2.rds")
-  #saveRDS(output, "outputFig2.rds")
-  outputFig2 <- readRDS("outputFig2.rds")
-  
-  NRVFig <- ggplot(data = outputFig2, aes(x = Year, y = totalB, col = chain))+
-    geom_rect(aes(xmin = 800, xmax = 2000, ymin = 6000, ymax = 7200),
-              fill = "white", col = "red")+
-    annotate("text", x = 1400, y = 7150, label = "Summary Regions", size = 6)+
-    annotation_raster(as.raster(MapRegion1), xmin = 850, xmax = 1375,
-                      ymin = 6050, ymax = 7000)+
-    annotation_raster(as.raster(MapRegion2), xmin = 1425, xmax = 1950,
-                      ymin = 6050, ymax = 7000)+
-    geom_rect(aes(xmin = 1400, xmax = 2000, ymin = 7500, ymax = 8000),
-              fill = "white", col = "red")+
-    annotate("text", x = 1700, y = 7650, label = "Summary Period", size = 6)+
-    geom_line()+
-    scale_x_continuous("Year", limits = c(-0, 2000), breaks = seq(0, 2000, by = 400))+
-    scale_y_continuous(name = expression(paste("Aboveground biomass (g . ", m^-2, ")",
-                                               sep = "")),
-                       limits = c(6000, 9000), breaks = seq(6000, 9000, by = 500))+
-    theme_bw()+
-    guides(colour = guide_legend(title = "Simulations", title.position = "top"))+
-    
-    # labs(colour = "Simulation")+
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.border = element_rect(colour = "black", size = 1),
-          axis.title = element_text(size = 15),
-          axis.text = element_text(size = 12),
-          legend.title = element_text(size = 15),
-          legend.title.align = 0.5,
-          legend.key = element_rect(fill = "white", colour = "white"),
-          legend.key.width = unit(60, "points"),
-          legend.key.height = unit(35, "points"),
-          legend.position = c(0.7, 0.8),
-          legend.direction = "horizontal",
-          legend.text = element_text(size = 15))
-  
-  
-  #### Fig 3
-  vegTypeMapExampleRegion1 <- readRDS("vegTypeMapExampleRegion1.rds")
-  vegTypeMapExampleRegion2 <- readRDS("vegTypeMapExampleRegion2.rds")
-  seralMapExampleRegion1 <- readRDS("seralMapExampleRegion1.rds")
-  seralMapExampleRegion2 <- readRDS("seralMapExampleRegion2.rds")
-  seralStageData <- readRDS("seralStageData.rds")
-  vegTypeDataFig6 <- readRDS("vegTypeDataFig6.rds")
-  
-  availableRegions <- unique(vegTypeData$ecoregion)
-}
-
-
-
 ######### Modules
 
 
-vegAgeModUI <- function(id) {
+vegAgeModUI <- function(id, vegLeadingTypes) {
   #decidOldModUI <- function(id) {
   ns <- NS(id)
   
@@ -699,8 +340,6 @@ vegAgeMod <- function(input, output, server, listOfProportions, indivPolygonInde
                                         detail = 'This may take a while...',value = 0,
                                         {
                                           
-                                          
-                                          #clearPlot()
                                           actualPlot <- #Cache(cacheRepo = paths$cachePath,
                                             ggplot(data = data.frame(x = unlist(lapply(
                                               listOfProportions, function(x) x[indivPolygonIndex, vegLeadingType]))),
@@ -727,7 +366,7 @@ vegAgeMod <- function(input, output, server, listOfProportions, indivPolygonInde
 }
 
 
-clumpModOutput <- function(id) {
+clumpModOutput <- function(id, vegLeadingTypes) {
   #decidOldModUI <- function(id) {
   ns <- NS(id)
   
@@ -758,24 +397,31 @@ clumpMod2Input <- function(id, label = "CSV file") {
   )
   #)
 }
-
-clumpMod2 <- function(input, output, server, tsf, vtm, ecodistricts, #polygonNames = ecodistricts$ECODISTRIC, 
+neverRun <- 0
+clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, #polygonNames = currentPolygon$ECODISTRIC, 
                       #cl=cl, 
                       ageClasses = ageClasses,
                       patchSize,
                       cacheRepo = paths$cachePath,
-                      id, indivPolygonIndex) {
+                      id, indivPolygonIndex,
+                      largePatchesFn) {
   
   Clumps <- reactive({
+    if(neverRun <= length(largePatchSizeOptions)) {
+      invalidateLater(500)
+      neverRun <<- neverRun + 1
+      patchSize <- as.integer(largePatchSizeOptions[neverRun])
+    } else {
+      patchSize <- as.integer(input$PatchSize33)
+    }
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...',value = 0,
+                 
                  {
                    largePatches <- Cache(largePatchesFn, timeSinceFireFiles=tsf, 
                                          vegTypeMapFiles=vtm, 
-                                         polygonToSummarizeBy = ecodistricts, 
-                                         #polygonNames = polygonNames, 
-                                         #cl=cl, 
-                                         ageClasses = ageClasses, patchSize = as.integer(input$PatchSize33),
+                                         polygonToSummarizeBy = currentPolygon, 
+                                         ageClasses = ageClasses, patchSize = patchSize,
                                          cacheRepo = cacheRepo
                    )
                    setProgress(1)
@@ -787,18 +433,9 @@ clumpMod2 <- function(input, output, server, tsf, vtm, ecodistricts, #polygonNam
 }
 
 
-clumpMod <- function(input, output, server, Clumps, id
-                     #tsf, vtm, ecodistricts, polygonNames = ecodistricts$ECODISTRIC, 
-                     #cl=cl, 
-                     #Clumps,
-                     #ageClasses = ageClasses,
-                     #cacheRepo = paths$cachePath,
-                     #id#,
-                     #indivPolygonIndex
-) {
+clumpMod <- function(input, output, server, Clumps, id) {
   
   output$h <- renderPlot( {
-    #browser()
     a <- Clumps()
     ids <- strsplit(id, split = "_")[[1]]
     i <- as.numeric(ids[1])
@@ -835,90 +472,33 @@ leafletMapUI <- #bootstrapPage(
   function(id) {
     #decidOldModUI <- function(id) {
     ns <- NS(id)
-    #browser()
-    #ids <- strsplit(id, split = "_")[[1]]
-    #i <- as.numeric(ids[1])
-    #j <- as.numeric(ids[2])
-    #k <- as.numeric(ids[3])
     tagList(
       box(width = 12, 
           solidHeader = TRUE, collapsible = TRUE, 
-          title = "Area covered by this demo, within the LandWeb study area",
-          #splitLayout(cellWidths=c("75%","25%"),
+          title = "Area covered by this demo (in red), within the LandWeb study area (blue)",
           leafletOutput(ns("leafletMap1"), height = 600),
           selectInput(ns("leafletMapPolygons"), "Other layers to show summaries with", 
-                      choices = names(DemoPolygons), selected = names(DemoPolygons)[[1]])
-          
-          #radioButtons(ns("radio"),label = "buttons",
-          #             choices = list("with intercept"=1,"without intersept"=2),
-          #             selected = 1))      
+                      choices = names(polygons[7:8]), selected = names(polygons[7:8])[[1]])
       )
     )
   }
 
-lflt = "+init=epsg:4326"
-
-ecodistrictsLFLT <- spTransform(ecodistricts, sp::CRS(lflt))
-ecodistrictsFullLFLT <- spTransform(ecodistrictsFull, sp::CRS(lflt))
-AlbertaFMULFLT <- spTransform(AlbertaFMU, sp::CRS(lflt))
-AlbertaFMUFullLFLT <- spTransform(AlbertaFMUFull, sp::CRS(lflt))
-ecodistrictsFullLFLT <- spTransform(ecodistrictsFull, sp::CRS(lflt))
-
-FullPolygons <- list("Ecodistrict Full" = ecodistrictsFullLFLT, 
-                     "Alberta FMUs Full" = AlbertaFMUFullLFLT
-)
-
-DemoPolygons <- list("Ecodistrict DEMO" = ecodistrictsLFLT, 
-                       "Alberta FMUs DEMO" = AlbertaFMULFLT#,
-                       )
-polygonColours <- c(rep(c("red", "blue"),2))
-polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(DemoPolygons))
 
 leafletMap <- function(input, output, session, ecodistrictsFullLFLT) {
   
-  # filteredData <- reactive({
-  #   quakes[quakes$mag >= input$range[1] & quakes$mag <= input$range[2],]
-  # })
-  # 
-  # # This reactive expression represents the palette function,
-  # # which changes as the user makes selections in UI.
-  # colorpal <- reactive({
-  #   colorNumeric(input$colors, quakes$mag)
-  # })
-  #browser()
-  
   output$leafletMap1 <- renderLeaflet({
-    # Use leaflet() here, and only include aspects of the map that
-    # won't need to change dynamically (at least, not unless the
-    # entire map is being torn down and recreated).
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...',value = 0,
                  {
                    polyNum <- polygonInput()
-                   polyDemo <- DemoPolygons[[polyNum]]
-                   polyFull <- FullPolygons[[polyNum]]
+                   polyDemo <- polygons[[polyNum+6]]
+                   polyFull <- polygons[[polyNum+4]]
                    a <- leaflet() %>% addTiles(group = "OSM (default)") %>%
                      addPolygons(data = polyFull, color = "blue", group = "Full", fillOpacity=0.2, weight=1,
                                  popup = paste(polyFull[[polygonIndivIdsColum[[polyNum]]]]))  %>%
                      addPolygons(data = polyDemo, color = "red", group = "Demo",fillOpacity=0.6, weight=3,
                                  popup = paste(polyDemo[[polygonIndivIdsColum[[polyNum]]]]))  %>%
-                   #addPolygons(data = ecodistrictsFullLFLT, smoothFactor=2, layerId = ecodistrictsFullLFLT$ECODISTRIC,
-                    #             group = "Ecodistricts", 
-                    #             popup=paste("Ecodistrict",ecodistrictsFullLFLT$ECODISTRIC)) %>%
-                     # addPolygons(data = AlbertaFMUFullLFLT, smoothFactor=2,
-                     #             group = "Alberta FMUs",  popup=paste("FMU",AlbertaFMUFullLFLT$FMU_NAME)) %>%
-                     # addLayersControl(
-                     #   #baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
-                     #   baseGroups = c("Ecodistricts", "Alberta FMUs"),
-                     #   options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)
-                     # ) %>%
-                     setView(-118, 58, zoom=6) 
-                     # fitBounds(xmin(ecodistrictsFullLFLT),ymin(ecodistrictsFullLFLT),
-                   #           xmax(ecodistrictsFullLFLT),ymax(ecodistrictsFullLFLT))
-                   #mean(xmax(ecodistrictsFullLFLT),xmin(ecodistrictsFullLFLT)), 
-                   #mean(ymax(ecodistrictsFullLFLT),ymin(ecodistrictsFullLFLT)), 
-                   #ymin(ecodistrictsFullLFLT), 
-                   #zoom = 5)
+                     setView(-118, 58, zoom=5) 
                    setProgress(1)
                  })   
     a
@@ -927,131 +507,51 @@ leafletMap <- function(input, output, session, ecodistrictsFullLFLT) {
   
   polygonInput <- reactive({
     switch(input$leafletMapPolygons,
-           "Ecodistrict DEMO" = 1, 
-           "Alberta FMUs DEMO" = 2
+           "Ecodistricts Demo" = 1, 
+           "Alberta FMUs Demo" = 2
     )
   })
   
-  # observe({
-  #   polyNum <- polygonInput()
-  #   poly <- loadedPolygons[[polyNum]]
-  #   proxy <- leafletProxy("leafletMap1", session)
-  #   
-  #   #browser()
-  #   #proxy %>% clearShapes()
-  #   
-  # 
-  #   #proxy %>%
-  #   #  clearGroup("Ecodistricts")# %>%
-  #     #addPolygons(data = poly, color = "blue",
-  #     #            group = "Ecodistricts",
-  #     #            popup=paste("FMU:",AlbertaFMULFLT$FMU_NAME))
-  #     #            #popup=paste(poly[[polygonIndivIdsColum[[1]]]]))
-  #     #            #popup=paste("Ecodistrict",ecodistrictsFullLFLT$ECODISTRIC))
-  # 
-  #   })
-
-  # observe({
-  #   polyNum <- polygonInput()
-  #   poly <- loadedPolygons[[polyNum]]
-  #   proxy <- leafletProxy("leafletMap1")
-  #   
-  #   browser()
-  #   proxy %>% clearShapes()
-  #   
-  #   
-  #   proxy %>%
-  #     #  clearGroup("Ecodistricts") %>%
-  #     addPolygons(data = poly, color = "blue",
-  #                 group = "Ecodistricts",
-  #                 popup=paste("FMU:",AlbertaFMULFLT$FMU_NAME))
-  #   #popup=paste(poly[[polygonIndivIdsColum[[1]]]]))
-  #   #popup=paste("Ecodistrict",ecodistrictsFullLFLT$ECODISTRIC))
-  #   
-  # })
-  
-  
-  #leafletProxy()
-  # Incremental changes to the map (in this case, replacing the
-  # circles when a new color is chosen) should be performed in
-  # an observer. Each independent set of things that can change
-  # should be managed in its own observer.
-  # observe({
-  #   pal <- colorpal()
-  #   
-  #   leafletProxy("map", data = filteredData()) %>%
-  #     clearShapes() %>%
-  #     addCircles(radius = ~10^mag/10, weight = 1, color = "#777777",
-  #                fillColor = ~pal(mag), fillOpacity = 0.7, popup = ~paste(mag)
-  #     )
-  # })
-  # 
-  # # Use a separate observer to recreate the legend as needed.
-  # observe({
-  #   proxy <- leafletProxy("map", data = quakes)
-  #   
-  #   # Remove any existing legend, and only if the legend is
-  #   # enabled, create a new one.
-  #   proxy %>% clearControls()
-  #   if (input$legend) {
-  #     pal <- colorpal()
-  #     proxy %>% addLegend(position = "bottomright",
-  #                         pal = pal, values = ~mag
-  #     )
-  #   }
-  # })
+  return(polygonInput)
 }
-  
 
-timeSinceFirePalette <- 
-  colorNumeric(c(rep("red",10),paste0(colorRampPalette(c("light green", "dark green"))(100),"FF")), 
-               domain = NULL)
 
-ageSinceFireMod <- function(input, output, session, ecodistrictsFullLFLT) {
+
+timeSinceFireMod <- function(input, output, session, rasts) {
   
-  output$ageSinceFire1 <- renderLeaflet({
-    # Use leaflet() here, and only include aspects of the map that
-    # won't need to change dynamically (at least, not unless the
-    # entire map is being torn down and recreated).
-    withProgress(message = 'Calculation in progress',
-                 detail = 'This may take a while...',value = 0,
-                 {
-                   ras1 <- rasterInput()
-                   #polyDemo <- DemoPolygons[[polyNum]]
-                   #polyFull <- FullPolygons[[polyNum]]
-                   a <- leaflet() %>% addTiles(group = "OSM (default)") %>%
-                     addRasterImage(x = ras1, group = "ageSinceFireRasts", opacity=0.7, 
-                                    colors = timeSinceFirePalette)  %>%
-                     addLegend(position="bottomright", pal = timeSinceFirePalette, 
-                               values = na.omit(ras1[]), title = "Time since fire (years)") %>%
-                     setView(-118, 58.3, zoom=9) 
-                   setProgress(1)
-                 })   
+  output$timeSinceFire1 <- renderLeaflet({
+    ras1 <- rasterInput()
+    a <- leaflet() %>% addTiles(group = "OSM (default)") %>%
+      addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity=0.7, 
+                     colors = timeSinceFirePalette, project = FALSE)  %>%
+      addPolygons(data=polygons[[8]], fillOpacity = 0, weight = 1) %>%
+      addLegend(position="bottomright", pal = timeSinceFirePalette, 
+                values = na.omit(ras1[]), title = "Time since fire (years)") %>%
+      setView(-118, 58.3, zoom=8) 
     a
     
   })
   
   rasterInput <- reactive({
-    
-    r <- raster(tsf[input$ageSinceFire1Slider])
-    r <- sampleRegular(r, size=1e5, asRaster=TRUE)
-    
+    r <- rasts[[input$timeSinceFire1Slider]]
+    if(ncell(r)>2e5)
+      r <- sampleRegular(r, size=2e5, asRaster=TRUE)
+    r
   })
 }
 
-animationOptions(interval = 1500, loop = TRUE, playButton = "Press to animate",
-                 pauseButton = NULL)
 
-ageSinceFireModUI <- function(id) {
-    ns <- NS(id)
-    tagList(
-      box(width = 12, 
-          solidHeader = TRUE, collapsible = TRUE, 
-          title = "Age since fire maps",
-          leafletOutput(ns("ageSinceFire1"), height = 600),
-          sliderInput(ns("ageSinceFire1Slider"), 
-                      "Individual snapshots of time since fire maps. Use play button (bottom right) to animate", 
-                      min = 1, max = length(tsf), value = 1, step=1, animate = TRUE)
-        )
+timeSinceFireModUI <- function(id, tsf) {
+  ns <- NS(id)
+  tagList(
+    box(width = 12, 
+        solidHeader = TRUE, collapsible = TRUE, 
+        title = "Time Since Fire maps",
+        leafletOutput(ns("timeSinceFire1"), height = 600),
+        sliderInput(ns("timeSinceFire1Slider"), 
+                    "Individual snapshots of time since fire maps. Use play button (bottom right) to animate", 
+                    min = 1, max = length(tsf), value = 1, step=1, 
+                    animate = animationOptions(interval=2500, loop=FALSE))
     )
-  }
+  )
+}
