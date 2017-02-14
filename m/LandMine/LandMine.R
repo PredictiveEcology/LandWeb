@@ -101,7 +101,7 @@ LandMineInit <- function(sim) {
   sim$rstCurrentBurn <- raster(sim$fireReturnInterval)
   sim$rstFlammableNum <- raster(sim$rstFlammable)
   sim$rstFlammableNum[] <- sim$rstFlammable[]
-  sim$rstFlammableNum[is.na(sim$rstFlammableNum)] <- 0
+  sim$rstFlammableNum[is.na(sim$rstFlammableNum)] <- NA
   
   
   
