@@ -40,61 +40,42 @@ dashboardPage(skin = "green",
               )
       ),
       tabItem("ClumpsYoung",
-              fluidRow(
-                uiOutput("ClumpsYoungUI")
-              )
+              fluidRow(uiOutput("ClumpsYoungUI"))
       ),
       tabItem("ClumpsImmature",
-              fluidRow(
-                uiOutput("ClumpsImmatureUI")
-              )
+              fluidRow(uiOutput("ClumpsImmatureUI"))
       ),
       tabItem("ClumpsMature",
-              fluidRow(
-                uiOutput("ClumpsMatureUI")
-              )
+              fluidRow(uiOutput("ClumpsMatureUI"))
       ),
       tabItem("Polygons",
               fluidRow(
                 tabBox(width = 12,
                        tabPanel("Current Polygons", tabName = "Polygons1",
-                                leafletMapUI("leafletMap")
+                                fluidRow(leafletMapUI("leafletMap"))
                        )
                 )
               )
       ),
       tabItem("TimeSinceFire",
-              fluidRow(
-                uiOutput("timeSinceFireUI")
-              )
+              fluidRow(uiOutput("timeSinceFireUI"))
               
       ),
       tabItem("ClumpsOld",
-              fluidRow(
-                uiOutput("ClumpsOldUI")
-              )
+              fluidRow(uiOutput("ClumpsOldUI"))
       ),
       tabItem("Young",
-              fluidRow(
-                uiOutput("YoungUI")
-              )
+              fluidRow(uiOutput("YoungUI"))
       ),
       tabItem("Mature",
-              fluidRow(
-                uiOutput("MatureUI")
-              )
+              fluidRow(uiOutput("MatureUI"))
       ),
       tabItem("Old",
-              fluidRow(
-                uiOutput("OldUI")
-              )
+              fluidRow(uiOutput("OldUI"))
       ),
       
       tabItem("Immature",
-              fluidRow(
-                uiOutput("ImmatureUI")
-              )
-              
+              fluidRow(uiOutput("ImmatureUI"))
       ),
       tabItem("inputTables",
               fluidRow(
