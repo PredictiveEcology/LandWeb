@@ -385,7 +385,7 @@ clumpMod2Input <- function(id, label = "CSV file") {
 
 clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, 
                       #polygonNames = currentPolygon$ECODISTRIC,
-                      cl=cl, 
+                      cl = cl, 
                       ageClasses = ageClasses,
                       patchSize,
                       cacheRepo = paths$cachePath,
@@ -393,9 +393,8 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon,
                       largePatchesFn) {
   
   Clumps <- reactive({
-    
     # Pre-run all patch sizes automatically.
-    if(largePatchesFnLoop < (length(largePatchSizeOptions)-1)) {
+    if (largePatchesFnLoop < (length(largePatchSizeOptions) - 1)) {
       invalidateLater(50)
       largePatchesFnLoop <<- largePatchesFnLoop + 1
       patchSize <- as.integer(largePatchSizeOptions[largePatchesFnLoop])
@@ -421,9 +420,7 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon,
   return(Clumps)
 }
 
-
 clumpMod <- function(input, output, server, Clumps, id) {
-  
   output$h <- renderPlot({
     a <- Clumps()
     ids <- strsplit(id, split = "_")[[1]]
@@ -452,23 +449,18 @@ clumpMod <- function(input, output, server, Clumps, id) {
   })
 }
 
-
-leafletMapUI <- #bootstrapPage(
-  #tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
-  function(id) {
-    #decidOldModUI <- function(id) {
-    ns <- NS(id)
-    tagList(
-      box(width = 12, 
-          solidHeader = TRUE, collapsible = TRUE, 
-          title = "Area covered by this demo (in red), within the LandWeb study area (blue)",
-          leafletOutput(ns("leafletMap1"), height = 600),
-          selectInput(ns("leafletMapPolygons"), "Other layers to show summaries with", 
-                      choices = names(polygons[7:8]), selected = names(polygons[7:8])[[1]])
-      )
+leafletMapUI <- function(id) {
+  ns <- NS(id)
+  tagList(
+    box(width = 12, 
+        solidHeader = TRUE, collapsible = TRUE, 
+        title = "Area covered by this demo (in red), within the LandWeb study area (blue)",
+        leafletOutput(ns("leafletMap1"), height = 600),
+        selectInput(ns("leafletMapPolygons"), "Other layers to show summaries with", 
+                    choices = names(polygons[7:8]), selected = names(polygons[7:8])[[1]])
     )
-  }
-
+  )
+}
 
 leafletMap <- function(input, output, session) {
   output$leafletMap1 <- renderLeaflet({
@@ -497,7 +489,6 @@ leafletMap <- function(input, output, session) {
            "Alberta FMUs Demo" = 2
     )
   })
-  
   return(polygonInput)
 }
 
