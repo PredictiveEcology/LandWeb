@@ -40,23 +40,26 @@ function(input, output, session) {
   tsf <- grep(pattern = "rstTimeSinceFire", grds, value = TRUE)
   vtm <- grep(pattern = "vegTypeMap", grds, value = TRUE)
   
-  message("Reprojecting rasters & loading into RAM")
   lfltFN <- gsub(tsf, pattern = ".grd", replacement = "LFLT.grd")
   lfltFN <- gsub(lfltFN, pattern = ".grd", replacement = ".tif")
   
-  rasts <- lapply(seq_along(tsf), function(FN) {
-    if (file.exists(lfltFN[FN])) {
-      r <- raster(lfltFN[FN])
-    } else {
-     r <- raster(tsf[FN])
-     r <- projectRaster(r, crs = sp::CRS(lflt), method = "ngb",
-                        filename = lfltFN[FN], overwrite = TRUE,
-                        datatype = "INT1U")
-    }
-    #if ((ncell(r) < 5e5) & (length(tsf) < 30)) r[] <- r[] 
-    r
-  })
-  message("  Finished reprojecting rasters & loading into RAM")
+  if(!(length(globalRasters)==length(tsf))) {
+    message("Reprojecting rasters & loading into RAM")
+    globalRasters <<- lapply(seq_along(tsf), function(FN) {
+      if (file.exists(lfltFN[FN])) {
+        r <- raster(lfltFN[FN])
+      } else {
+        r <- raster(tsf[FN])
+        r <- projectRaster(r, crs = sp::CRS(lflt), method = "ngb",
+                           filename = lfltFN[FN], overwrite = TRUE,
+                           datatype = "INT1U")
+      }
+      if ((ncell(r) < 5e5) & (length(tsf) < 30)) r[] <- r[] 
+      r
+    })
+    message("  Finished reprojecting rasters & loading into RAM")
+  } 
+  
 
   leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
                              polygonToSummarizeBy, polygonNames, 
@@ -509,7 +512,7 @@ function(input, output, session) {
     )
   })
   
-  callModule(timeSinceFireMod, "timeSinceFire", rasts = rasts)
+  callModule(timeSinceFireMod, "timeSinceFire", rasts = globalRasters)
   
   Clumps <- callModule(clumpMod2, "id1", 
                        tsf = tsf, vtm = vtm, 
