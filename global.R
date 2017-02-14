@@ -8,12 +8,12 @@ globalRasters <- list()
 
 # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
 
-if(FALSE) { # For pushing to shinyapps.io
+if (FALSE) { # For pushing to shinyapps.io
   allFiles <- dir(recursive = TRUE)
-  allFiles <- grep(allFiles, pattern="^R-Portable", invert = TRUE, value = TRUE)
-  allFiles <- grep(allFiles, pattern="^appCache", invert = TRUE, value = TRUE)
-  allFiles <- grep(allFiles, pattern="^outputs", invert = TRUE, value = TRUE)
-  print(paste("Total size:",sum(unlist(lapply(allFiles, function(x) file.info(x)[,"size"])))/1e6,"MB"))
+  allFiles <- grep(allFiles, pattern = "^R-Portable", invert = TRUE, value = TRUE)
+  allFiles <- grep(allFiles, pattern = "^appCache", invert = TRUE, value = TRUE)
+  allFiles <- grep(allFiles, pattern = "^outputs", invert = TRUE, value = TRUE)
+  print(paste("Total size:", sum(unlist(lapply(allFiles, function(x) file.info(x)[, "size"]))) / 1e6, "MB"))
   rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
                        contentCategory = "application")  
 }
@@ -21,10 +21,11 @@ if(FALSE) { # For pushing to shinyapps.io
 print(getwd())
 #.libPaths("TEMP")
 if (FALSE) {
-  pkgNamespaces <- c("shiny", "shinydashboard", "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES",
-                     "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "htmlwidgets", "bit", "parallel",
-                     "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp", "dplyr", "ggplot2", "maptools",
-                     "broom", "ggvis", "rgdal", "grid", "leaflet", "plotly", "VGAM")
+  pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet", "plotly",
+                     "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES", "markdown",
+                     "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "bit", "parallel",
+                     "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp",
+                     "dplyr", "ggplot2", "maptools", "broom", "ggvis", "rgdal", "grid", "VGAM")
   lapply(pkgNamespaces, function(p) if (!require(p, quietly = TRUE, character.only = TRUE)) {
     install.packages(p, dependencies = TRUE)
   })
@@ -33,15 +34,16 @@ if (FALSE) {
   if (tryCatch(packageVersion("SpaDES") < "1.3.1.9041", error = function(x) TRUE))
     devtools::install_github("PredictiveEcology/SpaDES@development")  
 }
-pkgs <- c("shiny", "shinydashboard", "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2","VGAM",
-          "maptools", "dplyr", "data.table", "plotly", "magrittr", "SpaDES", "parallel", "leaflet", "SpaDES",
-          "ggvis")
+pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", "plotly", 
+          "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
+          "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown")
 lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
 
 ## For shinyapps.io -- needs to see explicit require statements
 if (FALSE) {
   require(shiny)
   require(shinydashboard)
+  require(shinyBS)
   require(BH)
   require(RCurl)
   require(RandomFieldsUtils)
@@ -74,6 +76,7 @@ if (FALSE) {
   require(plotly)
   require(leaflet)
   require(parallel)
+  require(markdown)
 }
 
 curDir <- getwd()
@@ -102,8 +105,6 @@ shpStudyRegionFull <- SpaDES::Cache(shapefile, file.path(paths$inputPath,"shpLan
 shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
 shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
 
-#biomassMap <- raster(file.path(paths$modulePath,"landWebDataPrep", "data", 
-#                               "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif"))
 crsKNNMaps <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
 studyArea <- "SMALL"
 set.seed(2)#set.seed(5567913)
@@ -118,7 +119,7 @@ if (studyArea == "SMALL") {
   # shpStudyRegionCan <- spTransform(shpStudyRegion, crs(CanadaMap))
   areaKm2 <- 10000#700000#2000#600000#too big for laptop
   minY <- 7508877 - 1.6e5
-} else if (studyArea == "medium") {
+} else if (studyArea == "MEDIUM") {
   areaKm2 <- 20000 #700000#2000#600000#too big for laptop
   minY <- 7008877 - 1.6e5
 }
@@ -527,8 +528,8 @@ timeSinceFireModUI <- function(id, tsf) {
   tagList(
     box(width = 12, solidHeader = TRUE, collapsible = TRUE, 
         #title = "Time Since Fire maps",
-        h4 (paste("Below are a sequence of snapshots of the landscape, showing the natural range of",
-                  "variation in time since fire. Click on the 'play' button at the bottom right to animate")),
+        h4(paste("Below are a sequence of snapshots of the landscape, showing the natural range of",
+                 "variation in time since fire. Click on the 'play' button at the bottom right to animate")),
         leafletOutput(ns("timeSinceFire1"), height = 600),
         sliderInput(ns("timeSinceFire1Slider"), 
                     "Individual snapshots of time since fire maps. Use play button (bottom right) to animate.", 
@@ -647,15 +648,19 @@ moduleInfo <- function(input, output, session, sim) {
     fluidRow(
       tagList(lapply(modules(sim), function(module) {
         m <- slot(depends(sim), "dependencies")[[module]]
+        rmdFile <- file.path("m", module, paste0(module, ".Rmd"))
         box(title = module, width = 12, status = "success", collapsible = TRUE,
             div(
               p(paste("Description:", slot(m, "description"))),
               p(paste("Keywords:", paste(slot(m, "keywords"), collapse = ", "))),
               p(paste("Authors:", paste(slot(m, "authors"), collapse = "; "))),
-              p(paste("Version:", slot(m, "version")))#,
-              #p(paste("Documentation:", a("[Rmd]", href = "http://example.com")))
+              p(paste("Version:", slot(m, "version"))),
+              p("Documentation:", actionLink(paste0(module, "_Rmd"), "Rmd"))
               ## TO DO: add more metadata as required
-            )
+            ),
+            bsModal("modalExample", basename(rmdFile),
+                    trigger = paste0(module, "_Rmd"), size = "large",
+                    includeMarkdown(rmdFile))
         )
       }))
     )

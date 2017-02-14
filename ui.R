@@ -1,5 +1,6 @@
 library(shiny)
 library(shinydashboard)
+library(shinyBS)
 
 dashboardPage(skin = "green",
   dashboardHeader(title = "LandWeb"),
