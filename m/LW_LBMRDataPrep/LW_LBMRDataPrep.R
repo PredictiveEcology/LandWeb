@@ -3,9 +3,10 @@
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
   name = "LW_LBMRDataPrep",
-  description = "this is data preparation module for running LBMR module in landWeb project",
+  description = "A data preparation module for running the LBMR module in the LandWeb project",
   keywords = c("LandWeb", "LBMR"),
-  authors = c(person(c("Yong"), "Luo", email="yong.luo@canada.ca", role=c("aut", "cre"))),
+  authors = c(person(c("Yong"), "Luo", email="yong.luo@canada.ca", role=c("aut", "cre")),
+              person(c("Eliot"), "J", "B", "McIntire", email="eliot.mcintire@canada.ca", role=c("aut"))),
   childModules = character(0),
   version = numeric_version("1.3.1"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
