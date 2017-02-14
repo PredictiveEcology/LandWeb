@@ -5,9 +5,8 @@ dashboardPage(skin = "green",
   dashboardSidebar(width = 300,
     sidebarMenu(
       menuItem("Model overview", icon = icon("info"),
-               menuSubItem("Simulation Diagrams", tabName = "simDiagrams", icon = icon("sitemap"))#,
-               #menuSubItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece"))
-               ),
+               menuSubItem("Simulation Diagrams", tabName = "simDiagrams", icon = icon("sitemap")),
+               menuSubItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece"))),
       menuItem("Large Patches", icon = icon("bar-chart"),
                menuSubItem("Young", tabName = "ClumpsYoung", icon = icon("tree")),
                menuSubItem("Immature", tabName = "ClumpsImmature", icon = icon("tree")),
@@ -46,7 +45,7 @@ dashboardPage(skin = "green",
               )
       ),
       tabItem("simDiagrams", simInfoUI("simInfoTabs")),
-      #tabItem("moduleInfo", moduleInfoUI()),
+      tabItem("moduleInfo", moduleInfoUI("modInfoBoxes")),
       tabItem("ClumpsYoung",
               fluidRow(uiOutput("ClumpsYoungUI"))
       ),

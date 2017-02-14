@@ -626,6 +626,32 @@ simEventDiagram <- function(input, output, session, sim) {
   })
 }
 
+### detailed module info
+moduleInfoUI <- function(id) {
+  ns <- NS(id)
+  
+  uiOutput(ns("allModuleInfo"))
+}
+
+moduleInfo <- function(input, output, session, sim) {
+  output$allModuleInfo <- renderUI({
+    fluidRow(
+      tagList(lapply(modules(sim), function(module) {
+        m <- slot(depends(sim), "dependencies")[[module]]
+        box(title = module, width = 12, status = "success", collapsible = TRUE,
+            div(
+              p(paste("Description:", slot(m, "description"))),
+              p(paste("Keywords:", paste(slot(m, "keywords"), collapse = ", "))),
+              p(paste("Authors:", paste(slot(m, "authors"), collapse = "; "))),
+              p(paste("Version:", slot(m, "version")))
+              ## TO DO: add more metadata as required
+            )
+        )
+      }))
+    )
+  })
+}
+
 ### footers
 copyrightFooter <- function() {
   copyrightInfo <- paste(

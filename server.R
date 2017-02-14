@@ -22,6 +22,7 @@ function(input, output, session) {
   }
   
   callModule(simInfo, "simInfoTabs", initialRun)
+  callModule(moduleInfo, "modInfoBoxes", initialRun)
   
   message("Running Experiment")
   mySimOut <- Cache(experiment, mySim, replicates = 3, debug = TRUE, cache = TRUE, 
