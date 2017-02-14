@@ -37,7 +37,7 @@ function(input, output, session) {
   tsf <- grep(pattern = "rstTimeSinceFire", grds, value = TRUE)
   vtm <- grep(pattern = "vegTypeMap", grds, value = TRUE)
   
-  message("reprojecting rasters")
+  message("Reprojecting rasters")
   lfltFN <- gsub(tsf, pattern = ".grd", replacement = "LFLT.grd")
   lfltFN <- gsub(lfltFN, pattern = ".grd", replacement = ".tif")
   
