@@ -282,23 +282,25 @@ if (exists("mySim")) {
 if (needMySim) {
   mySim <- simInit(times = times, params = parameters, modules = modules,
                    objects = objects, paths = paths, outputs = outputs)
-  
   saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
-  
 } 
-#if (Sys.info()[["user"]] %in% c("emcintir", "achubaty")) {
+
 if (!exists("cl")) {
   library(parallel)
   # try(stopCluster(cl), silent = TRUE)
-  ncores <- pmin(8, detectCores() - 1) # Currently using ~700MB RAM, limited to 8GB on shinyapps.io
-  message("Spawning ",ncores," threads")
-  if(Sys.info()[["sysname"]]=="Windows") {
-    clusterType="SOCK"
+  ncores <- if (Sys.info()[["user"]] == "achubaty") {
+    pmin(8, detectCores() / 2)
   } else {
-    clusterType="FORK"
+    pmin(8, detectCores() - 1) # Currently using ~700MB RAM, limited to 8GB on shinyapps.io
+  }
+  message("Spawning ", ncores, " threads")
+  if (Sys.info()[["sysname"]] == "Windows") {
+    clusterType = "SOCK"
+  } else {
+    clusterType = "FORK"
   }
   cl <- makeCluster(ncores, type = clusterType)
-  if(Sys.info()[["sysname"]]=="Windows") {
+  if (Sys.info()[["sysname"]] == "Windows") {
     clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
   }
   message("  Finished Spawning multiple threads")
@@ -638,4 +640,55 @@ simEventDiagram <- function(input, output, session, sim) {
   output$eventDiagram <- DiagrammeR::renderDiagrammeR({
     eventDiagram(sim)
   })
+}
+
+### detailed module info
+moduleInfoUI <- function(id) {
+  ns <- NS(id)
+  
+  uiOutput(ns("allModuleInfo"))
+}
+
+moduleInfo <- function(input, output, session, sim) {
+  output$allModuleInfo <- renderUI({
+    fluidRow(
+      tagList(lapply(modules(sim), function(module) {
+        m <- slot(depends(sim), "dependencies")[[module]]
+        box(title = module, width = 12, status = "success", collapsible = TRUE,
+            div(
+              p(paste("Description:", slot(m, "description"))),
+              p(paste("Keywords:", paste(slot(m, "keywords"), collapse = ", "))),
+              p(paste("Authors:", paste(slot(m, "authors"), collapse = "; "))),
+              p(paste("Version:", slot(m, "version")))
+              ## TO DO: add more metadata as required
+            )
+        )
+      }))
+    )
+  })
+}
+
+### footers
+copyrightFooter <- function() {
+  copyrightInfo <- paste(
+    shiny::icon("copyright",  lib = "font-awesome"), "Copyright ",
+    format(Sys.time(), "%Y"),
+    paste("Her Majesty the Queen in Right of Canada,",
+          "as represented by the Minister of Natural Resources Canada.")
+  )
+  
+  HTML(paste(
+    "<footer>", "<div id=\"copyright\">", copyrightInfo, "</div>", "</footer>"
+  ))
+}
+
+sidebarFooter <- function() {
+  HTML(paste(
+    "<footer>",
+    "<div id=\"sidebar\">",
+    "Powered by <a href=\"http://SpaDES.PredictiveEcology.org\", target=\"_blank\">\u2660 SpaDES</a> ",
+    "and <a href=\"http://shiny.rstudio.com/\", target=\"_blank\">shiny</a>",
+    "</div>",
+    "</footer>"
+  ))
 }
