@@ -1,3 +1,14 @@
+#### Some variables
+largePatchSizeOptions <- c(100, 200, 500, 1000)
+largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
+ageClasses <- c("Young", "Immature", "Mature", "Old")
+experimentReps <- 6
+globalRasters <- list()
+
+# To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
+
+
+
 if(FALSE) { # For pushing to shinyapps.io
   allFiles <- dir(recursive = TRUE)
   allFiles <- grep(allFiles, pattern="^R-Portable", invert = TRUE, value = TRUE)
@@ -229,13 +240,6 @@ polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(polygo
 timeSinceFirePalette <- colorNumeric(
   c(rep("red", 10), paste0(colorRampPalette(c("light green", "dark green"))(100),"FF")),
   domain = NULL)
-
-#### Some variables
-largePatchSizeOptions <- c(100, 200, 500, 1000)
-largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
-ageClasses <- c("Young", "Immature", "Mature", "Old")
-experimentReps <- 6
-globalRasters <- list()
 
 ## Create mySim
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
