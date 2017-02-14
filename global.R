@@ -3,11 +3,10 @@ largePatchSizeOptions <- c(100, 200, 500, 1000)
 largePatchesFnLoop <- length(largePatchSizeOptions) - 4 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 experimentReps <- 6
+maxNumClusters <- 6 # otherwise detectCPUs() - 1
 globalRasters <- list()
 
 # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
-
-
 
 if(FALSE) { # For pushing to shinyapps.io
   allFiles <- dir(recursive = TRUE)
@@ -293,9 +292,9 @@ if (!exists("cl")) {
   library(parallel)
   # try(stopCluster(cl), silent = TRUE)
   ncores <- if (Sys.info()[["user"]] == "achubaty") {
-    pmin(8, detectCores() / 2)
+    pmin(maxNumClusters, detectCores() / 2)
   } else {
-    pmin(8, detectCores() - 1) # Currently using ~700MB RAM, limited to 8GB on shinyapps.io
+    pmin(maxNumClusters, detectCores() - 1) # Currently using ~800MB RAM, limited to 8GB on shinyapps.io
   }
   message("Spawning ", ncores, " threads")
   if (Sys.info()[["sysname"]] == "Windows") {
