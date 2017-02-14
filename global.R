@@ -374,12 +374,10 @@ clumpMod2Input <- function(id, label = "CSV file") {
   # Create a namespace function using the provided id
   ns <- NS(id)
   
-  #tagList(
   selectInput(ns("PatchSize33"), "Patch Size Here", selectize = FALSE,
-              choices = largePatchSizeOptions, selected = largePatchSizeOptions[4]
-  )
-  #)
+              choices = largePatchSizeOptions, selected = largePatchSizeOptions[4])
 }
+
 largePatchesFnLoop <- 0
 clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, 
                       #polygonNames = currentPolygon$ECODISTRIC,
