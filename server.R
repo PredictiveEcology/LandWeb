@@ -522,8 +522,7 @@ function(input, output, session) {
                        cl=cl, 
                        ageClasses = ageClasses, cacheRepo = paths$cachePath,
                        patchSize = reactive({input$patchSize33}),
-                       largePatchesFn = largePatchesFn#,
-                       #countNumPatches=countNumPatches
+                       largePatchesFn = largePatchesFn
                        )
   
   lapply(seq_along(ageClasses), function(i) { # i is age
