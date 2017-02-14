@@ -6,6 +6,8 @@ function(input, output, session) {
     
   callModule(leafletMap, "leafletMap", ecodistrictsFullLFLT=ecodistrictsFullLFLT)
   
+  callModule(ageSinceFireMod, "ageSinceFire")
+  
   Clumps <- callModule(clumpMod2, "id1", 
                        tsf=tsf, vtm=vtm, ecodistricts=ecodistricts, 
                        #polygonNames = ecodistricts$ECODISTRIC, 
