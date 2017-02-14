@@ -4,9 +4,9 @@
 defineModule(sim, list(
   name = "LandWebOutput",
   description = "Summary the output for the LandWeb natural range of variation",
-  keywords = c("land NRV"),
-  authors = person("Yong", "Luo", email = "yong.luo@canada.ca", 
-                   role = c("aut", "cre")),
+  keywords = c("Landcape","NRV", "Output"),
+  authors = c(person("Yong", "Luo", email = "yong.luo@canada.ca", role = c("aut", "cre")),
+              person(c("Eliot"), "J", "B", "McIntire", email="eliot.mcintire@canada.ca", role=c("aut"))),
   childModules = character(0),
   version = numeric_version("1.3.1.9027"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
