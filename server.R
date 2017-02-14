@@ -18,7 +18,6 @@ function(input, output, session) {
           unlist()
         file.remove(filesPresentFull[filesToRemove])
       })
-      
   }
   
   callModule(simInfo, "simInfoTabs", initialRun)
@@ -43,7 +42,7 @@ function(input, output, session) {
   lfltFN <- gsub(tsf, pattern = ".grd", replacement = "LFLT.grd")
   lfltFN <- gsub(lfltFN, pattern = ".grd", replacement = ".tif")
   
-  if(!(length(globalRasters)==length(tsf))) {
+  if (!(length(globalRasters) == length(tsf))) {
     message("Reprojecting rasters & loading into RAM")
     globalRasters <<- lapply(seq_along(tsf), function(FN) {
       if (file.exists(lfltFN[FN])) {
@@ -69,7 +68,7 @@ function(input, output, session) {
     } else {
       lapplyFn <- "parLapplyLB"
       #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
-      if(Sys.info()[["sysname"]]=="Windows") {
+      if (Sys.info()[["sysname"]] == "Windows") {
         clusterExport(cl = cl, varlist = list(ls()),
                     envir = environment())
         clusterEvalQ(cl = cl, {
@@ -113,7 +112,7 @@ function(input, output, session) {
   message("Running leadingByStage")
   leading <- Cache(leadingByStage, tsf, vtm, ecodistricts,
                    polygonNames = ecodistricts$ECODISTRIC, 
-                   cl=cl, 
+                   cl = cl,
                    ageClasses = ageClasses, cacheRepo = paths$cachePath)
   message("  Finished leadingByStage")
   
@@ -136,7 +135,7 @@ function(input, output, session) {
       lapplyFn <- "lapply"
     } else {
       lapplyFn <- "parLapplyLB"
-      if(Sys.info()[["sysname"]]=="Windows") {
+      if (Sys.info()[["sysname"]] == "Windows") {
         
         clusterExport(cl = cl,
                       varlist = list(c(ls(), "countNumPatches")),
