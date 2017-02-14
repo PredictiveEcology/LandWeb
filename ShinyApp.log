@@ -3,6 +3,7 @@ library paths:
 ...  C:/Eliot/GitHub/LandWebFeb15/R-Portable/App/R-Portable/library
 Loading required package: shiny
 Loading required package: methods
+[1] "C:/Eliot/GitHub/LandWebFeb15"
 
 Attaching package: 'shinydashboard'
 
@@ -84,10 +85,10 @@ The following object is masked from 'package:raster':
     extract
 
 Default paths for SpaDES directories set to:
-  cachePath:  C:\Temp\Rtmpaeo6jp/SpaDES/cache
-  inputPath:  C:\Temp\Rtmpaeo6jp/SpaDES/inputs
-  modulePath: C:\Temp\Rtmpaeo6jp/SpaDES/modules
-  outputPath: C:\Temp\Rtmpaeo6jp/SpaDES/outputs
+  cachePath:  C:\Temp\RtmpMlOvnX/SpaDES/cache
+  inputPath:  C:\Temp\RtmpMlOvnX/SpaDES/inputs
+  modulePath: C:\Temp\RtmpMlOvnX/SpaDES/modules
+  outputPath: C:\Temp\RtmpMlOvnX/SpaDES/outputs
 These can be changed using 'setPaths()'. See '?setPaths'.
 
 Attaching package: 'SpaDES'
@@ -115,21 +116,27 @@ The following object is masked from 'package:ggplot2':
 
     resolution
 
+It is recommended to use 'given' instead of 'middle'.
 Running .inputObjects for landWebDataPrep
   Download data step skipped for module landWebDataPrep. Local copy exists
 Running .inputObjects for LandMine
+It is recommended to use 'given' instead of 'middle'.
 Running .inputObjects for LW_LBMRDataPrep
   Download data step skipped for module LW_LBMRDataPrep. Local copy exists
 Running .inputObjects for LBMR
   Download data step skipped for module LBMR. Local copy exists
+It is recommended to use 'given' instead of 'middle'.
 Running .inputObjects for LandWebOutput
-Running Experiment
-Running leadingByStage
+Spawning 3 threads
+  Finished Spawning multiple threads
 
-Listening on http://127.0.0.1:3297
-ERROR: [on_request_read] connection reset by peer
-ERROR: [on_request_read] connection reset by peer
-ERROR: [on_request_read] connection reset by peer
-ERROR: [on_request_read] connection reset by peer
-ERROR: [on_request_read] connection reset by peer
+Listening on http://127.0.0.1:6094
+Running Initial spades call
+Running Experiment
+  Finished Experiment
+Reprojecting rasters & loading into RAM
+  Finished reprojecting rasters & loading into RAM
+Running leadingByStage
+  Finished leadingByStage
+  Finished global.R
 ERROR: [on_request_read] connection reset by peer
