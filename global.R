@@ -232,9 +232,10 @@ timeSinceFirePalette <- colorNumeric(
 
 #### Some variables
 largePatchSizeOptions <- c(100, 200, 500, 1000)
-largePatchesFnLoop <- length(largePatchSizeOptions) - 4 # The number is how many to run, e.g., 1 would be run just 1000
+largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 experimentReps <- 6
+globalRasters <- list()
 
 ## Create mySim
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
@@ -530,12 +531,14 @@ timeSinceFireModUI <- function(id, tsf) {
   ns <- NS(id)
   tagList(
     box(width = 12, solidHeader = TRUE, collapsible = TRUE, 
-        title = "Time Since Fire maps",
+        #title = "Time Since Fire maps",
+        h4 (paste("Below are a sequence of snapshots of the landscape, showing the natural range of",
+                  "variation in time since fire. Click on the 'play' button at the bottom right to animate")),
         leafletOutput(ns("timeSinceFire1"), height = 600),
         sliderInput(ns("timeSinceFire1Slider"), 
                     "Individual snapshots of time since fire maps. Use play button (bottom right) to animate.", 
                     min = 1, max = length(tsf), value = 1, step = 1, 
-                    animate = animationOptions(interval = 2500, loop = FALSE))
+                    animate = animationOptions(interval = 2500, loop = TRUE))
     )
   )
 }
