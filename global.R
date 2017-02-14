@@ -470,10 +470,10 @@ leafletMapUI <- #bootstrapPage(
   }
 
 
-leafletMap <- function(input, output, session, ecodistrictsFullLFLT) {
+leafletMap <- function(input, output, session) {
   output$leafletMap1 <- renderLeaflet({
     withProgress(message = 'Calculation in progress',
-                 detail = 'This may take a while...',value = 0, {
+                 detail = 'This may take a while...', value = 0, {
                    polyNum <- polygonInput()
                    polyDemo <- polygons[[polyNum + 6]]
                    polyFull <- polygons[[polyNum + 4]]
