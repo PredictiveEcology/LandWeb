@@ -69,7 +69,7 @@ fireDataPrepInit <- function(sim) {
   #according to Yong, Canada Landcover 2005 is loaded as LCC05 
   sim$rstFlammable <- ratify(reclassify(sim$LCC05, flammableTable,count=TRUE))
   setColors(sim$rstFlammable,n=2) <- colorRampPalette(c("blue", "red"))(2) 
-  
+  sim$rstFlammable[is.na(sim$rstStudyRegion[])] <- NA
   # Much faster than call rasterize again
   sim$rstBurnProb <- raster(sim$rstStudyRegion)
   #LTHRC is for some reason the field name of the regional fire cycles according to DA
