@@ -3,9 +3,9 @@
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
   name = "landWebDataPrep",
-  description = "insert module description here",
-  keywords = c("insert key words here"),
-  authors = c(person(c("First", "Middle"), "Last", email="email@example.com", role=c("aut", "cre"))),
+  description = "A module that prepares data for LandWeb NRV project",
+  keywords = c("Data Preparation"),
+  authors = c(person(c("Yong"), "Luo", email="yong.luo@canada.ca", role=c("aut", "cre"))),
   childModules = character(0),
   version = numeric_version("1.3.1"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
