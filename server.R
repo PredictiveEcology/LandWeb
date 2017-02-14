@@ -507,7 +507,7 @@ function(input, output, session) {
   output$timeSinceFireUI <- renderUI({
     tabBox(width = 12,
          tabPanel("Time Since Fire maps", tabName = "timeSinceFireTab",
-                  timeSinceFireModUI("timeSinceFire", tsf = tsf)
+                  fluidRow(timeSinceFireModUI("timeSinceFire", tsf = tsf))
          )
     )
   })
@@ -647,7 +647,8 @@ function(input, output, session) {
   })#, digits = 1)
   
   output$speciesEcoregionInputs <- renderDataTable({
-    spEcoReg})#, digits = 1)
+    spEcoReg
+  })#, digits = 1)
   
   
   # output$seralStagePctCoverMap <- renderPlot({
