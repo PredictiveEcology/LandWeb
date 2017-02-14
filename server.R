@@ -518,12 +518,13 @@ function(input, output, session) {
                        cl=cl, 
                        ageClasses = ageClasses, cacheRepo = paths$cachePath,
                        patchSize = reactive({input$patchSize33}),
-                       largePatchesFn = largePatchesFn,
-                       countNumPatches=countNumPatches)
+                       largePatchesFn = largePatchesFn#,
+                       #countNumPatches=countNumPatches
+                       )
   
-  lapply(seq_along(polygonsWithData), function(i) { # i is age
-    lapply(polygonsWithData[[i]], function(j) {
-      lapply(seq_along(vegLeadingTypes), function(k) {
+  lapply(seq_along(ageClasses), function(i) { # i is age
+    lapply(polygonsWithData[[i]], function(j) { # j is polygon index
+      lapply(seq_along(vegLeadingTypes), function(k) { # k is 
         callModule(clumpMod,paste0(i, "_", j, "_", k, "_clumps"),
                    Clumps = reactive({Clumps()}),
                    id = paste0(i, "_", j, "_", k, "_clumps")
@@ -532,7 +533,7 @@ function(input, output, session) {
     })
   })
   
-  lapply(seq_along(polygonsWithData), function(i) {
+  lapply(seq_along(ageClasses), function(i) {
     lapply(polygonsWithData[[i]], function(j) {
       lapply(seq_along(vegLeadingTypes), function(k) {
         callModule(vegAgeMod, paste0(i, "_", j, "_", k), indivPolygonIndex = j,
