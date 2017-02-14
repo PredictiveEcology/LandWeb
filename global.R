@@ -231,8 +231,8 @@ timeSinceFirePalette <- colorNumeric(
   domain = NULL)
 
 #### Some variables
-largePatchesFnLoop <- 0
 largePatchSizeOptions <- c(100, 200, 500, 1000)
+largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 
 ## Create mySim
@@ -288,9 +288,8 @@ if (needMySim) {
 if (!exists("cl")) {
   library(parallel)
   # try(stopCluster(cl), silent = TRUE)
-  message("Spawning multiple threads")
-  
-  ncores <- ifelse(Sys.info()[["user"]] == "emcintir", pmax(4, detectCores() - 1), detectCores() / 2)
+  ncores <- pmin(8, detectCores() - 1) # Currently using ~700MB RAM, limited to 8GB on shinyapps.io
+  message("Spawning ",ncores," threads")
   if(Sys.info()[["sysname"]]=="Windows") {
     clusterType="SOCK"
   } else {
@@ -313,9 +312,10 @@ vegAgeModUI <- function(id, vegLeadingTypes) {
   i <- as.numeric(ids[1])
   j <- as.numeric(ids[2])
   k <- as.numeric(ids[3])
+  browser()
   tagList(
     box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
-        title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in ", ecodistricts$ECODISTRIC[j]),
+        title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in Ecodistrict ", ecodistricts$ECODISTRIC[j]),
         #splitLayout(cellWidths=c("75%","25%"),
         plotOutput(ns("g"), height = 300)#,
         #radioButtons(ns("radio"),label = "buttons",
@@ -385,7 +385,6 @@ clumpMod2Input <- function(id, label = "CSV file") {
               choices = largePatchSizeOptions, selected = largePatchSizeOptions[4])
 }
 
-largePatchesFnLoop <- 0
 clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, 
                       #polygonNames = currentPolygon$ECODISTRIC,
                       cl=cl, 
@@ -402,15 +401,16 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon,
       invalidateLater(50)
       largePatchesFnLoop <<- largePatchesFnLoop + 1
       patchSize <- as.integer(largePatchSizeOptions[largePatchesFnLoop])
-      message(paste("Running largePatchesFn for patch size:", patchSize))
     } else {
       patchSize <- as.integer(input$PatchSize33)
     }
     
+    message(paste("Running largePatchesFn for patch size:", patchSize))
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
                    largePatches <- Cache(largePatchesFn, timeSinceFireFiles = tsf,
                                          vegTypeMapFiles = vtm,
+                                         cl = cl,
                                          polygonToSummarizeBy = currentPolygon,
                                          ageClasses = ageClasses, patchSize = patchSize,
                                          cacheRepo = cacheRepo)
