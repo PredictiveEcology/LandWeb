@@ -31,7 +31,7 @@ dashboardPage(skin = "green",
                   width = 12,
                   height = 900,
                   solidHeader = TRUE,
-                  status = "info",
+                 status = "success",
                   title = "LandWeb Study Area, with sub region currently in Demo",
                   #plotOutput("StudyRegion", width = "100%")#, height = "100%")
                   #plotlyOutput("StudyRegion", width = "100%")#, height = "100%")
@@ -102,7 +102,7 @@ dashboardPage(skin = "green",
                 box(
                   width = 10,
                   solidHeader = TRUE,
-                  status = "info",
+                  status = "success",
                   title = "Species Inputs",
                   dataTableOutput("speciesInputs")
                 )
@@ -111,7 +111,7 @@ dashboardPage(skin = "green",
                 box(
                   width = 12,
                   solidHeader = TRUE,
-                  status = "info",
+                  status = "success",
                   title = "Geographically Varying Species Inputs. These are means (and SE) across all map regions",
                   dataTableOutput("speciesEcoregionInputs")
                 )
@@ -123,7 +123,7 @@ dashboardPage(skin = "green",
                   width = 12,
                   height = 900,
                   solidHeader = TRUE,
-                  status = "info",
+                  status = "success",
                   title = "Initial Conditions Gone for Natural Range of Variation Calculation",
                   plotOutput("OldDecidByPoly")
                 )
@@ -135,14 +135,14 @@ dashboardPage(skin = "green",
                   width = 6,
                   solidHeader = TRUE,
                   #width = 8, 
-                  status = "info",
+                  status = "success",
                   title = "% Cover by each seral stage",
                   plotOutput("seralStagePctCover")
                 ),
                 box(
                   width = 4,
                   solidHeader = TRUE,
-                  status = "info",
+                  status = "success",
                   title = "Seral stage for region",
                   plotOutput("seralStagePctCoverMap")
                 )
@@ -153,14 +153,14 @@ dashboardPage(skin = "green",
                 box(
                   width = 6,
                   solidHeader = TRUE,
-                  status = "info",
+                  status = "success",
                   title = "% Cover by each vegatation type",
                   plotOutput("vegTypePctCover")
                 ),
                 box(
                   width = 4,
                   solidHeader = TRUE,
-                  status = "info",
+                  status = "success",
                   title = "Vegetation types for region",
                   plotOutput("vegTypePctCoverMap")
                 )
@@ -171,14 +171,14 @@ dashboardPage(skin = "green",
                 box(
                   width = 6,
                   solidHeader = TRUE,
-                  status = "info",
+                  status = "success",
                   title = "Number of patches, by seral stage",
                   plotOutput("patchSizesFig5")
                 ),
                 box(
                   width = 5,
                   solidHeader = TRUE,
-                  status = "info",
+                  status = "success",
                   title = "Over old patches",
                   plotOutput("patchSizesFig5Raster")
                 )
