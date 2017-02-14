@@ -393,11 +393,11 @@ clumpMod2Input <- function(id, label = "CSV file") {
   
   #tagList(
   selectInput(ns("PatchSize33"), "Patch Size Here", selectize = FALSE,
-              choices = largePatchSizeOptions, selected = largePatchSizeOptions[3]
+              choices = largePatchSizeOptions, selected = largePatchSizeOptions[4]
   )
   #)
 }
-neverRun <- 0
+largePatchesFnLoop <- 0
 clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, #polygonNames = currentPolygon$ECODISTRIC, 
                       #cl=cl, 
                       ageClasses = ageClasses,
@@ -407,10 +407,12 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, #polygonN
                       largePatchesFn) {
   
   Clumps <- reactive({
-    if(neverRun <= length(largePatchSizeOptions)) {
+    
+    if(largePatchesFnLoop < length(largePatchSizeOptions)) {
       invalidateLater(500)
-      neverRun <<- neverRun + 1
-      patchSize <- as.integer(largePatchSizeOptions[neverRun])
+      largePatchesFnLoop <<- largePatchesFnLoop + 1
+      patchSize <- as.integer(largePatchSizeOptions[largePatchesFnLoop])
+      message(paste("Running largePatchesFn for patch size:", patchSize))
     } else {
       patchSize <- as.integer(input$PatchSize33)
     }
@@ -427,6 +429,7 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, #polygonN
                    setProgress(1)
                  })
     
+    message(paste("  Finished largePatchesFn for patch size:", patchSize))
     largePatches
   })
   return(Clumps)
