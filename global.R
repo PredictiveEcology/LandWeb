@@ -242,6 +242,7 @@ timeSinceFirePalette <-
                domain = NULL)
 
 #### Some variables
+largePatchesFnLoop <- 0
 largePatchSizeOptions <- c(100, 200, 500, 1000)
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 
@@ -397,7 +398,7 @@ clumpMod2Input <- function(id, label = "CSV file") {
   )
   #)
 }
-largePatchesFnLoop <- 0
+
 clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, #polygonNames = currentPolygon$ECODISTRIC, 
                       #cl=cl, 
                       ageClasses = ageClasses,
@@ -408,14 +409,16 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, #polygonN
   
   Clumps <- reactive({
     
-    if(largePatchesFnLoop < length(largePatchSizeOptions)) {
-      invalidateLater(500)
+    # Pre-run all patch sizes automatically.
+    if(largePatchesFnLoop < (length(largePatchSizeOptions)-1)) {
+      invalidateLater(50)
       largePatchesFnLoop <<- largePatchesFnLoop + 1
       patchSize <- as.integer(largePatchSizeOptions[largePatchesFnLoop])
       message(paste("Running largePatchesFn for patch size:", patchSize))
     } else {
       patchSize <- as.integer(input$PatchSize33)
     }
+    
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...',value = 0,
                  
