@@ -321,8 +321,6 @@ vegAgeModUI <- function(id, vegLeadingTypes) {
   tagList(
     box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
         title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in Ecodistrict ", ecodistricts$ECODISTRIC[j]),
-        h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
-           "The totals sum to 1 across Leading Vegetation type, within each Age Class")),
         plotOutput(ns("g"), height = 300)
     )
   )
@@ -370,7 +368,6 @@ clumpModOutput <- function(id, vegLeadingTypes) {
   #tagList(
   box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
       title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in ", ecodistricts$ECODISTRIC[j]),
-      h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon"),
       plotOutput(ns("h"), height = 300)
   )
   
