@@ -35,7 +35,7 @@ dashboardPage(skin = "green",
     )
   ),
   dashboardBody(
-    includeCSS("style.css"),
+    includeCSS("www/style.css"),
     
     tabItems(
       tabItem("StudyRegion",
