@@ -222,6 +222,8 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Young, Deciduous", tabName = "ClumpsYoung_Deciduous2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes), "_clumps"),
@@ -232,6 +234,8 @@ function(input, output, session) {
       ),
       tabPanel("Young, Spruce", tabName = "ClumpsYoung_Spruce2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes), "_clumps"),
@@ -242,6 +246,8 @@ function(input, output, session) {
       ),
       tabPanel("Young, Mixed", tabName = "ClumpsYoung_Mixed2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes), "_clumps"),
@@ -257,6 +263,8 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Immature, Deciduous", tabName = "Immature_Deciduous2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes), "_clumps"),
@@ -267,6 +275,8 @@ function(input, output, session) {
       ),
       tabPanel("Immature, Spruce", tabName = "Immature_Spruce2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes), "_clumps"),
@@ -277,6 +287,8 @@ function(input, output, session) {
       ),
       tabPanel("Immature, Mixed", tabName = "Immature_Mixed2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes), "_clumps"),
@@ -292,6 +304,8 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Mature, Deciduous", tabName = "Mature_Deciduous2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes), "_clumps"),
@@ -302,6 +316,8 @@ function(input, output, session) {
       ),
       tabPanel("Mature, Spruce", tabName = "Mature_Spruce2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes), "_clumps"),
@@ -312,6 +328,8 @@ function(input, output, session) {
       ),
       tabPanel("Mature, Mixed", tabName = "Mature_Mixed2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes), "_clumps"),
@@ -327,6 +345,8 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Old, Deciduous", tabName = "Old_Deciduous2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes), "_clumps"),
@@ -337,6 +357,8 @@ function(input, output, session) {
       ),
       tabPanel("Old, Spruce", tabName = "Old_Spruce2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes), "_clumps"),
@@ -347,6 +369,8 @@ function(input, output, session) {
       ),
       tabPanel("Old, Mixed", tabName = "Old_Mixed2",
         fluidRow(
+          column(width=12,
+                 h4("These figures show the NRV of the number of 'large' patches, by Age Class, Leading Vegetation, and Polygon")),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               clumpModOutput(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes), "_clumps"),
@@ -362,6 +386,10 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Young, Deciduous", tabName = "Young_Deciduous",
         fluidRow(
+          column(width=12,
+            h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                   "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                   "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes)),
@@ -372,6 +400,10 @@ function(input, output, session) {
       ),
       tabPanel("Young, Spruce", tabName = "Young_Spruce",
         fluidRow(
+          column(width=12,
+                 h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                          "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                          "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes)),
@@ -382,6 +414,10 @@ function(input, output, session) {
       ),
       tabPanel("Young, Mixed", tabName = "Young_Mixed",
         fluidRow(
+          column(width=12,
+                 h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                          "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                          "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes)),
@@ -397,6 +433,10 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Immature, Deciduous", tabName = "Immature_Deciduous",
         fluidRow(
+          column(width=12,
+                 h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                          "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                          "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes)),
@@ -407,6 +447,10 @@ function(input, output, session) {
       ),
       tabPanel("Immature, Spruce", tabName = "Immature_Spruce",
         fluidRow(
+          column(width=12,
+                 h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                          "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                          "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes)),
@@ -417,6 +461,10 @@ function(input, output, session) {
       ),
       tabPanel("Immature, Mixed", tabName = "Immature_Mixed",
         fluidRow(
+          column(width=12,
+                 h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                          "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                          "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes)),
@@ -432,6 +480,10 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Mature, Deciduous", tabName = "Mature_Deciduous",
         fluidRow(
+          column(width=12,
+                 h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                          "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                          "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes)),
@@ -442,6 +494,10 @@ function(input, output, session) {
       ),
       tabPanel("Mature, Spruce", tabName = "Mature_Spruce",
         fluidRow(
+          column(width=12,
+                 h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                          "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                          "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes)),
@@ -452,6 +508,10 @@ function(input, output, session) {
       ),
       tabPanel("Mature, Mixed", tabName = "Mature_Mixed",
         fluidRow(
+          column(width=12,
+                 h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                          "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                          "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes)),
@@ -467,6 +527,10 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Old, Deciduous", tabName = "Old_Deciduous",
         fluidRow(
+          column(width=12,
+                 h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                          "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                          "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes)),
@@ -477,6 +541,10 @@ function(input, output, session) {
       ),
       tabPanel("Old, Spruce", tabName = "Old_Spruce",
         fluidRow(
+          column(width=12,
+                 h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                          "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                          "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes)),
@@ -487,6 +555,10 @@ function(input, output, session) {
       ),
       tabPanel("Old, Mixed", tabName = "Old_Mixed",
         fluidRow(
+          column(width=12,
+                 h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class, and Leading Vegetation type. ",
+                          "The totals sum to 1 across Leading Vegetation type, within each Age Class. ",
+                          "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type"))),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[[i]]], function(j) {
               vegAgeModUI(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes)),
