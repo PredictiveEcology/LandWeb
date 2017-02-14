@@ -38,25 +38,21 @@ dashboardPage(skin = "green",
                   ggvisOutput("StudyRegion")
                 )
               )
-              
       ),
       tabItem("ClumpsYoung",
               fluidRow(
                 uiOutput("ClumpsYoungUI")
               )
-              
       ),
       tabItem("ClumpsImmature",
               fluidRow(
                 uiOutput("ClumpsImmatureUI")
               )
-              
       ),
       tabItem("ClumpsMature",
               fluidRow(
                 uiOutput("ClumpsMatureUI")
               )
-              
       ),
       tabItem("Polygons",
               fluidRow(
@@ -66,7 +62,6 @@ dashboardPage(skin = "green",
                        )
                 )
               )
-              
       ),
       tabItem("TimeSinceFire",
               fluidRow(
@@ -78,7 +73,6 @@ dashboardPage(skin = "green",
               fluidRow(
                 uiOutput("ClumpsOldUI")
               )
-              
       ),
       tabItem("Young",
               fluidRow(
@@ -122,7 +116,6 @@ dashboardPage(skin = "green",
                   dataTableOutput("speciesEcoregionInputs")
                 )
               )
-              
       ),
       tabItem("OldDecidByPoly",
               fluidRow(
@@ -135,7 +128,6 @@ dashboardPage(skin = "green",
                   plotOutput("OldDecidByPoly")
                 )
               )
-              
       ),
       tabItem("seralStage1",
               fluidRow(
