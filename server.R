@@ -24,7 +24,7 @@ function(input, output, session) {
   callModule(simInfo, "simInfoTabs", initialRun)
   
   message("Running Experiment")
-  mySimOut <- Cache(experiment, mySim, replicates = 6, debug = TRUE, cache = TRUE, 
+  mySimOut <- Cache(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE, 
                     cl = cl, 
                     .plotInitialTime = NA,
                     clearSimEnv = TRUE#, 
