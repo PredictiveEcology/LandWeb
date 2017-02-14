@@ -658,7 +658,7 @@ moduleInfo <- function(input, output, session, sim) {
               p("Documentation:", actionLink(paste0(module, "_Rmd"), "Rmd"))
               ## TO DO: add more metadata as required
             ),
-            bsModal("modalExample", basename(rmdFile),
+            bsModal(module, basename(rmdFile),
                     trigger = paste0(module, "_Rmd"), size = "large",
                     includeMarkdown(rmdFile))
         )
