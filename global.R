@@ -284,17 +284,23 @@ if (needMySim) {
   saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
   
 } 
-if (Sys.info()[["user"]] %in% c("emcintir", "achubaty")) {
-  if (!exists("cl")) {
-    library(parallel)
-    # try(stopCluster(cl), silent = TRUE)
-    message("Spawning multiple threads")
-    
-    ncores <- ifelse(Sys.info()[["user"]] == "emcintir", detectCores() - 1, detectCores() / 2)
-    cl <- makeCluster(ncores)
-    clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
-    message("  Finished Spawning multiple threads")
+#if (Sys.info()[["user"]] %in% c("emcintir", "achubaty")) {
+if (!exists("cl")) {
+  library(parallel)
+  # try(stopCluster(cl), silent = TRUE)
+  message("Spawning multiple threads")
+  
+  ncores <- ifelse(Sys.info()[["user"]] == "emcintir", pmax(4, detectCores() - 1), detectCores() / 2)
+  if(Sys.info()[["sysname"]]=="Windows") {
+    clusterType="SOCK"
+  } else {
+    clusterType="FORK"
   }
+  cl <- makeCluster(ncores, type = clusterType)
+  if(Sys.info()[["sysname"]]=="Windows") {
+    clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
+  }
+  message("  Finished Spawning multiple threads")
 }
 
 ######### Modules
@@ -382,7 +388,7 @@ clumpMod2Input <- function(id, label = "CSV file") {
 largePatchesFnLoop <- 0
 clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, 
                       #polygonNames = currentPolygon$ECODISTRIC,
-                      #cl=cl, 
+                      cl=cl, 
                       ageClasses = ageClasses,
                       patchSize,
                       cacheRepo = paths$cachePath,
