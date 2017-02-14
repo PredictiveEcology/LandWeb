@@ -1,24 +1,26 @@
-if (FALSE) { # For pushing to shinyapps.io
+if(FALSE) { # For pushing to shinyapps.io
   allFiles <- dir(recursive = TRUE)
-  allFiles <- grep(allFiles, pattern = "R-Portable", invert = TRUE, value = TRUE)
+  allFiles <- grep(allFiles, pattern="^R-Portable", invert = TRUE, value = TRUE)
+  allFiles <- grep(allFiles, pattern="^appCache", invert = TRUE, value = TRUE)
+  allFiles <- grep(allFiles, pattern="^outputs", invert = TRUE, value = TRUE)
+  print(paste("Total size:",sum(unlist(lapply(allFiles, function(x) file.info(x)[,"size"])))/1e6,"MB"))
   rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
                        contentCategory = "application")  
 }
 
+print(getwd())
 #.libPaths("TEMP")
-if (FALSE) {
+if(FALSE){
   pkgNamespaces <- c("shiny", "shinydashboard", "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES",
                      "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "htmlwidgets", "bit", "parallel",
                      "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp", "dplyr", "ggplot2", "maptools",
                      "broom", "ggvis", "rgdal", "grid", "leaflet", "plotly", "VGAM")
-  lapply(pkgNamespaces, function(p) {
-    if (!require(p, quietly = TRUE, character.only = TRUE)) {
-      install.packages(p, dependencies = TRUE)
-    }
-  })
-  if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
-  if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
-  if (tryCatch(packageVersion("SpaDES") < "1.3.1.9041", error = function(x) TRUE))
+  lapply(pkgNamespaces, function(p) if(!require(p, quietly = TRUE, character.only = TRUE)) {
+    install.packages(p, dependencies = TRUE)
+  }   )
+  if(!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
+  if(!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
+  if(tryCatch(packageVersion("SpaDES1")<"1.3.1.9041", error=function(x) TRUE))
     devtools::install_github("PredictiveEcology/SpaDES@development")  
 }
 pkgs <- c("shiny", "shinydashboard", "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2","VGAM",
@@ -26,7 +28,7 @@ pkgs <- c("shiny", "shinydashboard", "broom", "rgeos", "raster", "rgdal", "grid"
           "ggvis")
 lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
 
-if (FALSE) { # For shinyapps.io -- needs to see explicit require statements
+if(FALSE) { # For shinyapps.io -- needs to see explicit require statements
   require(shiny)
   require(shinydashboard)
   require(BH)
@@ -102,61 +104,59 @@ vegTypeData <- readRDS(file.path(paths$inputPath, "vegTypeData.rds"))
 availableRegions <- unique(vegTypeData$ecoregion)
 
 
-shpStudyRegionFull <- SpaDES::Cache(shapefile, file.path(paths$inputPath, "shpLandWEB.shp"),
+shpStudyRegionFull <- SpaDES::Cache(shapefile, file.path(paths$inputPath,"shpLandWEB.shp"),
                                     cacheRepo = paths$cachePath)
 shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
-shpStudyRegionFull@data <- shpStudyRegionFull@data[, !(names(shpStudyRegionFull) %in% "ECODISTRIC")]
+shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
 
-#biomassMap <- raster(file.path(paths$modulePath, "landWebDataPrep", "data", 
+#biomassMap <- raster(file.path(paths$modulePath,"landWebDataPrep", "data", 
 #                               "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif"))
 crsKNNMaps <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
 studyArea <- "SMALL"
 set.seed(2)#set.seed(5567913)
-if (studyArea == "SMALL") {
+if(studyArea == "SMALL") {
   # #smallExt <- clickExtent()
-  # smallExt <- new("Extent", xmin = -983660, xmax = -899973, 
+  # smallExt <- new("Extent" , xmin = -983660, xmax = -899973, 
   #                 ymin = 8007529, ymax = 8085986)
-  # #smallExt <- new("Extent", xmin = -1276390, xmax = -1181880, 
+  # #smallExt <- new("Extent" , xmin = -1276390, xmax = -1181880, 
   # #                ymin = 7637258, ymax = 7706827)
   # shpStudyRegion2 <- spTransform(shpStudyRegion, crsKNNMaps)
   # shpStudyRegion <- crop(shpStudyRegion2, smallExt)
   # shpStudyRegionCan <- spTransform(shpStudyRegion, crs(CanadaMap))
   areaKm2 <- 10000#700000#2000#600000#too big for laptop
-  minY <- 7508877 - 1.6e5
-} else if (studyArea == "medium") {
-  areaKm2 <- 80000 #700000#2000#600000#too big for laptop
-  minY <- 7008877 - 1.6e5
+  minY <- 7508877-1.6e5
+} else if (studyArea == "medium"){
+  areaKm2 <- 20000#700000#2000#600000#too big for laptop
+  minY <- 7008877-1.6e5
 }
 shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
 minX <- -1202250.2
-maxX <- minX + sqrt(areaKm2 * 1e6)
-maxY <- minY + sqrt(areaKm2 * 1e6)
+maxX <- minX+sqrt(areaKm2*1e6)
+maxY <- minY+sqrt(areaKm2*1e6)
 meanY <- mean(c(minY, maxY))
 
 # Add random noise to polygon
-xAdd <- round(runif(1, -5e5, 1.5e6))
-yAdd <- round(runif(1, 1e5, 5e5)) - xAdd / 2
+xAdd <- round(runif(1,-5e5,1.5e6))
+yAdd <- round(runif(1,1e5,5e5))-xAdd/2
 nPoints <- 20
-betaPar <- 0.6
-X <- c(jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxX - minX) + minX)),
-      jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxX - minX) + minX, decreasing = TRUE)))
-Y <- c(jitter(sort(rbeta(nPoints/2, betaPar, betaPar) * (maxY - meanY) + meanY)),
-      jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxY - minY) + minY, decreasing = TRUE)),
-      jitter(sort(rbeta(nPoints/2, betaPar, betaPar) * (meanY - minY) + minY)))
+betaPar=0.6
+X = c(jitter(sort(rbeta(nPoints, betaPar, betaPar)*(maxX-minX)+minX)),
+      jitter(sort(rbeta(nPoints, betaPar, betaPar)*(maxX-minX)+minX, decreasing = TRUE)))
+Y = c(jitter(sort(rbeta(nPoints/2, betaPar, betaPar)*(maxY-meanY)+meanY)),
+      jitter(sort(rbeta(nPoints, betaPar, betaPar)*(maxY-minY)+minY, decreasing = TRUE)),
+      jitter(sort(rbeta(nPoints/2, betaPar, betaPar)*(meanY-minY)+minY)))
 
-Sr1 <- Polygon(cbind(X + xAdd, Y + yAdd))
-Srs1 <- Polygons(list(Sr1), "s1")
+Sr1 <- Polygon(cbind(X+xAdd,Y+yAdd))
+Srs1 = Polygons(list(Sr1), "s1")
 inputMapPolygon <- SpatialPolygons(list(Srs1), 1L)
 crs(inputMapPolygon) <- crsKNNMaps
 shpStudyRegion <- raster::intersect(shpStudyRegionFull, inputMapPolygon)
 
 prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
-  shpStudyAreaFort <- tidy(shpStudyRegion, region = 'Name_1') 
-  shpStudyAreaFort <- left_join(shpStudyAreaFort, shpStudyRegion@data[, c("Name_1", "fireReturnInterval")],
-                                by = c("id" = "Name_1"))
-  shpStudyAreaOrigFort <- tidy(shpStudyRegionFull, region = 'Name_1') 
-  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[, c("Name_1", "fireReturnInterval")],
-                                    by = c("id" = "Name_1"))
+  shpStudyAreaFort <- tidy(shpStudyRegion, region='Name_1') 
+  shpStudyAreaFort <- left_join(shpStudyAreaFort, shpStudyRegion@data[,c("Name_1", "fireReturnInterval")], by=c("id" = "Name_1"))
+  shpStudyAreaOrigFort <- tidy(shpStudyRegionFull, region='Name_1') 
+  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[,c("Name_1", "fireReturnInterval")], by=c("id" = "Name_1"))
   #shpStudyAreaOrigFort<-shpStudyAreaOrigFort[order(shpStudyAreaOrigFort$order), ]
   
   # ggplotStudyRegionSmall <- ggplot() +
@@ -173,18 +173,18 @@ prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
   #map <- ggplot2::fortify(maine, region="name")
   
   wdth <- 650
-  ht <- wdth * (ymax(shpStudyRegionFull) - ymin(shpStudyRegionFull)) /
-    (xmax(shpStudyRegionFull) - xmin(shpStudyRegionFull))
-  df2 <- data.frame(fri = unique(shpStudyAreaOrigFort$fireReturnInterval),
-                    colrs = colorRampPalette(c("orange", "dark green"))(diff(range(shpStudyAreaOrigFort$fireReturnInterval)))[
-                      unique(shpStudyAreaOrigFort$fireReturnInterval) - min(shpStudyAreaOrigFort$fireReturnInterval) + 1]
+  ht <- wdth * (ymax(shpStudyRegionFull) -ymin(shpStudyRegionFull))/
+    (xmax(shpStudyRegionFull) -xmin(shpStudyRegionFull))
+  df2 <- data.frame(fri=unique(shpStudyAreaOrigFort$fireReturnInterval), 
+                    colrs = 
+                      colorRampPalette(c("orange", "dark green"))(diff(range(shpStudyAreaOrigFort$fireReturnInterval)))[unique(shpStudyAreaOrigFort$fireReturnInterval) - min(shpStudyAreaOrigFort$fireReturnInterval) + 1]
   )
-  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, df2, by = c("fireReturnInterval" = "fri"))
-  
+  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, df2, by = c("fireReturnInterval"= "fri"))
+  # 
   a <- shpStudyAreaOrigFort %>%
     ggvis(~long, ~lat) %>%
     group_by(group, id) %>%
-    layer_paths(strokeOpacity := 0.5, stroke := "#7f7f7f",
+    layer_paths(strokeOpacity:=0.5, stroke:="#7f7f7f",
                 fill := ~fireReturnInterval) %>%
     add_tooltip(function(data){
       paste0("Fire Return Interval: ", data$fireReturnInterval)
@@ -194,7 +194,7 @@ prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
     #hide_legend("fill") %>%
     hide_axis("x") %>% hide_axis("y") %>%
     #set_options(width=400, height=800)#, keep_aspect=TRUE)
-    set_options(keep_aspect = TRUE, width = wdth, height = ht)
+    set_options(keep_aspect=TRUE, width = wdth, height=ht)
   
 }
 #ggStudyRegion <- Cache(prepare1, shpStudyRegion, 
@@ -211,7 +211,7 @@ ggStudyRegion <- prepare1(shpStudyRegion, shpStudyRegionFull)
 
 
 
-if (TRUE) {
+if(TRUE) {
   AlbertaFMUFull <- Cache(shapefile, file.path(curDir,"FMU_Alberta_2015-11", "FMU_Alberta_2015-11"),
                           cacheRepo = paths$cachePath)
   AlbertaFMUFull <- Cache(spTransform, AlbertaFMUFull, crs(shpStudyRegion), cacheRepo = paths$cachePath)
@@ -243,14 +243,14 @@ times <- list(start = 0, end = 4)
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
                 "successionTimestep" = successionTimestep,
-                "summaryPeriod" = c(pmax((times$end - times$start) / 2), times$end))
+                "summaryPeriod" = c(pmax((times$end - times$start)/2), times$end))
 parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
                    LandWebOutput = list(summaryInterval = summaryInterval),
                    LBMR = list(.plotInitialTime = times$start,
                                .saveInitialTime = NA),
-                   initBaseMaps = list(.useCache = FALSE))
+                   initBaseMaps = list(.useCache=FALSE))
 outputs <- data.frame(stringsAsFactors = FALSE,
                       expand.grid(
                         objectName = c("rstTimeSinceFire", "seralStageMap", "vegTypeMap", "oldBigPatch"),
@@ -265,9 +265,9 @@ outputs2 <- data.frame(stringsAsFactors = FALSE,
 outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE)), NROW(outputs)))
 outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
 
-if (TRUE) {
-  if (exists("mySim")) {
-    if (readRDS(file = "mySimDigestSaved.rds") == digest::digest(mySim)) {
+if(TRUE) {
+  if(exists("mySim")) {
+    if(readRDS(file = "mySimDigestSaved.rds")==digest::digest(mySim)) {
       needMySim <- FALSE
     } else {
       needMySim <- TRUE
@@ -275,7 +275,7 @@ if (TRUE) {
   } else {
     needMySim <- TRUE
   }
-  if (needMySim) {
+  if(needMySim) {
     mySim <- simInit(times = times, params = parameters, modules = modules,
                      objects = objects, paths = paths, outputs = outputs)
     # 
@@ -283,6 +283,7 @@ if (TRUE) {
     #initialRun1 <- spades(Copy(mySim), debug = TRUE)
     # 5 minutes for 6e3 km2
     # 30 minutes for 6e4 km2
+    message("Running Initial spades call")
     initialRun <- Cache(spades, sim = Copy(mySim), debug = TRUE, objects = "shpStudyRegion", 
                         cacheRepo = file.path(cachePath(mySim), "studyRegion"))
     try(silent = TRUE, {
@@ -300,23 +301,26 @@ if (TRUE) {
 # 
 library(parallel)
 # try(stopCluster(cl), silent = TRUE)
-if (!exists("cl")) {
- cl <- makeCluster(detectCores() - 1)
- clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
+if(Sys.info()[["user"]] %in% c("emcintir", "achubaty")){
+  if(!exists("cl")) {
+   cl <- makeCluster(detectCores()-1)
+   clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
+  }
 }
 # try(stopCluster(cl4), silent = TRUE)
 # cl4 <- makeCluster(4)
 # 
 message("Running Experiment")
-mySimOut <- Cache(experiment, mySim, replicates = 3, debug = TRUE, #cache = TRUE,
-                  cl = cl, 
+mySimOut <- Cache(experiment, mySim, replicates = 3, debug = TRUE, cache = TRUE, 
+                  #cl = cl, 
                   .plotInitialTime = NA,
                   clearSimEnv = TRUE#, 
                   #notOlderThan = Sys.time()
                   )
+message("Finished Experiment")
 
 grds <- unlist(lapply(seq_along(mySimOut), function(x) {
-  grep(pattern = ".grd$", outputs(mySimOut[[x]])$file, value = TRUE)
+  grep(pattern = ".grd$", outputs(mySimOut[[x]])$file, value= TRUE)
 }))
 
 tsf <- grep(pattern = "rstTimeSinceFire", grds, value = TRUE)
@@ -357,7 +361,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                            ageClasses, cl) {
   
   
-  if (missing(cl)) {
+  if(missing(cl)) {
     lapplyFn <- "lapply" 
   } else {
     lapplyFn <- "parLapplyLB"
@@ -369,7 +373,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   }
   out <- lapply(ageCutoffs, function(ages) {
     y <- match(ages, ageCutoffs)
-    if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
+    if(tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
       startList <- list(cl = cl)
     } else {
       startList <- list()
@@ -382,7 +386,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                     timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
                     leadingRast <- raster(vegTypeMapFiles[x])
                     leadingRast[timeSinceFireFilesRast[]<ageCutoffs[y]] <- NA
-                    if ((y+1) < length(ageCutoffs))
+                    if((y+1) < length(ageCutoffs))
                       leadingRast[timeSinceFireFilesRast[]>=ageCutoffs[y+1]] <- NA
                     
                     aa <- extract(leadingRast, polygonToSummarizeBy, fun = function(x, ...) {
@@ -393,19 +397,19 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                       props <- vals/length(nonNACells)  
                     })
                   })))
-    names(out1) <- paste(basename(dirname(tsf)), basename(tsf), sep = "_")
+    names(out1) <- paste(basename(dirname(tsf)),basename(tsf),sep="_")
     out1
-  })
+  }
+  )
   names(out) <- ageClasses
   out
 }
 
-## TO DO: move this out of global init
 message("Running leadingByStage")
 leading <- Cache(leadingByStage, tsf, vtm, ecodistricts, polygonNames = ecodistricts$ECODISTRIC, 
                  #cl=cl, 
                  ageClasses = ageClasses, cacheRepo = paths$cachePath)
-
+message("Finished leadingByStage")
 
 # Large patches
 
@@ -424,7 +428,7 @@ countNumPatches <- function(ras, patchSize, ...) {
 largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy, #polygonNames, 
                            ageCutoffs = c(0, 40, 80, 120), patchSize = 1000, 
                            ageClasses, cl, notOlderThan = Sys.time() - 1e7) {
-  if (missing(cl)) {
+  if(missing(cl)) {
     lapplyFn <- "lapply"
   } else {
     lapplyFn <- "parLapplyLB"
@@ -442,7 +446,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   
   out <- lapply(ageCutoffs, function(ages) {
     y <- match(ages, ageCutoffs)
-    if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
+    if(tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
       startList <- list(cl = cl)
     } else {
       startList <- list()
@@ -454,7 +458,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                     timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
                     leadingRast <- raster(vegTypeMapFiles[x])
                     leadingRast[timeSinceFireFilesRast[]<ageCutoffs[y]] <- NA
-                    if ((y+1) < length(ageCutoffs))
+                    if((y+1) < length(ageCutoffs))
                       leadingRast[timeSinceFireFilesRast[]>=ageCutoffs[y+1]] <- NA
                     
                     clumpedRasts <- lapply(levels(leadingRast)[[1]]$ID, function(ID) {
@@ -490,7 +494,8 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   out
 }
 
-if (FALSE) {
+
+if(FALSE) {
   for(iii in largePatchSizeOptions[3]) {
     message("Running largePatches")
     largePatches <- Cache(largePatchesFn, timeSinceFireFiles=tsf, 
@@ -500,24 +505,31 @@ if (FALSE) {
                           #, cl=cl
                           , cacheRepo = paths$cachePath#, notOlderThan = Sys.time() 
                           , ageClasses = ageClasses, patchSize = as.integer(iii)
+                          
+                          
     )
   }
 }
 
 omitted <- lapply(leading, function(x) lapply(x, function(y) attr(na.omit(y), "na.action")))
-polygonsWithData <- lapply(seq_along(leading), function(x) {
+polygonsWithData <- 
+  lapply(seq_along(leading), function(x) {
+    
     unlist(lapply(x, function(y) {
-      if (!is.null(omitted[[x]][[y]])) {
+      if(!is.null(omitted[[x]][[y]])) {
         seq_len(NROW(leading[[x]][[y]]))[-omitted[[x]][[y]]]
       } else {
         seq_len(NROW(leading[[x]][[y]]))
       }
+      
     }))
   }) %>%
   setNames(ageClasses)
 vegLeadingTypes <- unique(unlist(lapply(leading, function(x) lapply(x, function(y) colnames(y)))))
 
-if (FALSE) {
+message("Finished global.R")
+
+if(FALSE) {
   initialCommunityMap <- raster("initialCommunitiesMap.tif")
   ecoregionMap <- raster("landtypes_BP.tif")
   
@@ -833,9 +845,9 @@ leafletMapUI <- #bootstrapPage(
           solidHeader = TRUE, collapsible = TRUE, 
           title = "Area covered by this demo, within the LandWeb study area",
           #splitLayout(cellWidths=c("75%","25%"),
-          leafletOutput(ns("leafletMap"), height = 600),
+          leafletOutput(ns("leafletMap1"), height = 600),
           selectInput(ns("leafletMapPolygons"), "Other layers to show summaries with", 
-                      choices = names(loadedPolygons), selected = names(loadedPolygons)[[1]])
+                      choices = names(DemoPolygons), selected = names(DemoPolygons)[[1]])
           
           #radioButtons(ns("radio"),label = "buttons",
           #             choices = list("with intercept"=1,"without intersept"=2),
@@ -843,7 +855,6 @@ leafletMapUI <- #bootstrapPage(
       )
     )
   }
-#)
 
 lflt = "+init=epsg:4326"
 
@@ -853,7 +864,15 @@ AlbertaFMULFLT <- spTransform(AlbertaFMU, sp::CRS(lflt))
 AlbertaFMUFullLFLT <- spTransform(AlbertaFMUFull, sp::CRS(lflt))
 ecodistrictsFullLFLT <- spTransform(ecodistrictsFull, sp::CRS(lflt))
 
-loadedPolygons <- list("Ecodistrict" = ecodistrictsLFLT, "Alberta FMUs" = AlbertaFMULFLT)
+FullPolygons <- list("Ecodistrict Full" = ecodistrictsFullLFLT, 
+                     "Alberta FMUs Full" = AlbertaFMUFullLFLT
+)
+
+DemoPolygons <- list("Ecodistrict DEMO" = ecodistrictsLFLT, 
+                       "Alberta FMUs DEMO" = AlbertaFMULFLT#,
+                       )
+polygonColours <- c(rep(c("red", "blue"),2))
+polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(DemoPolygons))
 
 leafletMap <- function(input, output, session, ecodistrictsFullLFLT) {
   
@@ -868,27 +887,33 @@ leafletMap <- function(input, output, session, ecodistrictsFullLFLT) {
   # })
   #browser()
   
-  output$leafletMap <- renderLeaflet({
+  output$leafletMap1 <- renderLeaflet({
     # Use leaflet() here, and only include aspects of the map that
     # won't need to change dynamically (at least, not unless the
     # entire map is being torn down and recreated).
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...',value = 0,
                  {
-                   poly <- polygonInput()
+                   polyNum <- polygonInput()
+                   polyDemo <- DemoPolygons[[polyNum]]
+                   polyFull <- FullPolygons[[polyNum]]
                    a <- leaflet() %>% addTiles(group = "OSM (default)") %>%
-                     addPolygons(data = ecodistrictsFullLFLT, smoothFactor=2,
-                                 group = "Ecodistricts", popup=paste("Ecodistrict",ecodistrictsFullLFLT$ECODISTRIC)) %>%
-                     addPolygons(data = AlbertaFMUFullLFLT, smoothFactor=2,
-                                 group = "Alberta FMUs",  popup=paste("FMU",AlbertaFMUFullLFLT$FMU_NAME)) %>%
-                     addLayersControl(
-                       #baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
-                       baseGroups = c("Ecodistricts", "Alberta FMUs"),
-                       options = layersControlOptions(collapsed = FALSE)
-                     ) %>%
-                     setView(-115, 58, zoom=5) %>%
-                     addPolygons(data = poly, color = "red")  
-                   # fitBounds(xmin(ecodistrictsFullLFLT),ymin(ecodistrictsFullLFLT),
+                     addPolygons(data = polyFull, color = "blue", group = "Full", fillOpacity=0.2, weight=1,
+                                 popup = paste(polyFull[[polygonIndivIdsColum[[polyNum]]]]))  %>%
+                     addPolygons(data = polyDemo, color = "red", group = "Demo",fillOpacity=0.6, weight=3,
+                                 popup = paste(polyDemo[[polygonIndivIdsColum[[polyNum]]]]))  %>%
+                   #addPolygons(data = ecodistrictsFullLFLT, smoothFactor=2, layerId = ecodistrictsFullLFLT$ECODISTRIC,
+                    #             group = "Ecodistricts", 
+                    #             popup=paste("Ecodistrict",ecodistrictsFullLFLT$ECODISTRIC)) %>%
+                     # addPolygons(data = AlbertaFMUFullLFLT, smoothFactor=2,
+                     #             group = "Alberta FMUs",  popup=paste("FMU",AlbertaFMUFullLFLT$FMU_NAME)) %>%
+                     # addLayersControl(
+                     #   #baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
+                     #   baseGroups = c("Ecodistricts", "Alberta FMUs"),
+                     #   options = layersControlOptions(collapsed = FALSE, autoZIndex=TRUE)
+                     # ) %>%
+                     setView(-118, 58, zoom=6) 
+                     # fitBounds(xmin(ecodistrictsFullLFLT),ymin(ecodistrictsFullLFLT),
                    #           xmax(ecodistrictsFullLFLT),ymax(ecodistrictsFullLFLT))
                    #mean(xmax(ecodistrictsFullLFLT),xmin(ecodistrictsFullLFLT)), 
                    #mean(ymax(ecodistrictsFullLFLT),ymin(ecodistrictsFullLFLT)), 
@@ -902,19 +927,49 @@ leafletMap <- function(input, output, session, ecodistrictsFullLFLT) {
   
   polygonInput <- reactive({
     switch(input$leafletMapPolygons,
-           "Ecodistrict" = ecodistrictsLFLT, 
-           "Alberta FMUs" = AlbertaFMULFLT
+           "Ecodistrict DEMO" = 1, 
+           "Alberta FMUs DEMO" = 2
     )
   })
   
   # observe({
+  #   polyNum <- polygonInput()
+  #   poly <- loadedPolygons[[polyNum]]
+  #   proxy <- leafletProxy("leafletMap1", session)
+  #   
+  #   #browser()
+  #   #proxy %>% clearShapes()
+  #   
   # 
-  #   poly <- polygonInput()
-  #   leafletProxy("leafletMap", data = poly) %>%
-  #     clearShapes() %>%
-  #     addPolygons(color = "red")
+  #   #proxy %>%
+  #   #  clearGroup("Ecodistricts")# %>%
+  #     #addPolygons(data = poly, color = "blue",
+  #     #            group = "Ecodistricts",
+  #     #            popup=paste("FMU:",AlbertaFMULFLT$FMU_NAME))
+  #     #            #popup=paste(poly[[polygonIndivIdsColum[[1]]]]))
+  #     #            #popup=paste("Ecodistrict",ecodistrictsFullLFLT$ECODISTRIC))
   # 
   #   })
+
+  # observe({
+  #   polyNum <- polygonInput()
+  #   poly <- loadedPolygons[[polyNum]]
+  #   proxy <- leafletProxy("leafletMap1")
+  #   
+  #   browser()
+  #   proxy %>% clearShapes()
+  #   
+  #   
+  #   proxy %>%
+  #     #  clearGroup("Ecodistricts") %>%
+  #     addPolygons(data = poly, color = "blue",
+  #                 group = "Ecodistricts",
+  #                 popup=paste("FMU:",AlbertaFMULFLT$FMU_NAME))
+  #   #popup=paste(poly[[polygonIndivIdsColum[[1]]]]))
+  #   #popup=paste("Ecodistrict",ecodistrictsFullLFLT$ECODISTRIC))
+  #   
+  # })
+  
   
   #leafletProxy()
   # Incremental changes to the map (in this case, replacing the
@@ -947,3 +1002,56 @@ leafletMap <- function(input, output, session, ecodistrictsFullLFLT) {
   # })
 }
   
+
+timeSinceFirePalette <- 
+  colorNumeric(c(rep("red",10),paste0(colorRampPalette(c("light green", "dark green"))(100),"FF")), 
+               domain = NULL)
+
+ageSinceFireMod <- function(input, output, session, ecodistrictsFullLFLT) {
+  
+  output$ageSinceFire1 <- renderLeaflet({
+    # Use leaflet() here, and only include aspects of the map that
+    # won't need to change dynamically (at least, not unless the
+    # entire map is being torn down and recreated).
+    withProgress(message = 'Calculation in progress',
+                 detail = 'This may take a while...',value = 0,
+                 {
+                   ras1 <- rasterInput()
+                   #polyDemo <- DemoPolygons[[polyNum]]
+                   #polyFull <- FullPolygons[[polyNum]]
+                   a <- leaflet() %>% addTiles(group = "OSM (default)") %>%
+                     addRasterImage(x = ras1, group = "ageSinceFireRasts", opacity=0.7, 
+                                    colors = timeSinceFirePalette)  %>%
+                     addLegend(position="bottomright", pal = timeSinceFirePalette, 
+                               values = na.omit(ras1[]), title = "Time since fire (years)") %>%
+                     setView(-118, 58.3, zoom=9) 
+                   setProgress(1)
+                 })   
+    a
+    
+  })
+  
+  rasterInput <- reactive({
+    
+    r <- raster(tsf[input$ageSinceFire1Slider])
+    r <- sampleRegular(r, size=1e5, asRaster=TRUE)
+    
+  })
+}
+
+animationOptions(interval = 1500, loop = TRUE, playButton = "Press to animate",
+                 pauseButton = NULL)
+
+ageSinceFireModUI <- function(id) {
+    ns <- NS(id)
+    tagList(
+      box(width = 12, 
+          solidHeader = TRUE, collapsible = TRUE, 
+          title = "Age since fire maps",
+          leafletOutput(ns("ageSinceFire1"), height = 600),
+          sliderInput(ns("ageSinceFire1Slider"), 
+                      "Individual snapshots of time since fire maps. Use play button (bottom right) to animate", 
+                      min = 1, max = length(tsf), value = 1, step=1, animate = TRUE)
+        )
+    )
+  }

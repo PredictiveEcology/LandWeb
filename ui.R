@@ -110,6 +110,16 @@ dashboardPage(skin = "green",
               )
               
       ),
+      tabItem("AgeSinceFire",
+              fluidRow(
+                tabBox(width = 16,
+                       tabPanel("Age Since Fire maps", tabName = "ageSinceFireTab",
+                                ageSinceFireModUI("ageSinceFire")
+                       )
+                )
+              )
+              
+      ),
       
       tabItem("ClumpsImmature",
               fluidRow(
