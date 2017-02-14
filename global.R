@@ -432,8 +432,8 @@ clumpMod <- function(input, output, server, Clumps, id) {
     i <- as.numeric(ids[1])
     j <- as.numeric(ids[2])
     k <- as.numeric(ids[3])
-    
-    forHist <- unlist(lapply(a, function(x) lapply(x, function(y) {
+  
+    forHist <- unlist(lapply(a[i], function(x) lapply(x, function(y) {
       y[[k]][j,1]
     })))
     
