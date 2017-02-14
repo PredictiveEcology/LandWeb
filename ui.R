@@ -1,4 +1,5 @@
 library(shiny)
+library(shinydashboard)
 
 dashboardPage(skin = "green",
   dashboardHeader(title = "LandWeb"),
@@ -29,9 +30,13 @@ dashboardPage(skin = "green",
                menuSubItem("Overview Diagrams", tabName = "simDiagrams", icon = icon("sitemap")),
                menuSubItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece"))),
                menuSubItem("LBMR (Succession) Model Inputs", tabName = "inputTables", icon = icon("table"))
+      br(),
+      sidebarFooter() ## CSS rules push the footer to the bottom of the sidebar
     )
   ),
   dashboardBody(
+    includeCSS("style.css"),
+    
     tabItems(
       tabItem("StudyRegion",
               fluidRow(
