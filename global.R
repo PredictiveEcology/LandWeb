@@ -232,7 +232,9 @@ timeSinceFirePalette <- colorNumeric(
 
 #### Some variables
 largePatchSizeOptions <- c(100, 200, 500, 1000)
+largePatchesFnLoop <- length(largePatchSizeOptions) - 4 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
+experimentReps <- 6
 
 ## Create mySim
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
@@ -283,17 +285,22 @@ if (needMySim) {
   saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
   
 } 
-if (Sys.info()[["user"]] %in% c("emcintir", "achubaty")) {
-  if (!exists("cl")) {
-    library(parallel)
-    # try(stopCluster(cl), silent = TRUE)
-    message("Spawning multiple threads")
-    
-    ncores <- ifelse(Sys.info()[["user"]] == "emcintir", detectCores() - 1, detectCores() / 2)
-    cl <- makeCluster(ncores)
-    clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
-    message("  Finished Spawning multiple threads")
+#if (Sys.info()[["user"]] %in% c("emcintir", "achubaty")) {
+if (!exists("cl")) {
+  library(parallel)
+  # try(stopCluster(cl), silent = TRUE)
+  ncores <- pmin(8, detectCores() - 1) # Currently using ~700MB RAM, limited to 8GB on shinyapps.io
+  message("Spawning ",ncores," threads")
+  if(Sys.info()[["sysname"]]=="Windows") {
+    clusterType="SOCK"
+  } else {
+    clusterType="FORK"
   }
+  cl <- makeCluster(ncores, type = clusterType)
+  if(Sys.info()[["sysname"]]=="Windows") {
+    clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
+  }
+  message("  Finished Spawning multiple threads")
 }
 
 ######### Modules
@@ -306,9 +313,10 @@ vegAgeModUI <- function(id, vegLeadingTypes) {
   i <- as.numeric(ids[1])
   j <- as.numeric(ids[2])
   k <- as.numeric(ids[3])
+  browser()
   tagList(
     box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
-        title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in ", ecodistricts$ECODISTRIC[j]),
+        title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in Ecodistrict ", ecodistricts$ECODISTRIC[j]),
         #splitLayout(cellWidths=c("75%","25%"),
         plotOutput(ns("g"), height = 300)#,
         #radioButtons(ns("radio"),label = "buttons",
@@ -378,10 +386,9 @@ clumpMod2Input <- function(id, label = "CSV file") {
               choices = largePatchSizeOptions, selected = largePatchSizeOptions[4])
 }
 
-largePatchesFnLoop <- 0
 clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, 
                       #polygonNames = currentPolygon$ECODISTRIC,
-                      #cl=cl, 
+                      cl=cl, 
                       ageClasses = ageClasses,
                       patchSize,
                       cacheRepo = paths$cachePath,
@@ -389,18 +396,22 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon,
                       largePatchesFn) {
   
   Clumps <- reactive({
-    if (largePatchesFnLoop < length(largePatchSizeOptions)) {
-      invalidateLater(500)
+    
+    # Pre-run all patch sizes automatically.
+    if(largePatchesFnLoop < (length(largePatchSizeOptions)-1)) {
+      invalidateLater(50)
       largePatchesFnLoop <<- largePatchesFnLoop + 1
       patchSize <- as.integer(largePatchSizeOptions[largePatchesFnLoop])
-      message(paste("Running largePatchesFn for patch size:", patchSize))
     } else {
       patchSize <- as.integer(input$PatchSize33)
     }
+    
+    message(paste("Running largePatchesFn for patch size:", patchSize))
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
                    largePatches <- Cache(largePatchesFn, timeSinceFireFiles = tsf,
                                          vegTypeMapFiles = vtm,
+                                         cl = cl,
                                          polygonToSummarizeBy = currentPolygon,
                                          ageClasses = ageClasses, patchSize = patchSize,
                                          cacheRepo = cacheRepo)
@@ -422,8 +433,8 @@ clumpMod <- function(input, output, server, Clumps, id) {
     i <- as.numeric(ids[1])
     j <- as.numeric(ids[2])
     k <- as.numeric(ids[3])
-    
-    forHist <- unlist(lapply(a, function(x) lapply(x, function(y) {
+  
+    forHist <- unlist(lapply(a[i], function(x) lapply(x, function(y) {
       y[[k]][j,1]
     })))
     
