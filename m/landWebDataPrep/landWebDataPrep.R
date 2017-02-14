@@ -165,12 +165,10 @@ landWebDataPrepPlot <- function(sim) {
     file.info(x)[, "size"]}
   )
   names(allFiles) <- unlist(lapply(fileNames, basename))
-
   allFilesDigest <- digest::digest(allFiles)
   needDownload <- all(!(allFilesDigest %in% c("ea72c7607d0ea744b64e182459c940bc",
                                               "6faacb745becdb13bc7160a538e0006f")))
-  needShinking <- all(!(allFilesDigest %in% c("ea72c7607d0ea744b64e182459c940bc",
-                                              "6faacb745becdb13bc7160a538e0006f")))
+  needShinking <- allFilesDigest == "ea72c7607d0ea744b64e182459c940bc"
   if (needDownload) {
     checkTable <- data.table(downloadData(module = "landWebDataPrep", path = modulePath(sim)))
     untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
@@ -193,15 +191,15 @@ landWebDataPrepPlot <- function(sim) {
   sim$LCC2005 <- raster(lcc2005Filename)
   projection(sim$LCC2005) <- projection(sim$biomassMap)
 
-  if (needShinking) {
-    if (!is.null(sim@.envir$shpStudyRegionFull)) {
+  if(needShinking) {
+    if(!is.null(sim@.envir$shpStudyRegionFull)) {
       sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
       sim@.envir$biomassMap <- crop(sim@.envir$biomassMap, sim@.envir$shpStudyRegionFull,
-                                    overwrite = TRUE, format = "GTiff", datatype = "INT2U",
+                                    overwrite=TRUE, format = "GTiff", datatype = "INT2U",
                                     filename = file.path(dirname(biomassMapFilename), paste0("Small",basename(biomassMapFilename))))
       sim@.envir$LCC2005 <- crop(sim@.envir$LCC2005, sim@.envir$shpStudyRegionFull,
                                             filename = file.path(dirname(lcc2005Filename), paste0("Small",basename(lcc2005Filename))), 
-                                            overwrite = TRUE)
+                                            overwrite=TRUE)
       file.remove(dir(dirname(lcc2005Filename), full.names = TRUE) %>% 
           .[grep(basename(.), pattern = paste0("^",basename(lcc2005Filename)))])
       biomassMapFilenameNoExt <- strsplit(basename(biomassMapFilename), "\\.")[[1]][1]
