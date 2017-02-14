@@ -1002,3 +1002,56 @@ leafletMap <- function(input, output, session, ecodistrictsFullLFLT) {
   # })
 }
   
+
+timeSinceFirePalette <- 
+  colorNumeric(c(rep("red",10),paste0(colorRampPalette(c("light green", "dark green"))(100),"FF")), 
+               domain = NULL)
+
+ageSinceFireMod <- function(input, output, session, ecodistrictsFullLFLT) {
+  
+  output$ageSinceFire1 <- renderLeaflet({
+    # Use leaflet() here, and only include aspects of the map that
+    # won't need to change dynamically (at least, not unless the
+    # entire map is being torn down and recreated).
+    withProgress(message = 'Calculation in progress',
+                 detail = 'This may take a while...',value = 0,
+                 {
+                   ras1 <- rasterInput()
+                   #polyDemo <- DemoPolygons[[polyNum]]
+                   #polyFull <- FullPolygons[[polyNum]]
+                   a <- leaflet() %>% addTiles(group = "OSM (default)") %>%
+                     addRasterImage(x = ras1, group = "ageSinceFireRasts", opacity=0.7, 
+                                    colors = timeSinceFirePalette)  %>%
+                     addLegend(position="bottomright", pal = timeSinceFirePalette, 
+                               values = na.omit(ras1[]), title = "Time since fire (years)") %>%
+                     setView(-118, 58.3, zoom=9) 
+                   setProgress(1)
+                 })   
+    a
+    
+  })
+  
+  rasterInput <- reactive({
+    
+    r <- raster(tsf[input$ageSinceFire1Slider])
+    r <- sampleRegular(r, size=1e5, asRaster=TRUE)
+    
+  })
+}
+
+animationOptions(interval = 1500, loop = TRUE, playButton = "Press to animate",
+                 pauseButton = NULL)
+
+ageSinceFireModUI <- function(id) {
+    ns <- NS(id)
+    tagList(
+      box(width = 12, 
+          solidHeader = TRUE, collapsible = TRUE, 
+          title = "Age since fire maps",
+          leafletOutput(ns("ageSinceFire1"), height = 600),
+          sliderInput(ns("ageSinceFire1Slider"), 
+                      "Individual snapshots of time since fire maps. Use play button (bottom right) to animate", 
+                      min = 1, max = length(tsf), value = 1, step=1, animate = TRUE)
+        )
+    )
+  }
