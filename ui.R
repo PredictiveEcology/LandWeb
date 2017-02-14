@@ -29,10 +29,14 @@ dashboardPage(skin = "green",
                menuSubItem("Old Forest", tabName = "Old", icon = icon("tree"))),
       br(),
       h4("Succession Model"),
-      menuItem("Succession Model Inputs", tabName = "inputTables", icon = icon("table"))
+      menuItem("Succession Model Inputs", tabName = "inputTables", icon = icon("table")),
+      br(),
+      sidebarFooter()
     )
   ),
   dashboardBody(
+    includeCSS("style.css"),
+    
     tabItems(
       tabItem("StudyRegion",
               fluidRow(
