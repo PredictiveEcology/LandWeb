@@ -31,7 +31,7 @@ dashboardPage(skin = "green",
       h4("Succession Model"),
       menuItem("Succession Model Inputs", tabName = "inputTables", icon = icon("table")),
       br(),
-      sidebarFooter()
+      sidebarFooter() ## CSS rules push the footer to the bottom of the sidebar
     )
   ),
   dashboardBody(
