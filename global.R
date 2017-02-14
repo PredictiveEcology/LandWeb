@@ -381,6 +381,8 @@ clumpMod2Input <- function(id, label = "CSV file") {
   #)
 }
 largePatchesFnLoop <- 0
+clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, 
+                      #polygonNames = currentPolygon$ECODISTRIC,
                       #cl=cl, 
                       ageClasses = ageClasses,
                       patchSize,
@@ -389,7 +391,7 @@ largePatchesFnLoop <- 0
                       largePatchesFn) {
   
   Clumps <- reactive({
-    if(largePatchesFnLoop < length(largePatchSizeOptions)) {
+    if (largePatchesFnLoop < length(largePatchSizeOptions)) {
       invalidateLater(500)
       largePatchesFnLoop <<- largePatchesFnLoop + 1
       patchSize <- as.integer(largePatchSizeOptions[largePatchesFnLoop])
@@ -403,9 +405,9 @@ largePatchesFnLoop <- 0
                                          vegTypeMapFiles = vtm,
                                          polygonToSummarizeBy = currentPolygon,
                                          ageClasses = ageClasses, patchSize = patchSize,
-                                         cacheRepo = cacheRepo
-                   )
-                   setProgress(1)
+                                         cacheRepo = cacheRepo)
+                 setProgress(1)
+    })
     message(paste("  Finished largePatchesFn for patch size:", patchSize))
     
     largePatches
