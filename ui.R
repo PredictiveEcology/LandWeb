@@ -9,9 +9,6 @@ dashboardPage(skin = "green",
                menuSubItem("Change polygon layer", tabName = "Polygons", icon = icon("map-marker")),
                menuSubItem("Fire Return Interval Map", tabName = "StudyRegion",
                            icon = icon("map"))),
-      menuItem("Model overview", icon = icon("info"),
-               menuSubItem("Simulation Diagrams", tabName = "simDiagrams", icon = icon("sitemap")),
-               menuSubItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece"))),
       br(),
       h4("NRV plots"),
       menuItem("Change Patch Size that defines 'large'", tabName = "patchSize",
@@ -27,8 +24,11 @@ dashboardPage(skin = "green",
                menuSubItem("Mature Forest", tabName = "Mature", icon = icon("tree")),
                menuSubItem("Old Forest", tabName = "Old", icon = icon("tree"))),
       br(),
-      h4("Succession Model"),
-      menuItem("Succession Model Inputs", tabName = "inputTables", icon = icon("table"))
+      h4("Model details"),
+      menuItem("Underlying Models", icon = icon("info"),
+               menuSubItem("Overview Diagrams", tabName = "simDiagrams", icon = icon("sitemap")),
+               menuSubItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece"))),
+               menuSubItem("LBMR (Succession) Model Inputs", tabName = "inputTables", icon = icon("table"))
     )
   ),
   dashboardBody(
