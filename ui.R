@@ -23,7 +23,7 @@ dashboardPage(skin = "green",
       #),
       menuItem("Change Patch Size that defines 'large'",
                #menuSubItem(
-                 clumpMod2Input("id1")
+               clumpMod2Input("id1")
       )),
       menuItem("Study Region", tabName = "StudyRegion"),
       menuItem("Maps", 
