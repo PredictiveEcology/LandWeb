@@ -24,12 +24,19 @@ function(input, output, session) {
   callModule(moduleInfo, "modInfoBoxes", initialRun)
   
   message("Running Experiment")
-  mySimOut <- Cache(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE, 
-                    cl = cl, 
-                    .plotInitialTime = NA,
-                    clearSimEnv = TRUE#, 
-                    #notOlderThan = Sys.time()
-  )
+  args <- list(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE, 
+               if(exists("cl")) cl = cl, 
+               .plotInitialTime = NA,
+               clearSimEnv = TRUE)
+  args <- args[!unlist(lapply(args, is.null))]
+  mySimOut <- do.call(Cache, args)
+  
+  # mySimOut <- Cache(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE, 
+  #                   cl = cl, 
+  #                   .plotInitialTime = NA,
+  #                   clearSimEnv = TRUE#, 
+  #                   #notOlderThan = Sys.time()
+  # )
   message("  Finished Experiment")
   
   grds <- unlist(lapply(seq_along(mySimOut), function(x) {
@@ -110,10 +117,16 @@ function(input, output, session) {
   }
   
   message("Running leadingByStage")
-  leading <- Cache(leadingByStage, tsf, vtm, ecodistricts,
-                   polygonNames = ecodistricts$ECODISTRIC, 
-                   cl = cl,
-                   ageClasses = ageClasses, cacheRepo = paths$cachePath)
+  args <- list(leadingByStage, tsf, vtm, ecodistricts,
+               polygonNames = ecodistricts$ECODISTRIC, 
+               if(exists("cl")) cl = cl, 
+               ageClasses = ageClasses, cacheRepo = paths$cachePath)
+  args <- args[!unlist(lapply(args, is.null))]
+  leading <- do.call(Cache, args)
+  # leading <- Cache(leadingByStage, tsf, vtm, ecodistricts,
+  #                  polygonNames = ecodistricts$ECODISTRIC, 
+  #                  cl = cl,
+  #                  ageClasses = ageClasses, cacheRepo = paths$cachePath)
   message("  Finished leadingByStage")
   
   # Large patches
@@ -128,7 +141,7 @@ function(input, output, session) {
   
   largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
                              polygonToSummarizeBy, #polygonNames,
-                             cl = cl, #countNumPatches,
+                             cl, #countNumPatches,
                              ageCutoffs = c(0, 40, 80, 120), patchSize = 1000, 
                              ageClasses, notOlderThan = Sys.time() - 1e7) {
     if (missing(cl)) {
@@ -298,16 +311,16 @@ function(input, output, session) {
       )
     )
   })
+
+  vegText <- h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class,",
+                      "and Leading Vegetation type.",
+                      "The totals sum to 1 across Leading Vegetation type, within each Age Class.",
+                      "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type."))
   
   output$ClumpsMatureUI <- renderUI({
     ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
                              "by Age Class, Leading Vegetation, and Polygon."))
     
-    vegText <- h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class,",
-                        "and Leading Vegetation type.",
-                        "The totals sum to 1 across Leading Vegetation type, within each Age Class.",
-                        "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type."))
-
     tabBox(width = 12,
       tabPanel("Mature, Deciduous", tabName = "Mature_Deciduous2",
         fluidRow(
@@ -550,17 +563,28 @@ function(input, output, session) {
   
   callModule(timeSinceFireMod, "timeSinceFire", rasts = globalRasters)
   
-  Clumps <- callModule(clumpMod2, "id1", 
-                       #currentPolygon = polygons[[reactive({currentPolygon()})+6]], 
-                       currentPolygon = polygons[[1 + 2]], 
-                       tsf = tsf, vtm = vtm,
-                       #polygonNames = ecodistricts$ECODISTRIC, 
-                       cl = cl, 
-                       ageClasses = ageClasses, cacheRepo = paths$cachePath,
-                       patchSize = reactive({input$patchSize33}),
-                       largePatchesFn = largePatchesFn
-                       )
-  
+  args <- list(clumpMod2, "id1", 
+               #currentPolygon = reactive({polygons[[currentPolygon()+2]]}), 
+               currentPolygon = polygons[[1 + 2]], 
+               tsf = tsf, vtm = vtm,
+               #polygonNames = ecodistricts$ECODISTRIC, 
+               if(exists("cl")) cl = cl, 
+               ageClasses = ageClasses, cacheRepo = paths$cachePath,
+               patchSize = reactive({input$patchSize33}),
+               largePatchesFn = largePatchesFn)
+  args <- args[!unlist(lapply(args, is.null))]
+  Clumps <- do.call(callModule, args )
+  # Clumps <- callModule(clumpMod2, "id1", 
+  #                      #currentPolygon = polygons[[reactive({currentPolygon()})+6]], 
+  #                      currentPolygon = polygons[[1 + 2]], 
+  #                      tsf = tsf, vtm = vtm,
+  #                      #polygonNames = ecodistricts$ECODISTRIC, 
+  #                      cl = cl, 
+  #                      ageClasses = ageClasses, cacheRepo = paths$cachePath,
+  #                      patchSize = reactive({input$patchSize33}),
+  #                      largePatchesFn = largePatchesFn
+  #                      )
+  # 
   lapply(seq_along(ageClasses), function(i) { # i is age
     lapply(polygonsWithData[[i]], function(j) { # j is polygon index
       lapply(seq_along(vegLeadingTypes), function(k) { # k is 
