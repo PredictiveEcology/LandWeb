@@ -99,7 +99,7 @@ function(input, output, session) {
                         vals <- tabulate(nonNACells, max(levels(leadingRast)[[1]]$ID))
                         names(vals)[levels(leadingRast)[[1]]$ID] <- levels(leadingRast)[[1]]$Factor
                         vals <- vals[!is.na(names(vals))]
-                        props <- vals/length(nonNACells)
+                        props <- vals / length(nonNACells)
                       })
                     })))
       names(out1) <- paste(basename(dirname(tsf)), basename(tsf), sep = "_")
@@ -111,7 +111,7 @@ function(input, output, session) {
   
   message("Running leadingByStage")
   leading <- Cache(leadingByStage, tsf, vtm, ecodistricts,
-                   polygonNames = ecodistricts$ECODISTRIC, 
+                   polygonNames = ecodistricts$ECODISTRIC,
                    cl = cl,
                    ageClasses = ageClasses, cacheRepo = paths$cachePath)
   message("  Finished leadingByStage")
@@ -346,6 +346,9 @@ function(input, output, session) {
   })
   
   output$ClumpsOldUI <- renderUI({
+    ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
+                             "by Age Class, Leading Vegetation, and Polygon."))
+    
     tabBox(width = 12,
       tabPanel("Old, Deciduous", tabName = "Old_Deciduous2",
         fluidRow(
