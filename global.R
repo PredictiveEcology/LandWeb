@@ -2,8 +2,8 @@
 largePatchSizeOptions <- c(100, 200, 500, 1000)
 largePatchesFnLoop <- length(largePatchSizeOptions) - 4 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
-experimentReps <- 6
-maxNumClusters <- 0 # use 0 to turn off # otherwise detectCPUs() - 1
+experimentReps <- 4
+maxNumClusters <- 3 # use 0 to turn off # otherwise detectCPUs() - 1
 globalRasters <- list()
 
 # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
@@ -32,7 +32,7 @@ if (FALSE) {
   })
   if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
   if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
-  if (tryCatch(packageVersion("SpaDES") < "1.3.1.9041", error = function(x) TRUE))
+  if (tryCatch(packageVersion("SpaDES") < "1.3.1.9042", error = function(x) TRUE))
     devtools::install_github("PredictiveEcology/SpaDES@development")  
 }
 pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", "plotly", 
@@ -296,6 +296,8 @@ if(maxNumClusters>0) {
     # try(stopCluster(cl), silent = TRUE)
     ncores <- if (Sys.info()[["user"]] == "achubaty") {
       pmin(maxNumClusters, detectCores() / 2)
+    } else if (Sys.info()[["user"]] == "emcintir") {
+      maxNumClusters
     } else {
       pmin(maxNumClusters, detectCores() - 1) # Currently using ~800MB RAM, limited to 8GB on shinyapps.io
     }
@@ -407,12 +409,12 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon,
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
                    args <- list(largePatchesFn, timeSinceFireFiles = tsf,
-                                     vegTypeMapFiles = vtm,
-                                     if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) cl = cl,
-                                    polygonToSummarizeBy = currentPolygon,
-                                    #polygonToSummarizeBy = isolate(currentPolygon()),
-                                     ageClasses = ageClasses, patchSize = patchSize,
-                                     cacheRepo = cacheRepo)
+                                vegTypeMapFiles = vtm,
+                                cl = if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) cl,
+                                polygonToSummarizeBy = currentPolygon,
+                                #polygonToSummarizeBy = isolate(currentPolygon()),
+                                ageClasses = ageClasses, patchSize = patchSize,
+                                cacheRepo = cacheRepo)
                    args <- args[!unlist(lapply(args, is.null))]
                    largePatches <- do.call(Cache, args)
                    

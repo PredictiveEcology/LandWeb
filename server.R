@@ -25,16 +25,16 @@ function(input, output, session) {
   
   message("Running Experiment")
   args <- list(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE, 
-               if(exists("cl")) cl = cl, 
+               cl = if(exists("cl")) cl, 
                .plotInitialTime = NA,
                clearSimEnv = TRUE)
   args <- args[!unlist(lapply(args, is.null))]
   mySimOut <- do.call(Cache, args)
   
-  # mySimOut <- Cache(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE, 
-  #                   cl = cl, 
+  # mySimOut <- Cache(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE,
+  #                   #cl = cl,
   #                   .plotInitialTime = NA,
-  #                   clearSimEnv = TRUE#, 
+  #                   clearSimEnv = TRUE#,
   #                   #notOlderThan = Sys.time()
   # )
   message("  Finished Experiment")
@@ -119,7 +119,7 @@ function(input, output, session) {
   message("Running leadingByStage")
   args <- list(leadingByStage, tsf, vtm, ecodistricts,
                polygonNames = ecodistricts$ECODISTRIC, 
-               if(exists("cl")) cl = cl, 
+               cl = if(exists("cl")) cl, 
                ageClasses = ageClasses, cacheRepo = paths$cachePath)
   args <- args[!unlist(lapply(args, is.null))]
   leading <- do.call(Cache, args)
@@ -592,7 +592,7 @@ function(input, output, session) {
                currentPolygon = polygons[[1 + 2]], 
                tsf = tsf, vtm = vtm,
                #polygonNames = ecodistricts$ECODISTRIC, 
-               if(exists("cl")) cl = cl, 
+               cl = if(exists("cl")) cl, 
                ageClasses = ageClasses, cacheRepo = paths$cachePath,
                patchSize = reactive({input$patchSize33}),
                largePatchesFn = largePatchesFn)
