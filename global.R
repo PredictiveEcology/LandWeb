@@ -195,7 +195,7 @@ prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
 ggStudyRegion <- prepare1(shpStudyRegion, shpStudyRegionFull)
 
 if (TRUE) {
-  AlbertaFMUFull <- Cache(shapefile, file.path(curDir, "FMU_Alberta_2015-11", "FMU_Alberta_2015-11"),
+  AlbertaFMUFull <- Cache(shapefile, file.path(paths$inputPath, "FMU_Alberta_2015-11", "FMU_Alberta_2015-11"),
                           cacheRepo = paths$cachePath)
   AlbertaFMUFull <- Cache(spTransform, AlbertaFMUFull, crs(shpStudyRegion), cacheRepo = paths$cachePath)
   AlbertaFMU <- Cache(crop, AlbertaFMUFull, shpStudyRegion, cacheRepo = paths$cachePath)
