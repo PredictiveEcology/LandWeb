@@ -333,10 +333,9 @@ vegAgeMod <- function(input, output, server, listOfProportions, indivPolygonInde
   output$g <- renderPlot(height = 300, {
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
-                   actualPlot <- #Cache(cacheRepo = paths$cachePath,
-                     ggplot(data = data.frame(x = unlist(lapply(
-                       listOfProportions, function(x) x[indivPolygonIndex, vegLeadingType]))),
-                       aes(x = x)) +
+                   actualPlot <- ggplot(data = data.frame(x = unlist(lapply(
+                     listOfProportions, function(x) x[indivPolygonIndex, vegLeadingType]))),
+                     aes(x = x)) +
                      stat_bin(bins = 30) +
                      xlab("") + #xlab("Proportion of polygon") +
                      theme_bw() +
@@ -352,7 +351,8 @@ vegAgeMod <- function(input, output, server, listOfProportions, indivPolygonInde
                     #Plot(actualPlot, new = TRUE, visualSqueeze = 1, gpText = gpar(fontsize = 16), 
                     #      title = "", 
                     #      addTo = paste0("actualPlot_dist",polygonLayer$ECODISTRIC[indivPolygonIndex]))
-                    setProgress(1)
+                   
+                   setProgress(1)
     })
     actualPlot
   })
@@ -376,7 +376,6 @@ clumpModOutput <- function(id, vegLeadingTypes) {
 
 
 clumpMod2Input <- function(id, label = "CSV file") {
-  # Create a namespace function using the provided id
   ns <- NS(id)
   
   selectInput(ns("PatchSize33"), "Patch Size Here", selectize = FALSE,
@@ -429,14 +428,12 @@ clumpMod <- function(input, output, server, Clumps, id) {
     k <- as.numeric(ids[3])
   
     forHist <- unlist(lapply(a[i], function(x) lapply(x, function(y) {
-      y[[k]][j,1]
+      y[[k]][j, 1]
     })))
     
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
-                   actualPlot <- #Cache(cacheRepo = paths$cachePath,
-                     ggplot(data = data.frame(x = forHist),
-                            aes(x = x)) + 
+                   actualPlot <- ggplot(data = data.frame(x = forHist), aes(x = x)) + 
                      stat_bin(bins = 30) + 
                      xlab("") + #xlab("Proportion of polygon") + 
                      theme_bw() + 
