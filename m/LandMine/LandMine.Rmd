@@ -7,18 +7,23 @@ output: pdf_document
 
 # Overview
 
-Provide an overview of what the module does / how to use the module.
+Landmine is a model created for simulating the natural range of variation for landscapes in the boreal forest. Written in the 1990s (Andison 1996), it has been widely used by the public and the private sector for various purposes. This SpaDES module is a rewrite of the fire component in native R. 
 
-Module documentation should be written so that others can use your module.
-This is a template for module documentation, and should be changed to reflect your module.
+THe current version has not been fully tested and compared with the original version, and there are currently several known differences.
 
-## RMarkdown
+## Current Differences
 
-RMarkdown syntax allows R code, outputs, and figures to be rendered in the documentation.
+- Fire sizes are taken from a Truncated Pareto distribution, resulting in numerous very small fires, and few large fires.
+- Parameters have been not been fitted to the landscapes that are under study in the LandWeb project
 
-For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
+
 
 # Usage
+
+TO run this Landmine module alone, from an R console, the following should work, assuming all R packages are available.
+Paths will have be changed for a different user.
+
+To deteremine which packages are used by `LandMine`, run `SpaDES::packages(module="Landmine")`.
 
 ```{r module_usage}
 library(igraph)
