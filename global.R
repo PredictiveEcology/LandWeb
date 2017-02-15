@@ -9,6 +9,7 @@ globalRasters <- list()
 # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
 
 if (FALSE) { # For pushing to shinyapps.io
+  message("Started at: ",Sys.time())
   allFiles <- dir(recursive = TRUE)
   allFiles <- grep(allFiles, pattern = "^R-Portable", invert = TRUE, value = TRUE)
   allFiles <- grep(allFiles, pattern = "^appCache", invert = TRUE, value = TRUE)
@@ -410,7 +411,8 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon,
                    args <- list(largePatchesFn, timeSinceFireFiles = tsf,
                                      vegTypeMapFiles = vtm,
                                      if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) cl = cl,
-                                     polygonToSummarizeBy = isolate(currentPolygon()),
+                                    polygonToSummarizeBy = currentPolygon,
+                                    #polygonToSummarizeBy = isolate(currentPolygon()),
                                      ageClasses = ageClasses, patchSize = patchSize,
                                      cacheRepo = cacheRepo)
                    args <- args[!unlist(lapply(args, is.null))]

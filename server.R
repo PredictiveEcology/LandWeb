@@ -229,10 +229,11 @@ function(input, output, session) {
   vegLeadingTypes <- unique(unlist(lapply(leading, function(x) lapply(x, function(y) colnames(y)))))
   
   message("  Finished global.R")
-
+  ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
+                           "by Age Class, Leading Vegetation, and Polygon. ",
+                           "If this is blank, it means there was no 'large' patches in this Age Class and Leading Vegetation type."))
+  
   output$ClumpsYoungUI <- renderUI({
-    ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
-                             "by Age Class, Leading Vegetation, and Polygon."))
     
     tabBox(width = 12,
       tabPanel("Young, Deciduous", tabName = "ClumpsYoung_Deciduous2",
