@@ -32,7 +32,7 @@ defineModule(sim, list(
   outputObjects = data.frame(
     objectName = c("rstFlammable", "rstBurnProb"),
     objectClass = c("RasterLayer", "RasterLayer"),
-    other = NA_character_,
+    other = c("rstFlammable is 0 for flammable, 1 for non flammable",""),
     stringsAsFactors = FALSE
   )
 ))
