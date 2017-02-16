@@ -231,9 +231,17 @@ function(input, output, session) {
   vegLeadingTypes <- unique(unlist(lapply(leading, function(x) lapply(x, function(y) colnames(y)))))
   
   message("  Finished global.R")
+  
+  ##
   ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
                            "by Age Class, Leading Vegetation, and Polygon. ",
-                           "If this is blank, it means there was no 'large' patches in this Age Class and Leading Vegetation type."))
+                           "If this is blank, it means there was no 'large' patches",
+                           "in this Age Class and Leading Vegetation type."))
+  vegText <- h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class,",
+                      "and Leading Vegetation type.",
+                      "The totals sum to 1 across Leading Vegetation type, within each Age Class.",
+                      "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type."))
+  ##
   
   output$ClumpsYoungUI <- renderUI({
     
@@ -275,9 +283,6 @@ function(input, output, session) {
   })
   
   output$ClumpsImmatureUI <- renderUI({
-    ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
-                             "by Age Class, Leading Vegetation, and Polygon."))
-    
     tabBox(width = 12,
       tabPanel("Immature, Deciduous", tabName = "Immature_Deciduous2",
         fluidRow(
@@ -315,15 +320,7 @@ function(input, output, session) {
     )
   })
 
-  vegText <- h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class,",
-                      "and Leading Vegetation type.",
-                      "The totals sum to 1 across Leading Vegetation type, within each Age Class.",
-                      "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type."))
-  
   output$ClumpsMatureUI <- renderUI({
-    ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
-                             "by Age Class, Leading Vegetation, and Polygon."))
-    
     tabBox(width = 12,
       tabPanel("Mature, Deciduous", tabName = "Mature_Deciduous2",
         fluidRow(
@@ -362,9 +359,6 @@ function(input, output, session) {
   })
   
   output$ClumpsOldUI <- renderUI({
-    ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
-                             "by Age Class, Leading Vegetation, and Polygon."))
-    
     tabBox(width = 12,
       tabPanel("Old, Deciduous", tabName = "Old_Deciduous2",
         fluidRow(
@@ -403,11 +397,6 @@ function(input, output, session) {
   })
   
   output$YoungUI <- renderUI({
-    vegText <- h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class,",
-                        "and Leading Vegetation type.",
-                        "The totals sum to 1 across Leading Vegetation type, within each Age Class.",
-                        "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type."))
-    
     tabBox(width = 12,
       tabPanel("Young, Deciduous", tabName = "Young_Deciduous",
         fluidRow(
@@ -446,11 +435,6 @@ function(input, output, session) {
   })
 
   output$ImmatureUI <- renderUI({
-    vegText <- h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class,",
-                        "and Leading Vegetation type.",
-                        "The totals sum to 1 across Leading Vegetation type, within each Age Class.",
-                        "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type."))
-    
     tabBox(width = 12,
       tabPanel("Immature, Deciduous", tabName = "Immature_Deciduous",
         fluidRow(
@@ -489,11 +473,6 @@ function(input, output, session) {
   })
   
   output$MatureUI <- renderUI({
-    vegText <- h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class,",
-                        "and Leading Vegetation type.",
-                        "The totals sum to 1 across Leading Vegetation type, within each Age Class.",
-                        "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type."))
-    
     tabBox(width = 12,
       tabPanel("Mature, Deciduous", tabName = "Mature_Deciduous",
         fluidRow(
@@ -532,11 +511,6 @@ function(input, output, session) {
   })
   
   output$OldUI <- renderUI({
-    vegText <- h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class,",
-                        "and Leading Vegetation type.",
-                        "The totals sum to 1 across Leading Vegetation type, within each Age Class.",
-                        "If this is blank, it means there was no vegetation in this Age Class and Leading Vegetation type."))
-    
     tabBox(width = 12,
       tabPanel("Old, Deciduous", tabName = "Old_Deciduous",
         fluidRow(
