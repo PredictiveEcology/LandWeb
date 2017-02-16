@@ -7,9 +7,11 @@ function(input, output, session) {
       #initialRun1 <- spades(Copy(mySim), debug = TRUE)
       # 5 minutes for 6e3 km2
       # 30 minutes for 6e4 km2
+      mySimCopy <- Copy(mySim)
+      end(mySimCopy) <- 1
       message("Running Initial spades call")
-      initialRun <- Cache(spades, sim = Copy(mySim), debug = TRUE, objects = "shpStudyRegion", 
-                          cacheRepo = file.path(cachePath(mySim), "studyRegion"))
+      initialRun <- Cache(spades, sim = mySimCopy, debug = TRUE, objects = "shpStudyRegion", 
+                          cacheRepo = file.path(cachePath(mySim), "studyRegion"), .plotInitialTime = NA)
       try(silent = TRUE, {
         filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
         filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
