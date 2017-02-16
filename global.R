@@ -154,7 +154,7 @@ prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
   shpStudyAreaFort <- tidy(shpStudyRegion, region = 'Name_1') 
   shpStudyAreaFort <- left_join(shpStudyAreaFort, shpStudyRegion@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
   shpStudyAreaOrigFort <- tidy(shpStudyRegionFull, region = 'Name_1') 
-  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[,c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
+  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
   #shpStudyAreaOrigFort<-shpStudyAreaOrigFort[order(shpStudyAreaOrigFort$order), ]
   
   # ggplotStudyRegionSmall <- ggplot() +
@@ -291,7 +291,7 @@ if (needMySim) {
   saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
 } 
 
-if(maxNumClusters>0) {
+if (maxNumClusters > 0) {
   if (!exists("cl")) {
     library(parallel)
     # try(stopCluster(cl), silent = TRUE)
