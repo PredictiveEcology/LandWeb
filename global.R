@@ -2,9 +2,13 @@
 largePatchSizeOptions <- c(100, 200, 500, 1000)
 largePatchesFnLoop <- length(largePatchSizeOptions) - 4 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
-experimentReps <- 4
-maxNumClusters <- 3 # use 0 to turn off # otherwise detectCPUs() - 1
-globalRasters <- list()
+experimentReps <- 9#20 # was 4
+maxNumClusters <- 0 # use 0 to turn off # otherwise detectCPUs() - 1
+if(!exists("globalRasters")) globalRasters <- list()
+endTime <- 20#100 # was 4
+studyArea <- "SMALL"# "MEDIUM"
+successionTimestep <- 2#10 # was 2
+summaryInterval <- endTime/2 # was 2
 
 # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
 
@@ -107,7 +111,6 @@ shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
 shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
 
 crsKNNMaps <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
-studyArea <- "SMALL"
 set.seed(2)#set.seed(5567913)
 if (studyArea == "SMALL") {
   # #smallExt <- clickExtent()
@@ -121,7 +124,7 @@ if (studyArea == "SMALL") {
   areaKm2 <- 10000#700000#2000#600000#too big for laptop
   minY <- 7508877 - 1.6e5
 } else if (studyArea == "MEDIUM") {
-  areaKm2 <- 20000 #700000#2000#600000#too big for laptop
+  areaKm2 <- 40000 #700000#2000#600000#too big for laptop
   minY <- 7008877 - 1.6e5
 }
 shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
@@ -246,10 +249,8 @@ timeSinceFirePalette <- colorNumeric(
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "LW_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
-successionTimestep <- 2
-summaryInterval <- 2
 
-times <- list(start = 0, end = 4)
+times <- list(start = 0, end = endTime)
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
                 "successionTimestep" = successionTimestep,
