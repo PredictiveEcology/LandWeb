@@ -198,10 +198,16 @@ prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
 ggStudyRegion <- prepare1(shpStudyRegion, shpStudyRegionFull)
 
 if (TRUE) {
-  AlbertaFMUFull <- Cache(shapefile, file.path(paths$inputPath, "FMU_Alberta_2015-11", "FMU_Alberta_2015-11"),
-                          cacheRepo = paths$cachePath)
-  AlbertaFMUFull <- Cache(spTransform, AlbertaFMUFull, crs(shpStudyRegion), cacheRepo = paths$cachePath)
+  readSpTransform <- function(shapefilePath, crs, cacheRepo){
+    AlbertaFMUFull <- shapefile(shapefilePath)
+    AlbertaFMUFull <- spTransform(AlbertaFMUFull, crs)
+  }
+  AlbertaFMUFull <- Cache(cacheRepo = paths$cachePath,
+                          readSpTransform, 
+                          shapefilePath=file.path(paths$inputPath, "FMU_Alberta_2015-11", "FMU_Alberta_2015-11"),
+                          crs = crs(shpStudyRegion))
   AlbertaFMU <- Cache(crop, AlbertaFMUFull, shpStudyRegion, cacheRepo = paths$cachePath)
+  
 }
 
 ecodistricts <- Cache(shapefile, file.path(paths$modulePath,"LW_LBMRDataPrep", "data", "ecodistricts"),
