@@ -41,15 +41,15 @@ function(input, output, session) {
   # )
   message("  Finished Experiment")
   
-  grds <- unlist(lapply(seq_along(mySimOut), function(x) {
-    grep(pattern = ".grd$", outputs(mySimOut[[x]])$file, value = TRUE)
+  rastersFromOutputs <- unlist(lapply(seq_along(mySimOut), function(x) {
+    grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
   }))
   
-  tsf <- grep(pattern = "rstTimeSinceFire", grds, value = TRUE)
-  vtm <- grep(pattern = "vegTypeMap", grds, value = TRUE)
+  tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
+  vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
   
-  lfltFN <- gsub(tsf, pattern = ".grd", replacement = "LFLT.grd")
-  lfltFN <- gsub(lfltFN, pattern = ".grd", replacement = ".tif")
+  lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
+  #lfltFN <- gsub(lfltFN, pattern = ".grd", replacement = ".tif")
   
   if (!(length(globalRasters) == length(tsf))) {
     message("Reprojecting rasters & loading into RAM")
