@@ -266,8 +266,8 @@ doEvent.LandWebOutput = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$LandWebOutputInit(sim)
     sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "allEvents", 
                          eventPriority = 7.5)
-    sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "save",
-                         eventPriority = 8)
+    # sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "save",
+    #                      eventPriority = 8)
   }   else if (time(sim) >= sim$summaryPeriod[1] & eventType == "allEvents" & 
                time(sim) <= sim$summaryPeriod[2]) {
     sim <- sim$LandWebOutputAllEvents(sim)
@@ -387,16 +387,15 @@ LandWebOutputSave <- function(sim) {
   if(!dir.exists(file.path(outputPath(sim), "patchMaps"))){
     dir.create(file.path(outputPath(sim), "patchMaps"))
   }
-  #writeRaster(sim$seralStageMap, file.path(outputPath(sim), "seralStageMaps",
-  #                                     paste("seralStageMap_Year", time(sim), ".grd", sep = "")), 
-  #            overwrite = TRUE) 
-  #writeRaster(sim$vegTypeMap, file.path(outputPath(sim), "vegLeadingMaps",
-  #                                  paste("vegTypeMap_Year", time(sim), ".grd", sep = "")), 
-  #            overwrite = TRUE) 
-  #writeRaster(sim$oldBigPatch, file.path(outputPath(sim), "patchMaps",
-  #                                      paste("patchMap_Year", time(sim), ".grd", sep = "")), 
-  #            overwrite = TRUE)
-  # ! ----- STOP EDITING ----- ! #
+  writeRaster(sim$seralStageMap, file.path(outputPath(sim), "seralStageMaps",
+                                       paste("seralStageMap_Year", time(sim), ".grd", sep = "")), 
+              overwrite = TRUE) 
+  writeRaster(sim$vegTypeMap, file.path(outputPath(sim), "vegLeadingMaps",
+                                    paste("vegTypeMap_Year", time(sim), ".grd", sep = "")), 
+              overwrite = TRUE) 
+  writeRaster(sim$oldBigPatch, file.path(outputPath(sim), "patchMaps",
+                                        paste("patchMap_Year", time(sim), ".grd", sep = "")), 
+              overwrite = TRUE)
   return(invisible(sim))
 }
 
