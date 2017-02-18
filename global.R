@@ -124,11 +124,10 @@ if (studyArea == "SMALL") {
   # shpStudyRegion <- crop(shpStudyRegion2, smallExt)
   # shpStudyRegionCan <- spTransform(shpStudyRegion, crs(CanadaMap))
   areaKm2 <- 10000#700000#2000#600000#too big for laptop
-  minY <- 7508877 - 1.6e5
 } else if (studyArea == "MEDIUM") {
   areaKm2 <- 40000 #700000#2000#600000#too big for laptop
-  minY <- 7008877 - 1.6e5
 }
+minY <- 7508877 - 1.6e5
 shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
 minX <- -1202250.2
 maxX <- minX + sqrt(areaKm2 * 1e6)
