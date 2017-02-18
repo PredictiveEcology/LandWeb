@@ -282,7 +282,7 @@ outputs2 <- data.frame(stringsAsFactors = FALSE,
                          saveTime = times$end), fun = "saveRDS", package = "base" )
 
 outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype="INT2U", format = "GTiff"),
-                                list(overwrite = TRUE, progress = FALSE, datatype="INT1U")), 
+                                list(overwrite = TRUE, progress = FALSE, datatype="INT1U", format = "raster")), 
                            times=NROW(outputs)/length(objectNamesToSave)))
 
 outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
