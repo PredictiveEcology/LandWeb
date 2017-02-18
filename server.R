@@ -26,7 +26,7 @@ function(input, output, session) {
   callModule(moduleInfo, "modInfoBoxes", initialRun)
   
   message("Running Experiment")
-  args <- list(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE, 
+  args <- list(experiment, mySim, replicates = experimentReps, debug = TRUE, #cache = TRUE, 
                cl = if(exists("cl")) cl, 
                .plotInitialTime = NA,
                clearSimEnv = TRUE)

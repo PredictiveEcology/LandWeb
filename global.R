@@ -2,13 +2,15 @@
 largePatchSizeOptions <- c(100, 200, 500, 1000)
 largePatchesFnLoop <- length(largePatchSizeOptions) - 4 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
-experimentReps <- 9#20 # was 4
-maxNumClusters <- 3 # use 0 to turn off # otherwise detectCPUs() - 1
+experimentReps <- 50 # was 4
+maxNumClusters <- 35 # use 0 to turn off # otherwise detectCPUs() - 1
 if(!exists("globalRasters")) globalRasters <- list()
-endTime <- 40#100 # was 4
-studyArea <- "SMALL"# "MEDIUM"
-successionTimestep <- 2#10 # was 2
-summaryInterval <- endTime/2 # was 2
+endTime <- 100 # was 4
+studyArea <- "MEDIUM"
+successionTimestep <- 10 # was 2
+summaryInterval <- 10#endTime/2 # was 2
+summaryPeriod <- c(10, endTime)
+message("Started at ", Sys.time())
 
 # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
 
@@ -39,7 +41,7 @@ if (FALSE) {
   if (tryCatch(packageVersion("SpaDES") < "1.3.1.9042", error = function(x) TRUE))
     devtools::install_github("PredictiveEcology/SpaDES@development")  
 }
-pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", "plotly", 
+pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly", 
           "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
           "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown")
 lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
@@ -260,7 +262,7 @@ times <- list(start = 0, end = endTime)
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
                 "successionTimestep" = successionTimestep,
-                "summaryPeriod" = c(pmax((times$end - times$start) / 2), times$end))
+                "summaryPeriod" = summaryPeriod)
 parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
