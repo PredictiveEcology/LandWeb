@@ -133,7 +133,7 @@ LandMineInit <- function(sim) {
   
   
   if(!is.na(P(sim)$.plotInitialTime)) {
-    Plot(sim$fireReturnInterval, speedup = 3, new=TRUE)
+    Plot(sim$fireReturnInterval, title="Fire Return Interval", speedup = 3, new=TRUE)
   }
 
   return(invisible(sim))
@@ -146,9 +146,15 @@ LandMinePlot <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot("object")
-  Plot(sim$rstCurrentBurn,new=time(sim)==P(sim)$.plotInitialTime, 
+  if(is.null(sim$rstCurrentBurnCumulative)) {
+    sim$rstCurrentBurnCumulative <- raster(sim$rstCurrentBurn)
+    sim$rstCurrentBurnCumulative[!is.na(sim$rstCurrentBurn)] <- 0
+  }
+  sim$rstCurrentBurnCumulative <- sim$rstCurrentBurn +   sim$rstCurrentBurnCumulative
+  Plot(sim$rstCurrentBurnCumulative,new=TRUE, 
        title = "Cumulative Fire Map",
-       cols = c("transparent", adjustcolor("red", alpha.f=0.1)))
+       cols = c("pink", "red"), zero.color = "transparent")
+
 
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
@@ -182,17 +188,10 @@ LandMineBurn <- function(sim) {
   fireSizesInPixels <- fireSizesInPixels[firesGT0]
   
   fires <- sim$burn(sim$fireReturnInterval, startCells = sim$startCells, 
-                    fireSizes = fireSizesInPixels, spreadProb = sim$rstFlammableNum)
-  
-  #browser()
-  #a <- 1
-  
+                    fireSizes = fireSizesInPixels, spreadProb = sim$rstFlammableNum,
+                    spawnNewActive = c(0.3, 0.2, 0.26, 0.11))
   sim$rstCurrentBurn[] <- 0
   sim$rstCurrentBurn[fires$indices] <- 1 # time(sim)+1
-  #Plot(hist(fires[,.N,by=id]$N), title = "fire size distribution")
-  
-
-  # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
 
