@@ -267,7 +267,7 @@ doEvent.LandWebOutput = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "allEvents", 
                          eventPriority = 7.5)
     # sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "save",
-    #                      eventPriority = 8)
+    #                      eventPriority = 8) #
   }   else if (time(sim) >= sim$summaryPeriod[1] & eventType == "allEvents" & 
                time(sim) <= sim$summaryPeriod[2]) {
     sim <- sim$LandWebOutputAllEvents(sim)
