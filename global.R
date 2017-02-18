@@ -270,7 +270,8 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                    initBaseMaps = list(.useCache = FALSE))
 outputs <- data.frame(stringsAsFactors = FALSE,
                       expand.grid(
-                        objectName = c("rstTimeSinceFire", "seralStageMap", "vegTypeMap", "oldBigPatch"),
+                        objectName = c("rstTimeSinceFire", #"seralStageMap", 
+                                       "vegTypeMap"),#, "oldBigPatch"),
                         saveTime = seq(objects$summaryPeriod[1], objects$summaryPeriod[2], 
                                        by = parameters$LandWebOutput$summaryInterval)),
                       fun = "writeRaster", package = "raster")
@@ -279,7 +280,8 @@ outputs2 <- data.frame(stringsAsFactors = FALSE,
                          objectName = c("simulationOutput"),
                          saveTime = times$end), fun = "saveRDS", package = "base" )
 
-outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE)), NROW(outputs)))
+outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype="INT2U")), NROW(outputs)))
+
 outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
 
 if (exists("mySim")) {
