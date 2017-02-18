@@ -270,10 +270,10 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                    LBMR = list(.plotInitialTime = times$start,
                                .saveInitialTime = NA),
                    initBaseMaps = list(.useCache = FALSE))
+objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 outputs <- data.frame(stringsAsFactors = FALSE,
                       expand.grid(
-                        objectName = c("rstTimeSinceFire", #"seralStageMap", 
-                                       "vegTypeMap"),#, "oldBigPatch"),
+                        objectName = objectNamesToSave,#, "oldBigPatch"),
                         saveTime = seq(objects$summaryPeriod[1], objects$summaryPeriod[2], 
                                        by = parameters$LandWebOutput$summaryInterval)),
                       fun = "writeRaster", package = "raster")
@@ -282,7 +282,9 @@ outputs2 <- data.frame(stringsAsFactors = FALSE,
                          objectName = c("simulationOutput"),
                          saveTime = times$end), fun = "saveRDS", package = "base" )
 
-outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype="INT2U")), NROW(outputs)))
+outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype="INT2U", format = "GTiff"),
+                                list(overwrite = TRUE, progress = FALSE, datatype="INT1U")), 
+                           times=NROW(outputs)/length(objectNamesToSave)))
 
 outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
 
@@ -307,11 +309,12 @@ if (maxNumClusters > 0) {
     # try(stopCluster(cl), silent = TRUE)
     ncores <- if (Sys.info()[["user"]] == "achubaty") {
       pmin(maxNumClusters, detectCores() / 2)
-    } else if (Sys.info()[["user"]] == "emcintir") {
-      maxNumClusters
     } else {
-      pmin(maxNumClusters, detectCores() - 1) # Currently using ~800MB RAM, limited to 8GB on shinyapps.io
-    }
+      maxNumClusters
+    } 
+    
+    ncores <-  pmin(ncores, detectCores() - 1) # Currently using ~800MB RAM, limited to 8GB on shinyapps.io
+    
     message("Spawning ", ncores, " threads")
     if (Sys.info()[["sysname"]] == "Windows") {
       clusterType = "SOCK"
