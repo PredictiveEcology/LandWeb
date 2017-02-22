@@ -380,7 +380,6 @@ vegAgeMod <- function(input, output, server, listOfProportions, indivPolygonInde
   output$g <- renderPlot(height = 300, {
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
-                   browser()
                    actualPlot <- ggplot(data = data.frame(x = unlist(lapply(
                      listOfProportions, function(x) x[indivPolygonIndex, vegLeadingType]))),
                      aes(x = x)) +
