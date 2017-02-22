@@ -1,16 +1,40 @@
 #### Some variables
-largePatchSizeOptions <- c(100, 200, 500, 1000)
-largePatchesFnLoop <- length(largePatchSizeOptions) - 4 # The number is how many to run, e.g., 1 would be run just 1000
+largePatchSizeOptions <- c(500, 1000, 2000)
+largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
-experimentReps <- 35 # was 4
-maxNumClusters <- 35 # use 0 to turn off # otherwise detectCPUs() - 1
+experimentReps <- 3 # was 4
+maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
 if(!exists("globalRasters")) globalRasters <- list()
-endTime <- 100 # was 4
+endTime <- 400 # was 4
 studyArea <- "MEDIUM"
+#studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(10, endTime)
+summaryPeriod <- c(200, endTime)
 message("Started at ", Sys.time())
+
+#### Some variables
+largePatchSizeOptions <- c(500, 1000, 2000)
+largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
+ageClasses <- c("Young", "Immature", "Mature", "Old")
+experimentReps <- 3 # was 4
+maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
+if(!exists("globalRasters")) globalRasters <- list()
+endTime <- 2 # was 4
+#studyArea <- "MEDIUM"
+studyArea <- "SMALL"
+successionTimestep <- 10 # was 2
+summaryInterval <- 1#endTime/2 # was 2
+summaryPeriod <- c(2, endTime)
+message("Started at ", Sys.time())
+
+
+if(FALSE) { # THese are all "dangerous" in the sense that they should never be run inadvertently
+  SpaDES::clearCache(cacheRepo = "appCache")
+  SpaDES::clearCache(cacheRepo = "appCache/studyRegion/")
+  rm(MySim)
+  file.remove(dir("outputs", recursive = TRUE, full.names = TRUE))
+}
 
 # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
 
@@ -40,7 +64,7 @@ if (FALSE) {
   if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
   if (tryCatch(packageVersion("SpaDES") < "1.3.1.9042", error = function(x) TRUE))
     devtools::install_github("PredictiveEcology/SpaDES@development")  
-}
+  }
 pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly", 
           "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
           "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown")
@@ -89,6 +113,8 @@ if (FALSE) {
 curDir <- getwd()
 setwd(curDir)
 
+
+
 #### Maps
 paths <- list(
   #cachePath = file.path(curDir, "cache"),
@@ -127,7 +153,7 @@ if (studyArea == "SMALL") {
 } else if (studyArea == "MEDIUM") {
   areaKm2 <- 40000 #700000#2000#600000#too big for laptop
 }
-minY <- 7508877 - 1.6e5
+minY <- 7778877 - 1.6e5
 shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
 minX <- -1202250.2
 maxX <- minX + sqrt(areaKm2 * 1e6)
@@ -198,7 +224,7 @@ prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
 #                       shpStudyRegionFull, cacheRepo = paths$cachePath)
 ggStudyRegion <- prepare1(shpStudyRegion, shpStudyRegionFull)
 
-if (TRUE) {
+if (FALSE) {
   readSpTransform <- function(shapefilePath, crs, cacheRepo){
     AlbertaFMUFull <- shapefile(shapefilePath)
     AlbertaFMUFull <- spTransform(AlbertaFMUFull, crs)
@@ -225,14 +251,14 @@ lflt <- "+init=epsg:4326"
 # Available polygons
 ecodistrictsDemoLFLT <- spTransform(ecodistricts, sp::CRS(lflt))
 ecodistrictsFullLFLT <- spTransform(ecodistrictsFull, sp::CRS(lflt))
-AlbertaFMUDemoLFLT <- spTransform(AlbertaFMU, sp::CRS(lflt))
-AlbertaFMUFullLFLT <- spTransform(AlbertaFMUFull, sp::CRS(lflt))
+#AlbertaFMUDemoLFLT <- spTransform(AlbertaFMU, sp::CRS(lflt))
+#AlbertaFMUFullLFLT <- spTransform(AlbertaFMUFull, sp::CRS(lflt))
 ecodistrictsDemo <- ecodistricts
 ecodistrictsFull <- ecodistrictsFull
-AlbertaFMUDemo <- AlbertaFMU
-AlbertaFMUFull <- AlbertaFMUFull
+#AlbertaFMUDemo <- AlbertaFMU
+#AlbertaFMUFull <- AlbertaFMUFull
 
-availablePolygons <- c("ecodistricts", "AlbertaFMU")
+availablePolygons <- c("ecodistricts")#, "AlbertaFMU")
 availableProjections <- c("", "LFLT")
 availableScales <- c("Full", "Demo")
 available <- data.frame(stringsAsFactors = FALSE,
@@ -240,17 +266,20 @@ available <- data.frame(stringsAsFactors = FALSE,
                                     polygons = availablePolygons,
                                     scales = availableScales,
                                     projections = availableProjections),
-                        names = rep(c("Ecodistricts Full", "Alberta FMUs Full", "Ecodistricts Demo", "Alberta FMUs Demo"), 2))
+                        names = rep(c("Ecodistricts Full", #"Alberta FMUs Full", 
+                                      "Ecodistricts Demo"#, "Alberta FMUs Demo"
+                                      ), 2))
 polygons <- lapply(seq_len(NROW(available)), function(ii) {
   get(paste0(available$polygons[ii], available$scales[ii], available$projections[ii]))}) %>%
   setNames(available$names)
 
 polygonColours <- c(rep(c("red", "blue"), 2))
-polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(polygons[7:8]))
+polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3]))
 
 timeSinceFirePalette <- colorNumeric(
   c(rep("red", 10), paste0(colorRampPalette(c("light green", "dark green"))(100),"FF")),
   domain = NULL)
+attr(timeSinceFirePalette, "colorArgs")$na.color <- "#00000000"
 
 ## Create mySim
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
@@ -275,7 +304,8 @@ outputs <- data.frame(stringsAsFactors = FALSE,
                         objectName = objectNamesToSave,#, "oldBigPatch"),
                         saveTime = seq(objects$summaryPeriod[1], objects$summaryPeriod[2], 
                                        by = parameters$LandWebOutput$summaryInterval)),
-                      fun = "writeRaster", package = "raster")
+                      fun = "writeRaster", package = "raster", 
+                      file = paste0(objectNamesToSave, c(".tif", ".grd")))
 outputs2 <- data.frame(stringsAsFactors = FALSE,
                        expand.grid(
                          objectName = c("simulationOutput"),
@@ -312,7 +342,7 @@ if (maxNumClusters > 0) {
       maxNumClusters
     } 
     
-    ncores <-  pmin(ncores, detectCores() - 1) # Currently using ~800MB RAM, limited to 8GB on shinyapps.io
+    ncores <-  pmin(ncores, detectCores() - 1) 
     
     message("Spawning ", ncores, " threads")
     if (Sys.info()[["sysname"]] == "Windows") {
@@ -355,6 +385,7 @@ vegAgeMod <- function(input, output, server, listOfProportions, indivPolygonInde
                      aes(x = x)) +
                      stat_bin(bins = 30) +
                      xlab("") + #xlab("Proportion of polygon") +
+                     xlim(0,1) +
                      theme_bw() +
                      theme(text = element_text(size = 16)) +
                      ylab("Frequency")
@@ -464,6 +495,7 @@ clumpMod <- function(input, output, server, Clumps, id) {
                    actualPlot <- ggplot(data = data.frame(x = forHist), aes(x = x)) + 
                      stat_bin(bins = 30) + 
                      xlab("") + #xlab("Proportion of polygon") + 
+                     xlim(0,1) +
                      theme_bw() + 
                      theme(text = element_text(size = 16)) + 
                      ylab("Frequency")
@@ -482,7 +514,8 @@ leafletMapUI <- function(id) {
         title = "Area covered by this demo (in red), within the LandWeb study area (blue)",
         leafletOutput(ns("leafletMap1"), height = 600),
         selectInput(ns("leafletMapPolygons"), "Other layers to show summaries with", 
-                    choices = names(polygons[7:8]), selected = names(polygons[7:8])[[1]])
+                    choices = names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3]), 
+                    selected = names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3])[[1]])
     )
   )
 }
@@ -492,8 +525,8 @@ leafletMap <- function(input, output, session) {
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
                    polyNum <- polygonInput()
-                   polyDemo <- polygons[[polyNum + 6]] # leaflet projection, DEMO scale
-                   polyFull <- polygons[[polyNum + 4]] # leaflet projection, Full scale
+                   polyDemo <- polygons[[polyNum + (length(polygons)/4)*3]]#6]] # leaflet projection, DEMO scale
+                   polyFull <- polygons[[polyNum + (length(polygons)/4)*2]] # leaflet projection, Full scale
                    a <- leaflet() %>% addTiles(group = "OSM (default)") %>%
                      addPolygons(data = polyFull, color = "blue", group = "Full",
                                  fillOpacity = 0.2, weight = 1,
@@ -501,7 +534,9 @@ leafletMap <- function(input, output, session) {
                      addPolygons(data = polyDemo, color = "red", group = "Demo",
                                  fillOpacity = 0.6, weight = 3,
                                  popup = paste(polyDemo[[polygonIndivIdsColum[[polyNum]]]]))  %>%
-                     setView(-118, 58, zoom = 5) 
+                     setView(mean(c(xmin(polyDemo),xmax(polyDemo))), 
+                             mean(c(ymin(polyDemo),ymax(polyDemo))), 
+                             zoom = 5) 
                    setProgress(1)
     })
     
@@ -510,8 +545,8 @@ leafletMap <- function(input, output, session) {
   
   polygonInput <- reactive({
     switch(input$leafletMapPolygons,
-           "Ecodistricts Demo" = 1, 
-           "Alberta FMUs Demo" = 2
+           "Ecodistricts Demo" = 1#, 
+           #"Alberta FMUs Demo" = 2
     )
   })
   return(polygonInput)
@@ -520,13 +555,20 @@ leafletMap <- function(input, output, session) {
 timeSinceFireMod <- function(input, output, session, rasts) {
   output$timeSinceFire1 <- renderLeaflet({
     ras1 <- rasterInput()
+    pol <- polygons[[(length(polygons)/4)*4]]
+    leafZoom <- if(is.null(input$timeSinceFire1_zoom)) 7 else input$timeSinceFire1_zoom
     a <- leaflet() %>% addTiles(group = "OSM (default)") %>%
       addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
                      colors = timeSinceFirePalette, project = FALSE)  %>%
-      addPolygons(data = polygons[[8]], fillOpacity = 0, weight = 1) %>%
+      addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
       addLegend(position = "bottomright", pal = timeSinceFirePalette, 
                 values = na.omit(ras1[]), title = "Time since fire (years)") %>%
-      setView(-118, 58.3, zoom = 8) 
+      addLayersControl(options = layersControlOptions(autoZIndex = TRUE)) %>%
+     # setView(-117.8, 58.7, zoom = 7) 
+     setView(mean(c(xmin(pol),xmax(pol))), 
+             mean(c(ymin(pol),ymax(pol))), 
+             zoom = leafZoom
+             ) 
     
     a
   })
