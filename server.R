@@ -32,6 +32,7 @@ function(input, output, session) {
                clearSimEnv = TRUE)
   args <- args[!unlist(lapply(args, is.null))]
   mySimOut <- do.call(Cache, args)
+  message(attr(mySimOut, "tags"))
   
   # mySimOut <- Cache(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE,
   #                   #cl = cl,
@@ -60,7 +61,7 @@ function(input, output, session) {
         r <- raster(tsf[FN])
         r <- projectRaster(r, crs = sp::CRS(lflt), method = "ngb",
                            filename = lfltFN[FN], overwrite = TRUE,
-                           datatype = "INT1U")
+                           datatype = "INT2U")
       }
       if ((ncell(r) < 5e5) & (length(tsf) < 30)) r[] <- r[] 
       r
@@ -108,7 +109,7 @@ function(input, output, session) {
                         vals <- tabulate(nonNACells, max(levels(leadingRast)[[1]]$ID))
                         names(vals)[levels(leadingRast)[[1]]$ID] <- levels(leadingRast)[[1]]$Factor
                         vals <- vals[!is.na(names(vals))]
-                        props <- vals / length(nonNACells)
+                        props <- vals / sum(vals)
                       })
                     })))
       names(out1) <- paste(basename(dirname(tsf)), basename(tsf), sep = "_")
@@ -218,16 +219,31 @@ function(input, output, session) {
 
   
   omitted <- lapply(leading, function(x) lapply(x, function(y) attr(na.omit(y), "na.action")))
+  # polygonsWithData <- lapply(seq_along(leading), function(x) {
+  #     unlist(lapply(x, function(y) {
+  #       if (!is.null(omitted[[x]][[y]])) {
+  #         seq_len(NROW(leading[[x]][[y]]))[-omitted[[x]][[y]]]
+  #       } else {
+  #         seq_len(NROW(leading[[x]][[y]]))
+  #       }
+  #     }))
+  #   }) %>%
+  #   setNames(ageClasses)
+
+  
+  
   polygonsWithData <- lapply(seq_along(leading), function(x) {
-      unlist(lapply(x, function(y) {
-        if (!is.null(omitted[[x]][[y]])) {
-          seq_len(NROW(leading[[x]][[y]]))[-omitted[[x]][[y]]]
-        } else {
-          seq_len(NROW(leading[[x]][[y]]))
-        }
-      }))
-    }) %>%
+    unique(unlist(lapply(seq_along(leading[[x]]), function(y) {
+      if (!is.null(omitted[[x]][[y]])) {
+        seq_len(NROW(leading[[x]][[y]]))[-omitted[[x]][[y]]]
+      } else {
+        seq_len(NROW(leading[[x]][[y]]))
+      }
+    })))
+  }) %>%
     setNames(ageClasses)
+
+  
   vegLeadingTypes <- unique(unlist(lapply(leading, function(x) lapply(x, function(y) colnames(y)))))
   
   message("  Finished global.R")
