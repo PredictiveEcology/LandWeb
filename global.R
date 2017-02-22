@@ -35,8 +35,6 @@ if(FALSE) { # THese are all "dangerous" in the sense that they should never be r
   rm(mySim)
   file.remove(dir("outputs", recursive = TRUE, full.names = TRUE))
   file.remove("mySimDigestSaved.rds", "mySimSaved.rds")
-  
-  # a9b0dfde  # on LandWebDemoDev
 }
 
 # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
@@ -69,10 +67,12 @@ if (FALSE) {
   })
   if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
   if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
-  if (tryCatch(packageVersion("SpaDES") < "1.3.1.9043", error = function(x) TRUE))
-    devtools::install_github("PredictiveEcology/SpaDES@development")  
-  }
-pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", 
+}
+
+if (tryCatch(packageVersion("SpaDES") < "1.3.1.9044", error = function(x) TRUE))
+  devtools::install_github("PredictiveEcology/SpaDES@development")  
+
+pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly", 
           "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
           "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown")
 lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
