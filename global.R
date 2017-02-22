@@ -63,9 +63,11 @@ if (FALSE) {
   })
   if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
   if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
-  if (tryCatch(packageVersion("SpaDES") < "1.3.1.9042", error = function(x) TRUE))
-    devtools::install_github("PredictiveEcology/SpaDES@development")  
-  }
+}
+
+if (tryCatch(packageVersion("SpaDES") < "1.3.1.9044", error = function(x) TRUE))
+  devtools::install_github("PredictiveEcology/SpaDES@development")  
+
 pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly", 
           "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
           "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown")
