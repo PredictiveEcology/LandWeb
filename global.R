@@ -32,8 +32,11 @@ message("Started at ", Sys.time())
 if(FALSE) { # THese are all "dangerous" in the sense that they should never be run inadvertently
   SpaDES::clearCache(cacheRepo = "appCache")
   SpaDES::clearCache(cacheRepo = "appCache/studyRegion/")
-  rm(MySim)
+  rm(mySim)
   file.remove(dir("outputs", recursive = TRUE, full.names = TRUE))
+  file.remove("mySimDigestSaved.rds", "mySimSaved.rds")
+  
+  # a9b0dfde  # on LandWebDemoDev
 }
 
 # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
@@ -47,12 +50,16 @@ if (FALSE) { # For pushing to shinyapps.io
   print(paste("Total size:", sum(unlist(lapply(allFiles, function(x) file.info(x)[, "size"]))) / 1e6, "MB"))
   rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
                        contentCategory = "application")  
+  rsconnect::deployApp(appName = "LandWebDemoDev", appFiles = allFiles, 
+                       appTitle = "LandWeb Demo",
+                       contentCategory = "application")  
+  
 }
 
 print(getwd())
 #.libPaths("TEMP")
 if (FALSE) {
-  pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet", "plotly",
+  pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet",
                      "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES", "markdown",
                      "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "bit", "parallel",
                      "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp",
@@ -62,10 +69,10 @@ if (FALSE) {
   })
   if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
   if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
-  if (tryCatch(packageVersion("SpaDES") < "1.3.1.9042", error = function(x) TRUE))
+  if (tryCatch(packageVersion("SpaDES") < "1.3.1.9043", error = function(x) TRUE))
     devtools::install_github("PredictiveEcology/SpaDES@development")  
   }
-pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly", 
+pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", 
           "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
           "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown")
 lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
@@ -104,7 +111,6 @@ if (FALSE) {
   require(rgdal)
   require(grid)
   require(data.table)
-  require(plotly)
   require(leaflet)
   require(parallel)
   require(markdown)
