@@ -32,8 +32,9 @@ message("Started at ", Sys.time())
 if(FALSE) { # THese are all "dangerous" in the sense that they should never be run inadvertently
   SpaDES::clearCache(cacheRepo = "appCache")
   SpaDES::clearCache(cacheRepo = "appCache/studyRegion/")
-  rm(MySim)
+  rm(mySim)
   file.remove(dir("outputs", recursive = TRUE, full.names = TRUE))
+  file.remove("mySimDigestSaved.rds", "mySimSaved.rds")
 }
 
 # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
