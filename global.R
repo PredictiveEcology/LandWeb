@@ -48,12 +48,16 @@ if (FALSE) { # For pushing to shinyapps.io
   print(paste("Total size:", sum(unlist(lapply(allFiles, function(x) file.info(x)[, "size"]))) / 1e6, "MB"))
   rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
                        contentCategory = "application")  
+  rsconnect::deployApp(appName = "LandWebDemoDev", appFiles = allFiles, 
+                       appTitle = "LandWeb Demo",
+                       contentCategory = "application")  
+  
 }
 
 print(getwd())
 #.libPaths("TEMP")
 if (FALSE) {
-  pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet", "plotly",
+  pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet",
                      "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES", "markdown",
                      "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "bit", "parallel",
                      "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp",
@@ -107,7 +111,6 @@ if (FALSE) {
   require(rgdal)
   require(grid)
   require(data.table)
-  require(plotly)
   require(leaflet)
   require(parallel)
   require(markdown)
