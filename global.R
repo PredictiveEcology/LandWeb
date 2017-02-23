@@ -65,7 +65,7 @@ if (FALSE) {
   if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
 }
 
-if (tryCatch(packageVersion("SpaDES") < "1.3.1.9044", error = function(x) TRUE))
+if (tryCatch(packageVersion("SpaDES") < "1.3.1.9047", error = function(x) TRUE))
   devtools::install_github("PredictiveEcology/SpaDES@development")  
 
 pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly", 
