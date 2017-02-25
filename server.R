@@ -581,7 +581,7 @@ function(input, output, session) {
   
   args <- list(clumpMod2, "id1", 
                #currentPolygon = reactive({polygons[[currentPolygon()+2]]}), 
-               currentPolygon = polygons[[1 + 2]], 
+               currentPolygon = polygons[[1 + length(polygons)/4]], 
                tsf = tsf, vtm = vtm,
                #polygonNames = ecodistricts$ECODISTRIC, 
                cl = if(exists("cl")) cl, 

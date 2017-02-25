@@ -43,8 +43,8 @@ if (FALSE) { # For pushing to shinyapps.io
   message("Started at: ",Sys.time())
   allFiles <- dir(recursive = TRUE)
   allFiles <- grep(allFiles, pattern = "^R-Portable", invert = TRUE, value = TRUE)
-  allFiles <- grep(allFiles, pattern = "^appCache", invert = TRUE, value = TRUE)
-  allFiles <- grep(allFiles, pattern = "^outputs", invert = TRUE, value = TRUE)
+  #allFiles <- grep(allFiles, pattern = "^appCache", invert = TRUE, value = TRUE)
+  #allFiles <- grep(allFiles, pattern = "^outputs", invert = TRUE, value = TRUE)
   print(paste("Total size:", sum(unlist(lapply(allFiles, function(x) file.info(x)[, "size"]))) / 1e6, "MB"))
   rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
                        contentCategory = "application")  
