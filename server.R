@@ -134,11 +134,14 @@ function(input, output, session) {
   
   # Large patches
   countNumPatches <- function(ras, patchSize, ...) {
-    clumpedRas <- clump(ras, ...)
-    freqTable <- data.table(freq(clumpedRas))[!is.na(value), ][
-      , area := count * (res(clumpedRas)[1] ^ 2) / 10000]
-    largeEnoughPatches <- freqTable[area >= patchSize, ][, newValue := as.numeric(as.factor(value))]
-    clumpedRas[!(clumpedRas %in% largeEnoughPatches$value)] <- NA
+    clumpedRas <- clump(ras, gaps=FALSE, ...)
+    #browser()
+    # freqTable <- data.table(freq(clumpedRas))[!is.na(value), ][
+    #   , area := count * (res(clumpedRas)[1] ^ 2) / 10000]
+    # largeEnoughPatches <- freqTable[area >= patchSize, ][, newValue := as.numeric(as.factor(value))]
+    largeEnoughPatches <- which((tabulate(na.omit(clumpedRas[]), nbins = maxValue(clumpedRas))*
+                                   ((res(clumpedRas)[1] ^ 2) / 10000))>patchSize)
+    clumpedRas[!(clumpedRas %in% largeEnoughPatches)] <- NA
     list(ras = clumpedRas, count = largeEnoughPatches)
   }
   
@@ -176,8 +179,8 @@ function(input, output, session) {
         startList <- list()
       }
       startList <- append(startList, list(y = y))
-      out1 <- Cache(cacheRepo = paths$cachePath, #notOlderThan = Sys.time(),
-                    do.call, lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
+      out1 <- #Cache(cacheRepo = paths$cachePath, #notOlderThan = Sys.time(),
+                    do.call(lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
                       x <- match(x, timeSinceFireFiles)
                       timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
                       leadingRast <- raster(vegTypeMapFiles[x])
@@ -187,7 +190,7 @@ function(input, output, session) {
                       
                       clumpedRasts <- lapply(levels(leadingRast)[[1]]$ID, function(ID) {
                         spRas <- leadingRast
-                        spRas[spRas == ID] <- NA
+                        spRas[spRas != ID] <- NA
                         #Cache(cacheRepo = paths$cachePath, notOlderThan = Sys.time(),
                         countNumPatches(spRas, patchSize, directions = 8)
                       })
@@ -199,20 +202,35 @@ function(input, output, session) {
                                                                     #, cacheRepo = paths$cachePath)
                                                     )
                                              ))
-                      
-                      out2 <- lapply(clumpedRasts, function(ras) {
-                        aa <- #Cache(notOlderThan = Sys.time(),
-                          raster::extract(ras[[1]], polygonToSummarizeBy, fun = function(x, ...) {
-                            nonNACells <- na.omit(x)
-                            length(unique(nonNACells))
-                          }, cacheRepo = paths$cachePath)
-                      }) %>% setNames(names(clumpedRasts))
-                      out2
+                      clumpedRasts
                     })))
+                      browser()
+
+                      out2 <- raster::extract(x = stack(lapply(clumpedRasts, function(x) x[[1]])), 
+                                              y = polygonToSummarizeBy, 
+                                              fun = function(x, ...) {
+                        nonNACells <- na.omit(x)
+                        length(unique(nonNACells))
+                      })
+                      out2 <- lapply(as.list(data.frame(out2)), function(x) as.matrix(x)) %>% setNames(names(clumpedRasts))
+                      
+                      # 
+                      # out2 <- lapply(clumpedRasts, function(ras) {
+                      #   #browser()
+                      #   aa <- #Cache(notOlderThan = Sys.time(),
+                      #     raster::extract(ras[[1]], polygonToSummarizeBy, fun = function(x, ...) {
+                      #       nonNACells <- na.omit(x)
+                      #       length(unique(nonNACells))
+                      #     }, cacheRepo = paths$cachePath)
+                      # }) %>% setNames(names(clumpedRasts))
+                      out2
+    #                })))
       names(out1) <- paste(basename(dirname(timeSinceFireFiles)), basename(timeSinceFireFiles), sep = "_")
+      browser()
       out1
     }
     )
+    browser()
     names(out) <- ageClasses
     out
   }
