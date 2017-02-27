@@ -134,11 +134,17 @@ function(input, output, session) {
   
   # Large patches
   countNumPatches <- function(ras, patchSize, ...) {
-    clumpedRas <- clump(ras, ...)
-    freqTable <- data.table(freq(clumpedRas))[!is.na(value), ][
-      , area := count * (res(clumpedRas)[1] ^ 2) / 10000]
-    largeEnoughPatches <- freqTable[area >= patchSize, ][, newValue := as.numeric(as.factor(value))]
-    clumpedRas[!(clumpedRas %in% largeEnoughPatches$value)] <- NA
+    clumpedRas <- clump(ras, gaps=FALSE, ...)
+    # freqTable <- data.table(freq(clumpedRas))[!is.na(value), ][
+    #   , area := count * (res(clumpedRas)[1] ^ 2) / 10000]
+    # largeEnoughPatches <- freqTable[area >= patchSize, ][, newValue := as.numeric(as.factor(value))]
+    if(!is.na(maxValue(clumpedRas))) {
+      largeEnoughPatches <- which((tabulate(na.omit(clumpedRas[]), nbins = maxValue(clumpedRas))*
+                                   ((res(clumpedRas)[1] ^ 2) / 10000))>patchSize)
+    } else {
+      largeEnoughPatches <- integer(0)
+    }
+    clumpedRas[!(clumpedRas %in% largeEnoughPatches)] <- NA
     list(ras = clumpedRas, count = largeEnoughPatches)
   }
   
@@ -176,8 +182,8 @@ function(input, output, session) {
         startList <- list()
       }
       startList <- append(startList, list(y = y))
-      out1 <- Cache(cacheRepo = paths$cachePath, #notOlderThan = Sys.time(),
-                    do.call, lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
+      out1 <- #Cache(cacheRepo = paths$cachePath, #notOlderThan = Sys.time(),
+                    do.call(lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
                       x <- match(x, timeSinceFireFiles)
                       timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
                       leadingRast <- raster(vegTypeMapFiles[x])
@@ -187,7 +193,7 @@ function(input, output, session) {
                       
                       clumpedRasts <- lapply(levels(leadingRast)[[1]]$ID, function(ID) {
                         spRas <- leadingRast
-                        spRas[spRas == ID] <- NA
+                        spRas[spRas != ID] <- NA
                         #Cache(cacheRepo = paths$cachePath, notOlderThan = Sys.time(),
                         countNumPatches(spRas, patchSize, directions = 8)
                       })
@@ -199,22 +205,46 @@ function(input, output, session) {
                                                                     #, cacheRepo = paths$cachePath)
                                                     )
                                              ))
-                      
-                      out2 <- lapply(clumpedRasts, function(ras) {
-                        aa <- #Cache(notOlderThan = Sys.time(),
-                          raster::extract(ras[[1]], polygonToSummarizeBy, fun = function(x, ...) {
-                            nonNACells <- na.omit(x)
-                            length(unique(nonNACells))
-                          }, cacheRepo = paths$cachePath)
-                      }) %>% setNames(names(clumpedRasts))
-                      out2
+                      clumpedRasts
                     })))
-      names(out1) <- paste(basename(dirname(timeSinceFireFiles)), basename(timeSinceFireFiles), sep = "_")
-      out1
+                      out1
     }
     )
-    names(out) <- ageClasses
-    out
+    out <- setNames(out, ageClasses)
+
+    allStack <- stack(unlist(lapply(out, function(ageClasses) {
+      lapply(ageClasses, function(rep) {
+        lapply(rep, function(vegType) {
+          vegType[[1]]
+        }) 
+      })
+    })))
+    out2 <- raster::extract(allStack, 
+                            y = polygonToSummarizeBy, 
+                            fun = function(x, ...) {
+      nonNACells <- na.omit(x)
+      length(unique(nonNACells))
+    })
+    out2
+    #out3 <- lapply(as.list(data.frame(out2)), function(x) as.matrix(x))
+                      #%>% setNames(names(clumpedRasts))
+                      
+                      # 
+                      # out2 <- lapply(clumpedRasts, function(ras) {
+                      #   #browser()
+                      #   aa <- #Cache(notOlderThan = Sys.time(),
+                      #     raster::extract(ras[[1]], polygonToSummarizeBy, fun = function(x, ...) {
+                      #       nonNACells <- na.omit(x)
+                      #       length(unique(nonNACells))
+                      #     }, cacheRepo = paths$cachePath)
+                      # }) %>% setNames(names(clumpedRasts))
+    #                  out2
+      #names(out2) <- paste(basename(dirname(timeSinceFireFiles)), basename(timeSinceFireFiles), sep = "_")
+      #browser()
+      #out2
+    #browser()
+    #names(out) <- ageClasses
+    #out3
   }
 
   
@@ -251,8 +281,8 @@ function(input, output, session) {
   ##
   ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
                            "by Age Class, Leading Vegetation, and Polygon. ",
-                           "If this is blank, it means there was no 'large' patches",
-                           "in this Age Class and Leading Vegetation type."))
+                           "If this is blank, it means there was vegetation in this age class, ",
+                           "so 'a large patch' doesn't make any sense and is not shown."))
   vegText <- h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class,",
                       "and Leading Vegetation type.",
                       "The totals sum to 1 across Leading Vegetation type, within each Age Class.",
@@ -581,7 +611,7 @@ function(input, output, session) {
   
   args <- list(clumpMod2, "id1", 
                #currentPolygon = reactive({polygons[[currentPolygon()+2]]}), 
-               currentPolygon = polygons[[1 + 2]], 
+               currentPolygon = polygons[[1 + length(polygons)/4]], 
                tsf = tsf, vtm = vtm,
                #polygonNames = ecodistricts$ECODISTRIC, 
                cl = if(exists("cl")) cl, 
@@ -603,10 +633,12 @@ function(input, output, session) {
   # 
   lapply(seq_along(ageClasses), function(i) { # i is age
     lapply(polygonsWithData[[i]], function(j) { # j is polygon index
-      lapply(seq_along(vegLeadingTypes), function(k) { # k is 
+      lapply(seq_along(vegLeadingTypes), function(k) { # k is Veg type
         callModule(clumpMod, paste0(i, "_", j, "_", k, "_clumps"),
                    Clumps = reactive({Clumps()}),
-                   id = paste0(i, "_", j, "_", k, "_clumps")
+                   id = paste0(i, "_", j, "_", k, "_clumps"),
+                   ageClasses = ageClasses,
+                   vegLeadingTypes = vegLeadingTypes
         )  
       })
     })

@@ -43,8 +43,8 @@ if (FALSE) { # For pushing to shinyapps.io
   message("Started at: ",Sys.time())
   allFiles <- dir(recursive = TRUE)
   allFiles <- grep(allFiles, pattern = "^R-Portable", invert = TRUE, value = TRUE)
-  allFiles <- grep(allFiles, pattern = "^appCache", invert = TRUE, value = TRUE)
-  allFiles <- grep(allFiles, pattern = "^outputs", invert = TRUE, value = TRUE)
+  #allFiles <- grep(allFiles, pattern = "^appCache", invert = TRUE, value = TRUE)
+  #allFiles <- grep(allFiles, pattern = "^outputs", invert = TRUE, value = TRUE)
   print(paste("Total size:", sum(unlist(lapply(allFiles, function(x) file.info(x)[, "size"]))) / 1e6, "MB"))
   rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
                        contentCategory = "application")  
@@ -469,6 +469,7 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon,
                    args <- args[!unlist(lapply(args, is.null))]
                    largePatches <- do.call(Cache, args)
                    
+                   
                    #largePatches <- do.call(Cache, args)
                    # largePatches <- Cache(largePatchesFn, timeSinceFireFiles = tsf,
                    #                       vegTypeMapFiles = vtm,
@@ -485,24 +486,29 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon,
   return(Clumps)
 }
 
-clumpMod <- function(input, output, server, Clumps, id) {
+clumpMod <- function(input, output, server, Clumps, id, ageClasses, vegLeadingTypes) {
   output$h <- renderPlot({
+    #browser()
     a <- Clumps()
     ids <- strsplit(id, split = "_")[[1]]
     i <- as.numeric(ids[1])
     j <- as.numeric(ids[2])
     k <- as.numeric(ids[3])
   
-    forHist <- unlist(lapply(a[i], function(x) lapply(x, function(y) {
-      y[[k]][j, 1]
-    })))
+    # i is age
+    # j is polygon index
+    # k is Veg type
+    indicesForHist <- grep(colnames(a), pattern = ageClasses[i], value = TRUE) %>% 
+      agrep(pattern = vegLeadingTypes[k])
     
+    forHist <- a[j,indicesForHist]
+
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
                    actualPlot <- ggplot(data = data.frame(x = forHist), aes(x = x)) + 
-                     stat_bin(bins = 30) + 
+                     stat_bin(bins = max(6, max(forHist))) + 
                      xlab("") + #xlab("Proportion of polygon") + 
-                     xlim(0,1) +
+                     xlim(-1,max(6,max(forHist))) +
                      theme_bw() + 
                      theme(text = element_text(size = 16)) + 
                      ylab("Frequency")
