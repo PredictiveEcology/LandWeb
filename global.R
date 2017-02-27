@@ -14,7 +14,7 @@ summaryPeriod <- c(200, endTime)
 message("Started at ", Sys.time())
 
 #### Some variables
-largePatchSizeOptions <- c(500, 1000, 2000)
+largePatchSizeOptions <- c(100, 200, 400)
 largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 experimentReps <- 3 # was 4
