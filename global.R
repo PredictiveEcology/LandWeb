@@ -499,9 +499,9 @@ clumpMod <- function(input, output, server, Clumps, id) {
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
                    actualPlot <- ggplot(data = data.frame(x = forHist), aes(x = x)) + 
-                     stat_bin(bins = 30) + 
+                     stat_bin(bins = max(6, max(forHist))) + 
                      xlab("") + #xlab("Proportion of polygon") + 
-                     xlim(0,1) +
+                     xlim(0,max(6,max(forHist))) +
                      theme_bw() + 
                      theme(text = element_text(size = 16)) + 
                      ylab("Frequency")
