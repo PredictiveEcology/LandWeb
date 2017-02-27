@@ -88,6 +88,7 @@ if (FALSE) {
   require(R.oo)
   require(R.methodsS3)
   require(SpaDES)
+  library(fastmatch)
   require(visNetwork)
   require(rgexf)
   require(influenceR)
