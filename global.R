@@ -13,18 +13,18 @@ summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(200, endTime)
 
 #### Some variables
-largePatchSizeOptions <- c(100, 200, 400)
+largePatchSizeOptions <- c(500, 1000, 5000)
 largePatchesFnLoop <- length(largePatchSizeOptions) - 3 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 experimentReps <- 1 # was 4
 maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
 if(!exists("globalRasters")) globalRasters <- list()
-endTime <- 4 # was 4
-#studyArea <- "MEDIUM"
-studyArea <- "SMALL"
+endTime <- 400 # was 4
+studyArea <- "MEDIUM"
+#studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
 summaryInterval <- 1#endTime/2 # was 2
-summaryPeriod <- c(1, endTime)
+summaryPeriod <- c(200, endTime)
 
 ##########
 message("Started at ", Sys.time())
@@ -45,8 +45,8 @@ if (FALSE) { # For pushing to shinyapps.io
   message("Started at: ",Sys.time())
   allFiles <- dir(recursive = TRUE)
   allFiles <- grep(allFiles, pattern = "^R-Portable", invert = TRUE, value = TRUE)
-  #allFiles <- grep(allFiles, pattern = "^appCache", invert = TRUE, value = TRUE)
-  #allFiles <- grep(allFiles, pattern = "^outputs", invert = TRUE, value = TRUE)
+  allFiles <- grep(allFiles, pattern = "^appCache", invert = TRUE, value = TRUE)
+  allFiles <- grep(allFiles, pattern = "^outputs", invert = TRUE, value = TRUE)
   print(paste("Total size:", sum(unlist(lapply(allFiles, function(x) file.info(x)[, "size"]))) / 1e6, "MB"))
   #rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
   #                     contentCategory = "application")  
@@ -375,7 +375,7 @@ vegAgeModUI <- function(id, vegLeadingTypes) {
   )
 } 
 
-vegAgeMod <- function(input, output, server, listOfProportions, indivPolygonIndex, 
+vegAgeMod <- function(input, output, session, listOfProportions, indivPolygonIndex, 
                       #polygonLayer, 
                       vegLeadingType) {
   
@@ -436,7 +436,7 @@ clumpMod2Input <- function(id, label = "CSV file") {
               choices = largePatchSizeOptions, selected = largePatchSizeOptions[4])
 }
 
-clumpMod2 <- function(input, output, server, session, tsf, vtm, currentPolygon, 
+clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, 
                       #polygonNames = currentPolygon$ECODISTRIC,
                       cl, 
                       ageClasses = ageClasses,
@@ -444,7 +444,6 @@ clumpMod2 <- function(input, output, server, session, tsf, vtm, currentPolygon,
                       cacheRepo = paths$cachePath,
                       id, indivPolygonIndex,
                       largePatchesFn) {
-  
   lastOne <- FALSE
   Clumps <- reactive({
     # Pre-run all patch sizes automatically.
@@ -470,21 +469,15 @@ clumpMod2 <- function(input, output, server, session, tsf, vtm, currentPolygon,
                    args <- args[!unlist(lapply(args, is.null))]
                    largePatches <- do.call(Cache, args)
                    
-                   
-                   #largePatches <- do.call(Cache, args)
-                   # largePatches <- Cache(largePatchesFn, timeSinceFireFiles = tsf,
-                   #                       vegTypeMapFiles = vtm,
-                   #                       cl = cl,
-                   #                       polygonToSummarizeBy = currentPolygon,
-                   #                       ageClasses = ageClasses, patchSize = patchSize,
-                   #                       cacheRepo = cacheRepo)
                  setProgress(1)
     })
     message(paste("  Finished largePatchesFn for patch size:", patchSize))
     
     
     if(lastOne) {
-      #updateTabItems(session = session, inputId = "TimeSinceFire", selected = TRUE)
+      updateTabItems(session = session, 
+                     inputId = "wholeThing", 
+                     selected = "TimeSinceFire")
     }
     
     largePatches
@@ -492,7 +485,7 @@ clumpMod2 <- function(input, output, server, session, tsf, vtm, currentPolygon,
   return(Clumps)
 }
 
-clumpMod <- function(input, output, server, Clumps, id, ageClasses, vegLeadingTypes) {
+clumpMod <- function(input, output, session, Clumps, id, ageClasses, vegLeadingTypes) {
   output$h <- renderPlot({
     
     a <- Clumps()

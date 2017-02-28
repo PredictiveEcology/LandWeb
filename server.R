@@ -116,9 +116,9 @@ function(input, output, session) {
                       x <- match(x, timeSinceFireFiles)
                       timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
                       leadingRast <- raster(vegTypeMapFiles[x])
-                      leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- NA
+                      leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- 0
                       if ((y + 1) < length(ageCutoffs))
-                        leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- NA
+                        leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- 0
                       leadingRast
                     })))
       names(out1) <- gsub(paste(basename(dirname(tsf)), basename(tsf), sep = "_"), 
@@ -137,34 +137,56 @@ function(input, output, session) {
       })))
       IDs <- levels(out[[1]][[1]])[[1]]$ID
       Factors <- levels(out[[1]][[1]])[[1]]$Factor
-      aa <- raster::extract(allStack, polygonToSummarizeBy, 
-                            cellnumbers = TRUE, fun = function(x, ...) {
-        nonNACells <- na.omit(x)
-        vals <- tabulate(nonNACells, max(IDs))
-        names(vals)[IDs] <- Factors
-        vals <- vals[!is.na(names(vals))]
-        props <- vals / sum(vals)
+      ii <- 3
+      aa <- raster::extract(allStack, polygonToSummarizeBy)#, #df = TRUE,
+                          #   fun = function (x, ...) {
+                          #     
+                          #     nonNACells <- na.omit(x) 
+                          #     out <- table(nonNACells)
+                          #     #out <- tabulate(nonNACells, 4)
+                          #     out2 <- as.numeric(out) %>% setNames(names(out))
+                          #     browser(expr=ii<9)
+                          #     ii <<- ii + 1
+                          #     out3 <- rep(0,max(IDs))
+                          #     if(length(out2)) {
+                          #       out3[as.numeric(names(out))] <- out2
+                          #     }
+                          #     out3
+                          #     #out
+                          # })
+      
+      aa1 <- lapply(aa, function(x,  ...) {
+        if(!is.null(x)) {
+          apply(x, 2, function(y) {
+            nonNACells <- na.omit(y)
+            vals <- tabulate(nonNACells, max(IDs))
+            #                  vals <- tabulate(nonNACells, max(IDs))
+                              names(vals)[IDs] <- Factors
+                              vals <- vals[!is.na(names(vals))]
+                              if(sum(vals)) {
+                                vals / sum(vals)
+                              } else {
+                                vals
+                              }
+          })
+        } else {
+          NULL
+        }
       })
       
-      #aa <- cbind(zone=rep(ecodistricts$ECODISTRIC, each = length(Factors)), aa) 
-      vegType <- rownames(aa) 
-      rownames(aa) <- NULL
-      aadf <- data.frame(zone=rep(ecodistricts$ECODISTRIC, each = length(Factors)), 
-                         polygonNum = rep(seq_along(ecodistricts$ECODISTRIC), each = length(Factors)),
-                         vegType = vegType, aa,
-                         stringsAsFactors = FALSE)
       
-
-      # aa <- zonal(allStack[[6:7]], polygonToSummarizeByRas, 
-      #             fun =  function(x, ...) {
-      #               browser()
-      #               nonNACells <- na.omit(x)
-      #               vals <- tabulate(nonNACells, max(IDs))
-      #               names(vals)[IDs] <- Factors
-      #               vals <- vals[!is.na(names(vals))]
-      #               props <- vals / sum(vals, na.rm=TRUE)
-      #             #  list(props)
-      # })
+      nonNulls <- unlist(lapply(aa1, function(x) !is.null(x)))
+      #aa <- cbind(zone=rep(ecodistricts$ECODISTRIC, each = length(Factors)), aa) 
+      vegType <- unlist(lapply(aa1[nonNulls], rownames))
+      aa1 <- lapply(aa1, function(a) {
+        rownames(a) <- NULL
+        a
+      })
+      
+      aadf <- data.frame(zone=rep(ecodistricts$ECODISTRIC[nonNulls], each = length(Factors)), 
+                         polygonNum = rep(seq_along(ecodistricts$ECODISTRIC)[nonNulls], each = length(Factors)),
+                         vegType = vegType, do.call(rbind, aa1[nonNulls]),
+                         stringsAsFactors = FALSE)
       
       temp <- list()
       for(ages in ageClasses) {
@@ -175,22 +197,7 @@ function(input, output, session) {
       }
       
       aa <- rbindlist(temp)
-      
-      
-      # aa <- raster::extract(leadingRast, polygonToSummarizeBy, fun = function(x, ...) {
-      #                   nonNACells <- na.omit(x)
-      #                   vals <- tabulate(nonNACells, max(levels(leadingRast)[[1]]$ID))
-      #                   names(vals)[levels(leadingRast)[[1]]$ID] <- levels(leadingRast)[[1]]$Factor
-      #                   vals <- vals[!is.na(names(vals))]
-      #                   props <- vals / sum(vals)
-      #                 })
-                    #})))
-      #names(out1) <- paste(basename(dirname(tsf)), basename(tsf), sep = "_")
-      #out1
-    #})
-    #names(out) <- ageClasses
-    #out
-    aa
+      aa
   }
   #ecodistrictsRas <- Cache(cacheRepo = paths$cachePath,
   #                         rasterize, ecodistricts, raster(tsf[1]))
@@ -733,6 +740,7 @@ function(input, output, session) {
                largePatchesFn = largePatchesFn)
   args <- args[!unlist(lapply(args, is.null))]
   Clumps <- do.call(callModule, args )
+  
   # Clumps <- callModule(clumpMod2, "id1", 
   #                      #currentPolygon = polygons[[reactive({currentPolygon()})+6]], 
   #                      currentPolygon = polygons[[1 + 2]], 
