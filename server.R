@@ -12,14 +12,14 @@ function(input, output, session) {
       message("Running Initial spades call")
       initialRun <- Cache(spades, sim = mySimCopy, debug = TRUE, objects = "shpStudyRegion", 
                           cacheRepo = file.path(cachePath(mySim), "studyRegion"), .plotInitialTime = NA)
-      try(silent = TRUE, {
-        filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
-        filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
-        filesToRemove <- unlist(lapply(strsplit(basename(outputs(initialRun)$file), split = "\\."), function(x) x[1])) %>%
-          lapply(function(y) grep(filesPresent, pattern = y)) %>%
-          unlist()
-        file.remove(filesPresentFull[filesToRemove])
-      })
+      # try(silent = TRUE, {
+      #   filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
+      #   filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
+      #   filesToRemove <- unlist(lapply(strsplit(basename(outputs(initialRun)$file), split = "\\."), function(x) x[1])) %>%
+      #     lapply(function(y) grep(filesPresent, pattern = y)) %>%
+      #     unlist()
+      #   file.remove(filesPresentFull[filesToRemove])
+      # })
   }
   
   callModule(simInfo, "simInfoTabs", initialRun)
@@ -29,6 +29,7 @@ function(input, output, session) {
   args <- list(experiment, mySim, replicates = experimentReps, debug = TRUE, #cache = TRUE, 
                cl = if(exists("cl")) cl, 
                .plotInitialTime = NA,
+               #notOlderThan = Sys.time(),
                clearSimEnv = TRUE)
   args <- args[!unlist(lapply(args, is.null))]
   mySimOut <- do.call(Cache, args)
@@ -42,16 +43,23 @@ function(input, output, session) {
   # )
   message("  Finished Experiment")
   
-  rastersFromOutputs <- unlist(lapply(seq_along(mySimOut), function(x) {
+  rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
     grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
-  }))
+  })
   
-  if(any(!file.exists(rastersFromOutputs))) {
-    rastersFromOutputs <- 
-      unlist(lapply(strsplit(rastersFromOutputs, split = dirname(outputPath(mySimOut[[1]]))), 
-                    function(x) file.path(paths$outputPath, gsub(x[[2]], pattern = "^/", replacement = ""))))
+ # browser()
+  if(any(!file.exists(unlist(rastersFromOutputs)))) {
+    rastersFromOutputs2 <- 
+      lapply(rastersFromOutputs, function(ras) {
+        unlist(lapply(strsplit(ras, split = outputPath(mySimOut[[1]])), 
+                    function(x) file.path(paths$outputPath, gsub(x[[2]], pattern = "^/", replacement = ""))))})
+    for(simNum in seq_along(mySimOut)) {
+      mySimOut[[simNum]]@outputs$file[outputs(mySimOut[[simNum]])$file %in% rastersFromOutputs[[simNum]] ] <- 
+        rastersFromOutputs2[[simNum]]
+    }
   }
   
+  rastersFromOutputs <- unlist(rastersFromOutputs)
   tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
   vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
   
@@ -184,8 +192,8 @@ function(input, output, session) {
     #out
     aa
   }
-  ecodistrictsRas <- Cache(cacheRepo = paths$cachePath,
-                           rasterize, ecodistricts, raster(tsf[1]))
+  #ecodistrictsRas <- Cache(cacheRepo = paths$cachePath,
+  #                         rasterize, ecodistricts, raster(tsf[1]))
   message("Running leadingByStage")
   args <- list(leadingByStage, tsf, vtm, 
                polygonToSummarizeBy = ecodistricts,
@@ -357,6 +365,7 @@ function(input, output, session) {
   message("  Finished global.R")
   
   ##
+  ageClassTextTitle <- h2("NRV of Large Patches")
   ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
                            "by Age Class, Leading Vegetation, and Polygon. ",
                            "If this is blank, it means there was no vegetation in this age class, ",
@@ -365,6 +374,8 @@ function(input, output, session) {
                       "and Leading Vegetation type.",
                       "The totals sum to 1 across Leading Vegetation type, within each Age Class."
                       ))
+  vegTextTitle <- h2("NRV of Vegetation Cover")
+  
   ##
   
   output$ClumpsYoungUI <- renderUI({
@@ -372,6 +383,7 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Young, Deciduous", tabName = "ClumpsYoung_Deciduous2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -383,6 +395,7 @@ function(input, output, session) {
       ),
       tabPanel("Young, Spruce", tabName = "ClumpsYoung_Spruce2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -394,6 +407,7 @@ function(input, output, session) {
       ),
       tabPanel("Young, Mixed", tabName = "ClumpsYoung_Mixed2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -410,6 +424,7 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Immature, Deciduous", tabName = "Immature_Deciduous2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -421,6 +436,7 @@ function(input, output, session) {
       ),
       tabPanel("Immature, Spruce", tabName = "Immature_Spruce2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -432,6 +448,7 @@ function(input, output, session) {
       ),
       tabPanel("Immature, Mixed", tabName = "Immature_Mixed2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -448,6 +465,7 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Mature, Deciduous", tabName = "Mature_Deciduous2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -459,6 +477,7 @@ function(input, output, session) {
       ),
       tabPanel("Mature, Spruce", tabName = "Mature_Spruce2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -470,6 +489,7 @@ function(input, output, session) {
       ),
       tabPanel("Mature, Mixed", tabName = "Mature_Mixed2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -486,6 +506,7 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Old, Deciduous", tabName = "Old_Deciduous2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -497,6 +518,7 @@ function(input, output, session) {
       ),
       tabPanel("Old, Spruce", tabName = "Old_Spruce2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -508,6 +530,7 @@ function(input, output, session) {
       ),
       tabPanel("Old, Mixed", tabName = "Old_Mixed2",
         fluidRow(
+          column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -524,6 +547,7 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Young, Deciduous", tabName = "Young_Deciduous",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -535,6 +559,7 @@ function(input, output, session) {
       ),
       tabPanel("Young, Spruce", tabName = "Young_Spruce",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -546,6 +571,7 @@ function(input, output, session) {
       ),
       tabPanel("Young, Mixed", tabName = "Young_Mixed",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Young", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -562,6 +588,7 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Immature, Deciduous", tabName = "Immature_Deciduous",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -573,6 +600,7 @@ function(input, output, session) {
       ),
       tabPanel("Immature, Spruce", tabName = "Immature_Spruce",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -584,6 +612,7 @@ function(input, output, session) {
       ),
       tabPanel("Immature, Mixed", tabName = "Immature_Mixed",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Immature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -600,6 +629,7 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Mature, Deciduous", tabName = "Mature_Deciduous",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -611,6 +641,7 @@ function(input, output, session) {
       ),
       tabPanel("Mature, Spruce", tabName = "Mature_Spruce",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -622,6 +653,7 @@ function(input, output, session) {
       ),
       tabPanel("Mature, Mixed", tabName = "Mature_Mixed",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Mature", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -638,6 +670,7 @@ function(input, output, session) {
     tabBox(width = 12,
       tabPanel("Old, Deciduous", tabName = "Old_Deciduous",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -649,6 +682,7 @@ function(input, output, session) {
       ),
       tabPanel("Old, Spruce", tabName = "Old_Spruce",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
@@ -660,6 +694,7 @@ function(input, output, session) {
       ),
       tabPanel("Old, Mixed", tabName = "Old_Mixed",
         fluidRow(
+          column(width = 12, vegTextTitle),
           column(width = 12, vegText),
           lapply(pmatch("Old", ageClasses), function(i) {
             lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {

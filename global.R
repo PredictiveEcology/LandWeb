@@ -16,15 +16,15 @@ summaryPeriod <- c(200, endTime)
 largePatchSizeOptions <- c(100, 200, 400)
 largePatchesFnLoop <- length(largePatchSizeOptions) - 3 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
-experimentReps <- 2 # was 4
+experimentReps <- 1 # was 4
 maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
 if(!exists("globalRasters")) globalRasters <- list()
-endTime <- 100 # was 4
+endTime <- 4 # was 4
 #studyArea <- "MEDIUM"
 studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
-summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(10, endTime)
+summaryInterval <- 1#endTime/2 # was 2
+summaryPeriod <- c(1, endTime)
 
 ##########
 message("Started at ", Sys.time())
@@ -48,8 +48,8 @@ if (FALSE) { # For pushing to shinyapps.io
   #allFiles <- grep(allFiles, pattern = "^appCache", invert = TRUE, value = TRUE)
   #allFiles <- grep(allFiles, pattern = "^outputs", invert = TRUE, value = TRUE)
   print(paste("Total size:", sum(unlist(lapply(allFiles, function(x) file.info(x)[, "size"]))) / 1e6, "MB"))
-  rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
-                       contentCategory = "application")  
+  #rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
+  #                     contentCategory = "application")  
   rsconnect::deployApp(appName = "LandWebDemoDev", appFiles = allFiles, 
                        appTitle = "LandWeb Demo",
                        contentCategory = "application")  
@@ -257,6 +257,7 @@ ecodistrictsFull <- ecodistrictsFull
 #AlbertaFMUFull <- AlbertaFMUFull
 
 availablePolygons <- c("ecodistricts")#, "AlbertaFMU")
+availablePolygonAdjective <- c("Ecodistrict")#, "AlbertaFMU")
 availableProjections <- c("", "LFLT")
 availableScales <- c("Full", "Demo")
 available <- data.frame(stringsAsFactors = FALSE,
@@ -382,20 +383,18 @@ vegAgeMod <- function(input, output, server, listOfProportions, indivPolygonInde
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
                    actualPlot <- 
-                     #ggplot(data = data.frame(x = unlist(lapply(
-                      #listOfProportions, function(x) x[indivPolygonIndex, vegLeadingType]))),
                     ggplot(data = data.frame(x = listOfProportions),
                      aes(x = x)) +
                      #stat_bin(bins = 30) +
-                     stat_bin(aes(y=..density..),#bins = max(6, max(a)+2), 
+                     stat_bin(aes(y=..count../sum(..count..)),#bins = max(6, max(a)+2), 
                               fill="grey", colour="darkgrey", size = 1,
                               binwidth = 0.1) + 
                      xlab("") + #xlab("Proportion of polygon") +
                      xlim(-0.1,1.1) +
                      theme_bw() +
                      theme(text = element_text(size = 16)) +
-                     ylab("Frequency")
-                    
+                     ylab("Proportion in NRV")
+                   
                     # If want base plot histogram -- faster
                     # actualPlot <- 
                     #    try(hist(unlist(lapply(listOfProportions, function(x) x[indivPolygonIndex, "Deciduous leading"])), 
@@ -422,7 +421,8 @@ clumpModOutput <- function(id, vegLeadingTypes) {
   k <- as.numeric(ids[3])
   #tagList(
   box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
-      title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in ", ecodistricts$ECODISTRIC[j]),
+      title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in ", availablePolygonAdjective[1], 
+                     " ",ecodistricts$ECODISTRIC[j]),
       plotOutput(ns("h"), height = 300)
   )
   
@@ -496,7 +496,6 @@ clumpMod <- function(input, output, server, Clumps, id, ageClasses, vegLeadingTy
   output$h <- renderPlot({
     
     a <- Clumps()
-    #browser()
     ids <- strsplit(id, split = "_")[[1]]
     i <- as.numeric(ids[1])
     j <- as.numeric(ids[2])
@@ -512,7 +511,6 @@ clumpMod <- function(input, output, server, Clumps, id, ageClasses, vegLeadingTy
 
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
-                   #browser()
                    actualPlot <- ggplot(data = data.frame(x = forHist), aes(x = x)) + 
                      stat_bin(aes(y=..density..),#bins = max(6, max(a)+2), 
                               fill="grey", colour="darkgrey", size = 1,
@@ -523,7 +521,7 @@ clumpMod <- function(input, output, server, Clumps, id, ageClasses, vegLeadingTy
                      #ggthemes::scale_color_fivethirtyeight() +
                      theme_bw() + 
                      theme(text = element_text(size = 16)) + 
-                     ylab("Proportion of landscape")
+                     ylab("Proportion in NRV")
                    setProgress(1)
     })
     
