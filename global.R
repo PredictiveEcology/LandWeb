@@ -11,21 +11,22 @@ studyArea <- "MEDIUM"
 successionTimestep <- 10 # was 2
 summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(200, endTime)
-message("Started at ", Sys.time())
 
 #### Some variables
 largePatchSizeOptions <- c(100, 200, 400)
-largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
+largePatchesFnLoop <- length(largePatchSizeOptions) - 3 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
-experimentReps <- 3 # was 4
-maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
+experimentReps <- 6 # was 4
+maxNumClusters <- 6#35 # use 0 to turn off # otherwise detectCPUs() - 1
 if(!exists("globalRasters")) globalRasters <- list()
-endTime <- 2 # was 4
+endTime <- 6 # was 4
 #studyArea <- "MEDIUM"
 studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
-summaryInterval <- 1#endTime/2 # was 2
-summaryPeriod <- c(2, endTime)
+summaryInterval <- 3#endTime/2 # was 2
+summaryPeriod <- c(3, endTime)
+
+##########
 message("Started at ", Sys.time())
 
 
@@ -33,6 +34,7 @@ if(FALSE) { # THese are all "dangerous" in the sense that they should never be r
   SpaDES::clearCache(cacheRepo = "appCache")
   SpaDES::clearCache(cacheRepo = "appCache/studyRegion/")
   rm(mySim)
+  rm(cl)
   file.remove(dir("outputs", recursive = TRUE, full.names = TRUE))
   file.remove("mySimDigestSaved.rds", "mySimSaved.rds")
 }
@@ -376,23 +378,28 @@ vegAgeModUI <- function(id, vegLeadingTypes) {
   k <- as.numeric(ids[3])
   tagList(
     box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
-        title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in Ecodistrict ", ecodistricts$ECODISTRIC[j]),
+        title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in Ecodistrict ", 
+                       ecodistricts$ECODISTRIC[j]),
         plotOutput(ns("g"), height = 300)
     )
   )
 } 
 
 vegAgeMod <- function(input, output, server, listOfProportions, indivPolygonIndex, 
-                      polygonLayer, vegLeadingType) {
+                      #polygonLayer, 
+                      vegLeadingType) {
+  
   output$g <- renderPlot(height = 300, {
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
-                   actualPlot <- ggplot(data = data.frame(x = unlist(lapply(
-                     listOfProportions, function(x) x[indivPolygonIndex, vegLeadingType]))),
+                   actualPlot <- 
+                     #ggplot(data = data.frame(x = unlist(lapply(
+                      #listOfProportions, function(x) x[indivPolygonIndex, vegLeadingType]))),
+                    ggplot(data = data.frame(x = listOfProportions),
                      aes(x = x)) +
                      stat_bin(bins = 30) +
                      xlab("") + #xlab("Proportion of polygon") +
-                     xlim(0,1) +
+                     xlim(-0.1,1.1) +
                      theme_bw() +
                      theme(text = element_text(size = 16)) +
                      ylab("Frequency")
@@ -437,7 +444,7 @@ clumpMod2Input <- function(id, label = "CSV file") {
               choices = largePatchSizeOptions, selected = largePatchSizeOptions[4])
 }
 
-clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon, 
+clumpMod2 <- function(input, output, server, session, tsf, vtm, currentPolygon, 
                       #polygonNames = currentPolygon$ECODISTRIC,
                       cl, 
                       ageClasses = ageClasses,
@@ -446,14 +453,16 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon,
                       id, indivPolygonIndex,
                       largePatchesFn) {
   
+  lastOne <- FALSE
   Clumps <- reactive({
     # Pre-run all patch sizes automatically.
-    if (largePatchesFnLoop < (length(largePatchSizeOptions) - 1)) {
+    if (largePatchesFnLoop < (length(largePatchSizeOptions) )) {
       invalidateLater(50)
       largePatchesFnLoop <<- largePatchesFnLoop + 1
       patchSize <- as.integer(largePatchSizeOptions[largePatchesFnLoop])
     } else {
       patchSize <- as.integer(input$PatchSize33)
+      lastOne <<- TRUE
     }
     
     message(paste("Running largePatchesFn for patch size:", patchSize))
@@ -481,6 +490,11 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon,
     })
     message(paste("  Finished largePatchesFn for patch size:", patchSize))
     
+    
+    if(lastOne) {
+      #updateTabItems(session = session, inputId = "TimeSinceFire", selected = TRUE)
+    }
+    
     largePatches
   })
   return(Clumps)
@@ -488,8 +502,9 @@ clumpMod2 <- function(input, output, server, tsf, vtm, currentPolygon,
 
 clumpMod <- function(input, output, server, Clumps, id, ageClasses, vegLeadingTypes) {
   output$h <- renderPlot({
-    #browser()
+    
     a <- Clumps()
+    #browser()
     ids <- strsplit(id, split = "_")[[1]]
     i <- as.numeric(ids[1])
     j <- as.numeric(ids[2])
@@ -499,19 +514,24 @@ clumpMod <- function(input, output, server, Clumps, id, ageClasses, vegLeadingTy
     # j is polygon index
     # k is Veg type
     indicesForHist <- grep(colnames(a), pattern = ageClasses[i], value = TRUE) %>% 
-      agrep(pattern = vegLeadingTypes[k])
+      agrep(pattern = vegLeadingTypes[k], value = TRUE)
     
-    forHist <- a[j,indicesForHist]
+    forHist <- unname(a[j,indicesForHist])
 
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
+                   #browser()
                    actualPlot <- ggplot(data = data.frame(x = forHist), aes(x = x)) + 
-                     stat_bin(bins = max(6, max(forHist))) + 
+                     stat_bin(aes(y=..density..),#bins = max(6, max(a)+2), 
+                              fill="grey", colour="darkgrey", size = 1,
+                              binwidth = 1) + 
                      xlab("") + #xlab("Proportion of polygon") + 
-                     xlim(-1,max(6,max(forHist))) +
+                     xlim(-1,max(6,max(a)+1)) +
+                     #ggthemes::theme_fivethirtyeight() +
+                     #ggthemes::scale_color_fivethirtyeight() +
                      theme_bw() + 
                      theme(text = element_text(size = 16)) + 
-                     ylab("Frequency")
+                     ylab("Proportion of landscape")
                    setProgress(1)
     })
     
@@ -562,6 +582,7 @@ leafletMap <- function(input, output, session) {
            #"Alberta FMUs Demo" = 2
     )
   })
+  
   return(polygonInput)
 }
 
