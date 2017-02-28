@@ -23,7 +23,7 @@ endTime <- 400 # was 4
 studyArea <- "MEDIUM"
 #studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
-summaryInterval <- 1#endTime/2 # was 2
+summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(200, endTime)
 
 ##########
