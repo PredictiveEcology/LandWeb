@@ -46,6 +46,12 @@ function(input, output, session) {
     grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
   }))
   
+  if(any(!file.exists(rastersFromOutputs))) {
+    rastersFromOutputs <- 
+      unlist(lapply(strsplit(rastersFromOutputs, split = dirname(outputPath(mySimOut[[1]]))), 
+                    function(x) file.path(paths$outputPath, gsub(x[[2]], pattern = "^/", replacement = ""))))
+  }
+  
   tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
   vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
   

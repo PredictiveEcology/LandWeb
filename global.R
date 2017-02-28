@@ -16,15 +16,15 @@ summaryPeriod <- c(200, endTime)
 largePatchSizeOptions <- c(100, 200, 400)
 largePatchesFnLoop <- length(largePatchSizeOptions) - 3 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
-experimentReps <- 6 # was 4
-maxNumClusters <- 6#35 # use 0 to turn off # otherwise detectCPUs() - 1
+experimentReps <- 2 # was 4
+maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
 if(!exists("globalRasters")) globalRasters <- list()
-endTime <- 6 # was 4
+endTime <- 100 # was 4
 #studyArea <- "MEDIUM"
 studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
-summaryInterval <- 3#endTime/2 # was 2
-summaryPeriod <- c(3, endTime)
+summaryInterval <- 10#endTime/2 # was 2
+summaryPeriod <- c(10, endTime)
 
 ##########
 message("Started at ", Sys.time())
@@ -192,18 +192,7 @@ prepare1 <- function(shpStudyRegion, shpStudyRegionFull) {
   shpStudyAreaOrigFort <- tidy(shpStudyRegionFull, region = 'Name_1') 
   shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
   #shpStudyAreaOrigFort<-shpStudyAreaOrigFort[order(shpStudyAreaOrigFort$order), ]
-  
-  # ggplotStudyRegionSmall <- ggplot() +
-  #   geom_polygon(data=shpStudyAreaOrigFort,
-  #                aes(long, lat, group=id),
-  #                colour='black',fill=NA) +
-  #   geom_polygon(data=shpStudyAreaFort,
-  #              aes(long, lat, group=id),
-  #              colour='red',fill=NA) +
-  #   coord_equal() +
-  #   theme_bw()
-  
-  
+
   #map <- ggplot2::fortify(maine, region="name")
   
   wdth <- 650
@@ -397,7 +386,10 @@ vegAgeMod <- function(input, output, server, listOfProportions, indivPolygonInde
                       #listOfProportions, function(x) x[indivPolygonIndex, vegLeadingType]))),
                     ggplot(data = data.frame(x = listOfProportions),
                      aes(x = x)) +
-                     stat_bin(bins = 30) +
+                     #stat_bin(bins = 30) +
+                     stat_bin(aes(y=..density..),#bins = max(6, max(a)+2), 
+                              fill="grey", colour="darkgrey", size = 1,
+                              binwidth = 0.1) + 
                      xlab("") + #xlab("Proportion of polygon") +
                      xlim(-0.1,1.1) +
                      theme_bw() +
