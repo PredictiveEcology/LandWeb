@@ -19,10 +19,10 @@ ageClasses <- c("Young", "Immature", "Mature", "Old")
 experimentReps <- 1 # was 4
 maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
 if(!exists("globalRasters")) globalRasters <- list()
-endTime <- 300 # was 4
+endTime <- 200 # was 4
 studyArea <- "LARGE"
 studyArea <- "MEDIUM"
-#studyArea <- "SMALL"
+studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
 summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(100, endTime)
