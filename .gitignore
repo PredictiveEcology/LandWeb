@@ -1,8 +1,8 @@
 .Rhistory
 .Rproj.user
 
-appCache
-outputs
+appCache*
+outputs*
 mySimDigestSaved.rds
 mySimSaved.rds
 R-Portable/

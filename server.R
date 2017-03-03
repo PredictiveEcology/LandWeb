@@ -62,6 +62,7 @@ function(input, output, session) {
   rastersFromOutputs <- unlist(rastersFromOutputs)
   tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
   vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
+  lenTSF <- length(tsf)
   
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
   #lfltFN <- gsub(lfltFN, pattern = ".grd", replacement = ".tif")
@@ -83,472 +84,61 @@ function(input, output, session) {
     message("  Finished reprojecting rasters & loading into RAM")
   } 
   
-
-  leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
-                             polygonToSummarizeBy, 
-                             #polygonToSummarizeByRas, 
-                             polygonNames, 
-                             ageCutoffs = c(0, 40, 80, 120),  ageClasses, cl) {
-    if (missing(cl)) {
-      lapplyFn <- "lapply" 
-    } else {
-      lapplyFn <- "parLapplyLB"
-      #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
-      if (Sys.info()[["sysname"]] == "Windows") {
-        clusterExport(cl = cl, varlist = list(ls()),
-                    envir = environment())
-        clusterEvalQ(cl = cl, {
-          library(raster)
-        })
-      }
-    }
-    out <- lapply(ageCutoffs, function(ages) {
-      y <- match(ages, ageCutoffs)
-      if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
-        startList <- list(cl = cl)
-      } else {
-        startList <- list()
-      }
-      startList <- append(startList, list(y = y))
-      
-      out1 <- #Cache(cacheRepo = paths$cachePath, 
-                    do.call(lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
-                      x <- match(x, timeSinceFireFiles)
-                      timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
-                      leadingRast <- raster(vegTypeMapFiles[x])
-                      leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- 0
-                      if ((y + 1) < length(ageCutoffs))
-                        leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- 0
-                      leadingRast
-                    })))
-      names(out1) <- gsub(paste(basename(dirname(tsf)), basename(tsf), sep = "_"), 
-                          replacement = "_", pattern = "\\.")
-      out1
-      })
-    names(out) <- ageClasses
-      allStack <- stack(unlist(lapply(out, function(ageClasses) {
-        out <- lapply(ageClasses, function(rep) {
-          #lapply(rep, function(vegType) {
-            rep
-          #}) 
-        })
-        #names(out) <- 
-        out
-      })))
-      IDs <- levels(out[[1]][[1]])[[1]]$ID
-      Factors <- levels(out[[1]][[1]])[[1]]$Factor
-      ii <- 3
-      aa <- raster::extract(allStack, polygonToSummarizeBy)#, #df = TRUE,
-                          #   fun = function (x, ...) {
-                          #     
-                          #     nonNACells <- na.omit(x) 
-                          #     out <- table(nonNACells)
-                          #     #out <- tabulate(nonNACells, 4)
-                          #     out2 <- as.numeric(out) %>% setNames(names(out))
-                          #     browser(expr=ii<9)
-                          #     ii <<- ii + 1
-                          #     out3 <- rep(0,max(IDs))
-                          #     if(length(out2)) {
-                          #       out3[as.numeric(names(out))] <- out2
-                          #     }
-                          #     out3
-                          #     #out
-                          # })
-      
-      aa1 <- lapply(aa, function(x,  ...) {
-        if(!is.null(x)) {
-          apply(x, 2, function(y) {
-            nonNACells <- na.omit(y)
-            vals <- tabulate(nonNACells, max(IDs))
-            #                  vals <- tabulate(nonNACells, max(IDs))
-                              names(vals)[IDs] <- Factors
-                              vals <- vals[!is.na(names(vals))]
-                              if(sum(vals)) {
-                                vals / sum(vals)
-                              } else {
-                                vals
-                              }
-          })
-        } else {
-          NULL
-        }
-      })
-      
-      
-      nonNulls <- unlist(lapply(aa1, function(x) !is.null(x)))
-      #aa <- cbind(zone=rep(ecodistricts$ECODISTRIC, each = length(Factors)), aa) 
-      vegType <- unlist(lapply(aa1[nonNulls], rownames))
-      aa1 <- lapply(aa1, function(a) {
-        rownames(a) <- NULL
-        a
-      })
-      
-      aadf <- data.frame(zone=rep(ecodistricts$ECODISTRIC[nonNulls], each = length(Factors)), 
-                         polygonNum = rep(seq_along(ecodistricts$ECODISTRIC)[nonNulls], each = length(Factors)),
-                         vegType = vegType, do.call(rbind, aa1[nonNulls]),
-                         stringsAsFactors = FALSE)
-      
-      temp <- list()
-      for(ages in ageClasses) {
-        temp[[ages]] <- aadf %>%
-          dplyr::select(starts_with(ages) , zone:vegType) %>%
-          tidyr::gather(key = "label", value = "proportion", -(zone:vegType)) %>%
-          mutate(ageClass = unlist(lapply(strsplit(label, split = "\\."), function(x) x[[1]])))
-      }
-      
-      aa <- rbindlist(temp)
-      aa
-  }
-  #ecodistrictsRas <- Cache(cacheRepo = paths$cachePath,
-  #                         rasterize, ecodistricts, raster(tsf[1]))
   message("Running leadingByStage")
   args <- list(leadingByStage, tsf, vtm, 
                polygonToSummarizeBy = ecodistricts,
-               #polygonToSummarizeByRas = ecodistrictsRas,
-               polygonNames = ecodistricts$ECODISTRIC, 
+               #polygonNames = ecodistricts$ECODISTRIC, 
                cl = if(exists("cl")) cl, 
                ageClasses = ageClasses, cacheRepo = paths$cachePath)
   args <- args[!unlist(lapply(args, is.null))]
   leading <- do.call(Cache, args)
-  # leading <- Cache(leadingByStage, tsf, vtm, ecodistricts,
-  #                  polygonNames = ecodistricts$ECODISTRIC, 
-  #                  cl = cl,
-  #                  ageClasses = ageClasses, cacheRepo = paths$cachePath)
   message("  Finished leadingByStage")
   
   # Large patches
-  countNumPatches <- function(ras, patchSize, ...) {
-    clumpedRas <- clump(ras, gaps=FALSE, ...)
-    # freqTable <- data.table(freq(clumpedRas))[!is.na(value), ][
-    #   , area := count * (res(clumpedRas)[1] ^ 2) / 10000]
-    # largeEnoughPatches <- freqTable[area >= patchSize, ][, newValue := as.numeric(as.factor(value))]
-    if(!is.na(maxValue(clumpedRas))) {
-      largeEnoughPatches <- which((tabulate(na.omit(clumpedRas[]), nbins = maxValue(clumpedRas))*
-                                   ((res(clumpedRas)[1] ^ 2) / 10000))>patchSize)
-    } else {
-      largeEnoughPatches <- integer(0)
-    }
-    clumpedRas[!(clumpedRas %in% largeEnoughPatches)] <- NA
-    list(ras = clumpedRas, count = largeEnoughPatches)
-  }
-  
-  largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
-                             polygonToSummarizeBy, #polygonNames,
-                             cl, #countNumPatches,
-                             ageCutoffs = c(0, 40, 80, 120), patchSize = 1000, 
-                             ageClasses, notOlderThan = Sys.time() - 1e7) {
-    if (missing(cl)) {
-      lapplyFn <- "lapply"
-    } else {
-      lapplyFn <- "parLapplyLB"
-      if (Sys.info()[["sysname"]] == "Windows") {
-        
-        clusterExport(cl = cl,
-                      varlist = list(c(ls(), "countNumPatches")),
-                      # varlist = list("timeSinceFireFiles", "vegTypeMapFiles",
-                      #                "polygonToSummarizeBy", "countNumPatches",
-                      #                "paths", "ageCutoffs", "patchSize", "ageClasses"),
-                      envir = environment())
-        clusterEvalQ(cl = cl, {
-          library(raster)
-          library(magrittr)
-          library(SpaDES)
-          library(data.table)
-        })
-      }
-    }
-    
-    out <- lapply(ageCutoffs, function(ages) {
-      y <- match(ages, ageCutoffs)
-      if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
-        startList <- list(cl = cl)
-      } else {
-        startList <- list()
-      }
-      startList <- append(startList, list(y = y))
-      out1 <- #Cache(cacheRepo = paths$cachePath, #notOlderThan = Sys.time(),
-                    do.call(lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
-                      x <- match(x, timeSinceFireFiles)
-                      timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
-                      leadingRast <- raster(vegTypeMapFiles[x])
-                      leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- NA
-                      if ((y + 1) < length(ageCutoffs))
-                        leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- NA
-                      
-                      clumpedRasts <- lapply(levels(leadingRast)[[1]]$ID, function(ID) {
-                        spRas <- leadingRast
-                        spRas[spRas != ID] <- NA
-                        #Cache(cacheRepo = paths$cachePath, notOlderThan = Sys.time(),
-                        countNumPatches(spRas, patchSize, directions = 8)
-                      })
-                      names(clumpedRasts) <- levels(leadingRast)[[1]]$Factor
-                      clumpedRasts <- append(clumpedRasts,
-                                             list(speciesAgnostic =
-                                                    #Cache(notOlderThan = Sys.time(),
-                                                    countNumPatches(leadingRast, patchSize, directions = 8
-                                                                    #, cacheRepo = paths$cachePath)
-                                                    )
-                                             ))
-                      clumpedRasts
-                    })))
-      out1
-    }
-    )
+  SpaDES::checkPath(file.path(paths$cachePath, "scratch"), create = TRUE)
 
-    out <- setNames(out, ageClasses)
-    allStack <- unlist(out, recursive = FALSE) %>%
-      unlist(recursive = FALSE) %>%
-      lapply(function(x) x$ras) %>%
-      stack()
-
-    # allStack <- stack(unlist(lapply(out, function(ageClasses) {
-    #   lapply(ageClasses, function(rep) {
-    #     lapply(rep, function(vegType) {
-    #       vegType[[1]]
-    #     }) 
-    #   })
-    # })))
-    out2 <- raster::extract(allStack, 
-                            y = polygonToSummarizeBy, 
-                            fun = function(x, ...) {
-      nonNACells <- na.omit(x)
-      length(unique(nonNACells))
-    })
-    out2
-    #out3 <- lapply(as.list(data.frame(out2)), function(x) as.matrix(x))
-                      #%>% setNames(names(clumpedRasts))
-                      
-                      # 
-                      # out2 <- lapply(clumpedRasts, function(ras) {
-                      #   aa <- #Cache(notOlderThan = Sys.time(),
-                      #     raster::extract(ras[[1]], polygonToSummarizeBy, fun = function(x, ...) {
-                      #       nonNACells <- na.omit(x)
-                      #       length(unique(nonNACells))
-                      #     }, cacheRepo = paths$cachePath)
-                      # }) %>% setNames(names(clumpedRasts))
-    #                  out2
-      #names(out2) <- paste(basename(dirname(timeSinceFireFiles)), basename(timeSinceFireFiles), sep = "_")
-      #out2
-    #names(out) <- ageClasses
-    #out3
-  }
-
-  #omitted <- lapply(leading, function(x) lapply(x, function(y) attr(na.omit(y), "na.action")))
-  # polygonsWithData <- lapply(seq_along(leading), function(x) {
-  #     unlist(lapply(x, function(y) {
-  #       if (!is.null(omitted[[x]][[y]])) {
-  #         seq_len(NROW(leading[[x]][[y]]))[-omitted[[x]][[y]]]
-  #       } else {
-  #         seq_len(NROW(leading[[x]][[y]]))
-  #       }
-  #     }))
-  #   }) %>%
-  #   setNames(ageClasses)
-
-  
-  #zoneCol <- which(colnames(leading)=="zone")
-  
   polygonsWithData <- leading[,unique(polygonNum[!is.na(proportion)]),by=ageClass]
   
-  # polygonsWithData <- apply(
-  #   apply(leading[,-zoneCol],2,
-  #             function(x) which(!is.na(x)))
-  #   , 2, unique)
-  #polygonsWithData <- as.list(data.frame(polygonsWithData))
-  
-  # polygonsWithData <- lapply(seq_along(leading), function(x) {
-  #   unique(unlist(lapply(seq_along(leading[[x]]), function(y) {
-  #     if (!is.null(omitted[[x]][[y]])) {
-  #       seq_len(NROW(leading[[x]][[y]]))[-omitted[[x]][[y]]]
-  #     } else {
-  #       seq_len(NROW(leading[[x]][[y]]))
-  #     }
-  #   })))
-  # }) %>%
-  #names(polygonsWithData) <- ageClasses
-
-  vegLeadingTypes <- unique(leading$vegType)
+  vegLeadingTypes <- c(unique(leading$vegType), "All species")
   
   message("  Finished global.R")
-  
-  ##
+
   ageClassTextTitle <- h2("NRV of Large Patches")
   ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
-                           "by Age Class, Leading Vegetation, and Polygon. ",
-                           "If this is blank, it means there was no vegetation in this age class, ",
-                           "so 'a large patch' doesn't make any sense and is not shown."))
+                           "by Age Class, Leading Vegetation, and Polygon. "))
   vegText <- h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class,",
                       "and Leading Vegetation type.",
                       "The totals sum to 1 across Leading Vegetation type, within each Age Class."
                       ))
   vegTextTitle <- h2("NRV of Vegetation Cover")
   
-  ##
-  
-  output$ClumpsYoungUI <- renderUI({
-    
-    tabBox(width = 12,
-      tabPanel("Young, Deciduous", tabName = "ClumpsYoung_Deciduous2",
-        fluidRow(
+  # Large patch size section, i.e., clumps
+  observe({
+    lapply(ageClasses, function(ageClass) {
+      output[[paste0("Clumps",ageClass,"UI")]] <- renderUI({
+        i <- pmatch(ageClass, ageClasses)
+        polygonIDs <- seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1]
+        
+        myTabs <- lapply(polygonIDs, function(polygonID) {
+          tabPanel(paste(availablePolygonAdjective,ecodistricts$ECODISTRIC[polygonID]), 
+                   tabName = paste0("Poly",ageClass,polygonID),
+                   fluidRow(
+                     lapply(seq_along(vegLeadingTypes), function(k) {
+                       clumpModOutput(paste0(i, "_", polygonID, "_", k, "_clumps"),
+                                      vegLeadingTypes = vegLeadingTypes)
+                     })
+                   )
+          )               
+        })
+        fluidPage(
           column(width = 12, ageClassTextTitle),
           column(width = 12, ageClassText),
-          lapply(pmatch("Young", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
+          do.call(tabsetPanel, myTabs)
         )
-      ),
-      tabPanel("Young, Spruce", tabName = "ClumpsYoung_Spruce2",
-        fluidRow(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
-          lapply(pmatch("Young", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Young, Mixed", tabName = "ClumpsYoung_Mixed2",
-        fluidRow(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
-          lapply(pmatch("Young", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      )
-    )
+      })
+    })
   })
-  
-  output$ClumpsImmatureUI <- renderUI({
-    tabBox(width = 12,
-      tabPanel("Immature, Deciduous", tabName = "Immature_Deciduous2",
-        fluidRow(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
-          lapply(pmatch("Immature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Immature, Spruce", tabName = "Immature_Spruce2",
-        fluidRow(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
-          lapply(pmatch("Immature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Immature, Mixed", tabName = "Immature_Mixed2",
-        fluidRow(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
-          lapply(pmatch("Immature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      )
-    )
-  })
-
-  output$ClumpsMatureUI <- renderUI({
-    tabBox(width = 12,
-      tabPanel("Mature, Deciduous", tabName = "Mature_Deciduous2",
-        fluidRow(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
-          lapply(pmatch("Mature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Mature, Spruce", tabName = "Mature_Spruce2",
-        fluidRow(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
-          lapply(pmatch("Mature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Mature, Mixed", tabName = "Mature_Mixed2",
-        fluidRow(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
-          lapply(pmatch("Mature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      )
-    )
-  })
-  
-  output$ClumpsOldUI <- renderUI({
-    tabBox(width = 12,
-      tabPanel("Old, Deciduous", tabName = "Old_Deciduous2",
-        fluidRow(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
-          lapply(pmatch("Old", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Old, Spruce", tabName = "Old_Spruce2",
-        fluidRow(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
-          lapply(pmatch("Old", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Old, Mixed", tabName = "Old_Mixed2",
-        fluidRow(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
-          lapply(pmatch("Old", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              clumpModOutput(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes), "_clumps"),
-                             vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      )
-    )
-  })
+      
   
   output$YoungUI <- renderUI({
     tabBox(width = 12,
@@ -759,7 +349,8 @@ function(input, output, session) {
                    Clumps = reactive({Clumps()}),
                    id = paste0(i, "_", j, "_", k, "_clumps"),
                    ageClasses = ageClasses,
-                   vegLeadingTypes = vegLeadingTypes
+                   vegLeadingTypes = vegLeadingTypes,
+                   numReps = lenTSF
         )  
       })
     })
@@ -770,42 +361,16 @@ function(input, output, session) {
     lapply(polygonsWithData[ageClass==ageClasses[i]]$V1, function(j) {
       lapply(seq_along(vegLeadingTypes), function(k) {
         callModule(vegAgeMod, paste0(i, "_", j, "_", k), 
-                   #indivPolygonIndex = j,
-                   #polygonLayer = ecodistricts,
                    listOfProportions = leading[ageClass==ageClasses[i] & 
                                                  polygonNum==j & 
                                                  vegType==vegLeadingTypes[k]]$proportion
-                   #vegLeadingType = vegLeadingTypes[k]
         )
       })
     })
   })
   
-  # lapply(seq_along(ecodistricts)[polygonsWithData[[1]]], function(i) {
-  #   #callModule(decidOldMod,i,seed=i)
-  #   callModule(decidOldMod,i,indivPolygonIndex=i,polygonLayer = ecodistricts, listOfProportions = leading[[1]])
-  # })
   
-  # lapply(seq_along(ecodistricts)[polygonsWithData[[2]]], function(i) {
-  #   #callModule(decidOldMod,i,seed=i)
-  #   callModule(decidOldMod,i,indivPolygonIndex=i,polygonLayer = ecodistricts, listOfProportions = leading[[2]])
-  # })
-  # 
-  # lapply(seq_along(ecodistricts)[polygonsWithData[[3]]], function(i) {
-  #   #callModule(decidOldMod,i,seed=i)
-  #   callModule(decidOldMod,i,indivPolygonIndex=i,polygonLayer = ecodistricts, listOfProportions = leading[[3]])
-  # })
-  # 
-  # lapply(seq_along(ecodistricts)[polygonsWithData[[4]]], function(i) {
-  #   #callModule(decidOldMod,i,seed=i)
-  #   callModule(decidOldMod,i,indivPolygonIndex=i,polygonLayer = ecodistricts, listOfProportions = leading[[4]])
-  # })
-  
-  # lapply(seq_along(ecodistricts), function(i) {
-  #   callModule(oldDecidByPolyMod,i,indivPolygonIndex=i,polygonLayer = ecodistricts, listOfProportions = leadingOld)
-  # })
-  
-  
+  # There is double code here, allowing for ggplotly version (currently commented out) and ggvis version
   #output$StudyRegion <- renderPlot(
   bind_shiny(plot_id = "StudyRegion",
              #height = 525, 
@@ -846,35 +411,6 @@ function(input, output, session) {
              #}
   )
   
-  # output$initialCommunityMap <- renderPlot({
-  #   clearPlot()
-  #   Plot(deciduous, addTo = "deciduous", title = "Proportion deciduous leading")
-  # })
-  # 
-  # output$seralStagePctCoverMap <- renderPlot({
-  #   clearPlot()
-  #   Plot(mixed, addTo = "mixed", title = "Proportion mixed leading")
-  # })
-  
-  # output$ecoregionFig <- renderPlot({
-  #   #zoom <- input$inputZoom
-  #   ext <- extent(ecoregionMap)
-  #   # halfRangex <- diff(range(ext[1],ext[2]))/2
-  #   # halfRangey <- diff(range(ext[3],ext[4]))/2
-  #   # extNew <- numeric(4)
-  #   # extNew[1] <- ext[1]+halfRangex  - halfRangex/zoom
-  #   # extNew[2] <- ext[1]+halfRangex  + halfRangex/zoom
-  #   # extNew[3] <- ext[3]+halfRangey  - halfRangey/zoom
-  #   # extNew[4] <- ext[3]+halfRangey  + halfRangey/zoom
-  #   react$newExtent <- extent(ext)
-  #   ecoregionMapNew <- crop(ecoregionMap, react$newExtent)
-  #   Plot(ecoregionMapNew, title = FALSE, new = TRUE, speedup = 10)
-  # })
-  
-  # output$initialCommunityMap <- renderPlot({
-  #   initialCommunityMapNew <- crop(initialCommunityMap, react$newExtent)
-  #   Plot(initialCommunityMapNew, title = FALSE, new = TRUE, speedup = 10)
-  # })
   
   output$speciesInputs <- renderDataTable({
     landisInputs
@@ -885,18 +421,4 @@ function(input, output, session) {
   })#, digits = 1)
   
   
-
-  output$numMapUnits <- renderValueBox({
-    valueBox(
-      value = 163,
-      subtitle = "Number of unique map units"
-    )
-  })
-  
-  output$numInitialCommunities <- renderValueBox({
-    valueBox(
-      value = 442,
-      subtitle = "Number of unique initial communities"
-    )
-  })
 }
