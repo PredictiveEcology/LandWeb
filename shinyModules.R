@@ -72,10 +72,8 @@ clumpMod <- function(input, output, session, Clumps, id, ageClasses, vegLeadingT
     # j is polygon index
     # k is Veg type
     forHistDT <- a[ageClass==ageClasses[i] & vegCover==vegLeadingTypes[k] & polygonID==j]
-    #maxNumClusters <- a[ageClass==ageClasses[i] & vegCover==vegLeadingTypes[k],.N,by=polygonID]$N
     maxNumClusters <- a[ageClass==ageClasses[i] & polygonID==j, .N, by = c("vegCover")]$N + 1
     maxNumClusters <- if(length(maxNumClusters)==0) 6 else pmax(6, max(maxNumClusters))
-    #browser(expr=k==1)
     forHist <- rep(0, numReps)
     if(NROW(forHistDT)) {
       forHist[unique(forHistDT$polygonID)] <- forHistDT[,.N]
@@ -110,7 +108,8 @@ clumpModOutput <- function(id, vegLeadingTypes) {
   k <- as.numeric(ids[3])
   #tagList(
   box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
-      title = paste0(ageClasses[i],", ", vegLeadingTypes[k]),#", in ", availablePolygonAdjective[1], 
+      title = paste0(#ageClasses[i],", ", 
+                     vegLeadingTypes[k]),#", in ", availablePolygonAdjective[1], 
                      #" ",ecodistricts$ECODISTRIC[j]),
       plotOutput(ns("h"), height = 300)
   )
@@ -124,14 +123,15 @@ clumpModOutput <- function(id, vegLeadingTypes) {
 clumpMod2Input <- function(id, label = "CSV file") {
   ns <- NS(id)
   
-  #selectInput(ns("PatchSize33"), "Patch Size Here", selectize = FALSE,
-  #            choices = largePatchSizeOptions, selected = largePatchSizeOptions[4])
-  numericInput(ns("PatchSize33"), label=NULL,
-               value = 500, min = 100, max = NA)
+  tagList(
+    numericInput(ns("PatchSize33"), value = 500, min = 100, max = NA,
+                 label=paste0("Type patch size in hectares that defines 'Large', ",
+                              "(numbers below 100 will not work)")
+               )
+  )
 }
 
 clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, 
-                      #polygonNames = currentPolygon$ECODISTRIC,
                       cl, 
                       ageClasses = ageClasses,
                       patchSize,
@@ -172,7 +172,7 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                      selected = "TimeSinceFire")
     }
     
-    largePatches[sizeInHa>patchSize]
+    return(list(Clumps=largePatches[sizeInHa>patchSize], patchSize = patchSize))
   })
   return(Clumps)
 }

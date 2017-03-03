@@ -117,23 +117,31 @@ function(input, output, session) {
   observe({
     lapply(ageClasses, function(ageClass) {
       output[[paste0("Clumps",ageClass,"UI")]] <- renderUI({
-        i <- pmatch(ageClass, ageClasses)
-        polygonIDs <- seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1]
+        ns <- session$ns
+        ageClassIndex <- pmatch(ageClass, ageClasses)
+        polygonIDs <- seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[ageClassIndex]]$V1]
         
         myTabs <- lapply(polygonIDs, function(polygonID) {
           tabPanel(paste(availablePolygonAdjective,ecodistricts$ECODISTRIC[polygonID]), 
                    tabName = paste0("Poly",ageClass,polygonID),
                    fluidRow(
                      lapply(seq_along(vegLeadingTypesWithAllSpecies), function(k) {
-                       clumpModOutput(paste0(i, "_", polygonID, "_", k, "_clumps"),
+                       clumpModOutput(paste0(ageClassIndex, "_", polygonID, "_", k, "_clumps"),
                                       vegLeadingTypes = vegLeadingTypesWithAllSpecies)
                      })
                    )
           )               
         })
         fluidPage(
-          column(width = 12, ageClassTextTitle),
-          column(width = 12, ageClassText),
+          column(width = 12, h2("NRV of number of 'large' (",strong(ClumpsReturn()$patchSize," hectares"),"), ",
+                                strong(tolower(ageClasses[ageClassIndex]))," patches")),
+          column(width = 12, h4(paste("These figures show the NRV of the probability distribution",
+                                      "of ",tolower(ageClasses[ageClassIndex])," patches that are",ClumpsReturn()$patchSize," hectares",
+                                      "or larger, for each given combination of Age Class, ",
+                                      "Leading Vegetation, and Polygon.",
+                                      "To change the patch size that defines these, type a new value",
+                                      "in the menu at the left."))
+          ),
           do.call(tabsetPanel, myTabs)
         )
       })
@@ -143,15 +151,15 @@ function(input, output, session) {
   observe({
     lapply(ageClasses, function(ageClass) {
       output[[paste0(ageClass,"UI")]] <- renderUI({
-        i <- pmatch(ageClass, ageClasses)
-        polygonIDs <- seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1]
+        ageClassIndex <- pmatch(ageClass, ageClasses)
+        polygonIDs <- seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[ageClassIndex]]$V1]
         
         myTabs <- lapply(polygonIDs, function(polygonID) {
           tabPanel(paste(availablePolygonAdjective,ecodistricts$ECODISTRIC[polygonID]), 
                    tabName = paste0("Poly",ageClass,polygonID),
                    fluidRow(
                      lapply(seq_along(vegLeadingTypes), function(k) {
-                       vegAgeModUI(paste0(i, "_", polygonID, "_", k),
+                       vegAgeModUI(paste0(ageClassIndex, "_", polygonID, "_", k),
                                    vegLeadingTypes = vegLeadingTypes)
                      })
                    )
@@ -181,23 +189,21 @@ function(input, output, session) {
   callModule(timeSinceFireMod, "timeSinceFire", rasts = globalRasters)
   
   args <- list(clumpMod2, "id1", session = session, 
-               #currentPolygon = reactive({polygons[[currentPolygon()+2]]}), 
                currentPolygon = polygons[[1 + length(polygons)/4]], 
                tsf = tsf, vtm = vtm,
-               #polygonNames = ecodistricts$ECODISTRIC, 
                cl = if(exists("cl")) cl, 
                ageClasses = ageClasses, cacheRepo = paths$cachePath,
-               patchSize = reactive({input$patchSize33}),
+               patchSize = reactive({input$PatchSize33}),
                largePatchesFn = largePatchesFn)
   args <- args[!unlist(lapply(args, is.null))]
-  Clumps <- do.call(callModule, args )
+  ClumpsReturn <- do.call(callModule, args )
   
-  lapply(seq_along(ageClasses), function(i) { # i is age
-    lapply(polygonsWithData[ageClass==ageClasses[i]]$V1, function(j) { # j is polygon index
+  lapply(seq_along(ageClasses), function(ageClassIndex) { # ageClassIndex is age
+    lapply(polygonsWithData[ageClass==ageClasses[ageClassIndex]]$V1, function(j) { # j is polygon index
       lapply(seq_along(vegLeadingTypesWithAllSpecies), function(k) { # k is Veg type
-        callModule(clumpMod, paste0(i, "_", j, "_", k, "_clumps"),
-                   Clumps = reactive({Clumps()}),
-                   id = paste0(i, "_", j, "_", k, "_clumps"),
+        callModule(clumpMod, paste0(ageClassIndex, "_", j, "_", k, "_clumps"),
+                   Clumps = reactive({ClumpsReturn()$Clumps}),
+                   id = paste0(ageClassIndex, "_", j, "_", k, "_clumps"),
                    ageClasses = ageClasses,
                    vegLeadingTypes = vegLeadingTypesWithAllSpecies,
                    numReps = lenTSF
@@ -206,12 +212,12 @@ function(input, output, session) {
     })
   })
   
-  lapply(seq_along(ageClasses), function(i) {
-    #  i <- match(ages, seq_along(ageClasses))
-    lapply(polygonsWithData[ageClass==ageClasses[i]]$V1, function(j) {
+  lapply(seq_along(ageClasses), function(ageClassIndex) {
+    #  ageClassIndex <- match(ages, seq_along(ageClasses))
+    lapply(polygonsWithData[ageClass==ageClasses[ageClassIndex]]$V1, function(j) {
       lapply(seq_along(vegLeadingTypes), function(k) {
-        callModule(vegAgeMod, paste0(i, "_", j, "_", k), 
-                   listOfProportions = leading[ageClass==ageClasses[i] & 
+        callModule(vegAgeMod, paste0(ageClassIndex, "_", j, "_", k), 
+                   listOfProportions = leading[ageClass==ageClasses[ageClassIndex] & 
                                                  polygonNum==j & 
                                                  vegType==vegLeadingTypes[k]]$proportion
         )
