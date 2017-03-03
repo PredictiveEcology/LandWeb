@@ -3,6 +3,13 @@ largePatchSizeOptions <- c(500, 1000, 2000)
 largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
+ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
+  if(x < length(ageClassCutOffs)) {
+    paste0(ageClassCutOffs[x],"-",ageClassCutOffs[x+1])
+  } else {
+    paste0(">",ageClassCutOffs[x])
+  }
+})
 experimentReps <- 3 # was 4
 maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
 if(!exists("globalRasters")) globalRasters <- list()

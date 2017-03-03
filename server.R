@@ -109,15 +109,6 @@ function(input, output, session) {
   
   message("  Finished global.R")
 
-  ageClassTextTitle <- h2("NRV of Large Patches")
-  ageClassText <- h4(paste("These figures show the NRV of the number of 'large' patches,",
-                           "by Age Class, Leading Vegetation, and Polygon. "))
-  vegText <- h4(paste("These figures show the NRV of the proportion of each polygon in each Age Class,",
-                      "and Leading Vegetation type.",
-                      "The totals sum to 1 across Leading Vegetation type, within each Age Class."
-                      ))
-  vegTextTitle <- h2("NRV of Vegetation Cover")
-  
   # Large patch size section, i.e., clumps
   observe({
     lapply(ageClasses, function(ageClass) {
@@ -171,8 +162,13 @@ function(input, output, session) {
           )               
         })
         fluidPage(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
+          column(width = 12, h2("NRV of ",strong(tolower(ageClasses[ageClassIndex])), "(",ageClassZones[ageClassIndex],"years )",
+                                " forest, by leading vegetation")),
+          column(width = 12, h4(paste("These figures show the NRV of the proportion of",strong(tolower(ageClasses[ageClassIndex])),
+                                      "forests each polygon that are in each leading vegetation type, as labeled in the plots.",
+                                      "The proportions are proportions",em("within"),"age class. In any given",
+                                      "replicate, the numbers below sum to 1."
+          ))),
           do.call(tabsetPanel, myTabs)
         )
       })

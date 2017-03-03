@@ -7,13 +7,15 @@ vegAgeModUI <- function(id, vegLeadingTypes) {
   ns <- NS(id)
   
   ids <- strsplit(id, split = "_")[[1]]
-  i <- as.numeric(ids[1])
-  j <- as.numeric(ids[2])
-  k <- as.numeric(ids[3])
+  ageClassIndex <- as.numeric(ids[1])
+  polygonIndex <- as.numeric(ids[2])
+  vegTypeIndex <- as.numeric(ids[3])
   tagList(
     box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
-        title = paste0(ageClasses[i],", ", vegLeadingTypes[k], ", in Ecodistrict ", 
-                       ecodistricts$ECODISTRIC[j]),
+        title = paste0(#ageClasses[ageClassIndex],", ", 
+                       vegLeadingTypes[vegTypeIndex]#, ", in Ecodistrict ", 
+                       #ecodistricts$ECODISTRIC[polygonIndex]
+                       ),
         plotOutput(ns("g"), height = 300)
     )
   )
@@ -64,15 +66,15 @@ clumpMod <- function(input, output, session, Clumps, id, ageClasses, vegLeadingT
     
     a <- Clumps()
     ids <- strsplit(id, split = "_")[[1]]
-    i <- as.numeric(ids[1])
-    j <- as.numeric(ids[2])
-    k <- as.numeric(ids[3])
+    ageClassIndex <- as.numeric(ids[1])
+    polygonIndex <- as.numeric(ids[2])
+    vegTypeIndex <- as.numeric(ids[3])
     
-    # i is age
-    # j is polygon index
-    # k is Veg type
-    forHistDT <- a[ageClass==ageClasses[i] & vegCover==vegLeadingTypes[k] & polygonID==j]
-    maxNumClusters <- a[ageClass==ageClasses[i] & polygonID==j, .N, by = c("vegCover")]$N + 1
+    # ageClassIndex is age
+    # polygonIndex is polygon index
+    # vegTypeIndex is Veg type
+    forHistDT <- a[ageClass==ageClasses[ageClassIndex] & vegCover==vegLeadingTypes[vegTypeIndex] & polygonID==polygonIndex]
+    maxNumClusters <- a[ageClass==ageClasses[ageClassIndex] & polygonID==polygonIndex, .N, by = c("vegCover")]$N + 1
     maxNumClusters <- if(length(maxNumClusters)==0) 6 else pmax(6, max(maxNumClusters))
     forHist <- rep(0, numReps)
     if(NROW(forHistDT)) {
@@ -96,6 +98,7 @@ clumpMod <- function(input, output, session, Clumps, id, ageClasses, vegLeadingT
     
     actualPlot
   })
+  
 }
 
 clumpModOutput <- function(id, vegLeadingTypes) {
@@ -103,14 +106,14 @@ clumpModOutput <- function(id, vegLeadingTypes) {
   ns <- NS(id)
   
   ids <- strsplit(id, split = "_")[[1]]
-  i <- as.numeric(ids[1])
-  j <- as.numeric(ids[2])
-  k <- as.numeric(ids[3])
+  ageClassIndex <- as.numeric(ids[1])
+  polygonIndex <- as.numeric(ids[2])
+  vegTypeIndex <- as.numeric(ids[3])
   #tagList(
   box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
-      title = paste0(#ageClasses[i],", ", 
-                     vegLeadingTypes[k]),#", in ", availablePolygonAdjective[1], 
-                     #" ",ecodistricts$ECODISTRIC[j]),
+      title = paste0(#ageClasses[ageClassIndex],", ", 
+                     vegLeadingTypes[vegTypeIndex]),#", in ", availablePolygonAdjective[1], 
+                     #" ",ecodistricts$ECODISTRIC[polygonIndex]),
       plotOutput(ns("h"), height = 300)
   )
   

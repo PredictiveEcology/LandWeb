@@ -27,7 +27,7 @@ dashboardPage(skin = "green",
                menuSubItem("Mature", tabName = "ClumpsMature", icon = icon("tree")),
                menuSubItem("Old", tabName = "ClumpsOld", icon = icon("tree"))),
       menuItem("Proportion Area in Age Class By Cover", icon = icon("bar-chart"),
-               menuSubItem("Young Forest", tabName = "Young", icon = icon("tree")),
+               menuSubItem("Young Forest", tabName = "Young", icon = icon("tree"), selected = FALSE),
                menuSubItem("Immature Forest", tabName = "Immature", icon = icon("tree")),
                menuSubItem("Mature Forest", tabName = "Mature", icon = icon("tree")),
                menuSubItem("Old Forest", tabName = "Old", icon = icon("tree"))),
@@ -87,15 +87,14 @@ dashboardPage(skin = "green",
       tabItem("Young",
               fluidRow(uiOutput("YoungUI"))
       ),
+      tabItem("Immature",
+              fluidRow(uiOutput("ImmatureUI"))
+      ),
       tabItem("Mature",
               fluidRow(uiOutput("MatureUI"))
       ),
       tabItem("Old",
               fluidRow(uiOutput("OldUI"))
-      ),
-      
-      tabItem("Immature",
-              fluidRow(uiOutput("ImmatureUI"))
       ),
       tabItem("inputTables",
               fluidRow(
