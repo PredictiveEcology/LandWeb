@@ -142,27 +142,27 @@ LandWebOutputAllEvents <- function(sim) {
   levels(vegTypeMap) <- as.data.frame(attritable)
   projection(vegTypeMap) <- projection(sim$pixelGroupMap)
   sim$vegTypeMap <- vegTypeMap
-  oldSeral <- raster(seralStageMap)
-  seralStageTable <- data.table(seralStageTable)
-  oldSeralClass <- unique(SAPixelTable[,.(seralStage, Classification)], by = "seralStage")[seralStage == seralStageTable[SA == max(seralStageTable$SA),]$seralName,]$Classification
-  if(length(oldSeralClass) == 0){
-    sim$oldBigPatch <- oldSeral
-  } else {
-    oldSeral[Which(seralStageMap==oldSeralClass, cell = TRUE)] <- 1
-    oldSeral[Which(seralStageMap==3, cell = TRUE)] <- 1
-    oldPatchs <- clump(oldSeral, directions = 8)
-    freqTable <- data.table(freq(oldPatchs))[!is.na(value),][, area:=count*(res(oldPatchs)[1]^2)/10000]
-    targetPatchs <- freqTable[area >= patchSize,][,newValue:=as.numeric(as.factor(value))]
-    oldBigPatch <- raster(seralStageMap)
-    if(nrow(targetPatchs)==0){
-      sim$oldBigPatch <- oldBigPatch
-    } else {
-      for(i in 1:nrow(targetPatchs)){
-      oldBigPatch[Which(oldPatchs==targetPatchs$value[i], cell = TRUE)] <- targetPatchs$newValue[i]
-      }
-      sim$oldBigPatch <- oldBigPatch
-    }
-  }
+  # oldSeral <- raster(seralStageMap)
+  # seralStageTable <- data.table(seralStageTable)
+  # oldSeralClass <- unique(SAPixelTable[,.(seralStage, Classification)], by = "seralStage")[seralStage == seralStageTable[SA == max(seralStageTable$SA),]$seralName,]$Classification
+  # if(length(oldSeralClass) == 0){
+  #   sim$oldBigPatch <- oldSeral
+  # } else {
+  #   oldSeral[Which(seralStageMap==oldSeralClass, cell = TRUE)] <- 1
+  #   oldSeral[Which(seralStageMap==3, cell = TRUE)] <- 1
+  #   oldPatchs <- clump(oldSeral, directions = 8)
+  #   freqTable <- data.table(freq(oldPatchs))[!is.na(value),][, area:=count*(res(oldPatchs)[1]^2)/10000]
+  #   targetPatchs <- freqTable[area >= patchSize,][,newValue:=as.numeric(as.factor(value))]
+  #   oldBigPatch <- raster(seralStageMap)
+  #   if(nrow(targetPatchs)==0){
+  #     sim$oldBigPatch <- oldBigPatch
+  #   } else {
+  #     for(i in 1:nrow(targetPatchs)){
+  #     oldBigPatch[Which(oldPatchs==targetPatchs$value[i], cell = TRUE)] <- targetPatchs$newValue[i]
+  #     }
+  #     sim$oldBigPatch <- oldBigPatch
+  #   }
+  # }
 # ! ----- STOP EDITING ----- ! #
 return(invisible(sim))
 }
