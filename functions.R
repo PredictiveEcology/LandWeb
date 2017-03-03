@@ -38,7 +38,7 @@ ggvisFireReturnInterval <- function(shpStudyRegion, shpStudyRegionFull) {
 #'         each given age class within each polygon
 leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
                            polygonToSummarizeBy, 
-                           ageCutoffs = c(0, 40, 80, 120),  ageClasses, cl) {
+                           ageCutoffs = ageClassCutOffs,  ageClasses, cl) {
   if (missing(cl)) {
     lapplyFn <- "lapply" 
   } else {
@@ -156,7 +156,7 @@ cellNumbersForPolygon <- function(dummyRaster, Polygon) {
 #' @return A matrix with counts of number of large patches
 largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
                            polygonToSummarizeBy, cl, 
-                           ageCutoffs = c(0, 40, 80, 120), 
+                           ageCutoffs = ageClassCutOffs, 
                            ageClasses, notOlderThan = Sys.time() - 1e7) {
 
 #  withProgress(message = 'Calculation in progress',

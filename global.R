@@ -2,6 +2,7 @@
 largePatchSizeOptions <- c(500, 1000, 2000)
 largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
+ageClassCutOffs <- c(0, 40, 80, 120)
 experimentReps <- 3 # was 4
 maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
 if(!exists("globalRasters")) globalRasters <- list()
@@ -38,10 +39,13 @@ if(FALSE) { # THese are all "dangerous" for development only...
   # in the sense that they should never be run inadvertently
   # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
   SpaDES::clearCache(cacheRepo = "appCache")
+  SpaDES::clearCache(cacheRepo = "appCacheSMALL")
   SpaDES::clearCache(cacheRepo = "appCache/studyRegion/")
   rm(mySim)
   rm(cl)
   file.remove(dir("outputs", recursive = TRUE, full.names = TRUE))
+  file.remove(dir("outputsSMALL", recursive = TRUE, full.names = TRUE))
+  file.remove(dir("outputsMEDIUM", recursive = TRUE, full.names = TRUE))
   file.remove("mySimDigestSaved.rds", "mySimSaved.rds")
 }
 
