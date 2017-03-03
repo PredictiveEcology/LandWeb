@@ -99,7 +99,8 @@ function(input, output, session) {
 
   polygonsWithData <- leading[,unique(polygonNum[!is.na(proportion)]),by=ageClass]
   
-  vegLeadingTypes <- c(unique(leading$vegType), "All species")
+  vegLeadingTypes <- c(unique(leading$vegType))
+  vegLeadingTypesWithAllSpecies <- c(vegLeadingTypes, "All species")
   
   message("  Finished global.R")
 
@@ -123,9 +124,9 @@ function(input, output, session) {
           tabPanel(paste(availablePolygonAdjective,ecodistricts$ECODISTRIC[polygonID]), 
                    tabName = paste0("Poly",ageClass,polygonID),
                    fluidRow(
-                     lapply(seq_along(vegLeadingTypes), function(k) {
+                     lapply(seq_along(vegLeadingTypesWithAllSpecies), function(k) {
                        clumpModOutput(paste0(i, "_", polygonID, "_", k, "_clumps"),
-                                      vegLeadingTypes = vegLeadingTypes)
+                                      vegLeadingTypes = vegLeadingTypesWithAllSpecies)
                      })
                    )
           )               
@@ -138,173 +139,33 @@ function(input, output, session) {
       })
     })
   })
-      
-  
-  output$YoungUI <- renderUI({
-    tabBox(width = 12,
-      tabPanel("Young, Deciduous", tabName = "Young_Deciduous",
-        fluidRow(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
-          lapply(pmatch("Young", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Young, Spruce", tabName = "Young_Spruce",
-        fluidRow(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
-          lapply(pmatch("Young", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Young, Mixed", tabName = "Young_Mixed",
-        fluidRow(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
-          lapply(pmatch("Young", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      )
-    )
-  })
 
-  output$ImmatureUI <- renderUI({
-    tabBox(width = 12,
-      tabPanel("Immature, Deciduous", tabName = "Immature_Deciduous",
-        fluidRow(
+  observe({
+    lapply(ageClasses, function(ageClass) {
+      output[[paste0(ageClass,"UI")]] <- renderUI({
+        i <- pmatch(ageClass, ageClasses)
+        polygonIDs <- seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1]
+        
+        myTabs <- lapply(polygonIDs, function(polygonID) {
+          tabPanel(paste(availablePolygonAdjective,ecodistricts$ECODISTRIC[polygonID]), 
+                   tabName = paste0("Poly",ageClass,polygonID),
+                   fluidRow(
+                     lapply(seq_along(vegLeadingTypes), function(k) {
+                       vegAgeModUI(paste0(i, "_", polygonID, "_", k),
+                                   vegLeadingTypes = vegLeadingTypes)
+                     })
+                   )
+          )               
+        })
+        fluidPage(
           column(width = 12, vegTextTitle),
           column(width = 12, vegText),
-          lapply(pmatch("Immature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
+          do.call(tabsetPanel, myTabs)
         )
-      ),
-      tabPanel("Immature, Spruce", tabName = "Immature_Spruce",
-        fluidRow(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
-          lapply(pmatch("Immature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Immature, Mixed", tabName = "Immature_Mixed",
-        fluidRow(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
-          lapply(pmatch("Immature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      )
-    )
+      })
+    })
   })
   
-  output$MatureUI <- renderUI({
-    tabBox(width = 12,
-      tabPanel("Mature, Deciduous", tabName = "Mature_Deciduous",
-        fluidRow(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
-          lapply(pmatch("Mature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Mature, Spruce", tabName = "Mature_Spruce",
-        fluidRow(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
-          lapply(pmatch("Mature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Mature, Mixed", tabName = "Mature_Mixed",
-        fluidRow(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
-          lapply(pmatch("Mature", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      )
-    )
-  })
-  
-  output$OldUI <- renderUI({
-    tabBox(width = 12,
-      tabPanel("Old, Deciduous", tabName = "Old_Deciduous",
-        fluidRow(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
-          lapply(pmatch("Old", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Deciduous", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Old, Spruce", tabName = "Old_Spruce",
-        fluidRow(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
-          lapply(pmatch("Old", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Spruce", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      ),
-      tabPanel("Old, Mixed", tabName = "Old_Mixed",
-        fluidRow(
-          column(width = 12, vegTextTitle),
-          column(width = 12, vegText),
-          lapply(pmatch("Old", ageClasses), function(i) {
-            lapply(seq_along(ecodistricts)[polygonsWithData[ageClass==ageClasses[i]]$V1], function(j) {
-              vegAgeModUI(paste0(i, "_", j, "_", pmatch("Mixed", vegLeadingTypes)),
-                          vegLeadingTypes = vegLeadingTypes)
-            })
-          })
-        )
-      )
-    )
-  })
-  
-  #patchSizeReact <- reactive({input$PatchSize33})
   
   currentPolygon <- callModule(leafletMap, "leafletMap")
   # returns a number 1 or 2 ... up to number of unique polygons in dataset
@@ -331,25 +192,14 @@ function(input, output, session) {
   args <- args[!unlist(lapply(args, is.null))]
   Clumps <- do.call(callModule, args )
   
-  # Clumps <- callModule(clumpMod2, "id1", 
-  #                      #currentPolygon = polygons[[reactive({currentPolygon()})+6]], 
-  #                      currentPolygon = polygons[[1 + 2]], 
-  #                      tsf = tsf, vtm = vtm,
-  #                      #polygonNames = ecodistricts$ECODISTRIC, 
-  #                      cl = cl, 
-  #                      ageClasses = ageClasses, cacheRepo = paths$cachePath,
-  #                      patchSize = reactive({input$patchSize33}),
-  #                      largePatchesFn = largePatchesFn
-  #                      )
-  # 
   lapply(seq_along(ageClasses), function(i) { # i is age
     lapply(polygonsWithData[ageClass==ageClasses[i]]$V1, function(j) { # j is polygon index
-      lapply(seq_along(vegLeadingTypes), function(k) { # k is Veg type
+      lapply(seq_along(vegLeadingTypesWithAllSpecies), function(k) { # k is Veg type
         callModule(clumpMod, paste0(i, "_", j, "_", k, "_clumps"),
                    Clumps = reactive({Clumps()}),
                    id = paste0(i, "_", j, "_", k, "_clumps"),
                    ageClasses = ageClasses,
-                   vegLeadingTypes = vegLeadingTypes,
+                   vegLeadingTypes = vegLeadingTypesWithAllSpecies,
                    numReps = lenTSF
         )  
       })
