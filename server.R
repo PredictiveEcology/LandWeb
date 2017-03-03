@@ -43,21 +43,26 @@ function(input, output, session) {
   # )
   message("  Finished Experiment")
   
-  rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
-    grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
+  filesFromOutputs <- lapply(seq_along(mySimOut), function(x) {
+    outputs(mySimOut[[x]])$file
   })
   
  # browser()
-  if(any(!file.exists(unlist(rastersFromOutputs)))) {
-    rastersFromOutputs2 <- 
-      lapply(rastersFromOutputs, function(ras) {
-        unlist(lapply(strsplit(ras, split = outputPath(mySimOut[[1]])), 
-                    function(x) file.path(paths$outputPath, gsub(x[[2]], pattern = "^/", replacement = ""))))})
+  if(any(!file.exists(unlist(filesFromOutputs)))) {
     for(simNum in seq_along(mySimOut)) {
-      mySimOut[[simNum]]@outputs$file[outputs(mySimOut[[simNum]])$file %in% rastersFromOutputs[[simNum]] ] <- 
-        rastersFromOutputs2[[simNum]]
+      mySimOut[[simNum]]@outputs$file <- 
+      
+        lapply(strsplit(outputs(mySimOut[[simNum]])$file, split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")), function(f) {
+          f[[2]]
+        }) %>%
+          unlist() %>%
+          file.path(paths$outputPath, .)
     }
   }
+  
+  rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
+    grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
+  })
   
   rastersFromOutputs <- unlist(rastersFromOutputs)
   tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
