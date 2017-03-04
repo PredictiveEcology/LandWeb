@@ -160,7 +160,7 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
   Clumps <- reactive({
     patchSize <- as.integer(input$PatchSize33)
   
-    message(paste("Running largePatchesFn for patch size:", patchSize))
+    message(paste("Running largePatchesFn"))
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
                    args <- list(largePatchesFn, timeSinceFireFiles = tsf,
@@ -173,7 +173,7 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                    largePatches <- do.call(Cache, args)
                    setProgress(1)
                  })
-    message(paste("  Finished largePatchesFn for patch size:", patchSize))
+    message(paste("  Finished largePatchesFn"))
     
     return(list(Clumps=largePatches[sizeInHa>patchSize], patchSize = patchSize))
   })
