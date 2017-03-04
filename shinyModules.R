@@ -1,7 +1,3 @@
-
-
-######################################################################################################
-######################################################################################################
 ## Module for plotting histograms of leading vegetation type
 vegAgeModUI <- function(id, vegLeadingTypes) {
   ns <- NS(id)
@@ -12,23 +8,20 @@ vegAgeModUI <- function(id, vegLeadingTypes) {
   vegTypeIndex <- as.numeric(ids[3])
   tagList(
     box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
-        title = paste0(#ageClasses[ageClassIndex],", ", 
-                       vegLeadingTypes[vegTypeIndex]#, ", in Ecodistrict ", 
-                       #ecodistricts$ECODISTRIC[polygonIndex]
-                       ),
-        plotOutput(ns("g"), height = 300)
+        title = paste0(vegLeadingTypes[vegTypeIndex]),
+        plotOutput(ns("propCoverHists"), height = 300)
     )
   )
 } 
 
 vegAgeMod <- function(input, output, session, listOfProportions, indivPolygonIndex, 
-                      #polygonLayer, 
                       vegLeadingType) {
   
-  output$g <- renderPlot(height = 300, {
-    withProgress(message = 'Calculation in progress',
-                 detail = 'This may take a while...', value = 0, {
-                   actualPlot <- 
+  output$propCoverHists <- renderPlot(height = 300, {
+    if(useGGplot) {
+      #withProgress(message = 'Calculation in progress',
+      #             detail = 'This may take a while...', value = 0, {
+      actualPlot <- 
                      ggplot(data = data.frame(x = listOfProportions),
                             aes(x = x)) +
                      #stat_bin(bins = 30) +
@@ -40,20 +33,26 @@ vegAgeMod <- function(input, output, session, listOfProportions, indivPolygonInd
                      theme_bw() +
                      theme(text = element_text(size = 16)) +
                      ylab("Proportion in NRV")
-                   
-                   # If want base plot histogram -- faster
-                   # actualPlot <- 
-                   #    try(hist(unlist(lapply(listOfProportions, function(x) x[indivPolygonIndex, "Deciduous leading"])), 
+       #             setProgress(1)
+      #            })
+     actualPlot
+    } else {
+      #browser()
+      breaks <- 0:11/10 - 0.05
+      actualPlot <- hist(listOfProportions, plot = FALSE, breaks = breaks)
+      barplot(actualPlot$counts/sum(actualPlot$counts), xlim = range(breaks), xlab="", ylab = "Proportion in NRV",
+           col="darkgrey",border="grey", main = "", width = 0.1, space = 0, axes = TRUE)
+      axis(1)
+                   # actualPlot <-
+                   #    try(hist(unlist(lapply(listOfProportions, function(x) x[indivPolygonIndex, "Deciduous leading"])),
                    #             plot = FALSE))
-                   #if(!(is(actualPlot, "try-error")))
+                   # if(!(is(actualPlot, "try-error")))
                    #   actualPlot
-                   #Plot(actualPlot, new = TRUE, visualSqueeze = 1, gpText = gpar(fontsize = 16), 
-                   #      title = "", 
+                   # Plot(actualPlot, new = TRUE, visualSqueeze = 1, gpText = gpar(fontsize = 16),
+                   #      title = "",
                    #      addTo = paste0("actualPlot_dist",polygonLayer$ECODISTRIC[indivPolygonIndex]))
+    }
                    
-                   setProgress(1)
-                 })
-    actualPlot
   })
 }
 
@@ -70,50 +69,62 @@ clumpMod <- function(input, output, session, Clumps, id, ageClasses, vegLeadingT
     polygonIndex <- as.numeric(ids[2])
     vegTypeIndex <- as.numeric(ids[3])
     
-    # ageClassIndex is age
-    # polygonIndex is polygon index
-    # vegTypeIndex is Veg type
     forHistDT <- a[ageClass==ageClasses[ageClassIndex] & vegCover==vegLeadingTypes[vegTypeIndex] & polygonID==polygonIndex]
-    maxNumClusters <- a[ageClass==ageClasses[ageClassIndex] & polygonID==polygonIndex, .N, by = c("vegCover")]$N + 1
+    maxNumClusters <- a[ageClass==ageClasses[ageClassIndex] & polygonID==polygonIndex, .N, by = c("vegCover","rep")]$N + 1
     maxNumClusters <- if(length(maxNumClusters)==0) 6 else pmax(6, max(maxNumClusters))
     forHist <- rep(0, numReps)
+    #browser()
     if(NROW(forHistDT)) {
-      forHist[unique(forHistDT$polygonID)] <- forHistDT[,.N]
+      #browser()
+      numByRep <- forHistDT[,.N,by="rep"]
+      forHist[seq_len(NROW(numByRep))] <- numByRep$N
     }
-    withProgress(message = 'Calculation in progress',
-                 detail = 'This may take a while...', value = 0, {
-                   actualPlot <- ggplot(data = data.frame(x = forHist), aes(x = x)) + 
-                     stat_bin(aes(y=..density..),#bins = max(6, max(a)+2), 
-                              fill="grey", colour="darkgrey", size = 1,
-                              binwidth = 1) + 
-                     xlab("") + #xlab("Proportion of polygon") + 
-                     xlim(-1,maxNumClusters) +
-                     #ggthemes::theme_fivethirtyeight() +
-                     #ggthemes::scale_color_fivethirtyeight() +
-                     theme_bw() + 
-                     theme(text = element_text(size = 16)) + 
-                     ylab("Proportion in NRV")
-                   setProgress(1)
-                 })
-    
-    actualPlot
+    if(useGGplot) {
+      
+      withProgress(message = 'Calculation in progress',
+                   detail = 'This may take a while...', value = 0, {
+                     actualPlot <- ggplot(data = data.frame(x = forHist), aes(x = x)) + 
+                       stat_bin(aes(y=..density..),#bins = max(6, max(a)+2), 
+                                fill="grey", colour="darkgrey", size = 1,
+                                binwidth = 1) + 
+                       xlab("") + #xlab("Proportion of polygon") + 
+                       xlim(-1,maxNumClusters) +
+                       #ggthemes::theme_fivethirtyeight() +
+                       #ggthemes::scale_color_fivethirtyeight() +
+                       theme_bw() + 
+                       theme(text = element_text(size = 16)) + 
+                       ylab("Proportion in NRV")
+                     setProgress(1)
+                   })
+      
+      actualPlot
+    } else {
+      breaksLabels <- 0:(maxNumClusters)
+      breaks <- breaksLabels - 0.5
+      barplotBreaks <- breaksLabels + 0.5
+      
+      actualPlot <- hist(forHist, #plot = FALSE, 
+                         breaks = breaks)
+      barplot(actualPlot$counts/sum(actualPlot$counts), 
+              xlim = range(breaks),#c(0,maxNumClusters), 
+              xlab="", ylab = "Proportion in NRV",
+              col="darkgrey",border="grey", main = "", width = rep(1, length(forHist)), space = 0)
+      axis(1, at = barplotBreaks, labels = breaksLabels)
+      
+    }
   })
   
 }
 
 clumpModOutput <- function(id, vegLeadingTypes) {
-  #decidOldModUI <- function(id) {
   ns <- NS(id)
   
   ids <- strsplit(id, split = "_")[[1]]
   ageClassIndex <- as.numeric(ids[1])
   polygonIndex <- as.numeric(ids[2])
   vegTypeIndex <- as.numeric(ids[3])
-  #tagList(
   box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
-      title = paste0(#ageClasses[ageClassIndex],", ", 
-                     vegLeadingTypes[vegTypeIndex]),#", in ", availablePolygonAdjective[1], 
-                     #" ",ecodistricts$ECODISTRIC[polygonIndex]),
+      title = paste0(vegLeadingTypes[vegTypeIndex]),
       plotOutput(ns("h"), height = 300)
   )
   
@@ -141,18 +152,9 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                       cacheRepo = paths$cachePath,
                       id, indivPolygonIndex,
                       largePatchesFn) {
-  lastOne <- FALSE
   Clumps <- reactive({
-    # Pre-run all patch sizes automatically.
-     #if (largePatchesFnLoop < (length(largePatchSizeOptions) )) {
-    #   invalidateLater(50)
-    #   largePatchesFnLoop <<- largePatchesFnLoop + 1
-    #   patchSize <- as.integer(largePatchSizeOptions[largePatchesFnLoop])
-    # } else {
-       patchSize <- as.integer(input$PatchSize33)
-       lastOne <<- TRUE
-    # }
-    
+    patchSize <- as.integer(input$PatchSize33)
+  
     message(paste("Running largePatchesFn for patch size:", patchSize))
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
@@ -167,13 +169,6 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                    setProgress(1)
                  })
     message(paste("  Finished largePatchesFn for patch size:", patchSize))
-    
-    
-    if(lastOne) {
-      updateTabItems(session = session, 
-                     inputId = "wholeThing", 
-                     selected = "TimeSinceFire")
-    }
     
     return(list(Clumps=largePatches[sizeInHa>patchSize], patchSize = patchSize))
   })
@@ -238,20 +233,19 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     ras1 <- rasterInput()
     pol <- polygons[[(length(polygons)/4)*4]]
     leafZoom <- if(is.null(input$timeSinceFire1_zoom)) 7 else input$timeSinceFire1_zoom
-    a <- leaflet() %>% addTiles(group = "OSM (default)") %>%
+    leafMap <- leaflet() %>% addTiles(group = "OSM (default)") %>%
       addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
                      colors = timeSinceFirePalette, project = FALSE)  %>%
       addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
       addLegend(position = "bottomright", pal = timeSinceFirePalette, 
                 values = na.omit(ras1[]), title = "Time since fire (years)") %>%
       addLayersControl(options = layersControlOptions(autoZIndex = TRUE)) %>%
-      # setView(-117.8, 58.7, zoom = 7) 
       setView(mean(c(xmin(pol),xmax(pol))), 
               mean(c(ymin(pol),ymax(pol))), 
               zoom = leafZoom
       ) 
     
-    a
+    leafMap
   })
   
   rasterInput <- reactive({
@@ -266,7 +260,6 @@ timeSinceFireModUI <- function(id, tsf) {
   ns <- NS(id)
   tagList(
     box(width = 12, solidHeader = TRUE, collapsible = TRUE, 
-        #title = "Time Since Fire maps",
         h4(paste("Below are a sequence of snapshots of the landscape, showing the natural range of",
                  "variation in time since fire. Click on the 'play' button at the bottom right to animate")),
         leafletOutput(ns("timeSinceFire1"), height = 600),
