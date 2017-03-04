@@ -131,12 +131,12 @@ function(input, output, session) {
         fluidPage(
           column(width = 12, h2("NRV of number of 'large' (",strong(ClumpsReturn()$patchSize," hectares"),"), ",
                                 strong(tolower(ageClasses[ageClassIndex]))," patches")),
-          column(width = 12, h4(paste("These figures show the NRV of the probability distribution",
+          column(width = 12, h4("These figures show the NRV of the probability distribution",
                                       "of ",tolower(ageClasses[ageClassIndex])," patches that are",ClumpsReturn()$patchSize," hectares",
                                       "or larger, for each given combination of Age Class, ",
                                       "Leading Vegetation, and Polygon.",
                                       "To change the patch size that defines these, type a new value",
-                                      "in the menu at the left."))
+                                      "in the menu at the left.")
           ),
           do.call(tabsetPanel, myTabs)
         )
@@ -164,11 +164,11 @@ function(input, output, session) {
         fluidPage(
           column(width = 12, h2("NRV of ",strong(tolower(ageClasses[ageClassIndex])), "(",ageClassZones[ageClassIndex],"years )",
                                 " forest, by leading vegetation")),
-          column(width = 12, h4(paste("These figures show the NRV of the proportion of",strong(tolower(ageClasses[ageClassIndex])),
+          column(width = 12, h4("These figures show the NRV of the proportion of",strong(tolower(ageClasses[ageClassIndex])),
                                       "forests each polygon that are in each leading vegetation type, as labeled in the plots.",
                                       "The proportions are proportions",em("within"),"age class. In any given",
                                       "replicate, the numbers below sum to 1."
-          ))),
+          )),
           do.call(tabsetPanel, myTabs)
         )
       })
