@@ -38,12 +38,17 @@ vegAgeMod <- function(input, output, session, listOfProportions, indivPolygonInd
      actualPlot
     } else {
       #browser()
-      breaks <- 0:11/10 - 0.05
+      
+      breaksLabels <- 0:11/10
+      breaks <- breaksLabels - 0.05
+      barplotBreaks <- breaksLabels + 0.05
+      
       actualPlot <- hist(listOfProportions, plot = FALSE, breaks = breaks)
       barplot(actualPlot$counts/sum(actualPlot$counts), xlim = range(breaks), xlab="", ylab = "Proportion in NRV",
-           col="darkgrey",border="grey", main = "", width = 0.1, space = 0, axes = TRUE)
-      axis(1)
-                   # actualPlot <-
+           col="darkgrey",border="grey", main = "", width = 0.1, space = 0)
+      axis(1, at = barplotBreaks, labels = breaksLabels)
+      
+      # actualPlot <-
                    #    try(hist(unlist(lapply(listOfProportions, function(x) x[indivPolygonIndex, "Deciduous leading"])),
                    #             plot = FALSE))
                    # if(!(is(actualPlot, "try-error")))
