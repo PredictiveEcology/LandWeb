@@ -35,6 +35,7 @@ successionTimestep <- 10 # was 2
 summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(100, endTime)
 
+useGGplot <- FALSE
 ##########
 message("Started at ", Sys.time())
 
