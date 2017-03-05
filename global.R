@@ -82,7 +82,7 @@ if (FALSE) {
                      "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp",
                      "dplyr", "ggplot2", "maptools", "broom", "ggvis", "rgdal", "grid", "VGAM")
   lapply(pkgNamespaces, function(p) if (!require(p, quietly = TRUE, character.only = TRUE)) {
-    install.packages(p, dependencies = TRUE)
+    install.packages(p, dependencies = TRUE, lib="/usr/local/lib/R/site-library")
   })
   if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
   if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
