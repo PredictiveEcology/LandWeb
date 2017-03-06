@@ -98,7 +98,8 @@ if (FALSE) {
 
 ## Make sure SpaDES is up to date
 if (tryCatch(packageVersion("SpaDES") < "1.3.1.9047", error = function(x) TRUE))
-  devtools::install_github("PredictiveEcology/SpaDES@development")  
+#  devtools::install_github("PredictiveEcology/SpaDES@development")  
+devtools::install_github("PredictiveEcology/SpaDES@EliotCacheMultiOS")  
 
 ## Actual loading here -- not as long as the list for shinyapps.io, which fails if only these are 
 ###  provided. But it is not necessary to library all of them for the app
