@@ -100,8 +100,6 @@ function(input, output, session) {
   message("  Finished leadingByStage")
   
   # Large patches
-  SpaDES::checkPath(file.path(paths$cachePath, "scratch"), create = TRUE)
-
   polygonsWithData <- leading[,unique(polygonNum[!is.na(proportion)]),by=ageClass]
   
   vegLeadingTypes <- c(unique(leading$vegType))

@@ -13,11 +13,11 @@ ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
 experimentReps <- 1 # was 4
 maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
 if(!exists("globalRasters")) globalRasters <- list()
-endTime <- 6 # was 4
+endTime <- 8 # was 4
 studyArea <- "LARGE"
 studyArea <- "MEDIUM"
 studyArea <- "SMALL"
-studyArea <- "VERYSMALL"
+#studyArea <- "VERYSMALL"
 successionTimestep <- 10 # was 2
 summaryInterval <- 1#endTime/2 # was 2
 summaryPeriod <- c(2, endTime)
@@ -49,13 +49,16 @@ if(FALSE) { # THese are all "dangerous" for development only...
   # in the sense that they should never be run inadvertently
   # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
   SpaDES::clearCache(cacheRepo = "appCache")
+  SpaDES::clearCache(cacheRepo = "appCacheVERYSMALL")
   SpaDES::clearCache(cacheRepo = "appCacheSMALL")
   SpaDES::clearCache(cacheRepo = "appCacheMEDIUM")
   SpaDES::clearCache(cacheRepo = "appCacheLARGE")
   SpaDES::clearCache(cacheRepo = "appCache/studyRegion/")
+  SpaDES::clearCache(cacheRepo = "appCacheSMALL/studyRegion/")
   rm(mySim)
   rm(cl)
   file.remove(dir("outputs", recursive = TRUE, full.names = TRUE))
+  file.remove(dir("outputsVERYSMALL", recursive = TRUE, full.names = TRUE))
   file.remove(dir("outputsSMALL", recursive = TRUE, full.names = TRUE))
   file.remove(dir("outputsMEDIUM", recursive = TRUE, full.names = TRUE))
   file.remove(dir("outputsLARGE", recursive = TRUE, full.names = TRUE))
