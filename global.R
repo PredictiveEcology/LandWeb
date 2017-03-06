@@ -17,6 +17,7 @@ endTime <- 6 # was 4
 studyArea <- "LARGE"
 studyArea <- "MEDIUM"
 studyArea <- "SMALL"
+studyArea <- "VERYSMALL"
 successionTimestep <- 10 # was 2
 summaryInterval <- 1#endTime/2 # was 2
 summaryPeriod <- c(2, endTime)

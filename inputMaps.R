@@ -22,6 +22,8 @@ crsKNNMaps <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0
 set.seed(853839)#set.seed(5567913)
 if (studyArea == "SMALL") {
   areaKm2 <- 10000#700000#2000#600000#too big for laptop
+} else if (studyArea == "VERYSMALL") {
+  areaKm2 <- 1000 #700000#2000#600000#too big for laptop
 } else if (studyArea == "MEDIUM") {
   areaKm2 <- 40000 #700000#2000#600000#too big for laptop
 } else if (studyArea == "LARGE") {
