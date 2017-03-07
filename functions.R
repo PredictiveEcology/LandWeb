@@ -224,7 +224,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
       names(out1) <- yearNames
       outDT <- rbindlist(lapply(seq_along(out1), function(y) {
           a <- rbindlist(lapply(seq_along(out1[[y]]), function(x) out1[[y]][[x]][,vegCover:=names(out1[[y]])[x]]))
-          suppressWarnings(a[,rep:=names(out1)[y]])
+          a[,rep:=names(out1)[y]]
         }))
     }
     )
