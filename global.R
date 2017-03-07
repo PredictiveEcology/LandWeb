@@ -217,6 +217,8 @@ if (needMySim) {
   saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
 } 
 
+rm(objects)
+
 if (maxNumClusters > 0) {
   if (!exists("cl")) {
     library(parallel)

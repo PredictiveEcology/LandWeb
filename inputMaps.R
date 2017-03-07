@@ -4,7 +4,7 @@
 
 ####
 
-CanadaMap <- readRDS(file.path(paths$inputPath, "CanadaMap.rds"))
+#CanadaMap <- readRDS(file.path(paths$inputPath, "CanadaMap.rds"))
 landisInputs <- readRDS(file.path(paths$inputPath, "landisInputs.rds"))
 spEcoReg <- readRDS(file.path(paths$inputPath, "SpEcoReg.rds"))
 
@@ -74,7 +74,7 @@ ecodistrictsFull <- Cache(shapefile, file.path(paths$modulePath,"LW_LBMRDataPrep
                           cacheRepo = paths$cachePath)
 shpStudyRegionEco <- spTransform(shpStudyRegion, crs(ecodistricts))
 ecodistrictsStudyRegion <- Cache(crop, ecodistricts, shpStudyRegionEco, cacheRepo = paths$cachePath)
-ecodistrictsCan <- spTransform(ecodistrictsStudyRegion, crs(CanadaMap))
+#ecodistrictsCan <- spTransform(ecodistrictsStudyRegion, crs(CanadaMap))
 ecodistricts <- spTransform(ecodistrictsStudyRegion, crs(shpStudyRegion))
 
 lflt <- "+init=epsg:4326"
@@ -85,7 +85,6 @@ ecodistrictsFullLFLT <- spTransform(ecodistrictsFull, sp::CRS(lflt))
 #AlbertaFMUDemoLFLT <- spTransform(AlbertaFMU, sp::CRS(lflt))
 #AlbertaFMUFullLFLT <- spTransform(AlbertaFMUFull, sp::CRS(lflt))
 ecodistrictsDemo <- ecodistricts
-ecodistrictsFull <- ecodistrictsFull
 #AlbertaFMUDemo <- AlbertaFMU
 #AlbertaFMUFull <- AlbertaFMUFull
 
@@ -104,6 +103,9 @@ available <- data.frame(stringsAsFactors = FALSE,
 polygons <- lapply(seq_len(NROW(available)), function(ii) {
   get(paste0(available$polygons[ii], available$scales[ii], available$projections[ii]))}) %>%
   setNames(available$names)
+
+rm(ecodistrictsFull)
+rm(ecodistrictsFullLFLT)
 
 polygonColours <- c(rep(c("red", "blue"), 2))
 polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3]))
