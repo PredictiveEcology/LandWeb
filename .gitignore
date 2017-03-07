@@ -9,3 +9,5 @@ R-Portable/
 ShinyApp.log
 
 rsconnect/shinyapps\.io/landweb/LandWebDemo\.dcf
+
+*.log

@@ -104,6 +104,7 @@ if(FALSE) {
   library(devtools)
   library(withr);
   with_libpaths(new = "/usr/local/lib/R/site-library/", install_github("PredictiveEcology/SpaDES@EliotCacheMultiOS"))
+  with_libpaths(new = "R-Portable/App/R-Portable/library/", install_github("PredictiveEcology/SpaDES@EliotCacheMultiOS"))
 }
 
 ## Actual loading here -- not as long as the list for shinyapps.io, which fails if only these are 
