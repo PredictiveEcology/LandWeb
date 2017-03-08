@@ -139,12 +139,11 @@ setwd(curDir)
 
 
 ## Create mySim
-if(!dir.exists("appCache")) dir.create("appCache")
 paths <- list(
-  cachePath = file.path("appCache", studyArea),
+  cachePath = paste0("appCache", studyArea),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
-  outputPath = file.path("outputs", studyArea)
+  outputPath = paste0("outputs", studyArea)
 )
 
 source("inputMaps.R")
