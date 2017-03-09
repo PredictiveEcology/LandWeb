@@ -48,7 +48,7 @@ function(input, output, session) {
   })
   
  # browser()
-  if(any(!file.exists(unlist(filesFromOutputs)))) {
+  #if(any(!file.exists(unlist(filesFromOutputs)))) {
     for(simNum in seq_along(mySimOut)) {
       mySimOut[[simNum]]@outputs$file <- 
       
@@ -58,7 +58,7 @@ function(input, output, session) {
           unlist() %>%
           file.path(paths$outputPath, .)
     }
-  }
+  #}
   
   rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
     grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
