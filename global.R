@@ -13,14 +13,14 @@ ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
 experimentReps <- 1 # was 4
 maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
 if(!exists("globalRasters")) globalRasters <- list()
-endTime <- 400 # was 4
+endTime <- 800 # was 4
 studyArea <- "LARGE"
 studyArea <- "MEDIUM"
-studyArea <- "SMALL"
+#studyArea <- "SMALL"
 #studyArea <- "VERYSMALL"
 successionTimestep <- 10 # was 2
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(200, endTime)
+summaryPeriod <- c(600, endTime)
 
 
 useGGplot <- FALSE
