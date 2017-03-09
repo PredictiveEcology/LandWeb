@@ -254,7 +254,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
   })
   
   rasterInput <- reactive({
-    r <- rasts[[input$timeSinceFire1Slider]]
+    r <- rasts[[input$timeSinceFire1Slider/10+1]] # slider units are 10, starting at 0; index here is 1 to length (tsf)
     if (ncell(r) > 2e5)
       r <- sampleRegular(r, size = 2e5, asRaster = TRUE)
     r
@@ -270,7 +270,7 @@ timeSinceFireModUI <- function(id, tsf) {
         leafletOutput(ns("timeSinceFire1"), height = 600),
         sliderInput(ns("timeSinceFire1Slider"), 
                     "Individual snapshots of time since fire maps. Use play button (bottom right) to animate.", 
-                    min = 1, max = length(tsf), value = 1, step = 1, 
+                    min = 0, max = (length(tsf)-1)*10, value = 0, step = 10, 
                     animate = animationOptions(interval = 2500, loop = TRUE))
     )
   )
