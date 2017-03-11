@@ -51,6 +51,9 @@ defineModule(sim, list(
     expectsInput(objectName = "shpStudyRegionFull", objectClass = "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: Full study areawith fire return interval attribute", 
                  sourceURL = ""), # i guess this is study area and fire return interval
+    expectsInput(objectName = "rstStudyRegion", objectClass = "RasterLayer",
+                 desc = "this shape file contains two informaton: Full study areawith fire return interval attribute", 
+                 sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput(objectName = "studyArea", objectClass = "SpatialPolygons", 
                  desc = "study area specific for landweb project, should be provided by Dave", 
                  sourceURL = NA)
@@ -125,16 +128,23 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   
   sim <- cachedFunctions(sim)
   
+  rstStudyRegionBinary <- raster(sim$rstStudyRegion)
+  rstStudyRegionBinary[] <- NA
+  rstStudyRegionBinary[!is.na(sim$rstStudyRegion[])] <- 1
+  
   initialCommFiles <- sim$initialCommunityProducerCached(speciesLayers = sim$specieslayers, 
                                                          speciesPresence = 50,
-                                                         studyArea = sim$studyArea)
+                                                         studyArea = sim$studyArea,
+                                                         rstStudyArea = rstStudyRegionBinary)
   ecoregionstatus <- data.table(active = "yes",
                                 ecoregion = 1:1031)
   ecoregionFiles <- sim$ecoregionProducerCached(studyAreaRaster = initialCommFiles$initialCommunityMap,
                                                 ecoregionMapFull = sim$ecoDistrict,
                                                 ecoregionName = "ECODISTRIC",
                                                 ecoregionActiveStatus = ecoregionstatus,
-                                                studyArea = sim$studyArea)
+                                                studyArea = sim$studyArea,
+                                                rstStudyArea = rstStudyRegionBinary,
+                                                maskFn = sim$fastMask)
   
   
   activeStatusTable <- data.table(active = c(rep("yes", 15), rep("no", 25)),
@@ -171,7 +181,8 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                                          ecoregionMap = simulationMaps$ecoregionMap,
                                                                          biggerEcoArea = sim$ecoRegion,
                                                                          biggerEcoAreaSource = "ecoRegion",
-                                                                         NAData = NAdata)
+                                                                         NAData = NAdata,
+                                                                         maskFn = sim$fastMask)
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
   }
@@ -288,29 +299,39 @@ cachedFunctions <- function(sim) {
   return(invisible(sim))
 }
 
-initialCommunityProducer <- function(speciesLayers, speciesPresence, studyArea) {
+initialCommunityProducer <- function(speciesLayers, speciesPresence, studyArea, rstStudyArea) {
   specieslayerInStudyArea <- crop(speciesLayers,
                                   studyArea)
-  specieslayerInStudyArea <- suppressWarnings(mask(specieslayerInStudyArea,
-                                                   studyArea))
+  #if(isTRUE(tryCatch(getCluster(), error=function(x) TRUE, silent=TRUE))) beginCluster()
+  specieslayerInStudyArea <- specieslayerInStudyArea*rstStudyArea
+  names(specieslayerInStudyArea) <- names(speciesLayers)
+  
+  #specieslayerInStudyArea <- specieslayerInStudyArea*(!is.na(rstStudyArea))
+  # specieslayerInStudyArea <- suppressWarnings(sim$FastMask(specieslayerInStudyArea,
+  #                                                  studyArea))
   speciesNames <- names(specieslayerInStudyArea)[which(maxValue(specieslayerInStudyArea)>=speciesPresence)]
   specieslayerBySpecies <- subset(specieslayerInStudyArea, speciesNames[1])
-  specieslayerBySpecies[Which(is.na(specieslayerBySpecies) & specieslayerBySpecies<=5,
-                              cells = TRUE)] <- 0 # 5% or less presence removed
+  specieslayerBySpecies[which(is.na(specieslayerBySpecies[]) & specieslayerBySpecies[]<=5)] <- 0
+  # specieslayerBySpecies[Which(is.na(specieslayerBySpecies) & specieslayerBySpecies<=5,
+  #                             cells = TRUE)] <- 0 # 5% or less presence removed
   speciesComMap <- as.logical(specieslayerBySpecies)
   rm(specieslayerBySpecies)
   k <- 1
   for(species in speciesNames[2:length(speciesNames)]){
     specieslayerBySpecies <- subset(specieslayerInStudyArea, species)
-    specieslayerBySpecies[Which(is.na(specieslayerBySpecies) & specieslayerBySpecies <=5,
-                                cells = TRUE)] <- 0
+    specieslayerBySpecies[which(is.na(specieslayerBySpecies[]) & specieslayerBySpecies[]<=5)] <- 0
+    # specieslayerBySpecies[Which(is.na(specieslayerBySpecies) & specieslayerBySpecies <=5,
+    #                             cells = TRUE)] <- 0
     speciesMap <- as.logical(specieslayerBySpecies)
     speciesComMap <- speciesMap*(10^k)+speciesComMap
     k <- k+1
     rm(specieslayerBySpecies, speciesMap)
   }
   # set the non-forested area as NA
-  speciesComMap[Which(speciesComMap==0, cells = TRUE, na.rm = FALSE)] <- NA
+  #speciesComMap1 <- speciesComMap
+  #speciesComMap[Which(speciesComMap==0, cells = TRUE, na.rm = FALSE)] <- NA
+  speciesComMap[which(speciesComMap[]==0)] <- NA
+  
   initialCommunities <- data.table(mapcode=sort(unique(getValues(speciesComMap))))
   initialCommunities[,mapCodeStr:=as.character(mapcode)]
   initialCommunities[, NofStr:=nchar(mapCodeStr)]
@@ -350,18 +371,20 @@ ecoregionProducer <- function(studyAreaRaster,
                               ecoregionMapFull,
                               ecoregionName,
                               ecoregionActiveStatus,
-                              studyArea) {
+                              studyArea,
+                              rstStudyArea, maskFn) {
   # change the coordinate reference for all spatialpolygons
   ecoregionMapInStudy <- raster::intersect(ecoregionMapFull, studyArea)
   ecoregions <- ecoregionMapInStudy@data[,ecoregionName]
   ecoregionTable <- data.table(mapcode = numeric(),
                                ecoregion = character())
   mapcode <- 1
-  for(ecoregion in ecoregions){
-    singleecoMapPoly <- ecoregionMapInStudy[ecoregionMapInStudy@data[,ecoregionName]==ecoregion,]
+  for(ecoregion in unique(ecoregions)){
+  #  for(ecoregion in ecoregions){
+      singleecoMapPoly <- ecoregionMapInStudy[ecoregionMapInStudy@data[,ecoregionName]==ecoregion,]
     studyAreaRaster <- setValues(studyAreaRaster, mapcode)
     singleecoMapRaster <- crop(studyAreaRaster, singleecoMapPoly)
-    singleecoMapRaster <- suppressWarnings(mask(singleecoMapRaster, singleecoMapPoly))
+    singleecoMapRaster <- suppressWarnings(maskFn(singleecoMapRaster, singleecoMapPoly))
     if(length(unique(getValues(singleecoMapRaster)))==1){
       if(is.na(unique(getValues(singleecoMapRaster)))){
         ecoregionTable <- rbind(ecoregionTable, 
@@ -484,7 +507,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                                               ecoregionMap,
                                               biggerEcoArea,
                                               biggerEcoAreaSource,
-                                              NAData) {
+                                              NAData,
+                                              maskFn) {
   subEcoregion <- ecoregionMap
   subEcoregion[!(getValues(subEcoregion) %in% unique(NAData$ecoregion))] <- NA
   subbiggerEcoMap <- raster::crop(biggerEcoArea, subEcoregion)
@@ -505,7 +529,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     }
     indiEcoMapRaster <- setValues(subbiggerEcoMap_Raster, indiEcoregion) 
     indiEcoMapRaster <- crop(indiEcoMapRaster, indiSubBiggerEcoMap)
-    indiEcoMapRaster <- suppressWarnings(mask(indiEcoMapRaster, indiSubBiggerEcoMap))
+    indiEcoMapRaster <- suppressWarnings(maskFn(indiEcoMapRaster, indiSubBiggerEcoMap))
     if(indiEcoregion == subbiggerEcoLevel[1]){
       biggerEcoMapRaster <- indiEcoMapRaster
     } else {
@@ -807,3 +831,16 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
+
+
+fastMask <- function(stack, polygon) {
+  croppedStack <- crop(stack, polygon)
+  nonNACellIDs <- raster::extract(croppedStack[[1]], polygon, cellnumbers = TRUE)
+  nonNACellIDs <- do.call(rbind,nonNACellIDs)
+  singleRas <- raster(croppedStack[[1]])
+  singleRas[] <- NA
+  maskedStack <- stack(lapply(seq_len(nlayers(stack)), function(x) singleRas))
+  names(maskedStack) <- names(stack)
+  maskedStack[nonNACellIDs[,"cell"]] <- croppedStack[nonNACellIDs[,"cell"]]
+  maskedStack
+}
