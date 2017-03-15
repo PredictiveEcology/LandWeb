@@ -31,7 +31,8 @@ summaryPeriod <- c(600, endTime)
 try(rm(mySim), silent=TRUE)
 useGGplot <- FALSE
 ##########
-message("Started at ", Sys.time())
+aaaa <- Sys.time()
+message("Started at ", aaaa)
 
 source("functions.R")
 source("shinyModules.R")
@@ -84,6 +85,7 @@ if (FALSE) {
 #if (tryCatch(packageVersion("SpaDES") < "1.3.1.9047", error = function(x) TRUE))
 #  devtools::install_github("PredictiveEcology/SpaDES@development")  
 devtools::install_github("PredictiveEcology/SpaDES@development")  
+devtools::install_github("achubaty/amc@development")  
 if(FALSE) {
   library(devtools)
   library(withr);
@@ -95,7 +97,9 @@ if(FALSE) {
 ###  provided. But it is not necessary to library all of them for the app
 pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly", 
           "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
-          "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown")
+          "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown",
+          "amc"# fastRasterize and fastMask functions
+          )
 lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
 
 ## For shinyapps.io -- needs to see explicit require statements

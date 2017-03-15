@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LW_LBMRDataPrep.Rmd"),
-  reqdPkgs = list("data.table", "raster", "dplyr"),
+  reqdPkgs = list("data.table", "raster", "dplyr", "amc"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -147,7 +147,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                 ecoregionActiveStatus = ecoregionstatus,
                                                 studyArea = sim$studyArea,
                                                 rstStudyArea = rstStudyRegionBinary,
-                                                maskFn = sim$fastMask)
+                                                maskFn = fastMask)
   
   message("3: ", Sys.time())
   
@@ -190,7 +190,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                                          biggerEcoArea = sim$ecoRegion,
                                                                          biggerEcoAreaSource = "ecoRegion",
                                                                          NAData = NAdata,
-                                                                         maskFn = sim$fastMask)
+                                                                         maskFn = fastMask)
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
   }
@@ -203,7 +203,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                                          biggerEcoArea = sim$ecoZone,
                                                                          biggerEcoAreaSource = "ecoZone",
                                                                          NAData = NAdata,
-                                                                         maskFn = sim$fastMask)
+                                                                         maskFn = fastMask)
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
   }
@@ -324,7 +324,7 @@ initialCommunityProducer <- function(speciesLayers, speciesPresence, studyArea, 
   names(specieslayerInStudyArea) <- names(speciesLayers)
   
   #specieslayerInStudyArea <- specieslayerInStudyArea*(!is.na(rstStudyArea))
-  # specieslayerInStudyArea <- suppressWarnings(sim$FastMask(specieslayerInStudyArea,
+  # specieslayerInStudyArea <- suppressWarnings(fastMask(specieslayerInStudyArea,
   #                                                  studyArea))
   speciesNames <- names(specieslayerInStudyArea)[which(maxValue(specieslayerInStudyArea)>=speciesPresence)]
   specieslayerBySpecies <- subset(specieslayerInStudyArea, speciesNames[1])
@@ -866,43 +866,4 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
-
-
-fastMask <- function(stack, polygon) {
-  croppedStack <- crop(stack, polygon)
-  nonNACellIDs <- raster::extract(croppedStack[[1]], polygon, cellnumbers = TRUE)
-  nonNACellIDs <- do.call(rbind,nonNACellIDs)
-  singleRas <- raster(croppedStack[[1]])
-  singleRas[] <- NA
-  maskedStack <- stack(lapply(seq_len(nlayers(stack)), function(x) singleRas))
-  names(maskedStack) <- names(stack)
-  maskedStack[nonNACellIDs[,"cell"]] <- croppedStack[nonNACellIDs[,"cell"]]
-  maskedStack
-}
-
-fastRasterize <- function(polygon, ras, field) {
-  nonNACellIDs <- extract(ras, polygon, cellnumbers = TRUE)
-  polygonIDs <- seq_along(nonNACellIDs)
-  nonNACellIDs <- lapply(polygonIDs, function(x) cbind(nonNACellIDs[[x]], "ID"=x))
-  nonNACellIDs <- do.call(rbind,nonNACellIDs)
-  singleRas <- raster(ras)
-  singleRas[] <- NA
-  singleRas[nonNACellIDs[,"cell"]] <- nonNACellIDs[,"ID"]
-  if(!missing(field)) {
-    if(length(field)==1) {
-      singleRas[] <- plyr::mapvalues(singleRas[], from=polygonIDs, to=polygon[[field]])
-      numFields <- 1
-    } else {
-      numFields <- 2
-    }
-  } else {
-    numFields <- 3
-  }
-  if(numFields==3) {
-    field <- names(polygon)
-  } 
-  levels(singleRas) <- data.frame(ID=polygonIDs, polygon[field])
-  singleRas
-  
-}
 

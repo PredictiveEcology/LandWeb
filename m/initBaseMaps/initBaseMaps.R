@@ -10,7 +10,7 @@ defineModule(sim, list(
   timeunit =  "year", #no relevence. An init module only.
   citation = list(""),
   documentation = list("README.txt", "initBaseMaps.Rmd"),
-  reqdPkgs = list("raster"),
+  reqdPkgs = list("raster", "amc"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -62,7 +62,7 @@ initBaseMapsInit <- function(sim) {
   rm(LCC05X,envir=envir(sim))
   tmp<-getColors(sim$LCC05)[[1]]
   sim$rstStudyRegion <- Cache(cacheRepo=file.path(cachePath(sim), "StudyRegion"),
-                              sim$fastRasterize, 
+                              fastRasterize, 
                               polygon = sim$shpStudyRegion,
                               ras = sim$LCC05)#,
   #field = "LTHRC") # Don't use field to keep as factor
@@ -78,28 +78,3 @@ initBaseMapsCache <- function(sim){
   return(invisible(sim))
 }
 
-fastRasterize <- function(polygon, ras, field) {
-  nonNACellIDs <- raster::extract(ras, polygon, cellnumbers = TRUE)
-  polygonIDs <- seq_along(nonNACellIDs)
-  nonNACellIDs <- lapply(polygonIDs, function(x) cbind(nonNACellIDs[[x]], "ID"=x))
-  nonNACellIDs <- do.call(rbind,nonNACellIDs)
-  singleRas <- raster(ras)
-  singleRas[] <- NA
-  singleRas[nonNACellIDs[,"cell"]] <- nonNACellIDs[,"ID"]
-  if(!missing(field)) {
-    if(length(field)==1) {
-      singleRas[] <- plyr::mapvalues(singleRas[], from=polygonIDs, to=polygon[[field]])
-      numFields <- 1
-    } else {
-      numFields <- 2
-    }
-  } else {
-    numFields <- 3
-  }
-  if(numFields==3) {
-    field <- names(polygon)
-  } 
-  levels(singleRas) <- data.frame(ID=polygonIDs, polygon[field])
-  singleRas
-  
-}
