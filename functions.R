@@ -1,9 +1,9 @@
 
 ggvisFireReturnInterval <- function(shpStudyRegion, shpStudyRegionFull) {
-  shpStudyAreaFort <- tidy(shpStudyRegion, region = 'Name_1') 
-  shpStudyAreaFort <- left_join(shpStudyAreaFort, shpStudyRegion@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
-  shpStudyAreaOrigFort <- tidy(shpStudyRegionFull, region = 'Name_1') 
-  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
+  shpStudyAreaFort <- broom::tidy(shpStudyRegion, region = 'Name_1') 
+  shpStudyAreaFort <- dplyr::left_join(shpStudyAreaFort, shpStudyRegion@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
+  shpStudyAreaOrigFort <- broom::tidy(shpStudyRegionFull, region = 'Name_1') 
+  shpStudyAreaOrigFort <- dplyr::left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
   #shpStudyAreaOrigFort<-shpStudyAreaOrigFort[order(shpStudyAreaOrigFort$order), ]
   
   #map <- ggplot2::fortify(maine, region="name")
@@ -14,16 +14,16 @@ ggvisFireReturnInterval <- function(shpStudyRegion, shpStudyRegionFull) {
   df2 <- data.frame(fri = unique(shpStudyAreaOrigFort$fireReturnInterval), 
                     colrs = colorRampPalette(c("orange", "dark green"))(diff(range(shpStudyAreaOrigFort$fireReturnInterval)))[unique(shpStudyAreaOrigFort$fireReturnInterval) - min(shpStudyAreaOrigFort$fireReturnInterval) + 1]
   )
-  shpStudyAreaOrigFort <- left_join(shpStudyAreaOrigFort, df2, by = c("fireReturnInterval" = "fri"))
+  shpStudyAreaOrigFort <- dplyr::left_join(shpStudyAreaOrigFort, df2, by = c("fireReturnInterval" = "fri"))
   # 
   a <- shpStudyAreaOrigFort %>%
     ggvis(~long, ~lat) %>%
-    group_by(group, id) %>%
+    dplyr::group_by(group, id) %>%
     layer_paths(strokeOpacity := 0.5, stroke := "#7f7f7f", fill := ~fireReturnInterval) %>%
     add_tooltip(function(data) {
       paste0("Fire Return Interval: ", data$fireReturnInterval)
     }, "hover") %>% 
-    layer_paths(data = shpStudyAreaFort %>% group_by(group, id),
+    layer_paths(data = shpStudyAreaFort %>% dplyr::group_by(group, id),
                 stroke := "red") %>%
     #hide_legend("fill") %>%
     hide_axis("x") %>% hide_axis("y") %>%
