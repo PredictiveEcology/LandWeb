@@ -88,9 +88,16 @@ if(FALSE) {
 
 ## Actual loading here -- not as long as the list for shinyapps.io, which fails if only these are 
 ###  provided. But it is not necessary to library all of them for the app
-pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly", 
-          "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
-          "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown")
+pkgs <- c("shiny", #"shinydashboard", "shinyBS", "leaflet", #"plotly", 
+          #"broom", 
+          "rgeos", 
+          "raster", "rgdal", #"grid", "ggplot2", "VGAM", 
+          "maptools",
+          #"dplyr", 
+          "data.table", "magrittr", #"parallel", 
+          "SpaDES", "ggvis"#,
+          #"markdown"
+          )
 lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
 
 ## For shinyapps.io -- needs to see explicit require statements
