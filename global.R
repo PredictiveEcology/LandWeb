@@ -1,4 +1,7 @@
+raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
+
 #### Some variables
+
 largePatchSizeOptions <- c(500, 1000, 2000)
 largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
@@ -12,17 +15,20 @@ ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
 })
 experimentReps <- 1 # was 4
 maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
+library(raster)
+beginCluster(25, type = "FORK")
+#print(raster::getCluster())
 if(!exists("globalRasters")) globalRasters <- list()
 endTime <- 800 # was 4
-studyArea <- "LARGE"
-studyArea <- "MEDIUM"
+#studyArea <- "LARGE"
+#studyArea <- "MEDIUM"
+studyArea <- "FULL"
 #studyArea <- "SMALL"
-#studyArea <- "VERYSMALL"
 successionTimestep <- 10 # was 2
 summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(600, endTime)
 
-
+try(rm(mySim), silent=TRUE)
 useGGplot <- FALSE
 ##########
 message("Started at ", Sys.time())
@@ -34,9 +40,8 @@ source("footers.R")
 if(FALSE) { # THese are all "dangerous" for development only... 
   # in the sense that they should never be run inadvertently
   # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
-  SpaDES::clearCache(cacheRepo = file.path("appCache", studyArea))
+  SpaDES::clearCache(cacheRepo = paste0("appCache", studyArea))
   SpaDES::clearCache(cacheRepo = "appCache/studyRegion/")
-  rm(mySim)
   rm(cl)
   file.remove(dir("outputs", recursive = TRUE, full.names = TRUE))
   unlink("outputs", force = TRUE)
@@ -160,6 +165,7 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
                    LandWebOutput = list(summaryInterval = summaryInterval),
+                   LandMine = list(biggestPossibleFireSizeHa = 5e5),
                    LBMR = list(.plotInitialTime = times$start,
                                .saveInitialTime = NA),
                    initBaseMaps = list(.useCache = FALSE))

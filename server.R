@@ -3,28 +3,29 @@ function(input, output, session) {
   #react <- reactiveValues()
   
   if (TRUE) {
-      # # Do an initial run for each given study area so that all the data prep can be done once only
-      #initialRun1 <- spades(Copy(mySim), debug = TRUE)
-      # 5 minutes for 6e3 km2
-      # 30 minutes for 6e4 km2
-      mySimCopy <- Copy(mySim)
-      end(mySimCopy) <- 1
-      message("Running Initial spades call")
-      initialRun <- Cache(spades, sim = mySimCopy, debug = TRUE, objects = "shpStudyRegion", 
-                          cacheRepo = file.path(cachePath(mySim), "studyRegion"), .plotInitialTime = NA)
-      # try(silent = TRUE, {
-      #   filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
-      #   filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
-      #   filesToRemove <- unlist(lapply(strsplit(basename(outputs(initialRun)$file), split = "\\."), function(x) x[1])) %>%
-      #     lapply(function(y) grep(filesPresent, pattern = y)) %>%
-      #     unlist()
-      #   file.remove(filesPresentFull[filesToRemove])
-      # })
+    # # Do an initial run for each given study area so that all the data prep can be done once only
+    #initialRun1 <- spades(Copy(mySim), debug = TRUE)
+    # 5 minutes for 6e3 km2
+    # 30 minutes for 6e4 km2
+    mySimCopy <- Copy(mySim)
+    end(mySimCopy) <- 1
+    message("Running Initial spades call")
+    initialRun <- Cache(spades, sim = mySimCopy, debug = TRUE, objects = "shpStudyRegion", 
+                        cacheRepo = file.path(cachePath(mySim), "studyRegion"), .plotInitialTime = NA)
+    # try(silent = TRUE, {
+    #   filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
+    #   filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
+    #   filesToRemove <- unlist(lapply(strsplit(basename(outputs(initialRun)$file), split = "\\."), function(x) x[1])) %>%
+    #     lapply(function(y) grep(filesPresent, pattern = y)) %>%
+    #     unlist()
+    #   file.remove(filesPresentFull[filesToRemove])
+    # })
   }
   
   callModule(simInfo, "simInfoTabs", initialRun)
   callModule(moduleInfo, "modInfoBoxes", initialRun)
   
+  raster::endCluster()
   message("Running Experiment")
   args <- list(experiment, mySim, replicates = experimentReps, debug = TRUE, #cache = TRUE, 
                cl = if(exists("cl")) cl, 
@@ -47,17 +48,17 @@ function(input, output, session) {
     outputs(mySimOut[[x]])$file
   })
   
- # browser()
+  # browser()
   #if(any(!file.exists(unlist(filesFromOutputs)))) {
-    for(simNum in seq_along(mySimOut)) {
-      mySimOut[[simNum]]@outputs$file <- 
+  for(simNum in seq_along(mySimOut)) {
+    mySimOut[[simNum]]@outputs$file <- 
       
-        lapply(strsplit(outputs(mySimOut[[simNum]])$file, split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")), function(f) {
-          f[[2]]
-        }) %>%
-          unlist() %>%
-          file.path(paths$outputPath, .)
-    }
+      lapply(strsplit(outputs(mySimOut[[simNum]])$file, split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")), function(f) {
+        f[[2]]
+      }) %>%
+      unlist() %>%
+      file.path(paths$outputPath, .)
+  }
   #}
   
   rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
@@ -106,7 +107,7 @@ function(input, output, session) {
   vegLeadingTypesWithAllSpecies <- c(vegLeadingTypes, "All species")
   
   message("  Finished global.R")
-
+  
   # Large patch size section, i.e., clumps
   observe({
     lapply(ageClasses, function(ageClass) {
@@ -130,18 +131,18 @@ function(input, output, session) {
           column(width = 12, h2("NRV of number of 'large' (",strong(ClumpsReturn()$patchSize," hectares"),"), ",
                                 strong(tolower(ageClasses[ageClassIndex]))," patches")),
           column(width = 12, h4("These figures show the NRV of the probability distribution",
-                                      "of ",tolower(ageClasses[ageClassIndex])," patches that are",ClumpsReturn()$patchSize," hectares",
-                                      "or larger, for each given combination of Age Class, ",
-                                      "Leading Vegetation, and Polygon.",
-                                      "To change the patch size that defines these, type a new value",
-                                      "in the menu at the left.")
+                                "of ",tolower(ageClasses[ageClassIndex])," patches that are",ClumpsReturn()$patchSize," hectares",
+                                "or larger, for each given combination of Age Class, ",
+                                "Leading Vegetation, and Polygon.",
+                                "To change the patch size that defines these, type a new value",
+                                "in the menu at the left.")
           ),
           do.call(tabsetPanel, myTabs)
         )
       })
     })
   })
-
+  
   observe({
     lapply(ageClasses, function(ageClass) {
       output[[paste0(ageClass,"UI")]] <- renderUI({
@@ -163,9 +164,9 @@ function(input, output, session) {
           column(width = 12, h2("NRV of ",strong(tolower(ageClasses[ageClassIndex])), "(",ageClassZones[ageClassIndex],"years )",
                                 " forest, by leading vegetation")),
           column(width = 12, h4("These figures show the NRV of the proportion of",strong(tolower(ageClasses[ageClassIndex])),
-                                      "forests each polygon that are in each leading vegetation type, as labeled in the plots.",
-                                      "The proportions are proportions",em("within"),"age class. In any given",
-                                      "replicate, the numbers below sum to 1."
+                                "forests each polygon that are in each leading vegetation type, as labeled in the plots.",
+                                "The proportions are proportions",em("within"),"age class. In any given",
+                                "replicate, the numbers below sum to 1."
           )),
           do.call(tabsetPanel, myTabs)
         )
@@ -179,9 +180,9 @@ function(input, output, session) {
   
   output$timeSinceFireUI <- renderUI({
     tabBox(width = 12,
-         tabPanel("Time Since Fire maps", tabName = "timeSinceFireTab",
-                  fluidRow(timeSinceFireModUI("timeSinceFire", tsf = tsf))
-         )
+           tabPanel("Time Since Fire maps", tabName = "timeSinceFireTab",
+                    fluidRow(timeSinceFireModUI("timeSinceFire", tsf = tsf))
+           )
     )
   })
   
