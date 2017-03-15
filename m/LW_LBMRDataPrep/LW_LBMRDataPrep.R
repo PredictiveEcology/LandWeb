@@ -126,18 +126,21 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$specieslayers))
   sim$ecoZone <- spTransform(sim$ecoZone, crs(sim$specieslayers))
   
+  message("1: ", Sys.time())
   sim <- cachedFunctions(sim)
   
   rstStudyRegionBinary <- raster(sim$rstStudyRegion)
   rstStudyRegionBinary[] <- NA
   rstStudyRegionBinary[!is.na(sim$rstStudyRegion[])] <- 1
   
+  message("2: ", Sys.time())
   initialCommFiles <- sim$initialCommunityProducerCached(speciesLayers = sim$specieslayers, 
                                                          speciesPresence = 50,
                                                          studyArea = sim$studyArea,
                                                          rstStudyArea = rstStudyRegionBinary)
   ecoregionstatus <- data.table(active = "yes",
                                 ecoregion = 1:1031)
+  message("ecoregionProducer: ", Sys.time())
   ecoregionFiles <- sim$ecoregionProducerCached(studyAreaRaster = initialCommFiles$initialCommunityMap,
                                                 ecoregionMapFull = sim$ecoDistrict,
                                                 ecoregionName = "ECODISTRIC",
@@ -146,6 +149,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                 rstStudyArea = rstStudyRegionBinary,
                                                 maskFn = sim$fastMask)
   
+  message("3: ", Sys.time())
   
   activeStatusTable <- data.table(active = c(rep("yes", 15), rep("no", 25)),
                                   mapcode = 1:40)  # this is based on description
@@ -155,17 +159,20 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                          ecoregion = ecoregionFiles$ecoregion,
                                                          initialCommunityMap = initialCommFiles$initialCommunityMap,
                                                          initialCommunity = initialCommFiles$initialCommunity)
+  message("4: ", Sys.time())
   speciesEcoregionTable <- sim$obtainMaxBandANPPCached(speciesLayers = sim$specieslayers,
                                                        biomassLayer = sim$biomassMap,
                                                        SALayer = sim$standAgeMap,
                                                        ecoregionMap = simulationMaps$ecoregionMap)
   
+  message("5: ", Sys.time())
   septable <- sim$obtainSEPCached(ecoregionMap = simulationMaps$ecoregionMap,
                                   speciesLayers = sim$specieslayers)
   names(septable) <- c("ecoregion", "species", "SEP")
   septable[, SEP:=round(SEP, 2)]
   # 
   # 
+  message("6: ", Sys.time())
   speciesEcoregionTable[, species:=as.character(species)]
   septable[,species:=as.character(species)]
   speciesEcoregionTable <- left_join(speciesEcoregionTable, septable, by = c("ecoregion", "species")) %>%
@@ -173,6 +180,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   speciesEcoregionTable[SEP==0, ':='(maxBiomass = 0, maxANPP = 0)]
   NON_NAdata <- speciesEcoregionTable[!is.na(maxBiomass),]
   NAdata <- speciesEcoregionTable[is.na(maxBiomass),]
+  
   if(nrow(NAdata) > 1){
     # # replace NA values with ecoregion  value
     biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
@@ -186,6 +194,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
   }
+  message("7: ", Sys.time())
   if(nrow(NAdata) > 1){
     biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
                                                                          biomassLayer = sim$biomassMap,
@@ -193,10 +202,12 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                                          ecoregionMap = simulationMaps$ecoregionMap,
                                                                          biggerEcoArea = sim$ecoZone,
                                                                          biggerEcoAreaSource = "ecoZone",
-                                                                         NAData = NAdata)
+                                                                         NAData = NAdata,
+                                                                         maskFn = sim$fastMask)
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
   }
+  message("8: ", Sys.time())
   NAdata[,':='(maxBiomass=0, maxANPP=0, SEP=0)]
   speciesEcoregion <- rbind(NON_NAdata,NAdata)
   setnames(speciesEcoregion, "ecoregion", "mapcode")
@@ -209,6 +220,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   sim$ecoregion <- simulationMaps$ecoregion
   sim$ecoregionMap <- simulationMaps$ecoregionMap
   sim$initialCommunitiesMap <- simulationMaps$initialCommunityMap
+  message("9: ", Sys.time())
   
   # species traits inputs
   names(speciesTable) <- c("species", "Area", "longevity", "sexualmature", "shadetolerance", "firetolerance", 
@@ -225,6 +237,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                      tolower(as.character(substring(species2, 2, nchar(species2)))),
                                      sep = ""))]
   speciesTable[species == "Pinu_Con.lat", species:="Pinu_Con"]
+  message("10: ", Sys.time())
   
   
   speciesTable <- speciesTable[species %in% names(sim$specieslayers),][
@@ -234,6 +247,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                            species)]
   set(initialCommunities, , paste("age", 1:15, sep = ""), NA)
   initialCommunities <- data.frame(initialCommunities)
+  message("11: ", Sys.time())
   
   fn <- function(initialCommunities, speciesTable) {
     for(i in 1:nrow(initialCommunities)){
@@ -244,13 +258,16 @@ landWeb_LBMRDataPrepInit <- function(sim) {
     }
     data.table::data.table(initialCommunities)
   }
-
+  message("12: ", Sys.time())
+  
   sim$initialCommunities <- Cache(fn, initialCommunities, speciesTable)
   
   sim$species <- speciesTable
   sim$minRelativeB <- data.frame(ecoregion = sim$ecoregion[active == "yes",]$ecoregion, 
                                  X1 = 0.2, X2 = 0.4, X3 = 0.5, 
                                  X4 = 0.7, X5 = 0.9)
+  message("Done LW_LBMRDataPrep: ", Sys.time())
+  
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -375,39 +392,47 @@ ecoregionProducer <- function(studyAreaRaster,
                               rstStudyArea, maskFn) {
   # change the coordinate reference for all spatialpolygons
   ecoregionMapInStudy <- raster::intersect(ecoregionMapFull, studyArea)
-  ecoregions <- ecoregionMapInStudy@data[,ecoregionName]
-  ecoregionTable <- data.table(mapcode = numeric(),
-                               ecoregion = character())
-  mapcode <- 1
-  for(ecoregion in unique(ecoregions)){
-  #  for(ecoregion in ecoregions){
-      singleecoMapPoly <- ecoregionMapInStudy[ecoregionMapInStudy@data[,ecoregionName]==ecoregion,]
-    studyAreaRaster <- setValues(studyAreaRaster, mapcode)
-    singleecoMapRaster <- crop(studyAreaRaster, singleecoMapPoly)
-    singleecoMapRaster <- suppressWarnings(maskFn(singleecoMapRaster, singleecoMapPoly))
-    if(length(unique(getValues(singleecoMapRaster)))==1){
-      if(is.na(unique(getValues(singleecoMapRaster)))){
-        ecoregionTable <- rbind(ecoregionTable, 
-                                data.table(mapcode = NA,
-                                           ecoregion = ecoregion)) 
-      } else {
-        ecoregionTable <- rbind(ecoregionTable, 
-                                data.table(mapcode = mapcode,
-                                           ecoregion = ecoregion))
-      }
-    } else {
-      ecoregionTable <- rbind(ecoregionTable, 
-                              data.table(mapcode = mapcode,
-                                         ecoregion = ecoregion))
-    }
-    
-    if(mapcode == 1){
-      ecoregionMap <- singleecoMapRaster
-    } else {
-      ecoregionMap <- merge(ecoregionMap, singleecoMapRaster)
-    }
-    mapcode <- mapcode + 1
-  }
+  # ecoregions <- ecoregionMapInStudy@data[,ecoregionName]
+  # ecoregionTable <- data.table(mapcode = numeric(),
+  #                              ecoregion = character())
+  # mapcode <- 1
+  # for(ecoregion in unique(ecoregions)){
+  # #  for(ecoregion in ecoregions){
+  #     singleecoMapPoly <- ecoregionMapInStudy[ecoregionMapInStudy@data[,ecoregionName]==ecoregion,]
+  #   studyAreaRaster <- setValues(studyAreaRaster, mapcode)
+  #   singleecoMapRaster <- crop(studyAreaRaster, singleecoMapPoly)
+  #   singleecoMapRaster <- suppressWarnings(maskFn(singleecoMapRaster, singleecoMapPoly))
+  #   if(length(unique(getValues(singleecoMapRaster)))==1){
+  #     if(is.na(unique(getValues(singleecoMapRaster)))){
+  #       ecoregionTable <- rbind(ecoregionTable, 
+  #                               data.table(mapcode = NA,
+  #                                          ecoregion = ecoregion)) 
+  #     } else {
+  #       ecoregionTable <- rbind(ecoregionTable, 
+  #                               data.table(mapcode = mapcode,
+  #                                          ecoregion = ecoregion))
+  #     }
+  #   } else {
+  #     ecoregionTable <- rbind(ecoregionTable, 
+  #                             data.table(mapcode = mapcode,
+  #                                        ecoregion = ecoregion))
+  #   }
+  #   
+  #   if(mapcode == 1){
+  #     ecoregionMap <- singleecoMapRaster
+  #   } else {
+  #     ecoregionMap <- merge(ecoregionMap, singleecoMapRaster)
+  #   }
+  #   mapcode <- mapcode + 1
+  # }
+  
+  # Alternative
+  ecoregionMap <- fastRasterize(ecoregionMapInStudy, studyAreaRaster, field = "ECODISTRIC")
+  ecoregionFactorValues <- factor(unique(ecoregionMap[]))
+  ecoregionTable <- data.table(mapcode=seq_along(levels(ecoregionFactorValues)), ecoregion=levels(ecoregionFactorValues))
+  ecoregionMap[] <- plyr::mapvalues(ecoregionMap[], from = ecoregionTable$ecoregion, to = ecoregionTable$mapcode)
+  
+  
   ecoregionActiveStatus[, ecoregion:=as.character(ecoregion)]
   ecoregionTable <- ecoregionTable[!is.na(mapcode),]
   ecoregionTable <- dplyr::left_join(ecoregionTable,
@@ -521,23 +546,33 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   }
   subbiggerEcoMap_Raster <- crop(biomassLayer, subbigEcoMap)
   subbiggerEcoMap_Raster <- setValues(subbiggerEcoMap_Raster, NA)
-  for(indiEcoregion in subbiggerEcoLevel){
-    if(biggerEcoAreaSource == "ecoRegion"){
-      indiSubBiggerEcoMap <- subbigEcoMap[subbigEcoMap@data$ECOREGION == indiEcoregion,]
-    } else if (biggerEcoAreaSource == "ecoZone"){
-      indiSubBiggerEcoMap <- subbigEcoMap[subbigEcoMap@data$ECOZONE == indiEcoregion,]
-    }
-    indiEcoMapRaster <- setValues(subbiggerEcoMap_Raster, indiEcoregion) 
-    indiEcoMapRaster <- crop(indiEcoMapRaster, indiSubBiggerEcoMap)
-    indiEcoMapRaster <- suppressWarnings(maskFn(indiEcoMapRaster, indiSubBiggerEcoMap))
-    if(indiEcoregion == subbiggerEcoLevel[1]){
-      biggerEcoMapRaster <- indiEcoMapRaster
-    } else {
-      biggerEcoMapRaster <- merge(biggerEcoMapRaster, indiEcoMapRaster)
-    }
-  }
+  
+  # if((biggerEcoAreaSource == "ecoZone")) {
+  #   for(indiEcoregion in subbiggerEcoLevel){
+  #     if(biggerEcoAreaSource == "ecoRegion"){
+  #       indiSubBiggerEcoMap <- subbigEcoMap[subbigEcoMap@data$ECOREGION == indiEcoregion,]
+  #     } else if (biggerEcoAreaSource == "ecoZone"){
+  #       indiSubBiggerEcoMap <- subbigEcoMap[subbigEcoMap@data$ECOZONE == indiEcoregion,]
+  #     }
+  #     indiEcoMapRaster <- setValues(subbiggerEcoMap_Raster, indiEcoregion)
+  #     indiEcoMapRaster <- crop(indiEcoMapRaster, indiSubBiggerEcoMap)
+  #     indiEcoMapRaster <- suppressWarnings(maskFn(indiEcoMapRaster, indiSubBiggerEcoMap))
+  #     if(indiEcoregion == subbiggerEcoLevel[1]){
+  #       biggerEcoMapRaster <- indiEcoMapRaster
+  #     } else {
+  #       biggerEcoMapRaster <- merge(biggerEcoMapRaster, indiEcoMapRaster)
+  #     }
+  #   }
+  #   
+  # }
+  #biggerEcoMapRaster2 <- Cache(fastRasterize, subbigEcoMap, ras = subbiggerEcoMap_Raster, field=toupper(biggerEcoAreaSource))
+  biggerEcoMapRaster <- Cache(fastRasterize, subbigEcoMap, ras = subbiggerEcoMap_Raster, 
+                              field=toupper(biggerEcoAreaSource))
+  
   biggerEcoMapRaster_ST <- crop(biggerEcoMapRaster, subEcoregion)
   biggerEcoMapRaster_ST <- suppressWarnings(mask(biggerEcoMapRaster_ST, subEcoregion))
+  
+  
   ecodistrictEcoregionTable <- data.table(ecoregion = getValues(subEcoregion),
                                           biggerEcoregion = getValues(biggerEcoMapRaster_ST))[!is.na(ecoregion),]
   #check whether one district has more than one ecoregion, which is not correct
@@ -604,16 +639,16 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   fileNames <- lapply(fileNames, function(x){file.path(dataPath, x)})
   allFiles <- lapply(fileNames, function(x) {
     file.info(x)[,"size"]}
-    )
+  )
   names(allFiles) <- unlist(lapply(fileNames, basename))
   allFilesDigest <- digest::digest(allFiles)
-
+  
   # LCC2005 may be loaded by other modules
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
   if(!is.null(sim$LCC2005)) lcc2005Filename <- filename(sim$LCC2005)
   
   needDownload <- all(!(allFilesDigest %in% c("9a99479fea036a03f188f71cbabca49e",
-                                                        "05a98a7eab2fcd0ebef7cc21fbfdf75b",
+                                              "05a98a7eab2fcd0ebef7cc21fbfdf75b",
                                               "9bf998a69e4ea74f52c3dd20c5e5b17d",
                                               "5173505a6b80f268c09d4967497cdfe3")))
   needShinking <- all(!(allFilesDigest %in% c("9bf998a69e4ea74f52c3dd20c5e5b17d",
@@ -693,7 +728,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   } else {
     message("  Download data step skipped for module LW_LBMRDataPrep. Local copy exists")
   }
-
+  
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
   ecodistrictFilename <-   file.path(dataPath, "ecodistricts.shp")
   ecoregionFilename <-   file.path(dataPath, "ecoregions.shp")
@@ -735,7 +770,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       }
     }
     speciesFilenames[indispecies] <- file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies,
-                                                     "_v0.tif", sep = ""))
+                                                               "_v0.tif", sep = ""))
     speciesmap <- raster(speciesFilenames[indispecies])
     sim$specieslayers <- stack(sim$specieslayers, speciesmap)
     names(sim$specieslayers)[i] <- indispecies
@@ -747,11 +782,11 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(needShinking) {
     if(!is.null(sim@.envir$shpStudyRegionFull)) {
       sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
-
+      
       sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
       sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$specieslayers))
       sim$ecoZone <- spTransform(sim$ecoZone, crs(sim$specieslayers))
-    
+      
       # Crop them  
       sim$ecoDistrict <- crop(sim$ecoDistrict, sim$shpStudyRegionFull)
       sim$ecoRegion <- crop(sim$ecoRegion, sim$shpStudyRegionFull)
@@ -765,8 +800,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       # rasters
       # LCC2005
       sim@.envir$LCC2005 <- crop(sim@.envir$LCC2005, sim@.envir$shpStudyRegionFull,
-                                     filename = file.path(dirname(lcc2005Filename), paste0("Small",basename(lcc2005Filename))), 
-                                     overwrite=TRUE)
+                                 filename = file.path(dirname(lcc2005Filename), paste0("Small",basename(lcc2005Filename))), 
+                                 overwrite=TRUE)
       file.remove(dir(dirname(lcc2005Filename), full.names = TRUE) %>% 
                     .[grep(basename(.), pattern = paste0("^",basename(lcc2005Filename)))])
       file.rename(filename(sim@.envir$LCC2005), lcc2005Filename)
@@ -785,16 +820,16 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       
       # Stand Age
       sim@.envir$standAgeMap <- crop(sim@.envir$standAgeMap, sim@.envir$shpStudyRegionFull,
-                                    overwrite=TRUE, format = "GTiff", datatype = "INT2U",
-                                    filename = file.path(dirname(standAgeMapFilename), 
-                                                         paste0("Small",basename(standAgeMapFilename))))
+                                     overwrite=TRUE, format = "GTiff", datatype = "INT2U",
+                                     filename = file.path(dirname(standAgeMapFilename), 
+                                                          paste0("Small",basename(standAgeMapFilename))))
       standAgeMapFilenameNoExt <- strsplit(basename(standAgeMapFilename), "\\.")[[1]][1]
       file.remove(dir(dirname(standAgeMapFilename), full.names = TRUE) %>% 
                     .[grep(basename(.), pattern = paste0("^",standAgeMapFilenameNoExt))])
       
       file.rename(filename(sim@.envir$standAgeMap), standAgeMapFilename)
       sim@.envir$standAgeMap@file@name <- standAgeMapFilename
-
+      
       # Species
       specieslayers <- lapply(speciesFilenames, function(x) {
         filenameNoExt <- strsplit(basename(x), "\\.")[[1]][1]
@@ -809,7 +844,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         a@file@name <- x
       }) %>% stack()
       file.remove(dir(dataPath, pattern = ".zip", full.names = TRUE))
-
+      
     }
   }
   
@@ -844,3 +879,30 @@ fastMask <- function(stack, polygon) {
   maskedStack[nonNACellIDs[,"cell"]] <- croppedStack[nonNACellIDs[,"cell"]]
   maskedStack
 }
+
+fastRasterize <- function(polygon, ras, field) {
+  nonNACellIDs <- extract(ras, polygon, cellnumbers = TRUE)
+  polygonIDs <- seq_along(nonNACellIDs)
+  nonNACellIDs <- lapply(polygonIDs, function(x) cbind(nonNACellIDs[[x]], "ID"=x))
+  nonNACellIDs <- do.call(rbind,nonNACellIDs)
+  singleRas <- raster(ras)
+  singleRas[] <- NA
+  singleRas[nonNACellIDs[,"cell"]] <- nonNACellIDs[,"ID"]
+  if(!missing(field)) {
+    if(length(field)==1) {
+      singleRas[] <- plyr::mapvalues(singleRas[], from=polygonIDs, to=polygon[[field]])
+      numFields <- 1
+    } else {
+      numFields <- 2
+    }
+  } else {
+    numFields <- 3
+  }
+  if(numFields==3) {
+    field <- names(polygon)
+  } 
+  levels(singleRas) <- data.frame(ID=polygonIDs, polygon[field])
+  singleRas
+  
+}
+
