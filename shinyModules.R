@@ -188,7 +188,7 @@ leafletMapUI <- function(id) {
     box(width = 12, 
         solidHeader = TRUE, collapsible = TRUE, 
         title = "Area covered by this demo (in red), within the LandWeb study area (blue)",
-        leafletOutput(ns("leafletMap1"), height = 600),
+        leaflet::leafletOutput(ns("leafletMap1"), height = 600),
         selectInput(ns("leafletMapPolygons"), "Other layers to show summaries with", 
                     choices = names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3]), 
                     selected = names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3])[[1]])
@@ -267,7 +267,7 @@ timeSinceFireModUI <- function(id, tsf) {
     box(width = 12, solidHeader = TRUE, collapsible = TRUE, 
         h4(paste("Below are a sequence of snapshots of the landscape, showing the natural range of",
                  "variation in time since fire. Click on the 'play' button at the bottom right to animate")),
-        leafletOutput(ns("timeSinceFire1"), height = 600),
+        leaflet::leafletOutput(ns("timeSinceFire1"), height = 600),
         sliderInput(ns("timeSinceFire1Slider"), 
                     "Individual snapshots of time since fire maps. Use play button (bottom right) to animate.", 
                     min = 0, max = (length(tsf)-1)*10, value = 0, step = 10, 
