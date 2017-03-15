@@ -33,11 +33,11 @@ defineModule(sim, list(
   ),
   outputObjects = bind_rows(
     createsOutput("rstCurrentBurn", "RasterLayer", paste(
-                  "A raster layer, produced at each timestep, where each",
-                  "pixel is either 1 or 0 indicating burned or not burned")
-                  ),
+      "A raster layer, produced at each timestep, where each",
+      "pixel is either 1 or 0 indicating burned or not burned")
+    ),
     createsOutput("fireTimestep", "numeric", 
-      "The number of time units between successive fire events in a fire module"
+                  "The number of time units between successive fire events in a fire module"
     ),
     createsOutput("rstFlammableNum", "RasterLayer", paste(
       "A binary, numeric raster indicating NA or 0 for not burnable")
@@ -86,14 +86,17 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
 
 ### template initialization
 LandMineInit <- function(sim) {
+  message("1: ", Sys.time())
   sim$fireTimestep <- P(sim)$fireTimestep
   vals <- factorValues(sim$rstStudyRegion, sim$rstStudyRegion[], att="LTHRC")
   vals <- factor(vals$LTHRC)
+  message("2: ", Sys.time())
   numPixelsPerZone <- tabulate(vals)
   names(numPixelsPerZone) <- levels(vals)
   numHaPerZone <- numPixelsPerZone/(prod(res(sim$rstStudyRegion))/1e4)
   returnInterval <- as.numeric(levels(vals))
-  browser()
+
+  message("3: ", Sys.time())
   
   findK_upper <- function(params=c(0.4), upper1 ) {
     fs <- round(rtruncpareto(1e6, 1, upper = upper1, shape=params[1]))
@@ -102,8 +105,9 @@ LandMineInit <- function(sim) {
   }
   
   sim$kBest <- Cache(optimize, interval=c(0.05, 0.99), f = findK_upper, 
-                 upper1=P(sim)$biggestPossibleFireSizeHa)$minimum
+                     upper1=P(sim)$biggestPossibleFireSizeHa)$minimum
   
+  message("4: ", Sys.time())
   
   meanFireSizeHa <- meanTrucPareto(k=sim$kBest, lower=1, 
                                    upper = P(sim)$biggestPossibleFireSizeHa, alpha=1)
@@ -114,7 +118,9 @@ LandMineInit <- function(sim) {
   
   sim$fireSizesInPixels <- lapply(round(sim$numFiresPerYear), function(x) 
     rtruncpareto(x, lower = 1, upper = P(sim)$biggestPossibleFireSizeHa, 
-         shape = sim$kBest))
+                 shape = sim$kBest))
+  
+  message("5: ", Sys.time())
   
   # sim$fireSizesInPixels <- rtruncpareto(numFires, lower = 1, 
   #                                   upper = P(sim)$biggestPossibleFireSizeHa, 
@@ -130,6 +136,8 @@ LandMineInit <- function(sim) {
   
   sim$rstCurrentBurn <- raster(sim$fireReturnInterval)
   sim$rstFlammableNum <- raster(sim$rstFlammable)
+  message("6: ", Sys.time())
+  
   sim$rstFlammableNum[] <- 1-sim$rstFlammable[]
   sim$rstFlammableNum[is.na(sim$rstFlammableNum)] <- NA
   
@@ -138,7 +146,7 @@ LandMineInit <- function(sim) {
   if(!is.na(P(sim)$.plotInitialTime)) {
     Plot(sim$fireReturnInterval, title="Fire Return Interval", speedup = 3, new=TRUE)
   }
-
+  
   return(invisible(sim))
 }
 
