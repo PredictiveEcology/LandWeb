@@ -83,7 +83,7 @@ if (FALSE) {
 ## Make sure SpaDES is up to date
 #if (tryCatch(packageVersion("SpaDES") < "1.3.1.9047", error = function(x) TRUE))
 #  devtools::install_github("PredictiveEcology/SpaDES@development")  
-devtools::install_github("PredictiveEcology/SpaDES@EliotCacheMultiOS")  
+devtools::install_github("PredictiveEcology/SpaDES@development")  
 if(FALSE) {
   library(devtools)
   library(withr);
