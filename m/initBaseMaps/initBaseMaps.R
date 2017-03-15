@@ -53,19 +53,19 @@ initBaseMapsInit <- function(sim) {
   simProjection <- crs(sim$LCC05X)
   #reproject sim$shpStudyRegion to accord with LCC05
   sim$shpStudyRegion <- Cache(
-  #sim$shpStudyRegion <- SpaDES::cache(cachePath(sim), 
-                                       spTransform, 
-                                       sim$shpStudySubRegion, CRSobj=simProjection)
+    #sim$shpStudyRegion <- SpaDES::cache(cachePath(sim), 
+    spTransform, 
+    sim$shpStudySubRegion, CRSobj=simProjection)
   #sim$shpStudyRegion <- spTransform(sim$shpStudySubRegion, CRSobj=simProjection)
   #sim$LCC05 <- crop(sim$LCC05X,sim$shpStudyRegion)
   sim$LCC05 <- Cache(crop,sim$LCC05X,sim$shpStudyRegion)
   rm(LCC05X,envir=envir(sim))
   tmp<-getColors(sim$LCC05)[[1]]
-  sim$rstStudyRegion <- Cache(#cachePath(sim),
-                          rasterize,
-                                          x = sim$shpStudyRegion,
-                                          y = sim$LCC05)#,
-                                          #field = "LTHRC") # Don't use field
+  sim$rstStudyRegion <- Cache(cacheRepo=file.path(cachePath(sim), "StudyRegion"),
+                              sim$fastRasterize, 
+                              polygon = sim$shpStudyRegion,
+                              ras = sim$LCC05)#,
+  #field = "LTHRC") # Don't use field to keep as factor
   # 
   # # Instead of mask, just use indexing
   sim$LCC05[is.na(sim$rstStudyRegion[])] <- NA
@@ -76,4 +76,30 @@ initBaseMapsInit <- function(sim) {
 initBaseMapsCache <- function(sim){
   #
   return(invisible(sim))
+}
+
+fastRasterize <- function(polygon, ras, field) {
+  nonNACellIDs <- raster::extract(ras, polygon, cellnumbers = TRUE)
+  polygonIDs <- seq_along(nonNACellIDs)
+  nonNACellIDs <- lapply(polygonIDs, function(x) cbind(nonNACellIDs[[x]], "ID"=x))
+  nonNACellIDs <- do.call(rbind,nonNACellIDs)
+  singleRas <- raster(ras)
+  singleRas[] <- NA
+  singleRas[nonNACellIDs[,"cell"]] <- nonNACellIDs[,"ID"]
+  if(!missing(field)) {
+    if(length(field)==1) {
+      singleRas[] <- plyr::mapvalues(singleRas[], from=polygonIDs, to=polygon[[field]])
+      numFields <- 1
+    } else {
+      numFields <- 2
+    }
+  } else {
+    numFields <- 3
+  }
+  if(numFields==3) {
+    field <- names(polygon)
+  } 
+  levels(singleRas) <- data.frame(ID=polygonIDs, polygon[field])
+  singleRas
+  
 }
