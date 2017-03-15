@@ -87,40 +87,43 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 LandMineInit <- function(sim) {
   sim$fireTimestep <- P(sim)$fireTimestep
-  
   vals <- factorValues(sim$rstStudyRegion, sim$rstStudyRegion[], att="LTHRC")
   vals <- factor(vals$LTHRC)
   numPixelsPerZone <- tabulate(vals)
+  names(numPixelsPerZone) <- levels(vals)
+  numHaPerZone <- numPixelsPerZone/(prod(res(sim$rstStudyRegion))/1e4)
   returnInterval <- as.numeric(levels(vals))
-  
+  browser()
   
   findK_upper <- function(params=c(0.4), upper1 ) {
-    #browser()
     fs <- round(rtruncpareto(1e6, 1, upper = upper1, shape=params[1]))
     meanFS <- meanTrucPareto(k = params[1], lower = 1, upper = upper1, alpha = 1)
     diff1 <- abs(quantile(fs, 0.95) - meanFS)
   }
   
-  #a <- findK_upper(c(0.70), upper = P(sim)$biggestPossibleFireSizeHa)  
   sim$kBest <- Cache(optimize, interval=c(0.05, 0.99), f = findK_upper, 
                  upper1=P(sim)$biggestPossibleFireSizeHa)$minimum
   
-  findNumFires <- function(num=100, upper=1e5, k=sim$kBest, ras=sim$rstStudyRegion) {
-    fires <- meanTrucPareto(k=k, lower=1, upper = upper, alpha=1)
-    abs(fires*num - ncell(ras))
-  }
   
-  numFires <- optimize(f=findNumFires, interval=c(5,200000))$minimum
+  meanFireSizeHa <- meanTrucPareto(k=sim$kBest, lower=1, 
+                                   upper = P(sim)$biggestPossibleFireSizeHa, alpha=1)
+  numFiresByZone <- numHaPerZone/meanFireSizeHa
+  sim$numFiresPerYear <- numFiresByZone/returnInterval
+  #numFires <- sum(!is.na(sim$rstStudyRegion[]))/meanFireSizeHa
+  #numFires <- optimize(f=findNumFires, interval=c(5,1e7))$minimum
   
+  sim$fireSizesInPixels <- lapply(round(sim$numFiresPerYear), function(x) 
+    rtruncpareto(x, lower = 1, upper = P(sim)$biggestPossibleFireSizeHa, 
+         shape = sim$kBest))
   
-  sim$fireSizesInPixels <- rtruncpareto(numFires, lower = 1, 
-                                    upper = P(sim)$biggestPossibleFireSizeHa, 
-                                    shape = sim$kBest)
-  
+  # sim$fireSizesInPixels <- rtruncpareto(numFires, lower = 1, 
+  #                                   upper = P(sim)$biggestPossibleFireSizeHa, 
+  #                                   shape = sim$kBest)
+  # 
   
   #sim$avgFireSize <- rep(100, length(returnInterval))
   #numFires <- round(numPixelsPerZone/sim$avgFireSize)
-  sim$numFiresPerYear <- numFires/returnInterval
+  #sim$numFiresPerYear <- numFires/returnInterval
   
   sim$fireReturnInterval <- raster(sim$rstStudyRegion)
   sim$fireReturnInterval[] <- as.numeric(as.character(vals))
@@ -164,6 +167,7 @@ LandMinePlot <- function(sim) {
 LandMineBurn <- function(sim) {
   numFiresThisYear <- rpois(length(sim$numFiresPerYear), lambda=sim$numFiresPerYear)
   
+  browser()
   # meanTP <- function(k, lower, upper, alpha) {
   #   k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
   # }
