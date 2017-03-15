@@ -118,7 +118,7 @@ rm(ecodistrictsFullLFLT)
 polygonColours <- c(rep(c("red", "blue"), 2))
 polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3]))
 
-timeSinceFirePalette <- colorNumeric(
+timeSinceFirePalette <- leaflet::colorNumeric(
   c(rep("red", 10), paste0(colorRampPalette(c("light green", "dark green"))(100),"FF")),
   domain = NULL)
 attr(timeSinceFirePalette, "colorArgs")$na.color <- "#00000000"
