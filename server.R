@@ -10,7 +10,9 @@ function(input, output, session) {
     mySimCopy <- Copy(mySim)
     end(mySimCopy) <- 1
     message("Running Initial spades call")
-    initialRun <- Cache(spades, sim = mySimCopy, debug = TRUE, objects = "shpStudyRegion", 
+    initialRun <- Cache(spades, sim = mySimCopy, 
+                        debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
+                        objects = "shpStudyRegion", 
                         cacheRepo = file.path(cachePath(mySim), "studyRegion"), .plotInitialTime = NA)
     # try(silent = TRUE, {
     #   filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
@@ -27,7 +29,9 @@ function(input, output, session) {
   
   raster::endCluster()
   message("Running Experiment")
-  args <- list(experiment, mySim, replicates = experimentReps, debug = TRUE, #cache = TRUE, 
+  args <- list(experiment, mySim, replicates = experimentReps, 
+               debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
+               #debug = TRUE, #cache = TRUE, 
                cl = if(exists("cl")) cl, 
                .plotInitialTime = NA,
                #notOlderThan = Sys.time(),
