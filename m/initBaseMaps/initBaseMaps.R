@@ -61,6 +61,7 @@ initBaseMapsInit <- function(sim) {
   sim$LCC05 <- Cache(crop,sim$LCC05X,sim$shpStudyRegion)
   rm(LCC05X,envir=envir(sim))
   tmp<-getColors(sim$LCC05)[[1]]
+  message("fastRasterize for rstStudyRegion")
   sim$rstStudyRegion <- Cache(cacheRepo=file.path(cachePath(sim), "StudyRegion"),
                               fastRasterize, 
                               polygon = sim$shpStudyRegion,
