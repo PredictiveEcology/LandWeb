@@ -175,7 +175,6 @@ LandMinePlot <- function(sim) {
 LandMineBurn <- function(sim) {
   numFiresThisYear <- rpois(length(sim$numFiresPerYear), lambda=sim$numFiresPerYear)
   
-  browser()
   # meanTP <- function(k, lower, upper, alpha) {
   #   k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
   # }
