@@ -70,6 +70,10 @@ defineModule(sim, list(
                  sourceURL = "NA"),
     expectsInput(objectName = "rstCurrentBurn", objectClass = "RasterLayer", 
                  desc = "a fire burn raster", 
+                 sourceURL = "NA"),
+    expectsInput(objectName = "useParallel", objectClass = "logic", 
+                 desc = "an object to determine whether the parallel computation will be used in the simulation,
+                 default is TRUE", 
                  sourceURL = "NA")
     ),
   outputObjects = bind_rows(
@@ -165,7 +169,7 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
                          "LBMR", "summaryRegen", eventPriority = 5.5)
   } else if (eventType == "plot") {
     sim <- LBMRPlot(sim)
-    sim <- scheduleEvent(sim, time(sim) + pmin(sim$successionTimestep, sim$fireTimestep),
+    sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
                          "LBMR", "plot", eventPriority = 7)
   } else if (eventType == "save") {
     sim <- LBMRSave(sim)
@@ -397,6 +401,9 @@ spinUp <- function(cohortData, calibrate, successionTimestep, spinupMortalityfra
 }
 ### template for your event1
 LBMRMortalityAndGrowth = function(sim) {
+  sim$cohortData <- sim$cohortData[,.(pixelGroup, ecoregionGroup,
+                                      speciesCode, age, B, mortality,
+                                      aNPPAct)]
   cohortData <- sim$cohortData
   sim$cohortData <- cohortData[0,]
   pixelGroups <- data.table(pixelGroupIndex = unique(cohortData$pixelGroup), 
@@ -487,6 +494,7 @@ LBMRSummaryBGM = function(sim) {
   pixelGroups <- data.table(pixelGroupIndex = unique(sim$cohortData$pixelGroup), 
                             temID = 1:length(unique(sim$cohortData$pixelGroup)))
   cutpoints <- sort(unique(c(seq(1, max(pixelGroups$temID), by = 10^4), max(pixelGroups$temID))))
+  if(length(cutpoints) == 1){cutpoints <- c(cutpoints, cutpoints+1)}
   pixelGroups[, groups:=cut(temID, breaks = cutpoints,
                             labels = paste("Group", 1:(length(cutpoints)-1),
                                            sep = ""),
@@ -923,7 +931,8 @@ LBMRWardDispersalSeeding = function(sim) {
                               species = sim$species,
                               reducedPixelGroupMap,
                               maxPotentialsLength = 3e5,
-                              verbose = FALSE)
+                              verbose = FALSE,
+                              useParallel = sim$useParallel)
                               # verbose = globals(sim)$verbose)
     rm(seedReceive, seedSource)
     if(NROW(seedingData) > 0) {
@@ -946,10 +955,15 @@ LBMRWardDispersalSeeding = function(sim) {
                                                                                   Year, numberOfReg)]
         sim$regenerationOutput <- rbindlist(list(sim$regenerationOutput, seedingData_summ))
       }
-      addnewcohort <- addNewCohorts(seedingData, cohortData = sim$cohortData, pixelGroupMap,
+      if(nrow(seedingData)>0){
+        addnewcohort <- addNewCohorts(seedingData, cohortData = sim$cohortData, pixelGroupMap,
                                     time = round(time(sim)), speciesEcoregion = sim$speciesEcoregion)
       sim$cohortData <- addnewcohort$cohortData
       sim$pixelGroupMap <- addnewcohort$pixelGroupMap
+      } else {
+        sim$cohortData <- sim$cohortData
+        sim$pixelGroupMap <- sim$pixelGroupMap
+      } 
     }
   }
   sim$lastReg <- round(time(sim))
@@ -979,9 +993,10 @@ LBMRSummaryRegen = function(sim){
 }
 
 LBMRPlot = function(sim) {
-  # if(time(sim) == sim$successionTimestep){
-  #   clearPlot()
-  # }
+  if(time(sim) == sim$successionTimestep){
+    dev(4)
+     clearPlot()
+  }
   Plot(sim$biomassMap, sim$ANPPMap, sim$mortalityMap, sim$reproductionMap, 
        title = c("Biomass", "ANPP", "mortality", "reproduction"), new = TRUE, speedup = 1)
   grid.rect(0.93, 0.97, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
@@ -1120,6 +1135,7 @@ calculateSumB <- function(cohortData, lastReg, simuTime, successionTimestep){
   pixelGroups <- data.table(pixelGroupIndex = unique(cohortData$pixelGroup), 
                             temID = 1:length(unique(cohortData$pixelGroup)))
   cutpoints <- sort(unique(c(seq(1, max(pixelGroups$temID), by = 10^4), max(pixelGroups$temID))))
+  if(length(cutpoints) == 1){cutpoints <- c(cutpoints, cutpoints+1)}
   pixelGroups[, groups:=cut(temID, breaks = cutpoints,
                             labels = paste("Group", 1:(length(cutpoints)-1),
                                            sep = ""),
@@ -1493,6 +1509,7 @@ addNewCohorts <- function(newCohortData, cohortData, pixelGroupMap, time, specie
   sim$useCache <- TRUE
   sim$cellSize <- res(ecoregionMap)[1]
   sim$calibrate <- FALSE
+  sim$useParallel <- TRUE
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
