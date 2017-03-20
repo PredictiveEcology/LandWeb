@@ -88,13 +88,19 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
 LandMineInit <- function(sim) {
   message("1: ", Sys.time())
   sim$fireTimestep <- P(sim)$fireTimestep
-  vals <- factorValues(sim$rstStudyRegion, sim$rstStudyRegion[], att="LTHRC")
-  vals <- factor(vals$LTHRC)
+  
+  numPixelsPerZone <- freq(sim$rstStudyRegion) %>% na.omit(numPixelsPerZone)
+  numPixelsPerZone <- numPixelsPerZone[,"count"]
+  levs <- levels(sim$rstStudyRegion)[[1]]$LTHRC
+  names(numPixelsPerZone) <- as.character(levs)
+  
+  #vals <- factorValues(sim$rstStudyRegion, sim$rstStudyRegion[], att="LTHRC")
+  #vals <- factor(vals$LTHRC)
   message("2: ", Sys.time())
-  numPixelsPerZone <- tabulate(vals)
-  names(numPixelsPerZone) <- levels(vals)
+  #numPixelsPerZone <- tabulate(vals)
+  #names(numPixelsPerZone) <- levels(vals)
   numHaPerZone <- numPixelsPerZone/(prod(res(sim$rstStudyRegion))/1e4)
-  returnInterval <- as.numeric(levels(vals))
+  returnInterval <- levs
 
   message("3: ", Sys.time())
   
@@ -132,7 +138,8 @@ LandMineInit <- function(sim) {
   #sim$numFiresPerYear <- numFires/returnInterval
   
   sim$fireReturnInterval <- raster(sim$rstStudyRegion)
-  sim$fireReturnInterval[] <- as.numeric(as.character(vals))
+  sim$fireReturnInterval <- setValues(sim$fireReturnInterval, 
+                                      values = levs[sim$rstStudyRegion[]])# as.numeric(as.character(vals))
   
   sim$rstCurrentBurn <- raster(sim$fireReturnInterval)
   sim$rstFlammableNum <- raster(sim$rstFlammable)
@@ -140,8 +147,7 @@ LandMineInit <- function(sim) {
   
   sim$rstFlammableNum[] <- 1-sim$rstFlammable[]
   sim$rstFlammableNum[is.na(sim$rstFlammableNum)] <- NA
-  
-  
+  browser()
   
   if(!is.na(P(sim)$.plotInitialTime)) {
     Plot(sim$fireReturnInterval, title="Fire Return Interval", speedup = 3, new=TRUE)
