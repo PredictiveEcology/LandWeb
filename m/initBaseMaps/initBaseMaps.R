@@ -10,7 +10,7 @@ defineModule(sim, list(
   timeunit =  "year", #no relevence. An init module only.
   citation = list(""),
   documentation = list("README.txt", "initBaseMaps.Rmd"),
-  reqdPkgs = list("raster"),
+  reqdPkgs = list("raster", "amc"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -20,7 +20,7 @@ defineModule(sim, list(
     defineParameter(".useCache", "numeric", TRUE, NA, NA, "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = data.frame(
-    objectName = c("LCC05X", "shpStudyRegionX"),
+    objectName = c("LCC05X", "shpStudySubRegion"),
     objectClass = c("RasterLayer","SpatialPolygonsDataFrame"),
     sourceURL = "",
     other = NA_character_,
@@ -53,19 +53,20 @@ initBaseMapsInit <- function(sim) {
   simProjection <- crs(sim$LCC05X)
   #reproject sim$shpStudyRegion to accord with LCC05
   sim$shpStudyRegion <- Cache(
-  #sim$shpStudyRegion <- SpaDES::cache(cachePath(sim), 
-                                       spTransform, 
-                                       sim$shpStudyRegionX, CRSobj=simProjection)
-  #sim$shpStudyRegion <- spTransform(sim$shpStudyRegionX, CRSobj=simProjection)
+    #sim$shpStudyRegion <- SpaDES::cache(cachePath(sim), 
+    spTransform, 
+    sim$shpStudySubRegion, CRSobj=simProjection)
+  #sim$shpStudyRegion <- spTransform(sim$shpStudySubRegion, CRSobj=simProjection)
   #sim$LCC05 <- crop(sim$LCC05X,sim$shpStudyRegion)
   sim$LCC05 <- Cache(crop,sim$LCC05X,sim$shpStudyRegion)
   rm(LCC05X,envir=envir(sim))
   tmp<-getColors(sim$LCC05)[[1]]
-  sim$rstStudyRegion <- Cache(#cachePath(sim),
-                          rasterize,
-                                          x = sim$shpStudyRegion,
-                                          y = sim$LCC05)#,
-                                          #field = "LTHRC") # Don't use field
+  message("fastRasterize for rstStudyRegion")
+  sim$rstStudyRegion <- Cache(cacheRepo=file.path(cachePath(sim), "StudyRegion"),
+                              fastRasterize, 
+                              polygon = sim$shpStudyRegion,
+                              ras = sim$LCC05)#,
+  #field = "LTHRC") # Don't use field to keep as factor
   # 
   # # Instead of mask, just use indexing
   sim$LCC05[is.na(sim$rstStudyRegion[])] <- NA
@@ -77,3 +78,4 @@ initBaseMapsCache <- function(sim){
   #
   return(invisible(sim))
 }
+
