@@ -4,17 +4,17 @@
 #    `test-functionName.R` format so that your can directly call `moduleCoverage`
 #    to calculate module coverage information.
 #    `functionName` is a function's name in your module (e.g., `landWeb_LBMRDataPrepEvent1`).
-# 2. Copy this file to the tests folder (i.e., `C:/Users/yonluo/Documents/GitHub/LandWeb/landWeb_LBMRDataPrep/tests/testthat`).
+# 2. Copy this file to the tests folder (i.e., `C:/Users/yonluo/Documents/GitHub/LandWeb/LW_LBMRDataPrep/tests/testthat`).
 
 # 3. Modify the test description based on the content you are testing:
 test_that("test Event1 and Event2.", {
-  module <- list("landWeb_LBMRDataPrep")
+  module <- list("LW_LBMRDataPrep")
   path <- list(modulePath = "C:/Users/yonluo/Documents/GitHub/LandWeb",
                outputPath = file.path(tempdir(), "outputs"))
   parameters <- list(
     #.progress = list(type = "graphical", interval = 1),
     .globals = list(verbose = FALSE),
-    landWeb_LBMRDataPrep = list(.saveInitialTime = NA)
+    LW_LBMRDataPrep = list(.saveInitialTime = NA)
   )
   times <- list(start = 0, end = 1)
 
