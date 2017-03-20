@@ -1,8 +1,5 @@
-.Rhistory
-.Rproj.user
 
 appCache*
-outputs*
 mySimDigestSaved.rds
 mySimSaved.rds
 R-Portable/
@@ -30,8 +27,4 @@ packrat/src/
 
 Thumbs.db
 
-UILandWeb/
-UILandWeb/app_data/layers/
-UILandWeb/app_data/polygonNames/
-UILandWeb/packrat/
 
