@@ -1,0 +1,51 @@
+---
+title: "LW_LBMRDataPrep"
+author: ""
+date: "28 October 2016"
+output: pdf_document
+---
+
+# Overview
+
+This module does specific data preparation for the LandWeb study area. Keeping these data preparations outside of the core LBMR module maintains the modularity of LBMR.
+
+# Usage
+
+```{r module_usage}
+rm(list = ls())
+library(igraph)
+library(SpaDES)
+library(raster)
+canadamap <- shapefile("~/GIS DataBase/Canada/Canada.shp")
+dev(4)
+clearPlot()
+Plot(canadamap)
+severalrandompoints <- clickCoordinates(10)
+studyarea <- SpatialPolygons(list(Polygons(list(Polygon(severalrandompoints$coords)), ID = 1)),
+                             proj4string = crs(canadamap))
+inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
+outputDir <- file.path(tempdir(), "outputs")
+times <- list(start = 0, end = 10)
+parameters <- list()
+modules <- list("LW_LBMRDataPrep")
+# studyarea <- shapefile(file.path(".", "LW_LBMRDataPrep", "data", "shpLandWEB.shp"))
+objects <- list("studyArea" = studyarea,
+                "useCache" = TRUE,
+                "successionTimestep" = 2)
+paths <- list(
+  cachePath = file.path("~", "LW_LBMRDataPrep", "cache"),
+  modulePath = file.path("."),
+  inputPath = inputDir,
+  outputPath = outputDir
+)
+mySim <- simInit(times = times, params = parameters, modules = modules,
+                 objects = objects, paths = paths)
+
+simulation <- spades(mySim)
+
+
+
+
+```
+
+
