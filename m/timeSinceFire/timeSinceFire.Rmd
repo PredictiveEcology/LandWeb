@@ -1,0 +1,105 @@
+---
+title: "timeSinceFire"
+author: "Steve Cummming"
+date: "21 October 2016"
+output: pdf_document
+---
+
+# Overview
+
+Yet Another Age Map Maintainer.
+
+This one is peculiar to the LandWEB application.
+
+AgeMap is incremented without bound on all flammable cells;
+Cells identified as having been burned in the curent year are set to 0.
+
+Any statistics on age structure are to be calculated here, but none are yet implemented...because with the current fire model they would be pretty boring. 
+
+#
+
+```{r module_usage}
+library(SpaDES)
+library(magrittr)
+
+inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
+outputDir <- file.path(tempdir(), "outputs")
+times <- list(start = 0, end = 10)
+parameters <- list(
+  #.progress = list(type = "text", interval = 1), # for a progress bar
+  ## If there are further modules, each can have its own set of parameters:
+  #module1 = list(param1 = value1, param2 = value2),
+  #module2 = list(param1 = value1, param2 = value2)
+)
+modules <- list("timeSinceFire")
+objects <- list()
+paths <- list(
+  cachePath = file.path(outputDir, "cache"),
+  modulePath = file.path(".."),
+  inputPath = inputDir,
+  outputPath = outputDir
+)
+
+mySim <- simInit(times = times, params = parameters, modules = modules,
+                 objects = objects, paths = paths)
+
+spades(mySim)
+```
+
+# Events
+
+## Init
+
+The init event creates the RasterLayer _rstTimeSinceFire_. To do this, it rasterises the template vegetation map _LCC05_ using the _FireReturnInterval_ field of the SpatialPoygonDataFrame shpStudyRegion. This procedure retains the NAs which mask the actual study region within the template bounding rectangle. 
+
+Then, the RasterLayer _rstFlammable_ is used to mask out areas of open water, rock, etc which can't burn and thus for which TimeSinceFire is not applicable. These become NAs in _rstTimeSinceFire_. 
+
+The results is that all flammable cells within each polygon in the shapefile are set to the fire return interval specified for that polygon / ecoregion. Under the basic van Wagner model being implemented, this is the expected landscape mean age. The ecoregion age structure will equilibrate to the exponential distribution within a few multiples of the return interval. 
+
+No colour ramp or legend is created for this layer.
+
+In the short term, this initial uniform age distribution will result in very high proportions of cells with tsf's greater than the return interval. If this becomes a problem, one could initialise to the regional median age. This can be done by multiplying the FireReturnInterval by $log(2)$ and then rounding; or some other lower quantile could be chosen: see the ![wikipedia page] ](https://en.wikipedia.org/wiki/Exponential_distribution) for the general quantile function.
+
+Alternatively, a random Exponential age structure could be generated for each ecoregion from the current _rstTimeSinceFire_, roughly as follows. See the wiki page for details and possible alternative methods.
+
+```
+U<-runif(ncell(rstTimeSinceFire))
+T<- (-log(U)) * rstTimeSinceFire[]
+rstTimeSinceFire[] <- round(T)
+```
+
+ 
+
+## Plotting
+
+A bare call to Plot(sim$rstTimeSinceFire). If you really want to see this, you'll have to live the wutomated colour scheme and legend, or hack Init to your satisfaction.
+
+## Saving
+
+Nothing is saved at present. 
+
+## Age
+
+This is the main event. _rstFlammable_ is incremented by one. Then burned cells, as specified in the inpit vector _burnLoci_ are set to age 0. That is all. 
+
+# Data dependencies
+
+## Input data
+This module reads no input data directly.
+
+It requires three inputs for the Init event, as noted, and a vector of indices of cells burned for teh age event.
+
+The input _LCC05_ and _shpStudyRegion_ could be read in from disk, and _rstFlammable_ derived from them, but why would you want to? That's what module __initBaseMaps__ and __fireData_Prep__ do.
+
+
+## Output data
+
+The only output produced is the RasterLayer it maintains, _rstTimeSinceFire_.
+
+# Links to other modules
+
+This module of depends on the existence of module __fireNull__, or simular disturbance module to provide a vector of indices of disturbed cell to reset to tsf=0.  
+
+Could be input to any modul trackin an age dependent event or attribute.
+
+
