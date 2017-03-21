@@ -9,7 +9,7 @@ appCache*
 last.dump.rda
 mySimDigestSaved.rds
 mySimSaved.rds
-outputs/
+outputs*
 packrat/lib*/
 packrat/src/
 R-Portable/

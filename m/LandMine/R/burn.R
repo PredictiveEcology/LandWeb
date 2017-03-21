@@ -62,7 +62,7 @@ burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36)
     b <- b[a]
     a <- spread(landscape, spreadProb = spreadProb, spreadState = a, persistence = 0,
                 neighProbs = transpose(as.list(b[active==TRUE,c("pNoNewSpawn", "pSpawnNewActive")])), 
-                iterations = 1,
+                iterations = 1, quick = TRUE, 
                 mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
                 id = TRUE, plot.it = FALSE, exactSizes = TRUE)
   }

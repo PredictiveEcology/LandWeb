@@ -88,19 +88,21 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
 LandMineInit <- function(sim) {
   message("1: ", Sys.time())
   sim$fireTimestep <- P(sim)$fireTimestep
-  
-  numPixelsPerZone <- freq(sim$rstStudyRegion) %>% na.omit(numPixelsPerZone)
-  numPixelsPerZone <- numPixelsPerZone[,"count"]
-  levs <- levels(sim$rstStudyRegion)[[1]]$LTHRC
-  names(numPixelsPerZone) <- as.character(levs)
+  numPixelsPerPolygonNumeric <- Cache(freq, sim$rstStudyRegion) %>% na.omit()
+  ordPolygons <- order(numPixelsPerPolygonNumeric[,"value"])
+  numPixelsPerPolygonNumeric <- numPixelsPerPolygonNumeric[ordPolygons,]
+  numPixelsPerPolygonNumericLabel <- numPixelsPerPolygonNumeric[,"value"]
+  numPixelsPerPolygonNumeric <- numPixelsPerPolygonNumeric[,"count"]
+  sim$fireReturnIntervalsByPolygonNumeric <- levels(sim$rstStudyRegion)[[1]]$LTHRC[ordPolygons]
+  names(numPixelsPerPolygonNumeric) <- numPixelsPerPolygonNumericLabel
   
   #vals <- factorValues(sim$rstStudyRegion, sim$rstStudyRegion[], att="LTHRC")
   #vals <- factor(vals$LTHRC)
   message("2: ", Sys.time())
-  #numPixelsPerZone <- tabulate(vals)
-  #names(numPixelsPerZone) <- levels(vals)
-  numHaPerZone <- numPixelsPerZone/(prod(res(sim$rstStudyRegion))/1e4)
-  returnInterval <- levs
+  #numPixelsPerPolygonNumeric <- tabulate(vals)
+  #names(numPixelsPerPolygonNumeric) <- levels(vals)
+  numHaPerPolygonNumeric <- numPixelsPerPolygonNumeric/(prod(res(sim$rstStudyRegion))/1e4)
+  returnInterval <- sim$fireReturnIntervalsByPolygonNumeric
 
   message("3: ", Sys.time())
   
@@ -117,14 +119,11 @@ LandMineInit <- function(sim) {
   
   meanFireSizeHa <- meanTrucPareto(k=sim$kBest, lower=1, 
                                    upper = P(sim)$biggestPossibleFireSizeHa, alpha=1)
-  numFiresByZone <- numHaPerZone/meanFireSizeHa
-  sim$numFiresPerYear <- numFiresByZone/returnInterval
+  numFiresByPolygonNumeric <- numHaPerPolygonNumeric/meanFireSizeHa
+  sim$numFiresPerYear <- numFiresByPolygonNumeric/returnInterval
   #numFires <- sum(!is.na(sim$rstStudyRegion[]))/meanFireSizeHa
   #numFires <- optimize(f=findNumFires, interval=c(5,1e7))$minimum
   
-  sim$fireSizesInPixels <- lapply(round(sim$numFiresPerYear), function(x) 
-    rtruncpareto(x, lower = 1, upper = P(sim)$biggestPossibleFireSizeHa, 
-                 shape = sim$kBest))
   
   message("5: ", Sys.time())
   
@@ -139,7 +138,11 @@ LandMineInit <- function(sim) {
   
   sim$fireReturnInterval <- raster(sim$rstStudyRegion)
   sim$fireReturnInterval <- setValues(sim$fireReturnInterval, 
-                                      values = levs[sim$rstStudyRegion[]])# as.numeric(as.character(vals))
+                                      values = sim$fireReturnIntervalsByPolygonNumeric[sim$rstStudyRegion[]])# as.numeric(as.character(vals))
+  sim$fireReturnInterval <- Cache(writeRaster, sim$fireReturnInterval, 
+                                        filename = file.path(outputPath(sim),
+                                                             "fireReturnInterval.tif"),
+                                        datatype = "INT2S", overwrite = TRUE)
   
   sim$rstCurrentBurn <- raster(sim$fireReturnInterval)
   sim$rstFlammableNum <- raster(sim$rstFlammable)
@@ -147,8 +150,7 @@ LandMineInit <- function(sim) {
   
   sim$rstFlammableNum[] <- 1-sim$rstFlammable[]
   sim$rstFlammableNum[is.na(sim$rstFlammableNum)] <- NA
-  browser()
-  
+
   if(!is.na(P(sim)$.plotInitialTime)) {
     Plot(sim$fireReturnInterval, title="Fire Return Interval", speedup = 3, new=TRUE)
   }
@@ -179,16 +181,17 @@ LandMinePlot <- function(sim) {
 
 ### template for your event1
 LandMineBurn <- function(sim) {
+  
   numFiresThisYear <- rpois(length(sim$numFiresPerYear), lambda=sim$numFiresPerYear)
   
   # meanTP <- function(k, lower, upper, alpha) {
   #   k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
   # }
   
-  sim$startCells <- data.table(pixel=1:ncell(sim@.envir$rstStudyRegion),
-                                fri=sim@.envir$fireReturnInterval[],key="fri") %>%
+  sim$startCells <- data.table(pixel=1:ncell(sim$rstStudyRegion),
+                                polygonNumeric=sim$rstStudyRegion[],key="polygonNumeric") %>%
                        na.omit() %>%
-                       .[,SpaDES:::resample(pixel,numFiresThisYear[.GRP]),by=fri] %>% 
+                       .[,SpaDES:::resample(pixel,numFiresThisYear[.GRP]),by=polygonNumeric] %>% 
                        .$V1
   
   # If fire sizes are in hectares, must adjust based on resolution of maps
@@ -198,8 +201,25 @@ LandMineBurn <- function(sim) {
                                     upper=P(sim)$biggestPossibleFireSizeHa, 
                                     shape=sim$kBest)
   
+  # Because annual number of fires is 
+  # 
+  # fireSizesInPixels <- lapply(truncVals + decimalVals, function(x) 
+  #   rtruncpareto(x, lower = 1, upper = P(sim)$biggestPossibleFireSizeHa, 
+  #                shape = sim$kBest))
+  # names(fireSizesInPixels) <- seq_along(sim$fireReturnIntervalsByPolygonNumeric)
+  
+  
   fireSizesInPixels <- round(pmax(1, fireSizesThisYear)/
-                       (prod(res(sim@.envir$rstFlammableNum))/1e4))
+                      (prod(res(sim$rstFlammableNum))/1e4))
+  
+  fireSizesInPixels <- fireSizesThisYear/ (prod(res(sim$rstFlammableNum))/1e4)
+  ranDraws <- runif(length(fireSizesInPixels))
+  truncVals <- trunc(fireSizesInPixels)
+  decimalVals <- (unname(fireSizesInPixels - (truncVals))) > ranDraws
+  
+  fireSizesInPixels <- truncVals+decimalVals
+  
+  
   firesGT0 <- fireSizesInPixels>0
   sim$startCells <- sim$startCells[firesGT0]
   fireSizesInPixels <- fireSizesInPixels[firesGT0]
