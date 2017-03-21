@@ -1,4 +1,4 @@
-raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
+#raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
 
 #### Some variables
 
