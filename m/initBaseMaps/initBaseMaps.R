@@ -58,18 +58,25 @@ initBaseMapsInit <- function(sim) {
     sim$shpStudySubRegion, CRSobj=simProjection)
   #sim$shpStudyRegion <- spTransform(sim$shpStudySubRegion, CRSobj=simProjection)
   #sim$LCC05 <- crop(sim$LCC05X,sim$shpStudyRegion)
-  sim$LCC05 <- Cache(crop,sim$LCC05X,sim$shpStudyRegion)
-  rm(LCC05X,envir=envir(sim))
-  tmp<-getColors(sim$LCC05)[[1]]
+
   message("fastRasterize for rstStudyRegion")
   sim$rstStudyRegion <- Cache(cacheRepo=file.path(cachePath(sim), "StudyRegion"),
                               fastRasterize, 
                               polygon = sim$shpStudyRegion,
-                              ras = sim$LCC05)#,
+                              ras = sim$LCC05X)#,
+  
+  cropMask <- function(ras, poly, mask) {
+    out <- crop(ras,poly)
+    # # Instead of mask, just use indexing
+    out[is.na(mask[])] <- NA
+  }
+  
+  sim$LCC05 <- Cache(cropMask, sim$LCC05X, sim$shpStudyRegion, sim$rstStudyRegion)
+  
+  rm(LCC05X,envir=envir(sim))
+  tmp<-getColors(sim$LCC05)[[1]]
   #field = "LTHRC") # Don't use field to keep as factor
   # 
-  # # Instead of mask, just use indexing
-  sim$LCC05[is.na(sim$rstStudyRegion[])] <- NA
   return(invisible(sim))
 }
 
