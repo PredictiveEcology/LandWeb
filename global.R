@@ -164,7 +164,8 @@ times <- list(start = 0, end = endTime)
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
                 "successionTimestep" = successionTimestep,
-                "summaryPeriod" = summaryPeriod)
+                "summaryPeriod" = summaryPeriod,
+                "useParallel" = TRUE)
 parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
