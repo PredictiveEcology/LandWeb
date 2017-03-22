@@ -29,6 +29,9 @@ function(input, output, session) {
   
   raster::endCluster()
   message("Running Experiment")
+  seed <- sample(1e8,1)
+  set.seed(seed)
+  message("Current seed is: ", seed)
   args <- list(experiment, mySim, replicates = experimentReps, 
                debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
                #debug = TRUE, #cache = TRUE, 
