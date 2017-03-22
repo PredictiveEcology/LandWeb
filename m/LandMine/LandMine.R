@@ -209,8 +209,8 @@ LandMineBurn <- function(sim) {
   # names(fireSizesInPixels) <- seq_along(sim$fireReturnIntervalsByPolygonNumeric)
   
   
-  fireSizesInPixels <- round(pmax(1, fireSizesThisYear)/
-                      (prod(res(sim$rstFlammableNum))/1e4))
+  # fireSizesInPixels <- round(pmax(1, fireSizesThisYear)/
+  #                     (prod(res(sim$rstFlammableNum))/1e4))
   
   fireSizesInPixels <- fireSizesThisYear/ (prod(res(sim$rstFlammableNum))/1e4)
   ranDraws <- runif(length(fireSizesInPixels))
