@@ -83,8 +83,8 @@ if (FALSE) {
 
 ## Make sure SpaDES is up to date
 #if (tryCatch(packageVersion("SpaDES") < "1.3.1.9047", error = function(x) TRUE))
-#  devtools::install_github("PredictiveEcology/SpaDES@development")  
-devtools::install_github("PredictiveEcology/SpaDES@development")  
+devtools::install_github("PredictiveEcology/SpaDES@spreadStateExists")  
+# devtools::install_github("PredictiveEcology/SpaDES@development")  
 devtools::install_github("achubaty/amc@development")  
 if(FALSE) {
   library(devtools)
@@ -207,7 +207,7 @@ if (needMySim) {
   saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
 } 
 
-rm(objects)
+#rm(objects)
 
 if (maxNumClusters > 0) {
   if (!exists("cl")) {
@@ -235,4 +235,4 @@ if (maxNumClusters > 0) {
   }
 }
 
-
+source("mapsForShiny.R")
