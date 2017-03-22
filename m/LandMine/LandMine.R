@@ -26,9 +26,10 @@ defineModule(sim, list(
   ),
   inputObjects = data.frame(
     objectName = c("rstStudyRegion", "rstFlammable"),
-    objectClass = c("Raster"),
+    objectClass = c("Raster", "Raster"),
     sourceURL = "",
-    other = NA_character_,
+    other = c("A raster layer that is a factor raster, with at least 1 column called LTHRC, representing the fire return interval in years",
+              "A raster layer, with 0, 1 and NA, where 0 indicates areas that are flammable, 1 not flammable (e.g., lakes) and NA not applicable (e.g., masked)"),
     stringsAsFactors = FALSE
   ),
   outputObjects = bind_rows(
@@ -142,7 +143,7 @@ LandMineInit <- function(sim) {
   sim$fireReturnInterval <- Cache(writeRaster, sim$fireReturnInterval, 
                                         filename = file.path(outputPath(sim),
                                                              "fireReturnInterval.tif"),
-                                        datatype = "INT2S", overwrite = TRUE)
+                                        datatype = "INT2U", overwrite = TRUE)
   
   sim$rstCurrentBurn <- raster(sim$fireReturnInterval)
   sim$rstFlammableNum <- raster(sim$rstFlammable)
