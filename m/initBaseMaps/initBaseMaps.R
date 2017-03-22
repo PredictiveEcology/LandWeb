@@ -58,26 +58,36 @@ initBaseMapsInit <- function(sim) {
     sim$shpStudySubRegion, CRSobj=simProjection)
   #sim$shpStudyRegion <- spTransform(sim$shpStudySubRegion, CRSobj=simProjection)
   #sim$LCC05 <- crop(sim$LCC05X,sim$shpStudyRegion)
-
+  
   message("fastRasterize for rstStudyRegion")
+  fastRasterizeFn <- function(polygon, ras) {
+    a <- fastRasterize(polygon, ras)
+    dataType(a) <- "INT1U"
+    levels(a) <- levels(a)[[1]][,c("ID", "LTHRC")]
+    a <- writeRaster(a, filename = file.path(tmpDir(), "rstStudyRegion.grd"))
+    a
+  }
   sim$rstStudyRegion <- Cache(cacheRepo=file.path(cachePath(sim), "StudyRegion"),
-                              fastRasterize, 
+                              fastRasterizeFn, 
                               polygon = sim$shpStudyRegion,
-                              ras = sim$LCC05X)#,
+                              ras = crop(sim$LCC05X, extent(sim$shpStudyRegion)))
   
   cropMask <- function(ras, poly, mask) {
     out <- crop(ras,poly)
     # # Instead of mask, just use indexing
-    out[is.na(mask[])] <- NA
+    out[is.na(mask)] <- NA
+    origFilename <- filename(out)
+    out <- writeRaster(out, filename = file.path(tmpDir(), "LCC05_studyArea.tif"), 
+                       datatype = "INT1U",
+                       overwrite = TRUE)
+    file.remove(origFilename)
     out
   }
-  
+
   sim$LCC05 <- Cache(cropMask, sim$LCC05X, sim$shpStudyRegion, sim$rstStudyRegion)
   
   rm(LCC05X,envir=envir(sim))
   tmp<-getColors(sim$LCC05)[[1]]
-  #field = "LTHRC") # Don't use field to keep as factor
-  # 
   return(invisible(sim))
 }
 
