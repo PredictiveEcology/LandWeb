@@ -69,6 +69,7 @@ initBaseMapsInit <- function(sim) {
     out <- crop(ras,poly)
     # # Instead of mask, just use indexing
     out[is.na(mask[])] <- NA
+    out
   }
   
   sim$LCC05 <- Cache(cropMask, sim$LCC05X, sim$shpStudyRegion, sim$rstStudyRegion)
