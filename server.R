@@ -13,7 +13,7 @@ function(input, output, session) {
     initialRun <- Cache(spades, sim = mySimCopy, 
                         debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
                         objects = "shpStudyRegion", 
-                        cacheRepo = file.path(cachePath(mySim), "studyRegion"), .plotInitialTime = NA)
+                        cacheRepo = file.path(cachePath(mySim), "StudyRegion"), .plotInitialTime = NA)
     # try(silent = TRUE, {
     #   filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
     #   filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
