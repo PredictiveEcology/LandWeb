@@ -2,7 +2,6 @@ function(input, output, session) {
   
   #react <- reactiveValues()
   seed <- sample(1e8,1)
-  seed <- 9633423
   set.seed(seed)
   message("Current seed is: ", seed)
   
