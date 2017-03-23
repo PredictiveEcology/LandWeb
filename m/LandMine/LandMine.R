@@ -90,6 +90,7 @@ LandMineInit <- function(sim) {
   message("1: ", Sys.time())
   sim$fireTimestep <- P(sim)$fireTimestep
   numPixelsPerPolygonNumeric <- Cache(freq, sim$rstStudyRegion) %>% na.omit()
+  #numPixelsPerPolygonNumeric <- numPixelsPerPolygonNumeric[numPixelsPerPolygonNumeric[,"value"]!=0,]
   ordPolygons <- order(numPixelsPerPolygonNumeric[,"value"])
   numPixelsPerPolygonNumeric <- numPixelsPerPolygonNumeric[ordPolygons,]
   numPixelsPerPolygonNumericLabel <- numPixelsPerPolygonNumeric[,"value"]
@@ -140,8 +141,9 @@ LandMineInit <- function(sim) {
   sim$fireReturnInterval <- raster(sim$rstStudyRegion)
   sim$fireReturnInterval <- setValues(sim$fireReturnInterval, 
                                       values = sim$fireReturnIntervalsByPolygonNumeric[sim$rstStudyRegion[]])# as.numeric(as.character(vals))
+  #sim$fireReturnInterval[sim$rstStudyRegion[]>0] <- sim$fireReturnIntervalsByPolygonNumeric[sim$rstStudyRegion[][sim$rstStudyRegion[]>0]]
   sim$fireReturnInterval <- Cache(writeRaster, sim$fireReturnInterval, 
-                                        filename = file.path(outputPath(sim),
+                                        filename = file.path(tempdir(),
                                                              "fireReturnInterval.tif"),
                                         datatype = "INT2U", overwrite = TRUE)
   
