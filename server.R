@@ -1,6 +1,10 @@
 function(input, output, session) {
   
   #react <- reactiveValues()
+  seed <- sample(1e8,1)
+  seed <- 9633423
+  set.seed(seed)
+  message("Current seed is: ", seed)
   
   if (TRUE) {
     # # Do an initial run for each given study area so that all the data prep can be done once only
@@ -28,10 +32,10 @@ function(input, output, session) {
   callModule(moduleInfo, "modInfoBoxes", initialRun)
   
   raster::endCluster()
-  message("Running Experiment")
   seed <- sample(1e8,1)
   set.seed(seed)
   message("Current seed is: ", seed)
+  message("Running Experiment")
   args <- list(experiment, mySim, replicates = experimentReps, 
                debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
                #debug = TRUE, #cache = TRUE, 
