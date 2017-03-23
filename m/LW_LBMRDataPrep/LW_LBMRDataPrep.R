@@ -172,7 +172,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   septable[, SEP:=round(SEP, 2)]
   # 
   # 
-  message("6: ", Sys.time())
+  message("6 obtainMaxBandANPPFormBiggerEcoArea: ", Sys.time())
   speciesEcoregionTable[, species:=as.character(species)]
   septable[,species:=as.character(species)]
   speciesEcoregionTable <- left_join(speciesEcoregionTable, septable, by = c("ecoregion", "species")) %>%
@@ -391,6 +391,7 @@ ecoregionProducer <- function(studyAreaRaster,
                               studyArea,
                               rstStudyArea, maskFn) {
   # change the coordinate reference for all spatialpolygons
+  message("ecoregionProducer 1: ", Sys.time())
   ecoregionMapInStudy <- raster::intersect(ecoregionMapFull, studyArea)
   # ecoregions <- ecoregionMapInStudy@data[,ecoregionName]
   # ecoregionTable <- data.table(mapcode = numeric(),
@@ -427,14 +428,17 @@ ecoregionProducer <- function(studyAreaRaster,
   # }
   
   # Alternative
+  message("ecoregionProducer fastRasterize: ", Sys.time())
   ecoregionMap <- fastRasterize(ecoregionMapInStudy, studyAreaRaster, field = "ECODISTRIC")
   ecoregionFactorValues <- factor(unique(ecoregionMap[]))
   ecoregionTable <- data.table(mapcode=seq_along(levels(ecoregionFactorValues)), ecoregion=levels(ecoregionFactorValues))
+  message("ecoregionProducer mapvalues: ", Sys.time())
   ecoregionMap[] <- plyr::mapvalues(ecoregionMap[], from = ecoregionTable$ecoregion, to = ecoregionTable$mapcode)
   
   
   ecoregionActiveStatus[, ecoregion:=as.character(ecoregion)]
   ecoregionTable <- ecoregionTable[!is.na(mapcode),]
+  message("ecoregionProducer dplyr_leftjoin: ", Sys.time())
   ecoregionTable <- dplyr::left_join(ecoregionTable,
                                      ecoregionActiveStatus,
                                      by = "ecoregion") %>%
@@ -566,7 +570,14 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   #   
   # }
   #biggerEcoMapRaster2 <- Cache(fastRasterize, subbigEcoMap, ras = subbiggerEcoMap_Raster, field=toupper(biggerEcoAreaSource))
-  biggerEcoMapRaster <- Cache(fastRasterize, subbigEcoMap, ras = subbiggerEcoMap_Raster, 
+  fastRasterizeFn <- function(polygon, ras, field) {
+    a <- fastRasterize(polygon, ras, field)
+    a <- writeRaster(a, filename = file.path(tmpDir(), "biggerEcoMapRaster.grd"), 
+                     overwrite = TRUE, datatype="INT2U") # need NA value
+    a
+  }
+  
+  biggerEcoMapRaster <- Cache(fastRasterizeFn, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster, 
                               field=toupper(biggerEcoAreaSource))
   
   biggerEcoMapRaster_ST <- crop(biggerEcoMapRaster, subEcoregion)
@@ -582,7 +593,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   ecodistrictEcoregionTable[, maxPercent:=max(percentage), by = ecoregion]
   ecodistrictEcoregionTable <- ecodistrictEcoregionTable[percentage == maxPercent, .(biggerEcoregion, ecoregion)] %>%
     unique(., by = c("biggerEcoregion", "ecoregion"))
-  ecoregionBiomass <- obtainMaxBandANPP(speciesLayers = speciesLayers,
+  ecoregionBiomass <- Cache(obtainMaxBandANPP, speciesLayers = speciesLayers,
                                         biomassLayer = biomassLayer,
                                         SALayer = SALayer,
                                         ecoregionMap = biggerEcoMapRaster)
