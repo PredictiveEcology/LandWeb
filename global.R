@@ -26,7 +26,7 @@ studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
 endTime <- 100 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(50, endTime)
+summaryPeriod <- c(10, endTime)
 
 try(rm(mySim), silent=TRUE)
 useGGplot <- FALSE
@@ -193,20 +193,20 @@ outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatyp
 
 outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
 
-if (exists("mySim")) {
-  if (readRDS(file = "mySimDigestSaved.rds") == digest::digest(mySim)) {
-    needMySim <- FALSE
-  } else {
-    needMySim <- TRUE
-  }
-} else {
-  needMySim <- TRUE
-}
-if (needMySim) {
+# if (exists("mySim")) {
+#   if (readRDS(file = "mySimDigestSaved.rds") == digest::digest(mySim)) {
+#     needMySim <- FALSE
+#   } else {
+#     needMySim <- TRUE
+#   }
+# } else {
+#   needMySim <- TRUE
+# }
+# if (needMySim) {
   mySim <- simInit(times = times, params = parameters, modules = modules,
                    objects = objects, paths = paths, outputs = outputs)
-  saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
-} 
+#  saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
+#} 
 
 #rm(objects)
 
