@@ -19,14 +19,14 @@ library(raster)
 beginCluster(25, type = "FORK")
 #print(raster::getCluster())
 if(!exists("globalRasters")) globalRasters <- list()
-endTime <- 800 # was 4
 #studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 studyArea <- "FULL"
-#studyArea <- "SMALL"
+studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
+endTime <- 100 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(600, endTime)
+summaryPeriod <- c(50, endTime)
 
 try(rm(mySim), silent=TRUE)
 useGGplot <- FALSE
@@ -83,9 +83,9 @@ if (FALSE) {
 
 ## Make sure SpaDES is up to date
 #if (tryCatch(packageVersion("SpaDES") < "1.3.1.9047", error = function(x) TRUE))
-devtools::install_github("PredictiveEcology/SpaDES@spreadStateExists")  
-# devtools::install_github("PredictiveEcology/SpaDES@development")  
+devtools::install_github("PredictiveEcology/SpaDES@development")  
 devtools::install_github("achubaty/amc@development")  
+
 if(FALSE) {
   library(devtools)
   library(withr);
