@@ -103,7 +103,7 @@ LandMineInit <- function(sim) {
   message("2: ", Sys.time())
   #numPixelsPerPolygonNumeric <- tabulate(vals)
   #names(numPixelsPerPolygonNumeric) <- levels(vals)
-  numHaPerPolygonNumeric <- numPixelsPerPolygonNumeric/(prod(res(sim$rstStudyRegion))/1e4)
+  numHaPerPolygonNumeric <- numPixelsPerPolygonNumeric*(prod(res(sim$rstStudyRegion))/1e4)
   returnInterval <- sim$fireReturnIntervalsByPolygonNumeric
 
   message("3: ", Sys.time())
