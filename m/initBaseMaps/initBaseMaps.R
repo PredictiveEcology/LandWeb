@@ -62,9 +62,10 @@ initBaseMapsInit <- function(sim) {
   message("fastRasterize for rstStudyRegion")
   fastRasterizeFn <- function(polygon, ras) {
     a <- fastRasterize(polygon, ras)
-    dataType(a) <- "INT1U"
+    dataType(a) <- "INT1S"
     levels(a) <- levels(a)[[1]][,c("ID", "LTHRC")]
-    a <- writeRaster(a, filename = file.path(tmpDir(), "rstStudyRegion.grd"))
+    a <- writeRaster(a, filename = file.path(tmpDir(), "rstStudyRegion.grd"), 
+                     overwrite = TRUE, datatype="INT2U") # need NA value
     a
   }
   sim$rstStudyRegion <- Cache(cacheRepo=file.path(cachePath(sim), "StudyRegion"),
@@ -76,11 +77,9 @@ initBaseMapsInit <- function(sim) {
     out <- crop(ras,poly)
     # # Instead of mask, just use indexing
     out[is.na(mask)] <- NA
-    origFilename <- filename(out)
     out <- writeRaster(out, filename = file.path(tmpDir(), "LCC05_studyArea.tif"), 
                        datatype = "INT1U",
                        overwrite = TRUE)
-    file.remove(origFilename)
     out
   }
 
