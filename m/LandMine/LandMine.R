@@ -228,6 +228,9 @@ LandMineBurn <- function(sim) {
   fireSizesInPixels <- fireSizesInPixels[firesGT0]
   
   if(length(sim$startCells)>0) {
+    fires1 <- sim$burn1(sim$fireReturnInterval, startCells = sim$startCells, 
+                        fireSizes = fireSizesInPixels, spreadProb = sim$rstFlammableNum,
+                        spawnNewActive = c(0.3, 0.2, 0.26, 0.11))
     fires <- sim$burn(sim$fireReturnInterval, startCells = sim$startCells, 
                       fireSizes = fireSizesInPixels, spreadProb = sim$rstFlammableNum,
                       spawnNewActive = c(0.3, 0.2, 0.26, 0.11))
