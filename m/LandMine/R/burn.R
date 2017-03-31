@@ -46,7 +46,6 @@
 #'   A \code{data.table} with 4 columns
 burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
                  sizeCutoffs = c(8e3, 2e4), spreadProb = 1) {
-  browser()
   a = spread(landscape, loci = startCells, spreadProb = spreadProb, persistence = 0,
              neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
              mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
@@ -72,8 +71,6 @@ burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36)
 
 burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
                  sizeCutoffs = c(8e3, 2e4), spreadProb = 1) {
-  browser()
-  assign("its1",1,envir=.GlobalEnv)
   a = spreadDT(landscape, start = startCells, spreadProb = spreadProb, #persistence = 0,
              neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
              #mask=NULL, 
@@ -91,9 +88,6 @@ burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36
     
     # spawnNewActive must be joined sent in here as list...
     b <- b[a, on="initialPixels"]
-    message("burn its:", get("its1", envir=.GlobalEnv))
-    #browser(expr=get("its1", envir=.GlobalEnv)==12)
-    its1 <<- its1 + 1
     a <- spreadDT(landscape, spreadProb = spreadProb, start = a, #persistence = 0,
                 neighProbs = transpose(as.list(b[state=="activeSource",c("pNoNewSpawn", "pSpawnNewActive")])), 
                 iterations = 1, skipChecks = TRUE, asRaster = FALSE,
@@ -102,6 +96,8 @@ burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36
                 directions=8, #returnIndices = TRUE,
                 #id = TRUE, plot.it = FALSE, 
                 exactSizes = TRUE)
+    whActive <- a$state=="activeSource"
+    
   }
   return(a)
 }
