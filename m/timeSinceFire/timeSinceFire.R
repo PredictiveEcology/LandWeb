@@ -53,7 +53,7 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, params(sim)$timeSinceFire$.saveInitialTime, "timeSinceFire", "save")
     sim <- scheduleEvent(sim, params(sim)$timeSinceFire$startTime, "timeSinceFire", "age")
   } else if (eventType == "age") {
-    sim$burnLoci <- Which(sim$rstCurrentBurn==1, cell = TRUE)
+    sim$burnLoci <- which(sim$rstCurrentBurn[]==1)
     sim$rstTimeSinceFire[] <- sim$rstTimeSinceFire[] + as.integer(params(sim)$timeSinceFire$returnInterval) #preserves NAs
     sim$rstTimeSinceFire[sim$burnLoci] <- 0L
     #schedule next age event
@@ -93,7 +93,7 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
 timeSinceFireInit <- function(sim) {
     #browser()
   if(is.null(sim$burnLoci)){
-    sim$burnLoci <- Which(sim$rstCurrentBurn==1, cell = TRUE)
+    sim$burnLoci <- which(sim$rstCurrentBurn[]==1)
   }
   # Much faster than call rasterize again
   sim$rstTimeSinceFire <- raster(sim$rstStudyRegion)
