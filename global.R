@@ -1,4 +1,4 @@
-#raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
+raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
 
 #### Some variables
 
@@ -14,19 +14,21 @@ ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
   }
 })
 experimentReps <- 1 # was 4
-maxNumClusters <- 0#35 # use 0 to turn off # otherwise detectCPUs() - 1
+maxNumClusters <- 3 # use 0 to turn off # otherwise detectCPUs() - 1
 library(raster)
+library(fpCompare)
+
 beginCluster(25, type = "FORK")
 #print(raster::getCluster())
 if(!exists("globalRasters")) globalRasters <- list()
 #studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 studyArea <- "FULL"
-studyArea <- "SMALL"
+#studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
-endTime <- 100 # was 4
+endTime <- 800 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(10, endTime)
+summaryPeriod <- c(600, endTime)
 
 try(rm(mySim), silent=TRUE)
 useGGplot <- FALSE
@@ -47,7 +49,6 @@ if(FALSE) { # THese are all "dangerous" for development only...
   file.remove(dir("outputs", recursive = TRUE, full.names = TRUE))
   unlink("outputs", force = TRUE)
   unlink(file.path("appCache", studyArea), force = TRUE, recursive = TRUE)
-  file.remove("mySimDigestSaved.rds", "mySimSaved.rds")
 }
 
 if (FALSE) { # For pushing to shinyapps.io
@@ -83,8 +84,10 @@ if (FALSE) {
 
 ## Make sure SpaDES is up to date
 #if (tryCatch(packageVersion("SpaDES") < "1.3.1.9047", error = function(x) TRUE))
-devtools::install_github("PredictiveEcology/SpaDES@development")  
+#devtools::install_github("PredictiveEcology/SpaDES@development")  
+devtools::install_github("PredictiveEcology/SpaDES@spreadDT2")  
 devtools::install_github("achubaty/amc@development")  
+
 
 if(FALSE) {
   library(devtools)
@@ -99,7 +102,7 @@ pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly",
           "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
           "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown",
           "amc"# fastRasterize and fastMask functions
-          )
+)
 lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
 
 ## For shinyapps.io -- needs to see explicit require statements
@@ -147,6 +150,33 @@ setwd(curDir)
 
 
 
+if (maxNumClusters > 0) {
+  if (!exists("cl")) {
+    library(parallel)
+    # try(stopCluster(cl), silent = TRUE)
+    ncores <- if (Sys.info()[["user"]] == "achubaty") {
+      pmin(maxNumClusters, detectCores() / 2)
+    } else {
+      maxNumClusters
+    } 
+    
+    ncores <-  pmin(ncores, detectCores() - 1) 
+    
+    message("Spawning ", ncores, " threads")
+    if (Sys.info()[["sysname"]] == "Windows") {
+      clusterType = "SOCK"
+    } else {
+      clusterType = "FORK"
+    }
+    cl <- makeCluster(ncores, type = clusterType)
+    if (Sys.info()[["sysname"]] == "Windows") {
+      clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
+    }
+    message("  Finished Spawning multiple threads")
+  }
+}
+
+
 ## Create mySim
 paths <- list(
   cachePath = paste0("appCache", studyArea),
@@ -160,12 +190,13 @@ modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "LW_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
 
+
 times <- list(start = 0, end = endTime)
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
                 "successionTimestep" = successionTimestep,
                 "summaryPeriod" = summaryPeriod,
-                "useParallel" = TRUE)
+                "useParallel" = if(maxNumClusters) cl else TRUE)
 parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
@@ -193,47 +224,8 @@ outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatyp
 
 outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
 
-# if (exists("mySim")) {
-#   if (readRDS(file = "mySimDigestSaved.rds") == digest::digest(mySim)) {
-#     needMySim <- FALSE
-#   } else {
-#     needMySim <- TRUE
-#   }
-# } else {
-#   needMySim <- TRUE
-# }
-# if (needMySim) {
-  mySim <- simInit(times = times, params = parameters, modules = modules,
-                   objects = objects, paths = paths, outputs = outputs)
-#  saveRDS(digest::digest(mySim), file = "mySimDigestSaved.rds")
-#} 
-
-#rm(objects)
-
-if (maxNumClusters > 0) {
-  if (!exists("cl")) {
-    library(parallel)
-    # try(stopCluster(cl), silent = TRUE)
-    ncores <- if (Sys.info()[["user"]] == "achubaty") {
-      pmin(maxNumClusters, detectCores() / 2)
-    } else {
-      maxNumClusters
-    } 
-    
-    ncores <-  pmin(ncores, detectCores() - 1) 
-    
-    message("Spawning ", ncores, " threads")
-    if (Sys.info()[["sysname"]] == "Windows") {
-      clusterType = "SOCK"
-    } else {
-      clusterType = "FORK"
-    }
-    cl <- makeCluster(ncores, type = clusterType)
-    if (Sys.info()[["sysname"]] == "Windows") {
-      clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
-    }
-    message("  Finished Spawning multiple threads")
-  }
-}
+mySim <- simInit(times = times, params = parameters, modules = modules,
+                 objects = objects, paths = paths, outputs = outputs)
 
 source("mapsForShiny.R")
+#devtools::load_all("~/Documents/GitHub/SpaDES/.")
