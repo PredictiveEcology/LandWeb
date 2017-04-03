@@ -146,18 +146,18 @@ LandMineInit <- function(sim) {
                                         filename = file.path(tempdir(),
                                                              "fireReturnInterval.tif"),
                                         datatype = "INT2U", overwrite = TRUE)
-  
   sim$rstCurrentBurn <- raster(sim$fireReturnInterval)
   sim$rstFlammableNum <- raster(sim$rstFlammable)
   message("6: ", Sys.time())
   
-  sim$rstFlammableNum[] <- 1-sim$rstFlammable[]
+  sim$rstFlammableNum[] <- 1L-as.integer(sim$rstFlammable[])
   sim$rstFlammableNum[is.na(sim$rstFlammableNum)] <- NA
 
   if(!is.na(P(sim)$.plotInitialTime)) {
     Plot(sim$fireReturnInterval, title="Fire Return Interval", speedup = 3, new=TRUE)
   }
   
+  rm("rstFlammable", envir = envir(sim)) # don't need this in LandMine
   return(invisible(sim))
 }
 
@@ -234,8 +234,8 @@ LandMineBurn <- function(sim) {
     #fires <- sim$burn(sim$fireReturnInterval, startCells = sim$startCells, 
     #                  fireSizes = fireSizesInPixels, spreadProb = sim$rstFlammableNum,
     #                  spawnNewActive = c(0.3, 0.2, 0.26, 0.11))
-    sim$rstCurrentBurn[] <- 0
-    sim$rstCurrentBurn[fires$pixels] <- 1 # time(sim)+1
+    sim$rstCurrentBurn[] <- 0L
+    sim$rstCurrentBurn[fires$pixels] <- 1L # time(sim)+1
   }
   return(invisible(sim))
 }

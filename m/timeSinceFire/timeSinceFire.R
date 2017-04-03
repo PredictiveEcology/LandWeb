@@ -54,8 +54,8 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, params(sim)$timeSinceFire$startTime, "timeSinceFire", "age")
   } else if (eventType == "age") {
     sim$burnLoci <- Which(sim$rstCurrentBurn==1, cell = TRUE)
-    sim$rstTimeSinceFire <- sim$rstTimeSinceFire + params(sim)$timeSinceFire$returnInterval #preserves NAs
-    sim$rstTimeSinceFire[sim$burnLoci] <- 0
+    sim$rstTimeSinceFire[] <- sim$rstTimeSinceFire[] + as.integer(params(sim)$timeSinceFire$returnInterval) #preserves NAs
+    sim$rstTimeSinceFire[sim$burnLoci] <- 0L
     #schedule next age event
     sim <- scheduleEvent(sim, time(sim) + params(sim)$timeSinceFire$returnInterval, "timeSinceFire", "age")
   } else if (eventType == "plot") {
@@ -97,7 +97,7 @@ timeSinceFireInit <- function(sim) {
   }
   # Much faster than call rasterize again
   sim$rstTimeSinceFire <- raster(sim$rstStudyRegion)
-  sim$rstTimeSinceFire[] <- sim$shpStudyRegion$LTHRC[sim$rstStudyRegion[]]
+  sim$rstTimeSinceFire[] <- as.integer(sim$shpStudyRegion$LTHRC[sim$rstStudyRegion[]])
   sim$rstTimeSinceFire[sim$rstFlammable[] == 1] <- NA #non-flammable areas are permanent.
   #assign legend and colours if you are serious
   return(invisible(sim))
