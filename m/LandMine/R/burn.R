@@ -74,9 +74,9 @@ burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36
   a = spreadDT(landscape, start = startCells, spreadProb = spreadProb, #persistence = 0,
              neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
              #mask=NULL, 
-             asRaster = FALSE, maxSize = fireSizes, directions=8, #returnIndices = TRUE,
-             #id = TRUE, plot.it = FALSE, 
-             exactSizes = TRUE);
+             asRaster = FALSE, exactSize = fireSizes, directions=8, #returnIndices = TRUE,
+             #id = TRUE, plot.it = FALSE
+             );
   whActive <- a$state=="activeSource"
   while(any(whActive)) {
     b <- a[,list(numActive = sum(state=="activeSource"), fireSize = .N),by=initialPixels]
@@ -91,11 +91,12 @@ burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36
     a <- spreadDT(landscape, spreadProb = spreadProb, start = a, #persistence = 0,
                 neighProbs = transpose(as.list(b[state=="activeSource",c("pNoNewSpawn", "pSpawnNewActive")])), 
                 iterations = 1, skipChecks = TRUE, asRaster = FALSE,
+                exactSize = attr(a, "cluster")$maxSize,
                 #mask=NULL, 
                 #maxSize = fireSizes, 
                 directions=8, #returnIndices = TRUE,
-                #id = TRUE, plot.it = FALSE, 
-                exactSizes = TRUE)
+                #id = TRUE, plot.it = FALSE
+                )
     whActive <- a$state=="activeSource"
     
   }
