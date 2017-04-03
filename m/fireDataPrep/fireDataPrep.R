@@ -30,8 +30,8 @@ defineModule(sim, list(
     stringsAsFactors = FALSE
   ),
   outputObjects = data.frame(
-    objectName = c("rstFlammable", "rstBurnProb"),
-    objectClass = c("RasterLayer", "RasterLayer"),
+    objectName = c("rstFlammable"),#, "rstBurnProb"),
+    objectClass = c("RasterLayer"),
     other = c("rstFlammable is 0 for flammable, 1 for non flammable",""),
     stringsAsFactors = FALSE
   )
