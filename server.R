@@ -11,9 +11,9 @@ function(input, output, session) {
     # 5 minutes for 6e3 km2
     # 30 minutes for 6e4 km2
     mySimCopy <- Copy(mySim)
-    end(mySimCopy) <- 1
+    end(mySimCopy) <- 0
     message("Running Initial spades call")
-    initialRun <- Cache(spades, sim = mySimCopy, 
+    initialRun <- Cache(spades, sim = mySimCopy, #notOlderThan = Sys.time(),
                         debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
                         objects = "shpStudyRegion", 
                         cacheRepo = file.path(cachePath(mySim), "StudyRegion"), .plotInitialTime = NA)
@@ -31,14 +31,13 @@ function(input, output, session) {
   callModule(moduleInfo, "modInfoBoxes", initialRun)
   
   raster::endCluster()
-  seed <- sample(1e8,1)
-  set.seed(seed)
-  message("Current seed is: ", seed)
   message("Running Experiment")
   args <- list(experiment, mySim, replicates = experimentReps, 
-               debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
+               debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '),{lsObj <- ls(envir=sim@.envir); keep <- 1:8;
+               a <- sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>% setNames(lsObj), decreasing = TRUE)[keep]; 
+               paste(names(a)[keep], collapse=' ')},paste(a[keep], collapse=' '))", 
                #debug = TRUE, #cache = TRUE, 
-               cl = if(exists("cl")) cl, 
+               #cl = if(exists("cl")) cl, 
                .plotInitialTime = NA,
                #notOlderThan = Sys.time(),
                clearSimEnv = TRUE)
@@ -287,4 +286,4 @@ function(input, output, session) {
   })#, digits = 1)
   
   
-}
+  }
