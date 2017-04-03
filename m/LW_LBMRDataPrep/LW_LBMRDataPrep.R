@@ -219,7 +219,13 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   sim$speciesEcoregion <- speciesEcoregion
   sim$ecoregion <- simulationMaps$ecoregion
   sim$ecoregionMap <- simulationMaps$ecoregionMap
-  sim$initialCommunitiesMap <- simulationMaps$initialCommunityMap
+  sim$initialCommunitiesMap <- setValues(simulationMaps$initialCommunityMap, 
+                                         as.integer(simulationMaps$initialCommunityMap[]))
+  # get it out of RAM as it is essentially unneeded throughout most of simulation
+  sim$initialCommunitiesMap <- writeRaster(sim$initialCommunitiesMap, overwrite = TRUE,
+                                           filename = file.path(outputPath(sim), "initialCommunitiesMap.tif"),
+                                           datatype="INT2U")
+  
   message("9: ", Sys.time())
   
   # species traits inputs
