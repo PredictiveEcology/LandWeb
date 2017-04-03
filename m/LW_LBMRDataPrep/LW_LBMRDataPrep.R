@@ -137,7 +137,8 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   initialCommFiles <- sim$initialCommunityProducerCached(speciesLayers = sim$specieslayers, 
                                                          speciesPresence = 50,
                                                          studyArea = sim$studyArea,
-                                                         rstStudyArea = rstStudyRegionBinary)
+                                                         rstStudyArea = rstStudyRegionBinary,
+                                                         userTags = c("function:initialCommunityProducer"))
   ecoregionstatus <- data.table(active = "yes",
                                 ecoregion = 1:1031)
   message("ecoregionProducer: ", Sys.time())
@@ -147,7 +148,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                 ecoregionActiveStatus = ecoregionstatus,
                                                 studyArea = sim$studyArea,
                                                 rstStudyArea = rstStudyRegionBinary,
-                                                maskFn = fastMask)
+                                                maskFn = fastMask, userTags = "function:ecoregionProducer")
   
   message("3: ", Sys.time())
   
@@ -158,16 +159,19 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                          ecoregionMap = ecoregionFiles$ecoregionMap,
                                                          ecoregion = ecoregionFiles$ecoregion,
                                                          initialCommunityMap = initialCommFiles$initialCommunityMap,
-                                                         initialCommunity = initialCommFiles$initialCommunity)
+                                                         initialCommunity = initialCommFiles$initialCommunity,
+                                                         userTags = c("function:nonActiveEcoregionProducer"))
   message("4: ", Sys.time())
   speciesEcoregionTable <- sim$obtainMaxBandANPPCached(speciesLayers = sim$specieslayers,
                                                        biomassLayer = sim$biomassMap,
                                                        SALayer = sim$standAgeMap,
-                                                       ecoregionMap = simulationMaps$ecoregionMap)
+                                                       ecoregionMap = simulationMaps$ecoregionMap,
+                                                       userTags = c("function:obtainMaxBandANPP"))
   
   message("5: ", Sys.time())
   septable <- sim$obtainSEPCached(ecoregionMap = simulationMaps$ecoregionMap,
-                                  speciesLayers = sim$specieslayers)
+                                  speciesLayers = sim$specieslayers,
+                                  userTags = c("function:obtainSEP"))
   names(septable) <- c("ecoregion", "species", "SEP")
   septable[, SEP:=round(SEP, 2)]
   # 
@@ -190,7 +194,8 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                                          biggerEcoArea = sim$ecoRegion,
                                                                          biggerEcoAreaSource = "ecoRegion",
                                                                          NAData = NAdata,
-                                                                         maskFn = fastMask)
+                                                                         maskFn = fastMask,
+                                                                         userTags = c("function:obtainMaxBandANPPFormBiggerEcoArea"))
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
   }
@@ -203,7 +208,8 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                                          biggerEcoArea = sim$ecoZone,
                                                                          biggerEcoAreaSource = "ecoZone",
                                                                          NAData = NAdata,
-                                                                         maskFn = fastMask)
+                                                                         maskFn = fastMask,
+                                                                         userTags = "function:obtainMaxBandANPPFormBiggerEcoArea")
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
   }
