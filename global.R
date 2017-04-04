@@ -18,17 +18,18 @@ maxNumClusters <- 5 # use 0 to turn off # otherwise detectCPUs() - 1
 library(raster)
 library(fpCompare)
 
+fireTimestep <- 5
 beginCluster(25, type = "FORK")
 #print(raster::getCluster())
 if(!exists("globalRasters")) globalRasters <- list()
 #studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 studyArea <- "FULL"
-#studyArea <- "SMALL"
+studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
-endTime <- 800 # was 4
+endTime <- 20 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(600, endTime)
+summaryPeriod <- c(10, endTime)
 
 try(rm(mySim), silent=TRUE)
 useGGplot <- FALSE
@@ -190,8 +191,7 @@ modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "LW_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
 
-fireTimestep <- 10
-fireInitialTime <- fireTimestep - 1
+fireInitialTime <- fireTimestep
 times <- list(start = 0, end = endTime)
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
@@ -203,11 +203,13 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                                    .statsInitialTime = 1),
                    LandWebOutput = list(summaryInterval = summaryInterval),
                    LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep, 
-                                   burnInitialTime = fireInitialTime),
-                   LBMR = list(.plotInitialTime = NA, #times$start,
+                                   burnInitialTime = fireInitialTime,
+                                   .plotInitialTime = NA),
+                   LBMR = list(.plotInitialTime = times$start,
                                .saveInitialTime = NA,
                                fireDisturbanceInitialTime = fireInitialTime),
-                   initBaseMaps = list(.useCache = FALSE))
+                   initBaseMaps = list(.useCache = FALSE),
+                   timeSinceFire = list(startTime = fireInitialTime))
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 outputs <- data.frame(stringsAsFactors = FALSE,
                       expand.grid(

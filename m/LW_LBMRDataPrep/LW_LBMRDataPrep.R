@@ -225,13 +225,11 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   sim$speciesEcoregion <- speciesEcoregion
   sim$ecoregion <- simulationMaps$ecoregion
   sim$ecoregionMap <- simulationMaps$ecoregionMap
-  sim$initialCommunitiesMap <- setValues(simulationMaps$initialCommunityMap, 
-                                         as.integer(simulationMaps$initialCommunityMap[]))
-  # get it out of RAM as it is essentially unneeded throughout most of simulation
-  sim$initialCommunitiesMap <- writeRaster(sim$initialCommunitiesMap, overwrite = TRUE,
-                                           filename = file.path(outputPath(sim), "initialCommunitiesMap.tif"),
-                                           datatype="INT2U")
   
+  sim$initialCommunitiesMap <- Cache(sim$createInitCommMap, simulationMaps$initialCommunityMap, 
+                                                 as.integer(simulationMaps$initialCommunityMap[]),
+                                                 file.path(outputPath(sim), "initialCommunitiesMap.tif"))
+
   message("9: ", Sys.time())
   
   # species traits inputs
@@ -469,9 +467,11 @@ nonActiveEcoregionProducer <- function(nonactiveRaster,
                                        initialCommunity) {
   nonactiveRasterSmall <- crop(nonactiveRaster, ecoregionMap)
   nonecomapcode <- activeStatus[active=="no",]$mapcode
-  nonactiveRasterSmall[Which(nonactiveRasterSmall %in% nonecomapcode, cells = TRUE)] <- NA
-  initialCommunityMap[Which(is.na(nonactiveRasterSmall), cells = TRUE)] <- NA
-  ecoregionMap[Which(is.na(nonactiveRasterSmall), cells = TRUE)] <- NA
+  whNANonActiveRasterSmall <- which(is.na(nonactiveRasterSmall[]))
+  nonactiveRasterSmall[which(nonactiveRasterSmall[] %in% nonecomapcode)] <- NA
+  initialCommunityMap[whNANonActiveRasterSmall] <- NA
+  ecoregionMap[whNANonActiveRasterSmall] <- NA
+  
   initialCommunity <- initialCommunity[mapcode %in% sort(unique(getValues(initialCommunityMap))),]
   ecoregion <- ecoregion[mapcode %in% sort(unique(getValues(ecoregionMap))),]
   return(list(ecoregionMap = ecoregionMap,
@@ -890,3 +890,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
 }
 ### add additional events as needed by copy/pasting from above
 
+
+createInitCommMap <- function(initCommMap, values, filename) {
+  map <- setValues(initCommMap, values = values)
+  writeRaster( map, overwrite = TRUE, filename = filename, datatype="INT2U")
+}
