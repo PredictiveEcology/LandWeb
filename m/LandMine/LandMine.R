@@ -40,6 +40,9 @@ defineModule(sim, list(
     createsOutput("fireTimestep", "numeric", 
                   "The number of time units between successive fire events in a fire module"
     ),
+    createsOutput("fireInitialTime", "numeric", 
+                  "The initial event time of the burn event. This is simply a reassignment from P(sim)$burnInitialTime"
+    ),
     createsOutput("rstFlammableNum", "RasterLayer", paste(
       "A binary, numeric raster indicating NA or 0 for not burnable")
     ),
@@ -89,6 +92,7 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
 LandMineInit <- function(sim) {
   message("1: ", Sys.time())
   sim$fireTimestep <- P(sim)$fireTimestep
+  sim$fireInitialTime <- P(sim)$burnInitialTime
   numPixelsPerPolygonNumeric <- Cache(freq, sim$rstStudyRegion) %>% na.omit()
   #numPixelsPerPolygonNumeric <- numPixelsPerPolygonNumeric[numPixelsPerPolygonNumeric[,"value"]!=0,]
   ordPolygons <- order(numPixelsPerPolygonNumeric[,"value"])

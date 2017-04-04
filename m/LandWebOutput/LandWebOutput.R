@@ -96,18 +96,21 @@ LandWebOutputAllEvents <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   # seral stage summary 
-  nonActivePixels <- Which(sim$pixelGroupMap == -1, cell = TRUE)
-  seralStageMap <- sim$rstTimeSinceFire
-  seralStageMap[nonActivePixels] <- NA
-  SAPixelTable <- data.table(pixelIndex = 1:ncell(seralStageMap),
-                            SA = getValues(seralStageMap))[!is.na(SA),]
-  SAPixelTable[, seralStage:=cut(SA, breaks = c(seralStageTable$SA, max(SAPixelTable$SA)), 
-                                 labels = seralStageTable$seralName,
-                                 include.lowest = TRUE)]
-  SAPixelTable[, Classification:=as.numeric(seralStage)]
-  seralStageMap[SAPixelTable$pixelIndex] <- SAPixelTable$Classification
-  levels(seralStageMap) <- as.data.frame(unique(SAPixelTable[,.(ID=Classification, factor = seralStage)], by = "ID"))
-  sim$seralStageMap <- seralStageMap
+  nonActivePixels <- which(sim$pixelGroupMap[] == -1)
+  
+  if(FALSE) {
+    seralStageMap <- sim$rstTimeSinceFire
+    seralStageMap[nonActivePixels] <- NA
+    SAPixelTable <- data.table(pixelIndex = 1:ncell(seralStageMap),
+                              SA = getValues(seralStageMap))[!is.na(SA),]
+    SAPixelTable[, seralStage:=cut(SA, breaks = c(seralStageTable$SA, max(SAPixelTable$SA)), 
+                                   labels = seralStageTable$seralName,
+                                   include.lowest = TRUE)]
+    SAPixelTable[, Classification:=as.numeric(seralStage)]
+    seralStageMap[SAPixelTable$pixelIndex] <- SAPixelTable$Classification
+    levels(seralStageMap) <- as.data.frame(unique(SAPixelTable[,.(ID=Classification, factor = seralStage)], by = "ID"))
+    sim$seralStageMap <- seralStageMap
+  }
   # vegetation type summary 
   species <- sim$species
   species[species == "Pinu_Ban" | species == "Pinu_Con", speciesGroup := "Pinu"] 
