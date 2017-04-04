@@ -14,7 +14,7 @@ ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
   }
 })
 experimentReps <- 1 # was 4
-maxNumClusters <- 3 # use 0 to turn off # otherwise detectCPUs() - 1
+maxNumClusters <- 5 # use 0 to turn off # otherwise detectCPUs() - 1
 library(raster)
 library(fpCompare)
 
