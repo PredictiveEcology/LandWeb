@@ -84,8 +84,8 @@ if (FALSE) {
 
 ## Make sure SpaDES is up to date
 #if (tryCatch(packageVersion("SpaDES") < "1.3.1.9047", error = function(x) TRUE))
-#devtools::install_github("PredictiveEcology/SpaDES@development")  
-devtools::install_github("PredictiveEcology/SpaDES@spreadDT2")  
+devtools::install_github("PredictiveEcology/SpaDES@development")  
+#devtools::install_github("PredictiveEcology/SpaDES@spreadDT2")  
 devtools::install_github("achubaty/amc@development")  
 
 
@@ -190,7 +190,8 @@ modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "LW_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
 
-
+fireTimestep <- 10
+fireInitialTime <- fireTimestep - 1
 times <- list(start = 0, end = endTime)
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
@@ -201,9 +202,11 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
                    LandWebOutput = list(summaryInterval = summaryInterval),
-                   LandMine = list(biggestPossibleFireSizeHa = 5e5),
-                   LBMR = list(.plotInitialTime = times$start,
-                               .saveInitialTime = NA),
+                   LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep, 
+                                   burnInitialTime = fireInitialTime),
+                   LBMR = list(.plotInitialTime = NA, #times$start,
+                               .saveInitialTime = NA,
+                               fireDisturbanceInitialTime = fireInitialTime),
                    initBaseMaps = list(.useCache = FALSE))
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 outputs <- data.frame(stringsAsFactors = FALSE,
