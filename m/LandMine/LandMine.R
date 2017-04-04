@@ -185,7 +185,7 @@ LandMinePlot <- function(sim) {
 ### template for your event1
 LandMineBurn <- function(sim) {
   
-  numFiresThisYear <- rpois(length(sim$numFiresPerYear), lambda=sim$numFiresPerYear)
+  numFiresThisYear <- rpois(length(sim$numFiresPerYear)*P(sim)$fireTimestep, lambda=sim$numFiresPerYear)
   
   # meanTP <- function(k, lower, upper, alpha) {
   #   k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
