@@ -33,9 +33,12 @@ function(input, output, session) {
   raster::endCluster()
   message("Running Experiment")
   args <- list(experiment, mySim, replicates = experimentReps, 
-               debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '),{lsObj <- ls(envir=sim@.envir); keep <- 1:8;
-               a <- sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>% setNames(lsObj), decreasing = TRUE)[keep]; 
-               paste(names(a)[keep], collapse=' ')},paste(a[keep], collapse=' '))", 
+               debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '),{lsObj <- ls(envir=sim@.envir); keep <- 1:1;
+               a <- format(big.mark = ',', 
+                           sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>% setNames(lsObj), decreasing = TRUE))[keep]; 
+               paste(names(a)[keep], collapse=' ')},paste(a[keep], collapse=' '), 'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ', 
+               uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:', 
+               uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap))", 
                #debug = TRUE, #cache = TRUE, 
                #cl = if(exists("cl")) cl, 
                .plotInitialTime = NA,
