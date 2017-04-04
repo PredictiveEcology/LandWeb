@@ -184,8 +184,8 @@ LandMinePlot <- function(sim) {
 
 ### template for your event1
 LandMineBurn <- function(sim) {
-  
-  numFiresThisYear <- rpois(length(sim$numFiresPerYear)*P(sim)$fireTimestep, lambda=sim$numFiresPerYear)
+  numFiresThisPeriod <- rpois(length(sim$numFiresPerYear),  lambda=sim$numFiresPerYear*P(sim)$fireTimestep)
+                                 
   
   # meanTP <- function(k, lower, upper, alpha) {
   #   k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
@@ -194,13 +194,13 @@ LandMineBurn <- function(sim) {
   sim$startCells <- data.table(pixel=1:ncell(sim$rstStudyRegion),
                                 polygonNumeric=sim$rstStudyRegion[],key="polygonNumeric") %>%
                        na.omit() %>%
-                       .[,SpaDES:::resample(pixel,numFiresThisYear[.GRP]),by=polygonNumeric] %>% 
+                       .[,SpaDES:::resample(pixel,numFiresThisPeriod[.GRP]),by=polygonNumeric] %>% 
                        .$V1
   
   # If fire sizes are in hectares, must adjust based on resolution of maps
   #  NOTE: round causes fires < 0.5 pixels to NOT EXIST ... i.e., 3.25 ha fires are 
   #  "not detectable" if resolution is 6.25 ha
-  fireSizesThisYear <- rtruncpareto(length(sim$startCells), lower = 1, 
+  fireSizesThisPeriod <- rtruncpareto(length(sim$startCells), lower = 1, 
                                     upper=P(sim)$biggestPossibleFireSizeHa, 
                                     shape=sim$kBest)
   
@@ -212,10 +212,10 @@ LandMineBurn <- function(sim) {
   # names(fireSizesInPixels) <- seq_along(sim$fireReturnIntervalsByPolygonNumeric)
   
   
-  # fireSizesInPixels <- round(pmax(1, fireSizesThisYear)/
+  # fireSizesInPixels <- round(pmax(1, fireSizesThisPeriod)/
   #                     (prod(res(sim$rstFlammableNum))/1e4))
   
-  fireSizesInPixels <- fireSizesThisYear/ (prod(res(sim$rstFlammableNum))/1e4)
+  fireSizesInPixels <- fireSizesThisPeriod/ (prod(res(sim$rstFlammableNum))/1e4)
   ranDraws <- runif(length(fireSizesInPixels))
   truncVals <- trunc(fireSizesInPixels)
   decimalVals <- (unname(fireSizesInPixels - (truncVals))) > ranDraws
