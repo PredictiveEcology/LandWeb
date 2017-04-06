@@ -113,7 +113,7 @@ LandWebOutputAllEvents <- function(sim) {
   }
   # vegetation type summary 
   species <- sim$species
-  species[species == "Pinu_Ban" | species == "Pinu_Con", speciesGroup := "Pinu"] 
+  species[species == "Pinu_Ban" | species == "Pinu_Con", speciesGroup := "PINU"] 
   species[species == "Betu_Pap" | species == "Popu_Bal"| 
             species == "Popu_Tre" | species == "Lari_Lar", speciesGroup := "DECI"] 
   species[species == "Pice_Mar" | species == "Pice_Gla", speciesGroup := "PICE"] 
