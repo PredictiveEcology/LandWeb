@@ -142,6 +142,7 @@ LandWebOutputAllEvents <- function(sim) {
   attritable[ID == 4, Factor := "Mixed"]
   pixelGroupMap <- sim$pixelGroupMap
   vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading") 
+  vegTypeMap <- setValues(vegTypeMap, as.integer(getValues(vegTypeMap)))
   levels(vegTypeMap) <- as.data.frame(attritable)
   projection(vegTypeMap) <- projection(sim$pixelGroupMap)
   sim$vegTypeMap <- vegTypeMap
