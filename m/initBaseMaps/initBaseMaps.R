@@ -68,7 +68,7 @@ initBaseMapsInit <- function(sim) {
                      overwrite = TRUE, datatype="INT2U") # need NA value
     a
   }
-  sim$rstStudyRegion <- Cache(cacheRepo=file.path(cachePath(sim), "StudyRegion"),
+  sim$rstStudyRegion <- Cache(#cacheRepo=file.path(cachePath(sim), "StudyRegion"),
                               fastRasterizeFn, 
                               polygon = sim$shpStudyRegion,
                               ras = crop(sim$LCC05X, extent(sim$shpStudyRegion)))
