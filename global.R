@@ -18,7 +18,7 @@ maxNumClusters <- 5 # use 0 to turn off # otherwise detectCPUs() - 1
 library(raster)
 library(fpCompare)
 
-fireTimestep <- 5
+fireTimestep <- 10
 beginCluster(25, type = "FORK")
 #print(raster::getCluster())
 if(!exists("globalRasters")) globalRasters <- list()
@@ -27,7 +27,7 @@ if(!exists("globalRasters")) globalRasters <- list()
 studyArea <- "FULL"
 studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
-endTime <- 20 # was 4
+endTime <- 100 # was 4
 summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(10, endTime)
 
@@ -167,6 +167,15 @@ if (maxNumClusters > 0) {
     if (Sys.info()[["sysname"]] == "Windows") {
       clusterType = "SOCK"
     } else {
+      # machine1 <- "W-VIC-A105343.pfc.forestry.ca"
+      # machine2 <- "W-VIC-A105342.pfc.forestry.ca"
+      # machine3 <- "localhost"
+      # NcoresOnEach <- 5 # can put this up to about 35
+      # clNames <- c(rep(machine1, NcoresOnEach),
+      #              rep(machine2, NcoresOnEach),
+      #              rep(machine3, NcoresOnEach))
+      # cl <- makeCluster(clNames, type = "PSOCK")
+      
       clusterType = "FORK"
     }
     cl <- makeCluster(ncores, type = clusterType)
