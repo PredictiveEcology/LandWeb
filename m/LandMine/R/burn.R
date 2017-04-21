@@ -28,7 +28,8 @@
 #' \subsection{Adjustments due to current fire size and number of active pixels}{
 #'
 #' That can vary too, but it gets a bit complicated, so use that for now.
-#' Spawning probability was originally set at 13%, but created problems with very large and very small fires, so over time has been adjusted to vary depending on a) number of active “firelets” (NF) and b) fire size (FS):
+#' Spawning probability was originally set at 13%, but created problems with very large and very small
+#'  fires, so over time has been adjusted to vary depending on a) number of active “firelets” (NF) and b) fire size (FS):
 #'   -         If NF>=10 and <36 and FS <20,000 ha then P = 20%
 #'   -         If NF>36 and FS <8,000 ha, P=11%
 #'   -         If  NF<36 and FS >20,000 ha, P=26%
@@ -69,7 +70,8 @@ burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36)
   return(a)
 }
 
-burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
+burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), 
+                  spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
                  sizeCutoffs = c(8e3, 2e4), spreadProb = 1) {
   
   a = spread2(landscape, start = startCells, spreadProb = spreadProb, #persistence = 0,
@@ -80,6 +82,7 @@ burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36
              );
   whActive <- attr(a, "spreadState")$whActive#a$state=="activeSource"
   while(any(whActive)) {
+    
     #a2 <- data.table::copy(a)
     # microbenchmark(times = 6, a = {
     #   a <- data.table::copy(a2)
@@ -122,7 +125,7 @@ burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36
                 directions=8, #returnIndices = TRUE,
                 #id = TRUE, plot.it = FALSE
                 )
-    message("max size:", max(attr(a, "spreadState")$clusterDT$maxSize), ", current size:",max(attr(a, "spreadState")$clusterDT$size))
+    #message("max size:", max(attr(a, "spreadState")$clusterDT$maxSize), ", current size:",max(attr(a, "spreadState")$clusterDT$size))
     set(a, , "order", seq_len(NROW(a)))
     whActive <- attr(a, "spreadState")$whActive#a$state=="activeSource"
     
