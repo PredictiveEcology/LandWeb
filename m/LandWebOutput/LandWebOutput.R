@@ -112,40 +112,44 @@ LandWebOutputAllEvents <- function(sim) {
     sim$seralStageMap <- seralStageMap
   }
   # vegetation type summary 
-  species <- sim$species
-  species[species == "Pinu_Ban" | species == "Pinu_Con", speciesGroup := "PINU"] 
-  species[species == "Betu_Pap" | species == "Popu_Bal"| 
-            species == "Popu_Tre" | species == "Lari_Lar", speciesGroup := "DECI"] 
-  species[species == "Pice_Mar" | species == "Pice_Gla", speciesGroup := "PICE"] 
-  cohortdata <- sim$cohortData
-  shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,.(speciesCode, speciesGroup)], 
-                                                            speciesCode), nomatch = 0] 
-  shortcohortdata[, totalB := sum(B, na.rm = TRUE), by = pixelGroup] 
-  shortcohortdata <- shortcohortdata[,.(speciesGroupB = sum(B, na.rm = TRUE), 
-                                        totalB = mean(totalB, na.rm = TRUE)), 
-                                     by = c("pixelGroup", "speciesGroup")] 
-  shortcohortdata[,speciesPercentage:=speciesGroupB/totalB] 
-  shortcohortdata[speciesGroup == "PINU" & speciesPercentage > vegLeadingPercent,
-                  speciesLeading := 1]# pine leading 
-  shortcohortdata[speciesGroup == "DECI" & speciesPercentage > vegLeadingPercent,
-                  speciesLeading := 2]# deciduous leading 
-  shortcohortdata[speciesGroup == "PICE" & speciesPercentage > vegLeadingPercent,
-                  speciesLeading := 3]# spruce leading 
-  shortcohortdata[is.na(speciesLeading), speciesLeading := 0] 
-  shortcohortdata[,speciesLeading:=max(speciesLeading, na.rm = TRUE), by = pixelGroup] 
-  shortcohortdata <- unique(shortcohortdata[,.(pixelGroup, speciesLeading)], by = "pixelGroup") 
-  shortcohortdata[speciesLeading == 0, speciesLeading := 4] # 4 is mixed forests 
-  attritable <- data.table(ID = unique(shortcohortdata$speciesLeading))
-  attritable[ID == 1, Factor := "Pine leading"]
-  attritable[ID == 2, Factor := "Deciduous leading"]
-  attritable[ID == 3, Factor := "Spruce leading"]
-  attritable[ID == 4, Factor := "Mixed"]
-  pixelGroupMap <- sim$pixelGroupMap
-  vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading") 
-  vegTypeMap <- setValues(vegTypeMap, as.integer(getValues(vegTypeMap)))
-  levels(vegTypeMap) <- as.data.frame(attritable)
-  projection(vegTypeMap) <- projection(sim$pixelGroupMap)
-  sim$vegTypeMap <- vegTypeMap
+  if(is.null(sim$vegTypeMapGenerator)) {
+    species <- sim$species
+    species[species == "Pinu_Ban" | species == "Pinu_Con", speciesGroup := "PINU"] 
+    species[species == "Betu_Pap" | species == "Popu_Bal"| 
+              species == "Popu_Tre" | species == "Lari_Lar", speciesGroup := "DECI"] 
+    species[species == "Pice_Mar" | species == "Pice_Gla", speciesGroup := "PICE"] 
+    cohortdata <- sim$cohortData
+    shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,.(speciesCode, speciesGroup)], 
+                                                              speciesCode), nomatch = 0] 
+    shortcohortdata[, totalB := sum(B, na.rm = TRUE), by = pixelGroup] 
+    shortcohortdata <- shortcohortdata[,.(speciesGroupB = sum(B, na.rm = TRUE), 
+                                          totalB = mean(totalB, na.rm = TRUE)), 
+                                       by = c("pixelGroup", "speciesGroup")] 
+    shortcohortdata[,speciesPercentage:=speciesGroupB/totalB] 
+    shortcohortdata[speciesGroup == "PINU" & speciesPercentage > vegLeadingPercent,
+                    speciesLeading := 1]# pine leading 
+    shortcohortdata[speciesGroup == "DECI" & speciesPercentage > vegLeadingPercent,
+                    speciesLeading := 2]# deciduous leading 
+    shortcohortdata[speciesGroup == "PICE" & speciesPercentage > vegLeadingPercent,
+                    speciesLeading := 3]# spruce leading 
+    shortcohortdata[is.na(speciesLeading), speciesLeading := 0] 
+    shortcohortdata[,speciesLeading:=max(speciesLeading, na.rm = TRUE), by = pixelGroup] 
+    shortcohortdata <- unique(shortcohortdata[,.(pixelGroup, speciesLeading)], by = "pixelGroup") 
+    shortcohortdata[speciesLeading == 0, speciesLeading := 4] # 4 is mixed forests 
+    attritable <- data.table(ID = unique(shortcohortdata$speciesLeading))
+    attritable[ID == 1, Factor := "Pine leading"]
+    attritable[ID == 2, Factor := "Deciduous leading"]
+    attritable[ID == 3, Factor := "Spruce leading"]
+    attritable[ID == 4, Factor := "Mixed"]
+    pixelGroupMap <- sim$pixelGroupMap
+    vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading") 
+    vegTypeMap <- setValues(vegTypeMap, as.integer(getValues(vegTypeMap)))
+    levels(vegTypeMap) <- as.data.frame(attritable)
+    projection(vegTypeMap) <- projection(sim$pixelGroupMap)
+    sim$vegTypeMap <- vegTypeMap
+  } else {
+    sim$vegTypeMap <- sim$vegTypeMapGenerator(sim$species, sim$cohortData, sim$pixelGroupMap)
+  }
   # oldSeral <- raster(seralStageMap)
   # seralStageTable <- data.table(seralStageTable)
   # oldSeralClass <- unique(SAPixelTable[,.(seralStage, Classification)], by = "seralStage")[seralStage == seralStageTable[SA == max(seralStageTable$SA),]$seralName,]$Classification
