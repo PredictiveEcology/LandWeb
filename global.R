@@ -18,18 +18,18 @@ maxNumClusters <- 5 # use 0 to turn off # otherwise detectCPUs() - 1
 library(raster)
 library(fpCompare)
 
-fireTimestep <- 10
+fireTimestep <- 1
 beginCluster(25, type = "FORK")
 #print(raster::getCluster())
 if(!exists("globalRasters")) globalRasters <- list()
-#studyArea <- "LARGE"
+studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
-studyArea <- "FULL"
+#studyArea <- "FULL"
 studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
-endTime <- 100 # was 4
+endTime <- 400 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(10, endTime)
+summaryPeriod <- c(200, endTime)
 
 try(rm(mySim), silent=TRUE)
 useGGplot <- FALSE
@@ -215,8 +215,7 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                                    burnInitialTime = fireInitialTime,
                                    .plotInitialTime = NA),
                    LBMR = list(.plotInitialTime = times$start,
-                               .saveInitialTime = NA,
-                               fireDisturbanceInitialTime = fireInitialTime),
+                               .saveInitialTime = NA),
                    initBaseMaps = list(.useCache = FALSE),
                    timeSinceFire = list(startTime = fireInitialTime))
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
@@ -242,4 +241,4 @@ mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths, outputs = outputs)
 
 source("mapsForShiny.R")
-#devtools::load_all("~/Documents/GitHub/SpaDES/.")
+devtools::load_all("~/Documents/GitHub/SpaDES/.")
