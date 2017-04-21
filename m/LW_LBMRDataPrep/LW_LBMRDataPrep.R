@@ -152,8 +152,10 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   
   message("3: ", Sys.time())
   
+  # LCC05 -- land covers 1 to 15 are forested with tree dominated... 34 and 35 are recent burns
   activeStatusTable <- data.table(active = c(rep("yes", 15), rep("no", 25)),
-                                  mapcode = 1:40)  # this is based on description
+                                  mapcode = 1:40)[mapcode %in% c(34, 35), active:="yes"]  # this is based on description in LCC05 
+  
   simulationMaps <- sim$nonActiveEcoregionProducerCached(nonactiveRaster = sim$LCC2005,
                                                          activeStatus = activeStatusTable,
                                                          ecoregionMap = ecoregionFiles$ecoregionMap,
