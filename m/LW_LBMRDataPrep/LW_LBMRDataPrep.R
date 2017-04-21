@@ -154,7 +154,6 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   # LCC05 -- land covers 1 to 15 are forested with tree dominated... 34 and 35 are recent burns
   activeStatusTable <- data.table(active = c(rep("yes", 15), rep("no", 25)),
                                   mapcode = 1:40)[mapcode %in% c(34, 35), active:="yes"]  # this is based on description in LCC05 
-  
   simulationMaps <- sim$nonActiveEcoregionProducerCached(nonactiveRaster = sim$LCC2005,
                                                          activeStatus = activeStatusTable,
                                                          ecoregionMap = ecoregionFiles$ecoregionMap,
@@ -441,10 +440,10 @@ ecoregionProducer <- function(studyAreaRaster,
   # Alternative
   message("ecoregionProducer fastRasterize: ", Sys.time())
   ecoregionMap <- fastRasterize(ecoregionMapInStudy, studyAreaRaster, field = "ECODISTRIC")
-  ecoregionFactorValues <- unique(ecoregionMap@data@attributes[[1]]$ECODISTRIC)
-  ecoregionMap@data@isfactor <- FALSE
-  ecoregionTable <- data.table(mapcode = seq_along(ecoregionFactorValues),
-                               ecoregion = as.numeric(ecoregionFactorValues))
+  ecoregionFactorValues <- unique(ecoregionMap[])
+
+  ecoregionTable <- data.table(mapcode = seq_along(ecoregionFactorValues[!is.na(ecoregionFactorValues)]),
+                               ecoregion = as.numeric(ecoregionFactorValues[!is.na(ecoregionFactorValues)]))
   message("ecoregionProducer mapvalues: ", Sys.time())
   ecoregionMap[] <- plyr::mapvalues(ecoregionMap[], from = ecoregionTable$ecoregion, to = ecoregionTable$mapcode)
   ecoregionActiveStatus[, ecoregion:=as.character(ecoregion)]
@@ -468,8 +467,7 @@ nonActiveEcoregionProducer <- function(nonactiveRaster,
                                        initialCommunity) {
   nonactiveRasterSmall <- crop(nonactiveRaster, ecoregionMap)
   nonecomapcode <- activeStatus[active=="no",]$mapcode
-  whNANonActiveRasterSmall <- which(is.na(nonactiveRasterSmall[]))
-  nonactiveRasterSmall[which(nonactiveRasterSmall[] %in% nonecomapcode)] <- NA
+  whNANonActiveRasterSmall <- which(nonactiveRasterSmall[] %in% nonecomapcode)
   initialCommunityMap[whNANonActiveRasterSmall] <- NA
   ecoregionMap[whNANonActiveRasterSmall] <- NA
 
