@@ -18,18 +18,18 @@ maxNumClusters <- 5 # use 0 to turn off # otherwise detectCPUs() - 1
 library(raster)
 library(fpCompare)
 
-fireTimestep <- 1
+fireTimestep <- 10
 beginCluster(25, type = "FORK")
 #print(raster::getCluster())
 if(!exists("globalRasters")) globalRasters <- list()
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 #studyArea <- "FULL"
-studyArea <- "SMALL"
+#studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
-endTime <- 400 # was 4
+endTime <- 20 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(200, endTime)
+summaryPeriod <- c(10, endTime)
 
 try(rm(mySim), silent=TRUE)
 useGGplot <- FALSE
