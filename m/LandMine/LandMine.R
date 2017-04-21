@@ -251,13 +251,12 @@ LandMineBurn <- function(sim) {
   ROSmap <- raster(sim$pixelGroupMap)
   ROSmap[] <- ROS
   
-  
   if(length(sim$startCells)>0) {
     fires <- sim$burn1(sim$fireReturnInterval, startCells = sim$startCells, 
                         fireSizes = fireSizesInPixels, spreadProb = ROSmap,
-                        spawnNewActive = c(0.3, 0.2, 0.26, 0.11))
+                        spawnNewActive = c(0.46, 0.2, 0.26, 0.11))
     sim$rstCurrentBurn[] <- 0L
-    sim$rstCurrentBurn[fires$pixels] <- 1L # time(sim)+1
+    sim$rstCurrentBurn[fires$pixels] <- 1L#as.numeric(factor(fires$initialPixels))
   }
   return(invisible(sim))
 }
