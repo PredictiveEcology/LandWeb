@@ -179,9 +179,9 @@ LandMineBurn <- function(sim) {
   #   k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
   # }
   
-  browser()
   sim$startCells <- data.table(pixel=1:ncell(sim$rstStudyRegion),
-                                polygonNumeric=sim$rstStudyRegion[],key="polygonNumeric") %>%
+                                polygonNumeric=sim$rstStudyRegion[] * sim$rstFlammableNum[],key="polygonNumeric") 
+  sim$startCells <- sim$startCells[polygonNumeric==0,polygonNumeric:=NA] %>%
                        na.omit() %>%
                        .[,SpaDES:::resample(pixel,numFiresThisPeriod[.GRP]),by=polygonNumeric] %>% 
                        .$V1
