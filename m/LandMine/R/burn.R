@@ -12,7 +12,7 @@
 #' @param spawnNewActive A numeric vector of length 4. These are the probabilities of creating spreading to 2 neighbours
 #'                       instead of the 1 default neighbour, each time step. The 4 values are for 4 different fire
 #'                       size conditions. See details.
-#' @param sizeCutoffs A numeric vector of length 2. These are 2 size thresholds that affect which
+#' @param sizeCutoffs A numeric vector of length 2, in hectares. These are 2 size thresholds that affect which
 #'                    \code{spawnNewActive} probabilities are used. See details.
 #'
 #' @details
@@ -73,6 +73,8 @@ burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36)
 burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), 
                   spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
                  sizeCutoffs = c(8e3, 2e4), spreadProb = 1) {
+  # convert to pixels
+  sizeCutoffs <- sizeCutoffs/(prod(res(landscape))/1e4)
   
   a = spread2(landscape, start = startCells, spreadProb = spreadProb, #persistence = 0,
              neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
