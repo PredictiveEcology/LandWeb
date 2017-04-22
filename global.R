@@ -24,12 +24,12 @@ beginCluster(25, type = "FORK")
 if(!exists("globalRasters")) globalRasters <- list()
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
-#studyArea <- "FULL"
+studyArea <- "FULL"
 #studyArea <- "SMALL"
 successionTimestep <- 10 # was 2
-endTime <- 20 # was 4
+endTime <- 400 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(10, endTime)
+summaryPeriod <- c(200, endTime)
 
 try(rm(mySim), silent=TRUE)
 useGGplot <- FALSE
@@ -241,4 +241,4 @@ mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths, outputs = outputs)
 
 source("mapsForShiny.R")
-devtools::load_all("~/Documents/GitHub/SpaDES/.")
+#devtools::load_all("~/Documents/GitHub/SpaDES/.")
