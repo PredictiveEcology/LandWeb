@@ -71,6 +71,7 @@ pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly",
           "amc"# fastRasterize and fastMask functions
 )
 lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
+setDTthreads(4) # data.table multi-threading
 
 if (maxNumClusters > 0) {
   if (!exists("cl")) {
