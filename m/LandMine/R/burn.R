@@ -37,14 +37,15 @@
 #' These rule create more heterogeneity in the pattern of burning.
 #' }
 #'
-#' @section Not yet implemented:
-#' Chances of fire spread stopping at any given pixel in any given firelet is 23%.
-#' The fire can also get stuck when it turns back in on itself and burns islands,
-#' but now has no way to grow larger from the perimeter.
-#' If the fire has not reached its target size, I create new firelet “spot” fires up to 400 pixels away.
+#' \subsection{Fire jumping}:
+#' If the fire has not reached its target size, it will try to pick new neighbours among
+#' the 8 immediate neighbours up to 4 times. If it still did not find enough neighbours, then 
+#' it will jump or “spot” up to 4 pixels away. It will then repeat the previous 2 stages again
+#' once (i.e., 4 neighbours, 1 jump, 4 neighbours, 1 jump), then it will stop, unable to achieve
+#' the desired fireSize.
 #'
 #' @return
-#'   A \code{data.table} with 4 columns
+#' A \code{data.table} with 4 columns
 burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
                  sizeCutoffs = c(8e3, 2e4), spreadProb = 1) {
   a = spread(landscape, loci = startCells, spreadProb = spreadProb, persistence = 0,
