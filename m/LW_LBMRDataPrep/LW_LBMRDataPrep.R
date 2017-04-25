@@ -439,7 +439,7 @@ ecoregionProducer <- function(studyAreaRaster,
 
   # Alternative
   message("ecoregionProducer fastRasterize: ", Sys.time())
-  ecoregionMap <- fastRasterize(ecoregionMapInStudy, studyAreaRaster, field = "ECODISTRIC")
+  ecoregionMap <- rasterize(ecoregionMapInStudy, studyAreaRaster, field = "ECODISTRIC")
   ecoregionFactorValues <- unique(ecoregionMap[])
 
   ecoregionTable <- data.table(mapcode = seq_along(ecoregionFactorValues[!is.na(ecoregionFactorValues)]),
