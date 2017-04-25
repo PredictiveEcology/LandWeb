@@ -41,34 +41,6 @@ source("functions.R")
 source("shinyModules.R")
 source("footers.R")
 
-if(FALSE) { # THese are all "dangerous" for development only... 
-  # in the sense that they should never be run inadvertently
-  # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
-  SpaDES::clearCache(cacheRepo = paste0("appCache", studyArea))
-  SpaDES::clearCache(cacheRepo = "appCache/studyRegion/")
-  rm(cl)
-  file.remove(dir("outputs", recursive = TRUE, full.names = TRUE))
-  unlink("outputs", force = TRUE)
-  unlink(file.path("appCache", studyArea), force = TRUE, recursive = TRUE)
-}
-
-if (FALSE) { # For pushing to shinyapps.io
-  message("Started at: ",Sys.time())
-  allFiles <- dir(recursive = TRUE)
-  allFiles <- grep(allFiles, pattern = "^R-Portable", invert = TRUE, value = TRUE)
-  allFiles <- grep(allFiles, pattern = "^appCache", invert = TRUE, value = TRUE)
-  allFiles <- grep(allFiles, pattern = "^outputs", invert = TRUE, value = TRUE)
-  print(paste("Total size:", sum(unlist(lapply(allFiles, function(x) file.info(x)[, "size"]))) / 1e6, "MB"))
-  #rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
-  #                     contentCategory = "application")  
-  rsconnect::deployApp(appName = "LandWebDemoDev", appFiles = allFiles, 
-                       appTitle = "LandWeb Demo",
-                       contentCategory = "application")  
-  
-}
-
-print(getwd())
-
 ### Package stuff that should not be run automatically
 if (FALSE) {
   pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet",
@@ -88,68 +60,17 @@ if (FALSE) {
 devtools::install_github("PredictiveEcology/SpaDES@development")  
 #devtools::install_github("PredictiveEcology/SpaDES@spreadDT2")  
 devtools::install_github("achubaty/amc@development")  
-
-
-if(FALSE) {
-  library(devtools)
-  library(withr);
-  with_libpaths(new = "/usr/local/lib/R/site-library/", install_github("PredictiveEcology/SpaDES@EliotCacheMultiOS"))
-  with_libpaths(new = "R-Portable/App/R-Portable/library/", install_github("PredictiveEcology/SpaDES@EliotCacheMultiOS"))
-}
+#devtools::install_github("YongLuo007/amc@development")  
 
 ## Actual loading here -- not as long as the list for shinyapps.io, which fails if only these are 
 ###  provided. But it is not necessary to library all of them for the app
 pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly", 
+          "data.table",
           "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
           "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown",
           "amc"# fastRasterize and fastMask functions
 )
 lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
-
-## For shinyapps.io -- needs to see explicit require statements
-if (FALSE) {
-  require(shiny)
-  require(shinydashboard)
-  require(shinyBS)
-  require(BH)
-  require(RCurl)
-  require(RandomFieldsUtils)
-  require(R.oo)
-  require(R.methodsS3)
-  require(SpaDES)
-  library(fastmatch)
-  require(visNetwork)
-  require(rgexf)
-  require(influenceR)
-  require(DBI)
-  require(viridis)
-  require(htmlwidgets)
-  require(bit)
-  require(devtools)
-  require(raster)
-  require(rgeos)
-  require(RSQLite)
-  require(magrittr)
-  require(raster)
-  require(sp)
-  require(VGAM)
-  require(dplyr)
-  require(ggplot2)
-  require(maptools)
-  require(broom)
-  require(ggvis)
-  require(rgdal)
-  require(grid)
-  require(data.table)
-  require(leaflet)
-  require(parallel)
-  require(markdown)
-}
-
-curDir <- getwd()
-setwd(curDir)
-
-
 
 if (maxNumClusters > 0) {
   if (!exists("cl")) {
