@@ -253,8 +253,10 @@ LandMineBurn <- function(sim) {
   
   if(length(sim$startCells)>0) {
     fires <- sim$burn1(sim$fireReturnInterval, startCells = sim$startCells, 
-                        fireSizes = fireSizesInPixels, spreadProb = ROSmap,
-                        spawnNewActive = c(0.1, 0.01, 0.025, 0.025))
+                       fireSizes = fireSizesInPixels, spreadProbRel = ROSmap,
+                       spawnNewActive = c(0.66, 0.4, 0.36, 0.11),
+                       spreadProb = 0.8)
+    print(attr(fires, "spreadState")$clusterDT[order(maxSize)][(.N-7):.N])
     sim$rstCurrentBurn[] <- 0L
     sim$rstCurrentBurn[fires$pixels] <- 1L#as.numeric(factor(fires$initialPixels))
     #clearPlot();Plot(sim$rstCurrentBurn, new=T, visualSqueeze = 1.25)

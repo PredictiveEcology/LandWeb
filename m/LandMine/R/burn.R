@@ -46,43 +46,47 @@
 #'
 #' @return
 #' A \code{data.table} with 4 columns
-burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
-                 sizeCutoffs = c(8e3, 2e4), spreadProb = 1) {
-  a = spread(landscape, loci = startCells, spreadProb = spreadProb, persistence = 0,
-             neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
-             mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
-             id = TRUE, plot.it = FALSE, exactSizes = TRUE);
-  while(sum(a$active)>0) {
-    b <- a[,list(numActive = sum(active), size = .N),by=id]
-    set(b, , "pSpawnNewActive", spawnNewActive[1])
-    b[numActive>=nActiveCells1[1] & numActive<nActiveCells1[2] & size < sizeCutoffs[2], pSpawnNewActive:=spawnNewActive[2]]
-    b[numActive>nActiveCells1[2] & size < sizeCutoffs[1], pSpawnNewActive:=spawnNewActive[4]]
-    b[numActive<nActiveCells1[2] & size > sizeCutoffs[2], pSpawnNewActive:=spawnNewActive[3]]
-    set(b, , "pNoNewSpawn", 1-b$pSpawnNewActive)
-
-    # spawnNewActive must be joined sent in here as list...
-    b <- b[a]
-    a <- spread(landscape, spreadProb = spreadProb, spreadState = a, persistence = 0,
-                neighProbs = transpose(as.list(b[active==TRUE,c("pNoNewSpawn", "pSpawnNewActive")])), 
-                iterations = 1, quick = TRUE, 
-                mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
-                id = TRUE, plot.it = FALSE, exactSizes = TRUE)
-  }
-  return(a)
-}
+# burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
+#                  sizeCutoffs = c(8e3, 2e4), spreadProbRel = 0.23) {
+#   a = spread(landscape, loci = startCells, spreadProbRel = spreadProbRel, persistence = 0,
+#              neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
+#              mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
+#              id = TRUE, plot.it = FALSE, exactSizes = TRUE);
+#   while(sum(a$active)>0) {
+#     b <- a[,list(numActive = sum(active), size = .N),by=id]
+#     set(b, , "pSpawnNewActive", 0) # This is undescribed in Andison -- NF>36 & FS >8,000 ha -- They look too circular, without this, so make this zero, no new spawn
+#     #set(b, , "pSpawnNewActive", spawnNewActive[1])
+#     b[numActive<nActiveCells1[1], pSpawnNewActive:=spawnNewActive[1]]
+#     b[numActive>=nActiveCells1[1] & numActive<nActiveCells1[2] & size < sizeCutoffs[2], pSpawnNewActive:=spawnNewActive[2]]
+#     b[numActive>nActiveCells1[2] & size < sizeCutoffs[1], pSpawnNewActive:=spawnNewActive[4]]
+#     b[numActive<nActiveCells1[2] & size > sizeCutoffs[2], pSpawnNewActive:=spawnNewActive[3]]
+#     set(b, , "pNoNewSpawn", 1-b$pSpawnNewActive)
+# 
+#     # spawnNewActive must be joined sent in here as list...
+#     b <- b[a]
+#     a <- spread(landscape, spreadProbRel = spreadProbRel, spreadProb = spreadProb, 
+#                 spreadState = a, persistence = 0,
+#                 neighProbs = transpose(as.list(b[active==TRUE,c("pNoNewSpawn", "pSpawnNewActive")])), 
+#                 iterations = 1, quick = TRUE, 
+#                 mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
+#                 id = TRUE, plot.it = FALSE, exactSizes = TRUE)
+#   }
+#   return(a)
+# }
 
 burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), 
                   spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
-                 sizeCutoffs = c(8e3, 2e4), spreadProb = 1) {
+                 sizeCutoffs = c(8e3, 2e4), spreadProbRel = spreadProbRel, spreadProb = 0.77) {
   # convert to pixels
   sizeCutoffs <- sizeCutoffs/(prod(res(landscape))/1e4)
   
-  a = spread2(landscape, start = startCells, spreadProb = spreadProb, #persistence = 0,
-             neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
-             #mask=NULL, 
-             asRaster = FALSE, exactSize = fireSizes, directions=8, #returnIndices = TRUE,
-             #id = TRUE, plot.it = FALSE
-             );
+  a = spread2(landscape, start = startCells, spreadProb = 1,  # initial step can have spreadProb 1 so garantees something
+              spreadProbRel = spreadProbRel, #persistence = 0,
+              neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
+              #mask=NULL, 
+              asRaster = FALSE, exactSize = fireSizes, directions=8, #returnIndices = TRUE,
+              #id = TRUE, plot.it = FALSE
+              );
   whActive <- attr(a, "spreadState")$whActive#a$state=="activeSource"
   while(any(whActive)) {
     
@@ -119,15 +123,16 @@ burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36
     
     # spawnNewActive must be joined sent in here as list...
     b <- b[a]#, on="initialPixels"]
-    a <- spread2(landscape, spreadProb = spreadProb, start = a, #persistence = 0,
-                neighProbs = transpose(as.list(b[state=="activeSource",c("pNoNewSpawn", "pSpawnNewActive")])), 
-                iterations = 1, skipChecks = TRUE, asRaster = FALSE,
-                exactSize = attr(a, "spreadState")$cluster$maxSize,
-                #mask=NULL, 
-                #maxSize = fireSizes, 
-                directions=8, #returnIndices = TRUE,
-                #id = TRUE, plot.it = FALSE
-                )
+    a <- spread2(landscape, spreadProbRel = spreadProbRel, spreadProb = spreadProb, 
+                 start = a, #persistence = 0,
+                 neighProbs = transpose(as.list(b[state=="activeSource",c("pNoNewSpawn", "pSpawnNewActive")])), 
+                 iterations = 1, skipChecks = TRUE, asRaster = FALSE,
+                 exactSize = attr(a, "spreadState")$cluster$maxSize,
+                 #mask=NULL, 
+                 #maxSize = fireSizes, 
+                 directions=8, #returnIndices = TRUE,
+                 #id = TRUE, plot.it = FALSE
+                 )
     #message("max size:", max(attr(a, "spreadState")$clusterDT$maxSize), ", current size:",max(attr(a, "spreadState")$clusterDT$size))
     set(a, , "order", seq_len(NROW(a)))
     whActive <- attr(a, "spreadState")$whActive#a$state=="activeSource"
