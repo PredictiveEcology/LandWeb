@@ -18,7 +18,7 @@ vegAgeMod <- function(input, output, session, listOfProportions, indivPolygonInd
                       vegLeadingType) {
   
   output$propCoverHists <- renderPlot(height = 300, {
-    if(useGGplot) {
+    if(useGGplotForHists) {
       #withProgress(message = 'Calculation in progress',
       #             detail = 'This may take a while...', value = 0, {
       actualPlot <- 
@@ -84,7 +84,7 @@ clumpMod <- function(input, output, session, Clumps, id, ageClasses, vegLeadingT
       numByRep <- forHistDT[,.N,by="rep"]
       forHist[seq_len(NROW(numByRep))] <- numByRep$N
     }
-    if(useGGplot) {
+    if(useGGplotForHists) {
       
       withProgress(message = 'Calculation in progress',
                    detail = 'This may take a while...', value = 0, {
