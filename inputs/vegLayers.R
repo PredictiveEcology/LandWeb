@@ -77,3 +77,15 @@ bet <- raster(CASFRI)
 bet[] <- NA
 aa <- CASFRI[] %in% CASFRIattr[SPECIES_1=="Betu papy",GID]
 bet[aa] <- 1
+
+
+# Reproject 100m file to 250m
+Cache(gdalwarp, overwrite=TRUE, 
+         t_srs= "+proj=lcc +lat_1=49 +lat_2=77 +lat_0=49 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs",
+         multi=TRUE, of="GTiff", tr=c(250, 250),  
+         "C:/data/LandWeb/LANDWEB_DATA_LAYERS/SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat", 
+         "C:/data/SppPaul250m.tif")
+
+
+         
+         
