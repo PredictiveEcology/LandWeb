@@ -112,7 +112,10 @@ LandMineInit <- function(sim) {
     fs <- round(rtruncpareto(1e6, 1, upper = upper1, shape=params[1]))
     meanFS <- meanTrucPareto(k = params[1], lower = 1, upper = upper1, alpha = 1)
     #diff1 <- abs(quantile(fs, 0.95) - meanFS)
-    abs(sum(fs[fs>quantile(fs, 0.95)])/sum(fs) - 0.9)
+    #abs(sum(fs[fs>quantile(fs, 0.95)])/sum(fs) - 0.9) # "90% of area is in 5% of fires" # from Dave rule of thumb
+    
+    # Eliot Adjustment because each year was too constant -- should create greater variation
+    abs(sum(fs[fs>quantile(fs, 0.95)])/sum(fs) - 0.95) # "95% of area is in 5% of fires" 
   }
   
   sim$kBest <- Cache(optimize, interval=c(0.05, 0.99), f = findK_upper, 
@@ -254,9 +257,11 @@ LandMineBurn <- function(sim) {
   if(length(sim$startCells)>0) {
     fires <- sim$burn1(sim$fireReturnInterval, startCells = sim$startCells, 
                        fireSizes = fireSizesInPixels, spreadProbRel = ROSmap,
-                       spawnNewActive = c(0.66, 0.4, 0.36, 0.11),
-                       spreadProb = 0.8)
+                       spawnNewActive = c(0.65, 0.6, 0.2, 0.2),
+                       #spawnNewActive = c(0.76, 0.45, 1.0, 0.00),
+                       spreadProb = 0.77)
     print(attr(fires, "spreadState")$clusterDT[order(maxSize)][(.N-7):.N])
+    print(attr(fires, "spreadState")$clusterDT[,list(numPixelsBurned=sum(size), expectedNumBurned=sum(maxSize), proportionBurned=sum(size)/sum(maxSize))])
     sim$rstCurrentBurn[] <- 0L
     sim$rstCurrentBurn[fires$pixels] <- 1L#as.numeric(factor(fires$initialPixels))
     #clearPlot();Plot(sim$rstCurrentBurn, new=T, visualSqueeze = 1.25)
