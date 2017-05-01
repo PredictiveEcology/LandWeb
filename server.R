@@ -31,19 +31,30 @@ function(input, output, session) {
   callModule(simInfo, "simInfoTabs", initialRun)
   callModule(moduleInfo, "modInfoBoxes", initialRun)
   
+  ##########
   raster::endCluster()
-  message("Running Experiment")
+  seed <- sample(1e8,1)
+  #seed <- 792282
+  set.seed(seed)
+  message("Current seed is: ", seed)
+  startTime <<- st <<- Sys.time()
+  message("Running Experiment, starting at time: ", startTime)
   args <- list(experiment, mySim, replicates = experimentReps, 
-               debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '),{lsObj <- ls(envir=sim@.envir); keep <- 1:1;
-               a <- format(big.mark = ',', 
-                           sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>% setNames(lsObj), decreasing = TRUE))[keep]; 
-               paste(names(a)[keep], collapse=' ')},paste(a[keep], collapse=' '), 'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ', 
-               uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:', 
-               uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap))", 
+               debug = "paste(Sys.time(), format(Sys.time() - startTime, digits = 2), format(Sys.time()-st, digits=2), 
+                              paste(unname(current(sim)), collapse = ' '),
+                              {lsObj <- ls(envir=sim@.envir); keep <- 1:1; a <- format(big.mark = ',', 
+                                        sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>% 
+                                        setNames(lsObj), decreasing = TRUE))[keep]; 
+                                        paste(names(a)[keep], collapse=' ')},
+                              paste(a[keep], collapse=' '), 
+                              'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ', 
+                              uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:', 
+                              round(uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap),4),
+                              {st <<- Sys.time()})", 
                #debug = TRUE, #cache = TRUE, 
                #cl = if(exists("cl")) cl, 
                .plotInitialTime = NA,
-               #notOlderThan = Sys.time(), # uncomment if want to rerun without Cached copy
+               notOlderThan = Sys.time(), # uncomment if want to rerun without Cached copy
                clearSimEnv = TRUE)
   args <- args[!unlist(lapply(args, is.null))]
   #profvis::profvis(interval = 0.5, {mySimOut <- do.call(Cache, args)})

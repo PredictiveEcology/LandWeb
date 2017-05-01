@@ -1,9 +1,18 @@
-raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
+## SpaDES & amc
+if(FALSE) {
+  devtools::install_github("PredictiveEcology/SpaDES@development")  
+  devtools::install_github("achubaty/amc@development")  
+  #devtools::install_github("YongLuo007/amc@development")  
+}
+## Libraries
+pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", "data.table", "fpCompare",
+          "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
+          "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown",
+          "amc"# fastRasterize and fastMask functions
+)
+lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
 
 #### Some variables
-
-largePatchSizeOptions <- c(500, 1000, 2000)
-largePatchesFnLoop <- length(largePatchSizeOptions) - 1 # The number is how many to run, e.g., 1 would be run just 1000
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
 ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
@@ -13,64 +22,49 @@ ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
     paste0(">",ageClassCutOffs[x])
   }
 })
-experimentReps <- 1 # was 4
-maxNumClusters <- 5 # use 0 to turn off # otherwise detectCPUs() - 1
-library(raster)
-library(fpCompare)
-
-fireTimestep <- 10
-beginCluster(25, type = "FORK")
-#print(raster::getCluster())
 if(!exists("globalRasters")) globalRasters <- list()
+
+# Computation stuff
+experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
+maxNumClusters <- 6 # use 0 to turn off
+#machines <- c("localhost"=maxNumClusters, "132.156.148.91"=5, "132.156.149.7"=5)
+machines <- c("localhost"=maxNumClusters)#, "132.156.148.91"=5, "132.156.149.7"=5)
+
+beginCluster(25, type = "FORK")
+setDTthreads(4) # data.table multi-threading
+
+# Time steps
+fireTimestep <- 1
+successionTimestep <- 10 # was 2
+endTime <- 1000 # was 4
+summaryInterval <- 10#endTime/2 # was 2
+summaryPeriod <- c(600, endTime)
+
+# Spatial stuff
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
-#studyArea <- "FULL"
+studyArea <- "FULL"
 #studyArea <- "SMALL"
-successionTimestep <- 10 # was 2
-endTime <- 20 # was 4
-summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(10, endTime)
+raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
 
+# clean up previous runs -- really should always start with a fresh R session (Ctrl-Shft-10)
 try(rm(mySim), silent=TRUE)
-useGGplot <- FALSE
-##########
-aaaa <- Sys.time()
-message("Started at ", aaaa)
 
+# shiny variables
+useGGplotForHists <- FALSE
+
+# sourcing other files
 source("functions.R")
 source("shinyModules.R")
 source("footers.R")
 
-if(FALSE) { # THese are all "dangerous" for development only... 
-  # in the sense that they should never be run inadvertently
-  # To rerun the spades initial call, delete the mySim object in the .GlobalEnv ##
-  SpaDES::clearCache(cacheRepo = paste0("appCache", studyArea))
-  SpaDES::clearCache(cacheRepo = "appCache/studyRegion/")
-  rm(cl)
-  file.remove(dir("outputs", recursive = TRUE, full.names = TRUE))
-  unlink("outputs", force = TRUE)
-  unlink(file.path("appCache", studyArea), force = TRUE, recursive = TRUE)
-}
-
-if (FALSE) { # For pushing to shinyapps.io
-  message("Started at: ",Sys.time())
-  allFiles <- dir(recursive = TRUE)
-  allFiles <- grep(allFiles, pattern = "^R-Portable", invert = TRUE, value = TRUE)
-  allFiles <- grep(allFiles, pattern = "^appCache", invert = TRUE, value = TRUE)
-  allFiles <- grep(allFiles, pattern = "^outputs", invert = TRUE, value = TRUE)
-  print(paste("Total size:", sum(unlist(lapply(allFiles, function(x) file.info(x)[, "size"]))) / 1e6, "MB"))
-  #rsconnect::deployApp(appName = "LandWebDemo", appFiles = allFiles, appTitle = "LandWeb Demo",
-  #                     contentCategory = "application")  
-  rsconnect::deployApp(appName = "LandWebDemoDev", appFiles = allFiles, 
-                       appTitle = "LandWeb Demo",
-                       contentCategory = "application")  
-  
-}
-
-print(getwd())
-
 ### Package stuff that should not be run automatically
 if (FALSE) {
+  SpaDESDeps <- miniCRAN::pkgDep("SpaDES")
+  new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+  if(length(new.packages)) install.packages(new.packages)
+  
+  
   pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet",
                      "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES", "markdown",
                      "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "bit", "parallel",
@@ -83,75 +77,9 @@ if (FALSE) {
   if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
 }
 
-## Make sure SpaDES is up to date
-#if (tryCatch(packageVersion("SpaDES") < "1.3.1.9047", error = function(x) TRUE))
-devtools::install_github("PredictiveEcology/SpaDES@development")  
-#devtools::install_github("PredictiveEcology/SpaDES@spreadDT2")  
-devtools::install_github("achubaty/amc@development")  
-
-
-if(FALSE) {
-  library(devtools)
-  library(withr);
-  with_libpaths(new = "/usr/local/lib/R/site-library/", install_github("PredictiveEcology/SpaDES@EliotCacheMultiOS"))
-  with_libpaths(new = "R-Portable/App/R-Portable/library/", install_github("PredictiveEcology/SpaDES@EliotCacheMultiOS"))
-}
-
-## Actual loading here -- not as long as the list for shinyapps.io, which fails if only these are 
-###  provided. But it is not necessary to library all of them for the app
-pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", #"plotly", 
-          "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", "maptools",
-          "dplyr", "data.table", "magrittr", "parallel", "SpaDES", "ggvis", "markdown",
-          "amc"# fastRasterize and fastMask functions
-)
-lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
-
-## For shinyapps.io -- needs to see explicit require statements
-if (FALSE) {
-  require(shiny)
-  require(shinydashboard)
-  require(shinyBS)
-  require(BH)
-  require(RCurl)
-  require(RandomFieldsUtils)
-  require(R.oo)
-  require(R.methodsS3)
-  require(SpaDES)
-  library(fastmatch)
-  require(visNetwork)
-  require(rgexf)
-  require(influenceR)
-  require(DBI)
-  require(viridis)
-  require(htmlwidgets)
-  require(bit)
-  require(devtools)
-  require(raster)
-  require(rgeos)
-  require(RSQLite)
-  require(magrittr)
-  require(raster)
-  require(sp)
-  require(VGAM)
-  require(dplyr)
-  require(ggplot2)
-  require(maptools)
-  require(broom)
-  require(ggvis)
-  require(rgdal)
-  require(grid)
-  require(data.table)
-  require(leaflet)
-  require(parallel)
-  require(markdown)
-}
-
-curDir <- getwd()
-setwd(curDir)
-
-
 
 if (maxNumClusters > 0) {
+  # get current IP -- will be Master
   if (!exists("cl")) {
     library(parallel)
     # try(stopCluster(cl), silent = TRUE)
@@ -163,26 +91,36 @@ if (maxNumClusters > 0) {
     
     ncores <-  pmin(ncores, detectCores() - 1) 
     
-    message("Spawning ", ncores, " threads")
-    if (Sys.info()[["sysname"]] == "Windows") {
-      clusterType = "SOCK"
-    } else {
-      # machine1 <- "W-VIC-A105343.pfc.forestry.ca"
-      # machine2 <- "W-VIC-A105342.pfc.forestry.ca"
-      # machine3 <- "localhost"
-      # NcoresOnEach <- 5 # can put this up to about 35
-      # clNames <- c(rep(machine1, NcoresOnEach),
-      #              rep(machine2, NcoresOnEach),
-      #              rep(machine3, NcoresOnEach))
-      # cl <- makeCluster(clNames, type = "PSOCK")
+    clNames <- rep("localhost", ncores)
+    if(length(machines)>1) {
+        
+      currIP <- system("ifconfig", intern=TRUE) %>%
+        split(cumsum(!nzchar(.))) %>%   
+        .[unlist(lapply(., function(y) any(grepl("eth1", y))))] %>%
+        unlist(recursive = FALSE) %>%
+        .[grep("inet addr", .)] %>%
+        strsplit(., split = " {2,}") %>%
+        unlist(recursive = FALSE) %>%
+        grep("inet addr:",.,value=TRUE) %>%
+        gsub("inet addr:", "\\1", .) %>% 
+        unname()
       
-      clusterType = "FORK"
+        clNames <- rep(names(machines), machines)
+        clusterType = "PSOCK"
+        cl <- makeCluster(clNames, type = clusterType,
+                          master = currIP)
+    } else {
+      if (Sys.info()[["sysname"]] == "Windows") {
+        clusterType = "SOCK"
+      } else {
+        clusterType = "FORK"
+      }
+      cl <- makeCluster(ncores, type = clusterType)
     }
-    cl <- makeCluster(ncores, type = clusterType)
-    if (Sys.info()[["sysname"]] == "Windows") {
-      clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
-    }
-    message("  Finished Spawning multiple threads")
+    # if (!all(unlist(lapply(cl, function(x) is(x, "forknode"))))) {
+    #   clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
+    # }
+    message("  Finished Spawning ",length(cl)," threads on ",paste(names(machines), collapse=", "))
   }
 }
 
@@ -241,4 +179,5 @@ mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths, outputs = outputs)
 
 source("mapsForShiny.R")
-devtools::load_all("~/Documents/GitHub/SpaDES/.")
+#devtools::load_all("~/Documents/GitHub/SpaDES/.")
+startTime <- st <- Sys.time()

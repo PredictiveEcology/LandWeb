@@ -402,7 +402,7 @@ ecoregionProducer <- function(studyAreaRaster,
                               rstStudyArea, maskFn) {
   # change the coordinate reference for all spatialpolygons
   message("ecoregionProducer 1: ", Sys.time())
-  ecoregionMapInStudy <- raster::intersect(ecoregionMapFull, studyArea)
+  ecoregionMapInStudy <- raster::intersect(ecoregionMapFull, aggregate(studyArea))
   # ecoregions <- ecoregionMapInStudy@data[,ecoregionName]
   # ecoregionTable <- data.table(mapcode = numeric(),
   #                              ecoregion = character())
@@ -439,7 +439,7 @@ ecoregionProducer <- function(studyAreaRaster,
 
   # Alternative
   message("ecoregionProducer fastRasterize: ", Sys.time())
-  ecoregionMap <- fastRasterize(ecoregionMapInStudy, studyAreaRaster, field = "ECODISTRIC")
+  ecoregionMap <- rasterize(ecoregionMapInStudy, studyAreaRaster, field = "ECODISTRIC")
   ecoregionFactorValues <- unique(ecoregionMap[])
 
   ecoregionTable <- data.table(mapcode = seq_along(ecoregionFactorValues[!is.na(ecoregionFactorValues)]),
@@ -664,7 +664,6 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   )
   names(allFiles) <- unlist(lapply(fileNames, basename))
   allFilesDigest <- digest::digest(allFiles)
-
   # LCC2005 may be loaded by other modules
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
   if(!is.null(sim$LCC2005)) lcc2005Filename <- filename(sim$LCC2005)
@@ -672,9 +671,11 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   needDownload <- all(!(allFilesDigest %in% c("9a99479fea036a03f188f71cbabca49e",
                                               "05a98a7eab2fcd0ebef7cc21fbfdf75b",
                                               "9bf998a69e4ea74f52c3dd20c5e5b17d",
-                                              "5173505a6b80f268c09d4967497cdfe3")))
+                                              "5173505a6b80f268c09d4967497cdfe3",
+                                              "5d153bf90e46419b6c1cf3c4bc9832ca")))
   needShinking <- all(!(allFilesDigest %in% c("9bf998a69e4ea74f52c3dd20c5e5b17d",
-                                              "5173505a6b80f268c09d4967497cdfe3")))
+                                              "5173505a6b80f268c09d4967497cdfe3",
+                                              "5d153bf90e46419b6c1cf3c4bc9832ca")))
 
   if(needDownload) {
     checkTable <- data.table(downloadData(module = "LW_LBMRDataPrep",
@@ -759,13 +760,12 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   standAgeMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif")
 
   sim$LCC2005 <- raster(lcc2005Filename)
-  sim$ecoDistrict <- Cache(raster::shapefile, ecodistrictFilename)
+  # sim$ecoDistrict <- Cache(raster::shapefile, ecodistrictFilename)
+  sim$ecoDistrict <- shapefile(ecodistrictFilename)
   sim$ecoRegion <- Cache(raster::shapefile, ecoregionFilename)
   sim$ecoZone <- Cache(raster::shapefile, ecozoneFilename)
   sim$biomassMap <- raster(biomassMapFilename)
   sim$standAgeMap <- raster(standAgeMapFilename)
-
-
   # 3. species maps
   sim$specieslayers <- stack()
   speciesnames <- c("Abie_Las",
