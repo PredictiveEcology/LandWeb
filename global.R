@@ -30,7 +30,7 @@ maxNumClusters <- 6 # use 0 to turn off
 #machines <- c("localhost"=maxNumClusters, "132.156.148.91"=5, "132.156.149.7"=5)
 machines <- c("localhost"=maxNumClusters)#, "132.156.148.91"=5, "132.156.149.7"=5)
 
-beginCluster(25, type = "FORK")
+if(Sys.info()["sysname"]!="Windows") beginCluster(25, type = "FORK")
 setDTthreads(4) # data.table multi-threading
 
 # Time steps
@@ -43,8 +43,8 @@ summaryPeriod <- c(600, endTime)
 # Spatial stuff
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
-studyArea <- "FULL"
-#studyArea <- "SMALL"
+#studyArea <- "FULL"
+studyArea <- "SMALL"
 raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
 
 # clean up previous runs -- really should always start with a fresh R session (Ctrl-Shft-10)
