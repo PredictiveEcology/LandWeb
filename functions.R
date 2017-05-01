@@ -155,7 +155,7 @@ cellNumbersForPolygon <- function(dummyRaster, Polygon) {
 #' @return A matrix with counts of number of large patches
 largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
                            polygonToSummarizeBy, cl, 
-                           ageCutoffs = ageClassCutOffs, 
+                           ageCutoffs = ageClassCutOffs, countNumPatches = countNumPatches,
                            ageClasses, notOlderThan = Sys.time() - 1e7) {
 
 #  withProgress(message = 'Calculation in progress',

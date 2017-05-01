@@ -165,9 +165,10 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                  detail = 'This may take a while...', value = 0, {
                    args <- list(largePatchesFn, timeSinceFireFiles = tsf,
                                 vegTypeMapFiles = vtm,
-                                cl = if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) cl,
+                                cl = if (tryCatch(is(cl, "cluster"), 
+                                                  error = function(x) FALSE)) cl,
                                 polygonToSummarizeBy = currentPolygon,
-                                ageClasses = ageClasses, 
+                                ageClasses = ageClasses, countNumPatches = countNumPatches,
                                 cacheRepo = cacheRepo)
                    args <- args[!unlist(lapply(args, is.null))]
                    largePatches <- do.call(Cache, args)

@@ -54,11 +54,11 @@ function(input, output, session) {
                #debug = TRUE, #cache = TRUE, 
                #cl = if(exists("cl")) cl, 
                .plotInitialTime = NA,
-               notOlderThan = Sys.time(), # uncomment if want to rerun without Cached copy
+               #notOlderThan = Sys.time(), # uncomment if want to rerun without Cached copy
                clearSimEnv = TRUE)
   args <- args[!unlist(lapply(args, is.null))]
   #profvis::profvis(interval = 0.5, {mySimOut <- do.call(Cache, args)})
-  mySimOut <- do.call(Cache, args)
+  mySimOut <<- do.call(Cache, args)
   message(attr(mySimOut, "tags"))
   
   # mySimOut <- Cache(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE,
