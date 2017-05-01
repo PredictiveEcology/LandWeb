@@ -258,6 +258,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     r <- rasts[[input$timeSinceFire1Slider/10+1]] # slider units are 10, starting at 0; index here is 1 to length (tsf)
     if (ncell(r) > 2e5)
       r <- sampleRegular(r, size = 2e5, asRaster = TRUE)
+    r[r[]>300] <- 300
     r
   })
 }
