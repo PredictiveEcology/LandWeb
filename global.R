@@ -26,7 +26,7 @@ if(!exists("globalRasters")) globalRasters <- list()
 
 # Computation stuff
 experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
-maxNumClusters <- 7 # use 0 to turn off
+maxNumClusters <- 6 # use 0 to turn off
 #machines <- c("localhost"=maxNumClusters, "132.156.148.91"=5, "132.156.149.7"=5)
 machines <- c("localhost"=maxNumClusters)#, "132.156.148.91"=5, "132.156.149.7"=5)
 
@@ -34,16 +34,16 @@ beginCluster(25, type = "FORK")
 setDTthreads(4) # data.table multi-threading
 
 # Time steps
-fireTimestep <- 10
+fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 40 # was 4
+endTime <- 1000 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(10, endTime)
+summaryPeriod <- c(600, endTime)
 
 # Spatial stuff
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
-#studyArea <- "FULL"
+studyArea <- "FULL"
 #studyArea <- "SMALL"
 raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
 
@@ -180,3 +180,4 @@ mySim <- simInit(times = times, params = parameters, modules = modules,
 
 source("mapsForShiny.R")
 #devtools::load_all("~/Documents/GitHub/SpaDES/.")
+startTime <- st <- Sys.time()

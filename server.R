@@ -33,14 +33,14 @@ function(input, output, session) {
   
   ##########
   raster::endCluster()
-  seed <- sample(1e4,1)
-  #seed <- 5215
+  seed <- sample(1e8,1)
+  #seed <- 792282
   set.seed(seed)
   message("Current seed is: ", seed)
-  startTime <- st <- Sys.time()
+  startTime <<- st <<- Sys.time()
   message("Running Experiment, starting at time: ", startTime)
   args <- list(experiment, mySim, replicates = experimentReps, 
-               debug = "paste(Sys.time(), format(st - startTime, digits = 2), format(Sys.time()-st, digits=2), 
+               debug = "paste(Sys.time(), format(Sys.time() - startTime, digits = 2), format(Sys.time()-st, digits=2), 
                               paste(unname(current(sim)), collapse = ' '),
                               {lsObj <- ls(envir=sim@.envir); keep <- 1:1; a <- format(big.mark = ',', 
                                         sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>% 
