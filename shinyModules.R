@@ -276,17 +276,26 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     cell <- cellFromXY(ras1, c(x, y))
     if (!is.na(cell)) {#If the click is inside the raster...
       #Get row and column, to print later
+      colNam <- names(polygons)[[(length(polygons)/4)*4]]
+      pol <- polygons[[(length(polygons)/4)*4]]
       rc <- rowColFromCell(ras1, cell)
-      #Get value of the given cell
+      
+      #Get values from raster and polygon
+      polyVal <- SpatialPoints(xyFromCell(ras1,cell), proj4string=crs(pol)) %>%
+        extract(pol, .) %>%
+        .[polygonIndivIdsColum[[colNam]]]
       val = ras1[][cell]
       if(!is.na(val)) {
-        content <- paste0("Time Since Fire=", round(val, 1), " years")
-        proxy <- leafletProxy("timeSinceFire1", data = ras1)
+        content <- paste0("Time Since Fire=", round(val, 1), " years <br>",
+                          polygonIndivIdsColum[[colNam]],": ",polyVal)
+        proxy <- leafletProxy("timeSinceFire1")
         #add Popup
         proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
       }
     }
   }
+
+
 }
 
 timeSinceFireModUI <- function(id, tsf) {
