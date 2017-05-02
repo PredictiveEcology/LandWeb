@@ -261,6 +261,32 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     r[r[]>300] <- 300
     r
   })
+  
+  observe({#Observer to show Popups on click
+    click <- input$timeSinceFire1_shape_click
+    if (!is.null(click)) {
+      showpos(x=click$lng, y=click$lat)
+    }
+  })
+  
+  showpos <- function(x=NULL, y=NULL) {#Show popup on clicks
+    #Translate Lat-Lon to cell number using the unprojected raster
+    #This is because the projected raster is not in degrees, we cannot use it!
+    ras1 <- rasterInput()
+    cell <- cellFromXY(ras1, c(x, y))
+    if (!is.na(cell)) {#If the click is inside the raster...
+      #Get row and column, to print later
+      rc <- rowColFromCell(ras1, cell)
+      #Get value of the given cell
+      val = ras1[][cell]
+      if(!is.na(val)) {
+        content <- paste0("Time Since Fire=", round(val, 1), " years")
+        proxy <- leafletProxy("timeSinceFire1", data = ras1)
+        #add Popup
+        proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
+      }
+    }
+  }
 }
 
 timeSinceFireModUI <- function(id, tsf) {
