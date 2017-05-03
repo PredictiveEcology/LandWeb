@@ -1,3 +1,4 @@
+devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if(FALSE) {
   devtools::install_github("PredictiveEcology/SpaDES@development")  
@@ -44,11 +45,8 @@ summaryPeriod <- c(600, endTime)
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 #studyArea <- "FULL"
-studyArea <- "SMALL"
+#studyArea <- "SMALL"
 raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
-
-# clean up previous runs -- really should always start with a fresh R session (Ctrl-Shft-10)
-try(rm(mySim), silent=TRUE)
 
 # shiny variables
 useGGplotForHists <- FALSE
@@ -175,7 +173,13 @@ outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatyp
 
 outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
 
-mySim <- simInit(times = times, params = parameters, modules = modules,
+# clean up previous runs -- really should always start with a fresh R session (Ctrl-Shft-10)
+#try(rm(mySim), silent=TRUE)
+skipSimInit <- FALSE
+if(devmode) if(!exists("mySim", envir=.GlobalEnv)) skipSimInit <- TRUE
+
+if(!skipSimInit)
+  mySim <<- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths, outputs = outputs)
 
 source("mapsForShiny.R")
