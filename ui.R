@@ -8,9 +8,9 @@ dashboardPage(skin = "green",
     sidebarMenu(id = "wholeThing", 
       menuItem("Maps", icon = icon("map-o"),
                menuSubItem("Time since fire", tabName = "TimeSinceFire", icon = icon("clock-o")),
-               menuSubItem("Change polygon layer", tabName = "Polygons", icon = icon("map-marker")),
-               menuSubItem("Fire Return Interval Map", tabName = "StudyRegion",
-                           icon = icon("map"))),
+               menuSubItem("Change polygon layer", tabName = "Polygons", icon = icon("map-marker"), selected = TRUE)),
+               #menuSubItem("Fire Return Interval Map", tabName = "StudyRegion",
+               #             icon = icon("map"))),
       br(),
       h4(HTML("&nbsp;"), "NRV plots"),
       #tags$head(tags$script(HTML('$(document).ready(function() {$(".treeview-menu").css("display", "block");})'))),
@@ -44,20 +44,20 @@ dashboardPage(skin = "green",
     includeCSS("www/style.css"),
     
     tabItems(
-      tabItem("StudyRegion",
-              fluidRow(
-                box(
-                  width = 12,
-                  height = 900,
-                  solidHeader = TRUE,
-                  status = "success",
-                  title = "Fire Return Interval, with sub region currently in Demo (hover mouse over for values)",
-                  #plotOutput("StudyRegion", width = "100%")#, height = "100%")
-                  #plotlyOutput("StudyRegion", width = "100%")#, height = "100%")
-                  ggvisOutput("StudyRegion")
-                )
-              )
-      ),
+      # tabItem("StudyRegion",
+      #         fluidRow(
+      #           box(
+      #             width = 12,
+      #             height = 900,
+      #             solidHeader = TRUE,
+      #             status = "success",
+      #             title = "Fire Return Interval, with sub region currently in Demo (hover mouse over for values)",
+      #             #plotOutput("StudyRegion", width = "100%")#, height = "100%")
+      #             #plotlyOutput("StudyRegion", width = "100%")#, height = "100%")
+      #             ggvisOutput("StudyRegion")
+      #           )
+      #         )
+      # ),
       tabItem("simDiagrams", simInfoUI("simInfoTabs")),
       tabItem("moduleInfo", moduleInfoUI("modInfoBoxes")),
       tabItem("ClumpsYoung",

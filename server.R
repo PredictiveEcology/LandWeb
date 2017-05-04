@@ -210,6 +210,14 @@ function(input, output, session) {
            )
     )
   })
+
+  output$studyRegionUI <- renderUI({
+    tabBox(width = 12,
+           tabPanel("Time Since Fire maps", tabName = "timeSinceFireTab",
+                    fluidRow(studyRegionModUI("studyRegion"))
+           )
+    )
+  })
   
   callModule(timeSinceFireMod, "timeSinceFire", rasts = globalRasters)
   
@@ -253,45 +261,46 @@ function(input, output, session) {
   
   # There is double code here, allowing for ggplotly version (currently commented out) and ggvis version
   #output$StudyRegion <- renderPlot(
-  bind_shiny(plot_id = "StudyRegion",
-             #height = 525, 
-             #width = 800,
-             #  {
-             #ggplotly(ggStudyRegion )
-             ggStudyRegion 
-             
-             #   g[[jj]]  <- ggplot() +
-             #     geom_raster(data=packSaturationMapPts[[jj]],
-             #                 aes(long, lat, fill=Probability, text=CountryName),
-             #                 alpha = 0.98) +
-             #     geom_polygon(data=shape.fort, 
-             #                  aes(long, lat, group=group), 
-             #                  colour='black',fill=NA) +
-             #     coord_equal() +
-             #     scale_fill_gradientn(colors=c('blue','blue','light blue', 'light blue','orange','red'),
-             #                          #scale_fill_gradientn(colors=c('#ffffd4','#fee391','#fec44f','#fe9929','#d95f0e','#993404'),
-             #                          name='Probability of a pack',  na.value = NA) + 
-             #     theme(
-             #       legend.position = 'right',
-             #       legend.key.size = unit(1, "cm")
-             #     ) +
-             #     scale_x_continuous(expand=c(0,0)) + 
-             #     scale_y_continuous(expand=c(0,0)) +
-             #     labs(x='Easting', y='Northing', title=paste("Probability of pack presence in 2097, based on",
-             #                                                 length(numPacks2AByTime[[jj]]), "replicate simulations, \n",
-             #                                                 "with", jj, "starting locations"))
-             #   
-             #   #g1 <- g
-             #}
-             # gridExtra::grid.arrange(grobs = g)
-             #ggplotly(g, tooltip = c("CountryName", "Probability"))
-             
-             #clearPlot()
-             #Plot(shpStudyRegionOrig, title = "Proportion of leading spruce")
-             #Plot(shpStudyRegion, addTo = "shpStudyRegionOrig")
-             #}
-  )
-  
+  if(FALSE) {
+    bind_shiny(plot_id = "StudyRegion",
+               #height = 525, 
+               #width = 800,
+               #  {
+               #ggplotly(ggStudyRegion )
+               ggStudyRegion 
+               
+               #   g[[jj]]  <- ggplot() +
+               #     geom_raster(data=packSaturationMapPts[[jj]],
+               #                 aes(long, lat, fill=Probability, text=CountryName),
+               #                 alpha = 0.98) +
+               #     geom_polygon(data=shape.fort, 
+               #                  aes(long, lat, group=group), 
+               #                  colour='black',fill=NA) +
+               #     coord_equal() +
+               #     scale_fill_gradientn(colors=c('blue','blue','light blue', 'light blue','orange','red'),
+               #                          #scale_fill_gradientn(colors=c('#ffffd4','#fee391','#fec44f','#fe9929','#d95f0e','#993404'),
+               #                          name='Probability of a pack',  na.value = NA) + 
+               #     theme(
+               #       legend.position = 'right',
+               #       legend.key.size = unit(1, "cm")
+               #     ) +
+               #     scale_x_continuous(expand=c(0,0)) + 
+               #     scale_y_continuous(expand=c(0,0)) +
+               #     labs(x='Easting', y='Northing', title=paste("Probability of pack presence in 2097, based on",
+               #                                                 length(numPacks2AByTime[[jj]]), "replicate simulations, \n",
+               #                                                 "with", jj, "starting locations"))
+               #   
+               #   #g1 <- g
+               #}
+               # gridExtra::grid.arrange(grobs = g)
+               #ggplotly(g, tooltip = c("CountryName", "Probability"))
+               
+               #clearPlot()
+               #Plot(shpStudyRegionOrig, title = "Proportion of leading spruce")
+               #Plot(shpStudyRegion, addTo = "shpStudyRegionOrig")
+               #}
+    )
+  }
   
   output$speciesInputs <- renderDataTable({
     landisInputs
