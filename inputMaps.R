@@ -64,7 +64,7 @@ if (studyArea != "FULL") {
   shpStudyRegion <- shpStudyRegionFull
 }
 
-ggStudyRegion <- ggvisFireReturnInterval(shpStudyRegion, shpStudyRegionFull)
+#ggStudyRegion <- ggvisFireReturnInterval(shpStudyRegion, shpStudyRegionFull)
 
 set.seed(seedState)
 

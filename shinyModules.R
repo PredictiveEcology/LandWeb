@@ -195,6 +195,7 @@ leafletMapUI <- function(id) {
 }
 
 leafletMap <- function(input, output, session) {
+
   output$leafletMap1 <- renderLeaflet({
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
@@ -202,12 +203,17 @@ leafletMap <- function(input, output, session) {
                    polyDemo <- polygons[[polyNum + (length(polygons)/4)*3]]#6]] # leaflet projection, DEMO scale
                    polyFull <- polygons[[polyNum + (length(polygons)/4)*2]] # leaflet projection, Full scale
                    a <- leaflet() %>% addTiles(group = "OSM (default)") %>%
-                     addPolygons(data = polyFull, color = "blue", group = "Full",
-                                 fillOpacity = 0.2, weight = 1,
-                                 popup = paste(polyFull[[polygonIndivIdsColum[[polyNum]]]])) %>%
+                     addPolygons(data = spTransform(shpStudyRegionFull, crs(polyFull)), color = "blue", group = "Full",
+                                 fillOpacity = 0.8, weight = 1,
+                                 fillColor = ~colorFactor("Spectral", fireReturnInterval)(fireReturnInterval)) %>% #,
+                                 #popup = paste(polyFull[[polygonIndivIdsColum[[polyNum]]]])) %>%
+                     #spTransform(shpStudyRegionFull, crs(polyFull))
                      addPolygons(data = polyDemo, color = "red", group = "Demo",
-                                 fillOpacity = 0.6, weight = 3,
-                                 popup = paste(polyDemo[[polygonIndivIdsColum[[polyNum]]]]))  %>%
+                                 fillOpacity = 0.0, weight = 3) %>% #,
+                                 #popup = paste(polyDemo[[polygonIndivIdsColum[[polyNum]]]]))  %>%
+                     #addLegend(position = "bottomright", pal = "Spectral", values = shpStudyRegionFull$fireReturnInterval,
+                    #           title = "Fire Return Interval (years)") %>%
+                     
                      setView(mean(c(xmin(polyDemo),xmax(polyDemo))), 
                              mean(c(ymin(polyDemo),ymax(polyDemo))), 
                              zoom = 5) 
@@ -217,6 +223,47 @@ leafletMap <- function(input, output, session) {
     a
   })
   
+  observe({#Observer to show Popups on click
+    click <- input$leafletMap1_shape_click
+    if (!is.null(click)) {
+      showpos(x=click$lng, y=click$lat)
+    }
+  })
+  
+  showpos <- function(x=NULL, y=NULL) {#Show popup on clicks
+    #Translate Lat-Lon to cell number using the unprojected raster
+    #This is because the projected raster is not in degrees, we cannot use it!
+    #ras1 <- rasterInput()
+    polyNum <- polygonInput()
+    polyFull <- polygons[[polyNum + (length(polygons)/4)*2]] # leaflet projection, Full scale
+    clickedSP <- SpatialPoints(matrix(c(x,y), ncol=2), proj4string=crs(polyFull))
+    friVal <- clickedSP %>%
+      spTransform(crs(shpStudyRegion)) %>%
+      extract(shpStudyRegionFull, .) %>%
+      .["fireReturnInterval"]
+    
+    if (!is.na(friVal)) {#If the click is inside the raster...
+      #polyDemo <- polygons[[polyNum + (length(polygons)/4)*3]]#6]] # leaflet projection, DEMO scale
+      #Get row and column, to print later
+      colNam <- names(polygons)[[(length(polygons)/4)*4]]
+      # pol <- polygons[[(length(polygons)/4)*4]]
+      # friPoly <- shpStudyRegion
+      # rc <- rowColFromCell(ras1, cell)
+      # 
+      # #Get values from raster and polygon
+      polyVal <- clickedSP %>%
+        extract(polyFull, .) %>%
+        .[polygonIndivIdsColum[[colNam]]]
+      
+        content <- paste0(polygonIndivIdsColum[[colNam]],": ",polyVal,"<br>",
+                          "Fire Return Interval: ", friVal)
+        proxy <- leafletProxy("leafletMap1")
+        #add Popup
+        proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
+      
+    }
+  }
+    
   polygonInput <- reactive({
     switch(input$leafletMapPolygons,
            "Ecodistricts Demo" = 1#, 
@@ -260,7 +307,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     leafMap <- leaflet() %>% addTiles(group = "OSM (default)") %>%
       addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
                      colors = timeSinceFirePalette, project = FALSE)  %>%
-      #addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
+      addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
       addLegend(position = "bottomright", pal = timeSinceFirePalette, 
                 values = na.omit(ras1[]), title = "Time since fire (years)") %>%
       setView(mean(c(xmin(pol),xmax(pol))), 
@@ -270,13 +317,19 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     
     leafMap
   })
+
+
+  output$timeSinceFire2Hist <- renderPlot({
+    ras1 <- rasterInput()
+    hist(ras1[], main = "", xlab = "Time since fire (Years)", col = timeSinceFirePalette(1:40), breaks = 40)
+  })
   
   rasterInput <- reactive({
     sliderVal <- if(is.null(input$timeSinceFire1Slider)) 0 else input$timeSinceFire1Slider
     r <- rasts[[sliderVal/10+1]] # slider units are 10, starting at 0; index here is 1 to length (tsf)
     if (ncell(r) > 3e5)
       r <- sampleRegular(r, size = 3e5, asRaster = TRUE)
-    r[r[]>300] <- 300
+    r[r[]>400] <- 400
     r
   })
   
@@ -296,16 +349,22 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       #Get row and column, to print later
       colNam <- names(polygons)[[(length(polygons)/4)*4]]
       pol <- polygons[[(length(polygons)/4)*4]]
+      friPoly <- shpStudyRegion
       rc <- rowColFromCell(ras1, cell)
       
       #Get values from raster and polygon
       polyVal <- SpatialPoints(xyFromCell(ras1,cell), proj4string=crs(pol)) %>%
         extract(pol, .) %>%
         .[polygonIndivIdsColum[[colNam]]]
+      friVal <- SpatialPoints(xyFromCell(ras1,cell), proj4string=crs(pol)) %>%
+        spTransform(crs(shpStudyRegion)) %>%
+        extract(shpStudyRegion, .) %>%
+        .["fireReturnInterval"]
       val = ras1[][cell]
       if(!is.na(val)) {
         content <- paste0("Time Since Fire=", round(val, 1), " years <br>",
-                          polygonIndivIdsColum[[colNam]],": ",polyVal)
+                          polygonIndivIdsColum[[colNam]],": ",polyVal,"<br>",
+                          "Fire Return Interval: ", friVal)
         proxy <- leafletProxy("timeSinceFire2")
         #add Popup
         proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
@@ -319,7 +378,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
 timeSinceFireModUI <- function(id, tsf) {
   ns <- NS(id)
   tagList(
-    box(width = 12, solidHeader = TRUE, collapsible = TRUE, 
+    box(width = 8, solidHeader = TRUE, collapsible = TRUE, 
         h4(paste("Below are a sequence of snapshots of the landscape, showing the natural range of",
                  "variation in time since fire. Click on the 'play' button at the bottom right to animate")),
         leaflet::leafletOutput(ns("timeSinceFire2"), height = 600),
@@ -327,6 +386,85 @@ timeSinceFireModUI <- function(id, tsf) {
                     "Individual snapshots of time since fire maps. Use play button (bottom right) to animate.", 
                     min = 0, max = (length(tsf)-1)*10, value = 0, step = 10, 
                     animate = animationOptions(interval = 2500, loop = TRUE))
+    ),
+    box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
+        h4(paste("Current time since distribution distribution")),
+        plotOutput(ns("timeSinceFire2Hist"), height = 600)
+    )
+    
+  )
+}
+
+
+studyRegionMod <- function(input, output, session, rasts) {
+  output$studyRegion2 <- renderLeaflet({
+    leafZoom <- 7 #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
+    ras1 <- isolate(rasterInput())
+    pol <- polygons[[(length(polygons)/4)*4]]
+    leafMap <- leaflet() %>% addTiles(group = "OSM (default)") %>%
+      addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
+                     colors = timeSinceFirePalette, project = FALSE)  %>%
+      addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
+      addLegend(position = "bottomright", pal = timeSinceFirePalette, 
+                values = na.omit(ras1[]), title = "Time since fire (years)") %>%
+      setView(mean(c(xmin(pol),xmax(pol))), 
+              mean(c(ymin(pol),ymax(pol))), 
+              zoom = leafZoom
+      ) 
+    
+    leafMap
+  })
+  
+  observe({#Observer to show Popups on click
+    click <- input$timeSinceFire2_shape_click
+    if (!is.null(click)) {
+      showpos(x=click$lng, y=click$lat)
+    }
+  })
+  
+  showpos <- function(x=NULL, y=NULL) {#Show popup on clicks
+    #Translate Lat-Lon to cell number using the unprojected raster
+    #This is because the projected raster is not in degrees, we cannot use it!
+    browser()
+    #ras1 <- rasterInput()
+    
+    cell <- cellFromXY(ras1, c(x, y))
+    if (!is.na(cell)) {#If the click is inside the raster...
+      #Get row and column, to print later
+      colNam <- names(polygons)[[(length(polygons)/4)*4]]
+      pol <- polygons[[(length(polygons)/4)*4]]
+      friPoly <- shpStudyRegion
+      rc <- rowColFromCell(ras1, cell)
+      
+      #Get values from raster and polygon
+      polyVal <- SpatialPoints(xyFromCell(ras1,cell), proj4string=crs(pol)) %>%
+        extract(pol, .) %>%
+        .[polygonIndivIdsColum[[colNam]]]
+      friVal <- SpatialPoints(xyFromCell(ras1,cell), proj4string=crs(pol)) %>%
+        spTransform(crs(shpStudyRegion)) %>%
+        extract(shpStudyRegion, .) %>%
+        .["fireReturnInterval"]
+      val = ras1[][cell]
+      if(!is.na(val)) {
+        content <- paste0("Time Since Fire=", round(val, 1), " years <br>",
+                          polygonIndivIdsColum[[colNam]],": ",polyVal,"<br>",
+                          "Fire Return Interval: ", friVal)
+        proxy <- leafletProxy("timeSinceFire2")
+        #add Popup
+        proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
+      }
+    }
+  }
+  
+  
+}
+
+studyRegionModUI <- function(id) {
+  ns <- NS(id)
+  tagList(
+    box(width = 8, solidHeader = TRUE, collapsible = TRUE, 
+        h4(paste("Study region and associated Fire Return Interval")),
+        leaflet::leafletOutput(ns("studyRegion"), height = 600)
     )
   )
 }
