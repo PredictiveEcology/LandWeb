@@ -37,8 +37,7 @@ vegAgeMod <- function(input, output, session, listOfProportions, indivPolygonInd
       #            })
      actualPlot
     } else {
-      #browser()
-      
+
       breaksLabels <- 0:11/10
       breaks <- breaksLabels - 0.05
       barplotBreaks <- breaksLabels + 0.05
@@ -78,9 +77,7 @@ clumpMod <- function(input, output, session, Clumps, id, ageClasses, vegLeadingT
     maxNumClusters <- a[ageClass==ageClasses[ageClassIndex] & polygonID==polygonIndex, .N, by = c("vegCover","rep")]$N + 1
     maxNumClusters <- if(length(maxNumClusters)==0) 6 else pmax(6, max(maxNumClusters))
     forHist <- rep(0, numReps)
-    #browser()
     if(NROW(forHistDT)) {
-      #browser()
       numByRep <- forHistDT[,.N,by="rep"]
       forHist[seq_len(NROW(numByRep))] <- numByRep$N
     }
@@ -235,17 +232,37 @@ leafletMap <- function(input, output, session) {
 ######################################################################################################
 
 timeSinceFireMod <- function(input, output, session, rasts) {
-  output$timeSinceFire1 <- renderLeaflet({
+  #output$timeSinceFire1 <- 
+  observe({
     ras1 <- rasterInput()
     pol <- polygons[[(length(polygons)/4)*4]]
-    leafZoom <- if(is.null(input$timeSinceFire1_zoom)) 7 else input$timeSinceFire1_zoom
+    leafZoom <- if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
+    proxy <- leafletProxy("timeSinceFire2")
+    proxy %>% 
+      #leaflet() %>% addTiles(group = "OSM (default)") %>%
+      addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
+                     colors = timeSinceFirePalette, project = FALSE)  %>%
+      #addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
+      # addLegend(position = "bottomright", pal = timeSinceFirePalette, 
+      #           values = na.omit(ras1[]), title = "Time since fire (years)") %>%
+      addLayersControl(options = layersControlOptions(autoZIndex = TRUE)) %>%
+      setView(mean(c(xmin(pol),xmax(pol))), 
+              mean(c(ymin(pol),ymax(pol))), 
+              zoom = leafZoom) 
+    
+    proxy
+  })
+  
+  output$timeSinceFire2 <- renderLeaflet({
+    leafZoom <- 7 #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
+    ras1 <- isolate(rasterInput())
+    pol <- polygons[[(length(polygons)/4)*4]]
     leafMap <- leaflet() %>% addTiles(group = "OSM (default)") %>%
       addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
                      colors = timeSinceFirePalette, project = FALSE)  %>%
-      addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
+      #addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
       addLegend(position = "bottomright", pal = timeSinceFirePalette, 
                 values = na.omit(ras1[]), title = "Time since fire (years)") %>%
-      addLayersControl(options = layersControlOptions(autoZIndex = TRUE)) %>%
       setView(mean(c(xmin(pol),xmax(pol))), 
               mean(c(ymin(pol),ymax(pol))), 
               zoom = leafZoom
@@ -255,15 +272,16 @@ timeSinceFireMod <- function(input, output, session, rasts) {
   })
   
   rasterInput <- reactive({
-    r <- rasts[[input$timeSinceFire1Slider/10+1]] # slider units are 10, starting at 0; index here is 1 to length (tsf)
-    if (ncell(r) > 2e5)
-      r <- sampleRegular(r, size = 2e5, asRaster = TRUE)
+    sliderVal <- if(is.null(input$timeSinceFire1Slider)) 0 else input$timeSinceFire1Slider
+    r <- rasts[[sliderVal/10+1]] # slider units are 10, starting at 0; index here is 1 to length (tsf)
+    if (ncell(r) > 3e5)
+      r <- sampleRegular(r, size = 3e5, asRaster = TRUE)
     r[r[]>300] <- 300
     r
   })
   
   observe({#Observer to show Popups on click
-    click <- input$timeSinceFire1_shape_click
+    click <- input$timeSinceFire2_shape_click
     if (!is.null(click)) {
       showpos(x=click$lng, y=click$lat)
     }
@@ -288,7 +306,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       if(!is.na(val)) {
         content <- paste0("Time Since Fire=", round(val, 1), " years <br>",
                           polygonIndivIdsColum[[colNam]],": ",polyVal)
-        proxy <- leafletProxy("timeSinceFire1")
+        proxy <- leafletProxy("timeSinceFire2")
         #add Popup
         proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
       }
@@ -304,7 +322,7 @@ timeSinceFireModUI <- function(id, tsf) {
     box(width = 12, solidHeader = TRUE, collapsible = TRUE, 
         h4(paste("Below are a sequence of snapshots of the landscape, showing the natural range of",
                  "variation in time since fire. Click on the 'play' button at the bottom right to animate")),
-        leaflet::leafletOutput(ns("timeSinceFire1"), height = 600),
+        leaflet::leafletOutput(ns("timeSinceFire2"), height = 600),
         sliderInput(ns("timeSinceFire1Slider"), 
                     "Individual snapshots of time since fire maps. Use play button (bottom right) to animate.", 
                     min = 0, max = (length(tsf)-1)*10, value = 0, step = 10, 
