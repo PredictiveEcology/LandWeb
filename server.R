@@ -13,7 +13,7 @@ function(input, output, session) {
     mySimCopy <- Copy(mySim)
     end(mySimCopy) <- 0
     message("Running Initial spades call")
-    initialRun <- Cache(spades, sim = mySimCopy, #notOlderThan = Sys.time(),
+    initialRun <<- Cache(spades, sim = mySimCopy, #notOlderThan = Sys.time(),
                         debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
                         objects = "shpStudyRegion", 
                         #cacheRepo = cachePath(mySim), 
