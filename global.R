@@ -45,7 +45,7 @@ summaryPeriod <- c(600, endTime)
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 #studyArea <- "FULL"
-studyArea <- "SMALL"
+#studyArea <- "SMALL"
 raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
 
 # shiny variables
@@ -183,5 +183,5 @@ if(!skipSimInit)
                  objects = objects, paths = paths, outputs = outputs)
 
 source("mapsForShiny.R")
-#devtools::load_all("~/Documents/GitHub/SpaDES/.")
+#devtools::load_all("~/GitHub/SpaDES/.")
 startTime <- st <- Sys.time()
