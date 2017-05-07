@@ -27,7 +27,7 @@ if(!exists("globalRasters")) globalRasters <- list()
 
 # Computation stuff
 experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
-maxNumClusters <- 6 # use 0 to turn off
+maxNumClusters <- 1 # use 0 to turn off
 #machines <- c("localhost"=maxNumClusters, "132.156.148.91"=5, "132.156.149.7"=5)
 machines <- c("localhost"=maxNumClusters)#, "132.156.148.91"=5, "132.156.149.7"=5)
 
