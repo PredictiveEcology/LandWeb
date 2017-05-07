@@ -94,6 +94,7 @@ function(input, output, session) {
   tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
   vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
   lenTSF <- length(tsf)
+  rasterResolution <<- raster(tsf[1]) %>% res()
   
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
   #lfltFN <- gsub(lfltFN, pattern = ".grd", replacement = ".tif")
