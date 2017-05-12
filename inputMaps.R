@@ -1,4 +1,5 @@
-
+library(raster)
+library(rgeos)
 #### 
 # This will load in several maps that are used 
 
@@ -12,10 +13,13 @@ seralStageData <- readRDS(file.path(paths$inputPath, "seralStageData.rds"))
 vegTypeData <- readRDS(file.path(paths$inputPath, "vegTypeData.rds"))
 availableRegions <- unique(vegTypeData$ecoregion)
 
+# Study area original shapefile
 loadShpAndMakeValid <- function(file) {
   shapefile(file) %>% gBuffer(byid=TRUE, width=0)
 }
-shpStudyRegionFull <- SpaDES::Cache(loadShpAndMakeValid, file=file.path(paths$inputPath,"shpLandWEB.shp"),
+
+shpStudyRegionFull <- SpaDES::Cache(loadShpAndMakeValid, 
+                                    file=file.path(paths$inputPath,"shpLandWEB.shp"),
               cacheRepo = paths$cachePath)
 shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
 shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
