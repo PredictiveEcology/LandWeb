@@ -13,7 +13,7 @@ function(input, output, session) {
     mySimCopy <- Copy(mySim)
     end(mySimCopy) <- 0
     message("Running Initial spades call")
-    initialRun <- Cache(spades, sim = mySimCopy, #notOlderThan = Sys.time(),
+    initialRun <<- Cache(spades, sim = mySimCopy, #notOlderThan = Sys.time(),
                         debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
                         objects = "shpStudyRegion", 
                         #cacheRepo = cachePath(mySim), 
@@ -94,6 +94,7 @@ function(input, output, session) {
   tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
   vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
   lenTSF <- length(tsf)
+  rasterResolution <<- raster(tsf[1]) %>% res()
   
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
   #lfltFN <- gsub(lfltFN, pattern = ".grd", replacement = ".tif")
