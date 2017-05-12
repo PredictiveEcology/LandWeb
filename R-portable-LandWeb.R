@@ -12,4 +12,6 @@ message('library paths:\n', paste('... ', .libPaths(), sep=' ', collapse='\n'))#
 #   shell(sprintf('"%s" --app=%s', browser.path, appUrl))
 # }
 
+.libPaths(.libPaths()[2])
+message('library paths:\n', paste('... ', .libPaths(), sep=' ', collapse='\n'))#, getwd()))
 shiny::runApp(launch.browser = TRUE)
