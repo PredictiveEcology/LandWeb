@@ -23,7 +23,7 @@ The current version has not been fully tested and compared with the original ver
 To run this Landmine module alone, from an R console, the following should work (*iff* raster inputs for `rstStudyRegion` and `rstFlammable` are available), assuming all R packages are available.
 Paths will have be changed for a different user.
 
-To deteremine which packages are used by `LandMine`, run `SpaDES::packages(module="Landmine")`.
+To deteremine which packages are used by `LandMine`, run `SpaDES::packages(module = "LandMine")`.
 
 ```{r module_usage}
 library(igraph)
