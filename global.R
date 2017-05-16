@@ -1,6 +1,6 @@
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
-if(FALSE) {
+if (FALSE) {
   devtools::install_github("PredictiveEcology/SpaDES@development")  
   devtools::install_github("achubaty/amc@development")  
   #devtools::install_github("YongLuo007/amc@development")  
@@ -17,21 +17,21 @@ lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
 ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
-  if(x < length(ageClassCutOffs)) {
-    paste0(ageClassCutOffs[x],"-",ageClassCutOffs[x+1])
+  if (x < length(ageClassCutOffs)) {
+    paste0(ageClassCutOffs[x], "-", ageClassCutOffs[x + 1])
   } else {
-    paste0(">",ageClassCutOffs[x])
+    paste0(">", ageClassCutOffs[x])
   }
 })
-if(!exists("globalRasters")) globalRasters <- list()
+if (!exists("globalRasters")) globalRasters <- list()
 
 # Computation stuff
 experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
 maxNumClusters <- 1 # use 0 to turn off
 #machines <- c("localhost"=maxNumClusters, "132.156.148.91"=5, "132.156.149.7"=5)
-machines <- c("localhost"=maxNumClusters)#, "132.156.148.91"=5, "132.156.149.7"=5)
+machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
 
-if(Sys.info()["sysname"]!="Windows") beginCluster(25, type = "FORK")
+if (Sys.info()["sysname"] != "Windows") beginCluster(25, type = "FORK")
 setDTthreads(4) # data.table multi-threading
 
 # Time steps
@@ -46,7 +46,7 @@ studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 #studyArea <- "FULL"
 #studyArea <- "SMALL"
-raster::rasterOptions(maxmemory=4e10, chunksize = 1e9)
+raster::rasterOptions(maxmemory = 4e10, chunksize = 1e9)
 
 # shiny variables
 useGGplotForHists <- FALSE
@@ -59,9 +59,8 @@ source("footers.R")
 ### Package stuff that should not be run automatically
 if (FALSE) {
   SpaDESDeps <- miniCRAN::pkgDep("SpaDES")
-  new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-  if(length(new.packages)) install.packages(new.packages)
-  
+  new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
+  if (length(new.packages)) install.packages(new.packages)
   
   pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet",
                      "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES", "markdown",
@@ -69,12 +68,11 @@ if (FALSE) {
                      "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp",
                      "dplyr", "ggplot2", "maptools", "broom", "ggvis", "rgdal", "grid", "VGAM")
   lapply(pkgNamespaces, function(p) if (!require(p, quietly = TRUE, character.only = TRUE)) {
-    install.packages(p, dependencies = TRUE, lib="/usr/local/lib/R/site-library")
+    install.packages(p, dependencies = TRUE, lib = "/usr/local/lib/R/site-library")
   })
   if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
   if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
 }
-
 
 if (maxNumClusters > 0) {
   # get current IP -- will be Master
@@ -90,23 +88,21 @@ if (maxNumClusters > 0) {
     ncores <-  pmin(ncores, detectCores() - 1) 
     
     clNames <- rep("localhost", ncores)
-    if(length(machines)>1) {
-        
-      currIP <- system("ifconfig", intern=TRUE) %>%
-        split(cumsum(!nzchar(.))) %>%   
+    if (length(machines) > 1) {
+      currIP <- system("ifconfig", intern = TRUE) %>%
+        split(cumsum(!nzchar(.))) %>%
         .[unlist(lapply(., function(y) any(grepl("eth1", y))))] %>%
         unlist(recursive = FALSE) %>%
         .[grep("inet addr", .)] %>%
         strsplit(., split = " {2,}") %>%
         unlist(recursive = FALSE) %>%
-        grep("inet addr:",.,value=TRUE) %>%
+        grep("inet addr:", ., value = TRUE) %>%
         gsub("inet addr:", "\\1", .) %>% 
         unname()
       
         clNames <- rep(names(machines), machines)
         clusterType = "PSOCK"
-        cl <- makeCluster(clNames, type = clusterType,
-                          master = currIP)
+        cl <- makeCluster(clNames, type = clusterType, master = currIP)
     } else {
       if (Sys.info()[["sysname"]] == "Windows") {
         clusterType = "SOCK"
@@ -118,7 +114,7 @@ if (maxNumClusters > 0) {
     # if (!all(unlist(lapply(cl, function(x) is(x, "forknode"))))) {
     #   clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
     # }
-    message("  Finished Spawning ",length(cl)," threads on ",paste(names(machines), collapse=", "))
+    message("  Finished Spawning ",length(cl)," threads on ", paste(names(machines), collapse = ", "))
   }
 }
 
@@ -142,7 +138,7 @@ objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
                 "successionTimestep" = successionTimestep,
                 "summaryPeriod" = summaryPeriod,
-                "useParallel" = if(maxNumClusters) cl else TRUE)
+                "useParallel" = if (maxNumClusters) cl else TRUE)
 parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
@@ -167,20 +163,20 @@ outputs2 <- data.frame(stringsAsFactors = FALSE,
                          objectName = c("simulationOutput"),
                          saveTime = times$end), fun = "saveRDS", package = "base" )
 
-outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype="INT2U", format = "GTiff"),
-                                list(overwrite = TRUE, progress = FALSE, datatype="INT1U", format = "raster")), 
-                           times=NROW(outputs)/length(objectNamesToSave)))
+outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
+                                list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
+                           times = NROW(outputs)/length(objectNamesToSave)))
 
 outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
 
 # clean up previous runs -- really should always start with a fresh R session (Ctrl-Shft-10)
 #try(rm(mySim), silent=TRUE)
 skipSimInit <- FALSE
-if(devmode) if(!exists("mySim", envir=.GlobalEnv)) skipSimInit <- TRUE
+if (devmode) if (!exists("mySim", envir = .GlobalEnv)) skipSimInit <- TRUE
 
-if(!skipSimInit)
+if (!skipSimInit)
   mySim <<- simInit(times = times, params = parameters, modules = modules,
-                 objects = objects, paths = paths, outputs = outputs)
+                    objects = objects, paths = paths, outputs = outputs)
 
 source("mapsForShiny.R")
 #devtools::load_all("~/GitHub/SpaDES/.")
