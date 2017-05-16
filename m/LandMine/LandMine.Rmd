@@ -1,26 +1,26 @@
 ---
 title: "LandMine"
-author: ""
+author: "Eliot McIntire"
 date: "14 January 2017"
 output: pdf_document
 ---
 
 # Overview
 
-Landmine is a model created for simulating the natural range of variation for landscapes in the boreal forest. Written in the 1990s (Andison 1996), it has been widely used by the public and the private sector for various purposes. This SpaDES module is a rewrite of the fire component in native R. 
-
-THe current version has not been fully tested and compared with the original version, and there are currently several known differences.
+Landmine is a model created for simulating the natural range of variation for landscapes in the boreal forest.
+Written in the 1990s (Andison 1996), it has been widely used by the public and the private sector for various purposes.
+This `SpaDES` module is a rewrite of the fire component in native R.
 
 ## Current Differences
+
+The current version has not been fully tested and compared with the original version, and there are currently several known differences:
 
 - Fire sizes are taken from a Truncated Pareto distribution, resulting in numerous very small fires, and few large fires.
 - Parameters have been not been fitted to the landscapes that are under study in the LandWeb project
 
-
-
 # Usage
 
-TO run this Landmine module alone, from an R console, the following should work, assuming all R packages are available.
+To run this Landmine module alone, from an R console, the following should work (*iff* raster inputs for `rstStudyRegion` and `rstFlammable` are available), assuming all R packages are available.
 Paths will have be changed for a different user.
 
 To deteremine which packages are used by `LandMine`, run `SpaDES::packages(module="Landmine")`.
@@ -29,10 +29,11 @@ To deteremine which packages are used by `LandMine`, run `SpaDES::packages(modul
 library(igraph)
 library(SpaDES)
 
-moduleDir <- file.path("c:/Eliot/GitHub/LandWeb")
-inputDir <- file.path(moduleDir, "inputs") %>% checkPath(create = TRUE)
-outputDir <- file.path(moduleDir, "outputs")
-cacheDir <- file.path(outputDir, "cache")
+workingDir <- file.path("~/GitHub/LandWeb")
+moduleDir <- file.path(workingDir, "m") %>% checkPath()
+inputDir <- file.path(workingDir, "inputs") %>% checkPath(create = TRUE)
+outputDir <- file.path(workingDir, "outputs") %>% checkPath(create = TRUE)
+cacheDir <- file.path(outputDir, "cache") %>% checkPath(create = TRUE)
 times <- list(start = 0, end = 13)
 parameters <- list(
   #.progress = list(type = "text", interval = 1), # for a progress bar
