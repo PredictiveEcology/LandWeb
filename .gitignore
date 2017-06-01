@@ -16,3 +16,15 @@ R-Portable/
 rsconnect/shinyapps\.io/landweb/LandWebDemo\.dcf
 Thumbs.db
 
+
+*.tif
+
+*.shp
+
+*.dbf
+
+*.shx
+
+*.prj
+
+*.xml
