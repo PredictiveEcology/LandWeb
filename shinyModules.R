@@ -321,7 +321,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
 
   output$timeSinceFire2Hist <- renderPlot({
     ras1 <- rasterInput()
-    Nbreaks <- maxValue(ras1)/10
+    Nbreaks <- ceiling(maxValue(ras1)/10)
     timeSinceFireHist <- hist(ras1[], plot = FALSE, breaks = Nbreaks)
     barplot(timeSinceFireHist$counts*prod(rasterResolution)/1e4, xlab = "Time since fire (Years)",
       col = timeSinceFirePalette(1:Nbreaks), width = 1, space = 0, ylab = "Area (ha)")
