@@ -25,11 +25,12 @@ defineModule(sim, list(
     defineParameter(".useCache", "numeric", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = data.frame(
-    objectName = c("rstStudyRegion", "rstFlammable"),
-    objectClass = c("Raster", "Raster"),
+    objectName = c("rstStudyRegion", "rstFlammable", "rstRateOfSpread"),
+    objectClass = c("Raster"),
     sourceURL = "",
     other = c("A raster layer that is a factor raster, with at least 1 column called LTHRC, representing the fire return interval in years",
-              "A raster layer, with 0, 1 and NA, where 0 indicates areas that are flammable, 1 not flammable (e.g., lakes) and NA not applicable (e.g., masked)"),
+              "A raster layer, with 0, 1 and NA, where 0 indicates areas that are flammable, 1 not flammable (e.g., lakes) and NA not applicable (e.g., masked)",
+              "A raster layer, with numeric rates of spread. This is passed into spreadProbRel in spread2.  NA not applicable (e.g., masked)"),
     stringsAsFactors = FALSE
   ),
   outputObjects = bind_rows(
@@ -97,10 +98,11 @@ LandMineInit <- function(sim) {
   numPixelsPerPolygonNumeric <- Cache(freq, sim$rstStudyRegion) %>% na.omit()
   ordPolygons <- order(numPixelsPerPolygonNumeric[,"value"])
   numPixelsPerPolygonNumeric <- numPixelsPerPolygonNumeric[ordPolygons,]
-  numPixelsPerPolygonNumericLabel <- numPixelsPerPolygonNumeric[,"value"]
+  sim$fireReturnIntervalsByPolygonNumeric <- numPixelsPerPolygonNumeric[,"value"]
   numPixelsPerPolygonNumeric <- numPixelsPerPolygonNumeric[,"count"]
-  sim$fireReturnIntervalsByPolygonNumeric <- levels(sim$rstStudyRegion)[[1]]$LTHRC[ordPolygons]
-  names(numPixelsPerPolygonNumeric) <- numPixelsPerPolygonNumericLabel
+  #sim$fireReturnIntervalsByPolygonNumeric <- levels(sim$rstStudyRegion)[[1]]$LTHRC[ordPolygons]
+  #sim$fireReturnIntervalsByPolygonNumeric <- levels(sim$rstStudyRegion)[[1]]$LTHRC[ordPolygons]
+  names(numPixelsPerPolygonNumeric) <- sim$fireReturnIntervalsByPolygonNumeric
   
   message("2: ", Sys.time())
   numHaPerPolygonNumeric <- numPixelsPerPolygonNumeric*(prod(res(sim$rstStudyRegion))/1e4)
@@ -131,9 +133,9 @@ LandMineInit <- function(sim) {
   
   message("5: ", Sys.time())
   
-  sim$fireReturnInterval <- raster(sim$rstStudyRegion)
-  sim$fireReturnInterval <- setValues(sim$fireReturnInterval, 
-                                      values = sim$fireReturnIntervalsByPolygonNumeric[sim$rstStudyRegion[]])# as.numeric(as.character(vals))
+  sim$fireReturnInterval <- sim$rstStudyRegion
+  #sim$fireReturnInterval <- setValues(sim$fireReturnInterval, 
+  #                                    values = sim$fireReturnIntervalsByPolygonNumeric[sim$rstStudyRegion[]])# as.numeric(as.character(vals))
   sim$fireReturnInterval <- Cache(writeRaster, sim$fireReturnInterval, 
                                         filename = file.path(tempdir(),
                                                              "fireReturnInterval.tif"),
@@ -218,6 +220,7 @@ LandMineBurn <- function(sim) {
   sim$startCells <- sim$startCells[firesGT0]
   fireSizesInPixels <- fireSizesInPixels[firesGT0]
   
+  #Rate of Spread
   mature <- sim$rstTimeSinceFire[]>120
   immature <- (sim$rstTimeSinceFire[]>40) & !mature
   young <- !immature & !mature

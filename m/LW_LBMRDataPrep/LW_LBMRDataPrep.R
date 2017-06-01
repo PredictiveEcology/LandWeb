@@ -194,7 +194,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
                                                                          biggerEcoArea = sim$ecoRegion,
                                                                          biggerEcoAreaSource = "ecoRegion",
                                                                          NAData = NAdata,
-                                                                         maskFn = fastMask,
+                                                                         maskFn = fastMask, 
                                                                          userTags = c("function:obtainMaxBandANPPFormBiggerEcoArea"))
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
@@ -439,7 +439,9 @@ ecoregionProducer <- function(studyAreaRaster,
 
   # Alternative
   message("ecoregionProducer fastRasterize: ", Sys.time())
-  ecoregionMap <- rasterize(ecoregionMapInStudy, studyAreaRaster, field = "ECODISTRIC")
+  ecoregionMap <- fastRasterize(ecoregionMapInStudy, studyAreaRaster, field = "ECODISTRIC")
+
+  #ecoregionMap1 <- rasterize(ecoregionMapInStudy, studyAreaRaster, field = "ECODISTRIC")
   ecoregionFactorValues <- unique(ecoregionMap[])
 
   ecoregionTable <- data.table(mapcode = seq_along(ecoregionFactorValues[!is.na(ecoregionFactorValues)]),
@@ -562,35 +564,14 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   subbiggerEcoMap_Raster <- crop(biomassLayer, subbigEcoMap)
   subbiggerEcoMap_Raster <- setValues(subbiggerEcoMap_Raster, NA)
 
-  # if((biggerEcoAreaSource == "ecoZone")) {
-  #   for(indiEcoregion in subbiggerEcoLevel){
-  #     if(biggerEcoAreaSource == "ecoRegion"){
-  #       indiSubBiggerEcoMap <- subbigEcoMap[subbigEcoMap@data$ECOREGION == indiEcoregion,]
-  #     } else if (biggerEcoAreaSource == "ecoZone"){
-  #       indiSubBiggerEcoMap <- subbigEcoMap[subbigEcoMap@data$ECOZONE == indiEcoregion,]
-  #     }
-  #     indiEcoMapRaster <- setValues(subbiggerEcoMap_Raster, indiEcoregion)
-  #     indiEcoMapRaster <- crop(indiEcoMapRaster, indiSubBiggerEcoMap)
-  #     indiEcoMapRaster <- suppressWarnings(maskFn(indiEcoMapRaster, indiSubBiggerEcoMap))
-  #     if(indiEcoregion == subbiggerEcoLevel[1]){
-  #       biggerEcoMapRaster <- indiEcoMapRaster
-  #     } else {
-  #       biggerEcoMapRaster <- merge(biggerEcoMapRaster, indiEcoMapRaster)
-  #     }
-  #   }
-  #
-  # }
-  #biggerEcoMapRaster2 <- Cache(fastRasterize, subbigEcoMap, ras = subbiggerEcoMap_Raster, field=toupper(biggerEcoAreaSource))
-  fastRasterizeFn <- function(polygon, ras, field) {
-    a <- fastRasterize(polygon, ras, field)
-    a <- writeRaster(a, filename = file.path(tmpDir(), "biggerEcoMapRaster.grd"),
-                     overwrite = TRUE, datatype="INT2U") # need NA value
-    a
-  }
+  
+  biggerEcoMapRaster <- Cache(fastRasterize, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
+                              field=toupper(biggerEcoAreaSource), rasterFilenameBase="biggerEcoMapRaster")
+  
+  # biggerEcoMapRaster <- Cache(fastRasterizeFn, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
+  #                             field=toupper(biggerEcoAreaSource))
 
-  biggerEcoMapRaster <- Cache(fastRasterizeFn, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
-                              field=toupper(biggerEcoAreaSource))
-
+  
   biggerEcoMapRaster_ST <- crop(biggerEcoMapRaster, subEcoregion)
   biggerEcoMapRaster_ST <- suppressWarnings(mask(biggerEcoMapRaster_ST, subEcoregion))
 
@@ -754,7 +735,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
 
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
   ecodistrictFilename <-   file.path(dataPath, "ecodistricts.shp")
-  ecoregionFilename <-   file.path(dataPath, "ecoregions.shp")
+  sim$ecoregionFilename <-   file.path(dataPath, "ecoregions.shp")
   ecozoneFilename <-   file.path(dataPath, "ecozones.shp")
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
   standAgeMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif")

@@ -60,18 +60,11 @@ initBaseMapsInit <- function(sim) {
   #sim$LCC05 <- crop(sim$LCC05X,sim$shpStudyRegion)
   
   message("fastRasterize for rstStudyRegion")
-  fastRasterizeFn <- function(polygon, ras) {
-    a <- fastRasterize(polygon, ras)
-    dataType(a) <- "INT1S"
-    levels(a) <- levels(a)[[1]][,c("ID", "LTHRC")]
-    a <- writeRaster(a, filename = file.path(tmpDir(), "rstStudyRegion.grd"), 
-                     overwrite = TRUE, datatype="INT2U") # need NA value
-    a
-  }
-  sim$rstStudyRegion <- Cache(#cacheRepo=file.path(cachePath(sim), "StudyRegion"),
-                              fastRasterizeFn, 
+  sim$rstStudyRegion <- Cache(fastRasterize, 
                               polygon = sim$shpStudyRegion,
-                              ras = crop(sim$LCC05X, extent(sim$shpStudyRegion)))
+                              ras = crop(sim$LCC05X, extent(sim$shpStudyRegion)),
+                              field="LTHRC", datatype="INT2U",
+                              rasterFilenameBase="rstStudyRegion")
   
   cropMask <- function(ras, poly, mask) {
     out <- crop(ras,poly)
