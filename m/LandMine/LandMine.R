@@ -11,7 +11,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandMine.Rmd"),
-  reqdPkgs = list("raster", "RColorBrewer", "data.table", "VGAM", "magrittr", "grDevices"),
+  reqdPkgs = list("data.table", "grDevices", "magrittr", "raster", "RColorBrewer", "VGAM"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter("fireTimestep", "numeric", 1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -36,26 +36,25 @@ defineModule(sim, list(
   outputObjects = bind_rows(
     createsOutput("rstCurrentBurn", "RasterLayer", paste(
       "A raster layer, produced at each timestep, where each",
-      "pixel is either 1 or 0 indicating burned or not burned")
+      "pixel is either 1 or 0 indicating burned or not burned.")
     ),
     createsOutput("fireTimestep", "numeric", 
-                  "The number of time units between successive fire events in a fire module"
+                  "The number of time units between successive fire events in a fire module."
     ),
     createsOutput("fireInitialTime", "numeric", 
-                  "The initial event time of the burn event. This is simply a reassignment from P(sim)$burnInitialTime"
+                  "The initial event time of the burn event. This is simply a reassignment from P(sim)$burnInitialTime."
     ),
     createsOutput("rstFlammableNum", "RasterLayer", paste(
-      "A binary, numeric raster indicating NA or 0 for not burnable")
+      "A binary, numeric raster indicating NA or 0 for not burnable.")
     ),
     createsOutput("numFiresPerYear", "numeric", paste(
-      "The average number of fires per year, by fire return interval level on rstCurrentBurn")
+      "The average number of fires per year, by fire return interval level on rstCurrentBurn.")
     ),
     createsOutput("fireReturnInterval", "RasterLayer", paste(
-      "A Raster map showing the fire return interval. THis is created from the rstCurrentBurn")
+      "A Raster map showing the fire return interval. THis is created from the rstCurrentBurn.")
     )
   )
 ))
-
 
 doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
@@ -88,15 +87,13 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
   return(invisible(sim))
 }
 
-
-### template initialization
+### initialization
 LandMineInit <- function(sim) {
-  
   message("1: ", Sys.time())
   sim$fireTimestep <- P(sim)$fireTimestep
   sim$fireInitialTime <- P(sim)$burnInitialTime
   numPixelsPerPolygonNumeric <- Cache(freq, sim$rstStudyRegion) %>% na.omit()
-  ordPolygons <- order(numPixelsPerPolygonNumeric[,"value"])
+  ordPolygons <- order(numPixelsPerPolygonNumeric[, "value"])
   numPixelsPerPolygonNumeric <- numPixelsPerPolygonNumeric[ordPolygons,]
   sim$fireReturnIntervalsByPolygonNumeric <- numPixelsPerPolygonNumeric[,"value"]
   numPixelsPerPolygonNumeric <- numPixelsPerPolygonNumeric[,"count"]
@@ -105,31 +102,30 @@ LandMineInit <- function(sim) {
   names(numPixelsPerPolygonNumeric) <- sim$fireReturnIntervalsByPolygonNumeric
   
   message("2: ", Sys.time())
-  numHaPerPolygonNumeric <- numPixelsPerPolygonNumeric*(prod(res(sim$rstStudyRegion))/1e4)
+  numHaPerPolygonNumeric <- numPixelsPerPolygonNumeric * (prod(res(sim$rstStudyRegion)) / 1e4)
   returnInterval <- sim$fireReturnIntervalsByPolygonNumeric
 
   message("3: ", Sys.time())
   
   findK_upper <- function(params=c(0.4), upper1 ) {
-    fs <- round(rtruncpareto(1e6, 1, upper = upper1, shape=params[1]))
+    fs <- round(rtruncpareto(1e6, 1, upper = upper1, shape = params[1]))
     meanFS <- meanTrucPareto(k = params[1], lower = 1, upper = upper1, alpha = 1)
     #diff1 <- abs(quantile(fs, 0.95) - meanFS)
     #abs(sum(fs[fs>quantile(fs, 0.95)])/sum(fs) - 0.9) # "90% of area is in 5% of fires" # from Dave rule of thumb
     
     # Eliot Adjustment because each year was too constant -- should create greater variation
-    abs(sum(fs[fs>quantile(fs, 0.95)])/sum(fs) - 0.95) # "95% of area is in 5% of fires" 
+    abs(sum(fs[fs > quantile(fs, 0.95)]) / sum(fs) - 0.95) # "95% of area is in 5% of fires" 
   }
   
-  sim$kBest <- Cache(optimize, interval=c(0.05, 0.99), f = findK_upper, 
-                     upper1=P(sim)$biggestPossibleFireSizeHa)$minimum
+  sim$kBest <- Cache(optimize, interval = c(0.05, 0.99), f = findK_upper, 
+                     upper1 = P(sim)$biggestPossibleFireSizeHa)$minimum
   
   message("4: ", Sys.time())
   
-  meanFireSizeHa <- meanTrucPareto(k=sim$kBest, lower=1, 
-                                   upper = P(sim)$biggestPossibleFireSizeHa, alpha=1)
-  numFiresByPolygonNumeric <- numHaPerPolygonNumeric/meanFireSizeHa
-  sim$numFiresPerYear <- numFiresByPolygonNumeric/returnInterval
-  
+  meanFireSizeHa <- meanTrucPareto(k = sim$kBest, lower = 1, 
+                                   upper = P(sim)$biggestPossibleFireSizeHa, alpha = 1)
+  numFiresByPolygonNumeric <- numHaPerPolygonNumeric / meanFireSizeHa
+  sim$numFiresPerYear <- numFiresByPolygonNumeric / returnInterval
   
   message("5: ", Sys.time())
   
@@ -144,59 +140,57 @@ LandMineInit <- function(sim) {
   sim$rstFlammableNum <- raster(sim$rstFlammable)
   message("6: ", Sys.time())
   
-  sim$rstFlammableNum[] <- 1L-as.integer(sim$rstFlammable[])
+  sim$rstFlammableNum[] <- 1L - as.integer(sim$rstFlammable[])
   sim$rstFlammableNum[is.na(sim$rstFlammableNum)] <- NA
 
-  if(!is.na(P(sim)$.plotInitialTime)) {
-    Plot(sim$fireReturnInterval, title="Fire Return Interval", speedup = 3, new=TRUE)
+  if (!is.na(P(sim)$.plotInitialTime)) {
+    Plot(sim$fireReturnInterval, title = "Fire Return Interval", speedup = 3, new = TRUE)
   }
   
   # rm("rstFlammable", envir = envir(sim)) # don't need this in LandMine ... but it is used in timeSinceFire
   return(invisible(sim))
 }
 
-
-
-### template for plot events
+### plot events
 LandMinePlot <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot("object")
-  if(is.null(sim$rstCurrentBurnCumulative)) {
+  if (is.null(sim$rstCurrentBurnCumulative)) {
     sim$rstCurrentBurnCumulative <- raster(sim$rstCurrentBurn)
     sim$rstCurrentBurnCumulative[!is.na(sim$rstCurrentBurn)] <- 0
   }
   sim$rstCurrentBurnCumulative <- sim$rstCurrentBurn +   sim$rstCurrentBurnCumulative
-  Plot(sim$rstCurrentBurnCumulative,new=TRUE, 
+  Plot(sim$rstCurrentBurnCumulative, new = TRUE, 
        title = "Cumulative Fire Map",
        cols = c("pink", "red"), zero.color = "transparent")
-
-
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
 
-### template for your event1
+### burn events
 LandMineBurn <- function(sim) {
-  numFiresThisPeriod <- rpois(length(sim$numFiresPerYear),  lambda=sim$numFiresPerYear*P(sim)$fireTimestep)
+  numFiresThisPeriod <- rpois(length(sim$numFiresPerYear),
+                              lambda = sim$numFiresPerYear * P(sim)$fireTimestep)
                                  
   # meanTP <- function(k, lower, upper, alpha) {
   #   k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
   # }
   
-  sim$startCells <- data.table(pixel=1:ncell(sim$rstStudyRegion),
-                                polygonNumeric=sim$rstStudyRegion[] * sim$rstFlammableNum[],key="polygonNumeric") 
-  sim$startCells <- sim$startCells[polygonNumeric==0,polygonNumeric:=NA] %>%
-                       na.omit() %>%
-                       .[,SpaDES:::resample(pixel,numFiresThisPeriod[.GRP]),by=polygonNumeric] %>% 
-                       .$V1
+  sim$startCells <- data.table(pixel = 1:ncell(sim$rstStudyRegion),
+                               polygonNumeric = sim$rstStudyRegion[] * sim$rstFlammableNum[],
+                               key = "polygonNumeric") 
+  sim$startCells <- sim$startCells[polygonNumeric == 0, polygonNumeric := NA] %>%
+    na.omit() %>%
+    .[, SpaDES:::resample(pixel, numFiresThisPeriod[.GRP]), by = polygonNumeric] %>% 
+    .$V1
   
   # If fire sizes are in hectares, must adjust based on resolution of maps
   #  NOTE: round causes fires < 0.5 pixels to NOT EXIST ... i.e., 3.25 ha fires are 
   #  "not detectable" if resolution is 6.25 ha
-  fireSizesThisPeriod <- rtruncpareto(length(sim$startCells), lower = 1, 
-                                    upper=P(sim)$biggestPossibleFireSizeHa, 
-                                    shape=sim$kBest)
+  fireSizesThisPeriod <- rtruncpareto(length(sim$startCells), lower = 1,
+                                      upper = P(sim)$biggestPossibleFireSizeHa,
+                                      shape = sim$kBest)
   
   # Because annual number of fires is 
   # 
@@ -209,14 +203,14 @@ LandMineBurn <- function(sim) {
   # fireSizesInPixels <- round(pmax(1, fireSizesThisPeriod)/
   #                     (prod(res(sim$rstFlammableNum))/1e4))
   
-  fireSizesInPixels <- fireSizesThisPeriod/ (prod(res(sim$rstFlammableNum))/1e4)
+  fireSizesInPixels <- fireSizesThisPeriod / (prod(res(sim$rstFlammableNum)) / 1e4)
   ranDraws <- runif(length(fireSizesInPixels))
   truncVals <- trunc(fireSizesInPixels)
   decimalVals <- (unname(fireSizesInPixels - (truncVals))) > ranDraws
   
-  fireSizesInPixels <- truncVals+decimalVals
+  fireSizesInPixels <- truncVals + decimalVals
   
-  firesGT0 <- fireSizesInPixels>0
+  firesGT0 <- fireSizesInPixels > 0
   sim$startCells <- sim$startCells[firesGT0]
   fireSizesInPixels <- fireSizesInPixels[firesGT0]
   
@@ -229,42 +223,44 @@ LandMineBurn <- function(sim) {
   vegType <- getValues(vegTypeMap)
   vegTypes <- factorValues(vegTypeMap, seq_len(NROW(levels(vegTypeMap)[[1]]))) # [vegType, "Factor"]
   ROS <- rep(NA_integer_, length(vegTypes))
-  mixed <- grep(vegTypes$Factor, pattern="Mix")
-  spruce <- grep(vegTypes$Factor, pattern="Spruce")
-  pine <- grep(vegTypes$Factor, pattern="Pine")
-  decid <- grep(vegTypes$Factor, pattern="Deci")
-  softwood <- grep(vegTypes$Factor, pattern="Soft")
+  mixed <- grep(vegTypes$Factor, pattern = "Mix")
+  spruce <- grep(vegTypes$Factor, pattern = "Spruce")
+  pine <- grep(vegTypes$Factor, pattern = "Pine")
+  decid <- grep(vegTypes$Factor, pattern = "Deci")
+  softwood <- grep(vegTypes$Factor, pattern = "Soft")
   
-  ROS[!mature & vegType==decid] <- 6L
-  ROS[mature & vegType==decid] <- 9L
+  ROS[!mature & vegType == decid] <- 6L
+  ROS[mature & vegType == decid] <- 9L
   
-  ROS[!mature & vegType==mixed] <- 12L
-  ROS[mature & vegType==mixed] <- 17L
+  ROS[!mature & vegType == mixed] <- 12L
+  ROS[mature & vegType == mixed] <- 17L
   
-  ROS[immature & vegType==pine] <- 14L
-  ROS[mature & vegType==pine] <- 21L
-  ROS[young & vegType==pine] <- 22L
+  ROS[immature & vegType == pine] <- 14L
+  ROS[mature & vegType == pine] <- 21L
+  ROS[young & vegType == pine] <- 22L
   
-  ROS[!mature & vegType==softwood] <- 18L
-  ROS[mature & vegType==softwood] <- 27L
+  ROS[!mature & vegType == softwood] <- 18L
+  ROS[mature & vegType == softwood] <- 27L
   
-  ROS[!mature & vegType==spruce] <- 20L
-  ROS[mature & vegType==spruce] <- 30L
+  ROS[!mature & vegType == spruce] <- 20L
+  ROS[mature & vegType == spruce] <- 30L
   
   # Other vegetation that can burn -- e.g., grasslands, lichen, shrub
-  ROS[sim$rstFlammableNum[]==1 & is.na(ROS)] <- 30L
+  ROS[sim$rstFlammableNum[] == 1 & is.na(ROS)] <- 30L
   
   ROSmap <- raster(sim$pixelGroupMap)
   ROSmap[] <- ROS
   
-  if(length(sim$startCells)>0) {
+  if (length(sim$startCells) > 0) {
     fires <- sim$burn1(sim$fireReturnInterval, startCells = sim$startCells, 
                        fireSizes = fireSizesInPixels, spreadProbRel = ROSmap,
                        spawnNewActive = c(0.65, 0.6, 0.2, 0.2),
                        #spawnNewActive = c(0.76, 0.45, 1.0, 0.00),
                        spreadProb = 0.77)
-    print(attr(fires, "spreadState")$clusterDT[order(maxSize)][(.N-7):.N])
-    print(attr(fires, "spreadState")$clusterDT[,list(numPixelsBurned=sum(size), expectedNumBurned=sum(maxSize), proportionBurned=sum(size)/sum(maxSize))])
+    print(attr(fires, "spreadState")$clusterDT[order(maxSize)][(.N - 7):.N])
+    print(attr(fires, "spreadState")$clusterDT[, list(numPixelsBurned = sum(size),
+                                                      expectedNumBurned = sum(maxSize),
+                                                      proportionBurned = sum(size) / sum(maxSize))])
     sim$rstCurrentBurn[] <- 0L
     sim$rstCurrentBurn[fires$pixels] <- 1L#as.numeric(factor(fires$initialPixels))
     #clearPlot();Plot(sim$rstCurrentBurn, new=T, visualSqueeze = 1.25)
@@ -273,9 +269,7 @@ LandMineBurn <- function(sim) {
   return(invisible(sim))
 }
 
-
 .inputObjects = function(sim) {
-
   # Make random forest cover map
   # emptyRas <- raster(extent(0, 1e3, 0, 1e3), res = 1)
   # 
@@ -296,24 +290,23 @@ startPlus1 <- function(sim) {
   start(sim) + 1
 }
 
-
 meanTrucPareto <- function(k, lower, upper, alpha) {
-  k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
+  k * lower^k * (upper^(1 - k) - alpha^(1 - k)) / ((1 - k) * (1 - (alpha/upper)^k))
 }
 
 vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap) {
   species[species == "Pinu_Ban" | species == "Pinu_Con", speciesGroup := "PINU"] 
-  species[species == "Betu_Pap" | species == "Popu_Bal"| 
+  species[species == "Betu_Pap" | species == "Popu_Bal" |
             species == "Popu_Tre" | species == "Lari_Lar", speciesGroup := "DECI"] 
   species[species == "Pice_Mar" | species == "Pice_Gla", speciesGroup := "PICE"] 
   #cohortdata <- sim$cohortData
   shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,.(speciesCode, speciesGroup)], 
                                                             speciesCode), nomatch = 0] 
   shortcohortdata[, totalB := sum(B, na.rm = TRUE), by = pixelGroup] 
-  shortcohortdata <- shortcohortdata[,.(speciesGroupB = sum(B, na.rm = TRUE), 
-                                        totalB = mean(totalB, na.rm = TRUE)), 
+  shortcohortdata <- shortcohortdata[, .(speciesGroupB = sum(B, na.rm = TRUE),
+                                         totalB = mean(totalB, na.rm = TRUE)),
                                      by = c("pixelGroup", "speciesGroup")] 
-  shortcohortdata[,speciesPercentage:=speciesGroupB/totalB] 
+  shortcohortdata[,speciesPercentage := speciesGroupB/totalB] 
   shortcohortdata[speciesGroup == "PINU" & speciesPercentage > vegLeadingPercent,
                   speciesLeading := 1]# pine leading 
   shortcohortdata[speciesGroup == "DECI" & speciesPercentage > vegLeadingPercent,
@@ -321,7 +314,7 @@ vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap) {
   shortcohortdata[speciesGroup == "PICE" & speciesPercentage > vegLeadingPercent,
                   speciesLeading := 3]# spruce leading 
   shortcohortdata[is.na(speciesLeading), speciesLeading := 0] 
-  shortcohortdata[,speciesLeading:=max(speciesLeading, na.rm = TRUE), by = pixelGroup] 
+  shortcohortdata[,speciesLeading := max(speciesLeading, na.rm = TRUE), by = pixelGroup] 
   shortcohortdata <- unique(shortcohortdata[,.(pixelGroup, speciesLeading)], by = "pixelGroup") 
   shortcohortdata[speciesLeading == 0, speciesLeading := 4] # 4 is mixed forests 
   attritable <- data.table(ID = unique(shortcohortdata$speciesLeading))
