@@ -566,7 +566,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
 
   
   biggerEcoMapRaster <- Cache(fastRasterize, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
-                              field=toupper(biggerEcoAreaSource), rasterFilenameBase="biggerEcoMapRaster")
+                              field=toupper(biggerEcoAreaSource), filename="biggerEcoMapRaster")
   
   # biggerEcoMapRaster <- Cache(fastRasterizeFn, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
   #                             field=toupper(biggerEcoAreaSource))

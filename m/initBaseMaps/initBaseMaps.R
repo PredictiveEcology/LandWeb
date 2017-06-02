@@ -64,7 +64,7 @@ initBaseMapsInit <- function(sim) {
                               polygon = sim$shpStudyRegion,
                               ras = crop(sim$LCC05X, extent(sim$shpStudyRegion)),
                               field="LTHRC", datatype="INT2U",
-                              rasterFilenameBase="rstStudyRegion")
+                              filename="rstStudyRegion")
   
   cropMask <- function(ras, poly, mask) {
     out <- crop(ras,poly)
