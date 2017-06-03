@@ -4,6 +4,8 @@ if (FALSE) {
   devtools::install_github("PredictiveEcology/SpaDES@development")  
   #devtools::install_github("PredictiveEcology/SpaDES@CacheFastdigest")  
   devtools::install_github("achubaty/amc@development")  
+  devtools::install("~/Documents/GitHub/amc/.")  
+  devtools::install("~/Documents/GitHub/SpaDES/.")  
   #devtools::install_github("YongLuo007/amc@development")  
 }
 ## Libraries
@@ -39,9 +41,9 @@ setDTthreads(4) # data.table multi-threading
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 100 # was 4
-summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(60, endTime)
+endTime <- 10 # was 4
+summaryInterval <- 1#endTime/2 # was 2
+summaryPeriod <- c(6, endTime)
 
 # Spatial stuff
 studyArea <- "LARGE"
