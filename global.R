@@ -1,3 +1,4 @@
+#devtools::load_all("~/GitHub/SpaDES/.")
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if (FALSE) {
@@ -41,9 +42,9 @@ setDTthreads(4) # data.table multi-threading
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 10 # was 4
+endTime <- 3 # was 4
 summaryInterval <- 1#endTime/2 # was 2
-summaryPeriod <- c(6, endTime)
+summaryPeriod <- c(1, endTime)
 
 # Spatial stuff
 studyArea <- "LARGE"
