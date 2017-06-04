@@ -32,7 +32,7 @@ if (!exists("globalRasters")) globalRasters <- list()
 
 # Computation stuff
 experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
-maxNumClusters <- 5 # use 0 to turn off
+maxNumClusters <- 8 # use 0 to turn off
 #machines <- c("localhost"=maxNumClusters, "132.156.148.91"=5, "132.156.149.7"=5)
 machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
 
@@ -42,15 +42,15 @@ setDTthreads(4) # data.table multi-threading
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 3 # was 4
-summaryInterval <- 1#endTime/2 # was 2
-summaryPeriod <- c(1, endTime)
+endTime <- 800 # was 4
+summaryInterval <- 10#endTime/2 # was 2
+summaryPeriod <- c(500, endTime)
 
 # Spatial stuff
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 #studyArea <- "FULL"
-studyArea <- "SMALL"
+#studyArea <- "SMALL"
 raster::rasterOptions(maxmemory = 4e10, chunksize = 1e9)
 
 # shiny variables
