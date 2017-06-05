@@ -36,6 +36,8 @@ if (studyArea != "FULL") {
     areaKm2 <- 40000 #700000#2000#600000#too big for laptop
   } else if (studyArea == "LARGE") {
     areaKm2 <- 80000 #700000#2000#600000#too big for laptop
+  } else if (studyArea == "EXTRALARGE") {
+    areaKm2 <- 180000 #700000#2000#600000#too big for laptop
   } 
   
   minY <- 7778877 - 1.6e5
