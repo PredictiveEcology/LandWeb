@@ -3,7 +3,7 @@ devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave 
 ## SpaDES & amc
 if (FALSE) {
   devtools::install_github("PredictiveEcology/SpaDES@development")  
-  #devtools::install_github("PredictiveEcology/SpaDES@CacheFastdigest")  
+  devtools::install_github("PredictiveEcology/SpaDES@moreCache")  
   devtools::install_github("achubaty/amc@development")  
   devtools::install("~/Documents/GitHub/amc/.")  
   devtools::install("~/Documents/GitHub/SpaDES/.")  
@@ -42,16 +42,16 @@ setDTthreads(4) # data.table multi-threading
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 800 # was 4
+endTime <- 2 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(500, endTime)
+summaryPeriod <- c(1, endTime)
 
 # Spatial stuff
 studyArea <- "EXTRALARGE"
 #studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 #studyArea <- "FULL"
-#studyArea <- "SMALL"
+studyArea <- "SMALL"
 raster::rasterOptions(maxmemory = 4e10, chunksize = 1e9)
 
 # shiny variables
