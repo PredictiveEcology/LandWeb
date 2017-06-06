@@ -127,14 +127,15 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   sim$ecoZone <- spTransform(sim$ecoZone, crs(sim$specieslayers))
 
   message("1: ", Sys.time())
-  sim <- cachedFunctions(sim)
+  #sim <- cachedFunctions(sim)
 
   rstStudyRegionBinary <- raster(sim$rstStudyRegion)
   rstStudyRegionBinary[] <- NA
   rstStudyRegionBinary[!is.na(sim$rstStudyRegion[])] <- 1
 
   message("2: ", Sys.time())
-  initialCommFiles <- sim$initialCommunityProducerCached(speciesLayers = sim$specieslayers,
+  #initialCommFiles <- sim$initialCommunityProducerCached(speciesLayers = sim$specieslayers,
+  initialCommFiles <- Cache(initialCommunityProducer, speciesLayers = sim$specieslayers,
                                                          speciesPresence = 50,
                                                          studyArea = sim$studyArea,
                                                          rstStudyArea = rstStudyRegionBinary,
@@ -142,7 +143,8 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   ecoregionstatus <- data.table(active = "yes",
                                 ecoregion = 1:1031)
   message("ecoregionProducer: ", Sys.time())
-  ecoregionFiles <- sim$ecoregionProducerCached(studyAreaRaster = initialCommFiles$initialCommunityMap,
+  #ecoregionFiles <- sim$ecoregionProducerCached(studyAreaRaster = initialCommFiles$initialCommunityMap,
+  ecoregionFiles <- Cache(ecoregionProducer, studyAreaRaster = initialCommFiles$initialCommunityMap,
                                                 ecoregionMapFull = sim$ecoDistrict,
                                                 ecoregionName = "ECODISTRIC",
                                                 ecoregionActiveStatus = ecoregionstatus,
@@ -154,29 +156,32 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   # LCC05 -- land covers 1 to 15 are forested with tree dominated... 34 and 35 are recent burns
   activeStatusTable <- data.table(active = c(rep("yes", 15), rep("no", 25)),
                                   mapcode = 1:40)[mapcode %in% c(34, 35), active:="yes"]  # this is based on description in LCC05 
-  simulationMaps <- sim$nonActiveEcoregionProducerCached(nonactiveRaster = sim$LCC2005,
-                                                         activeStatus = activeStatusTable,
+  #simulationMaps <- sim$nonActiveEcoregionProducerCached(nonactiveRaster = sim$LCC2005,
+  simulationMaps <- Cache(nonActiveEcoregionProducer, nonactiveRaster = sim$LCC2005,
+                          activeStatus = activeStatusTable,
                                                          ecoregionMap = ecoregionFiles$ecoregionMap,
                                                          ecoregion = ecoregionFiles$ecoregion,
                                                          initialCommunityMap = initialCommFiles$initialCommunityMap,
                                                          initialCommunity = initialCommFiles$initialCommunity,
                                                          userTags = c("function:nonActiveEcoregionProducer"))
   message("4: ", Sys.time())
-  speciesEcoregionTable <- sim$obtainMaxBandANPPCached(speciesLayers = sim$specieslayers,
+  #speciesEcoregionTable <- sim$obtainMaxBandANPPCached(speciesLayers = sim$specieslayers,
+  speciesEcoregionTable <- Cache(obtainMaxBandANPP, speciesLayers = sim$specieslayers,
                                                        biomassLayer = sim$biomassMap,
                                                        SALayer = sim$standAgeMap,
                                                        ecoregionMap = simulationMaps$ecoregionMap,
                                                        userTags = c("function:obtainMaxBandANPP"))
 
   message("5: ", Sys.time())
-  septable <- sim$obtainSEPCached(ecoregionMap = simulationMaps$ecoregionMap,
+  #septable <- sim$obtainSEPCached(ecoregionMap = simulationMaps$ecoregionMap,
+  septable <- Cache(obtainSEP, ecoregionMap = simulationMaps$ecoregionMap,
                                   speciesLayers = sim$specieslayers,
                                   userTags = c("function:obtainSEP"))
   names(septable) <- c("ecoregion", "species", "SEP")
   septable[, SEP:=round(SEP, 2)]
   #
   #
-  message("6 obtainMaxBandANPPFormBiggerEcoArea: ", Sys.time())
+  message("6: ", Sys.time())
   speciesEcoregionTable[, species:=as.character(species)]
   septable[,species:=as.character(species)]
   speciesEcoregionTable <- left_join(speciesEcoregionTable, septable, by = c("ecoregion", "species")) %>%
@@ -187,29 +192,34 @@ landWeb_LBMRDataPrepInit <- function(sim) {
 
   if(nrow(NAdata) > 1){
     # # replace NA values with ecoregion  value
-    biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
-                                                                         biomassLayer = sim$biomassMap,
-                                                                         SALayer = sim$standAgeMap,
-                                                                         ecoregionMap = simulationMaps$ecoregionMap,
-                                                                         biggerEcoArea = sim$ecoRegion,
-                                                                         biggerEcoAreaSource = "ecoRegion",
-                                                                         NAData = NAdata,
-                                                                         maskFn = fastMask, 
-                                                                         userTags = c("function:obtainMaxBandANPPFormBiggerEcoArea"))
+    #biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
+                                                                         
+    
+    message("  6a obtainMaxBandANPPFormBiggerEcoArea: ", Sys.time())
+    biomassFrombiggerMap <- Cache(obtainMaxBandANPPFormBiggerEcoArea, 
+                                  speciesLayers = sim$specieslayers,
+                                  biomassLayer = sim$biomassMap,
+                                  SALayer = sim$standAgeMap,
+                                  ecoregionMap = simulationMaps$ecoregionMap,
+                                  biggerEcoArea = sim$ecoRegion,
+                                  biggerEcoAreaSource = "ecoRegion",
+                                  NAData = NAdata,
+                                  maskFn = fastMask, userTags = c("function:obtainMaxBandANPPFormBiggerEcoArea"))
+    message("  6b obtainMaxBandANPPFormBiggerEcoArea: ", Sys.time())
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
   }
   message("7: ", Sys.time())
   if(nrow(NAdata) > 1){
-    biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
-                                                                         biomassLayer = sim$biomassMap,
-                                                                         SALayer = sim$standAgeMap,
-                                                                         ecoregionMap = simulationMaps$ecoregionMap,
-                                                                         biggerEcoArea = sim$ecoZone,
-                                                                         biggerEcoAreaSource = "ecoZone",
-                                                                         NAData = NAdata,
-                                                                         maskFn = fastMask,
-                                                                         userTags = "function:obtainMaxBandANPPFormBiggerEcoArea")
+    #biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
+    message("  7a obtainMaxBandANPPFormBiggerEcoArea if NAdata exist: ", Sys.time())
+    biomassFrombiggerMap <- Cache(obtainMaxBandANPPFormBiggerEcoArea, 
+                                  speciesLayers = sim$specieslayers, biomassLayer = sim$biomassMap,
+                                  SALayer = sim$standAgeMap, ecoregionMap = simulationMaps$ecoregionMap,
+                                  biggerEcoArea = sim$ecoZone, biggerEcoAreaSource = "ecoZone",
+                                  NAData = NAdata, maskFn = fastMask, 
+                                  userTags = "function:obtainMaxBandANPPFormBiggerEcoArea")
+    message("  7b obtainMaxBandANPPFormBiggerEcoArea if NAdata exist: ", Sys.time())
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
   }
@@ -288,43 +298,6 @@ landWeb_LBMRDataPrepSave = function(sim) {
 }
 
 
-cachedFunctions <- function(sim) {
-  # for slow functions, add cached versions. Then use sim$xxx() throughout module instead of xxx()
-  if(sim$useCache) {
-    sim$initialCommunityProducerCached <- function(...) {
-      SpaDES::Cache(FUN = initialCommunityProducer, ...)
-    }
-    sim$ecoregionProducerCached <- function(...) {
-      SpaDES::Cache(FUN = ecoregionProducer, ...)
-    }
-    sim$nonActiveEcoregionProducerCached <- function(...) {
-      SpaDES::Cache(FUN = nonActiveEcoregionProducer, ...)
-    }
-    sim$obtainMaxBandANPPCached <- function(...){
-      SpaDES::Cache(FUN = obtainMaxBandANPP, ...)
-    }
-    sim$obtainSEPCached <- function(...){
-      SpaDES::Cache(FUN = obtainSEP, ...)
-    }
-    sim$obtainMaxBandANPPFormBiggerEcoAreaCached <- function(...){
-      SpaDES::Cache(FUN = obtainMaxBandANPPFormBiggerEcoArea, ...)
-    }
-    sim$projectRasterCached <- function(...){
-      SpaDES::Cache(FUN = raster::projectRaster, ...)
-    }
-  } else {
-    # Step 3 - create a non-caching version in case caching is not desired
-    #  sim$spinUp <- sim$spinUpRaw
-    sim$initialCommunityProducerCached <- initialCommunityProducer
-    sim$ecoregionProducerCached <- ecoregionProducer
-    sim$nonActiveEcoregionProducerCached <- nonActiveEcoregionProducer
-    sim$obtainMaxBandANPPCached <- obtainMaxBandANPP
-    sim$obtainSEPCached <- obtainSEP
-    sim$obtainMaxBandANPPFormBiggerEcoAreaCached <- obtainMaxBandANPPFormBiggerEcoArea
-    sim$projectRasterCached <- raster::projectRaster
-  }
-  return(invisible(sim))
-}
 
 initialCommunityProducer <- function(speciesLayers, speciesPresence, studyArea, rstStudyArea) {
   specieslayerInStudyArea <- crop(speciesLayers,
@@ -485,7 +458,7 @@ obtainMaxBandANPP <- function(speciesLayers,
                               biomassLayer,
                               SALayer,
                               ecoregionMap) {
-  speciesinstudyarea <- crop(speciesLayers, ecoregionMap)
+  speciesinstudyarea <- crop(speciesLayers, ecoregionMap) # slowest 
   speciesinstudyarea <- suppressWarnings(mask(speciesinstudyarea, ecoregionMap))
   biomassinstudyarea <- crop(biomassLayer, ecoregionMap)
   biomassinstudyarea <- suppressWarnings(mask(biomassinstudyarea, ecoregionMap))
@@ -566,7 +539,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
 
   
   biggerEcoMapRaster <- Cache(fastRasterize, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
-                              field=toupper(biggerEcoAreaSource), filename="biggerEcoMapRaster")
+                              field=toupper(biggerEcoAreaSource))#, filename="biggerEcoMapRaster")
   
   # biggerEcoMapRaster <- Cache(fastRasterizeFn, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
   #                             field=toupper(biggerEcoAreaSource))
