@@ -47,7 +47,8 @@ summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(500, endTime)
 
 # Spatial stuff
-studyArea <- "LARGE"
+studyArea <- "EXTRALARGE"
+#studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 #studyArea <- "FULL"
 #studyArea <- "SMALL"
