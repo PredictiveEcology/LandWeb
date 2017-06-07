@@ -55,8 +55,7 @@ function(input, output, session) {
                #cl = if(exists("cl")) cl, 
                .plotInitialTime = NA,
                #notOlderThan = Sys.time(), # uncomment if want to rerun without Cached copy
-               clearSimEnv = TRUE,
-               debugCache=TRUE)
+               clearSimEnv = TRUE)
   args <- args[!unlist(lapply(args, is.null))]
   #profvis::profvis(interval = 0.5, {mySimOut <- do.call(Cache, args)})
   mySimOut <<- do.call(Cache, args)
