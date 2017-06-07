@@ -42,15 +42,15 @@ setDTthreads(4) # data.table multi-threading
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 2 # was 4
+endTime <- 800 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(1, endTime)
+summaryPeriod <- c(500, endTime)
 
 # Spatial stuff
 studyArea <- "EXTRALARGE"
 #studyArea <- "LARGE"
-#studyArea <- "MEDIUM"
-#studyArea <- "FULL"
+studyArea <- "MEDIUM"
+studyArea <- "FULL"
 studyArea <- "SMALL"
 raster::rasterOptions(maxmemory = 4e10, chunksize = 1e9)
 
