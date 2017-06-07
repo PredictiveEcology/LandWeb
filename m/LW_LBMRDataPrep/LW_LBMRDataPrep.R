@@ -538,7 +538,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   subbiggerEcoMap_Raster <- setValues(subbiggerEcoMap_Raster, NA)
 
   
-  biggerEcoMapRaster <- Cache(fastRasterize, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
+  # don't need to Cache because it whole function is cached
+  biggerEcoMapRaster <- fastRasterize(polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
                               field=toupper(biggerEcoAreaSource))#, filename="biggerEcoMapRaster")
   
   # biggerEcoMapRaster <- Cache(fastRasterizeFn, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
@@ -558,7 +559,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   ecodistrictEcoregionTable[, maxPercent:=max(percentage), by = ecoregion]
   ecodistrictEcoregionTable <- ecodistrictEcoregionTable[percentage == maxPercent, .(biggerEcoregion, ecoregion)] %>%
     unique(., by = c("biggerEcoregion", "ecoregion"))
-  ecoregionBiomass <- Cache(obtainMaxBandANPP, speciesLayers = speciesLayers,
+  # don't need to Cache because whole outer function is cached
+  ecoregionBiomass <- obtainMaxBandANPP(speciesLayers = speciesLayers,
                                         biomassLayer = biomassLayer,
                                         SALayer = SALayer,
                                         ecoregionMap = biggerEcoMapRaster)
