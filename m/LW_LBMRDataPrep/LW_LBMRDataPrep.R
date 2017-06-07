@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LW_LBMRDataPrep.Rmd"),
-  reqdPkgs = list("data.table", "raster", "dplyr", "amc"),
+  reqdPkgs = list("data.table", "raster", "dplyr", "amc", "gdalUtils"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -538,7 +538,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   subbiggerEcoMap_Raster <- setValues(subbiggerEcoMap_Raster, NA)
 
   
-  biggerEcoMapRaster <- Cache(fastRasterize, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
+  # don't need to Cache because it whole function is cached
+  biggerEcoMapRaster <- fastRasterize(polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
                               field=toupper(biggerEcoAreaSource))#, filename="biggerEcoMapRaster")
   
   # biggerEcoMapRaster <- Cache(fastRasterizeFn, polygon = subbigEcoMap, ras = subbiggerEcoMap_Raster,
@@ -558,7 +559,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   ecodistrictEcoregionTable[, maxPercent:=max(percentage), by = ecoregion]
   ecodistrictEcoregionTable <- ecodistrictEcoregionTable[percentage == maxPercent, .(biggerEcoregion, ecoregion)] %>%
     unique(., by = c("biggerEcoregion", "ecoregion"))
-  ecoregionBiomass <- Cache(obtainMaxBandANPP, speciesLayers = speciesLayers,
+  # don't need to Cache because whole outer function is cached
+  ecoregionBiomass <- obtainMaxBandANPP(speciesLayers = speciesLayers,
                                         biomassLayer = biomassLayer,
                                         SALayer = SALayer,
                                         ecoregionMap = biggerEcoMapRaster)
@@ -752,6 +754,13 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     names(sim$specieslayers)[i] <- indispecies
     i <- i+1
   }
+  
+  ## load Paul Pickell et al. and CASFRI
+  Cache(loadPaulAndCASFRI, sim, PaulRawFileName="SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")
+  
+  
+  
+  
 
   # projection(sim$LCC2005) <- projection(sim$specieslayers)
 
