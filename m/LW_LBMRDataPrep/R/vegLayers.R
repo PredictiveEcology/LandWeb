@@ -23,6 +23,12 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
   #C:\Eliot\GitHub\LandWeb\m\LW_LBMRDataPrep\data
   dataFolder <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
   PaulRawFileName <- file.path(dataFolder, PaulRawFileName)
+  zipDownload <- file.path(dataFolder, "Paul.zip")
+  if(!file.exists(PaulRawFileName))  {
+    download.file(destfile = file.path(dataFolder, "Paul.zip"),mode="wb",
+                "https://ln.syncusercontentpro.com/mfs-60:fbe36d4ace9b23f7a293b3c362c23223=============================/p/SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.zip?allowdd=0&datakey=gWeLDsUCpVs6pi7Rfb3YfaEpIR9MaalVTGACEH/gvi6Cpmg4pDLCwe6ISP1ANg6zt2cTPOIHlz2gqIfFuqwqZtVcp97EAFF2lLOFzwT/FINdWwUCHB0+rDbAQ+C3vjhmSMY+8H4EBGVlt12y/dNPUnITQ+iK05ZGnqvEoCP/bTXQdeguRAvlJu/t6AWh+fjxa7SHPGNyyi1zFbGml9WrETr6TMuZg/QyCBtHY/6RrBmkcS/8taDxBJpzeI81ExV+l99/ChzNTXBDhhc1M5x5dArKlcEMv7zU3yxhtnwsi3NZnmfkhy6xuu0xAgW9UbbmoL15CvzZ1NdF+Utul40sUQ&engine=ln-2.6.6&errurl=FQB+PBBs1m+Li4b6lX9BcxgJLzQqvwjNPxaNXXgUCIKh5NoidL7Xxe8FCO/SWslINYgMG4noZ7Wq0yOcNJyp+UmesUf1hlTQZXoTLNGZB+nx/phaoem52DhXh2Qc0nDDnkMFalZzmmJRzr/mtO0o+gjFSNLvDN7kKJTf0GtMMdqBDc1OOziYnZCcFOAKE+a5Cn3L073tCgEn5EmMLDNqavQAYmdLUWpWqGRVyTQ5KvTc3rz7ssJIlz1hYMudn4q8IPkrogQp7qirPEYP/pY3i2/vlicbmSce6xKDn+2GThLGxBCcTDWkXOcVppHQHE2VsCcveIavZ5DEfiILFAaU5A==&header1=Q29udGVudC1UeXBlOiBhcHBsaWNhdGlvbi96aXA&header2=Q29udGVudC1EaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9IlNQUF8xOTkwX0ZJTExFRF8xMDBtX05BRDgzX0xDQ19CWVRFX1ZFRy56aXAi&ipaddress=c29d86aa8813e6f6ba0ca6f3cf81060a826a19f3&linkcachekey=fd314caf0&linkoid=19420003&mode=100&sharelink_id=3280014910003&timestamp=1496818098881&uagent=a82c2c809dcf3deae3a90e1581ee67b7b1b23078&signature=ab1b08d9d6137f5a55a2ffab78af1f60b680ba3f")
+    unzip(zipDownload, exdir = dataFolder)
+  }
   PaulOnGoogleDrive <- raster(PaulRawFileName)
   LandWebStudyAreaRawPoly <- file.path(inputPath(sim),oldfilename)
   
@@ -63,7 +69,7 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
   setwd(dataFolder)
   # TO get this to work
   #  https://stackoverflow.com/questions/5599872/python-windows-importerror-no-module-named-site
-  Cache(system, paste("python",
+  Cache(system, notOlderThan = Sys.time(),paste("python",
                       file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal_polygonize.py"), 
                       basename(newfilename), basename(shapeFile), "-f \"ESRI Shapefile\""))
   
