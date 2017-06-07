@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LW_LBMRDataPrep.Rmd"),
-  reqdPkgs = list("data.table", "raster", "dplyr", "amc"),
+  reqdPkgs = list("data.table", "raster", "dplyr", "amc", "gdalUtils"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -754,6 +754,13 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     names(sim$specieslayers)[i] <- indispecies
     i <- i+1
   }
+  
+  ## load Paul Pickell et al. and CASFRI
+  Cache(loadPaulAndCASFRI, sim, PaulRawFileName="SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")
+  
+  
+  
+  
 
   # projection(sim$LCC2005) <- projection(sim$specieslayers)
 
