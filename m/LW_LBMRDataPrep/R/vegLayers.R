@@ -15,6 +15,7 @@
 loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
   #gdal_setInstallation(ignore.full_scan = TRUE, verbose = TRUE)
   # Step 1 -- Load LandWeb study area shapefile
+  browser()
   loadShpAndMakeValid <- function(file) {
     shapefile(file) %>% gBuffer(byid=TRUE, width=0)
   }
@@ -23,11 +24,12 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
   #C:\Eliot\GitHub\LandWeb\m\LW_LBMRDataPrep\data
   dataFolder <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
   PaulRawFileName <- file.path(dataFolder, PaulRawFileName)
-  zipDownload <- file.path(dataFolder, "Paul.zip")
+  zipDownload <- file.path(dataFolder, "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.zip")
   if(!file.exists(PaulRawFileName))  {
-    download.file(destfile = file.path(dataFolder, "Paul.zip"),mode="wb",
-                "https://ln.syncusercontentpro.com/mfs-60:fbe36d4ace9b23f7a293b3c362c23223=============================/p/SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.zip?allowdd=0&datakey=gWeLDsUCpVs6pi7Rfb3YfaEpIR9MaalVTGACEH/gvi6Cpmg4pDLCwe6ISP1ANg6zt2cTPOIHlz2gqIfFuqwqZtVcp97EAFF2lLOFzwT/FINdWwUCHB0+rDbAQ+C3vjhmSMY+8H4EBGVlt12y/dNPUnITQ+iK05ZGnqvEoCP/bTXQdeguRAvlJu/t6AWh+fjxa7SHPGNyyi1zFbGml9WrETr6TMuZg/QyCBtHY/6RrBmkcS/8taDxBJpzeI81ExV+l99/ChzNTXBDhhc1M5x5dArKlcEMv7zU3yxhtnwsi3NZnmfkhy6xuu0xAgW9UbbmoL15CvzZ1NdF+Utul40sUQ&engine=ln-2.6.6&errurl=FQB+PBBs1m+Li4b6lX9BcxgJLzQqvwjNPxaNXXgUCIKh5NoidL7Xxe8FCO/SWslINYgMG4noZ7Wq0yOcNJyp+UmesUf1hlTQZXoTLNGZB+nx/phaoem52DhXh2Qc0nDDnkMFalZzmmJRzr/mtO0o+gjFSNLvDN7kKJTf0GtMMdqBDc1OOziYnZCcFOAKE+a5Cn3L073tCgEn5EmMLDNqavQAYmdLUWpWqGRVyTQ5KvTc3rz7ssJIlz1hYMudn4q8IPkrogQp7qirPEYP/pY3i2/vlicbmSce6xKDn+2GThLGxBCcTDWkXOcVppHQHE2VsCcveIavZ5DEfiILFAaU5A==&header1=Q29udGVudC1UeXBlOiBhcHBsaWNhdGlvbi96aXA&header2=Q29udGVudC1EaXNwb3NpdGlvbjogYXR0YWNobWVudDsgZmlsZW5hbWU9IlNQUF8xOTkwX0ZJTExFRF8xMDBtX05BRDgzX0xDQ19CWVRFX1ZFRy56aXAi&ipaddress=c29d86aa8813e6f6ba0ca6f3cf81060a826a19f3&linkcachekey=fd314caf0&linkoid=19420003&mode=100&sharelink_id=3280014910003&timestamp=1496818098881&uagent=a82c2c809dcf3deae3a90e1581ee67b7b1b23078&signature=ab1b08d9d6137f5a55a2ffab78af1f60b680ba3f")
-    unzip(zipDownload, exdir = dataFolder)
+    if(!file.exists(zipDownload))
+      download.file(destfile = zipDownload,mode="wb",
+                    "https://www.multcloud.com/action/share!downloadShare?drives.cloudType=GVRLlyNIUgk%2FbTv0n%2F2CQQ%3D%3D&drives.tokenId=39e0842dd49c4017ba098185753d9119&drives.fileId=hyYEQx%2BA477a6wLMX37l05HP4aJXROIPk1yfdjVDSIpT9MYgkQ%2FxhjAJblDkChSFQgAkmUcjDqO9uGAlNskSMg%3D%3D&drives.fileName=SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.zip&drives.fileSize=28597910&shareId=046c8562-691a-4342-97d5-f0ffd13d5621")
+    unzip(zipDownload, exdir = dataFolder, overwrite = TRUE)
   }
   PaulOnGoogleDrive <- raster(PaulRawFileName)
   LandWebStudyAreaRawPoly <- file.path(inputPath(sim),oldfilename)
@@ -62,7 +64,7 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
         multi=TRUE, of="GTiff", 
         tr=c(250, 250),
         filename(studyAreaMask), ot = "Byte", 
-        newfilename)
+        newfilename, cacheRepo = file.path(dirname(cachePath(sim)), "stableCache"))
   
   shapeFile <- file.path(dataFolder,"shpLandWeb5.shp")
   origDir <- getwd()
