@@ -3,7 +3,7 @@ devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave 
 ## SpaDES & amc
 if (FALSE) {
   devtools::install_github("PredictiveEcology/SpaDES@development")  
-  devtools::install_github("PredictiveEcology/SpaDES@moreCache")  
+  #devtools::install_github("PredictiveEcology/SpaDES@moreCache")  
   devtools::install_github("achubaty/amc@development")  
   devtools::install("~/Documents/GitHub/amc/.")  
   devtools::install("~/Documents/GitHub/SpaDES/.")  
