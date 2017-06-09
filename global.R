@@ -73,11 +73,19 @@ if(needWorking) {
   # git remote set-url origin https://github.com/eliotmcintire/LandWeb.git
   
   # Internal caching inside install_github doesn't seem to work for commit-based refs
-  if(!grepl(paste0("^",spadesHash), read.dcf(system.file(package = "SpaDES", "DESCRIPTION"))[,"GithubSHA1"]))
-    install_github(paste0("PredictiveEcology/SpaDES@", spadesHash))
-  if(!grepl(paste0("^",amcHash), read.dcf(system.file(package = "amc", "DESCRIPTION"))[,"GithubSHA1"]))
-    install_github(paste0("achubaty/amc@", amcHash))
+  updatePkg <- function(pkg, pkgHash, repo) {
+    PkgDescr <- read.dcf(system.file(package = pkg, "DESCRIPTION"))
+    needPkg <- TRUE
+    if("GithubSHA1" %in% colnames(PkgDescr)) {
+      if(grepl(paste0("^",pkgHash), PkgDescr[,"GithubSHA1"])) needPkg <- FALSE
+    }
+    if(needPkg) install_github(paste0(file.path(repo,pkg),"@", pkgHash))
+  }
+  updatePkg("SpaDES", spadesHash, "PredictiveEcology")
+  updatePkg("amc", amcHash, "achubaty")
   
+  
+  # LandWeb -- get correct version based on git hash
   cred <- cred_token("GITHUB_PAT")
   repo <- git2r::init(".")
   httpsURL <- "https://github.com/eliotmcintire/LandWeb.git"
