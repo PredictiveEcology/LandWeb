@@ -1,9 +1,9 @@
 needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  LandWebVersion <- "a3e3fd6b"
-  spadesTag <- "v1.3.1.9079"
-  #spadesTag <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
-  amcHash <- "v0.1.1.9001"
+  LandWebVersion <- "27e7b2a1"
+  spadesHash <- "8ca67c8bd7e2862fec21cc4402ebddf8b51ce4dd"
+  #spadesHash <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
+  amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
 }
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
@@ -64,23 +64,16 @@ if(needWorking) {
   if(!require(checkpoint)) install.packages("checkpoint")
   checkpoint(dateWorking, checkpointLocation = ".")
 } 
-pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet",
-                   "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES", "markdown",
-                   "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "bit", "parallel",
-                   "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp",
-                   "dplyr", "ggplot2", "maptools", "broom", "ggvis", "rgdal", "grid", 
-                   "VGAM", "data.table", "fpCompare")
-lapply(pkgNamespaces, function(p) if (!require(p, quietly = TRUE, character.only = TRUE)) {
-  install.packages(p, dependencies = TRUE)
-})
-if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
-if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
+
+source("packagesUsedFromCRAN.R")
 
 if(needWorking) {
   library(devtools)
   # Internal caching inside install_github doesn't seem to work for commit-based refs
-  install_github(paste0("PredictiveEcology/SpaDES@", spadesTag))
-  install_github(paste0("achubaty/amc@", amcHash))
+  if(!grepl(paste0("^",spadesHash), read.dcf(system.file(package = "SpaDES", "DESCRIPTION"))[,"GithubSHA1"]))
+    install_github(paste0("PredictiveEcology/SpaDES@", spadesHash))
+  if(!grepl(paste0("^",amcHash), read.dcf(system.file(package = "amc", "DESCRIPTION"))[,"GithubSHA1"]))
+    install_github(paste0("achubaty/amc@", amcHash))
   
   # Get specific LandWeb version
   hasUncommittedFiles <- !any(grepl(pattern="working tree clean", 
@@ -102,10 +95,10 @@ if(needWorking) {
   
 } else {
   LandWebVersion <- "development"
-  spadesTag <- "development"
+  spadesHash <- "development"
   amcHash <- "development"
   
-  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesTag) )
+  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesHash) )
   devtools::install_github(paste0("achubaty/amc@", amcHash) )
   
 }
