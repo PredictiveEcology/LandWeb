@@ -1,5 +1,5 @@
 #devtools::load_all("~/GitHub/SpaDES/.")
-needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if (FALSE) {
@@ -12,20 +12,6 @@ if (FALSE) {
   #devtools::install_github("YongLuo007/amc@development")  
 }
 
-if(needWorking) {
-  devtools::install_github("PredictiveEcology/SpaDES@v1.3.1.9078") 
-  
-  
-    cred <- cred_ssh_key(publickey = "c:/Users/emcintir/.ssh/id_rsa.pub", 
-                         privatekey = "c:/Users/emcintir/.ssh/id_rsa",
-                         passphrase = character(0))
-    repo <- init("~/GitHub/LandWeb/")
-    config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
-    pull(repo, cred)
-    
-    
-  
-}
 ## Libraries
 pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", "data.table", "fpCompare",
           "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", #"maptools",
@@ -70,6 +56,51 @@ studyArea <- "EXTRALARGE"
 #studyArea <- "FULL"
 studyArea <- "SMALL"
 raster::rasterOptions(maxmemory = 4e10, chunksize = 1e9)
+
+## Create mySim
+paths <- list(
+  cachePath = paste0("appCache", studyArea),
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs",
+  outputPath = paste0("outputs", studyArea)
+)
+if(needWorking) {
+  library(git2r)
+  LandWebVersion <- "working1.0"
+  cred <- cred_ssh_key(publickey = "c:/Users/emcintir/.ssh/id_rsa.pub", 
+                       privatekey = "c:/Users/emcintir/.ssh/id_rsa",
+                       passphrase = character(0))
+  repo <- git2r::init("~/GitHub/LandWeb/")
+  config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
+  # Get specific SpaDES version
+  devtools::install_github("PredictiveEcology/SpaDES@v1.3.1.9078") 
+  
+  # Get specific LandWeb version
+  git2r::stash(repo)
+  system(paste("git checkout", LandWebVersion))
+  #system("git checkout development")
+  #system("git stash pop")
+  
+  # get specific Cache version
+  newCachePath <- "appCacheStable"
+  dir.create(newCachePath)
+  files <- dir(paths$cachePath, recursive = TRUE)
+  sapply(file.path(newCachePath, unique(dirname(files))[-1]), dir.create)
+  file.copy(from=file.path(paths$cachePath, files),
+            to=file.path(newCachePath, files))
+  paths$cachePath <- newCachePath
+  keepCache(paths$cachePath, before=Sys.time())
+  keepCache(paths$cachePath, after=Sys.time()-dday(1))
+  startCacheTime <- Sys.time()
+  
+  # RUn at end of LandWeb Run
+  # keepArtifacts <- showCache(paths$cachePath, after = startCacheTime)$artifacts
+  # archivist::addTagsRepo(keepArtifacts,
+  #                        repoDir = paths$cachePath,
+  #                        tags = paste0("version", LandWebVersion))
+  
+}
+
 
 # shiny variables
 useGGplotForHists <- FALSE
@@ -141,14 +172,6 @@ if (maxNumClusters > 0) {
   }
 }
 
-
-## Create mySim
-paths <- list(
-  cachePath = paste0("appCache", studyArea),
-  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-  inputPath = "inputs",
-  outputPath = paste0("outputs", studyArea)
-)
 
 source("inputMaps.R")
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
