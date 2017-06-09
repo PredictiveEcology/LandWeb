@@ -12,15 +12,6 @@ if (FALSE) {
   #devtools::install_github("YongLuo007/amc@development")  
 }
 
-## Libraries
-pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", "data.table", "fpCompare",
-          "broom", "rgeos", "raster", "rgdal", "grid", "ggplot2", "VGAM", #"maptools",
-          "dplyr", "data.table", "magrittr", "parallel", "SpaDES", #"ggvis", 
-          "markdown",
-          "amc"# fastRasterize and fastMask functions
-)
-lapply(pkgs, require, quietly = TRUE, character.only = TRUE)
-
 #### Some variables
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
@@ -39,15 +30,13 @@ maxNumClusters <- 8 # use 0 to turn off
 #machines <- c("localhost"=maxNumClusters, "132.156.148.91"=5, "132.156.149.7"=5)
 machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
 
-if (Sys.info()["sysname"] != "Windows") beginCluster(25, type = "FORK")
-setDTthreads(4) # data.table multi-threading
 
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 800 # was 4
-summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(500, endTime)
+endTime <- 2 # was 4
+summaryInterval <- 1#endTime/2 # was 2
+summaryPeriod <- c(1, endTime)
 
 # Spatial stuff
 studyArea <- "EXTRALARGE"
@@ -55,7 +44,6 @@ studyArea <- "EXTRALARGE"
 #studyArea <- "MEDIUM"
 #studyArea <- "FULL"
 studyArea <- "SMALL"
-raster::rasterOptions(maxmemory = 4e10, chunksize = 1e9)
 
 ## Create mySim
 paths <- list(
@@ -65,18 +53,44 @@ paths <- list(
   outputPath = paste0("outputs", studyArea)
 )
 if(needWorking) {
+  # Need SpaDES and all packages
+  dateWorking <- as.Date("2017-06-08")
+  library(checkpoint)
+} 
+pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet",
+                   "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES", "markdown",
+                   "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "bit", "parallel",
+                   "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp",
+                   "dplyr", "ggplot2", "maptools", "broom", "ggvis", "rgdal", "grid", 
+                   "VGAM", "snow", "data.table")
+lapply(pkgNamespaces, function(p) if (!require(p, quietly = TRUE, character.only = TRUE)) {
+  install.packages(p, dependencies = TRUE)
+})
+if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
+if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
+LandWebVersion <- "development"
+spadesTag <- "development"
+amcHash <- "development"
+
+
+if(needWorking) {
+  checkpoint(dateWorking)
+  LandWebVersion <- "7a0f0e95a9af9b2a1b3a03521ca8053051d2ba6e"
+  spadesTag <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
+  amcHash <- "564ce12e409ed3dda0a369fb15a1bc411e173b9b"
+  
   library(git2r)
-  LandWebVersion <- "working1.0"
   cred <- cred_ssh_key(publickey = "c:/Users/emcintir/.ssh/id_rsa.pub", 
                        privatekey = "c:/Users/emcintir/.ssh/id_rsa",
                        passphrase = character(0))
   repo <- git2r::init("~/GitHub/LandWeb/")
   config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
   # Get specific SpaDES version
-  devtools::install_github("PredictiveEcology/SpaDES@v1.3.1.9078") 
+  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesTag) )
+  devtools::install_github(paste0("achubaty/amc@", amcHash) )
   
   # Get specific LandWeb version
-  git2r::stash(repo)
+  if("working directory clean"!=git2r::status(repo)) git2r::stash(repo)
   system(paste("git checkout", LandWebVersion))
   #system("git checkout development")
   #system("git stash pop")
@@ -89,17 +103,19 @@ if(needWorking) {
   file.copy(from=file.path(paths$cachePath, files),
             to=file.path(newCachePath, files))
   paths$cachePath <- newCachePath
-  keepCache(paths$cachePath, before=Sys.time())
-  keepCache(paths$cachePath, after=Sys.time()-dday(1))
+  keepCache(paths$cachePath, LandWebVersion)
   startCacheTime <- Sys.time()
-  
-  # RUn at end of LandWeb Run
-  # keepArtifacts <- showCache(paths$cachePath, after = startCacheTime)$artifacts
-  # archivist::addTagsRepo(keepArtifacts,
-  #                        repoDir = paths$cachePath,
-  #                        tags = paste0("version", LandWebVersion))
+
+} else {
+  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesTag) )
+  devtools::install_github(paste0("achubaty/amc@", amcHash) )
   
 }
+
+#####
+if (Sys.info()["sysname"] != "Windows") beginCluster(25, type = "FORK")
+setDTthreads(4) # data.table multi-threading
+raster::rasterOptions(maxmemory = 4e10, chunksize = 1e9)
 
 
 # shiny variables
@@ -154,9 +170,9 @@ if (maxNumClusters > 0) {
         gsub("inet addr:", "\\1", .) %>% 
         unname()
       
-        clNames <- rep(names(machines), machines)
-        clusterType = "PSOCK"
-        cl <- makeCluster(clNames, type = clusterType, master = currIP)
+      clNames <- rep(names(machines), machines)
+      clusterType = "PSOCK"
+      cl <- makeCluster(clNames, type = clusterType, master = currIP)
     } else {
       if (Sys.info()[["sysname"]] == "Windows") {
         clusterType = "SOCK"
