@@ -75,12 +75,22 @@ if(needWorking) {
   if(!grepl(paste0("^",amcHash), read.dcf(system.file(package = "amc", "DESCRIPTION"))[,"GithubSHA1"]))
     install_github(paste0("achubaty/amc@", amcHash))
   
+  library(git2r) # has git repo internally
+  cred <- cred_token("GITHUB_PAT")
+  repo <- git2r::init(".")
+  #remote_set_url(repo, "origin", "https://github.com/eliotmcintire/LandWeb.git")
+  config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
+  pull(repo, cred)
+  
   # Get specific LandWeb version
-  hasUncommittedFiles <- !any(grepl(pattern="working tree clean", 
-                                    system("git status", intern = TRUE)))
-  if(hasUncommittedFiles) 
-    system("git stash")
-  system(paste("git checkout", LandWebVersion))
+  hasUncommittedFiles <- !any(grepl(pattern="working directory clean", 
+                                    status(repo)))
+  if(hasUncommittedFiles) {
+    lastCommit <- revparse_single(repo, "HEAD")
+    add(repo, unlist(status(repo)$unstaged))
+    tempCommit <- commit(repo, "testing")
+  }
+  checkout(LandWebVersion)
 
   # get specific Cache version
   # newCachePath <- "appCacheStable"
