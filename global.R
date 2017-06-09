@@ -1,6 +1,6 @@
 needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  LandWebVersion <- "27e7b2a1"
+  LandWebVersion <- "698c94241cdb22af0bbacaf99060e9955ba8ebc1"
   spadesHash <- "8ca67c8bd7e2862fec21cc4402ebddf8b51ce4dd"
   #spadesHash <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
@@ -69,15 +69,23 @@ source("packagesUsedFromCRAN.R")
 
 if(needWorking) {
   library(devtools)
+  library(git2r) # has git repo internally
+  # git remote set-url origin https://github.com/eliotmcintire/LandWeb.git
+  
   # Internal caching inside install_github doesn't seem to work for commit-based refs
   if(!grepl(paste0("^",spadesHash), read.dcf(system.file(package = "SpaDES", "DESCRIPTION"))[,"GithubSHA1"]))
     install_github(paste0("PredictiveEcology/SpaDES@", spadesHash))
   if(!grepl(paste0("^",amcHash), read.dcf(system.file(package = "amc", "DESCRIPTION"))[,"GithubSHA1"]))
     install_github(paste0("achubaty/amc@", amcHash))
   
-  library(git2r) # has git repo internally
   cred <- cred_token("GITHUB_PAT")
   repo <- git2r::init(".")
+  httpsURL <- "https://github.com/eliotmcintire/LandWeb.git"
+  sshURL <- "git@github.com:eliotmcintire/LandWeb.git"
+  remoteWasHTTPS <- remote_url(repo)==httpsURL
+  if(!remoteWasHTTPS)
+    remote_set_url(repo, url=httpsURL)
+  
   #remote_set_url(repo, "origin", "https://github.com/eliotmcintire/LandWeb.git")
   config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
   pull(repo, cred)
@@ -90,7 +98,7 @@ if(needWorking) {
     add(repo, unlist(status(repo)$unstaged))
     tempCommit <- commit(repo, "testing")
   }
-  checkout(LandWebVersion)
+  checkout(repo, commits(repo, LandWebVersion))
 
   # get specific Cache version
   # newCachePath <- "appCacheStable"
