@@ -1,13 +1,30 @@
 #devtools::load_all("~/GitHub/SpaDES/.")
+needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if (FALSE) {
   devtools::install_github("PredictiveEcology/SpaDES@development")  
+  devtools::install_github("PredictiveEcology/SpaDES.addins") 
   #devtools::install_github("PredictiveEcology/SpaDES@moreCache")  
   devtools::install_github("achubaty/amc@development")  
   devtools::install("~/Documents/GitHub/amc/.")  
   devtools::install("~/Documents/GitHub/SpaDES/.")  
   #devtools::install_github("YongLuo007/amc@development")  
+}
+
+if(needWorking) {
+  devtools::install_github("PredictiveEcology/SpaDES@v1.3.1.9078") 
+  
+  
+    cred <- cred_ssh_key(publickey = "c:/Users/emcintir/.ssh/id_rsa.pub", 
+                         privatekey = "c:/Users/emcintir/.ssh/id_rsa",
+                         passphrase = character(0))
+    repo <- init("~/GitHub/LandWeb/")
+    config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
+    pull(repo, cred)
+    
+    
+  
 }
 ## Libraries
 pkgs <- c("shiny", "shinydashboard", "shinyBS", "leaflet", "data.table", "fpCompare",
@@ -51,7 +68,7 @@ studyArea <- "EXTRALARGE"
 #studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 #studyArea <- "FULL"
-#studyArea <- "SMALL"
+studyArea <- "SMALL"
 raster::rasterOptions(maxmemory = 4e10, chunksize = 1e9)
 
 # shiny variables
