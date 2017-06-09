@@ -1,6 +1,6 @@
 needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  LandWebVersion <- "2d263c95428b33083bce80db65ec638fdee59adf"
+  LandWebVersion <- "a3e3fd6b"
   spadesTag <- "v1.3.1.9079"
   #spadesTag <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
   amcHash <- "v0.1.1.9001"
@@ -62,14 +62,14 @@ if(needWorking) {
   origLibPaths <- .libPaths()
   if(!file.exists(".checkpoint")) dir.create(".checkpoint")
   if(!require(checkpoint)) install.packages("checkpoint")
-  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
+  checkpoint(dateWorking, checkpointLocation = ".")
 } 
 pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet",
                    "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES", "markdown",
                    "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "bit", "parallel",
                    "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp",
                    "dplyr", "ggplot2", "maptools", "broom", "ggvis", "rgdal", "grid", 
-                   "VGAM", "data.table")
+                   "VGAM", "data.table", "fpCompare")
 lapply(pkgNamespaces, function(p) if (!require(p, quietly = TRUE, character.only = TRUE)) {
   install.packages(p, dependencies = TRUE)
 })
