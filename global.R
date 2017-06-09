@@ -1,8 +1,9 @@
 needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
   LandWebVersion <- "2d263c95428b33083bce80db65ec638fdee59adf"
-  spadesTag <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
-  amcHash <- "564ce12e409ed3dda0a369fb15a1bc411e173b9b"
+  spadesTag <- "v1.3.1.9079"
+  #spadesTag <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
+  amcHash <- "v0.1.1.9001"
 }
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
@@ -57,11 +58,11 @@ paths <- list(
 )
 if(needWorking) {
   # Need SpaDES and all packages
-  dateWorking <- as.Date("2017-06-08")
+  dateWorking <- "2017-06-08"
   origLibPaths <- .libPaths()
-  library(checkpoint)
-  checkpoint(dateWorking)
-  
+  if(!file.exists(".checkpoint")) dir.create(".checkpoint")
+  if(!require(checkpoint)) install.packages("checkpoint")
+  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
 } 
 pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet",
                    "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES", "markdown",
@@ -78,10 +79,8 @@ if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFie
 if(needWorking) {
   library(devtools)
   # Internal caching inside install_github doesn't seem to work for commit-based refs
-  Cache(install_github,paste0("PredictiveEcology/SpaDES@", spadesTag), 
-        cacheRepo = paths$cachePath)
-  Cache(install_github,paste0("achubaty/amc@", amcHash), 
-        cacheRepo = paths$cachePath)
+  install_github(paste0("PredictiveEcology/SpaDES@", spadesTag))
+  install_github(paste0("achubaty/amc@", amcHash))
   
   # Get specific LandWeb version
   hasUncommittedFiles <- !any(grepl(pattern="working tree clean", 
