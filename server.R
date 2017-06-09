@@ -1,9 +1,11 @@
 function(input, output, session) {
 
+  
   session$onSessionEnded(function() {
     if(needWorking) {
-      system("git checkout development")
-      if(hasUncommittedFiles) system("git stash pop")
+      #checkout(repo, "development")
+      #system("git checkout development")
+      if(hasUncommittedFiles) reset(lastCommit, reset_type = "soft")
       .libPaths(origLibPaths)
     }
   })
