@@ -5,11 +5,12 @@ function(input, output, session) {
     if(needWorking) {
       #checkout(repo, "development")
       #system("git checkout development")
+      
+      checkout(repo, "development")
+      if(hasUncommittedFiles) reset(lastCommit, reset_type = "soft")
       if(!remoteWasHTTPS)
         remote_set_url(repo, "origin", url=sshURL)
       
-      
-      if(hasUncommittedFiles) reset(lastCommit, reset_type = "soft")
       .libPaths(origLibPaths)
     }
   })

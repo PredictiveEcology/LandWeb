@@ -1,6 +1,6 @@
 needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  LandWebVersion <- "dc1a7cd1dce0b2ae010672918970a6883d252579"
+  LandWebVersion <- "03264bcb5fff3cfef704cd4f0256eb110adf2e08"
   spadesHash <- "8ca67c8bd7e2862fec21cc4402ebddf8b51ce4dd"
   #spadesHash <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
@@ -84,11 +84,11 @@ if(needWorking) {
   sshURL <- "git@github.com:eliotmcintire/LandWeb.git"
   remoteWasHTTPS <- remote_url(repo)==httpsURL
   if(!remoteWasHTTPS)
-    remote_set_url(repo, url=httpsURL)
+    remote_set_url(repo, "origin", url=httpsURL)
   
   #remote_set_url(repo, "origin", "https://github.com/eliotmcintire/LandWeb.git")
-  config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
-  pull(repo, cred)
+  #config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
+  #pull(repo, cred)
   
   # Get specific LandWeb version
   hasUncommittedFiles <- !any(grepl(pattern="working directory clean", 
@@ -98,8 +98,8 @@ if(needWorking) {
     add(repo, unlist(status(repo)$unstaged))
     tempCommit <- commit(repo, "testing")
   }
-  checkout(repo, commits(repo, LandWebVersion))
-
+  checkout(lookup(repo, LandWebVersion))
+  
   # get specific Cache version
   # newCachePath <- "appCacheStable"
   # dir.create(newCachePath)
@@ -141,7 +141,7 @@ if (FALSE) {
   new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
   if (length(new.packages)) install.packages(new.packages)
   
- }
+}
 
 if (maxNumClusters > 0) {
   # get current IP -- will be Master
