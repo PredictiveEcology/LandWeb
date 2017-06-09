@@ -1,5 +1,13 @@
 function(input, output, session) {
-  
+
+  on.exit({
+    keepArtifacts <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
+    archivist::addTagsRepo(keepArtifacts,
+                           repoDir = paths$cachePath,
+                           tags = paste0("LandWebVersion:", LandWebVersion))
+    system("git checkout development")
+    system("git stash pop")
+  })  
   #react <- reactiveValues()
   seed <- sample(1e8,1)
   set.seed(seed)
@@ -311,5 +319,6 @@ function(input, output, session) {
     spEcoReg
   })#, digits = 1)
   
+
   
   }
