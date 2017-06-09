@@ -1,6 +1,6 @@
 needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  LandWebVersion <- "f0b62307d195ae64136bd35517082114111e1cb1"
+  LandWebVersion <- "4bf5507e005c11996d7a5baeab30f73b91f9596a"
   spadesHash <- "8ca67c8bd7e2862fec21cc4402ebddf8b51ce4dd"
   #spadesHash <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
@@ -103,7 +103,7 @@ if(needWorking) {
                                     status(repo)))
   if(hasUncommittedFiles) {
     lastCommit <- revparse_single(repo, "HEAD")
-    add(repo, unlist(status(repo)$unstaged))
+    git2r::add(repo, unlist(status(repo)$unstaged))
     tempCommit <- commit(repo, "testing")
   }
   checkout(lookup(repo, LandWebVersion))

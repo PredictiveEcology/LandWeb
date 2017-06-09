@@ -7,7 +7,7 @@ function(input, output, session) {
       #system("git checkout development")
       
       checkout(repo, "development")
-      if(hasUncommittedFiles) reset(lastCommit, reset_type = "soft")
+      if(hasUncommittedFiles) git2r::reset(lastCommit, reset_type = "soft")
       if(!remoteWasHTTPS)
         remote_set_url(repo, "origin", url=sshURL)
       
