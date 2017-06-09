@@ -172,6 +172,14 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                    setProgress(1)
                  })
     message(paste("  Finished largePatchesFn"))
+    if(needWorking) {
+      keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
+      keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
+      archivist::addTagsRepo(keepArtifacts,
+                             repoDir = paths$cachePath,
+                             tags = paste0("LandWebVersion:", LandWebVersion))
+    }
+    
     
     return(list(Clumps=largePatches[sizeInHa>patchSize], patchSize = patchSize))
   })
