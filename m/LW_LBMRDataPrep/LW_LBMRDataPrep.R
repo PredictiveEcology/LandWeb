@@ -715,7 +715,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
   standAgeMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif")
 
-  sim$LCC2005 <- raster(lcc2005Filename)
+  if(is.null(sim$LCC2005)) sim$LCC2005 <- raster(lcc2005Filename)
   # sim$ecoDistrict <- Cache(raster::shapefile, ecodistrictFilename)
   sim$ecoDistrict <- shapefile(ecodistrictFilename)
   sim$ecoRegion <- Cache(raster::shapefile, ecoregionFilename)
@@ -765,7 +765,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   # projection(sim$LCC2005) <- projection(sim$specieslayers)
 
   if(needShinking) {
-    if(!is.null(sim@.envir$shpStudyRegionFull)) {
+    if(!is.null(sim$shpStudyRegionFull)) {
       sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
 
       sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
@@ -784,27 +784,27 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
 
       # rasters
       # LCC2005
-      sim@.envir$LCC2005 <- crop(sim@.envir$LCC2005, sim@.envir$shpStudyRegionFull,
+      sim$LCC2005 <- crop(sim$LCC2005, sim$shpStudyRegionFull,
                                  filename = file.path(dirname(lcc2005Filename), paste0("Small",basename(lcc2005Filename))),
                                  overwrite=TRUE)
       file.remove(dir(dirname(lcc2005Filename), full.names = TRUE) %>%
                     .[grep(basename(.), pattern = paste0("^",basename(lcc2005Filename)))])
-      file.rename(filename(sim@.envir$LCC2005), lcc2005Filename)
-      sim@.envir$LCC2005@file@name <- lcc2005Filename
+      file.rename(filename(sim$LCC2005), lcc2005Filename)
+      sim$LCC2005@file@name <- lcc2005Filename
 
       # Biomass
-      sim@.envir$biomassMap <- crop(sim@.envir$biomassMap, sim@.envir$shpStudyRegionFull,
+      sim$biomassMap <- crop(sim$biomassMap, sim$shpStudyRegionFull,
                                     overwrite=TRUE, format = "GTiff", datatype = "INT2U",
                                     filename = file.path(dirname(biomassMapFilename), paste0("Small",basename(biomassMapFilename))))
       biomassMapFilenameNoExt <- strsplit(basename(biomassMapFilename), "\\.")[[1]][1]
       file.remove(dir(dirname(biomassMapFilename), full.names = TRUE) %>%
                     .[grep(basename(.), pattern = paste0("^",biomassMapFilenameNoExt))])
 
-      file.rename(filename(sim@.envir$biomassMap), biomassMapFilename)
-      sim@.envir$biomassMap@file@name <- biomassMapFilename
+      file.rename(filename(sim$biomassMap), biomassMapFilename)
+      sim$biomassMap@file@name <- biomassMapFilename
 
       # Stand Age
-      sim@.envir$standAgeMap <- crop(sim@.envir$standAgeMap, sim@.envir$shpStudyRegionFull,
+      sim$standAgeMap <- crop(sim$standAgeMap, sim$shpStudyRegionFull,
                                      overwrite=TRUE, format = "GTiff", datatype = "INT2U",
                                      filename = file.path(dirname(standAgeMapFilename),
                                                           paste0("Small",basename(standAgeMapFilename))))
@@ -812,14 +812,14 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       file.remove(dir(dirname(standAgeMapFilename), full.names = TRUE) %>%
                     .[grep(basename(.), pattern = paste0("^",standAgeMapFilenameNoExt))])
 
-      file.rename(filename(sim@.envir$standAgeMap), standAgeMapFilename)
-      sim@.envir$standAgeMap@file@name <- standAgeMapFilename
+      file.rename(filename(sim$standAgeMap), standAgeMapFilename)
+      sim$standAgeMap@file@name <- standAgeMapFilename
 
       # Species
       specieslayers <- lapply(speciesFilenames, function(x) {
         filenameNoExt <- strsplit(basename(x), "\\.")[[1]][1]
         a <- raster(x) %>%
-          crop(sim@.envir$shpStudyRegionFull,
+          crop(sim$shpStudyRegionFull,
                overwrite=TRUE, format = "GTiff", datatype = "INT1U",
                filename = file.path(dirname(x), paste0("Small",basename(x))))
         file.remove(dir(dirname(x), full.names = TRUE) %>%
