@@ -1,13 +1,26 @@
 function(input, output, session) {
 
-  on.exit({
-    keepArtifacts <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
+  
+  session$onSessionEnded(function() {
+    if(needWorking) {
+      #checkout(repo, "development")
+      #system("git checkout development")
+      
+      checkout(repo, "development")
+      if(hasUncommittedFiles) git2r::reset(lastCommit, reset_type = "soft")
+      if(!remoteWasHTTPS)
+        remote_set_url(repo, "origin", url=sshURL)
+      
+      .libPaths(origLibPaths)
+    }
+  })
+  
+  if(needWorking) {
+    keepArtifacts <<- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
     archivist::addTagsRepo(keepArtifacts,
                            repoDir = paths$cachePath,
                            tags = paste0("LandWebVersion:", LandWebVersion))
-    system("git checkout development")
-    system("git stash pop")
-  })  
+  }
   #react <- reactiveValues()
   seed <- sample(1e8,1)
   set.seed(seed)
@@ -68,6 +81,14 @@ function(input, output, session) {
   #profvis::profvis(interval = 0.5, {mySimOut <- do.call(Cache, args)})
   mySimOut <<- do.call(Cache, args)
   message(attr(mySimOut, "tags"))
+  
+  if(needWorking) {
+    keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
+    keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
+    archivist::addTagsRepo(keepArtifacts,
+                           repoDir = paths$cachePath,
+                           tags = paste0("LandWebVersion:", LandWebVersion))
+  }
   
   # mySimOut <- Cache(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE,
   #                   #cl = cl,
@@ -133,6 +154,14 @@ function(input, output, session) {
   args <- args[!unlist(lapply(args, is.null))]
   leading <- do.call(Cache, args)
   message("  Finished leadingByStage")
+  
+  if(needWorking) {
+    keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
+    keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
+    archivist::addTagsRepo(keepArtifacts,
+                           repoDir = paths$cachePath,
+                           tags = paste0("LandWebVersion:", LandWebVersion))
+  }
   
   # Large patches
   polygonsWithData <- leading[,unique(polygonNum[!is.na(proportion)]),by=ageClass]
