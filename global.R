@@ -1,5 +1,10 @@
-#devtools::load_all("~/GitHub/SpaDES/.")
-needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+if(needWorking) {
+  LandWebVersion <- "7eff8f552a38a5a8121a4ea2ceca3efebfa3923c"
+  spadesHash <- "8ca67c8bd7e2862fec21cc4402ebddf8b51ce4dd"
+  #spadesHash <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
+  amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
+}
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if (FALSE) {
@@ -27,7 +32,6 @@ if (!exists("globalRasters")) globalRasters <- list()
 # Computation stuff
 experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
 maxNumClusters <- 8 # use 0 to turn off
-#machines <- c("localhost"=maxNumClusters, "132.156.148.91"=5, "132.156.149.7"=5)
 machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
 
 
@@ -54,60 +58,77 @@ paths <- list(
 )
 if(needWorking) {
   # Need SpaDES and all packages
-  dateWorking <- as.Date("2017-06-08")
-  library(checkpoint)
+  dateWorking <- "2017-06-08"
+  origLibPaths <- .libPaths()
+  if(!file.exists(".checkpoint")) dir.create(".checkpoint")
+  if(!require(checkpoint)) install.packages("checkpoint")
+  checkpoint(dateWorking, checkpointLocation = ".")
 } 
-pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet",
-                   "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES", "markdown",
-                   "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "bit", "parallel",
-                   "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp",
-                   "dplyr", "ggplot2", "maptools", "broom", "ggvis", "rgdal", "grid", 
-                   "VGAM", "snow", "data.table")
-lapply(pkgNamespaces, function(p) if (!require(p, quietly = TRUE, character.only = TRUE)) {
-  install.packages(p, dependencies = TRUE)
-})
-if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
-if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
-LandWebVersion <- "development"
-spadesTag <- "development"
-amcHash <- "development"
 
+source("packagesUsedFromCRAN.R")
 
 if(needWorking) {
-  checkpoint(dateWorking)
-  LandWebVersion <- "7a0f0e95a9af9b2a1b3a03521ca8053051d2ba6e"
-  spadesTag <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
-  amcHash <- "564ce12e409ed3dda0a369fb15a1bc411e173b9b"
+  library(devtools)
+  library(git2r) # has git repo internally
+  # git remote set-url origin https://github.com/eliotmcintire/LandWeb.git
   
-  library(git2r)
-  cred <- cred_ssh_key(publickey = "c:/Users/emcintir/.ssh/id_rsa.pub", 
-                       privatekey = "c:/Users/emcintir/.ssh/id_rsa",
-                       passphrase = character(0))
-  repo <- git2r::init("~/GitHub/LandWeb/")
-  config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
-  # Get specific SpaDES version
-  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesTag) )
-  devtools::install_github(paste0("achubaty/amc@", amcHash) )
+  # Internal caching inside install_github doesn't seem to work for commit-based refs
+  updatePkg <- function(pkg, pkgHash, repo) {
+    PkgDescr <- read.dcf(system.file(package = pkg, "DESCRIPTION"))
+    needPkg <- TRUE
+    if("GithubSHA1" %in% colnames(PkgDescr)) {
+      if(grepl(paste0("^",pkgHash), PkgDescr[,"GithubSHA1"])) needPkg <- FALSE
+    }
+    if(needPkg) install_github(paste0(file.path(repo,pkg),"@", pkgHash))
+  }
+  updatePkg("SpaDES", spadesHash, "PredictiveEcology")
+  updatePkg("amc", amcHash, "achubaty")
+  
+  
+  # LandWeb -- get correct version based on git hash
+  cred <- cred_token("GITHUB_PAT")
+  repo <- git2r::init(".")
+  httpsURL <- "https://github.com/eliotmcintire/LandWeb.git"
+  sshURL <- "git@github.com:eliotmcintire/LandWeb.git"
+  remoteWasHTTPS <- remote_url(repo)==httpsURL
+  if(!remoteWasHTTPS)
+    remote_set_url(repo, "origin", url=httpsURL)
+  
+  #remote_set_url(repo, "origin", "https://github.com/eliotmcintire/LandWeb.git")
+  #config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
+  #pull(repo, cred)
   
   # Get specific LandWeb version
-  if("working directory clean"!=git2r::status(repo)) git2r::stash(repo)
-  system(paste("git checkout", LandWebVersion))
-  #system("git checkout development")
-  #system("git stash pop")
+  hasUncommittedFiles <- !any(grepl(pattern="working directory clean", 
+                                    status(repo)))
+  if(hasUncommittedFiles) {
+    lastCommit <- revparse_single(repo, "HEAD")
+    git2r::add(repo, unlist(status(repo)$unstaged))
+    tempCommit <- commit(repo, "testing")
+  }
+  checkout(lookup(repo, LandWebVersion))
   
   # get specific Cache version
-  newCachePath <- "appCacheStable"
-  dir.create(newCachePath)
-  files <- dir(paths$cachePath, recursive = TRUE)
-  sapply(file.path(newCachePath, unique(dirname(files))[-1]), dir.create)
-  file.copy(from=file.path(paths$cachePath, files),
-            to=file.path(newCachePath, files))
-  paths$cachePath <- newCachePath
-  keepCache(paths$cachePath, LandWebVersion)
+  # newCachePath <- "appCacheStable"
+  # dir.create(newCachePath)
+  # files <- dir(paths$cachePath, recursive = TRUE)
+  # sapply(file.path(newCachePath, unique(dirname(files))[-1]), dir.create)
+  # file.copy(from=file.path(paths$cachePath, files),
+  #           to=file.path(newCachePath, files))
+  # paths$cachePath <- newCachePath
+  # keepCache(paths$cachePath, LandWebVersion)
   startCacheTime <- Sys.time()
 
 } else {
   devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesTag) )
+  devtools::install_github(paste0("achubaty/amc@", amcHash) )
+  
+} else {
+  LandWebVersion <- "development"
+  spadesHash <- "development"
+  amcHash <- "development"
+  
+  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesHash) )
   devtools::install_github(paste0("achubaty/amc@", amcHash) )
   
 }
@@ -132,16 +153,6 @@ if (FALSE) {
   new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
   if (length(new.packages)) install.packages(new.packages)
   
-  pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet",
-                     "BH", "RCurl", "RandomFieldsUtils", "R.oo", "R.methodsS3", "SpaDES", "markdown",
-                     "visNetwork", "rgexf", "influenceR", "DBI", "viridis", "bit", "parallel",
-                     "devtools", "raster", "rgeos", "RSQLite", "magrittr", "raster", "sp",
-                     "dplyr", "ggplot2", "maptools", "broom", "ggvis", "rgdal", "grid", "VGAM")
-  lapply(pkgNamespaces, function(p) if (!require(p, quietly = TRUE, character.only = TRUE)) {
-    install.packages(p, dependencies = TRUE, lib = "/usr/local/lib/R/site-library")
-  })
-  if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
-  if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
 }
 
 if (maxNumClusters > 0) {
@@ -181,13 +192,9 @@ if (maxNumClusters > 0) {
       }
       cl <- makeCluster(ncores, type = clusterType)
     }
-    # if (!all(unlist(lapply(cl, function(x) is(x, "forknode"))))) {
-    #   clusterExport(cl = cl, varlist = list("objects", "shpStudyRegion"))
-    # }
     message("  Finished Spawning ",length(cl)," threads on ", paste(names(machines), collapse = ", "))
   }
 }
-
 
 source("inputMaps.R")
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
@@ -241,5 +248,4 @@ if (!skipSimInit)
                     objects = objects, paths = paths, outputs = outputs)
 
 source("mapsForShiny.R")
-#devtools::load_all("~/GitHub/SpaDES/.")
 startTime <- st <- Sys.time()
