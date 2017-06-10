@@ -1,6 +1,6 @@
-needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  LandWebVersion <- "4bf5507e005c11996d7a5baeab30f73b91f9596a"
+  LandWebVersion <- "7eff8f552a38a5a8121a4ea2ceca3efebfa3923c"
   spadesHash <- "8ca67c8bd7e2862fec21cc4402ebddf8b51ce4dd"
   #spadesHash <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
