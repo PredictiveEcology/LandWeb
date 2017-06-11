@@ -1,4 +1,4 @@
-needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
   LandWebVersion <- "7eff8f552a38a5a8121a4ea2ceca3efebfa3923c"
   spadesHash <- "8ca67c8bd7e2862fec21cc4402ebddf8b51ce4dd"
@@ -62,7 +62,7 @@ if(needWorking) {
   origLibPaths <- .libPaths()
   if(!file.exists(".checkpoint")) dir.create(".checkpoint")
   if(!require(checkpoint)) install.packages("checkpoint")
-  checkpoint(dateWorking, checkpointLocation = ".")
+  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
 } 
 
 source("packagesUsedFromCRAN.R")
@@ -119,10 +119,6 @@ if(needWorking) {
   # keepCache(paths$cachePath, LandWebVersion)
   startCacheTime <- Sys.time()
 
-} else {
-  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesTag) )
-  devtools::install_github(paste0("achubaty/amc@", amcHash) )
-  
 } else {
   LandWebVersion <- "development"
   spadesHash <- "development"
