@@ -1,6 +1,6 @@
 needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  LandWebVersion <- "f61ed989455ce95b0e93038a47fac092f255803c"
+  LandWebVersion <- "cc53d55f7c55a4fcbb977a301bfd542b21d9a100"
   spadesHash <- "8ca67c8bd7e2862fec21cc4402ebddf8b51ce4dd"
   #spadesHash <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
@@ -17,6 +17,37 @@ if (FALSE) {
   #devtools::install_github("YongLuo007/amc@development")  
 }
 
+#### Some variables
+ageClasses <- c("Young", "Immature", "Mature", "Old")
+ageClassCutOffs <- c(0, 40, 80, 120)
+ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
+  if (x < length(ageClassCutOffs)) {
+    paste0(ageClassCutOffs[x], "-", ageClassCutOffs[x + 1])
+  } else {
+    paste0(">", ageClassCutOffs[x])
+  }
+})
+if (!exists("globalRasters")) globalRasters <- list()
+
+# Computation stuff
+experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
+maxNumClusters <- 8 # use 0 to turn off
+machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
+
+
+# Time steps
+fireTimestep <- 1
+successionTimestep <- 10 # was 2
+endTime <- 800 # was 4
+summaryInterval <- 10#endTime/2 # was 2
+summaryPeriod <- c(500, endTime)
+
+# Spatial stuff
+studyArea <- "EXTRALARGE"
+#studyArea <- "LARGE"
+#studyArea <- "MEDIUM"
+#studyArea <- "FULL"
+studyArea <- "SMALL"
 
 ## Create mySim
 paths <- list(
@@ -98,37 +129,6 @@ if(needWorking) {
   
 }
 
-#### Some variables
-ageClasses <- c("Young", "Immature", "Mature", "Old")
-ageClassCutOffs <- c(0, 40, 80, 120)
-ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
-  if (x < length(ageClassCutOffs)) {
-    paste0(ageClassCutOffs[x], "-", ageClassCutOffs[x + 1])
-  } else {
-    paste0(">", ageClassCutOffs[x])
-  }
-})
-if (!exists("globalRasters")) globalRasters <- list()
-
-# Computation stuff
-experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
-maxNumClusters <- 8 # use 0 to turn off
-machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
-
-
-# Time steps
-fireTimestep <- 1
-successionTimestep <- 10 # was 2
-endTime <- 200 # was 4
-summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(100, endTime)
-
-# Spatial stuff
-studyArea <- "EXTRALARGE"
-#studyArea <- "LARGE"
-#studyArea <- "MEDIUM"
-#studyArea <- "FULL"
-studyArea <- "SMALL"
 
 #####
 if (Sys.info()["sysname"] != "Windows") beginCluster(25, type = "FORK")
