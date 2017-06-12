@@ -1,6 +1,6 @@
 needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  LandWebVersion <- "cc53d55f7c55a4fcbb977a301bfd542b21d9a100"
+  LandWebVersion <- "c558b02910b7db90f1f356372c8a371ce3e04e2a"
   spadesHash <- "8ca67c8bd7e2862fec21cc4402ebddf8b51ce4dd"
   #spadesHash <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
@@ -47,7 +47,7 @@ studyArea <- "EXTRALARGE"
 #studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 #studyArea <- "FULL"
-studyArea <- "SMALL"
+#studyArea <- "SMALL"
 
 ## Create mySim
 paths <- list(
