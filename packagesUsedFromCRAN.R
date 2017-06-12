@@ -12,6 +12,7 @@ require("RCurl")
 require("RandomFieldsUtils")
 require("R.oo")
 require("R.methodsS3")
+require("jsonlite")
 require("SpaDES")
 require("markdown")
 require("visNetwork")
@@ -20,6 +21,7 @@ require("influenceR")
 require("DBI")
 require("viridis")
 require("bit")
+require("snow")# required internally inside "parallel" package for Windows SOCK clusters
 require("parallel")
 require("devtools")
 require("raster")
@@ -41,3 +43,13 @@ require("RandomFieldsUtils")
 require("RandomFields")
 require("purrr")
 rm("require")
+
+
+updatePkg <- function(pkg, pkgHash, repo) {
+  PkgDescr <- try(read.dcf(system.file(package = pkg, "DESCRIPTION")))
+  needPkg <- TRUE
+  if("GithubSHA1" %in% colnames(PkgDescr)) {
+    if(grepl(paste0("^",pkgHash), PkgDescr[,"GithubSHA1"])) needPkg <- FALSE
+  }
+  if(needPkg) install_github(paste0(file.path(repo,pkg),"@", pkgHash))
+}

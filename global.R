@@ -9,7 +9,8 @@ if(needWorking) {
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if (FALSE) {
-  devtools::install_github("PredictiveEcology/SpaDES@development")  
+  devtools::install_github("PredictiveEcology/SpaDES@development")
+  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesHash))  
   devtools::install_github("PredictiveEcology/SpaDES.addins") 
   #devtools::install_github("PredictiveEcology/SpaDES@moreCache")  
   devtools::install_github("achubaty/amc@development")  
@@ -61,7 +62,7 @@ if(needWorking) {
   # Need SpaDES and all packages
   dateWorking <- "2017-06-08"
   origLibPaths <- .libPaths()
-  #if(!file.exists(".checkpoint")) dir.create(".checkpoint")
+  #if(!file.exists(".checkpont")) dir.create(".checkpoint")
   #if(!require(checkpoint)) install.packages("checkpoint")
   #checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
 } 
@@ -74,52 +75,17 @@ if(needWorking) {
   # git remote set-url origin https://github.com/eliotmcintire/LandWeb.git
   
   # Internal caching inside install_github doesn't seem to work for commit-based refs
-  updatePkg <- function(pkg, pkgHash, repo) {
-    PkgDescr <- read.dcf(system.file(package = pkg, "DESCRIPTION"))
-    needPkg <- TRUE
-    if("GithubSHA1" %in% colnames(PkgDescr)) {
-      if(grepl(paste0("^",pkgHash), PkgDescr[,"GithubSHA1"])) needPkg <- FALSE
-    }
-    if(needPkg) install_github(paste0(file.path(repo,pkg),"@", pkgHash))
-  }
+  #  this function is in packagesUsedFromCRAN.R
   updatePkg("SpaDES", spadesHash, "PredictiveEcology")
   updatePkg("amc", amcHash, "achubaty")
   
-  
   # LandWeb -- get correct version based on git hash
-  cred <- cred_token("GITHUB_PAT")
-  repo <- git2r::init(".")
-  httpsURL <- "https://github.com/eliotmcintire/LandWeb.git"
-  sshURL <- "git@github.com:eliotmcintire/LandWeb.git"
-  remoteWasHTTPS <- remote_url(repo)==httpsURL
-  if(!remoteWasHTTPS)
-    remote_set_url(repo, "origin", url=httpsURL)
-  
-  #remote_set_url(repo, "origin", "https://github.com/eliotmcintire/LandWeb.git")
-  #config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
-  #pull(repo, cred)
-  
-  # Get specific LandWeb version
-  hasUncommittedFiles <- !any(grepl(pattern="working directory clean", 
-                                    status(repo)))
-  if(hasUncommittedFiles) {
-    lastCommit <- revparse_single(repo, "HEAD")
-    git2r::add(repo, unlist(status(repo)$unstaged))
-    tempCommit <- commit(repo, "testing")
-  }
-  checkout(lookup(repo, LandWebVersion))
-  
-  # get specific Cache version
-  # newCachePath <- "appCacheStable"
-  # dir.create(newCachePath)
-  # files <- dir(paths$cachePath, recursive = TRUE)
-  # sapply(file.path(newCachePath, unique(dirname(files))[-1]), dir.create)
-  # file.copy(from=file.path(paths$cachePath, files),
-  #           to=file.path(newCachePath, files))
-  # paths$cachePath <- newCachePath
-  # keepCache(paths$cachePath, LandWebVersion)
-  startCacheTime <- Sys.time()
+  browser()
+  checkoutVersion(LandWebVersion)
 
+  # get specific Cache version
+  startCacheTime <- Sys.time()
+  
 } else {
   LandWebVersion <- "development"
   spadesHash <- "development"
