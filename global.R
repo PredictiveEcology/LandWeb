@@ -62,7 +62,7 @@ if(needWorking) {
   origLibPaths <- .libPaths()
   if(!dir.exists(".checkpoint")) dir.create(".checkpoint")
   if(!require(checkpoint)) install.packages("checkpoint")
-  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
+  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = TRUE)
 } 
 
 source("packagesUsedFromCRAN.R")
