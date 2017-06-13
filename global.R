@@ -61,9 +61,9 @@ if(needWorking) {
   # Need SpaDES and all packages
   dateWorking <- "2017-06-08"
   origLibPaths <- .libPaths()
-  #if(!file.exists(".checkpont")) dir.create(".checkpoint")
-  #if(!require(checkpoint)) install.packages("checkpoint")
-  #checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
+  if(!file.exists(".checkpont")) dir.create(".checkpoint")
+  if(!require(checkpoint)) install.packages("checkpoint")
+  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
 } 
 
 source("packagesUsedFromCRAN.R")
