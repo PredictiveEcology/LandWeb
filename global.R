@@ -1,6 +1,7 @@
 needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  LandWebVersion <- "c558b02910b7db90f1f356372c8a371ce3e04e2a"
+  packrat::on()
+  LandWebVersion <- "51f208bbad15ae996bb46994d97a351716e579c9"
   spadesHash <- "8ca67c8bd7e2862fec21cc4402ebddf8b51ce4dd"
   #spadesHash <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
@@ -8,7 +9,8 @@ if(needWorking) {
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if (FALSE) {
-  devtools::install_github("PredictiveEcology/SpaDES@development")  
+  devtools::install_github("PredictiveEcology/SpaDES@development")
+  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesHash))  
   devtools::install_github("PredictiveEcology/SpaDES.addins") 
   #devtools::install_github("PredictiveEcology/SpaDES@moreCache")  
   devtools::install_github("achubaty/amc@development")  
@@ -43,10 +45,10 @@ summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(500, endTime)
 
 # Spatial stuff
+#studyArea <- "FULL"
 studyArea <- "EXTRALARGE"
 #studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
-#studyArea <- "FULL"
 #studyArea <- "SMALL"
 
 ## Create mySim
@@ -60,9 +62,9 @@ if(needWorking) {
   # Need SpaDES and all packages
   dateWorking <- "2017-06-08"
   origLibPaths <- .libPaths()
-  if(!file.exists(".checkpoint")) dir.create(".checkpoint")
-  if(!require(checkpoint)) install.packages("checkpoint")
-  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
+  #if(!file.exists(".checkpont")) dir.create(".checkpoint")
+  #if(!require(checkpoint)) install.packages("checkpoint")
+  #checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
 } 
 
 source("packagesUsedFromCRAN.R")
@@ -73,52 +75,17 @@ if(needWorking) {
   # git remote set-url origin https://github.com/eliotmcintire/LandWeb.git
   
   # Internal caching inside install_github doesn't seem to work for commit-based refs
-  updatePkg <- function(pkg, pkgHash, repo) {
-    PkgDescr <- try(read.dcf(system.file(package = pkg, "DESCRIPTION")))
-    needPkg <- TRUE
-    if("GithubSHA1" %in% colnames(PkgDescr)) {
-      if(grepl(paste0("^",pkgHash), PkgDescr[,"GithubSHA1"])) needPkg <- FALSE
-    }
-    if(needPkg) install_github(paste0(file.path(repo,pkg),"@", pkgHash))
-  }
+  #  this function is in packagesUsedFromCRAN.R
   updatePkg("SpaDES", spadesHash, "PredictiveEcology")
   updatePkg("amc", amcHash, "achubaty")
   
-  
   # LandWeb -- get correct version based on git hash
-  cred <- cred_token("GITHUB_PAT")
-  repo <- git2r::init(".")
-  httpsURL <- "https://github.com/eliotmcintire/LandWeb.git"
-  sshURL <- "git@github.com:eliotmcintire/LandWeb.git"
-  remoteWasHTTPS <- remote_url(repo)==httpsURL
-  if(!remoteWasHTTPS)
-    remote_set_url(repo, "origin", url=httpsURL)
-  
-  #remote_set_url(repo, "origin", "https://github.com/eliotmcintire/LandWeb.git")
-  #config(repo, user.name="Eliot McIntire", user.email="eliotmcintire@gmail.com")
-  #pull(repo, cred)
-  
-  # Get specific LandWeb version
-  hasUncommittedFiles <- !any(grepl(pattern="working directory clean", 
-                                    status(repo)))
-  if(hasUncommittedFiles) {
-    lastCommit <- revparse_single(repo, "HEAD")
-    try(git2r::add(repo, unlist(status(repo)$unstaged)))
-    tempCommit <- commit(repo, "testing")
-  }
-  checkout(lookup(repo, LandWebVersion))
-  
-  # get specific Cache version
-  # newCachePath <- "appCacheStable"
-  # dir.create(newCachePath)
-  # files <- dir(paths$cachePath, recursive = TRUE)
-  # sapply(file.path(newCachePath, unique(dirname(files))[-1]), dir.create)
-  # file.copy(from=file.path(paths$cachePath, files),
-  #           to=file.path(newCachePath, files))
-  # paths$cachePath <- newCachePath
-  # keepCache(paths$cachePath, LandWebVersion)
-  startCacheTime <- Sys.time()
+  browser()
+  checkoutVersion(LandWebVersion)
 
+  # get specific Cache version
+  startCacheTime <- Sys.time()
+  
 } else {
   LandWebVersion <- "development"
   spadesHash <- "development"
