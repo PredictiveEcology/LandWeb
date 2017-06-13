@@ -18,4 +18,5 @@ checkoutVersion <- function(gitHash, githubPATname = "GITHUB_PAT",
     tempCommit <- commit(repo, "testing")
   }
   git2r::checkout(lookup(repo, LandWebVersion))
+  return(repo)
 }
