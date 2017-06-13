@@ -3,6 +3,7 @@ function(input, output, session) {
   
   session$onSessionEnded(function() {
     if(needWorking) {
+      packrat::off()
       #checkout(repo, "development")
       #system("git checkout development")
       
