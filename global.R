@@ -1,6 +1,6 @@
-needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  LandWebVersion <- "51f208bbad15ae996bb46994d97a351716e579c9"
+  LandWebVersion <- "2e3656bb957eb265daad638551c74bf1423ca287"
   spadesHash <- "88e4b394f466498a7aac92bda265a7acf818693c"
   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
 }
@@ -62,7 +62,7 @@ if(needWorking) {
   origLibPaths <- .libPaths()
   if(!dir.exists(".checkpoint")) dir.create(".checkpoint")
   if(!require(checkpoint)) install.packages("checkpoint")
-  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = TRUE)
+  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
 } 
 
 source("packagesUsedFromCRAN.R")
@@ -80,19 +80,14 @@ if(needWorking) {
   # LandWeb -- get correct version based on git hash
   browser()
   source("gitCheckout.R")
-  repo <- checkoutVersion(LandWebVersion)
+  checkoutCondition <- checkoutVersion(LandWebVersion)
 
   # get specific Cache version
   startCacheTime <- Sys.time()
   
 } else {
-  LandWebVersion <- "development"
-  spadesHash <- "development"
-  amcHash <- "development"
-  
-  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesHash) )
-  devtools::install_github(paste0("achubaty/amc@", amcHash) )
-  
+  devtools::install_github(paste0("PredictiveEcology/SpaDES@development"))
+  devtools::install_github(paste0("achubaty/amc@development") )
 }
 
 #####
