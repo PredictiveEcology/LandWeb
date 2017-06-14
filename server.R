@@ -3,16 +3,8 @@ function(input, output, session) {
   
   session$onSessionEnded(function() {
     if(needWorking) {
-      packrat::off()
-      #checkout(repo, "development")
-      #system("git checkout development")
-      
-      checkout(repo, "development")
-      if(hasUncommittedFiles) git2r::reset(lastCommit, reset_type = "soft")
-      if(!remoteWasHTTPS)
-        remote_set_url(repo, "origin", url=sshURL)
-      
-      .libPaths(origLibPaths)
+      checkoutDev(checkoutCondition) # put git back to Development branch
+      .libPaths(origLibPaths) # get out of checkpoint
     }
   })
   
