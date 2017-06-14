@@ -16,6 +16,8 @@ checkoutVersion <- function(gitHash, localRepoPath=".", githubPATname = "GITHUB_
     lastCommit <- revparse_single(repo, "HEAD")
     git2r::add(repo, unlist(status(repo)$unstaged))
     tempCommit <- commit(repo, "testing")
+  } else {
+    lastCommit <- NULL
   }
   git2r::checkout(lookup(repo, gitHash))
   return(list(repo=repo, hasUncommittedFiles=hasUncommittedFiles, lastCommit=lastCommit, 
