@@ -1,9 +1,7 @@
-needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  packrat::on()
-  LandWebVersion <- "51f208bbad15ae996bb46994d97a351716e579c9"
-  spadesHash <- "8ca67c8bd7e2862fec21cc4402ebddf8b51ce4dd"
-  #spadesHash <- "8cb69c383aaac356e547ede96bbda4d0bc6e5f9e"
+  LandWebVersion <- "2e3656bb957eb265daad638551c74bf1423ca287"
+  spadesHash <- "88e4b394f466498a7aac92bda265a7acf818693c"
   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
 }
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
@@ -62,9 +60,9 @@ if(needWorking) {
   # Need SpaDES and all packages
   dateWorking <- "2017-06-08"
   origLibPaths <- .libPaths()
-  #if(!file.exists(".checkpont")) dir.create(".checkpoint")
-  #if(!require(checkpoint)) install.packages("checkpoint")
-  #checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
+  if(!dir.exists(".checkpoint")) dir.create(".checkpoint")
+  if(!require(checkpoint)) install.packages("checkpoint")
+  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
 } 
 
 source("packagesUsedFromCRAN.R")
@@ -81,19 +79,15 @@ if(needWorking) {
   
   # LandWeb -- get correct version based on git hash
   browser()
-  checkoutVersion(LandWebVersion)
+  source("gitCheckout.R")
+  checkoutCondition <- checkoutVersion(LandWebVersion)
 
   # get specific Cache version
   startCacheTime <- Sys.time()
   
 } else {
-  LandWebVersion <- "development"
-  spadesHash <- "development"
-  amcHash <- "development"
-  
-  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesHash) )
-  devtools::install_github(paste0("achubaty/amc@", amcHash) )
-  
+  devtools::install_github(paste0("PredictiveEcology/SpaDES@development"))
+  devtools::install_github(paste0("achubaty/amc@development") )
 }
 
 
