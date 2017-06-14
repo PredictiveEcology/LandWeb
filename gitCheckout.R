@@ -17,7 +17,7 @@ checkoutVersion <- function(gitHash, localRepoPath=".", githubPATname = "GITHUB_
     git2r::add(repo, unlist(status(repo)$unstaged))
     tempCommit <- commit(repo, "testing")
   }
-  git2r::checkout(lookup(repo, LandWebVersion))
+  git2r::checkout(lookup(repo, gitHash))
   return(list(repo=repo, hasUncommittedFiles=hasUncommittedFiles, lastCommit=lastCommit, 
               remoteWasHTTPS=remoteWasHTTPS, sshURL=sshURL))
 }
