@@ -21,7 +21,7 @@ require("influenceR")
 require("DBI")
 require("viridis")
 require("bit")
-require("snow")# required internally inside "parallel" package for Windows SOCK clusters
+if(Sys.info()["sysname"]=="Windows") require("snow")# required internally inside "parallel" package for Windows SOCK clusters
 require("parallel")
 require("devtools")
 require("raster")
