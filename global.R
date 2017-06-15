@@ -90,6 +90,7 @@ if(needWorking) {
   devtools::install_github(paste0("achubaty/amc@development") )
 }
 
+
 #####
 if (Sys.info()["sysname"] != "Windows") beginCluster(25, type = "FORK")
 setDTthreads(4) # data.table multi-threading
