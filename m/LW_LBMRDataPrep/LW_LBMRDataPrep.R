@@ -99,13 +99,13 @@ doEvent.LW_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
     ### (use `checkObject` or similar)
 
     # do stuff for this event
-    sim <- sim$landWeb_LBMRDataPrepInit(sim)
+    sim <- Init(sim)
 
     # schedule future event(s)
     sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "LW_LBMRDataPrep", "plot")
     sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "LW_LBMRDataPrep", "save")
   } else if (eventType == "save") {
-    sim <- sim$landWeb_LBMRDataPrepSave(sim)
+    sim <- Save(sim)
   } else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
@@ -119,7 +119,7 @@ doEvent.LW_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initialization
-landWeb_LBMRDataPrepInit <- function(sim) {
+Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
   sim$studyArea <- spTransform(sim$studyArea, crs(sim$specieslayers))
   sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
@@ -236,7 +236,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   sim$ecoregion <- simulationMaps$ecoregion
   sim$ecoregionMap <- simulationMaps$ecoregionMap
 
-  sim$initialCommunitiesMap <- Cache(sim$createInitCommMap, simulationMaps$initialCommunityMap,
+  sim$initialCommunitiesMap <- Cache(createInitCommMap, simulationMaps$initialCommunityMap,
                                                  as.integer(simulationMaps$initialCommunityMap[]),
                                                  file.path(outputPath(sim), "initialCommunitiesMap.tif"))
 
@@ -292,7 +292,7 @@ landWeb_LBMRDataPrepInit <- function(sim) {
   return(invisible(sim))
 }
 
-landWeb_LBMRDataPrepSave = function(sim) {
+Save = function(sim) {
   saveFiles(sim)
   return(invisible(sim))
 }
