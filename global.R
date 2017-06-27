@@ -47,7 +47,7 @@ summaryPeriod <- c(500, endTime)
 studyArea <- "EXTRALARGE"
 #studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
-#studyArea <- "SMALL"
+studyArea <- "SMALL"
 
 ## Create mySim
 paths <- list(
@@ -86,8 +86,10 @@ if(needWorking) {
   startCacheTime <- Sys.time()
   
 } else {
-  devtools::install_github(paste0("PredictiveEcology/SpaDES@development"))
-  devtools::install_github(paste0("achubaty/amc@development") )
+  if(FALSE) {
+    devtools::install_github(paste0("PredictiveEcology/SpaDES@development"))
+    devtools::install_github(paste0("achubaty/amc@development") )
+  }
 }
 
 
