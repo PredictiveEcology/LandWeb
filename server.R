@@ -6,6 +6,7 @@ function(input, output, session) {
       checkoutDev(checkoutCondition) # put git back to Development branch
       .libPaths(origLibPaths) # get out of checkpoint
     }
+    message("This started at ", startTime)
   })
   
   if(needWorking) {
@@ -18,7 +19,6 @@ function(input, output, session) {
   seed <- sample(1e8,1)
   set.seed(seed)
   message("Current seed is: ", seed)
-  
   if (TRUE) {
     # # Do an initial run for each given study area so that all the data prep can be done once only
     #initialRun1 <- spades(Copy(mySim), debug = TRUE)
@@ -51,21 +51,22 @@ function(input, output, session) {
   #seed <- 792282
   set.seed(seed)
   message("Current seed is: ", seed)
-  startTime <<- st <<- Sys.time()
+  #startTime <<- st <<- Sys.time()
   message("Running Experiment, starting at time: ", startTime)
   args <- list(experiment, mySim, replicates = experimentReps, 
-               debug = "paste(Sys.time(), format(Sys.time() - startTime, digits = 2), format(Sys.time()-st, digits=2), 
-                              paste(unname(current(sim)), collapse = ' '),
-                              {lsObj <- ls(envir=sim@.envir); keep <- 1:1; a <- format(big.mark = ',', 
-                                        sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>% 
-                                        setNames(lsObj), decreasing = TRUE))[keep]; 
-                                        paste(names(a)[keep], collapse=' ')},
-                              paste(a[keep], collapse=' '), 
-                              'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ', 
-                              uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:', 
-                              round(uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap),4),
-                              {st <<- Sys.time()})", 
-               #debug = TRUE, #cache = TRUE, 
+               debug = "paste(Sys.time(), format(Sys.time() - startTime, digits = 2), 
+                              paste(unname(current(sim)), collapse = ' '))",#,
+                              # {lsObj <- ls(envir=sim@.envir); keep <- 1:1; a <- format(big.mark = ',',
+                              #           sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>%
+                              #           setNames(lsObj), decreasing = TRUE))[keep];
+                              #           paste(names(a)[keep], collapse=' ')},
+                              # paste(a[keep], collapse=' '),
+                              # 'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ',
+                              # uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:',
+                              # round(uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap),4),
+                              # {st <<- Sys.time()})",
+               # debug = "paste(paste(unname(current(sim)), collapse = ' '), 'is sim$useParallel a cluster:', 
+               #          is(sim$useParallel, 'cluster'))", #cache = TRUE, 
                #cl = if(exists("cl")) cl, 
                .plotInitialTime = NA,
                #notOlderThan = Sys.time(), # uncomment if want to rerun without Cached copy
