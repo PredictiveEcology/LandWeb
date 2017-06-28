@@ -717,7 +717,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
 
   if(is.null(sim$LCC2005)) sim$LCC2005 <- raster(lcc2005Filename)
   # sim$ecoDistrict <- Cache(raster::shapefile, ecodistrictFilename)
-  sim$ecoDistrict <- shapefile(ecodistrictFilename)
+  sim$ecoDistrict <- Cache(raster::shapefile, ecodistrictFilename)
   sim$ecoRegion <- Cache(raster::shapefile, ecoregionFilename)
   sim$ecoZone <- Cache(raster::shapefile, ecozoneFilename)
   sim$biomassMap <- raster(biomassMapFilename)
