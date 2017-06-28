@@ -10,26 +10,36 @@ if (FALSE) {
   AlbertaFMU <- Cache(crop, AlbertaFMUFull, shpStudyRegion, cacheRepo = paths$cachePath)
   
 }
-
-ecodistricts <- Cache(shapefile, file.path(paths$modulePath,"LW_LBMRDataPrep", "data", "ecodistricts"),
-                      cacheRepo = paths$cachePath)
-ecodistrictsFull <- Cache(shapefile, file.path(paths$modulePath,"LW_LBMRDataPrep", "data", "ecodistricts"),
-                          cacheRepo = paths$cachePath)
-shpStudyRegionEco <- spTransform(shpStudyRegion, crs(ecodistricts))
-ecodistrictsStudyRegion <- Cache(crop, ecodistricts, shpStudyRegionEco, cacheRepo = paths$cachePath)
-#ecodistrictsCan <- spTransform(ecodistrictsStudyRegion, crs(CanadaMap))
-ecodistricts <- spTransform(ecodistrictsStudyRegion, crs(shpStudyRegion))
-
 lflt <- "+init=epsg:4326"
 
-# Available polygons
-ecodistrictsDemoLFLT <- spTransform(ecodistricts, sp::CRS(lflt))
-ecodistrictsFullLFLT <- spTransform(ecodistrictsFull, sp::CRS(lflt))
-#AlbertaFMUDemoLFLT <- spTransform(AlbertaFMU, sp::CRS(lflt))
-#AlbertaFMUFullLFLT <- spTransform(AlbertaFMUFull, sp::CRS(lflt))
-ecodistrictsDemo <- ecodistricts
-#AlbertaFMUDemo <- AlbertaFMU
-#AlbertaFMUFull <- AlbertaFMUFull
+getEcoMaps <- function(ecoDistrictPath, cacheRepo, lfltEPSG) {
+  ecodistricts <- shapefile(ecoDistrictPath)
+  ecodistrictsFull <- shapefile(ecoDistrictPath)
+  shpStudyRegionEco <- spTransform(shpStudyRegion, crs(ecodistricts))
+  ecodistrictsStudyRegion <- crop(ecodistricts, shpStudyRegionEco)
+  #ecodistrictsCan <- spTransform(ecodistrictsStudyRegion, crs(CanadaMap))
+  ecodistricts <- spTransform(ecodistrictsStudyRegion, crs(shpStudyRegion))
+  
+  # Available polygons
+  ecodistrictsDemoLFLT <- spTransform(ecodistricts, sp::CRS(lfltEPSG))
+  ecodistrictsFullLFLT <- spTransform(ecodistrictsFull, sp::CRS(lfltEPSG))
+  #AlbertaFMUDemoLFLT <- spTransform(AlbertaFMU, sp::CRS(lfltEPSG))
+  #AlbertaFMUFullLFLT <- spTransform(AlbertaFMUFull, sp::CRS(lfltEPSG))
+  ecodistrictsDemo <- ecodistricts
+  #AlbertaFMUDemo <- AlbertaFMU
+  #AlbertaFMUFull <- AlbertaFMUFull
+  list(ecodistricts=ecodistricts,
+       ecodistrictsDemo=ecodistrictsDemo,
+       ecodistrictsFull=ecodistrictsFull,
+       ecodistrictsDemoLFLT=ecodistrictsDemoLFLT,
+       ecodistrictsFullLFLT=ecodistrictsFullLFLT
+       )
+  
+}
+
+out <- Cache(getEcoMaps, ecoDistrictPath=asPath(file.path(paths$modulePath,"LW_LBMRDataPrep", "data", "ecodistricts")), 
+             lfltEPSG=lflt, cacheRepo=paths$cachePath, digestPathContent = TRUE)
+list2env(out, envir=.GlobalEnv)
 
 availablePolygons <- c("ecodistricts")#, "AlbertaFMU")
 availablePolygonAdjective <- c("Ecodistrict")#, "AlbertaFMU")
@@ -56,4 +66,3 @@ polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(polygo
 timeSinceFirePalette <- leaflet::colorNumeric(na.color = "transparent",
   c(rep("red", 5), rep("orange", 5), rep("yellow", 5), paste0(colorRampPalette(c("light green", "dark green"))(30),"FF")),
   domain = NULL)
-#attr(timeSinceFirePalette, "colorArgs")$na.color <- "blue"

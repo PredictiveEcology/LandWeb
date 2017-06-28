@@ -18,13 +18,19 @@ loadShpAndMakeValid <- function(file) {
   shapefile(file) %>% gBuffer(byid=TRUE, width=0)
 }
 
-shpStudyRegionFull <- reproducible::Cache(loadShpAndMakeValid, 
-                                    file=file.path(paths$inputPath,"shpLandWEB.shp"),
-              cacheRepo = paths$cachePath)
-shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
-shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
-
 crsKNNMaps <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
+
+loadStudyRegion <- function(shpPath, crsKNNMaps) {
+  shpStudyRegionFull <- loadShpAndMakeValid(file=shpPath)
+  shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
+  shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
+  shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
+  shpStudyRegionFull  
+}
+
+shpPath <- file.path(paths$inputPath,"shpLandWEB.shp")
+shpStudyRegionFull <- Cache(loadStudyRegion, shpPath, crsKNNMaps, cacheRepo=paths$cachePath)
+
 
 set.seed(853839)#set.seed(5567913)
 if (studyArea != "FULL") {
@@ -41,7 +47,6 @@ if (studyArea != "FULL") {
   } 
   
   minY <- 7778877 - 1.6e5
-  shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
   minX <- -1202250.2
   maxX <- minX + sqrt(areaKm2 * 1e6)
   maxY <- minY + sqrt(areaKm2 * 1e6)
