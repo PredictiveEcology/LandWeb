@@ -31,14 +31,16 @@ function(input, output, session) {
                         debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
                         objects = "shpStudyRegion", 
                         #cacheRepo = cachePath(mySim), 
-                        .plotInitialTime = NA)
+                        .plotInitialTime = NA, 
+                        omitArgs = c("debug", ".plotInitialTime"),
+                        debugCache="complete")
     # try(silent = TRUE, {
     #   filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
     #   filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
     #   filesToRemove <- unlist(lapply(strsplit(basename(outputs(initialRun)$file), split = "\\."), function(x) x[1])) %>%
     #     lapply(function(y) grep(filesPresent, pattern = y)) %>%
     #     unlist()
-    #   file.remove(filesPresentFull[filesToRemove])
+    #   file.remove(filesPresentFull[filesToRemove]) 
     # })
   }
   
@@ -53,7 +55,9 @@ function(input, output, session) {
   message("Current seed is: ", seed)
   #startTime <<- st <<- Sys.time()
   message("Running Experiment, starting at time: ", startTime)
+  objectsToHash <- grep("useParallel", ls(mySim@.envir), value=TRUE, invert=TRUE)
   args <- list(experiment, mySim, replicates = experimentReps, 
+               objects = objectsToHash,
                debug = "paste(Sys.time(), format(Sys.time() - startTime, digits = 2), 
                               paste(unname(current(sim)), collapse = ' '))",#,
                               # {lsObj <- ls(envir=sim@.envir); keep <- 1:1; a <- format(big.mark = ',',
@@ -70,7 +74,9 @@ function(input, output, session) {
                #cl = if(exists("cl")) cl, 
                .plotInitialTime = NA,
                #notOlderThan = Sys.time(), # uncomment if want to rerun without Cached copy
-               clearSimEnv = TRUE)
+               clearSimEnv = TRUE,
+               debugCache="complete",
+               omitArgs = c("debug", ".plotInitialTime"))
   args <- args[!unlist(lapply(args, is.null))]
   #profvis::profvis(interval = 0.5, {mySimOut <- do.call(Cache, args)})
   mySimOut <<- do.call(Cache, args)
@@ -144,6 +150,7 @@ function(input, output, session) {
                polygonToSummarizeBy = ecodistricts,
                #polygonNames = ecodistricts$ECODISTRIC, 
                cl = if(exists("cl")) cl, 
+               omitArgs = "cl",
                ageClasses = ageClasses, cacheRepo = paths$cachePath)
   args <- args[!unlist(lapply(args, is.null))]
   leading <- do.call(Cache, args)
