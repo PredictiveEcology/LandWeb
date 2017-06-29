@@ -50,7 +50,7 @@ summaryPeriod <- c(500, endTime)
 studyArea <- "EXTRALARGE"
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
-#studyArea <- "SMALL"
+studyArea <- "SMALL"
 
 ## Create mySim
 paths <- list(
