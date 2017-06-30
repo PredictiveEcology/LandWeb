@@ -160,7 +160,14 @@ if (maxNumClusters > 0) {
   }
 }
 
-source("inputMaps.R")
+# Build shpStudyRegion -- Needs to be a polygon with inner polygons
+source("inputMaps.R") # source some functions
+loadLandisParams(path=paths$inputPath, envir=.GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
+shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")), 
+                         studyArea = studyArea,
+                         crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
+list2env(shpStudyRegions, envir = environment())
+
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "LW_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
