@@ -166,7 +166,8 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                                                   error = function(x) FALSE)) cl,
                                 polygonToSummarizeBy = currentPolygon,
                                 ageClasses = ageClasses, countNumPatches = countNumPatches,
-                                cacheRepo = cacheRepo)
+                                cacheRepo = cacheRepo,
+                                omitArgs = "cl")
                    args <- args[!unlist(lapply(args, is.null))]
                    largePatches <- do.call(Cache, args)
                    setProgress(1)
