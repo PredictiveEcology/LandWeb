@@ -1,12 +1,13 @@
 function(input, output, session) {
-
+  sessionStartTime <- Sys.time()
   
   session$onSessionEnded(function() {
     if(needWorking) {
       checkoutDev(checkoutCondition) # put git back to Development branch
       .libPaths(origLibPaths) # get out of checkpoint
     }
-    message("This started at ", startTime)
+    message("The app started at ", appStartTime)
+    message("The session started at ", sessionStartTime)
   })
   
   if(needWorking) {
@@ -19,68 +20,75 @@ function(input, output, session) {
   seed <- sample(1e8,1)
   set.seed(seed)
   message("Current seed is: ", seed)
-  if (TRUE) {
-    # # Do an initial run for each given study area so that all the data prep can be done once only
-    #initialRun1 <- spades(Copy(mySim), debug = TRUE)
-    # 5 minutes for 6e3 km2
-    # 30 minutes for 6e4 km2
-    mySimCopy <- Copy(mySim)
-    end(mySimCopy) <- 0
-    message("Running Initial spades call")
-    initialRun <<- Cache(spades, sim = mySimCopy, #notOlderThan = Sys.time(),
-                        debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
-                        objects = "shpStudyRegion", 
-                        #cacheRepo = cachePath(mySim), 
-                        .plotInitialTime = NA, 
-                        omitArgs = c("debug", ".plotInitialTime"),
-                        debugCache="complete")
-    # try(silent = TRUE, {
-    #   filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
-    #   filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
-    #   filesToRemove <- unlist(lapply(strsplit(basename(outputs(initialRun)$file), split = "\\."), function(x) x[1])) %>%
-    #     lapply(function(y) grep(filesPresent, pattern = y)) %>%
-    #     unlist()
-    #   file.remove(filesPresentFull[filesToRemove]) 
-    # })
+  spadesAndExperiment <- function(mySim, experimentReps) {
+    
+    if (TRUE) {
+      # # Do an initial run for each given study area so that all the data prep can be done once only
+      #initialRun1 <- spades(Copy(mySim), debug = TRUE)
+      # 5 minutes for 6e3 km2
+      # 30 minutes for 6e4 km2
+      mySimCopy <- Copy(mySim)
+      end(mySimCopy) <- 0
+      message("Running Initial spades call")
+      initialRun <<- Cache(spades, sim = mySimCopy, #notOlderThan = Sys.time(),
+                          debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
+                          objects = "shpStudyRegion", 
+                          #cacheRepo = cachePath(mySim), 
+                          .plotInitialTime = NA, 
+                          omitArgs = c("debug", ".plotInitialTime"),
+                          debugCache="complete")
+      # try(silent = TRUE, {
+      #   filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
+      #   filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
+      #   filesToRemove <- unlist(lapply(strsplit(basename(outputs(initialRun)$file), split = "\\."), function(x) x[1])) %>%
+      #     lapply(function(y) grep(filesPresent, pattern = y)) %>%
+      #     unlist()
+      #   file.remove(filesPresentFull[filesToRemove]) 
+      # })
+    }
+    
+    ##########
+    raster::endCluster()
+    seed <- sample(1e8,1)
+    #seed <- 792282
+    set.seed(seed)
+    message("Current seed is: ", seed)
+    #startTime <<- st <<- Sys.time()
+    message("Running Experiment, starting at time: ", appStartTime)
+    objectsToHash <- grep("useParallel", ls(mySim@.envir), value=TRUE, invert=TRUE)
+    args <- list(experiment, mySim, replicates = experimentReps, 
+                 objects = objectsToHash,
+                 debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2), 
+                                paste(unname(current(sim)), collapse = ' '))",#,
+                                # {lsObj <- ls(envir=sim@.envir); keep <- 1:1; a <- format(big.mark = ',',
+                                #           sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>%
+                                #           setNames(lsObj), decreasing = TRUE))[keep];
+                                #           paste(names(a)[keep], collapse=' ')},
+                                # paste(a[keep], collapse=' '),
+                                # 'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ',
+                                # uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:',
+                                # round(uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap),4),
+                                # {st <<- Sys.time()})",
+                 # debug = "paste(paste(unname(current(sim)), collapse = ' '), 'is sim$useParallel a cluster:', 
+                 #          is(sim$useParallel, 'cluster'))", #cache = TRUE, 
+                 #cl = if(exists("cl")) cl, 
+                 .plotInitialTime = NA,
+                 #notOlderThan = Sys.time(), # uncomment if want to rerun without Cached copy
+                 clearSimEnv = TRUE,
+                 debugCache="complete",
+                 omitArgs = c("debug", ".plotInitialTime"))
+    args <- args[!unlist(lapply(args, is.null))]
+    #profvis::profvis(interval = 0.5, {mySimOut <- do.call(Cache, args)})
+    mySimOut <- do.call(Cache, args)
+    message(attr(mySimOut, "tags"))
+    mySimOut
   }
   
-  callModule(simInfo, "simInfoTabs", initialRun)
-  callModule(moduleInfo, "modInfoBoxes", initialRun)
+  mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps)
   
-  ##########
-  raster::endCluster()
-  seed <- sample(1e8,1)
-  #seed <- 792282
-  set.seed(seed)
-  message("Current seed is: ", seed)
-  #startTime <<- st <<- Sys.time()
-  message("Running Experiment, starting at time: ", startTime)
-  objectsToHash <- grep("useParallel", ls(mySim@.envir), value=TRUE, invert=TRUE)
-  args <- list(experiment, mySim, replicates = experimentReps, 
-               objects = objectsToHash,
-               debug = "paste(Sys.time(), format(Sys.time() - startTime, digits = 2), 
-                              paste(unname(current(sim)), collapse = ' '))",#,
-                              # {lsObj <- ls(envir=sim@.envir); keep <- 1:1; a <- format(big.mark = ',',
-                              #           sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>%
-                              #           setNames(lsObj), decreasing = TRUE))[keep];
-                              #           paste(names(a)[keep], collapse=' ')},
-                              # paste(a[keep], collapse=' '),
-                              # 'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ',
-                              # uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:',
-                              # round(uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap),4),
-                              # {st <<- Sys.time()})",
-               # debug = "paste(paste(unname(current(sim)), collapse = ' '), 'is sim$useParallel a cluster:', 
-               #          is(sim$useParallel, 'cluster'))", #cache = TRUE, 
-               #cl = if(exists("cl")) cl, 
-               .plotInitialTime = NA,
-               #notOlderThan = Sys.time(), # uncomment if want to rerun without Cached copy
-               clearSimEnv = TRUE,
-               debugCache="complete",
-               omitArgs = c("debug", ".plotInitialTime"))
-  args <- args[!unlist(lapply(args, is.null))]
-  #profvis::profvis(interval = 0.5, {mySimOut <- do.call(Cache, args)})
-  mySimOut <<- do.call(Cache, args)
-  message(attr(mySimOut, "tags"))
+  callModule(simInfo, "simInfoTabs", mySimOut[[1]])
+  callModule(moduleInfo, "modInfoBoxes", mySimOut[[1]])
+  
   
   if(needWorking) {
     keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
