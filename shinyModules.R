@@ -180,10 +180,14 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                              repoDir = paths$cachePath,
                              tags = paste0("LandWebVersion:", LandWebVersion))
     }
-    
+    if(Sys.info()["nodename"]=="W-VIC-A105388") {
+     message("Stopping App using stopApp")
+     stopApp()
+    }
     
     return(list(Clumps=largePatches[sizeInHa>patchSize], patchSize = patchSize))
   })
+  
   return(Clumps)
 }
 
@@ -341,8 +345,10 @@ timeSinceFireMod <- function(input, output, session, rasts) {
   rasterInput <- reactive({
     sliderVal <- if(is.null(input$timeSinceFire1Slider)) 0 else input$timeSinceFire1Slider
     r <- rasts[[sliderVal/10+1]] # slider units are 10, starting at 0; index here is 1 to length (tsf)
-    if (ncell(r) > 3e5)
-      r <- sampleRegular(r, size = 3e5, asRaster = TRUE)
+    if (ncell(r) > 3e5) {
+      r <- Cache(sampleRegular, r, size = 4e5, asRaster = TRUE, cacheRepo = paths$cachePath)
+    }
+    #if(Sys.info()["nodename"]=="W-VIC-A105388") stopApp()
     r[r[]>400] <- 400
     r
   })
@@ -399,7 +405,7 @@ timeSinceFireModUI <- function(id, tsf) {
         sliderInput(ns("timeSinceFire1Slider"), 
                     "Individual snapshots of time since fire maps. Use play button (bottom right) to animate.", 
                     min = 0, max = (length(tsf)-1)*10, value = 0, step = 10, 
-                    animate = animationOptions(interval = 2500, loop = TRUE))
+                    animate = animationOptions(interval = 2500, loop = FALSE))
     ),
     box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
         h4(paste("Current time since distribution distribution")),

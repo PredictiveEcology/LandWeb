@@ -1,5 +1,5 @@
-startTime <- st <- Sys.time() - 1
-message("Started at ", startTime)
+appStartTime <- st <- Sys.time() - 1
+message("Started at ", appStartTime)
 needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
   LandWebVersion <- "2e3656bb957eb265daad638551c74bf1423ca287"
@@ -33,7 +33,7 @@ if (!exists("globalRasters")) globalRasters <- list()
 
 # Computation stuff
 experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
-maxNumClusters <- 5 # use 0 to turn off
+maxNumClusters <- 8 # use 0 to turn off
 if( grepl("ip", Sys.info()["nodename"])) maxNumClusters <- 0 # on Amazon
 machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
 
@@ -50,7 +50,8 @@ summaryPeriod <- c(500, endTime)
 studyArea <- "EXTRALARGE"
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
-#studyArea <- "SMALL"
+studyArea <- "SMALL"
+studyArea <- "NWT"
 
 ## Create mySim
 paths <- list(
@@ -99,7 +100,7 @@ if(needWorking) {
 
 #####
 # if (Sys.info()["sysname"] != "Windows") beginCluster(4, type = "FORK")
-setDTthreads(4) # data.table multi-threading
+setDTthreads(10) # data.table multi-threading
 raster::rasterOptions(maxmemory = 4e10, chunksize = 1e9)
 
 
@@ -183,6 +184,7 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
                    LandWebOutput = list(summaryInterval = summaryInterval),
+                   LW_LBMRDataPrep = list(.useCache = "init"),
                    LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep, 
                                    burnInitialTime = fireInitialTime,
                                    .plotInitialTime = NA),
