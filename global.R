@@ -41,10 +41,10 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 
 # Time steps
 fireTimestep <- 1
-successionTimestep <- 7 # was 2
-endTime <- 8 # was 4
-summaryInterval <- 1#endTime/2 # was 2
-summaryPeriod <- c(1, endTime)
+successionTimestep <- 10 # was 2
+endTime <- 80 # was 4
+summaryInterval <- 10#endTime/2 # was 2
+summaryPeriod <- c(50, endTime)
 
 # Spatial stuff
 #studyArea <- "FULL"
@@ -89,7 +89,7 @@ if(needWorking) {
   browser()
   source("gitCheckout.R")
   checkoutCondition <- checkoutVersion(LandWebVersion)
-
+  
   # get specific Cache version
   startCacheTime <- Sys.time()
   
@@ -229,7 +229,7 @@ source("mapsForShiny.R")
 #rm(out)
 
 
-if(FALSE) {
+if(TRUE) {
   library(gdalUtils)  
   gdal_setInstallation()
   # TO get this to work
