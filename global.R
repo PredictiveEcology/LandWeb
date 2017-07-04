@@ -1,5 +1,6 @@
 appStartTime <- st <- Sys.time() - 1
 message("Started at ", appStartTime)
+rsyncToAWS <- FALSE
 needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
   LandWebVersion <- "2e3656bb957eb265daad638551c74bf1423ca287"
@@ -40,10 +41,10 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 
 # Time steps
 fireTimestep <- 1
-successionTimestep <- 10 # was 2
-endTime <- 800 # was 4
-summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(500, endTime)
+successionTimestep <- 7 # was 2
+endTime <- 8 # was 4
+summaryInterval <- 1#endTime/2 # was 2
+summaryPeriod <- c(1, endTime)
 
 # Spatial stuff
 #studyArea <- "FULL"
@@ -51,7 +52,10 @@ studyArea <- "EXTRALARGE"
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 studyArea <- "SMALL"
-studyArea <- "NWT"
+#studyArea <- "NWT"
+
+# leaflet parameters
+leafletZoomInit = 5
 
 ## Create mySim
 paths <- list(
@@ -225,4 +229,13 @@ source("mapsForShiny.R")
 #rm(out)
 
 
-
+if(FALSE) {
+  library(gdalUtils)  
+  gdal_setInstallation()
+  # TO get this to work
+  #  https://stackoverflow.com/questions/5599872/python-windows-importerror-no-module-named-site
+  #Cache(system, notOlderThan = Sys.time(),paste("python",
+  #                                              file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal_polygonize.py"), 
+  #                                              basename(newfilename), basename(shapeFile), "-f \"ESRI Shapefile\""))
+  
+}
