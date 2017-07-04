@@ -167,6 +167,7 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                                 polygonToSummarizeBy = currentPolygon,
                                 ageClasses = ageClasses, countNumPatches = countNumPatches,
                                 cacheRepo = cacheRepo,
+                                debugCache="complete",
                                 omitArgs = "cl")
                    args <- args[!unlist(lapply(args, is.null))]
                    largePatches <- do.call(Cache, args)
@@ -181,8 +182,8 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                              tags = paste0("LandWebVersion:", LandWebVersion))
     }
     if(Sys.info()["nodename"]=="W-VIC-A105388") {
-     message("Stopping App using stopApp")
-     stopApp()
+     #message("Stopping App using stopApp")
+     #stopApp()
     }
     
     return(list(Clumps=largePatches[sizeInHa>patchSize], patchSize = patchSize))
@@ -296,7 +297,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
   observe({
     ras1 <- rasterInput()
     pol <- polygons[[(length(polygons)/4)*4]]
-    leafZoom <- if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
+    leafZoom <- if(is.null(input$timeSinceFire2_zoom)) leafletZoomInit else input$timeSinceFire2_zoom
     proxy <- leafletProxy("timeSinceFire2")
     proxy %>% 
       #leaflet() %>% addTiles(group = "OSM (default)") %>%
@@ -314,7 +315,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
   })
   
   output$timeSinceFire2 <- renderLeaflet({
-    leafZoom <- 7 #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
+    leafZoom <- leafletZoomInit #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
     ras1 <- isolate(rasterInput())
     pol <- polygons[[(length(polygons)/4)*4]]
     leafMap <- leaflet() %>% addTiles(group = "OSM (default)") %>%
@@ -345,6 +346,26 @@ timeSinceFireMod <- function(input, output, session, rasts) {
   rasterInput <- reactive({
     sliderVal <- if(is.null(input$timeSinceFire1Slider)) 0 else input$timeSinceFire1Slider
     r <- rasts[[sliderVal/10+1]] # slider units are 10, starting at 0; index here is 1 to length (tsf)
+    browser()
+    if(FALSE) {
+      #gdal2tiles -s EPSG:32630 -z 14-18 snow.tif snow
+      #Cache(system, notOlderThan = Sys.time(),
+      r <- raster("~/Documents/GitHub/LandWeb/m/LW_LBMRDataPrep/data/NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
+      origDir <- getwd()
+      setwd(dirname(filename(r)))
+      filename1 <- filename(r)
+      r[is.na(r[])] <- 65534
+      r <- writeRaster(x=r, values=setValues(r), filename = filename1, overwrite=TRUE,
+                       datatype="INT2U")
+      system(paste0("python ", file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
+                           "--s_srs='EPSG:3857' ",
+                    #" -s '",as.character(crs(r)),"'",
+                    " --zoom=13 ",
+                    #"--srcnodata=65534 ",
+                    basename(filename(r)), " ", 
+                    strsplit(split="\\.", basename(filename(r)))[[1]][1]))
+      setwd(origDir)
+    }
     if (ncell(r) > 3e5) {
       r <- Cache(sampleRegular, r, size = 4e5, asRaster = TRUE, cacheRepo = paths$cachePath)
     }
@@ -418,7 +439,7 @@ timeSinceFireModUI <- function(id, tsf) {
 
 studyRegionMod <- function(input, output, session, rasts) {
   output$studyRegion2 <- renderLeaflet({
-    leafZoom <- 7 #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
+    leafZoom <- leafletZoomInit #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
     ras1 <- isolate(rasterInput())
     pol <- polygons[[(length(polygons)/4)*4]]
     leafMap <- leaflet() %>% addTiles(group = "OSM (default)") %>%
