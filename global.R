@@ -55,7 +55,7 @@ studyArea <- "SMALL"
 #studyArea <- "NWT"
 
 # leaflet parameters
-leafletZoomInit = 5
+leafletZoomInit = 5 
 
 ## Create mySim
 paths <- list(
@@ -188,7 +188,7 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
                    LandWebOutput = list(summaryInterval = summaryInterval),
-                   LW_LBMRDataPrep = list(.useCache = "init"),
+                   #LW_LBMRDataPrep = list(.useCache = "init"),
                    LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep, 
                                    burnInitialTime = fireInitialTime,
                                    .plotInitialTime = NA),
