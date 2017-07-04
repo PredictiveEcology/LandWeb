@@ -10,7 +10,8 @@ if (FALSE) {
   AlbertaFMU <- Cache(crop, AlbertaFMUFull, shpStudyRegion, cacheRepo = paths$cachePath)
   
 }
-lflt <- "+init=epsg:4326"
+#lflt <- "+init=epsg:4326"
+lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 getEcoMaps <- function(ecoDistrictPath, cacheRepo, lfltEPSG) {
   ecodistricts <- shapefile(ecoDistrictPath)
@@ -64,5 +65,5 @@ polygonColours <- c(rep(c("red", "blue"), 2))
 polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3]))
 
 timeSinceFirePalette <- leaflet::colorNumeric(na.color = "transparent",
-  c(rep("red", 5), rep("orange", 5), rep("yellow", 5), paste0(colorRampPalette(c("light green", "dark green"))(30),"FF")),
+  c(rep("red", 2), rep("orange", 2), rep("yellow", 2), paste0(colorRampPalette(c("light green", "dark green"))(30),"FF")),
   domain = NULL)
