@@ -58,7 +58,7 @@ studyArea <- "MEDIUM"
 #studyArea <- "NWT"
 
 # leaflet parameters
-leafletZoomInit = 5
+leafletZoomInit = 5 
 
 ## Create mySim
 paths <- list(
