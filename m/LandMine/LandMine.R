@@ -52,6 +52,12 @@ defineModule(sim, list(
     ),
     createsOutput("fireReturnInterval", "RasterLayer", paste(
       "A Raster map showing the fire return interval. THis is created from the rstCurrentBurn.")
+    ),
+    createsOutput("fireReturnIntervalsByPolygonNumeric", "numeric", paste(
+      "A vector of the fire return intervals, ordered by the numeric representation of polygon ID")
+    ),
+    createsOutput("kBest", "numeric", paste(
+      "A numeric scalar that is the optimal value of K in the Truncated Pareto distribution (rtruncpareto)")
     )
   )
 ))
