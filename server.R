@@ -47,16 +47,8 @@ function(input, output, session) {
                           .plotInitialTime = NA, 
                           omitArgs = c("debug", ".plotInitialTime"),
                           debugCache="complete")
-      # try(silent = TRUE, {
-      #   filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
-      #   filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
-      #   filesToRemove <- unlist(lapply(strsplit(basename(outputs(initialRun)$file), split = "\\."), function(x) x[1])) %>%
-      #     lapply(function(y) grep(filesPresent, pattern = y)) %>%
-      #     unlist()
-      #   file.remove(filesPresentFull[filesToRemove]) 
-      # })
     }
-    
+
     ##########
     raster::endCluster()
     seed <- sample(1e8,1)
@@ -65,7 +57,7 @@ function(input, output, session) {
     message("Current seed is: ", seed)
     #startTime <<- st <<- Sys.time()
     message("Running Experiment, starting at time: ", appStartTime)
-    objectsToHash <- grep("useParallel", ls(mySim@.envir), value=TRUE, invert=TRUE)
+    objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value=TRUE, invert=TRUE)
     args <- list(experiment, mySim, replicates = experimentReps, 
                  objects = objectsToHash,
                  debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2), 
@@ -76,7 +68,7 @@ function(input, output, session) {
                                 #           paste(names(a)[keep], collapse=' ')},
                                 # paste(a[keep], collapse=' '),
                                 # 'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ',
-                                # uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:',
+                 # uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:',
                                 # round(uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap),4),
                                 # {st <<- Sys.time()})",
                  # debug = "paste(paste(unname(current(sim)), collapse = ' '), 'is sim$useParallel a cluster:', 
@@ -94,7 +86,7 @@ function(input, output, session) {
     mySimOut
   }
   
-  objectsToHash <- grep("useParallel", ls(mySim@.envir), value=TRUE, invert=TRUE)
+  objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names=TRUE), value=TRUE, invert=TRUE)
   mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps, debugCache = "complete",
                      objects = objectsToHash)
   
@@ -269,7 +261,7 @@ function(input, output, session) {
            )
     )
   })
-
+  
   output$studyRegionUI <- renderUI({
     tabBox(width = 12,
            tabPanel("Time Since Fire maps", tabName = "timeSinceFireTab",
@@ -370,6 +362,4 @@ function(input, output, session) {
   })#, digits = 1)
   
 
-  message("This is here")
-  
 }
