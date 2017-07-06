@@ -22,41 +22,41 @@ vegAgeMod <- function(input, output, session, listOfProportions, indivPolygonInd
       #withProgress(message = 'Calculation in progress',
       #             detail = 'This may take a while...', value = 0, {
       actualPlot <- 
-                     ggplot(data = data.frame(x = listOfProportions),
-                            aes(x = x)) +
-                     #stat_bin(bins = 30) +
-                     stat_bin(aes(y=..count../sum(..count..)),#bins = max(6, max(a)+2), 
-                              fill="grey", colour="darkgrey", size = 1,
-                              binwidth = 0.1) + 
-                     xlab("") + #xlab("Proportion of polygon") +
-                     xlim(-0.1,1.1) +
-                     theme_bw() +
-                     theme(text = element_text(size = 16)) +
-                     ylab("Proportion in NRV")
-       #             setProgress(1)
+        ggplot(data = data.frame(x = listOfProportions),
+               aes(x = x)) +
+        #stat_bin(bins = 30) +
+        stat_bin(aes(y=..count../sum(..count..)),#bins = max(6, max(a)+2), 
+                 fill="grey", colour="darkgrey", size = 1,
+                 binwidth = 0.1) + 
+        xlab("") + #xlab("Proportion of polygon") +
+        xlim(-0.1,1.1) +
+        theme_bw() +
+        theme(text = element_text(size = 16)) +
+        ylab("Proportion in NRV")
+      #             setProgress(1)
       #            })
-     actualPlot
+      actualPlot
     } else {
-
+      
       breaksLabels <- 0:11/10
       breaks <- breaksLabels - 0.05
       barplotBreaks <- breaksLabels + 0.05
       
       actualPlot <- hist(listOfProportions, plot = FALSE, breaks = breaks)
       barplot(actualPlot$counts/sum(actualPlot$counts), xlim = range(breaks), xlab="", ylab = "Proportion in NRV",
-           col="darkgrey",border="grey", main = "", width = 0.1, space = 0)
+              col="darkgrey",border="grey", main = "", width = 0.1, space = 0)
       axis(1, at = barplotBreaks, labels = breaksLabels)
       
       # actualPlot <-
-                   #    try(hist(unlist(lapply(listOfProportions, function(x) x[indivPolygonIndex, "Deciduous leading"])),
-                   #             plot = FALSE))
-                   # if(!(is(actualPlot, "try-error")))
-                   #   actualPlot
-                   # Plot(actualPlot, new = TRUE, visualSqueeze = 1, gpText = gpar(fontsize = 16),
-                   #      title = "",
-                   #      addTo = paste0("actualPlot_dist",polygonLayer$ECODISTRIC[indivPolygonIndex]))
+      #    try(hist(unlist(lapply(listOfProportions, function(x) x[indivPolygonIndex, "Deciduous leading"])),
+      #             plot = FALSE))
+      # if(!(is(actualPlot, "try-error")))
+      #   actualPlot
+      # Plot(actualPlot, new = TRUE, visualSqueeze = 1, gpText = gpar(fontsize = 16),
+      #      title = "",
+      #      addTo = paste0("actualPlot_dist",polygonLayer$ECODISTRIC[indivPolygonIndex]))
     }
-                   
+    
   })
 }
 
@@ -143,7 +143,7 @@ clumpMod2Input <- function(id, label = "CSV file") {
     numericInput(ns("PatchSize33"), value = 500, min = 100, max = NA,
                  label=paste0("Type patch size in hectares that defines 'Large', ",
                               "(numbers below 100 will not work)")
-               )
+    )
   )
 }
 
@@ -156,7 +156,7 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                       largePatchesFn) {
   Clumps <- reactive({
     patchSize <- as.integer(input$PatchSize33)
-  
+    
     message(paste("Running largePatchesFn"))
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
@@ -182,8 +182,8 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                              tags = paste0("LandWebVersion:", LandWebVersion))
     }
     if(Sys.info()["nodename"]=="W-VIC-A105388") {
-     #message("Stopping App using stopApp")
-     #stopApp()
+      #message("Stopping App using stopApp")
+      #stopApp()
     }
     
     return(list(Clumps=largePatches[sizeInHa>patchSize], patchSize = patchSize))
@@ -209,7 +209,7 @@ leafletMapUI <- function(id) {
 }
 
 leafletMap <- function(input, output, session) {
-
+  
   output$leafletMap1 <- renderLeaflet({
     withProgress(message = 'Calculation in progress',
                  detail = 'This may take a while...', value = 0, {
@@ -220,13 +220,13 @@ leafletMap <- function(input, output, session) {
                      addPolygons(data = spTransform(shpStudyRegionFull, crs(polyFull)), color = "blue", group = "Full",
                                  fillOpacity = 0.8, weight = 1,
                                  fillColor = ~colorFactor("Spectral", fireReturnInterval)(fireReturnInterval)) %>% #,
-                                 #popup = paste(polyFull[[polygonIndivIdsColum[[polyNum]]]])) %>%
+                     #popup = paste(polyFull[[polygonIndivIdsColum[[polyNum]]]])) %>%
                      #spTransform(shpStudyRegionFull, crs(polyFull))
                      addPolygons(data = polyDemo, color = "red", group = "Demo",
                                  fillOpacity = 0.0, weight = 3) %>% #,
-                                 #popup = paste(polyDemo[[polygonIndivIdsColum[[polyNum]]]]))  %>%
+                     #popup = paste(polyDemo[[polygonIndivIdsColum[[polyNum]]]]))  %>%
                      #addLegend(position = "bottomright", pal = "Spectral", values = shpStudyRegionFull$fireReturnInterval,
-                    #           title = "Fire Return Interval (years)") %>%
+                     #           title = "Fire Return Interval (years)") %>%
                      
                      setView(mean(c(xmin(polyDemo),xmax(polyDemo))), 
                              mean(c(ymin(polyDemo),ymax(polyDemo))), 
@@ -269,15 +269,15 @@ leafletMap <- function(input, output, session) {
         extract(polyFull, .) %>%
         .[polygonIndivIdsColum[[colNam]]]
       
-        content <- paste0(polygonIndivIdsColum[[colNam]],": ",polyVal,"<br>",
-                          "Fire Return Interval: ", friVal)
-        proxy <- leafletProxy("leafletMap1")
-        #add Popup
-        proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
+      content <- paste0(polygonIndivIdsColum[[colNam]],": ",polyVal,"<br>",
+                        "Fire Return Interval: ", friVal)
+      proxy <- leafletProxy("leafletMap1")
+      #add Popup
+      proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
       
     }
   }
-    
+  
   polygonInput <- reactive({
     switch(input$leafletMapPolygons,
            "Ecodistricts Demo" = 1#, 
@@ -293,35 +293,48 @@ leafletMap <- function(input, output, session) {
 ######################################################################################################
 
 timeSinceFireMod <- function(input, output, session, rasts) {
-  #output$timeSinceFire1 <- 
+  
   observe({
-    ras1 <- rasterInput()
+    rasInp <- rasterInput()
+    ras1 <- rasInp$r
+    sliderVal <- rasInp$sliderVal
     pol <- polygons[[(length(polygons)/4)*4]]
     leafZoom <- if(is.null(input$timeSinceFire2_zoom)) leafletZoomInit else input$timeSinceFire2_zoom
     proxy <- leafletProxy("timeSinceFire2")
-    proxy %>% 
+    proxy %>% #clearTiles() %>%
       #leaflet() %>% addTiles(group = "OSM (default)") %>%
-      addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
-                     colors = timeSinceFirePalette, project = FALSE)  %>%
+      addTiles(urlTemplate=paste0("rstTimeSInceFire_year",
+                                  paddedFloatToChar(sliderVal+50, nchar(end(mySim))),
+                                  "LFLT/{z}/{x}/{y}.png"),
+               option = tileOptions(tms = TRUE, minZoom = 6, maxZoom = 11)) %>%
+      #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7,
+      #               colors = timeSinceFirePalette, project = FALSE)  %>%
       #addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
-      # addLegend(position = "bottomright", pal = timeSinceFirePalette, 
+      # addLegend(position = "bottomright", pal = timeSinceFirePalette,
       #           values = na.omit(ras1[]), title = "Time since fire (years)") %>%
       addLayersControl(options = layersControlOptions(autoZIndex = TRUE)) %>%
-      setView(mean(c(xmin(pol),xmax(pol))), 
-              mean(c(ymin(pol),ymax(pol))), 
-              zoom = leafZoom) 
-    
+      setView(mean(c(xmin(pol),xmax(pol))),
+              mean(c(ymin(pol),ymax(pol))),
+              zoom = leafZoom)
+
     proxy
   })
   
   output$timeSinceFire2 <- renderLeaflet({
     leafZoom <- leafletZoomInit #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
-    ras1 <- isolate(rasterInput())
+    rasInp <- isolate(rasterInput())
+    #rasInp <- rasterInput()
+    ras1 <- rasInp$r
+    sliderVal <- rasInp$sliderVal
     pol <- polygons[[(length(polygons)/4)*4]]
-    leafMap <- leaflet() %>% addTiles(group = "OSM (default)") %>%
-      addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
-                     colors = timeSinceFirePalette, project = FALSE)  %>%
-      addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
+    leafMap <- leaflet() %>% #addTiles(group = "OSM (default)") %>%
+      addTiles(urlTemplate=paste0("rstTimeSInceFire_year",
+                                  paddedFloatToChar(sliderVal+50, nchar(end(mySim))),
+                                  "LFLT/{z}/{x}/{y}.png"),
+               option = tileOptions(tms = FALSE, minZoom = 6, maxZoom = 11)) %>%
+      #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
+      #               colors = timeSinceFirePalette, project = FALSE)  %>%
+      #addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
       addLegend(position = "bottomright", pal = timeSinceFirePalette, 
                 values = na.omit(ras1[]), title = "Time since fire (years)") %>%
       setView(mean(c(xmin(pol),xmax(pol))), 
@@ -331,47 +344,61 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     
     leafMap
   })
-
-
+  
+  
   output$timeSinceFire2Hist <- renderPlot({
-    ras1 <- rasterInput()
+    ras1 <- rasterInput()$r
     Nbreaks <- ceiling(maxValue(ras1)/10)
     timeSinceFireHist <- hist(ras1[], plot = FALSE, breaks = Nbreaks)
     barplot(timeSinceFireHist$counts*prod(rasterResolution)/1e4, xlab = "Time since fire (Years)",
-      col = timeSinceFirePalette(1:Nbreaks), width = 1, space = 0, ylab = "Area (ha)")
+            col = timeSinceFirePalette(1:Nbreaks), width = 1, space = 0, ylab = "Area (ha)")
     axis(1, at = timeSinceFireHist$breaks/10, labels = 0:Nbreaks*10)
-
+    
   })
   
   rasterInput <- reactive({
     sliderVal <- if(is.null(input$timeSinceFire1Slider)) 0 else input$timeSinceFire1Slider
     r <- rasts[[sliderVal/10+1]] # slider units are 10, starting at 0; index here is 1 to length (tsf)
-    browser()
-    if(FALSE) {
+    if(useGdal2Tiles) {
+      
       #gdal2tiles -s EPSG:32630 -z 14-18 snow.tif snow
       #Cache(system, notOlderThan = Sys.time(),
-      r <- raster("~/Documents/GitHub/LandWeb/m/LW_LBMRDataPrep/data/NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
-      origDir <- getwd()
-      setwd(dirname(filename(r)))
-      filename1 <- filename(r)
-      r[is.na(r[])] <- 65534
-      r <- writeRaster(x=r, values=setValues(r), filename = filename1, overwrite=TRUE,
-                       datatype="INT2U")
-      system(paste0("python ", file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
-                           "--s_srs='EPSG:3857' ",
-                    #" -s '",as.character(crs(r)),"'",
-                    " --zoom=13 ",
-                    #"--srcnodata=65534 ",
-                    basename(filename(r)), " ", 
-                    strsplit(split="\\.", basename(filename(r)))[[1]][1]))
-      setwd(origDir)
+      #r <- raster("~/Documents/GitHub/LandWeb/m/LW_LBMRDataPrep/data/NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
+      #origDir <- getwd()
+      #setwd(dirname(filename(r)))
+      gdal2TilesFn <- function(r, filename, zoomRange=8:10) {
+        
+        filename1 <- filename(r)
+        if(minValue(r) != -1) {
+          r[is.na(r[])] <- -1
+          r <- writeRaster(x=r, values=setValues(r), filename = filename1, overwrite=TRUE,
+                         datatype="INT2S")
+        }
+        out <- shell(paste0("python ", file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
+                            "--s_srs=EPSG:4326 ",
+                            #" -s '",as.character(crs(r)),"'",
+                            " --zoom=",min(zoomRange),"-",max(zoomRange)," ",
+                            "--srcnodata=-1 ",
+                            filename(r), " ", 
+                            file.path("www", strsplit(split="\\.", basename(filename(r)))[[1]][1])),
+                     wait=FALSE)
+        return(out)
+      }
+      message("Running gdal2TilesFn for layer ", sliderVal/10+1, " of ", length(rasts))
+      Cache(gdal2TilesFn, r, filename=asPath(filename(r)),#notOlderThan = Sys.time(),
+            zoomRange=6:10, cacheRepo = paths$cachePath, digestPathContent = TRUE)
     }
-    if (ncell(r) > 3e5) {
-      r <- Cache(sampleRegular, r, size = 4e5, asRaster = TRUE, cacheRepo = paths$cachePath)
+    if(TRUE) {
+      #if(Sys.info()["nodename"]=="W-VIC-A105388") stopApp()
+      if (ncell(r) > 3e5) {
+        r <- Cache(sampleRegular, r, size = 4e5, #notOlderThan = Sys.time(),
+                   asRaster = TRUE, cacheRepo = paths$cachePath)
+        r[r[]>400] <- 400
+        r[r[]<0] <- NA
+      }
+      
     }
-    #if(Sys.info()["nodename"]=="W-VIC-A105388") stopApp()
-    r[r[]>400] <- 400
-    r
+    list(r=r, sliderVal=sliderVal)
   })
   
   observe({#Observer to show Popups on click
@@ -384,7 +411,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
   showpos <- function(x=NULL, y=NULL) {#Show popup on clicks
     #Translate Lat-Lon to cell number using the unprojected raster
     #This is because the projected raster is not in degrees, we cannot use it!
-    ras1 <- rasterInput()
+    ras1 <- rasterInput()$r
     cell <- cellFromXY(ras1, c(x, y))
     if (!is.na(cell)) {#If the click is inside the raster...
       #Get row and column, to print later
@@ -412,8 +439,8 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       }
     }
   }
-
-
+  
+  
 }
 
 timeSinceFireModUI <- function(id, tsf) {
@@ -440,11 +467,11 @@ timeSinceFireModUI <- function(id, tsf) {
 studyRegionMod <- function(input, output, session, rasts) {
   output$studyRegion2 <- renderLeaflet({
     leafZoom <- leafletZoomInit #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
-    ras1 <- isolate(rasterInput())
+    ras1 <- isolate(rasterInput()$r)
     pol <- polygons[[(length(polygons)/4)*4]]
-    leafMap <- leaflet() %>% addTiles(group = "OSM (default)") %>%
-      addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
-                     colors = timeSinceFirePalette, project = FALSE)  %>%
+    leafMap <- leaflet() %>% #addTiles(group = "OSM (default)") %>%
+      #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
+      #               colors = timeSinceFirePalette, project = FALSE)  %>%
       addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
       addLegend(position = "bottomright", pal = timeSinceFirePalette, 
                 values = na.omit(ras1[]), title = "Time since fire (years)") %>%
