@@ -1,6 +1,9 @@
+try(detach("package:SpaDES", unload=TRUE)); try(detach("package:reproducible", unload=TRUE)); devtools::load_all("~/GitHub/reproducible/."); devtools::load_all("~/GitHub/SpaDES/.")
 appStartTime <- st <- Sys.time() - 1
 message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
+useGdal2Tiles <- TRUE
+eventCaching <- FALSE#"init" #Sys.time()
 needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
   LandWebVersion <- "2e3656bb957eb265daad638551c74bf1423ca287"
@@ -34,7 +37,7 @@ if (!exists("globalRasters")) globalRasters <- list()
 
 # Computation stuff
 experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
-maxNumClusters <- 8 # use 0 to turn off
+maxNumClusters <- 0 # use 0 to turn off
 if( grepl("ip", Sys.info()["nodename"])) maxNumClusters <- 0 # on Amazon
 machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
 
@@ -42,9 +45,9 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 30 # was 4
+endTime <- 100 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(10, endTime)
+summaryPeriod <- c(50, endTime)
 
 # Spatial stuff
 #studyArea <- "FULL"
@@ -188,13 +191,17 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
                    LandWebOutput = list(summaryInterval = summaryInterval),
-                   LW_LBMRDataPrep = list(.useCache = "init"),
+                   LW_LBMRDataPrep = list(.useCache = eventCaching),
                    LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep, 
                                    burnInitialTime = fireInitialTime,
-                                   .plotInitialTime = NA),
+                                   .plotInitialTime = NA
+                                   , .useCache = eventCaching
+                                   ),
                    LBMR = list(.plotInitialTime = times$start,
-                               .saveInitialTime = NA),
-                   initBaseMaps = list(.useCache = FALSE),
+                               .saveInitialTime = NA
+                               , .useCache = eventCaching
+                               ),
+                   initBaseMaps = list(.useCache = eventCaching),
                    timeSinceFire = list(startTime = fireInitialTime))
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 outputs <- data.frame(stringsAsFactors = FALSE,
@@ -221,8 +228,8 @@ skipSimInit <- FALSE
 if (devmode) if (!exists("mySim", envir = .GlobalEnv)) skipSimInit <- TRUE
 
 if (!skipSimInit)
-  mySim <<- simInit(times = times, params = parameters, modules = modules,
-                    objects = objects, paths = paths, outputs = outputs)
+  mySim <<- simInit(times = times, params = parameters, modules = modules, 
+                    objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules))
 
 source("mapsForShiny.R")
 #saveRDS(out, file = "out.rds")
