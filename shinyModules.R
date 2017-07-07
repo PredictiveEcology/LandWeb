@@ -304,7 +304,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     proxy %>% #clearTiles() %>%
       #leaflet() %>% addTiles(group = "OSM (default)") %>%
       addTiles(urlTemplate=paste0("rstTimeSInceFire_year",
-                                  paddedFloatToChar(sliderVal+50, nchar(end(mySim))),
+                                  paddedFloatToChar(sliderVal+summaryPeriod[1], nchar(end(mySim))),
                                   "LFLT/{z}/{x}/{y}.png"),
                option = tileOptions(tms = TRUE, minZoom = 6, maxZoom = 11)) %>%
       #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7,
@@ -329,7 +329,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     pol <- polygons[[(length(polygons)/4)*4]]
     leafMap <- leaflet() %>% #addTiles(group = "OSM (default)") %>%
       addTiles(urlTemplate=paste0("rstTimeSInceFire_year",
-                                  paddedFloatToChar(sliderVal+50, nchar(end(mySim))),
+                                  paddedFloatToChar(sliderVal+summaryPeriod[1], nchar(end(mySim))),
                                   "LFLT/{z}/{x}/{y}.png"),
                option = tileOptions(tms = FALSE, minZoom = 6, maxZoom = 11)) %>%
       #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
@@ -359,28 +359,43 @@ timeSinceFireMod <- function(input, output, session, rasts) {
   rasterInput <- reactive({
     sliderVal <- if(is.null(input$timeSinceFire1Slider)) 0 else input$timeSinceFire1Slider
     r <- rasts[[sliderVal/10+1]] # slider units are 10, starting at 0; index here is 1 to length (tsf)
+  
     if(useGdal2Tiles) {
+      # setwd("www")
+      # r <- writeRaster(r, "r.tif", datatype = "INT1U", overwrite = TRUE)
+      # writePaletteVRT("test.vrt", r, rainbow(10))
+      # #system("./addPalette.py test.vrt r.tif")
+      # system("python addPalette.py test.vrt r.tif")
+      # a <- raster("r.tif")
       
       #gdal2tiles -s EPSG:32630 -z 14-18 snow.tif snow
       #Cache(system, notOlderThan = Sys.time(),
       #r <- raster("~/Documents/GitHub/LandWeb/m/LW_LBMRDataPrep/data/NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
       #origDir <- getwd()
       #setwd(dirname(filename(r)))
-      gdal2TilesFn <- function(r, filename, zoomRange=8:10) {
-        
+      gdal2TilesFn <- function(r, filename, zoomRange=6:8) {
+        setwd("www")
         filename1 <- filename(r)
+        browser()
         if(minValue(r) != -1) {
           r[is.na(r[])] <- -1
-          r <- writeRaster(x=r, values=setValues(r), filename = filename1, overwrite=TRUE,
+          r[r[]==-1] <- 0
+          r <- writeRaster(x=r, values=getValues(r), filename = "out1.tif",  overwrite=TRUE,
                          datatype="INT2S")
         }
-        out <- shell(paste0("python ", file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
-                            "--s_srs=EPSG:4326 ",
-                            #" -s '",as.character(crs(r)),"'",
-                            " --zoom=",min(zoomRange),"-",max(zoomRange)," ",
-                            "--srcnodata=-1 ",
-                            filename(r), " ", 
-                            file.path("www", strsplit(split="\\.", basename(filename(r)))[[1]][1])),
+        gdalUtils::gdaldem(mode="color-relief", filename(r), alpha = TRUE,
+                           color_text_file = "color_table.txt", "out.tif")
+        shell("python c:/OSGeo4W64/bin/rgb2pct.py out.tif out2.tif")
+        shell(paste0("python ", 
+                     file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
+                     "--s_srs=EPSG:4326 ",
+                     #" -s '",as.character(crs(r)),"'",
+                     " --zoom=",min(zoomRange),"-",max(zoomRange)," ",
+                     "--srcnodata=255 ",
+                     "out.tif ",
+                     #filename(r), " ", 
+                     #file.path("www", strsplit(split="\\.", basename(filename(r)))[[1]][1])),
+                     "filename"),
                      wait=FALSE)
         return(out)
       }
