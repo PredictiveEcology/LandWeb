@@ -373,26 +373,27 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       #r <- raster("~/Documents/GitHub/LandWeb/m/LW_LBMRDataPrep/data/NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
       #origDir <- getwd()
       #setwd(dirname(filename(r)))
-      gdal2TilesFn <- function(r, filename, zoomRange=6:8) {
+      gdal2TilesFn <- function(r, filename, zoomRange=6:11) {
         setwd("www")
         filename1 <- filename(r)
         browser()
         if(minValue(r) != -1) {
           r[is.na(r[])] <- -1
-          r[r[]==-1] <- 0
-          r <- writeRaster(x=r, values=getValues(r), filename = "out1.tif",  overwrite=TRUE,
+          r <- r+1
+          r <- writeRaster(x=r, filename = "out.tif",  overwrite=TRUE,
                          datatype="INT2S")
         }
-        gdalUtils::gdaldem(mode="color-relief", filename(r), alpha = TRUE,
-                           color_text_file = "color_table.txt", "out.tif")
-        shell("python c:/OSGeo4W64/bin/rgb2pct.py out.tif out2.tif")
+        gdalUtils::gdaldem(mode="color-relief", filename(r), #alpha = TRUE,
+                           color_text_file = "color_table.txt", "out2.tif")
+        shell("python c:/OSGeo4W64/bin/rgb2pct.py out2.tif out3.tif")
+        gdalUtils::gdal_translate(of="VRT", expand="rgb", "out3.tif", "temp.vrt")
         shell(paste0("python ", 
                      file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
                      "--s_srs=EPSG:4326 ",
                      #" -s '",as.character(crs(r)),"'",
                      " --zoom=",min(zoomRange),"-",max(zoomRange)," ",
-                     "--srcnodata=255 ",
-                     "out.tif ",
+                     "--srcnodata=0 ",
+                     "temp.vrt ",
                      #filename(r), " ", 
                      #file.path("www", strsplit(split="\\.", basename(filename(r)))[[1]][1])),
                      "filename"),
