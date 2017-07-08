@@ -24,6 +24,7 @@ if (FALSE) {
 }
 
 #### Some variables
+maxAge <- 400
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
 ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
@@ -45,15 +46,15 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 30 # was 4
+endTime <- 800 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(10, endTime)
+summaryPeriod <- c(500, endTime)
 
 # Spatial stuff
 #studyArea <- "FULL"
 studyArea <- "EXTRALARGE"
 studyArea <- "LARGE"
-studyArea <- "MEDIUM"
+#studyArea <- "MEDIUM"
 #studyArea <- "SMALL"
 #studyArea <- "NWT"
 
@@ -238,7 +239,18 @@ source("mapsForShiny.R")
 
 if(TRUE) {
   library(gdalUtils)  
-  gdal_setInstallation()
+  gdalSet <- function() {
+    gdal_setInstallation()
+    getOption("gdalUtils_gdalPath")
+  }
+  options(gdalUtils_gdalPath=Cache(gdalSet, cacheRepo = paths$cachePath))
+  
+  library(future)
+  message("running future plan(multisession)")
+  curFuture <- future::plan()
+  if(!is(curFuture, "multisession"))
+    plan(multisession)
+  
   # TO get this to work
   #  https://stackoverflow.com/questions/5599872/python-windows-importerror-no-module-named-site
   #Cache(system, notOlderThan = Sys.time(),paste("python",
@@ -247,25 +259,3 @@ if(TRUE) {
   
 }
 
-makePalette <- function(colourvector) {
-  cmat = cbind(t(col2rgb(colourvector)), 255)
-  res = apply(cmat, 1, function(x) {
-    sprintf("<Entry c1=\"%s\" c2=\"%s\" c3=\"%s\" c4=\"%s\"/>", x[1], x[2], 
-            x[3], x[4])
-  })
-  res = paste(res, collapse = "\n")
-  res
-}
-
-makePaletteVRT <- function(raster, colourvector) {
-  s = sprintf("<VRTDataset rasterXSize=\"%s\" rasterYSize=\"%s\">\n<VRTRasterBand dataType=\"Byte\" band=\"1\">\n<ColorInterp>Palette</ColorInterp>\n<ColorTable>\n", 
-              ncol(raster), nrow(raster))
-  p = makePalette(colourvector)
-  s = paste0(s, p, "\n</ColorTable>\n</VRTRasterBand>\n</VRTDataset>\n")
-  s
-}
-
-writePaletteVRT <- function(out, raster, colourvector) {
-  s = makePaletteVRT(raster, colourvector)
-  cat(s, file = out)
-}

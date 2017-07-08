@@ -64,6 +64,17 @@ rm(ecodistrictsFullLFLT)
 polygonColours <- c(rep(c("red", "blue"), 2))
 polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3]))
 
+colorVec <- diff(c(ageClassCutOffs,maxAge))
+
 timeSinceFirePalette <- leaflet::colorNumeric(na.color = "transparent",
-  c(rep("red", 2), rep("orange", 2), rep("yellow", 2), paste0(colorRampPalette(c("light green", "dark green"))(30),"FF")),
+  c(rep("red", colorVec[1]), rep("orange", colorVec[2]), rep("yellow", colorVec[3]), 
+    paste0(colorRampPalette(c("light green", "dark green"))(colorVec[4]),"FF")),
   domain = NULL)
+
+color_tableFn <- function(timeSinceFirePalette, maxAge) {
+  a <- t(sapply(timeSinceFirePalette(1:maxAge), col2rgb))
+  rownames(a) <- NULL
+  a <- rbind(rep(0,4), cbind(1:maxAge, a))
+  write.table(a, file = "www/color_table.txt", append = FALSE, row.names = FALSE, col.names = FALSE)
+}
+color_tableFn(timeSinceFirePalette, maxAge)
