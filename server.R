@@ -151,7 +151,6 @@ function(input, output, session) {
                            filename = lfltFN[FN], overwrite = TRUE,
                            datatype = "INT2U")
       }
-      #if ((ncell(r) < 5e5) & (length(tsf) < 30)) r[] <- r[] 
       r
     })
     message("  Finished reprojecting rasters & loading into RAM")

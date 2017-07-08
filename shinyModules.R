@@ -303,9 +303,9 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     proxy <- leafletProxy("timeSinceFire2")
     proxy %>% #clearTiles() %>%
       #leaflet() %>% addTiles(group = "OSM (default)") %>%
-      addTiles(urlTemplate=paste0("rstTimeSInceFire_year",
+      addTiles(urlTemplate=file.path(studyArea, paste0("outrstTimeSInceFire_year",
                                   paddedFloatToChar(sliderVal+summaryPeriod[1], nchar(end(mySim))),
-                                  "LFLT/{z}/{x}/{y}.png"),
+                                  "LFLT/{z}/{x}/{y}.png")),
                option = tileOptions(tms = TRUE, minZoom = 6, maxZoom = 11)) %>%
       #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7,
       #               colors = timeSinceFirePalette, project = FALSE)  %>%
@@ -328,15 +328,18 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     sliderVal <- rasInp$sliderVal
     pol <- polygons[[(length(polygons)/4)*4]]
     leafMap <- leaflet() %>% #addTiles(group = "OSM (default)") %>%
-      addTiles(urlTemplate=paste0("rstTimeSInceFire_year",
-                                  paddedFloatToChar(sliderVal+summaryPeriod[1], nchar(end(mySim))),
-                                  "LFLT/{z}/{x}/{y}.png"),
+      addTiles(urlTemplate=file.path(studyArea, paste0("outrstTimeSInceFire_year",
+                                                       paddedFloatToChar(sliderVal+summaryPeriod[1], 
+                                                                         nchar(end(mySim))),
+                                                       "LFLT/{z}/{x}/{y}.png")),
                option = tileOptions(tms = FALSE, minZoom = 6, maxZoom = 11)) %>%
       #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
       #               colors = timeSinceFirePalette, project = FALSE)  %>%
       #addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
       addLegend(position = "bottomright", pal = timeSinceFirePalette, 
-                values = na.omit(ras1[]), title = "Time since fire (years)") %>%
+                #values = na.omit(ras1[]), 
+                values = 1:maxAge, 
+                title = "Time since fire (years)") %>%
       setView(mean(c(xmin(pol),xmax(pol))), 
               mean(c(ymin(pol),ymax(pol))), 
               zoom = leafZoom
@@ -351,7 +354,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     Nbreaks <- ceiling(maxValue(ras1)/10)
     timeSinceFireHist <- hist(ras1[], plot = FALSE, breaks = Nbreaks)
     barplot(timeSinceFireHist$counts*prod(rasterResolution)/1e4, xlab = "Time since fire (Years)",
-            col = timeSinceFirePalette(1:Nbreaks), width = 1, space = 0, ylab = "Area (ha)")
+            col = timeSinceFirePalette(1:(maxAge/10)), width = 1, space = 0, ylab = "Area (ha)")
     axis(1, at = timeSinceFireHist$breaks/10, labels = 0:Nbreaks*10)
     
   })
@@ -361,56 +364,61 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     r <- rasts[[sliderVal/10+1]] # slider units are 10, starting at 0; index here is 1 to length (tsf)
   
     if(useGdal2Tiles) {
-      # setwd("www")
-      # r <- writeRaster(r, "r.tif", datatype = "INT1U", overwrite = TRUE)
-      # writePaletteVRT("test.vrt", r, rainbow(10))
-      # #system("./addPalette.py test.vrt r.tif")
-      # system("python addPalette.py test.vrt r.tif")
-      # a <- raster("r.tif")
-      
-      #gdal2tiles -s EPSG:32630 -z 14-18 snow.tif snow
-      #Cache(system, notOlderThan = Sys.time(),
-      #r <- raster("~/Documents/GitHub/LandWeb/m/LW_LBMRDataPrep/data/NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
-      #origDir <- getwd()
-      #setwd(dirname(filename(r)))
-      gdal2TilesFn <- function(r, filename, zoomRange=6:11) {
-        setwd("www")
+      gdal2TilesFn <- function(r, filename, zoomRange=6:11, color_text_file = asPath("www/color_table.txt")) {
         filename1 <- filename(r)
-        browser()
-        if(minValue(r) != -1) {
+        prefix <- file.path("www",studyArea)
+        checkPath(prefix, create = TRUE)
+        filename2 <- file.path(prefix, paste0("out",basename(filename1)))
+        filename3 <- file.path(prefix,paste0("out2",basename(filename1)))
+        filename4 <- file.path(prefix,paste0("out3",basename(filename1)))
+        filename5 <- file.path(prefix,paste0("out4",basename(filename1)))
+        filename5 <- gsub(pattern="tif", x=filename5, replacement = "vrt")
+        foldername <- gsub(pattern=".tif", filename2, replacement = "")
+        
+        if(anyNA(r[])){
           r[is.na(r[])] <- -1
-          r <- r+1
-          r <- writeRaster(x=r, filename = "out.tif",  overwrite=TRUE,
-                         datatype="INT2S")
+        } 
+        if(minValue(r)<0 ) {
+          r <- r-minValue(r)
         }
-        gdalUtils::gdaldem(mode="color-relief", filename(r), #alpha = TRUE,
-                           color_text_file = "color_table.txt", "out2.tif")
-        shell("python c:/OSGeo4W64/bin/rgb2pct.py out2.tif out3.tif")
-        gdalUtils::gdal_translate(of="VRT", expand="rgb", "out3.tif", "temp.vrt")
+        r <- writeRaster(x=r, filename = filename2,
+                         overwrite=TRUE,datatype="INT2S")
+        gdalUtils::gdaldem(mode="color-relief", filename2, #alpha = TRUE,
+                           color_text_file = as.character(color_text_file), 
+                           filename3)
+        shell(paste0("python ",
+                     file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"rgb2pct.py "),
+                     filename3,
+                     " ",
+                     filename4))
+        gdalUtils::gdal_translate(of="VRT", expand="rgb", filename4, filename5)
         shell(paste0("python ", 
                      file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
                      "--s_srs=EPSG:4326 ",
                      #" -s '",as.character(crs(r)),"'",
                      " --zoom=",min(zoomRange),"-",max(zoomRange)," ",
                      "--srcnodata=0 ",
-                     "temp.vrt ",
-                     #filename(r), " ", 
-                     #file.path("www", strsplit(split="\\.", basename(filename(r)))[[1]][1])),
-                     "filename"),
-                     wait=FALSE)
-        return(out)
+                     filename5," ",
+                     foldername),
+                     wait=TRUE)
+        unlink(filename3)
+        unlink(filename2)
+        
+        return(invisible(NULL))
       }
+      
       message("Running gdal2TilesFn for layer ", sliderVal/10+1, " of ", length(rasts))
-      Cache(gdal2TilesFn, r, filename=asPath(filename(r)),#notOlderThan = Sys.time(),
-            zoomRange=6:10, cacheRepo = paths$cachePath, digestPathContent = TRUE)
+      Cache(gdal2TilesFn, r, filename=asPath(filename(r)), #notOlderThan = Sys.time(),
+            zoomRange=6:10, color_text_file = asPath("www/color_table.txt"), 
+            cacheRepo = paths$cachePath, digestPathContent = TRUE)
     }
     if(TRUE) {
       #if(Sys.info()["nodename"]=="W-VIC-A105388") stopApp()
       if (ncell(r) > 3e5) {
         r <- Cache(sampleRegular, r, size = 4e5, #notOlderThan = Sys.time(),
                    asRaster = TRUE, cacheRepo = paths$cachePath)
-        r[r[]>400] <- 400
-        r[r[]<0] <- NA
+        r[r[]>401] <- maxAge
+        r[r[]==0] <- NA
       }
       
     }
@@ -490,7 +498,9 @@ studyRegionMod <- function(input, output, session, rasts) {
       #               colors = timeSinceFirePalette, project = FALSE)  %>%
       addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
       addLegend(position = "bottomright", pal = timeSinceFirePalette, 
-                values = na.omit(ras1[]), title = "Time since fire (years)") %>%
+                values = na.omit(ras1[]), 
+                #values = 0:maxAge, 
+                title = "Time since fire (years)") %>%
       setView(mean(c(xmin(pol),xmax(pol))), 
               mean(c(ymin(pol),ymax(pol))), 
               zoom = leafZoom
