@@ -184,7 +184,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
         clusterEvalQ(cl = cl, {
           library(raster)
           library(magrittr)
-          library(SpaDES)
+          library(SpaDES.core)
           library(data.table)
         })
       }
