@@ -388,9 +388,9 @@ timeSinceFireMod <- function(input, output, session, rasts) {
   rasterInput <- reactive({
     sliderVal <- if(is.null(input$timeSinceFire1Slider)) 0 else input$timeSinceFire1Slider
     r <- rasts[[sliderVal/10+1]] # slider units are 10, starting at 0; index here is 1 to length (tsf)
-  
+    
     if(useGdal2Tiles) {
-      gdal2TilesFn <- function(r, filename, zoomRange=6:11, color_text_file = asPath("www/color_table.txt")) {
+      gdal2TilesFn <- function(r, filename, zoomRange=6:11, color_text_file = asPath(colorTableFile)) {
         filename1 <- filename(r)
         prefix <- file.path("www",studyArea)
         checkPath(prefix, create = TRUE)
@@ -413,20 +413,22 @@ timeSinceFireMod <- function(input, output, session, rasts) {
                            color_text_file = as.character(color_text_file), 
                            filename3)
         system(paste0("python ",
-                     file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"rgb2pct.py "),
-                     filename3,
-                     " ",
-                     filename4))
+                      file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"rgb2pct.py "),
+                      filename3,
+                      " ",
+                      filename4))
         gdalUtils::gdal_translate(of="VRT", expand="rgb", filename4, filename5)
         system(paste0("python ", 
-                     file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
-                     "--s_srs=EPSG:4326 ",
-                     #" -s '",as.character(crs(r)),"'",
-                     " --zoom=",min(zoomRange),"-",max(zoomRange)," ",
-                     "--srcnodata=0 ",
-                     filename5," ",
-                     foldername),
-                     wait=TRUE)
+                      file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
+                      "--s_srs=EPSG:4326 ",
+                      #" -s '",as.character(crs(r)),"'",
+                      " --zoom=",min(zoomRange),"-",max(zoomRange)," ",
+                      "--srcnodata=0 ",
+                      filename5," ",
+                      foldername),
+               wait=TRUE)
+        unlink(filename5)
+        unlink(filename4)
         unlink(filename3)
         unlink(filename2)
         
@@ -435,7 +437,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       
       message("Running gdal2TilesFn for layer ", sliderVal/10+1, " of ", length(rasts))
       Cache(gdal2TilesFn, r, filename=asPath(filename(r)), #notOlderThan = Sys.time(),
-            zoomRange=5:10, color_text_file = asPath("www/color_table.txt"), 
+            zoomRange=5:10, color_text_file = asPath(colorTableFile), 
             cacheRepo = paths$cachePath, digestPathContent = TRUE)
     }
     if(TRUE) {

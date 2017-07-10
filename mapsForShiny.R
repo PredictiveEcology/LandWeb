@@ -75,10 +75,12 @@ timeSinceFirePalette <- leaflet::colorNumeric(na.color = "transparent",
 fireReturnIntervalPalette <- 
   leaflet::colorFactor("Spectral", shpStudyRegionFull$fireReturnInterval)
 
+colorTableFile <<- file.path("www",studyArea,"color_table.txt")
+checkPath(dirname(colorTableFile), create = TRUE)
 color_tableFn <- function(timeSinceFirePalette, maxAge) {
   a <- t(sapply(timeSinceFirePalette(1:maxAge), col2rgb))
   rownames(a) <- NULL
   a <- rbind(rep(0,4), cbind(1:maxAge, a))
-  write.table(a, file = "www/color_table.txt", append = FALSE, row.names = FALSE, col.names = FALSE)
+  write.table(a, file = colorTableFile, append = FALSE, row.names = FALSE, col.names = FALSE)
 }
 color_tableFn(timeSinceFirePalette, maxAge)
