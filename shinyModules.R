@@ -311,7 +311,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7,
       #               colors = timeSinceFirePalette, project = FALSE)  %>%
       
-      addPolygons(data = pol, fillOpacity = 0, weight = 1, group="Polygons") %>%
+      #addPolygons(data = pol, fillOpacity = 0, weight = 1, group="Polygons") %>%
       # addLegend(position = "bottomright", pal = timeSinceFirePalette,
       #           values = na.omit(ras1[]), title = "Time since fire \n(years)") %>%
       addLayersControl(options = layersControlOptions(autoZIndex = TRUE,
