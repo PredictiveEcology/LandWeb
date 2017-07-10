@@ -359,6 +359,7 @@ function(input, output, session) {
   output$speciesEcoregionInputs <- renderDataTable({
     spEcoReg
   })#, digits = 1)
-  
+
+  stopApp()  
 
 }
