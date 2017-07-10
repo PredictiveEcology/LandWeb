@@ -1,4 +1,6 @@
-#try(detach("package:SpaDES", unload=TRUE)); try(detach("package:reproducible", unload=TRUE)); devtools::load_all("~/GitHub/reproducible/."); devtools::load_all("~/GitHub/SpaDES/.")
+#try(detach("package:SpaDES", unload=TRUE)); try(detach("package:reproducible", unload=TRUE)); 
+#devtools::load_all("~/Documents/GitHub/reproducible/."); devtools::load_all("~/Documents/GitHub/SpaDES/.")
+#devtools::install("~/Documents/GitHub/reproducible/."); devtools::install("~/Documents/GitHub/SpaDES/.")
 appStartTime <- st <- Sys.time() - 1
 message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
