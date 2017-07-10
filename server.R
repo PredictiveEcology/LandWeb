@@ -218,7 +218,6 @@ function(input, output, session) {
     })
   })
   
-  browser()
   observe({
     lapply(ageClasses, function(ageClass) {
       output[[paste0(ageClass,"UI")]] <- renderUI({
