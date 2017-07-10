@@ -15,13 +15,13 @@ if(needWorking) {
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if (FALSE) {
-  devtools::install_github("PredictiveEcology/SpaDES@development")
-  devtools::install_github(paste0("PredictiveEcology/SpaDES@", spadesHash))  
+  devtools::install_github("PredictiveEcology/SpaDES.core")
+  devtools::install_github(paste0("PredictiveEcology/SpaDES.core@", spadesHash))  
   devtools::install_github("PredictiveEcology/SpaDES.addins") 
   #devtools::install_github("PredictiveEcology/SpaDES@moreCache")  
   devtools::install_github("achubaty/amc@development")  
   devtools::install("~/Documents/GitHub/amc/.")  
-  devtools::install("~/Documents/GitHub/SpaDES/.")  
+  devtools::install("~/Documents/GitHub/SpaDES.core/.")  
   #devtools::install_github("YongLuo007/amc@development")  
 }
 
@@ -71,7 +71,7 @@ paths <- list(
   outputPath = paste0("outputs", studyArea)
 )
 if(needWorking) {
-  # Need SpaDES and all packages
+  # Need SpaDES.core and all packages
   dateWorking <- "2017-06-08"
   origLibPaths <- .libPaths()
   if(!dir.exists(".checkpoint")) dir.create(".checkpoint")
@@ -88,7 +88,7 @@ if(needWorking) {
   
   # Internal caching inside install_github doesn't seem to work for commit-based refs
   #  this function is in packagesUsedFromCRAN.R
-  updatePkg("SpaDES", spadesHash, "PredictiveEcology")
+  updatePkg("SpaDES.core", spadesHash, "PredictiveEcology")
   updatePkg("amc", amcHash, "achubaty")
   
   # LandWeb -- get correct version based on git hash
@@ -102,7 +102,7 @@ if(needWorking) {
 } else {
   if(FALSE) {
     devtools::install_github(paste0("PredictiveEcology/reproducible@development"))
-    devtools::install_github(paste0("PredictiveEcology/SpaDES@development"))
+    devtools::install_github(paste0("PredictiveEcology/SpaDES.core@development"))
     devtools::install_github(paste0("achubaty/amc@development") )
   }
 }
@@ -124,7 +124,7 @@ source("footers.R")
 
 ### Package stuff that should not be run automatically
 if (FALSE) {
-  SpaDESDeps <- miniCRAN::pkgDep("SpaDES")
+  SpaDESDeps <- miniCRAN::pkgDep("SpaDES.core")
   new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
   if (length(new.packages)) install.packages(new.packages)
   

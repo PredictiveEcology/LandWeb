@@ -207,7 +207,8 @@ importLandWeb_BAP_LayersEvent2 <- function(sim) {
   origFiles <- dir(dataDir, pattern = "dat$", full.names = TRUE)
   
   args <- list(origFiles, function(i) {
-    a <- SpaDES::rasterToMemory(i)
+    a <- raster(i)
+    a[] <- getValues(a)
     if(grepl(basename(i), pattern="^SPP")) { 
       levels(a) <- data.frame(ID=c(11, 14, 22, 23, 26, 31, 32, 33, 34, 41, 42, 43, 44, 201), 
                               Names = c("Decid pure", "Decid-PiceGlau", "PiceMari pure", 

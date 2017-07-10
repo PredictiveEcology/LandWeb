@@ -11,7 +11,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandMine.Rmd"),
-  reqdPkgs = list("data.table", "grDevices", "magrittr", "raster", "RColorBrewer", "VGAM"),
+  reqdPkgs = list("data.table", "grDevices", "magrittr", "raster", "RColorBrewer", "VGAM", "SpaDES.tools"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter("fireTimestep", "numeric", 1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -188,7 +188,7 @@ LandMineBurn <- function(sim) {
                                key = "polygonNumeric") 
   sim$startCells <- sim$startCells[polygonNumeric == 0, polygonNumeric := NA] %>%
     na.omit() %>%
-    .[, SpaDES:::resample(pixel, numFiresThisPeriod[.GRP]), by = polygonNumeric] %>% 
+    .[, SpaDES.tools:::resample(pixel, numFiresThisPeriod[.GRP]), by = polygonNumeric] %>% 
     .$V1
   
   # If fire sizes are in hectares, must adjust based on resolution of maps
