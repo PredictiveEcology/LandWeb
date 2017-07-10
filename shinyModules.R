@@ -318,15 +318,16 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       #           values = na.omit(ras1[]), title = "Time since fire \n(years)") %>%
       addLayersControl(options = layersControlOptions(autoZIndex = TRUE,
                                                       collapsed = FALSE),
-                       overlayGroups = c("Time since fire", "Fire return interval")) %>%
+                       baseGroups = c("Open Cycle Map", "ESRI World Imagery"), #"Toner Lite"),
+                       overlayGroups = c("Time since fire", "Fire return interval"))# %>%
       # addLayersControl(
       #   baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
       #   overlayGroups = c("Quakes", "Outline"),
       #   options = layersControlOptions(collapsed = FALSE)
       # )
-      setView(mean(c(xmin(pol),xmax(pol))),
-              mean(c(ymin(pol),ymax(pol))),
-              zoom = leafZoom)
+      # setView(mean(c(xmin(pol),xmax(pol))),
+      #         mean(c(ymin(pol),ymax(pol))),
+      #         zoom = leafZoom)
     
     proxy
   })
@@ -345,7 +346,9 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     pol <- polygons[[(length(polygons)/4)*4]]
     leafMap <- leaflet() %>% #addTiles(group = "OSM (default)") %>%
       #addProviderTiles("Esri.WorldTopoMap") %>%
-      addProviderTiles("Thunderforest.OpenCycleMap", layerId = as.character(ranNum)) %>%
+      addProviderTiles("Thunderforest.OpenCycleMap", group="Open Cycle Map") %>%
+      addProviderTiles(providers$Esri.WorldImagery, group = "ESRI World Imagery") %>%
+      #addProviderTiles("ESRI.WorldTopoMap", group = "ESRI World Topo Map") %>%
       addPolygons(data = spTransform(shpStudyRegionFull, crs(polyFull)), color = "blue", 
                   group = "Fire return interval",
                   fillOpacity = 0.3, weight = 1,
@@ -364,10 +367,10 @@ timeSinceFireMod <- function(input, output, session, rasts) {
                 #values = na.omit(ras1[]),
                 values = 1:maxAge,
                 title = paste0("Time since fire",br(),"(years)")) %>%
-      addLegend(position = "bottomleft", pal = fireReturnIntervalPalette, opacity=0.3,
-                values = sort(unique(shpStudyRegionFull$fireReturnInterval))[1:9*3],
-                title = paste0("Fire Return Interval(years)"),
-                layerId="Fire return interval legend") %>%
+      # addLegend(position = "bottomleft", pal = fireReturnIntervalPalette, opacity=0.3,
+      #           values = sort(unique(shpStudyRegionFull$fireReturnInterval))[1:6*3],
+      #           title = paste0("Fire Return Interval(years)"),
+      #           layerId="Fire return interval legend") %>%
       setView(mean(c(xmin(pol),xmax(pol))), 
               mean(c(ymin(pol),ymax(pol))), 
               zoom = leafZoom
@@ -472,33 +475,44 @@ timeSinceFireMod <- function(input, output, session, rasts) {
   showpos <- function(x=NULL, y=NULL) {#Show popup on clicks
     #Translate Lat-Lon to cell number using the unprojected raster
     #This is because the projected raster is not in degrees, we cannot use it!
+    colNam <- names(polygons)[[(length(polygons)/4)*4]]
+    pol <- polygons[[(length(polygons)/4)*3]]
+    friPoly <- shpStudyRegion
+
+    sp <- SpatialPoints(cbind(x,y), proj4string = crs(pol))
     ras1 <- rasterInput()$r
     cell <- cellFromXY(ras1, c(x, y))
-    if (!is.na(cell)) {#If the click is inside the raster...
+    #if (!is.na(cell)) {#If the click is inside the raster...
       #Get row and column, to print later
-      colNam <- names(polygons)[[(length(polygons)/4)*4]]
-      pol <- polygons[[(length(polygons)/4)*4]]
-      friPoly <- shpStudyRegion
       rc <- rowColFromCell(ras1, cell)
       
       #Get values from raster and polygon
-      polyVal <- SpatialPoints(xyFromCell(ras1,cell), proj4string=crs(pol)) %>%
+      polyVal <- sp %>%
         extract(pol, .) %>%
         .[polygonIndivIdsColum[[colNam]]]
-      friVal <- SpatialPoints(xyFromCell(ras1,cell), proj4string=crs(pol)) %>%
-        spTransform(crs(shpStudyRegion)) %>%
-        extract(shpStudyRegion, .) %>%
+      friVal <- sp %>%
+        spTransform(crs(shpStudyRegionFull)) %>%
+        extract(shpStudyRegionFull, .) %>%
         .["fireReturnInterval"]
-      val = ras1[][cell]
-      if(!is.na(val)) {
-        content <- paste0("Time Since Fire=", round(val, 1), " years <br>",
+      
+      #if (!is.na(cell)) {#If the click is inside the raster...
+        val = ras1[][cell]
+      #}
+      
+      firstPart <- if(!is.na(val)) {
+        paste0("Time Since Fire=", round(val, 1), " years <br>")
+      } else {
+        ""
+      }
+        content <- paste0(firstPart,
                           polygonIndivIdsColum[[colNam]],": ",polyVal,"<br>",
-                          "Fire Return Interval: ", friVal)
+                          "Fire Return Interval: ", friVal, "<br>",
+                          "Lat/Long: ", round(y,4),", ", round(x,4))
         proxy <- leafletProxy("timeSinceFire2")
         #add Popup
         proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
-      }
-    }
+      #}
+    #}
   }
   
   
@@ -525,79 +539,6 @@ timeSinceFireModUI <- function(id, tsf) {
 }
 
 
-# studyRegionMod <- function(input, output, session, rasts) {
-#   output$studyRegion2 <- renderLeaflet({
-#     leafZoom <- leafletZoomInit #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
-#     ras1 <- isolate(rasterInput()$r)
-#     pol <- polygons[[(length(polygons)/4)*4]]
-#     leafMap <- leaflet() %>% #addTiles(group = "OSM (default)") %>%
-#       #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
-#       #               colors = timeSinceFirePalette, project = FALSE)  %>%
-#       addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
-#       addLegend(position = "bottomright", pal = timeSinceFirePalette, 
-#                 values = na.omit(ras1[]), 
-#                 #values = 0:maxAge, 
-#                 title = "Time since fire\n(years)") %>%
-#       setView(mean(c(xmin(pol),xmax(pol))), 
-#               mean(c(ymin(pol),ymax(pol))), 
-#               zoom = leafZoom
-#       ) 
-#     
-#     leafMap
-#   })
-#   
-#   observe({#Observer to show Popups on click
-#     click <- input$timeSinceFire2_shape_click
-#     if (!is.null(click)) {
-#       showpos(x=click$lng, y=click$lat)
-#     }
-#   })
-#   
-#   showpos <- function(x=NULL, y=NULL) {#Show popup on clicks
-#     #Translate Lat-Lon to cell number using the unprojected raster
-#     #This is because the projected raster is not in degrees, we cannot use it!
-#     #ras1 <- rasterInput()
-#     
-#     cell <- cellFromXY(ras1, c(x, y))
-#     if (!is.na(cell)) {#If the click is inside the raster...
-#       #Get row and column, to print later
-#       colNam <- names(polygons)[[(length(polygons)/4)*4]]
-#       pol <- polygons[[(length(polygons)/4)*4]]
-#       friPoly <- shpStudyRegion
-#       rc <- rowColFromCell(ras1, cell)
-#       
-#       #Get values from raster and polygon
-#       polyVal <- SpatialPoints(xyFromCell(ras1,cell), proj4string=crs(pol)) %>%
-#         extract(pol, .) %>%
-#         .[polygonIndivIdsColum[[colNam]]]
-#       friVal <- SpatialPoints(xyFromCell(ras1,cell), proj4string=crs(pol)) %>%
-#         spTransform(crs(shpStudyRegion)) %>%
-#         extract(shpStudyRegion, .) %>%
-#         .["fireReturnInterval"]
-#       val = ras1[][cell]
-#       if(!is.na(val)) {
-#         content <- paste0("Time Since Fire=", round(val, 1), " years <br>",
-#                           polygonIndivIdsColum[[colNam]],": ",polyVal,"<br>",
-#                           "Fire Return Interval: ", friVal)
-#         proxy <- leafletProxy("timeSinceFire2")
-#         #add Popup
-#         proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
-#       }
-#     }
-#   }
-#   
-#   
-# }
-# 
-# studyRegionModUI <- function(id) {
-#   ns <- NS(id)
-#   tagList(
-#     box(width = 8, solidHeader = TRUE, collapsible = TRUE, 
-#         h4(paste("Study region and associated Fire Return Interval")),
-#         leaflet::leafletOutput(ns("studyRegion"), height = 600)
-#     )
-#   )
-# }
 
 
 ######################################################################################################
