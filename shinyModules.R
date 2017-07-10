@@ -412,13 +412,13 @@ timeSinceFireMod <- function(input, output, session, rasts) {
         gdalUtils::gdaldem(mode="color-relief", filename2, #alpha = TRUE,
                            color_text_file = as.character(color_text_file), 
                            filename3)
-        shell(paste0("python ",
+        system(paste0("python ",
                      file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"rgb2pct.py "),
                      filename3,
                      " ",
                      filename4))
         gdalUtils::gdal_translate(of="VRT", expand="rgb", filename4, filename5)
-        shell(paste0("python ", 
+        system(paste0("python ", 
                      file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
                      "--s_srs=EPSG:4326 ",
                      #" -s '",as.character(crs(r)),"'",
