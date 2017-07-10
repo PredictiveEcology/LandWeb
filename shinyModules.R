@@ -340,7 +340,6 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     ras1 <- rasInp$r
     sliderVal <- rasInp$sliderVal
     pol <- polygons[[(length(polygons)/4)*4]]
-    browser()
     leafMap <- leaflet() %>% #addTiles(group = "OSM (default)") %>%
       #addProviderTiles("Esri.WorldTopoMap") %>%
       addProviderTiles("Thunderforest.OpenCycleMap") %>%
@@ -358,15 +357,15 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
       #               colors = timeSinceFirePalette, project = FALSE)  %>%
       #addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
-      # addLegend(position = "bottomright", pal = timeSinceFirePalette, 
-      #           #values = na.omit(ras1[]), 
-      #           values = 1:maxAge, 
-      #           title = paste0("Time since fire)",br(),"(years)")) %>%
-      addLegend(#data = shpStudyRegionFull,
-                position = "bottomleft", 
-                pal = colorFactor("Spectral", shpStudyRegionFull$fireReturnInterval)(fireReturnInterval),#"Spectral", 
-                values = shpStudyRegionFull$fireReturnInterval,
-                 title = "Fire Return Interval (years)") %>%
+      addLegend(position = "bottomright", pal = timeSinceFirePalette,
+                #values = na.omit(ras1[]),
+                values = 1:maxAge,
+                title = paste0("Time since fire)",br(),"(years)")) %>%
+      addLegend(position = "bottomleft", pal = fireReturnIntervalPalette, opacity=0.3,
+                values = sort(unique(shpStudyRegionFull$fireReturnInterval))[1:9*3],
+                title = paste0("Fire Return Interval",br(),"(years)"),
+                layerID="Fire return interval legend",
+                bins=10) %>%
       setView(mean(c(xmin(pol),xmax(pol))), 
               mean(c(ymin(pol),ymax(pol))), 
               zoom = leafZoom

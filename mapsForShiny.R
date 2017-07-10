@@ -71,6 +71,10 @@ timeSinceFirePalette <- leaflet::colorNumeric(na.color = "transparent",
     paste0(colorRampPalette(c("light green", "dark green"))(colorVec[4]),"FF")),
   domain = NULL)
 
+
+fireReturnIntervalPalette <- 
+  leaflet::colorFactor("Spectral", shpStudyRegionFull$fireReturnInterval)
+
 color_tableFn <- function(timeSinceFirePalette, maxAge) {
   a <- t(sapply(timeSinceFirePalette(1:maxAge), col2rgb))
   rownames(a) <- NULL
