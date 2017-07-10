@@ -301,13 +301,15 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     pol <- polygons[[(length(polygons)/4)*4]]
     leafZoom <- if(is.null(input$timeSinceFire2_zoom)) leafletZoomInit else input$timeSinceFire2_zoom
     proxy <- leafletProxy("timeSinceFire2")
+    if(!exists("ranNum")) ranNum <<- 1 else  ranNum <<- ranNum + 1
     proxy %>%
-      addTiles(urlTemplate=file.path(studyArea, paste0("outrstTimeSInceFire_year",
-                                  paddedFloatToChar(sliderVal+summaryPeriod[1], nchar(end(mySim))),
-                                  "LFLT/{z}/{x}/{y}.png")),
+      addTiles(urlTemplate=file.path(studyArea, paste0("outrstTimeSinceFire_year",
+                                                       paddedFloatToChar(sliderVal+summaryPeriod[1], nchar(end(mySim))),
+                                                       "LFLT/{z}/{x}/{y}.png")),
                option = tileOptions(tms = TRUE, minZoom = 5, maxZoom = 11,
                                     opacity = 0.8),
-               group="Time since fire") %>%
+               group="Time since fire", layerId = as.character(ranNum)) %>%
+      removeTiles(layerId=ranNum - 1) %>%
       #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7,
       #               colors = timeSinceFirePalette, project = FALSE)  %>%
       
@@ -325,11 +327,11 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       setView(mean(c(xmin(pol),xmax(pol))),
               mean(c(ymin(pol),ymax(pol))),
               zoom = leafZoom)
-
+    
     proxy
   })
   
-    
+  
   output$timeSinceFire2 <- renderLeaflet({
     leafZoom <- leafletZoomInit #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
     rasInp <- isolate(rasterInput())
@@ -339,10 +341,11 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     
     ras1 <- rasInp$r
     sliderVal <- rasInp$sliderVal
+    ranNum <<- 1
     pol <- polygons[[(length(polygons)/4)*4]]
     leafMap <- leaflet() %>% #addTiles(group = "OSM (default)") %>%
       #addProviderTiles("Esri.WorldTopoMap") %>%
-      addProviderTiles("Thunderforest.OpenCycleMap") %>%
+      addProviderTiles("Thunderforest.OpenCycleMap", layerId = as.character(ranNum)) %>%
       addPolygons(data = spTransform(shpStudyRegionFull, crs(polyFull)), color = "blue", 
                   group = "Fire return interval",
                   fillOpacity = 0.3, weight = 1,
@@ -360,12 +363,11 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       addLegend(position = "bottomright", pal = timeSinceFirePalette,
                 #values = na.omit(ras1[]),
                 values = 1:maxAge,
-                title = paste0("Time since fire)",br(),"(years)")) %>%
+                title = paste0("Time since fire",br(),"(years)")) %>%
       addLegend(position = "bottomleft", pal = fireReturnIntervalPalette, opacity=0.3,
                 values = sort(unique(shpStudyRegionFull$fireReturnInterval))[1:9*3],
-                title = paste0("Fire Return Interval",br(),"(years)"),
-                layerId="Fire return interval legend",
-                bins=10) %>%
+                title = paste0("Fire Return Interval(years)"),
+                layerId="Fire return interval legend") %>%
       setView(mean(c(xmin(pol),xmax(pol))), 
               mean(c(ymin(pol),ymax(pol))), 
               zoom = leafZoom
