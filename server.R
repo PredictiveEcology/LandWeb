@@ -360,6 +360,4 @@ function(input, output, session) {
     spEcoReg
   })#, digits = 1)
 
-  stopApp()  
-
 }
