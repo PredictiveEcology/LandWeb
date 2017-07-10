@@ -86,14 +86,16 @@ defineModule(sim, list(
                   succession time step"),
     createsOutput(objectName = "pixelGroupMap", objectClass = "RasterLayer", 
                   desc = "updated community map at each succession time step"),
-    createsOutput(objectName = "BiomassMap", objectClass = "RasterLayer", 
+    createsOutput(objectName = "biomassMap", objectClass = "RasterLayer", 
                   desc = "Bioimass map at each succession time step"),
     createsOutput(objectName = "ANPPMap", objectClass = "RasterLayer", 
                   desc = "ANPP map at each succession time step"),
     createsOutput(objectName = "MortalityMap", objectClass = "RasterLayer", 
                   desc = "Mortality map at each succession time step"),
     createsOutput(objectName = "RegenerationMap", objectClass = "RasterLayer", 
-                  desc = "Regeneration map at each succession time step")
+                  desc = "Regeneration map at each succession time step"),
+    createsOutput(objectName = "cutpoint", objectClass = "numeric", 
+                  desc = "A numeric scalar indicating how large each chunk of an internal data.table with processing by chuncks")
     )
 ))
 
@@ -269,7 +271,7 @@ LBMRInit <- function(sim) {
   }
   
   #}
-
+  
   sim$pixelGroupMap <- pixelGroupMap
   sim$cohortData <- cohortData[,.(pixelGroup, ecoregionGroup, speciesCode, age,
                                   B, mortality = 0, aNPPAct = 0)]
@@ -299,7 +301,7 @@ cacheSpinUpFunction <- function(sim, cachePath) {
   # for slow functions, add cached versions. Then use sim$xxx() throughout module instead of xxx()
   if(sim$useCache) {
     sim$spinUpCache <- function(...) {
-      SpaDES::Cache(FUN = spinUp, ...)
+      reproducible::Cache(FUN = spinUp, ...)
     }
   } else {
     # Step 3 - create a non-caching version in case caching is not desired
@@ -625,7 +627,8 @@ LBMRFireDisturbance = function(sim) {
     # light check
     newCohortData <- setkey(newCohortData, speciesCode)[sim$species[,.(speciesCode, shadetolerance)],
                                                         nomatch = 0][,siteShade := 0]
-    newCohortData <- assignLightProb(sufficientLight = sim$sufficientLight, newCohortData)
+    newCohortData <- assignLightProb(sufficientLight = sim$sufficientLight, 
+                                     newCohortData)
     newCohortData <- newCohortData[lightProb %>>% runif(nrow(newCohortData), 0, 1),]
     set(newCohortData, ,c("shadetolerance", "siteShade", "lightProb"), NULL)
     specieseco_current <- sim$speciesEcoregion[year <= round(time(sim))]
@@ -685,7 +688,8 @@ LBMRFireDisturbance = function(sim) {
                                                         nomatch = 0][, siteShade := 0]
     
     # Light check
-    newCohortData <- assignLightProb(sufficientLight = sim$sufficientLight, newCohortData)
+    newCohortData <- assignLightProb(sufficientLight = sim$sufficientLight, 
+                                     newCohortData)
     newCohortData <- newCohortData[lightProb %>>% runif(nrow(newCohortData), 0, 1),]
     newCohortData <- newCohortData[runif(nrow(newCohortData), 0, 1) %<<% newCohortData$resproutprob]
     newCohortData <- unique(newCohortData, by = c("pixelIndex", "speciesCode"))
@@ -934,8 +938,7 @@ LBMRWardDispersalSeeding = function(sim) {
       reducedPixelGroupMap <- pixelGroupMap
     }
     #source(file.path(modulePath(sim), "LBMR", "R", "seedDispersalLANDIS.R")) # not needed b/c SpaDES already did this
-    
-    seedingData <- sim$LANDISDisp(sim, dtRcv=seedReceive, plot.it = FALSE,
+    seedingData <- LANDISDisp(sim, dtRcv=seedReceive, plot.it = FALSE,
                                   dtSrc = seedSource, inSituReceived = inSituReceived,
                                   species = sim$species,
                                   reducedPixelGroupMap,
@@ -1051,7 +1054,7 @@ updateSpeciesEcoregionAttributes <- function(speciesEcoregion, time, cohortData)
   # the following codes were for updating cohortdata using speciesecoregion data at current simulation year
   # to assign maxB, maxANPP and maxB_eco to cohortData
   specieseco_current <- speciesEcoregion[year <= time]
-  specieseco_current <- setkey(specieseco_current[year == max(specieseco_current$year),
+  specieseco_current <- setkey(specieseco_current[year == max(year),
                                                   .(speciesCode, maxANPP,
                                                     maxB, ecoregionGroup)],
                                speciesCode, ecoregionGroup)
@@ -1365,7 +1368,7 @@ addNewCohorts <- function(newCohortData, cohortData, pixelGroupMap, time, specie
   cutRows <- grep(">>", initialCommunities$species)
   for(i in cutRows){
     initialCommunities[i, 
-                       desc:=paste(initialCommunities[i, 3:maxcol, with = F],
+                       desc:=paste(initialCommunities[i, 3:maxcol, with = FALSE],
                                    collapse = " ")]
   }
   initialCommunities[, rowN := 1:nrow(initialCommunities)]
@@ -1383,10 +1386,10 @@ addNewCohorts <- function(newCohortData, cohortData, pixelGroupMap, time, specie
   rm(cutRows, i, maxcol)
   # load the initial community map
   sim$initialCommunitiesMap <- raster(file.path(dataPath, "initial-communities.gis"))
-  sim$initialCommunitiesMap <- setValues(sim$initialCommunitiesMap, as.integer(sim$initialCommunitiesMap[]))
-  sim$initialCommunitiesMap <- writeRaster(sim$initialCommunitiesMap, overwrite = TRUE,
-                                           filename = file.path(outputPath(sim), "initialCommunitiesMapDefault.tif"),
-                                           datatype="INT2U")
+  #sim$initialCommunitiesMap <- setValues(sim$initialCommunitiesMap, as.integer(sim$initialCommunitiesMap[]))
+  # sim$initialCommunitiesMap <- writeRaster(sim$initialCommunitiesMap, overwrite = TRUE,
+  #                                          filename = file.path(outputPath(sim), "initialCommunitiesMapDefault.tif"),
+  #                                          datatype="INT2U")
   
   # read species txt and convert it to data table
   maxcol <- max(count.fields(file.path(dataPath, "species.txt"), sep = ""))
@@ -1435,7 +1438,7 @@ addNewCohorts <- function(newCohortData, cohortData, pixelGroupMap, time, specie
   rm(maxcol)
   # load ecoregion map
   sim$ecoregionMap <- raster(file.path(dataPath, "ecoregions.gis"))
-  sim$ecoregionMap <- setValues(sim$ecoregionMap, as.integer(sim$ecoregionMap[]))
+  #sim$ecoregionMap <- setValues(sim$ecoregionMap, as.integer(sim$ecoregionMap[]))
   
   # input species ecoregion dynamics table
   maxcol <- max(count.fields(file.path(dataPath, "biomass-succession-dynamic-inputs_test.txt"), 
@@ -1496,33 +1499,38 @@ addNewCohorts <- function(newCohortData, cohortData, pixelGroupMap, time, specie
   minRelativeB <- minRelativeB[(startRow+1):(startRow+6),]
   minRelativeB[1,2:ncol(minRelativeB)] <- minRelativeB[1,1:(ncol(minRelativeB)-1)]
   names(minRelativeB) <- NULL
+  minRelativeB <- minRelativeB[,apply(minRelativeB, 2, function(x) all(nzchar(x)))] 
   minRelativeB <- minRelativeB[,-1] %>%
     t(.) %>%
     gsub(pattern="%",replacement="") %>%
     data.table
   names(minRelativeB) <- c("ecoregion", "X1", "X2", "X3", "X4", "X5")
-  minRelativeB <- minRelativeB %>%
-    mutate_each(funs(as.numeric(as.character(.))/100), vars=-ecoregion)
+  set(minRelativeB, , "ecoregion", NULL)
+  minRelativeB <- minRelativeB[, lapply(.SD, function(x) as.numeric(as.character(x)))]
+  # minRelativeB <- minRelativeB %>%
+  #   mutate_at(funs(as.numeric(as.character(.))/100), .vars=-ecoregion)
   sim$minRelativeB <- minRelativeB
   
   sufficientLight <- mainInput %>%
     data.frame
   startRow <- which(sufficientLight$col1 == "SufficientLight")
   sufficientLight <- sufficientLight[(startRow+1):(startRow+5), 1:7]
-  for(i in 1:ncol(sufficientLight)){
-    sufficientLight[,i] <- as.numeric(sufficientLight[,i])
-  }
+  sufficientLight <- data.table(sufficientLight)
+  sufficientLight <- sufficientLight[, lapply(.SD, function(x) as.numeric(x))]
+  
+  # for(i in 1:ncol(sufficientLight)){
+  #   sufficientLight[,i] <- as.numeric(sufficientLight[,i])
+  # }
   names(sufficientLight) <- c("speciesshadetolerance",
                               "X0", "X1", "X2", "X3", "X4", "X5")
-  
-  sim$sufficientLight <- sufficientLight
+  sim$sufficientLight <- data.frame(sufficientLight)
   sim$spinupMortalityfraction <- 0.001
   sim$successionTimestep <- 10
   sim$seedingAlgorithm <- "wardDispersal"
   sim$useCache <- TRUE
   sim$cellSize <- res(ecoregionMap)[1]
   sim$calibrate <- FALSE
-  sim$useParallel <- FALSE
+  if(is.null(sim$useParallel)) sim$useParallel <- FALSE
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
