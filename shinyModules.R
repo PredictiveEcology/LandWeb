@@ -364,7 +364,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       addLegend(position = "bottomleft", pal = fireReturnIntervalPalette, opacity=0.3,
                 values = sort(unique(shpStudyRegionFull$fireReturnInterval))[1:9*3],
                 title = paste0("Fire Return Interval",br(),"(years)"),
-                layerID="Fire return interval legend",
+                layerId="Fire return interval legend",
                 bins=10) %>%
       setView(mean(c(xmin(pol),xmax(pol))), 
               mean(c(ymin(pol),ymax(pol))), 
