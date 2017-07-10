@@ -1,3 +1,9 @@
+#try(detach("package:SpaDES", unload=TRUE)); try(detach("package:reproducible", unload=TRUE)); devtools::load_all("~/GitHub/reproducible/."); devtools::load_all("~/GitHub/SpaDES/.")
+appStartTime <- st <- Sys.time() - 1
+message("Started at ", appStartTime)
+rsyncToAWS <- FALSE
+useGdal2Tiles <- TRUE
+eventCaching <- FALSE#"init" #Sys.time()
 needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
   LandWebVersion <- "2e3656bb957eb265daad638551c74bf1423ca287"
@@ -18,6 +24,7 @@ if (FALSE) {
 }
 
 #### Some variables
+maxAge <- 400
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
 ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
@@ -31,7 +38,8 @@ if (!exists("globalRasters")) globalRasters <- list()
 
 # Computation stuff
 experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
-maxNumClusters <- 5 # use 0 to turn off
+maxNumClusters <- 0 # use 0 to turn off
+if( grepl("ip", Sys.info()["nodename"])) maxNumClusters <- 0 # on Amazon
 machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
 
 
@@ -45,9 +53,13 @@ summaryPeriod <- c(500, endTime)
 # Spatial stuff
 #studyArea <- "FULL"
 studyArea <- "EXTRALARGE"
-#studyArea <- "LARGE"
+studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 #studyArea <- "SMALL"
+#studyArea <- "NWT"
+
+# leaflet parameters
+leafletZoomInit = 5 
 
 ## Create mySim
 paths <- list(
@@ -81,19 +93,22 @@ if(needWorking) {
   browser()
   source("gitCheckout.R")
   checkoutCondition <- checkoutVersion(LandWebVersion)
-
+  
   # get specific Cache version
   startCacheTime <- Sys.time()
   
 } else {
-  devtools::install_github(paste0("PredictiveEcology/SpaDES@development"))
-  devtools::install_github(paste0("achubaty/amc@development") )
+  if(FALSE) {
+    devtools::install_github(paste0("PredictiveEcology/reproducible@development"))
+    devtools::install_github(paste0("PredictiveEcology/SpaDES@development"))
+    devtools::install_github(paste0("achubaty/amc@development") )
+  }
 }
 
 
 #####
-if (Sys.info()["sysname"] != "Windows") beginCluster(25, type = "FORK")
-setDTthreads(4) # data.table multi-threading
+# if (Sys.info()["sysname"] != "Windows") beginCluster(4, type = "FORK")
+setDTthreads(10) # data.table multi-threading
 raster::rasterOptions(maxmemory = 4e10, chunksize = 1e9)
 
 
@@ -154,7 +169,14 @@ if (maxNumClusters > 0) {
   }
 }
 
-source("inputMaps.R")
+# Build shpStudyRegion -- Needs to be a polygon with inner polygons
+source("inputMaps.R") # source some functions
+loadLandisParams(path=paths$inputPath, envir=.GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
+shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")), 
+                         studyArea = studyArea,
+                         crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
+list2env(shpStudyRegions, envir = environment())
+
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "LW_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
@@ -170,12 +192,17 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                                    returnInterval = 1,
                                    .statsInitialTime = 1),
                    LandWebOutput = list(summaryInterval = summaryInterval),
+                   LW_LBMRDataPrep = list(.useCache = eventCaching),
                    LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep, 
                                    burnInitialTime = fireInitialTime,
-                                   .plotInitialTime = NA),
+                                   .plotInitialTime = NA
+                                   , .useCache = eventCaching
+                                   ),
                    LBMR = list(.plotInitialTime = times$start,
-                               .saveInitialTime = NA),
-                   initBaseMaps = list(.useCache = FALSE),
+                               .saveInitialTime = NA
+                               , .useCache = eventCaching
+                               ),
+                   initBaseMaps = list(.useCache = eventCaching),
                    timeSinceFire = list(startTime = fireInitialTime))
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 outputs <- data.frame(stringsAsFactors = FALSE,
@@ -202,8 +229,34 @@ skipSimInit <- FALSE
 if (devmode) if (!exists("mySim", envir = .GlobalEnv)) skipSimInit <- TRUE
 
 if (!skipSimInit)
-  mySim <<- simInit(times = times, params = parameters, modules = modules,
-                    objects = objects, paths = paths, outputs = outputs)
+  mySim <<- simInit(times = times, params = parameters, modules = modules, 
+                    objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules))
 
 source("mapsForShiny.R")
-startTime <- st <- Sys.time()
+#saveRDS(out, file = "out.rds")
+#rm(out)
+
+
+if(TRUE) {
+  library(gdalUtils)  
+  gdalSet <- function() {
+    gdal_setInstallation()
+    getOption("gdalUtils_gdalPath")
+  }
+  options(gdalUtils_gdalPath=Cache(gdalSet, cacheRepo = paths$cachePath))
+}
+if(FALSE){
+  library(future)
+  message("running future plan(multisession)")
+  curFuture <- future::plan()
+  if(!is(curFuture, "multisession"))
+    plan(multisession)
+  
+  # TO get this to work
+  #  https://stackoverflow.com/questions/5599872/python-windows-importerror-no-module-named-site
+  #Cache(system, notOlderThan = Sys.time(),paste("python",
+  #                                              file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal_polygonize.py"), 
+  #                                              basename(newfilename), basename(shapeFile), "-f \"ESRI Shapefile\""))
+  
+}
+
