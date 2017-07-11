@@ -15,7 +15,6 @@
 loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
   #gdal_setInstallation(ignore.full_scan = TRUE, verbose = TRUE)
   # Step 1 -- Load LandWeb study area shapefile
-  browser()
   loadShpAndMakeValid <- function(file) {
     shapefile(file) %>% gBuffer(byid=TRUE, width=0)
   }
@@ -34,10 +33,10 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
   PaulOnGoogleDrive <- raster(PaulRawFileName)
   LandWebStudyAreaRawPoly <- file.path(inputPath(sim),oldfilename)
   
-  PaulOnGoogleDrive <- Cache(writeRaster, PaulOnGoogleDrive, 
-                             filename = "PaulSppFilled.tif", datatype = "INT2U", 
+  PaulOnGoogleDrive <- Cache(writeRaster, PaulOnGoogleDrive, cacheRepo=paths$cachePath,
+                             filename = file.path(dataFolder,"PaulSppFilled.tif"), datatype = "INT2U", 
                              overwrite = TRUE)
-  shpStudyRegionFull <- Cache(loadShpAndMakeValid, file=LandWebStudyAreaRawPoly)
+  shpStudyRegionFull <- Cache(loadShpAndMakeValid, file=LandWebStudyAreaRawPoly, cacheRepo=paths$cachePath)
   studyAreaTooBig <- sp::spTransform(shpStudyRegionFull, crs(PaulOnGoogleDrive))
   studyAreaTooBig$AREA <- round(studyAreaTooBig$AREA,0)
   
@@ -50,11 +49,11 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
     studyAreaMask <- raster(ras)
     studyAreaMask[!is.na(ras[])] <- 1#!is.na(ras[])
     Cache(writeRaster, studyAreaMask, filename = maskFilename, 
-          datatype = "INT1U", overwrite = TRUE)
+          datatype = "INT1U", overwrite = TRUE, cacheRepo=paths$cachePath)
   }
-  browser()
   studyAreaMask <- Cache(makeStudyAreaMask, PaulOnGoogleDrive, 
-                         maskFilename ="StudyAreaMask.tif")
+                         maskFilename =file.path(dataFolder,"StudyAreaMask.tif"),
+                         cacheRepo=paths$cachePath)
   
   newfilename <- file.path(dataFolder,"StudyAreaMask250.tif")
   Cache(gdalwarp, overwrite=TRUE, 
@@ -64,23 +63,27 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
         multi=TRUE, of="GTiff", 
         tr=c(250, 250),
         filename(studyAreaMask), ot = "Byte", 
-        newfilename, cacheRepo = file.path(dirname(cachePath(sim)), "stableCache"))
+        newfilename,
+        cacheRepo=paths$cachePath)
   
   shapeFile <- file.path(dataFolder,"shpLandWeb5.shp")
   origDir <- getwd()
   setwd(dataFolder)
   # TO get this to work
   #  https://stackoverflow.com/questions/5599872/python-windows-importerror-no-module-named-site
-  Cache(system, notOlderThan = Sys.time(),paste("python",
-                      file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal_polygonize.py"), 
-                      basename(newfilename), basename(shapeFile), "-f \"ESRI Shapefile\""))
+  Cache(system, notOlderThan = Sys.time(),
+        paste("python", file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal_polygonize.py"), 
+              basename(newfilename), basename(shapeFile), "-f \"ESRI Shapefile\""),
+        cacheRepo=paths$cachePath)
   
   loadStudyArea <- function(shapeFile, studyAreaTooBig) {
     shpPaul <- shapefile(shapeFile)#[2,]
     shpPaul <- shpPaul[shpPaul$DN==1,]
-    studyArea <- Cache(raster::intersect, studyAreaTooBig, shpPaul)
+    studyArea <- Cache(raster::intersect, studyAreaTooBig, shpPaul,
+                       cacheRepo=paths$cachePath)
   }
-  studyArea <- Cache(loadStudyArea, shapeFile, studyAreaTooBig)
+  studyArea <- Cache(loadStudyArea, shapeFile, studyAreaTooBig,
+                     cacheRepo=paths$cachePath)
   
   # cropMask <- function(ras, poly) {
   #   message("starting crop")
@@ -106,7 +109,8 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
   # PaulOnGoogleDrive <- raster(newfilename)
   #PaulOnGoogleDrive[] <- PaulOnGoogleDrive[]
   
-  Cache(shapefile, studyArea, filename = "studyArea.shp", overwrite = TRUE)
+  Cache(shapefile, studyArea, filename = "studyArea.shp", overwrite = TRUE,
+        cacheRepo=paths$cachePath)
   newfilename <- file.path(getwd(),"PaulTrimmed.tif")
   Cache(gdalwarp, overwrite=TRUE, cutline = file.path(getwd(),"studyArea.shp"),
         dstalpha = TRUE,
@@ -115,7 +119,8 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
         multi=TRUE, of="GTiff", 
         crop_to_cutline = TRUE, tr=c(250, 250),
         filename(PaulOnGoogleDrive), ot = "Byte", 
-        newfilename)
+        newfilename,
+        cacheRepo=paths$cachePath)
   PaulTrimmed <- raster(newfilename)
   PaulTrimmed[] <- PaulTrimmed[]
   #PaulTrimmed[PaulTrimmed[]==255] <- NA_integer_
@@ -186,7 +191,7 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
   
   
   
-  CASFRIRas <- raster("C:/data/LandWeb/Landweb_CASFRI_GIDs.tif")
+  CASFRIRas <- raster("/mnt/A105388/shared/data/LandWeb/CASFRI/Landweb_CASFRI_GIDs.tif")
   # Step 1a -- warp CASFRI to 250m x 250m
   # gdalwarp(overwrite=TRUE, 
   #          t_srs= "+proj=lcc +lat_1=49 +lat_2=77 +lat_0=49 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs",
@@ -209,7 +214,8 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
         multi=TRUE, of="GTiff", 
         crop_to_cutline = TRUE,
         filename(CASFRIRas), #ot = "Byte", 
-        newfilename1)
+        newfilename1,
+        cacheRepo=paths$cachePath)
   
   CASFRIRas <- raster(newfilename1)
   
@@ -273,10 +279,10 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
     keepSpecies
   }
   
-  
-  attrFile <- "C:/data/LandWeb/CASFRI for Landweb/Landweb_CASFRI_GIDs_attributes3.csv"
-  headerFile <- "C:/data/LandWeb/CASFRI for Landweb/Landweb_CASFRI_GIDs_README.txt"
-  loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, attrFile, headerFile)
+  attrFile <- "/mnt/A105388/shared/data/LandWeb/CASFRI for Landweb/Landweb_CASFRI_GIDs_attributes3.csv"
+  headerFile <- "/mnt/A105388/shared/data/LandWeb/CASFRI for Landweb/Landweb_CASFRI_GIDs_README.txt"
+  loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, attrFile, headerFile,
+                        cacheRepo=paths$cachePath)
   
   PaulTrimmed[PaulTrimmed[]%in% c(230, 220, 255)] <- NA_integer_ # water, non veg
   Paulvals <- sort(unique(PaulTrimmed[]))
@@ -288,20 +294,23 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
     N <- 1
     message("running ", N)
     PaulStack[[uniqueKeepSp[N]]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
-    PaulStack[[uniqueKeepSp[N]]] <- Cache(writeRaster, PaulStack[[uniqueKeepSp[N]]] , 
+    PaulStack[[uniqueKeepSp[N]]] <- Cache(writeRaster, PaulStack[[uniqueKeepSp[N]]], 
                                           filename = paste0("Paul",uniqueKeepSp[N], ".tif"),
-                                          overwrite=TRUE, ...)
+                                          overwrite=TRUE, ...,
+                                          cacheRepo=paths$cachePath)
     N <- 2
     message("running ", N)
     PaulStack[[uniqueKeepSp[N]]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
     PaulStack[[uniqueKeepSp[N]]] <- Cache(writeRaster, PaulStack[[uniqueKeepSp[N]]] , filename = paste0("Paul",uniqueKeepSp[N], ".tif"),
-                                          overwrite=TRUE, ...)
+                                          overwrite=TRUE, ...,
+                                          cacheRepo=paths$cachePath)
     
     N <- 3
     message("running ", N)
     PaulStack[[uniqueKeepSp[N]]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
     PaulStack[[uniqueKeepSp[N]]] <- Cache(writeRaster, PaulStack[[uniqueKeepSp[N]]] , filename = paste0("Paul",uniqueKeepSp[N], ".tif"),
-                                          overwrite=TRUE, ...)
+                                          overwrite=TRUE, ...,
+                                          cacheRepo=paths$cachePath)
     
     
     N <- "Pice_gla"
@@ -311,7 +320,8 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
     PaulStack[[N]][PaulTrimmed[] %in% c(44)] <- 90
     PaulStack[[N]][PaulTrimmed[] %in% c(14, 34)] <- 40
     PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]] , filename = paste0("Paul",N, ".tif"),
-                            overwrite=TRUE, ...)
+                            overwrite=TRUE, ...,
+                            cacheRepo=paths$cachePath)
     
     # 5
     N <- "Pice_mar"
@@ -321,7 +331,8 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
     PaulStack[[N]][PaulTrimmed[] %in% c(22)] <- 90
     PaulStack[[N]][PaulTrimmed[] %in% c(32, 42)] <- 40
     PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]] , filename = paste0("Paul",N, ".tif"),
-                            overwrite=TRUE, ...)
+                            overwrite=TRUE, ...,
+                            cacheRepo=paths$cachePath)
     
     # 6
     N <- "Pinu_sp"
@@ -331,7 +342,8 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
     PaulStack[[N]][PaulTrimmed[] %in% c(33)] <- 90
     PaulStack[[N]][PaulTrimmed[] %in% c(23, 43)] <- 40
     PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]] , filename = paste0("Paul",N, ".tif"),
-                            overwrite=TRUE, ...)
+                            overwrite=TRUE, ...,
+                            cacheRepo=paths$cachePath)
     
     
     # 7
@@ -342,7 +354,8 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
     PaulStack[[N]][PaulTrimmed[] %in% c(11)] <- 90
     PaulStack[[N]][PaulTrimmed[] %in% c(31, 41)] <- 40
     PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]] , filename = paste0("Paul",N, ".tif"),
-                            overwrite=TRUE, ...)
+                            overwrite=TRUE, ...,
+                            cacheRepo=paths$cachePath)
     
     stack(PaulStack)
     # PaulStack <- Cache(writeRaster, PaulStack, filename = "PaulSpStack.tif", datatype = "INT2U",
@@ -350,7 +363,8 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
     
   }
   
-  PaulSpStack <- Cache(makePaulStack, PaulTrimmed, uniqueKeepSp)
+  PaulSpStack <- Cache(makePaulStack, PaulTrimmed, uniqueKeepSp,
+                       cacheRepo=paths$cachePath)
   
   # Step 3 -- Load CASFRI data and headers, and make a raster for each relevant species group
   CASFRItoSpRasts <- function(spRas, loadedCASFRI) {
@@ -380,7 +394,8 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
   
   spRas <- raster(CASFRIRas) %>% setValues(.,NA_integer_)
   #dd <- CASFRItoSpRasts(spRas, loadedCASFRI)
-  CASFRISpStack <- Cache(CASFRItoSpRasts, spRas, loadedCASFRI)
+  CASFRISpStack <- Cache(CASFRItoSpRasts, spRas, loadedCASFRI,
+                         cacheRepo=paths$cachePath)
   
   
   overlayStacks <- function(stack1, stack2) {
@@ -390,13 +405,16 @@ loadPaulAndCASFRI <- function(sim, PaulRawFileName) {
       stack1[[sp]][nas] <- stack2[[sp]][][nas]
       message("Writing to disk")
       stack1[[sp]] <- Cache(writeRaster, stack1[[sp]], datatype = "INT2U",
-                            filename=paste0(sp,"_overlay.tif"), overwrite = TRUE)
+                            filename=paste0(sp,"_overlay.tif"), overwrite = TRUE,
+                            cacheRepo=paths$cachePath)
     }
     stack1
   }
   
-  outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack)#, notOlderThan = Sys.time())
+  outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack,
+                    cacheRepo=paths$cachePath)#, notOlderThan = Sys.time())
   rm(loadedCASFRI, PaulTrimmed, spRas)
-  endTime <- Sys.time()
-  print(endTime - startTime)
+  #endTime <- Sys.time()
+  #print(endTime - startTime)
+  return(outStack)
 }

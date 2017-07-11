@@ -752,7 +752,10 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   }
   
   ## load Paul Pickell et al. and CASFRI
-  #Cache(loadPaulAndCASFRI, sim, PaulRawFileName="SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")
+  if(FALSE) {
+    browser()
+    stackOut <- Cache(loadPaulAndCASFRI, sim, PaulRawFileName="SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")
+  }
   
   
   
