@@ -140,22 +140,10 @@ function(input, output, session) {
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
   #lfltFN <- gsub(lfltFN, pattern = ".grd", replacement = ".tif")
   
-  if (!(length(globalRasters) == length(tsf))) {
-    message("Reprojecting rasters & loading into RAM")
-    globalRasters <<- lapply(seq_along(tsf), function(FN) {
-      if (file.exists(lfltFN[FN])) {
-        r <- raster(lfltFN[FN])
-      } else {
-        r <- raster(tsf[FN])
-        r <- projectRaster(r, crs = sp::CRS(lflt), method = "ngb",
-                           filename = lfltFN[FN], overwrite = TRUE,
-                           datatype = "INT2U")
-      }
-      r[is.na(r[])& mySim[[1]]$rstFlammable[] != 1] <- end(mySim[[1]])
-      r
-    })
-    message("  Finished reprojecting rasters & loading into RAM")
-  } 
+  #if (!(length(globalRasters) == length(tsf))) {
+  globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = TRUE,
+                          lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
+                          flammableFile = file.path(paths$outputPath, "rstFlammable.grd"))
   
   message("Running leadingByStage")
   args <- list(leadingByStage, tsf, vtm, 
