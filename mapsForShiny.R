@@ -64,7 +64,7 @@ rm(ecodistrictsFullLFLT)
 polygonColours <- c(rep(c("red", "blue"), 2))
 polygonIndivIdsColum <- list("ECODISTRIC", "FMU_NAME") %>% setNames(names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3]))
 
-colorVec <- diff(c(ageClassCutOffs,maxAge))
+colorVec <- diff(c(ageClassCutOffs[1],10,30,50,ageClassCutOffs[-(1:4)],maxAge))
 
 timeSinceFirePalette <- leaflet::colorNumeric(na.color = "transparent",
   c(rep("red", colorVec[1]), rep("orange", colorVec[2]), rep("yellow", colorVec[3]), 
