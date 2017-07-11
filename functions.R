@@ -238,3 +238,68 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
   #})
   
 }
+
+
+reprojectRasts <- function(tsf, lfltFN, crs, endTime = end(mySim), flammableFile) {
+  message("Reprojecting rasters & loading into RAM")
+  rstFlammableNum <- raster(flammableFile)
+  rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs, 
+                                   method = "ngb")
+  globalRasters <- lapply(seq_along(tsf), function(FN) {
+    r <- raster(tsf[[FN]])
+    r <- projectRaster(r, crs = crs, method = "ngb",
+                       datatype = "INT2U")
+    r[is.na(r) & (rstFlammableNum == 0)] <- endTime
+    r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE,
+                     datatype="INT2U")
+    r
+  })
+  message("  Finished reprojecting rasters & loading into RAM")
+  globalRasters
+}
+
+
+gdal2TilesFn <- function(r, filename, zoomRange=6:11, color_text_file = asPath(colorTableFile)) {
+  filename1 <- filename(r)
+  prefix <- file.path("www",studyArea)
+  checkPath(prefix, create = TRUE)
+  filename2 <- file.path(prefix, paste0("out",basename(filename1)))
+  filename3 <- file.path(prefix,paste0("out2",basename(filename1)))
+  filename4 <- file.path(prefix,paste0("out3",basename(filename1)))
+  filename5 <- file.path(prefix,paste0("out4",basename(filename1)))
+  filename5 <- gsub(pattern="tif", x=filename5, replacement = "vrt")
+  foldername <- gsub(pattern=".tif", filename2, replacement = "")
+  
+  if(anyNA(r[])){
+    r[is.na(r[])] <- -1
+  } 
+  if(minValue(r)<0 ) {
+    r <- r-minValue(r)
+  }
+  r <- writeRaster(x=r, filename = filename2,
+                   overwrite=TRUE,datatype="INT2S")
+  gdalUtils::gdaldem(mode="color-relief", filename2, #alpha = TRUE,
+                     color_text_file = as.character(color_text_file), 
+                     filename3)
+  system(paste0("python ",
+                file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"rgb2pct.py "),
+                filename3,
+                " ",
+                filename4))
+  gdalUtils::gdal_translate(of="VRT", expand="rgb", filename4, filename5)
+  system(paste0("python ", 
+                file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
+                "--s_srs=EPSG:4326 ",
+                " --zoom=",min(zoomRange),"-",max(zoomRange)," ",
+                "--srcnodata=0 ",
+                filename5," ",
+                foldername),
+         wait=TRUE)
+  unlink(filename5)
+  unlink(filename4)
+  unlink(filename3)
+  unlink(filename2)
+  
+  return(invisible(NULL))
+}
+
