@@ -306,7 +306,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       addTiles(urlTemplate=file.path(studyArea, paste0("outrstTimeSinceFire_year",
                                                        paddedFloatToChar(sliderVal+summaryPeriod[1], nchar(end(mySim))),
                                                        "LFLT/{z}/{x}/{y}.png")),
-               option = tileOptions(tms = TRUE, minZoom = 5, maxZoom = 11,
+               option = tileOptions(tms = TRUE, minZoom = 1, maxZoom = 10,
                                     opacity = 0.8),
                group="Time since fire", layerId = as.character(ranNum)) %>%
       removeTiles(layerId=ranNum - 1) %>%
@@ -346,8 +346,10 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     pol <- polygons[[(length(polygons)/4)*4]]
     leafMap <- leaflet() %>% #addTiles(group = "OSM (default)") %>%
       #addProviderTiles("Esri.WorldTopoMap") %>%
-      addProviderTiles("Thunderforest.OpenCycleMap", group="Open Cycle Map") %>%
-      addProviderTiles(providers$Esri.WorldImagery, group = "ESRI World Imagery") %>%
+      addProviderTiles("Thunderforest.OpenCycleMap", group="Open Cycle Map",
+                       options=providerTileOptions(minZoom = 1, maxZoom = 10)) %>%
+      addProviderTiles(providers$Esri.WorldImagery, group = "ESRI World Imagery", 
+                       options=providerTileOptions(minZoom = 1, maxZoom = 10)) %>%
       #addProviderTiles("ESRI.WorldTopoMap", group = "ESRI World Topo Map") %>%
       addPolygons(data = spTransform(shpStudyRegionFull, crs(polyFull)), color = "blue", 
                   group = "Fire return interval",
@@ -367,6 +369,18 @@ timeSinceFireMod <- function(input, output, session, rasts) {
                 #values = na.omit(ras1[]),
                 values = 1:maxAge,
                 title = paste0("Time since fire",br(),"(years)")) %>%
+      addMeasure(
+        position = "bottomleft",
+        primaryLengthUnit = "kilometers",
+        primaryAreaUnit = "hectares",
+        activeColor = "#3D535D",
+        completedColor = "#7D4479") %>%
+      addEasyButton(easyButton(
+        icon="fa-globe", title="Zoom to Level 5",
+        onClick=JS("function(btn, map){ map.setZoom(5); }"))) %>%
+      addMiniMap(
+        tiles = providers$OpenStreetMap,
+        toggleDisplay = TRUE) %>%
       # addLegend(position = "bottomleft", pal = fireReturnIntervalPalette, opacity=0.3,
       #           values = sort(unique(shpStudyRegionFull$fireReturnInterval))[1:6*3],
       #           title = paste0("Fire Return Interval(years)"),
