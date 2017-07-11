@@ -11,9 +11,9 @@ function(input, output, session) {
       if(Sys.info()["nodename"]=="W-VIC-A105388") {
         keepCache(mySim, after = appStartTime)
         if(rsyncToAWS)
-        system(paste0("rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e 'ssh -i ",
-                      path.expand('~'),
-                      "/.ssh/laptopTesting.pem' ~/Documents/GitHub/LandWeb/ emcintir@ec2-52-26-180-235.us-west-2.compute.amazonaws.com:/srv/shiny-server/Demo/"))
+          system(paste0("rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e 'ssh -i ",
+                        path.expand('~'),
+                        "/.ssh/laptopTesting.pem' ~/Documents/GitHub/LandWeb/ emcintir@ec2-52-26-180-235.us-west-2.compute.amazonaws.com:/srv/shiny-server/Demo/"))
       }
     
     message("The app started at ", appStartTime)
@@ -41,14 +41,14 @@ function(input, output, session) {
       end(mySimCopy) <- 0
       message("Running Initial spades call")
       initialRun <<- Cache(spades, sim = mySimCopy, #notOlderThan = Sys.time(),
-                          debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
-                          objects = "shpStudyRegion", 
-                          #cacheRepo = cachePath(mySim), 
-                          .plotInitialTime = NA, 
-                          omitArgs = c("debug", ".plotInitialTime"),
-                          debugCache="complete")
+                           debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
+                           objects = "shpStudyRegion", 
+                           #cacheRepo = cachePath(mySim), 
+                           .plotInitialTime = NA, 
+                           omitArgs = c("debug", ".plotInitialTime"),
+                           debugCache="complete")
     }
-
+    
     ##########
     raster::endCluster()
     seed <- sample(1e8,1)
@@ -61,16 +61,16 @@ function(input, output, session) {
     args <- list(experiment, mySim, replicates = experimentReps, 
                  objects = objectsToHash,
                  debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2), 
-                                paste(unname(current(sim)), collapse = ' '))",#,
-                                # {lsObj <- ls(envir=sim@.envir); keep <- 1:1; a <- format(big.mark = ',',
-                                #           sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>%
-                                #           setNames(lsObj), decreasing = TRUE))[keep];
-                                #           paste(names(a)[keep], collapse=' ')},
-                                # paste(a[keep], collapse=' '),
-                                # 'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ',
+                 paste(unname(current(sim)), collapse = ' '))",#,
+                 # {lsObj <- ls(envir=sim@.envir); keep <- 1:1; a <- format(big.mark = ',',
+                 #           sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>%
+                 #           setNames(lsObj), decreasing = TRUE))[keep];
+                 #           paste(names(a)[keep], collapse=' ')},
+                 # paste(a[keep], collapse=' '),
+                 # 'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ',
                  # uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:',
-                                # round(uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap),4),
-                                # {st <<- Sys.time()})",
+                 # round(uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap),4),
+                 # {st <<- Sys.time()})",
                  # debug = "paste(paste(unname(current(sim)), collapse = ' '), 'is sim$useParallel a cluster:', 
                  #          is(sim$useParallel, 'cluster'))", #cache = TRUE, 
                  #cl = if(exists("cl")) cl, 
@@ -151,6 +151,7 @@ function(input, output, session) {
                            filename = lfltFN[FN], overwrite = TRUE,
                            datatype = "INT2U")
       }
+      r[is.na(r[])& mySim[[1]]$rstFlammable[] != 1] <- end(mySim[[1]])
       r
     })
     message("  Finished reprojecting rasters & loading into RAM")
