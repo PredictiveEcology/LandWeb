@@ -1,6 +1,7 @@
 #try(detach("package:SpaDES", unload=TRUE)); try(detach("package:reproducible", unload=TRUE)); 
 #devtools::load_all("~/Documents/GitHub/reproducible/."); devtools::load_all("~/Documents/GitHub/SpaDES/.")
-#devtools::install("~/Documents/GitHub/reproducible/."); devtools::install("~/Documents/GitHub/SpaDES/.")
+#devtools::install("~/Documents/GitHub/reproducible/."); devtools::install("~/Documents/GitHub/SpaDES.core/.");
+#devtools::install("~/Documents/GitHub/SpaDES.tools/."); 
 appStartTime <- st <- Sys.time() - 1
 message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
@@ -15,6 +16,7 @@ if(needWorking) {
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if (FALSE) {
+  devtools::install_github("PredictiveEcology/SpaDES.tools")
   devtools::install_github("PredictiveEcology/SpaDES.core")
   devtools::install_github(paste0("PredictiveEcology/SpaDES.core@", spadesHash))  
   devtools::install_github("PredictiveEcology/SpaDES.addins") 
