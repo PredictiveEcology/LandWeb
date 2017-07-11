@@ -320,14 +320,14 @@ timeSinceFireMod <- function(input, output, session, rasts) {
                                                       collapsed = FALSE),
                        baseGroups = c("Open Cycle Map", "ESRI World Imagery"), #"Toner Lite"),
                        overlayGroups = c("Time since fire", "Fire return interval"))# %>%
-      # addLayersControl(
-      #   baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
-      #   overlayGroups = c("Quakes", "Outline"),
-      #   options = layersControlOptions(collapsed = FALSE)
-      # )
-      # setView(mean(c(xmin(pol),xmax(pol))),
-      #         mean(c(ymin(pol),ymax(pol))),
-      #         zoom = leafZoom)
+    # addLayersControl(
+    #   baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
+    #   overlayGroups = c("Quakes", "Outline"),
+    #   options = layersControlOptions(collapsed = FALSE)
+    # )
+    # setView(mean(c(xmin(pol),xmax(pol))),
+    #         mean(c(ymin(pol),ymax(pol))),
+    #         zoom = leafZoom)
     
     proxy
   })
@@ -344,7 +344,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     sliderVal <- rasInp$sliderVal
     ranNum <<- 1
     pol <- polygons[[(length(polygons)/4)*4]]
-    leafMap <- leaflet() %>% #addTiles(group = "OSM (default)") %>%
+    leafMap <- leaflet(options = leafletOptions(minZoom = 1, maxZoom = 10)) %>% #addTiles(group = "OSM (default)") %>%
       #addProviderTiles("Esri.WorldTopoMap") %>%
       addProviderTiles("Thunderforest.OpenCycleMap", group="Open Cycle Map",
                        options=providerTileOptions(minZoom = 1, maxZoom = 10)) %>%
@@ -492,40 +492,40 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     colNam <- names(polygons)[[(length(polygons)/4)*4]]
     pol <- polygons[[(length(polygons)/4)*3]]
     friPoly <- shpStudyRegion
-
+    
     sp <- SpatialPoints(cbind(x,y), proj4string = crs(pol))
     ras1 <- rasterInput()$r
     cell <- cellFromXY(ras1, c(x, y))
     #if (!is.na(cell)) {#If the click is inside the raster...
-      #Get row and column, to print later
-      rc <- rowColFromCell(ras1, cell)
-      
-      #Get values from raster and polygon
-      polyVal <- sp %>%
-        extract(pol, .) %>%
-        .[polygonIndivIdsColum[[colNam]]]
-      friVal <- sp %>%
-        spTransform(crs(shpStudyRegionFull)) %>%
-        extract(shpStudyRegionFull, .) %>%
-        .["fireReturnInterval"]
-      
-      #if (!is.na(cell)) {#If the click is inside the raster...
-        val = ras1[][cell]
-      #}
-      
-      firstPart <- if(!is.na(val)) {
-        paste0("Time Since Fire=", round(val, 1), " years <br>")
-      } else {
-        ""
-      }
-        content <- paste0(firstPart,
-                          polygonIndivIdsColum[[colNam]],": ",polyVal,"<br>",
-                          "Fire Return Interval: ", friVal, "<br>",
-                          "Lat/Long: ", round(y,4),", ", round(x,4))
-        proxy <- leafletProxy("timeSinceFire2")
-        #add Popup
-        proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
-      #}
+    #Get row and column, to print later
+    rc <- rowColFromCell(ras1, cell)
+    
+    #Get values from raster and polygon
+    polyVal <- sp %>%
+      extract(pol, .) %>%
+      .[polygonIndivIdsColum[[colNam]]]
+    friVal <- sp %>%
+      spTransform(crs(shpStudyRegionFull)) %>%
+      extract(shpStudyRegionFull, .) %>%
+      .["fireReturnInterval"]
+    
+    #if (!is.na(cell)) {#If the click is inside the raster...
+    val = ras1[][cell]
+    #}
+    
+    firstPart <- if(!is.na(val)) {
+      paste0("Time Since Fire=", round(val, 1), " years <br>")
+    } else {
+      ""
+    }
+    content <- paste0(firstPart,
+                      polygonIndivIdsColum[[colNam]],": ",polyVal,"<br>",
+                      "Fire Return Interval: ", friVal, "<br>",
+                      "Lat/Long: ", round(y,4),", ", round(x,4))
+    proxy <- leafletProxy("timeSinceFire2")
+    #add Popup
+    proxy %>% clearPopups() %>% addPopups(x, y, popup = content)
+    #}
     #}
   }
   
