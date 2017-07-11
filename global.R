@@ -40,7 +40,7 @@ if (!exists("globalRasters")) globalRasters <- list()
 
 # Computation stuff
 experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
-maxNumClusters <- 0 # use 0 to turn off
+maxNumClusters <- 8 # use 0 to turn off
 if( grepl("ip", Sys.info()["nodename"])) maxNumClusters <- 0 # on Amazon
 machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
 
@@ -48,17 +48,17 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 800 # was 4
+endTime <- 300 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(500, endTime)
+summaryPeriod <- c(200, endTime)
 
 # Spatial stuff
 #studyArea <- "FULL"
 studyArea <- "EXTRALARGE"
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
-#studyArea <- "SMALL"
-#studyArea <- "NWT"
+studyArea <- "SMALL"
+studyArea <- "NWT"
 
 # leaflet parameters
 leafletZoomInit = 5 
