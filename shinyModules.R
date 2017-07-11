@@ -342,7 +342,6 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     
     ras1 <- rasInp$r
     sliderVal <- rasInp$sliderVal
-    ranNum <<- 1
     pol <- polygons[[(length(polygons)/4)*4]]
     leafMap <- leaflet(options = leafletOptions(minZoom = 1, maxZoom = 10)) %>% #addTiles(group = "OSM (default)") %>%
       #addProviderTiles("Esri.WorldTopoMap") %>%
