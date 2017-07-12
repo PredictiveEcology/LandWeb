@@ -4,7 +4,8 @@ if(FALSE) {
   try(detach("package:reproducible", unload=TRUE)); 
   devtools::load_all("~/Documents/GitHub/reproducible/."); devtools::load_all("~/Documents/GitHub/SpaDES.core/."); 
   devtools::load_all("~/Documents/GitHub/SpaDES.tools/.")
-  devtools::install("~/Documents/GitHub/reproducible/.", dependencies = FALSE); devtools::install("~/Documents/GitHub/SpaDES.core/.", dependencies = FALSE);
+  devtools::install("~/Documents/GitHub/reproducible/.", dependencies = FALSE); 
+  devtools::install("~/Documents/GitHub/SpaDES.core/.", dependencies = FALSE);
   devtools::install("~/Documents/GitHub/SpaDES.tools/.", recompile = TRUE, dependencies = FALSE); 
 }
 appStartTime <- st <- Sys.time() - 1
@@ -49,7 +50,7 @@ if (!exists("globalRasters")) globalRasters <- list()
 experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
 maxNumClusters <- 8 # use 0 to turn off
 if( grepl("ip", Sys.info()["nodename"])) maxNumClusters <- 0 # on Amazon
-if(Sys.info()["nodename"]=="W-VIC-A128863") maxNumClusters <- 3 # on Eliot's Windows workstation
+if(Sys.info()["nodename"]=="W-VIC-A128863") maxNumClusters <- pmin(maxNumClusters, 3) # on Eliot's Windows workstation
 machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
 
 
@@ -197,7 +198,7 @@ objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
                 "successionTimestep" = successionTimestep,
                 "summaryPeriod" = summaryPeriod,
-                "useParallel" = if (maxNumClusters) cl else TRUE)
+                "useParallel" = if (maxNumClusters) cl else FALSE)
 parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
                                         .useCache = eventCaching),
                    LW_LBMRDataPrep = list(.useCache = eventCaching),
