@@ -1,12 +1,17 @@
-#try(detach("package:SpaDES", unload=TRUE)); try(detach("package:reproducible", unload=TRUE)); 
-#devtools::load_all("~/Documents/GitHub/reproducible/."); devtools::load_all("~/Documents/GitHub/SpaDES/.")
-#devtools::install("~/Documents/GitHub/reproducible/."); devtools::install("~/Documents/GitHub/SpaDES.core/.");
-#devtools::install("~/Documents/GitHub/SpaDES.tools/."); 
+if(FALSE) {
+  
+  try(detach("package:SpaDES.core", unload=TRUE)); try(detach("package:SpaDES.tools", unload=TRUE)); 
+  try(detach("package:reproducible", unload=TRUE)); 
+  devtools::load_all("~/Documents/GitHub/reproducible/."); devtools::load_all("~/Documents/GitHub/SpaDES.core/."); 
+  devtools::load_all("~/Documents/GitHub/SpaDES.tools/.")
+  devtools::install("~/Documents/GitHub/reproducible/.", dependencies = FALSE); devtools::install("~/Documents/GitHub/SpaDES.core/.", dependencies = FALSE);
+  devtools::install("~/Documents/GitHub/SpaDES.tools/.", recompile = TRUE, dependencies = FALSE); 
+}
 appStartTime <- st <- Sys.time() - 1
 message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
-eventCaching <- FALSE#"init" #Sys.time()
+eventCaching <- "init" #Sys.time()
 needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
   LandWebVersion <- "2e3656bb957eb265daad638551c74bf1423ca287"
@@ -44,6 +49,7 @@ if (!exists("globalRasters")) globalRasters <- list()
 experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
 maxNumClusters <- 8 # use 0 to turn off
 if( grepl("ip", Sys.info()["nodename"])) maxNumClusters <- 0 # on Amazon
+if(Sys.info()["nodename"]=="W-VIC-A128863") maxNumClusters <- 3 # on Eliot's Windows workstation
 machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.7"=5)
 
 
@@ -192,10 +198,8 @@ objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "successionTimestep" = successionTimestep,
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = if (maxNumClusters) cl else TRUE)
-parameters <- list(fireNull = list(burnInitialTime = 1,
-                                   returnInterval = 1,
-                                   .statsInitialTime = 1),
-                   LandWebOutput = list(summaryInterval = summaryInterval),
+parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
+                                        .useCache = eventCaching),
                    LW_LBMRDataPrep = list(.useCache = eventCaching),
                    LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep, 
                                    burnInitialTime = fireInitialTime,
@@ -207,7 +211,9 @@ parameters <- list(fireNull = list(burnInitialTime = 1,
                                , .useCache = eventCaching
                                ),
                    initBaseMaps = list(.useCache = eventCaching),
-                   timeSinceFire = list(startTime = fireInitialTime))
+                   timeSinceFire = list(startTime = fireInitialTime,
+                                        .useCache = eventCaching),
+                   fireDataPrep = list(.useCache = eventCaching))
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 outputs <- data.frame(stringsAsFactors = FALSE,
                       expand.grid(
