@@ -114,7 +114,6 @@ function(input, output, session) {
     outputs(mySimOut[[x]])$file
   })
   
-  # browser()
   #if(any(!file.exists(unlist(filesFromOutputs)))) {
   for(simNum in seq_along(mySimOut)) {
     mySimOut[[simNum]]@outputs$file <- 
