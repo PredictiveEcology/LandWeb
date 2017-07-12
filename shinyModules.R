@@ -343,6 +343,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     ras1 <- rasInp$r
     sliderVal <- rasInp$sliderVal
     pol <- polygons[[(length(polygons)/4)*4]]
+    shpStudyRegionFullLFLT <- spTransform(shpStudyRegionFull, crs(polyFull))
     leafMap <- leaflet(options = leafletOptions(minZoom = 1, maxZoom = 10)) %>% #addTiles(group = "OSM (default)") %>%
       #addProviderTiles("Esri.WorldTopoMap") %>%
       addProviderTiles("Thunderforest.OpenCycleMap", group="Open Cycle Map",
@@ -350,7 +351,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       addProviderTiles(providers$Esri.WorldImagery, group = "ESRI World Imagery", 
                        options=providerTileOptions(minZoom = 1, maxZoom = 10)) %>%
       #addProviderTiles("ESRI.WorldTopoMap", group = "ESRI World Topo Map") %>%
-      addPolygons(data = spTransform(shpStudyRegionFull, crs(polyFull)), color = "blue", 
+      addPolygons(data = shpStudyRegionFullLFLT, color = "blue", 
                   group = "Fire return interval",
                   fillOpacity = 0.3, weight = 1,
                   fillColor = ~colorFactor("Spectral", fireReturnInterval)(fireReturnInterval)) %>% #,
@@ -375,8 +376,21 @@ timeSinceFireMod <- function(input, output, session, rasts) {
         activeColor = "#3D535D",
         completedColor = "#7D4479") %>%
       addEasyButton(easyButton(
-        icon="fa-globe", title="Zoom to Level 5",
-        onClick=JS("function(btn, map){ map.setZoom(5); }"))) %>%
+        icon="fa-map", title="Zoom to Demonstration Area",
+        #onClick=JS("function(btn, map){ map.setZoom(5); }"))) %>%
+        #onClick=JS(paste0("function(btn, map){ map.setView([",mean(c(ymin(pol),ymax(pol))), 
+        #                   ", ",mean(c(xmin(pol),xmax(pol))) ,"], 8)}")))) %>%
+        onClick=JS(paste0("function(btn, map){ map.fitBounds([[",ymin(pol),", ",xmin(pol),"], [" 
+                        ,ymax(pol),", ",xmax(pol) ,"]])}")))) %>%
+      addEasyButton(easyButton(
+        icon="fa-globe", title="Zoom out to LandWeb study area",
+        #onClick=JS("function(btn, map){ map.setZoom(5); }"))) %>%
+        onClick=JS(paste0("function(btn, map){ map.setView([",mean(c(ymin(shpStudyRegionFullLFLT),
+                                                                     ymax(shpStudyRegionFullLFLT))), 
+                           ", ",mean(c(xmin(shpStudyRegionFullLFLT),
+                                       xmax(shpStudyRegionFullLFLT))) ,"], 5)}")))) %>%
+        # onClick=JS(paste0("function(btn, map){ map.fitBounds([[",ymin(pol),", ",xmin(pol),"], [" 
+        #                   ,ymax(pol),", ",xmax(pol) ,"]])}")))) %>%
       addMiniMap(
         tiles = providers$OpenStreetMap,
         toggleDisplay = TRUE) %>%
@@ -384,8 +398,8 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       #           values = sort(unique(shpStudyRegionFull$fireReturnInterval))[1:6*3],
       #           title = paste0("Fire Return Interval(years)"),
       #           layerId="Fire return interval legend") %>%
-      setView(mean(c(xmin(pol),xmax(pol))), 
-              mean(c(ymin(pol),ymax(pol))), 
+      setView(mean(c(xmin(shpStudyRegionFullLFLT),xmax(shpStudyRegionFullLFLT))), 
+              mean(c(ymin(shpStudyRegionFullLFLT),ymax(shpStudyRegionFullLFLT))), 
               zoom = leafZoom
       ) 
     
