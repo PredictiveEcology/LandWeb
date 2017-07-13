@@ -249,7 +249,8 @@ reprojectRasts <- function(tsf, lfltFN, crs, endTime = end(mySim), flammableFile
     r <- raster(tsf[[FN]])
     r <- projectRaster(r, crs = crs, method = "ngb",
                        datatype = "INT2U")
-    r[is.na(r) & (rstFlammableNum == 0)] <- endTime
+    minAge <- as.numeric(strsplit(strsplit(tsf[[1]], split = "year")[[1]][2], split="\\.tif")[[1]])
+    r[is.na(r) & (rstFlammableNum == 0)] <- minAge
     r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE,
                      datatype="INT2U")
     r
