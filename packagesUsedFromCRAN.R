@@ -3,6 +3,7 @@ require <- function(package) {
 }
 
 require("SpaDES.core")
+require("devtools")
 require("data.table")
 require("raster")
 require("magrittr")
