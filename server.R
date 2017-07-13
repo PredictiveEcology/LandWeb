@@ -350,5 +350,5 @@ function(input, output, session) {
     spEcoReg
   })#, digits = 1)
 
-  Cache(workingShas, cacheRepo = paths$cachePath)#, userTags = "workingShas")
+  Cache(workingShas, cacheRepo = paths$cachePath, notOlderThan = Sys.time())#, userTags = "workingShas")
 }
