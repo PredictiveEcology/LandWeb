@@ -2,7 +2,7 @@ function(input, output, session) {
   sessionStartTime <- Sys.time()
   
   session$onSessionEnded(function() {
-    if(needWorking) {
+    if(reloadPreviousWorking) {
       checkoutCondition <- reproducible:::checkoutVersion(
         paste0("eliotmcintire/LandWeb@development"), cred = "GITHUB_PAT")
       
@@ -22,7 +22,7 @@ function(input, output, session) {
     message("The session started at ", sessionStartTime)
   })
   
-  if(needWorking) {
+  if(reloadPreviousWorking) {
     keepArtifacts <<- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
     archivist::addTagsRepo(keepArtifacts,
                            repoDir = paths$cachePath,
@@ -96,7 +96,7 @@ function(input, output, session) {
   callModule(moduleInfo, "modInfoBoxes", mySimOut[[1]])
   
   
-  if(needWorking) {
+  if(reloadPreviousWorking) {
     keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
     keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
     archivist::addTagsRepo(keepArtifacts,
@@ -157,7 +157,7 @@ function(input, output, session) {
   leading <- do.call(Cache, args)
   message("  Finished leadingByStage")
   
-  if(needWorking) {
+  if(reloadPreviousWorking) {
     keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
     keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
     archivist::addTagsRepo(keepArtifacts,

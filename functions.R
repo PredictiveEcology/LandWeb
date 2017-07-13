@@ -320,8 +320,9 @@ showWorkingShas <- function(cachePath) {
   sc
 }
 
-reloadWorkingShas <- function(md5hash, cachePath) {
-  shas <- archivist::loadFromLocalRepo(repoDir = cachePath, md5hash, value = TRUE)  
+reloadWorkingShas <- function(md5hash, cachePath, shaOnly = FALSE) {
+  
+  shas <- archivist::loadFromLocalRepo(repoDir = cachePath, md5hash, value = TRUE)
   whPackages <- names(shas) %in% PredictiveEcologyPackages
   lapply(seq_along(shas[whPackages]), function(n) {
     if((devtools:::local_sha(names(shas)[n])) != shas[[n]]) {
@@ -331,9 +332,9 @@ reloadWorkingShas <- function(md5hash, cachePath) {
       message(names(shas)[n], " is already correct version")
     }
   })
-  checkoutCondition <- reproducible:::checkoutVersion(
-    paste0("eliotmcintire/LandWeb@",shas$LandWeb), cred = "GITHUB_PAT")
+  isError <- tryCatch(checkoutCondition <- reproducible:::checkoutVersion(
+    paste0("eliotmcintire/LandWeb@",shas$LandWeb), cred = "GITHUB_PAT"), error = function(x) TRUE)
   #checkoutCondition <- reproducible:::checkoutVersion(shas$LandWeb, cred = "GITHUB_PAT")
-  
-  return(invisible())
+  if(isTRUE(isError)) message("no previous branch on github with that sha")
+  return(invisible(shas))
 }
