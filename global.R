@@ -13,8 +13,8 @@ message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
 eventCaching <- "init" #Sys.time()
-needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
-# if(needWorking) {
+reloadPreviousWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+# if(reloadPreviousWorking) {
 #   LandWebVersion <- "d538768a620e175d02cd0847c5f35fe52ee5ffed"
 #   spadesHash <- "88e4b394f466498a7aac92bda265a7acf818693c"
 #   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
@@ -80,7 +80,7 @@ paths <- list(
   inputPath = "inputs",
   outputPath = paste0("outputs", studyArea)
 )
-if(FALSE) {#if(needWorking) {
+if(FALSE) {#if(reloadPreviousWorking) {
   # Need SpaDES.core and all packages
   dateWorking <- "2017-06-08"
   origLibPaths <- .libPaths()
@@ -92,10 +92,9 @@ if(FALSE) {#if(needWorking) {
 source("packagesUsedFromCRAN.R")
 source("functions.R")
 
-if(needWorking) {
-  
-  shas <- showWorkingShas(paths$cachePath)
-  reloadWorkingShas(md5hash = shas$artifact[1], cachePath = paths$cachePath) # 1 is most recent
+if(reloadPreviousWorking) {
+  md5s <- showWorkingShas(paths$cachePath)
+  shas <- reloadWorkingShas(md5hash = md5s$artifact[1], cachePath = paths$cachePath) # 1 is most recent
   library(git2r) # has git repo internally
   # git remote set-url origin https://github.com/eliotmcintire/LandWeb.git
   
@@ -105,12 +104,11 @@ if(needWorking) {
   #updatePkg("amc", amcHash, "achubaty")
   
   # LandWeb -- get correct version based on git hash
-  browser()
-  source("gitCheckout.R")
-  checkoutCondition <- checkoutVersion(LandWebVersion)
-  
+  # source("gitCheckout.R")
+  # checkoutCondition <- checkoutVersion(LandWebVersion)
+  # 
   # get specific Cache version
-  startCacheTime <- Sys.time()
+  # startCacheTime <- Sys.time()
   
 } else {
   if(FALSE) {
