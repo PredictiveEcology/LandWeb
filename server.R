@@ -143,7 +143,7 @@ function(input, output, session) {
   #if (!(length(globalRasters) == length(tsf))) {
   globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = TRUE,
                           lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
-                          flammableFile = file.path(paths$outputPath, "rstFlammable.grd"))
+                          flammableFile = asPath(file.path(paths$outputPath, "rstFlammable.grd")))
   
   message("Running leadingByStage")
   args <- list(leadingByStage, tsf, vtm, 
