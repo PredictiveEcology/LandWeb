@@ -5,8 +5,8 @@ defineModule(sim, list(
   name = "LW_LBMRDataPrep",
   description = "A data preparation module for running the LBMR module in the LandWeb project",
   keywords = c("LandWeb", "LBMR"),
-  authors = c(person(c("Yong"), "Luo", email="yong.luo@canada.ca", role=c("aut", "cre")),
-              person(c("Eliot"), "J", "B", "McIntire", email="eliot.mcintire@canada.ca", role=c("aut"))),
+  authors = c(person(c("Yong", "Luo"), email="yong.luo@canada.ca", role=c("aut", "cre")),
+              person(c("Eliot", "J", "B"), "McIntire", email="eliot.mcintire@canada.ca", role=c("aut"))),
   childModules = character(0),
   version = numeric_version("1.3.1"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
@@ -239,6 +239,7 @@ Init <- function(sim) {
   message("9: ", Sys.time())
 
   # species traits inputs
+  speciesTable <- sim$speciesTable
   names(speciesTable) <- c("species", "Area", "longevity", "sexualmature", "shadetolerance", "firetolerance",
                            "seeddistance_eff", "seeddistance_max", "resproutprob", "resproutage_min",
                            "resproutage_max", "postfireregen", "leaflongevity", "wooddecayrate",
@@ -253,12 +254,21 @@ Init <- function(sim) {
                                      tolower(as.character(substring(species2, 2, nchar(species2)))),
                                      sep = ""))]
   speciesTable[species == "Pinu_Con.lat", species:="Pinu_Con"]
+  
+  newNames <- tolower(speciesTable$species)
+  substr(newNames,1,1) <- toupper(substr(newNames,1,1))
+  speciesTable$species <- newNames
+  
+  speciesTable[species %in% c("Abie_las", "Abie_bal"), species:="Abie_sp"]
+  speciesTable[species %in% c("Pinu_ban", "Pinu_con", "Pinu_con.con"), species:="Pinu_sp"]
+  
   message("10: ", Sys.time())
-
-
+  
+  # Take the smallest values of every column, within species, because it is northern boreal forest
   speciesTable <- speciesTable[species %in% names(sim$specieslayers),][
     , ':='(species1 = NULL, species2 = NULL)] %>%
-    unique(., by = "species")
+    .[,lapply(.SD, function(x) if(is.numeric(x)) min(x, na.rm=TRUE) else x[1]), by = "species"]
+    
   initialCommunities <- simulationMaps$initialCommunity[,.(mapcode, description = NA,
                                                            species)]
   set(initialCommunities, , paste("age", 1:15, sep = ""), NA)
@@ -723,7 +733,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   speciesnames <- c("Abie_Las",
                     "Pice_Gla", "Pice_Mar",
                     "Pinu_Ban", "Pinu_Con",
-                    "Popu_Tre", "Pseu_Men")
+                    "Popu_Tre")#, "Pseu_Men")
   i <- 1
   speciesFilenames <- character()
   for(indispecies in speciesnames){
@@ -751,10 +761,43 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     i <- i+1
   }
   
+  sumRastersBySpecies <- function(specieslayers, layersToSum, 
+                                  filenameToSave, cachePath) {
+    Pinu_sp <- calc(specieslayers[[layersToSum]], sum)
+    Pinu_sp <- Cache(writeRaster, Pinu_sp, 
+                     filename = filenameToSave, 
+                     datatype="INT2U", overwrite=TRUE, cacheRepo = cachePath)
+    # Need to have names be in sentence case
+    newNames <- tolower(layerNames(specieslayers))
+    substr(newNames,1,1) <- toupper(substr(newNames,1,1))
+    names(specieslayers) <- newNames
+    
+    specieslayers <- dropLayer(specieslayers, grep(pattern = "Pinu", names(specieslayers)))
+    specieslayers <- addLayer(specieslayers, Pinu_sp)
+    names(specieslayers)[grep("Pinu", names(specieslayers))] <- "Pinu_sp"
+    names(specieslayers)[grep("Abie", names(specieslayers))] <- "Abie_sp"
+    specieslayers
+  }
+  sim$specieslayers <- Cache(sumRastersBySpecies, 
+                             sim$specieslayers, c("Pinu_Ban", "Pinu_Con"),
+                             filenameToSave = file.path(dirname(filename(sim$specieslayers[["Pinu_Ban"]])),
+                                                 "KNNPinu_sp.tif"), cachePath = cachePath(sim),
+                             cacheRepo=cachePath(sim))
   ## load Paul Pickell et al. and CASFRI
-  if(FALSE) {
-    browser()
-    stackOut <- Cache(loadPaulAndCASFRI, sim, PaulRawFileName="SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")
+  if(TRUE) {
+    dataPath <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
+    stackOut <- Cache(loadPaulAndCASFRI, paths = lapply(paths(sim), basename), 
+                      PaulRawFileName = asPath(
+                        file.path(dataPath, "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")),
+                      existingSpeciesLayers = sim$specieslayers,
+                      CASFRITifFile = asPath(
+                        file.path(dataPath, "Landweb_CASFRI_GIDs.tif")),
+                      CASFRIattrFile = asPath(
+                        file.path(dataPath, "Landweb_CASFRI_GIDs_attributes3.csv")),
+                      CASFRIheaderFile = asPath(
+                        file.path(dataPath,"Landweb_CASFRI_GIDs_README.txt")),
+                      digestPathContent = TRUE#, debugCache = "quick"
+    )
   }
   
   
