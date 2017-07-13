@@ -3,8 +3,10 @@ function(input, output, session) {
   
   session$onSessionEnded(function() {
     if(needWorking) {
-      checkoutDev(checkoutCondition) # put git back to Development branch
-      .libPaths(origLibPaths) # get out of checkpoint
+      checkoutCondition <- reproducible:::checkoutVersion(
+        paste0("eliotmcintire/LandWeb@development"), cred = "GITHUB_PAT")
+      
+      #.libPaths(origLibPaths) # get out of checkpoint
     }
     
     if(TRUE)
