@@ -72,10 +72,7 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
   studyArea <- Cache(loadStudyArea, asPath(shapeFile), shpStudyRegionFull, 
                      crsPaul=crs(PaulOnGoogleDrive),
                      cacheRepo=paths$cachePath)
-  
-  #newfilename <- gsub(filename(PaulOnGoogleDrive), pattern = "\\.tif", replacement = "250.tif")
-  message("Make new study area polygon")
-  
+  #write file
   Cache(shapefile, studyArea, filename = "studyArea.shp", overwrite = TRUE,
         cacheRepo=paths$cachePath)
   
