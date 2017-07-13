@@ -15,7 +15,7 @@ useGdal2Tiles <- TRUE
 eventCaching <- "init" #Sys.time()
 needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 if(needWorking) {
-  LandWebVersion <- "2e3656bb957eb265daad638551c74bf1423ca287"
+  LandWebVersion <- "d538768a620e175d02cd0847c5f35fe52ee5ffed"
   spadesHash <- "88e4b394f466498a7aac92bda265a7acf818693c"
   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
 }

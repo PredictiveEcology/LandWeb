@@ -784,7 +784,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                                                  "KNNPinu_sp.tif"), cachePath = cachePath(sim),
                              cacheRepo=cachePath(sim))
   ## load Paul Pickell et al. and CASFRI
-  if(TRUE) {
+  if(FALSE) {
     dataPath <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
     stackOut <- Cache(loadPaulAndCASFRI, paths = lapply(paths(sim), basename), 
                       PaulRawFileName = asPath(
