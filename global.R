@@ -14,11 +14,11 @@ rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
 eventCaching <- "init" #Sys.time()
 needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
-if(needWorking) {
-  LandWebVersion <- "d538768a620e175d02cd0847c5f35fe52ee5ffed"
-  spadesHash <- "88e4b394f466498a7aac92bda265a7acf818693c"
-  amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
-}
+# if(needWorking) {
+#   LandWebVersion <- "d538768a620e175d02cd0847c5f35fe52ee5ffed"
+#   spadesHash <- "88e4b394f466498a7aac92bda265a7acf818693c"
+#   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
+# }
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if (FALSE) {
@@ -80,7 +80,7 @@ paths <- list(
   inputPath = "inputs",
   outputPath = paste0("outputs", studyArea)
 )
-if(needWorking) {
+if(FALSE) {#if(needWorking) {
   # Need SpaDES.core and all packages
   dateWorking <- "2017-06-08"
   origLibPaths <- .libPaths()
@@ -92,14 +92,16 @@ if(needWorking) {
 source("packagesUsedFromCRAN.R")
 
 if(needWorking) {
-  library(devtools)
+  
+  workingShas <- showWorkingShas(paths$cachePath)
+  reloadWorkingShas(md5hash = workingShas$artifact[1], cachePath = paths$cachePath) # 1 is most recent
   library(git2r) # has git repo internally
   # git remote set-url origin https://github.com/eliotmcintire/LandWeb.git
   
   # Internal caching inside install_github doesn't seem to work for commit-based refs
   #  this function is in packagesUsedFromCRAN.R
-  updatePkg("SpaDES.core", spadesHash, "PredictiveEcology")
-  updatePkg("amc", amcHash, "achubaty")
+  #updatePkg("SpaDES.core", spadesHash, "PredictiveEcology")
+  #updatePkg("amc", amcHash, "achubaty")
   
   # LandWeb -- get correct version based on git hash
   browser()
