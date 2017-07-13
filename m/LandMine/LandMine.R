@@ -301,10 +301,12 @@ meanTrucPareto <- function(k, lower, upper, alpha) {
 }
 
 vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap) {
-  species[species == "Pinu_Ban" | species == "Pinu_Con", speciesGroup := "PINU"] 
-  species[species == "Betu_Pap" | species == "Popu_Bal" |
-            species == "Popu_Tre" | species == "Lari_Lar", speciesGroup := "DECI"] 
-  species[species == "Pice_Mar" | species == "Pice_Gla", speciesGroup := "PICE"] 
+  species[species == "Pinu_ban" | species == "Pinu_con" | species == "Pinu_sp", speciesGroup := "PINU"] 
+  species[species == "Betu_pap" | species == "Popu_bal" |
+            species == "Popu_tre" | species == "Lari_lar", speciesGroup := "DECI"] 
+  species[species == "Pice_mar" , speciesGroup := "PICE_MAR"] 
+  species[species == "Pice_gla", speciesGroup := "PICE_GLA"] 
+  species[species == "Abie_sp" , speciesGroup := "ABIE"] 
   #cohortdata <- sim$cohortData
   shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,.(speciesCode, speciesGroup)], 
                                                             speciesCode), nomatch = 0] 
@@ -317,17 +319,20 @@ vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap) {
                   speciesLeading := 1]# pine leading 
   shortcohortdata[speciesGroup == "DECI" & speciesPercentage > vegLeadingPercent,
                   speciesLeading := 2]# deciduous leading 
-  shortcohortdata[speciesGroup == "PICE" & speciesPercentage > vegLeadingPercent,
+  shortcohortdata[speciesGroup == "PICE_MAR" & speciesPercentage > vegLeadingPercent,
                   speciesLeading := 3]# spruce leading 
+  shortcohortdata[speciesGroup == "PICE_GLA" & speciesPercentage > vegLeadingPercent,
+                  speciesLeading := 4]# spruce leading 
   shortcohortdata[is.na(speciesLeading), speciesLeading := 0] 
   shortcohortdata[,speciesLeading := max(speciesLeading, na.rm = TRUE), by = pixelGroup] 
   shortcohortdata <- unique(shortcohortdata[,.(pixelGroup, speciesLeading)], by = "pixelGroup") 
-  shortcohortdata[speciesLeading == 0, speciesLeading := 4] # 4 is mixed forests 
-  attritable <- data.table(ID = unique(shortcohortdata$speciesLeading))
+  shortcohortdata[speciesLeading == 0, speciesLeading := 5] # 5 is mixed forests 
+  attritable <- data.table(ID = sort(unique(shortcohortdata$speciesLeading)))
   attritable[ID == 1, Factor := "Pine leading"]
   attritable[ID == 2, Factor := "Deciduous leading"]
-  attritable[ID == 3, Factor := "Spruce leading"]
-  attritable[ID == 4, Factor := "Mixed"]
+  attritable[ID == 3, Factor := "Black spruce leading"]
+  attritable[ID == 4, Factor := "White spruce leading"]
+  attritable[ID == 5, Factor := "Mixed"]
   #pixelGroupMap <- sim$pixelGroupMap
   vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading") 
   vegTypeMap <- setValues(vegTypeMap, as.integer(getValues(vegTypeMap)))

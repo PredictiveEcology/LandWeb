@@ -112,12 +112,12 @@ LandWebOutputAllEvents <- function(sim) {
     sim$seralStageMap <- seralStageMap
   }
   # vegetation type summary 
-  if(is.null(sim$vegTypeMapGenerator)) {
+  if(is.null(sim$vegTypeMapGenerator)) { # This may be produced in a fire module
     species <- sim$species
-    species[species == "Pinu_Ban" | species == "Pinu_Con", speciesGroup := "PINU"] 
-    species[species == "Betu_Pap" | species == "Popu_Bal"| 
-              species == "Popu_Tre" | species == "Lari_Lar", speciesGroup := "DECI"] 
-    species[species == "Pice_Mar" | species == "Pice_Gla", speciesGroup := "PICE"] 
+    species[species == "Pinu_sp" | species == "Pinu_sp", speciesGroup := "PINU"] 
+    species[species == "Betu_pap" | species == "Popu_bal"| 
+              species == "Popu_tre" | species == "Lari_lar", speciesGroup := "DECI"] 
+    species[species == "Pice_mar" | species == "Pice_gla", speciesGroup := "PICE"] 
     cohortdata <- sim$cohortData
     shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,.(speciesCode, speciesGroup)], 
                                                               speciesCode), nomatch = 0] 
