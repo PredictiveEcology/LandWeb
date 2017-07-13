@@ -157,84 +157,84 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
                            polygonToSummarizeBy, cl, 
                            ageCutoffs = ageClassCutOffs, countNumPatches = countNumPatches,
                            ageClasses, notOlderThan = Sys.time() - 1e7) {
-
-#  withProgress(message = 'Calculation in progress',
-#               detail = 'This may take a while...', value = 0, {
-                   
-    withoutPath <- unlist(lapply(strsplit(timeSinceFireFiles, split = paths$outputPath), function(x) x[-1])) %>%
-      gsub(pattern = "\\/", replacement = "_")
-    yearNames <- unlist(lapply(strsplit(withoutPath, split = "_rstTimeSinceFire_|\\."), function(x) 
-      paste0(gsub(x[-length(x)], pattern="\\/",replacement="_"), collapse="")))
-    
-    rasWithNAs <- raster(raster(timeSinceFireFiles[1]))
-    rasWithNAs[] <- NA
-    #polygonToSummarizeByRast <- Cache(rasterize, polygonToSummarizeBy, y = rasWithNAs, cacheRepo = paths$cachePath)
-    cellIDByPolygon <- Cache(cacheRepo = paths$cachePath,
-                cellNumbersForPolygon, rasWithNAs, polygonToSummarizeBy)
-    
-    if (missing(cl)) {
-      lapplyFn <- "lapply"
+  
+  #  withProgress(message = 'Calculation in progress',
+  #               detail = 'This may take a while...', value = 0, {
+  
+  withoutPath <- unlist(lapply(strsplit(timeSinceFireFiles, split = paths$outputPath), function(x) x[-1])) %>%
+    gsub(pattern = "\\/", replacement = "_")
+  yearNames <- unlist(lapply(strsplit(withoutPath, split = "_rstTimeSinceFire_|\\."), function(x) 
+    paste0(gsub(x[-length(x)], pattern="\\/",replacement="_"), collapse="")))
+  
+  rasWithNAs <- raster(raster(timeSinceFireFiles[1]))
+  rasWithNAs[] <- NA
+  #polygonToSummarizeByRast <- Cache(rasterize, polygonToSummarizeBy, y = rasWithNAs, cacheRepo = paths$cachePath)
+  cellIDByPolygon <- Cache(cacheRepo = paths$cachePath,
+                           cellNumbersForPolygon, rasWithNAs, polygonToSummarizeBy)
+  
+  if (missing(cl)) {
+    lapplyFn <- "lapply"
+  } else {
+    lapplyFn <- "parLapplyLB"
+    if (Sys.info()[["sysname"]] == "Windows") {
+      
+      clusterExport(cl = cl,
+                    varlist = list(c(ls(), "countNumPatches")),
+                    envir = environment())
+      clusterEvalQ(cl = cl, {
+        library(raster)
+        library(magrittr)
+        library(SpaDES.core)
+        library(data.table)
+      })
+    }
+  }
+  
+  out <- lapply(ageCutoffs, function(ages) {
+    y <- match(ages, ageCutoffs)
+    if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
+      startList <- list(cl = cl)
     } else {
-      lapplyFn <- "parLapplyLB"
-      if (Sys.info()[["sysname"]] == "Windows") {
-        
-        clusterExport(cl = cl,
-                      varlist = list(c(ls(), "countNumPatches")),
-                      envir = environment())
-        clusterEvalQ(cl = cl, {
-          library(raster)
-          library(magrittr)
-          library(SpaDES.core)
-          library(data.table)
-        })
-      }
+      startList <- list()
     }
-    
-    out <- lapply(ageCutoffs, function(ages) {
-      y <- match(ages, ageCutoffs)
-      if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
-        startList <- list(cl = cl)
-      } else {
-        startList <- list()
-      }
-      startList <- append(startList, list(y = y))
-      out1 <- Cache(cacheRepo = paths$cachePath, #notOlderThan = Sys.time(),
-        do.call, lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
-          x <- match(x, timeSinceFireFiles)
-          timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
-          leadingRast <- raster(vegTypeMapFiles[x])
-          leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- NA
-          if ((y + 1) < length(ageCutoffs))
-            leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- NA
-          
-          clumpedRasts <- lapply(levels(leadingRast)[[1]]$ID, function(ID) {
-            spRas <- leadingRast
-            spRas[spRas != ID] <- NA
-            countNumPatches(spRas, cellIDByPolygon, directions = 8)
-          })
-          names(clumpedRasts) <- levels(leadingRast)[[1]]$Factor
-          clumpedRasts <- append(clumpedRasts,
-                                 list("All species" =
-                                        countNumPatches(leadingRast,  
-                                                        cellIDByPolygon,
-                                                        directions = 8)
-                                 ))
-          clumpedRasts
-        })))
-      names(out1) <- yearNames
-      outDT <- rbindlist(lapply(seq_along(out1), function(y) {
-          a <- rbindlist(lapply(seq_along(out1[[y]]), function(x) out1[[y]][[x]][,vegCover:=names(out1[[y]])[x]]))
-          a[,rep:=names(out1)[y]]
-        }))
-    }
-    )
-    out <- setNames(out, ageClasses)
-    out <- rbindlist(lapply(seq_along(out), function(z) {
-      out[[z]][, ageClass:=names(out)[z]]
+    startList <- append(startList, list(y = y))
+    out1 <- Cache(cacheRepo = paths$cachePath, #notOlderThan = Sys.time(),
+                  do.call, lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
+                    x <- match(x, timeSinceFireFiles)
+                    timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
+                    leadingRast <- raster(vegTypeMapFiles[x])
+                    leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- NA
+                    if ((y + 1) < length(ageCutoffs))
+                      leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- NA
+                    
+                    clumpedRasts <- lapply(levels(leadingRast)[[1]]$ID, function(ID) {
+                      spRas <- leadingRast
+                      spRas[spRas != ID] <- NA
+                      countNumPatches(spRas, cellIDByPolygon, directions = 8)
+                    })
+                    names(clumpedRasts) <- levels(leadingRast)[[1]]$Factor
+                    clumpedRasts <- append(clumpedRasts,
+                                           list("All species" =
+                                                  countNumPatches(leadingRast,  
+                                                                  cellIDByPolygon,
+                                                                  directions = 8)
+                                           ))
+                    clumpedRasts
+                  })))
+    names(out1) <- yearNames
+    outDT <- rbindlist(lapply(seq_along(out1), function(y) {
+      a <- rbindlist(lapply(seq_along(out1[[y]]), function(x) out1[[y]][[x]][,vegCover:=names(out1[[y]])[x]]))
+      a[,rep:=names(out1)[y]]
     }))
-    
-    out[sizeInHa>=100] # never will need patches smaller than 100 ha
-    #setProgress(1)
+  }
+  )
+  out <- setNames(out, ageClasses)
+  out <- rbindlist(lapply(seq_along(out), function(z) {
+    out[[z]][, ageClass:=names(out)[z]]
+  }))
+  
+  out[sizeInHa>=100] # never will need patches smaller than 100 ha
+  #setProgress(1)
   #})
   
 }
@@ -308,8 +308,8 @@ gdal2TilesFn <- function(r, filename, zoomRange=6:11, color_text_file = asPath(c
 PredictiveEcologyPackages <- c("reproducible", "SpaDES.core", "SpaDES.tools")
 
 workingShas <- function() {
-  shas <- lapply(packages, devtools:::local_sha)
-  names(shas) <- packages
+  shas <- lapply(PredictiveEcologyPackages, devtools:::local_sha)
+  names(shas) <- PredictiveEcologyPackages
   shas$LandWeb <- system("git rev-parse HEAD", intern=TRUE)
   shas
 }
@@ -331,8 +331,9 @@ reloadWorkingShas <- function(md5hash, cachePath) {
       message(names(shas)[n], " is already correct version")
     }
   })
-  
-  checkoutCondition <- checkoutVersion(shas$LandWeb)
+  checkoutCondition <- reproducible:::checkoutVersion(
+    paste0("eliotmcintire/LandWeb@",shas$LandWeb), cred = "GITHUB_PAT")
+  #checkoutCondition <- reproducible:::checkoutVersion(shas$LandWeb, cred = "GITHUB_PAT")
   
   return(invisible())
 }

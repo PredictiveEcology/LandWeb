@@ -13,7 +13,7 @@ message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
 eventCaching <- "init" #Sys.time()
-needWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+needWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 # if(needWorking) {
 #   LandWebVersion <- "d538768a620e175d02cd0847c5f35fe52ee5ffed"
 #   spadesHash <- "88e4b394f466498a7aac92bda265a7acf818693c"
@@ -90,11 +90,12 @@ if(FALSE) {#if(needWorking) {
 } 
 
 source("packagesUsedFromCRAN.R")
+source("functions.R")
 
 if(needWorking) {
   
-  workingShas <- showWorkingShas(paths$cachePath)
-  reloadWorkingShas(md5hash = workingShas$artifact[1], cachePath = paths$cachePath) # 1 is most recent
+  shas <- showWorkingShas(paths$cachePath)
+  reloadWorkingShas(md5hash = shas$artifact[1], cachePath = paths$cachePath) # 1 is most recent
   library(git2r) # has git repo internally
   # git remote set-url origin https://github.com/eliotmcintire/LandWeb.git
   
@@ -209,11 +210,11 @@ parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
                                    burnInitialTime = fireInitialTime,
                                    .plotInitialTime = NA
                                    , .useCache = eventCaching
-                                   ),
+                   ),
                    LBMR = list(.plotInitialTime = times$start,
                                .saveInitialTime = NA
                                , .useCache = eventCaching
-                               ),
+                   ),
                    initBaseMaps = list(.useCache = eventCaching),
                    timeSinceFire = list(startTime = fireInitialTime,
                                         .useCache = eventCaching),
