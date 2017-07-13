@@ -304,3 +304,35 @@ gdal2TilesFn <- function(r, filename, zoomRange=6:11, color_text_file = asPath(c
   return(invisible(NULL))
 }
 
+
+PredictiveEcologyPackages <- c("reproducible", "SpaDES.core", "SpaDES.tools")
+
+workingShas <- function() {
+  shas <- lapply(packages, devtools:::local_sha)
+  names(shas) <- packages
+  shas$LandWeb <- system("git rev-parse HEAD", intern=TRUE)
+  shas
+}
+
+showWorkingShas <- function(cachePath) {
+  sc <- showCache(cachePath, "workingShas")
+  setorderv(sc, "createdDate", order = -1L)
+  sc
+}
+
+reloadWorkingShas <- function(md5hash, cachePath) {
+  shas <- archivist::loadFromLocalRepo(repoDir = cachePath, md5hash, value = TRUE)  
+  whPackages <- names(shas) %in% PredictiveEcologyPackages
+  lapply(seq_along(shas[whPackages]), function(n) {
+    if((devtools:::local_sha(names(shas)[n])) != shas[[n]]) {
+      install_github(paste0("PredictiveEcology/",names(shas)[n],"@",shas[n]),
+                     dependencies = FALSE)
+    } else {
+      message(names(shas)[n], " is already correct version")
+    }
+  })
+  
+  checkoutCondition <- checkoutVersion(shas$LandWeb)
+  
+  return(invisible())
+}
