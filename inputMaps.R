@@ -16,6 +16,14 @@ loadShpAndMakeValid <- function(file) {
   shapefile(file) %>% gBuffer(byid=TRUE, width=0)
 }
 
+useEcozoneMask <- function(studyArea, ecozoneFilename){
+  A <- loadShpAndMakeValid(ecozoneFilename)
+  #A <- shapefile(ecozoneFilename)
+  B <- A[grep("Cordillera", A$ZONE_NAME, invert = T),] %>% 
+    .[grep("Prairie", B$ZONE_NAME, invert=TRUE),]
+  C <- raster::intersect(shpStudyRegionFull, B)
+}
+
 crsKNNMaps <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
 
 loadStudyRegion <- function(shpPath, studyArea, crsKNNMaps) {
