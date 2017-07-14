@@ -1,13 +1,13 @@
 reproducibleCache <- "reproducibleCache"
 usingPreviousVersion <- FALSE
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
-  if(exists("reloadPreviousWorking")) {
+  if(!exists("reloadPreviousWorking")) {
+    reloadPreviousWorking <- FALSE 
+  } else { 
     if(is.null(reloadPreviousWorking)) {
       reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
       usingPreviousVersion <- TRUE
     }
-  } else { 
-    reloadPreviousWorking <- FALSE 
   }
 }
 source("packagesUsedFromCRAN.R")
