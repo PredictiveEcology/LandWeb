@@ -16,7 +16,7 @@ message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
 eventCaching <- "init" #Sys.time()
-reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+reloadPreviousWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 # if(reloadPreviousWorking) {
 #   LandWebVersion <- "d538768a620e175d02cd0847c5f35fe52ee5ffed"
 #   spadesHash <- "88e4b394f466498a7aac92bda265a7acf818693c"
