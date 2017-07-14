@@ -1,21 +1,21 @@
-reloadPreviousWorking <- FALSE #c("SMALL","50") # This can be:
+reloadPreviousWorking <- c("SMALL","50") # This can be:
      # FALSE -- standard -- just run present conditions
      # TRUE (most recent one) or 
      # character string (most recent one with that character string) or 
      # character vector (most recent one with AND search)
      # numeric -- counting backwards from 1 previous, 2 previous etc.
-
+reloadPreviousWorkingLogical <- any(reloadPreviousWorking!=FALSE)
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
   if(!exists(".reloadPreviousWorking")) {
-    if(!reloadPreviousWorking) {
+    if(!reloadPreviousWorkingLogical) {
       .reloadPreviousWorking <- 0
     } else {
       .reloadPreviousWorking <- 1   
     }
   } else if(.reloadPreviousWorking!=2) {
-    .reloadPreviousWorking <- reloadPreviousWorking + 0
-  } else if(reloadPreviousWorking) {
-    .reloadPreviousWorking <- reloadPreviousWorking + 0
+    .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
+  } else if(reloadPreviousWorkingLogical) {
+    .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
   }
   
   
@@ -120,18 +120,6 @@ summaryPeriod <- c(10, endTime)
 
 # leaflet parameters
 leafletZoomInit = 5 
-
-if(FALSE) {#if(reloadPreviousWorking) {
-  # Need SpaDES.core and all packages
-  dateWorking <- "2017-06-08"
-  origLibPaths <- .libPaths()
-  if(!dir.exists(".checkpoint")) dir.create(".checkpoint")
-  if(!require(checkpoint)) install.packages("checkpoint")
-  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
-} 
-
-
-
 
 #####
 # if (Sys.info()["sysname"] != "Windows") beginCluster(4, type = "FORK")
