@@ -13,10 +13,14 @@ source("packagesUsedFromCRAN.R")
 source("functions.R")
 if(reloadPreviousWorking) {
   library(git2r) # has git repo internally
-  md5s <- showWorkingShas(reproducibleCache)
-  shas <- reloadWorkingShas(md5hash = md5s$artifact[1], cachePath = reproducibleCache) # 1 is most recent
-  reloadPreviousWorking <- NULL 
-  stop("Run app again")
+  md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
+  if(NROW(md5s)) {
+    shas <- reloadWorkingShas(md5hash = unique(md5s$artifact)[1], cachePath = reproducibleCache) # 1 is most recent
+    reloadPreviousWorking <- NULL 
+    stop("Run app again")
+  } else {
+    message("No previous working version. Proceeding.")
+  }
 } 
 
 # Spatial stuff
