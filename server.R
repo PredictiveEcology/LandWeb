@@ -2,12 +2,12 @@ function(input, output, session) {
   sessionStartTime <- Sys.time()
   
   session$onSessionEnded(function() {
-    if(reloadPreviousWorking) {
-      checkoutCondition <- reproducible:::checkoutVersion(
-        paste0("eliotmcintire/LandWeb@development"), cred = "GITHUB_PAT")
-      
-      #.libPaths(origLibPaths) # get out of checkpoint
-    }
+    # if(reloadPreviousWorking) {
+    #   checkoutCondition <- reproducible:::checkoutVersion(
+    #     paste0("eliotmcintire/LandWeb@development"), cred = "GITHUB_PAT")
+    #   
+    #   #.libPaths(origLibPaths) # get out of checkpoint
+    # }
     
     if(TRUE)
       if(Sys.info()["nodename"]=="W-VIC-A105388") {
@@ -22,12 +22,12 @@ function(input, output, session) {
     message("The session started at ", sessionStartTime)
   })
   
-  if(reloadPreviousWorking) {
-    keepArtifacts <<- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
-    archivist::addTagsRepo(keepArtifacts,
-                           repoDir = paths$cachePath,
-                           tags = paste0("LandWebVersion:", LandWebVersion))
-  }
+  # if(reloadPreviousWorking) {
+  #   keepArtifacts <<- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
+  #   archivist::addTagsRepo(keepArtifacts,
+  #                          repoDir = paths$cachePath,
+  #                          tags = paste0("LandWebVersion:", LandWebVersion))
+  # }
   #react <- reactiveValues()
   seed <- sample(1e8,1)
   set.seed(seed)
@@ -96,13 +96,13 @@ function(input, output, session) {
   callModule(moduleInfo, "modInfoBoxes", mySimOut[[1]])
   
   
-  if(reloadPreviousWorking) {
-    keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
-    keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
-    archivist::addTagsRepo(keepArtifacts,
-                           repoDir = paths$cachePath,
-                           tags = paste0("LandWebVersion:", LandWebVersion))
-  }
+  # if(reloadPreviousWorking) {
+  #   keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
+  #   keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
+  #   archivist::addTagsRepo(keepArtifacts,
+  #                          repoDir = paths$cachePath,
+  #                          tags = paste0("LandWebVersion:", LandWebVersion))
+  # }
   
   # mySimOut <- Cache(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE,
   #                   #cl = cl,
@@ -157,13 +157,13 @@ function(input, output, session) {
   leading <- do.call(Cache, args)
   message("  Finished leadingByStage")
   
-  if(reloadPreviousWorking) {
-    keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
-    keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
-    archivist::addTagsRepo(keepArtifacts,
-                           repoDir = paths$cachePath,
-                           tags = paste0("LandWebVersion:", LandWebVersion))
-  }
+  # if(reloadPreviousWorking) {
+  #   keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
+  #   keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
+  #   archivist::addTagsRepo(keepArtifacts,
+  #                          repoDir = paths$cachePath,
+  #                          tags = paste0("LandWebVersion:", LandWebVersion))
+  # }
   
   # Large patches
   polygonsWithData <- leading[,unique(polygonNum[!is.na(proportion)]),by=ageClass]
