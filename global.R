@@ -1,3 +1,6 @@
+system("git commit -a -m 'pre run'")
+system("git push")
+
 if(FALSE) {
   
   try(detach("package:SpaDES.core", unload=TRUE)); try(detach("package:SpaDES.tools", unload=TRUE)); 
