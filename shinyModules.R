@@ -9,7 +9,7 @@ vegAgeModUI <- function(id, vegLeadingTypes) {
   tagList(
     box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
         title = paste0(vegLeadingTypes[vegTypeIndex]),
-        plotOutput(ns("propCoverHists"), height = 300)
+        withSpinner(plotOutput(ns("propCoverHists"), height = 300))
     )
   )
 } 
@@ -127,7 +127,7 @@ clumpModOutput <- function(id, vegLeadingTypes) {
   vegTypeIndex <- as.numeric(ids[3])
   box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
       title = paste0(vegLeadingTypes[vegTypeIndex]),
-      plotOutput(ns("h"), height = 300)
+      withSpinner(plotOutput(ns("h"), height = 300))
   )
   
 } 
@@ -200,7 +200,7 @@ leafletMapUI <- function(id) {
     box(width = 12, 
         solidHeader = TRUE, collapsible = TRUE, 
         title = "Area covered by this demo (in red), within the LandWeb study area (blue)",
-        leaflet::leafletOutput(ns("leafletMap1"), height = 600),
+        withSpinner(leaflet::leafletOutput(ns("leafletMap1"), height = 600)),
         selectInput(ns("leafletMapPolygons"), "Other layers to show summaries with", 
                     choices = names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3]), 
                     selected = names(polygons[1:(length(polygons)/4)+(length(polygons)/4)*3])[[1]])
@@ -334,75 +334,74 @@ timeSinceFireMod <- function(input, output, session, rasts) {
   
   
   output$timeSinceFire2 <- renderLeaflet({
-    leafZoom <- leafletZoomInit #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
-    rasInp <- isolate(rasterInput())
-    polyNum <- polygonInput()
-    polyDemo <- polygons[[polyNum + (length(polygons)/4)*3]]#6]] # leaflet projection, DEMO scale
-    polyFull <- polygons[[polyNum + (length(polygons)/4)*2]] # leaflet projection, Full scale
-    
-    ras1 <- rasInp$r
-    sliderVal <- rasInp$sliderVal
-    pol <- polygons[[(length(polygons)/4)*4]]
-    shpStudyRegionFullLFLT <- spTransform(shpStudyRegionFull, crs(polyFull))
-    leafMap <- leaflet(options = leafletOptions(minZoom = 1, maxZoom = 10)) %>% #addTiles(group = "OSM (default)") %>%
-      #addProviderTiles("Esri.WorldTopoMap") %>%
-      addProviderTiles("Thunderforest.OpenCycleMap", group="Open Cycle Map",
-                       options=providerTileOptions(minZoom = 1, maxZoom = 10)) %>%
-      addProviderTiles(providers$Esri.WorldImagery, group = "ESRI World Imagery", 
-                       options=providerTileOptions(minZoom = 1, maxZoom = 10)) %>%
-      #addProviderTiles("ESRI.WorldTopoMap", group = "ESRI World Topo Map") %>%
-      addPolygons(data = shpStudyRegionFullLFLT, color = "blue", 
-                  group = "Fire return interval",
-                  fillOpacity = 0.3, weight = 1,
-                  fillColor = ~colorFactor("Spectral", fireReturnInterval)(fireReturnInterval)) %>% #,
-      #addPolygons(data = polyDemo, color = "red", group = "Demo",
-      #            fillOpacity = 0.0, weight = 3) %>% #,
-      # addTiles(urlTemplate=file.path(studyArea, paste0("outrstTimeSInceFire_year",
-      #                                                  paddedFloatToChar(sliderVal+summaryPeriod[1], 
-      #                                                                    nchar(end(mySim))),
-      #                                                  "LFLT/{z}/{x}/{y}.png")),
-      #          option = tileOptions(tms = FALSE, minZoom = 6, maxZoom = 11)) %>%
-      #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
-      #               colors = timeSinceFirePalette, project = FALSE)  %>%
-      #addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
-      addLegend(position = "bottomright", pal = timeSinceFirePalette,
-                #values = na.omit(ras1[]),
-                values = 1:maxAge,
-                title = paste0("Time since fire",br(),"(years)")) %>%
-      addMeasure(
-        position = "bottomleft",
-        primaryLengthUnit = "kilometers",
-        primaryAreaUnit = "hectares",
-        activeColor = "#3D535D",
-        completedColor = "#7D4479") %>%
-      addEasyButton(easyButton(
-        icon="fa-map", title="Zoom to Demonstration Area",
-        #onClick=JS("function(btn, map){ map.setZoom(5); }"))) %>%
-        #onClick=JS(paste0("function(btn, map){ map.setView([",mean(c(ymin(pol),ymax(pol))), 
-        #                   ", ",mean(c(xmin(pol),xmax(pol))) ,"], 8)}")))) %>%
-        onClick=JS(paste0("function(btn, map){ map.fitBounds([[",ymin(pol),", ",xmin(pol),"], [" 
-                        ,ymax(pol),", ",xmax(pol) ,"]])}")))) %>%
-      addEasyButton(easyButton(
-        icon="fa-globe", title="Zoom out to LandWeb study area",
-        #onClick=JS("function(btn, map){ map.setZoom(5); }"))) %>%
-        onClick=JS(paste0("function(btn, map){ map.setView([",mean(c(ymin(shpStudyRegionFullLFLT),
-                                                                     ymax(shpStudyRegionFullLFLT))), 
-                           ", ",mean(c(xmin(shpStudyRegionFullLFLT),
-                                       xmax(shpStudyRegionFullLFLT))) ,"], 5)}")))) %>%
-        # onClick=JS(paste0("function(btn, map){ map.fitBounds([[",ymin(pol),", ",xmin(pol),"], [" 
-        #                   ,ymax(pol),", ",xmax(pol) ,"]])}")))) %>%
-      addMiniMap(
-        tiles = providers$OpenStreetMap,
-        toggleDisplay = TRUE) %>%
-      # addLegend(position = "bottomleft", pal = fireReturnIntervalPalette, opacity=0.3,
-      #           values = sort(unique(shpStudyRegionFull$fireReturnInterval))[1:6*3],
-      #           title = paste0("Fire Return Interval(years)"),
-      #           layerId="Fire return interval legend") %>%
-      setView(mean(c(xmin(shpStudyRegionFullLFLT),xmax(shpStudyRegionFullLFLT))), 
-              mean(c(ymin(shpStudyRegionFullLFLT),ymax(shpStudyRegionFullLFLT))), 
-              zoom = leafZoom
-      ) 
-    
+      leafZoom <- leafletZoomInit #if(is.null(input$timeSinceFire2_zoom)) 7 else input$timeSinceFire2_zoom
+      rasInp <- isolate(rasterInput())
+      polyNum <- polygonInput()
+      #polyDemo <- polygons[[polyNum + (length(polygons)/4)*3]]#6]] # leaflet projection, DEMO scale
+      polyFull <- polygons[[polyNum + (length(polygons)/4)*2]] # leaflet projection, Full scale
+      
+      ras1 <- rasInp$r
+      sliderVal <- rasInp$sliderVal
+      pol <- polygons[[(length(polygons)/4)*4]]
+      shpStudyRegionFullLFLT <- spTransform(shpStudyRegionFull, crs(polyFull))
+      leafMap <- leaflet(options = leafletOptions(minZoom = 1, maxZoom = 10)) %>% #addTiles(group = "OSM (default)") %>%
+        #addProviderTiles("Esri.WorldTopoMap") %>%
+        addProviderTiles("Thunderforest.OpenCycleMap", group="Open Cycle Map",
+                         options=providerTileOptions(minZoom = 1, maxZoom = 10)) %>%
+        addProviderTiles(providers$Esri.WorldImagery, group = "ESRI World Imagery", 
+                         options=providerTileOptions(minZoom = 1, maxZoom = 10)) %>%
+        #addProviderTiles("ESRI.WorldTopoMap", group = "ESRI World Topo Map") %>%
+        addPolygons(data = shpStudyRegionFullLFLT, color = "blue", 
+                    group = "Fire return interval",
+                    fillOpacity = 0.3, weight = 1,
+                    fillColor = ~colorFactor("Spectral", fireReturnInterval)(fireReturnInterval)) %>% #,
+        #addPolygons(data = polyDemo, color = "red", group = "Demo",
+        #            fillOpacity = 0.0, weight = 3) %>% #,
+        # addTiles(urlTemplate=file.path(studyArea, paste0("outrstTimeSInceFire_year",
+        #                                                  paddedFloatToChar(sliderVal+summaryPeriod[1], 
+        #                                                                    nchar(end(mySim))),
+        #                                                  "LFLT/{z}/{x}/{y}.png")),
+        #          option = tileOptions(tms = FALSE, minZoom = 6, maxZoom = 11)) %>%
+        #addRasterImage(x = ras1, group = "timeSinceFireRasts", opacity = 0.7, 
+        #               colors = timeSinceFirePalette, project = FALSE)  %>%
+        #addPolygons(data = pol, fillOpacity = 0, weight = 1) %>%
+        addLegend(position = "bottomright", pal = timeSinceFirePalette,
+                  #values = na.omit(ras1[]),
+                  values = 1:maxAge,
+                  title = paste0("Time since fire",br(),"(years)")) %>%
+        addMeasure(
+          position = "bottomleft",
+          primaryLengthUnit = "kilometers",
+          primaryAreaUnit = "hectares",
+          activeColor = "#3D535D",
+          completedColor = "#7D4479") %>%
+        addEasyButton(easyButton(
+          icon="fa-map", title="Zoom to Demonstration Area",
+          #onClick=JS("function(btn, map){ map.setZoom(5); }"))) %>%
+          #onClick=JS(paste0("function(btn, map){ map.setView([",mean(c(ymin(pol),ymax(pol))), 
+          #                   ", ",mean(c(xmin(pol),xmax(pol))) ,"], 8)}")))) %>%
+          onClick=JS(paste0("function(btn, map){ map.fitBounds([[",ymin(pol),", ",xmin(pol),"], [" 
+                          ,ymax(pol),", ",xmax(pol) ,"]])}")))) %>%
+        addEasyButton(easyButton(
+          icon="fa-globe", title="Zoom out to LandWeb study area",
+          #onClick=JS("function(btn, map){ map.setZoom(5); }"))) %>%
+          onClick=JS(paste0("function(btn, map){ map.setView([",mean(c(ymin(shpStudyRegionFullLFLT),
+                                                                       ymax(shpStudyRegionFullLFLT))), 
+                             ", ",mean(c(xmin(shpStudyRegionFullLFLT),
+                                         xmax(shpStudyRegionFullLFLT))) ,"], 5)}")))) %>%
+          # onClick=JS(paste0("function(btn, map){ map.fitBounds([[",ymin(pol),", ",xmin(pol),"], [" 
+          #                   ,ymax(pol),", ",xmax(pol) ,"]])}")))) %>%
+        addMiniMap(
+          tiles = providers$OpenStreetMap,
+          toggleDisplay = TRUE) %>%
+        # addLegend(position = "bottomleft", pal = fireReturnIntervalPalette, opacity=0.3,
+        #           values = sort(unique(shpStudyRegionFull$fireReturnInterval))[1:6*3],
+        #           title = paste0("Fire Return Interval(years)"),
+        #           layerId="Fire return interval legend") %>%
+        setView(mean(c(xmin(shpStudyRegionFullLFLT),xmax(shpStudyRegionFullLFLT))), 
+                mean(c(ymin(shpStudyRegionFullLFLT),ymax(shpStudyRegionFullLFLT))), 
+                zoom = leafZoom
+        ) 
     leafMap
   })
   
@@ -506,7 +505,7 @@ timeSinceFireModUI <- function(id, tsf) {
     box(width = 8, solidHeader = TRUE, collapsible = TRUE, 
         h4(paste("Below are a sequence of snapshots of the landscape, showing the natural range of",
                  "variation in time since fire. Click on the 'play' button at the bottom right to animate")),
-        leaflet::leafletOutput(ns("timeSinceFire2"), height = 600),
+        withSpinner(leaflet::leafletOutput(ns("timeSinceFire2"), height = 600)),
         sliderInput(ns("timeSinceFire1Slider"), 
                     "Individual snapshots of time since fire maps. Use play button (bottom right) to animate.", 
                     min = 0, max = (length(tsf)-1)*10, value = 0, step = 10, 
@@ -514,7 +513,7 @@ timeSinceFireModUI <- function(id, tsf) {
     ),
     box(width = 4, solidHeader = TRUE, collapsible = TRUE, 
         h4(paste("Current time since distribution distribution")),
-        plotOutput(ns("timeSinceFire2Hist"), height = 600)
+        withSpinner(plotOutput(ns("timeSinceFire2Hist"), height = 600))
     )
     
   )
@@ -561,7 +560,7 @@ simModuleDiagramUI <- function(id) {
     "Arrows between modules indicate at least one data object",
     "passed from one module to the other."))
   
-  ui_output$diagram <- imageOutput(ns("modDiag"), height = 750)
+  ui_output$diagram <- withSpinner(imageOutput(ns("modDiag"), height = 750))
   
   return(ui_output)
 }
@@ -590,7 +589,7 @@ simObjectDiagramUI <- function(id) {
     "passed from one module to the other."
   ))
   
-  ui_output$diagram <- DiagrammeR::DiagrammeROutput(ns("objectDiagram"), height = 1500)
+  ui_output$diagram <- withSpinner(DiagrammeR::DiagrammeROutput(ns("objectDiagram"), height = 1500))
   
   return(ui_output)
 }
@@ -623,7 +622,7 @@ simEventDiagramUI <- function(id) {
     "event DOES NOT correspond to an event's 'duration'."
   ))
   
-  out$diagram <- DiagrammeR::DiagrammeROutput(ns("eventDiagram"), height = 1500)
+  out$diagram <- withSpinner(DiagrammeR::DiagrammeROutput(ns("eventDiagram"), height = 1500))
   
   return(out)
 }

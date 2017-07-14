@@ -1,7 +1,3 @@
-library(shiny)
-library(shinydashboard)
-library(shinyBS)
-
 dashboardPage(skin = "green",
   dashboardHeader(title = "LandWeb"),
   dashboardSidebar(width = 300,
@@ -42,149 +38,169 @@ dashboardPage(skin = "green",
   ),
   dashboardBody(
     includeCSS("www/style.css"),
-    
-    tabItems(
-      # tabItem("StudyRegion",
-      #         fluidRow(
-      #           box(
-      #             width = 12,
-      #             height = 900,
-      #             solidHeader = TRUE,
-      #             status = "success",
-      #             title = "Fire Return Interval, with sub region currently in Demo (hover mouse over for values)",
-      #             #plotOutput("StudyRegion", width = "100%")#, height = "100%")
-      #             #plotlyOutput("StudyRegion", width = "100%")#, height = "100%")
-      #             ggvisOutput("StudyRegion")
-      #           )
-      #         )
-      # ),
-      tabItem("simDiagrams", simInfoUI("simInfoTabs")),
-      tabItem("moduleInfo", moduleInfoUI("modInfoBoxes")),
-      tabItem("ClumpsYoung",
-              fluidRow(uiOutput("ClumpsYoungUI"))
-      ),
-      tabItem("ClumpsImmature",
-              fluidRow(uiOutput("ClumpsImmatureUI"))
-      ),
-      tabItem("ClumpsMature",
-              fluidRow(uiOutput("ClumpsMatureUI"))
-      ),
-      tabItem("ClumpsOld",
-              fluidRow(uiOutput("ClumpsOldUI"))
-      ),
-      tabItem("Polygons",
-              fluidRow(
-                tabBox(width = 12,
-                       tabPanel("Current Polygons", tabName = "Polygons1",
-                                fluidRow(leafletMapUI("leafletMap"))
-                       )
-                )
-              )
-      ),
-      tabItem("TimeSinceFire",
-              fluidRow(uiOutput("timeSinceFireUI"))
-      ),
-      tabItem("Young",
-              fluidRow(uiOutput("YoungUI"))
-      ),
-      tabItem("Immature",
-              fluidRow(uiOutput("ImmatureUI"))
-      ),
-      tabItem("Mature",
-              fluidRow(uiOutput("MatureUI"))
-      ),
-      tabItem("Old",
-              fluidRow(uiOutput("OldUI"))
-      ),
-      tabItem("inputTables",
-              fluidRow(
-                h3("Currently, these inputs are not changeable by specific regions"),
-                box(
-                  width = 10,
-                  solidHeader = TRUE,
-                  status = "success",
-                  title = "Species Inputs",
-                  dataTableOutput("speciesInputs")
-                )
-              ),
-              fluidRow(
-                box(
-                  width = 12,
-                  solidHeader = TRUE,
-                  status = "success",
-                  title = "Geographically Varying Species Inputs. These are means (and SE) across all map regions",
-                  dataTableOutput("speciesEcoregionInputs")
-                )
-              )
-      ),
-      tabItem("OldDecidByPoly",
-              fluidRow(
-                box(
-                  width = 12,
-                  height = 900,
-                  solidHeader = TRUE,
-                  status = "success",
-                  title = "Initial Conditions Gone for Natural Range of Variation Calculation",
-                  plotOutput("OldDecidByPoly")
-                )
-              )
-      ),
-      tabItem("seralStage1",
-              fluidRow(
-                box(
-                  width = 6,
-                  solidHeader = TRUE,
-                  #width = 8, 
-                  status = "success",
-                  title = "% Cover by each seral stage",
-                  plotOutput("seralStagePctCover")
-                ),
-                box(
-                  width = 4,
-                  solidHeader = TRUE,
-                  status = "success",
-                  title = "Seral stage for region",
-                  plotOutput("seralStagePctCoverMap")
-                )
-              )
-      ),
-      tabItem("vegType",
-              fluidRow(
-                box(
-                  width = 6,
-                  solidHeader = TRUE,
-                  status = "success",
-                  title = "% Cover by each vegatation type",
-                  plotOutput("vegTypePctCover")
-                ),
-                box(
-                  width = 4,
-                  solidHeader = TRUE,
-                  status = "success",
-                  title = "Vegetation types for region",
-                  plotOutput("vegTypePctCoverMap")
-                )
-              )
-      ),
-      tabItem("patchSizes",
-              fluidRow(
-                box(
-                  width = 6,
-                  solidHeader = TRUE,
-                  status = "success",
-                  title = "Number of patches, by seral stage",
-                  plotOutput("patchSizesFig5")
-                ),
-                box(
-                  width = 5,
-                  solidHeader = TRUE,
-                  status = "success",
-                  title = "Over old patches",
-                  plotOutput("patchSizesFig5Raster")
-                )
-              )
-      )
+    useShinyjs(),
+    #tags$head(tags$style(HTML(mycss))),
+    div(
+      id = "loading_page",
+      h1("Loading, please wait ..."),
+      tags$img(src = #"http://cdn.boatinternational.com/assets/spinner-2cd0a51f39b9c1d559af6c393f97a80c.gif",
+               "http://s01.europapress.net/chance/loading.gif",
+               id = "loading-spinner",
+               width = "100px", height = "100px"),
+      br(),
+      
+      style="text-align: center;"
     ),
+    
+    #hidden(
+      div(
+        id = "main_content",
+    
+        tabItems(
+          # tabItem("StudyRegion",
+          #         fluidRow(
+          #           box(
+          #             width = 12,
+          #             height = 900,
+          #             solidHeader = TRUE,
+          #             status = "success",
+          #             title = "Fire Return Interval, with sub region currently in Demo (hover mouse over for values)",
+          #             #plotOutput("StudyRegion", width = "100%")#, height = "100%")
+          #             #plotlyOutput("StudyRegion", width = "100%")#, height = "100%")
+          #             ggvisOutput("StudyRegion")
+          #           )
+          #         )
+          # ),
+          tabItem("simDiagrams", simInfoUI("simInfoTabs")),
+          tabItem("moduleInfo", moduleInfoUI("modInfoBoxes")),
+          tabItem("ClumpsYoung",
+                  fluidRow(uiOutput("ClumpsYoungUI"))
+          ),
+          tabItem("ClumpsImmature",
+                  fluidRow(uiOutput("ClumpsImmatureUI"))
+          ),
+          tabItem("ClumpsMature",
+                  fluidRow(uiOutput("ClumpsMatureUI"))
+          ),
+          tabItem("ClumpsOld",
+                  fluidRow(uiOutput("ClumpsOldUI"))
+          ),
+          tabItem("Polygons",
+                  fluidRow(
+                    tabBox(width = 12,
+                           tabPanel("Current Polygons", tabName = "Polygons1",
+                                    fluidRow(leafletMapUI("leafletMap"))
+                           )
+                    )
+                  )
+          ),
+          tabItem("TimeSinceFire",
+                  fluidRow(uiOutput("timeSinceFireUI"))
+          ),
+          tabItem("Young",
+                  fluidRow(uiOutput("YoungUI"))
+          ),
+          tabItem("Immature",
+                  fluidRow(uiOutput("ImmatureUI"))
+          ),
+          tabItem("Mature",
+                  fluidRow(uiOutput("MatureUI"))
+          ),
+          tabItem("Old",
+                  fluidRow(uiOutput("OldUI"))
+          ),
+          tabItem("inputTables",
+                  fluidRow(
+                    h3("Currently, these inputs are not changeable by specific regions"),
+                    box(
+                      width = 10,
+                      solidHeader = TRUE,
+                      status = "success",
+                      title = "Species Inputs",
+                      dataTableOutput("speciesInputs")
+                    )
+                  ),
+                  fluidRow(
+                    box(
+                      width = 12,
+                      solidHeader = TRUE,
+                      status = "success",
+                      title = "Geographically Varying Species Inputs. These are means (and SE) across all map regions",
+                      dataTableOutput("speciesEcoregionInputs")
+                    )
+                  )
+          ),
+          tabItem("OldDecidByPoly",
+                  fluidRow(
+                    box(
+                      width = 12,
+                      height = 900,
+                      solidHeader = TRUE,
+                      status = "success",
+                      title = "Initial Conditions Gone for Natural Range of Variation Calculation",
+                      plotOutput("OldDecidByPoly")
+                    )
+                  )
+          ),
+          tabItem("seralStage1",
+                  fluidRow(
+                    box(
+                      width = 6,
+                      solidHeader = TRUE,
+                      #width = 8, 
+                      status = "success",
+                      title = "% Cover by each seral stage",
+                      plotOutput("seralStagePctCover")
+                    ),
+                    box(
+                      width = 4,
+                      solidHeader = TRUE,
+                      status = "success",
+                      title = "Seral stage for region",
+                      plotOutput("seralStagePctCoverMap")
+                    )
+                  )
+          ),
+          tabItem("vegType",
+                  fluidRow(
+                    box(
+                      width = 6,
+                      solidHeader = TRUE,
+                      status = "success",
+                      title = "% Cover by each vegatation type",
+                      plotOutput("vegTypePctCover")
+                    ),
+                    box(
+                      width = 4,
+                      solidHeader = TRUE,
+                      status = "success",
+                      title = "Vegetation types for region",
+                      plotOutput("vegTypePctCoverMap")
+                    )
+                  )
+          ),
+          tabItem("patchSizes",
+                  fluidRow(
+                    box(
+                      width = 6,
+                      solidHeader = TRUE,
+                      status = "success",
+                      title = "Number of patches, by seral stage",
+                      plotOutput("patchSizesFig5")
+                    ),
+                    box(
+                      width = 5,
+                      solidHeader = TRUE,
+                      status = "success",
+                      title = "Over old patches",
+                      plotOutput("patchSizesFig5Raster")
+                    )
+                  )
+          )
+        )
+    #  ) # hidden
+    ),
+    
     copyrightFooter()
   )
 )
