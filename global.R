@@ -16,8 +16,7 @@ if(reloadPreviousWorking) {
   library(git2r) # has git repo internally
   md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
   if(NROW(md5s)) {
-    system("git commit -a -m 'automated push post run'")
-    system("git push")
+    system("git stash")
     shas <- reloadWorkingShas(md5hash = unique(md5s$artifact)[1], cachePath = reproducibleCache) # 1 is most recent
     reloadPreviousWorking <- NULL 
     stop("Run app again")
