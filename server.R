@@ -10,9 +10,7 @@ function(input, output, session) {
     # }
     
     if(TRUE)
-      if(Sys.info()["nodename"]=="W-VIC-A105388") {
-        Cache(workingShas, cacheRepo = reproducibleCache, notOlderThan = Sys.time(), 
-              userTags = "workingShas")
+      if(Sys.info()["nodename"]=="W-VIC-A105388")  {
         
         if(rsyncToAWS) {
           keepCache(mySim, after = appStartTime)
@@ -356,6 +354,10 @@ function(input, output, session) {
 
 
   if(Sys.info()["nodename"]=="W-VIC-A105388") {
+    Cache(workingShas, cacheRepo = reproducibleCache, notOlderThan = Sys.time(), 
+          userTags = "workingShas")
+    system("git commit -a -m 'automated push post run'")
+    system("git push")
     if(usingPreviousVersion) {
       system("git checkout .")
       system("git checkout development")

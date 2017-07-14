@@ -13,8 +13,6 @@ if(Sys.info()["nodename"]=="W-VIC-A105388"){
 source("packagesUsedFromCRAN.R")
 source("functions.R")
 if(reloadPreviousWorking) {
-  system("git commit -a -m 'pre run'")
-  system("git push")
   library(git2r) # has git repo internally
   md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
   if(NROW(md5s)) {
