@@ -58,9 +58,9 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 300 # was 4
+endTime <- 40 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(200, endTime)
+summaryPeriod <- c(10, endTime)
 
 # Spatial stuff
 #studyArea <- "FULL"
@@ -68,7 +68,7 @@ studyArea <- "EXTRALARGE"
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 studyArea <- "SMALL"
-studyArea <- "NWT"
+#studyArea <- "NWT"
 
 # leaflet parameters
 leafletZoomInit = 5 
