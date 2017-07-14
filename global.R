@@ -1,12 +1,16 @@
-if(Sys.info()["nodename"]=="W-VIC-A105388" & !is.null(reloadPreviousWorking)) {
-  reloadPreviousWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+if(Sys.info()["nodename"]=="W-VIC-A105388"){
+  if(exists("reloadPreviousWorking")) {
+    if(is.null(reloadPreviousWorking)) reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+  } else { 
+    reloadPreviousWorking <- FALSE # CHANGE THIS ONE
+  }
   reproducibleCache <- "reproducibleCache"
+  system("git commit -a -m 'pre run'")
+  system("git push")
 }
 source("packagesUsedFromCRAN.R")
 source("functions.R")
 if(reloadPreviousWorking) {
-  system("git commit -a -m 'pre run'")
-  system("git push")
   library(git2r) # has git repo internally
   md5s <- showWorkingShas(reproducibleCache)
   shas <- reloadWorkingShas(md5hash = md5s$artifact[1], cachePath = reproducibleCache) # 1 is most recent
