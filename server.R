@@ -11,16 +11,15 @@ function(input, output, session) {
     
     if(TRUE)
       if(Sys.info()["nodename"]=="W-VIC-A105388") {
-        system("git checkout .")
-        system("git checkout development")
         Cache(workingShas, cacheRepo = reproducibleCache, notOlderThan = Sys.time(), 
               userTags = "workingShas")
         
-        keepCache(mySim, after = appStartTime)
-        if(rsyncToAWS)
+        if(rsyncToAWS) {
+          keepCache(mySim, after = appStartTime)
           system(paste0("rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e 'ssh -i ",
                         path.expand('~'),
                         "/.ssh/laptopTesting.pem' ~/Documents/GitHub/LandWeb/ emcintir@ec2-52-26-180-235.us-west-2.compute.amazonaws.com:/srv/shiny-server/Demo/"))
+        }
       }
     
     message("The app started at ", appStartTime)
@@ -356,7 +355,13 @@ function(input, output, session) {
   })#, digits = 1)
 
 
-  # if(Sys.info()["nodename"]=="W-VIC-A105388") {
+  if(Sys.info()["nodename"]=="W-VIC-A105388") {
+    if(usingPreviousVersion) {
+      system("git checkout .")
+      system("git checkout development")
+    }
+  }
+    # if(Sys.info()["nodename"]=="W-VIC-A105388") {
   #   system("git commit -a -m 'pre run'")
   #   system("git push")
   # }
