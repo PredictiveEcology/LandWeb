@@ -11,7 +11,8 @@ function(input, output, session) {
     
     if(TRUE)
       if(Sys.info()["nodename"]=="W-VIC-A105388") {
-        system("git checkout development")
+        if(reloadPreviousWorking)
+          system("git checkout development")
         
         keepCache(mySim, after = appStartTime)
         if(rsyncToAWS)
@@ -352,6 +353,11 @@ function(input, output, session) {
     spEcoReg
   })#, digits = 1)
 
+
   Cache(workingShas, cacheRepo = reproducibleCache, notOlderThan = Sys.time(), 
         userTags = "workingShas")
+  if(Sys.info()["nodename"]=="W-VIC-A105388") {
+    system("git commit -a -m 'pre run'")
+    system("git push")
+  }
 }
