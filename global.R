@@ -1,15 +1,17 @@
 reloadPreviousWorking <- FALSE # Change this to TRUE to get a working version
 
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
-  if(!reloadPreviousWorking) {
-    .reloadPreviousWorking <- 0
-  } else {
-    if(!exists(".reloadPreviousWorking")) {
-      .reloadPreviousWorking <- 1  
-    } else if(.reloadPreviousWorking!=2) {
-      .reloadPreviousWorking <- 1
+  if(!exists(".reloadPreviousWorking")) {
+    if(!reloadPreviousWorking) {
+      .reloadPreviousWorking <- 0
+    } else {
+      .reloadPreviousWorking <- 1   
     }
+  } else if(.reloadPreviousWorking!=2) {
+    .reloadPreviousWorking <- reloadPreviousWorking + 0
   }
+  
+  
 }
 source("packagesUsedFromCRAN.R")
 source("functions.R")
