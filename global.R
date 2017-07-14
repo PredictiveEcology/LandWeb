@@ -1,5 +1,5 @@
 reproducibleCache <- "reproducibleCache"
-usingPreviousVersion <- FALSE
+usingPreviousVersion <- TRUE
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
   if(!exists("reloadPreviousWorking")) {
     reloadPreviousWorking <- FALSE 
