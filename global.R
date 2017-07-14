@@ -114,7 +114,7 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 50 # was 4
+endTime <- 30 # was 4
 summaryInterval <- 5#endTime/2 # was 2
 summaryPeriod <- c(10, endTime)
 
