@@ -357,6 +357,7 @@ function(input, output, session) {
     Cache(workingShas, cacheRepo = reproducibleCache, date = Sys.time(), 
           userTags = "workingShas")
     if(.reloadPreviousWorking>0) { # working on temporary head
+      browser()
       system("git checkout .") # delete any changes
       system("git checkout development") # go back to development
       system("git stash pop") # pop the stashed anything
