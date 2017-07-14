@@ -273,3 +273,5 @@ if(FALSE){
   
 }
 
+options("spinner.type"= 5)
+#options(spinner.color="blue")
