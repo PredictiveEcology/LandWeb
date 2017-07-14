@@ -1,6 +1,4 @@
 reloadPreviousWorking <- FALSE # Change this to TRUE to get a working version
-reproducibleCache <- "reproducibleCache"
-#usingPreviousVersion <- FALSE
 
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
   if(!reloadPreviousWorking) {
@@ -12,19 +10,13 @@ if(Sys.info()["nodename"]=="W-VIC-A105388"){
       .reloadPreviousWorking <- 1
     }
   }
-  # if(!exists("reloadPreviousWorking")) {
-  #   reloadPreviousWorking <- FALSE # Change this one
-  # } else { 
-  #   if(is.null(reloadPreviousWorking)) {
-  #     reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
-  #     usingPreviousVersion <- TRUE
-  #   }
-  # }
 }
 source("packagesUsedFromCRAN.R")
 source("functions.R")
+reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
+                                         # It needs to be separate because it is an overarching one, regardless of scale
 if(.reloadPreviousWorking==1) {
-  library(git2r) # has git repo internally
+  #library(git2r) # has git repo internally
   md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
   if(NROW(md5s)) {
     system("git stash")
@@ -106,9 +98,9 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 10 # was 4
+endTime <- 20 # was 4
 summaryInterval <- 5#endTime/2 # was 2
-summaryPeriod <- c(5, endTime)
+summaryPeriod <- c(10, endTime)
 
 # leaflet parameters
 leafletZoomInit = 5 
