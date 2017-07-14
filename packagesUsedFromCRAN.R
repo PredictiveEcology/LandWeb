@@ -11,6 +11,12 @@ require("rgeos")
 if(Sys.info()["sysname"]=="WindowsSpaDES") require("snow")# required internally inside "parallel" package for Windows SOCK clusters
 require("dplyr")
 require("leaflet")
+require("shiny")
+require("shinydashboard")
+require("shinyBS")
+require("shinyjs")
+require("shinycssloaders")
+
 
 if(FALSE) { # these are needed internally by packages. checkpoint needs to see these to install them
   require("htmlwidgets")

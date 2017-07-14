@@ -5,7 +5,7 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
      # character vector (most recent one with AND search)
      # numeric -- counting backwards from 1 previous, 2 previous etc.
 reloadPreviousWorkingLogical <- any(reloadPreviousWorking!=FALSE)
-if(Sys.info()["nodename"]=="W-VIC-A105388"){
+if(Sys.info()["nodename"] %in% c("W-VIC-A105388", "W-VIC-A128863")) {
   if(!exists(".reloadPreviousWorking")) {
     if(!reloadPreviousWorkingLogical) {
       .reloadPreviousWorking <- 0
@@ -17,8 +17,6 @@ if(Sys.info()["nodename"]=="W-VIC-A105388"){
   } else if(reloadPreviousWorkingLogical) {
     .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
   }
-  
-  
 }
 source("packagesUsedFromCRAN.R")
 source("functions.R")
@@ -275,3 +273,5 @@ if(FALSE){
   
 }
 
+options("spinner.type"= 5)
+#options(spinner.color="blue")

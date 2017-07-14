@@ -337,3 +337,19 @@ reloadWorkingShas <- function(md5hash, cachePath, shaOnly = FALSE) {
   if(isTRUE(isError)) message("no previous branch on github with that sha")
   return(invisible(shas))
 }
+noLongerWaiting <- function() {
+  hide("loading_page")
+  #show("main_content")
+}
+
+
+mycss <- "
+#loading-spinner {
+position: absolute;
+left: 50%;
+top: 50%;
+z-index: -1;
+margin-top: -33px;  /* half of the spinner's height */
+margin-left: -33px; /* half of the spinner's width */
+}
+"

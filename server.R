@@ -371,4 +371,5 @@ function(input, output, session) {
   #   system("git commit -a -m 'pre run'")
   #   system("git push")
   # }
+  noLongerWaiting()
 }
