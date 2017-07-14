@@ -11,6 +11,8 @@ function(input, output, session) {
     
     if(TRUE)
       if(Sys.info()["nodename"]=="W-VIC-A105388") {
+        system("git checkout development")
+        
         keepCache(mySim, after = appStartTime)
         if(rsyncToAWS)
           system(paste0("rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e 'ssh -i ",
