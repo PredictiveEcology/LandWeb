@@ -1,10 +1,16 @@
 if(Sys.info()["nodename"]=="W-VIC-A105388") {
   system("git commit -a -m 'pre run'")
   system("git push")
-  reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+  reloadPreviousWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+  reproducibleCache <- "reproducibleCache"
 }
 source("packagesUsedFromCRAN.R")
 source("functions.R")
+if(reloadPreviousWorking) {
+  library(git2r) # has git repo internally
+  md5s <- showWorkingShas(reproducibleCache)
+  shas <- reloadWorkingShas(md5hash = md5s$artifact[1], cachePath = reproducibleCache) # 1 is most recent
+} 
 
 # Spatial stuff
 #studyArea <- "FULL"
@@ -21,12 +27,6 @@ paths <- list(
   inputPath = "inputs",
   outputPath = paste0("outputs", studyArea)
 )
-
-if(reloadPreviousWorking) {
-  library(git2r) # has git repo internally
-  md5s <- showWorkingShas(paths$cachePath)
-  shas <- reloadWorkingShas(md5hash = md5s$artifact[1], cachePath = paths$cachePath) # 1 is most recent
-} 
 
 if(FALSE) {
   
@@ -87,7 +87,7 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 20 # was 4
+endTime <- 40 # was 4
 summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(10, endTime)
 
