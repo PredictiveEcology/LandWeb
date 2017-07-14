@@ -1,7 +1,7 @@
 if(Sys.info()["nodename"]=="W-VIC-A105388") {
   system("git commit -a -m 'pre run'")
   system("git push")
-  reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+  reloadPreviousWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
   reproducibleCache <- "reproducibleCache"
 }
 source("packagesUsedFromCRAN.R")
@@ -43,11 +43,6 @@ message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
 eventCaching <- "init" #Sys.time()
-# if(reloadPreviousWorking) {
-#   LandWebVersion <- "d538768a620e175d02cd0847c5f35fe52ee5ffed"
-#   spadesHash <- "88e4b394f466498a7aac92bda265a7acf818693c"
-#   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
-# }
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if (FALSE) {
