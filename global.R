@@ -48,7 +48,7 @@ studyArea <- "EXTRALARGE"
 studyArea <- "LARGE"
 #studyArea <- "MEDIUM"
 studyArea <- "SMALL"
-studyArea <- "NWT"
+#studyArea <- "NWT"
 
 ## Create mySim
 paths <- list(
@@ -112,9 +112,9 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 1000 # was 4
+endTime <- 20 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(700, endTime)
+summaryPeriod <- c(10, endTime)
 
 # leaflet parameters
 leafletZoomInit = 5 
