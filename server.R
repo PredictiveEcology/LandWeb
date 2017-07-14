@@ -354,6 +354,7 @@ function(input, output, session) {
 
 
   if(Sys.info()["nodename"]=="W-VIC-A105388") {
+    browser()
     Cache(workingShas, cacheRepo = reproducibleCache, date = Sys.time(), 
           userTags = "workingShas")
     if(.reloadPreviousWorking>0) { # working on temporary head
