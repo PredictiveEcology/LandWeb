@@ -1,5 +1,5 @@
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
-  reloadPreviousWorking <- TRUE # COMMENT OUT THIS ONE
+  reloadPreviousWorking <- FALSE # COMMENT OUT THIS ONE
   if(exists("reloadPreviousWorking")) {
     if(is.null(reloadPreviousWorking)) reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
   } else { 
