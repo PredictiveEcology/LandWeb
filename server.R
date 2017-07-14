@@ -365,7 +365,7 @@ function(input, output, session) {
       system("git push")
     }
     Cache(workingShas, cacheRepo = reproducibleCache, date = Sys.time(), 
-          userTags = "workingShas")
+          userTags = c("workingShas", paste0("endTime:",end(mySim)), paste0("scale:", studyArea)))
   }
     # if(Sys.info()["nodename"]=="W-VIC-A105388") {
   #   system("git commit -a -m 'pre run'")
