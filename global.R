@@ -10,6 +10,7 @@ if(reloadPreviousWorking) {
   library(git2r) # has git repo internally
   md5s <- showWorkingShas(reproducibleCache)
   shas <- reloadWorkingShas(md5hash = md5s$artifact[1], cachePath = reproducibleCache) # 1 is most recent
+  stop()
 } 
 
 # Spatial stuff
@@ -82,9 +83,9 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 40 # was 4
-summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(10, endTime)
+endTime <- 10 # was 4
+summaryInterval <- 5#endTime/2 # was 2
+summaryPeriod <- c(5, endTime)
 
 # leaflet parameters
 leafletZoomInit = 5 
