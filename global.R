@@ -1,24 +1,33 @@
+reloadPreviousWorking <- FALSE # Change this one
 reproducibleCache <- "reproducibleCache"
-usingPreviousVersion <- FALSE
+#usingPreviousVersion <- FALSE
+
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
-  if(!exists("reloadPreviousWorking")) {
-    reloadPreviousWorking <- FALSE # Change this one
-  } else { 
-    if(is.null(reloadPreviousWorking)) {
-      reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
-      usingPreviousVersion <- TRUE
+  if(!reloadPreviousWorking) {
+    .reloadPreviousWorking <- 0
+  } else {
+    if(!exists(.reloadPreviousWorking)) {
+      .reloadPreviousWorking <- 1  
     }
   }
+  # if(!exists("reloadPreviousWorking")) {
+  #   reloadPreviousWorking <- FALSE # Change this one
+  # } else { 
+  #   if(is.null(reloadPreviousWorking)) {
+  #     reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+  #     usingPreviousVersion <- TRUE
+  #   }
+  # }
 }
 source("packagesUsedFromCRAN.R")
 source("functions.R")
-if(reloadPreviousWorking) {
+if(.reloadPreviousWorking==1) {
   library(git2r) # has git repo internally
   md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
   if(NROW(md5s)) {
     system("git stash")
     shas <- reloadWorkingShas(md5hash = unique(md5s$artifact)[1], cachePath = reproducibleCache) # 1 is most recent
-    reloadPreviousWorking <- NULL 
+    .reloadPreviousWorking <- 2
     stop("Run app again")
   } else {
     message("No previous working version. Proceeding.")

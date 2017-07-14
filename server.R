@@ -358,10 +358,11 @@ function(input, output, session) {
           userTags = "workingShas")
     system("git commit -a -m 'automated push post run'")
     system("git push")
-    if(usingPreviousVersion) {
+    if(.reloadPreviousWorking>0) {
       system("git checkout .")
       system("git checkout development")
       system("git stash pop")
+      rm(.reloadPreviousWorking)
     }
   }
     # if(Sys.info()["nodename"]=="W-VIC-A105388") {
