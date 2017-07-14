@@ -1,4 +1,4 @@
-if(Sys.info()["nodename"]=="W-VIC-A105388") {
+if(Sys.info()["nodename"]=="W-VIC-A105388" & !is.null(reloadPreviousWorking)) {
   reloadPreviousWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
   reproducibleCache <- "reproducibleCache"
 }
@@ -10,7 +10,8 @@ if(reloadPreviousWorking) {
   library(git2r) # has git repo internally
   md5s <- showWorkingShas(reproducibleCache)
   shas <- reloadWorkingShas(md5hash = md5s$artifact[1], cachePath = reproducibleCache) # 1 is most recent
-  stop()
+  reloadPreviousWorking <- NULL 
+  stop("Run app again")
 } 
 
 # Spatial stuff
