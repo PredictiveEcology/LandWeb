@@ -1,4 +1,4 @@
-reloadPreviousWorking <- FALSE # Change this to TRUE to get a working version
+reloadPreviousWorking <- TRUE # Change this to TRUE to get a working version
 
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
   if(!exists(".reloadPreviousWorking")) {
@@ -8,6 +8,8 @@ if(Sys.info()["nodename"]=="W-VIC-A105388"){
       .reloadPreviousWorking <- 1   
     }
   } else if(.reloadPreviousWorking!=2) {
+    .reloadPreviousWorking <- reloadPreviousWorking + 0
+  } else if(reloadPreviousWorking) {
     .reloadPreviousWorking <- reloadPreviousWorking + 0
   }
   
@@ -22,7 +24,7 @@ if(.reloadPreviousWorking==1) {
   md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
   if(NROW(md5s)) {
     system("git stash")
-    shas <- reloadWorkingShas(md5hash = unique(md5s$artifact)[1], cachePath = reproducibleCache) # 1 is most recent
+    shas <- reloadWorkingShas(md5hash = unique(md5s$artifact)[2], cachePath = reproducibleCache) # 1 is most recent
     .reloadPreviousWorking <- 2
     stop("Run app again")
   } else {
