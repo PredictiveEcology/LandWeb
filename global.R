@@ -5,7 +5,7 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
      # character vector (most recent one with AND search)
      # numeric -- counting backwards from 1 previous, 2 previous etc.
 reloadPreviousWorkingLogical <- any(reloadPreviousWorking!=FALSE)
-if(Sys.info()["nodename"]=="W-VIC-A105388"){
+if(Sys.info()["nodename"] %in% c("W-VIC-A105388", "W-VIC-A128863")) {
   if(!exists(".reloadPreviousWorking")) {
     if(!reloadPreviousWorkingLogical) {
       .reloadPreviousWorking <- 0
@@ -17,8 +17,6 @@ if(Sys.info()["nodename"]=="W-VIC-A105388"){
   } else if(reloadPreviousWorkingLogical) {
     .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
   }
-  
-  
 }
 source("packagesUsedFromCRAN.R")
 source("functions.R")
@@ -114,9 +112,9 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 300 # was 4
+endTime <- 30 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(200, endTime)
+summaryPeriod <- c(20, endTime)
 
 # leaflet parameters
 leafletZoomInit = 5 
