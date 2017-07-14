@@ -1,4 +1,8 @@
-reloadPreviousWorking <- FALSE # Change this to TRUE to get a working version, or numeric to work backwards versions
+reloadPreviousWorking <- c("SMALL","50") # This can be 
+     #TRUE (most recent one) or 
+     # character string (most recent one with that character string) or 
+     # character vector (most recent one with AND search)
+     # numeric -- counting backwards from 1 previous, 2 previous etc.
 
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
   if(!exists(".reloadPreviousWorking")) {
@@ -29,7 +33,7 @@ if(.reloadPreviousWorking==1) {
     } else {
       searchTerm <- unique(md5s$artifact)[as.numeric(reloadPreviousWorking)]
     }
-    searchTerm <- unique(showCache(searchTerm, x = cachePath)$artifact)
+    searchTerm <- unique(showCache(searchTerm, x = reproducibleCache)$artifact)
     shas <- reloadWorkingShas(md5hash = searchTerm, 
                               cachePath = reproducibleCache) # 1 is most recent
     .reloadPreviousWorking <- 2
