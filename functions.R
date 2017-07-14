@@ -321,7 +321,6 @@ showWorkingShas <- function(cachePath) {
 }
 
 reloadWorkingShas <- function(md5hash, cachePath, shaOnly = FALSE) {
-  browser()
   shas <- archivist::loadFromLocalRepo(repoDir = cachePath, md5hash, value = TRUE)
   whPackages <- names(shas) %in% PredictiveEcologyPackages
   lapply(seq_along(shas[whPackages]), function(n) {
