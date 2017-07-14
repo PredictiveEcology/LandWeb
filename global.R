@@ -1,5 +1,13 @@
 system("git commit -a -m 'pre run'")
 system("git push")
+reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+source("packagesUsedFromCRAN.R")
+source("functions.R")
+if(reloadPreviousWorking) {
+  library(git2r) # has git repo internally
+  md5s <- showWorkingShas(paths$cachePath)
+  shas <- reloadWorkingShas(md5hash = md5s$artifact[1], cachePath = paths$cachePath) # 1 is most recent
+} 
 
 if(FALSE) {
   
@@ -16,7 +24,6 @@ message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
 eventCaching <- "init" #Sys.time()
-reloadPreviousWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 # if(reloadPreviousWorking) {
 #   LandWebVersion <- "d538768a620e175d02cd0847c5f35fe52ee5ffed"
 #   spadesHash <- "88e4b394f466498a7aac92bda265a7acf818693c"
@@ -92,34 +99,7 @@ if(FALSE) {#if(reloadPreviousWorking) {
   checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
 } 
 
-source("packagesUsedFromCRAN.R")
-source("functions.R")
 
-if(reloadPreviousWorking) {
-  library(git2r) # has git repo internally
-  md5s <- showWorkingShas(paths$cachePath)
-  shas <- reloadWorkingShas(md5hash = md5s$artifact[1], cachePath = paths$cachePath) # 1 is most recent
-  # git remote set-url origin https://github.com/eliotmcintire/LandWeb.git
-  
-  # Internal caching inside install_github doesn't seem to work for commit-based refs
-  #  this function is in packagesUsedFromCRAN.R
-  #updatePkg("SpaDES.core", spadesHash, "PredictiveEcology")
-  #updatePkg("amc", amcHash, "achubaty")
-  
-  # LandWeb -- get correct version based on git hash
-  # source("gitCheckout.R")
-  # checkoutCondition <- checkoutVersion(LandWebVersion)
-  # 
-  # get specific Cache version
-  # startCacheTime <- Sys.time()
-  
-} else {
-  if(FALSE) {
-    devtools::install_github(paste0("PredictiveEcology/reproducible@development"))
-    devtools::install_github(paste0("PredictiveEcology/SpaDES.core@development"))
-    devtools::install_github(paste0("achubaty/amc@development") )
-  }
-}
 
 
 #####
