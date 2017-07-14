@@ -1,5 +1,6 @@
-reloadPreviousWorking <- c("SMALL","50") # This can be 
-     #TRUE (most recent one) or 
+reloadPreviousWorking <- FALSE #c("SMALL","50") # This can be:
+     # FALSE -- standard -- just run present conditions
+     # TRUE (most recent one) or 
      # character string (most recent one with that character string) or 
      # character vector (most recent one with AND search)
      # numeric -- counting backwards from 1 previous, 2 previous etc.
