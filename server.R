@@ -356,6 +356,7 @@ function(input, output, session) {
   if(Sys.info()["nodename"]=="W-VIC-A105388") {
     Cache(workingShas, cacheRepo = reproducibleCache, notOlderThan = Sys.time(), 
           userTags = "workingShas")
+    system("git add .")
     system("git commit -a -m 'automated push post run'")
     system("git push")
     if(.reloadPreviousWorking>0) {
