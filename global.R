@@ -1,6 +1,8 @@
-system("git commit -a -m 'pre run'")
-system("git push")
-reloadPreviousWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+if(Sys.info()["nodename"]=="W-VIC-A105388") {
+  system("git commit -a -m 'pre run'")
+  system("git push")
+  reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
+}
 source("packagesUsedFromCRAN.R")
 source("functions.R")
 
