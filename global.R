@@ -1,4 +1,4 @@
-reloadPreviousWorking <- FALSE # Change this to TRUE to get a working version
+reloadPreviousWorking <- TRUE # Change this to TRUE to get a working version
 
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
   if(!exists(".reloadPreviousWorking")) {
