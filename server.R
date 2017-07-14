@@ -358,8 +358,8 @@ function(input, output, session) {
 
   Cache(workingShas, cacheRepo = reproducibleCache, notOlderThan = Sys.time(), 
         userTags = "workingShas")
-  if(Sys.info()["nodename"]=="W-VIC-A105388") {
-    system("git commit -a -m 'pre run'")
-    system("git push")
-  }
+  # if(Sys.info()["nodename"]=="W-VIC-A105388") {
+  #   system("git commit -a -m 'pre run'")
+  #   system("git push")
+  # }
 }
