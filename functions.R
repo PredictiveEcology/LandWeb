@@ -307,7 +307,7 @@ gdal2TilesFn <- function(r, filename, zoomRange=6:11, color_text_file = asPath(c
 
 PredictiveEcologyPackages <- c("reproducible", "SpaDES.core", "SpaDES.tools")
 
-workingShas <- function() {
+workingShas <- function(date) {
   shas <- lapply(PredictiveEcologyPackages, devtools:::local_sha)
   names(shas) <- PredictiveEcologyPackages
   shas$LandWeb <- system("git rev-parse HEAD", intern=TRUE)
