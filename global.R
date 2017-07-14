@@ -2,7 +2,7 @@ reproducibleCache <- "reproducibleCache"
 usingPreviousVersion <- FALSE
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
   if(!exists("reloadPreviousWorking")) {
-    reloadPreviousWorking <- TRUE # Change this one
+    reloadPreviousWorking <- FALSE # Change this one
   } else { 
     if(is.null(reloadPreviousWorking)) {
       reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
