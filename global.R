@@ -1,4 +1,4 @@
-reloadPreviousWorking <- c("SMALL","50") # This can be:
+reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
      # FALSE -- standard -- just run present conditions
      # TRUE (most recent one) or 
      # character string (most recent one with that character string) or 
