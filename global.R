@@ -35,7 +35,7 @@ if(.reloadPreviousWorking==1) {
       searchTerm <- unique(md5s$artifact)[as.numeric(reloadPreviousWorking)]
     }
     searchTerm <- unique(showCache(searchTerm, x = reproducibleCache)$artifact)
-    shas <- reloadWorkingShas(md5hash = searchTerm, 
+    shas <- reloadWorkingShas(md5hash = searchTerm[1], 
                               cachePath = reproducibleCache) # 1 is most recent
     .reloadPreviousWorking <- 2
     stop("Run app again")
