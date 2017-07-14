@@ -354,8 +354,6 @@ function(input, output, session) {
 
 
   if(Sys.info()["nodename"]=="W-VIC-A105388") {
-    browser()
-    
     if(.reloadPreviousWorking>0) { # working on temporary head
       system("git checkout .") # delete any changes
       system("git checkout development") # go back to development
