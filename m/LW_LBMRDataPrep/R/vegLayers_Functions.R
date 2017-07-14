@@ -110,7 +110,7 @@ makePaulStack <- function(paths, Paul250MaskedFilename, uniqueKeepSp, ...) {
   message("  converting Paul's codes to pct cover raster, for ", N)
   PaulStack[[N]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
   PaulStack[[N]][PaulTrimmed[] %in% c(41, 42, 43)] <- 60
-  PaulStack[[N]][PaulTrimmed[] %in% c(44)] <- 90
+  PaulStack[[N]][PaulTrimmed[] %in% c(44)] <- 80
   PaulStack[[N]][PaulTrimmed[] %in% c(14, 34)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]] , 
                           filename = asPath(paste0("Paul",N, ".tif")),
@@ -122,7 +122,7 @@ makePaulStack <- function(paths, Paul250MaskedFilename, uniqueKeepSp, ...) {
   message("  converting Paul's codes to pct cover raster, for ", N)
   PaulStack[[N]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
   PaulStack[[N]][PaulTrimmed[] %in% c(23, 26)] <- 60
-  PaulStack[[N]][PaulTrimmed[] %in% c(22)] <- 90
+  PaulStack[[N]][PaulTrimmed[] %in% c(22)] <- 80
   PaulStack[[N]][PaulTrimmed[] %in% c(32, 42)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]], 
                           filename = asPath(paste0("Paul",N, ".tif")),
@@ -134,7 +134,7 @@ makePaulStack <- function(paths, Paul250MaskedFilename, uniqueKeepSp, ...) {
   message("  converting Paul's codes to pct cover raster, for ", N)
   PaulStack[[N]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
   PaulStack[[N]][PaulTrimmed[] %in% c(31, 32, 34)] <- 60
-  PaulStack[[N]][PaulTrimmed[] %in% c(33)] <- 90
+  PaulStack[[N]][PaulTrimmed[] %in% c(33)] <- 80
   PaulStack[[N]][PaulTrimmed[] %in% c(23, 43)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]], 
                           filename = asPath(paste0("Paul",N, ".tif")),
@@ -147,7 +147,7 @@ makePaulStack <- function(paths, Paul250MaskedFilename, uniqueKeepSp, ...) {
   message("  converting Paul's codes to pct cover raster, for ", N)
   PaulStack[[N]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
   PaulStack[[N]][PaulTrimmed[] %in% c(14)] <- 60
-  PaulStack[[N]][PaulTrimmed[] %in% c(11)] <- 90
+  PaulStack[[N]][PaulTrimmed[] %in% c(11)] <- 80
   PaulStack[[N]][PaulTrimmed[] %in% c(31, 41)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]], 
                           filename = asPath(paste0("Paul",N, ".tif")),
