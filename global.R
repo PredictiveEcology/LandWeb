@@ -24,6 +24,7 @@ if(.reloadPreviousWorking==1) {
   md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
   if(NROW(md5s)) {
     system("git stash")
+    #if(is.character(reloadPreviousWorking)) 
     shas <- reloadWorkingShas(md5hash = unique(md5s$artifact)[as.numeric(reloadPreviousWorking)], 
                               cachePath = reproducibleCache) # 1 is most recent
     .reloadPreviousWorking <- 2
