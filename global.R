@@ -3,6 +3,23 @@ system("git push")
 reloadPreviousWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
 source("packagesUsedFromCRAN.R")
 source("functions.R")
+
+# Spatial stuff
+#studyArea <- "FULL"
+studyArea <- "EXTRALARGE"
+studyArea <- "LARGE"
+#studyArea <- "MEDIUM"
+studyArea <- "SMALL"
+#studyArea <- "NWT"
+
+## Create mySim
+paths <- list(
+  cachePath = paste0("appCache", studyArea),
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs",
+  outputPath = paste0("outputs", studyArea)
+)
+
 if(reloadPreviousWorking) {
   library(git2r) # has git repo internally
   md5s <- showWorkingShas(paths$cachePath)
@@ -72,24 +89,9 @@ endTime <- 20 # was 4
 summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(10, endTime)
 
-# Spatial stuff
-#studyArea <- "FULL"
-studyArea <- "EXTRALARGE"
-studyArea <- "LARGE"
-#studyArea <- "MEDIUM"
-studyArea <- "SMALL"
-#studyArea <- "NWT"
-
 # leaflet parameters
 leafletZoomInit = 5 
 
-## Create mySim
-paths <- list(
-  cachePath = paste0("appCache", studyArea),
-  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-  inputPath = "inputs",
-  outputPath = paste0("outputs", studyArea)
-)
 if(FALSE) {#if(reloadPreviousWorking) {
   # Need SpaDES.core and all packages
   dateWorking <- "2017-06-08"
