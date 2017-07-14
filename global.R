@@ -1,8 +1,8 @@
 reproducibleCache <- "reproducibleCache"
-usingPreviousVersion <- TRUE
+usingPreviousVersion <- FALSE
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
   if(!exists("reloadPreviousWorking")) {
-    reloadPreviousWorking <- FALSE 
+    reloadPreviousWorking <- TRUE 
   } else { 
     if(is.null(reloadPreviousWorking)) {
       reloadPreviousWorking <- FALSE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
@@ -16,6 +16,8 @@ if(reloadPreviousWorking) {
   library(git2r) # has git repo internally
   md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
   if(NROW(md5s)) {
+    system("git commit -a -m 'automated push post run'")
+    system("git push")
     shas <- reloadWorkingShas(md5hash = unique(md5s$artifact)[1], cachePath = reproducibleCache) # 1 is most recent
     reloadPreviousWorking <- NULL 
     stop("Run app again")
