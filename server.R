@@ -354,8 +354,6 @@ function(input, output, session) {
 
 
   if(Sys.info()["nodename"]=="W-VIC-A105388") {
-    Cache(workingShas, cacheRepo = reproducibleCache, date = Sys.time(), 
-          userTags = "workingShas")
     if(.reloadPreviousWorking>0) { # working on temporary head
       browser()
       system("git checkout .") # delete any changes
@@ -367,6 +365,8 @@ function(input, output, session) {
       system("git commit -a -m 'automated push post run'")
       system("git push")
     }
+    Cache(workingShas, cacheRepo = reproducibleCache, date = Sys.time(), 
+          userTags = "workingShas")
   }
     # if(Sys.info()["nodename"]=="W-VIC-A105388") {
   #   system("git commit -a -m 'pre run'")
