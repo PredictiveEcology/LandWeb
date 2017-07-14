@@ -1,3 +1,65 @@
+reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
+     # FALSE -- standard -- just run present conditions
+     # TRUE (most recent one) or 
+     # character string (most recent one with that character string) or 
+     # character vector (most recent one with AND search)
+     # numeric -- counting backwards from 1 previous, 2 previous etc.
+reloadPreviousWorkingLogical <- any(reloadPreviousWorking!=FALSE)
+if(Sys.info()["nodename"]=="W-VIC-A105388"){
+  if(!exists(".reloadPreviousWorking")) {
+    if(!reloadPreviousWorkingLogical) {
+      .reloadPreviousWorking <- 0
+    } else {
+      .reloadPreviousWorking <- 1   
+    }
+  } else if(.reloadPreviousWorking!=2) {
+    .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
+  } else if(reloadPreviousWorkingLogical) {
+    .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
+  }
+  
+  
+}
+source("packagesUsedFromCRAN.R")
+source("functions.R")
+reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
+                                         # It needs to be separate because it is an overarching one, regardless of scale
+if(.reloadPreviousWorking==1) {
+  #library(git2r) # has git repo internally
+  md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
+  if(NROW(md5s)) {
+    system("git stash")
+    if(is.character(reloadPreviousWorking))  {
+      searchTerm <- reloadPreviousWorking
+    } else {
+      searchTerm <- unique(md5s$artifact)[as.numeric(reloadPreviousWorking)]
+    }
+    searchTerm <- unique(showCache(searchTerm, x = reproducibleCache)$artifact)
+    shas <- reloadWorkingShas(md5hash = searchTerm[1], 
+                              cachePath = reproducibleCache) # 1 is most recent
+    .reloadPreviousWorking <- 2
+    stop("Run app again")
+  } else {
+    message("No previous working version. Proceeding.")
+  }
+} 
+
+# Spatial stuff
+#studyArea <- "FULL"
+studyArea <- "EXTRALARGE"
+studyArea <- "LARGE"
+#studyArea <- "MEDIUM"
+studyArea <- "SMALL"
+#studyArea <- "NWT"
+
+## Create mySim
+paths <- list(
+  cachePath = paste0("appCache", studyArea),
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs",
+  outputPath = paste0("outputs", studyArea)
+)
+
 if(FALSE) {
   
   try(detach("package:SpaDES.core", unload=TRUE)); try(detach("package:SpaDES.tools", unload=TRUE)); 
@@ -13,12 +75,6 @@ message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
 eventCaching <- "init" #Sys.time()
-reloadPreviousWorking <- TRUE # this is the "latest working version of SpaDES, LandWeb, packages, modules")
-# if(reloadPreviousWorking) {
-#   LandWebVersion <- "d538768a620e175d02cd0847c5f35fe52ee5ffed"
-#   spadesHash <- "88e4b394f466498a7aac92bda265a7acf818693c"
-#   amcHash <- "ca905fdd6847591d351e9bd3d64afdfb1be59684"
-# }
 devmode <- FALSE # If TRUE, this will skip simInit call, if mySim exists (shave off 5 seconds)
 ## SpaDES & amc
 if (FALSE) {
@@ -62,62 +118,8 @@ endTime <- 300 # was 4
 summaryInterval <- 10#endTime/2 # was 2
 summaryPeriod <- c(200, endTime)
 
-# Spatial stuff
-#studyArea <- "FULL"
-studyArea <- "EXTRALARGE"
-studyArea <- "LARGE"
-#studyArea <- "MEDIUM"
-studyArea <- "SMALL"
-studyArea <- "NWT"
-
 # leaflet parameters
 leafletZoomInit = 5 
-
-## Create mySim
-paths <- list(
-  cachePath = paste0("appCache", studyArea),
-  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-  inputPath = "inputs",
-  outputPath = paste0("outputs", studyArea)
-)
-if(FALSE) {#if(reloadPreviousWorking) {
-  # Need SpaDES.core and all packages
-  dateWorking <- "2017-06-08"
-  origLibPaths <- .libPaths()
-  if(!dir.exists(".checkpoint")) dir.create(".checkpoint")
-  if(!require(checkpoint)) install.packages("checkpoint")
-  checkpoint(dateWorking, checkpointLocation = ".", scanForPackages = FALSE)
-} 
-
-source("packagesUsedFromCRAN.R")
-source("functions.R")
-
-if(reloadPreviousWorking) {
-  md5s <- showWorkingShas(paths$cachePath)
-  shas <- reloadWorkingShas(md5hash = md5s$artifact[1], cachePath = paths$cachePath) # 1 is most recent
-  library(git2r) # has git repo internally
-  # git remote set-url origin https://github.com/eliotmcintire/LandWeb.git
-  
-  # Internal caching inside install_github doesn't seem to work for commit-based refs
-  #  this function is in packagesUsedFromCRAN.R
-  #updatePkg("SpaDES.core", spadesHash, "PredictiveEcology")
-  #updatePkg("amc", amcHash, "achubaty")
-  
-  # LandWeb -- get correct version based on git hash
-  # source("gitCheckout.R")
-  # checkoutCondition <- checkoutVersion(LandWebVersion)
-  # 
-  # get specific Cache version
-  # startCacheTime <- Sys.time()
-  
-} else {
-  if(FALSE) {
-    devtools::install_github(paste0("PredictiveEcology/reproducible@development"))
-    devtools::install_github(paste0("PredictiveEcology/SpaDES.core@development"))
-    devtools::install_github(paste0("achubaty/amc@development") )
-  }
-}
-
 
 #####
 # if (Sys.info()["sysname"] != "Windows") beginCluster(4, type = "FORK")

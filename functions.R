@@ -307,7 +307,7 @@ gdal2TilesFn <- function(r, filename, zoomRange=6:11, color_text_file = asPath(c
 
 PredictiveEcologyPackages <- c("reproducible", "SpaDES.core", "SpaDES.tools")
 
-workingShas <- function() {
+workingShas <- function(date) {
   shas <- lapply(PredictiveEcologyPackages, devtools:::local_sha)
   names(shas) <- PredictiveEcologyPackages
   shas$LandWeb <- system("git rev-parse HEAD", intern=TRUE)
@@ -321,7 +321,6 @@ showWorkingShas <- function(cachePath) {
 }
 
 reloadWorkingShas <- function(md5hash, cachePath, shaOnly = FALSE) {
-  
   shas <- archivist::loadFromLocalRepo(repoDir = cachePath, md5hash, value = TRUE)
   whPackages <- names(shas) %in% PredictiveEcologyPackages
   lapply(seq_along(shas[whPackages]), function(n) {
@@ -332,7 +331,7 @@ reloadWorkingShas <- function(md5hash, cachePath, shaOnly = FALSE) {
       message(names(shas)[n], " is already correct version")
     }
   })
-  isError <- tryCatch(checkoutCondition <- reproducible:::checkoutVersion(
+  isError <- tryCatch(checkoutCondition <<- reproducible:::checkoutVersion(
     paste0("eliotmcintire/LandWeb@",shas$LandWeb), cred = "GITHUB_PAT"), error = function(x) TRUE)
   #checkoutCondition <- reproducible:::checkoutVersion(shas$LandWeb, cred = "GITHUB_PAT")
   if(isTRUE(isError)) message("no previous branch on github with that sha")
