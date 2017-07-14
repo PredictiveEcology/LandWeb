@@ -1,4 +1,4 @@
-reloadPreviousWorking <- FALSE # Change this to TRUE to get a working version
+reloadPreviousWorking <- TRUE # Change this to TRUE to get a working version
 
 if(Sys.info()["nodename"]=="W-VIC-A105388"){
   if(!exists(".reloadPreviousWorking")) {
@@ -100,7 +100,7 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 20 # was 4
+endTime <- 50 # was 4
 summaryInterval <- 5#endTime/2 # was 2
 summaryPeriod <- c(10, endTime)
 
