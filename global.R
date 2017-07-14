@@ -1,4 +1,4 @@
-reloadPreviousWorking <- FALSE # Change this one
+reloadPreviousWorking <- FALSE # Change this to TRUE to get a working version
 reproducibleCache <- "reproducibleCache"
 #usingPreviousVersion <- FALSE
 
