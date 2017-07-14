@@ -11,6 +11,7 @@ function(input, output, session) {
     
     if(TRUE)
       if(Sys.info()["nodename"]=="W-VIC-A105388") {
+        browser()
         if(reloadPreviousWorking) {
           system("git checkout .")
           system("git checkout development")
