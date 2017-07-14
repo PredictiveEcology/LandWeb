@@ -356,14 +356,15 @@ function(input, output, session) {
   if(Sys.info()["nodename"]=="W-VIC-A105388") {
     Cache(workingShas, cacheRepo = reproducibleCache, date = Sys.time(), 
           userTags = "workingShas")
-    system("git add .")
-    system("git commit -a -m 'automated push post run'")
-    system("git push")
-    if(.reloadPreviousWorking>0) {
-      system("git checkout .")
-      system("git checkout development")
-      system("git stash pop")
+    if(.reloadPreviousWorking>0) { # working on temporary head
+      system("git checkout .") # delete any changes
+      system("git checkout development") # go back to development
+      system("git stash pop") # pop the stashed anything
       rm(.reloadPreviousWorking)
+    } else { # working on development -- add and push so that it stores a copy of a completed version
+      system("git add .")
+      system("git commit -a -m 'automated push post run'")
+      system("git push")
     }
   }
     # if(Sys.info()["nodename"]=="W-VIC-A105388") {
