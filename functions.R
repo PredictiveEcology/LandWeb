@@ -332,7 +332,7 @@ reloadWorkingShas <- function(md5hash, cachePath, shaOnly = FALSE) {
       message(names(shas)[n], " is already correct version")
     }
   })
-  isError <- tryCatch(checkoutCondition <- reproducible:::checkoutVersion(
+  isError <- tryCatch(checkoutCondition <<- reproducible:::checkoutVersion(
     paste0("eliotmcintire/LandWeb@",shas$LandWeb), cred = "GITHUB_PAT"), error = function(x) TRUE)
   #checkoutCondition <- reproducible:::checkoutVersion(shas$LandWeb, cred = "GITHUB_PAT")
   if(isTRUE(isError)) message("no previous branch on github with that sha")
