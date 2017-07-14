@@ -1,4 +1,4 @@
-reloadPreviousWorking <- FALSE # Change this to TRUE to get a working version
+reloadPreviousWorking <- TRUE # Change this to TRUE to get a working version
 reproducibleCache <- "reproducibleCache"
 #usingPreviousVersion <- FALSE
 
@@ -6,7 +6,7 @@ if(Sys.info()["nodename"]=="W-VIC-A105388"){
   if(!reloadPreviousWorking) {
     .reloadPreviousWorking <- 0
   } else {
-    if(!exists(.reloadPreviousWorking)) {
+    if(!exists(".reloadPreviousWorking")) {
       .reloadPreviousWorking <- 1  
     }
   }
