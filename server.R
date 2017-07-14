@@ -358,7 +358,7 @@ function(input, output, session) {
       system("git checkout .") # delete any changes
       system("git checkout development") # go back to development
       system("git stash pop") # pop the stashed anything
-      rm(.reloadPreviousWorking)
+      rm(.reloadPreviousWorking, envir=.GlobalEnv)
     } else { # working on development -- add and push so that it stores a copy of a completed version
       system("git add .")
       system("git commit -a -m 'automated push post run'")
