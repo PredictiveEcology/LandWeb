@@ -13,7 +13,7 @@ function(input, output, session) {
       if(Sys.info()["nodename"]=="W-VIC-A105388")  {
         
         if(rsyncToAWS) {
-          keepCache(mySim, after = appStartTime)
+          #keepCache(mySim, after = appStartTime)
           system(paste0("rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e 'ssh -i ",
                         path.expand('~'),
                         "/.ssh/laptopTesting.pem' ~/Documents/GitHub/LandWeb/ emcintir@ec2-52-26-180-235.us-west-2.compute.amazonaws.com:/srv/shiny-server/Demo/"))
@@ -354,6 +354,7 @@ function(input, output, session) {
 
 
   if(Sys.info()["nodename"]=="W-VIC-A105388") {
+    browser()
     if(.reloadPreviousWorking>0) { # working on temporary head
       system("git checkout .") # delete any changes
       system("git checkout development") # go back to development

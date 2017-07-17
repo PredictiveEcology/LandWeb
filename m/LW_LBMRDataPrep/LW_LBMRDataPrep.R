@@ -790,7 +790,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     names(specieslayers)[grep("Abie", names(specieslayers))] <- "Abie_sp"
     specieslayers
   }
-  sim$specieslayers <- Cache(sumRastersBySpecies, 
+  sim$specieslayers <- Cache(sumRastersBySpecies, #notOlderThan = Sys.time(),
                              sim$specieslayers, c("Pinu_Ban", "Pinu_Con"),
                              filenameToSave = file.path(dirname(filename(sim$specieslayers[["Pinu_Ban"]])),
                                                         "KNNPinu_sp.tif"), cachePath = cachePath(sim),
