@@ -157,6 +157,7 @@ function(input, output, session) {
                ageClasses = ageClasses, cacheRepo = paths$cachePath)
   args <- args[!unlist(lapply(args, is.null))]
   leading <- do.call(Cache, args)
+  rm(args)
   message("  Finished leadingByStage")
   
   # if(reloadPreviousWorking) {
@@ -172,8 +173,6 @@ function(input, output, session) {
   
   vegLeadingTypes <- c(unique(leading$vegType))
   vegLeadingTypesWithAllSpecies <- c(vegLeadingTypes, "All species")
-  
-  message("  Finished global.R")
   
   # Large patch size section, i.e., clumps
   observe({
@@ -272,6 +271,8 @@ function(input, output, session) {
                largePatchesFn = largePatchesFn)
   args <- args[!unlist(lapply(args, is.null))]
   ClumpsReturn <- do.call(callModule, args )
+  rm(args)
+  
   
   lapply(seq_along(ageClasses), function(ageClassIndex) { # ageClassIndex is age
     lapply(polygonsWithData[ageClass==ageClasses[ageClassIndex]]$V1, function(j) { # j is polygon index
@@ -354,7 +355,6 @@ function(input, output, session) {
 
 
   if(Sys.info()["nodename"]=="W-VIC-A105388") {
-    browser()
     if(.reloadPreviousWorking>0) { # working on temporary head
       system("git checkout .") # delete any changes
       system("git checkout development") # go back to development
@@ -373,4 +373,7 @@ function(input, output, session) {
   #   system("git push")
   # }
   noLongerWaiting()
+  message("  Finished global.R")
+  
+  
 }
