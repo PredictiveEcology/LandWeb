@@ -5,7 +5,7 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
      # character vector (most recent one with AND search)
      # numeric -- counting backwards from 1 previous, 2 previous etc.
 reloadPreviousWorkingLogical <- any(reloadPreviousWorking!=FALSE)
-if(Sys.info()["nodename"] %in% c("W-VIC-A105388", "W-VIC-A128863")) {
+if(Sys.info()["nodename"] %in% c("W-VIC-A105388", "W-VIC-A128863", "L-VIC-A023744")) {
   if(!exists(".reloadPreviousWorking")) {
     if(!reloadPreviousWorkingLogical) {
       .reloadPreviousWorking <- 0
@@ -46,9 +46,9 @@ if(.reloadPreviousWorking==1) {
 #studyArea <- "FULL"
 studyArea <- "EXTRALARGE"
 studyArea <- "LARGE"
-#studyArea <- "MEDIUM"
+studyArea <- "MEDIUM"
 #studyArea <- "SMALL"
-studyArea <- "NWT"
+#studyArea <- "NWT"
 
 ## Create mySim
 paths <- list(
@@ -112,9 +112,9 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 3 # was 4
+endTime <- 200 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(1, endTime)
+summaryPeriod <- c(100, endTime)
 
 # leaflet parameters
 leafletZoomInit = 5 
