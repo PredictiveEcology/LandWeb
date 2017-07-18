@@ -174,7 +174,7 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                    setProgress(1)
                  })
     message(paste("  Finished largePatchesFn"))
-    if(needWorking) {
+    if(FALSE) {
       keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
       keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
       archivist::addTagsRepo(keepArtifacts,
