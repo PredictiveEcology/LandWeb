@@ -2,7 +2,6 @@ source("loadPackages.R") # load & install (if not available) package dependencie
 source("functions.R") # get functions used throughout this shiny app
 source("shinyModules.R") # shiny modules
 source("footers.R") # minor footer stuff for app
-source("mapsForShiny.R") # a few map details for shiny app
 
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
@@ -26,6 +25,7 @@ paths <- list(
   outputPath = paste0("outputs", studyArea)
 )
 
+
 # App - variables 
   appStartTime <- st <- Sys.time() - 1
   message("Started at ", appStartTime)
@@ -35,6 +35,7 @@ paths <- list(
   leafletZoomInit = 5 
   # Some shinycssloaders options
   options("spinner.type"= 5)
+  options(gdalUtils_gdalPath=Cache(gdalSet, cacheRepo = paths$cachePath))
   #options(spinner.color="blue")  
 
 ## spades module variables
@@ -59,9 +60,9 @@ paths <- list(
   successionTimestep <- 10 # was 2
   
   # Overall model times # start is default at 0
-  endTime <- 800 
+  endTime <- 30 
   summaryInterval <- 10
-  summaryPeriod <- c(500, endTime)
+  summaryPeriod <- c(10, endTime)
 
 ### Package stuff that should not be run automatically
 if (FALSE) {
@@ -127,3 +128,5 @@ if (FALSE) {
 mySim <<- simInit(times = times, params = parameters, modules = modules, 
                   objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules))
 
+# This needs simInit call to be run alread
+source("mapsForShiny.R") # a few map details for shiny app
