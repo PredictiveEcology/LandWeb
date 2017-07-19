@@ -740,7 +740,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   sim$biomassMap <- raster(biomassMapFilename)
   sim$standAgeMap <- raster(standAgeMapFilename)
   # 3. species maps
-  sim$specieslayers <- stack()
+  specieslayersLocal <- stack()
   speciesnames <- c("Abie_Las",
                     "Pice_Gla", "Pice_Mar",
                     "Pinu_Ban", "Pinu_Con",
@@ -767,32 +767,14 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     speciesFilenames[indispecies] <- file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies,
                                                                "_v0.tif", sep = ""))
     speciesmap <- raster(speciesFilenames[indispecies])
-    sim$specieslayers <- stack(sim$specieslayers, speciesmap)
-    names(sim$specieslayers)[i] <- indispecies
+    specieslayersLocal <- stack(specieslayersLocal, speciesmap)
+    names(specieslayersLocal)[i] <- indispecies
     i <- i+1
   }
   
-  sumRastersBySpecies <- function(specieslayers, layersToSum, 
-                                  filenameToSave, cachePath) {
-    Pinu_sp <- calc(specieslayers[[layersToSum]], sum)
-    Pinu_sp <- Cache(writeRaster, Pinu_sp, 
-                     filename = filenameToSave, 
-                     datatype="INT2U", overwrite=TRUE, cacheRepo = cachePath,
-                     userTags = "stable")
-    # Need to have names be in sentence case
-    newNames <- tolower(layerNames(specieslayers))
-    substr(newNames,1,1) <- toupper(substr(newNames,1,1))
-    names(specieslayers) <- newNames
-    
-    specieslayers <- dropLayer(specieslayers, grep(pattern = "Pinu", names(specieslayers)))
-    specieslayers <- addLayer(specieslayers, Pinu_sp)
-    names(specieslayers)[grep("Pinu", names(specieslayers))] <- "Pinu_sp"
-    names(specieslayers)[grep("Abie", names(specieslayers))] <- "Abie_sp"
-    specieslayers
-  }
   sim$specieslayers <- Cache(sumRastersBySpecies, #notOlderThan = Sys.time(),
-                             sim$specieslayers, c("Pinu_Ban", "Pinu_Con"),
-                             filenameToSave = file.path(dirname(filename(sim$specieslayers[["Pinu_Ban"]])),
+                             specieslayersLocal, c("Pinu_Ban", "Pinu_Con"),
+                             filenameToSave = file.path(dirname(filename(specieslayersLocal[["Pinu_Ban"]])),
                                                         "KNNPinu_sp.tif"), cachePath = cachePath(sim),
                              cacheRepo=cachePath(sim),
                              userTags = "stable")
@@ -911,4 +893,22 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
 createInitCommMap <- function(initCommMap, values, filename) {
   map <- setValues(initCommMap, values = values)
   writeRaster( map, overwrite = TRUE, filename = filename, datatype="INT2U")
+}
+
+sumRastersBySpecies <- function(specieslayers, layersToSum, 
+                                filenameToSave, cachePath) {
+  Pinu_sp <- calc(specieslayers[[layersToSum]], sum)
+  Pinu_sp <- writeRaster(Pinu_sp, 
+                   filename = filenameToSave, 
+                   datatype="INT2U", overwrite=TRUE)
+  # Need to have names be in sentence case
+  newNames <- tolower(layerNames(specieslayers))
+  substr(newNames,1,1) <- toupper(substr(newNames,1,1))
+  names(specieslayers) <- newNames
+  
+  specieslayers <- dropLayer(specieslayers, grep(pattern = "Pinu", names(specieslayers)))
+  specieslayers <- addLayer(specieslayers, Pinu_sp)
+  names(specieslayers)[grep("Pinu", names(specieslayers))] <- "Pinu_sp"
+  names(specieslayers)[grep("Abie", names(specieslayers))] <- "Abie_sp"
+  specieslayers
 }
