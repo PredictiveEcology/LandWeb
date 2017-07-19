@@ -96,7 +96,6 @@ raster::rasterOptions(maxmemory = 4e10, chunksize = 1e9)
 
 
 # shiny variables
-useGGplotForHists <- FALSE
 
 # sourcing other files
 source("functions.R")
