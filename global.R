@@ -4,43 +4,13 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
      # character string (most recent one with that character string) or 
      # character vector (most recent one with AND search)
      # numeric -- counting backwards from 1 previous, 2 previous etc.
-reloadPreviousWorkingLogical <- any(reloadPreviousWorking!=FALSE)
-if(Sys.info()["nodename"] %in% c("W-VIC-A105388", "W-VIC-A128863")) {
-  if(!exists(".reloadPreviousWorking")) {
-    if(!reloadPreviousWorkingLogical) {
-      .reloadPreviousWorking <- 0
-    } else {
-      .reloadPreviousWorking <- 1   
-    }
-  } else if(.reloadPreviousWorking!=2) {
-    .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
-  } else if(reloadPreviousWorkingLogical) {
-    .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
-  }
-}
+
 source("packagesUsedFromCRAN.R")
 source("functions.R")
+
+.reloadPreviousWorking <- reloadPreviousWorkingFn(reloadPreviousWorking)
 reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
                                          # It needs to be separate because it is an overarching one, regardless of scale
-if(.reloadPreviousWorking==1) {
-  #library(git2r) # has git repo internally
-  md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
-  if(NROW(md5s)) {
-    system("git stash")
-    if(is.character(reloadPreviousWorking))  {
-      searchTerm <- reloadPreviousWorking
-    } else {
-      searchTerm <- unique(md5s$artifact)[as.numeric(reloadPreviousWorking)]
-    }
-    searchTerm <- unique(showCache(searchTerm, x = reproducibleCache)$artifact)
-    shas <- reloadWorkingShas(md5hash = searchTerm[1], 
-                              cachePath = reproducibleCache) # 1 is most recent
-    .reloadPreviousWorking <- 2
-    stop("Run app again")
-  } else {
-    message("No previous working version. Proceeding.")
-  }
-} 
 
 # Spatial stuff
 #studyArea <- "FULL"
@@ -112,9 +82,9 @@ machines <- c("localhost" = maxNumClusters) #, "132.156.148.91"=5, "132.156.149.
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-endTime <- 300 # was 4
+endTime <- 800 # was 4
 summaryInterval <- 10#endTime/2 # was 2
-summaryPeriod <- c(200, endTime)
+summaryPeriod <- c(500, endTime)
 
 # leaflet parameters
 leafletZoomInit = 5 
