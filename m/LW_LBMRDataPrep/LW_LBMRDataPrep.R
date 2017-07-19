@@ -642,10 +642,12 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                                               "05a98a7eab2fcd0ebef7cc21fbfdf75b",
                                               "9bf998a69e4ea74f52c3dd20c5e5b17d",
                                               "5173505a6b80f268c09d4967497cdfe3",
-                                              "5d153bf90e46419b6c1cf3c4bc9832ca")))
+                                              "5d153bf90e46419b6c1cf3c4bc9832ca",
+                                              "201a4a96941b32b7aece28e2ade32e25")))
   needShinking <- all(!(allFilesDigest %in% c("9bf998a69e4ea74f52c3dd20c5e5b17d",
                                               "5173505a6b80f268c09d4967497cdfe3",
-                                              "5d153bf90e46419b6c1cf3c4bc9832ca")))
+                                              "5d153bf90e46419b6c1cf3c4bc9832ca",
+                                              "201a4a96941b32b7aece28e2ade32e25")))
   
   if(needDownload) {
     checkTable <- data.table(downloadData(module = "LW_LBMRDataPrep",
