@@ -779,8 +779,10 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                              cacheRepo=cachePath(sim),
                              userTags = "stable")
   ## load Paul Pickell et al. and CASFRI
-  if(FALSE) {
-    dataPath <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
+  dataPath <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
+  if(all(c("SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat", "Landweb_CASFRI_GIDs.tif",
+           "Landweb_CASFRI_GIDs_attributes3.csv", "Landweb_CASFRI_GIDs_README.txt") 
+         %in% dir(dataPath) )) {
     stackOut <- Cache(loadPaulAndCASFRI, paths = lapply(paths(sim), basename), 
                       PaulRawFileName = asPath(
                         file.path(dataPath, "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")),
@@ -793,28 +795,28 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                         file.path(dataPath,"Landweb_CASFRI_GIDs_README.txt")),
                       digestPathContent = TRUE#, debugCache = "quick"
     )
+    message("Using CASFRI and Pickell et al layers")
+  } else {
+    message("Using only 'Open source data sets'")
   }
-  
-  
-  
-  
   
   # projection(sim$LCC2005) <- projection(sim$specieslayers)
   
   if(needShinking) {
     if(!is.null(sim$shpStudyRegionFull)) {
+      message("Shrinking number and size of files that were just downloaded")
       sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
       
       sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
       sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$specieslayers))
       sim$ecoZone <- spTransform(sim$ecoZone, crs(sim$specieslayers))
       
-      # Crop them
+      message("Crop them")
       sim$ecoDistrict <- crop(sim$ecoDistrict, sim$shpStudyRegionFull)
       sim$ecoRegion <- crop(sim$ecoRegion, sim$shpStudyRegionFull)
       sim$ecoZone <- crop(sim$ecoZone, sim$shpStudyRegionFull)
       
-      # resave them
+      message("Resave them")
       shapefile(sim$ecoDistrict, ecodistrictFilename, overwrite = TRUE)
       shapefile(sim$ecoRegion, ecoregionFilename, overwrite = TRUE)
       shapefile(sim$ecoZone, ecozoneFilename, overwrite = TRUE)
