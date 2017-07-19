@@ -260,6 +260,14 @@ reprojectRasts <- function(tsf, lfltFN, crs, endTime = end(mySim), flammableFile
 }
 
 
+# Set up gdal stuff -- first, find the installation
+gdalSet <- function() {
+  gdal_setInstallation()
+  getOption("gdalUtils_gdalPath")
+}
+options(gdalUtils_gdalPath=Cache(gdalSet, cacheRepo = paths$cachePath))
+
+
 gdal2TilesFn <- function(r, filename, zoomRange=6:11, color_text_file = asPath(colorTableFile)) {
   filename1 <- filename(r)
   prefix <- file.path("www",studyArea)
