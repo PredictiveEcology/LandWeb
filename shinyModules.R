@@ -18,26 +18,6 @@ vegAgeMod <- function(input, output, session, listOfProportions, indivPolygonInd
                       vegLeadingType) {
   
   output$propCoverHists <- renderPlot(height = 300, {
-    if(useGGplotForHists) {
-      #withProgress(message = 'Calculation in progress',
-      #             detail = 'This may take a while...', value = 0, {
-      actualPlot <- 
-        ggplot(data = data.frame(x = listOfProportions),
-               aes(x = x)) +
-        #stat_bin(bins = 30) +
-        stat_bin(aes(y=..count../sum(..count..)),#bins = max(6, max(a)+2), 
-                 fill="grey", colour="darkgrey", size = 1,
-                 binwidth = 0.1) + 
-        xlab("") + #xlab("Proportion of polygon") +
-        xlim(-0.1,1.1) +
-        theme_bw() +
-        theme(text = element_text(size = 16)) +
-        ylab("Proportion in NRV")
-      #             setProgress(1)
-      #            })
-      actualPlot
-    } else {
-      
       breaksLabels <- 0:11/10
       breaks <- breaksLabels - 0.05
       barplotBreaks <- breaksLabels + 0.05
@@ -46,16 +26,6 @@ vegAgeMod <- function(input, output, session, listOfProportions, indivPolygonInd
       barplot(actualPlot$counts/sum(actualPlot$counts), xlim = range(breaks), xlab="", ylab = "Proportion in NRV",
               col="darkgrey",border="grey", main = "", width = 0.1, space = 0)
       axis(1, at = barplotBreaks, labels = breaksLabels)
-      
-      # actualPlot <-
-      #    try(hist(unlist(lapply(listOfProportions, function(x) x[indivPolygonIndex, "Deciduous leading"])),
-      #             plot = FALSE))
-      # if(!(is(actualPlot, "try-error")))
-      #   actualPlot
-      # Plot(actualPlot, new = TRUE, visualSqueeze = 1, gpText = gpar(fontsize = 16),
-      #      title = "",
-      #      addTo = paste0("actualPlot_dist",polygonLayer$ECODISTRIC[indivPolygonIndex]))
-    }
     
   })
 }
@@ -81,39 +51,18 @@ clumpMod <- function(input, output, session, Clumps, id, ageClasses, vegLeadingT
       numByRep <- forHistDT[,.N,by="rep"]
       forHist[seq_len(NROW(numByRep))] <- numByRep$N
     }
-    if(useGGplotForHists) {
+    breaksLabels <- 0:(maxNumClusters)
+    breaks <- breaksLabels - 0.5
+    barplotBreaks <- breaksLabels + 0.5
+    
+    actualPlot <- hist(forHist, #plot = FALSE, 
+                       breaks = breaks)
+    barplot(actualPlot$counts/sum(actualPlot$counts), 
+            xlim = range(breaks),#c(0,maxNumClusters), 
+            xlab="", ylab = "Proportion in NRV",
+            col="darkgrey",border="grey", main = "", width = rep(1, length(forHist)), space = 0)
+    axis(1, at = barplotBreaks, labels = breaksLabels)
       
-      withProgress(message = 'Calculation in progress',
-                   detail = 'This may take a while...', value = 0, {
-                     actualPlot <- ggplot(data = data.frame(x = forHist), aes(x = x)) + 
-                       stat_bin(aes(y=..density..),#bins = max(6, max(a)+2), 
-                                fill="grey", colour="darkgrey", size = 1,
-                                binwidth = 1) + 
-                       xlab("") + #xlab("Proportion of polygon") + 
-                       xlim(-1,maxNumClusters) +
-                       #ggthemes::theme_fivethirtyeight() +
-                       #ggthemes::scale_color_fivethirtyeight() +
-                       theme_bw() + 
-                       theme(text = element_text(size = 16)) + 
-                       ylab("Proportion in NRV")
-                     setProgress(1)
-                   })
-      
-      actualPlot
-    } else {
-      breaksLabels <- 0:(maxNumClusters)
-      breaks <- breaksLabels - 0.5
-      barplotBreaks <- breaksLabels + 0.5
-      
-      actualPlot <- hist(forHist, #plot = FALSE, 
-                         breaks = breaks)
-      barplot(actualPlot$counts/sum(actualPlot$counts), 
-              xlim = range(breaks),#c(0,maxNumClusters), 
-              xlab="", ylab = "Proportion in NRV",
-              col="darkgrey",border="grey", main = "", width = rep(1, length(forHist)), space = 0)
-      axis(1, at = barplotBreaks, labels = breaksLabels)
-      
-    }
   })
   
 }
