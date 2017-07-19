@@ -353,3 +353,45 @@ margin-top: -33px;  /* half of the spinner's height */
 margin-left: -33px; /* half of the spinner's width */
 }
 "
+
+
+reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
+  reloadPreviousWorkingLogical <- any(reloadPreviousWorking!=FALSE)
+  if(Sys.info()["nodename"] %in% c("W-VIC-A105388", "W-VIC-A128863")) {
+    if(!exists(".reloadPreviousWorking")) {
+      if(!reloadPreviousWorkingLogical) {
+        .reloadPreviousWorking <- 0
+      } else {
+        .reloadPreviousWorking <- 1   
+      }
+    } else if(.reloadPreviousWorking!=2) {
+      .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
+    } else if(reloadPreviousWorkingLogical) {
+      .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
+    }
+  } else {
+    .reloadPreviousWorking <- 0
+  }
+  
+  if(.reloadPreviousWorking==1) {
+    #library(git2r) # has git repo internally
+    md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
+    if(NROW(md5s)) {
+      system("git stash")
+      if(is.character(reloadPreviousWorking))  {
+        searchTerm <- reloadPreviousWorking
+      } else {
+        searchTerm <- unique(md5s$artifact)[as.numeric(reloadPreviousWorking)]
+      }
+      searchTerm <- unique(showCache(searchTerm, x = reproducibleCache)$artifact)
+      shas <- reloadWorkingShas(md5hash = searchTerm[1], 
+                                cachePath = reproducibleCache) # 1 is most recent
+      .reloadPreviousWorking <- 2
+      stop("Run app again")
+    } else {
+      message("No previous working version. Proceeding.")
+    }
+  } 
+  
+  return(.reloadPreviousWorking)
+}
