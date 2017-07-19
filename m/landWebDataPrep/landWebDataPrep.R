@@ -5,8 +5,8 @@ defineModule(sim, list(
   name = "landWebDataPrep",
   description = "A module that prepares data for LandWeb NRV project",
   keywords = c("Data Preparation"),
-  authors = c(person(c("Yong"), "Luo", email="yong.luo@canada.ca", role=c("aut", "cre")),
-              person(c("Eliot"), "J", "B", "McIntire", email="eliot.mcintire@canada.ca", role=c("aut"))),
+  authors = c(person(c("Yong", "Luo"), email = "yong.luo@canada.ca", role = c("aut", "cre")),
+              person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut"))),
   childModules = character(0),
   version = numeric_version("1.3.1"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
@@ -25,9 +25,8 @@ defineModule(sim, list(
   inputObjects = bind_rows(
     #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
     expectsInput(objectName = "calibrate", objectClass = "logical",
-                 desc = "determine whether all the growth and mortality in LBMR are detailed recorded,
-                 default is FALSE", 
-                 sourceURL = NA),
+                 desc = "determine whether all the growth and mortality in LBMR are detailed recorded, default is FALSE", 
+                 sourceURL = ""),
     expectsInput(objectName = "shpStudyRegionFull", objectClass = "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: Full study areawith fire return interval attribute", 
                  #sourceURL = "https://ln.sync.com/dl/4c0ccab80#txwgbma8-d7ta56ar-4pf8rp5d-icpis7ga"), # i guess this is study area and fire return interval

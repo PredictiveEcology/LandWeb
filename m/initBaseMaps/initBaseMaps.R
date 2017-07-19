@@ -17,7 +17,7 @@ defineModule(sim, list(
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
-    defineParameter(".useCache", "numeric", TRUE, NA, NA, "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant")
+    defineParameter(".useCache", "numeric", FALSE, NA, NA, "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = data.frame(
     objectName = c("LCC05X", "shpStudySubRegion"),
@@ -58,18 +58,28 @@ initBaseMapsInit <- function(sim) {
     sim$shpStudySubRegion, CRSobj=simProjection)
   #sim$shpStudyRegion <- spTransform(sim$shpStudySubRegion, CRSobj=simProjection)
   #sim$LCC05 <- crop(sim$LCC05X,sim$shpStudyRegion)
-  sim$LCC05 <- Cache(crop,sim$LCC05X,sim$shpStudyRegion)
+  
+  message("fastRasterize for rstStudyRegion")
+  sim$rstStudyRegion <- Cache(fastRasterize, 
+                              polygon = sim$shpStudyRegion,
+                              ras = crop(sim$LCC05X, extent(sim$shpStudyRegion)),
+                              field="LTHRC", datatype="INT2U",
+                              filename="rstStudyRegion")
+  
+  cropMask <- function(ras, poly, mask) {
+    out <- crop(ras,poly)
+    # # Instead of mask, just use indexing
+    out[is.na(mask)] <- NA
+    out <- writeRaster(out, filename = file.path(tmpDir(), "LCC05_studyArea.tif"), 
+                       datatype = "INT1U",
+                       overwrite = TRUE)
+    out
+  }
+
+  sim$LCC05 <- Cache(cropMask, sim$LCC05X, sim$shpStudyRegion, sim$rstStudyRegion)
+  
   rm(LCC05X,envir=envir(sim))
   tmp<-getColors(sim$LCC05)[[1]]
-  message("fastRasterize for rstStudyRegion")
-  sim$rstStudyRegion <- Cache(cacheRepo=file.path(cachePath(sim), "StudyRegion"),
-                              fastRasterize, 
-                              polygon = sim$shpStudyRegion,
-                              ras = sim$LCC05)#,
-  #field = "LTHRC") # Don't use field to keep as factor
-  # 
-  # # Instead of mask, just use indexing
-  sim$LCC05[is.na(sim$rstStudyRegion[])] <- NA
   return(invisible(sim))
 }
 

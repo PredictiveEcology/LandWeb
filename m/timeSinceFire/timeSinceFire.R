@@ -23,8 +23,8 @@ defineModule(sim, list(
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur")
   ),
   inputObjects = data.frame(
-    objectName = c("LCC05","rstFlammable","rstStudyRegion","burnLoci", "rstCurrentBurn"),
-    objectClass = c("RasterLayer","RasterLayer","RasterLayer","vector", "RasterLayer"),
+    objectName = c("LCC05","rstFlammable","rstStudyRegion","burnLoci", "rstCurrentBurn","fireTimestep"),
+    objectClass = c("RasterLayer","RasterLayer","RasterLayer","vector", "RasterLayer", "numeric"),
     sourceURL = "",
     other = NA_character_,
     stringsAsFactors = FALSE
@@ -53,11 +53,12 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- scheduleEvent(sim, params(sim)$timeSinceFire$.saveInitialTime, "timeSinceFire", "save")
     sim <- scheduleEvent(sim, params(sim)$timeSinceFire$startTime, "timeSinceFire", "age")
   } else if (eventType == "age") {
-    sim$burnLoci <- Which(sim$rstCurrentBurn==1, cell = TRUE)
-    sim$rstTimeSinceFire <- sim$rstTimeSinceFire + params(sim)$timeSinceFire$returnInterval #preserves NAs
-    sim$rstTimeSinceFire[sim$burnLoci] <- 0
+    sim$burnLoci <- which(sim$rstCurrentBurn[]==1)
+    fireTimestep <- if(is.null(sim$fireTimestep)) P(sim)$returnInterval else sim$fireTimestep
+    sim$rstTimeSinceFire[] <- sim$rstTimeSinceFire[] + as.integer(fireTimestep) #preserves NAs
+    sim$rstTimeSinceFire[sim$burnLoci] <- 0L
     #schedule next age event
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$timeSinceFire$returnInterval, "timeSinceFire", "age")
+    sim <- scheduleEvent(sim, time(sim) + fireTimestep, "timeSinceFire", "age")
   } else if (eventType == "plot") {
     Plot(sim$rstTimeSinceFire)
     # e.g.,
@@ -93,11 +94,11 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
 timeSinceFireInit <- function(sim) {
     #browser()
   if(is.null(sim$burnLoci)){
-    sim$burnLoci <- Which(sim$rstCurrentBurn==1, cell = TRUE)
+    sim$burnLoci <- which(sim$rstCurrentBurn[]==1)
   }
   # Much faster than call rasterize again
   sim$rstTimeSinceFire <- raster(sim$rstStudyRegion)
-  sim$rstTimeSinceFire[] <- sim$shpStudyRegion$LTHRC[sim$rstStudyRegion[]]
+  sim$rstTimeSinceFire[] <- as.integer(sim$shpStudyRegion$LTHRC[sim$rstStudyRegion[]])
   sim$rstTimeSinceFire[sim$rstFlammable[] == 1] <- NA #non-flammable areas are permanent.
   #assign legend and colours if you are serious
   return(invisible(sim))

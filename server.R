@@ -1,44 +1,110 @@
 function(input, output, session) {
+  sessionStartTime <- Sys.time()
   
+  session$onSessionEnded(function() {
+    # if(reloadPreviousWorking) {
+    #   checkoutCondition <- reproducible:::checkoutVersion(
+    #     paste0("eliotmcintire/LandWeb@development"), cred = "GITHUB_PAT")
+    #   
+    #   #.libPaths(origLibPaths) # get out of checkpoint
+    # }
+    
+    if(TRUE)
+      if(Sys.info()["nodename"]=="W-VIC-A105388")  {
+        
+        if(rsyncToAWS) {
+          #keepCache(mySim, after = appStartTime)
+          system(paste0("rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e 'ssh -i ",
+                        path.expand('~'),
+                        "/.ssh/laptopTesting.pem' ~/Documents/GitHub/LandWeb/ emcintir@ec2-52-26-180-235.us-west-2.compute.amazonaws.com:/srv/shiny-server/Demo/"))
+        }
+      }
+    
+    message("The app started at ", appStartTime)
+    message("The session started at ", sessionStartTime)
+  })
+  
+  # if(reloadPreviousWorking) {
+  #   keepArtifacts <<- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
+  #   archivist::addTagsRepo(keepArtifacts,
+  #                          repoDir = paths$cachePath,
+  #                          tags = paste0("LandWebVersion:", LandWebVersion))
+  # }
   #react <- reactiveValues()
-  
-  if (TRUE) {
-    # # Do an initial run for each given study area so that all the data prep can be done once only
-    #initialRun1 <- spades(Copy(mySim), debug = TRUE)
-    # 5 minutes for 6e3 km2
-    # 30 minutes for 6e4 km2
-    mySimCopy <- Copy(mySim)
-    end(mySimCopy) <- 1
-    message("Running Initial spades call")
-    initialRun <- Cache(spades, sim = mySimCopy, 
-                        debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
-                        objects = "shpStudyRegion", 
-                        cacheRepo = file.path(cachePath(mySim), "studyRegion"), .plotInitialTime = NA)
-    # try(silent = TRUE, {
-    #   filesPresent <- dir(unique(dirname(outputs(initialRun)$file)))
-    #   filesPresentFull <- dir(unique(dirname(outputs(initialRun)$file)), full.names = TRUE)
-    #   filesToRemove <- unlist(lapply(strsplit(basename(outputs(initialRun)$file), split = "\\."), function(x) x[1])) %>%
-    #     lapply(function(y) grep(filesPresent, pattern = y)) %>%
-    #     unlist()
-    #   file.remove(filesPresentFull[filesToRemove])
-    # })
+  seed <- sample(1e8,1)
+  set.seed(seed)
+  message("Current seed is: ", seed)
+  spadesAndExperiment <- function(mySim, experimentReps) {
+    
+    if (TRUE) {
+      # # Do an initial run for each given study area so that all the data prep can be done once only
+      #initialRun1 <- spades(Copy(mySim), debug = TRUE)
+      # 5 minutes for 6e3 km2
+      # 30 minutes for 6e4 km2
+      mySimCopy <- Copy(mySim)
+      end(mySimCopy) <- 0
+      message("Running Initial spades call")
+      initialRun <<- Cache(spades, sim = mySimCopy, #notOlderThan = Sys.time(),
+                           debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
+                           objects = "shpStudyRegion", 
+                           #cacheRepo = cachePath(mySim), 
+                           .plotInitialTime = NA, 
+                           omitArgs = c("debug", ".plotInitialTime"),
+                           debugCache="complete")
+    }
+    
+    ##########
+    raster::endCluster()
+    seed <- sample(1e8,1)
+    #seed <- 792282
+    set.seed(seed)
+    message("Current seed is: ", seed)
+    #startTime <<- st <<- Sys.time()
+    message("Running Experiment, starting at time: ", appStartTime)
+    objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value=TRUE, invert=TRUE)
+    args <- list(experiment, mySim, replicates = experimentReps, 
+                 objects = objectsToHash,
+                 debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2), 
+                 paste(unname(current(sim)), collapse = ' '))",#,
+                 # {lsObj <- ls(envir=sim@.envir); keep <- 1:1; a <- format(big.mark = ',',
+                 #           sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>%
+                 #           setNames(lsObj), decreasing = TRUE))[keep];
+                 #           paste(names(a)[keep], collapse=' ')},
+                 # paste(a[keep], collapse=' '),
+                 # 'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ',
+                 # uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:',
+                 # round(uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap),4),
+                 # {st <<- Sys.time()})",
+                 # debug = "paste(paste(unname(current(sim)), collapse = ' '), 'is sim$useParallel a cluster:', 
+                 #          is(sim$useParallel, 'cluster'))", #cache = TRUE, 
+                 #cl = if(exists("cl")) cl, 
+                 .plotInitialTime = NA,
+                 #notOlderThan = Sys.time(), # uncomment if want to rerun without Cached copy
+                 clearSimEnv = TRUE,
+                 debugCache="complete",
+                 omitArgs = c("debug", ".plotInitialTime"))
+    args <- args[!unlist(lapply(args, is.null))]
+    #profvis::profvis(interval = 0.5, {mySimOut <- do.call(Cache, args)})
+    mySimOut <- do.call(Cache, args)
+    message(attr(mySimOut, "tags"))
+    mySimOut
   }
   
-  callModule(simInfo, "simInfoTabs", initialRun)
-  callModule(moduleInfo, "modInfoBoxes", initialRun)
+  objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names=TRUE), value=TRUE, invert=TRUE)
+  mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps, debugCache = "complete",
+                     objects = objectsToHash)
   
-  raster::endCluster()
-  message("Running Experiment")
-  args <- list(experiment, mySim, replicates = experimentReps, 
-               debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))", 
-               #debug = TRUE, #cache = TRUE, 
-               cl = if(exists("cl")) cl, 
-               .plotInitialTime = NA,
-               #notOlderThan = Sys.time(),
-               clearSimEnv = TRUE)
-  args <- args[!unlist(lapply(args, is.null))]
-  mySimOut <- do.call(Cache, args)
-  message(attr(mySimOut, "tags"))
+  callModule(simInfo, "simInfoTabs", mySimOut[[1]])
+  callModule(moduleInfo, "modInfoBoxes", mySimOut[[1]])
+  
+  
+  # if(reloadPreviousWorking) {
+  #   keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
+  #   keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
+  #   archivist::addTagsRepo(keepArtifacts,
+  #                          repoDir = paths$cachePath,
+  #                          tags = paste0("LandWebVersion:", LandWebVersion))
+  # }
   
   # mySimOut <- Cache(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE,
   #                   #cl = cl,
@@ -52,7 +118,6 @@ function(input, output, session) {
     outputs(mySimOut[[x]])$file
   })
   
-  # browser()
   #if(any(!file.exists(unlist(filesFromOutputs)))) {
   for(simNum in seq_along(mySimOut)) {
     mySimOut[[simNum]]@outputs$file <- 
@@ -73,44 +138,41 @@ function(input, output, session) {
   tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
   vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
   lenTSF <- length(tsf)
+  rasterResolution <<- raster(tsf[1]) %>% res()
   
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
   #lfltFN <- gsub(lfltFN, pattern = ".grd", replacement = ".tif")
   
-  if (!(length(globalRasters) == length(tsf))) {
-    message("Reprojecting rasters & loading into RAM")
-    globalRasters <<- lapply(seq_along(tsf), function(FN) {
-      if (file.exists(lfltFN[FN])) {
-        r <- raster(lfltFN[FN])
-      } else {
-        r <- raster(tsf[FN])
-        r <- projectRaster(r, crs = sp::CRS(lflt), method = "ngb",
-                           filename = lfltFN[FN], overwrite = TRUE,
-                           datatype = "INT2U")
-      }
-      #if ((ncell(r) < 5e5) & (length(tsf) < 30)) r[] <- r[] 
-      r
-    })
-    message("  Finished reprojecting rasters & loading into RAM")
-  } 
+  #if (!(length(globalRasters) == length(tsf))) {
+  globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = TRUE,
+                          lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
+                          flammableFile = asPath(file.path(paths$outputPath, "rstFlammable.grd")))
   
   message("Running leadingByStage")
   args <- list(leadingByStage, tsf, vtm, 
                polygonToSummarizeBy = ecodistricts,
                #polygonNames = ecodistricts$ECODISTRIC, 
                cl = if(exists("cl")) cl, 
+               omitArgs = "cl",
                ageClasses = ageClasses, cacheRepo = paths$cachePath)
   args <- args[!unlist(lapply(args, is.null))]
   leading <- do.call(Cache, args)
+  rm(args)
   message("  Finished leadingByStage")
+  
+  # if(reloadPreviousWorking) {
+  #   keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
+  #   keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
+  #   archivist::addTagsRepo(keepArtifacts,
+  #                          repoDir = paths$cachePath,
+  #                          tags = paste0("LandWebVersion:", LandWebVersion))
+  # }
   
   # Large patches
   polygonsWithData <- leading[,unique(polygonNum[!is.na(proportion)]),by=ageClass]
   
   vegLeadingTypes <- c(unique(leading$vegType))
   vegLeadingTypesWithAllSpecies <- c(vegLeadingTypes, "All species")
-  
-  message("  Finished global.R")
   
   # Large patch size section, i.e., clumps
   observe({
@@ -190,6 +252,14 @@ function(input, output, session) {
     )
   })
   
+  output$studyRegionUI <- renderUI({
+    tabBox(width = 12,
+           tabPanel("Time Since Fire maps", tabName = "timeSinceFireTab",
+                    fluidRow(studyRegionModUI("studyRegion"))
+           )
+    )
+  })
+  
   callModule(timeSinceFireMod, "timeSinceFire", rasts = globalRasters)
   
   args <- list(clumpMod2, "id1", session = session, 
@@ -201,6 +271,8 @@ function(input, output, session) {
                largePatchesFn = largePatchesFn)
   args <- args[!unlist(lapply(args, is.null))]
   ClumpsReturn <- do.call(callModule, args )
+  rm(args)
+  
   
   lapply(seq_along(ageClasses), function(ageClassIndex) { # ageClassIndex is age
     lapply(polygonsWithData[ageClass==ageClasses[ageClassIndex]]$V1, function(j) { # j is polygon index
@@ -232,45 +304,46 @@ function(input, output, session) {
   
   # There is double code here, allowing for ggplotly version (currently commented out) and ggvis version
   #output$StudyRegion <- renderPlot(
-  bind_shiny(plot_id = "StudyRegion",
-             #height = 525, 
-             #width = 800,
-             #  {
-             #ggplotly(ggStudyRegion )
-             ggStudyRegion 
-             
-             #   g[[jj]]  <- ggplot() +
-             #     geom_raster(data=packSaturationMapPts[[jj]],
-             #                 aes(long, lat, fill=Probability, text=CountryName),
-             #                 alpha = 0.98) +
-             #     geom_polygon(data=shape.fort, 
-             #                  aes(long, lat, group=group), 
-             #                  colour='black',fill=NA) +
-             #     coord_equal() +
-             #     scale_fill_gradientn(colors=c('blue','blue','light blue', 'light blue','orange','red'),
-             #                          #scale_fill_gradientn(colors=c('#ffffd4','#fee391','#fec44f','#fe9929','#d95f0e','#993404'),
-             #                          name='Probability of a pack',  na.value = NA) + 
-             #     theme(
-             #       legend.position = 'right',
-             #       legend.key.size = unit(1, "cm")
-             #     ) +
-             #     scale_x_continuous(expand=c(0,0)) + 
-             #     scale_y_continuous(expand=c(0,0)) +
-             #     labs(x='Easting', y='Northing', title=paste("Probability of pack presence in 2097, based on",
-             #                                                 length(numPacks2AByTime[[jj]]), "replicate simulations, \n",
-             #                                                 "with", jj, "starting locations"))
-             #   
-             #   #g1 <- g
-             #}
-             # gridExtra::grid.arrange(grobs = g)
-             #ggplotly(g, tooltip = c("CountryName", "Probability"))
-             
-             #clearPlot()
-             #Plot(shpStudyRegionOrig, title = "Proportion of leading spruce")
-             #Plot(shpStudyRegion, addTo = "shpStudyRegionOrig")
-             #}
-  )
-  
+  if(FALSE) {
+    bind_shiny(plot_id = "StudyRegion",
+               #height = 525, 
+               #width = 800,
+               #  {
+               #ggplotly(ggStudyRegion )
+               ggStudyRegion 
+               
+               #   g[[jj]]  <- ggplot() +
+               #     geom_raster(data=packSaturationMapPts[[jj]],
+               #                 aes(long, lat, fill=Probability, text=CountryName),
+               #                 alpha = 0.98) +
+               #     geom_polygon(data=shape.fort, 
+               #                  aes(long, lat, group=group), 
+               #                  colour='black',fill=NA) +
+               #     coord_equal() +
+               #     scale_fill_gradientn(colors=c('blue','blue','light blue', 'light blue','orange','red'),
+               #                          #scale_fill_gradientn(colors=c('#ffffd4','#fee391','#fec44f','#fe9929','#d95f0e','#993404'),
+               #                          name='Probability of a pack',  na.value = NA) + 
+               #     theme(
+               #       legend.position = 'right',
+               #       legend.key.size = unit(1, "cm")
+               #     ) +
+               #     scale_x_continuous(expand=c(0,0)) + 
+               #     scale_y_continuous(expand=c(0,0)) +
+               #     labs(x='Easting', y='Northing', title=paste("Probability of pack presence in 2097, based on",
+               #                                                 length(numPacks2AByTime[[jj]]), "replicate simulations, \n",
+               #                                                 "with", jj, "starting locations"))
+               #   
+               #   #g1 <- g
+               #}
+               # gridExtra::grid.arrange(grobs = g)
+               #ggplotly(g, tooltip = c("CountryName", "Probability"))
+               
+               #clearPlot()
+               #Plot(shpStudyRegionOrig, title = "Proportion of leading spruce")
+               #Plot(shpStudyRegion, addTo = "shpStudyRegionOrig")
+               #}
+    )
+  }
   
   output$speciesInputs <- renderDataTable({
     landisInputs
@@ -279,6 +352,28 @@ function(input, output, session) {
   output$speciesEcoregionInputs <- renderDataTable({
     spEcoReg
   })#, digits = 1)
+
+
+  if(Sys.info()["nodename"]=="W-VIC-A105388") {
+    if(.reloadPreviousWorking>0) { # working on temporary head
+      system("git checkout .") # delete any changes
+      system("git checkout development") # go back to development
+      system("git stash pop") # pop the stashed anything
+      rm(.reloadPreviousWorking, envir=.GlobalEnv)
+    } else { # working on development -- add and push so that it stores a copy of a completed version
+      system("git add .")
+      system("git commit -a -m 'automated push post run'")
+      system("git push")
+    }
+    Cache(workingShas, cacheRepo = reproducibleCache, date = Sys.time(), 
+          userTags = c("workingShas", paste0("endTime:",end(mySim)), paste0("scale:", studyArea)))
+  }
+    # if(Sys.info()["nodename"]=="W-VIC-A105388") {
+  #   system("git commit -a -m 'pre run'")
+  #   system("git push")
+  # }
+  noLongerWaiting()
+  message("  Finished global.R")
   
   
 }
