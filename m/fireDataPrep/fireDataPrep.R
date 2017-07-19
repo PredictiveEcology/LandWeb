@@ -30,8 +30,8 @@ defineModule(sim, list(
     stringsAsFactors = FALSE
   ),
   outputObjects = data.frame(
-    objectName = c("rstFlammable", "rstBurnProb"),
-    objectClass = c("RasterLayer", "RasterLayer"),
+    objectName = c("rstFlammable"),#, "rstBurnProb"),
+    objectClass = c("RasterLayer"),
     other = c("rstFlammable is 0 for flammable, 1 for non flammable",""),
     stringsAsFactors = FALSE
   )
@@ -68,18 +68,23 @@ fireDataPrepInit <- function(sim) {
   flammableTable <- cbind(oldClass, newClass)
   #according to Yong, Canada Landcover 2005 is loaded as LCC05 
   sim$rstFlammable <- ratify(reclassify(sim$LCC05, flammableTable,count=TRUE))
+  sim$rstFlammable <- writeRaster(sim$rstFlammable, filename = file.path(outputPath(sim), "rstFlammable"),
+                                  overwrite = TRUE)
+  
   setColors(sim$rstFlammable,n=2) <- colorRampPalette(c("blue", "red"))(2) 
   sim$rstFlammable[is.na(sim$rstStudyRegion[])] <- NA
+  
   # Much faster than call rasterize again
-  sim$rstBurnProb <- raster(sim$rstStudyRegion)
-  #LTHRC is for some reason the field name of the regional fire cycles according to DA
-  sim$rstBurnProb[] <- (1/shpStudyRegion$LTHRC)[sim$rstStudyRegion[]]
-  
-  
-  #doing this here ensures non-flammable cells are accounted for, 
-  #no matter when/where rasterBurnProb and rasterFlammable are created.
-  sim$rstBurnProb[sim$rstFlammable[] == 1] <- 0 #this could turn some NAs to 0s.
-  
+  if(FALSE) { # not clear why this burnProb map exists}
+    sim$rstBurnProb <- raster(sim$rstStudyRegion)
+    #LTHRC is for some reason the field name of the regional fire cycles according to DA
+    sim$rstBurnProb[] <- (1/shpStudyRegion$LTHRC)[sim$rstStudyRegion[]]
+    
+    
+    #doing this here ensures non-flammable cells are accounted for, 
+    #no matter when/where rasterBurnProb and rasterFlammable are created.
+    sim$rstBurnProb[sim$rstFlammable[] == 1] <- 0 #this could turn some NAs to 0s.
+  }
   return(invisible(sim))
 }
 

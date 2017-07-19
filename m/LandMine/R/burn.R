@@ -12,7 +12,7 @@
 #' @param spawnNewActive A numeric vector of length 4. These are the probabilities of creating spreading to 2 neighbours
 #'                       instead of the 1 default neighbour, each time step. The 4 values are for 4 different fire
 #'                       size conditions. See details.
-#' @param sizeCutoffs A numeric vector of length 2. These are 2 size thresholds that affect which
+#' @param sizeCutoffs A numeric vector of length 2, in hectares. These are 2 size thresholds that affect which
 #'                    \code{spawnNewActive} probabilities are used. See details.
 #'
 #' @details
@@ -28,7 +28,8 @@
 #' \subsection{Adjustments due to current fire size and number of active pixels}{
 #'
 #' That can vary too, but it gets a bit complicated, so use that for now.
-#' Spawning probability was originally set at 13%, but created problems with very large and very small fires, so over time has been adjusted to vary depending on a) number of active “firelets” (NF) and b) fire size (FS):
+#' Spawning probability was originally set at 13%, but created problems with very large and very small
+#'  fires, so over time has been adjusted to vary depending on a) number of active “firelets” (NF) and b) fire size (FS):
 #'   -         If NF>=10 and <36 and FS <20,000 ha then P = 20%
 #'   -         If NF>36 and FS <8,000 ha, P=11%
 #'   -         If  NF<36 and FS >20,000 ha, P=26%
@@ -36,35 +37,106 @@
 #' These rule create more heterogeneity in the pattern of burning.
 #' }
 #'
-#' @section Not yet implemented:
-#' Chances of fire spread stopping at any given pixel in any given firelet is 23%.
-#' The fire can also get stuck when it turns back in on itself and burns islands,
-#' but now has no way to grow larger from the perimeter.
-#' If the fire has not reached its target size, I create new firelet “spot” fires up to 400 pixels away.
+#' \subsection{Fire jumping}:
+#' If the fire has not reached its target size, it will try to pick new neighbours among
+#' the 8 immediate neighbours up to 4 times. If it still did not find enough neighbours, then 
+#' it will jump or “spot” up to 4 pixels away. It will then repeat the previous 2 stages again
+#' once (i.e., 4 neighbours, 1 jump, 4 neighbours, 1 jump), then it will stop, unable to achieve
+#' the desired fireSize.
 #'
 #' @return
-#'   A \code{data.table} with 4 columns
-burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
-                 sizeCutoffs = c(8e3, 2e4), spreadProb = 1) {
-  a = spread(landscape, loci = startCells, spreadProb = spreadProb, persistence = 0,
-             neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
-             mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
-             id = TRUE, plot.it = FALSE, exactSizes = TRUE);
-  while(sum(a$active)>0) {
-    b <- a[,list(numActive = sum(active), fireSize = .N),by=id]
-    set(b, , "pSpawnNewActive", spawnNewActive[1])
-    b[numActive>=nActiveCells1[1] & numActive<nActiveCells1[2] & fireSize < sizeCutoffs[2], pSpawnNewActive:=spawnNewActive[2]]
-    b[numActive>nActiveCells1[2] & fireSize < sizeCutoffs[1], pSpawnNewActive:=spawnNewActive[4]]
-    b[numActive<nActiveCells1[2] & fireSize > sizeCutoffs[2], pSpawnNewActive:=spawnNewActive[3]]
-    set(b, , "pNoNewSpawn", 1-b$pSpawnNewActive)
+#' A \code{data.table} with 4 columns
+# burn <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
+#                  sizeCutoffs = c(8e3, 2e4), spreadProbRel = 0.23) {
+#   a = spread(landscape, loci = startCells, spreadProbRel = spreadProbRel, persistence = 0,
+#              neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
+#              mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
+#              id = TRUE, plot.it = FALSE, exactSizes = TRUE);
+#   while(sum(a$active)>0) {
+#     b <- a[,list(numActive = sum(active), size = .N),by=id]
+#     set(b, , "pSpawnNewActive", 0) # This is undescribed in Andison -- NF>36 & FS >8,000 ha -- They look too circular, without this, so make this zero, no new spawn
+#     #set(b, , "pSpawnNewActive", spawnNewActive[1])
+#     b[numActive<nActiveCells1[1], pSpawnNewActive:=spawnNewActive[1]]
+#     b[numActive>=nActiveCells1[1] & numActive<nActiveCells1[2] & size < sizeCutoffs[2], pSpawnNewActive:=spawnNewActive[2]]
+#     b[numActive>nActiveCells1[2] & size < sizeCutoffs[1], pSpawnNewActive:=spawnNewActive[4]]
+#     b[numActive<nActiveCells1[2] & size > sizeCutoffs[2], pSpawnNewActive:=spawnNewActive[3]]
+#     set(b, , "pNoNewSpawn", 1-b$pSpawnNewActive)
+# 
+#     # spawnNewActive must be joined sent in here as list...
+#     b <- b[a]
+#     a <- spread(landscape, spreadProbRel = spreadProbRel, spreadProb = spreadProb, 
+#                 spreadState = a, persistence = 0,
+#                 neighProbs = transpose(as.list(b[active==TRUE,c("pNoNewSpawn", "pSpawnNewActive")])), 
+#                 iterations = 1, quick = TRUE, 
+#                 mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
+#                 id = TRUE, plot.it = FALSE, exactSizes = TRUE)
+#   }
+#   return(a)
+# }
 
+burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), 
+                  spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
+                 sizeCutoffs = c(8e3, 2e4), spreadProbRel = spreadProbRel, spreadProb = 0.77) {
+  # convert to pixels
+  sizeCutoffs <- sizeCutoffs/(prod(res(landscape))/1e4)
+  
+  a = spread2(landscape, start = startCells, spreadProb = 1,  # initial step can have spreadProb 1 so garantees something
+              spreadProbRel = spreadProbRel, #persistence = 0,
+              neighProbs = c(1-spawnNewActive[1], spawnNewActive[1]), iterations = 1,
+              #mask=NULL, 
+              asRaster = FALSE, exactSize = fireSizes, directions=8, #returnIndices = TRUE,
+              #id = TRUE, plot.it = FALSE
+              );
+  whActive <- attr(a, "spreadState")$whActive#a$state=="activeSource"
+  while(any(whActive)) {
+    
+    #a2 <- data.table::copy(a)
+    # microbenchmark(times = 6, a = {
+    #   a <- data.table::copy(a2)
+    #   b <- a[,list(numActive = sum(state=="activeSource"), size = .N),by=initialPixels]
+    #   
+    #  }, b = {
+    #   a <- data.table::copy(a2)
+       set(a, , "numActive", 0L)
+       a[whActive,numActive:=.N,by=initialPixels]
+       b <- attr(a, "spreadState")$cluster
+       b <- a[b, mult="last"]
+       set(b, , c("numRetries", "maxSize", "exactSize", "id", "state", "pixels"), NULL)
+       set(a, , c("numActive"), NULL)
+    #    
+    # }, d = {
+    #   a <- data.table::copy(a2)
+    #   b <- a[,list(numActive = sum(state=="activeSource")),by=initialPixels]
+    #   set(b, , "size", attr(a, "spreadState")$cluster$size)
+    # }, f = {
+    #   a <- data.table::copy(a2)
+    #   b <- a[,list(numActive = sum(state=="activeSource")),by=initialPixels]
+    #   
+    # })
+    # 
+    set(b, , "pSpawnNewActive", spawnNewActive[1])
+    b[numActive>=nActiveCells1[1] & numActive<nActiveCells1[2] & size < sizeCutoffs[2], pSpawnNewActive:=spawnNewActive[2]]
+    b[numActive>nActiveCells1[2] & size < sizeCutoffs[1], pSpawnNewActive:=spawnNewActive[4]]
+    b[numActive<nActiveCells1[2] & size > sizeCutoffs[2], pSpawnNewActive:=spawnNewActive[3]]
+    set(b, , "pNoNewSpawn", 1-b$pSpawnNewActive)
+    set(b, , c("numActive"), NULL)
+    
     # spawnNewActive must be joined sent in here as list...
-    b <- b[a]
-    a <- spread(landscape, spreadProb = spreadProb, spreadState = a, persistence = 0,
-                neighProbs = transpose(as.list(b[active==TRUE,c("pNoNewSpawn", "pSpawnNewActive")])), 
-                iterations = 1,
-                mask=NULL, maxSize = fireSizes, directions=8, returnIndices = TRUE,
-                id = TRUE, plot.it = FALSE, exactSizes = TRUE)
+    b <- b[a]#, on="initialPixels"]
+    a <- spread2(landscape, spreadProbRel = spreadProbRel, spreadProb = spreadProb, 
+                 start = a, #persistence = 0,
+                 neighProbs = transpose(as.list(b[state=="activeSource",c("pNoNewSpawn", "pSpawnNewActive")])), 
+                 iterations = 1, skipChecks = TRUE, asRaster = FALSE,
+                 exactSize = attr(a, "spreadState")$cluster$maxSize,
+                 #mask=NULL, 
+                 #maxSize = fireSizes, 
+                 directions=8, #returnIndices = TRUE,
+                 #id = TRUE, plot.it = FALSE
+                 )
+    #message("max size:", max(attr(a, "spreadState")$clusterDT$maxSize), ", current size:",max(attr(a, "spreadState")$clusterDT$size))
+    set(a, , "order", seq_len(NROW(a)))
+    whActive <- attr(a, "spreadState")$whActive#a$state=="activeSource"
+    
   }
   return(a)
 }

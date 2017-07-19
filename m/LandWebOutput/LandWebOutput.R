@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandWebOutput.Rmd"),
-  reqdPkgs = list("SpaDES"),
+  reqdPkgs = list(""),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter("summaryInterval", "numeric", 50, NA, NA, "This describes summary interval for this module"),
@@ -96,52 +96,60 @@ LandWebOutputAllEvents <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   # seral stage summary 
-  nonActivePixels <- Which(sim$pixelGroupMap == -1, cell = TRUE)
-  seralStageMap <- sim$rstTimeSinceFire
-  seralStageMap[nonActivePixels] <- NA
-  SAPixelTable <- data.table(pixelIndex = 1:ncell(seralStageMap),
-                            SA = getValues(seralStageMap))[!is.na(SA),]
-  SAPixelTable[, seralStage:=cut(SA, breaks = c(seralStageTable$SA, max(SAPixelTable$SA)), 
-                                 labels = seralStageTable$seralName,
-                                 include.lowest = TRUE)]
-  SAPixelTable[, Classification:=as.numeric(seralStage)]
-  seralStageMap[SAPixelTable$pixelIndex] <- SAPixelTable$Classification
-  levels(seralStageMap) <- as.data.frame(unique(SAPixelTable[,.(ID=Classification, factor = seralStage)], by = "ID"))
-  sim$seralStageMap <- seralStageMap
+  nonActivePixels <- which(sim$pixelGroupMap[] == -1)
+  
+  if(FALSE) {
+    seralStageMap <- sim$rstTimeSinceFire
+    seralStageMap[nonActivePixels] <- NA
+    SAPixelTable <- data.table(pixelIndex = 1:ncell(seralStageMap),
+                              SA = getValues(seralStageMap))[!is.na(SA),]
+    SAPixelTable[, seralStage:=cut(SA, breaks = c(seralStageTable$SA, max(SAPixelTable$SA)), 
+                                   labels = seralStageTable$seralName,
+                                   include.lowest = TRUE)]
+    SAPixelTable[, Classification:=as.numeric(seralStage)]
+    seralStageMap[SAPixelTable$pixelIndex] <- SAPixelTable$Classification
+    levels(seralStageMap) <- as.data.frame(unique(SAPixelTable[,.(ID=Classification, factor = seralStage)], by = "ID"))
+    sim$seralStageMap <- seralStageMap
+  }
   # vegetation type summary 
-  species <- sim$species
-  species[species == "Pinu_Ban" | species == "Pinu_Con", speciesGroup := "Pinu"] 
-  species[species == "Betu_Pap" | species == "Popu_Bal"| 
-            species == "Popu_Tre" | species == "Lari_Lar", speciesGroup := "DECI"] 
-  species[species == "Pice_Mar" | species == "Pice_Gla", speciesGroup := "PICE"] 
-  cohortdata <- sim$cohortData
-  shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,.(speciesCode, speciesGroup)], 
-                                                            speciesCode), nomatch = 0] 
-  shortcohortdata[, totalB := sum(B, na.rm = TRUE), by = pixelGroup] 
-  shortcohortdata <- shortcohortdata[,.(speciesGroupB = sum(B, na.rm = TRUE), 
-                                        totalB = mean(totalB, na.rm = TRUE)), 
-                                     by = c("pixelGroup", "speciesGroup")] 
-  shortcohortdata[,speciesPercentage:=speciesGroupB/totalB] 
-  shortcohortdata[speciesGroup == "PINU" & speciesPercentage > vegLeadingPercent,
-                  speciesLeading := 1]# pine leading 
-  shortcohortdata[speciesGroup == "DECI" & speciesPercentage > vegLeadingPercent,
-                  speciesLeading := 2]# deciduous leading 
-  shortcohortdata[speciesGroup == "PICE" & speciesPercentage > vegLeadingPercent,
-                  speciesLeading := 3]# spruce leading 
-  shortcohortdata[is.na(speciesLeading), speciesLeading := 0] 
-  shortcohortdata[,speciesLeading:=max(speciesLeading, na.rm = TRUE), by = pixelGroup] 
-  shortcohortdata <- unique(shortcohortdata[,.(pixelGroup, speciesLeading)], by = "pixelGroup") 
-  shortcohortdata[speciesLeading == 0, speciesLeading := 4] # 4 is mixed forests 
-  attritable <- data.table(ID = unique(shortcohortdata$speciesLeading))
-  attritable[ID == 1, Factor := "Pine leading"]
-  attritable[ID == 2, Factor := "Deciduous leading"]
-  attritable[ID == 3, Factor := "Spruce leading"]
-  attritable[ID == 4, Factor := "Mixed"]
-  pixelGroupMap <- sim$pixelGroupMap
-  vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading") 
-  levels(vegTypeMap) <- as.data.frame(attritable)
-  projection(vegTypeMap) <- projection(sim$pixelGroupMap)
-  sim$vegTypeMap <- vegTypeMap
+  if(is.null(sim$vegTypeMapGenerator)) { # This may be produced in a fire module
+    species <- sim$species
+    species[species == "Pinu_sp" | species == "Pinu_sp", speciesGroup := "PINU"] 
+    species[species == "Betu_pap" | species == "Popu_bal"| 
+              species == "Popu_tre" | species == "Lari_lar", speciesGroup := "DECI"] 
+    species[species == "Pice_mar" | species == "Pice_gla", speciesGroup := "PICE"] 
+    cohortdata <- sim$cohortData
+    shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,.(speciesCode, speciesGroup)], 
+                                                              speciesCode), nomatch = 0] 
+    shortcohortdata[, totalB := sum(B, na.rm = TRUE), by = pixelGroup] 
+    shortcohortdata <- shortcohortdata[,.(speciesGroupB = sum(B, na.rm = TRUE), 
+                                          totalB = mean(totalB, na.rm = TRUE)), 
+                                       by = c("pixelGroup", "speciesGroup")] 
+    shortcohortdata[,speciesPercentage:=speciesGroupB/totalB] 
+    shortcohortdata[speciesGroup == "PINU" & speciesPercentage > vegLeadingPercent,
+                    speciesLeading := 1]# pine leading 
+    shortcohortdata[speciesGroup == "DECI" & speciesPercentage > vegLeadingPercent,
+                    speciesLeading := 2]# deciduous leading 
+    shortcohortdata[speciesGroup == "PICE" & speciesPercentage > vegLeadingPercent,
+                    speciesLeading := 3]# spruce leading 
+    shortcohortdata[is.na(speciesLeading), speciesLeading := 0] 
+    shortcohortdata[,speciesLeading:=max(speciesLeading, na.rm = TRUE), by = pixelGroup] 
+    shortcohortdata <- unique(shortcohortdata[,.(pixelGroup, speciesLeading)], by = "pixelGroup") 
+    shortcohortdata[speciesLeading == 0, speciesLeading := 4] # 4 is mixed forests 
+    attritable <- data.table(ID = unique(shortcohortdata$speciesLeading))
+    attritable[ID == 1, Factor := "Pine leading"]
+    attritable[ID == 2, Factor := "Deciduous leading"]
+    attritable[ID == 3, Factor := "Spruce leading"]
+    attritable[ID == 4, Factor := "Mixed"]
+    pixelGroupMap <- sim$pixelGroupMap
+    vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading") 
+    vegTypeMap <- setValues(vegTypeMap, as.integer(getValues(vegTypeMap)))
+    levels(vegTypeMap) <- as.data.frame(attritable)
+    projection(vegTypeMap) <- projection(sim$pixelGroupMap)
+    sim$vegTypeMap <- vegTypeMap
+  } else {
+    sim$vegTypeMap <- sim$vegTypeMapGenerator(sim$species, sim$cohortData, sim$pixelGroupMap)
+  }
   # oldSeral <- raster(seralStageMap)
   # seralStageTable <- data.table(seralStageTable)
   # oldSeralClass <- unique(SAPixelTable[,.(seralStage, Classification)], by = "seralStage")[seralStage == seralStageTable[SA == max(seralStageTable$SA),]$seralName,]$Classification
