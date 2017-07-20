@@ -603,7 +603,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   # }
   # ! ----- EDIT BELOW ----- ! #
   dataPath <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
-  fileNames <- c("ecodistricts.dbf", "ecodistricts.prj", "ecodistricts.sbn", "ecodistricts.sbx",
+  fileNames1 <- c("ecodistricts.dbf", "ecodistricts.prj", "ecodistricts.sbn", "ecodistricts.sbx",
                  "ecodistricts.shp", "ecodistricts.shx", "ecoregions.dbf", "ecoregions.prj",
                  "ecoregions.sbn", "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx", "ecozones.dbf",
                  "ecozones.prj", "ecozones.sbn", "ecozones.sbx", "ecozones.shp", "ecozones.shx",
@@ -628,26 +628,40 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                  "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif", "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.aux.xml",
                  "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.xml",
                  "speciesTraits.csv")
-  fileNames <- lapply(fileNames, function(x){file.path(dataPath, x)})
-  allFiles <- lapply(fileNames, function(x) {
-    file.info(x)[,"size"]}
-  )
-  names(allFiles) <- unlist(lapply(fileNames, basename))
-  allFilesDigest <- digest::digest(allFiles)
+  # fileNames <- lapply(fileNames1, function(x){file.path(dataPath, x)})
+  # allFiles <- lapply(fileNames, function(x) {
+  #   file.info(x)[,"size"]}
+  # )
+  # names(allFiles) <- unlist(lapply(fileNames, basename))
+  # allFilesDigest <- digest::digest(allFiles)
+  
+  filesList <- dir(dataPath, full.names = TRUE)
+  filesList2 <- filesList[basename(filesList) %in% fileNames1]
+  allFiles2 <- filesList2 %>% lapply(., function(x) digest::digest(file=x, length = 6e6, algo = "xxhash64"))
+  names(allFiles2) <- basename(filesList2)
+  allFiles2Digest <- fastdigest::fastdigest(allFiles2)
+  
+  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2))
+  needShrinking <- needDownload <- !("loading cached result" %in%  b)
+  # If this is the first time running this Cache, then delete it
+  if(needDownload) clearCache(x = cachePath(sim), strsplit(attr(b2, "tags"),split=":")[[1]][[2]])
+  
   # LCC2005 may be loaded by other modules
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
   if(!is.null(sim$LCC2005)) lcc2005Filename <- filename(sim$LCC2005)
   
-  needDownload <- all(!(allFilesDigest %in% c("9a99479fea036a03f188f71cbabca49e",
-                                              "05a98a7eab2fcd0ebef7cc21fbfdf75b",
-                                              "9bf998a69e4ea74f52c3dd20c5e5b17d",
-                                              "5173505a6b80f268c09d4967497cdfe3",
-                                              "5d153bf90e46419b6c1cf3c4bc9832ca",
-                                              "201a4a96941b32b7aece28e2ade32e25")))
-  needShinking <- all(!(allFilesDigest %in% c("9bf998a69e4ea74f52c3dd20c5e5b17d",
-                                              "5173505a6b80f268c09d4967497cdfe3",
-                                              "5d153bf90e46419b6c1cf3c4bc9832ca",
-                                              "201a4a96941b32b7aece28e2ade32e25")))
+  # needDownload <- all(!(allFiles2Digest %in% c("9a99479fea036a03f188f71cbabca49e",
+  #                                             "05a98a7eab2fcd0ebef7cc21fbfdf75b",
+  #                                             "9bf998a69e4ea74f52c3dd20c5e5b17d",
+  #                                             "5173505a6b80f268c09d4967497cdfe3",
+  #                                             "5d153bf90e46419b6c1cf3c4bc9832ca",
+  #                                             "201a4a96941b32b7aece28e2ade32e25",
+  #                                             "9113b4ea3b8e14287e43cddcd23a4ef5")))
+  # needShrinking <- all(!(allFiles2Digest %in% c("9bf998a69e4ea74f52c3dd20c5e5b17d",
+  #                                             "5173505a6b80f268c09d4967497cdfe3",
+  #                                             "5d153bf90e46419b6c1cf3c4bc9832ca",
+  #                                             "201a4a96941b32b7aece28e2ade32e25",
+  #                                             "9113b4ea3b8e14287e43cddcd23a4ef5")))
   
   if(needDownload) {
     checkTable <- data.table(downloadData(module = "LW_LBMRDataPrep",
@@ -776,12 +790,13 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   
   sim$specieslayers <- Cache(sumRastersBySpecies, #notOlderThan = Sys.time(),
                              specieslayersLocal, c("Pinu_Ban", "Pinu_Con"),
-                             filenameToSave = file.path(dirname(filename(specieslayersLocal[["Pinu_Ban"]])),
-                                                        "KNNPinu_sp.tif"), cachePath = cachePath(sim),
-                             cacheRepo=cachePath(sim),
+                             filenameToSave = asPath(file.path(dirname(filename(specieslayersLocal[["Pinu_Ban"]])),
+                                                        "KNNPinu_sp.tif")), 
+                             cachePath = cachePath(sim),
+                             cacheRepo = cachePath(sim),
                              userTags = "stable")
   ## load Paul Pickell et al. and CASFRI
-  dataPath <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
+  #dataPath <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
   if(all(c("SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat", "Landweb_CASFRI_GIDs.tif",
            "Landweb_CASFRI_GIDs_attributes3.csv", "Landweb_CASFRI_GIDs_README.txt") 
          %in% dir(dataPath) )) {
@@ -804,7 +819,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   
   # projection(sim$LCC2005) <- projection(sim$specieslayers)
   
-  if(needShinking) {
+  if(needShrinking) {
     if(!is.null(sim$shpStudyRegionFull)) {
       message("Shrinking number and size of files that were just downloaded")
       sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
@@ -872,6 +887,17 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       file.remove(dir(dataPath, pattern = ".zip", full.names = TRUE))
       
     }
+    dir(dataPath, pattern = "\\.tar", full.names = TRUE) %>% 
+      lapply(., function(x) file.remove(x))
+    
+    filesList <- dir(dataPath, full.names = TRUE)
+    filesList2 <- filesList[basename(filesList) %in% fileNames1]
+    allFiles2 <- filesList2 %>% lapply(., function(x) digest::digest(file=x, length = 6e6, algo = "xxhash64"))
+    names(allFiles2) <- basename(filesList2)
+    allFiles2Digest <- fastdigest::fastdigest(allFiles2)
+    
+    b2 <- Cache(fastdigest::fastdigest, allFiles2)
+    
   }
   
   sim$speciesTable <- read.csv(file.path(dataPath, "speciesTraits.csv"), header = TRUE,
