@@ -167,11 +167,12 @@ landWebDataPrepPlot <- function(sim) {
   names(allFiles2) <- basename(filesList2)
   allFiles2Digest <- fastdigest::fastdigest(allFiles2)
   
-  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2, notOlderThan = Sys.time()))
-  needShrinking <- needDownload <- !("loading cached result" %in%  b)
+  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2))#, notOlderThan = Sys.time()))
+  needShrinking <- needDownload <- !(isTRUE(grepl("loading cached result",b)))
   browser()
   # If this is the first time running this Cache, then delete it
   if(needDownload) clearCache(x = cachePath(sim), strsplit(attr(b2, "tags"),split=":")[[1]][[2]])
+  
   
   # fileNames <- lapply(fileNames, function(x){file.path(dataPath, x)})
   # allFiles <- lapply(fileNames, function(x) {
