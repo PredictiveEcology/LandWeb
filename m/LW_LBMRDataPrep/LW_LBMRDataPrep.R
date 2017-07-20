@@ -664,8 +664,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   #                                             "9113b4ea3b8e14287e43cddcd23a4ef5")))
   
   if(needDownload) {
-    checkTable <- data.table(downloadData(module = "LW_LBMRDataPrep",
-                                          path = modulePath(sim)))
+    suppressWarnings(checkTable <- data.table(downloadData(module = "LW_LBMRDataPrep",
+                                          path = modulePath(sim))))
     checkContent_passed <- checkTable[result == "OK",]$expectedFile
     # study area should be provided by Dr. David Anderson
     # Dr. Steve Cumming will provide a temperary one
@@ -701,6 +701,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                 overwrite = TRUE)
       unlink(file.path(dataPath, "Ecozones"), recursive = TRUE)
     }
+    message("  Unzipping Biomass")
     if(!all(c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
               "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
               "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml") %in%
