@@ -642,7 +642,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   allFiles2Digest <- fastdigest::fastdigest(allFiles2)
   
   b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2))
-  needShrinking <- needDownload <- !("loading cached result" %in%  b)
+  needShrinking <- needDownload <- !(isTRUE(grepl("loading cached result",b)))
   # If this is the first time running this Cache, then delete it
   if(needDownload) clearCache(x = cachePath(sim), strsplit(attr(b2, "tags"),split=":")[[1]][[2]])
   
@@ -843,8 +843,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       sim$LCC2005 <- crop(sim$LCC2005, sim$shpStudyRegionFull,
                           filename = file.path(dirname(lcc2005Filename), paste0("Small",basename(lcc2005Filename))),
                           overwrite=TRUE)
-      file.remove(dir(dirname(lcc2005Filename), full.names = TRUE) %>%
-                    .[grep(basename(.), pattern = paste0("^",basename(lcc2005Filename)))])
+      #file.remove(dir(dirname(lcc2005Filename), full.names = TRUE) %>%
+      #              .[grep(basename(.), pattern = paste0("^",basename(lcc2005Filename)))])
       file.rename(filename(sim$LCC2005), lcc2005Filename)
       sim$LCC2005@file@name <- lcc2005Filename
       
