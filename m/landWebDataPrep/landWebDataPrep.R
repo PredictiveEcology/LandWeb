@@ -239,7 +239,7 @@ landWebDataPrepPlot <- function(sim) {
     names(allFiles2) <- basename(filesList2)
     allFiles2Digest <- fastdigest::fastdigest(allFiles2)
     
-    b2 <- Cache(fastdigest::fastdigest, allFiles2)
+    b2 <- Cache(fastdigest::fastdigest, allFiles2, userTags = "stable")
     
   }
   sim$calibrate <- FALSE
