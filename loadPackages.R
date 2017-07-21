@@ -18,7 +18,7 @@ require("data.table")
 require("raster")
 require("magrittr")
 require("rgeos")
-if(Sys.info()["sysname"]=="WindowsSpaDES") require("snow")# required internally inside "parallel" package for Windows SOCK clusters
+if(Sys.info()["sysname"]=="Windows") require("snow")# required internally inside "parallel" package for Windows SOCK clusters
 require("dplyr")
 require("leaflet")
 require("shiny")
