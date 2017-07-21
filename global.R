@@ -15,7 +15,7 @@ reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used fo
                                          # It needs to be separate because it is an overarching one, regardless of scale
 
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" 
+studyArea <- "MEDIUM"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" 
 
 ## paths
 paths <- list(
