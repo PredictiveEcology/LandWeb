@@ -748,11 +748,14 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   
   if(is.null(sim$LCC2005)) sim$LCC2005 <- raster(lcc2005Filename)
   # sim$ecoDistrict <- Cache(raster::shapefile, ecodistrictFilename)
-  sim$ecoDistrict <- Cache(raster::shapefile, ecodistrictFilename,
+  sim$ecoDistrict <- Cache(raster::shapefile, asPath(ecodistrictFilename), 
+                           digestPathContent = TRUE,
                            userTags = "stable")
-  sim$ecoRegion <- Cache(raster::shapefile, ecoregionFilename,
+  sim$ecoRegion <- Cache(raster::shapefile, asPath(ecoregionFilename),
+                         digestPathContent = TRUE,
                          userTags = "stable")
-  sim$ecoZone <- Cache(raster::shapefile, ecozoneFilename,
+  sim$ecoZone <- Cache(raster::shapefile, asPath(ecozoneFilename),
+                       digestPathContent = TRUE,
                        userTags = "stable")
   sim$biomassMap <- raster(biomassMapFilename)
   sim$standAgeMap <- raster(standAgeMapFilename)
@@ -897,7 +900,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     names(allFiles2) <- basename(filesList2)
     allFiles2Digest <- fastdigest::fastdigest(allFiles2)
     
-    b2 <- Cache(fastdigest::fastdigest, allFiles2)
+    b2 <- Cache(fastdigest::fastdigest, allFiles2, userTags = "stable")
     
   }
   
