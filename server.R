@@ -93,7 +93,8 @@ function(input, output, session) {
   objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names=TRUE), value=TRUE, invert=TRUE)
   mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps, 
                      debugCache = "complete",
-                     objects = objectsToHash)
+                     objects = objectsToHash,
+                     sideEffect = TRUE)
 
   callModule(simInfo, "simInfoTabs", mySimOut[[1]])
   callModule(moduleInfo, "modInfoBoxes", mySimOut[[1]])
