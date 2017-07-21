@@ -15,7 +15,7 @@ reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used fo
                                          # It needs to be separate because it is an overarching one, regardless of scale
 
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "SMALL" #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT"
+studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" 
 
 ## paths
 paths <- list(
@@ -34,8 +34,8 @@ paths <- list(
   # leaflet parameters
   leafletZoomInit = 5 
   # Some shinycssloaders options
-  options("spinner.type"= 5)
-  options(gdalUtils_gdalPath=Cache(gdalSet, cacheRepo = paths$cachePath))
+  options("spinner.type" = 5)
+  options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
   #options(spinner.color="blue")  
 
 ## spades module variables
@@ -60,7 +60,7 @@ paths <- list(
   successionTimestep <- 10 # was 2
   
   # Overall model times # start is default at 0
-  endTime <- 30 
+  endTime <- 30
   summaryInterval <- 10
   summaryPeriod <- c(10, endTime)
 
@@ -72,10 +72,9 @@ if (FALSE) {
   
 }
 
-
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
   source("inputMaps.R") # source some functions
-  loadLandisParams(path=paths$inputPath, envir=.GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
+  loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
   shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")), 
                            studyArea = studyArea,
                            crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
