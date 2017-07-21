@@ -1,9 +1,7 @@
 # Thsee are used in server.R for filling the tables of parameters
 loadLandisParams <- function(path, envir) {
-  assign("landisInputs", readRDS(file.path(path, "landisInputs.rds")), 
-         envir=envir)
-  assign("spEcoReg", readRDS(file.path(path, "SpEcoReg.rds")), 
-         envir=envir)
+  assign("landisInputs", readRDS(file.path(path, "landisInputs.rds")),  envir = envir)
+  assign("spEcoReg", readRDS(file.path(path, "SpEcoReg.rds")), envir = envir)
   return(invisible(NULL))
 }
 
@@ -13,35 +11,34 @@ loadLandisParams <- function(path, envir) {
 
 # Study area original shapefile
 loadShpAndMakeValid <- function(file) {
-  shapefile(file) %>% gBuffer(byid=TRUE, width=0)
+  shapefile(file) %>% gBuffer(byid = TRUE, width = 0)
 }
 
 useEcozoneMask <- function(studyArea, ecozoneFilename){
   A <- loadShpAndMakeValid(ecozoneFilename)
   #A <- shapefile(ecozoneFilename)
   B <- A[grep("Cordillera", A$ZONE_NAME, invert = T),] %>% 
-    .[grep("Prairie", B$ZONE_NAME, invert=TRUE),]
+    .[grep("Prairie", B$ZONE_NAME, invert = TRUE),]
   C <- raster::intersect(shpStudyRegionFull, B)
 }
 
 crsKNNMaps <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
 
 loadStudyRegion <- function(shpPath, studyArea, crsKNNMaps) {
-  shpStudyRegionFull <- loadShpAndMakeValid(file=shpPath)
+  shpStudyRegionFull <- loadShpAndMakeValid(file = shpPath)
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
   shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
   shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
   
-  shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea, 
-                       targetCR = crsKNNMaps)
-  list(shpStudyRegion=shpStudyRegion, shpStudyRegionFull=shpStudyRegionFull)
+  shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea, targetCR = crsKNNMaps)
+  list(shpStudyRegion = shpStudyRegion, shpStudyRegionFull = shpStudyRegionFull)
 }
 
 
 shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
   set.seed(853839)#set.seed(5567913)
   if (studyArea != "FULL") {
-    if(studyArea == "NWT") {
+    if (studyArea == "NWT") {
       shpStudyRegionFullLL <- spTransform(shpStudyRegionFull, CRS("+proj=longlat +datum=WGS84"))
       ext <- extent(shpStudyRegionFullLL)
       ext@ymin <- 60
