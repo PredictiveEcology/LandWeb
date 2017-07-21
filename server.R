@@ -91,7 +91,6 @@ function(input, output, session) {
   }
   
   objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names=TRUE), value=TRUE, invert=TRUE)
-  browser()
   mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps, 
                      debugCache = "complete",
                      objects = objectsToHash,
