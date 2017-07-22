@@ -86,10 +86,8 @@ defineModule(sim, list(
                   desc = "choose which seeding algorithm will be used among noDispersal, universalDispersal,
                   and wardDispersal, default is wardDispersal"),
     createsOutput(objectName = "useCache", objectClass = "logic",
-                  desc = "define which the caching for spinup simulation should be used, default is TRUE"),
-    createsOutput(objectName = "studyArea", objectClass = "SpatialPolygons",
-                 desc = "study area specific for landweb project, but in specieslayers projection")
-  )
+                  desc = "define which the caching for spinup simulation should be used, default is TRUE")
+    )
 ))
 
 ## event types
@@ -325,7 +323,6 @@ initialCommunityProducer <- function(speciesLayers, speciesPresence, studyArea, 
   #specieslayerInStudyArea <- specieslayerInStudyArea*(!is.na(rstStudyArea))
   # specieslayerInStudyArea <- suppressWarnings(fastMask(specieslayerInStudyArea,
   #                                                  studyArea))
-  browser()
   speciesNames <- names(specieslayerInStudyArea)[which(maxValue(specieslayerInStudyArea)>=speciesPresence)]
   specieslayerBySpecies <- subset(specieslayerInStudyArea, speciesNames[1])
   specieslayerBySpecies[which(is.na(specieslayerBySpecies[]) & specieslayerBySpecies[]<=5)] <- 0
@@ -644,8 +641,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   names(allFiles2) <- basename(filesList2)
   allFiles2Digest <- fastdigest::fastdigest(allFiles2)
   
-  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2, 
-                                                  cacheRepo = file.path(dirname(cachePath(sim)), "stableCache")))
+  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2))
   needShrinking <- needDownload <- !(isTRUE(grepl("loading cached result",b)))
   # If this is the first time running this Cache, then delete it
   if(needDownload) clearCache(x = cachePath(sim), strsplit(attr(b2, "tags"),split=":")[[1]][[2]])
@@ -667,17 +663,14 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   #                                             "201a4a96941b32b7aece28e2ade32e25",
   #                                             "9113b4ea3b8e14287e43cddcd23a4ef5")))
   
-  browser()
   if(needDownload) {
-    # suppressWarnings(checkTable <- data.table(downloadData(module = "LW_LBMRDataPrep",
-    #                                       path = modulePath(sim))))
-    # checkContent_passed <- checkTable[result == "OK",]$expectedFile
+    suppressWarnings(checkTable <- data.table(downloadData(module = "LW_LBMRDataPrep",
+                                          path = modulePath(sim))))
+    checkContent_passed <- checkTable[result == "OK",]$expectedFile
     # study area should be provided by Dr. David Anderson
     # Dr. Steve Cumming will provide a temperary one
     if(!all(c("ecodistricts.dbf", "ecodistricts.prj", "ecodistricts.sbn",
-              "ecodistricts.sbx", "ecodistricts.shp", "ecodistricts.shx") %in% basename(filesList2))){
-      
-      downloadFile(dataPath, filename = "ecodistrict_shp.zip")
+              "ecodistricts.sbx", "ecodistricts.shp", "ecodistricts.shx") %in% checkContent_passed)){
       unzip(zipfile = file.path(dataPath, "ecodistrict_shp.zip"),
             exdir = dataPath)
       filenames <- dir(file.path(dataPath, "Ecodistricts"))
@@ -688,8 +681,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       rm(filenames)
     }
     if(!all(c("ecoregions.dbf", "ecoregions.prj", "ecoregions.sbn",
-              "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% basename(filesList2))){
-      downloadFile(dataPath, filename = "ecoregion_shp.zip")
+              "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% checkContent_passed)){
       unzip(zipfile = file.path(dataPath, "ecoregion_shp.zip"),
             exdir = dataPath)
       filenames <- dir(file.path(dataPath, "Ecoregions"))
@@ -700,8 +692,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       rm(filenames)
     }
     if(!all(c("ecoregions.dbf", "ecoregions.prj", "ecoregions.sbn",
-              "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% basename(filesList2))){
-      downloadFile(dataPath, filename = "ecozone_shp.zip")
+              "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx") %in% checkContent_passed)){
       unzip(zipfile = file.path(dataPath, "ecozone_shp.zip"),
             exdir = dataPath)
       filenames <- dir(file.path(dataPath, "Ecozones"))
@@ -710,53 +701,39 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                 overwrite = TRUE)
       unlink(file.path(dataPath, "Ecozones"), recursive = TRUE)
     }
-    if(!all(c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")#,
-              #"NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
-              #"NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml") 
-            %in%
-            basename(filesList2))){
-      message("  Unzipping Biomass")
-      downloadFile(dataPath, filename = "kNN-StructureBiomass.tar")
+    message("  Unzipping Biomass")
+    if(!all(c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
+              "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
+              "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml") %in%
+            checkContent_passed)){
       untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
             files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
             exdir = dataPath)
       biomassMaps <- unzip(file.path(dataPath,
                                      "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                            exdir = dataPath)
-      filesToDelete <- dir(dataPath, full.names = TRUE, 
-                           pattern = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0")
-      file.remove(filesToDelete[grep("xml", filesToDelete)])
+      file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
     }
     
     
     # 2. stand age map
-    if(!all(c("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif")#,
-              #"NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.aux.xml",
-              #"NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.xml") 
-            %in% basename(filesList2))){
-      message("Downloading & unzipping standAge")
-      downloadFile(dataPath, filename = "kNN-StructureStandVolume.tar")
+    if(!all(c("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif",
+              "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.aux.xml",
+              "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.xml") %in% checkContent_passed)){
       untar(file.path(dataPath, "kNN-StructureStandVolume.tar"),
             files = "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip",
             exdir = dataPath)
       unzip(file.path(dataPath,
                       "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
             exdir = dataPath)
-      filesToDelete <- dir(dataPath, full.names = TRUE, 
-                           pattern = "NFI_MODIS250m_kNN_Structure_Stand_Age_v0")
-      file.remove(filesToDelete[grep("xml", filesToDelete)])
-      #unlink(file.path(dataPath, "kNN-StructureStandVolume.tar"))
-      
+      file.remove(file.path(dataPath,
+                            "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"))
     }
     
     # LCC2005
-    if(!("LCC2005_V1_4a.tif" %in% basename(filesList2))){
-      downloadFile(dataPath, filename = "LandCoverOfCanada2005_V1_4.zip")
+    if(!("LCC2005_V1_4a.tif" %in% checkContent_passed)){
       unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
             exdir = dataPath)
-      filesToDelete <- dir(dataPath, full.names = TRUE, 
-                           pattern = "LandCoverOfCanada2005_V1_4")
-      #file.remove(filesToDelete[grep("zip", filesToDelete)])
     }
   } else {
     message("  Download data step skipped for module LW_LBMRDataPrep. Local copy exists")
@@ -792,9 +769,9 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   speciesFilenames <- character()
   for(indispecies in speciesnames){
     if(needDownload) {
+      
       if(!all(paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.tif",
-                    c(""), sep = "") %in% basename(filesList2))){
-        downloadFile(dataPath, filename = "kNN-Species.tar")
+                    c("",".aux.xml", ".xml"), sep = "") %in% checkContent_passed)){
         untar(file.path(dataPath, "kNN-Species.tar"),
               files = paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
                             sep = ""),
@@ -802,12 +779,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         unzip(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
                                         sep = "")),
               exdir = dataPath)
-        # file.remove(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
-        #                                       sep = "")))
-        filesToDelete <- dir(dataPath, full.names = TRUE, 
-                             pattern = paste0("NFI_MODIS250m_kNN_Species_", indispecies, "_v0"))
-        file.remove(filesToDelete[grep("xml", filesToDelete)])
-        
+        file.remove(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
+                                              sep = "")))
         
       }
     }
@@ -850,17 +823,15 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   
   # projection(sim$LCC2005) <- projection(sim$specieslayers)
   
-  browser()
   if(needShrinking) {
     if(!is.null(sim$shpStudyRegionFull)) {
       message("Shrinking number and size of files that were just downloaded")
       sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
       
-      sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$biomassMap))
-      sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$biomassMap))
-      sim$ecoZone <- spTransform(sim$ecoZone, crs(sim$biomassMap))
+      sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
+      sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$specieslayers))
+      sim$ecoZone <- spTransform(sim$ecoZone, crs(sim$specieslayers))
       
-      browser()
       message("Crop them")
       sim$ecoDistrict <- crop(sim$ecoDistrict, sim$shpStudyRegionFull)
       sim$ecoRegion <- crop(sim$ecoRegion, sim$shpStudyRegionFull)
@@ -886,10 +857,9 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                              overwrite=TRUE, format = "GTiff", datatype = "INT2U",
                              filename = file.path(dirname(biomassMapFilename), paste0("Small",basename(biomassMapFilename))))
       biomassMapFilenameNoExt <- strsplit(basename(biomassMapFilename), "\\.")[[1]][1]
-
-      if(filename(sim$biomassMap)!=biomassMapFilename)
-        file.remove(dir(dirname(biomassMapFilename), full.names = TRUE) %>%
-                      .[grep(basename(.), pattern = paste0("^",biomassMapFilenameNoExt))])
+      file.remove(dir(dirname(biomassMapFilename), full.names = TRUE) %>%
+                    .[grep(basename(.), pattern = paste0("^",biomassMapFilenameNoExt))])
+      
       file.rename(filename(sim$biomassMap), biomassMapFilename)
       sim$biomassMap@file@name <- biomassMapFilename
       
@@ -899,15 +869,13 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                               filename = file.path(dirname(standAgeMapFilename),
                                                    paste0("Small",basename(standAgeMapFilename))))
       standAgeMapFilenameNoExt <- strsplit(basename(standAgeMapFilename), "\\.")[[1]][1]
-      if(filename(sim$standAgeMap)!=standAgeMapFilename)
-        file.remove(dir(dirname(standAgeMapFilename), full.names = TRUE) %>%
+      file.remove(dir(dirname(standAgeMapFilename), full.names = TRUE) %>%
                     .[grep(basename(.), pattern = paste0("^",standAgeMapFilenameNoExt))])
       
       file.rename(filename(sim$standAgeMap), standAgeMapFilename)
       sim$standAgeMap@file@name <- standAgeMapFilename
       
       # Species
-      message("Cropping species layer files")
       specieslayers <- lapply(speciesFilenames, function(x) {
         filenameNoExt <- strsplit(basename(x), "\\.")[[1]][1]
         a <- raster(x) %>%
@@ -920,11 +888,11 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         file.rename(filename(a), x)
         a@file@name <- x
       }) %>% stack()
-      #file.remove(dir(dataPath, pattern = ".zip", full.names = TRUE))
+      file.remove(dir(dataPath, pattern = ".zip", full.names = TRUE))
       
     }
-    # dir(dataPath, pattern = "\\.tar|\\.zip", full.names = TRUE) %>% 
-    #   lapply(., function(x) file.remove(x))
+    dir(dataPath, pattern = "\\.tar", full.names = TRUE) %>% 
+      lapply(., function(x) file.remove(x))
     
     filesList <- dir(dataPath, full.names = TRUE)
     filesList2 <- filesList[basename(filesList) %in% fileNames1]
@@ -932,12 +900,10 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     names(allFiles2) <- basename(filesList2)
     allFiles2Digest <- fastdigest::fastdigest(allFiles2)
     
-    b2 <- Cache(fastdigest::fastdigest, allFiles2, userTags = "stable", notOlderThan = Sys.time(),
-                cacheRepo = file.path(dirname(cachePath(sim)), "stableCache"))
+    b2 <- Cache(fastdigest::fastdigest, allFiles2, userTags = "stable")
     
   }
   
-  downloadFile(dataPath, "speciesTraits.csv")
   sim$speciesTable <- read.csv(file.path(dataPath, "speciesTraits.csv"), header = TRUE,
                                stringsAsFactors = FALSE) %>%
     data.table()
@@ -979,13 +945,4 @@ sumRastersBySpecies <- function(specieslayers, layersToSum,
   names(specieslayers)[grep("Pinu", names(specieslayers))] <- "Pinu_sp"
   names(specieslayers)[grep("Abie", names(specieslayers))] <- "Abie_sp"
   specieslayers
-}
-
-downloadFile <- function(dataPath, filename){
-  if(!file.exists(file.path(dataPath, filename))) {
-    wh <- match("LW_LBMRDataPrep", sapply(depends(sim)@dependencies, function(x) slot(x, "name")))
-    knnSpeciesURL <- grep(depends(sim)@dependencies[[wh]]@inputObjects$sourceURL, pattern = filename, value=TRUE)
-    download.file(knnSpeciesURL, destfile = file.path(dataPath, basename(knnSpeciesURL)))
-  }  
-  
 }

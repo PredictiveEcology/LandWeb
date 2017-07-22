@@ -20,7 +20,7 @@ defineModule(sim, list(
     defineParameter(".useCache", "numeric", FALSE, NA, NA, "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = data.frame(
-    objectName = c("LCC2005", "shpStudySubRegion"),
+    objectName = c("LCC05X", "shpStudySubRegion"),
     objectClass = c("RasterLayer","SpatialPolygonsDataFrame"),
     sourceURL = "",
     other = NA_character_,
@@ -50,19 +50,19 @@ doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
 
 ### template initialization
 initBaseMapsInit <- function(sim) {
-  simProjection <- crs(sim$LCC2005)
+  simProjection <- crs(sim$LCC05X)
   #reproject sim$shpStudyRegion to accord with LCC05
   sim$shpStudyRegion <- Cache(
     #sim$shpStudyRegion <- SpaDES::cache(cachePath(sim), 
     spTransform, 
     sim$shpStudySubRegion, CRSobj=simProjection)
   #sim$shpStudyRegion <- spTransform(sim$shpStudySubRegion, CRSobj=simProjection)
-  #sim$LCC05 <- crop(sim$LCC2005,sim$shpStudyRegion)
+  #sim$LCC05 <- crop(sim$LCC05X,sim$shpStudyRegion)
   
   message("fastRasterize for rstStudyRegion")
   sim$rstStudyRegion <- Cache(fastRasterize, 
                               polygon = sim$shpStudyRegion,
-                              ras = crop(sim$LCC2005, extent(sim$shpStudyRegion)),
+                              ras = crop(sim$LCC05X, extent(sim$shpStudyRegion)),
                               field="LTHRC", datatype="INT2U",
                               filename="rstStudyRegion")
   
@@ -76,9 +76,9 @@ initBaseMapsInit <- function(sim) {
     out
   }
 
-  sim$LCC05 <- Cache(cropMask, sim$LCC2005, sim$shpStudyRegion, sim$rstStudyRegion)
+  sim$LCC05 <- Cache(cropMask, sim$LCC05X, sim$shpStudyRegion, sim$rstStudyRegion)
   
-  #rm(LCC2005,envir=envir(sim))
+  rm(LCC05X,envir=envir(sim))
   tmp<-getColors(sim$LCC05)[[1]]
   return(invisible(sim))
 }

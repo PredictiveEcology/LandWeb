@@ -7,7 +7,6 @@
 .Rproj.user
 appCache*
 reproducibleCache
-stableCache
 last.dump.rda
 mySimDigestSaved.rds
 mySimSaved.rds
