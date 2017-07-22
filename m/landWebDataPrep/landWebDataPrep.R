@@ -233,6 +233,9 @@ landWebDataPrepPlot <- function(sim) {
       
     }
     
+    dir(dataPath, pattern = "\\.tar|\\.zip", full.names = TRUE) %>% 
+      lapply(., function(x) file.remove(x))
+    
     filesList <- dir(dataPath, full.names = TRUE)
     filesList2 <- filesList[basename(filesList) %in% fileNames1]
     allFiles2 <- filesList2 %>% lapply(., function(x) digest::digest(file=x, length = 6e6, algo = "xxhash64"))
