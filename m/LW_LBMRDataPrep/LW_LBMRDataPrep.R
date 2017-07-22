@@ -892,8 +892,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       #file.remove(dir(dataPath, pattern = ".zip", full.names = TRUE))
       
     }
-    # dir(dataPath, pattern = "\\.tar|\\.zip", full.names = TRUE) %>% 
-    #   lapply(., function(x) file.remove(x))
+    dir(dataPath, pattern = "\\.tar|\\.zip", full.names = TRUE) %>% 
+       lapply(., function(x) file.remove(x))
     
     filesList <- dir(dataPath, full.names = TRUE)
     filesList2 <- filesList[basename(filesList) %in% fileNames1]
