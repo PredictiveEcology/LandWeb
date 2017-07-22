@@ -34,9 +34,9 @@ defineModule(sim, list(
     expectsInput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: Subset of the study area, with fire return interval attribute", 
                  sourceURL = ""), # i guess this is study area and fire return interval
-    expectsInput(objectName = "biomassMap", objectClass = "RasterLayer", 
-                 desc = "total biomass raster layer in study area, default is canada national biomass map", 
-                 sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar"),
+    # expectsInput(objectName = "biomassMap", objectClass = "RasterLayer", 
+    #              desc = "total biomass raster layer in study area, default is canada national biomass map", 
+    #              sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar"),
     expectsInput(objectName = "LCC2005", objectClass = "RasterLayer", 
                  desc = "2005 land classification map in study area, default is canada national land classification in 2005", 
                  sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip")
@@ -50,8 +50,8 @@ defineModule(sim, list(
                   desc = "output as input for LW_LBMRDataPrep"),
     createsOutput(objectName = "LCC2005", objectClass = "RasterLayer", 
                   desc = "output as input for LW_LBMRDataPrep"),
-    createsOutput(objectName = "biomassMap", objectClass = "RasterLayer", 
-                  desc = "output as input for LW_LBMRDataPrep"),
+    # createsOutput(objectName = "biomassMap", objectClass = "RasterLayer", 
+    #               desc = "output as input for LW_LBMRDataPrep"),
     createsOutput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame", 
                  desc = "output as input for initBaseMaps"),
     createsOutput(objectName = "LCC05X", objectClass = "RasterLayer", 
@@ -111,11 +111,11 @@ doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
 ### template initialization
 landWebDataPrepInit <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  projection(sim$LCC2005) <- projection(sim$biomassMap)
-  sim$studyArea <- spTransform(sim$shpStudySubRegion, crs(sim$biomassMap))
+  sim$studyArea <- spTransform(sim$shpStudySubRegion, crs(sim$LCC2005))
+  #projection(sim$LCC2005) <- sim$projectionBiomassMap
   sim$shpStudySubRegion <- sim$studyArea
   sim$LCC05X <- sim$LCC2005
-  sim$LCC2005 <- sim$LCC2005
+  #sim$LCC2005 <- sim$LCC2005
   return(invisible(sim))
 }
 
@@ -156,9 +156,9 @@ landWebDataPrepPlot <- function(sim) {
   # }
   # ! ----- EDIT BELOW ----- ! #
   dataPath <- file.path(modulePath(sim), "landWebDataPrep", "data")
-  fileNames1 <- c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
-                 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
-                 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml",
+  fileNames1 <- c(#"NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
+                 #"NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
+                 #"NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml",
                  "LCC2005_V1_4a.tif")
   
   filesList <- dir(dataPath, full.names = TRUE)
@@ -167,7 +167,8 @@ landWebDataPrepPlot <- function(sim) {
   names(allFiles2) <- basename(filesList2)
   allFiles2Digest <- fastdigest::fastdigest(allFiles2)
   
-  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2))#, notOlderThan = Sys.time()))
+  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2, 
+                                                  cacheRepo = file.path(dirname(cachePath(sim)), "stableCache")))
   needShrinking <- needDownload <- !(isTRUE(grepl("loading cached result",b)))
   # If this is the first time running this Cache, then delete it
   if(needDownload) clearCache(x = cachePath(sim), strsplit(attr(b2, "tags"),split=":")[[1]][[2]])
@@ -185,51 +186,60 @@ landWebDataPrepPlot <- function(sim) {
   #                                             "a90aed73dd9241a97ce469629349f615")))
   # needShrinking <- !(allFilesDigest == "a90aed73dd9241a97ce469629349f615")
   if (needDownload) {
-    checkTable <- data.table(downloadData(module = "landWebDataPrep", path = modulePath(sim)))
-    untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
-          files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
-          exdir = dataPath)
-    biomassMaps <- unzip(file.path(dataPath,
-                                   "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
-                         exdir = dataPath)
-    file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
-    
+    #checkTable <- data.table(downloadData(module = "landWebDataPrep", path = modulePath(sim)))
+    # untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
+    #       files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
+    #       exdir = dataPath)
+    # biomassMaps <- unzip(file.path(dataPath,
+    #                                "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
+    #                      exdir = dataPath)
+    # file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
+    # 
+    downloadFile("LandCoverOfCanada2005_V1_4.zip", sim)
     unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
           exdir = dataPath) 
+    unlink(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"))
   } else {
     message("  Download data step skipped for module landWebDataPrep. Local copy exists")
   }
 
-  biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
-  sim$biomassMap <- raster(biomassMapFilename)
+  
+  if(!is.null(sim$biomassMap)) {
+    projectionBiomassMap <- projection(sim$biomassMap)
+    CRSBiomassMap <- crs(sim$biomassMap)
+  } else {
+    projectionBiomassMap <- "+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+    CRSBiomassMap <- CRS(projectionBiomassMap)
+  }
+  
   sim$LCC2005 <- raster(lcc2005Filename)
   LCC2005LayerName <- names(sim$LCC2005) 
-  projection(sim$LCC2005) <- projection(sim$biomassMap)
+  projection(sim$LCC2005) <- projectionBiomassMap
 
   if(needShrinking) {
     if(!is.null(sim@.envir$shpStudyRegionFull)) {
-      sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
-      sim@.envir$biomassMap <- crop(sim@.envir$biomassMap, sim@.envir$shpStudyRegionFull,
-                                    overwrite=TRUE, format = "GTiff", datatype = "INT2U",
-                                    filename = file.path(dirname(biomassMapFilename), 
-                                                         paste0("Small",basename(biomassMapFilename))))
+      sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, CRSBiomassMap)
+      # sim@.envir$biomassMap <- crop(sim@.envir$biomassMap, sim@.envir$shpStudyRegionFull,
+      #                               overwrite=TRUE, format = "GTiff", datatype = "INT2U",
+      #                               filename = file.path(dirname(biomassMapFilename), 
+      #                                                    paste0("Small",basename(biomassMapFilename))))
       sim@.envir$LCC2005 <- crop(sim@.envir$LCC2005, sim@.envir$shpStudyRegionFull,
                                             filename = file.path(dirname(lcc2005Filename), 
                                                                  paste0("Small",basename(lcc2005Filename))), 
                                             overwrite=TRUE)
       file.remove(dir(dirname(lcc2005Filename), full.names = TRUE) %>% 
           .[grep(basename(.), pattern = paste0("^",basename(lcc2005Filename)))])
-      biomassMapFilenameNoExt <- strsplit(basename(biomassMapFilename), "\\.")[[1]][1]
-      file.remove(dir(dirname(biomassMapFilename), full.names = TRUE) %>% 
-          .[grep(basename(.), pattern = paste0("^",biomassMapFilenameNoExt))])
+      #biomassMapFilenameNoExt <- strsplit(basename(biomassMapFilename), "\\.")[[1]][1]
+      # file.remove(dir(dirname(biomassMapFilename), full.names = TRUE) %>% 
+      #     .[grep(basename(.), pattern = paste0("^",biomassMapFilenameNoExt))])
   
       file.rename(filename(sim@.envir$LCC2005), lcc2005Filename)
       sim@.envir$LCC2005@file@name <- lcc2005Filename
       names(sim$LCC2005) <- LCC2005LayerName
   
-      file.rename(filename(sim@.envir$biomassMap), biomassMapFilename)
-      sim@.envir$biomassMap@file@name <- biomassMapFilename
+      # file.rename(filename(sim@.envir$biomassMap), biomassMapFilename)
+      # sim@.envir$biomassMap@file@name <- biomassMapFilename
       
     }
     
@@ -239,7 +249,8 @@ landWebDataPrepPlot <- function(sim) {
     names(allFiles2) <- basename(filesList2)
     allFiles2Digest <- fastdigest::fastdigest(allFiles2)
     
-    b2 <- Cache(fastdigest::fastdigest, allFiles2, userTags = "stable")
+    b2 <- Cache(fastdigest::fastdigest, allFiles2, userTags = "stable", 
+                cacheRepo = file.path(dirname(cachePath(sim)), "stableCache"))
     
   }
   sim$calibrate <- FALSE
@@ -247,3 +258,12 @@ landWebDataPrepPlot <- function(sim) {
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
+downloadFile <- function(filename, sim){
+  dataPath <- file.path(modulePath(sim), "landWebDataPrep", "data")
+  if(!file.exists(file.path(dataPath, filename))) {
+    wh <- match("landWebDataPrep", sapply(depends(sim)@dependencies, function(x) slot(x, "name")))
+    knnSpeciesURL <- grep(depends(sim)@dependencies[[wh]]@inputObjects$sourceURL, pattern = filename, value=TRUE)
+    download.file(knnSpeciesURL, destfile = file.path(dataPath, basename(knnSpeciesURL)))
+  }  
+  
+}
