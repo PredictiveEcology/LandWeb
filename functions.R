@@ -352,24 +352,25 @@ reloadWorkingShas <- function(md5hash, cachePath, shaOnly = FALSE) {
   shas <- archivist::loadFromLocalRepo(repoDir = cachePath, md5hash, value = TRUE)
   whPackages <- names(shas) %in% PredictiveEcologyPackages
   lapply(seq_along(shas[whPackages]), function(n) {
-    if((devtools:::local_sha(names(shas)[n])) != shas[[n]]) {
-      install_github(paste0("PredictiveEcology/",names(shas)[n],"@",shas[n]),
+    if ((devtools:::local_sha(names(shas)[n])) != shas[[n]]) {
+      install_github(paste0("PredictiveEcology/",names(shas)[n], "@", shas[n]),
                      dependencies = FALSE)
     } else {
       message(names(shas)[n], " is already correct version")
     }
   })
-  isError <- tryCatch(checkoutCondition <<- reproducible:::checkoutVersion(
-    paste0("eliotmcintire/LandWeb@",shas$LandWeb), cred = "GITHUB_PAT"), error = function(x) TRUE)
+  isError <- tryCatch(
+    checkoutCondition <<- reproducible:::checkoutVersion(
+      paste0("eliotmcintire/LandWeb@", shas$LandWeb), cred = "GITHUB_PAT"),
+    error = function(x) TRUE)
   #checkoutCondition <- reproducible:::checkoutVersion(shas$LandWeb, cred = "GITHUB_PAT")
-  if(isTRUE(isError)) message("no previous branch on github with that sha")
+  if (isTRUE(isError)) message("no previous branch on github with that sha")
   return(invisible(shas))
 }
 noLongerWaiting <- function() {
   hide("loading_page")
   #show("main_content")
 }
-
 
 mycss <- "
 #loading-spinner {
@@ -384,17 +385,17 @@ margin-left: -33px; /* half of the spinner's width */
 
 
 reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
-  reloadPreviousWorkingLogical <- any(reloadPreviousWorking!=FALSE)
-  if(Sys.info()["nodename"] %in% c("W-VIC-A105388", "W-VIC-A128863")) {
-    if(!exists(".reloadPreviousWorking")) {
-      if(!reloadPreviousWorkingLogical) {
+  reloadPreviousWorkingLogical <- any(reloadPreviousWorking != FALSE)
+  if (Sys.info()["nodename"] %in% c("W-VIC-A105388", "W-VIC-A128863")) {
+    if (!exists(".reloadPreviousWorking")) {
+      if (!reloadPreviousWorkingLogical) {
         .reloadPreviousWorking <- 0
       } else {
         .reloadPreviousWorking <- 1   
       }
-    } else if(.reloadPreviousWorking!=2) {
+    } else if (.reloadPreviousWorking != 2) {
       .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
-    } else if(reloadPreviousWorkingLogical) {
+    } else if (reloadPreviousWorkingLogical) {
       .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
     }
   } else {
