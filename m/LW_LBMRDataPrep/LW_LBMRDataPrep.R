@@ -641,7 +641,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   names(allFiles2) <- basename(filesList2)
   allFiles2Digest <- fastdigest::fastdigest(allFiles2)
   
-  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2))
+  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2, 
+                                                  file.path(dirname(cachePath(sim)), "stableCache")))
   needShrinking <- needDownload <- !(isTRUE(grepl("loading cached result",b)))
   # If this is the first time running this Cache, then delete it
   if(needDownload) clearCache(x = cachePath(sim), strsplit(attr(b2, "tags"),split=":")[[1]][[2]])
@@ -712,7 +713,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       biomassMaps <- unzip(file.path(dataPath,
                                      "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                            exdir = dataPath)
-      file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
+      #file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
     }
     
     
@@ -726,8 +727,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       unzip(file.path(dataPath,
                       "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
             exdir = dataPath)
-      file.remove(file.path(dataPath,
-                            "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"))
+      #file.remove(file.path(dataPath,
+      #                      "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"))
     }
     
     # LCC2005
@@ -779,8 +780,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         unzip(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
                                         sep = "")),
               exdir = dataPath)
-        file.remove(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
-                                              sep = "")))
+        # file.remove(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
+        #                                       sep = "")))
         
       }
     }
@@ -888,11 +889,11 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         file.rename(filename(a), x)
         a@file@name <- x
       }) %>% stack()
-      file.remove(dir(dataPath, pattern = ".zip", full.names = TRUE))
+      #file.remove(dir(dataPath, pattern = ".zip", full.names = TRUE))
       
     }
-    dir(dataPath, pattern = "\\.tar", full.names = TRUE) %>% 
-      lapply(., function(x) file.remove(x))
+    dir(dataPath, pattern = "\\.tar|\\.zip", full.names = TRUE) %>% 
+       lapply(., function(x) file.remove(x))
     
     filesList <- dir(dataPath, full.names = TRUE)
     filesList2 <- filesList[basename(filesList) %in% fileNames1]
@@ -900,7 +901,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     names(allFiles2) <- basename(filesList2)
     allFiles2Digest <- fastdigest::fastdigest(allFiles2)
     
-    b2 <- Cache(fastdigest::fastdigest, allFiles2, userTags = "stable")
+    b2 <- Cache(fastdigest::fastdigest, allFiles2, userTags = "stable", 
+                file.path(dirname(cachePath(sim)), "stableCache"))
     
   }
   
