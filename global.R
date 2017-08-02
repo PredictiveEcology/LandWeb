@@ -15,7 +15,7 @@ reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used fo
                                          # It needs to be separate because it is an overarching one, regardless of scale
 
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "NWT"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" 
+studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" 
 
 ## paths
 paths <- list(
@@ -60,9 +60,9 @@ paths <- list(
   successionTimestep <- 10 # was 2
   
   # Overall model times # start is default at 0
-  endTime <- 800
+  endTime <- 30
   summaryInterval <- 10
-  summaryPeriod <- c(500, endTime)
+  summaryPeriod <- c(10, endTime)
 
 ### Package stuff that should not be run automatically
 if (FALSE) {
