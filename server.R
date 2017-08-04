@@ -91,9 +91,11 @@ function(input, output, session) {
   }
   
   objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names=TRUE), value=TRUE, invert=TRUE)
-  mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps, debugCache = "complete",
-                     objects = objectsToHash)
-  
+  mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps, 
+                     debugCache = "complete",
+                     objects = objectsToHash,
+                     sideEffect = TRUE)
+
   callModule(simInfo, "simInfoTabs", mySimOut[[1]])
   callModule(moduleInfo, "modInfoBoxes", mySimOut[[1]])
   
@@ -132,9 +134,8 @@ function(input, output, session) {
   
   rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
     grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
-  })
+  }) %>% unlist()
   
-  rastersFromOutputs <- unlist(rastersFromOutputs)
   tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
   vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
   lenTSF <- length(tsf)
@@ -152,7 +153,7 @@ function(input, output, session) {
   args <- list(leadingByStage, tsf, vtm, 
                polygonToSummarizeBy = ecodistricts,
                #polygonNames = ecodistricts$ECODISTRIC, 
-               cl = if(exists("cl")) cl, 
+               cl = if (exists("cl")) cl, 
                omitArgs = "cl",
                ageClasses = ageClasses, cacheRepo = paths$cachePath)
   args <- args[!unlist(lapply(args, is.null))]

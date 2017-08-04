@@ -156,19 +156,34 @@ landWebDataPrepPlot <- function(sim) {
   # }
   # ! ----- EDIT BELOW ----- ! #
   dataPath <- file.path(modulePath(sim), "landWebDataPrep", "data")
-  fileNames <- c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
+  fileNames1 <- c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
                  "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
                  "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml",
                  "LCC2005_V1_4a.tif")
-  fileNames <- lapply(fileNames, function(x){file.path(dataPath, x)})
-  allFiles <- lapply(fileNames, function(x) {
-    file.info(x)[, "size"]}
-  )
-  names(allFiles) <- unlist(lapply(fileNames, basename))
-  allFilesDigest <- digest::digest(allFiles)
-  needDownload <- all(!(allFilesDigest %in% c("ea72c7607d0ea744b64e182459c940bc",
-                                              "6faacb745becdb13bc7160a538e0006f")))
-  needShinking <- allFilesDigest == "ea72c7607d0ea744b64e182459c940bc"
+  
+  filesList <- dir(dataPath, full.names = TRUE)
+  filesList2 <- filesList[basename(filesList) %in% fileNames1]
+  allFiles2 <- filesList2 %>% lapply(., function(x) digest::digest(file=x, length = 6e6, algo = "xxhash64"))
+  names(allFiles2) <- basename(filesList2)
+  allFiles2Digest <- fastdigest::fastdigest(allFiles2)
+  
+  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2))#, notOlderThan = Sys.time()))
+  needShrinking <- needDownload <- !(isTRUE(grepl("loading cached result",b)))
+  # If this is the first time running this Cache, then delete it
+  if(needDownload) clearCache(x = cachePath(sim), strsplit(attr(b2, "tags"),split=":")[[1]][[2]])
+  
+  
+  # fileNames <- lapply(fileNames, function(x){file.path(dataPath, x)})
+  # allFiles <- lapply(fileNames, function(x) {
+  #   file.info(x)[, "size"]}
+  # )
+  # names(allFiles) <- unlist(lapply(fileNames, basename))
+  # allFilesDigest <- digest::digest(allFiles)
+  # needDownload <- all(!(allFilesDigest %in% c("ea72c7607d0ea744b64e182459c940bc",
+  #                                             "6faacb745becdb13bc7160a538e0006f",
+  #                                             "51c1e22aad1a2a2561ffd994e69224d0",
+  #                                             "a90aed73dd9241a97ce469629349f615")))
+  # needShrinking <- !(allFilesDigest == "a90aed73dd9241a97ce469629349f615")
   if (needDownload) {
     checkTable <- data.table(downloadData(module = "landWebDataPrep", path = modulePath(sim)))
     untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
@@ -189,16 +204,19 @@ landWebDataPrepPlot <- function(sim) {
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
   sim$biomassMap <- raster(biomassMapFilename)
   sim$LCC2005 <- raster(lcc2005Filename)
+  LCC2005LayerName <- names(sim$LCC2005) 
   projection(sim$LCC2005) <- projection(sim$biomassMap)
 
-  if(needShinking) {
+  if(needShrinking) {
     if(!is.null(sim@.envir$shpStudyRegionFull)) {
       sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
       sim@.envir$biomassMap <- crop(sim@.envir$biomassMap, sim@.envir$shpStudyRegionFull,
                                     overwrite=TRUE, format = "GTiff", datatype = "INT2U",
-                                    filename = file.path(dirname(biomassMapFilename), paste0("Small",basename(biomassMapFilename))))
+                                    filename = file.path(dirname(biomassMapFilename), 
+                                                         paste0("Small",basename(biomassMapFilename))))
       sim@.envir$LCC2005 <- crop(sim@.envir$LCC2005, sim@.envir$shpStudyRegionFull,
-                                            filename = file.path(dirname(lcc2005Filename), paste0("Small",basename(lcc2005Filename))), 
+                                            filename = file.path(dirname(lcc2005Filename), 
+                                                                 paste0("Small",basename(lcc2005Filename))), 
                                             overwrite=TRUE)
       file.remove(dir(dirname(lcc2005Filename), full.names = TRUE) %>% 
           .[grep(basename(.), pattern = paste0("^",basename(lcc2005Filename)))])
@@ -208,11 +226,24 @@ landWebDataPrepPlot <- function(sim) {
   
       file.rename(filename(sim@.envir$LCC2005), lcc2005Filename)
       sim@.envir$LCC2005@file@name <- lcc2005Filename
+      names(sim$LCC2005) <- LCC2005LayerName
   
       file.rename(filename(sim@.envir$biomassMap), biomassMapFilename)
       sim@.envir$biomassMap@file@name <- biomassMapFilename
       
     }
+    
+    dir(dataPath, pattern = "\\.tar|\\.zip", full.names = TRUE) %>% 
+      lapply(., function(x) file.remove(x))
+    
+    filesList <- dir(dataPath, full.names = TRUE)
+    filesList2 <- filesList[basename(filesList) %in% fileNames1]
+    allFiles2 <- filesList2 %>% lapply(., function(x) digest::digest(file=x, length = 6e6, algo = "xxhash64"))
+    names(allFiles2) <- basename(filesList2)
+    allFiles2Digest <- fastdigest::fastdigest(allFiles2)
+    
+    b2 <- Cache(fastdigest::fastdigest, allFiles2, userTags = "stable")
+    
   }
   sim$calibrate <- FALSE
   # ! ----- STOP EDITING ----- ! #

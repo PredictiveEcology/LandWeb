@@ -64,3 +64,4 @@
 "shpLandWEB.shp.xml" "da5388a06ab31919" "xxhash64"
 "shpLandWEB.shx" "d443efe3783d3fca" "xxhash64"
 "speciesTraits.csv" "080423904ae7cbd2" "xxhash64"
+"speciesTraits.csv" "155e633022e134cf" "xxhash64"
