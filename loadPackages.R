@@ -1,6 +1,6 @@
 require <- function(package) {
   if (!base::require(package, character.only = TRUE)) {
-    if (package %in% c("reproducible", "amc")) {
+    if (package %in% c("amc")) {
       devtools::install_github(paste0("PredictiveEcology/", package, "@development"))
     } else if (package %in% c("SpaDES.core", "SpaDES.tools")) {
       devtools::install_github(paste0("PredictiveEcology/", package))
@@ -11,6 +11,7 @@ require <- function(package) {
   }
 }
 
+require("reproducible")
 require("SpaDES.core")
 require("SpaDES.tools")
 require("devtools")
