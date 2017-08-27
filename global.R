@@ -60,9 +60,9 @@ paths <- list(
   successionTimestep <- 10 # was 2
   
   # Overall model times # start is default at 0
-  endTime <- 800
+  endTime <- 30
   summaryInterval <- 10
-  summaryPeriod <- c(500, endTime)
+  summaryPeriod <- c(10, endTime)
 
 ### Package stuff that should not be run automatically
 if (FALSE) {
