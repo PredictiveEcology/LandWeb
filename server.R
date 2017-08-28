@@ -77,6 +77,11 @@ function(input, output, session) {
   }
   
   objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names=TRUE), value=TRUE, invert=TRUE)
+  
+  
+  # THIS IS THE MAIN "SIMULATION FUNCTION"
+  # THE FOLLOWING OBJECT IS A LIST OF 1 simList, 
+  # A simList is a rich data structure that comes with the SpaDES.core package
   mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps, 
                      debugCache = "complete",
                      objects = objectsToHash,
@@ -88,6 +93,7 @@ function(input, output, session) {
 
   
   message("  Identify which files were created during simulation")  
+  # outputs() function reports on any files that were created during the simulation
   filesFromOutputs <- lapply(seq_along(mySimOut), function(x) {
     outputs(mySimOut[[x]])$file
   })
@@ -95,7 +101,8 @@ function(input, output, session) {
   for(simNum in seq_along(mySimOut)) {
     mySimOut[[simNum]]@outputs$file <- 
       
-      lapply(strsplit(outputs(mySimOut[[simNum]])$file, split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")), function(f) {
+      lapply(strsplit(outputs(mySimOut[[simNum]])$file, 
+                      split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")), function(f) {
         f[[2]]
       }) %>%
       unlist() %>%
@@ -107,7 +114,11 @@ function(input, output, session) {
     grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
   }) %>% unlist()
   
+  # Look for all files named rstTimeSinceFire -- these are several rasters each with a filename
+  #   that represents the simulation "time" when it was created, e.g., 10, 20, 30 years
   tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
+  # These are several rasters indicating vegetation type, again each one coming from a specific
+  #   simulation time ... a time series of rasters...
   vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
   lenTSF <- length(tsf)
   rasterResolution <<- raster(tsf[1]) %>% res()
