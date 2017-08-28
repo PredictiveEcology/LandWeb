@@ -66,25 +66,11 @@ function(input, output, session) {
                  objects = objectsToHash,
                  debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2), 
                  paste(unname(current(sim)), collapse = ' '))",#,
-                 # {lsObj <- ls(envir=sim@.envir); keep <- 1:1; a <- format(big.mark = ',',
-                 #           sort(unlist(lapply(lsObj, function(x) object.size(get(x, envir=sim@.envir)))) %>%
-                 #           setNames(lsObj), decreasing = TRUE))[keep];
-                 #           paste(names(a)[keep], collapse=' ')},
-                 # paste(a[keep], collapse=' '),
-                 # 'NROW cohortData:', NROW(sim$cohortData), 'Num PixelGroups: ',
-                 # uniqueN(sim$cohortData,by='pixelGroup'), 'PixelGroups:ncell:',
-                 # round(uniqueN(sim$cohortData,by='pixelGroup')/ncell(sim$pixelGroupMap),4),
-                 # {st <<- Sys.time()})",
-                 # debug = "paste(paste(unname(current(sim)), collapse = ' '), 'is sim$useParallel a cluster:', 
-                 #          is(sim$useParallel, 'cluster'))", #cache = TRUE, 
-                 #cl = if(exists("cl")) cl, 
                  .plotInitialTime = NA,
-                 #notOlderThan = Sys.time(), # uncomment if want to rerun without Cached copy
                  clearSimEnv = TRUE,
                  debugCache="complete",
                  omitArgs = c("debug", ".plotInitialTime"))
     args <- args[!unlist(lapply(args, is.null))]
-    #profvis::profvis(interval = 0.5, {mySimOut <- do.call(Cache, args)})
     mySimOut <- do.call(Cache, args)
     message(attr(mySimOut, "tags"))
     mySimOut
@@ -98,29 +84,14 @@ function(input, output, session) {
 
   callModule(simInfo, "simInfoTabs", mySimOut[[1]])
   callModule(moduleInfo, "modInfoBoxes", mySimOut[[1]])
-  
-  
-  # if(reloadPreviousWorking) {
-  #   keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
-  #   keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
-  #   archivist::addTagsRepo(keepArtifacts,
-  #                          repoDir = paths$cachePath,
-  #                          tags = paste0("LandWebVersion:", LandWebVersion))
-  # }
-  
-  # mySimOut <- Cache(experiment, mySim, replicates = experimentReps, debug = TRUE, cache = TRUE,
-  #                   #cl = cl,
-  #                   .plotInitialTime = NA,
-  #                   clearSimEnv = TRUE#,
-  #                   #notOlderThan = Sys.time()
-  # )
   message("  Finished Experiment")
+
   
+  message("  Identify which files were created during simulation")  
   filesFromOutputs <- lapply(seq_along(mySimOut), function(x) {
     outputs(mySimOut[[x]])$file
   })
   
-  #if(any(!file.exists(unlist(filesFromOutputs)))) {
   for(simNum in seq_along(mySimOut)) {
     mySimOut[[simNum]]@outputs$file <- 
       
@@ -130,8 +101,8 @@ function(input, output, session) {
       unlist() %>%
       file.path(paths$outputPath, .)
   }
-  #}
-  
+
+  message("  Load rasters from disk, reproject them to leaflet projection")  
   rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
     grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
   }) %>% unlist()
@@ -142,40 +113,30 @@ function(input, output, session) {
   rasterResolution <<- raster(tsf[1]) %>% res()
   
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
-  #lfltFN <- gsub(lfltFN, pattern = ".grd", replacement = ".tif")
   
-  #if (!(length(globalRasters) == length(tsf))) {
   globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = TRUE,
                           lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
                           flammableFile = asPath(file.path(paths$outputPath, "rstFlammable.grd")))
   
-  message("Running leadingByStage")
+  message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
   args <- list(leadingByStage, tsf, vtm, 
                polygonToSummarizeBy = ecodistricts,
-               #polygonNames = ecodistricts$ECODISTRIC, 
                cl = if (exists("cl")) cl, 
                omitArgs = "cl",
                ageClasses = ageClasses, cacheRepo = paths$cachePath)
   args <- args[!unlist(lapply(args, is.null))]
   leading <- do.call(Cache, args)
   rm(args)
-  message("  Finished leadingByStage")
-  
-  # if(reloadPreviousWorking) {
-  #   keepArtifacts3 <- unique(showCache(paths$cachePath, after = startCacheTime)$artifact)
-  #   keepArtifacts <<- setdiff(keepArtifacts3, keepArtifacts)
-  #   archivist::addTagsRepo(keepArtifacts,
-  #                          repoDir = paths$cachePath,
-  #                          tags = paste0("LandWebVersion:", LandWebVersion))
-  # }
-  
+
+
+  message("  Determine number of large patches, by polygon (loading 2 rasters, summarize by polygon)")
   # Large patches
   polygonsWithData <- leading[,unique(polygonNum[!is.na(proportion)]),by=ageClass]
-  
   vegLeadingTypes <- c(unique(leading$vegType))
   vegLeadingTypesWithAllSpecies <- c(vegLeadingTypes, "All species")
-  
-  # Large patch size section, i.e., clumps
+
+  # Shiny reactive element  
+  # Large patch size section, i.e., clumps -- reactive to text box of minimum clump size
   observe({
     lapply(ageClasses, function(ageClass) {
       output[[paste0("Clumps",ageClass,"UI")]] <- renderUI({
@@ -210,6 +171,7 @@ function(input, output, session) {
     })
   })
   
+  message("  Histograms of age classes, by vegetation type (loading 2 rasters, summarize by polygon)")
   observe({
     lapply(ageClasses, function(ageClass) {
       output[[paste0(ageClass,"UI")]] <- renderUI({
