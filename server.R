@@ -22,6 +22,8 @@ function(input, output, session) {
     
     message("The app started at ", appStartTime)
     message("The session started at ", sessionStartTime)
+    message("The session ended at ", Sys.time())
+    message("The app took ", format(Sys.time() - appStartTime))
   })
   
   # if(reloadPreviousWorking) {
