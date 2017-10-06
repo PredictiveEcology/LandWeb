@@ -3,7 +3,7 @@
 # please specify the package you need to run the sim function in the test files.
 
 # to test all the test files in the tests folder:
-test_dir("C:/Users/yonluo/Documents/GitHub/LandWeb/LW_LBMRDataPrep/tests/testthat")
+test_dir("C:/Users/yonluo/Documents/GitHub/LandWeb/Boreal_LBMRDataPrep/tests/testthat")
 
 # Alternative, you can use test_file to test individual test file, e.g.:
-test_file("C:/Users/yonluo/Documents/GitHub/LandWeb/LW_LBMRDataPrep/tests/testthat/test-template.R")
+test_file("C:/Users/yonluo/Documents/GitHub/LandWeb/Boreal_LBMRDataPrep/tests/testthat/test-template.R")

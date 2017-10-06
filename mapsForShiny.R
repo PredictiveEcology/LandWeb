@@ -38,7 +38,7 @@ getEcoMaps <- function(ecoDistrictPath, cacheRepo, lfltEPSG) {
   
 }
 
-out <- Cache(getEcoMaps, ecoDistrictPath=asPath(file.path(paths$modulePath,"LW_LBMRDataPrep", "data", "ecodistricts")), 
+out <- Cache(getEcoMaps, ecoDistrictPath=asPath(file.path(paths$modulePath,"Boreal_LBMRDataPrep", "data", "ecodistricts")), 
              lfltEPSG=lflt, cacheRepo=paths$cachePath, digestPathContent = TRUE)
 list2env(out, envir=.GlobalEnv)
 

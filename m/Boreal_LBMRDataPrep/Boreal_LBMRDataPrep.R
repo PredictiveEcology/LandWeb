@@ -2,7 +2,7 @@
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
-  name = "LW_LBMRDataPrep",
+  name = "Boreal_LBMRDataPrep",
   description = "A data preparation module for running the LBMR module in the LandWeb project",
   keywords = c("LandWeb", "LBMR"),
   authors = c(person(c("Yong", "Luo"), email="yong.luo@canada.ca", role=c("aut", "cre")),
@@ -13,7 +13,7 @@ defineModule(sim, list(
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
-  documentation = list("README.txt", "LW_LBMRDataPrep.Rmd"),
+  documentation = list("README.txt", "Boreal_LBMRDataPrep.Rmd"),
   reqdPkgs = list("data.table", "raster", "dplyr", "amc", "gdalUtils"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
@@ -93,7 +93,7 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initialiazation
 
-doEvent.LW_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.Boreal_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
@@ -102,8 +102,8 @@ doEvent.LW_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- Init(sim)
     
     # schedule future event(s)
-    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "LW_LBMRDataPrep", "plot")
-    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "LW_LBMRDataPrep", "save")
+    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "Boreal_LBMRDataPrep", "plot")
+    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "Boreal_LBMRDataPrep", "save")
   } else if (eventType == "save") {
     sim <- Save(sim)
   } else {
@@ -300,7 +300,7 @@ Init <- function(sim) {
   sim$minRelativeB <- data.frame(ecoregion = sim$ecoregion[active == "yes",]$ecoregion,
                                  X1 = 0.2, X2 = 0.4, X3 = 0.5,
                                  X4 = 0.7, X5 = 0.9)
-  message("Done LW_LBMRDataPrep: ", Sys.time())
+  message("Done Boreal_LBMRDataPrep: ", Sys.time())
   
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
@@ -602,7 +602,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   #  defaultColor <- 'red'
   # }
   # ! ----- EDIT BELOW ----- ! #
-  dataPath <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
+  dataPath <- file.path(modulePath(sim), "Boreal_LBMRDataPrep", "data")
   fileNames1 <- c("ecodistricts.dbf", "ecodistricts.prj", "ecodistricts.sbn", "ecodistricts.sbx",
                  "ecodistricts.shp", "ecodistricts.shx", "ecoregions.dbf", "ecoregions.prj",
                  "ecoregions.sbn", "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx", "ecozones.dbf",
@@ -665,7 +665,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   #                                             "9113b4ea3b8e14287e43cddcd23a4ef5")))
   
   if(needDownload) {
-    suppressWarnings(checkTable <- data.table(downloadData(module = "LW_LBMRDataPrep",
+    suppressWarnings(checkTable <- data.table(downloadData(module = "Boreal_LBMRDataPrep",
                                           path = modulePath(sim))))
     checkContent_passed <- checkTable[result == "OK",]$expectedFile
     # study area should be provided by Dr. David Anderson
@@ -737,7 +737,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
             exdir = dataPath)
     }
   } else {
-    message("  Download data step skipped for module LW_LBMRDataPrep. Local copy exists")
+    message("  Download data step skipped for module Boreal_LBMRDataPrep. Local copy exists")
   }
   
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
@@ -801,7 +801,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                              cacheRepo = cachePath(sim),
                              userTags = "stable")
   ## load Paul Pickell et al. and CASFRI
-  #dataPath <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
+  #dataPath <- file.path(modulePath(sim), "Boreal_LBMRDataPrep", "data")
   if(all(c("SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat", "Landweb_CASFRI_GIDs.tif",
            "Landweb_CASFRI_GIDs_attributes3.csv", "Landweb_CASFRI_GIDs_README.txt") 
          %in% dir(dataPath) )) {
