@@ -188,7 +188,7 @@ landWebDataPrepPlot <- function(sim) {
     checkTable <- data.table(downloadData(module = "landWebDataPrep", path = modulePath(sim)))
     untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
           files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
-          exdir = dataPath)
+          exdir = dataPath, tar = "internal")
     biomassMaps <- unzip(file.path(dataPath,
                                    "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                          exdir = dataPath)
