@@ -20,7 +20,7 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
   oldfilename <- "shpLandWEB.shp"
   # makek absolute paths
   paths <- lapply(paths, function(x) file.path(origDir,x))
-  dataFolder <- file.path(paths$modulePath, "LW_LBMRDataPrep", "data")
+  dataFolder <- file.path(paths$modulePath, "Boreal_LBMRDataPrep", "data")
   setwd(dataFolder)
   
   message("Load Paul's study area layer from original source")
@@ -89,7 +89,7 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
         cacheRepo=paths$cachePath)
   
   message("Starting CASFRI stuff")
-  #CASFRITifFile <- file.path(paths$modulePath, "LW_LBMRDataPrep", "data", "Landweb_CASFRI_GIDs.tif")
+  #CASFRITifFile <- file.path(paths$modulePath, "Boreal_LBMRDataPrep", "data", "Landweb_CASFRI_GIDs.tif")
   if(file.exists(CASFRITifFile)) {
     CASFRIRas <- raster(CASFRITifFile)
   } else {

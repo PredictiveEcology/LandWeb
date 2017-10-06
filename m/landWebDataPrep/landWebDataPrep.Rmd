@@ -7,7 +7,8 @@ output: pdf_document
 
 # Overview
 
-This module is higher level data preparation for fire modules and vegetation modules. It creates inputs for initBaseMaps module, which is required for some fire modules and LW_LBMRDataPrep module which is used by LBMR (Landis Biomass Succession Module in R).
+This module is higher level data preparation for fire modules and vegetation modules. 
+It creates inputs for initBaseMaps module, which is required for some fire modules and Boreal_LBMRDataPrep module which is used by LBMR (Landis Biomass Succession Module in R).
 
 
 # Usage
@@ -93,12 +94,12 @@ if (studyArea == "SMALL") {
   shpStudyRegion <- intersect(shpStudyRegionOrig, inputMapPolygon)
 }
 
-#modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull", "LW_LBMRDataPrep", "LBMR")
+#modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull", "Boreal_LBMRDataPrep", "LBMR")
 
 #modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull")
 #modules <- list("landWebDataPrep", "initBaseMaps", "LandMine")
 
-modules <- list("landWebDataPrep", "initBaseMaps", "LandMine", "LW_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+modules <- list("landWebDataPrep", "initBaseMaps", "LandMine", "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
 fireModules <- list("landWebDataPrep", "initBaseMaps", "LandMine", "timeSinceFire", "LandWebOutput")
 
