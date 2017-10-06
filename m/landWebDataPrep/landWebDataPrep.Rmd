@@ -1,6 +1,6 @@
 ---
 title: "landWebDataPrep"
-author: "Module Author"
+author: "Yong Luo"
 date: "11 August 2016"
 output: pdf_document
 ---
