@@ -709,7 +709,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
             checkContent_passed)){
       untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
             files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
-            exdir = dataPath)
+            exdir = dataPath, tar = "internal")
       biomassMaps <- unzip(file.path(dataPath,
                                      "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                            exdir = dataPath)
@@ -723,7 +723,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
               "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.xml") %in% checkContent_passed)){
       untar(file.path(dataPath, "kNN-StructureStandVolume.tar"),
             files = "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip",
-            exdir = dataPath)
+            exdir = dataPath, tar = "internal")
       unzip(file.path(dataPath,
                       "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
             exdir = dataPath)
@@ -776,7 +776,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         untar(file.path(dataPath, "kNN-Species.tar"),
               files = paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
                             sep = ""),
-              exdir = dataPath)
+              exdir = dataPath, tar = "internal")
         unzip(file.path(dataPath, paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.zip",
                                         sep = "")),
               exdir = dataPath)
