@@ -7,7 +7,8 @@ output: pdf_document
 
 # Overview
 
-This module does specific data preparation for the boreal forest parts of Canada. 
+This module converts open datasets that are available for all of Canada's forests, into the input requirements for Landis Biomass Succession in R (LBMR). 
+This has been partially tested for some parts of the Western Boreal Forest. 
 
 Specifically, it takes the Eco* maps (Ecozone, Ecoprovince, Ecoregion) maps of Canada, and species specific biomass maps of Canada (from Beaudoin et al. 2014).
 
@@ -20,10 +21,10 @@ rm(list = ls())
 library(igraph)
 library(SpaDES)
 library(raster)
-canadamap <- shapefile("~/GIS DataBase/Canada/Canada.shp")
+#canadamap <- shapefile("~/GIS DataBase/Canada/Canada.shp")
 dev(4)
 clearPlot()
-Plot(canadamap)
+#Plot(canadamap)
 severalrandompoints <- clickCoordinates(10)
 studyarea <- SpatialPolygons(list(Polygons(list(Polygon(severalrandompoints$coords)), ID = 1)),
                              proj4string = crs(canadamap))
