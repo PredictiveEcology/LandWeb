@@ -192,7 +192,7 @@ landWebDataPrepPlot <- function(sim) {
     biomassMaps <- unzip(file.path(dataPath,
                                    "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                          exdir = dataPath)
-    file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
+    #file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
     
     unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
           exdir = dataPath) 
@@ -218,11 +218,11 @@ landWebDataPrepPlot <- function(sim) {
                                             filename = file.path(dirname(lcc2005Filename), 
                                                                  paste0("Small",basename(lcc2005Filename))), 
                                             overwrite=TRUE)
-      file.remove(dir(dirname(lcc2005Filename), full.names = TRUE) %>% 
-          .[grep(basename(.), pattern = paste0("^",basename(lcc2005Filename)))])
+      #file.remove(dir(dirname(lcc2005Filename), full.names = TRUE) %>% 
+      #    .[grep(basename(.), pattern = paste0("^",basename(lcc2005Filename)))])
       biomassMapFilenameNoExt <- strsplit(basename(biomassMapFilename), "\\.")[[1]][1]
-      file.remove(dir(dirname(biomassMapFilename), full.names = TRUE) %>% 
-          .[grep(basename(.), pattern = paste0("^",biomassMapFilenameNoExt))])
+      #file.remove(dir(dirname(biomassMapFilename), full.names = TRUE) %>% 
+      #    .[grep(basename(.), pattern = paste0("^",biomassMapFilenameNoExt))])
   
       file.rename(filename(sim@.envir$LCC2005), lcc2005Filename)
       sim@.envir$LCC2005@file@name <- lcc2005Filename
@@ -233,8 +233,8 @@ landWebDataPrepPlot <- function(sim) {
       
     }
     
-    dir(dataPath, pattern = "\\.tar|\\.zip", full.names = TRUE) %>% 
-      lapply(., function(x) file.remove(x))
+    #dir(dataPath, pattern = "\\.tar|\\.zip", full.names = TRUE) %>% 
+    #  lapply(., function(x) file.remove(x))
     
     filesList <- dir(dataPath, full.names = TRUE)
     filesList2 <- filesList[basename(filesList) %in% fileNames1]
