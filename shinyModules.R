@@ -372,7 +372,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     if(useGdal2Tiles) {
       message("Running gdal2TilesFn for layer ", sliderVal/10+1, " of ", length(rasts))
       Cache(gdal2TilesFn, r, filename=asPath(filename(r)), #notOlderThan = Sys.time(),
-            zoomRange=5:10, color_text_file = asPath(colorTableFile), 
+            zoomRange=3:10, color_text_file = asPath(colorTableFile), 
             cacheRepo = paths$cachePath, digestPathContent = TRUE)
     }
     if(TRUE) {
