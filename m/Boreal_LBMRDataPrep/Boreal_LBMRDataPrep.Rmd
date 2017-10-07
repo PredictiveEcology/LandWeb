@@ -1,7 +1,7 @@
 ---
 title: "Boreal_LBMRDataPrep"
-author: ""
-date: "28 October 2016"
+author: "Yong Luo & Eliot McIntire"
+date: "6 October 2017"
 output: pdf_document
 ---
 
@@ -16,37 +16,47 @@ Keeping these data preparations outside of the core LBMR module maintains the mo
 
 # Usage
 
+There is one
 ```{r module_usage}
-rm(list = ls())
-library(igraph)
+library(magrittr) # for %>% pipe
 library(SpaDES)
 library(raster)
-#canadamap <- shapefile("~/GIS DataBase/Canada/Canada.shp")
-dev(4)
+cachePath <- file.path("Boreal_LBMRDataPrep", "cache")
+modulePath <- Cache(readline, paste0("Where is the module path? (e.g., ~/module, with no quotes).\n",
+                                     "Press Enter to accept the path in getPaths()$modulePath: "),
+                    cacheRepo = cachePath)
+if(nchar(modulePath)==0) modulePath <- getPaths()$modulePath
+canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
+                   cacheRepo = cachePath, digestPathContent = FALSE) 
+dev()
 clearPlot()
-#Plot(canadamap)
-severalrandompoints <- clickCoordinates(10)
-studyarea <- SpatialPolygons(list(Polygons(list(Polygon(severalrandompoints$coords)), ID = 1)),
-                             proj4string = crs(canadamap))
+Plot(canadaMap, speedup = 5, visualSqueeze = 0.9) # 5 seemed optimal
+if(!exists("studyArea")) {
+  message("Since there is no object called 'studyArea', please draw a study area with 10 points")
+  severalrandompoints <- Cache(clickCoordinates, 10, cacheRepo = cachePath)
+  if(startsWith(attr(severalrandompoints, "tags"), "cache")) message("Taking studyArea from Cache")
+  studyArea <- SpatialPolygons(list(Polygons(list(Polygon(severalrandompoints$coords)), ID = 1)),
+                               proj4string = crs(canadaMap))
+}
+Plot(studyArea, addTo = "canadaMap", col = "red")
 inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), "outputs")
 times <- list(start = 0, end = 10)
 parameters <- list()
 modules <- list("Boreal_LBMRDataPrep")
-# studyarea <- shapefile(file.path(".", "Boreal_LBMRDataPrep", "data", "shpLandWEB.shp"))
-objects <- list("studyArea" = studyarea,
+objects <- list("shpStudyRegionFull" = studyArea,
                 "useCache" = TRUE,
                 "successionTimestep" = 2)
 paths <- list(
-  cachePath = file.path("~", "Boreal_LBMRDataPrep", "cache"),
-  modulePath = file.path("."),
+  cachePath = cachePath,
+  modulePath = modulePath,
   inputPath = inputDir,
   outputPath = outputDir
 )
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
-simulation <- spades(mySim)
+simOut <- spades(mySim)
 
 
 
@@ -54,3 +64,18 @@ simulation <- spades(mySim)
 ```
 
 
+# Outputs
+
+This will show the outputs of this module, which are the inputs for LBMR
+```{r}
+# List all objects
+ls(simOut)
+
+# Examine a few tables a visuals
+simOut$speciesTable
+Plot(simOut$biomassMap)
+simOut$shpStudyRegionFull <- spTransform(simOut$shpStudyRegionFull, crs(simOut$biomassMap))
+Plot(simOut$shpStudyRegionFull, addTo = "simOut$biomassMap")
+
+
+```

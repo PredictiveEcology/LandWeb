@@ -26,3 +26,6 @@ Thumbs.db
 *.xml
 packrat/src/
 www/
+Boreal_LBMRDataPrep/cache/gallery/
+
+Boreal_LBMRDataPrep/cache/
