@@ -39,7 +39,7 @@ defineModule(sim, list(
 
 doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
-    sim <- sim$initBaseMapsInit(sim)
+    sim <- initBaseMapsInit(sim)
   } 
   else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
