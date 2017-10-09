@@ -850,7 +850,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       sim$standAgeMap@file@name <- standAgeMapFilename
       
       # Species
-      message("  Crop species layers to shpSTudyRegionFull")
+      message("  Crop species layers to shpStudyRegionFull")
       sim$specieslayers <- cropSpeciesLayers(asPath(speciesFilenames), sim)
       
       #file.remove(dir(dataPath, pattern = ".zip", full.names = TRUE))
