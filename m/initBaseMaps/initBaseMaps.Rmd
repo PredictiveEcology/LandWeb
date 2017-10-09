@@ -7,10 +7,11 @@ output: pdf_document
 
 # Overview
 
-This module crops and reprojects maps to the a study region. 
+Loads, reprojects and crops all initial maps and shapefile required to run LandWEB models.
+
 It is based on the crop module developed by McIntire in 2015. 
 
-The present version is faciitate testing of the LandWEB neutral fire model.
+The present version faciitate testing of the LandWEB neutral fire model.
 
 All the objects to be processes are assumed to already exist in the sim list, having been specified as inputs in any model containing this module.
 
@@ -22,5 +23,49 @@ We assume that a Canada Landcover 2005 \cite{latifovic2008} map will exists as
 
 There is only an init event that executes the gis operations.
 
+# Usage
 
+```{r}
+devtools::install_github("PredictiveEcology/reproducible@development") # require bugfix for one step
+library(magrittr) # for %>% pipe
+library(SpaDES)
+library(raster)
+cachePath <- file.path("initBaseMaps", "cache")
+modulePath <- Cache(readline, paste0("Where is the module path? (e.g., ~/module, with no quotes).\n",
+                                     "Press Enter to accept the path in getPaths()$modulePath: "),
+                    cacheRepo = cachePath)
+if(nchar(modulePath)==0) modulePath <- getPaths()$modulePath
+canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
+                   cacheRepo = cachePath, digestPathContent = FALSE) 
+dev()
+clearPlot()
+Plot(canadaMap, speedup = 5, visualSqueeze = 0.9) # 5 seemed optimal
+if(!exists("shpStudyRegionFull")) {
+  message("Since there is no object called 'shpStudyRegionFull', please draw a study area with 10 points")
+  severalrandompoints <- Cache(clickCoordinates, 10, cacheRepo = cachePath)
+  if(startsWith(attr(severalrandompoints, "tags"), "cache")) message("Taking shpStudyRegionFull from Cache")
+  shpStudyRegionFull <- SpatialPolygons(list(Polygons(list(Polygon(severalrandompoints$coords)), ID = 1)),
+                               proj4string = crs(canadaMap))
+}
+Plot(shpStudyRegionFull, addTo = "canadaMap", col = "red")
+inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
+outputDir <- file.path(tempdir(), "outputs")
+times <- list(start = 0, end = 10)
+parameters <- list()
+modules <- list("initBaseMaps")
+objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
+                "useCache" = TRUE,
+                "successionTimestep" = 2)
+paths <- list(
+  cachePath = cachePath,
+  modulePath = modulePath,
+  inputPath = inputDir,
+  outputPath = outputDir
+)
+mySim <- simInit(times = times, params = parameters, modules = modules,
+                 objects = objects, paths = paths)
+
+simOut <- spades(mySim)
+
+```
 
