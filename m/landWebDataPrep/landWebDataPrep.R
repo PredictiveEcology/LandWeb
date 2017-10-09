@@ -115,7 +115,6 @@ landWebDataPrepInit <- function(sim) {
   sim$studyArea <- spTransform(sim$shpStudySubRegion, crs(sim$biomassMap))
   sim$shpStudySubRegion <- sim$studyArea
   sim$LCC05X <- sim$LCC2005
-  sim$LCC2005 <- sim$LCC2005
   return(invisible(sim))
 }
 
