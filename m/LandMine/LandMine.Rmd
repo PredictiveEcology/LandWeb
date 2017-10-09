@@ -2,7 +2,9 @@
 title: "LandMine"
 author: "Eliot McIntire"
 date: "14 January 2017"
-output: pdf_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 # Overview
@@ -18,6 +20,35 @@ The current version has not been fully tested and compared with the original ver
 - Fire sizes are taken from a Truncated Pareto distribution, resulting in numerous very small fires, and few large fires.
 - Parameters have been not been fitted to the landscapes that are under study in the LandWeb project
 
+# Known species
+
+Landmine requires the following codes as inputs (the genus_spec form below), and converts and groups species as follows. Each of the species groups has its own Rate of Spread (ROS) for fire spreading:
+
+* PINU
+
+    * "Pinu_ban"
+    * "Pinu_con" 
+    * "Pinu_sp" 
+* DECI
+
+    * Betu_pap
+    * Popu_bal
+    * Popu_tre
+    * Lari_lar
+    
+* PICE_MAR
+
+    * Pice_mar
+    
+* PICE_GLA
+
+    * Pice_gla
+    
+* ABIE
+
+    * Abie_sp
+    
+    
 # Usage
 
 To run this Landmine module alone, from an R console, the following should work (*iff* raster inputs for `rstStudyRegion` and `rstFlammable` are available), assuming all R packages are available.
@@ -25,7 +56,7 @@ Paths will have be changed for a different user.
 
 To deteremine which packages are used by `LandMine`, run `SpaDES::packages(module = "LandMine")`.
 
-```{r module_usage}
+```{r module_usage, eval = FALSE}
 library(igraph)
 library(SpaDES)
 
