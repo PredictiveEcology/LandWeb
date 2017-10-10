@@ -155,94 +155,82 @@ landWebDataPrepPlot <- function(sim) {
   # }
   # ! ----- EDIT BELOW ----- ! #
   dataPath <- file.path(modulePath(sim), "landWebDataPrep", "data")
-  fileNames1 <- c("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
-                 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
-                 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml",
-                 "LCC2005_V1_4a.tif")
+  needDownloads <- is.null(sim$biomassMap) | is.null(sim$LCC2005) | 
+    !all(sim$.userSuppliedObjNames %in% c("LCC2005", "biomassMap"))
   
-  filesList <- dir(dataPath, full.names = TRUE)
-  filesList2 <- filesList[basename(filesList) %in% fileNames1]
-  allFiles2 <- filesList2 %>% lapply(., function(x) digest::digest(file=x, length = 6e6, algo = "xxhash64"))
-  names(allFiles2) <- basename(filesList2)
-  allFiles2Digest <- fastdigest::fastdigest(allFiles2)
-  
-  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2))#, notOlderThan = Sys.time()))
-  needShrinking <- needDownload <- !(isTRUE(grepl("loading cached result",b)))
-  # If this is the first time running this Cache, then delete it
-  if(needDownload) clearCache(x = cachePath(sim), strsplit(attr(b2, "tags"),split=":")[[1]][[2]])
-  
-  
-  # fileNames <- lapply(fileNames, function(x){file.path(dataPath, x)})
-  # allFiles <- lapply(fileNames, function(x) {
-  #   file.info(x)[, "size"]}
-  # )
-  # names(allFiles) <- unlist(lapply(fileNames, basename))
-  # allFilesDigest <- digest::digest(allFiles)
-  # needDownload <- all(!(allFilesDigest %in% c("ea72c7607d0ea744b64e182459c940bc",
-  #                                             "6faacb745becdb13bc7160a538e0006f",
-  #                                             "51c1e22aad1a2a2561ffd994e69224d0",
-  #                                             "a90aed73dd9241a97ce469629349f615")))
-  # needShrinking <- !(allFilesDigest == "a90aed73dd9241a97ce469629349f615")
-  if (needDownload) {
-    checkTable <- data.table(downloadData(module = "landWebDataPrep", path = modulePath(sim)))
-    untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
-          files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
-          exdir = dataPath, tar = "internal")
-    biomassMaps <- unzip(file.path(dataPath,
-                                   "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
-                         exdir = dataPath)
-    #file.remove(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))
+  # First test if all input objects are already present (e.g., from inputs, objects or another module)
+  if(needDownloads) {
+    dataPathFiles <- dir(dataPath)
+    dd <- Cache(downloadData, module = "landWebDataPrep", path = modulePath(sim), 
+                                   sideEffect = dataPath, #notOlderThan = Sys.time(),
+                                   quick = TRUE)
+    biomassMapFilename <- file.path(dataPath, grep(dd$expectedFile, value = TRUE, 
+                                                   pattern = "TotalLiveAboveGround"))
     
-    unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
-          exdir = dataPath) 
-  } else {
-    message("  Download data step skipped for module landWebDataPrep. Local copy exists")
-  }
-
-  biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
-  lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
-  sim$biomassMap <- raster(biomassMapFilename)
-  sim$LCC2005 <- raster(lcc2005Filename)
-  LCC2005LayerName <- names(sim$LCC2005) 
-  projection(sim$LCC2005) <- projection(sim$biomassMap)
-
-  if(needShrinking) {
-    if(!is.null(sim@.envir$shpStudyRegionFull)) {
-      sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
-      sim@.envir$biomassMap <- crop(sim@.envir$biomassMap, sim@.envir$shpStudyRegionFull,
-                                    overwrite=TRUE, format = "GTiff", datatype = "INT2U",
-                                    filename = file.path(dirname(biomassMapFilename), 
-                                                         paste0("Small",basename(biomassMapFilename))))
-      sim@.envir$LCC2005 <- crop(sim@.envir$LCC2005, sim@.envir$shpStudyRegionFull,
-                                            filename = file.path(dirname(lcc2005Filename), 
-                                                                 paste0("Small",basename(lcc2005Filename))), 
-                                            overwrite=TRUE)
-      #file.remove(dir(dirname(lcc2005Filename), full.names = TRUE) %>% 
-      #    .[grep(basename(.), pattern = paste0("^",basename(lcc2005Filename)))])
-      biomassMapFilenameNoExt <- strsplit(basename(biomassMapFilename), "\\.")[[1]][1]
-      #file.remove(dir(dirname(biomassMapFilename), full.names = TRUE) %>% 
-      #    .[grep(basename(.), pattern = paste0("^",biomassMapFilenameNoExt))])
-  
-      file.rename(filename(sim@.envir$LCC2005), lcc2005Filename)
-      sim@.envir$LCC2005@file@name <- lcc2005Filename
-      names(sim$LCC2005) <- LCC2005LayerName
-  
-      file.rename(filename(sim@.envir$biomassMap), biomassMapFilename)
-      sim@.envir$biomassMap@file@name <- biomassMapFilename
+    lcc2005Filename <- file.path(dataPath, grep(dd$expectedFile, value = TRUE, 
+                            pattern = "LCC2005"))
+    
+    # Some may fail, i.e., there are intermediate steps, or missing end files
+    if(all(dd$result!="OK")) {
+      checkTable <- data.table(dd)
       
+      needBiomass <- is.na(dd$result[dd$expectedFile==basename(biomassMapFilename)]) | 
+        (dd$result[dd$expectedFile==basename(biomassMapFilename)] != "OK")
+      needLCC <- is.na(dd$result[dd$expectedFile==basename(lcc2005Filename)]) | 
+          (dd$result[dd$expectedFile==basename(lcc2005Filename)] != "OK")
+        
+      # Untar and unzip
+      if(needBiomass) {
+        Cache(untar, file.path(dataPath, "kNN-StructureBiomass.tar"),
+              files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
+              exdir = dataPath, tar = "internal", sideEffect = dataPath, quick = TRUE)
+        Cache(unzip, file.path(dataPath,
+                                              "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
+                             exdir = dataPath, sideEffect = dataPath, quick = TRUE)
+      }
+      if(needLCC) {
+        Cache(unzip, file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
+              exdir = dataPath, sideEffect = dataPath, quick = TRUE) 
+        lcc2005FilenameSmall <- lcc2005Filename
+        lcc2005Filename <- file.path(dataPath, strsplit(lcc2005Filename, split = "Small")[[1]][2])
+      }
     }
+    sim$biomassMap <- raster(biomassMapFilename)
+    sim$LCC2005 <- raster(lcc2005Filename)
+    LCC2005LayerName <- names(sim$LCC2005) 
+    projection(sim$LCC2005) <- projection(sim$biomassMap)
     
-    #dir(dataPath, pattern = "\\.tar|\\.zip", full.names = TRUE) %>% 
-    #  lapply(., function(x) file.remove(x))
-    
-    filesList <- dir(dataPath, full.names = TRUE)
-    filesList2 <- filesList[basename(filesList) %in% fileNames1]
-    allFiles2 <- filesList2 %>% lapply(., function(x) digest::digest(file=x, length = 6e6, algo = "xxhash64"))
-    names(allFiles2) <- basename(filesList2)
-    allFiles2Digest <- fastdigest::fastdigest(allFiles2)
-    
-    b2 <- Cache(fastdigest::fastdigest, allFiles2, userTags = "stable")
-    
+    # Cropping to shpStudyRegionFull
+    if(all(dd$result!="OK")) {
+      if(!is.null(sim$shpStudyRegionFull)) {
+        if(needBiomass) {
+          sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
+          sim$biomassMap <- crop(sim$biomassMap, sim$shpStudyRegionFull,
+                                 overwrite=TRUE, format = "GTiff", datatype = "INT2U",
+                                 filename = file.path(dataPath, basename(biomassMapFilename)))
+        }
+        
+        if(needLCC) {
+          sim$LCC2005 <- crop(sim$LCC2005, sim$shpStudyRegionFull,
+                              filename = file.path(dataPath, basename(lcc2005FilenameSmall)), 
+                              overwrite=TRUE)
+        }
+        
+      } else {
+        message("  landWebDataPrep.R expects a shpStudyRegionFull object to crop biomassMap and LCC2005 to")
+      }
+      
+      dd <- Cache(downloadData, module = "landWebDataPrep", path = modulePath(sim), 
+                  sideEffect = dataPath, notOlderThan = Sys.time(),
+                  quick = TRUE)
+      if(all(dd$result!="OK")) {
+        message("Completed downloads, crops for landWebDataPrep, and checksums failing\n",
+                "Perhaps downloaded file has changed hash print. If downloaded files are\n",
+                "all correct, you may want to update checksums('landWebDataPrep', modulePath(sim), write = TRUE)")
+      }  
+    } else {
+      message("  Download data step skipped for module landWebDataPrep. Local copy exists")
+    }
   }
   sim$calibrate <- FALSE
   # ! ----- STOP EDITING ----- ! #
