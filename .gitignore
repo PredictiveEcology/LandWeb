@@ -26,3 +26,4 @@ Thumbs.db
 *.xml
 packrat/src/
 www/
+*.tar
