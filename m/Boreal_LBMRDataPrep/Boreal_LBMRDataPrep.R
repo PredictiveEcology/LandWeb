@@ -690,15 +690,17 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     }
     
     # 2. stand age map
-    standAgeMapFilename <- file.path(dataPath, "SmallNFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif")
+    standAgeMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif")
     if(is.null(sim$standAgeMap)) {
-      if(length(grep("Stand_Age.*tif", checkContent_passed))!=1){
+      if(!(basename(standAgeMapFilename) %in% checkContent_passed)) {
         message("  Unzipping Stand Age")
-        untar(file.path(dataPath, "kNN-StructureStandVolume.tar"),
+        Cache(untar, file.path(dataPath, "kNN-StructureStandVolume.tar"),
               files = "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip",
-              exdir = dataPath, tar = "internal")
-        unzip(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
-              exdir = dataPath, overwrite = TRUE)
+              exdir = dataPath, tar = "internal",
+              sideEffect = dataPath, quick = TRUE)
+        Cache(unzip, file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
+              exdir = dataPath, overwrite = TRUE,
+              sideEffect = dataPath, quick = TRUE)
       }
       sim$standAgeMap <- raster(standAgeMapFilename)
     }
@@ -710,7 +712,6 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       }
       sim$LCC2005 <- raster(lcc2005Filename)
     }
-    
     if(is.null(sim$specieslayers)) {
       speciesnames <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
                              "Pinu_sp", "Popu_Tre")
@@ -719,26 +720,38 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       needSpecies <- unlist(lapply(speciesnames, function(n) grep(paste0(n,".*tif$"), checkContent_passed)))
       
       if(length(needSpecies) != length(speciesnames)) { # need to untar/unzip
-        speciesnames <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
+        speciesnamesRaw <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
                           "Pinu_Ban", "Pinu_Con", "Popu_Tre")
-        zips <- paste0("NFI_MODIS250m_kNN_Species_", speciesnames, "_v0.zip")
-        zips1 <- zips[!(zips %in% basename(dataPathFiles))]
-        if(length(zips1))
-          untar(file.path(dataPath, "kNN-Species.tar"),
-              files = zips,
-              exdir = dataPath, tar = "internal")
-        tifs <- paste0("NFI_MODIS250m_kNN_Species_", speciesnames, "_v0.tif")
+        tifs <- paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw, "_v0.tif")
+        zips <- paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw, "_v0.zip")
         tifs1 <- zips[!(tifs %in% basename(dataPathFiles))]
-        if(length(tifs1)) 
-          unzipped <- lapply(zips, function(t) {
-            unzip(file.path(dataPath, t), exdir = dataPath, overwrite = TRUE)
-            message("  ", t, " unzipped")
-            })
+        
+        if(length(tifs1)) {
+          zips1 <- zips[!(zips %in% basename(dataPathFiles))]
+          if(length(zips1)) {
+            untar(file.path(dataPath, "kNN-Species.tar"),
+                  files = zips,
+                  exdir = dataPath, tar = "internal")
+          }
+          if(length(tifs1)) {
+              unzipped <- lapply(zips, function(t) {
+                unzip(file.path(dataPath, t), exdir = dataPath, overwrite = TRUE)
+                message("  ", t, " unzipped")
+              })
+          }
+        }
+          
       }
-      sim$specieslayers <- stack(lapply(speciesFiles, raster))
-      names(sim$specieslayers) <- speciesnames
     }
-  } 
+    sim$specieslayers <- stack(lapply(speciesFiles, raster))
+    if(length(names(sim$specieslayers))==length(speciesnames)) {
+      names(sim$specieslayers) <- speciesnames  
+    } else {
+      names(sim$specieslayers) <- speciesnamesRaw
+    }
+    
+  }
+ 
   # 3. species maps
   ## load Paul Pickell et al. and CASFRI
   #dataPath <- file.path(modulePath(sim), "Boreal_LBMRDataPrep", "data")
@@ -788,6 +801,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       
       # rasters
       # LCC2005
+      message("  Crop LCC2005")
       sim$LCC2005 <- crop(sim$LCC2005, sim$shpStudyRegionFull,
                           filename = lcc2005Filename,
                           overwrite=TRUE)
@@ -811,18 +825,21 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     
     speciesLayersLocal <- sim$specieslayers
     message("  Merging Pines (lodgepole and jack) into one species")
-    sim$specieslayers <- Cache(sumRastersBySpecies, #notOlderThan = Sys.time(),
-                               speciesLayersLocal, c("Pinu_Ban", "Pinu_Con"),
-                               filenameToSave = asPath(file.path(dirname(filename(sim$specieslayers[["Abie_sp"]])),
-                                                                 "KNNPinu_sp.tif")), 
-                               cachePath = cachePath(sim), # for sumRastersBySpecies arg
-                               cacheRepo = cachePath(sim), # for Cache arg
-                               userTags = "stable")
+    if(all(speciesnamesRaw %in% names(speciesLayersLocal))) {
+      sim$specieslayers <- Cache(sumRastersBySpecies, #notOlderThan = Sys.time(),
+                                 speciesLayersLocal, c("Pinu_Ban", "Pinu_Con"),
+                                 filenameToSave = asPath(file.path(dirname(filename(sim$specieslayers[["Abie_sp"]])),
+                                                                   "KNNPinu_sp.tif")), 
+                                 cachePath = cachePath(sim), # for sumRastersBySpecies arg
+                                 cacheRepo = cachePath(sim), # for Cache arg
+                                 userTags = "stable")
+    }
     
   }
   
+  names(sim$specieslayers)[grep("Pinu", names(sim$specieslayers))] <- "Pinu_sp"
+  names(sim$specieslayers)[grep("Abie", names(sim$specieslayers))] <- "Abie_sp"
   names(sim$specieslayers) <- toSentenceCase(names(sim$specieslayers))
-  
   
   sim$speciesTable <- read.csv(file.path(dataPath, "speciesTraits.csv"), header = TRUE,
                                stringsAsFactors = FALSE) %>%
@@ -850,7 +867,6 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   }
   if(needRstSR) sim$rstStudyRegion <- Cache(rasterize, shpStudyRegionFull, biomassMap)
   
-  # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
@@ -873,8 +889,6 @@ sumRastersBySpecies <- function(specieslayers, layersToSum,
   
   specieslayers <- dropLayer(specieslayers, grep(pattern = "Pinu", names(specieslayers)))
   specieslayers <- addLayer(specieslayers, Pinu_sp)
-  names(specieslayers)[grep("Pinu", names(specieslayers))] <- "Pinu_sp"
-  names(specieslayers)[grep("Abie", names(specieslayers))] <- "Abie_sp"
   specieslayers
 }
 
