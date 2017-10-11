@@ -176,7 +176,6 @@ landWebDataPrepPlot <- function(sim) {
   
     # dd shows which expected files don't have actual files  
     # Some may fail, i.e., there are intermediate steps, or missing end files
-    
     # 3. if any not "OK", go through one input object at a time
     if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
       checkTable <- data.table(dd)
@@ -188,18 +187,17 @@ landWebDataPrepPlot <- function(sim) {
         
       # Untar and unzip
       if(needBiomass) {
-        Cache(untar, file.path(dataPath, "kNN-StructureBiomass.tar"),
+        untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
               files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
-              exdir = dataPath, tar = "internal", sideEffect = dataPath, quick = TRUE)
-        Cache(unzip, 
-              file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
-              exdir = dataPath, sideEffect = dataPath, quick = TRUE)
+              exdir = dataPath, tar = "internal")
+        unzip(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
+              exdir = dataPath, overwrite = TRUE)
         biomassMapFilenameSmall <- biomassMapFilename
         biomassMapFilename <- file.path(dataPath, strsplit(biomassMapFilename, split = "Small")[[1]][2])
       }
       if(needLCC) {
-        Cache(unzip, file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
-              exdir = dataPath, sideEffect = dataPath, quick = TRUE) 
+        unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
+              exdir = dataPath, overwrite = TRUE) 
         lcc2005FilenameSmall <- lcc2005Filename
         lcc2005Filename <- file.path(dataPath, strsplit(lcc2005Filename, split = "Small")[[1]][2])
       }
