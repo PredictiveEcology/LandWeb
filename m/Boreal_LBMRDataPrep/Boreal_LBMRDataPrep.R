@@ -2,7 +2,7 @@
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
-  name = "LW_LBMRDataPrep",
+  name = "Boreal_LBMRDataPrep",
   description = "A data preparation module for running the LBMR module in the LandWeb project",
   keywords = c("LandWeb", "LBMR"),
   authors = c(person(c("Yong", "Luo"), email="yong.luo@canada.ca", role=c("aut", "cre")),
@@ -13,8 +13,8 @@ defineModule(sim, list(
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
-  documentation = list("README.txt", "LW_LBMRDataPrep.Rmd"),
-  reqdPkgs = list("data.table", "raster", "dplyr", "amc", "gdalUtils"),
+  documentation = list("README.txt", "Boreal_LBMRDataPrep.Rmd"),
+  reqdPkgs = list("data.table", "raster", "rgeos", "dplyr", "amc", "gdalUtils"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -52,10 +52,10 @@ defineModule(sim, list(
                  desc = "this shape file contains two informaton: Full study areawith fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput(objectName = "rstStudyRegion", objectClass = "RasterLayer",
-                 desc = "this shape file contains two informaton: Full study areawith fire return interval attribute",
+                 desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput(objectName = "studyArea", objectClass = "SpatialPolygons",
-                 desc = "study area specific for landweb project, should be provided by Dave",
+                 desc = "study area",
                  sourceURL = NA)
   ),
   outputObjects = bind_rows(
@@ -93,17 +93,17 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initialiazation
 
-doEvent.LW_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.Boreal_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
     
     # do stuff for this event
-    sim <- Init(sim)
+    sim <- estimateParameters(sim)
     
     # schedule future event(s)
-    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "LW_LBMRDataPrep", "plot")
-    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "LW_LBMRDataPrep", "save")
+    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "Boreal_LBMRDataPrep", "plot")
+    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "Boreal_LBMRDataPrep", "save")
   } else if (eventType == "save") {
     sim <- Save(sim)
   } else {
@@ -119,22 +119,20 @@ doEvent.LW_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initialization
-Init <- function(sim) {
+estimateParameters <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
+  
   sim$studyArea <- spTransform(sim$studyArea, crs(sim$specieslayers))
   sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
   sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$specieslayers))
   sim$ecoZone <- spTransform(sim$ecoZone, crs(sim$specieslayers))
   
   message("1: ", Sys.time())
-  #sim <- cachedFunctions(sim)
-  
   rstStudyRegionBinary <- raster(sim$rstStudyRegion)
   rstStudyRegionBinary[] <- NA
   rstStudyRegionBinary[!is.na(sim$rstStudyRegion[])] <- 1
   
   message("2: ", Sys.time())
-  #initialCommFiles <- sim$initialCommunityProducerCached(speciesLayers = sim$specieslayers,
   initialCommFiles <- Cache(initialCommunityProducer, speciesLayers = sim$specieslayers,
                             speciesPresence = 50,
                             studyArea = sim$studyArea,
@@ -262,8 +260,8 @@ Init <- function(sim) {
                                      sep = ""))]
   speciesTable[species == "Pinu_Con.lat", species:="Pinu_Con"]
   
-  newNames <- tolower(speciesTable$species)
-  substr(newNames,1,1) <- toupper(substr(newNames,1,1))
+  newNames <- toSentenceCase(speciesTable$species)
+  
   speciesTable$species <- newNames
   
   speciesTable[species %in% c("Abie_las", "Abie_bal"), species:="Abie_sp"]
@@ -300,7 +298,7 @@ Init <- function(sim) {
   sim$minRelativeB <- data.frame(ecoregion = sim$ecoregion[active == "yes",]$ecoregion,
                                  X1 = 0.2, X2 = 0.4, X3 = 0.5,
                                  X4 = 0.7, X5 = 0.9)
-  message("Done LW_LBMRDataPrep: ", Sys.time())
+  message("Done Boreal_LBMRDataPrep: ", Sys.time())
   
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
@@ -602,71 +600,27 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   #  defaultColor <- 'red'
   # }
   # ! ----- EDIT BELOW ----- ! #
-  dataPath <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
-  fileNames1 <- c("ecodistricts.dbf", "ecodistricts.prj", "ecodistricts.sbn", "ecodistricts.sbx",
-                 "ecodistricts.shp", "ecodistricts.shx", "ecoregions.dbf", "ecoregions.prj",
-                 "ecoregions.sbn", "ecoregions.sbx", "ecoregions.shp", "ecoregions.shx", "ecozones.dbf",
-                 "ecozones.prj", "ecozones.sbn", "ecozones.sbx", "ecozones.shp", "ecozones.shx",
-                 "LCC2005_V1_4a.tif", "NFI_MODIS250m_kNN_Species_Abie_Bal_v0.tif",
-                 "NFI_MODIS250m_kNN_Species_Abie_Bal_v0.tif.aux.xml", "NFI_MODIS250m_kNN_Species_Abie_Bal_v0.tif.xml",
-                 "NFI_MODIS250m_kNN_Species_Abie_Las_v0.tif", "NFI_MODIS250m_kNN_Species_Abie_Las_v0.tif.aux.xml",
-                 "NFI_MODIS250m_kNN_Species_Abie_Las_v0.tif.xml", "NFI_MODIS250m_kNN_Species_Betu_Pap_v0.tif",
-                 "NFI_MODIS250m_kNN_Species_Betu_Pap_v0.tif.aux.xml", "NFI_MODIS250m_kNN_Species_Betu_Pap_v0.tif.xml",
-                 "NFI_MODIS250m_kNN_Species_Pice_Gla_v0.tif", "NFI_MODIS250m_kNN_Species_Pice_Gla_v0.tif.aux.xml",
-                 "NFI_MODIS250m_kNN_Species_Pice_Gla_v0.tif.xml", "NFI_MODIS250m_kNN_Species_Pice_Mar_v0.tif",
-                 "NFI_MODIS250m_kNN_Species_Pice_Mar_v0.tif.aux.xml", "NFI_MODIS250m_kNN_Species_Pice_Mar_v0.tif.xml",
-                 "NFI_MODIS250m_kNN_Species_Pinu_Ban_v0.tif", "NFI_MODIS250m_kNN_Species_Pinu_Ban_v0.tif.aux.xml",
-                 "NFI_MODIS250m_kNN_Species_Pinu_Ban_v0.tif.xml", "NFI_MODIS250m_kNN_Species_Pinu_Con_v0.tif",
-                 "NFI_MODIS250m_kNN_Species_Pinu_Con_v0.tif.aux.xml", "NFI_MODIS250m_kNN_Species_Pinu_Con_v0.tif.xml",
-                 "NFI_MODIS250m_kNN_Species_Pinu_Str_v0.tif", "NFI_MODIS250m_kNN_Species_Pinu_Str_v0.tif.aux.xml",
-                 "NFI_MODIS250m_kNN_Species_Pinu_Str_v0.tif.xml", "NFI_MODIS250m_kNN_Species_Popu_Tre_v0.tif",
-                 "NFI_MODIS250m_kNN_Species_Popu_Tre_v0.tif.aux.xml", "NFI_MODIS250m_kNN_Species_Popu_Tre_v0.tif.xml",
-                 "NFI_MODIS250m_kNN_Species_Pseu_Men_v0.tif", "NFI_MODIS250m_kNN_Species_Pseu_Men_v0.tif.aux.xml",
-                 "NFI_MODIS250m_kNN_Species_Pseu_Men_v0.tif.xml", "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif",
-                 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml",
-                 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml",
-                 "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif", "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.aux.xml",
-                 "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.xml",
-                 "speciesTraits.csv")
-  # fileNames <- lapply(fileNames1, function(x){file.path(dataPath, x)})
-  # allFiles <- lapply(fileNames, function(x) {
-  #   file.info(x)[,"size"]}
-  # )
-  # names(allFiles) <- unlist(lapply(fileNames, basename))
-  # allFilesDigest <- digest::digest(allFiles)
+  dataPath <- file.path(modulePath(sim), "Boreal_LBMRDataPrep", "data")
   
-  filesList <- dir(dataPath, full.names = TRUE)
-  filesList2 <- filesList[basename(filesList) %in% fileNames1]
-  allFiles2 <- filesList2 %>% lapply(., function(x) digest::digest(file=x, length = 6e6, algo = "xxhash64"))
-  names(allFiles2) <- basename(filesList2)
-  allFiles2Digest <- fastdigest::fastdigest(allFiles2)
+  # 1. test if all input objects are already present (e.g., from inputs, objects or another module)
+  whThisMod <- which(unlist(lapply(a@dependencies, function(x) x@name))=="Boreal_LBMRDataPrep")
+  objNames <- a@dependencies[[whThisMod]]@inputObjects$objectName
+  objExists <- unlist(lapply(objNames, 
+         function(x) is.null(sim[[x]])))
   
-  b <- capture.output(type="message", b2 <- Cache(fastdigest::fastdigest, allFiles2, 
-                                                  file.path(dirname(cachePath(sim)), "stableCache")))
-  needShrinking <- needDownload <- !(isTRUE(grepl("loading cached result",b)))
-  # If this is the first time running this Cache, then delete it
-  if(needDownload) clearCache(x = cachePath(sim), strsplit(attr(b2, "tags"),split=":")[[1]][[2]])
+  needDownloads <- !all(objExists) | 
+    !all(objNames %in% sim$.userSuppliedObjNames)
   
   # LCC2005 may be loaded by other modules
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
   if(!is.null(sim$LCC2005)) lcc2005Filename <- filename(sim$LCC2005)
   
-  # needDownload <- all(!(allFiles2Digest %in% c("9a99479fea036a03f188f71cbabca49e",
-  #                                             "05a98a7eab2fcd0ebef7cc21fbfdf75b",
-  #                                             "9bf998a69e4ea74f52c3dd20c5e5b17d",
-  #                                             "5173505a6b80f268c09d4967497cdfe3",
-  #                                             "5d153bf90e46419b6c1cf3c4bc9832ca",
-  #                                             "201a4a96941b32b7aece28e2ade32e25",
-  #                                             "9113b4ea3b8e14287e43cddcd23a4ef5")))
-  # needShrinking <- all(!(allFiles2Digest %in% c("9bf998a69e4ea74f52c3dd20c5e5b17d",
-  #                                             "5173505a6b80f268c09d4967497cdfe3",
-  #                                             "5d153bf90e46419b6c1cf3c4bc9832ca",
-  #                                             "201a4a96941b32b7aece28e2ade32e25",
-  #                                             "9113b4ea3b8e14287e43cddcd23a4ef5")))
-  
   if(needDownload) {
-    suppressWarnings(checkTable <- data.table(downloadData(module = "LW_LBMRDataPrep",
-                                          path = modulePath(sim))))
+    browser()
+    dd <- downloadData(module = "Boreal_LBMRDataPrep",
+                       path = modulePath(sim), quickCheck = TRUE)
+    
+    suppressWarnings(checkTable <- data.table(dd))
     checkContent_passed <- checkTable[result == "OK",]$expectedFile
     # study area should be provided by Dr. David Anderson
     # Dr. Steve Cumming will provide a temperary one
@@ -718,6 +672,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     
     
     # 2. stand age map
+    message("  Unzipping Stand Age")
     if(!all(c("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif",
               "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.aux.xml",
               "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif.xml") %in% checkContent_passed)){
@@ -737,7 +692,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
             exdir = dataPath)
     }
   } else {
-    message("  Download data step skipped for module LW_LBMRDataPrep. Local copy exists")
+    message("  Download data step skipped for module Boreal_LBMRDataPrep. Local copy exists")
   }
   
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
@@ -767,10 +722,11 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                     "Pinu_Ban", "Pinu_Con",
                     "Popu_Tre")#, "Pseu_Men")
   i <- 1
+  
   speciesFilenames <- character()
   for(indispecies in speciesnames){
     if(needDownload) {
-      
+      message("    Unzipping ",indispecies, "% Cover Maps")
       if(!all(paste("NFI_MODIS250m_kNN_Species_", indispecies, "_v0.tif",
                     c("",".aux.xml", ".xml"), sep = "") %in% checkContent_passed)){
         untar(file.path(dataPath, "kNN-Species.tar"),
@@ -792,19 +748,14 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     names(specieslayersLocal)[i] <- indispecies
     i <- i+1
   }
+  sim$specieslayers <- specieslayersLocal
   
-  sim$specieslayers <- Cache(sumRastersBySpecies, #notOlderThan = Sys.time(),
-                             specieslayersLocal, c("Pinu_Ban", "Pinu_Con"),
-                             filenameToSave = asPath(file.path(dirname(filename(specieslayersLocal[["Pinu_Ban"]])),
-                                                        "KNNPinu_sp.tif")), 
-                             cachePath = cachePath(sim),
-                             cacheRepo = cachePath(sim),
-                             userTags = "stable")
   ## load Paul Pickell et al. and CASFRI
-  #dataPath <- file.path(modulePath(sim), "LW_LBMRDataPrep", "data")
+  #dataPath <- file.path(modulePath(sim), "Boreal_LBMRDataPrep", "data")
   if(all(c("SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat", "Landweb_CASFRI_GIDs.tif",
            "Landweb_CASFRI_GIDs_attributes3.csv", "Landweb_CASFRI_GIDs_README.txt") 
          %in% dir(dataPath) )) {
+    message("  Loading CASFRI and Pickell et al layers")
     stackOut <- Cache(loadPaulAndCASFRI, paths = lapply(paths(sim), basename), 
                       PaulRawFileName = asPath(
                         file.path(dataPath, "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")),
@@ -817,28 +768,29 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                         file.path(dataPath,"Landweb_CASFRI_GIDs_README.txt")),
                       digestPathContent = TRUE#, debugCache = "quick"
     )
-    message("Using CASFRI and Pickell et al layers")
   } else {
     message("Using only 'Open source data sets'")
   }
   
   # projection(sim$LCC2005) <- projection(sim$specieslayers)
-  
+  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
+  sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$biomassMap))
+  needShrinking <- TRUE#round(rgeos::gArea(sim$ecoDistrict)) != 
+    #round(rgeos::gArea(sim$shpStudyRegionFull))
   if(needShrinking) {
     if(!is.null(sim$shpStudyRegionFull)) {
-      message("Shrinking number and size of files that were just downloaded")
-      sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
+      message("  Shrinking number and size of files that were just downloaded")
       
-      sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
-      sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$specieslayers))
-      sim$ecoZone <- spTransform(sim$ecoZone, crs(sim$specieslayers))
+      sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$biomassMap))
+      sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$biomassMap))
+      sim$ecoZone <- spTransform(sim$ecoZone, crs(sim$biomassMap))
       
-      message("Crop them")
+      message("  Crop files to shpSTudyRegionFull")
       sim$ecoDistrict <- crop(sim$ecoDistrict, sim$shpStudyRegionFull)
       sim$ecoRegion <- crop(sim$ecoRegion, sim$shpStudyRegionFull)
       sim$ecoZone <- crop(sim$ecoZone, sim$shpStudyRegionFull)
       
-      message("Resave them")
+      message("  Resave them")
       shapefile(sim$ecoDistrict, ecodistrictFilename, overwrite = TRUE)
       shapefile(sim$ecoRegion, ecoregionFilename, overwrite = TRUE)
       shapefile(sim$ecoZone, ecozoneFilename, overwrite = TRUE)
@@ -858,8 +810,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                              overwrite=TRUE, format = "GTiff", datatype = "INT2U",
                              filename = file.path(dirname(biomassMapFilename), paste0("Small",basename(biomassMapFilename))))
       biomassMapFilenameNoExt <- strsplit(basename(biomassMapFilename), "\\.")[[1]][1]
-      file.remove(dir(dirname(biomassMapFilename), full.names = TRUE) %>%
-                    .[grep(basename(.), pattern = paste0("^",biomassMapFilenameNoExt))])
+      # file.remove(dir(dirname(biomassMapFilename), full.names = TRUE) %>%
+      #               .[grep(basename(.), pattern = paste0("^",biomassMapFilenameNoExt))])
       
       file.rename(filename(sim$biomassMap), biomassMapFilename)
       sim$biomassMap@file@name <- biomassMapFilename
@@ -870,41 +822,36 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                               filename = file.path(dirname(standAgeMapFilename),
                                                    paste0("Small",basename(standAgeMapFilename))))
       standAgeMapFilenameNoExt <- strsplit(basename(standAgeMapFilename), "\\.")[[1]][1]
-      file.remove(dir(dirname(standAgeMapFilename), full.names = TRUE) %>%
-                    .[grep(basename(.), pattern = paste0("^",standAgeMapFilenameNoExt))])
+      # file.remove(dir(dirname(standAgeMapFilename), full.names = TRUE) %>%
+      #               .[grep(basename(.), pattern = paste0("^",standAgeMapFilenameNoExt))])
       
       file.rename(filename(sim$standAgeMap), standAgeMapFilename)
       sim$standAgeMap@file@name <- standAgeMapFilename
       
       # Species
-      specieslayers <- lapply(speciesFilenames, function(x) {
-        filenameNoExt <- strsplit(basename(x), "\\.")[[1]][1]
-        a <- raster(x) %>%
-          crop(sim$shpStudyRegionFull,
-               overwrite=TRUE, format = "GTiff", datatype = "INT1U",
-               filename = file.path(dirname(x), paste0("Small",basename(x))))
-        file.remove(dir(dirname(x), full.names = TRUE) %>%
-                      .[grep(basename(.), pattern = paste0("^",filenameNoExt))])
-        
-        file.rename(filename(a), x)
-        a@file@name <- x
-      }) %>% stack()
+      message("  Crop species layers to shpStudyRegionFull")
+      sim$specieslayers <- cropSpeciesLayers(asPath(speciesFilenames), sim)
+      
       #file.remove(dir(dataPath, pattern = ".zip", full.names = TRUE))
       
     }
-    dir(dataPath, pattern = "\\.tar|\\.zip", full.names = TRUE) %>% 
-       lapply(., function(x) file.remove(x))
-    
-    filesList <- dir(dataPath, full.names = TRUE)
-    filesList2 <- filesList[basename(filesList) %in% fileNames1]
-    allFiles2 <- filesList2 %>% lapply(., function(x) digest::digest(file=x, length = 6e6, algo = "xxhash64"))
-    names(allFiles2) <- basename(filesList2)
-    allFiles2Digest <- fastdigest::fastdigest(allFiles2)
-    
-    b2 <- Cache(fastdigest::fastdigest, allFiles2, userTags = "stable", 
-                file.path(dirname(cachePath(sim)), "stableCache"))
+    speciesLayersLocal <- sim$specieslayers
+    message("  Merging Pines (lodgepole and jack) into one species")
+    sim$specieslayers <- Cache(sumRastersBySpecies, #notOlderThan = Sys.time(),
+                               speciesLayersLocal, c("Pinu_Ban", "Pinu_Con"),
+                               filenameToSave = asPath(file.path(dirname(filename(sim$specieslayers[["Pinu_Ban"]])),
+                                                                 "KNNPinu_sp.tif")), 
+                               cachePath = cachePath(sim), # for sumRastersBySpecies arg
+                               cacheRepo = cachePath(sim), # for Cache arg
+                               userTags = "stable")
     
   }
+  names(sim$specieslayers) <- toSentenceCase(names(sim$specieslayers))
+  allFiles3 <- digestNeededFiles(dataPath, fileNames1)
+  
+  b2 <- Cache(fastdigest::fastdigest, allFiles3, userTags = "stable", 
+              file.path(dirname(cachePath(sim)), "stableCache"))
+  
   
   sim$speciesTable <- read.csv(file.path(dataPath, "speciesTraits.csv"), header = TRUE,
                                stringsAsFactors = FALSE) %>%
@@ -920,6 +867,14 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   sim$spinupMortalityfraction <- 0.002
   sim$cellSize <- 250
   sim$successionTimestep <- 10
+  
+  if(is.null(sim$studyArea)) {
+    sim$studyArea <- sim$shpStudyRegionFull
+  }
+  if(is.null(sim$rstStudyRegion)) {
+    sim$rstStudyRegion <- Cache(rasterize, shpStudyRegionFull, biomassMap)
+  }
+  
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -938,8 +893,7 @@ sumRastersBySpecies <- function(specieslayers, layersToSum,
                    filename = filenameToSave, 
                    datatype="INT2U", overwrite=TRUE)
   # Need to have names be in sentence case
-  newNames <- tolower(layerNames(specieslayers))
-  substr(newNames,1,1) <- toupper(substr(newNames,1,1))
+  newNames <- toSentenceCase(layerNames(specieslayers))
   names(specieslayers) <- newNames
   
   specieslayers <- dropLayer(specieslayers, grep(pattern = "Pinu", names(specieslayers)))
@@ -947,4 +901,36 @@ sumRastersBySpecies <- function(specieslayers, layersToSum,
   names(specieslayers)[grep("Pinu", names(specieslayers))] <- "Pinu_sp"
   names(specieslayers)[grep("Abie", names(specieslayers))] <- "Abie_sp"
   specieslayers
+}
+
+cropSpeciesLayers <- function(speciesFilenames, sim) {
+
+  specieslayersLocal <- lapply(speciesFilenames, function(x) {
+    filenameNoExt <- strsplit(basename(x), "\\.")[[1]][1]
+    a <- raster(x) %>%
+      crop(sim$shpStudyRegionFull,
+           overwrite=TRUE, format = "GTiff", datatype = "INT1U",
+           filename = file.path(dirname(x), paste0("Small",basename(x))))
+    # file.remove(dir(dirname(x), full.names = TRUE) %>%
+    #               .[grep(basename(.), pattern = paste0("^",filenameNoExt))])
+    
+    file.rename(filename(a), x)
+    a@file@name <- x
+  }) %>% stack()
+  specieslayersLocal
+}
+
+digestNeededFiles <- function(dataPath, fileNames1) {
+  filesList <- dir(dataPath, full.names = TRUE)
+  filesList2 <- filesList[basename(filesList) %in% fileNames1]
+  allFiles2 <- filesList2 %>% lapply(., function(x) digest::digest(file=x, length = 6e6, algo = "xxhash64"))
+  names(allFiles2) <- basename(filesList2)
+  allFiles2
+}
+
+toSentenceCase <- function(strings) {
+  newNames <- tolower(strings)
+  substr(newNames,1,1) <- toupper(substr(newNames,1,1))
+  newNames
+  
 }
