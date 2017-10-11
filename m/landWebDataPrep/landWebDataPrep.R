@@ -154,25 +154,32 @@ landWebDataPrepPlot <- function(sim) {
   # if(!('defaultColor' %in% sim$userSuppliedObjNames)) {
   #  defaultColor <- 'red'
   # }
-  # ! ----- EDIT BELOW ----- ! #
+  
   dataPath <- file.path(modulePath(sim), "landWebDataPrep", "data")
+  
+  # 1. test if all input objects are already present (e.g., from inputs, objects or another module)
   needDownloads <- is.null(sim$biomassMap) | is.null(sim$LCC2005) | 
     !all(sim$.userSuppliedObjNames %in% c("LCC2005", "biomassMap"))
   
-  # First test if all input objects are already present (e.g., from inputs, objects or another module)
+  # 2. if any missing, start downloading
   if(needDownloads) {
     dataPathFiles <- dir(dataPath)
-    dd <- Cache(downloadData, module = "landWebDataPrep", path = modulePath(sim), 
-                                   sideEffect = dataPath, #notOlderThan = Sys.time(),
-                                   quick = TRUE)
+    # downloadData will download zips, tars etc. as per sourceURL. 
+    # checksums.txt has all the necessary "final" files, i.e., after downloading, 
+    #   untaring, unzipping, cropping
+    dd <- downloadData(module = "landWebDataPrep", path = modulePath(sim), 
+                quickCheck = TRUE)
     biomassMapFilename <- file.path(dataPath, grep(dd$expectedFile, value = TRUE, 
                                                    pattern = "TotalLiveAboveGround"))
     
     lcc2005Filename <- file.path(dataPath, grep(dd$expectedFile, value = TRUE, 
                             pattern = "LCC2005"))
-    
+  
+    # dd shows which expected files don't have actual files  
     # Some may fail, i.e., there are intermediate steps, or missing end files
-    if(all(dd$result!="OK")) {
+    
+    # 3. if any not "OK", go through one input object at a time
+    if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
       checkTable <- data.table(dd)
       
       needBiomass <- is.na(dd$result[dd$expectedFile==basename(biomassMapFilename)]) | 
@@ -185,9 +192,11 @@ landWebDataPrepPlot <- function(sim) {
         Cache(untar, file.path(dataPath, "kNN-StructureBiomass.tar"),
               files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
               exdir = dataPath, tar = "internal", sideEffect = dataPath, quick = TRUE)
-        Cache(unzip, file.path(dataPath,
-                                              "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
-                             exdir = dataPath, sideEffect = dataPath, quick = TRUE)
+        Cache(unzip, 
+              file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
+              exdir = dataPath, sideEffect = dataPath, quick = TRUE)
+        biomassMapFilenameSmall <- biomassMapFilename
+        biomassMapFilename <- file.path(dataPath, strsplit(biomassMapFilename, split = "Small")[[1]][2])
       }
       if(needLCC) {
         Cache(unzip, file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
@@ -196,19 +205,22 @@ landWebDataPrepPlot <- function(sim) {
         lcc2005Filename <- file.path(dataPath, strsplit(lcc2005Filename, split = "Small")[[1]][2])
       }
     }
+    
+    # 4. load all input objects
     sim$biomassMap <- raster(biomassMapFilename)
     sim$LCC2005 <- raster(lcc2005Filename)
     LCC2005LayerName <- names(sim$LCC2005) 
     projection(sim$LCC2005) <- projection(sim$biomassMap)
     
+    # 5. if there is a shpStudyRegionFull, then crop all relevant files
     # Cropping to shpStudyRegionFull
-    if(all(dd$result!="OK")) {
+    if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
       if(!is.null(sim$shpStudyRegionFull)) {
         if(needBiomass) {
           sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
           sim$biomassMap <- crop(sim$biomassMap, sim$shpStudyRegionFull,
                                  overwrite=TRUE, format = "GTiff", datatype = "INT2U",
-                                 filename = file.path(dataPath, basename(biomassMapFilename)))
+                                 filename = file.path(dataPath, basename(biomassMapFilenameSmall)))
         }
         
         if(needLCC) {
@@ -220,21 +232,17 @@ landWebDataPrepPlot <- function(sim) {
       } else {
         message("  landWebDataPrep.R expects a shpStudyRegionFull object to crop biomassMap and LCC2005 to")
       }
-      
-      dd <- Cache(downloadData, module = "landWebDataPrep", path = modulePath(sim), 
-                  sideEffect = dataPath, notOlderThan = Sys.time(),
-                  quick = TRUE)
-      if(all(dd$result!="OK")) {
-        message("Completed downloads, crops for landWebDataPrep, and checksums failing\n",
-                "Perhaps downloaded file has changed hash print. If downloaded files are\n",
-                "all correct, you may want to update checksums('landWebDataPrep', modulePath(sim), write = TRUE)")
-      }  
-    } else {
-      message("  Download data step skipped for module landWebDataPrep. Local copy exists")
-    }
+    } 
   }
   sim$calibrate <- FALSE
-  # ! ----- STOP EDITING ----- ! #
+  
+  # If there is no study Area, use a random one
+  if(is.null(sim$shpStudyRegionFull)) {
+    sim$shpStudyRegionFull <- SpaDES.tools::randomPolygon(cbind(-110, 59), 1e5) # somewhere in N-Central Canada
+  }
+  if(is.null(sim$shpStudySubRegion)) {
+    sim$shpStudySubRegion <- sim$shpStudyRegionFull
+  }
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
