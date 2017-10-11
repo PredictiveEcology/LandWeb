@@ -1,5 +1,5 @@
 "file" "checksum" "filesize" "algorithm"
 "Canada_2005_metadata_v1_4.doc" "2c7d726e8c5bf598" "84480" "xxhash64"
 "LC_2005_Legend_39Classes.pdf" "0b764e8f30536b7c" "1407110" "xxhash64"
-"SmallLCC2005_V1_4a.tif" "db0ff3dd6e6a722b" "20573963" "xxhash64"
-"SmallNFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif" "96a11f21933c9c7e" "40060502" "xxhash64"
+"SmallLCC2005_V1_4a.tif" "9e02624a3eba5d78" "20573955" "xxhash64"
+"SmallNFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif" "39a2fbee20ed0be4" "40060498" "xxhash64"
