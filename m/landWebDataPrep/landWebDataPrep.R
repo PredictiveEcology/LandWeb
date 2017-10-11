@@ -179,7 +179,6 @@ landWebDataPrepPlot <- function(sim) {
     # 3. if any not "OK", go through one input object at a time
     if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
       checkTable <- data.table(dd)
-      
       needBiomass <- is.na(dd$result[dd$expectedFile==basename(biomassMapFilename)]) | 
         (dd$result[dd$expectedFile==basename(biomassMapFilename)] != "OK")
       needLCC <- is.na(dd$result[dd$expectedFile==basename(lcc2005Filename)]) | 
@@ -187,17 +186,27 @@ landWebDataPrepPlot <- function(sim) {
         
       # Untar and unzip
       if(needBiomass) {
-        untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
-              files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
-              exdir = dataPath, tar = "internal")
-        unzip(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
-              exdir = dataPath, overwrite = TRUE)
+        intermediateBiomass <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
+        if (!file.exists(intermediateBiomass)) {
+          message("  Unzipping Biomass")
+          if (!file.exists(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))) {
+            untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
+                  files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
+                  exdir = dataPath, tar = "internal")
+          }
+          unzip(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
+                exdir = dataPath, overwrite = TRUE)
+        }
         biomassMapFilenameSmall <- biomassMapFilename
         biomassMapFilename <- file.path(dataPath, strsplit(biomassMapFilename, split = "Small")[[1]][2])
       }
       if(needLCC) {
-        unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
-              exdir = dataPath, overwrite = TRUE) 
+        intermediateLCC <- file.path(dataPath, "LCC2005_V1_4a.tif")
+        if(!file.exists(intermediateLCC)) {
+          message("  Unzipping LCC2005")
+          unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
+                exdir = dataPath, overwrite = TRUE) 
+        }
         lcc2005FilenameSmall <- lcc2005Filename
         lcc2005Filename <- file.path(dataPath, strsplit(lcc2005Filename, split = "Small")[[1]][2])
       }
@@ -217,12 +226,14 @@ landWebDataPrepPlot <- function(sim) {
           sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
           sim$biomassMap <- crop(sim$biomassMap, sim$shpStudyRegionFull,
                                  overwrite=TRUE, format = "GTiff", datatype = "INT2U",
-                                 filename = file.path(dataPath, basename(biomassMapFilenameSmall)))
+                                 filename = file.path(dataPath, 
+                                                      basename(biomassMapFilenameSmall)))
         }
         
         if(needLCC) {
           sim$LCC2005 <- crop(sim$LCC2005, sim$shpStudyRegionFull,
-                              filename = file.path(dataPath, basename(lcc2005FilenameSmall)), 
+                              filename = file.path(dataPath, 
+                                                   basename(lcc2005FilenameSmall)), 
                               overwrite=TRUE)
         }
         
