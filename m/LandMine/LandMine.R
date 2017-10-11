@@ -142,9 +142,9 @@ LandMineInit <- function(sim) {
   
   message("Write fire return interval map to disk")
   
-  if(names(sim$rstStudyRegion)=="LTHRC") { # if rstStudyRegion has correct data in it, then use it for fri
-    sim$fireReturnInterval <- sim$rstStudyRegion
-  }
+  #if(names(sim$rstStudyRegion)=="LTHRC") { # if rstStudyRegion has correct data in it, then use it for fri
+  sim$fireReturnInterval <- sim$rstStudyRegion
+  #}
   #sim$fireReturnInterval <- setValues(sim$fireReturnInterval, 
   #                                    values = sim$fireReturnIntervalsByPolygonNumeric[sim$rstStudyRegion[]])# as.numeric(as.character(vals))
   sim$fireReturnInterval <- Cache(writeRaster, sim$fireReturnInterval, 
@@ -182,7 +182,6 @@ LandMinePlot <- function(sim) {
 
 ### burn events
 LandMineBurn <- function(sim) {
-  browser()
   numFiresThisPeriod <- rpois(length(sim$numFiresPerYear),
                               lambda = sim$numFiresPerYear * P(sim)$fireTimestep)
                                  
@@ -227,7 +226,6 @@ LandMineBurn <- function(sim) {
   fireSizesInPixels <- fireSizesInPixels[firesGT0]
   
   #Rate of Spread
-  browser()
   mature <- sim$rstTimeSinceFire[]>120
   immature <- (sim$rstTimeSinceFire[]>40) & !mature
   young <- !immature & !mature
