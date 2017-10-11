@@ -85,7 +85,7 @@ function(input, output, session) {
   # THE FOLLOWING OBJECT IS A LIST OF 1 simList, 
   # A simList is a rich data structure that comes with the SpaDES.core package
   mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps, 
-                     debugCache = "complete",
+                     debugCache = "complete", 
                      objects = objectsToHash,
                      sideEffect = TRUE)
 

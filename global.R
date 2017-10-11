@@ -24,6 +24,7 @@ paths <- list(
   inputPath = "inputs",
   outputPath = paste0("outputs", studyArea)
 )
+do.call(setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
 
 # App - variables 

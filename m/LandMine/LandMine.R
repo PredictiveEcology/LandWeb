@@ -142,9 +142,9 @@ LandMineInit <- function(sim) {
   
   message("Write fire return interval map to disk")
   
-  if(names(sim$rstStudyRegion)=="LTHRC") { # if rstStudyRegion has correct data in it, then use it for fri
-    sim$fireReturnInterval <- sim$rstStudyRegion
-  }
+  #if(names(sim$rstStudyRegion)=="LTHRC") { # if rstStudyRegion has correct data in it, then use it for fri
+  sim$fireReturnInterval <- sim$rstStudyRegion
+  #}
   #sim$fireReturnInterval <- setValues(sim$fireReturnInterval, 
   #                                    values = sim$fireReturnIntervalsByPolygonNumeric[sim$rstStudyRegion[]])# as.numeric(as.character(vals))
   sim$fireReturnInterval <- Cache(writeRaster, sim$fireReturnInterval, 
@@ -241,21 +241,21 @@ LandMineBurn <- function(sim) {
   decid <- grep(tolower(vegTypes$Factor), pattern = "deci")
   softwood <- grep(tolower(vegTypes$Factor), pattern = "soft")
   
-  ROS[!mature & vegType == decid] <- 6L
-  ROS[mature & vegType == decid] <- 9L
+  ROS[!mature & vegType %in% decid] <- 6L
+  ROS[mature & vegType %in% decid] <- 9L
   
-  ROS[!mature & vegType == mixed] <- 12L
-  ROS[mature & vegType == mixed] <- 17L
+  ROS[!mature & vegType %in% mixed] <- 12L
+  ROS[mature & vegType %in% mixed] <- 17L
   
-  ROS[immature & vegType == pine] <- 14L
-  ROS[mature & vegType == pine] <- 21L
-  ROS[young & vegType == pine] <- 22L
+  ROS[immature & vegType %in% pine] <- 14L
+  ROS[mature & vegType %in% pine] <- 21L
+  ROS[young & vegType %in% pine] <- 22L
   
-  ROS[!mature & vegType == softwood] <- 18L
-  ROS[mature & vegType == softwood] <- 27L
+  ROS[!mature & vegType %in% softwood] <- 18L
+  ROS[mature & vegType %in% softwood] <- 27L
   
-  ROS[!mature & vegType == spruce] <- 20L
-  ROS[mature & vegType == spruce] <- 30L
+  ROS[!mature & vegType %in% spruce] <- 20L
+  ROS[mature & vegType %in% spruce] <- 30L
   
   # Other vegetation that can burn -- e.g., grasslands, lichen, shrub
   ROS[sim$rstFlammableNum[] == 1 & is.na(ROS)] <- 30L
