@@ -27,3 +27,5 @@ Thumbs.db
 packrat/src/
 www/
 *.tar
+
+*.zip
