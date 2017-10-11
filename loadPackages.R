@@ -7,11 +7,11 @@ require <- function(package, forceInstall = FALSE) {
       devtools::install_github(paste0("PredictiveEcology/", package, "@sideEffectAsPath"))
       #devtools::install(file.path("~","GitHub", package, "."))
     } else if (package %in% c("SpaDES.tools")) {
-      #devtools::install_github(paste0("PredictiveEcology/", package, "@randomPolygon"))
-      devtools::install(file.path("~","GitHub", package, "."), dependencies = FALSE)
+      devtools::install_github(paste0("PredictiveEcology/", package, "@randomPolygon"))
+      #devtools::install(file.path("~","GitHub", package, "."), dependencies = FALSE)
     } else if (package %in% c("SpaDES.core")) {
-      #devtools::install_github(paste0("PredictiveEcology/", package, "@downloadData"))
-      devtools::install(file.path("~","GitHub", package, "."), dependencies = FALSE)
+      devtools::install_github(paste0("PredictiveEcology/", package, "@downloadData"))
+      #devtools::install(file.path("~","GitHub", package, "."), dependencies = FALSE)
     } else {
       install.packages(package, dependencies = TRUE)  
     }
