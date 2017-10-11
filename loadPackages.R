@@ -1,14 +1,23 @@
-require <- function(package) {
-  if (!base::require(package, character.only = TRUE)) {
-    if (package %in% c("amc")) {
-      devtools::install_github(paste0("PredictiveEcology/", package, "@development"))
-    #} else if (package %in% c("SpaDES.core", "SpaDES.tools")) {
-    #  devtools::install_github(paste0("PredictiveEcology/", package))
-    } else {
-      install.packages(package, dependencies = TRUE)  
-    }
-    library(package, character.only = TRUE)
+require <- function(package, forceInstall = FALSE) {
+  #if(forceInstall) {try(detach(paste0("package:",package))); try(remove.packages(package))}
+  if (package %in% c("amc")) {
+    devtools::install_github(paste0("PredictiveEcology/", package, "@development"))
+  } else if (package %in% c("reproducible")) {
+    devtools::install_github(paste0("PredictiveEcology/", package, "@sideEffectAsPath"))
+    #devtools::install(file.path("~","GitHub", package, "."))
+  } else if (package %in% c("SpaDES.tools")) {
+    devtools::install_github(paste0("PredictiveEcology/", package, "@randomPolygon"))
+    #devtools::install(file.path("~","GitHub", package, "."), dependencies = FALSE)
+  } else if (package %in% c("SpaDES.core")) {
+    devtools::install_github(paste0("PredictiveEcology/", package, "@downloadData"))
+    #devtools::install(file.path("~","GitHub", package, "."), dependencies = FALSE)
   }
+  
+  if (!base::require(package, character.only = TRUE)) {
+    install.packages(package, dependencies = TRUE)  
+  }
+  library(package, character.only = TRUE)
+  
 }
 
 require("reproducible")

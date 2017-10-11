@@ -46,7 +46,6 @@ doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
 
 ### template initialization
 initBaseMapsInit <- function(sim) {
-  browser()
   simProjection <- crs(sim$LCC05X)
   #reproject sim$shpStudyRegion to accord with LCC05
   sim$shpStudyRegion <- Cache(
