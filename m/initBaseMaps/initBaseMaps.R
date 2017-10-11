@@ -19,18 +19,14 @@ defineModule(sim, list(
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
     defineParameter(".useCache", "numeric", FALSE, NA, NA, "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
-  inputObjects = data.frame(
-    objectName = c("LCC05X", "shpStudySubRegion"),
-    objectClass = c("RasterLayer","SpatialPolygonsDataFrame"),
-    sourceURL = "",
-    other = NA_character_,
-    stringsAsFactors = FALSE
+  inputObjects = bind_rows(
+    expectsInput("LCC05X", "RasterLayer", "Land Cover Classification from 2005, NRCan product"), 
+    expectsInput("shpStudySubRegion", "SpatialPolygonsDataFrame", "Study Area")
   ),
-  outputObjects = data.frame(
-    objectName = c("LCC05", "shpStudyRegion", "rstStudyRegion"),
-    objectClass = c("RasterLayer","SpatialPolygonsDataFrame", "RasterLayer"),
-    other = NA_character_,
-    stringsAsFactors = FALSE
+  outputObjects = bind_rows(
+    createsOutput("LCC05", "RasterLayer", "Land Cover Classification from 2005, NRCan product"),
+    createsOutput("shpStudyRegion", "SpatialPolygonsDataFrame", "Study Area"),
+    createsOutput("rstStudyRegion", "RasterLayer", "Raster version of shpStudyRegion")
   )
 ))
 
@@ -39,7 +35,7 @@ defineModule(sim, list(
 
 doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
-    sim <- sim$initBaseMapsInit(sim)
+    sim <- initBaseMapsInit(sim)
   } 
   else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
@@ -53,11 +49,8 @@ initBaseMapsInit <- function(sim) {
   simProjection <- crs(sim$LCC05X)
   #reproject sim$shpStudyRegion to accord with LCC05
   sim$shpStudyRegion <- Cache(
-    #sim$shpStudyRegion <- SpaDES::cache(cachePath(sim), 
     spTransform, 
     sim$shpStudySubRegion, CRSobj=simProjection)
-  #sim$shpStudyRegion <- spTransform(sim$shpStudySubRegion, CRSobj=simProjection)
-  #sim$LCC05 <- crop(sim$LCC05X,sim$shpStudyRegion)
   
   message("fastRasterize for rstStudyRegion")
   sim$rstStudyRegion <- Cache(fastRasterize, 
@@ -79,7 +72,6 @@ initBaseMapsInit <- function(sim) {
   sim$LCC05 <- Cache(cropMask, sim$LCC05X, sim$shpStudyRegion, sim$rstStudyRegion)
   
   rm(LCC05X,envir=envir(sim))
-  tmp<-getColors(sim$LCC05)[[1]]
   return(invisible(sim))
 }
 

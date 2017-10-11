@@ -83,7 +83,7 @@ if (FALSE) {
 
 # simInit objects
   modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-                  "LW_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+                  "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
   times <- list(start = 0, end = endTime)
   objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                   "shpStudySubRegion" = shpStudyRegion,
@@ -92,7 +92,7 @@ if (FALSE) {
                   "useParallel" = FALSE)
   parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
                                           .useCache = eventCaching),
-                     LW_LBMRDataPrep = list(.useCache = eventCaching),
+                     Boreal_LBMRDataPrep = list(.useCache = eventCaching),
                      LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep, 
                                      burnInitialTime = fireTimestep,
                                      .plotInitialTime = NA
