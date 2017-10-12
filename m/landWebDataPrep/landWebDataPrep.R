@@ -179,7 +179,6 @@ landWebDataPrepPlot <- function(sim) {
     # 3. if any not "OK", go through one input object at a time
     if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
       checkTable <- data.table(dd)
-      browser()
       needBiomass <- is.na(dd$result[dd$expectedFile==basename(biomassMapFilename)]) | 
         (dd$result[dd$expectedFile==basename(biomassMapFilename)] != "OK")
       needLCC <- is.na(dd$result[dd$expectedFile==basename(lcc2005Filename)]) | 
