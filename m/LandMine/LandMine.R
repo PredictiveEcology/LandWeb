@@ -18,6 +18,7 @@ defineModule(sim, list(
     defineParameter("burnInitialTime", "numeric", sim$startPlus1(sim), NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter("biggestPossibleFireSizeHa", "numeric", 1e5, 1e4, 1e6, "An upper limit, in hectares, of the truncated Pareto distribution of fire sizes"),
     defineParameter("flushCachedRandomFRI", "logical", FALSE, NA, NA, "If no Fire Return Interval map is supplied, then a random one will be created and cached. Use this to make a new one."),
+    defineParameter("randomDefaultData", "logical", FALSE, NA, NA, "Only used for creating a starting dataset. If TRUE, then it will be randomly generated; FALSE, deterministic and identical each time."),
     defineParameter(".plotInitialTime", "numeric", sim$startPlus1(sim), NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
@@ -310,12 +311,20 @@ LandMineBurn <- function(sim) {
   }
   
   if(is.null(sim$cohortData)) {
+    if(!P(sim)$randomDefaultData) {
+      ranNum <- runif(1)
+      set.seed(123)
+    }
     sampleV <- Vectorize(sample, "size", SIMPLIFY = TRUE)
     repV <- Vectorize(rep.int, c("x","times"))
     numCohortsPerPG <- sample(1:2, replace = TRUE, numDefaultPixelGroups)
     sim$cohortData <- data.table(speciesCode = unlist(sampleV(1:2, numCohortsPerPG)),
-                B = runif(sum(numCohortsPerPG), 100, 1000),
-                pixelGroup = unlist(repV(1:numDefaultPixelGroups, times = numCohortsPerPG)))
+                                 B = runif(sum(numCohortsPerPG), 100, 1000),
+                                 pixelGroup = unlist(repV(1:numDefaultPixelGroups, times = numCohortsPerPG)))  
+    if(!P(sim)$randomDefaultData) {
+      set.seed(ranNum)
+    }
+    
   }
   
   if(is.null(sim$pixelGroupMap)) {
@@ -324,7 +333,8 @@ LandMineBurn <- function(sim) {
   }
 
   if(is.null(sim$rstTimeSinceFire)) {
-    sim$rstTimeSinceFire <- sample.int(200, numDefaultPixelGroups)[sim$pixelGroupMap[]]
+    sim$rstTimeSinceFire <- raster(sim$pixelGroupMap)
+    sim$rstTimeSinceFire[] <- 200
   }
 
   if(is.null(sim$species)) {
