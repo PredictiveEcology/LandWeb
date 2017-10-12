@@ -619,7 +619,6 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(needDownloads) {
     dd <- downloadData(module = "Boreal_LBMRDataPrep",
                        path = modulePath(sim), quickCheck = TRUE)
-    
     checkTable <- data.table(dd)
     checkContent_passed <- checkTable[result == "OK",]$expectedFile
     # study area should be provided by Dr. David Anderson
@@ -855,10 +854,16 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                                  cacheRepo = cachePath(sim), # for Cache arg
                                  userTags = "stable")
     }
+    names(sim$specieslayers)[grep("Pinu", names(sim$specieslayers))] <- "Pinu_sp"
     
+    if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
+      a <- checksums("Boreal_LBMRDataPrep", modulePath(sim), write = TRUE)
+      a <- a[grep(a$file, pattern = ".tar|.zip", invert = TRUE),]
+      write.table(a, file = file.path(dataPath, "CHECKSUMS.txt"))
+      message("*** Created a new CHECKSUMS.txt file with downloaded objects for ","Boreal_LBMRDataPrep","***")
+    }
   }
   
-  names(sim$specieslayers)[grep("Pinu", names(sim$specieslayers))] <- "Pinu_sp"
   names(sim$specieslayers)[grep("Abie", names(sim$specieslayers))] <- "Abie_sp"
   names(sim$specieslayers) <- toSentenceCase(names(sim$specieslayers))
   
@@ -887,6 +892,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       needRstSR <- TRUE
   }
   if(needRstSR) sim$rstStudyRegion <- Cache(rasterize, shpStudyRegionFull, biomassMap)
+  
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
