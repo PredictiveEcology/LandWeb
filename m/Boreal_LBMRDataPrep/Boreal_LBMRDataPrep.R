@@ -715,13 +715,12 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     if(is.null(sim$specieslayers)) {
       speciesnames <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
                              "Pinu_sp", "Popu_Tre")
+      speciesnamesRaw <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
+                           "Pinu_Ban", "Pinu_Con", "Popu_Tre")
       dataPathFiles <- dir(dataPath, full.names = TRUE)
-      speciesFiles <- unlist(lapply(speciesnames, function(n) grep(paste0(n,".*tif$"), dataPathFiles, value = TRUE)))
       needSpecies <- unlist(lapply(speciesnames, function(n) grep(paste0(n,".*tif$"), checkContent_passed)))
       
       if(length(needSpecies) != length(speciesnames)) { # need to untar/unzip
-        speciesnamesRaw <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
-                          "Pinu_Ban", "Pinu_Con", "Popu_Tre")
         tifs <- paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw, "_v0.tif")
         zips <- paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw, "_v0.zip")
         tifs1 <- zips[!(tifs %in% basename(dataPathFiles))]
@@ -741,8 +740,14 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
           }
         }
           
+        dataPathFiles <- dir(dataPath, full.names = TRUE)
+        speciesFiles <- unlist(lapply(speciesnamesRaw, function(n) grep(paste0(n,".*tif$"), dataPathFiles, value = TRUE)))
+      } else {
+        dataPathFiles <- dir(dataPath, full.names = TRUE)
+        speciesFiles <- unlist(lapply(speciesnames, function(n) grep(paste0(n,".*tif$"), dataPathFiles, value = TRUE)))
       }
     }
+    browser()
     sim$specieslayers <- stack(lapply(speciesFiles, raster))
     if(length(names(sim$specieslayers))==length(speciesnames)) {
       names(sim$specieslayers) <- speciesnames  
