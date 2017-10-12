@@ -835,6 +835,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     
     speciesLayersLocal <- sim$specieslayers
     message("  Merging Pines (lodgepole and jack) into one species")
+    names(sim$specieslayers)[grep("Abie", names(sim$specieslayers))] <- "Abie_sp"
     if(all(speciesnamesRaw %in% names(speciesLayersLocal))) {
       sim$specieslayers <- Cache(sumRastersBySpecies, #notOlderThan = Sys.time(),
                                  speciesLayersLocal, c("Pinu_Ban", "Pinu_Con"),
