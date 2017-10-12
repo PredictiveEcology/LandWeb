@@ -179,7 +179,6 @@ landWebDataPrepPlot <- function(sim) {
     # 3. if any not "OK", go through one input object at a time
     if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
       checkTable <- data.table(dd)
-      browser()
       needBiomass <- is.na(dd$result[dd$expectedFile==basename(biomassMapFilename)]) | 
         (dd$result[dd$expectedFile==basename(biomassMapFilename)] != "OK")
       needLCC <- is.na(dd$result[dd$expectedFile==basename(lcc2005Filename)]) | 
@@ -229,19 +228,33 @@ landWebDataPrepPlot <- function(sim) {
                                  overwrite=TRUE, format = "GTiff", datatype = "INT2U",
                                  filename = file.path(dataPath, 
                                                       basename(biomassMapFilenameSmall)))
+          if(!file.exists(biomassMapFilenameSmall)) {
+            sim$biomassMap <- writeRaster(sim$biomassMap, filename = biomassMapFilenameSmall, datatype = "INT2U",
+                                       format = "GTiff")
+          }
         }
         
         if(needLCC) {
           sim$LCC2005 <- crop(sim$LCC2005, sim$shpStudyRegionFull,
-                              filename = file.path(dataPath, 
-                                                   basename(lcc2005FilenameSmall)), 
+                              filename = lcc2005FilenameSmall, 
                               overwrite=TRUE)
+          if(!file.exists(lcc2005FilenameSmall)) {
+            sim$LCC2005 <- writeRaster(sim$LCC2005, filename = lcc2005FilenameSmall, datatype = "INT2U",
+                                       format = "GTiff")
+          }
+            
         }
         
       } else {
         message("  landWebDataPrep.R expects a shpStudyRegionFull object to crop biomassMap and LCC2005 to")
       }
     } 
+    if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
+      a <- checksums("landWebDataPrep", modulePath(sim), write = TRUE)
+      a <- a[grep(a$file, pattern = ".tar|.zip|^LCC2005_V1|^NFI", invert = TRUE),]
+      write.table(a, file = file.path(dataPath, "CHECKSUMS.txt"))
+      message("*** Created a new CHECKSUMS.txt file with downloaded objects for ","landWebDataPrep","***")
+    }
   }
   sim$calibrate <- FALSE
   
