@@ -747,7 +747,6 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         speciesFiles <- unlist(lapply(speciesnames, function(n) grep(paste0(n,".*tif$"), dataPathFiles, value = TRUE)))
       }
     }
-    browser()
     sim$specieslayers <- stack(lapply(speciesFiles, raster))
     if(length(names(sim$specieslayers))==length(speciesnames)) {
       names(sim$specieslayers) <- speciesnames  
@@ -824,7 +823,13 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       # Species
       message("  Crop species layers to shpStudyRegionFull")
       sim$specieslayers <- cropSpeciesLayers(asPath(speciesFiles), sim)
-      names(sim$specieslayers) <- speciesnames
+      
+      # Assign correct names
+      spNames <- unique(c(speciesnames, speciesnamesRaw))
+      ll <- lapply(tolower(spNames), function(n) {
+        grep(pattern = n, tolower(names(sim$specieslayers)))})
+      names(sim$specieslayers)[unlist(ll)] <- spNames[sapply(ll, function(x) length(x)>0)]
+        
       
     } # end crop to shpStudyRegion
     
