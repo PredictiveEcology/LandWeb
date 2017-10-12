@@ -614,7 +614,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   
   # LCC2005 may be loaded by other modules
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
-  if(!is.null(sim$LCC2005)) lcc2005Filename <- filename(sim$LCC2005)
+  #if(!is.null(sim$LCC2005)) lcc2005Filename <- filename(sim$LCC2005)
   
   if(needDownloads) {
     dd <- downloadData(module = "Boreal_LBMRDataPrep",
@@ -806,15 +806,26 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       # rasters
       # LCC2005
       message("  Crop LCC2005")
+      if(!grepl("Boreal_LBMRDataPrep", dirname(filename(sim$LCC2005)))) {
+        sim$LCC2005 <- writeRaster(sim$LCC2005, overwrite=TRUE, format = "GTiff", datatype = "INT2U",
+                                      filename = file.path(dirname(lcc2005Filename), paste0("Small",basename(lcc2005Filename))))
+      }
       sim$LCC2005 <- crop(sim$LCC2005, sim$shpStudyRegionFull,
-                          filename = lcc2005Filename,
+                          filename = file.path(dirname(lcc2005Filename), paste0("Small", basename(lcc2005Filename))),
                           overwrite=TRUE)
+      
       # Biomass
-      sim$biomassMap <- crop(sim$biomassMap, sim$shpStudyRegionFull,
-                             overwrite=TRUE, format = "GTiff", datatype = "INT2U",
-                             filename = file.path(dirname(biomassMapFilename), paste0("Small",basename(biomassMapFilename))))
+      if(!grepl("Boreal_LBMRDataPrep", dirname(filename(sim$biomassMap)))) {
+        sim$biomassMap <- writeRaster(sim$biomassMap, overwrite=TRUE, format = "GTiff", datatype = "INT2U",
+                                      filename = file.path(dirname(biomassMapFilename), paste0("Small",basename(biomassMapFilename))))
+      }
+      sim$biomassMap <- crop(sim$biomassMap, sim$shpStudyRegionFull)
       
       # Stand Age
+      if(!grepl("Boreal_LBMRDataPrep", dirname(filename(sim$standAgeMap)))) {
+        sim$standAgeMap <- writeRaster(sim$standAgeMap, overwrite=TRUE, format = "GTiff", datatype = "INT2U",
+                                      filename = file.path(dirname(standAgeMapFilename), paste0("Small",basename(standAgeMapFilename))))
+      }
       sim$standAgeMap <- crop(sim$standAgeMap, sim$shpStudyRegionFull,
                               overwrite=TRUE, format = "GTiff", datatype = "INT2U",
                               filename = file.path(dirname(standAgeMapFilename),
@@ -876,7 +887,6 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       needRstSR <- TRUE
   }
   if(needRstSR) sim$rstStudyRegion <- Cache(rasterize, shpStudyRegionFull, biomassMap)
-  
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
