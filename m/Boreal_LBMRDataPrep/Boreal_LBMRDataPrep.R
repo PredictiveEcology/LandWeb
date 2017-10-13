@@ -134,9 +134,10 @@ estimateParameters <- function(sim) {
   
   message("2: ", Sys.time())
   initialCommFiles <- Cache(initialCommunityProducer, speciesLayers = sim$specieslayers,
-                            speciesPresence = 50,
+                            speciesPresence = 50, 
                             studyArea = sim$studyArea,
-                            rstStudyArea = rstStudyRegionBinary,
+                            rstStudyArea = rstStudyRegionBinary, 
+                            digestPathContent = .quickCheck,
                             userTags = "stable")
   ecoregionstatus <- data.table(active = "yes",
                                 ecoregion = 1:1031)
@@ -149,6 +150,7 @@ estimateParameters <- function(sim) {
                           studyArea = sim$studyArea,
                           rstStudyArea = rstStudyRegionBinary,
                           maskFn = fastMask,
+                          digestPathContent = .quickCheck,
                           userTags = "stable")
   
   message("3: ", Sys.time())
@@ -162,6 +164,7 @@ estimateParameters <- function(sim) {
                           ecoregion = ecoregionFiles$ecoregion,
                           initialCommunityMap = initialCommFiles$initialCommunityMap,
                           initialCommunity = initialCommFiles$initialCommunity,
+                          digestPathContent = .quickCheck,
                           userTags = "stable")
   message("4: ", Sys.time())
   #speciesEcoregionTable <- sim$obtainMaxBandANPPCached(speciesLayers = sim$specieslayers,
@@ -169,12 +172,14 @@ estimateParameters <- function(sim) {
                                  biomassLayer = sim$biomassMap,
                                  SALayer = sim$standAgeMap,
                                  ecoregionMap = simulationMaps$ecoregionMap,
+                                 digestPathContent = .quickCheck,
                                  userTags = "stable")
   
   message("5: ", Sys.time())
   #septable <- sim$obtainSEPCached(ecoregionMap = simulationMaps$ecoregionMap,
   septable <- Cache(obtainSEP, ecoregionMap = simulationMaps$ecoregionMap,
                     speciesLayers = sim$specieslayers,
+                    digestPathContent = .quickCheck,
                     userTags = "stable")
   names(septable) <- c("ecoregion", "species", "SEP")
   septable[, SEP:=round(SEP, 2)]
@@ -203,6 +208,7 @@ estimateParameters <- function(sim) {
                                   biggerEcoArea = sim$ecoRegion,
                                   biggerEcoAreaSource = "ecoRegion",
                                   NAData = NAdata,
+                                  digestPathContent = .quickCheck,
                                   maskFn = fastMask,
                                   userTags = "stable")
     message("  6b obtainMaxBandANPPFormBiggerEcoArea: ", Sys.time())
@@ -218,6 +224,7 @@ estimateParameters <- function(sim) {
                                   SALayer = sim$standAgeMap, ecoregionMap = simulationMaps$ecoregionMap,
                                   biggerEcoArea = sim$ecoZone, biggerEcoAreaSource = "ecoZone",
                                   NAData = NAdata, maskFn = fastMask,
+                                  digestPathContent = .quickCheck,
                                   userTags = "stable")
     message("  7b obtainMaxBandANPPFormBiggerEcoArea if NAdata exist: ", Sys.time())
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
@@ -239,6 +246,7 @@ estimateParameters <- function(sim) {
   sim$initialCommunitiesMap <- Cache(createInitCommMap, simulationMaps$initialCommunityMap,
                                      as.integer(simulationMaps$initialCommunityMap[]),
                                      file.path(outputPath(sim), "initialCommunitiesMap.tif"),
+                                     digestPathContent = .quickCheck,
                                      userTags = "stable")
   
   message("9: ", Sys.time())
@@ -618,7 +626,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   
   if(needDownloads) {
     dd <- downloadData(module = "Boreal_LBMRDataPrep",
-                       path = modulePath(sim), quickCheck = TRUE)
+                       path = modulePath(sim), quickCheck = .quickCheck)
     checkTable <- data.table(dd)
     checkContent_passed <- checkTable[result == "OK",]$expectedFile
     # study area should be provided by Dr. David Anderson
@@ -636,7 +644,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       }
       ecodistrictFilename <-   file.path(dataPath, "ecodistricts.shp")
       sim$ecoDistrict <- Cache(raster::shapefile, asPath(ecodistrictFilename), 
-                               digestPathContent = TRUE,
+                               digestPathContent = .quickCheck,
                                userTags = "stable")
     }
     
@@ -654,7 +662,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       }
       sim$ecoregionFilename <-   file.path(dataPath, "ecoregions.shp")
       sim$ecoRegion <- Cache(raster::shapefile, asPath(ecoregionFilename),
-                             digestPathContent = TRUE,
+                             digestPathContent = .quickCheck,
                              userTags = "stable")
     }
     
@@ -670,7 +678,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       }
       ecozoneFilename <-   file.path(dataPath, "ecozones.shp")
       sim$ecoZone <- Cache(raster::shapefile, asPath(ecozoneFilename),
-                           digestPathContent = TRUE,
+                           digestPathContent = .quickCheck,
                            userTags = "stable")
     }
     
@@ -696,10 +704,10 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         Cache(untar, file.path(dataPath, "kNN-StructureStandVolume.tar"),
               files = "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip",
               exdir = dataPath, tar = "internal",
-              sideEffect = dataPath, quick = TRUE)
+              sideEffect = dataPath, quick = .quickCheck)
         Cache(unzip, file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
               exdir = dataPath, overwrite = TRUE,
-              sideEffect = dataPath, quick = TRUE)
+              sideEffect = dataPath, quick = .quickCheck)
       }
       sim$standAgeMap <- raster(standAgeMapFilename)
     }
@@ -772,16 +780,16 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                         file.path(dataPath, "Landweb_CASFRI_GIDs_attributes3.csv")),
                       CASFRIheaderFile = asPath(
                         file.path(dataPath,"Landweb_CASFRI_GIDs_README.txt")),
-                      digestPathContent = TRUE#, debugCache = "quick"
+                      digestPathContent = .quickCheck#, debugCache = "quick"
     )
   } else {
     message("Using only 'Open source data sets'")
   }
   
   if(!identical(crs(sim$biomassMap), crs(sim$shpStudyRegionFull)))
-    sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
+    sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap)) #faster without Cache
   if(!identical(crs(sim$biomassMap), crs(sim$ecoDistrict)))
-    sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$biomassMap))
+    sim$ecoDistrict <- Cache(spTransform, sim$ecoDistrict, crs(sim$biomassMap)) #faster with Cache
   
   needShrinking <- !all(checkTable$result == "OK")
   if(needShrinking) {
@@ -893,7 +901,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   }
   if(needRstSR) {
     message("  Rasterizing the shpStudyRegionFull polygon map")
-    sim$rstStudyRegion <- Cache(fastRasterize, shpStudyRegionFull, biomassMap, field = "LTHRC")
+    sim$rstStudyRegion <- Cache(fastRasterize, shpStudyRegionFull, biomassMap, 
+                                field = "LTHRC", digestPathContent = .quickCheck)
   }
   
   return(invisible(sim))

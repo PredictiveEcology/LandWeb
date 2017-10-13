@@ -167,7 +167,7 @@ landWebDataPrepPlot <- function(sim) {
     # checksums.txt has all the necessary "final" files, i.e., after downloading, 
     #   untaring, unzipping, cropping
     dd <- downloadData(module = "landWebDataPrep", path = modulePath(sim), 
-                quickCheck = TRUE)
+                quickCheck = .quickCheck)
     biomassMapFilename <- file.path(dataPath, grep(dd$expectedFile, value = TRUE, 
                                                    pattern = "TotalLiveAboveGround"))
     
