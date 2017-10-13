@@ -20,10 +20,12 @@ function(input, output, session) {
         }
       }
     
+    if(!exists("appEndTime")) appEndTime <- Sys.time()
     message("The app started at ", appStartTime)
     message("The session started at ", sessionStartTime)
     message("The session ended at ", Sys.time())
-    message("The app took ", format(Sys.time() - appStartTime))
+    message("The app took ", format(appEndTime - appStartTime))
+    message("The app started ", format(Sys.time() - appStartTime), " ago")
   })
   
   # if(reloadPreviousWorking) {
@@ -351,5 +353,5 @@ function(input, output, session) {
   noLongerWaiting()
   message("  Finished global.R")
   
-  
+  appEndTime <- Sys.time()  
 }

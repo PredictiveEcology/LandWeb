@@ -362,7 +362,6 @@ timeSinceFireMod <- function(input, output, session, rasts) {
     barplot(timeSinceFireHist$counts*prod(rasterResolution)/1e4, xlab = "Time since fire \n(Years)",
             col = timeSinceFirePalette(1:(maxAge/10)), width = 1, space = 0, ylab = "Area (ha)")
     axis(1, at = timeSinceFireHist$breaks/10, labels = 0:Nbreaks*10)
-    
   })
   
   rasterInput <- reactive({
@@ -380,7 +379,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       if (ncell(r) > 3e5) {
         r <- Cache(sampleRegular, r, size = 4e5, #notOlderThan = Sys.time(),
                    asRaster = TRUE, cacheRepo = paths$cachePath)
-        r[r[]>401] <- maxAge
+        #r[r[]>401] <- maxAge
         r[r[]==0] <- NA
       }
       
