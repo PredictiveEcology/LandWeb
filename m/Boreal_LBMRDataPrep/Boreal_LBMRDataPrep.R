@@ -891,7 +891,10 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     if(!identical(extent(sim$rstStudyRegion), extent(biomassMap)))
       needRstSR <- TRUE
   }
-  if(needRstSR) sim$rstStudyRegion <- Cache(rasterize, shpStudyRegionFull, biomassMap)
+  if(needRstSR) {
+    message("  Rasterizing the shpStudyRegionFull polygon map")
+    sim$rstStudyRegion <- Cache(fastRasterize, shpStudyRegionFull, biomassMap, field = "LTHRC")
+  }
   
   return(invisible(sim))
 }
