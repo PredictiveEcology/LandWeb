@@ -86,6 +86,7 @@ if (FALSE) {
   modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                   "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
   times <- list(start = 0, end = endTime)
+  .quickCheck <- TRUE
   objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                   "shpStudySubRegion" = shpStudyRegion,
                   "successionTimestep" = successionTimestep,
