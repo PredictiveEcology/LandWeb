@@ -1,5 +1,4 @@
 require <- function(package, forceInstall = FALSE) {
-  #if(forceInstall) {try(detach(paste0("package:",package))); try(remove.packages(package))}
   if (package %in% c("amc")) {
     devtools::install_github(paste0("PredictiveEcology/", package, "@development"))
   } else if (package %in% c("reproducible")) {
