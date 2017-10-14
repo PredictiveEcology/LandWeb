@@ -115,7 +115,7 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon,
                                                   error = function(x) FALSE)) cl,
                                 polygonToSummarizeBy = currentPolygon,
                                 ageClasses = ageClasses, countNumPatches = countNumPatches,
-                                cacheRepo = cacheRepo,
+                                cacheRepo = cacheRepo, digestPathContent = .quickCheck,
                                 debugCache="complete",
                                 omitArgs = "cl")
                    args <- args[!unlist(lapply(args, is.null))]
@@ -372,12 +372,12 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       message("Running gdal2TilesFn for layer ", sliderVal/10+1, " of ", length(rasts))
       Cache(gdal2TilesFn, r, filename=asPath(filename(r)), #notOlderThan = Sys.time(),
             zoomRange=3:10, color_text_file = asPath(colorTableFile), 
-            cacheRepo = paths$cachePath, digestPathContent = TRUE)
+            cacheRepo = paths$cachePath, digestPathContent = .quickCheck)
     }
     if(TRUE) {
       #if(Sys.info()["nodename"]=="W-VIC-A105388") stopApp()
       if (ncell(r) > 3e5) {
-        r <- Cache(sampleRegular, r, size = 4e5, #notOlderThan = Sys.time(),
+        r <- Cache(sampleRegular, r, size = 4e5, digestPathContent = .quickCheck, #notOlderThan = Sys.time(),
                    asRaster = TRUE, cacheRepo = paths$cachePath)
         #r[r[]>401] <- maxAge
         r[r[]==0] <- NA

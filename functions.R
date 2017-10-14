@@ -188,7 +188,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
   rasWithNAs[] <- NA
   
   # identify which polygon each pixel is contained within == data.table with 2 columns, cell and polygonID
-  cellIDByPolygon <- Cache(cacheRepo = paths$cachePath,
+  cellIDByPolygon <- Cache(cacheRepo = paths$cachePath, digestPathContent = .quickCheck,
                            cellNumbersForPolygon, rasWithNAs, polygonToSummarizeBy)
   
   if (missing(cl)) {

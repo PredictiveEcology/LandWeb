@@ -72,7 +72,7 @@ function(input, output, session) {
                  paste(unname(current(sim)), collapse = ' '))",#,
                  .plotInitialTime = NA,
                  clearSimEnv = TRUE,
-                 debugCache="complete",
+                 debugCache="complete", 
                  omitArgs = c("debug", ".plotInitialTime"))
     args <- args[!unlist(lapply(args, is.null))]
     mySimOut <- do.call(Cache, args)
@@ -129,7 +129,7 @@ function(input, output, session) {
   
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
   
-  globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = TRUE,
+  globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = .quickCheck,
                           lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
                           flammableFile = asPath(file.path(paths$outputPath, "rstFlammable.grd")))
   
@@ -137,7 +137,7 @@ function(input, output, session) {
   args <- list(leadingByStage, tsf, vtm, 
                polygonToSummarizeBy = ecodistricts,
                cl = if (exists("cl")) cl, 
-               omitArgs = "cl",
+               omitArgs = "cl", digestPathContent = .quickCheck,
                ageClasses = ageClasses, cacheRepo = paths$cachePath)
   args <- args[!unlist(lapply(args, is.null))]
   leading <- do.call(Cache, args)
