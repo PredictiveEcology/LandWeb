@@ -867,7 +867,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
       a <- checksums("Boreal_LBMRDataPrep", modulePath(sim), write = TRUE)
       a <- a[grep(a$file, pattern = ".tar|.zip", invert = TRUE),]
-      write.table(a, file = file.path(dataPath, "CHECKSUMS.txt"))
+      write.table(a, file = file.path(dataPath, "CHECKSUMS.txt"), row.names = FALSE)
       message("*** Created a new CHECKSUMS.txt file with downloaded objects for ","Boreal_LBMRDataPrep","***")
     }
   }
