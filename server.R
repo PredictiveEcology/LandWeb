@@ -24,6 +24,8 @@ function(input, output, session) {
     message("The app started at ", appStartTime)
     message("The session started at ", sessionStartTime)
     message("The session ended at ", Sys.time())
+    message("The simInit took ", format(endSimInit - startSimInit))
+    
     message("The app took ", format(appEndTime - appStartTime))
     message("The app started ", format(Sys.time() - appStartTime), " ago")
   })
@@ -88,8 +90,8 @@ function(input, output, session) {
   # A simList is a rich data structure that comes with the SpaDES.core package
   mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps, 
                      debugCache = "complete", 
-                     objects = objectsToHash,
-                     sideEffect = TRUE)
+                     objects = objectsToHash)#,
+                     #sideEffect = TRUE)
 
   callModule(simInfo, "simInfoTabs", mySimOut[[1]])
   callModule(moduleInfo, "modInfoBoxes", mySimOut[[1]])
