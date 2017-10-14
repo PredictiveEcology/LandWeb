@@ -375,16 +375,21 @@ timeSinceFireMod <- function(input, output, session, rasts) {
             cacheRepo = paths$cachePath, digestPathContent = .quickCheck)
     }
     if(TRUE) {
-      #if(Sys.info()["nodename"]=="W-VIC-A105388") stopApp()
+      
       if (ncell(r) > 3e5) {
-        r <- Cache(sampleRegular, r, size = 4e5, digestPathContent = .quickCheck, #notOlderThan = Sys.time(),
-                   asRaster = TRUE, cacheRepo = paths$cachePath)
-        #r[r[]>401] <- maxAge
-        r[r[]==0] <- NA
+        subsampleAndBookend <- function(r, size = 4e5, maxAge) {
+          r2 <- sampleRegular(r, size = 4e5, #notOlderThan = Sys.time(),
+                             asRaster = TRUE, cacheRepo = paths$cachePath)
+          r2[r2[]>401] <- maxAge
+          r2[r2[]==0] <- NA
+          r2
+        }
+        r1 <- Cache(subsampleAndBookend, r, maxAge = maxAge, cacheRepo = paths$cachePath,
+                    digestPathContent = .quickCheck)
       }
       
     }
-    list(r=r, sliderVal=sliderVal)
+    list(r=r1, sliderVal=sliderVal)
   })
   
   polygonInput <- reactive({
