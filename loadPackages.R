@@ -1,6 +1,6 @@
 require <- function(package, forceInstall = FALSE) {
   if (package %in% c("amc")) {
-    devtools::install_github(paste0("PredictiveEcology/", package, "@development"))
+    devtools::install_github(paste0("achubaty/", package, "@development"))
   } else if (package %in% c("reproducible")) {
     devtools::install_github(paste0("PredictiveEcology/", package, "@sideEffectAsPath"))
     #devtools::install(file.path("~","GitHub", package, "."))
