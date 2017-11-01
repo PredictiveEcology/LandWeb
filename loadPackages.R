@@ -37,6 +37,7 @@ require("shinyjs")
 require("shinycssloaders")
 require("purrr")
 require("gdalUtils")
+require("amc")
 
 if (FALSE) { # these are needed internally by packages. checkpoint needs to see these to install them
   require("htmlwidgets")
