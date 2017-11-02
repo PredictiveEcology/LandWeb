@@ -36,6 +36,10 @@ do.call(setPaths, paths) # Set them here so that we don't have to specify at eac
   leafletZoomInit = 5 
   # Some shinycssloaders options
   options("spinner.type" = 5)
+  
+  # This will search for gdal utilities. If it finds nothing, and you are on Windows,
+  #   You should install the gdal that comes with QGIS -- use OSGeo4W Network Installer 64 bit
+  #   may be still here: http://www.qgis.org/en/site/forusers/download.html
   options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
   #options(spinner.color="blue")  
 
