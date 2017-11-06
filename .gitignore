@@ -17,6 +17,7 @@ R-Portable/
 rsconnect/shinyapps\.io/landweb/LandWebDemo\.dcf
 Thumbs.db
 .checkpoint
+Packages
 
 *.tif
 *.shp
@@ -29,3 +30,5 @@ www/
 *.tar
 
 *.zip
+
+m/test/
