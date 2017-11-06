@@ -1,3 +1,5 @@
+reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
+                                         # It needs to be separate because it is an overarching one, regardless of scale
 source("loadPackages.R") # load & install (if not available) package dependencies
 source("functions.R") # get functions used throughout this shiny app
 source("shinyModules.R") # shiny modules
@@ -11,8 +13,6 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
      # character vector (most recent one with AND search)
      # numeric -- counting backwards from 1 previous, 2 previous etc.
 .reloadPreviousWorking <- reloadPreviousWorkingFn(reloadPreviousWorking)
-reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
-                                         # It needs to be separate because it is an overarching one, regardless of scale
 
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" 
