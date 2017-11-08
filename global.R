@@ -1,6 +1,6 @@
-reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
-                                         # It needs to be separate because it is an overarching one, regardless of scale
-source("loadPackages.R") # load & install (if not available) package dependencies
+#reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
+#                                         # It needs to be separate because it is an overarching one, regardless of scale
+source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
 source("functions.R") # get functions used throughout this shiny app
 source("shinyModules.R") # shiny modules
 source("footers.R") # minor footer stuff for app
@@ -131,7 +131,7 @@ if (FALSE) {
   
 # Main simInit function call -- loads all data
   startSimInit <- Sys.time()
-mySim <<- simInit(times = times, params = parameters, modules = modules, 
+  mySim <<- simInit(times = times, params = parameters, modules = modules, 
                   objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules))
   endSimInit <- Sys.time()
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
