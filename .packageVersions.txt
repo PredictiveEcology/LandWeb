@@ -32,6 +32,10 @@
 "fastmatch" "1.1-0"
 "ff" "2.2-13"
 "ffbase" "0.12.3"
+"file8c9874f52c7f" NA
+"filea5ac50bd5188" NA
+"filea5ac8e529cd" NA
+"filea5aceaa4a04" NA
 "foreach" "1.4.3"
 "fpCompare" "0.2.1"
 "gdalUtils" "2.0.1.7"
@@ -91,7 +95,7 @@
 "Rcpp" "0.12.13.2"
 "RCurl" "1.95-4.8"
 "readr" "1.1.1"
-"reproducible" "0.1.3"
+"reproducible" "0.1.3.9004"
 "reshape2" "1.4.2"
 "rgdal" "1.2-15"
 "rgenoud" "5.8-1.0"
