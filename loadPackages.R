@@ -2,6 +2,10 @@
 ## This follows a reproducible work flow:
 # 1. need reproducible package 
 # 2. change .libPaths to a project specific one
+instPack <- installed.packages(.libPaths())["reproducible", "Version"]
+if(instPack < "0.1.3.9004") {
+  devtools::install_github("PredictiveEcology/reproducible@reproduciblePackages", upgrade_dependencies = FALSE)
+}
 library(reproducible)
 newLibPaths("Packages")
 instPkgs(c("RcppCore/Rcpp",
