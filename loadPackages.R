@@ -3,39 +3,34 @@
 # 1. need reproducible package 
 # 2. change .libPaths to a project specific one
 library(reproducible)
-newLibPaths("Packages")
-instPkgs(c("RcppCore/Rcpp",
-           "achubaty/amc@development", 
-           "PredictiveEcology/reproducible@sideEffectAsPath", 
-           "PredictiveEcology/SpaDES.core@downloadData",
-           "PredictiveEcology/SpaDES.tools@randomPolygon"))
-
-Require(#notOlderThan = Sys.time(),
-  c("RcppCore/Rcpp",
-    "devtools",
-    "data.table",
-    "raster",
-    "magrittr",
-    "rgeos",
-    "dplyr",
-    "leaflet",
-    "shiny",
-    "shinydashboard",
-    "shinyBS",
-    "shinyjs",
-    "shinycssloaders",
-    "VGAM",
-    if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
-    "purrr",
-    "gdalUtils",
-    "achubaty/amc@development", 
-    "PredictiveEcology/reproducible@sideEffectAsPath", 
-    "PredictiveEcology/SpaDES.core@downloadData",
-    "PredictiveEcology/SpaDES.tools@randomPolygon"))
+packageLibrary <- "Packages2"
+Require(libPath = packageLibrary, 
+        c("RcppCore/Rcpp",
+          "devtools",
+          "data.table",
+          "raster",
+          "magrittr",
+          "rgeos",
+          "dplyr",
+          "leaflet",
+          "shiny",
+          "shinydashboard",
+          "shinyBS",
+          "shinyjs",
+          "shinycssloaders",
+          "VGAM",
+          if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
+          "purrr",
+          "gdalUtils",
+          "achubaty/amc@development", 
+          "PredictiveEcology/reproducible@reproduciblePackages", 
+          "PredictiveEcology/SpaDES.core@downloadData",
+          "PredictiveEcology/SpaDES.tools@randomPolygon"),
+        packageVersionFile = ".packageVersions.txt")
 
 
 if(FALSE) # only do this when you want a new snapshot taken of the packages installed
-  pkgSnapshot(".packageVersions.txt")
+  pkgSnapshot(".packageVersions.txt", libPath = packageLibrary)
 
 
 
