@@ -9,7 +9,7 @@ if(instPack < "0.1.3.9004") {
 library(reproducible)
 packageLibrary <- "Packages"
 Require(libPath = packageLibrary, 
-        c("RcppCore/Rcpp",
+        c("Rcpp",
           "devtools",
           "data.table",
           "raster",
@@ -22,7 +22,6 @@ Require(libPath = packageLibrary,
           "shinyBS",
           "shinyjs",
           "shinycssloaders",
-          "tidyr",
           "VGAM",
           if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
           "purrr",
