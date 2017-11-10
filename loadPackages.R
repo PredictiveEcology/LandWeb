@@ -7,7 +7,7 @@ if(instPack < "0.1.3.9004") {
   devtools::install_github("PredictiveEcology/reproducible@reproduciblePackages", upgrade_dependencies = FALSE)
 }
 library(reproducible)
-packageLibrary <- "Packages2"
+packageLibrary <- "Packages"
 Require(libPath = packageLibrary, 
         c("RcppCore/Rcpp",
           "devtools",
@@ -36,7 +36,7 @@ Require(libPath = packageLibrary,
 if(FALSE) # only do this when you want a new snapshot taken of the packages installed
   pkgSnapshot(".packageVersions.txt", libPath = packageLibrary)
 
-
+reproducible::newLibPaths(packageLibrary)
 
 updatePkg <- function(pkg, pkgHash, repo) {
   PkgDescr <- try(read.dcf(system.file(package = pkg, "DESCRIPTION")))
