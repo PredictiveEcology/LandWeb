@@ -32,10 +32,6 @@
 "fastmatch" "1.1-0"
 "ff" "2.2-13"
 "ffbase" "0.12.3"
-"file8c9874f52c7f" NA
-"filea5ac50bd5188" NA
-"filea5ac8e529cd" NA
-"filea5aceaa4a04" NA
 "foreach" "1.4.3"
 "fpCompare" "0.2.1"
 "gdalUtils" "2.0.1.7"
