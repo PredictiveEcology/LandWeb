@@ -4,12 +4,11 @@
 # 2. change .libPaths to a project specific one
 instPack <- installed.packages(.libPaths())["reproducible", "Version"]
 if(instPack < "0.1.3.9004") {
-  devtools::install_github("PredictiveEcology/reproducible@reproduciblePackages", upgrade_dependencies = FALSE)
+  devtools::install_github("PredictiveEcology/reproducible@reproduciblePackages", upgrade_dependencies = TRUE)
 }
 library(reproducible)
 packageLibrary <- "Packages"
-Require(libPath = packageLibrary, 
-        c("RcppCore/Rcpp",
+        c("Rcpp",
           "devtools",
           "data.table",
           "raster",
