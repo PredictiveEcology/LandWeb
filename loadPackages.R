@@ -2,12 +2,23 @@
 ## This follows a reproducible work flow:
 # 1. need reproducible package 
 # 2. change .libPaths to a project specific one
-instPack <- installed.packages(.libPaths())["reproducible", "Version"]
-if(instPack < "0.1.3.9004") {
-  devtools::install_github("PredictiveEcology/reproducible@reproduciblePackages", upgrade_dependencies = TRUE)
+packageLibrary <- "Packages2"
+dir.create(packageLibrary)
+.libPaths(packageLibrary)
+instPack <- installed.packages(.libPaths()[1])
+needReproducible <- FALSE
+if(NROW(instPack)>0) {
+  instPack <- instPack["reproducible", "Version"]
+  if(instPack < "0.1.3.9006") {
+    needReproducible <- TRUE
+  }
+} else {
+  needReproducible <- TRUE
 }
+if(needReproducible)
+  devtools::install_github("PredictiveEcology/reproducible@reproduciblePackages", upgrade_dependencies = TRUE, local = FALSE)
+
 library(reproducible)
-packageLibrary <- "Packages"
 Require(libPath = packageLibrary, 
         c("Rcpp",
           "devtools",
@@ -27,10 +38,11 @@ Require(libPath = packageLibrary,
           if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
           "purrr",
           "gdalUtils",
-          "achubaty/amc@development", 
-          "PredictiveEcology/reproducible@reproduciblePackages", 
-          "PredictiveEcology/SpaDES.core@downloadData",
-          "PredictiveEcology/SpaDES.tools@randomPolygon"),
+          "achubaty/amc@development"#, 
+          #"PredictiveEcology/reproducible@reproduciblePackages", 
+          #"PredictiveEcology/SpaDES.core@downloadData",
+          #"PredictiveEcology/SpaDES.tools@randomPolygon"
+          ),
         packageVersionFile = ".packageVersions.txt")
 
 
