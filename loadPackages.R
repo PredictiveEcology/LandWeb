@@ -8,6 +8,7 @@ if(instPack < "0.1.3.9004") {
 }
 library(reproducible)
 packageLibrary <- "Packages"
+Require(libPath = packageLibrary, 
         c("Rcpp",
           "devtools",
           "data.table",
