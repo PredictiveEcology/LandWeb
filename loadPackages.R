@@ -4,27 +4,21 @@
 # 2. change .libPaths to a project specific one
 packageLibrary <- "Packages3"
 dir.create(packageLibrary)
-oldLibPaths <- .libPaths()
 .libPaths(packageLibrary)
-instPack <- installed.packages(.libPaths()[1])
-needReproducible <- FALSE
-if(NROW(instPack)>0) {
-  instPack <- instPack["reproducible", "Version"]
-  if(instPack < "0.1.3.9006") {
-    needReproducible <- TRUE
-  }
-} else {
-  needReproducible <- TRUE
-}
-if(needReproducible) {
-  .libPaths(oldLibPaths)
-  library(devtools)
-  .libPaths(packageLibrary)
-  install_github("PredictiveEcology/reproducible@reproduciblePackages", upgrade_dependencies = TRUE, local = FALSE)
-  stop("Please restart R and run this again")
-}
-  
-library(reproducible)
+# instPack <- installed.packages(.libPaths()[1])
+# needReproducible <- FALSE
+# if(NROW(instPack)>0) {
+#   instPack <- instPack["reproducible", "Version"]
+#   if(instPack < "0.1.3.9006") {
+#     needReproducible <- TRUE
+#   }
+# } else {
+#   needReproducible <- TRUE
+# }
+#if(needReproducible) {
+if(!require(devtools)) install.packages("devtools")
+if(!require(reproducible)) install_github("PredictiveEcology/reproducible@reproduciblePackages", dependencies = TRUE, local = FALSE)
+
 Require(libPath = packageLibrary, 
         c("Rcpp",
           "devtools",
@@ -44,10 +38,10 @@ Require(libPath = packageLibrary,
           if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
           "purrr",
           "gdalUtils",
-          "achubaty/amc@development"#, 
+          "achubaty/amc@development", 
           #"PredictiveEcology/reproducible@reproduciblePackages", 
-          #"PredictiveEcology/SpaDES.core@downloadData",
-          #"PredictiveEcology/SpaDES.tools@randomPolygon"
+          "PredictiveEcology/SpaDES.core@downloadData",
+          "PredictiveEcology/SpaDES.tools@randomPolygon"
           ),
         packageVersionFile = ".packageVersions.txt")
 
