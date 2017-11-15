@@ -2,8 +2,9 @@
 ## This follows a reproducible work flow:
 # 1. need reproducible package 
 # 2. change .libPaths to a project specific one
-packageLibrary <- "Packages2"
+packageLibrary <- "Packages3"
 dir.create(packageLibrary)
+oldLibPaths <- .libPaths()
 .libPaths(packageLibrary)
 instPack <- installed.packages(.libPaths()[1])
 needReproducible <- FALSE
@@ -15,9 +16,14 @@ if(NROW(instPack)>0) {
 } else {
   needReproducible <- TRUE
 }
-if(needReproducible)
-  devtools::install_github("PredictiveEcology/reproducible@reproduciblePackages", upgrade_dependencies = TRUE, local = FALSE)
-
+if(needReproducible) {
+  .libPaths(oldLibPaths)
+  library(devtools)
+  .libPaths(packageLibrary)
+  install_github("PredictiveEcology/reproducible@reproduciblePackages", upgrade_dependencies = TRUE, local = FALSE)
+  stop("Please restart R and run this again")
+}
+  
 library(reproducible)
 Require(libPath = packageLibrary, 
         c("Rcpp",
