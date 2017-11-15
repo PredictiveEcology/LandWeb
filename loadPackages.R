@@ -4,21 +4,11 @@
 # 2. change .libPaths to a project specific one
 packageLibrary <- "Packages3"
 dir.create(packageLibrary)
+if(!require(ghit)) install.packages("ghit")
 .libPaths(packageLibrary)
-# instPack <- installed.packages(.libPaths()[1])
-# needReproducible <- FALSE
-# if(NROW(instPack)>0) {
-#   instPack <- instPack["reproducible", "Version"]
-#   if(instPack < "0.1.3.9006") {
-#     needReproducible <- TRUE
-#   }
-# } else {
-#   needReproducible <- TRUE
-# }
-#if(needReproducible) {
-if(!require(devtools)) install.packages("devtools")
-if(!require(reproducible)) install_github("PredictiveEcology/reproducible@reproduciblePackages", dependencies = TRUE, local = FALSE)
+if(!require(reproducible)) ghit::install_github("PredictiveEcology/reproducible[reproduciblePackages]", verbose = TRUE)
 
+library(reproducible) # important to load the one in the libPaths -- or else the 
 Require(libPath = packageLibrary, 
         c("Rcpp",
           "devtools",
@@ -42,7 +32,7 @@ Require(libPath = packageLibrary,
           #"PredictiveEcology/reproducible@reproduciblePackages", 
           "PredictiveEcology/SpaDES.core@downloadData",
           "PredictiveEcology/SpaDES.tools@randomPolygon"
-          ),
+        ),
         packageVersionFile = ".packageVersions.txt")
 
 
