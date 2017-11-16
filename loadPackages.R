@@ -2,11 +2,12 @@
 ## This follows a reproducible work flow:
 # 1. need reproducible package 
 # 2. change .libPaths to a project specific one
-packageLibrary <- "Packages3"
+packageLibrary <- "Packages1"
 dir.create(packageLibrary)
-if(!require(ghit)) install.packages("ghit")
 .libPaths(packageLibrary)
-if(!require(reproducible)) ghit::install_github("PredictiveEcology/reproducible[reproduciblePackages]", verbose = TRUE)
+if(!require(devtools)) install.packages("devtools", dependencies = TRUE)
+library(devtools)
+if(!require(reproducible)) install_github("PredictiveEcology/reproducible@reproduciblePackages", local=FALSE)
 
 library(reproducible) # important to load the one in the libPaths -- or else the 
 Require(libPath = packageLibrary, 
@@ -23,7 +24,6 @@ Require(libPath = packageLibrary,
           "shinyBS",
           "shinyjs",
           "shinycssloaders",
-          "tidyr",
           "VGAM",
           if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
           "purrr",
