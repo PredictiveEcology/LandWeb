@@ -2,12 +2,14 @@
 ## This follows a reproducible work flow:
 # 1. need reproducible package 
 # 2. change .libPaths to a project specific one
-instPack <- installed.packages(.libPaths())["reproducible", "Version"]
-if(instPack < "0.1.3.9004") {
-  devtools::install_github("PredictiveEcology/reproducible@reproduciblePackages", upgrade_dependencies = FALSE)
-}
-library(reproducible)
-packageLibrary <- "Packages"
+packageLibrary <- "Packages1"
+dir.create(packageLibrary)
+.libPaths(packageLibrary)
+if(!require(devtools)) install.packages("devtools", dependencies = TRUE)
+library(devtools)
+if(!require(reproducible)) install_github("PredictiveEcology/reproducible@reproduciblePackages", local=FALSE)
+
+library(reproducible) # important to load the one in the libPaths -- or else the 
 Require(libPath = packageLibrary, 
         c("Rcpp",
           "devtools",
@@ -27,9 +29,10 @@ Require(libPath = packageLibrary,
           "purrr",
           "gdalUtils",
           "achubaty/amc@development", 
-          "PredictiveEcology/reproducible@reproduciblePackages", 
+          #"PredictiveEcology/reproducible@reproduciblePackages", 
           "PredictiveEcology/SpaDES.core@downloadData",
-          "PredictiveEcology/SpaDES.tools@randomPolygon"),
+          "PredictiveEcology/SpaDES.tools@randomPolygon"
+        ),
         packageVersionFile = ".packageVersions.txt")
 
 

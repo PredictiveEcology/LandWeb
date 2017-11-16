@@ -15,7 +15,7 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
 .reloadPreviousWorking <- reloadPreviousWorkingFn(reloadPreviousWorking)
 
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" 
+studyArea <- "NWT"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" 
 
 ## paths
 paths <- list(
