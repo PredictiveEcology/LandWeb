@@ -754,6 +754,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         speciesFiles <- unlist(lapply(speciesnames, function(n) grep(paste0(n,".*tif$"), dataPathFiles, value = TRUE)))
       }
     }
+    
     sim$specieslayers <- stack(lapply(speciesFiles, raster))
     if(length(names(sim$specieslayers))==length(speciesnames)) {
       names(sim$specieslayers) <- speciesnames  
@@ -791,7 +792,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(!identical(crs(sim$biomassMap), crs(sim$ecoDistrict)))
     sim$ecoDistrict <- Cache(spTransform, sim$ecoDistrict, crs(sim$biomassMap)) #faster with Cache
   
-  needShrinking <- !all(checkTable$result == "OK")
+  needShrinking <- !all(compareNA(checkTable$result, "OK"))
   if(needShrinking) {
     if(!is.null(sim$shpStudyRegionFull)) {
       message("  Shrinking number and size of files that were just downloaded")
@@ -856,7 +857,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     if(all(speciesnamesRaw %in% names(speciesLayersLocal))) {
       sim$specieslayers <- Cache(sumRastersBySpecies, #notOlderThan = Sys.time(),
                                  speciesLayersLocal, c("Pinu_Ban", "Pinu_Con"),
-                                 filenameToSave = asPath(file.path(dirname(filename(sim$specieslayers[["Popu_Tre"]])),
+                                 filenameToSave = asPath(file.path(modulePath(sim), "Boreal_LBMRDataPrep", "data",
                                                                    "KNNPinu_sp.tif")), 
                                  cachePath = cachePath(sim), # for sumRastersBySpecies arg
                                  cacheRepo = cachePath(sim), # for Cache arg
@@ -901,8 +902,9 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   }
   if(needRstSR) {
     message("  Rasterizing the shpStudyRegionFull polygon map")
+    fieldName <- if("LTHRC" %in% names(shpStudyRegionFull)) "LTHRC" else names(shpStudyRegionFull)[1]
     sim$rstStudyRegion <- Cache(fastRasterize, shpStudyRegionFull, biomassMap, 
-                                field = "LTHRC", digestPathContent = .quickCheck)
+                                field = fieldName, digestPathContent = .quickCheck)
   }
   
   return(invisible(sim))

@@ -9,7 +9,7 @@ if(!require(devtools)) install.packages("devtools", dependencies = TRUE)
 library(devtools)
 if(!require(reproducible)) install_github("PredictiveEcology/reproducible@reproduciblePackages", local=FALSE)
 
-library(reproducible) # important to load the one in the libPaths -- or else the 
+library(reproducible) # important to load the one in the libPaths -- or else there will be conflicts 
 Require(libPath = packageLibrary, 
         c("Rcpp",
           "devtools",

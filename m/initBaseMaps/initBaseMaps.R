@@ -53,10 +53,11 @@ initBaseMapsInit <- function(sim) {
     sim$shpStudySubRegion, CRSobj=simProjection)
   
   message("fastRasterize for rstStudyRegion")
+  fieldName <- if("LTHRC" %in% names(sim$shpStudyRegion)) "LTHRC" else names(sim$shpStudyRegion)[1]
   sim$rstStudyRegion <- Cache(fastRasterize, 
                               polygon = sim$shpStudyRegion,
                               ras = crop(sim$LCC05X, extent(sim$shpStudyRegion)),
-                              field="LTHRC", datatype="INT2U",
+                              field=fieldName, datatype="INT2U",
                               filename="rstStudyRegion")
   
   cropMask <- function(ras, poly, mask) {
@@ -69,7 +70,7 @@ initBaseMapsInit <- function(sim) {
     out
   }
 
-  sim$LCC05 <- Cache(cropMask, sim$LCC05X, sim$shpStudyRegion, sim$rstStudyRegion)
+  sim$LCC05 <- Cache(cropMask, ras = sim$LCC05X, poly = sim$shpStudyRegion, mask = sim$rstStudyRegion)
   
   rm(LCC05X,envir=envir(sim))
   return(invisible(sim))

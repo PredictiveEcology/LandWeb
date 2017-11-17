@@ -144,13 +144,16 @@ LandMineInit <- function(sim) {
   message("Write fire return interval map to disk")
   
   #if(names(sim$rstStudyRegion)=="LTHRC") { # if rstStudyRegion has correct data in it, then use it for fri
-  sim$fireReturnInterval <- sim$rstStudyRegion
+  sim$fireReturnInterval <- raster(sim$rstStudyRegion)
+  sim$fireReturnInterval[] <- sim$rstStudyRegion[]
   #}
   #sim$fireReturnInterval <- setValues(sim$fireReturnInterval, 
   #                                    values = sim$fireReturnIntervalsByPolygonNumeric[sim$rstStudyRegion[]])# as.numeric(as.character(vals))
-  sim$fireReturnInterval <- Cache(writeRaster, sim$fireReturnInterval, 
-                                        filename = file.path(tempdir(),
-                                                             "fireReturnInterval.tif"),
+  fireReturnIntFilename <- file.path(tempdir(), "fireReturnInterval.tif")
+  # if(file.exists(fireReturnIntFilename)) file.remove(fireReturnIntFilename)
+  fireReturnIntFilename <- "C:/Eliot/GitHub/LandWeb/appCacheRIA/rasters/fireReturnInterval.tif"
+  file.remove(fireReturnIntFilename)
+  sim$fireReturnInterval <- writeRaster(sim$fireReturnInterval, filename = fireReturnIntFilename,
                                         datatype = "INT2U", overwrite = TRUE)
   sim$rstCurrentBurn <- raster(sim$fireReturnInterval)
   sim$rstCurrentBurn[] <- 0L
@@ -289,6 +292,7 @@ LandMineBurn <- function(sim) {
   numDefaultPolygons <- 4L
   numDefaultPixelGroups <- 20L
   numDefaultSpeciesCodes <- 2L
+  
   if(is.null(sim$fireReturnInterval)) {
     sim$fireReturnInterval <- Cache(randomPolygons, emptyRas, numTypes = numDefaultPolygons, 
                                     notOlderThan = nOT)
