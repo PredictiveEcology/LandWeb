@@ -72,6 +72,8 @@ function(input, output, session) {
                  objects = objectsToHash,
                  debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2), 
                  paste(unname(current(sim)), collapse = ' '))",#,
+                 # debug = "paste(Sys.time(), paste(table(sim$rstFlammableNum[], useNA = 'ifany')),
+                 # paste(unname(current(sim)), collapse = ' '))",#,
                  .plotInitialTime = NA,
                  clearSimEnv = TRUE,
                  debugCache="complete", 
