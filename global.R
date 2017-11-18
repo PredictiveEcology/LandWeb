@@ -15,13 +15,14 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
 .reloadPreviousWorking <- reloadPreviousWorkingFn(reloadPreviousWorking)
 
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "NWT"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" 
+studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
 
 ## paths
 paths <- list(
   cachePath = paste0("appCache", studyArea),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-  inputPath = "inputs",
+  #inputPath = "inputs",
+  inputPath = "inputs/RIA_Study/",
   outputPath = paste0("outputs", studyArea)
 )
 do.call(setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
@@ -65,9 +66,9 @@ do.call(setPaths, paths) # Set them here so that we don't have to specify at eac
   successionTimestep <- 10 # was 2
   
   # Overall model times # start is default at 0
-  endTime <- 30
+  endTime <- 700
   summaryInterval <- 10
-  summaryPeriod <- c(10, endTime)
+  summaryPeriod <- c(600, endTime)
 
 ### Package stuff that should not be run automatically
 if (FALSE) {
@@ -77,14 +78,30 @@ if (FALSE) {
   
 }
 
-# Import and build 2 polygons -- one for whole study area, one for demonstration area
-  source("inputMaps.R") # source some functions
-  loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
-  shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")), 
-                           studyArea = studyArea,
-                           crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
-  list2env(shpStudyRegions, envir = environment())
-
+  
+# Import and build 2 polygons -- one for whole study area, one for demonstration area 
+# "shpStudyRegion"     "shpStudyRegionFull"
+  if(studyArea=="RIA") {
+    shpStudyRegion <- Cache(shapefile, file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp")) 
+    loadAndBuffer <- function(shapefile) {
+      a <- shapefile(shapefile)
+      b <- buffer(a, 0)
+      SpatialPolygonsDataFrame(a, data = as.data.frame(a))
+    }
+    fireReturnIntervalTemp <- 400
+    shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
+    shpStudyRegionFull <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"))
+    shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
+    shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
+  } else {
+    source("inputMaps.R") # source some functions
+    loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
+    shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")), 
+                             studyArea = studyArea,
+                             crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
+    list2env(shpStudyRegions, envir = environment())
+  }
+  
 
 # simInit objects
   modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
@@ -102,7 +119,7 @@ if (FALSE) {
                      LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep, 
                                      burnInitialTime = fireTimestep,
                                      .plotInitialTime = NA
-                                     , .useCache = eventCaching
+                                     , .useCache = FALSE #eventCaching
                      ),
                      LBMR = list(.plotInitialTime = times$start,
                                  .saveInitialTime = NA
