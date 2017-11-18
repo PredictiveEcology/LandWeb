@@ -267,7 +267,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       #           values = na.omit(ras1[]), title = "Time since fire \n(years)") %>%
       addLayersControl(options = layersControlOptions(autoZIndex = TRUE,
                                                       collapsed = FALSE),
-                       baseGroups = c("Open Cycle Map", "ESRI World Imagery"), #"Toner Lite"),
+                       baseGroups = c("ESRI Street Map", "ESRI Imagery"), #"Toner Lite"),
                        overlayGroups = c("Time since fire", "Fire return interval"))# %>%
     # addLayersControl(
     #   baseGroups = c("OSM (default)", "Toner", "Toner Lite"),
@@ -295,9 +295,11 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       shpStudyRegionFullLFLT <- spTransform(shpStudyRegionFull, crs(polyFull))
       leafMap <- leaflet(options = leafletOptions(minZoom = 1, maxZoom = 10)) %>% #addTiles(group = "OSM (default)") %>%
         #addProviderTiles("Esri.WorldTopoMap") %>%
-        addProviderTiles("Thunderforest.OpenCycleMap", group="Open Cycle Map",
+        #addProviderTiles("Thunderforest.OpenCycleMap", group="Open Cycle Map",
+        #                 options=providerTileOptions(minZoom = 1, maxZoom = 10)) %>%
+        addProviderTiles(providers$Esri.WorldStreetMap, group="ESRI Street Map",
                          options=providerTileOptions(minZoom = 1, maxZoom = 10)) %>%
-        addProviderTiles(providers$Esri.WorldImagery, group = "ESRI World Imagery", 
+        addProviderTiles(providers$Esri.WorldImagery, group = "ESRI Imagery", 
                          options=providerTileOptions(minZoom = 1, maxZoom = 10)) %>%
         #addProviderTiles("ESRI.WorldTopoMap", group = "ESRI World Topo Map") %>%
         addPolygons(data = shpStudyRegionFullLFLT, color = "blue", 
