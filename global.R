@@ -3,6 +3,8 @@ source("functions.R") # get functions used throughout this shiny app
 source("shinyModules.R") # shiny modules
 source("footers.R") # minor footer stuff for app
 
+library(SpaDES.shiny)
+
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
      # FALSE -- standard -- just run present conditions
