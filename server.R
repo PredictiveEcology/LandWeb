@@ -227,7 +227,7 @@ function(input, output, session) {
   output$timeSinceFireUI <- renderUI({
     tabBox(width = 12,
            tabPanel("Time Since Fire maps", tabName = "timeSinceFireTab",
-                    fluidRow(timeSinceFireModUI("timeSinceFire", tsf = tsf))
+                    fluidRow(timeSinceFireUI("timeSinceFire", length(tsf)))
            )
     )
   })
@@ -240,20 +240,20 @@ function(input, output, session) {
     )
   })
   
-  callModule(timeSinceFireMod, "timeSinceFire", rasts = globalRasters)
-  
-  args <- list(clumpMod2, "id1", session = session, 
-               currentPolygon = polygons[[1 + length(polygons)/4]], 
+  callModule(timeSinceFire, "timeSinceFire", rasters = globalRasters, polygonsList = polygons,
+             shpStudyRegionFull, colorTableFile, timeSinceFirePalette, maxAge)
+
+  args <- list(clumpMod2, "id1", session = session,
+               currentPolygon = polygons[[1 + length(polygons)/4]],
                tsf = tsf, vtm = vtm,
-               cl = if(exists("cl")) cl, 
+               cl = if(exists("cl")) cl,
                ageClasses = ageClasses, cacheRepo = paths$cachePath,
                patchSize = reactive({input$PatchSize33}),
                largePatchesFn = largePatchesFn)
   args <- args[!unlist(lapply(args, is.null))]
   ClumpsReturn <- do.call(callModule, args )
   rm(args)
-  
-  
+
   lapply(seq_along(ageClasses), function(ageClassIndex) { # ageClassIndex is age
     lapply(polygonsWithData[ageClass==ageClasses[ageClassIndex]]$V1, function(j) { # j is polygon index
       lapply(seq_along(vegLeadingTypesWithAllSpecies), function(k) { # k is Veg type
@@ -324,6 +324,17 @@ function(input, output, session) {
                #}
     )
   }
+
+  clumpMod2Args <- list(
+    currentPolygon = polygons[[1 + length(polygons)/4]],
+    tsf = tsf, vtm = vtm,
+    cl = if(exists("cl")) cl,
+    ageClasses = ageClasses, cacheRepo = paths$cachePath,
+    largePatchesFn = largePatchesFn, countNumPatches = countNumPatches)
+  clumpMod2Args <- clumpMod2Args[!unlist(lapply(clumpMod2Args, is.null))]
+
+  callModule(largePatches, "largePatches", numberOfSimulationTimes = lenTSF, clumpMod2Args)
+
   
   output$speciesInputs <- renderDataTable({
     landisInputs
