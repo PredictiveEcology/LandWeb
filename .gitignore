@@ -27,10 +27,6 @@ Packages5
 
 
 *.tif
-*.shp
-*.dbf
-*.shx
-*.prj
 *.xml
 packrat/src/
 www/
@@ -39,3 +35,7 @@ www/
 *.zip
 
 m/test/
+
+*ecodistricts.*
+*ecoregions.*
+*ecozones.*
