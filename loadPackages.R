@@ -10,7 +10,7 @@ install_github("PredictiveEcology/SpaDES.core@development",
                dependencies = TRUE, upgrade_dependencies = FALSE, local=FALSE)
 packageLibrary <- "Packages1"
 dir.create(packageLibrary)
-.libPaths(packageLibrary)
+.libPaths(c(packageLibrary, .libPaths()))
 
 library(reproducible) # important to load the one in the libPaths -- or else there will be conflicts 
 Require(libPath = packageLibrary, 
@@ -34,7 +34,7 @@ Require(libPath = packageLibrary,
           "PredictiveEcology/SpaDES.core@development",
           "PredictiveEcology/SpaDES.tools@randomPolygon"
         ))#,
-        #packageVersionFile = ".packageVersions.txt")
+#packageVersionFile = ".packageVersions.txt")
 
 
 if(FALSE) # only do this when you want a new snapshot taken of the packages installed
