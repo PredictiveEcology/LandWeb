@@ -397,6 +397,7 @@ ecoregionProducer <- function(studyAreaRaster,
                               rstStudyArea, maskFn) {
   # change the coordinate reference for all spatialpolygons
   message("ecoregionProducer 1: ", Sys.time())
+  browser()
   ecoregionMapInStudy <- raster::intersect(ecoregionMapFull, aggregate(studyArea))
   # ecoregions <- ecoregionMapInStudy@data[,ecoregionName]
   # ecoregionTable <- data.table(mapcode = numeric(),
@@ -645,7 +646,13 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         rm(filenames)
       }
       ecodistrictFilename <-   file.path(dataPath, "ecodistricts.shp")
-      sim$ecoDistrict <- Cache(raster::shapefile, asPath(ecodistrictFilename), 
+      loadAndBuffer <- function(ecodistrictFilename) {
+        a <- raster::shapefile(asPath(ecodistrictFilename))
+        b <- buffer(a, dissolve = FALSE, width = 0)
+        SpatialPolygonsDataFrame(b, data = as.data.frame(a))
+      }
+      sim$ecoDistrict <- Cache(loadAndBuffer, ecodistrictFilename, #))
+      #sim$ecoDistrict <- Cache(raster::shapefile, asPath(ecodistrictFilename), 
                                digestPathContent = .quickCheck,
                                userTags = "stable")
     }

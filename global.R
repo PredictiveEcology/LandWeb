@@ -85,8 +85,8 @@ if (FALSE) {
     shpStudyRegion <- Cache(shapefile, file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp")) 
     loadAndBuffer <- function(shapefile) {
       a <- shapefile(shapefile)
-      b <- buffer(a, 0)
-      SpatialPolygonsDataFrame(a, data = as.data.frame(a))
+      b <- buffer(a, 0, dissolve = FALSE)
+      SpatialPolygonsDataFrame(b, data = as.data.frame(a))
     }
     fireReturnIntervalTemp <- 400
     shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval

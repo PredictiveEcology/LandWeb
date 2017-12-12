@@ -2,17 +2,19 @@
 ## This follows a reproducible work flow:
 # 1. need reproducible package 
 # 2. change .libPaths to a project specific one
+if(!require(devtools)) install.packages("devtools", dependencies = TRUE)
+library(devtools)
+install_github("PredictiveEcology/reproducible@development", 
+               dependencies = TRUE, upgrade_dependencies = FALSE, local=FALSE)
+install_github("PredictiveEcology/SpaDES.core@development", 
+               dependencies = TRUE, upgrade_dependencies = FALSE, local=FALSE)
 packageLibrary <- "Packages1"
 dir.create(packageLibrary)
 .libPaths(packageLibrary)
-if(!require(devtools)) install.packages("devtools", dependencies = TRUE)
-library(devtools)
-if(!require(reproducible)) install_github("PredictiveEcology/reproducible@reproduciblePackages", local=FALSE)
 
 library(reproducible) # important to load the one in the libPaths -- or else there will be conflicts 
 Require(libPath = packageLibrary, 
-        c("Rcpp",
-          "devtools",
+        c("devtools",
           "data.table",
           "raster",
           "magrittr",
@@ -29,11 +31,10 @@ Require(libPath = packageLibrary,
           "purrr",
           "gdalUtils",
           "achubaty/amc@development", 
-          #"PredictiveEcology/reproducible@reproduciblePackages", 
-          "PredictiveEcology/SpaDES.core@downloadData",
+          "PredictiveEcology/SpaDES.core@development",
           "PredictiveEcology/SpaDES.tools@randomPolygon"
-        ),
-        packageVersionFile = ".packageVersions.txt")
+        ))#,
+        #packageVersionFile = ".packageVersions.txt")
 
 
 if(FALSE) # only do this when you want a new snapshot taken of the packages installed
