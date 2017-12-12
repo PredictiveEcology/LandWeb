@@ -66,9 +66,9 @@ do.call(setPaths, paths) # Set them here so that we don't have to specify at eac
   successionTimestep <- 10 # was 2
   
   # Overall model times # start is default at 0
-  endTime <- 20
+  endTime <- 10
   summaryInterval <- 10
-  summaryPeriod <- c(10, endTime)
+  summaryPeriod <- c(5, endTime)
 
 ### Package stuff that should not be run automatically
 if (FALSE) {
@@ -88,10 +88,13 @@ if (FALSE) {
       b <- buffer(a, 0)
       SpatialPolygonsDataFrame(a, data = as.data.frame(a))
     }
-    shpStudyRegion[["LTHRC"]] <- 200 # Fire return interval
+    fireReturnIntervalTemp <- 400
+    shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
+    
     shpStudyRegionFull <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"))
-    shpStudyRegionFull[["LTHRC"]] <- 200 # Fire return interval
+    shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
     shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
+    shpStudyRegion <- shpStudyRegionFull
   } else {
     source("inputMaps.R") # source some functions
     loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
