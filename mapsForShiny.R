@@ -17,6 +17,7 @@ getEcoMaps <- function(ecoDistrictPath, cacheRepo, lfltEPSG) {
   ecodistricts <- shapefile(ecoDistrictPath)
   ecodistrictsFull <- shapefile(ecoDistrictPath)
   shpStudyRegionEco <- spTransform(shpStudyRegion, crs(ecodistricts))
+  ecodistricts <- raster::buffer(ecodistricts, width = 0, dissolve = FALSE)
   ecodistrictsStudyRegion <- crop(ecodistricts, shpStudyRegionEco)
   #ecodistrictsCan <- spTransform(ecodistrictsStudyRegion, crs(CanadaMap))
   ecodistricts <- spTransform(ecodistrictsStudyRegion, crs(shpStudyRegion))

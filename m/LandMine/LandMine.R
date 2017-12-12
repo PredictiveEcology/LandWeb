@@ -151,8 +151,8 @@ LandMineInit <- function(sim) {
   #                                    values = sim$fireReturnIntervalsByPolygonNumeric[sim$rstStudyRegion[]])# as.numeric(as.character(vals))
   fireReturnIntFilename <- file.path(tempdir(), "fireReturnInterval.tif")
   # if(file.exists(fireReturnIntFilename)) file.remove(fireReturnIntFilename)
-  fireReturnIntFilename <- "C:/Eliot/GitHub/LandWeb/appCacheRIA/rasters/fireReturnInterval.tif"
-  file.remove(fireReturnIntFilename)
+  fireReturnIntFilename <- file.path(cachePath(sim), "rasters/fireReturnInterval.tif")
+  browser()
   sim$fireReturnInterval <- writeRaster(sim$fireReturnInterval, filename = fireReturnIntFilename,
                                         datatype = "INT2U", overwrite = TRUE)
   sim$rstCurrentBurn <- raster(sim$fireReturnInterval)
