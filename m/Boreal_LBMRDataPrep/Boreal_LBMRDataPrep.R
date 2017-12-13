@@ -816,16 +816,21 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       
       # sim$ecoRegion <- raster::buffer(sim$ecoRegion, width = 0, dissolve = FALSE)
       # sim$ecoZone <- raster::buffer(sim$ecoZone, width = 0, dissolve = FALSE)
+      browser()
+      smallEcodistrictFilename <- file.path(dirname(ecodistrictFilename), paste0("Small", basename(ecodistrictFilename)))
+      smallEcoregionFilename <- file.path(dirname(ecoregionFilename), paste0("Small", basename(ecoregionFilename)))
+      smallEcozoneFilename <- file.path(dirname(ecozoneFilename), paste0("Small", basename(ecozoneFilename)))
       
       message("  Crop Eco* files to shpSTudyRegionFull")
+      
       sim$ecoDistrict <- Cache(crop, sim$ecoDistrict, sim$shpStudyRegionFull)
       sim$ecoRegion <- Cache(crop, sim$ecoRegion, sim$shpStudyRegionFull)
       sim$ecoZone <- Cache(crop, sim$ecoZone, sim$shpStudyRegionFull)
       
       message("  Resave them")
-      shapefile(sim$ecoDistrict, ecodistrictFilename, overwrite = TRUE)
-      shapefile(sim$ecoRegion, ecoregionFilename, overwrite = TRUE)
-      shapefile(sim$ecoZone, ecozoneFilename, overwrite = TRUE)
+      shapefile(sim$ecoDistrict, smallEcodistrictFilename, overwrite = TRUE)
+      shapefile(sim$ecoRegion, smallEcoregionFilename, overwrite = TRUE)
+      shapefile(sim$ecoZone, smallEcozoneFilename, overwrite = TRUE)
       
       # rasters
       # LCC2005
