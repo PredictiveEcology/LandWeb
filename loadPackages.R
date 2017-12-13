@@ -1,7 +1,5 @@
 
 ## This follows a reproducible work flow:
-# 1. need reproducible package 
-# 2. change .libPaths to a project specific one
 packageLibrary <- "Packages1"
 alreadyHasPackageLibrary <- grepl(packageLibrary, .libPaths())
 if(any(alreadyHasPackageLibrary)) .libPaths(.libPaths()[!alreadyHasPackageLibrary])
@@ -12,7 +10,7 @@ install_github("PredictiveEcology/reproducible@development",
                dependencies = TRUE, upgrade_dependencies = FALSE, local=FALSE)
 install_github("PredictiveEcology/SpaDES.core@development", 
                dependencies = TRUE, upgrade_dependencies = FALSE, local=FALSE)
-dir.create(packageLibrary)
+suppressWarnings(dir.create(packageLibrary))
 .libPaths(c(packageLibrary, .libPaths()))
 
 library(reproducible) # important to load the one in the libPaths -- or else there will be conflicts 
