@@ -322,6 +322,7 @@ Save = function(sim) {
 
 
 initialCommunityProducer <- function(speciesLayers, speciesPresence, studyArea, rstStudyArea) {
+  browser()
   specieslayerInStudyArea <- crop(speciesLayers,
                                   studyArea)
   #if(isTRUE(tryCatch(getCluster(), error=function(x) TRUE, silent=TRUE))) beginCluster()
@@ -332,7 +333,7 @@ initialCommunityProducer <- function(speciesLayers, speciesPresence, studyArea, 
   # specieslayerInStudyArea <- suppressWarnings(fastMask(specieslayerInStudyArea,
   #                                                  studyArea))
   speciesNames <- names(specieslayerInStudyArea)[which(maxValue(specieslayerInStudyArea)>=speciesPresence)]
-  specieslayerBySpecies <- subset(specieslayerInStudyArea, speciesNames[1])
+  specieslayerBySpecies <- raster::subset(specieslayerInStudyArea, speciesNames[1])
   specieslayerBySpecies[which(is.na(specieslayerBySpecies[]) & specieslayerBySpecies[]<=5)] <- 0
   # specieslayerBySpecies[Which(is.na(specieslayerBySpecies) & specieslayerBySpecies<=5,
   #                             cells = TRUE)] <- 0 # 5% or less presence removed
@@ -340,7 +341,7 @@ initialCommunityProducer <- function(speciesLayers, speciesPresence, studyArea, 
   rm(specieslayerBySpecies)
   k <- 1
   for(species in speciesNames[2:length(speciesNames)]){
-    specieslayerBySpecies <- subset(specieslayerInStudyArea, species)
+    specieslayerBySpecies <- raster::subset(specieslayerInStudyArea, species)
     specieslayerBySpecies[which(is.na(specieslayerBySpecies[]) & specieslayerBySpecies[]<=5)] <- 0
     # specieslayerBySpecies[Which(is.na(specieslayerBySpecies) & specieslayerBySpecies <=5,
     #                             cells = TRUE)] <- 0
@@ -494,7 +495,7 @@ obtainMaxBandANPP <- function(speciesLayers,
                               maxBiomass = numeric(), maxANPP = numeric())
   speciess <- names(speciesLayers)
   for(species in speciess){
-    indispeciesraster <- subset(speciesinstudyarea, species)
+    indispeciesraster <- raster::subset(speciesinstudyarea, species)
     speciesTable[, percentage:=getValues(indispeciesraster)]
     speciesTable_narmed <- speciesTable[!is.na(ecoregion),]
     speciesTable_narmed[, speciesBiomass:=biomass*percentage*0.01]
@@ -634,6 +635,12 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     checkContent_passed <- checkTable[result == "OK",]$expectedFile
     # study area should be provided by Dr. David Anderson
     # Dr. Steve Cumming will provide a temperary one
+    loadAndBuffer <- function(shapefileName) {
+      a <- raster::shapefile(asPath(shapefileName))
+      b <- buffer(a, dissolve = FALSE, width = 0)
+      SpatialPolygonsDataFrame(b, data = as.data.frame(a))
+    }
+    
     if(is.null(sim$ecoDistrict)) {
       if(length(grep("ecodistricts\\..{3}", checkContent_passed))!=4) {
         unzip(zipfile = file.path(dataPath, "ecodistrict_shp.zip"),
@@ -646,13 +653,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         rm(filenames)
       }
       ecodistrictFilename <-   file.path(dataPath, "ecodistricts.shp")
-      loadAndBuffer <- function(ecodistrictFilename) {
-        a <- raster::shapefile(asPath(ecodistrictFilename))
-        b <- buffer(a, dissolve = FALSE, width = 0)
-        SpatialPolygonsDataFrame(b, data = as.data.frame(a))
-      }
-      sim$ecoDistrict <- Cache(loadAndBuffer, ecodistrictFilename, #))
-      #sim$ecoDistrict <- Cache(raster::shapefile, asPath(ecodistrictFilename), 
+      sim$ecoDistrict <- Cache(loadAndBuffer, asPath(ecodistrictFilename),
                                digestPathContent = .quickCheck,
                                userTags = "stable")
     }
@@ -670,9 +671,9 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         rm(filenames)
       }
       sim$ecoregionFilename <-   file.path(dataPath, "ecoregions.shp")
-      sim$ecoRegion <- Cache(raster::shapefile, asPath(ecoregionFilename),
-                             digestPathContent = .quickCheck,
-                             userTags = "stable")
+      sim$ecoRegion <- Cache(loadAndBuffer, asPath(ecoregionFilename),
+                               digestPathContent = .quickCheck,
+                               userTags = "stable")
     }
     
     if(is.null(sim$ecoZone)) {
@@ -686,9 +687,9 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
         unlink(file.path(dataPath, "Ecozones"), recursive = TRUE)
       }
       ecozoneFilename <-   file.path(dataPath, "ecozones.shp")
-      sim$ecoZone <- Cache(raster::shapefile, asPath(ecozoneFilename),
-                           digestPathContent = .quickCheck,
-                           userTags = "stable")
+      sim$ecoZone <- Cache(loadAndBuffer, asPath(ecozoneFilename),
+                             digestPathContent = .quickCheck,
+                             userTags = "stable")
     }
     
     biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
@@ -728,6 +729,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       }
       sim$LCC2005 <- raster(lcc2005Filename)
     }
+    
+    # Species maps
     if(is.null(sim$specieslayers)) {
       speciesnames <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
                              "Pinu_sp", "Popu_Tre")
@@ -802,6 +805,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     sim$ecoDistrict <- Cache(spTransform, sim$ecoDistrict, crs(sim$biomassMap)) #faster with Cache
   
   needShrinking <- !all(compareNA(checkTable$result, "OK"))
+  browser()
   if(needShrinking) {
     if(!is.null(sim$shpStudyRegionFull)) {
       message("  Shrinking number and size of files that were just downloaded")
@@ -810,10 +814,13 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$biomassMap))
       sim$ecoZone <- spTransform(sim$ecoZone, crs(sim$biomassMap))
       
-      message("  Crop files to shpSTudyRegionFull")
-      sim$ecoDistrict <- crop(sim$ecoDistrict, sim$shpStudyRegionFull)
-      sim$ecoRegion <- crop(sim$ecoRegion, sim$shpStudyRegionFull)
-      sim$ecoZone <- crop(sim$ecoZone, sim$shpStudyRegionFull)
+      # sim$ecoRegion <- raster::buffer(sim$ecoRegion, width = 0, dissolve = FALSE)
+      # sim$ecoZone <- raster::buffer(sim$ecoZone, width = 0, dissolve = FALSE)
+      
+      message("  Crop Eco* files to shpSTudyRegionFull")
+      sim$ecoDistrict <- Cache(crop, sim$ecoDistrict, sim$shpStudyRegionFull)
+      sim$ecoRegion <- Cache(crop, sim$ecoRegion, sim$shpStudyRegionFull)
+      sim$ecoZone <- Cache(crop, sim$ecoZone, sim$shpStudyRegionFull)
       
       message("  Resave them")
       shapefile(sim$ecoDistrict, ecodistrictFilename, overwrite = TRUE)
@@ -850,7 +857,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       
       # Species
       message("  Crop species layers to shpStudyRegionFull")
-      sim$specieslayers <- cropSpeciesLayers(asPath(speciesFiles), sim)
+      sim$specieslayers <- cropSpeciesLayers(asPath(speciesFiles), studyArea = sim$shpStudyRegionFull)
       
       # Assign correct names
       spNames <- unique(c(speciesnames, speciesnamesRaw))
@@ -861,6 +868,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       
     } # end crop to shpStudyRegion
     
+    browser()
     speciesLayersLocal <- sim$specieslayers
     message("  Merging Pines (lodgepole and jack) into one species")
     if(all(speciesnamesRaw %in% names(speciesLayersLocal))) {
@@ -903,7 +911,9 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(is.null(sim$studyArea)) {
     sim$studyArea <- sim$shpStudyRegionFull
   }
+  browser()
   if(is.null(sim$rstStudyRegion)) {
+    browser()
     needRstSR <- TRUE
   } else {
     if(!identical(extent(sim$rstStudyRegion), extent(biomassMap)))
@@ -941,12 +951,12 @@ sumRastersBySpecies <- function(specieslayers, layersToSum,
   specieslayers
 }
 
-cropSpeciesLayers <- function(speciesFilenames, sim) {
+cropSpeciesLayers <- function(speciesFilenames, studyArea) {
 
   specieslayersLocal <- lapply(speciesFilenames, function(x) {
     filenameNoExt <- strsplit(basename(x), "\\.")[[1]][1]
     a <- raster(x) %>%
-      crop(sim$shpStudyRegionFull,
+      crop(studyArea,
            overwrite=TRUE, format = "GTiff", datatype = "INT1U",
            filename = file.path(dirname(x), paste0("Small",basename(x))))
     file.rename(filename(a), x)
