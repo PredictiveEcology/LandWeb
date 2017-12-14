@@ -29,6 +29,7 @@ Require(libPath = packageLibrary,
           "shinyjs",
           "shinycssloaders",
           "VGAM",
+          if (Sys.info()["sysname"] != "Windows") "Cairo",
           if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
           "purrr",
           "gdalUtils",
@@ -38,6 +39,7 @@ Require(libPath = packageLibrary,
         ))#,
 #packageVersionFile = ".packageVersions.txt")
 
+data.table::setDTthreads(6)
 
 if(FALSE) # only do this when you want a new snapshot taken of the packages installed
   pkgSnapshot(".packageVersions.txt", libPath = packageLibrary)

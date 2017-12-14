@@ -235,7 +235,7 @@ LandMineBurn <- function(sim) {
 
   vegTypeMap <- sim$vegTypeMapGenerator(sim$species, sim$cohortData, sim$pixelGroupMap) 
   vegType <- getValues(vegTypeMap)
-  vegTypes <- data.frame(levels(vegTypeMap)[[1]][,"Factor",drop=FALSE])
+  vegTypes <- data.frame(raster::levels(vegTypeMap)[[1]][,"Factor",drop=FALSE])
   #vegTypes <- factorValues(vegTypeMap, seq_len(NROW(levels(vegTypeMap)[[1]]))) # [vegType, "Factor"]
   ROS <- rep(NA_integer_, NROW(vegType))
   mixed <- grep(tolower(vegTypes$Factor), pattern = "mix")

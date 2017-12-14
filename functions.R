@@ -2,6 +2,7 @@
 ggvisFireReturnInterval <- function(shpStudyRegion, shpStudyRegionFull) {
   shpStudyAreaFort <- broom::tidy(shpStudyRegion, region = 'Name_1') 
   shpStudyAreaFort <- dplyr::left_join(shpStudyAreaFort, shpStudyRegion@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
+  browser()
   shpStudyAreaOrigFort <- broom::tidy(shpStudyRegionFull, region = 'Name_1') 
   shpStudyAreaOrigFort <- dplyr::left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
   #shpStudyAreaOrigFort<-shpStudyAreaOrigFort[order(shpStudyAreaOrigFort$order), ]
@@ -86,8 +87,8 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
     #names(out) <- 
     out
   })))
-  IDs <- levels(out[[1]][[1]])[[1]]$ID
-  Factors <- levels(out[[1]][[1]])[[1]]$Factor
+  IDs <- raster::levels(out[[1]][[1]])[[1]]$ID
+  Factors <- raster::levels(out[[1]][[1]])[[1]]$Factor
   ii <- 3
   aa <- raster::extract(allStack, polygonToSummarizeBy)
   
@@ -226,12 +227,12 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
                     if ((y + 1) < length(ageCutoffs))
                       leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- NA
                     
-                    clumpedRasts <- lapply(levels(leadingRast)[[1]]$ID, function(ID) {
+                    clumpedRasts <- lapply(raster::levels(leadingRast)[[1]]$ID, function(ID) {
                       spRas <- leadingRast
                       spRas[spRas != ID] <- NA
                       countNumPatches(spRas, cellIDByPolygon, directions = 8)
                     })
-                    names(clumpedRasts) <- levels(leadingRast)[[1]]$Factor
+                    names(clumpedRasts) <- raster::levels(leadingRast)[[1]]$Factor
                     clumpedRasts <- append(clumpedRasts,
                                            list("All species" =
                                                   countNumPatches(leadingRast,  
