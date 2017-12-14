@@ -1,4 +1,4 @@
-#reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
+reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
 #                                         # It needs to be separate because it is an overarching one, regardless of scale
 source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
 source("functions.R") # get functions used throughout this shiny app
@@ -66,9 +66,9 @@ fireTimestep <- 1
 successionTimestep <- 10 # was 2
 
 # Overall model times # start is default at 0
-endTime <- 10
+endTime <- 40
 summaryInterval <- 10
-summaryPeriod <- c(5, endTime)
+summaryPeriod <- c(10, endTime)
 
 ### Package stuff that should not be run automatically
 if (FALSE) {
@@ -77,7 +77,6 @@ if (FALSE) {
   if (length(new.packages)) install.packages(new.packages)
   
 }
-
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area 
 # "shpStudyRegion"     "shpStudyRegionFull"
@@ -90,12 +89,13 @@ if(studyArea=="RIA") {
   }
   fireReturnIntervalTemp <- 400
   shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
+  shpStudyRegion[["fireReturnInterval"]] <- shpStudyRegion$LTHRC # Fire return interval
   
   shpStudyRegionFull <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
                               cacheRepo = paths$cachePath)
   shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
-  shpStudyRegion <- shpStudyRegionFull
+  shpStudyRegionFull <- shpStudyRegion
 } else {
   source("inputMaps.R") # source some functions
   loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv

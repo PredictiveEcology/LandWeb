@@ -293,6 +293,7 @@ timeSinceFireMod <- function(input, output, session, rasts) {
       sliderVal <- rasInp$sliderVal
       pol <- polygons[[(length(polygons)/4)*4]]
       shpStudyRegionFullLFLT <- spTransform(shpStudyRegionFull, crs(polyFull))
+      browser()
       leafMap <- leaflet(options = leafletOptions(minZoom = 1, maxZoom = 10)) %>% #addTiles(group = "OSM (default)") %>%
         #addProviderTiles("Esri.WorldTopoMap") %>%
         #addProviderTiles("Thunderforest.OpenCycleMap", group="Open Cycle Map",

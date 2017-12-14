@@ -210,7 +210,7 @@ importLandWeb_BAP_LayersEvent2 <- function(sim) {
     a <- raster(i)
     a[] <- getValues(a)
     if(grepl(basename(i), pattern="^SPP")) { 
-      levels(a) <- data.frame(ID=c(11, 14, 22, 23, 26, 31, 32, 33, 34, 41, 42, 43, 44, 201), 
+      raster::levels(a) <- data.frame(ID=c(11, 14, 22, 23, 26, 31, 32, 33, 34, 41, 42, 43, 44, 201), 
                               Names = c("Decid pure", "Decid-PiceGlau", "PiceMari pure", 
                                         "PiceMari-Pinus", "PiceMari-other", "Pinus-Decid",
                                         "Pinus-PiceMari", "Pinus pure", "Pinus-PiceGlau",
@@ -243,7 +243,7 @@ importLandWeb_BAP_LayersEvent2 <- function(sim) {
         
   sim$SPP_1990 <- Cache(rasterToMemory, file.path(dataDir, "SPP_1990_FILLED_100m.tif"))
   
-  suppressWarnings(levels(sim$SPP_1990) <- data.frame(ID=c(11, 14, 22, 23, 26, 31, 32, 33, 34, 41, 42, 43, 44, 201), 
+  suppressWarnings(raster::levels(sim$SPP_1990) <- data.frame(ID=c(11, 14, 22, 23, 26, 31, 32, 33, 34, 41, 42, 43, 44, 201), 
                           Names = c("Decid pure", "Decid-PiceGlau", "PiceMari pure", 
                                     "PiceMari-Pinus", "PiceMari-other", "Pinus-Decid",
                                     "Pinus-PiceMari", "Pinus pure", "Pinus-PiceGlau",
