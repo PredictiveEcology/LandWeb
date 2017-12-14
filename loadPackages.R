@@ -31,6 +31,7 @@ Require(libPath = packageLibrary,
           "shinyjs",
           "shinycssloaders",
           "VGAM",
+          if (Sys.info()["sysname"] != "Windows") "Cairo",
           if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
           "purrr",
           "gdalUtils",
