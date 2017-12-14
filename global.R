@@ -66,9 +66,9 @@ fireTimestep <- 1
 successionTimestep <- 10 # was 2
 
 # Overall model times # start is default at 0
-endTime <- 10
+endTime <- 40
 summaryInterval <- 10
-summaryPeriod <- c(5, endTime)
+summaryPeriod <- c(20, endTime)
 
 ### Package stuff that should not be run automatically
 if (FALSE) {
@@ -95,7 +95,7 @@ if(studyArea=="RIA") {
                               cacheRepo = paths$cachePath)
   shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
-  shpStudyRegion <- shpStudyRegionFull
+  shpStudyRegionFull <- shpStudyRegion
 } else {
   source("inputMaps.R") # source some functions
   loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv

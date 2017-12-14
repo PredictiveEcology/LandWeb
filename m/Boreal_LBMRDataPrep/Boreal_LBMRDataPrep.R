@@ -638,7 +638,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   
   if(needDownloads) {
     if(is.null(sim$biomassMap)) {
-      sim$biomassMap <- Cache(dwnldUntarUnzipLoadBufferProjectCrop, 
+      sim$biomassMap <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
                               tarOrZip = c("tar", "zip"),
                               tarfileName = "kNN-StructureBiomass.tar",
                               untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
@@ -651,7 +651,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     
     # LCC2005
     if(is.null(sim$LCC2005)) {
-      sim$LCC2005 <- Cache(dwnldUntarUnzipLoadBufferProjectCrop, 
+      sim$LCC2005 <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
                            tarOrZip = c("zip"),
                            untarfileNames = asPath("LandCoverOfCanada2005_V1_4.zip"),
                            spatialObjectFilename = lcc2005Filename,
@@ -663,7 +663,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     
     
     if(is.null(sim$ecoDistrict)) {
-      sim$ecoDistrict <- Cache(dwnldUntarUnzipLoadBufferProjectCrop, 
+      sim$ecoDistrict <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
                             untarfileNames = "ecodistrict_shp.zip",
                             zipExtractFolder = "Ecodistricts",
                             spatialObjectFilename = asPath(ecodistrictFilename),
@@ -673,7 +673,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     }
     
     if(is.null(sim$ecoRegion)) {
-      sim$ecoRegion <- Cache(dwnldUntarUnzipLoadBufferProjectCrop, 
+      sim$ecoRegion <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
                              untarfileNames = asPath("ecoregion_shp.zip"),
                              zipExtractFolder = "Ecoregions",
                              spatialObjectFilename = ecoregionFilename,
@@ -685,7 +685,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     }
     
     if(is.null(sim$ecoZone)) {
-      sim$ecoZone <- Cache(dwnldUntarUnzipLoadBufferProjectCrop, 
+      sim$ecoZone <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
                              untarfileNames = asPath("ecozone_shp.zip"),
                              zipExtractFolder = "Ecozones",
                              spatialObjectFilename = ecozoneFilename,
@@ -698,7 +698,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     
     # stand age map
     if(is.null(sim$standAgeMap)) {
-      sim$standAgeMap <- Cache(dwnldUntarUnzipLoadBufferProjectCrop, 
+      sim$standAgeMap <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
                               tarOrZip = c("tar", "zip"),
                               tarfileName = "kNN-StructureStandVolume.tar",
                               untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
@@ -716,7 +716,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                            "Pinu_Ban", "Pinu_Con", "Popu_Tre")
       species1 <- list()
       for(sp in speciesnamesRaw) {
-        species1[[sp]] <- Cache(dwnldUntarUnzipLoadBufferProjectCrop, 
+        species1[[sp]] <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
                                 tarOrZip = c("tar", "zip"),
                                 tarfileName = "kNN-Species.tar",
                                 untarfileNames = paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw, "_v0.zip"),
@@ -846,11 +846,11 @@ toSentenceCase <- function(strings) {
 }
 
 
-dwnldUntarUnzipLoadBufferProjectCrop <- function(tarOrZip = "zip", #"zip", "tar" or c("tar", "zip"),
+dwnldUntarUnzipLoadBufferProjectCropMask <- function(tarOrZip = "zip", #"zip", "tar" or c("tar", "zip"),
                                             tarfileName = NULL, untarfileNames, 
                                             zipfileName = untarfileNames, 
                                             zipExtractFolder = NULL, spatialObjectFilename, dataPath,
-                                            crsUsed, rasterToMatch = NULL,
+                                            crsUsed = NULL, rasterToMatch = NULL,
                                             studyArea, rasterDatatype = "INT2U", modulePath,
                                             moduleName = "Boreal_LBMRDataPrep") {
   
@@ -907,6 +907,7 @@ dwnldUntarUnzipLoadBufferProjectCrop <- function(tarOrZip = "zip", #"zip", "tar"
     if(grepl(".shp", spatialObjectFilename)) {
       browser()
       a <- Cache(raster::shapefile, spatialObjectFilename)
+      if(is.null(crsUsed)) if(is.null(rasterToMatch)) crsUsed <- crs(a) else crsUsed <- crs(rasterToMatch)
       if(!rgeos::gIsValid(a)) b <- Cache(buffer, a, dissolve = FALSE, width = 0) else b <- a
       b <- SpatialPolygonsDataFrame(b, data = as.data.frame(a))
       b <- Cache(spTransform, b, crsUsed)
@@ -915,6 +916,7 @@ dwnldUntarUnzipLoadBufferProjectCrop <- function(tarOrZip = "zip", #"zip", "tar"
       shapefile(b, smallSOF, overwrite = TRUE)
     } else if (grepl(".tif", spatialObjectFilename)){
       b <- raster::raster(spatialObjectFilename)
+      if(is.null(crsUsed)) if(is.null(rasterToMatch)) crsUsed <- crs(b) else crsUsed <- crs(rasterToMatch)
       if(!identical(crs(b), CRS(crsUsed))) {
         #studyAreaExtentCRSUsed <- projectExtent(raster(extent(studyArea), crs = crs(studyArea)), crs = CRS(crsUsed))
         b <- Cache(crop, b, spTransform(studyArea, crs(b)))
