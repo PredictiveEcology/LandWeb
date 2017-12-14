@@ -66,7 +66,7 @@ fireTimestep <- 1
 successionTimestep <- 10 # was 2
 
 # Overall model times # start is default at 0
-endTime <- 11
+endTime <- 40
 summaryInterval <- 10
 summaryPeriod <- c(10, endTime)
 
@@ -89,6 +89,7 @@ if(studyArea=="RIA") {
   }
   fireReturnIntervalTemp <- 400
   shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
+  shpStudyRegion[["fireReturnInterval"]] <- shpStudyRegion$LTHRC # Fire return interval
   
   shpStudyRegionFull <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
                               cacheRepo = paths$cachePath)
