@@ -66,9 +66,9 @@ fireTimestep <- 1
 successionTimestep <- 10 # was 2
 
 # Overall model times # start is default at 0
-endTime <- 40
+endTime <- 11
 summaryInterval <- 10
-summaryPeriod <- c(20, endTime)
+summaryPeriod <- c(10, endTime)
 
 ### Package stuff that should not be run automatically
 if (FALSE) {
@@ -77,7 +77,6 @@ if (FALSE) {
   if (length(new.packages)) install.packages(new.packages)
   
 }
-
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area 
 # "shpStudyRegion"     "shpStudyRegionFull"

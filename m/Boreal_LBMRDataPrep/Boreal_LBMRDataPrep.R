@@ -639,7 +639,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(needDownloads) {
     if(is.null(sim$biomassMap)) {
       sim$biomassMap <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                              tarOrZip = c("tar", "zip"),
+                              #tarOrZip = c("tar", "zip"),
                               tarfileName = "kNN-StructureBiomass.tar",
                               untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                               spatialObjectFilename = biomassMapFilename,
@@ -652,8 +652,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     # LCC2005
     if(is.null(sim$LCC2005)) {
       sim$LCC2005 <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                           tarOrZip = c("zip"),
-                           untarfileNames = asPath("LandCoverOfCanada2005_V1_4.zip"),
+                           #tarOrZip = c("zip"),
+                           zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
                            spatialObjectFilename = lcc2005Filename,
                            dataPath = dataPath, rasterToMatch = sim$biomassMap,
                            crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
@@ -664,7 +664,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     
     if(is.null(sim$ecoDistrict)) {
       sim$ecoDistrict <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                            untarfileNames = "ecodistrict_shp.zip",
+                            zipfileName = "ecodistrict_shp.zip",
                             zipExtractFolder = "Ecodistricts",
                             spatialObjectFilename = asPath(ecodistrictFilename),
                             dataPath = dataPath, rasterToMatch = sim$biomassMap,
@@ -674,7 +674,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     
     if(is.null(sim$ecoRegion)) {
       sim$ecoRegion <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                             untarfileNames = asPath("ecoregion_shp.zip"),
+                             zipfileName = asPath("ecoregion_shp.zip"),
                              zipExtractFolder = "Ecoregions",
                              spatialObjectFilename = ecoregionFilename,
                              dataPath = dataPath, rasterToMatch = sim$biomassMap,
@@ -686,12 +686,12 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     
     if(is.null(sim$ecoZone)) {
       sim$ecoZone <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                             untarfileNames = asPath("ecozone_shp.zip"),
-                             zipExtractFolder = "Ecozones",
-                             spatialObjectFilename = ecozoneFilename,
+                           zipfileName = asPath("ecozone_shp.zip"),
+                           zipExtractFolder = "Ecozones",
+                           spatialObjectFilename = ecozoneFilename,
                            dataPath = dataPath, rasterToMatch = sim$biomassMap,
                            crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
-                             userTags = "stable",
+                           userTags = "stable",
                            modulePath = modulePath(sim))
       
     }
@@ -699,9 +699,9 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     # stand age map
     if(is.null(sim$standAgeMap)) {
       sim$standAgeMap <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                              tarOrZip = c("tar", "zip"),
+                              #tarOrZip = c("tar", "zip"),
                               tarfileName = "kNN-StructureStandVolume.tar",
-                              untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
+                              zipfileName = asPath("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
                               spatialObjectFilename = standAgeMapFilename,
                               dataPath = dataPath, rasterToMatch = sim$biomassMap,
                               crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
@@ -717,7 +717,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
       species1 <- list()
       for(sp in speciesnamesRaw) {
         species1[[sp]] <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                                tarOrZip = c("tar", "zip"),
+                                #tarOrZip = c("tar", "zip"),
                                 tarfileName = "kNN-Species.tar",
                                 untarfileNames = paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw, "_v0.zip"),
                                 zipfileName = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.zip"),
@@ -846,64 +846,78 @@ toSentenceCase <- function(strings) {
 }
 
 
-dwnldUntarUnzipLoadBufferProjectCropMask <- function(tarOrZip = "zip", #"zip", "tar" or c("tar", "zip"),
-                                            tarfileName = NULL, untarfileNames, 
+dwnldUntarUnzipLoadBufferProjectCropMask <- function(#tarOrZip = "zip", #"zip", "tar" or c("tar", "zip"),
+                                            tarfileName = NULL, untarfileNames = NULL, 
                                             zipfileName = untarfileNames, 
                                             zipExtractFolder = NULL, spatialObjectFilename, dataPath,
                                             crsUsed = NULL, rasterToMatch = NULL,
                                             studyArea, rasterDatatype = "INT2U", modulePath,
                                             moduleName = "Boreal_LBMRDataPrep") {
   
+  
   if(!isAbsolutePath(spatialObjectFilename)) spatialObjectFilename <- file.path(dataPath, spatialObjectFilename)
   
+  # Test whether dataPath has been updated with file deletions or additions or whatever, 
+  #  If it has changed, then Cache of checksums will be rerun
+  bb <- capture.output(aa <- Cache(file.info, asPath(dir(dataPath, full.names = TRUE))), type = "message")
+  if(isTRUE(!startsWith(bb, "loading cached"))) {
+    notOlderThan <- Sys.time()
+  } else {
+    notOlderThan <- NULL
+  }
+  
   dd <- data.table(Cache(checksums, module = moduleName, path = modulePath, write = FALSE, 
-                         quickCheck = .quickCheck))
+                         quickCheck = .quickCheck, notOlderThan = notOlderThan))
   
   # if we don't alraedy have the file that will be the source for the spatial object, then proceed with tar & zip
-  if(!(compareNA(dd[grepl(actualFile, pattern = paste0("^",basename(spatialObjectFilename),"$")), result], "OK"))) {
-    
+  smallSOF <- smallNamify(spatialObjectFilename)
+  
+  # Work outwards from final step, penultimate step, 3rd from last step etc.
+  #  In prinicple, the steps are 
+  #  1. Download
+  #  2. Unpack (tar or zip or both)
+  #  3. Load object into R
+  #  4. Perform geographic steps -- crop, reproject, mask
+  if(!(compareNA(dd[grepl(expectedFile, pattern = paste0("^",basename(smallSOF),"$")), result], "OK"))) {
+    if(!(compareNA(dd[grepl(expectedFile, pattern = paste0("^",basename(spatialObjectFilename),"$")), result], "OK"))) {
     # Try untar, if relevant
-    if(any("tar" %in% tarOrZip)) {
-      if(!all(compareNA(dd[grepl(actualFile, pattern = tarfileName), result], "OK"))) {
-        ee <- Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck)
-        if(!all(compareNA(ee[grepl(actualFile, pattern = tarfileName), result], "OK"))) {
-          warning("The version downloaded of ", tarfileName, " does not match the checksums")
+      if(!is.null(tarfileName)) {
+        if(!all(compareNA(dd[grepl(expectedFile, pattern = tarfileName), result], "OK"))) {
+          ee <- Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck)
+          if(!all(compareNA(ee[grepl(expectedFile, pattern = tarfileName), result], "OK"))) {
+            warning("The version downloaded of ", tarfileName, " does not match the checksums")
+          }
         }
-      }
-      if(all((!file.exists(file.path(dataPath, basename(untarfileNames))))))
-        untar(file.path(dataPath, tarfileName),
-              files = untarfileNames,
-              exdir = dataPath, tar = "internal")
-    } 
-    # Try unzip if relevant
-    if(any("zip" %in% tarOrZip)) {
-      if(!all(compareNA(dd[grepl(actualFile, pattern = zipfileName), result], "OK")))  {
-        ee <- Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck)
-        if(!all(compareNA(ee[grepl(actualFile, pattern = zipfileName), result], "OK"))) {
-          warning("The version downloaded of ", zipfileName, " does not match the checksums")
+        if(is.null(untarfileNames)) untarfileNames <- zipfileName
+        if(all((!file.exists(file.path(dataPath, basename(untarfileNames))))))
+          untar(file.path(dataPath, tarfileName),
+                files = untarfileNames,
+                exdir = dataPath, tar = "internal")
+      } 
+      # Try unzip if relevant
+      if(!is.null(zipfileName)) {
+        if(!all(compareNA(dd[grepl(expectedFile, pattern = zipfileName), result], "OK")))  {
+          ee <- Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck)
+          if(!all(compareNA(ee[grepl(expectedFile, pattern = zipfileName), result], "OK"))) {
+            warning("The version downloaded of ", zipfileName, " does not match the checksums")
+          }
         }
-      }
-      if(all(!file.exists(spatialObjectFilename))) {
-        unzip(file.path(dataPath, zipfileName), exdir = dataPath)
-        if(!is.null(zipExtractFolder)) {
-          filenames <- dir(file.path(dataPath, zipExtractFolder))
-          file.copy(from = file.path(dataPath, zipExtractFolder, filenames),
-                    to = file.path(dataPath, filenames),
-                    overwrite = TRUE)
-          unlink(file.path(dataPath, zipExtractFolder), recursive = TRUE)
-          rm(filenames)
+        if(all(!file.exists(spatialObjectFilename))) {
+          unzip(file.path(dataPath, zipfileName), exdir = dataPath)
+          if(!is.null(zipExtractFolder)) {
+            filenames <- dir(file.path(dataPath, zipExtractFolder))
+            file.copy(from = file.path(dataPath, zipExtractFolder, filenames),
+                      to = file.path(dataPath, filenames),
+                      overwrite = TRUE)
+            unlink(file.path(dataPath, zipExtractFolder), recursive = TRUE)
+            rm(filenames)
+          }
         }
       }
     }
-  }
-  
-  
+    
   # Different from here for shp or tif
   # If final small object is correct, don't need to do anything
-  smallSOF <- smallNamify(spatialObjectFilename)
-  if(!(compareNA(dd[grepl(actualFile, 
-                          pattern = paste0("^",basename(smallSOF),"$")), result],
-                 "OK"))) {
     if(grepl(".shp", spatialObjectFilename)) {
       browser()
       a <- Cache(raster::shapefile, spatialObjectFilename)
