@@ -2,6 +2,7 @@
 ggvisFireReturnInterval <- function(shpStudyRegion, shpStudyRegionFull) {
   shpStudyAreaFort <- broom::tidy(shpStudyRegion, region = 'Name_1') 
   shpStudyAreaFort <- dplyr::left_join(shpStudyAreaFort, shpStudyRegion@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
+  browser()
   shpStudyAreaOrigFort <- broom::tidy(shpStudyRegionFull, region = 'Name_1') 
   shpStudyAreaOrigFort <- dplyr::left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
   #shpStudyAreaOrigFort<-shpStudyAreaOrigFort[order(shpStudyAreaOrigFort$order), ]
