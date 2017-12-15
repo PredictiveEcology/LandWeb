@@ -108,7 +108,7 @@ LandWebOutputAllEvents <- function(sim) {
                                    include.lowest = TRUE)]
     SAPixelTable[, Classification:=as.numeric(seralStage)]
     seralStageMap[SAPixelTable$pixelIndex] <- SAPixelTable$Classification
-    levels(seralStageMap) <- as.data.frame(unique(SAPixelTable[,.(ID=Classification, factor = seralStage)], by = "ID"))
+    raster::levels(seralStageMap) <- as.data.frame(unique(SAPixelTable[,.(ID=Classification, factor = seralStage)], by = "ID"))
     sim$seralStageMap <- seralStageMap
   }
   # vegetation type summary 
@@ -144,7 +144,7 @@ LandWebOutputAllEvents <- function(sim) {
     pixelGroupMap <- sim$pixelGroupMap
     vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading") 
     vegTypeMap <- setValues(vegTypeMap, as.integer(getValues(vegTypeMap)))
-    levels(vegTypeMap) <- as.data.frame(attritable)
+    raster::levels(vegTypeMap) <- as.data.frame(attritable)
     projection(vegTypeMap) <- projection(sim$pixelGroupMap)
     sim$vegTypeMap <- vegTypeMap
   } else {
