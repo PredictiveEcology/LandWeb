@@ -45,7 +45,7 @@ doEvent.fireDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
     # do stuff for this event
-    sim <- sim$fireDataPrepInit(sim)
+    sim <- Init(sim)
   } else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
@@ -60,7 +60,7 @@ doEvent.fireDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
 
 ### template initialization
 
-fireDataPrepInit <- function(sim) {
+Init <- function(sim) {
   nonFlammClasses<-c(36,37,38,39)
   oldClass <- 0:39
   newClass <- ifelse(oldClass %in% nonFlammClasses,1,0)   #1 codes for non flammable 
@@ -89,7 +89,7 @@ fireDataPrepInit <- function(sim) {
 }
 
 
-.init = function(sim) {
+.inputObjects = function(sim) {
   # Any code written here will be run during the simInit and subsequently deleted
   # This is useful if there is something required before simulation, such as data downloading, e.g.,
   # downloadData("LCC2005", modulePath(sim))

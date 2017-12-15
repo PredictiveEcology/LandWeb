@@ -20,7 +20,8 @@ defineModule(sim, list(
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
-    defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur")
+    defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
+    defineParameter(".useCache", "logical", FALSE, NA, NA, "This describes the simulation time at which the first save event should occur")
   ),
   inputObjects = data.frame(
     objectName = c("LCC05","rstFlammable","rstStudyRegion","burnLoci", "rstCurrentBurn","fireTimestep"),
