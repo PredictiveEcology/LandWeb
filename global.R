@@ -27,7 +27,6 @@ paths <- list(
 )
 do.call(setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
-
 # App - variables 
 appStartTime <- st <- Sys.time() - 1
 message("Started at ", appStartTime)
