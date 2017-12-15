@@ -36,6 +36,7 @@ Require(libPath = packageLibrary,
           "purrr",
           "gdalUtils",
           "achubaty/amc@development", 
+          "ecohealthalliance/fasterize",
           "PredictiveEcology/SpaDES.core@development",
           "PredictiveEcology/SpaDES.tools@randomPolygon"
         ))#,
