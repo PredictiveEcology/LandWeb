@@ -339,7 +339,7 @@ dwnldUntarUnzipLoadBufferProjectCropMask <- function(#tarOrZip = "zip", #"zip", 
       if(!is.null(tarfileName)) {
         needTar <- !all(compareNA(dd[grepl(expectedFile, pattern = tarfileName), result], "OK"))
         if(needTar) {
-          ee <- Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck)
+          ee <- data.table(Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck))
           if(!all(compareNA(ee[grepl(expectedFile, pattern = tarfileName), result], "OK"))) {
             warning("The version downloaded of ", tarfileName, " does not match the checksums")
           }
@@ -353,7 +353,7 @@ dwnldUntarUnzipLoadBufferProjectCropMask <- function(#tarOrZip = "zip", #"zip", 
       # Try unzip if relevant
       if(!is.null(zipfileName)) {
         if(!all(compareNA(dd[grepl(expectedFile, pattern = zipfileName), result], "OK")))  {
-          ee <- Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck)
+          ee <- data.table(Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck))
           if(!all(compareNA(ee[grepl(expectedFile, pattern = zipfileName), result], "OK"))) {
             warning("The version downloaded of ", zipfileName, " does not match the checksums")
           }
