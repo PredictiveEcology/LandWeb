@@ -8,5 +8,3 @@
 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.aux.xml" "98af0905bce31915" "2117" "xxhash64"
 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif.xml" "396edfc4d59fa1f6" "580" "xxhash64"
 "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip" "8e13ae321f43313a" "449276419" "xxhash64"
-"SmallLCC2005_V1_4a.tif" "57bbda7e9b3aa04b" "1049142" "xxhash64"
-"SmallNFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif" "e6fa894712b8561c" "2463044" "xxhash64"
