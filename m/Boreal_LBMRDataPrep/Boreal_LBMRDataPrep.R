@@ -919,10 +919,9 @@ dwnldUntarUnzipLoadBufferProjectCropMask <- function(#tarOrZip = "zip", #"zip", 
   # Different from here for shp or tif
   # If final small object is correct, don't need to do anything
     if(grepl(".shp", spatialObjectFilename)) {
-      browser()
       a <- Cache(raster::shapefile, spatialObjectFilename)
       if(is.null(crsUsed)) if(is.null(rasterToMatch)) crsUsed <- crs(a) else crsUsed <- crs(rasterToMatch)
-      if(!rgeos::gIsValid(a)) b <- Cache(buffer, a, dissolve = FALSE, width = 0) else b <- a
+      if(suppressWarnings(!rgeos::gIsValid(a))) b <- Cache(buffer, a, dissolve = FALSE, width = 0) else b <- a
       b <- SpatialPolygonsDataFrame(b, data = as.data.frame(a))
       b <- Cache(spTransform, b, crsUsed)
       b <- Cache(crop, b, rasterToMatch)
