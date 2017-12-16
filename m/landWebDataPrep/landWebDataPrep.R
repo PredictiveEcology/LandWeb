@@ -167,7 +167,6 @@ landWebDataPrepPlot <- function(sim) {
                             untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                             spatialObjectFilename = biomassMapFilename,
                             dataPath = dataPath, #rasterToMatch = sim$standAgeMap,
-                            #crsUsed = crsUsed, 
                             studyArea = sim$shpStudyRegionFull,
                             userTags = "stable",
                             modulePath = modulePath(sim),
@@ -179,7 +178,6 @@ landWebDataPrepPlot <- function(sim) {
                          zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
                          spatialObjectFilename = lcc2005Filename,
                          dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                         #crsUsed = crsUsed, 
                          studyArea = sim$shpStudyRegionFull,
                          userTags = "stable",
                          modulePath = modulePath(sim),
@@ -303,10 +301,13 @@ dwnldUntarUnzipLoadBufferProjectCropMask <- function(#tarOrZip = "zip", #"zip", 
   tarfileName = NULL, untarfileNames = NULL, 
   zipfileName = untarfileNames, 
   zipExtractFolder = NULL, spatialObjectFilename, dataPath,
-  crsUsed = NULL, rasterToMatch = NULL,
+  rasterToMatch = NULL,
   studyArea, rasterDatatype = "INT2U", modulePath,
   moduleName = "Boreal_LBMRDataPrep") {
   
+  dwnldUntarUnzipLoadBufferProjectCropMask
+  
+  message("Preparing: ", basename(spatialObjectFilename))
   
   if(!isAbsolutePath(spatialObjectFilename)) spatialObjectFilename <- file.path(dataPath, spatialObjectFilename)
   
@@ -322,90 +323,25 @@ dwnldUntarUnzipLoadBufferProjectCropMask <- function(#tarOrZip = "zip", #"zip", 
   dd <- data.table(Cache(checksums, module = moduleName, path = modulePath, write = FALSE, 
                          quickCheck = .quickCheck, notOlderThan = notOlderThan))
   
-  # if we don't alraedy have the file that will be the source for the spatial object, then proceed with tar & zip
-  smallSOF <- smallNamify(spatialObjectFilename)
-  
   # Work outwards from final step, penultimate step, 3rd from last step etc.
   #  In prinicple, the steps are 
   #  1. Download
   #  2. Unpack (tar or zip or both)
   #  3. Load object into R
   #  4. Perform geographic steps -- crop, reproject, mask
-  #needSmall <- !isTRUE(compareNA(dd[grepl(expectedFile, pattern = paste0("^",basename(smallSOF),"$")), result], "OK"))
   needRawObject <- !isTRUE(compareNA(dd[grepl(expectedFile, pattern = paste0("^",basename(spatialObjectFilename),"$")), result], "OK"))
-  #if(needSmall) {
-    if(needRawObject) {
-      # Try untar, if relevant
-      if(!is.null(tarfileName)) {
-        needTar <- !all(compareNA(dd[grepl(expectedFile, pattern = tarfileName), result], "OK"))
-        if(needTar) {
-          ee <- Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck)
-          if(!all(compareNA(ee[grepl(expectedFile, pattern = tarfileName), result], "OK"))) {
-            warning("The version downloaded of ", tarfileName, " does not match the checksums")
-          }
-        }
-        if(is.null(untarfileNames)) untarfileNames <- zipfileName
-        if(all((!file.exists(file.path(dataPath, basename(untarfileNames))))))
-          untar(file.path(dataPath, tarfileName),
-                files = untarfileNames,
-                exdir = dataPath, tar = "internal")
-      } 
-      # Try unzip if relevant
-      if(!is.null(zipfileName)) {
-        if(!all(compareNA(dd[grepl(expectedFile, pattern = zipfileName), result], "OK")))  {
-          ee <- Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck)
-          if(!all(compareNA(ee[grepl(expectedFile, pattern = zipfileName), result], "OK"))) {
-            warning("The version downloaded of ", zipfileName, " does not match the checksums")
-          }
-        }
-        if(all(!file.exists(spatialObjectFilename))) {
-          unzip(file.path(dataPath, zipfileName), exdir = dataPath)
-          if(!is.null(zipExtractFolder)) {
-            filenames <- dir(file.path(dataPath, zipExtractFolder))
-            file.copy(from = file.path(dataPath, zipExtractFolder, filenames),
-                      to = file.path(dataPath, filenames),
-                      overwrite = TRUE)
-            unlink(file.path(dataPath, zipExtractFolder), recursive = TRUE)
-            rm(filenames)
-          }
-        }
-      }
-    }
-    
-    # Different from here for shp or tif
-    # If final small object is correct, don't need to do anything
-    if(grepl(".shp", spatialObjectFilename)) {
-      a <- Cache(raster::shapefile, spatialObjectFilename)
-      if(is.null(crsUsed)) if(is.null(rasterToMatch)) crsUsed <- crs(a) else crsUsed <- crs(rasterToMatch)
-      if(!rgeos::gIsValid(a)) b <- Cache(buffer, a, dissolve = FALSE, width = 0) else b <- a
-      b <- SpatialPolygonsDataFrame(b, data = as.data.frame(a))
-      b <- Cache(spTransform, b, crsUsed)
-      b <- Cache(crop, b, rasterToMatch)
-      # write small, cropped object to disk
-      shapefile(b, smallSOF, overwrite = TRUE)
-    } else if (grepl(".tif", spatialObjectFilename)) {
-      b <- raster::raster(spatialObjectFilename)
-      if(is.null(crsUsed)) if(is.null(rasterToMatch)) crsUsed <- as.character(crs(b)) else crsUsed <- as.character(crs(rasterToMatch))
-      if(!identical(crs(b), crs(studyArea))) studyArea <- spTransform(studyArea, crs(b))
-      if(!identical(crs(b), CRS(crsUsed))) {
-        #studyAreaExtentCRSUsed <- projectExtent(raster(extent(studyArea), crs = crs(studyArea)), crs = CRS(crsUsed))
-        b <- Cache(crop, b, studyArea)
-        b <- Cache(projectRaster, from = b, to = rasterToMatch, method = "bilinear")
-      } else {
-        b <- Cache(crop, b, studyArea)
-      }
-      b <- Cache(fastMask, b, studyArea)
-      b <- writeRaster(b, overwrite=TRUE, format = "GTiff", datatype = rasterDatatype,
-                       filename = smallSOF)
-    }
-  # } else {
-  #   if(grepl(".shp", smallSOF)) {
-  #     b <- Cache(raster::shapefile, smallSOF)
-  #   } else if (grepl(".tif", smallSOF)){
-  #     b <- raster::raster(smallSOF)
-  #   }  
-  # }
-  return(b)
+  if(needRawObject) {
+    # Try untar
+    untarIt(tarfileName, checksum = dd, moduleName, modulePath, untarfileNames, 
+                         zipfileName, dataPath, spatialObjectFilename, .quickCheck)
+    # Try unzip
+    unzipIt(zipfileName, dd, moduleName, modulePath, spatialObjectFilename, 
+                         zipExtractFolder, dataPath, .quickCheck)
+  }
+  objs <- cropReprojectIt(spatialObjectFilename, rasterToMatch, studyArea)
+  obj <- maskIt(objs$obj, spatialObjectFilename, objs$studyArea)
+  writeIt(obj, spatialObjectFilename, smallNamify(spatialObjectFilename), rasterDatatype)  
+  return(obj)
 }
 
 smallNamify <- function(name) {
@@ -416,4 +352,100 @@ function(sim) {
   sim$dwnldUntarUnzipLoadBufferProjectCropMask <- dwnldUntarUnzipLoadBufferProjectCropMask
   sim$smallNamify <- smallNamify
   return(invisible(sim))
+}
+
+untarIt <- function(tarfileName = NULL, checksum = NULL, moduleName = NULL, modulePath = NULL,
+                                 untarfileNames = NULL, zipfileName = NULL, 
+                                 dataPath = NULL, spatialObjectFilename = NULL, .quickCheck = FALSE) {
+  if(!is.null(tarfileName)) {
+    needTar <- !all(compareNA(checksum[grepl(expectedFile, pattern = tarfileName), result], "OK"))
+    if(needTar) {
+      ee <- data.table(Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck))
+      if(!all(compareNA(ee[grepl(expectedFile, pattern = tarfileName), result], "OK"))) {
+        warning("The version downloaded of ", tarfileName, " does not match the checksums")
+      }
+    }
+    if(is.null(untarfileNames)) untarfileNames <- zipfileName
+    if(all((!file.exists(file.path(dataPath, basename(untarfileNames)))))) {
+      message("  Untarring ", tarfileName)
+      untar(file.path(dataPath, tarfileName),
+            files = untarfileNames,
+            exdir = dataPath, tar = "internal")
+    }
+  } 
+  
+}
+
+unzipIt <- function(zipfileName = NULL, checksum = NULL, moduleName = NULL, modulePath = NULL,
+                                 spatialObjectFilename = NULL, zipExtractFolder = NULL,
+                                 dataPath = NULL, .quickCheck = FALSE) 
+  {
+    if(!is.null(zipfileName)) {
+      if(!all(compareNA(checksum[grepl(expectedFile, pattern = zipfileName), result], "OK")))  {
+        ee <- data.table(Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck))
+        if(!all(compareNA(ee[grepl(expectedFile, pattern = zipfileName), result], "OK"))) {
+          warning("The version downloaded of ", zipfileName, " does not match the checksums")
+        }
+      }
+      if(all(!file.exists(spatialObjectFilename))) {
+        message("  Unzipping ", zipfileName)
+        unzip(file.path(dataPath, zipfileName), exdir = dataPath)
+        if(!is.null(zipExtractFolder)) {
+          filenames <- dir(file.path(dataPath, zipExtractFolder))
+          file.copy(from = file.path(dataPath, zipExtractFolder, filenames),
+                    to = file.path(dataPath, filenames),
+                    overwrite = TRUE)
+          unlink(file.path(dataPath, zipExtractFolder), recursive = TRUE)
+          rm(filenames)
+        }
+      }
+    }
+  }
+
+cropReprojectIt <- function(spatialObjectFilename, rasterToMatch, studyArea) {
+  if(grepl(".shp", spatialObjectFilename)) {
+    message("  Cropping, reprojecting")
+    a <- Cache(raster::shapefile, spatialObjectFilename)
+    crsUsed <- if(is.null(rasterToMatch)) crs(a) else crs(rasterToMatch)
+    if(!rgeos::gIsValid(a)) b <- Cache(buffer, a, dissolve = FALSE, width = 0) else b <- a
+    b <- SpatialPolygonsDataFrame(b, data = as.data.frame(a))
+    b <- Cache(spTransform, b, crsUsed)
+    b <- Cache(crop, b, rasterToMatch)
+  } else if (grepl(".tif", spatialObjectFilename)) {
+    message("  Cropping, reprojecting")
+    b <- raster::raster(spatialObjectFilename)
+    crsUsed <- if(is.null(rasterToMatch)) as.character(crs(b)) else as.character(crs(rasterToMatch))
+    if(!identical(crs(b), crs(studyArea))) studyArea <- spTransform(studyArea, crs(b))
+    if(!identical(crs(b), CRS(crsUsed))) {
+      #studyAreaExtentCRSUsed <- projectExtent(raster(extent(studyArea), crs = crs(studyArea)), crs = CRS(crsUsed))
+      b <- Cache(crop, b, studyArea)
+      b <- Cache(projectRaster, from = b, to = rasterToMatch, method = "bilinear")
+    } else {
+      b <- Cache(crop, b, studyArea)
+    }
+  }
+  return(list(obj = b, studyArea = studyArea))
+}
+
+maskIt <- function(obj, spatialObjectFilename, studyArea) {
+  message("  Masking")
+  if(grepl(".shp", spatialObjectFilename)) {
+    
+  } else if (grepl(".tif", spatialObjectFilename)) {
+    obj <- Cache(fastMask, obj, studyArea)
+  }
+  if(is(obj, "RasterBrick")) obj <- obj[[1]]
+  obj
+}
+
+writeIt <- function(obj, spatialObjectFilename = NULL, smallSOF = NULL, rasterDatatype = NULL) {
+  if(grepl(".shp", spatialObjectFilename)) {
+    # write small, cropped object to disk
+    obj <- shapefile(obj, smallSOF, overwrite = TRUE)
+  } else if (grepl(".tif", spatialObjectFilename)) {
+    obj <- writeRaster(obj, overwrite=TRUE, format = "GTiff", datatype = rasterDatatype,
+                     filename = smallSOF)
+  }
+  obj
+  
 }
