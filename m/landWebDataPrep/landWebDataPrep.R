@@ -205,7 +205,8 @@ prepareIt <- function(tarfileName = NULL, untarfileNames = NULL,
                                                      zipExtractFolder = NULL, spatialObjectFilename, 
                                                      dataPath, rasterToMatch = NULL,
                                                      studyArea, rasterDatatype = "INT2U", 
-                                                     modulePath, moduleName = "Boreal_LBMRDataPrep") {
+                                                     modulePath, moduleName = "Boreal_LBMRDataPrep",
+                      notOlderThan = NULL) {
   
   message("Preparing: ", basename(spatialObjectFilename))
   
@@ -219,28 +220,26 @@ prepareIt <- function(tarfileName = NULL, untarfileNames = NULL,
   } else {
     notOlderThan <- NULL
   }
-  
-  dd <- data.table(Cache(checksums, module = moduleName, path = modulePath, write = FALSE, 
+  checksum <- data.table(Cache(checksums, module = moduleName, path = modulePath, write = FALSE, 
                          quickCheck = .quickCheck, notOlderThan = notOlderThan))
-  
   # Work outwards from final step, penultimate step, 3rd from last step etc.
   #  In prinicple, the steps are 
   #  1. Download
   #  2. Unpack (tar or zip or both)
   #  3. Load object into R
   #  4. Perform geographic steps -- crop, reproject, mask
-  needRawObject <- !isTRUE(compareNA(dd[grepl(expectedFile, pattern = paste0("^",basename(spatialObjectFilename),"$")), result], "OK"))
+  needRawObject <- !isTRUE(compareNA(checksum[grepl(expectedFile, pattern = paste0("^",basename(spatialObjectFilename),"$")), result], "OK"))
   if(needRawObject) {
     # Try untar
-    untarIt(tarfileName, checksum = dd, moduleName, modulePath, untarfileNames, 
+    untarIt(tarfileName, checksum, moduleName, modulePath, untarfileNames, 
                          zipfileName, dataPath, spatialObjectFilename, .quickCheck)
     # Try unzip
-    unzipIt(zipfileName, dd, moduleName, modulePath, spatialObjectFilename, 
+    unzipIt(zipfileName, checksum, moduleName, modulePath, spatialObjectFilename, 
                          zipExtractFolder, dataPath, .quickCheck)
   }
   objs <- cropReprojectIt(spatialObjectFilename, rasterToMatch, studyArea)
   obj <- maskIt(objs$obj, spatialObjectFilename, objs$studyArea)
-  writeIt(obj, spatialObjectFilename, smallNamify(spatialObjectFilename), rasterDatatype)  
+  obj <- writeIt(obj, spatialObjectFilename, smallNamify(spatialObjectFilename), rasterDatatype)  
   return(obj)
 }
 
@@ -332,16 +331,16 @@ maskIt <- function(obj, spatialObjectFilename, studyArea) {
   if(grepl(".shp", spatialObjectFilename)) {
     
   } else if (grepl(".tif", spatialObjectFilename)) {
-    obj <- Cache(fastMask, obj, studyArea)
+    obj <- fastMask(obj, studyArea)
   }
-  if(is(obj, "RasterBrick")) obj <- obj[[1]]
   obj
 }
 
 writeIt <- function(obj, spatialObjectFilename = NULL, smallSOF = NULL, rasterDatatype = NULL) {
+  message("  writing to disk")
   if(grepl(".shp", spatialObjectFilename)) {
     # write small, cropped object to disk
-    obj <- shapefile(obj, smallSOF, overwrite = TRUE)
+    shapefile(obj, smallSOF, overwrite = TRUE)
   } else if (grepl(".tif", spatialObjectFilename)) {
     obj <- writeRaster(obj, overwrite=TRUE, format = "GTiff", datatype = rasterDatatype,
                      filename = smallSOF)
