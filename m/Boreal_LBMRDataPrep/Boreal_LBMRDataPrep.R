@@ -635,7 +635,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                             untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                             spatialObjectFilename = biomassMapFilename,
                             dataPath = dataPath, #rasterToMatch = sim$standAgeMap,
-                            crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
+                            #crsUsed = crsUsed, 
+                            studyArea = sim$shpStudyRegionFull,
                             userTags = "stable",
                             modulePath = modulePath(sim))
   }
@@ -646,7 +647,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                          zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
                          spatialObjectFilename = lcc2005Filename,
                          dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                         crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
+                         #crsUsed = crsUsed, 
+                         studyArea = sim$shpStudyRegionFull,
                          userTags = "stable",
                          modulePath = modulePath(sim))
   }
@@ -658,7 +660,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                           zipExtractFolder = "Ecodistricts",
                           spatialObjectFilename = asPath(ecodistrictFilename),
                           dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                          crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
+                          #crsUsed = crsUsed, 
+                          studyArea = sim$shpStudyRegionFull,
                           modulePath = modulePath(sim))
   }
   
@@ -668,7 +671,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                            zipExtractFolder = "Ecoregions",
                            spatialObjectFilename = ecoregionFilename,
                            dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                           crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
+                           #crsUsed = crsUsed, 
+                           studyArea = sim$shpStudyRegionFull,
                            userTags = "stable",
                            modulePath = modulePath(sim))
     
@@ -680,7 +684,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                          zipExtractFolder = "Ecozones",
                          spatialObjectFilename = ecozoneFilename,
                          dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                         crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
+                         #crsUsed = crsUsed, 
+                         studyArea = sim$shpStudyRegionFull,
                          userTags = "stable",
                          modulePath = modulePath(sim))
     
@@ -693,7 +698,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                             zipfileName = asPath("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
                             spatialObjectFilename = standAgeMapFilename,
                             dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                            crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
+                            #crsUsed = crsUsed, 
+                            studyArea = sim$shpStudyRegionFull,
                             userTags = "stable",
                             modulePath = modulePath(sim))
   }
@@ -711,7 +717,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                               zipfileName = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.zip"),
                               spatialObjectFilename = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.tif"),
                               dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                              crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
+                              #crsUsed = crsUsed, 
+                              studyArea = sim$shpStudyRegionFull,
                               userTags = "stable",
                               modulePath = modulePath(sim))
     }
