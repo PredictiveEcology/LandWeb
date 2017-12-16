@@ -614,8 +614,6 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   objExists <- !unlist(lapply(objNames, 
          function(x) is.null(sim[[x]])))
   names(objExists) <- objNames
-  needDownloads <- !all(objExists) | 
-    !all(objNames %in% sim$.userSuppliedObjNames)
   
   # Filenames
   sim$ecoregionFilename <-   file.path(dataPath, "ecoregions.shp")
@@ -631,108 +629,107 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
     sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
   
-  if(needDownloads) {
-    if(is.null(sim$biomassMap)) {
-      sim$biomassMap <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                              tarfileName = "kNN-StructureBiomass.tar",
-                              untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
-                              spatialObjectFilename = biomassMapFilename,
-                              dataPath = dataPath, #rasterToMatch = sim$standAgeMap,
-                              crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
+  if(is.null(sim$biomassMap)) {
+    sim$biomassMap <- Cache(prepareIt, 
+                            tarfileName = "kNN-StructureBiomass.tar",
+                            untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
+                            spatialObjectFilename = biomassMapFilename,
+                            dataPath = dataPath, #rasterToMatch = sim$standAgeMap,
+                            studyArea = sim$shpStudyRegionFull,
+                            userTags = "stable",
+                            modulePath = modulePath(sim))
+  }
+  
+  # LCC2005
+  if(is.null(sim$LCC2005)) {
+    sim$LCC2005 <- Cache(prepareIt, 
+                         zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
+                         spatialObjectFilename = lcc2005Filename,
+                         dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                         studyArea = sim$shpStudyRegionFull,
+                         userTags = "stable",
+                         modulePath = modulePath(sim))
+  }
+  
+  
+  if(is.null(sim$ecoDistrict)) {
+    sim$ecoDistrict <- Cache(prepareIt, 
+                          zipfileName = "ecodistrict_shp.zip",
+                          zipExtractFolder = "Ecodistricts",
+                          spatialObjectFilename = asPath(ecodistrictFilename),
+                          dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                          studyArea = sim$shpStudyRegionFull,
+                          modulePath = modulePath(sim))
+  }
+  
+  if(is.null(sim$ecoRegion)) {
+    sim$ecoRegion <- Cache(prepareIt, 
+                           zipfileName = asPath("ecoregion_shp.zip"),
+                           zipExtractFolder = "Ecoregions",
+                           spatialObjectFilename = ecoregionFilename,
+                           dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                           studyArea = sim$shpStudyRegionFull,
+                           userTags = "stable",
+                           modulePath = modulePath(sim))
+    
+  }
+  
+  if(is.null(sim$ecoZone)) {
+    sim$ecoZone <- Cache(prepareIt, 
+                         zipfileName = asPath("ecozone_shp.zip"),
+                         zipExtractFolder = "Ecozones",
+                         spatialObjectFilename = ecozoneFilename,
+                         dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                         studyArea = sim$shpStudyRegionFull,
+                         userTags = "stable",
+                         modulePath = modulePath(sim))
+    
+  }
+  
+  # stand age map
+  if(is.null(sim$standAgeMap)) {
+    sim$standAgeMap <- Cache(prepareIt, 
+                            tarfileName = "kNN-StructureStandVolume.tar",
+                            zipfileName = asPath("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
+                            spatialObjectFilename = standAgeMapFilename,
+                            dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                            studyArea = sim$shpStudyRegionFull,
+                            userTags = "stable",
+                            modulePath = modulePath(sim))
+  }
+
+  if(is.null(sim$specieslayers)) {
+    speciesNamesEnd <- c("Abie_sp", "Pice_Gla", "Pice_Mar",
+                      "Pinu_sp", "Popu_Tre")
+    speciesnamesRaw <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
+                         "Pinu_Ban", "Pinu_Con", "Popu_Tre")
+    species1 <- list()
+    for(sp in speciesnamesRaw) {
+      species1[[sp]] <- Cache(prepareIt, 
+                              tarfileName = "kNN-Species.tar",
+                              untarfileNames = paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw, "_v0.zip"),
+                              zipfileName = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.zip"),
+                              spatialObjectFilename = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.tif"),
+                              dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                              studyArea = sim$shpStudyRegionFull,
                               userTags = "stable",
                               modulePath = modulePath(sim))
     }
     
-    # LCC2005
-    if(is.null(sim$LCC2005)) {
-      sim$LCC2005 <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                           zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
-                           spatialObjectFilename = lcc2005Filename,
-                           dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                           crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
-                           userTags = "stable",
-                           modulePath = modulePath(sim))
-    }
+    sumSpecies <- c("Pinu_Ban", "Pinu_Con")
+    newLayerName <- grep("Pinu", speciesNamesEnd, value = TRUE)
+    a <- Cache(sumRastersBySpecies, 
+          species1[sumSpecies], newLayerName = newLayerName,
+          filenameToSave = smallNamify(file.path(dataPath, "KNNPinu_sp.tif")), 
+          userTags = "stable")
+    species1[sumSpecies] <- NULL
+    species1[[newLayerName]] <- a
+    names(species1)[grep("Abie", names(species1))] <- grep("Abie", speciesNamesEnd, value = TRUE)
+    names(species1) <- toSentenceCase(names(species1))
     
-    
-    if(is.null(sim$ecoDistrict)) {
-      sim$ecoDistrict <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                            zipfileName = "ecodistrict_shp.zip",
-                            zipExtractFolder = "Ecodistricts",
-                            spatialObjectFilename = asPath(ecodistrictFilename),
-                            dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                            crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
-                            modulePath = modulePath(sim))
-    }
-    
-    if(is.null(sim$ecoRegion)) {
-      sim$ecoRegion <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                             zipfileName = asPath("ecoregion_shp.zip"),
-                             zipExtractFolder = "Ecoregions",
-                             spatialObjectFilename = ecoregionFilename,
-                             dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                             crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
-                             userTags = "stable",
-                             modulePath = modulePath(sim))
-      
-    }
-    
-    if(is.null(sim$ecoZone)) {
-      sim$ecoZone <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                           zipfileName = asPath("ecozone_shp.zip"),
-                           zipExtractFolder = "Ecozones",
-                           spatialObjectFilename = ecozoneFilename,
-                           dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                           crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
-                           userTags = "stable",
-                           modulePath = modulePath(sim))
-      
-    }
-    
-    # stand age map
-    if(is.null(sim$standAgeMap)) {
-      sim$standAgeMap <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                              tarfileName = "kNN-StructureStandVolume.tar",
-                              zipfileName = asPath("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
-                              spatialObjectFilename = standAgeMapFilename,
-                              dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                              crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
-                              userTags = "stable",
-                              modulePath = modulePath(sim), notOlderThan = Sys.time())
-    }
-
-    if(is.null(sim$specieslayers)) {
-      speciesNamesEnd <- c("Abie_sp", "Pice_Gla", "Pice_Mar",
-                        "Pinu_sp", "Popu_Tre")
-      speciesnamesRaw <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
-                           "Pinu_Ban", "Pinu_Con", "Popu_Tre")
-      species1 <- list()
-      for(sp in speciesnamesRaw) {
-        species1[[sp]] <- Cache(dwnldUntarUnzipLoadBufferProjectCropMask, 
-                                tarfileName = "kNN-Species.tar",
-                                untarfileNames = paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw, "_v0.zip"),
-                                zipfileName = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.zip"),
-                                spatialObjectFilename = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.tif"),
-                                dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                                crsUsed = crsUsed, studyArea = sim$shpStudyRegionFull,
-                                userTags = "stable",
-                                modulePath = modulePath(sim))
-      }
-      
-      sumSpecies <- c("Pinu_Ban", "Pinu_Con")
-      newLayerName <- grep("Pinu", speciesNamesEnd, value = TRUE)
-      a <- Cache(sumRastersBySpecies, 
-            species1[sumSpecies], newLayerName = newLayerName,
-            filenameToSave = smallNamify(file.path(dataPath, "KNNPinu_sp.tif")), 
-            userTags = "stable")
-      species1[sumSpecies] <- NULL
-      species1[[newLayerName]] <- a
-      names(species1)[grep("Abie", names(species1))] <- grep("Abie", speciesNamesEnd, value = TRUE)
-      names(species1) <- toSentenceCase(names(species1))
-      
-      sim$specieslayers <- stack(species1)
-    }
+    sim$specieslayers <- stack(species1)
   }
+
  
   # 3. species maps
   ## load Paul Pickell et al. and CASFRI
@@ -809,28 +806,6 @@ sumRastersBySpecies <- function(specieslayers, layersToSum,
                    datatype="INT2U", overwrite=TRUE)
 }
 
-cropSpeciesLayers <- function(speciesFilenames, studyArea) {
-
-  specieslayersLocal <- lapply(speciesFilenames, function(x) {
-    filenameNoExt <- strsplit(basename(x), "\\.")[[1]][1]
-    a <- raster(x) %>%
-      crop(studyArea,
-           overwrite=TRUE, format = "GTiff", datatype = "INT1U",
-           filename = smallNamify(x))
-    file.rename(filename(a), x)
-    a@file@name <- x
-  }) %>% stack()
-  specieslayersLocal
-}
-
-digestNeededFiles <- function(dataPath, fileNames1) {
-  filesList <- dir(dataPath, full.names = TRUE)
-  filesList2 <- filesList[basename(filesList) %in% fileNames1]
-  allFiles2 <- filesList2 %>% lapply(., function(x) digest::digest(file=x, length = 6e6, algo = "xxhash64"))
-  names(allFiles2) <- basename(filesList2)
-  allFiles2
-}
-
 toSentenceCase <- function(strings) {
   newNames <- tolower(strings)
   substr(newNames,1,1) <- toupper(substr(newNames,1,1))
@@ -838,115 +813,4 @@ toSentenceCase <- function(strings) {
   
 }
 
-
-# dwnldUntarUnzipLoadBufferProjectCropMask <- function(#tarOrZip = "zip", #"zip", "tar" or c("tar", "zip"),
-#                                             tarfileName = NULL, untarfileNames = NULL, 
-#                                             zipfileName = untarfileNames, 
-#                                             zipExtractFolder = NULL, spatialObjectFilename, dataPath,
-#                                             crsUsed = NULL, rasterToMatch = NULL,
-#                                             studyArea, rasterDatatype = "INT2U", modulePath,
-#                                             moduleName = "Boreal_LBMRDataPrep") {
-#   
-#   
-#   if(!isAbsolutePath(spatialObjectFilename)) spatialObjectFilename <- file.path(dataPath, spatialObjectFilename)
-#   
-#   # Test whether dataPath has been updated with file deletions or additions or whatever, 
-#   #  If it has changed, then Cache of checksums will be rerun
-#   bb <- capture.output(aa <- Cache(file.info, asPath(dir(dataPath, full.names = TRUE))), type = "message")
-#   if(isTRUE(!startsWith(bb, "loading cached"))) {
-#     notOlderThan <- Sys.time()
-#   } else {
-#     notOlderThan <- NULL
-#   }
-#   
-#   dd <- data.table(Cache(checksums, module = moduleName, path = modulePath, write = FALSE, 
-#                          quickCheck = .quickCheck, notOlderThan = notOlderThan))
-#   
-#   # if we don't alraedy have the file that will be the source for the spatial object, then proceed with tar & zip
-#   smallSOF <- smallNamify(spatialObjectFilename)
-#   
-#   # Work outwards from final step, penultimate step, 3rd from last step etc.
-#   #  In prinicple, the steps are 
-#   #  1. Download
-#   #  2. Unpack (tar or zip or both)
-#   #  3. Load object into R
-#   #  4. Perform geographic steps -- crop, reproject, mask
-#   if(!(compareNA(dd[grepl(expectedFile, pattern = paste0("^",basename(smallSOF),"$")), result], "OK"))) {
-#     if(!(compareNA(dd[grepl(expectedFile, pattern = paste0("^",basename(spatialObjectFilename),"$")), result], "OK"))) {
-#     # Try untar, if relevant
-#       if(!is.null(tarfileName)) {
-#         if(!all(compareNA(dd[grepl(expectedFile, pattern = tarfileName), result], "OK"))) {
-#           ee <- Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck)
-#           if(!all(compareNA(ee[grepl(expectedFile, pattern = tarfileName), result], "OK"))) {
-#             warning("The version downloaded of ", tarfileName, " does not match the checksums")
-#           }
-#         }
-#         if(is.null(untarfileNames)) untarfileNames <- zipfileName
-#         if(all((!file.exists(file.path(dataPath, basename(untarfileNames))))))
-#           untar(file.path(dataPath, tarfileName),
-#                 files = untarfileNames,
-#                 exdir = dataPath, tar = "internal")
-#       } 
-#       # Try unzip if relevant
-#       if(!is.null(zipfileName)) {
-#         if(!all(compareNA(dd[grepl(expectedFile, pattern = zipfileName), result], "OK")))  {
-#           ee <- Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck)
-#           if(!all(compareNA(ee[grepl(expectedFile, pattern = zipfileName), result], "OK"))) {
-#             warning("The version downloaded of ", zipfileName, " does not match the checksums")
-#           }
-#         }
-#         if(all(!file.exists(spatialObjectFilename))) {
-#           unzip(file.path(dataPath, zipfileName), exdir = dataPath)
-#           if(!is.null(zipExtractFolder)) {
-#             filenames <- dir(file.path(dataPath, zipExtractFolder))
-#             file.copy(from = file.path(dataPath, zipExtractFolder, filenames),
-#                       to = file.path(dataPath, filenames),
-#                       overwrite = TRUE)
-#             unlink(file.path(dataPath, zipExtractFolder), recursive = TRUE)
-#             rm(filenames)
-#           }
-#         }
-#       }
-#     }
-#     
-#   # Different from here for shp or tif
-#   # If final small object is correct, don't need to do anything
-#     if(grepl(".shp", spatialObjectFilename)) {
-#       a <- Cache(raster::shapefile, spatialObjectFilename)
-#       if(is.null(crsUsed)) if(is.null(rasterToMatch)) crsUsed <- crs(a) else crsUsed <- crs(rasterToMatch)
-#       if(!rgeos::gIsValid(a)) b <- Cache(buffer, a, dissolve = FALSE, width = 0) else b <- a
-#       b <- SpatialPolygonsDataFrame(b, data = as.data.frame(a))
-#       b <- Cache(spTransform, b, crsUsed)
-#       b <- Cache(crop, b, rasterToMatch)
-#       # write small, cropped object to disk
-#       shapefile(b, smallSOF, overwrite = TRUE)
-#     } else if (grepl(".tif", spatialObjectFilename)){
-#       b <- raster::raster(spatialObjectFilename)
-#       if(is.null(crsUsed)) if(is.null(rasterToMatch)) crsUsed <- crs(b) else crsUsed <- crs(rasterToMatch)
-#       if(!identical(crs(b), CRS(crsUsed))) {
-#         #studyAreaExtentCRSUsed <- projectExtent(raster(extent(studyArea), crs = crs(studyArea)), crs = CRS(crsUsed))
-#         b <- Cache(crop, b, spTransform(studyArea, crs(b)))
-#         b <- Cache(projectRaster, from = b, to = rasterToMatch, method = "bilinear")
-#       } else {
-#         b <- Cache(crop, b, studyArea)
-#       }
-#       raster::beginCluster(min(parallel::detectCores(), 6))
-#       on.exit(endCluster())
-#       b <- Cache(fastMask, b, studyArea)
-#       b <- writeRaster(b, overwrite=TRUE, format = "GTiff", datatype = rasterDatatype,
-#                        filename = smallSOF)
-#     }
-#   } else {
-#     if(grepl(".shp", smallSOF)) {
-#       b <- Cache(raster::shapefile, smallSOF)
-#     } else if (grepl(".tif", smallSOF)){
-#       b <- raster::raster(smallSOF)
-#     }  
-#   }
-#   return(b)
-# }
-# 
-# smallNamify <- function(name) {
-#   file.path(dirname(name), paste0("Small", basename(name)))
-# }
 
