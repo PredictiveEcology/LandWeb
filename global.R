@@ -155,4 +155,6 @@ mySim <<- simInit(times = times, params = parameters, modules = modules,
 endSimInit <- Sys.time()
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
 # This needs simInit call to be run alread
-source("mapsForShiny.R") # a few map details for shiny app
+# a few map details for shiny app
+source("mapsForShiny.R") 
+
