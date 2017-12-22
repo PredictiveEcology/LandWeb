@@ -20,27 +20,7 @@ dashboardPage(skin = "green",
           tabItem("moduleInfo", moduleInfoUI("modInfoBoxes")),
           tabItem("largePatchesSlicer", largePatchesUI("largePatches")),
           tabItem("TimeSinceFire", timeSinceFireUI("timeSinceFire", length(tsf))),
-          tabItem("inputTables",
-                  fluidRow(
-                    h3("Currently, these inputs are not changeable by specific regions"),
-                    box(
-                      width = 10,
-                      solidHeader = TRUE,
-                      status = "success",
-                      title = "Species Inputs",
-                      dataTableOutput("speciesInputs")
-                    )
-                  ),
-                  fluidRow(
-                    box(
-                      width = 12,
-                      solidHeader = TRUE,
-                      status = "success",
-                      title = "Geographically Varying Species Inputs. These are means (and SE) across all map regions",
-                      dataTableOutput("speciesEcoregionInputs")
-                    )
-                  )
-          )
+          tabItem("inputTables", inputTablesUI("inputTables"))
         )
     )
   )

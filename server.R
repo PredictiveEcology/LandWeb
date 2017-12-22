@@ -15,14 +15,7 @@ function(input, output, session) {
   clumpMod2Args <- clumpMod2Args[!unlist(lapply(clumpMod2Args, is.null))]
 
   callModule(largePatches, "largePatches", numberOfSimulationTimes = lenTSF, clumpMod2Args)
-
-  output$speciesInputs <- renderDataTable({
-    landisInputs
-  })#, digits = 1)
-
-  output$speciesEcoregionInputs <- renderDataTable({
-    spEcoReg
-  })#, digits = 1)
+  callModule(inputTables, "inputTables")
 
   noLongerWaiting()
   message("  Finished global.R")
