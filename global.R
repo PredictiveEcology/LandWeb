@@ -283,3 +283,5 @@ inputTables <- function(input, output, session) {
     spEcoReg
   })
 }
+
+message("  Finished global.R")
