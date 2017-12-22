@@ -8,8 +8,8 @@ library(SpaDES.shiny)
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
      # FALSE -- standard -- just run present conditions
-     # TRUE (most recent one) or 
-     # character string (most recent one with that character string) or 
+     # TRUE (most recent one) or
+     # character string (most recent one with that character string) or
      # character vector (most recent one with AND search)
      # numeric -- counting backwards from 1 previous, 2 previous etc.
 .reloadPreviousWorking <- reloadPreviousWorkingFn(reloadPreviousWorking)
@@ -17,7 +17,7 @@ reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used fo
                                          # It needs to be separate because it is an overarching one, regardless of scale
 
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" 
+studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL"
 
 ## paths
 paths <- list(
@@ -29,20 +29,20 @@ paths <- list(
 do.call(setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
 
-# App - variables 
+# App - variables
   appStartTime <- st <- Sys.time() - 1
   message("Started at ", appStartTime)
   rsyncToAWS <- FALSE
   useGdal2Tiles <- TRUE
   # leaflet parameters
-  leafletZoomInit = 5 
+  leafletZoomInit = 5
   # Some shinycssloaders options
   options("spinner.type" = 5)
   options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
-  #options(spinner.color="blue")  
+  #options(spinner.color="blue")
 
 ## spades module variables
-  eventCaching <- "init" 
+  eventCaching <- "init"
   maxAge <- 400
   ageClasses <- c("Young", "Immature", "Mature", "Old")
   ageClassCutOffs <- c(0, 40, 80, 120)
@@ -54,14 +54,14 @@ do.call(setPaths, paths) # Set them here so that we don't have to specify at eac
     }
   })
   if (!exists("globalRasters")) globalRasters <- list()
-  
+
   # Computation stuff
   experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
-  
+
   # Time steps
   fireTimestep <- 1
   successionTimestep <- 10 # was 2
-  
+
   # Overall model times # start is default at 0
   endTime <- 30
   summaryInterval <- 10
@@ -72,13 +72,13 @@ if (FALSE) {
   SpaDESDeps <- miniCRAN::pkgDep("SpaDES.core")
   new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
   if (length(new.packages)) install.packages(new.packages)
-  
+
 }
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
   source("inputMaps.R") # source some functions
   loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
-  shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")), 
+  shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")),
                            studyArea = studyArea,
                            crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
   list2env(shpStudyRegions, envir = environment())
@@ -97,7 +97,7 @@ if (FALSE) {
   parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
                                           .useCache = eventCaching),
                      Boreal_LBMRDataPrep = list(.useCache = eventCaching),
-                     LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep, 
+                     LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep,
                                      burnInitialTime = fireTimestep,
                                      .plotInitialTime = NA
                                      , .useCache = eventCaching
@@ -114,9 +114,9 @@ if (FALSE) {
   outputs <- data.frame(stringsAsFactors = FALSE,
                         expand.grid(
                           objectName = objectNamesToSave,#, "oldBigPatch"),
-                          saveTime = seq(objects$summaryPeriod[1], objects$summaryPeriod[2], 
+                          saveTime = seq(objects$summaryPeriod[1], objects$summaryPeriod[2],
                                          by = parameters$LandWebOutput$summaryInterval)),
-                        fun = "writeRaster", package = "raster", 
+                        fun = "writeRaster", package = "raster",
                         file = paste0(objectNamesToSave, c(".tif", ".grd")))
   outputs2 <- data.frame(stringsAsFactors = FALSE,
                          expand.grid(
@@ -126,12 +126,125 @@ if (FALSE) {
                                   list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
                              times = NROW(outputs)/length(objectNamesToSave)))
   outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
-  
+
 # Main simInit function call -- loads all data
   startSimInit <- Sys.time()
-mySim <<- simInit(times = times, params = parameters, modules = modules, 
+mySim <<- simInit(times = times, params = parameters, modules = modules,
                   objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules))
   endSimInit <- Sys.time()
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
 # This needs simInit call to be run alread
 source("mapsForShiny.R") # a few map details for shiny app
+
+# Run Experiment
+seed <- sample(1e8,1)
+set.seed(seed)
+message("Current seed is: ", seed)
+spadesAndExperiment <- function(mySim, experimentReps) {
+
+  if (TRUE) {
+    # # Do an initial run for each given study area so that all the data prep can be done once only
+    #initialRun1 <- spades(Copy(mySim), debug = TRUE)
+    # 5 minutes for 6e3 km2
+    # 30 minutes for 6e4 km2
+    mySimCopy <- Copy(mySim)
+    end(mySimCopy) <- 0
+    message("Running Initial spades call")
+    initialRun <<- Cache(spades, sim = mySimCopy, #notOlderThan = Sys.time(),
+                         debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))",
+                         objects = "shpStudyRegion",
+                         #cacheRepo = cachePath(mySim),
+                         .plotInitialTime = NA,
+                         omitArgs = c("debug", ".plotInitialTime"),
+                         debugCache="complete")
+  }
+
+  ##########
+  raster::endCluster()
+  seed <- sample(1e8,1)
+  #seed <- 792282
+  set.seed(seed)
+  message("Current seed is: ", seed)
+  #startTime <<- st <<- Sys.time()
+  message("Running Experiment, starting at time: ", appStartTime)
+  objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value=TRUE, invert=TRUE)
+  args <- list(experiment, mySim, replicates = experimentReps,
+               objects = objectsToHash,
+               debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
+               paste(unname(current(sim)), collapse = ' '))",#,
+               .plotInitialTime = NA,
+               clearSimEnv = TRUE,
+               debugCache="complete",
+               omitArgs = c("debug", ".plotInitialTime"))
+  args <- args[!unlist(lapply(args, is.null))]
+  mySimOut <- do.call(Cache, args)
+  message(attr(mySimOut, "tags"))
+  mySimOut
+}
+
+objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names=TRUE), value=TRUE, invert=TRUE)
+
+
+# THIS IS THE MAIN "SIMULATION FUNCTION"
+# THE FOLLOWING OBJECT IS A LIST OF 1 simList,
+# A simList is a rich data structure that comes with the SpaDES.core package
+mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps,
+                   debugCache = "complete",
+                   objects = objectsToHash)#,
+                   #sideEffect = TRUE)
+
+message("  Finished Experiment")
+
+message("  Identify which files were created during simulation")
+# outputs() function reports on any files that were created during the simulation
+filesFromOutputs <- lapply(seq_along(mySimOut), function(x) {
+  outputs(mySimOut[[x]])$file
+})
+
+for(simNum in seq_along(mySimOut)) {
+  mySimOut[[simNum]]@outputs$file <-
+
+    lapply(strsplit(outputs(mySimOut[[simNum]])$file,
+                    split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")), function(f) {
+      f[[2]]
+    }) %>%
+    unlist() %>%
+    file.path(paths$outputPath, .)
+}
+
+message("  Load rasters from disk, reproject them to leaflet projection")
+rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
+  grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
+}) %>% unlist()
+
+# Look for all files named rstTimeSinceFire -- these are several rasters each with a filename
+#   that represents the simulation "time" when it was created, e.g., 10, 20, 30 years
+tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
+# These are several rasters indicating vegetation type, again each one coming from a specific
+#   simulation time ... a time series of rasters...
+vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
+lenTSF <- length(tsf)
+rasterResolution <<- raster(tsf[1]) %>% res()
+
+lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
+
+globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = .quickCheck,
+                        lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
+                        flammableFile = asPath(file.path(paths$outputPath, "rstFlammable.grd")))
+
+message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
+args <- list(leadingByStage, tsf, vtm,
+             polygonToSummarizeBy = ecodistricts,
+             cl = if (exists("cl")) cl,
+             omitArgs = "cl", digestPathContent = .quickCheck,
+             ageClasses = ageClasses, cacheRepo = paths$cachePath)
+args <- args[!unlist(lapply(args, is.null))]
+leading <- do.call(Cache, args)
+rm(args)
+
+
+message("  Determine number of large patches, by polygon (loading 2 rasters, summarize by polygon)")
+# Large patches
+polygonsWithData <- leading[,unique(polygonNum[!is.na(proportion)]),by=ageClass]
+vegLeadingTypes <- c(unique(leading$vegType))
+vegLeadingTypesWithAllSpecies <- c(vegLeadingTypes, "All species")
