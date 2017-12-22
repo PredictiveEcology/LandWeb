@@ -3,16 +3,10 @@ dashboardPage(skin = "green",
   dashboardSidebar(width = 300,
     sidebarMenu(id = "wholeThing",
       menuItem("Maps - time since fire", icon = icon("map-o"), tabName = "TimeSinceFire"),
-      br(),
-      h4(HTML("&nbsp;"), "NRV plots"),
       menuItem("Large Patches - new", tabName = "largePatchesSlicer", icon = icon("bar-chart")),
-      br(),
-      h4(HTML("&nbsp;"), "Model details"),
       menuItem("Overview Diagrams", tabName = "simDiagrams", icon = icon("sitemap")),
       menuItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece")),
-      menuItem("LBMR (Succession) Model Inputs", tabName = "inputTables", icon = icon("table")),
-      br(),
-      sidebarFooter() ## CSS rules push the footer to the bottom of the sidebar
+      menuItem("LBMR (Succession) Model Inputs", tabName = "inputTables", icon = icon("table"))
     )
   ),
   dashboardBody(
