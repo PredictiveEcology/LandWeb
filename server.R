@@ -4,14 +4,6 @@ function(input, output, session) {
   callModule(simInfo, "simInfoTabs", mySimOut[[1]])
   callModule(moduleInfo, "modInfoBoxes", mySimOut[[1]])
 
-  output$timeSinceFireUI <- renderUI({
-    tabBox(width = 12,
-           tabPanel("Time Since Fire maps", tabName = "timeSinceFireTab",
-                    fluidRow(timeSinceFireUI("timeSinceFire", length(tsf)))
-           )
-    )
-  })
-
   output$studyRegionUI <- renderUI({
     tabBox(width = 12,
            tabPanel("Time Since Fire maps", tabName = "timeSinceFireTab",
