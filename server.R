@@ -3,15 +3,6 @@ function(input, output, session) {
 
   callModule(simInfo, "simInfoTabs", mySimOut[[1]])
   callModule(moduleInfo, "modInfoBoxes", mySimOut[[1]])
-
-  output$studyRegionUI <- renderUI({
-    tabBox(width = 12,
-           tabPanel("Time Since Fire maps", tabName = "timeSinceFireTab",
-                    fluidRow(studyRegionModUI("studyRegion"))
-           )
-    )
-  })
-
   callModule(timeSinceFire, "timeSinceFire", rasters = globalRasters, polygonsList = polygons,
              shpStudyRegionFull, colorTableFile, timeSinceFirePalette, maxAge)
 
@@ -24,7 +15,6 @@ function(input, output, session) {
   clumpMod2Args <- clumpMod2Args[!unlist(lapply(clumpMod2Args, is.null))]
 
   callModule(largePatches, "largePatches", numberOfSimulationTimes = lenTSF, clumpMod2Args)
-
 
   output$speciesInputs <- renderDataTable({
     landisInputs
