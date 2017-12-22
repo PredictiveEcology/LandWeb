@@ -284,4 +284,12 @@ inputTables <- function(input, output, session) {
   })
 }
 
+clumpMod2Args <- list(
+  currentPolygon = polygons[[1 + length(polygons)/4]],
+  tsf = tsf, vtm = vtm,
+  cl = if(exists("cl")) cl,
+  ageClasses = ageClasses, cacheRepo = paths$cachePath,
+  largePatchesFn = largePatchesFn, countNumPatches = countNumPatches)
+clumpMod2Args <- clumpMod2Args[!unlist(lapply(clumpMod2Args, is.null))]
+
 message("  Finished global.R")
