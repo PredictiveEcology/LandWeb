@@ -1,6 +1,4 @@
 function(input, output, session) {
-  currentPolygon <- callModule(leafletMap, "leafletMap")
-
   callModule(simInfo, "simInfoTabs", mySimOut[[1]])
   callModule(moduleInfo, "modInfoBoxes", mySimOut[[1]])
   callModule(timeSinceFire, "timeSinceFire", rasters = globalRasters, polygonsList = polygons,
@@ -16,7 +14,4 @@ function(input, output, session) {
 
   callModule(largePatches, "largePatches", numberOfSimulationTimes = lenTSF, clumpMod2Args)
   callModule(inputTables, "inputTables")
-
-  noLongerWaiting()
-  message("  Finished global.R")
 }
