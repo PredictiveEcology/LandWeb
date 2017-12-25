@@ -1,6 +1,25 @@
+library(SpaDES.core)
+packageLibrary <- file.path(dirname(tempdir()), "Packages")
+.libPaths(c(packageLibrary, .libPaths()))
+# List modules first, so we can get all their dependencies
+modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+# Spatial stuff -- determines the size of the area that will be "run" in the simulations
+studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
+
+## paths
+paths <- list(
+  cachePath = paste0("appCache", studyArea),
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs/RIA_Study/",
+  outputPath = paste0("outputs", studyArea)
+)
+do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
+
 reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
 #                                         # It needs to be separate because it is an overarching one, regardless of scale
-source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
+
+#source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
 source("functions.R") # get functions used throughout this shiny app
 source("shinyModules.R") # shiny modules
 source("footers.R") # minor footer stuff for app
@@ -14,17 +33,6 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
 # numeric -- counting backwards from 1 previous, 2 previous etc.
 .reloadPreviousWorking <- reloadPreviousWorkingFn(reloadPreviousWorking)
 
-# Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
-
-## paths
-paths <- list(
-  cachePath = paste0("appCache", studyArea),
-  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-  #inputPath = "inputs",
-  inputPath = "inputs/RIA_Study/",
-  outputPath = paste0("outputs", studyArea)
-)
 do.call(setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
 # App - variables 
@@ -44,7 +52,7 @@ options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
 #options(spinner.color="blue")  
 
 ## spades module variables
-eventCaching <- "init" 
+eventCaching <- c(".inputObjects", "init" )
 maxAge <- 400
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
@@ -77,8 +85,10 @@ if (FALSE) {
   
 }
 
+
 # Import and build 2 polygons -- one for whole study area, one for demonstration area 
 # "shpStudyRegion"     "shpStudyRegionFull"
+library(raster)
 if(studyArea=="RIA") {
   shpStudyRegion <- Cache(shapefile, file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp")) 
   loadAndBuffer <- function(shapefile) {
@@ -106,8 +116,6 @@ if(studyArea=="RIA") {
 
 
 # simInit objects
-modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 times <- list(start = 0, end = endTime)
 .quickCheck <- TRUE
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
@@ -146,7 +154,7 @@ outputs2 <- data.frame(stringsAsFactors = FALSE,
 outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
                                 list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
                            times = NROW(outputs)/length(objectNamesToSave)))
-outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
+outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2), fill = TRUE))
 
 # Main simInit function call -- loads all data
 startSimInit <- Sys.time()
