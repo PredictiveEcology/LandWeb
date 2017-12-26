@@ -1,4 +1,25 @@
-source("loadPackages.R") # load & install (if not available) package dependencies
+library(SpaDES.core)
+packageLibrary <- file.path(dirname(tempdir()), "Packages")
+.libPaths(c(packageLibrary, .libPaths()))
+# List modules first, so we can get all their dependencies
+modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+# Spatial stuff -- determines the size of the area that will be "run" in the simulations
+studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
+
+## paths
+paths <- list(
+  cachePath = paste0("appCache", studyArea),
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs/RIA_Study/",
+  outputPath = paste0("outputs", studyArea)
+)
+do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
+
+reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
+#                                         # It needs to be separate because it is an overarching one, regardless of scale
+
+#source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
 source("functions.R") # get functions used throughout this shiny app
 source("shinyModules.R") # shiny modules
 source("footers.R") # minor footer stuff for app
@@ -13,8 +34,6 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
      # character vector (most recent one with AND search)
      # numeric -- counting backwards from 1 previous, 2 previous etc.
 .reloadPreviousWorking <- reloadPreviousWorkingFn(reloadPreviousWorking)
-reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
-                                         # It needs to be separate because it is an overarching one, regardless of scale
 
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL"
@@ -40,6 +59,12 @@ do.call(setPaths, paths) # Set them here so that we don't have to specify at eac
   options("spinner.type" = 5)
   options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
   #options(spinner.color="blue")
+
+# This will search for gdal utilities. If it finds nothing, and you are on Windows,
+#   You should install the gdal that comes with QGIS -- use OSGeo4W Network Installer 64 bit
+#   may be still here: http://www.qgis.org/en/site/forusers/download.html
+options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
+#options(spinner.color="blue")  
 
 ## spades module variables
   eventCaching <- "init"
@@ -67,6 +92,18 @@ do.call(setPaths, paths) # Set them here so that we don't have to specify at eac
   summaryInterval <- 10
   summaryPeriod <- c(10, endTime)
 
+# Computation stuff
+experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
+
+# Time steps
+fireTimestep <- 1
+successionTimestep <- 10 # was 2
+
+# Overall model times # start is default at 0
+endTime <- 40
+summaryInterval <- 10
+summaryPeriod <- c(10, endTime)
+
 ### Package stuff that should not be run automatically
 if (FALSE) {
   SpaDESDeps <- miniCRAN::pkgDep("SpaDES.core")
@@ -75,13 +112,34 @@ if (FALSE) {
 
 }
 
-# Import and build 2 polygons -- one for whole study area, one for demonstration area
+
+# Import and build 2 polygons -- one for whole study area, one for demonstration area 
+# "shpStudyRegion"     "shpStudyRegionFull"
+library(raster)
+if(studyArea=="RIA") {
+  shpStudyRegion <- Cache(shapefile, file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp")) 
+  loadAndBuffer <- function(shapefile) {
+    a <- shapefile(shapefile)
+    b <- buffer(a, 0, dissolve = FALSE)
+    SpatialPolygonsDataFrame(b, data = as.data.frame(a))
+  }
+  fireReturnIntervalTemp <- 400
+  shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
+  shpStudyRegion[["fireReturnInterval"]] <- shpStudyRegion$LTHRC # Fire return interval
+  
+  shpStudyRegionFull <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
+                              cacheRepo = paths$cachePath)
+  shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
+  shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
+  shpStudyRegionFull <- shpStudyRegion
+} else {
   source("inputMaps.R") # source some functions
   loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
   shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")),
                            studyArea = studyArea,
                            crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
   list2env(shpStudyRegions, envir = environment())
+}
 
 
 # simInit objects
@@ -131,10 +189,11 @@ if (FALSE) {
   startSimInit <- Sys.time()
 mySim <<- simInit(times = times, params = parameters, modules = modules,
                   objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules))
-  endSimInit <- Sys.time()
+endSimInit <- Sys.time()
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
 # This needs simInit call to be run alread
-source("mapsForShiny.R") # a few map details for shiny app
+# a few map details for shiny app
+source("mapsForShiny.R") 
 
 # Run Experiment
 seed <- sample(1e8,1)
