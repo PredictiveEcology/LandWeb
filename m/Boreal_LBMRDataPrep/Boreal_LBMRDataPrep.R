@@ -39,7 +39,7 @@ defineModule(sim, list(
     expectsInput(objectName = "standAgeMap", objectClass = "RasterLayer",
                  desc = "stand age map in study area, default is canada national stand age map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureStandVolume.tar"),
-    expectsInput(objectName = "speciesMap", objectClass = "RasterStack",
+    expectsInput(objectName = "specieslayers", objectClass = "RasterStack",
                  desc = "biomass percentage raster layers by species in canada species map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-Species.tar"),
     expectsInput(objectName = "LCC2005", objectClass = "RasterLayer",
@@ -121,7 +121,6 @@ doEvent.Boreal_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE)
 ### template initialization
 estimateParameters <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  
   sim$studyArea <- spTransform(sim$studyArea, crs(sim$specieslayers))
   sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
   sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$specieslayers))
