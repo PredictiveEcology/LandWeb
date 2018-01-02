@@ -31,7 +31,7 @@ defineModule(sim, list(
     expectsInput("species", "data.table", "Columns: species, speciesCode, Indicating several features about species"),
     expectsInput("cohortData", "data.table", "Columns: B, pixelGroup, speciesCode, Indicating several features about ages and current vegetation of stand"),
     expectsInput(objectName = "vegLeadingPercent", objectClass = "numeric", 
-                 desc = "a number that define whether a species is lead for a given pixel", 
+                 desc = "a proportion, between 0 and 1, that define whether a species is lead for a given pixel", 
                  sourceURL = NA),
     expectsInput(objectName = "rstTimeSinceFire", objectClass = "Raster", 
                  desc = "a time since fire raster layer", 
