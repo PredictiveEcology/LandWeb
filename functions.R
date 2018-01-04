@@ -77,7 +77,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
     out1
   })
   names(out) <- ageClasses
-  allStack <- stack(unlist(lapply(out, function(ageClasses) {
+  allStack <- raster::stack(unlist(lapply(out, function(ageClasses) {
     out <- lapply(ageClasses, function(rep) {
       #lapply(rep, function(vegType) {
       rep
@@ -89,19 +89,21 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
   IDs <- raster::levels(out[[1]][[1]])[[1]]$ID
   Factors <- raster::levels(out[[1]][[1]])[[1]]$Factor
   ii <- 3
-  aa <- raster::extract(allStack, polygonToSummarizeBy)
+  aa <- raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack)))
   
   aa1 <- lapply(aa, function(x,  ...) {
     if(!is.null(x)) {
       apply(x, 2, function(y) {
         nonNACells <- na.omit(y)
-        vals <- tabulate(nonNACells, max(IDs))
-        names(vals)[IDs] <- Factors
-        vals <- vals[!is.na(names(vals))]
-        if(sum(vals)) {
-          vals / sum(vals)
-        } else {
-          vals
+        if (length(nonNACells)) {
+          vals <- tabulate(nonNACells, max(IDs))
+          names(vals)[IDs] <- Factors
+          vals <- vals[!is.na(names(vals))]
+          if(sum(vals)) {
+            vals / sum(vals)
+          } else {
+            vals
+          }
         }
       })
     } else {
