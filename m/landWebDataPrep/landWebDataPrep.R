@@ -20,13 +20,11 @@ defineModule(sim, list(
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
-    defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events")
+    defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
+    defineParameter(".useCache", "any", c(".inputObjects", "init"), NA, NA, "This describes the simulation time interval between save events")    
   ),
   inputObjects = bind_rows(
     #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
-    expectsInput(objectName = "calibrate", objectClass = "logical",
-                 desc = "determine whether all the growth and mortality in LBMR are detailed recorded, default is FALSE", 
-                 sourceURL = ""),
     expectsInput(objectName = "shpStudyRegionFull", objectClass = "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: Full study areawith fire return interval attribute", 
                  #sourceURL = "https://ln.sync.com/dl/4c0ccab80#txwgbma8-d7ta56ar-4pf8rp5d-icpis7ga"), # i guess this is study area and fire return interval
@@ -39,7 +37,12 @@ defineModule(sim, list(
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar"),
     expectsInput(objectName = "LCC2005", objectClass = "RasterLayer", 
                  desc = "2005 land classification map in study area, default is canada national land classification in 2005", 
-                 sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip")
+                 sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip"),
+    expectsInput(objectName = "prepareIt", objectClass = "Function",
+                  desc = "Function that is an omnibus for loading objects from internet, cropping etc."),
+    expectsInput(objectName = "smallNamify", objectClass = "Function",
+                  desc = "Function prepends 'Small' to object names")
+    
   ),
   outputObjects = bind_rows(
     #createsOutput("objectName", "objectClass", "output object description", ...),
@@ -50,12 +53,10 @@ defineModule(sim, list(
                   desc = "output as input for Boreal_LBMRDataPrep"),
     createsOutput(objectName = "LCC2005", objectClass = "RasterLayer", 
                   desc = "output as input for Boreal_LBMRDataPrep"),
-    createsOutput(objectName = "biomassMap", objectClass = "RasterLayer", 
-                  desc = "output as input for Boreal_LBMRDataPrep"),
     createsOutput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame", 
-                 desc = "output as input for initBaseMaps"),
-    createsOutput(objectName = "LCC05X", objectClass = "RasterLayer", 
-                 desc = "output as input for initBaseMaps")
+                 desc = "output as input for initBaseMaps")#,
+    # createsOutput(objectName = "LCC05X", objectClass = "RasterLayer", 
+    #              desc = "output as input for initBaseMaps")
   )
 ))
 
@@ -115,6 +116,8 @@ landWebDataPrepInit <- function(sim) {
   sim$studyArea <- spTransform(sim$shpStudySubRegion, crs(sim$biomassMap))
   sim$shpStudySubRegion <- sim$studyArea
   sim$LCC05X <- sim$LCC2005
+  sim$calibrate <- FALSE
+  
   return(invisible(sim))
 }
 
@@ -185,9 +188,6 @@ landWebDataPrepPlot <- function(sim) {
   }
   
   
-  projection(sim$LCC2005) <- projection(sim$biomassMap)
-  
-  sim$calibrate <- FALSE
   
   # If there is no study Area, use a random one
   if(is.null(sim$shpStudyRegionFull)) {
@@ -196,6 +196,9 @@ landWebDataPrepPlot <- function(sim) {
   if(is.null(sim$shpStudySubRegion)) {
     sim$shpStudySubRegion <- sim$shpStudyRegionFull
   }
+  
+  sim$prepareIt <- prepareIt
+  sim$smallNamify <- smallNamify
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
@@ -247,11 +250,6 @@ smallNamify <- function(name) {
   file.path(dirname(name), paste0("Small", basename(name)))
 }
 
-function(sim) {
-  sim$prepareIt <- prepareIt
-  sim$smallNamify <- smallNamify
-  return(invisible(sim))
-}
 
 untarIt <- function(tarfileName = NULL, checksum = NULL, moduleName = NULL, modulePath = NULL,
                                  untarfileNames = NULL, zipfileName = NULL, 
