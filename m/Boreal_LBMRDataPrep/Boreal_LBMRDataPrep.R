@@ -628,13 +628,16 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
     sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
   
+  if(!identical(crsUsed, crs(sim$shpStudySubRegion)))
+    sim$shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache
+  
   if(is.null(sim$biomassMap)) {
     sim$biomassMap <- Cache(prepareIt, 
                             tarfileName = "kNN-StructureBiomass.tar",
                             untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                             spatialObjectFilename = biomassMapFilename,
                             dataPath = dataPath, #rasterToMatch = sim$standAgeMap,
-                            studyArea = sim$shpStudyRegionFull,
+                            studyArea = sim$shpStudySubRegion,
                             userTags = "stable",
                             modulePath = modulePath(sim))
   }
@@ -645,7 +648,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                          zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
                          spatialObjectFilename = lcc2005Filename,
                          dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                         studyArea = sim$shpStudyRegionFull,
+                         studyArea = sim$shpStudySubRegion,
                          userTags = "stable",
                          modulePath = modulePath(sim))
   }
@@ -656,7 +659,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                           zipfileName = "ecodistrict_shp.zip",
                           zipExtractFolder = "Ecodistricts",
                           spatialObjectFilename = asPath(ecodistrictFilename),
-                          dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                          dataPath = dataPath, #rasterToMatch = sim$biomassMap,
                           studyArea = sim$shpStudyRegionFull,
                           modulePath = modulePath(sim))
   }
@@ -666,7 +669,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                            zipfileName = asPath("ecoregion_shp.zip"),
                            zipExtractFolder = "Ecoregions",
                            spatialObjectFilename = ecoregionFilename,
-                           dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                           dataPath = dataPath, #rasterToMatch = sim$biomassMap,
                            studyArea = sim$shpStudyRegionFull,
                            userTags = "stable",
                            modulePath = modulePath(sim))
@@ -678,7 +681,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                          zipfileName = asPath("ecozone_shp.zip"),
                          zipExtractFolder = "Ecozones",
                          spatialObjectFilename = ecozoneFilename,
-                         dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                         dataPath = dataPath, #rasterToMatch = sim$biomassMap,
                          studyArea = sim$shpStudyRegionFull,
                          userTags = "stable",
                          modulePath = modulePath(sim))
