@@ -170,7 +170,7 @@ Plot <- function(sim) {
                             untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                             spatialObjectFilename = biomassMapFilename,
                             dataPath = dataPath, #rasterToMatch = sim$standAgeMap,
-                            studyArea = sim$shpStudyRegionFull,
+                            studyArea = sim$shpStudySubRegion,
                             userTags = "stable",
                             modulePath = modulePath(sim),
                             moduleName = "landWebDataPrep")
@@ -181,10 +181,11 @@ Plot <- function(sim) {
                          zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
                          spatialObjectFilename = lcc2005Filename,
                          dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                         studyArea = sim$shpStudyRegionFull,
+                         studyArea = sim$shpStudySubRegion,
                          userTags = "stable",
                          modulePath = modulePath(sim),
                          moduleName = "landWebDataPrep")
+    projection(sim$LCC2005) <- projection(sim$biomassMap)
   }
   
   
@@ -210,7 +211,7 @@ prepareIt <- function(tarfileName = NULL, untarfileNames = NULL,
                                                      studyArea, rasterDatatype = "INT2U", 
                                                      modulePath, moduleName = "Boreal_LBMRDataPrep",
                       notOlderThan = NULL) {
-  
+
   message("Preparing: ", basename(spatialObjectFilename))
   
   if(!isAbsolutePath(spatialObjectFilename)) spatialObjectFilename <- file.path(dataPath, spatialObjectFilename)
@@ -223,10 +224,10 @@ prepareIt <- function(tarfileName = NULL, untarfileNames = NULL,
   } else {
     notOlderThan <- NULL
   }
-  checksum <- data.table(Cache(checksums, module = moduleName, path = modulePath, write = FALSE, 
+  checksum <- data.table(Cache(checksums, module = moduleName, path = modulePath, write = FALSE,
                                checksumFile = asPath(file.path(modulePath, moduleName, "data", "CHECKSUMS.txt")), 
                                digestPathContent = TRUE, 
-                         quickCheck = .quickCheck, notOlderThan = notOlderThan))
+                               quickCheck = .quickCheck, notOlderThan = notOlderThan))
   # Work outwards from final step, penultimate step, 3rd from last step etc.
   #  In prinicple, the steps are 
   #  1. Download
