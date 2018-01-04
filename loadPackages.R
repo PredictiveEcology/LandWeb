@@ -27,14 +27,14 @@ data.table::setDTthreads(6)
 
 if(FALSE) {# only do this when you want a new snapshot taken of the packages installed
   modulePkgs <- unique(unlist(SpaDES.core::packages(module = modules)))
-  Require(c(# modules
+  reproducible::Require(c(# modules
     modulePkgs,
     if (Sys.info()["sysname"] != "Windows") "Cairo",
     if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
     # shiny app
     shinyPkgs
-  ), ".packageVersions.txt")
+  ))#, ".packageVersions.txt")
   if (FALSE)
-    pkgSnapshot(".packageVersions.txt", libPath = .libPaths(), standAlone = FALSE)
+    pkgSnapshot(file.path(getwd(),".packageVersions.txt"), libPath = .libPaths(), standAlone = FALSE)
   
 }
