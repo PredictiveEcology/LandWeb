@@ -54,6 +54,10 @@ defineModule(sim, list(
     expectsInput(objectName = "rstStudyRegion", objectClass = "RasterLayer",
                  desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
+    expectsInput(objectName = "cellSize", objectClass = "numeric",
+                 desc = "define the cell size"),
+    expectsInput(objectName = "spinupMortalityfraction", objectClass = "numeric",
+                  desc = "define the mortality loss fraction in spin up-stage simulation, default is 0.001"),
     expectsInput(objectName = "studyArea", objectClass = "SpatialPolygons",
                  desc = "study area",
                  sourceURL = NA)
@@ -76,12 +80,8 @@ defineModule(sim, list(
                   desc = "define the cut points to classify stand shadeness"),
     createsOutput(objectName = "sufficientLight", objectClass = "data.frame",
                   desc = "define how the species with different shade tolerance respond to stand shadeness"),
-    createsOutput(objectName = "spinupMortalityfraction", objectClass = "numeric",
-                  desc = "define the mortality loss fraction in spin up-stage simulation, default is 0.001"),
     createsOutput(objectName = "successionTimestep", objectClass = "numeric",
                   desc = "define the simulation time step, default is 10 years"),
-    createsOutput(objectName = "cellSize", objectClass = "numeric",
-                  desc = "define the cell size"),
     createsOutput(objectName = "seedingAlgorithm", objectClass = "character",
                   desc = "choose which seeding algorithm will be used among noDispersal, universalDispersal,
                   and wardDispersal, default is wardDispersal"),
@@ -615,7 +615,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   names(objExists) <- objNames
   
   # Filenames
-  sim$ecoregionFilename <-   file.path(dataPath, "ecoregions.shp")
+  ecoregionFilename <-   file.path(dataPath, "ecoregions.shp")
   ecodistrictFilename <-   file.path(dataPath, "ecodistricts.shp")
   ecozoneFilename <-   file.path(dataPath, "ecozones.shp")
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
@@ -747,8 +747,11 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(is.null(sim$rstStudyRegion)) {
     needRstSR <- TRUE
   } else {
-    if(!identical(extent(sim$rstStudyRegion), extent(biomassMap)))
+    if(!identical(extent(sim$rstStudyRegion), extent(biomassMap))) {
       needRstSR <- TRUE
+    } else {
+      needRstSR <- FALSE
+    }
   }
   if(needRstSR) {
     message("  Rasterizing the shpStudyRegionFull polygon map")
