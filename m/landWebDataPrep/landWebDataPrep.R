@@ -69,7 +69,7 @@ doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
     ### (use `checkObject` or similar)
     
     # do stuff for this event
-    sim <- sim$landWebDataPrepInit(sim)
+    sim <- Init(sim)
     
     # schedule future event(s)
     sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "landWebDataPrep", "plot")
@@ -110,19 +110,19 @@ doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initialization
-landWebDataPrepInit <- function(sim) {
+Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
   projection(sim$LCC2005) <- projection(sim$biomassMap)
   sim$studyArea <- spTransform(sim$shpStudySubRegion, crs(sim$biomassMap))
   sim$shpStudySubRegion <- sim$studyArea
-  sim$LCC05X <- sim$LCC2005
+  # sim$LCC05X <- sim$LCC2005
   sim$calibrate <- FALSE
   
   return(invisible(sim))
 }
 
 ### template for save events
-landWebDataPrepSave <- function(sim) {
+Save <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   sim <- saveFiles(sim)
@@ -132,7 +132,7 @@ landWebDataPrepSave <- function(sim) {
 }
 
 ### template for plot events
-landWebDataPrepPlot <- function(sim) {
+Plot <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot("object")
