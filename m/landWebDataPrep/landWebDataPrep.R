@@ -218,12 +218,14 @@ prepareIt <- function(tarfileName = NULL, untarfileNames = NULL,
   # Test whether dataPath has been updated with file deletions or additions or whatever, 
   #  If it has changed, then Cache of checksums will be rerun
   bb <- capture.output(aa <- Cache(file.info, asPath(dir(dataPath, full.names = TRUE))), type = "message")
-  if(isTRUE(!startsWith(bb, "loading cached"))) {
+  if (length(bb) == 0){#isTRUE(!grepl(bb, pattern = "loading cached"))) {
     notOlderThan <- Sys.time()
   } else {
     notOlderThan <- NULL
   }
   checksum <- data.table(Cache(checksums, module = moduleName, path = modulePath, write = FALSE, 
+                               checksumFile = asPath(file.path(modulePath, moduleName, "data", "CHECKSUMS.txt")), 
+                               digestPathContent = TRUE, 
                          quickCheck = .quickCheck, notOlderThan = notOlderThan))
   # Work outwards from final step, penultimate step, 3rd from last step etc.
   #  In prinicple, the steps are 
@@ -277,14 +279,15 @@ unzipIt <- function(zipfileName = NULL, checksum = NULL, moduleName = NULL, modu
                                  spatialObjectFilename = NULL, zipExtractFolder = NULL,
                                  dataPath = NULL, .quickCheck = FALSE) 
   {
+  
     if(!is.null(zipfileName)) {
-      if(!all(compareNA(checksum[grepl(expectedFile, pattern = zipfileName), result], "OK")))  {
+      if(!isTRUE(compareNA(checksum[grepl(expectedFile, pattern = zipfileName), result], "OK")))  {
         ee <- data.table(Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck))
-        if(!all(compareNA(ee[grepl(expectedFile, pattern = zipfileName), result], "OK"))) {
+        if(!isTRUE(compareNA(ee[grepl(expectedFile, pattern = zipfileName), result], "OK"))) {
           warning("The version downloaded of ", zipfileName, " does not match the checksums")
         }
       }
-      if(all(!file.exists(spatialObjectFilename))) {
+      if (!isTRUE(compareNA(checksum[grepl(expectedFile, pattern = basename(spatialObjectFilename)), result], "OK"))) {
         message("  Unzipping ", zipfileName)
         unzip(file.path(dataPath, zipfileName), exdir = dataPath)
         if(!is.null(zipExtractFolder)) {
@@ -302,12 +305,18 @@ unzipIt <- function(zipfileName = NULL, checksum = NULL, moduleName = NULL, modu
 cropReprojectIt <- function(spatialObjectFilename, rasterToMatch, studyArea) {
   if(grepl(".shp", spatialObjectFilename)) {
     message("  Cropping, reprojecting")
-    a <- Cache(raster::shapefile, spatialObjectFilename)
-    crsUsed <- if(is.null(rasterToMatch)) crs(a) else crs(rasterToMatch)
-    if(!rgeos::gIsValid(a)) b <- Cache(buffer, a, dissolve = FALSE, width = 0) else b <- a
-    b <- SpatialPolygonsDataFrame(b, data = as.data.frame(a))
-    b <- Cache(spTransform, b, crsUsed)
-    b <- Cache(crop, b, rasterToMatch)
+    a <- Cache(raster::shapefile, asPath(spatialObjectFilename), digestPathContent = TRUE)
+    crsUsed <- if(is.null(studyArea)) crs(a) else crs(studyArea)
+    if(!suppressWarnings(rgeos::gIsValid(a))) b1 <- Cache(buffer, a, dissolve = FALSE, width = 0) else b1 <- a
+    b2 <- SpatialPolygonsDataFrame(b1, data = as.data.frame(a))
+    b3 <- Cache(spTransform, b2, crsUsed)
+    b <- Cache(raster::crop, b3, studyArea)
+    if (!is.null(rasterToMatch)) {
+      if(!identical(crs(b3), crs(rasterToMatch))) {
+        b3 <- Cache(spTransform, b3, crs(rasterToMatch))
+      }
+      b <- Cache(raster::crop, b3, rasterToMatch)
+    }
   } else if (grepl(".tif", spatialObjectFilename)) {
     message("  Cropping, reprojecting")
     b <- raster::raster(spatialObjectFilename)
