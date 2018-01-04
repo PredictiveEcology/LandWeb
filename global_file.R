@@ -1,9 +1,27 @@
-source("loadPackages.R") # load & install (if not available) package dependencies
+# List modules first, so we can get all their dependencies
+modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+# Spatial stuff -- determines the size of the area that will be "run" in the simulations
+studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
+studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
+
+## paths
+paths <- list(
+  cachePath = paste0("appCache", studyArea),
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs",
+  outputPath = paste0("outputs", studyArea)
+)
+do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
+
+reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
+#                                         # It needs to be separate because it is an overarching one, regardless of scale
+
+source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
 source("functions.R") # get functions used throughout this shiny app
-source("shinyModules.R") # shiny modules
+#source("shinyModules.R") # shiny modules
 source("footers.R") # minor footer stuff for app
 
-library(SpaDES.shiny)
 
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
@@ -13,21 +31,6 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
      # character vector (most recent one with AND search)
      # numeric -- counting backwards from 1 previous, 2 previous etc.
 .reloadPreviousWorking <- reloadPreviousWorkingFn(reloadPreviousWorking)
-reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
-                                         # It needs to be separate because it is an overarching one, regardless of scale
-
-# Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL"
-
-## paths
-paths <- list(
-  cachePath = paste0("appCache", studyArea),
-  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-  inputPath = "inputs",
-  outputPath = paste0("outputs", studyArea)
-)
-do.call(setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
-
 
 # App - variables
   appStartTime <- st <- Sys.time() - 1
@@ -38,11 +41,14 @@ do.call(setPaths, paths) # Set them here so that we don't have to specify at eac
   leafletZoomInit = 5
   # Some shinycssloaders options
   options("spinner.type" = 5)
+  # This will search for gdal utilities. If it finds nothing, and you are on Windows, 
+  #   You should install the gdal that comes with QGIS -- use OSGeo4W Network Installer 64 bit 
+  #   may be still here: http://www.qgis.org/en/site/forusers/download.html 
   options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
   #options(spinner.color="blue")
-
+  
 ## spades module variables
-  eventCaching <- "init"
+  eventCaching <- c(".inputObjects", "init")
   maxAge <- 400
   ageClasses <- c("Young", "Immature", "Mature", "Old")
   ageClassCutOffs <- c(0, 40, 80, 120)
@@ -63,30 +69,42 @@ do.call(setPaths, paths) # Set them here so that we don't have to specify at eac
   successionTimestep <- 10 # was 2
 
   # Overall model times # start is default at 0
-  endTime <- 30
+  endTime <- 40
   summaryInterval <- 10
   summaryPeriod <- c(10, endTime)
 
-### Package stuff that should not be run automatically
-if (FALSE) {
-  SpaDESDeps <- miniCRAN::pkgDep("SpaDES.core")
-  new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
-  if (length(new.packages)) install.packages(new.packages)
-
-}
-
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
+  # "shpStudyRegion"     "shpStudyRegionFull" 
   source("inputMaps.R") # source some functions
-  loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
-  shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")),
-                           studyArea = studyArea,
-                           crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
-  list2env(shpStudyRegions, envir = environment())
+  if(studyArea=="RIA") { 
+    shpStudyRegion <- Cache(shapefile, file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))  
+    loadAndBuffer <- function(shapefile) { 
+      a <- shapefile(shapefile) 
+      b <- buffer(a, 0, dissolve = FALSE) 
+      SpatialPolygonsDataFrame(b, data = as.data.frame(a)) 
+    } 
+    fireReturnIntervalTemp <- 400 
+    shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval 
+    shpStudyRegion[["fireReturnInterval"]] <- shpStudyRegion$LTHRC # Fire return interval 
+    
+    shpStudyRegionFull <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
+                                cacheRepo = paths$cachePath)
+    shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
+    shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
+    #shpStudyRegion <- shpStudyRegion[1,]
+    shpStudyRegionFull <- shpStudyRegion 
+    
+    loadLandisParams(path = dirname(paths$inputPath), envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
+  } else { 
+    loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
+    shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")),
+                             studyArea = studyArea,
+                             crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
+    list2env(shpStudyRegions, envir = environment())
+  }
 
 
 # simInit objects
-  modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-                  "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
   times <- list(start = 0, end = endTime)
   .quickCheck <- TRUE
   objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
@@ -96,6 +114,7 @@ if (FALSE) {
                   "useParallel" = FALSE)
   parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
                                           .useCache = eventCaching),
+                     landWebDataPrep = list(.useCache = eventCaching),
                      Boreal_LBMRDataPrep = list(.useCache = eventCaching),
                      LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep,
                                      burnInitialTime = fireTimestep,
@@ -125,16 +144,17 @@ if (FALSE) {
   outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
                                   list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
                              times = NROW(outputs)/length(objectNamesToSave)))
-  outputs <- as.data.frame(rbindlist(list(outputs, outputs2), fill = TRUE))
+  outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2), fill = TRUE))
 
 # Main simInit function call -- loads all data
-  startSimInit <- Sys.time()
+startSimInit <- Sys.time()
 mySim <<- simInit(times = times, params = parameters, modules = modules,
                   objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules))
-  endSimInit <- Sys.time()
+endSimInit <- Sys.time()
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
 # This needs simInit call to be run alread
-source("mapsForShiny.R") # a few map details for shiny app
+# a few map details for shiny app 
+source("mapsForShiny.R")  
 
 # Run Experiment
 seed <- sample(1e8,1)
