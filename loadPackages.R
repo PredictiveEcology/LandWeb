@@ -35,6 +35,6 @@ if(FALSE) {# only do this when you want a new snapshot taken of the packages ins
     shinyPkgs
   ))#, ".packageVersions.txt")
   if (FALSE)
-    pkgSnapshot(file.path(getwd(),".packageVersions.txt"), libPath = .libPaths(), standAlone = FALSE)
+    b <- pkgSnapshot(file.path(getwd(),".packageVersions.txt"), libPath = .libPaths(), standAlone = FALSE)
   
 }
