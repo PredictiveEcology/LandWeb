@@ -10,7 +10,7 @@ defineModule(sim, list(
   timeunit =  "year", #no relevence. An init module only.
   citation = list(""),
   documentation = list("README.txt", "initBaseMaps.Rmd"),
-  reqdPkgs = list("raster", "amc"),
+  reqdPkgs = list("raster", "achubaty/amc@development"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -20,7 +20,7 @@ defineModule(sim, list(
     defineParameter(".useCache", "numeric", FALSE, NA, NA, "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = bind_rows(
-    expectsInput("LCC05X", "RasterLayer", "Land Cover Classification from 2005, NRCan product"), 
+    expectsInput("LCC2005", "RasterLayer", "Land Cover Classification from 2005, NRCan product"), 
     expectsInput("shpStudySubRegion", "SpatialPolygonsDataFrame", "Study Area")
   ),
   outputObjects = bind_rows(
@@ -35,7 +35,7 @@ defineModule(sim, list(
 
 doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
-    sim <- initBaseMapsInit(sim)
+    sim <- Init(sim)
   } 
   else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
@@ -45,8 +45,8 @@ doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
 }
 
 ### template initialization
-initBaseMapsInit <- function(sim) {
-  simProjection <- crs(sim$LCC05X)
+Init <- function(sim) {
+  simProjection <- crs(sim$LCC2005)
   #reproject sim$shpStudyRegion to accord with LCC05
   sim$shpStudyRegion <- Cache(
     spTransform, 
@@ -56,7 +56,7 @@ initBaseMapsInit <- function(sim) {
   fieldName <- if("LTHRC" %in% names(sim$shpStudyRegion)) "LTHRC" else names(sim$shpStudyRegion)[1]
   sim$rstStudyRegion <- Cache(fastRasterize, 
                               polygon = sim$shpStudyRegion,
-                              ras = crop(sim$LCC05X, extent(sim$shpStudyRegion)),
+                              ras = crop(sim$LCC2005, extent(sim$shpStudyRegion)),
                               field=fieldName, datatype="INT2U",
                               filename="rstStudyRegion")
   
@@ -70,15 +70,8 @@ initBaseMapsInit <- function(sim) {
     out
   }
 
-  sim$LCC05 <- Cache(cropMask, ras = sim$LCC05X, poly = sim$shpStudyRegion, mask = sim$rstStudyRegion)
+  sim$LCC05 <- Cache(cropMask, ras = sim$LCC2005, poly = sim$shpStudyRegion, mask = sim$rstStudyRegion)
   
-  rm(LCC05X,envir=envir(sim))
+  # rm(LCC05X,envir=envir(sim))
   return(invisible(sim))
 }
-
-
-initBaseMapsCache <- function(sim){
-  #
-  return(invisible(sim))
-}
-
