@@ -15,8 +15,7 @@ library(SpaDES.shiny)
 library(raster) 
 
 shinyPkgs <- c("leaflet", "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
-Require(c(# modules
-        #modulePkgs,
+Require(c(
         if (Sys.info()["sysname"] != "Windows") "Cairo",
         if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
         # shiny app

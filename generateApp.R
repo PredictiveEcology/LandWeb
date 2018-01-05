@@ -1,5 +1,6 @@
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
 library(SpaDES.shiny)
+library(dplyr)
 
 appMetadata <- list(
   modules = data.frame(
@@ -32,8 +33,8 @@ appMetadata$layout$moduleUIParameters <- list(list("length(tsf)"), list(), list(
 
 Modules <- tribble(
   ~type,  ~name, ~id, ~parameters,
-  "shinyModule", "largePatches", "largePatches", list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"), 
   "shinyModule", "timeSinceFire", "timeSinceFire", list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull", "colorTableFile", "timeSinceFirePalette", "maxAge"),
+  "shinyModule", "largePatches", "largePatches", list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"), 
   "shinyModule", "simInfo", "simInfo", list("mySimOut[[1]]"), 
   "shinyModule", "moduleInfo", "moduleInfo", list("mySimOut[[1]]"), 
   "shinyModule", "inputTables", "inputTables", list()
@@ -41,8 +42,8 @@ Modules <- tribble(
 
 Layout <- tribble(
   ~tabName,  ~menuItemName, ~icon, ~moduleId, ~moduleUIParameters,
-  "largePatches", "Large Patches", "bar-chart",  "largePatches", list(),
   "timeSinceFire", "Maps - time since fire", "map-o", "timeSinceFire", list("length(tsf)"),
+  "largePatches", "Large Patches", "bar-chart",  "largePatches", list(),
   "simInfo", "Overview Diagrams", "sitemap", "simInfo", list(),
   "moduleInfo", "Module Info", "puzzle-piece", "moduleInfo", list(),
   "inputTables", "LBMR (Succession) Model Inputs", "table", "inputTables", list()
