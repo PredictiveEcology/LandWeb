@@ -287,7 +287,7 @@ estimateParameters <- function(sim) {
   initialCommunities <- data.frame(initialCommunities)
   message("11: ", Sys.time())
   
-  fn <- function(initialCommunities, speciesTable) {
+  initialCommunitiesFn <- function(initialCommunities, speciesTable) {
     for(i in 1:nrow(initialCommunities)){
       agelength <- sample(1:15, 1)
       ages <- sort(sample(1:speciesTable[species == initialCommunities$species[i],]$longevity,
@@ -298,7 +298,7 @@ estimateParameters <- function(sim) {
   }
   message("12: ", Sys.time())
   
-  sim$initialCommunities <- Cache(fn, initialCommunities, speciesTable,
+  sim$initialCommunities <- Cache(initialCommunitiesFn, initialCommunities, speciesTable,
                                   userTags = "stable")
   
   assign("species", speciesTable, envir = .GlobalEnv)
