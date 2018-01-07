@@ -1,4 +1,4 @@
-if(TRUE) {
+if(FALSE) {
   #try(detach("package:SpaDES.shiny", unload = TRUE));
   # try(detach("package:SpaDES.addins", unload = TRUE));
   # try(detach("package:SpaDES.tools", unload = TRUE));
@@ -14,7 +14,7 @@ library(SpaDES)
 library(SpaDES.shiny)
 library(raster) 
 
-shinyPkgs <- c("leaflet", "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
+shinyPkgs <- c("leaflet", "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders", "gdalUtils", "rgeos")
 Require(c(
         if (Sys.info()["sysname"] != "Windows") "Cairo",
         if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
