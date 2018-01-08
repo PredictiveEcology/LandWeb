@@ -35,9 +35,9 @@ defineModule(sim, list(
     expectsInput(objectName = "patchSize", objectClass = "numeric", 
                  desc = "A number, in ha, to define patch size, ie., bigger than or equal to this size", 
                  sourceURL = NA),
-    expectsInput(objectName = "rstTimeSinceFire", objectClass = "raster", 
-                 desc = "a time since fire raster layer", 
-                 sourceURL = NA),
+    # expectsInput(objectName = "rstTimeSinceFire", objectClass = "raster", 
+    #              desc = "a time since fire raster layer", 
+    #              sourceURL = NA),
     expectsInput(objectName = "cohortData", objectClass = "data.table", 
                  desc = "age cohort-biomass table hooked to pixel group map by pixelGroupIndex at
                  succession time step, this is imported from forest succession module",
@@ -56,18 +56,18 @@ defineModule(sim, list(
 
 doEvent.LandWebOutput = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
-    sim <- sim$LandWebOutputInit(sim)
+    sim <- Init(sim)
     sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "allEvents", 
                          eventPriority = 7.5)
     # sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "save",
     #                      eventPriority = 8) #
   }   else if (time(sim) >= sim$summaryPeriod[1] & eventType == "allEvents" & 
                time(sim) <= sim$summaryPeriod[2]) {
-    sim <- sim$LandWebOutputAllEvents(sim)
+    sim <- AllEvents(sim)
     sim <- scheduleEvent(sim,  time(sim) + P(sim)$summaryInterval,
                          "LandWebOutput", "allEvents", eventPriority = 7.5)
   } else if (eventType == "save") {
-    sim <- sim$LandWebOutputSave(sim)
+    sim <- Save(sim)
     sim <- scheduleEvent(sim, time(sim) + P(sim)$summaryInterval, 
                          "LandWebOutput", "save", eventPriority = 8)
   } else {
@@ -83,7 +83,7 @@ doEvent.LandWebOutput = function(sim, eventTime, eventType, debug = FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initialization
-LandWebOutputInit <- function(sim) {
+Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
   
   # ! ----- STOP EDITING ----- ! #
@@ -92,7 +92,7 @@ LandWebOutputInit <- function(sim) {
 }
 
 ### template for your event1
-LandWebOutputAllEvents <- function(sim) {
+AllEvents <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
   # seral stage summary 
@@ -112,7 +112,7 @@ LandWebOutputAllEvents <- function(sim) {
     sim$seralStageMap <- seralStageMap
   }
   # vegetation type summary 
-  if(is.null(sim$vegTypeMapGenerator)) { # This may be produced in a fire module
+  if(is.null(sim$LandMine$vegTypeMapGenerator)) { # This may be produced in a specific fire module
     species <- sim$species
     species[species == "Pinu_sp" | species == "Pinu_sp", speciesGroup := "PINU"] 
     species[species == "Betu_pap" | species == "Popu_bal"| 
@@ -144,11 +144,12 @@ LandWebOutputAllEvents <- function(sim) {
     pixelGroupMap <- sim$pixelGroupMap
     vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading") 
     vegTypeMap <- setValues(vegTypeMap, as.integer(getValues(vegTypeMap)))
-    raster::levels(vegTypeMap) <- as.data.frame(attritable)
+    levels(vegTypeMap) <- as.data.frame(attritable)
     projection(vegTypeMap) <- projection(sim$pixelGroupMap)
     sim$vegTypeMap <- vegTypeMap
   } else {
-    sim$vegTypeMap <- sim$vegTypeMapGenerator(sim$species, sim$cohortData, sim$pixelGroupMap)
+    sim$vegTypeMap <- sim$LandMine$vegTypeMapGenerator(sim$species, sim$cohortData, sim$pixelGroupMap, 
+                                              sim$vegLeadingPercent)
   }
   # oldSeral <- raster(seralStageMap)
   # seralStageTable <- data.table(seralStageTable)
@@ -176,7 +177,7 @@ return(invisible(sim))
 }
 
 ### template for save events
-LandWebOutputSave <- function(sim) {
+Save <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   if(!dir.exists(file.path(outputPath(sim), "seralStageMaps"))){
@@ -206,6 +207,10 @@ LandWebOutputSave <- function(sim) {
                                seralName = c("Young", "Immature", "Mature", "Old"))
   sim$patchSize <- 5000
   sim$vegLeadingPercent <- 0.80
+  if (is.null(sim$cohortData))
+    sim$cohortData <- data.table()
+  if (is.null(sim$pixelGroupMap))
+    sim$pixelGroupMap <- raster()
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
