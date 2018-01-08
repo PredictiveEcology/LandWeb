@@ -39,7 +39,7 @@ defineModule(sim, list(
     expectsInput(objectName = "standAgeMap", objectClass = "RasterLayer",
                  desc = "stand age map in study area, default is canada national stand age map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureStandVolume.tar"),
-    expectsInput(objectName = "speciesMap", objectClass = "RasterStack",
+    expectsInput(objectName = "specieslayers", objectClass = "RasterStack",
                  desc = "biomass percentage raster layers by species in canada species map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-Species.tar"),
     expectsInput(objectName = "LCC2005", objectClass = "RasterLayer",
@@ -54,6 +54,10 @@ defineModule(sim, list(
     expectsInput(objectName = "rstStudyRegion", objectClass = "RasterLayer",
                  desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
+    expectsInput(objectName = "cellSize", objectClass = "numeric",
+                 desc = "define the cell size"),
+    expectsInput(objectName = "spinupMortalityfraction", objectClass = "numeric",
+                  desc = "define the mortality loss fraction in spin up-stage simulation, default is 0.001"),
     expectsInput(objectName = "studyArea", objectClass = "SpatialPolygons",
                  desc = "study area",
                  sourceURL = NA)
@@ -76,12 +80,8 @@ defineModule(sim, list(
                   desc = "define the cut points to classify stand shadeness"),
     createsOutput(objectName = "sufficientLight", objectClass = "data.frame",
                   desc = "define how the species with different shade tolerance respond to stand shadeness"),
-    createsOutput(objectName = "spinupMortalityfraction", objectClass = "numeric",
-                  desc = "define the mortality loss fraction in spin up-stage simulation, default is 0.001"),
     createsOutput(objectName = "successionTimestep", objectClass = "numeric",
                   desc = "define the simulation time step, default is 10 years"),
-    createsOutput(objectName = "cellSize", objectClass = "numeric",
-                  desc = "define the cell size"),
     createsOutput(objectName = "seedingAlgorithm", objectClass = "character",
                   desc = "choose which seeding algorithm will be used among noDispersal, universalDispersal,
                   and wardDispersal, default is wardDispersal"),
@@ -121,7 +121,6 @@ doEvent.Boreal_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE)
 ### template initialization
 estimateParameters <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
-  
   sim$studyArea <- spTransform(sim$studyArea, crs(sim$specieslayers))
   sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
   sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$specieslayers))
@@ -288,7 +287,7 @@ estimateParameters <- function(sim) {
   initialCommunities <- data.frame(initialCommunities)
   message("11: ", Sys.time())
   
-  fn <- function(initialCommunities, speciesTable) {
+  initialCommunitiesFn <- function(initialCommunities, speciesTable) {
     for(i in 1:nrow(initialCommunities)){
       agelength <- sample(1:15, 1)
       ages <- sort(sample(1:speciesTable[species == initialCommunities$species[i],]$longevity,
@@ -299,7 +298,7 @@ estimateParameters <- function(sim) {
   }
   message("12: ", Sys.time())
   
-  sim$initialCommunities <- Cache(fn, initialCommunities, speciesTable,
+  sim$initialCommunities <- Cache(initialCommunitiesFn, initialCommunities, speciesTable,
                                   userTags = "stable")
   
   assign("species", speciesTable, envir = .GlobalEnv)
@@ -616,7 +615,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   names(objExists) <- objNames
   
   # Filenames
-  sim$ecoregionFilename <-   file.path(dataPath, "ecoregions.shp")
+  ecoregionFilename <-   file.path(dataPath, "ecoregions.shp")
   ecodistrictFilename <-   file.path(dataPath, "ecodistricts.shp")
   ecozoneFilename <-   file.path(dataPath, "ecozones.shp")
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
@@ -629,13 +628,16 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
     sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
   
+  if(!identical(crsUsed, crs(sim$shpStudySubRegion)))
+    sim$shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache
+  
   if(is.null(sim$biomassMap)) {
     sim$biomassMap <- Cache(prepareIt, 
                             tarfileName = "kNN-StructureBiomass.tar",
                             untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
                             spatialObjectFilename = biomassMapFilename,
                             dataPath = dataPath, #rasterToMatch = sim$standAgeMap,
-                            studyArea = sim$shpStudyRegionFull,
+                            studyArea = sim$shpStudySubRegion,
                             userTags = "stable",
                             modulePath = modulePath(sim))
   }
@@ -646,7 +648,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                          zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
                          spatialObjectFilename = lcc2005Filename,
                          dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                         studyArea = sim$shpStudyRegionFull,
+                         studyArea = sim$shpStudySubRegion,
                          userTags = "stable",
                          modulePath = modulePath(sim))
   }
@@ -657,7 +659,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                           zipfileName = "ecodistrict_shp.zip",
                           zipExtractFolder = "Ecodistricts",
                           spatialObjectFilename = asPath(ecodistrictFilename),
-                          dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                          dataPath = dataPath, #rasterToMatch = sim$biomassMap,
                           studyArea = sim$shpStudyRegionFull,
                           modulePath = modulePath(sim))
   }
@@ -667,7 +669,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                            zipfileName = asPath("ecoregion_shp.zip"),
                            zipExtractFolder = "Ecoregions",
                            spatialObjectFilename = ecoregionFilename,
-                           dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                           dataPath = dataPath, #rasterToMatch = sim$biomassMap,
                            studyArea = sim$shpStudyRegionFull,
                            userTags = "stable",
                            modulePath = modulePath(sim))
@@ -679,7 +681,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                          zipfileName = asPath("ecozone_shp.zip"),
                          zipExtractFolder = "Ecozones",
                          spatialObjectFilename = ecozoneFilename,
-                         dataPath = dataPath, rasterToMatch = sim$biomassMap,
+                         dataPath = dataPath, #rasterToMatch = sim$biomassMap,
                          studyArea = sim$shpStudyRegionFull,
                          userTags = "stable",
                          modulePath = modulePath(sim))
@@ -748,8 +750,11 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(is.null(sim$rstStudyRegion)) {
     needRstSR <- TRUE
   } else {
-    if(!identical(extent(sim$rstStudyRegion), extent(biomassMap)))
+    if(!identical(extent(sim$rstStudyRegion), extent(biomassMap))) {
       needRstSR <- TRUE
+    } else {
+      needRstSR <- FALSE
+    }
   }
   if(needRstSR) {
     message("  Rasterizing the shpStudyRegionFull polygon map")
