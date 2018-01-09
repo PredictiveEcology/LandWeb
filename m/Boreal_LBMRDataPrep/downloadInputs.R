@@ -86,6 +86,15 @@ function(mapping, modulePath, moduleName, loadFun, loadPackage, mask = NULL)
         }
       )
     }
+    
+    # Update checksums
+    Cache(checksums, 
+          module = moduleName, 
+          path = modulePath,
+          digestPathContent = TRUE,
+          notOlderThan = Sys.time(),
+          write = TRUE
+    )
   }
     
   # Load objects
@@ -123,13 +132,5 @@ function(mapping, modulePath, moduleName, loadFun, loadPackage, mask = NULL)
   # Copy to globalenv()
   list2env(as.list(env), envir = globalenv())
   
-  # Update checksums
-  Cache(checksums, 
-        module = moduleName, 
-        path = modulePath,
-        digestPathContent = TRUE,
-        notOlderThan = Sys.time(),
-        write = TRUE
-  )
 }
 
