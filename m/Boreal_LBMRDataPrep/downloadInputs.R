@@ -205,8 +205,8 @@ function(targetFile,
       
       if (writeCropped)
       {
-        raster::writeRaster(x, overwrite = TRUE, format = "GTiff",
-                            datatype = rasterDatatype, filename = smallFN)
+        Cache(raster::writeRaster, x = x, overwrite = TRUE, format = "GTiff",
+              datatype = rasterDatatype, filename = smallFN, userTags = userTags)
       }
     } 
     else if ("spatialObjects" %in% objClass)
@@ -232,7 +232,7 @@ function(targetFile,
       
       if (writeCropped)
       {
-        raster::shapefile(x, overwrite = TRUE, filename = smallFN)
+        Cache(raster::shapefile, x = x, overwrite = TRUE, filename = smallFN, userTags = userTags)
       }
     } 
     else if ("sf" %in% objClass)
@@ -258,7 +258,7 @@ function(targetFile,
       
       if (writeCropped)
       {
-        sf::st_write(x, delete_dsn = TRUE, dsn = smallFN)
+        Cache(sf::st_write, obj = x, delete_dsn = TRUE, dsn = smallFN, userTags = userTags)
       }
     }
   }
