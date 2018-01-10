@@ -1,6 +1,6 @@
 library(reproducible)
 
-downloadFromWDB <- function(filename)
+downloadFromWebDB <- function(filename)
 {
   for (i in 1:nrow(webDatabases::urls))
   {
@@ -102,7 +102,7 @@ function(targetFile,
   {
     if (is.null(archive))
     {
-      downloadFromWDB(targetFile)
+      downloadFromWebDB(targetFile)
       
       if (.quickCheck)
       {
@@ -126,7 +126,7 @@ function(targetFile,
       
       if (mismatch)
       {
-        downloadFromWDB(archive)
+        downloadFromWebDB(archive)
         
         if (.quickCheck)
         {
