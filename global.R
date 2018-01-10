@@ -3,7 +3,7 @@ modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
-studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
+#studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
 ## paths
 paths <- list(
@@ -76,6 +76,7 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
   # "shpStudyRegion"     "shpStudyRegionFull" 
   source("inputMaps.R") # source some functions
+  loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
   if(studyArea=="RIA") { 
     shpStudyRegion <- Cache(shapefile, file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))  
     loadAndBuffer <- function(shapefile) { 
@@ -94,9 +95,7 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
     #shpStudyRegion <- shpStudyRegion[1,]
     shpStudyRegionFull <- shpStudyRegion 
     
-    loadLandisParams(path = dirname(paths$inputPath), envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
   } else { 
-    loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
     shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")),
                              studyArea = studyArea,
                              crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
