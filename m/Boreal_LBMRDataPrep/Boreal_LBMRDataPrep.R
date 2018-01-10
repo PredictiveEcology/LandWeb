@@ -631,6 +631,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(!identical(crsUsed, crs(sim$shpStudySubRegion)))
     sim$shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache
   
+  cacheTags = c("module:Boreal_LBMRDataPrep", "function:.inputObjects", "function:spades")
   if(is.null(sim$biomassMap)) {
     sim$biomassMap <- Cache(prepareIt, 
                             tarfileName = "kNN-StructureBiomass.tar",
@@ -638,7 +639,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                             spatialObjectFilename = biomassMapFilename,
                             dataPath = dataPath, #rasterToMatch = sim$standAgeMap,
                             studyArea = sim$shpStudySubRegion,
-                            userTags = "stable",
+                            userTags = cacheTags,
                             modulePath = modulePath(sim))
   }
   
@@ -649,7 +650,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                          spatialObjectFilename = lcc2005Filename,
                          dataPath = dataPath, rasterToMatch = sim$biomassMap,
                          studyArea = sim$shpStudySubRegion,
-                         userTags = "stable",
+                         userTags = cacheTags,
                          modulePath = modulePath(sim))
   }
   
@@ -660,6 +661,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                           zipExtractFolder = "Ecodistricts",
                           spatialObjectFilename = asPath(ecodistrictFilename),
                           dataPath = dataPath, #rasterToMatch = sim$biomassMap,
+                          userTags = cacheTags,
                           studyArea = sim$shpStudyRegionFull,
                           modulePath = modulePath(sim))
   }
@@ -671,7 +673,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                            spatialObjectFilename = ecoregionFilename,
                            dataPath = dataPath, #rasterToMatch = sim$biomassMap,
                            studyArea = sim$shpStudyRegionFull,
-                           userTags = "stable",
+                           userTags = cacheTags,
                            modulePath = modulePath(sim))
     
   }
@@ -683,7 +685,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                          spatialObjectFilename = ecozoneFilename,
                          dataPath = dataPath, #rasterToMatch = sim$biomassMap,
                          studyArea = sim$shpStudyRegionFull,
-                         userTags = "stable",
+                         userTags = cacheTags,
                          modulePath = modulePath(sim))
     
   }
@@ -696,13 +698,15 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                             spatialObjectFilename = standAgeMapFilename,
                             dataPath = dataPath, rasterToMatch = sim$biomassMap,
                             studyArea = sim$shpStudyRegionFull,
-                            userTags = "stable",
+                            userTags = cacheTags,
                             modulePath = modulePath(sim))
   }
 
   if(is.null(sim$specieslayers)) {
     sim$specieslayers <- Cache(loadAllSpeciesLayers, dataPath, sim$biomassMap, 
-                                              sim$shpStudyRegionFull, modulePath(sim), quick = TRUE)
+                               sim$shpStudyRegionFull, modulePath(sim), quick = TRUE,
+                               cacheTags = cacheTags, # This is for the internal caching
+                               userTags = cacheTags)
   }
 
  
@@ -792,7 +796,7 @@ toSentenceCase <- function(strings) {
 }
 
 
-loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modulePath) {
+loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modulePath, cacheTags) {
   speciesNamesEnd <- c("Abie_sp", "Pice_Gla", "Pice_Mar",
                        "Pinu_sp", "Popu_Tre")
   speciesnamesRaw <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
@@ -806,7 +810,7 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
                             spatialObjectFilename = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.tif"),
                             dataPath = dataPath, rasterToMatch = biomassMap,
                             studyArea = shpStudyRegionFull,
-                            userTags = "stable",
+                            userTags = cacheTags,
                             modulePath = modulePath)
   }
   
