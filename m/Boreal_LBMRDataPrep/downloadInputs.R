@@ -79,7 +79,7 @@ function(targetFile,
   # Here we assume that if dataPath has not been updated checksums don't need to
   # be rerun. This is useful for WEB apps.
   capturedOutput <- capture.output(
-    Cache(file.info, asPath(dir(dataPath, full.names = TRUE))),
+    Cache(file.info, asPath(dir(dataPath, full.names = TRUE)), userTags = userTags),
     type = "message"
   )
   
@@ -90,7 +90,8 @@ function(targetFile,
           module = moduleName, 
           path = modulePath,
           digestPathContent = TRUE,
-          notOlderThan = notOlderThan
+          notOlderThan = notOlderThan,
+          userTags = userTags
     )
   )
   
@@ -100,7 +101,7 @@ function(targetFile,
 
   if (!mismatch)
   {
-    return(Cache(getFromNamespace(loadFun, loadPackage)(file)))
+    return(Cache(getFromNamespace(loadFun, loadPackage)(file), userTags = userTags))
   }
   else
   {
@@ -155,7 +156,7 @@ function(targetFile,
   # Load objects
   for (file in c(x = targetFile, studyArea = studyArea))
   {
-    assign(x = names(file), value = Cache(getFromNamespace(loadFun, loadPackage)(file)))
+    assign(x = names(file), value = Cache(getFromNamespace(loadFun, loadPackage)(file), userTags = userTags))
   }
   
   objClass <- is(x)
@@ -189,17 +190,17 @@ function(targetFile,
       {
         if (!identical(raster::crs(studyArea), raster::crs(x)))
         {
-          x <- Cache(raster::crop, x = x, y = sp::spTransform(studyArea, raster::crs(x)))
+          x <- Cache(raster::crop, x = x, y = sp::spTransform(studyArea, raster::crs(x)), userTags = userTags)
         }
       }
       
       if (!identical(raster::crs(x), targetCRS))
       {
-        x <- Cache(raster::projectRaster, from = x, to = rasterToMatch, method = rasterInterpMethod)
+        x <- Cache(raster::projectRaster, from = x, to = rasterToMatch, method = rasterInterpMethod, userTags = userTags)
       }
       
       message("  Masking")
-      x <- Cache(amc::fastMask, x = x, mask = studyArea)
+      x <- Cache(amc::fastMask, x = x, mask = studyArea, userTags = userTags)
       
       if (writeCropped)
       {
@@ -211,21 +212,21 @@ function(targetFile,
     {
       if (!suppressWarnings(rgeos::gIsValid(x)))
       {
-        xValid <- Cache(raster::buffer, x, dissolve = FALSE, width = 0)
-        x <- sp::SpatialPolygonsDataFrame(xValid, data = as.data.frame(x))
+        xValid <- Cache(raster::buffer, x, dissolve = FALSE, width = 0, userTags = userTags)
+        x <- Cache(sp::SpatialPolygonsDataFrame, Sr = xValid, data = as.data.frame(x), userTags = userTags)
       }
       
       if (!identical(targetCRS, raster::crs(x)))
-        x <- sp::spTransform(x, targetCRS)
+        x <- Cache(sp::spTransform, x = x, CRSobj = targetCRS, userTags = userTags)
       
       if (!is.null(studyArea))
       {
-        x <- Cache(raster::crop, x, studyArea)
+        x <- Cache(raster::crop, x, studyArea, userTags = userTags)
       }
       
       if (!is.null(rasterToMatch)) 
       {
-        x <- Cache(raster::crop, x, rasterToMatch)
+        x <- Cache(raster::crop, x, rasterToMatch, userTags = userTags)
       }
       
       if (writeCropped)
@@ -237,20 +238,20 @@ function(targetFile,
     {
       if (!suppressWarnings(sf::st_is_valid(x)))
       {
-        x <- Cache(sf::st_buffer, x, dist = 0)
+        x <- Cache(sf::st_buffer, x, dist = 0, userTags = userTags)
       }
       
       if (!identical(targetCRS, raster::crs(x)))
-        x <- sf::st_transform(x, targetCRS)
+        x <- Cache(sf::st_transform, x = x, crs = targetCRS, userTags = userTags)
       
       if (!is.null(studyArea))
       {
-        x <- Cache(raster::crop, x, studyArea)
+        x <- Cache(raster::crop, x, studyArea, userTags = userTags)
       }
       
       if (!is.null(rasterToMatch)) 
       {
-        x <- Cache(raster::crop, x, rasterToMatch)
+        x <- Cache(raster::crop, x, rasterToMatch, userTags = userTags)
       }
       # x <- Cache(sf::st_collection_extract, x = x, type = "POLYGON")
       
