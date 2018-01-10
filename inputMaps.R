@@ -51,7 +51,7 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
       if (studyArea == "SMALL") {
         areaKm2 <- 10000#700000#2000#600000#too big for laptop
       } else if (studyArea == "VERYSMALL") {
-        areaKm2 <- 1000 #700000#2000#600000#too big for laptop
+        areaKm2 <- 2000 #700000#2000#600000#too big for laptop
       } else if (studyArea == "MEDIUM") {
         areaKm2 <- 40000 #700000#2000#600000#too big for laptop
       } else if (studyArea == "LARGE") {

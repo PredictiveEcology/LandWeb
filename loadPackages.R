@@ -1,46 +1,39 @@
+if(FALSE) {
+  try(detach("package:SpaDES.shiny", unload = TRUE));
+   try(detach("package:SpaDES.addins", unload = TRUE));
+   try(detach("package:SpaDES.tools", unload = TRUE));
+   try(detach("package:SpaDES.core", unload = TRUE));
+   try(detach("package:reproducible", unload = TRUE));
+   devtools::load_all("~/Documents/GitHub/reproducible")
+   devtools::load_all("~/Documents/GitHub/SpaDES.core")
+   #devtools::load_all("~/GitHub/SpaDES.tools")
+  #devtools::load_all("~/GitHub/SpaDES.shiny")
+ }
+# Packages for global.R -- don't need to load packages for modules -- happens automatically
+library(reproducible)
 
-## This follows a reproducible work flow:
-packageLibrary <- "Packages1"
-alreadyHasPackageLibrary <- grepl(packageLibrary, .libPaths())
-if(any(alreadyHasPackageLibrary)) .libPaths(.libPaths()[!alreadyHasPackageLibrary])
-#.libPaths(c(packageLibrary, .libPaths()))
-if(!require(devtools)) install.packages("devtools", dependencies = TRUE)
-library(devtools)
-install_github("PredictiveEcology/reproducible@development", 
-               dependencies = TRUE, upgrade_dependencies = FALSE, local=FALSE)
-install_github("PredictiveEcology/SpaDES.core@development", 
-               dependencies = TRUE, upgrade_dependencies = FALSE, local=FALSE)
-suppressWarnings(dir.create(packageLibrary))
-.libPaths(c(packageLibrary, .libPaths()))
-
-library(reproducible) # important to load the one in the libPaths -- or else there will be conflicts 
-Require(libPath = packageLibrary, 
-        c("Rcpp", 
-          "devtools",
-          "data.table",
-          "raster",
-          "magrittr",
-          "rgeos",
-          "dplyr",
-          "leaflet",
-          "shiny",
-          "shinydashboard",
-          "shinyBS",
-          "shinyjs",
-          "shinycssloaders",
-          "VGAM",
-          if (Sys.info()["sysname"] != "Windows") "Cairo",
-          if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
-          "purrr",
-          "gdalUtils",
-          "achubaty/amc@development", 
-          "ecohealthalliance/fasterize",
-          "PredictiveEcology/SpaDES.core@development",
-          "PredictiveEcology/SpaDES.tools@randomPolygon"
-        ))#,
-#packageVersionFile = ".packageVersions.txt")
+SpaDESPkgs <- c("SpaDES", "PredictiveEcology/SpaDES.shiny@develop", "raster")
+shinyPkgs <- c("leaflet", "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders", "gdalUtils", "rgeos")
+Require(c(
+        SpaDESPkgs,
+        if (Sys.info()["sysname"] != "Windows") "Cairo",
+        if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
+        # shiny app
+        shinyPkgs
+        ))
 
 data.table::setDTthreads(6)
 
-if(FALSE) # only do this when you want a new snapshot taken of the packages installed
-  pkgSnapshot(".packageVersions.txt", libPath = packageLibrary)
+if(FALSE) {# only do this when you want a new snapshot taken of the packages installed
+  modulePkgs <- unique(unlist(SpaDES.core::packages(module = modules)))
+  reproducible::Require(c(# modules
+    modulePkgs,
+    if (Sys.info()["sysname"] != "Windows") "Cairo",
+    if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
+    # shiny app
+    shinyPkgs
+  ))#, ".packageVersions.txt")
+  if (FALSE)
+    b <- pkgSnapshot(file.path(getwd(),".packageVersions.txt"), libPath = .libPaths(), standAlone = FALSE)
+  
+}
