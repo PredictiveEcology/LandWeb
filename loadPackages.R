@@ -1,4 +1,4 @@
-if(TRUE) {
+if(FALSE) {
   try(detach("package:SpaDES.shiny", unload = TRUE));
   # try(detach("package:SpaDES.addins", unload = TRUE));
   # try(detach("package:SpaDES.tools", unload = TRUE));
