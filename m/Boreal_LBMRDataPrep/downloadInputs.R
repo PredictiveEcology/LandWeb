@@ -205,8 +205,16 @@ function(targetFile,
       
       if (writeCropped)
       {
-        Cache(raster::writeRaster, x = x, overwrite = TRUE, format = "GTiff",
-              datatype = rasterDatatype, filename = smallFN, userTags = userTags)
+        Cache(
+          raster::writeRaster,
+          x = x,
+          overwrite = TRUE, 
+          format = "GTiff",
+          datatype = rasterDatatype, 
+          filename = smallFN, 
+          userTags = userTags,
+          notOlderThan = if (!file.exists(asPath(smallFN))) Sys.time()
+        )
       }
     } 
     else if ("spatialObjects" %in% objClass)
@@ -232,7 +240,14 @@ function(targetFile,
       
       if (writeCropped)
       {
-        Cache(raster::shapefile, x = x, overwrite = TRUE, filename = smallFN, userTags = userTags)
+        Cache(
+          raster::shapefile,
+          x = x,
+          overwrite = TRUE,
+          filename = smallFN, 
+          userTags = userTags,
+          notOlderThan = if (!file.exists(asPath(smallFN))) Sys.time()
+        )
       }
     } 
     else if ("sf" %in% objClass)
@@ -258,7 +273,14 @@ function(targetFile,
       
       if (writeCropped)
       {
-        Cache(sf::st_write, obj = x, delete_dsn = TRUE, dsn = smallFN, userTags = userTags)
+        Cache(
+          sf::st_write,
+          obj = x, 
+          delete_dsn = TRUE,
+          dsn = smallFN, 
+          userTags = userTags,
+          notOlderThan = if (!file.exists(asPath(smallFN))) Sys.time()
+        )
       }
     }
   }
