@@ -284,9 +284,7 @@ function(targetFile,
       }
     }
   }
-  
-  # Copy to globalenv()
-  # list2env(as.list(env), envir = globalenv())
+
   x
 }
 
