@@ -15,11 +15,11 @@ defineModule(sim, list(
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter("fireTimestep", "numeric", 1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
-    defineParameter("burnInitialTime", "numeric", sim$startPlus1(sim), NA, NA, "This describes the simulation time at which the first plot event should occur"),
+    defineParameter("burnInitialTime", "numeric", startSimPlus1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter("biggestPossibleFireSizeHa", "numeric", 1e5, 1e4, 1e6, "An upper limit, in hectares, of the truncated Pareto distribution of fire sizes"),
     defineParameter("flushCachedRandomFRI", "logical", FALSE, NA, NA, "If no Fire Return Interval map is supplied, then a random one will be created and cached. Use this to make a new one."),
     defineParameter("randomDefaultData", "logical", FALSE, NA, NA, "Only used for creating a starting dataset. If TRUE, then it will be randomly generated; FALSE, deterministic and identical each time."),
-    defineParameter(".plotInitialTime", "numeric", sim$startPlus1(sim), NA, NA, "This describes the simulation time at which the first plot event should occur"),
+    defineParameter(".plotInitialTime", "numeric", startSimPlus1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
@@ -31,7 +31,7 @@ defineModule(sim, list(
     expectsInput("species", "data.table", "Columns: species, speciesCode, Indicating several features about species"),
     expectsInput("cohortData", "data.table", "Columns: B, pixelGroup, speciesCode, Indicating several features about ages and current vegetation of stand"),
     expectsInput(objectName = "vegLeadingPercent", objectClass = "numeric", 
-                 desc = "a number that define whether a species is lead for a given pixel", 
+                 desc = "a proportion, between 0 and 1, that define whether a species is lead for a given pixel", 
                  sourceURL = NA),
     expectsInput(objectName = "rstTimeSinceFire", objectClass = "Raster", 
                  desc = "a time since fire raster layer", 
@@ -73,25 +73,25 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
     ### (use `checkObject` or similar)
 
     # do stuff for this event
-    sim <- LandMineEstimateTruncPareto(sim)
-    sim <- sim$LandMineInit(sim)
+    sim <- EstimateTruncPareto(sim)
+    sim <- Init(sim)
     
     # schedule future event(s)
-    sim <- scheduleEvent(sim, P(sim)$burnInitialTime, "LandMine", "LandMineBurn", 2.5)
+    sim <- scheduleEvent(sim, P(sim)$burnInitialTime, "LandMine", "Burn", 2.5)
     sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "LandMine", "plot")
     sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "LandMine", "save")
   } else if (eventType == "plot") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
-    sim <- LandMinePlot(sim)
+    sim <- Plot(sim)
     sim <- scheduleEvent(sim, P(sim)$.plotInterval, "LandMine", "plot")
     
     #Plot(objectFromModule) # uncomment this, replace with object to plot
     # schedule future event(s)
   } else if (eventType == "save") {
-  } else if (eventType == "LandMineBurn") {
-    sim <- sim$LandMineBurn(sim)
-    sim <- scheduleEvent(sim, time(sim) + P(sim)$fireTimestep, "LandMine", "LandMineBurn", 2.5)
+  } else if (eventType == "Burn") {
+    sim <- Burn(sim)
+    sim <- scheduleEvent(sim, time(sim) + P(sim)$fireTimestep, "LandMine", "Burn", 2.5)
   } else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
@@ -100,7 +100,7 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
 }
 
 ### initialization
-LandMineEstimateTruncPareto <- function(sim) {
+EstimateTruncPareto <- function(sim) {
   message("Estimate Truncated Pareto parameters")
   
   findK_upper <- function(params=c(0.4), upper1 ) {
@@ -117,7 +117,7 @@ LandMineEstimateTruncPareto <- function(sim) {
                      upper1 = P(sim)$biggestPossibleFireSizeHa)$minimum
   return(invisible(sim))
 }
-LandMineInit <- function(sim) {
+Init <- function(sim) {
   message("Initializing fire maps")
   sim$fireTimestep <- P(sim)$fireTimestep
   sim$fireInitialTime <- P(sim)$burnInitialTime
@@ -143,14 +143,9 @@ LandMineInit <- function(sim) {
   
   message("Write fire return interval map to disk")
   
-  #if(names(sim$rstStudyRegion)=="LTHRC") { # if rstStudyRegion has correct data in it, then use it for fri
   sim$fireReturnInterval <- raster(sim$rstStudyRegion)
   sim$fireReturnInterval[] <- sim$rstStudyRegion[]
-  #}
-  #sim$fireReturnInterval <- setValues(sim$fireReturnInterval, 
-  #                                    values = sim$fireReturnIntervalsByPolygonNumeric[sim$rstStudyRegion[]])# as.numeric(as.character(vals))
   fireReturnIntFilename <- file.path(tempdir(), "fireReturnInterval.tif")
-  # if(file.exists(fireReturnIntFilename)) file.remove(fireReturnIntFilename)
   fireReturnIntFilename <- file.path(cachePath(sim), "rasters/fireReturnInterval.tif")
   sim$fireReturnInterval <- writeRaster(sim$fireReturnInterval, filename = fireReturnIntFilename,
                                         datatype = "INT2U", overwrite = TRUE)
@@ -167,7 +162,7 @@ LandMineInit <- function(sim) {
 }
 
 ### plot events
-LandMinePlot <- function(sim) {
+Plot <- function(sim) {
   if(time(sim)==P(sim)$.plotInitialTime) {
       Plot(sim$fireReturnInterval, title = "Fire Return Interval", speedup = 3, new = TRUE)
   }
@@ -184,7 +179,7 @@ LandMinePlot <- function(sim) {
 }
 
 ### burn events
-LandMineBurn <- function(sim) {
+Burn <- function(sim) {
   numFiresThisPeriod <- rpois(length(sim$numFiresPerYear),
                               lambda = sim$numFiresPerYear * P(sim)$fireTimestep)
                                  
@@ -233,7 +228,7 @@ LandMineBurn <- function(sim) {
   immature <- (sim$rstTimeSinceFire[]>40) & !mature
   young <- !immature & !mature
 
-  vegTypeMap <- sim$vegTypeMapGenerator(sim$species, sim$cohortData, sim$pixelGroupMap) 
+  vegTypeMap <- vegTypeMapGenerator(sim$species, sim$cohortData, sim$pixelGroupMap, sim$vegLeadingPercent) 
   vegType <- getValues(vegTypeMap)
   vegTypes <- data.frame(raster::levels(vegTypeMap)[[1]][,"Factor",drop=FALSE])
   #vegTypes <- factorValues(vegTypeMap, seq_len(NROW(levels(vegTypeMap)[[1]]))) # [vegType, "Factor"]
@@ -267,7 +262,7 @@ LandMineBurn <- function(sim) {
   ROSmap[] <- ROS
   
   if (!all(is.na(sim$startCells)) & length(sim$startCells)>0) {
-    fires <- sim$burn1(sim$fireReturnInterval, startCells = sim$startCells, 
+    fires <- burn1(sim$fireReturnInterval, startCells = sim$startCells, 
                        fireSizes = fireSizesInPixels, spreadProbRel = ROSmap,
                        spawnNewActive = c(0.65, 0.6, 0.2, 0.2),
                        #spawnNewActive = c(0.76, 0.45, 1.0, 0.00),
@@ -292,25 +287,31 @@ LandMineBurn <- function(sim) {
   numDefaultPixelGroups <- 20L
   numDefaultSpeciesCodes <- 2L
   
-  if(is.null(sim$fireReturnInterval)) {
-    sim$fireReturnInterval <- Cache(randomPolygons, emptyRas, numTypes = numDefaultPolygons, 
-                                    notOlderThan = nOT)
-   
-    vals <- factor(sim$fireReturnInterval[], 
-                   levels = 1:numDefaultPolygons, 
-                   labels = c(60, 100, 120, 250))
-    sim$fireReturnInterval[] <- as.numeric(as.character(vals))
-  }
+  # if(is.null(sim$fireReturnInterval)) {
+  #   sim$fireReturnInterval <- Cache(randomPolygons, emptyRas, numTypes = numDefaultPolygons, 
+  #                                   notOlderThan = nOT)
+  #  
+  #   vals <- factor(sim$fireReturnInterval[], 
+  #                  levels = 1:numDefaultPolygons, 
+  #                  labels = c(60, 100, 120, 250))
+  #   sim$fireReturnInterval[] <- as.numeric(as.character(vals))
+  # }
   
   if(is.null(sim$rstFlammable)) {
     sim$rstFlammable <- raster(emptyRas)
     sim$rstFlammable[] <- 0  # 0 means flammable
   }
 
-  names(sim$fireReturnInterval) <- "fireReturnInterval"
+  # names(sim$fireReturnInterval) <- "fireReturnInterval"
 
   if(is.null(sim$rstStudyRegion)) {
-    sim$rstStudyRegion <- sim$fireReturnInterval
+    sim$rstStudyRegion <- Cache(randomPolygons, emptyRas, numTypes = numDefaultPolygons,
+                                    notOlderThan = nOT)
+
+    vals <- factor(sim$rstStudyRegion[],
+                   levels = 1:numDefaultPolygons,
+                   labels = c(60, 100, 120, 250))
+    sim$rstStudyRegion[] <- as.numeric(as.character(vals))
   }
   
   if(is.null(sim$cohortData)) {
@@ -350,17 +351,15 @@ LandMineBurn <- function(sim) {
   }
   
   return(invisible(sim))
+  
 }
 
-startPlus1 <- function(sim) {
-  start(sim) + 1
-}
 
 meanTrucPareto <- function(k, lower, upper, alpha) {
   k * lower^k * (upper^(1 - k) - alpha^(1 - k)) / ((1 - k) * (1 - (alpha/upper)^k))
 }
 
-vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap) {
+vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap, vegLeadingPercent) {
   species[species == "Pinu_ban" | species == "Pinu_con" | species == "Pinu_sp", speciesGroup := "PINU"] 
   species[species == "Betu_pap" | species == "Popu_bal" |
             species == "Popu_tre" | species == "Lari_lar", speciesGroup := "DECI"] 
@@ -400,3 +399,5 @@ vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap) {
   projection(vegTypeMap) <- projection(pixelGroupMap)
   vegTypeMap
 }
+
+startSimPlus1 <- start(sim, "year") + 1

@@ -1,34 +1,47 @@
 ---
 title: "LBMR"
-author: "Module Author"
-date: "20 September 2016"
-output: pdf_document
+author: "Jean Marchal (jean.d.marchal@gmail.com)"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 # Overview
+A fast and large landscape biomass succession model modified from LANDIS-II.
 
-Provide an overview of what the module does / how to use the module.
+# Download the module
+```{r download module, eval = FALSE, echo = TRUE}
+library(SpaDES)
 
-Module documentation should be written so that others can use your module.
-This is a template for module documentation, and should be changed to reflect your module.
+moduleName <- "LBMR"
 
-## RMarkdown
+spadesModulesDirectory <- tempdir() # Location where the module will be downloaded
 
-RMarkdown syntax allows R code, outputs, and figures to be rendered in the documentation.
-
-For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
+downloadModule(moduleName, path = spadesModulesDirectory)
+```
 
 # Usage
 
-Your working directory must be the base of the module directory.
+# Usage
+## Module parameters
+Name|Default|Description
+----|:--------------|---------------------------------------------------------------------
+`growthInitialTime`|`0`|initial time for the growth event to occur.
+`.plotInitialTime`|`0`|describes the simulation time at which the first plot event should occur.
+`.saveInitialTime`|`0`|describes the simulation time at which the first save event should occur.
+`spinupMortalityfraction`|`0.001`|defines the mortality loss fraction in spin up-stage simulation.
+`successionTimestep`|`10`|defines the simulation time step.
+`cellSize`|`NA`|defines the cell size.
+`seedingAlgorithm`|`"wardDispersal"`|chooses which seeding algorithm will be used among noDispersal, universalDispersal, and wardDispersal, default is wardDispersal.
+`useCache`|`TRUE`|use caching for the spinup simulation?
+`useParallel`|`TRUE`|determines whether the parallel computation will be used in the simulation.
+|||
 
-```{r update SpaDES, eval=TRUE}
-detach("package:SpaDES", unload = TRUE)
-devtools::install_github("PredictiveEcology/SpaDES@development", dependencies = FALSE)
-```
 
-```{r module_usage}
-library(SpaDES)
+## Usage example
+```{r module usage example, eval = FALSE}
+library(SpaDES.core)
 library(magrittr)
 
 inputDir <- file.path(dirname(tempdir()), "LBMR", "inputs") %>% checkPath(create = TRUE)
@@ -46,20 +59,28 @@ modules <- list("LBMR")
 objects <- list(successionTimestep = 2)
 paths <- list(
   cachePath = file.path(outputDir, "cache"),
-  modulePath = file.path("."),
+  modulePath = "~/Documents/GitHub/LandWeb/m/",
   inputPath = inputDir,
   outputPath = outputDir
 )
 
-mySim <- simInit(times = times, params = parameters, modules = modules,
-                 objects = objects, paths = paths)
+mySim <- simInit(times = times, params = parameters, modules = modules, objects = objects, paths = paths)
 
 mySimOut <- spades(mySim, debug = TRUE)
 ```
 
 # Events
+Events are scheduled as follows:
 
-Describe what happens for each event type.
+- Module initiation and spin-up
+- Account for fire disturbance if present
+- Seed dispersal
+- Mortality and growth
+- Reclassification of age cohorts
+- SummaryRegen
+- SummaryBGM
+- Plot
+- Save
 
 ## Plotting
 

@@ -8,18 +8,43 @@ defineModule(sim, list(
               person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@canada.ca", role=c("aut", "cre")),
               person(c("Jean"), "Marchal", email="jean.d.marchal@gmail.com", role=c("aut", "cre"))),
   childModules = character(0),
-  version = numeric_version("1.2.0.9011"),
+  version = numeric_version("1.3.0.9000"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LBMR.Rmd"),
   reqdPkgs = list("raster", "sp", "data.table", "dplyr", "ggplot2", "purrr", "SpaDES.tools",
-                  "fpCompare", "grid", "archivist", "tidyr", "Rcpp", "scales"),
+                  "fpCompare", "grid", "tidyr", "Rcpp", "scales", "PredictiveEcology/quickPlot@development",
+                  "reproducible"),
   parameters = rbind(
-    defineParameter("growthInitialTime", "numeric", 0, NA_real_, NA_real_, "Initial time for the growth event to occur"),
-    defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "This describes the simulation time at which the first plot event should occur"),
-    defineParameter(".saveInitialTime", "numeric", 0, NA, NA, "This describes the simulation time at which the first plot event should occur")  ),
+    defineParameter(name = "growthInitialTime", class = "numeric", default = 0, 
+                    min = NA_real_, max = NA_real_,
+                    desc = "Initial time for the growth event to occur"),
+    defineParameter(name = ".plotInitialTime", class = "numeric", default = 0,
+                    min = NA, max = NA, 
+                    desc = "This describes the simulation time at which the 
+                            first plot event should occur"),
+    defineParameter(name = ".saveInitialTime", class = "numeric", default = 0,
+                    min = NA, max = NA, 
+                    desc = "This describes the simulation time at which the
+                            first save event should occur"),
+    defineParameter(name = "spinupMortalityfraction", class = "numeric", default = 0.001, 
+                    desc = "defines the mortality loss fraction in spin up-stage simulation"),
+    defineParameter(name = "successionTimestep", class = "numeric", default = 10, 
+                    desc = "defines the simulation time step, default is 10 years"),
+    defineParameter(name = "cellSize", class = "numeric", default = NA,
+                    desc = "defines the cell size"),
+    defineParameter(name = "seedingAlgorithm", class = "character", default = "wardDispersal",
+                    desc = "choose which seeding algorithm will be used among
+                            noDispersal, universalDispersal, and wardDispersal,
+                            default is wardDispersal"),
+    defineParameter(name = "useCache", class = "logic", default = TRUE,
+                    desc = "use caching for the spinup simulation?"),
+    defineParameter(name = "useParallel", class = "logical", default = TRUE,
+                    desc = "determines whether the parallel computation
+                            will be used in the simulation")
+  ),
   inputObjects = bind_rows(
     expectsInput(objectName = "initialCommunities", objectClass = "data.table",
                  desc = "initial community table", 
@@ -45,34 +70,15 @@ defineModule(sim, list(
     expectsInput(objectName = "sufficientLight", objectClass = "data.frame", 
                  desc = "define how the species with different shade tolerance respond to stand shadeness",
                  sourceURL = "https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/biomass-succession_test.txt"),
-    expectsInput(objectName = "spinupMortalityfraction", objectClass = "numeric", 
-                 desc = "define the mortality loss fraction in spin up-stage simulation, default is 0.001", 
-                 sourceURL = "NA"),
-    expectsInput(objectName = "successionTimestep", objectClass = "numeric", 
-                 desc = "define the simulation time step, default is 10 years", sourceURL = "NA"),
-    expectsInput(objectName = "cellSize", objectClass = "numeric", 
-                 desc = "define the cell size", sourceURL = "NA"),
-    expectsInput(objectName = "seedingAlgorithm", objectClass = "character", 
-                 desc = "choose which seeding algorithm will be used among noDispersal, universalDispersal,
-                 and wardDispersal, default is wardDispersal", sourceURL = "NA"),
-    expectsInput(objectName = "useCache", objectClass = "logic", 
-                 desc = "define which the caching for spinup simulation should be used, default is TRUE",
-                 sourceURL = "NA"),
-    # For inputs from optional fire module
-    expectsInput(objectName = "fireInitialTime", objectClass = "numeric", 
-                 desc = "The event time that the first fire disturbance event occurs", 
-                 sourceURL = "NA"),
-    expectsInput(objectName = "fireTimestep", objectClass = "numeric", 
-                 desc = "The number of time units between successive fire events in a fire module", 
-                 sourceURL = "NA"),
-    expectsInput(objectName = "rstCurrentBurn", objectClass = "RasterLayer", 
-                 desc = "a fire burn raster", 
-                 sourceURL = "NA"),
-    expectsInput(objectName = "useParallel", objectClass = "Any", 
-                 desc = "an object to determine whether the parallel computation will be used in the simulation,
-                 default is TRUE", 
+    # For inputs from optional fire module 
+    expectsInput(objectName = "fireInitialTime", objectClass = "numeric",  
+                 desc = "The event time that the first fire disturbance event occurs",  
+                 sourceURL = "NA"), 
+    expectsInput(objectName = "fireTimestep", objectClass = "numeric",  
+                 desc = "The number of time units between successive fire events in a fire module",  
                  sourceURL = "NA")
-    ),
+    
+  ),
   outputObjects = bind_rows(
     createsOutput(objectName = "simulationOutput", objectClass = "data.table", 
                   desc = "contains simulation results by ecoregion", 
@@ -108,9 +114,10 @@ defineModule(sim, list(
                   desc = "internal use. Keeps track of which pixels are inactive"),
     createsOutput(objectName = "activeEcoregionLength", objectClass = "data.table",
                   desc = "internal use. Keeps track of the length of the ecoregion"),
+    createsOutput(objectName = "lastFireYear", objectClass = "numeric",
+                  desc = "Year of the most recent fire year"),
     createsOutput(objectName = "lastReg", objectClass = "numeric", 
-                 desc = "an internal counter keeping track of when the last regeneration event occurred")
-    
+                  desc = "an internal counter keeping track of when the last regeneration event occurred")
   )
 ))
 
@@ -122,35 +129,35 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
     ### (use `checkObject` or similar)
     # do stuff for this event
     sim <- Init(sim)
-    if(sim$successionTimestep != 1){
-      sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep, "LBMR",
+    if(P(sim)$successionTimestep != 1){
+      sim <- scheduleEvent(sim, start(sim) + P(sim)$successionTimestep, "LBMR",
                            "cohortAgeReclassification", eventPriority = 5.25)
     }
     sim <- scheduleEvent(sim, start(sim) + P(sim)$growthInitialTime,
                          "LBMR", "mortalityAndGrowth", eventPriority = 5)
-    sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
+    sim <- scheduleEvent(sim, start(sim) + P(sim)$successionTimestep,
                          "LBMR", "summaryBGM", eventPriority = 6)
     if(!is.null(sim$rstCurrentBurn)){ # anything related to fire disturbance
       sim <- scheduleEvent(sim, start(sim) + sim$fireInitialTime,
                            "LBMR", "fireDisturbance", eventPriority = 3)
     }
-    if(sim$seedingAlgorithm == "noDispersal"){
-      sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
+    if(P(sim)$seedingAlgorithm == "noDispersal"){
+      sim <- scheduleEvent(sim, start(sim) + P(sim)$successionTimestep,
                            "LBMR", "noDispersalSeeding", eventPriority = 4)
-    } else if(sim$seedingAlgorithm == "universalDispersal"){
-      sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
+    } else if(P(sim)$seedingAlgorithm == "universalDispersal"){
+      sim <- scheduleEvent(sim, start(sim) + P(sim)$successionTimestep,
                            "LBMR", "universalDispersalSeeding", eventPriority = 4)
-    } else if(sim$seedingAlgorithm == "wardDispersal"){
-      sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
+    } else if(P(sim)$seedingAlgorithm == "wardDispersal"){
+      sim <- scheduleEvent(sim, start(sim) + P(sim)$successionTimestep,
                            "LBMR", "wardDispersalSeeding", eventPriority = 4)
     } else {
       stop("Undefined seed dispersal type!")
     }
-    sim <- scheduleEvent(sim, start(sim) + sim$successionTimestep,
+    sim <- scheduleEvent(sim, start(sim) + P(sim)$successionTimestep,
                          "LBMR", "summaryRegen", eventPriority = 5.5)
-    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime + sim$successionTimestep,
+    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime + P(sim)$successionTimestep,
                          "LBMR", "plot", eventPriority = 7)
-    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime + sim$successionTimestep,
+    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime + P(sim)$successionTimestep,
                          "LBMR", "save", eventPriority = 7.5)
   } else if (eventType == "mortalityAndGrowth") {
     sim <- MortalityAndGrowth(sim)
@@ -158,7 +165,7 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
                          eventPriority = 5)
   } else if (eventType == "summaryBGM"){
     sim <- SummaryBGM(sim)
-    sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
+    sim <- scheduleEvent(sim, time(sim) + P(sim)$successionTimestep,
                          "LBMR", "summaryBGM",
                          eventPriority = 6)
   } else if (eventType == "fireDisturbance" & !is.null(sim$rstCurrentBurn)) {
@@ -167,36 +174,36 @@ doEvent.LBMR = function(sim, eventTime, eventType, debug = FALSE) {
                          "LBMR", "fireDisturbance", 
                          eventPriority = 3)
   } else if (eventType == "noDispersalSeeding" | eventType=="universalDispersalSeeding" | eventType=="wardDispersalSeeding") {
-    if(sim$seedingAlgorithm=="noDispersal"){
+    if(P(sim)$seedingAlgorithm=="noDispersal"){
       sim <- NoDispersalSeeding(sim)
-      sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep, 
+      sim <- scheduleEvent(sim, time(sim) + P(sim)$successionTimestep, 
                            "LBMR", "noDispersalSeeding", eventPriority = 4)
     }
-    if(sim$seedingAlgorithm == "universalDispersal"){
+    if(P(sim)$seedingAlgorithm == "universalDispersal"){
       sim <- UniversalDispersalSeeding(sim)
-      sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep, 
+      sim <- scheduleEvent(sim, time(sim) + P(sim)$successionTimestep, 
                            "LBMR", "universalDispersalSeeding", eventPriority = 4)
     }
-    if(sim$seedingAlgorithm == "wardDispersal"){
+    if(P(sim)$seedingAlgorithm == "wardDispersal"){
       sim <- WardDispersalSeeding(sim)
-      sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
+      sim <- scheduleEvent(sim, time(sim) + P(sim)$successionTimestep,
                            "LBMR", "wardDispersalSeeding", eventPriority = 4)
     }
   } else if (eventType == "summaryRegen"){
     sim <- SummaryRegen(sim)
-    sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
+    sim <- scheduleEvent(sim, time(sim) + P(sim)$successionTimestep,
                          "LBMR", "summaryRegen", eventPriority = 5.5)
   } else if (eventType == "plot") {
     sim <- Plot(sim)
-    sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
+    sim <- scheduleEvent(sim, time(sim) + P(sim)$successionTimestep,
                          "LBMR", "plot", eventPriority = 7)
   } else if (eventType == "save") {
     sim <- Save(sim)
-    sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
+    sim <- scheduleEvent(sim, time(sim) + P(sim)$successionTimestep,
                          "LBMR", "save", eventPriority = 7.5)
-  } else if (eventType == "cohortAgeReclassification" & sim$successionTimestep != 1) {
+  } else if (eventType == "cohortAgeReclassification" & P(sim)$successionTimestep != 1) {
     sim <- CohortAgeReclassification(sim)
-    sim <- scheduleEvent(sim, time(sim) + sim$successionTimestep,
+    sim <- scheduleEvent(sim, time(sim) + P(sim)$successionTimestep,
                          "LBMR", "cohortAgeReclassification",
                          eventPriority = 5.25)
   } else {
@@ -211,7 +218,7 @@ Init <- function(sim) {
   communities <- sim$initialCommunities %>%
     gather(key=cohort, value=age, -mapcode,-description,-species,na.rm=TRUE) %>%
     data.table %>%
-    .[,`:=`(age = as.integer(ceiling(as.numeric(age)/sim$successionTimestep) * sim$successionTimestep),
+    .[,`:=`(age = as.integer(ceiling(as.numeric(age)/P(sim)$successionTimestep) * P(sim)$successionTimestep),
             communityGroup = as.integer(mapcode),
             mapcode = NULL)] %>%
     unique(., by = c("communityGroup", "species", "age"))
@@ -264,8 +271,8 @@ Init <- function(sim) {
   sim <- cacheSpinUpFunction(sim, cachePath = outputPath(sim))
   message("Running spinup")
   spinupstage <- sim$spinUpCache(cohortData = cohortData, calibrate = sim$calibrate,
-                                 successionTimestep = sim$successionTimestep,
-                                 spinupMortalityfraction = sim$spinupMortalityfraction,
+                                 successionTimestep = P(sim)$successionTimestep,
+                                 spinupMortalityfraction = P(sim)$spinupMortalityfraction,
                                  species = sim$species, userTags = "stable")
   cohortData <- spinupstage$cohortData
   if(sim$calibrate){
@@ -304,7 +311,7 @@ Init <- function(sim) {
                                               Biomass = as.integer(Biomass/NofCell),
                                               ANPP = 0L, Mortality = 0L, Regeneration = 0L)]
   sim$lastReg <- 0
-  speciesEcoregion[, identifier:=year>sim$successionTimestep]
+  speciesEcoregion[, identifier:=year>P(sim)$successionTimestep]
   speciesEcoregion_True <- speciesEcoregion[identifier == "TRUE",]
   speciesEcoregion_False <- speciesEcoregion[identifier == "FALSE",]
   speciesEcoregion_True_addon <- speciesEcoregion_False[year == max(speciesEcoregion_False$year),]
@@ -316,7 +323,7 @@ Init <- function(sim) {
 
 cacheSpinUpFunction <- function(sim, cachePath) {
   # for slow functions, add cached versions. Then use sim$xxx() throughout module instead of xxx()
-  if(sim$useCache) {
+  if(P(sim)$useCache) {
     sim$spinUpCache <- function(...) {
       reproducible::Cache(FUN = spinUp, ...)
     }
@@ -453,7 +460,7 @@ MortalityAndGrowth = function(sim) {
                                                       time = round(time(sim)), cohortData = subCohortData)
     subCohortData <- updateSpeciesAttributes(species = sim$species, cohortData = subCohortData)
     
-    #   if(as.integer(time(sim)/sim$successionTimestep) == time(sim)/sim$successionTimestep){
+    #   if(as.integer(time(sim)/P(sim)$successionTimestep) == time(sim)/P(sim)$successionTimestep){
     #     cohortData <- 
     #     cohortData <- cohortData[,.(pixelGroup, ecoregionGroup, species, speciesCode, age,
     #                                 B, maxANPP, maxB,  establishprob, maxB_eco,longevity, mortalityshape,
@@ -463,7 +470,7 @@ MortalityAndGrowth = function(sim) {
     subCohortData <- calculateSumB(cohortData = subCohortData, 
                                    lastReg = sim$lastReg, 
                                    simuTime = time(sim),
-                                   successionTimestep = sim$successionTimestep)
+                                   successionTimestep = P(sim)$successionTimestep)
     subCohortData <- subCohortData[age <= longevity,]
     subCohortData <- calculateAgeMortality(cohortData = subCohortData,
                                            stage = "mainsimulation", 
@@ -605,8 +612,11 @@ FireDisturbance = function(sim) {
                                            species = character(), 
                                            numberOfRegen = numeric())
   }
-  if(extent(sim$rstCurrentBurn) != extent(sim$pixelGroupMap)){
-    sim$rstCurrentBurn <- raster::crop(sim$rstCurrentBurn, extent(sim$pixelGroupMap))
+
+  if(!is.null(sim$rstCurrentBurn)){ # anything related to fire disturbance
+    if(extent(sim$rstCurrentBurn) != extent(sim$pixelGroupMap)){
+      sim$rstCurrentBurn <- raster::crop(sim$rstCurrentBurn, extent(sim$pixelGroupMap))
+    }
   }
   sim$burnLoci <- which(sim$rstCurrentBurn[] == 1)
   if(length(sim$inactivePixelIndex) > 0){
@@ -765,7 +775,7 @@ NoDispersalSeeding = function(sim) {
     tempActivePixel <- sim$activePixelIndex
   }
   sim$cohortData <- calculateSumB(sim$cohortData, lastReg = sim$lastReg, simuTime = time(sim),
-                                  successionTimestep = sim$successionTimestep) 
+                                  successionTimestep = P(sim)$successionTimestep) 
   sim$cohortData <- setkey(sim$cohortData, speciesCode)[setkey(sim$species[,.(speciesCode, sexualmature)],
                                                                speciesCode),
                                                         nomatch = 0]
@@ -797,7 +807,7 @@ NoDispersalSeeding = function(sim) {
   newCohortData <- newCohortData[establishprob %>>% runif(nrow(newCohortData), 0, 1),]
   set(newCohortData, ,c("establishprob"), NULL)
   if(sim$calibrate == TRUE & NROW(newCohortData) > 0){
-    newCohortData_summ <- newCohortData[,.(seedingAlgorithm = sim$seedingAlgorithm, Year = round(time(sim)),
+    newCohortData_summ <- newCohortData[,.(seedingAlgorithm = P(sim)$seedingAlgorithm, Year = round(time(sim)),
                                            numberOfReg = length(pixelIndex)),
                                         by = speciesCode]
     newCohortData_summ <- setkey(newCohortData_summ, speciesCode)[setkey(sim$species[,.(species,speciesCode)], speciesCode),
@@ -827,7 +837,7 @@ UniversalDispersalSeeding = function(sim) {
     tempActivePixel <- sim$activePixelIndex
   }
   sim$cohortData <- calculateSumB(sim$cohortData, lastReg = sim$lastReg, simuTime = round(time(sim)),
-                                  successionTimestep = sim$successionTimestep) 
+                                  successionTimestep = P(sim)$successionTimestep) 
   species <- sim$species
   # all species can provide seed source, i.e. age>=sexualmature
   speciessource <- setkey(sim$species[,.(speciesCode, k = 1)], k)
@@ -865,7 +875,7 @@ UniversalDispersalSeeding = function(sim) {
   newCohortData <- newCohortData[establishprob %>>% runif(nrow(newCohortData), 0, 1),]
   set(newCohortData, ,"establishprob", NULL)
   if(sim$calibrate == TRUE){
-    newCohortData_summ <- newCohortData[,.(seedingAlgorithm = sim$seedingAlgorithm, Year = round(time(sim)),
+    newCohortData_summ <- newCohortData[,.(seedingAlgorithm = P(sim)$seedingAlgorithm, Year = round(time(sim)),
                                            numberOfReg = length(pixelIndex)),
                                         by = speciesCode]
     newCohortData_summ <- setkey(newCohortData_summ, speciesCode)[setkey(sim$species[,.(species,speciesCode)], speciesCode),
@@ -897,7 +907,7 @@ WardDispersalSeeding = function(sim) {
   }
   sim$cohortData <- calculateSumB(cohortData = sim$cohortData,
                                   lastReg = sim$lastReg, simuTime = round(time(sim)),
-                                  successionTimestep = sim$successionTimestep) 
+                                  successionTimestep = P(sim)$successionTimestep) 
   siteShade <- calcSiteShade(time = round(time(sim)), cohortData = sim$cohortData, 
                              sim$speciesEcoregion, sim$minRelativeB)
   activePixelGroup <- data.table(pixelGroup = unique(getValues(pixelGroupMap)[tempActivePixel]))
@@ -961,7 +971,7 @@ WardDispersalSeeding = function(sim) {
                                   reducedPixelGroupMap,
                                   maxPotentialsLength = 1e5,
                                   verbose = FALSE,
-                                  useParallel = sim$useParallel)
+                                  useParallel = P(sim)$useParallel)
     # verbose = globals(sim)$verbose)
     
     rm(seedReceive, seedSource)
@@ -977,7 +987,7 @@ WardDispersalSeeding = function(sim) {
       seedingData <- seedingData[establishprob >= runif(nrow(seedingData), 0, 1), ]
       set(seedingData, ,"establishprob", NULL)
       if(sim$calibrate == TRUE){
-        seedingData_summ <- seedingData[,.(seedingAlgorithm = sim$seedingAlgorithm, Year = round(time(sim)),
+        seedingData_summ <- seedingData[,.(seedingAlgorithm = P(sim)$seedingAlgorithm, Year = round(time(sim)),
                                            numberOfReg = length(pixelIndex)),
                                         by = speciesCode]
         seedingData_summ <- setkey(seedingData_summ, speciesCode)[setkey(sim$species[,.(species,speciesCode)], speciesCode),
@@ -1004,7 +1014,7 @@ SummaryRegen = function(sim){
     pixelGroupMap <- sim$pixelGroupMap
     names(pixelGroupMap) <- "pixelGroup"
     # please note that the calculation of reproduction is based on successioinTime step interval,
-    pixelAll <- sim$cohortData[age <= sim$successionTimestep+1,
+    pixelAll <- sim$cohortData[age <= P(sim)$successionTimestep+1,
                                .(uniqueSumReproduction = as.integer(sum(B, na.rm=TRUE))),
                                by = pixelGroup]
     if(NROW(pixelAll)>0){
@@ -1022,12 +1032,12 @@ SummaryRegen = function(sim){
 }
 
 Plot = function(sim) {
-  if(time(sim) == sim$successionTimestep){
+  if(time(sim) == P(sim)$successionTimestep){
     #dev(4)
     clearPlot()
   }
-  Plot(sim$biomassMap, sim$ANPPMap, sim$mortalityMap, sim$reproductionMap, 
-       title = c("Biomass", "ANPP", "mortality", "reproduction"), new = TRUE, speedup = 1)
+  quickPlot::Plot(sim$biomassMap, sim$ANPPMap, sim$mortalityMap, sim$reproductionMap, 
+                  title = c("Biomass", "ANPP", "mortality", "reproduction"), new = TRUE, speedup = 1)
   grid.rect(0.93, 0.97, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
   grid.text(label = paste0("Year = ",round(time(sim))), x = 0.93, y = 0.97)
   #rm(biomassMap, ANPPMap, mortalityMap, reproductionMap)
@@ -1230,7 +1240,7 @@ calcSiteShade <- function(time, cohortData, speciesEcoregion, minRelativeB) {
       ,.(pixelGroup, ecoregionGroup)][
         ,':='(prevMortality = 0, sumB = 0)]
   }
-  #bAM <- data.table(speciesEcoregion)[year <= time(sim) & (year > (time(sim)-sim$successionTimestep))]
+  #bAM <- data.table(speciesEcoregion)[year <= time(sim) & (year > (time(sim)-P(sim)$successionTimestep))]
   bAM <- speciesEcoregion[year <= time]
   bAM <- bAM[year == max(bAM$year)]
   bAM <- bAM[, .(maxMaxB = max(maxB)), by = ecoregionGroup]
@@ -1521,9 +1531,10 @@ addNewCohorts <- function(newCohortData, cohortData, pixelGroupMap, time, specie
     t(.) %>%
     gsub(pattern="%",replacement="") %>%
     data.table
-  names(minRelativeB) <- c("ecoregion", "X1", "X2", "X3", "X4", "X5")
-  set(minRelativeB, , "ecoregion", NULL)
-  minRelativeB <- minRelativeB[, lapply(.SD, function(x) as.numeric(as.character(x)))]
+  
+  colNames <- c("ecoregion", "X1", "X2", "X3", "X4", "X5")
+  names(minRelativeB) <- colNames
+  minRelativeB[, (colNames[-1]) := lapply(.SD, function(x) as.numeric(as.character(x))), .SDcols = colNames[-1]]
   # minRelativeB <- minRelativeB %>%
   #   mutate_at(funs(as.numeric(as.character(.))/100), .vars=-ecoregion)
   sim$minRelativeB <- minRelativeB
@@ -1547,7 +1558,7 @@ addNewCohorts <- function(newCohortData, cohortData, pixelGroupMap, time, specie
   sim$useCache <- TRUE
   sim$cellSize <- res(ecoregionMap)[1]
   sim$calibrate <- FALSE
-  if(is.null(sim$useParallel)) sim$useParallel <- FALSE
+  if(is.null(P(sim)$useParallel)) sim$useParallel <- FALSE
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
