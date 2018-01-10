@@ -179,7 +179,7 @@ function(targetFile,
     if (!is.null(studyArea))
     {
       if (!identical(targetCRS, raster::crs(studyArea)))
-        studyArea <- sp::spTransform(studyArea, targetCRS)
+        studyArea <- Cache(sp::spTransform, x = studyArea, CRSobj = targetCRS, userTags = userTags)
     }
     
     message("  Cropping, reprojecting")
@@ -190,7 +190,12 @@ function(targetFile,
       {
         if (!identical(raster::crs(studyArea), raster::crs(x)))
         {
-          x <- Cache(raster::crop, x = x, y = sp::spTransform(studyArea, raster::crs(x)), userTags = userTags)
+          x <- Cache(
+            raster::crop,
+            x = x,
+            y = Cache(sp::spTransform, x = studyArea, CRSobj = raster::crs(x), userTags = userTags),
+            userTags = userTags
+          )
         }
       }
       
