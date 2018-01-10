@@ -101,7 +101,7 @@ function(targetFile,
 
   if (!mismatch)
   {
-    return(Cache(getFromNamespace(loadFun, loadPackage)(file), userTags = userTags))
+    x <- Cache(getFromNamespace(loadFun, loadPackage)(file), userTags = userTags)
   }
   else
   {
@@ -151,12 +151,8 @@ function(targetFile,
       
       extractFromArchive(archive = archive, needed = targetFile)
     }
-  }
     
-  # Load objects
-  for (file in c(x = targetFile, studyArea = studyArea))
-  {
-    assign(x = names(file), value = Cache(getFromNamespace(loadFun, loadPackage)(file), userTags = userTags))
+    assign(x = "x", value = Cache(getFromNamespace(loadFun, loadPackage)(targetFile), userTags = userTags))
   }
   
   objClass <- is(x)
