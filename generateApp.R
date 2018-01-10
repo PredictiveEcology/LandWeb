@@ -1,5 +1,7 @@
-devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
 devtools::install_github("PredictiveEcology/reproducible", ref = "development")
+devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development")
+devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
+
 library(SpaDES.shiny)
 library(dplyr)
 
