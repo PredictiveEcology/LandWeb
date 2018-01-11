@@ -33,11 +33,10 @@ extractFromArchive <- function(archive, needed, extractedArchives = NULL)
   
   filesInArchive <- fun(archivePath, list = TRUE)$Name
   
-      fun(archivePath, exdir = dataPath, files = needed[needed %in% filesInArchive])
-        fun(archivePath, exdir = dataPath, files = arch),
   if (any(needed %in% filesInArchive))
   {
     message(paste("  Extracting from archive:", basename(archive)))
+    fun(archivePath, exdir = dataPath, files = needed[needed %in% filesInArchive], junkpaths = TRUE)
   }
   
   isArchive <- grepl(tools::file_ext(filesInArchive), pattern = "(zip|tar)", ignore.case = TRUE)
@@ -47,6 +46,7 @@ extractFromArchive <- function(archive, needed, extractedArchives = NULL)
     arch <- filesInArchive[isArchive]
     extractedArchives <- c(
       extractedArchives,
+      fun(archivePath, exdir = dataPath, files = arch, junkpaths = TRUE)
     )
     extractedArchives <- c(
       extractedArchives,
