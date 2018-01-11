@@ -17,7 +17,7 @@ downloadFromWebDB <- function(filename)
   }
 }
   
-extractFromArchive <- function(archive, needed)
+extractFromArchive <- function(archive, needed, extractedArchives = NULL)
 {
   archivePath <- file.path(dataPath, archive) 
   ext <- tolower(tools::file_ext(archive))
@@ -33,26 +33,30 @@ extractFromArchive <- function(archive, needed)
   
   filesInArchive <- fun(archivePath, list = TRUE)$Name
   
-  c(
-    if (any(needed %in% filesInArchive))
-    {
-      message(paste("  Extracting from archive:", basename(archive)))
       fun(archivePath, exdir = dataPath, files = needed[needed %in% filesInArchive])
-    }
-    
-    isArchive <- grepl(tools::file_ext(filesInArchive), pattern = "(zip|tar)", ignore.case = TRUE)
-    
-    if (any(isArchive))
-    {
-      arch <- filesInArchive[isArchive]
-      c(
         fun(archivePath, exdir = dataPath, files = arch),
-        unlist(
-          lapply(arch, extractFromArchive, needed = needed)
-        )
+  if (any(needed %in% filesInArchive))
+  {
+    message(paste("  Extracting from archive:", basename(archive)))
+  }
+  
+  isArchive <- grepl(tools::file_ext(filesInArchive), pattern = "(zip|tar)", ignore.case = TRUE)
+  
+  if (any(isArchive))
+  {
+    arch <- filesInArchive[isArchive]
+    extractedArchives <- c(
+      extractedArchives,
+    )
+    extractedArchives <- c(
+      extractedArchives,
+      unlist(
+        lapply(arch, extractFromArchive, needed = needed, extractedArchives = extractedArchives)
       )
-    }
-  )
+    )
+  }
+  
+  unique(extractedArchives)
 }
 
 
@@ -149,7 +153,12 @@ function(targetFile,
         }
       }
       
-      extractFromArchive(archive = archive, needed = targetFile)
+      extractedArchives <- extractFromArchive(archive = archive, needed = targetFile)
+      
+      for (arch in extractedArchives)
+      {
+        unlink(arch)
+      }
     }
     
     assign(x = "x", value = Cache(getFromNamespace(loadFun, loadPackage)(targetFile), userTags = userTags))
