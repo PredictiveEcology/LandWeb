@@ -87,6 +87,7 @@ prepInputs <- function(targetFile,
                        rasterToMatch = NULL,
                        rasterInterpMethod = "bilinear",
                        rasterDatatype = "INT2U",
+                       sim = sim,
                        cacheTags = "stable")
 {
   dataPath <- file.path(modulePath, moduleName, "data")
