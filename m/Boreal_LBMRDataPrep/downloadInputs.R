@@ -107,10 +107,7 @@ function(targetFile,
   checksums <- checkSums[expectedFile == targetFile,]
   mismatch <- !compareNA(checksums[["result"]], "OK")
 
-  if (!mismatch)
-  {
-  }
-  else
+  if (mismatch)
   {
     if (is.null(archive))
     {
@@ -166,9 +163,16 @@ function(targetFile,
         unlink(arch)
       }
     }
-    
-    assign(x = "x", value = Cache(getFromNamespace(loadFun, loadPackage)(targetFile), userTags = tags))
+  }
+  
+  fun <- getFromNamespace(loadFun, loadPackage)
+  
+  if (loadFun == "raster" && loadPackage == "raster")
+  {
     x <- fun(targetFilePath)
+  }
+  else
+  {
     x <- Cache(fun(targetFilePath), userTags = cacheTags)
   }
   
