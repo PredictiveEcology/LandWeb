@@ -94,6 +94,8 @@ function(targetFile,
           module = moduleName, 
           path = modulePath,
           digestPathContent = TRUE,
+          checksumFile = asPath(file.path(modulePath, moduleName, "data", "CHECKSUMS.txt")),
+          write = FALSE,
           notOlderThan = notOlderThan,
           userTags = tags
     )
