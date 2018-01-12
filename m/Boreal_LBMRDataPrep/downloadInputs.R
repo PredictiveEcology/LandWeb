@@ -109,7 +109,6 @@ function(targetFile,
 
   if (!mismatch)
   {
-    x <- Cache(getFromNamespace(loadFun, loadPackage)(file), userTags = tags)
   }
   else
   {
@@ -169,6 +168,8 @@ function(targetFile,
     }
     
     assign(x = "x", value = Cache(getFromNamespace(loadFun, loadPackage)(targetFile), userTags = tags))
+    x <- fun(targetFilePath)
+    x <- Cache(fun(targetFilePath), userTags = cacheTags)
   }
   
   objClass <- is(x)
