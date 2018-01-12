@@ -55,10 +55,11 @@ extractFromArchive <- function(archivePath, dataPath = dirname(archivePath), nee
   if (any(isArchive))
   {
     arch <- filesInArchive[isArchive]
-    extractedArchives <- c(
-      extractedArchives,
-      fun(archivePath, exdir = dataPath, files = arch, junkpaths = TRUE)
-    )
+    args <- list(archivePath, exdir = dataPath, files = arch, 
+         if (identical(fun, unzip)) junkpaths = TRUE else NULL)
+    args <- args[!sapply(args, is.null)]
+    
+    extractedArchives <- c(extractedArchives, do.call(fun, args))
     extractedArchives <- c(
       extractedArchives,
       unlist(
