@@ -1,16 +1,28 @@
+library(httr)
 library(reproducible)
 
 downloadFromWebDB <- function(filename, filepath, dataset = NULL)
 {
-  for (i in 1:nrow(webDatabases::urls))
+  urls <- webDatabases::urls
+  
+  if (!is.null(dataset))
+    urls <- urls[dataset == dataset]
+  
+  for (i in 1:nrow(urls))
   {
-    if (any(filename == webDatabases::urls$files[[i]]))
+    if (any(filename == urls$files[[i]]))
     {
-      download.file(
-        url = paste0(webDatabases::urls$url[[i]], filename),
-        destfile = file.path(dataPath, filename),
-        method = "auto",
-        mode = "wb"
+      authenticate <-
+        if (!is.na(urls$password))
+        {
+          split <- strsplit(urls$password, split = "[:]")[[1]]
+          httr::authenticate(split[1L], split[2L])
+        }
+      
+      GET(
+        url = paste0(urls$url[[i]], filename),
+        authenticate,
+        write_disk(filepath)
       )
       break
     }
