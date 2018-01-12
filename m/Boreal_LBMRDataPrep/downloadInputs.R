@@ -1,6 +1,6 @@
 library(reproducible)
 
-downloadFromWebDB <- function(filename)
+downloadFromWebDB <- function(filename, filepath, dataset = NULL)
 {
   for (i in 1:nrow(webDatabases::urls))
   {
@@ -17,10 +17,9 @@ downloadFromWebDB <- function(filename)
   }
 }
   
-extractFromArchive <- function(archive, needed, extractedArchives = NULL)
+extractFromArchive <- function(archivePath, dataPath = dirname(archivePath), needed, extractedArchives = NULL)
 {
-  archivePath <- file.path(dataPath, archive) 
-  ext <- tolower(tools::file_ext(archive))
+  ext <- tolower(tools::file_ext(archivePath))
   
   if (ext == "zip")
   {
@@ -35,7 +34,7 @@ extractFromArchive <- function(archive, needed, extractedArchives = NULL)
   
   if (any(needed %in% filesInArchive))
   {
-    message(paste("  Extracting from archive:", basename(archive)))
+    message(paste("  Extracting from archive:", basename(archivePath)))
     fun(archivePath, exdir = dataPath, files = needed[needed %in% filesInArchive], junkpaths = TRUE)
   }
   
@@ -80,6 +79,9 @@ function(targetFile,
 {
   dataPath <- file.path(modulePath, moduleName, "data")
   
+  targetFile <- basename(targetFile)
+  targetFilePath <- file.path(dataPath, targetFile)
+  
   # Here we assume that if dataPath has not been updated checksums don't need to
   # be rerun. This is useful for WEB apps.
   capturedOutput <- capture.output(
@@ -113,18 +115,18 @@ function(targetFile,
   {
     if (is.null(archive))
     {
-      downloadFromWebDB(targetFile)
+      downloadFromWebDB(targetFile, targetFilePath)
       
       if (.quickCheck)
       {
-        fileSize <- file.size(asPath(targetFile))
+        fileSize <- file.size(asPath(targetFilePath))
         
         if (checksums[["filesize"]] != fileSize)
           warning("The version downloaded of ", targetFile, " does not match the checksums")
       }
       else 
       {
-        checkSum <- digest::digest(file = asPath(targetFile), algo = checksums[["algorithm"]])
+        checkSum <- digest::digest(file = asPath(targetFilePath), algo = checksums[["algorithm"]])
         
         if (checksums[["checksum"]] != checkSum)
           warning("The version downloaded of ", targetFile, " does not match the checksums")
@@ -132,30 +134,33 @@ function(targetFile,
     }
     else
     {
+      archive <- basename(archive)
+      archivePath <- file.path(dataPath, archive)
+      
       checksums <- checkSums[expectedFile == archive,]
       mismatch <- !compareNA(checksums[["result"]], "OK")
       
       if (mismatch)
       {
-        downloadFromWebDB(archive)
+        downloadFromWebDB(archive, archivePath)
         
         if (.quickCheck)
         {
-          fileSize <- file.size(asPath(archive))
+          fileSize <- file.size(asPath(archivePath))
           
           if (checksums[["filesize"]] != fileSize)
             warning("The version downloaded of ", archive, " does not match the checksums")
         }
         else
         {
-          checkSum <- digest::digest(file = asPath(archive), algo = checksums[["algorithm"]])
+          checkSum <- digest::digest(file = asPath(archivePath), algo = checksums[["algorithm"]])
           
           if (checksums[["checksum"]] != checkSum)
             warning("The version downloaded of ", archive, " does not match the checksums")
         }
       }
       
-      extractedArchives <- extractFromArchive(archive = archive, needed = targetFile)
+      extractedArchives <- extractFromArchive(archive = archivePath, needed = targetFile)
       
       for (arch in extractedArchives)
       {
@@ -181,7 +186,7 @@ function(targetFile,
       }
       else raster::crs(targetFile)
     
-    smallFN <- smallNamify(targetFile)
+    smallFN <- smallNamify(targetFilePath)
     
     if (!is.null(studyArea))
     {
