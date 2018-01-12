@@ -165,6 +165,20 @@ Plot <- function(sim) {
   #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
   cacheTags = c("module:landWebDataPrep", "function:.inputObjects", "function:spades")
   if(is.null(sim$biomassMap)) {
+    browser()
+    aa <- prepInputs(sim = sim,
+                     targetFile = biomassMapFilename,
+                     archive = "kNN-StructureBiomass.tar",
+                     modulePath = modulePath(sim),
+                     moduleName = "landWebDataPrep",
+                     loadFun = "raster",
+                     loadPackage = "raster", 
+                     studyArea = sim$shpStudySubRegion,
+                     writeCropped = TRUE, 
+                     rasterToMatch = NULL,
+                     rasterInterpMethod = "bilinear",
+                     rasterDatatype = "INT2U",
+                     cacheTags = "stable")
     sim$biomassMap <- Cache(prepareIt, sim = sim,
                             tarfileName = "kNN-StructureBiomass.tar",
                             untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
