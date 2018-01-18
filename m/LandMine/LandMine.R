@@ -11,15 +11,16 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandMine.Rmd"),
-  reqdPkgs = list("data.table", "grDevices", "magrittr", "raster", "RColorBrewer", "VGAM", "SpaDES.tools"),
+  reqdPkgs = list("data.table", "grDevices", "magrittr", "raster", "RColorBrewer", "VGAM", 
+                  "PredictiveEcology/SpaDES.tools@prepInputs"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter("fireTimestep", "numeric", 1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
-    defineParameter("burnInitialTime", "numeric", startSimPlus1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
+    defineParameter("burnInitialTime", "numeric", start(sim, "year") + 1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter("biggestPossibleFireSizeHa", "numeric", 1e5, 1e4, 1e6, "An upper limit, in hectares, of the truncated Pareto distribution of fire sizes"),
     defineParameter("flushCachedRandomFRI", "logical", FALSE, NA, NA, "If no Fire Return Interval map is supplied, then a random one will be created and cached. Use this to make a new one."),
     defineParameter("randomDefaultData", "logical", FALSE, NA, NA, "Only used for creating a starting dataset. If TRUE, then it will be randomly generated; FALSE, deterministic and identical each time."),
-    defineParameter(".plotInitialTime", "numeric", startSimPlus1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
+    defineParameter(".plotInitialTime", "numeric", start(sim, "year") + 1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
@@ -400,4 +401,3 @@ vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap, vegLeadingPe
   vegTypeMap
 }
 
-startSimPlus1 <- start(sim, "year") + 1

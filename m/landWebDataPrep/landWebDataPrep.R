@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "landWebDataPrep.Rmd"),
-  reqdPkgs = list("data.table", "raster", "sp", "magrittr", "R.utils"),
+  reqdPkgs = list("data.table", "raster", "sp", "magrittr", "R.utils", "PredictiveEcology/SpaDES.tools@prepInputs"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -163,42 +163,35 @@ Plot <- function(sim) {
   
   #if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
   #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
-  cacheTags = c("module:landWebDataPrep", "function:.inputObjects", "function:spades")
+  cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
   if(is.null(sim$biomassMap)) {
-    browser()
-    aa <- prepInputs(sim = sim,
+    sim$biomassMap <- Cache(prepInputs, 
                      targetFile = biomassMapFilename,
-                     archive = "kNN-StructureBiomass.tar",
+                     archive = asPath("kNN-StructureBiomass.tar"),
                      modulePath = modulePath(sim),
-                     moduleName = "landWebDataPrep",
-                     loadFun = "raster",
-                     loadPackage = "raster", 
+                     moduleName = currentModule(sim),
+                     fun = "raster",
+                     pkg = "raster", 
                      studyArea = sim$shpStudySubRegion,
-                     writeCropped = TRUE, 
                      rasterToMatch = NULL,
                      rasterInterpMethod = "bilinear",
                      rasterDatatype = "INT2U",
-                     cacheTags = "stable")
-    sim$biomassMap <- Cache(prepareIt, sim = sim,
-                            tarfileName = "kNN-StructureBiomass.tar",
-                            untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
-                            spatialObjectFilename = biomassMapFilename,
-                            dataPath = dataPath, #rasterToMatch = sim$standAgeMap,
-                            studyArea = sim$shpStudySubRegion,
-                            cacheTags = cacheTags,
-                            modulePath = modulePath(sim),
-                            moduleName = "landWebDataPrep")
+                     writeCropped = TRUE, 
+                     cacheTags = c("stable", currentModule(sim)))
   }
   
   if(is.null(sim$LCC2005)) {
-    sim$LCC2005 <- Cache(prepareIt, 
-                         zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
-                         spatialObjectFilename = lcc2005Filename,
-                         dataPath = dataPath, rasterToMatch = sim$biomassMap,
-                         studyArea = sim$shpStudySubRegion,
-                         cacheTags = cacheTags,
+    sim$LCC2005 <- Cache(prepInputs, 
+                         targetFile = lcc2005Filename,
+                         archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
                          modulePath = modulePath(sim),
-                         moduleName = "landWebDataPrep")
+                         moduleName = currentModule(sim),
+                         studyArea = sim$shpStudySubRegion,
+                         rasterToMatch = sim$biomassMap,
+                         rasterInterpMethod = "bilinear",
+                         rasterDatatype = "INT2U",
+                         writeCropped = TRUE, 
+                         cacheTags = currentModule(sim))
     projection(sim$LCC2005) <- projection(sim$biomassMap)
   }
   
