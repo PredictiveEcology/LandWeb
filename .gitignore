@@ -40,3 +40,4 @@ m/test/
 *ecoregions.*
 *ecozones.*
 cache/
+*.rds
