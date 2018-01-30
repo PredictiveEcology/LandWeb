@@ -46,6 +46,7 @@ times <- list(start = 0, end = 10)
 parameters <- list()
 modules <- list("Boreal_LBMRDataPrep")
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
+                "shpStudySubRegion" = shpStudyRegionFull,
                 "useCache" = TRUE,
                 "successionTimestep" = 2)
 paths <- list(
