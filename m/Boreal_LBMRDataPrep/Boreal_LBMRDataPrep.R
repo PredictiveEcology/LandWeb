@@ -628,11 +628,11 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
     sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
   
-  if(!identical(crsUsed, crs(sim$shpStudySubRegion)))
-    sim$shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache
+  # if(!identical(crsUsed, crs(sim$shpStudySubRegion)))
+  #   sim$shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache
   
-  cacheTags = c("module:Boreal_LBMRDataPrep", "function:.inputObjects", "function:spades")
-  browser()
+  cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
+
   if(is.null(sim$biomassMap)) {
     sim$biomassMap <- Cache(prepInputs, 
                             targetFile = biomassMapFilename,
@@ -643,7 +643,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                             rasterInterpMethod = "bilinear",
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE, 
-                            cacheTags = c("stable", currentModule(sim)))
+                            cacheTags = c("stable", currentModule(sim)),
+                            quick = .quickCheck)
     
     # sim$biomassMap <- Cache(prepareIt, 
     #                         tarfileName = "kNN-StructureBiomass.tar",
@@ -654,7 +655,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     #                         userTags = cacheTags,
     #                         modulePath = modulePath(sim))
   }
-  
+
   # LCC2005
   if(is.null(sim$LCC2005)) {
     sim$LCC2005 <- Cache(prepInputs, 
@@ -667,7 +668,9 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                          rasterInterpMethod = "bilinear",
                          rasterDatatype = "INT2U",
                          writeCropped = TRUE, 
-                         cacheTags = currentModule(sim))
+                         cacheTags = currentModule(sim),
+                         quick = .quickCheck)
+    
     projection(sim$LCC2005) <- projection(sim$biomassMap)
     # sim$LCC2005 <- Cache(prepareIt, 
     #                      zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
@@ -677,7 +680,6 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     #                      userTags = cacheTags,
     #                      modulePath = modulePath(sim))
   }
-  
   
   if(is.null(sim$ecoDistrict)) {
     sim$ecoDistrict <- Cache(prepInputs, 
@@ -690,7 +692,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                              fun = "shapefile",
                              writeCropped = TRUE, 
                              cacheTags = cacheTags,
-                             userTags = cacheTags)
+                             userTags = cacheTags,
+                             quick = .quickCheck)
     # sim$ecoDistrict <- Cache(prepareIt, 
     #                       zipfileName = "ecodistrict_shp.zip",
     #                       zipExtractFolder = "Ecodistricts",
@@ -720,21 +723,23 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                            fun = "shapefile",
                            writeCropped = TRUE, 
                            cacheTags = cacheTags,
-                           userTags = cacheTags)
+                           userTags = cacheTags,
+                           quick = .quickCheck)
   }
   
   if(is.null(sim$ecoZone)) {
     sim$ecoZone <- Cache(prepInputs, 
-                           targetFile = asPath(ecozoneFilename),
-                           archive = asPath("ecozone_shp.zip"),
-                           modulePath = modulePath(sim),
-                           moduleName = currentModule(sim),
-                           studyArea = sim$shpStudyRegionFull,
-                           pkg = "raster",
-                           fun = "shapefile",
-                           writeCropped = TRUE, 
-                           cacheTags = cacheTags,
-                           userTags = cacheTags)
+                         targetFile = asPath(ecozoneFilename),
+                         archive = asPath("ecozone_shp.zip"),
+                         modulePath = modulePath(sim),
+                         moduleName = currentModule(sim),
+                         studyArea = sim$shpStudyRegionFull,
+                         pkg = "raster",
+                         fun = "shapefile",
+                         writeCropped = TRUE, 
+                         cacheTags = cacheTags,
+                         userTags = cacheTags,
+                         quick = .quickCheck)
     # sim$ecoZone <- Cache(prepareIt, 
     #                      zipfileName = asPath("ecozone_shp.zip"),
     #                      zipExtractFolder = "Ecozones",
@@ -756,6 +761,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     #                         studyArea = sim$shpStudyRegionFull,
     #                         userTags = cacheTags,
     #                         modulePath = modulePath(sim))
+    
     sim$standAgeMap <- Cache(prepInputs, 
                              targetFile = standAgeMapFilename,
                              archive = asPath("kNN-StructureStandVolume.tar"),
@@ -768,7 +774,9 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                              rasterInterpMethod = "bilinear",
                              rasterDatatype = "INT2U",
                              writeCropped = TRUE, 
-                             cacheTags = c("stable", currentModule(sim)))
+                             cacheTags = c("stable", currentModule(sim)),
+                             dataset = "EOSD2000",
+                             quick = .quickCheck)
     
   }
 
@@ -833,11 +841,20 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   }
   if(needRstSR) {
     message("  Rasterizing the shpStudyRegionFull polygon map")
-    fieldName <- if("LTHRC" %in% names(shpStudyRegionFull)) "LTHRC" else names(shpStudyRegionFull)[1]
+    
+    fieldName <- 
+      if (is.null(nrow(studyArea))) {
+        NULL
+      } else if("LTHRC" %in% names(sim$shpStudyRegionFull)) {
+        "LTHRC" 
+      } else {
+        names(sim$shpStudyRegionFull)[1]
+      }
+
     fasterizeFromSp <- function(sp, raster, fieldName) {
       fasterize(sf::st_as_sf(sp), raster, field = fieldName)
     }
-    sim$rstStudyRegion <- fasterizeFromSp(sim$shpStudyRegionFull, sim$biomassMap, fieldName)
+    sim$rstStudyRegion <- crop(fasterizeFromSp(sim$shpStudyRegionFull, sim$biomassMap, fieldName), sim$shpStudyRegionFull)
   }
   
   return(invisible(sim))
@@ -886,7 +903,8 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
                              rasterInterpMethod = "bilinear",
                              rasterDatatype = "INT2U",
                              writeCropped = TRUE, 
-                             cacheTags = c("stable", moduleName))
+                             cacheTags = c("stable", moduleName),
+                             dataset = "EOSD2000")
     
     # species1[[sp]] <- Cache(prepareIt, quick = TRUE,
     #                         tarfileName = "kNN-Species.tar",
