@@ -51,6 +51,9 @@ defineModule(sim, list(
     expectsInput(objectName = "shpStudyRegionFull", objectClass = "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: Full study areawith fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
+    expectsInput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame",
+                 desc = "this shape file contains two informaton: Sub study areawith fire return interval attribute",
+                 sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput(objectName = "rstStudyRegion", objectClass = "RasterLayer",
                  desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
@@ -628,8 +631,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
     sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
   
-  # if(!identical(crsUsed, crs(sim$shpStudySubRegion)))
-  #   sim$shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache
+  if(!identical(crsUsed, crs(sim$shpStudySubRegion)))
+    sim$shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache 
   
   cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
 
@@ -639,7 +642,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                             archive = asPath("kNN-StructureBiomass.tar"),
                             modulePath = modulePath(sim),
                             moduleName = currentModule(sim),
-                            studyArea = sim$shpStudyRegionFull, #sim$shpStudySubRegion,
+                            studyArea = sim$shpStudySubRegion,
                             rasterInterpMethod = "bilinear",
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE, 
@@ -663,7 +666,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                          archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
                          modulePath = modulePath(sim),
                          moduleName = currentModule(sim),
-                         studyArea = sim$shpStudyRegionFull, #sim$shpStudySubRegion,
+                         studyArea = sim$shpStudySubRegion,
                          rasterToMatch = sim$biomassMap,
                          rasterInterpMethod = "bilinear",
                          rasterDatatype = "INT2U",
