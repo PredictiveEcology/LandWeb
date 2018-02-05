@@ -652,7 +652,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE, 
                             cacheTags = c("stable", currentModule(sim)),
-                            quick = .quickCheck)
+                            quick = .quickCheck,
+                            dataset = "EOSD2000")
     
     # sim$biomassMap <- Cache(prepareIt, 
     #                         tarfileName = "kNN-StructureBiomass.tar",
