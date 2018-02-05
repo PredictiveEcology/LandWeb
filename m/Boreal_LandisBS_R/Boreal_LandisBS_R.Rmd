@@ -72,6 +72,8 @@ paths <- list(
 times <- list(start = 0, end = 10)
 parameters <- list()
 
+Cache(downloadData, "Boreal_LandisBS_R", path = "..")
+
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
