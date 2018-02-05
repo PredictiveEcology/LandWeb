@@ -619,7 +619,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   
   # Filenames
   ecoregionFilename <-   file.path(dataPath, "ecoregions.shp")
-  ecodistrictFilename <-   file.path(dataPath, "ecodistricts.shp")
+  ecodistrictFilename <- file.path(dataPath, "ecodistricts.shp")
   ecozoneFilename <-   file.path(dataPath, "ecozones.shp")
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
