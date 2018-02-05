@@ -625,6 +625,11 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
   standAgeMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif")
   
+  # Also extract
+  ecoregionAE <- basename(paste0(tools::file_path_sans_ext(ecoregionFilename), ".", c("dbf", "prj", "sbn", "sbx", "shx")))
+  ecodistrictAE <- basename(paste0(tools::file_path_sans_ext(ecodistrictFilename), ".", c("dbf", "prj", "sbn", "sbx", "shx")))
+  ecozoneAE <- basename(paste0(tools::file_path_sans_ext(ecozoneFilename), ".", c("dbf", "prj", "sbn", "sbx", "shx")))
+  
   # This is from sim$biomassMap
   crsUsed <- "+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs"
   
@@ -688,6 +693,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     sim$ecoDistrict <- Cache(prepInputs, 
                              targetFile = asPath(ecodistrictFilename),
                              archive = asPath("ecodistrict_shp.zip"),
+                             alsoExtract = ecodistrictAE,
                              modulePath = modulePath(sim),
                              moduleName = currentModule(sim),
                              studyArea = sim$shpStudyRegionFull,
@@ -719,6 +725,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     sim$ecoRegion <- Cache(prepInputs, 
                            targetFile = asPath(ecoregionFilename),
                            archive = asPath("ecoregion_shp.zip"),
+                           alsoExtract = ecoregionAE,
                            modulePath = modulePath(sim),
                            moduleName = currentModule(sim),
                            studyArea = sim$shpStudyRegionFull,
@@ -734,6 +741,7 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     sim$ecoZone <- Cache(prepInputs, 
                          targetFile = asPath(ecozoneFilename),
                          archive = asPath("ecozone_shp.zip"),
+                         alsoExtract = ecozoneAE,
                          modulePath = modulePath(sim),
                          moduleName = currentModule(sim),
                          studyArea = sim$shpStudyRegionFull,
@@ -897,6 +905,7 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
     species1[[sp]] <- Cache(prepInputs, 
                              targetFile = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.tif"),
                              archive = asPath("kNN-Species.tar"),
+                             alsoExtract = if (sp == speciesnamesRaw[1]) paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw[-1], "_v0.tif"),
                              modulePath = modulePath,
                              moduleName = moduleName,
                              fun = "raster",
