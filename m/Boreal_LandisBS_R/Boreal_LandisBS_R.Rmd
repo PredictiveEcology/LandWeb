@@ -55,8 +55,6 @@ if(!exists("shpStudyRegionFull")) {
 }
 Plot(shpStudyRegionFull, addTo = "canadaMap", col = "red")
 
-times <- list(start = 0, end = 10)
-parameters <- list()
 modules <- list("Boreal_LandisBS_R")
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegionFull,
