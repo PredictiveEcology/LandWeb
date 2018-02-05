@@ -19,6 +19,7 @@ Keeping these data preparations outside of the core LBMR module maintains the mo
 There is one
 ```{r module_usage}
 devtools::install_github("PredictiveEcology/reproducible@development") # require bugfix for one step
+devtools::install_github("PredictiveEcology/SpaDES.tools@prepInputs") # prepInputs with alsoExtract argument
 library(magrittr) # for %>% pipe
 library(SpaDES)
 library(raster)
