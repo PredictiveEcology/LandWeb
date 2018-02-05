@@ -885,6 +885,7 @@ sumRastersBySpecies <- function(specieslayers, layersToSum,
   writeRaster(Pinu_sp, 
                    filename = filenameToSave, 
                    datatype="INT2U", overwrite=TRUE)
+  Pinu_sp # Work around for Cache
 }
 
 toSentenceCase <- function(strings) {
