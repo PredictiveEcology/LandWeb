@@ -58,6 +58,8 @@ paths <- list(
   inputPath = inputDir,
   outputPath = outputDir
 )
+
+Cache(downloadData, "Boreal_LBMRDataPrep", path = "..")
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
