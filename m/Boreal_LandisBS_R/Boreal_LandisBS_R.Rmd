@@ -57,9 +57,7 @@ Plot(shpStudyRegionFull, addTo = "canadaMap", col = "red")
 
 modules <- list("Boreal_LandisBS_R")
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
-                "shpStudySubRegion" = shpStudyRegionFull,
-                "useCache" = TRUE,
-                "successionTimestep" = 2)
+                "shpStudySubRegion" = shpStudyRegionFull)
 paths <- list(
   cachePath = cacheDir,
   modulePath = moduleDir,
@@ -68,7 +66,7 @@ paths <- list(
 )
 
 times <- list(start = 0, end = 10)
-parameters <- list()
+parameters <- list(LBMR = list(successionTimestep = 2, useCache = TRUE))
 
 Cache(downloadData, "Boreal_LandisBS_R", path = "..")
 
