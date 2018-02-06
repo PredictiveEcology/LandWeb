@@ -46,12 +46,9 @@ Plot(shpStudyRegionFull, addTo = "canadaMap", col = "red")
 inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), "outputs")
 times <- list(start = 0, end = 10)
-parameters <- list()
 modules <- list("Boreal_LBMRDataPrep")
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
-                "shpStudySubRegion" = shpStudyRegionFull,
-                "useCache" = TRUE,
-                "successionTimestep" = 2)
+                "shpStudySubRegion" = shpStudyRegionFull)
 paths <- list(
   cachePath = cachePath,
   modulePath = modulePath,
@@ -59,7 +56,10 @@ paths <- list(
   outputPath = outputDir
 )
 
+parameters <- list(LBMR = list(successionTimestep = 2, useCache = TRUE))
+
 Cache(downloadData, "Boreal_LBMRDataPrep", path = "..")
+
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
