@@ -84,7 +84,7 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
   } else if (eventType == "plot") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
-    sim <- Plot(sim)
+    sim <- plotFn(sim)
     sim <- scheduleEvent(sim, P(sim)$.plotInterval, "LandMine", "plot")
     
     #Plot(objectFromModule) # uncomment this, replace with object to plot
@@ -163,7 +163,7 @@ Init <- function(sim) {
 }
 
 ### plot events
-Plot <- function(sim) {
+plotFn <- function(sim) {
   if(time(sim)==P(sim)$.plotInitialTime) {
       Plot(sim$fireReturnInterval, title = "Fire Return Interval", speedup = 3, new = TRUE)
   }
