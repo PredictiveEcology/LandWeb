@@ -31,13 +31,11 @@ defineModule(sim, list(
     expectsInput("rstFlammable", "Raster", "A raster layer, with 0, 1 and NA, where 0 indicates areas that are flammable, 1 not flammable (e.g., lakes) and NA not applicable (e.g., masked)"),
     expectsInput("species", "data.table", "Columns: species, speciesCode, Indicating several features about species"),
     expectsInput("cohortData", "data.table", "Columns: B, pixelGroup, speciesCode, Indicating several features about ages and current vegetation of stand"),
-    expectsInput(objectName = "vegLeadingPercent", objectClass = "numeric", 
-                 desc = "a proportion, between 0 and 1, that define whether a species is lead for a given pixel", 
-                 sourceURL = NA),
-    expectsInput(objectName = "rstTimeSinceFire", objectClass = "Raster", 
-                 desc = "a time since fire raster layer", 
-                 sourceURL = NA),
-    expectsInput("pixelGroupMap", "RasterLayer", "Pixels with identical values share identical stand features")
+    expectsInput("vegLeadingPercent", "numeric", "a proportion, between 0 and 1, that define whether a species is lead for a given pixel", NA),
+    expectsInput("rstTimeSinceFire", "Raster", "a time since fire raster layer", NA),
+    expectsInput("pixelGroupMap", "RasterLayer", "Pixels with identical values share identical stand features"),
+    expectsInput("rstCurrentBurnCumulative", "RasterLayer", "Cumulative number of times a pixel has burned")
+    
   ),
   outputObjects = bind_rows(
     createsOutput("rstCurrentBurn", "RasterLayer", paste(
@@ -62,9 +60,9 @@ defineModule(sim, list(
     createsOutput("fireReturnIntervalsByPolygonNumeric", "numeric", paste(
       "A vector of the fire return intervals, ordered by the numeric representation of polygon ID")
     ),
-    createsOutput("kBest", "numeric", paste(
-      "A numeric scalar that is the optimal value of K in the Truncated Pareto distribution (rtruncpareto)")
-    )
+    createsOutput("kBest", "numeric", "A numeric scalar that is the optimal value of K in the Truncated Pareto distribution (rtruncpareto)"),
+    createsOutput("rstCurrentBurnCumulative", "RasterLayer", "Cumulative number of times a pixel has burned")
+    
   )
 ))
 
@@ -106,7 +104,7 @@ EstimateTruncPareto <- function(sim) {
   
   findK_upper <- function(params=c(0.4), upper1 ) {
     fs <- round(rtruncpareto(1e6, 1, upper = upper1, shape = params[1]))
-    meanFS <- meanTrucPareto(k = params[1], lower = 1, upper = upper1, alpha = 1)
+    #meanFS <- meanTrucPareto(k = params[1], lower = 1, upper = upper1, alpha = 1)
     #diff1 <- abs(quantile(fs, 0.95) - meanFS)
     #abs(sum(fs[fs>quantile(fs, 0.95)])/sum(fs) - 0.9) # "90% of area is in 5% of fires" # from Dave rule of thumb
     
@@ -188,10 +186,10 @@ Burn <- function(sim) {
   #   k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
   # }
   
-  sim$startCells <- data.table(pixel = 1:ncell(sim$rstStudyRegion),
+  thisYrStartCells <- data.table(pixel = 1:ncell(sim$rstStudyRegion),
                                polygonNumeric = sim$rstStudyRegion[] * sim$rstFlammableNum[],
                                key = "polygonNumeric") 
-  sim$startCells <- sim$startCells[polygonNumeric == 0, polygonNumeric := NA] %>%
+  thisYrStartCells <- thisYrStartCells[polygonNumeric == 0, polygonNumeric := NA] %>%
     na.omit() %>%
     .[, SpaDES.tools:::resample(pixel, numFiresThisPeriod[.GRP]), by = polygonNumeric] %>% 
     .$V1
@@ -199,7 +197,7 @@ Burn <- function(sim) {
   # If fire sizes are in hectares, must adjust based on resolution of maps
   #  NOTE: round causes fires < 0.5 pixels to NOT EXIST ... i.e., 3.25 ha fires are 
   #  "not detectable" if resolution is 6.25 ha
-  fireSizesThisPeriod <- rtruncpareto(length(sim$startCells), lower = 1,
+  fireSizesThisPeriod <- rtruncpareto(length(thisYrStartCells), lower = 1,
                                       upper = P(sim)$biggestPossibleFireSizeHa,
                                       shape = sim$kBest)
   # Because annual number of fires is 
@@ -221,7 +219,7 @@ Burn <- function(sim) {
   fireSizesInPixels <- truncVals + decimalVals
   
   firesGT0 <- fireSizesInPixels > 0
-  sim$startCells <- sim$startCells[firesGT0]
+  thisYrStartCells <- thisYrStartCells[firesGT0]
   fireSizesInPixels <- fireSizesInPixels[firesGT0]
   
   #Rate of Spread
@@ -262,8 +260,8 @@ Burn <- function(sim) {
   ROSmap <- raster(sim$pixelGroupMap)
   ROSmap[] <- ROS
   
-  if (!all(is.na(sim$startCells)) & length(sim$startCells)>0) {
-    fires <- burn1(sim$fireReturnInterval, startCells = sim$startCells, 
+  if (!all(is.na(thisYrStartCells)) & length(thisYrStartCells)>0) {
+    fires <- burn1(sim$fireReturnInterval, startCells = thisYrStartCells, 
                        fireSizes = fireSizesInPixels, spreadProbRel = ROSmap,
                        spawnNewActive = c(0.65, 0.6, 0.2, 0.2),
                        #spawnNewActive = c(0.76, 0.45, 1.0, 0.00),
@@ -368,13 +366,25 @@ vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap, vegLeadingPe
   species[species == "Pice_gla", speciesGroup := "PICE_GLA"] 
   species[species == "Abie_sp" , speciesGroup := "ABIE"] 
   #cohortdata <- sim$cohortData
-  shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,.(speciesCode, speciesGroup)], 
+  shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,data.table::.(speciesCode, speciesGroup)], 
                                                             speciesCode), nomatch = 0] 
   shortcohortdata[, totalB := sum(B, na.rm = TRUE), by = pixelGroup] 
-  shortcohortdata <- shortcohortdata[, .(speciesGroupB = sum(B, na.rm = TRUE),
+  shortcohortdata <- shortcohortdata[, data.table::.(speciesGroupB = sum(B, na.rm = TRUE),
                                          totalB = mean(totalB, na.rm = TRUE)),
                                      by = c("pixelGroup", "speciesGroup")] 
   shortcohortdata[,speciesPercentage := speciesGroupB/totalB] 
+  
+  speciesLeading <- NULL
+  Factor <- NULL
+  ID <- NULL
+  pixelGroup <- NULL
+  speciesPercentage <- NULL
+  speciesGroup <- NULL
+  speciesCode <- NULL
+  totalB <- NULL
+  B <- NULL
+  speciesGroupB <- NULL
+  
   shortcohortdata[speciesGroup == "PINU" & speciesPercentage > vegLeadingPercent,
                   speciesLeading := 1]# pine leading 
   shortcohortdata[speciesGroup == "DECI" & speciesPercentage > vegLeadingPercent,
@@ -385,7 +395,7 @@ vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap, vegLeadingPe
                   speciesLeading := 4]# spruce leading 
   shortcohortdata[is.na(speciesLeading), speciesLeading := 0] 
   shortcohortdata[,speciesLeading := max(speciesLeading, na.rm = TRUE), by = pixelGroup] 
-  shortcohortdata <- unique(shortcohortdata[,.(pixelGroup, speciesLeading)], by = "pixelGroup") 
+  shortcohortdata <- unique(shortcohortdata[,data.table::.(pixelGroup, speciesLeading)], by = "pixelGroup") 
   shortcohortdata[speciesLeading == 0, speciesLeading := 5] # 5 is mixed forests 
   attritable <- data.table(ID = sort(unique(shortcohortdata$speciesLeading)))
   attritable[ID == 1, Factor := "Pine leading"]
@@ -393,7 +403,6 @@ vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap, vegLeadingPe
   attritable[ID == 3, Factor := "Black spruce leading"]
   attritable[ID == 4, Factor := "White spruce leading"]
   attritable[ID == 5, Factor := "Mixed"]
-  #pixelGroupMap <- sim$pixelGroupMap
   vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading", "pixelGroup") 
   vegTypeMap <- setValues(vegTypeMap, as.integer(getValues(vegTypeMap)))
   levels(vegTypeMap) <- as.data.frame(attritable)
