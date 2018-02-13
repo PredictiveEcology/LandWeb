@@ -1,0 +1,47 @@
+loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modulePath, moduleName, cacheTags) {
+  speciesNamesEnd <- c("Abie_sp", "Pice_Gla", "Pice_Mar",
+                       "Pinu_sp", "Popu_Tre")
+  speciesnamesRaw <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
+                       "Pinu_Ban", "Pinu_Con", "Popu_Tre")
+  species1 <- list()
+  for (sp in speciesnamesRaw) {
+    species1[[sp]] <- Cache(prepInputs,
+                            targetFile = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.tif"),
+                            archive = asPath("kNN-Species.tar"),
+                            alsoExtract = if (sp == speciesnamesRaw[1]) paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw[-1], "_v0.tif"),
+                            modulePath = modulePath,
+                            moduleName = moduleName,
+                            fun = "raster",
+                            pkg = "raster",
+                            studyArea = shpStudyRegionFull,
+                            rasterToMatch = biomassMap,
+                            rasterInterpMethod = "bilinear",
+                            rasterDatatype = "INT2U",
+                            writeCropped = TRUE,
+                            cacheTags = c("stable", moduleName),
+                            dataset = "EOSD2000")
+
+    # species1[[sp]] <- Cache(prepareIt, quick = TRUE,
+    #                         tarfileName = "kNN-Species.tar",
+    #                         untarfileNames = paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw, "_v0.zip"),
+    #                         zipfileName = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.zip"),
+    #                         spatialObjectFilename = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.tif"),
+    #                         dataPath = dataPath, rasterToMatch = biomassMap,
+    #                         studyArea = shpStudyRegionFull,
+    #                         userTags = cacheTags,
+    #                         modulePath = modulePath)
+  }
+
+  sumSpecies <- c("Pinu_Ban", "Pinu_Con")
+  newLayerName <- grep("Pinu", speciesNamesEnd, value = TRUE)
+  a <- Cache(sumRastersBySpecies,
+             species1[sumSpecies], newLayerName = newLayerName,
+             filenameToSave = smallNamify(file.path(dataPath, "KNNPinu_sp.tif")),
+             userTags = "stable")
+  species1[sumSpecies] <- NULL
+  species1[[newLayerName]] <- a
+  names(species1)[grep("Abie", names(species1))] <- grep("Abie", speciesNamesEnd, value = TRUE)
+  names(species1) <- toSentenceCase(names(species1))
+
+  stack(species1)
+}
