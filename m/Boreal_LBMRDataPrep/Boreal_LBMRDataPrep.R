@@ -623,9 +623,10 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
   standAgeMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.tif")
 
   # Also extract
-  ecoregionAE <- basename(paste0(tools::file_path_sans_ext(ecoregionFilename), ".", c("dbf", "prj", "sbn", "sbx", "shx")))
-  ecodistrictAE <- basename(paste0(tools::file_path_sans_ext(ecodistrictFilename), ".", c("dbf", "prj", "sbn", "sbx", "shx")))
-  ecozoneAE <- basename(paste0(tools::file_path_sans_ext(ecozoneFilename), ".", c("dbf", "prj", "sbn", "sbx", "shx")))
+  fexts <- c("dbf", "prj", "sbn", "sbx", "shx")
+  ecoregionAE <- basename(paste0(tools::file_path_sans_ext(ecoregionFilename), ".", fexts))
+  ecodistrictAE <- basename(paste0(tools::file_path_sans_ext(ecodistrictFilename), ".", fexts))
+  ecozoneAE <- basename(paste0(tools::file_path_sans_ext(ecozoneFilename), ".", fexts))
 
   # This is from sim$biomassMap
   crsUsed <- "+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs"
