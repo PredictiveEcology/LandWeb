@@ -2,6 +2,7 @@ devtools::install_github("PredictiveEcology/reproducible", ref = "development")
 devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development")
 devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "prepInputs")
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
+devtools::install_github("PredictiveEcology/webDatabases", ref = "master")
 
 library(SpaDES.shiny)
 library(dplyr)
@@ -22,14 +23,14 @@ library(dplyr)
 #   )
 # )
 # appMetadata$modules$parameters <- list(list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull", "colorTableFile", "timeSinceFirePalette", "maxAge"),
-#                                        list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"), 
-#                                        list("mySimOut[[1]]"), 
-#                                        list("mySimOut[[1]]"), 
+#                                        list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"),
+#                                        list("mySimOut[[1]]"),
+#                                        list("mySimOut[[1]]"),
 #                                        list())
 # appMetadata$layout$moduleUIParameters <- list(list("length(tsf)"), list(), list(), list(), list())
-# 
+#
 # # newApp(getwd(), appMetadata)
-# # 
+# #
 # # file.copy("global_file.R", "global.R", overwrite = TRUE)
 # # setwd("~/GitHub/LandWeb/")
 # # shiny::runApp(".")
@@ -38,9 +39,9 @@ library(dplyr)
 Modules <- tribble(
   ~type,  ~name, ~id, ~parameters,
   "shinyModule", "timeSinceFire", "timeSinceFire", list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull", "colorTableFile", "timeSinceFirePalette", "maxAge", "sim = mySim"),
-  "shinyModule", "largePatches", "largePatches", list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"), 
-  "shinyModule", "simInfo", "simInfo", list("mySimOut[[1]]"), 
-  "shinyModule", "moduleInfo", "moduleInfo", list("mySimOut[[1]]"), 
+  "shinyModule", "largePatches", "largePatches", list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"),
+  "shinyModule", "simInfo", "simInfo", list("mySimOut[[1]]"),
+  "shinyModule", "moduleInfo", "moduleInfo", list("mySimOut[[1]]"),
   "shinyModule", "inputTables", "inputTables", list()
 )
 
