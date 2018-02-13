@@ -10,7 +10,7 @@ defineModule(sim, list(
   timeunit =  "year", #no relevence. An init module only.
   citation = list(""),
   documentation = list("README.txt", "initBaseMaps.Rmd"),
-  reqdPkgs = list("raster", "achubaty/amc@development"),
+  reqdPkgs = list("raster", "SpaDES.tools"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -50,8 +50,8 @@ Init <- function(sim) {
   sim$shpStudyRegion <- Cache(spTransform, sim$shpStudySubRegion, CRSobj = simProjection)
 
   message("fastRasterize for rstStudyRegion")
-  sim$rstStudyRegion <- Cache(fastRasterize, 
   fieldName <- if ("LTHRC" %in% names(sim$shpStudyRegion)) "LTHRC" else names(sim$shpStudyRegion)[1]
+  sim$rstStudyRegion <- Cache(SpaDES.tools::fastRasterize,
                               polygon = sim$shpStudyRegion,
                               ras = crop(sim$LCC2005, extent(sim$shpStudyRegion)),
                               field = fieldName, datatype = "INT2U",
