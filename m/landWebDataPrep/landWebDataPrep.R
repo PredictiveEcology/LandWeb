@@ -21,28 +21,28 @@ defineModule(sim, list(
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
-    defineParameter(".useCache", "any", c(".inputObjects", "init"), NA, NA, "This describes the simulation time interval between save events")    
+    defineParameter(".useCache", "any", c(".inputObjects", "init"), NA, NA, "This describes the simulation time interval between save events")
   ),
   inputObjects = bind_rows(
     #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
     expectsInput(objectName = "shpStudyRegionFull", objectClass = "SpatialPolygonsDataFrame",
-                 desc = "this shape file contains two informaton: Full study areawith fire return interval attribute", 
+                 desc = "this shape file contains two informaton: Full study areawith fire return interval attribute",
                  #sourceURL = "https://ln.sync.com/dl/4c0ccab80#txwgbma8-d7ta56ar-4pf8rp5d-icpis7ga"), # i guess this is study area and fire return interval
                  sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame",
-                 desc = "this shape file contains two informaton: Subset of the study area, with fire return interval attribute", 
+                 desc = "this shape file contains two informaton: Subset of the study area, with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
-    expectsInput(objectName = "biomassMap", objectClass = "RasterLayer", 
-                 desc = "total biomass raster layer in study area, default is canada national biomass map", 
+    expectsInput(objectName = "biomassMap", objectClass = "RasterLayer",
+                 desc = "total biomass raster layer in study area, default is canada national biomass map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar"),
-    expectsInput(objectName = "LCC2005", objectClass = "RasterLayer", 
-                 desc = "2005 land classification map in study area, default is canada national land classification in 2005", 
+    expectsInput(objectName = "LCC2005", objectClass = "RasterLayer",
+                 desc = "2005 land classification map in study area, default is canada national land classification in 2005",
                  sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip"),
     expectsInput(objectName = "prepareIt", objectClass = "Function",
                   desc = "Function that is an omnibus for loading objects from internet, cropping etc."),
     expectsInput(objectName = "smallNamify", objectClass = "Function",
                   desc = "Function prepends 'Small' to object names")
-    
+
   ),
   outputObjects = bind_rows(
     #createsOutput("objectName", "objectClass", "output object description", ...),
@@ -51,11 +51,11 @@ defineModule(sim, list(
                  desc = "output as input for Boreal_LBMRDataPrep"),
     createsOutput(objectName = "calibrate", objectClass = "logical",
                   desc = "output as input for Boreal_LBMRDataPrep"),
-    createsOutput(objectName = "LCC2005", objectClass = "RasterLayer", 
+    createsOutput(objectName = "LCC2005", objectClass = "RasterLayer",
                   desc = "output as input for Boreal_LBMRDataPrep"),
-    createsOutput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame", 
+    createsOutput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame",
                  desc = "output as input for initBaseMaps")#,
-    # createsOutput(objectName = "LCC05X", objectClass = "RasterLayer", 
+    # createsOutput(objectName = "LCC05X", objectClass = "RasterLayer",
     #              desc = "output as input for initBaseMaps")
   )
 ))
@@ -67,10 +67,10 @@ doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
-    
+
     # do stuff for this event
     sim <- Init(sim)
-    
+
     # schedule future event(s)
     sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "landWebDataPrep", "plot")
     sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "landWebDataPrep", "save")
@@ -79,23 +79,23 @@ doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
     # do stuff for this event
     #Plot(objectFromModule) # uncomment this, replace with object to plot
     # schedule future event(s)
-    
+
     # e.g.,
     #sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "landWebDataPrep", "plot")
-    
+
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "save") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
-    
+
     # e.g., call your custom functions/methods here
     # you can define your own methods below this `doEvent` function
-    
+
     # schedule future event(s)
-    
+
     # e.g.,
     # sim <- scheduleEvent(sim, time(sim) + increment, "landWebDataPrep", "save")
-    
+
     # ! ----- STOP EDITING ----- ! #
   } else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
@@ -117,7 +117,7 @@ Init <- function(sim) {
   sim$shpStudySubRegion <- sim$studyArea
   # sim$LCC05X <- sim$LCC2005
   sim$calibrate <- FALSE
-  
+
   return(invisible(sim))
 }
 
@@ -126,7 +126,7 @@ Save <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   sim <- saveFiles(sim)
-  
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -136,7 +136,7 @@ Plot <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot("object")
-  
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -156,32 +156,32 @@ Plot <- function(sim) {
   # if(!('defaultColor' %in% sim$userSuppliedObjNames)) {
   #  defaultColor <- 'red'
   # }
-  
+
   dataPath <- file.path(modulePath(sim), "landWebDataPrep", "data")
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
-  
+
   #if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
   #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
   cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
-  if(is.null(sim$biomassMap)) {
-    sim$biomassMap <- Cache(prepInputs, 
-                     targetFile = biomassMapFilename,
-                     archive = asPath("kNN-StructureBiomass.tar"),
-                     modulePath = modulePath(sim),
-                     moduleName = currentModule(sim),
-                     fun = "raster",
-                     pkg = "raster", 
-                     studyArea = sim$shpStudySubRegion,
-                     rasterToMatch = NULL,
-                     rasterInterpMethod = "bilinear",
-                     rasterDatatype = "INT2U",
-                     writeCropped = TRUE, 
-                     cacheTags = c("stable", currentModule(sim)))
+  if (is.null(sim$biomassMap)) {
+    sim$biomassMap <- Cache(prepInputs,
+                            targetFile = biomassMapFilename,
+                            archive = asPath("kNN-StructureBiomass.tar"),
+                            modulePath = modulePath(sim),
+                            moduleName = currentModule(sim),
+                            fun = "raster",
+                            pkg = "raster",
+                            studyArea = sim$shpStudySubRegion,
+                            rasterToMatch = NULL,
+                            rasterInterpMethod = "bilinear",
+                            rasterDatatype = "INT2U",
+                            writeCropped = TRUE,
+                            cacheTags = c("stable", currentModule(sim)))
   }
-  
+
   if(is.null(sim$LCC2005)) {
-    sim$LCC2005 <- Cache(prepInputs, 
+    sim$LCC2005 <- Cache(prepInputs,
                          targetFile = lcc2005Filename,
                          archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
                          modulePath = modulePath(sim),
@@ -190,13 +190,13 @@ Plot <- function(sim) {
                          rasterToMatch = sim$biomassMap,
                          rasterInterpMethod = "bilinear",
                          rasterDatatype = "INT2U",
-                         writeCropped = TRUE, 
+                         writeCropped = TRUE,
                          cacheTags = currentModule(sim))
     projection(sim$LCC2005) <- projection(sim$biomassMap)
   }
-  
-  
-  
+
+
+
   # If there is no study Area, use a random one
   if(is.null(sim$shpStudyRegionFull)) {
     sim$shpStudyRegionFull <- SpaDES.tools::randomPolygon(cbind(-110, 59), 1e5) # somewhere in N-Central Canada
@@ -204,26 +204,26 @@ Plot <- function(sim) {
   if(is.null(sim$shpStudySubRegion)) {
     sim$shpStudySubRegion <- sim$shpStudyRegionFull
   }
-  
+
   sim$prepareIt <- prepareIt
   sim$smallNamify <- smallNamify
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
 
-prepareIt <- function(sim = NULL, tarfileName = NULL, untarfileNames = NULL,  
-                      zipfileName = untarfileNames, 
-                      zipExtractFolder = NULL, spatialObjectFilename, 
+prepareIt <- function(sim = NULL, tarfileName = NULL, untarfileNames = NULL,
+                      zipfileName = untarfileNames,
+                      zipExtractFolder = NULL, spatialObjectFilename,
                       dataPath, rasterToMatch = NULL,
-                      studyArea, rasterDatatype = "INT2U", 
+                      studyArea, rasterDatatype = "INT2U",
                       modulePath, moduleName = "Boreal_LBMRDataPrep",
                       notOlderThan = NULL, cacheTags = character()) {
-  
+
   message("Preparing: ", basename(spatialObjectFilename))
-  
+
   if(!isAbsolutePath(spatialObjectFilename)) spatialObjectFilename <- file.path(dataPath, spatialObjectFilename)
-  
-  # Test whether dataPath has been updated with file deletions or additions or whatever, 
+
+  # Test whether dataPath has been updated with file deletions or additions or whatever,
   #  If it has changed, then Cache of checksums will be rerun
   bb <- capture.output(aa <- Cache(file.info, asPath(dir(dataPath, full.names = TRUE)),
                                    userTags = cacheTags), type = "message")
@@ -233,29 +233,29 @@ prepareIt <- function(sim = NULL, tarfileName = NULL, untarfileNames = NULL,
     notOlderThan <- NULL
   }
   checksum <- data.table(Cache(checksums, module = moduleName, path = modulePath, write = FALSE,
-                               checksumFile = asPath(file.path(modulePath, moduleName, "data", "CHECKSUMS.txt")), 
-                               digestPathContent = TRUE, 
+                               checksumFile = asPath(file.path(modulePath, moduleName, "data", "CHECKSUMS.txt")),
+                               digestPathContent = TRUE,
                                quickCheck = .quickCheck, notOlderThan = notOlderThan,
                                userTags = cacheTags))
   # Work outwards from final step, penultimate step, 3rd from last step etc.
-  #  In prinicple, the steps are 
+  #  In prinicple, the steps are
   #  1. Download
   #  2. Unpack (tar or zip or both)
   #  3. Load object into R
   #  4. Perform geographic steps -- crop, reproject, mask
-  needExtractedObj <- !isTRUE(compareNA(checksum[grepl(expectedFile, 
+  needExtractedObj <- !isTRUE(compareNA(checksum[grepl(expectedFile,
                                                     pattern = paste0("^",basename(spatialObjectFilename),"$")), result], "OK"))
   if(needExtractedObj) {
     # Try untar
-    untarIt(tarfileName, checksum, moduleName, modulePath, untarfileNames, 
+    untarIt(tarfileName, checksum, moduleName, modulePath, untarfileNames,
                          zipfileName, dataPath, spatialObjectFilename, .quickCheck, cacheTags = cacheTags)
     # Try unzip
-    unzipIt(zipfileName, checksum, moduleName, modulePath, spatialObjectFilename, 
+    unzipIt(zipfileName, checksum, moduleName, modulePath, spatialObjectFilename,
                          zipExtractFolder, dataPath, .quickCheck, cacheTags = cacheTags)
   }
   objs <- cropReprojectIt(spatialObjectFilename, rasterToMatch, studyArea, cacheTags = cacheTags)
   obj <- maskIt(objs$obj, spatialObjectFilename, objs$studyArea, cacheTags = cacheTags)
-  obj <- writeIt(obj, spatialObjectFilename, smallNamify(spatialObjectFilename), rasterDatatype)  
+  obj <- writeIt(obj, spatialObjectFilename, smallNamify(spatialObjectFilename), rasterDatatype)
   return(obj)
 }
 
@@ -265,10 +265,10 @@ smallNamify <- function(name) {
 
 
 untarIt <- function(tarfileName = NULL, checksum = NULL, moduleName = NULL, modulePath = NULL,
-                    untarfileNames = NULL, zipfileName = NULL, 
+                    untarfileNames = NULL, zipfileName = NULL,
                     dataPath = NULL, spatialObjectFilename = NULL, .quickCheck = FALSE,
                     cacheTags = character()) {
-  
+
   if(!is.null(tarfileName)) {
     needTar <- !all(compareNA(checksum[grepl(expectedFile, pattern = tarfileName), result], "OK"))
     if(needTar) {
@@ -285,13 +285,13 @@ untarIt <- function(tarfileName = NULL, checksum = NULL, moduleName = NULL, modu
             files = untarfileNames,
             exdir = dataPath, tar = "internal")
     }
-  } 
-  
+  }
+
 }
 
 unzipIt <- function(zipfileName = NULL, checksum = NULL, moduleName = NULL, modulePath = NULL,
                     spatialObjectFilename = NULL, zipExtractFolder = NULL,
-                    dataPath = NULL, .quickCheck = FALSE, cacheTags = character()) 
+                    dataPath = NULL, .quickCheck = FALSE, cacheTags = character())
 {
     if(!is.null(zipfileName)) {
       if(!isTRUE(compareNA(checksum[grepl(expectedFile, pattern = zipfileName), result], "OK")))  {
@@ -349,7 +349,7 @@ cropReprojectIt <- function(spatialObjectFilename, rasterToMatch, studyArea, cac
       b <- Cache(projectRaster, from = b, to = rasterToMatch, method = "bilinear", userTags = cacheTags)
     } else {
       # We have already established that the b raster on the right side is the correct version (b/c of checksum test)
-      b <- Cache(crop, b, studyArea, userTags = cacheTags) 
+      b <- Cache(crop, b, studyArea, userTags = cacheTags)
     }
   }
   return(list(obj = b, studyArea = studyArea))
@@ -358,7 +358,7 @@ cropReprojectIt <- function(spatialObjectFilename, rasterToMatch, studyArea, cac
 maskIt <- function(obj, spatialObjectFilename, studyArea, cacheTags = character()) {
   message("  Masking")
   if(grepl(".shp", spatialObjectFilename)) {
-    
+
   } else if (grepl(".tif", spatialObjectFilename)) {
     obj <- fastMask(obj, studyArea)
   }
@@ -375,6 +375,6 @@ writeIt <- function(obj, spatialObjectFilename = NULL, smallSOF = NULL, rasterDa
                      filename = smallSOF)
   }
   obj
-  
+
 }
 
