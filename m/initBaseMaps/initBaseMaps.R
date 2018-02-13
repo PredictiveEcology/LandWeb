@@ -2,7 +2,7 @@ defineModule(sim, list(
   name = "initBaseMaps",
   description = "load, reproject and crop all initial maps and shapefile required to test LandWEB models.",
   keywords = c("testing", "map layer initialisation"),
-  authors = c(person(c("Steve", "G"), "Cumming", email="stevec@sbf.ulaval.ca", role=c("aut"))),
+  authors = c(person(c("Steve", "G"), "Cumming", email = "stevec@sbf.ulaval.ca", role = c("aut"))),
   childModules = character(),
   version = numeric_version("1.2.0.9005"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
@@ -20,7 +20,7 @@ defineModule(sim, list(
     defineParameter(".useCache", "numeric", FALSE, NA, NA, "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = bind_rows(
-    expectsInput("LCC2005", "RasterLayer", "Land Cover Classification from 2005, NRCan product"), 
+    expectsInput("LCC2005", "RasterLayer", "Land Cover Classification from 2005, NRCan product"),
     expectsInput("shpStudySubRegion", "SpatialPolygonsDataFrame", "Study Area")
   ),
   outputObjects = bind_rows(
@@ -36,8 +36,7 @@ defineModule(sim, list(
 doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     sim <- Init(sim)
-  } 
-  else {
+  } else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
   }
@@ -48,30 +47,27 @@ doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
 Init <- function(sim) {
   simProjection <- crs(sim$LCC2005)
   #reproject sim$shpStudyRegion to accord with LCC05
-  sim$shpStudyRegion <- Cache(
-    spTransform, 
-    sim$shpStudySubRegion, CRSobj=simProjection)
-  
+  sim$shpStudyRegion <- Cache(spTransform, sim$shpStudySubRegion, CRSobj = simProjection)
+
   message("fastRasterize for rstStudyRegion")
-  fieldName <- if("LTHRC" %in% names(sim$shpStudyRegion)) "LTHRC" else names(sim$shpStudyRegion)[1]
   sim$rstStudyRegion <- Cache(fastRasterize, 
+  fieldName <- if ("LTHRC" %in% names(sim$shpStudyRegion)) "LTHRC" else names(sim$shpStudyRegion)[1]
                               polygon = sim$shpStudyRegion,
                               ras = crop(sim$LCC2005, extent(sim$shpStudyRegion)),
-                              field=fieldName, datatype="INT2U",
-                              filename="rstStudyRegion")
-  
+                              field = fieldName, datatype = "INT2U",
+                              filename = "rstStudyRegion")
+
   cropMask <- function(ras, poly, mask) {
     out <- crop(ras,poly)
     # # Instead of mask, just use indexing
     out[is.na(mask)] <- NA
-    out <- writeRaster(out, filename = file.path(tmpDir(), "LCC05_studyArea.tif"), 
-                       datatype = "INT1U",
-                       overwrite = TRUE)
+    out <- writeRaster(out, filename = file.path(tmpDir(), "LCC05_studyArea.tif"),
+                       datatype = "INT1U", overwrite = TRUE)
     out
   }
 
   sim$LCC05 <- Cache(cropMask, ras = sim$LCC2005, poly = sim$shpStudyRegion, mask = sim$rstStudyRegion)
-  
+
   # rm(LCC05X,envir=envir(sim))
   return(invisible(sim))
 }

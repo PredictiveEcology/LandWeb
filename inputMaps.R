@@ -17,7 +17,7 @@ loadShpAndMakeValid <- function(file) {
 useEcozoneMask <- function(studyArea, ecozoneFilename){
   A <- loadShpAndMakeValid(ecozoneFilename)
   #A <- shapefile(ecozoneFilename)
-  B <- A[grep("Cordillera", A$ZONE_NAME, invert = T),] %>% 
+  B <- A[grep("Cordillera", A$ZONE_NAME, invert = T),] %>%
     .[grep("Prairie", B$ZONE_NAME, invert = TRUE),]
   C <- raster::intersect(shpStudyRegionFull, B)
 }
@@ -29,7 +29,7 @@ loadStudyRegion <- function(shpPath, studyArea, crsKNNMaps) {
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
   shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
   shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
-  
+
   shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea, targetCR = crsKNNMaps)
   list(shpStudyRegion = shpStudyRegion, shpStudyRegionFull = shpStudyRegionFull)
 }
@@ -45,9 +45,9 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
       shpStudyRegionFullNWT <- crop(shpStudyRegionFullLL, ext)
       shpStudyRegion <- spTransform(shpStudyRegionFullNWT, crs(shpStudyRegionFull))
       shpStudyRegion <- rgeos::gBuffer(shpStudyRegion, width = 0, byid = TRUE)
-      
+
     } else {
-      
+
       if (studyArea == "SMALL") {
         areaKm2 <- 10000#700000#2000#600000#too big for laptop
       } else if (studyArea == "VERYSMALL") {
@@ -58,14 +58,14 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
         areaKm2 <- 80000 #700000#2000#600000#too big for laptop
       } else if (studyArea == "EXTRALARGE") {
         areaKm2 <- 180000 #700000#2000#600000#too big for laptop
-      } 
-      
+      }
+
       minY <- 7778877 - 1.6e5
       minX <- -1202250.2
       maxX <- minX + sqrt(areaKm2 * 1e6)
       maxY <- minY + sqrt(areaKm2 * 1e6)
       meanY <- mean(c(minY, maxY))
-      
+
       # Add random noise to polygon
       xAdd <- -3e5#round(runif(1,-5e5, 1.5e6))
       yAdd <- 5e5#round(runif(1, 1e5, 5e5)) - xAdd / 2
@@ -76,19 +76,19 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
       Y <- c(jitter(sort(rbeta(nPoints / 2, betaPar, betaPar) * (maxY - meanY) + meanY)),
              jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxY - minY) + minY, decreasing = TRUE)),
              jitter(sort(rbeta(nPoints / 2, betaPar, betaPar) * (meanY - minY) + minY)))
-      
+
       Sr1 <- Polygon(cbind(X + xAdd, Y + yAdd))
       Srs1 <- Polygons(list(Sr1), "s1")
       inputMapPolygon <- SpatialPolygons(list(Srs1), 1L)
       crs(inputMapPolygon) <- crsKNNMaps
       shpStudyRegion <- raster::intersect(shpStudyRegionFull, inputMapPolygon)
     }
-    
+
   } else {
     shpStudyRegion <- shpStudyRegionFull
   }
   return(shpStudyRegion)
-  
+
 }
 
 #ggStudyRegion <- ggvisFireReturnInterval(shpStudyRegion, shpStudyRegionFull)
