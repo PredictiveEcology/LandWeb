@@ -41,12 +41,12 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
   leafletZoomInit = 5
   # Some shinycssloaders options
   options("spinner.type" = 5)
-  # This will search for gdal utilities. If it finds nothing, and you are on Windows, 
-  #   You should install the gdal that comes with QGIS -- use OSGeo4W Network Installer 64 bit 
-  #   may be still here: http://www.qgis.org/en/site/forusers/download.html 
+  # This will search for gdal utilities. If it finds nothing, and you are on Windows,
+  #   You should install the gdal that comes with QGIS -- use OSGeo4W Network Installer 64 bit
+  #   may be still here: http://www.qgis.org/en/site/forusers/download.html
   options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
   #options(spinner.color="blue")
-  
+
 ## spades module variables
   eventCaching <- c(".inputObjects", "init")
   maxAge <- 400
@@ -74,28 +74,28 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
   summaryPeriod <- c(10, endTime)
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
-  # "shpStudyRegion"     "shpStudyRegionFull" 
+  # "shpStudyRegion"     "shpStudyRegionFull"
   source("inputMaps.R") # source some functions
   loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
-  if(studyArea=="RIA") { 
-    shpStudyRegion <- Cache(shapefile, file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))  
-    loadAndBuffer <- function(shapefile) { 
-      a <- shapefile(shapefile) 
-      b <- buffer(a, 0, dissolve = FALSE) 
-      SpatialPolygonsDataFrame(b, data = as.data.frame(a)) 
-    } 
-    fireReturnIntervalTemp <- 400 
-    shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval 
-    shpStudyRegion[["fireReturnInterval"]] <- shpStudyRegion$LTHRC # Fire return interval 
-    
+  if(studyArea=="RIA") {
+    shpStudyRegion <- Cache(shapefile, file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))
+    loadAndBuffer <- function(shapefile) {
+      a <- shapefile(shapefile)
+      b <- buffer(a, 0, dissolve = FALSE)
+      SpatialPolygonsDataFrame(b, data = as.data.frame(a))
+    }
+    fireReturnIntervalTemp <- 400
+    shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
+    shpStudyRegion[["fireReturnInterval"]] <- shpStudyRegion$LTHRC # Fire return interval
+
     shpStudyRegionFull <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
                                 cacheRepo = paths$cachePath)
     shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
     shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
     #shpStudyRegion <- shpStudyRegion[1,]
-    shpStudyRegionFull <- shpStudyRegion 
-    
-  } else { 
+    shpStudyRegionFull <- shpStudyRegion
+
+  } else {
     shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")),
                              studyArea = studyArea,
                              crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
@@ -152,11 +152,11 @@ mySim <<- simInit(times = times, params = parameters, modules = modules,
 endSimInit <- Sys.time()
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
 # This needs simInit call to be run alread
-# a few map details for shiny app 
-source("mapsForShiny.R")  
+# a few map details for shiny app
+source("mapsForShiny.R")
 
 # Run Experiment
-seed <- sample(1e8,1)
+seed <- sample(1e8, 1)
 set.seed(seed)
 message("Current seed is: ", seed)
 spadesAndExperiment <- function(mySim, experimentReps) {
@@ -175,7 +175,7 @@ spadesAndExperiment <- function(mySim, experimentReps) {
                          #cacheRepo = cachePath(mySim),
                          .plotInitialTime = NA,
                          omitArgs = c("debug", ".plotInitialTime"),
-                         debugCache="complete")
+                         debugCache = "complete")
   }
 
   ##########
@@ -186,7 +186,7 @@ spadesAndExperiment <- function(mySim, experimentReps) {
   message("Current seed is: ", seed)
   #startTime <<- st <<- Sys.time()
   message("Running Experiment, starting at time: ", appStartTime)
-  objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value=TRUE, invert=TRUE)
+  objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
   args <- list(experiment, mySim, replicates = experimentReps,
                objects = objectsToHash,
                debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
@@ -203,28 +203,17 @@ spadesAndExperiment <- function(mySim, experimentReps) {
 
 objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names=TRUE), value=TRUE, invert=TRUE)
 
-
-# THIS IS THE MAIN "SIMULATION FUNCTION"
-# THE FOLLOWING OBJECT IS A LIST OF 1 simList,
-# A simList is a rich data structure that comes with the SpaDES.core package
-mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps,
-                   debugCache = "complete",
-                   objects = objectsToHash)#,
-                   #sideEffect = TRUE)
-
-message("  Finished Experiment")
-
 message("  Identify which files were created during simulation")
 # outputs() function reports on any files that were created during the simulation
 filesFromOutputs <- lapply(seq_along(mySimOut), function(x) {
   outputs(mySimOut[[x]])$file
 })
 
-for(simNum in seq_along(mySimOut)) {
-  mySimOut[[simNum]]@outputs$file <-
-
-    lapply(strsplit(outputs(mySimOut[[simNum]])$file,
-                    split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")), function(f) {
+for (simNum in seq_along(mySimOut)) {
+  mySimOut[[simNum]]@outputs$file <- lapply(
+    strsplit(outputs(mySimOut[[simNum]])$file,
+             split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")),
+    function(f) {
       f[[2]]
     }) %>%
     unlist() %>%
