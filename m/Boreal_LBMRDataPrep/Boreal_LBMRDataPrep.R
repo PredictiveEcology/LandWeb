@@ -863,7 +863,8 @@ obtainMaxBandANPPFormBiggerEcoArea = function(speciesLayers,
     fasterizeFromSp <- function(sp, raster, fieldName) {
       fasterize::fasterize(sf::st_as_sf(sp), raster, field = fieldName)
     }
-    sim$rstStudyRegion <- crop(fasterizeFromSp(sim$shpStudyRegionFull, sim$biomassMap, fieldName), sim$shpStudyRegionFull)
+    sim$rstStudyRegion <- crop(fasterizeFromSp(sim$shpStudyRegionFull, sim$biomassMap, fieldName),
+                               sim$shpStudyRegionFull)
   }
 
   return(invisible(sim))
