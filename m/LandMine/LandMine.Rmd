@@ -58,7 +58,7 @@ To deteremine which packages are used by `LandMine`, run `SpaDES::packages(modul
 
 ```{r module_usage, eval = FALSE}
 library(igraph)
-library(SpaDES)
+library(SpaDES.core)
 
 workingDir <- file.path("~/GitHub/LandWeb")
 moduleDir <- file.path(workingDir, "m") %>% checkPath()
