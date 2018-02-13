@@ -364,10 +364,10 @@ vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap, vegLeadingPe
   species[species == "Pice_gla", speciesGroup := "PICE_GLA"]
   species[species == "Abie_sp" , speciesGroup := "ABIE"]
   #cohortdata <- sim$cohortData
-  shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,data.table::.(speciesCode, speciesGroup)],
+  shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[, .(speciesCode, speciesGroup)],
                                                             speciesCode), nomatch = 0]
   shortcohortdata[, totalB := sum(B, na.rm = TRUE), by = pixelGroup]
-  shortcohortdata <- shortcohortdata[, data.table::.(speciesGroupB = sum(B, na.rm = TRUE),
+  shortcohortdata <- shortcohortdata[, .(speciesGroupB = sum(B, na.rm = TRUE),
                                          totalB = mean(totalB, na.rm = TRUE)),
                                      by = c("pixelGroup", "speciesGroup")]
   shortcohortdata[,speciesPercentage := speciesGroupB/totalB]
@@ -393,7 +393,7 @@ vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap, vegLeadingPe
                   speciesLeading := 4]# spruce leading
   shortcohortdata[is.na(speciesLeading), speciesLeading := 0]
   shortcohortdata[,speciesLeading := max(speciesLeading, na.rm = TRUE), by = pixelGroup]
-  shortcohortdata <- unique(shortcohortdata[,data.table::.(pixelGroup, speciesLeading)], by = "pixelGroup")
+  shortcohortdata <- unique(shortcohortdata[, .(pixelGroup, speciesLeading)], by = "pixelGroup")
   shortcohortdata[speciesLeading == 0, speciesLeading := 5] # 5 is mixed forests
   attritable <- data.table(ID = sort(unique(shortcohortdata$speciesLeading)))
   attritable[ID == 1, Factor := "Pine leading"]
