@@ -347,6 +347,12 @@ Burn <- function(sim) {
   if (is.null(sim$vegLeadingPercent)) {
     sim$vegLeadingPercent <- 0.8
   }
+  
+  if (is.null(sim$rstCurrentBurnCumulative)) {
+    sim$rstCurrentBurnCumulative <- raster(sim$pixelGroupMap)
+    sim$rstCurrentBurnCumulative[sim$rstTimeSinceFire[]==0] <- 1
+  }
+  
 
   return(invisible(sim))
 }
