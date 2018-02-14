@@ -15,7 +15,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "Boreal_FireSenseDataPrep.Rmd"),
-  reqdPkgs = list("dplyr", "raster", "rgeos", "sf"),
+  reqdPkgs = list("dplyr", "raster", "rgeos", "sp", "sf"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -259,7 +259,9 @@ sizeInputs <- function(sim, .data)
 {
   sim$dataFireSense_SizeFit <- .data %>%
     filter(!is.na(SIZE_HA)) %>%
-    select(CELL_ID, SIZE_HA, bl, nl, ot)
+    select(CELL_ID, SIZE_HA, bl, nl, ot) %>%
+    rename(size = SIZE_HA) %>%
+    filter(size >= 1)
   sim
 }
 
@@ -268,7 +270,7 @@ escapeInputs <- function(sim, .data)
 {
   sim$dataFireSense_EscapeFit <- .data %>%
     select(CELL_ID, SIZE_HA, bl, nl, ot) %>%
-    mutate(ESCAPE = as.integer(SIZE_HA >= 1))
+    mutate(escaped = as.integer(SIZE_HA >= 1))
   sim
 }
 
