@@ -203,6 +203,16 @@ spadesAndExperiment <- function(mySim, experimentReps) {
 
 objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names=TRUE), value=TRUE, invert=TRUE)
 
+# THIS IS THE MAIN "SIMULATION FUNCTION"
+# THE FOLLOWING OBJECT IS A LIST OF 1 simList,
+# A simList is a rich data structure that comes with the SpaDES.core package
+mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps,
+                   debugCache = "complete",
+                   objects = objectsToHash)#,
+#sideEffect = TRUE)
+
+message("  Finished Experiment")
+
 message("  Identify which files were created during simulation")
 # outputs() function reports on any files that were created during the simulation
 filesFromOutputs <- lapply(seq_along(mySimOut), function(x) {
