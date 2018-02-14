@@ -5,7 +5,7 @@ defineModule(sim, list(
   name = "fireDataPrep",
   description = "basic data preparation for LCC05 based fire models",
   keywords = c("LCC05"),
-  authors = c(person(c("Steve", "G"), "Cumming", email="stevec@sbf.ulaval.ca", role=c("aut", "cre"))),
+  authors = c(person(c("Steve", "G"), "Cumming", email = "stevec@sbf.ulaval.ca", role = c("aut", "cre"))),
   childModules = character(),
   version = numeric_version("1.2.0.9005"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
