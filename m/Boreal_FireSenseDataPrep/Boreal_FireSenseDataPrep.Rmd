@@ -72,7 +72,6 @@ paths <- list(
   outputPath = outputDir
 )
 
-# devtools::load_all("../../../SpaDES.tools")
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
