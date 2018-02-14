@@ -308,10 +308,7 @@ clumpMod2Args <- list(
   largePatchesFn = largePatchesFn, countNumPatches = countNumPatches)
 clumpMod2Args <- clumpMod2Args[!unlist(lapply(clumpMod2Args, is.null))]
 
-copyrightInfo <- paste(
-  shiny::icon("copyright",  lib = "font-awesome"), "Copyright ",
-  format(Sys.time(), "%Y"),
-  paste("Her Majesty the Queen in Right of Canada,",
-        "as represented by the Minister of Natural Resources Canada.")
-)
+copyrightInfo <- paste("Her Majesty the Queen in Right of Canada,",
+                       "as represented by the Minister of Natural Resources Canada.")
+
 message("  Finished global.R")
