@@ -37,12 +37,7 @@ defineModule(sim, list(
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar"),
     expectsInput(objectName = "LCC2005", objectClass = "RasterLayer", 
                  desc = "2005 land classification map in study area, default is canada national land classification in 2005", 
-                 sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip"),
-    expectsInput(objectName = "prepareIt", objectClass = "Function",
-                  desc = "Function that is an omnibus for loading objects from internet, cropping etc."),
-    expectsInput(objectName = "smallNamify", objectClass = "Function",
-                  desc = "Function prepends 'Small' to object names")
-    
+                 sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip")
   ),
   outputObjects = bind_rows(
     #createsOutput("objectName", "objectClass", "output object description", ...),
@@ -131,16 +126,6 @@ Save <- function(sim) {
   return(invisible(sim))
 }
 
-### template for plot events
-Plot <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # do stuff for this event
-  #Plot("object")
-  
-  # ! ----- STOP EDITING ----- ! #
-  return(invisible(sim))
-}
-
 
 .inputObjects = function(sim) {
   # Any code written here will be run during the simInit for the purpose of creating
@@ -163,7 +148,6 @@ Plot <- function(sim) {
   
   #if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
   #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
-  cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
   if(is.null(sim$biomassMap)) {
     sim$biomassMap <- Cache(prepInputs, 
                      targetFile = biomassMapFilename,
@@ -205,176 +189,7 @@ Plot <- function(sim) {
     sim$shpStudySubRegion <- sim$shpStudyRegionFull
   }
   
-  sim$prepareIt <- prepareIt
-  sim$smallNamify <- smallNamify
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
-
-prepareIt <- function(sim = NULL, tarfileName = NULL, untarfileNames = NULL,  
-                      zipfileName = untarfileNames, 
-                      zipExtractFolder = NULL, spatialObjectFilename, 
-                      dataPath, rasterToMatch = NULL,
-                      studyArea, rasterDatatype = "INT2U", 
-                      modulePath, moduleName = "Boreal_LBMRDataPrep",
-                      notOlderThan = NULL, cacheTags = character()) {
-  
-  message("Preparing: ", basename(spatialObjectFilename))
-  
-  if(!isAbsolutePath(spatialObjectFilename)) spatialObjectFilename <- file.path(dataPath, spatialObjectFilename)
-  
-  # Test whether dataPath has been updated with file deletions or additions or whatever, 
-  #  If it has changed, then Cache of checksums will be rerun
-  bb <- capture.output(aa <- Cache(file.info, asPath(dir(dataPath, full.names = TRUE)),
-                                   userTags = cacheTags), type = "message")
-  if (length(bb) == 0){#isTRUE(!grepl(bb, pattern = "loading cached"))) {
-    notOlderThan <- Sys.time()
-  } else {
-    notOlderThan <- NULL
-  }
-  checksum <- data.table(Cache(checksums, module = moduleName, path = modulePath, write = FALSE,
-                               checksumFile = asPath(file.path(modulePath, moduleName, "data", "CHECKSUMS.txt")), 
-                               digestPathContent = TRUE, 
-                               quickCheck = .quickCheck, notOlderThan = notOlderThan,
-                               userTags = cacheTags))
-  # Work outwards from final step, penultimate step, 3rd from last step etc.
-  #  In prinicple, the steps are 
-  #  1. Download
-  #  2. Unpack (tar or zip or both)
-  #  3. Load object into R
-  #  4. Perform geographic steps -- crop, reproject, mask
-  needExtractedObj <- !isTRUE(compareNA(checksum[grepl(expectedFile, 
-                                                    pattern = paste0("^",basename(spatialObjectFilename),"$")), result], "OK"))
-  if(needExtractedObj) {
-    # Try untar
-    untarIt(tarfileName, checksum, moduleName, modulePath, untarfileNames, 
-                         zipfileName, dataPath, spatialObjectFilename, .quickCheck, cacheTags = cacheTags)
-    # Try unzip
-    unzipIt(zipfileName, checksum, moduleName, modulePath, spatialObjectFilename, 
-                         zipExtractFolder, dataPath, .quickCheck, cacheTags = cacheTags)
-  }
-  objs <- cropReprojectIt(spatialObjectFilename, rasterToMatch, studyArea, cacheTags = cacheTags)
-  obj <- maskIt(objs$obj, spatialObjectFilename, objs$studyArea, cacheTags = cacheTags)
-  obj <- writeIt(obj, spatialObjectFilename, smallNamify(spatialObjectFilename), rasterDatatype)  
-  return(obj)
-}
-
-smallNamify <- function(name) {
-  file.path(dirname(name), paste0("Small", basename(name)))
-}
-
-
-untarIt <- function(tarfileName = NULL, checksum = NULL, moduleName = NULL, modulePath = NULL,
-                    untarfileNames = NULL, zipfileName = NULL, 
-                    dataPath = NULL, spatialObjectFilename = NULL, .quickCheck = FALSE,
-                    cacheTags = character()) {
-  
-  if(!is.null(tarfileName)) {
-    needTar <- !all(compareNA(checksum[grepl(expectedFile, pattern = tarfileName), result], "OK"))
-    if(needTar) {
-      ee <- data.table(Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck,
-                             userTags = cacheTags))
-      if(!all(compareNA(ee[grepl(expectedFile, pattern = tarfileName), result], "OK"))) {
-        warning("The version downloaded of ", tarfileName, " does not match the checksums")
-      }
-    }
-    if(is.null(untarfileNames)) untarfileNames <- zipfileName
-    if(all((!file.exists(file.path(dataPath, basename(untarfileNames)))))) {
-      message("  Untarring ", tarfileName)
-      untar(file.path(dataPath, tarfileName),
-            files = untarfileNames,
-            exdir = dataPath, tar = "internal")
-    }
-  } 
-  
-}
-
-unzipIt <- function(zipfileName = NULL, checksum = NULL, moduleName = NULL, modulePath = NULL,
-                    spatialObjectFilename = NULL, zipExtractFolder = NULL,
-                    dataPath = NULL, .quickCheck = FALSE, cacheTags = character()) 
-{
-    if(!is.null(zipfileName)) {
-      if(!isTRUE(compareNA(checksum[grepl(expectedFile, pattern = zipfileName), result], "OK")))  {
-        ee <- data.table(Cache(downloadData, module = moduleName, path = modulePath, quickCheck = .quickCheck,
-                               userTags = cacheTags))
-        if(!isTRUE(compareNA(ee[grepl(expectedFile, pattern = zipfileName), result], "OK"))) {
-          warning("The version downloaded of ", zipfileName, " does not match the checksums")
-        }
-      }
-      if (!isTRUE(compareNA(checksum[grepl(expectedFile, pattern = basename(spatialObjectFilename)), result], "OK"))) {
-        message("  Unzipping ", zipfileName)
-        unzip(file.path(dataPath, zipfileName), exdir = dataPath)
-        if(!is.null(zipExtractFolder)) {
-          filenames <- dir(file.path(dataPath, zipExtractFolder))
-          file.copy(from = file.path(dataPath, zipExtractFolder, filenames),
-                    to = file.path(dataPath, filenames),
-                    overwrite = TRUE)
-          unlink(file.path(dataPath, zipExtractFolder), recursive = TRUE)
-          rm(filenames)
-        }
-      }
-    }
-  }
-
-cropReprojectIt <- function(spatialObjectFilename, rasterToMatch, studyArea, cacheTags = character()) {
-  if(grepl(".shp", spatialObjectFilename)) {
-    message("  Cropping, reprojecting")
-    a <- Cache(raster::shapefile, asPath(spatialObjectFilename), digestPathContent = TRUE,
-               userTags = cacheTags)
-    crsUsed <- if(is.null(studyArea)) crs(a) else crs(studyArea)
-    if(!suppressWarnings(rgeos::gIsValid(a))) b1 <- Cache(buffer, a, dissolve = FALSE, width = 0,
-                                                          userTags = cacheTags) else b1 <- a
-    b2 <- SpatialPolygonsDataFrame(b1, data = as.data.frame(a))
-    b3 <- Cache(spTransform, b2, crsUsed,
-                userTags = cacheTags)
-    b <- Cache(raster::crop, b3, studyArea,
-               userTags = cacheTags)
-    if (!is.null(rasterToMatch)) {
-      if(!identical(crs(b3), crs(rasterToMatch))) {
-        b3 <- Cache(spTransform, b3, crs(rasterToMatch),
-                    userTags = cacheTags)
-      }
-      b <- Cache(raster::crop, b3, rasterToMatch,
-                 userTags = cacheTags)
-    }
-  } else if (grepl(".tif", spatialObjectFilename)) {
-    message("  Cropping, reprojecting")
-    b <- raster::raster(spatialObjectFilename)
-    crsUsed <- if(is.null(rasterToMatch)) as.character(crs(b)) else as.character(crs(rasterToMatch))
-    if(!identical(crs(b), crs(studyArea))) studyArea <- spTransform(studyArea, crs(b))
-    if(!identical(crs(b), CRS(crsUsed))) {
-      assign("aaa", envir = .GlobalEnv, "hi")
-      b <- Cache(crop, b, studyArea, userTags = cacheTags)
-      rm(aaa, envir = .GlobalEnv)
-      b <- Cache(projectRaster, from = b, to = rasterToMatch, method = "bilinear", userTags = cacheTags)
-    } else {
-      # We have already established that the b raster on the right side is the correct version (b/c of checksum test)
-      b <- Cache(crop, b, studyArea, userTags = cacheTags) 
-    }
-  }
-  return(list(obj = b, studyArea = studyArea))
-}
-
-maskIt <- function(obj, spatialObjectFilename, studyArea, cacheTags = character()) {
-  message("  Masking")
-  if(grepl(".shp", spatialObjectFilename)) {
-    
-  } else if (grepl(".tif", spatialObjectFilename)) {
-    obj <- fastMask(obj, studyArea)
-  }
-  obj
-}
-
-writeIt <- function(obj, spatialObjectFilename = NULL, smallSOF = NULL, rasterDatatype = NULL) {
-  message("  writing to disk")
-  if(grepl(".shp", spatialObjectFilename)) {
-    # write small, cropped object to disk
-    shapefile(obj, smallSOF, overwrite = TRUE)
-  } else if (grepl(".tif", spatialObjectFilename)) {
-    obj <- writeRaster(obj, overwrite=TRUE, format = "GTiff", datatype = rasterDatatype,
-                     filename = smallSOF)
-  }
-  obj
-  
-}
 

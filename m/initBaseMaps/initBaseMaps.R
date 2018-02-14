@@ -10,7 +10,7 @@ defineModule(sim, list(
   timeunit =  "year", #no relevence. An init module only.
   citation = list(""),
   documentation = list("README.txt", "initBaseMaps.Rmd"),
-  reqdPkgs = list("raster", "SpaDES.tools"),
+  reqdPkgs = list("raster", "sp", "SpaDES.tools"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -70,4 +70,17 @@ Init <- function(sim) {
 
   # rm(LCC05X,envir=envir(sim))
   return(invisible(sim))
+}
+
+.inputObjects <- function(sim) {
+  
+  if (is.null(sim$LCC2005)) {
+    sim$LCC2005 <- raster(extent(0,10,0,10))
+  }
+  
+  if (is.null(sim$shpStudySubRegion )) {
+    sim$shpStudySubRegion <- randomPolygon(matrix(c(-90, 60), ncol = 2), 1)
+  }
+  return(invisible(sim))
+  
 }
