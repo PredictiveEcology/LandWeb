@@ -20,18 +20,19 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 
 # Usage
 
-```{r module_usage}
-library(igraph)
-library(SpaDES.core)
-
+```{r module_usage, include=FALSE}
 devtools::install_github("PredictiveEcology/reproducible@development") # require bugfix for one step
 devtools::install_github("PredictiveEcology/SpaDES.tools@prepInputs") # prepInputs with alsoExtract argument
 devtools::install_github("ygc2l/webDatabases") # For fetching KNN layers from PFC repo
+
+library(igraph)
+library(SpaDES.core)
+
 library(magrittr) # for %>% pipe
 library(SpaDES)
 library(raster)
 
-cachePath <- file.path("NFDB_FireSenseDataPrep", "cache")
+cachePath <- file.path("Boreal_FireSenseDataPrep", "cache")
 moduleDir <- Cache(readline, paste0("Where is the module path? (e.g., ~/module, with no quotes).\n",
                                      "Press Enter to accept the path in getPaths()$modulePath: "),
                     cacheRepo = cachePath)
@@ -62,7 +63,7 @@ parameters <- list(
   #module1 = list(param1 = value1, param2 = value2),
   #module2 = list(param1 = value1, param2 = value2)
 )
-modules <- list("NFDB_FireSenseDataPrep")
+modules <- list("Boreal_FireSenseDataPrep")
 objects <- list("studyArea" = studyArea)
 paths <- list(
   cachePath = cacheDir,
@@ -74,7 +75,7 @@ paths <- list(
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
-spades(mySim)
+sim <- spades(mySim)
 ```
 
 # Events
