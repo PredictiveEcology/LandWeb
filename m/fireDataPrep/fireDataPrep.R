@@ -63,24 +63,24 @@ doEvent.fireDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
 Init <- function(sim) {
   nonFlammClasses<-c(36,37,38,39)
   oldClass <- 0:39
-  newClass <- ifelse(oldClass %in% nonFlammClasses,1,0)   #1 codes for non flammable 
+  newClass <- ifelse(oldClass %in% nonFlammClasses,1,0)   #1 codes for non flammable
   #see mask argument for SpaDES::spread()
   flammableTable <- cbind(oldClass, newClass)
-  #according to Yong, Canada Landcover 2005 is loaded as LCC05 
+  #according to Yong, Canada Landcover 2005 is loaded as LCC05
   sim$rstFlammable <- ratify(reclassify(sim$LCC05, flammableTable,count=TRUE))
   sim$rstFlammable <- writeRaster(sim$rstFlammable, filename = file.path(outputPath(sim), "rstFlammable"),
                                   overwrite = TRUE)
-  
-  setColors(sim$rstFlammable,n=2) <- colorRampPalette(c("blue", "red"))(2) 
+
+  setColors(sim$rstFlammable,n=2) <- colorRampPalette(c("blue", "red"))(2)
   sim$rstFlammable[is.na(sim$rstStudyRegion[])] <- NA
-  
+
   # Much faster than call rasterize again
   return(invisible(sim))
 }
 
 
 .inputObjects = function(sim) {
-  
+
   # if (is.null(sim$shpStudyRegion)) {
   #   sim$shpStudyRegion <- randomPolygon(matrix(c(-90, 60), ncol = 2), 5)
   # }
@@ -90,7 +90,7 @@ Init <- function(sim) {
   # if (is.null(sim$rstStudyRegion)) {
   #   sim$rstStudyRegion <- rasterize(sim$shpStudyRegion, sim$LCC05)
   # }
-  
+
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
