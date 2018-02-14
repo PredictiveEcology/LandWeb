@@ -94,5 +94,3 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
 #ggStudyRegion <- ggvisFireReturnInterval(shpStudyRegion, shpStudyRegionFull)
 
 set.seed(Sys.time())
-
-

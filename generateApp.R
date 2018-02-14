@@ -4,8 +4,9 @@ devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "prepInputs")
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
 devtools::install_github("PredictiveEcology/webDatabases", ref = "master")
 
-library(SpaDES.shiny)
 library(dplyr)
+library(SpaDES.shiny)
+#load_all("~/GitHub/SpaDES.shiny")
 
 # appMetadata <- list(
 #   modules = data.frame(
@@ -54,7 +55,11 @@ Layout <- tribble(
   "inputTables", "LBMR (Succession) Model Inputs", "table", "inputTables", list()
 )
 
-appMetadata2 <- list(modules = as.data.frame(Modules), layout = as.data.frame(Layout))
+appMetadata2 <- list(
+  title = "LandWeb",
+  modules = as.data.frame(Modules),
+  layout = as.data.frame(Layout)
+)
 
 newApp(getwd(), appMetadata2)
 
