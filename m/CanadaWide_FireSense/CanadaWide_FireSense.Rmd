@@ -21,22 +21,78 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 # Usage
 
 ```{r module_usage}
+devtools::install_github("PredictiveEcology/reproducible@development")
+devtools::install_github("PredictiveEcology/SpaDES.tools@prepInputs") # prepInputs with alsoExtract argument
+devtools::install_github("ygc2l/webDatabases") # For fetching KNN layers from PFC repo
+
 library(igraph)
 library(SpaDES.core)
+library(MASS)
 
-moduleDir <- file.path("C:/Users/jemar270/Documents/GitHub/LandWeb/m")
+
+library(magrittr) # for %>% pipe
+library(SpaDES)
+library(raster)
+
+cachePath <- file.path("Boreal_FireSenseDataPrep", "cache")
+moduleDir <- Cache(readline, paste0("Where is the module path? (e.g., ~/module, with no quotes).\n",
+                                     "Press Enter to accept the path in getPaths()$modulePath: "),
+                    cacheRepo = cachePath)
+if(nchar(moduleDir)==0) moduleDir <- getPaths()$modulePath
+
 inputDir <- file.path(moduleDir, "inputs") %>% reproducible::checkPath(create = TRUE)
 outputDir <- file.path(moduleDir, "outputs")
 cacheDir <- file.path(outputDir, "cache")
+
+canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
+                   cacheRepo = cachePath, digestPathContent = FALSE) 
+dev()
+clearPlot()
+Plot(canadaMap, speedup = 5, visualSqueeze = 0.9) # 5 seemed optimal
+if(!exists("studyArea")) {
+  message("Since there is no object called 'shpStudyRegionFull', please draw a study area with 10 points")
+  severalrandompoints <- Cache(clickCoordinates, 10, cacheRepo = cachePath)
+  if(startsWith(attr(severalrandompoints, "tags"), "cache")) message("Taking shpStudyRegionFull from Cache")
+  studyArea <- SpatialPolygons(list(Polygons(list(Polygon(severalrandompoints$coords)), ID = 1)),
+                               proj4string = crs(canadaMap))
+}
+Plot(studyArea, addTo = "canadaMap", col = "red")
+
+inputDir <- file.path(moduleDir, "inputs") %>% reproducible::checkPath(create = TRUE)
+outputDir <- file.path(moduleDir, "outputs")
 times <- list(start = 0, end = 10)
 parameters <- list(
-  #.progress = list(type = "text", interval = 1), # for a progress bar
-  ## If there are further modules, each can have its own set of parameters:
-  #module1 = list(param1 = value1, param2 = value2),
-  #module2 = list(param1 = value1, param2 = value2)
+  fireSense_FrequencyFit = list(
+    formula = n_fires ~ bl + nl + ot - 1, 
+    family = negative.binomial(1, link = "identity")
+  ),
+  fireSense_FrequencyPredict = list(
+    f = 1600
+  ),
+  fireSense_SizeFit = list(
+    formula = list(beta = size ~ bl + ot,
+                   theta = size ~ bl + ot),
+    a = 1
+  ),
+  fireSense_EscapeFit = list(
+    formula = cbind(escaped, n_fires) ~ bl + ot
+  ),
+  fireSense_SpreadFit = list(
+    formula = ~ beta + theta,
+    lower = c(.2, .1, .01, .3, 0.001, 0.001, 0.001),
+    upper = c(.5, 10, .2, 4, .3, .3, .3),
+    trace = 1
+  ),
+  fireSense = list(
+    mapping = list(
+      ignitionProb = "fireSense_FrequencyPredicted",
+      escapeProb = "fireSense_EscapePredicted",
+      spreadProb = "fireSense_SpreadPredicted"
+    )
+  )
 )
 modules <- list("CanadaWide_FireSense")
-objects <- list()
+objects <- list("studyArea" = studyArea)
 paths <- list(
   cachePath = cacheDir,
   modulePath = moduleDir,
