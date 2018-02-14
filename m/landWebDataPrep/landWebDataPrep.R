@@ -162,7 +162,8 @@ Save <- function(sim) {
                      rasterDatatype = "INT2U",
                      writeCropped = TRUE, 
                      cacheTags = c("stable", currentModule(sim)))
-
+  }
+  
   if(is.null(sim$LCC2005)) {
     sim$LCC2005 <- Cache(prepInputs,
                          targetFile = lcc2005Filename,
