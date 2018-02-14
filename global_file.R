@@ -77,7 +77,7 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
   # "shpStudyRegion"     "shpStudyRegionFull"
   source("inputMaps.R") # source some functions
   loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
-  if(studyArea=="RIA") {
+  if (studyArea == "RIA") {
     shpStudyRegion <- Cache(shapefile, file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))
     loadAndBuffer <- function(shapefile) {
       a <- shapefile(shapefile)
@@ -180,7 +180,7 @@ spadesAndExperiment <- function(mySim, experimentReps) {
 
   ##########
   raster::endCluster()
-  seed <- sample(1e8,1)
+  seed <- sample(1e8, 1)
   #seed <- 792282
   set.seed(seed)
   message("Current seed is: ", seed)
@@ -190,10 +190,10 @@ spadesAndExperiment <- function(mySim, experimentReps) {
   args <- list(experiment, mySim, replicates = experimentReps,
                objects = objectsToHash,
                debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
-               paste(unname(current(sim)), collapse = ' '))",#,
+               paste(unname(current(sim)), collapse = ' '))",
                .plotInitialTime = NA,
                clearSimEnv = TRUE,
-               debugCache="complete",
+               debugCache = "complete",
                omitArgs = c("debug", ".plotInitialTime"))
   args <- args[!unlist(lapply(args, is.null))]
   mySimOut <- do.call(Cache, args)
@@ -201,7 +201,7 @@ spadesAndExperiment <- function(mySim, experimentReps) {
   mySimOut
 }
 
-objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names=TRUE), value=TRUE, invert=TRUE)
+objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
 
 # THIS IS THE MAIN "SIMULATION FUNCTION"
 # THE FOLLOWING OBJECT IS A LIST OF 1 simList,
@@ -209,7 +209,7 @@ objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names=TRUE), value=TRU
 mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps,
                    debugCache = "complete",
                    objects = objectsToHash)#,
-#sideEffect = TRUE)
+                   #sideEffect = TRUE)
 
 message("  Finished Experiment")
 
@@ -263,7 +263,7 @@ rm(args)
 
 message("  Determine number of large patches, by polygon (loading 2 rasters, summarize by polygon)")
 # Large patches
-polygonsWithData <- leading[,unique(polygonNum[!is.na(proportion)]),by=ageClass]
+polygonsWithData <- leading[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
 vegLeadingTypes <- c(unique(leading$vegType))
 vegLeadingTypesWithAllSpecies <- c(vegLeadingTypes, "All species")
 
@@ -305,7 +305,7 @@ inputTables <- function(input, output, session) {
 clumpMod2Args <- list(
   currentPolygon = polygons[[1 + length(polygons)/4]],
   tsf = tsf, vtm = vtm,
-  cl = if(exists("cl")) cl,
+  cl = if (exists("cl")) cl,
   ageClasses = ageClasses, cacheRepo = paths$cachePath,
   largePatchesFn = largePatchesFn, countNumPatches = countNumPatches)
 clumpMod2Args <- clumpMod2Args[!unlist(lapply(clumpMod2Args, is.null))]
