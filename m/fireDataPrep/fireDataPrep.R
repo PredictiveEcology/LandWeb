@@ -81,9 +81,9 @@ Init <- function(sim) {
 
 .inputObjects = function(sim) {
   
-  if (is.null(sim$shpStudyRegion)) {
-    sim$shpStudyRegion <- randomPolygon(matrix(c(-90, 60), ncol = 2), 5)
-  }
+  # if (is.null(sim$shpStudyRegion)) {
+  #   sim$shpStudyRegion <- randomPolygon(matrix(c(-90, 60), ncol = 2), 5)
+  # }
   # if (is.null(sim$LCC05)) {
   #   sim$LCC05 <- raster(extent(sim$shpStudyRegion))
   # }
