@@ -8,4 +8,8 @@ callModule(largePatches, "largePatches", numberOfSimulationTimes = lenTSF, clump
 callModule(simInfo, "simInfo", mySimOut[[1]])
 callModule(moduleInfo, "moduleInfo", mySimOut[[1]])
 callModule(inputTables, "inputTables")
+  
+  ## copyright footer (see ?copyrightFooter)
+  callModule(copyrightFooter, "copyright", "Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada.")
 }
+
