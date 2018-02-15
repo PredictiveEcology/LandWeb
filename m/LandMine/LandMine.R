@@ -34,7 +34,6 @@ defineModule(sim, list(
     expectsInput("rstTimeSinceFire", "Raster", "a time since fire raster layer", NA),
     expectsInput("pixelGroupMap", "RasterLayer", "Pixels with identical values share identical stand features"),
     expectsInput("rstCurrentBurnCumulative", "RasterLayer", "Cumulative number of times a pixel has burned")
-
   ),
   outputObjects = bind_rows(
     createsOutput("rstCurrentBurn", "RasterLayer", paste(
@@ -347,26 +346,25 @@ Burn <- function(sim) {
   if (is.null(sim$vegLeadingPercent)) {
     sim$vegLeadingPercent <- 0.8
   }
-  
+
   if (is.null(sim$rstCurrentBurnCumulative)) {
     sim$rstCurrentBurnCumulative <- raster(sim$pixelGroupMap)
-    sim$rstCurrentBurnCumulative[sim$rstTimeSinceFire[]==0] <- 1
+    sim$rstCurrentBurnCumulative[sim$rstTimeSinceFire[] == 0] <- 1
   }
-  
 
   mods <- unlist(modules(sim))
-  if(all(names(a) %in% mods)) { # means there is more than just this module in the simList
+  if (all(names(a) %in% mods)) { # means there is more than just this module in the simList
     meta <- depends(sim)
     curMod <- currentModule(sim)
-    names(meta@dependencies) <- mods[seq(which(mods==curMod))]
+    names(meta@dependencies) <- mods[seq(which(mods == curMod))]
     inputs <- lapply(meta@dependencies, function(x) x@inputObjects$objectName)
     outputs <- lapply(meta@dependencies, function(x) x@outputObjects$objectName)
     otherMods <- mods[!(mods %in% currentModule(sim))]
-    
+
     if (!("rstCurrentBurnCumulative" %in% unlist(outputs[otherMods]))) {
       if (is.null(sim$rstCurrentBurnCumulative)) {
         sim$rstCurrentBurnCumulative <- raster(sim$pixelGroupMap)
-        
+
       }
     }
   }
