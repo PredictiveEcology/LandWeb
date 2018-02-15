@@ -1,22 +1,27 @@
+## file types by extension
 *.csv
 *.log
-*.Rproj
+*.rds
+*.tar
+*.tif
+*.xml
+*.zip
+
+## cache files
+cache/
+appCache*
+reproducibleCache
+stableCache
+
+## R and Rstudio files
+rsconnect/shinyapps.io/landweb/LandWebDemo.dcf
 .Rapp.history
 .RData
 .Rhistory
 .Rproj.user
-appCache*
-reproducibleCache
-stableCache
-last.dump.rda
-mySimDigestSaved.rds
-mySimSaved.rds
-outputs*
-packrat/lib*/
-R-Portable/
-rsconnect/shinyapps\.io/landweb/LandWebDemo\.dcf
-Thumbs.db
-.checkpoint
+*.Rproj
+
+## R package management
 Packages
 Packages1
 Packages2
@@ -24,18 +29,27 @@ Packages1
 Packages3
 Packages4
 Packages5
-*.tif
-*.xml
+packrat/lib*/
 packrat/src/
+R-Portable/
+
+## shiny app files
 www/
-*.tar
-*.zip
-m/test/
-*ecodistricts.*
-*ecoregions.*
-*ecozones.*
-cache/
-*.rds
 global.R
 server.R
 ui.R
+
+## SpaDES-related files
+m/test/
+.checkpoint
+*ecodistricts.*
+*ecoregions.*
+*ecozones.*
+last.dump.rda
+mySimDigestSaved.rds
+mySimSaved.rds
+outputs*
+
+## misc OS files
+Thumbs.db
+
