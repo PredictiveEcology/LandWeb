@@ -12,7 +12,7 @@ library(SpaDES.shiny)
 # appMetadata <- list(
 #   modules = data.frame(
 #     type = c("shinyModule", "shinyModule", "shinyModule", "shinyModule", "shinyModule"),
-#     name = c("timeSinceFire", "largePatches", "simInfo", "moduleInfo", "inputTables"),
+#     name = c("timeSeriesofRasters", "largePatches", "simInfo", "moduleInfo", "inputTables"),
 #     id = c("timeSinceFire", "largePatches", "simInfo", "moduleInfo", "inputTables"),
 #     stringsAsFactors = FALSE
 #   ),
@@ -37,10 +37,9 @@ library(SpaDES.shiny)
 # # setwd("~/GitHub/LandWeb/")
 # # shiny::runApp(".")
 
-
 Modules <- tribble(
   ~type,  ~name, ~id, ~parameters,
-  "shinyModule", "timeSinceFire", "timeSinceFire", list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull", "colorTableFile", "timeSinceFirePalette", "maxAge", "sim = mySim"),
+  "shinyModule", "timeSeriesofRasters", "timeSinceFire", list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull", "colorTableFile", "timeSinceFirePalette", "maxAge", "sim = mySim"),
   "shinyModule", "largePatches", "largePatches", list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"),
   "shinyModule", "simInfo", "simInfo", list("mySimOut[[1]]"),
   "shinyModule", "moduleInfo", "moduleInfo", list("mySimOut[[1]]"),

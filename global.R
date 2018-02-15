@@ -19,7 +19,6 @@ reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used fo
 
 source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
 source("functions.R") # get functions used throughout this shiny app
-#source("shinyModules.R") # shiny modules
 
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
