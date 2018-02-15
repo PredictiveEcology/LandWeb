@@ -1,7 +1,7 @@
 ---
-title: "Boreal_FireSenseDataPrep"
+title: "CanadaWide_FireSense"
 author: ""
-date: "06 February 2018"
+date: "14 February 2018"
 output: pdf_document
 ---
 
@@ -20,13 +20,15 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 
 # Usage
 
-```{r module_usage, include=FALSE}
+```{r module_usage}
 devtools::install_github("PredictiveEcology/reproducible@development")
 devtools::install_github("PredictiveEcology/SpaDES.tools@prepInputs") # prepInputs with alsoExtract argument
 devtools::install_github("ygc2l/webDatabases") # For fetching KNN layers from PFC repo
 
 library(igraph)
 library(SpaDES.core)
+library(MASS)
+
 
 library(magrittr) # for %>% pipe
 library(SpaDES)
@@ -56,14 +58,40 @@ if(!exists("studyArea")) {
 }
 Plot(studyArea, addTo = "canadaMap", col = "red")
 
+inputDir <- file.path(moduleDir, "inputs") %>% reproducible::checkPath(create = TRUE)
+outputDir <- file.path(moduleDir, "outputs")
 times <- list(start = 0, end = 10)
 parameters <- list(
-  #.progress = list(type = "text", interval = 1), # for a progress bar
-  ## If there are further modules, each can have its own set of parameters:
-  #module1 = list(param1 = value1, param2 = value2),
-  #module2 = list(param1 = value1, param2 = value2)
+  fireSense_FrequencyFit = list(
+    formula = n_fires ~ bl + nl + ot - 1, 
+    family = negative.binomial(1, link = "identity")
+  ),
+  fireSense_FrequencyPredict = list(
+    f = 1600
+  ),
+  fireSense_SizeFit = list(
+    formula = list(beta = size ~ bl + ot,
+                   theta = size ~ bl + ot),
+    a = 1
+  ),
+  fireSense_EscapeFit = list(
+    formula = cbind(escaped, n_fires) ~ bl + ot
+  ),
+  fireSense_SpreadFit = list(
+    formula = ~ beta + theta,
+    lower = c(.2, .1, .01, .3, 0.001, 0.001, 0.001),
+    upper = c(.5, 10, .2, 4, .3, .3, .3),
+    trace = 1
+  ),
+  fireSense = list(
+    mapping = list(
+      ignitionProb = "fireSense_FrequencyPredicted",
+      escapeProb = "fireSense_EscapePredicted",
+      spreadProb = "fireSense_SpreadPredicted"
+    )
+  )
 )
-modules <- list("Boreal_FireSenseDataPrep")
+modules <- list("CanadaWide_FireSense")
 objects <- list("studyArea" = studyArea)
 paths <- list(
   cachePath = cacheDir,
@@ -75,7 +103,7 @@ paths <- list(
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
-sim <- spades(mySim)
+spades(mySim)
 ```
 
 # Events
@@ -95,7 +123,7 @@ Write what is saved.
 ## Input data
 
 How to obtain input data, and a description of the data required by the module.
-If `sourceURL` is specified, `downloadData("Boreal_FireSenseDataPrep", "path/to/modules/dir")` may be sufficient.
+If `sourceURL` is specified, `downloadData("CanadaWide_FireSense", "path/to/modules/dir")` may be sufficient.
 
 ## Output data
 
