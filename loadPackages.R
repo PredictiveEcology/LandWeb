@@ -1,13 +1,13 @@
 if (FALSE) {
   try(detach("package:SpaDES.shiny", unload = TRUE));
-  # try(detach("package:SpaDES.addins", unload = TRUE));
-   try(detach("package:SpaDES.tools", unload = TRUE));
-   try(detach("package:SpaDES.core", unload = TRUE));
-   #try(detach("package:reproducible", unload = TRUE));
-   #devtools::load_all("~/Documents/GitHub/reproducible")
-   devtools::load_all("~/Documents/GitHub/SpaDES.core")
-   devtools::load_all("~/GitHub/SpaDES.tools")
-   #devtools::load_all("~/GitHub/SpaDES.shiny")
+  #try(detach("package:SpaDES.addins", unload = TRUE));
+  try(detach("package:SpaDES.tools", unload = TRUE));
+  try(detach("package:SpaDES.core", unload = TRUE));
+  #try(detach("package:reproducible", unload = TRUE));
+  #devtools::load_all("~/Documents/GitHub/reproducible")
+  devtools::load_all("~/Documents/GitHub/SpaDES.core")
+  devtools::load_all("~/GitHub/SpaDES.tools")
+  #devtools::load_all("~/GitHub/SpaDES.shiny")
 }
 
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
