@@ -1,3 +1,4 @@
+devtools::install_github("PredictiveEcology/quickPlot", ref = "development")
 devtools::install_github("PredictiveEcology/reproducible", ref = "development")
 devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development")
 devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "prepInputs")
