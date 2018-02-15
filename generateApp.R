@@ -59,5 +59,4 @@ appMetadata2 <- list(modules = as.data.frame(Modules), layout = as.data.frame(La
 newApp(getwd(), appMetadata2)
 
 file.copy("global_file.R", "global.R", overwrite = TRUE)
-setwd("~/GitHub/LandWeb/")
 shiny::runApp(".")
