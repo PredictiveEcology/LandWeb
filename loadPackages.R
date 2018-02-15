@@ -42,6 +42,7 @@ if (FALSE) {
     # shiny app
     shinyPkgs
   ))#, ".packageVersions.txt")
+
   if (FALSE)
     b <- pkgSnapshot(file.path(getwd(),".packageVersions.txt"), libPath = .libPaths(), standAlone = FALSE)
 }
