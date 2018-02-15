@@ -2,7 +2,7 @@ devtools::install_github("PredictiveEcology/quickPlot", ref = "development")
 devtools::install_github("PredictiveEcology/reproducible", ref = "development")
 devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development")
 devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "prepInputs")
-devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
+devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "79-rename-timeSinceFire")
 devtools::install_github("PredictiveEcology/webDatabases", ref = "master")
 
 library(dplyr)
@@ -12,7 +12,7 @@ library(SpaDES.shiny)
 # appMetadata <- list(
 #   modules = data.frame(
 #     type = c("shinyModule", "shinyModule", "shinyModule", "shinyModule", "shinyModule"),
-#     name = c("timeSinceFire", "largePatches", "simInfo", "moduleInfo", "inputTables"),
+#     name = c("timeSeriesofRasters", "largePatches", "simInfo", "moduleInfo", "inputTables"),
 #     id = c("timeSinceFire", "largePatches", "simInfo", "moduleInfo", "inputTables"),
 #     stringsAsFactors = FALSE
 #   ),
@@ -40,7 +40,7 @@ library(SpaDES.shiny)
 
 Modules <- tribble(
   ~type,  ~name, ~id, ~parameters,
-  "shinyModule", "timeSinceFire", "timeSinceFire", list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull", "colorTableFile", "timeSinceFirePalette", "maxAge", "sim = mySim"),
+  "shinyModule", "timeSeriesofRasters", "timeSinceFire", list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull", "colorTableFile", "timeSinceFirePalette", "maxAge", "sim = mySim"),
   "shinyModule", "largePatches", "largePatches", list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"),
   "shinyModule", "simInfo", "simInfo", list("mySimOut[[1]]"),
   "shinyModule", "moduleInfo", "moduleInfo", list("mySimOut[[1]]"),
