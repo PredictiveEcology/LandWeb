@@ -37,9 +37,9 @@ if (FALSE) {
   modulePkgs <- unique(unlist(SpaDES.core::packages(module = modules)))
   reproducible::Require(c(# modules
     modulePkgs,
-    # `Cairo` required on Windows
+    if (Sys.info()["sysname"] != "Windows") "Cairo",
     # `snow` required internally by `parallel` for Windows SOCK clusters
-    if (Sys.info()["sysname"] != "Windows") c("Cairo", "snow"),
+    if (Sys.info()["sysname"] == "Windows") "snow",
     # shiny app
     shinyPkgs
   ))#, ".packageVersions.txt")
