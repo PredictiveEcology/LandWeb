@@ -354,16 +354,18 @@ Burn <- function(sim) {
   }
   
 
+  # see https://github.com/PredictiveEcology/SpaDES.tools/issues#17 for discussion about this
+  meta <- depends(sim)@dependencies
   mods <- unlist(modules(sim))
-  if(all(names(a) %in% mods)) { # means there is more than just this module in the simList
-    meta <- depends(sim)
+  if(all(names(meta) %in% mods)) { # means there is more than just this module in the simList
+    # meta <- depends(sim)
     curMod <- currentModule(sim)
-    names(meta@dependencies) <- mods[seq(which(mods==curMod))]
-    inputs <- lapply(meta@dependencies, function(x) x@inputObjects$objectName)
-    outputs <- lapply(meta@dependencies, function(x) x@outputObjects$objectName)
+    inputs <- lapply(meta, function(x) {x$inputObjects$objectName})
+    outputs <- lapply(meta, function(x) {x$outputObjects$objectName})
     otherMods <- mods[!(mods %in% currentModule(sim))]
     
-    if (!("rstCurrentBurnCumulative" %in% unlist(outputs[otherMods]))) {
+    # is it or will it be supplied by another module, if yes, don't load a default here
+    if (!("rstCurrentBurnCumulative" %in% unlist(outputs[otherMods]))) { 
       if (is.null(sim$rstCurrentBurnCumulative)) {
         sim$rstCurrentBurnCumulative <- raster(sim$pixelGroupMap)
         
