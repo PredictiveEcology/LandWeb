@@ -1,35 +1,34 @@
-
 ggvisFireReturnInterval <- function(shpStudyRegion, shpStudyRegionFull) {
-  shpStudyAreaFort <- broom::tidy(shpStudyRegion, region = 'Name_1') 
+  shpStudyAreaFort <- broom::tidy(shpStudyRegion, region = 'Name_1')
   shpStudyAreaFort <- dplyr::left_join(shpStudyAreaFort, shpStudyRegion@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
-  shpStudyAreaOrigFort <- broom::tidy(shpStudyRegionFull, region = 'Name_1') 
+  shpStudyAreaOrigFort <- broom::tidy(shpStudyRegionFull, region = 'Name_1')
   shpStudyAreaOrigFort <- dplyr::left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
   #shpStudyAreaOrigFort<-shpStudyAreaOrigFort[order(shpStudyAreaOrigFort$order), ]
-  
+
   #map <- ggplot2::fortify(maine, region="name")
-  
+
   wdth <- 650
   ht <- wdth * (ymax(shpStudyRegionFull) - ymin(shpStudyRegionFull)) /
     (xmax(shpStudyRegionFull) - xmin(shpStudyRegionFull))
-  df2 <- data.frame(fri = unique(shpStudyAreaOrigFort$fireReturnInterval), 
+  df2 <- data.frame(fri = unique(shpStudyAreaOrigFort$fireReturnInterval),
                     colrs = colorRampPalette(c("orange", "dark green"))(diff(range(shpStudyAreaOrigFort$fireReturnInterval)))[unique(shpStudyAreaOrigFort$fireReturnInterval) - min(shpStudyAreaOrigFort$fireReturnInterval) + 1]
   )
   shpStudyAreaOrigFort <- dplyr::left_join(shpStudyAreaOrigFort, df2, by = c("fireReturnInterval" = "fri"))
-  # 
+  #
   a <- shpStudyAreaOrigFort %>%
     ggvis(~long, ~lat) %>%
     dplyr::group_by(group, id) %>%
     layer_paths(strokeOpacity := 0.5, stroke := "#7f7f7f", fill := ~fireReturnInterval) %>%
     add_tooltip(function(data) {
       paste0("Fire Return Interval: ", data$fireReturnInterval)
-    }, "hover") %>% 
+    }, "hover") %>%
     layer_paths(data = shpStudyAreaFort %>% dplyr::group_by(group, id),
                 stroke := "red") %>%
     #hide_legend("fill") %>%
     hide_axis("x") %>% hide_axis("y") %>%
     #set_options(width = 400, height = 800)#, keep_aspect = TRUE)
     set_options(width = wdth, height = ht, keep_aspect = TRUE)
-  
+
 }
 
 
@@ -37,10 +36,10 @@ ggvisFireReturnInterval <- function(shpStudyRegion, shpStudyRegionFull) {
 #' @return A data.table with proportion of the pixels in each vegetation class, for
 #'         each given age class within each polygon
 leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
-                           polygonToSummarizeBy, 
+                           polygonToSummarizeBy,
                            ageCutoffs = ageClassCutOffs,  ageClasses, cl) {
   if (missing(cl)) {
-    lapplyFn <- "lapply" 
+    lapplyFn <- "lapply"
   } else {
     lapplyFn <- "parLapplyLB"
     #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
@@ -60,8 +59,8 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
       startList <- list()
     }
     startList <- append(startList, list(y = y))
-    
-    out1 <- #Cache(cacheRepo = paths$cachePath, 
+
+    out1 <- #Cache(cacheRepo = paths$cachePath,
       do.call(lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
         x <- match(x, timeSinceFireFiles)
         timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
@@ -71,8 +70,8 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
           leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- 0
         leadingRast
       })))
-    names(out1) <- gsub(paste(basename(dirname(timeSinceFireFiles)), 
-                              basename(timeSinceFireFiles), sep = "_"), 
+    names(out1) <- gsub(paste(basename(dirname(timeSinceFireFiles)),
+                              basename(timeSinceFireFiles), sep = "_"),
                         replacement = "_", pattern = "\\.")
     out1
   })
@@ -81,25 +80,25 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
     out <- lapply(ageClasses, function(rep) {
       #lapply(rep, function(vegType) {
       rep
-      #}) 
+      #})
     })
-    #names(out) <- 
+    #names(out) <-
     out
   })))
   IDs <- raster::levels(out[[1]][[1]])[[1]]$ID
   Factors <- raster::levels(out[[1]][[1]])[[1]]$Factor
   ii <- 3
   aa <- raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack)))
-  
+
   aa1 <- lapply(aa, function(x,  ...) {
-    if(!is.null(x)) {
+    if (!is.null(x)) {
       apply(x, 2, function(y) {
         nonNACells <- na.omit(y)
         if (length(nonNACells)) {
           vals <- tabulate(nonNACells, max(IDs))
           names(vals)[IDs] <- Factors
           vals <- vals[!is.na(names(vals))]
-          if(sum(vals)) {
+          if (sum(vals)) {
             vals / sum(vals)
           } else {
             vals
@@ -110,95 +109,94 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
       NULL
     }
   })
-  
-  
+
   nonNulls <- unlist(lapply(aa1, function(x) !is.null(x)))
   vegType <- unlist(lapply(aa1[nonNulls], rownames))
   aa1 <- lapply(aa1, function(a) {
     rownames(a) <- NULL
     a
   })
-  
-  aadf <- data.frame(zone=rep(ecodistricts$ECODISTRIC[nonNulls], each = length(Factors)), 
+
+  aadf <- data.frame(zone = rep(ecodistricts$ECODISTRIC[nonNulls], each = length(Factors)),
                      polygonNum = rep(seq_along(ecodistricts$ECODISTRIC)[nonNulls], each = length(Factors)),
                      vegType = vegType, do.call(rbind, aa1[nonNulls]),
                      stringsAsFactors = FALSE)
-  
+
   temp <- list()
-  for(ages in ageClasses) {
+  for (ages in ageClasses) {
     temp[[ages]] <- aadf %>%
       dplyr::select(starts_with(ages) , zone:vegType) %>%
       tidyr::gather(key = "label", value = "proportion", -(zone:vegType)) %>%
       mutate(ageClass = unlist(lapply(strsplit(label, split = "\\."), function(x) x[[1]])))
   }
-  
+
   aa <- rbindlist(temp)
   aa
 }
 
 
 
-# A function that creates a raster with contiguous patches labelled as such            
+# A function that creates a raster with contiguous patches labelled as such
 countNumPatches <- function(ras, cellIDByPolygon, ...) {
-  clumpedRas <- clump(ras, gaps=FALSE, ...)
-  cellIDByPolygon[,newRas:=clumpedRas[][cell]]
-  cellIDByPolygon[,list(sizeInHa=.N * prod(res(clumpedRas))/1e4),by=c("polygonID","newRas")] %>% na.omit()
+  clumpedRas <- clump(ras, gaps = FALSE, ...)
+  cellIDByPolygon[, newRas := clumpedRas[][cell]]
+  cellIDByPolygon[, list(sizeInHa = .N * prod(res(clumpedRas))/1e4),
+                  by = c("polygonID","newRas")] %>% na.omit()
 }
 
 
 cellNumbersForPolygon <- function(dummyRaster, Polygon) {
-  aa <- raster::extract(dummyRaster, 
-                        y = Polygon, cellnumbers = TRUE)
+  aa <- raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE)
   notNull <- !unlist(lapply(aa, is.null))
-  rbindlist(lapply(seq_along(aa)[notNull], function(x) data.frame(cell=aa[[x]][,"cell"], polygonID=x)))
+  rbindlist(lapply(seq_along(aa)[notNull], function(x) data.frame(cell = aa[[x]][,"cell"], polygonID = x)))
 }
 
 #' Calculate number of "large" patches in a landscape
-#' 
+#'
 #' This function does several things:
-#' 
+#'
 #' 1. Takes a time series of rasters, all saved to disk, named vegTypeMapFiles_xxx.tif, identified with outputs(mySimOut[[1]])
 #'    This raster shows, for each pixel, which species of tree is the "leading" species, i.e,. most dominant
-#' 2. For each age class in the vector ageClass (should be reactive, currently is not), derive a new raster, 
-#'       where each pixel that is not contained between ageClass[x] and ageClass[x+1] is made NA 
+#' 2. For each age class in the vector ageClass (should be reactive, currently is not), derive a new raster,
+#'       where each pixel that is not contained between ageClass[x] and ageClass[x+1] is made NA
 #' 3. This new raster will have (currently) 4 values, 1 to 4, labelled: Pine, Deciduous, Spruce, Mixed
 #' 4. Again, for each of these rasters, one veg type at a time, set all other veg types to NA
-#' 5. Run raster::clump function to determine clump sizes, save as a data.table, 3 columns, polygonID, newRas, sizeInHa 
+#' 5. Run raster::clump function to determine clump sizes, save as a data.table, 3 columns, polygonID, newRas, sizeInHa
 #' 6. Repeat steps for each veg type, and each time stamp... making a list of lists (e.g., outer list = time, inner list = veg type)
 #' 7. Collapse this to a data.table with columns polygonID, newRas, sizeInHa, vegCover, rep (meaning time)
 #' 8. Collapse this to a data.table with 1 more column, adding ageClass
 #' 9. This data.table is then used in shiny app for histograms, currently in menu item "Large Patches". It has
-#'       4 dimensions which are placed 1 = menu for ageClass, 2 = tab for polygonID, 3 = histograms for vegCover, 
+#'       4 dimensions which are placed 1 = menu for ageClass, 2 = tab for polygonID, 3 = histograms for vegCover,
 #'       4 = content of histogram is sizeInHa
 #' 10. There is a reactive element that lets user choose to "omit" any clump that is "less than XXX hectares", set to 500 at start.
-#' 
+#'
 #' @return A matrix with counts of number of large patches
 largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
-                           polygonToSummarizeBy, cl, 
+                           polygonToSummarizeBy, cl,
                            ageCutoffs = ageClassCutOffs, countNumPatches = countNumPatches,
                            ageClasses, notOlderThan = Sys.time() - 1e7) {
-  
+
   #  withProgress(message = 'Calculation in progress',
   #               detail = 'This may take a while...', value = 0, {
-  
+
   withoutPath <- unlist(lapply(strsplit(timeSinceFireFiles, split = paths$outputPath), function(x) x[-1])) %>%
     gsub(pattern = "\\/", replacement = "_")
-  yearNames <- unlist(lapply(strsplit(withoutPath, split = "_rstTimeSinceFire_|\\."), function(x) 
-    paste0(gsub(x[-length(x)], pattern="\\/",replacement="_"), collapse="")))
-  
+  yearNames <- unlist(lapply(strsplit(withoutPath, split = "_rstTimeSinceFire_|\\."), function(x)
+    paste0(gsub(x[-length(x)], pattern = "\\/", replacement = "_"), collapse = "")))
+
   rasWithNAs <- raster(raster(timeSinceFireFiles[1]))
   rasWithNAs[] <- NA
-  
+
   # identify which polygon each pixel is contained within == data.table with 2 columns, cell and polygonID
   cellIDByPolygon <- Cache(cacheRepo = paths$cachePath, digestPathContent = .quickCheck,
                            cellNumbersForPolygon, rasWithNAs, polygonToSummarizeBy)
-  
+
   if (missing(cl)) {
     lapplyFn <- "lapply"
   } else {
     lapplyFn <- "parLapplyLB"
     if (Sys.info()[["sysname"]] == "Windows") {
-      
+
       clusterExport(cl = cl,
                     varlist = list(c(ls(), "countNumPatches")),
                     envir = environment())
@@ -210,7 +208,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
       })
     }
   }
-  
+
   out <- lapply(ageCutoffs, function(ages) {
     y <- match(ages, ageCutoffs)
     if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
@@ -227,7 +225,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
                     leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- NA
                     if ((y + 1) < length(ageCutoffs))
                       leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- NA
-                    
+
                     clumpedRasts <- lapply(raster::levels(leadingRast)[[1]]$ID, function(ID) {
                       spRas <- leadingRast
                       spRas[spRas != ID] <- NA
@@ -236,47 +234,42 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
                     names(clumpedRasts) <- raster::levels(leadingRast)[[1]]$Factor
                     clumpedRasts <- append(clumpedRasts,
                                            list("All species" =
-                                                  countNumPatches(leadingRast,  
+                                                  countNumPatches(leadingRast,
                                                                   cellIDByPolygon,
                                                                   directions = 8)
                                            ))
                     clumpedRasts
                   })))
     names(out1) <- yearNames
-    
+
     # collapse to a single data.table
     outDT <- rbindlist(lapply(seq_along(out1), function(y) {
-      a <- rbindlist(lapply(seq_along(out1[[y]]), function(x) out1[[y]][[x]][,vegCover:=names(out1[[y]])[x]]))
-      a[,rep:=names(out1)[y]]
+      a <- rbindlist(lapply(seq_along(out1[[y]]), function(x) out1[[y]][[x]][, vegCover := names(out1[[y]])[x]]))
+      a[, rep := names(out1)[y]]
     }))
-  }
-  )
-  
+  })
+
   out <- setNames(out, ageClasses)
   out <- rbindlist(lapply(seq_along(out), function(z) {
-    out[[z]][, ageClass:=names(out)[z]]
+    out[[z]][, ageClass := names(out)[z]]
   }))
-  
-  out[sizeInHa>=100] # never will need patches smaller than 100 ha
-  #setProgress(1)
-  #})
-  
-}
 
+  out[sizeInHa >= 100] # never will need patches smaller than 100 ha
+  #setProgress(1)
+}
 
 reprojectRasts <- function(tsf, lfltFN, crs, endTime = end(mySim), flammableFile) {
   message("Reprojecting rasters & loading into RAM")
   rstFlammableNum <- raster(flammableFile)
-  rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs, 
+  rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs,
                                    method = "ngb")
   globalRasters <- lapply(seq_along(tsf), function(FN) {
     r <- raster(tsf[[FN]])
     r <- projectRaster(r, crs = crs, method = "ngb",
                        datatype = "INT2U")
-    minAge <- as.numeric(strsplit(strsplit(tsf[[1]], split = "year")[[1]][2], split="\\.tif")[[1]])
+    minAge <- as.numeric(strsplit(strsplit(tsf[[1]], split = "year")[[1]][2], split = "\\.tif")[[1]])
     r[is.na(r) & (rstFlammableNum == 0)] <- minAge
-    r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE,
-                     datatype="INT2U")
+    r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE, datatype = "INT2U")
     r
   })
   message("  Finished reprojecting rasters & loading into RAM")
@@ -295,42 +288,37 @@ gdal2TilesFn <- function(r, filename, zoomRange=6:11, color_text_file = asPath(c
   prefix <- file.path("www",studyArea)
   checkPath(prefix, create = TRUE)
   filename2 <- file.path(prefix, paste0("out",basename(filename1)))
-  filename3 <- file.path(prefix,paste0("out2",basename(filename1)))
-  filename4 <- file.path(prefix,paste0("out3",basename(filename1)))
-  filename5 <- file.path(prefix,paste0("out4",basename(filename1)))
-  filename5 <- gsub(pattern="tif", x=filename5, replacement = "vrt")
-  foldername <- gsub(pattern=".tif", filename2, replacement = "")
-  
-  if(anyNA(r[])){
-    r[is.na(r[])] <- -1
-  } 
-  if(minValue(r)<0 ) {
-    r <- r-minValue(r)
-  }
-  r <- writeRaster(x=r, filename = filename2,
-                   overwrite=TRUE,datatype="INT2S")
-  gdalUtils::gdaldem(mode="color-relief", filename2, #alpha = TRUE,
-                     color_text_file = as.character(color_text_file), 
-                     filename3)
+  filename3 <- file.path(prefix, paste0("out2",basename(filename1)))
+  filename4 <- file.path(prefix, paste0("out3",basename(filename1)))
+  filename5 <- file.path(prefix, paste0("out4",basename(filename1)))
+  filename5 <- gsub(pattern = "tif", x = filename5, replacement = "vrt")
+  foldername <- gsub(pattern = ".tif", filename2, replacement = "")
+
+  if (anyNA(r[])) r[is.na(r[])] <- -1
+  if (minValue(r) < 0) r <- r - minValue(r)
+
+  r <- writeRaster(x = r, filename = filename2, overwrite = TRUE, datatype = "INT2S")
+  gdalUtils::gdaldem(mode = "color-relief", filename2, #alpha = TRUE,
+                     color_text_file = as.character(color_text_file), filename3)
   system(paste0("python ",
-                file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"rgb2pct.py "),
+                file.path(getOption("gdalUtils_gdalPath")[[1]]$path, "rgb2pct.py "),
                 filename3,
                 " ",
                 filename4))
-  gdalUtils::gdal_translate(of="VRT", expand="rgb", filename4, filename5)
-  system(paste0("python ", 
-                file.path(getOption("gdalUtils_gdalPath")[[1]]$path,"gdal2tiles.py "), 
+  gdalUtils::gdal_translate(of = "VRT", expand = "rgb", filename4, filename5)
+  system(paste0("python ",
+                file.path(getOption("gdalUtils_gdalPath")[[1]]$path, "gdal2tiles.py "),
                 "--s_srs=EPSG:4326 ",
-                " --zoom=",min(zoomRange),"-",max(zoomRange)," ",
+                " --zoom=", min(zoomRange), "-", max(zoomRange), " ",
                 "--srcnodata=0 ",
-                filename5," ",
+                filename5, " ",
                 foldername),
-         wait=TRUE)
+         wait = TRUE)
   unlink(filename5)
   unlink(filename4)
   unlink(filename3)
   unlink(filename2)
-  
+
   return(invisible(NULL))
 }
 
@@ -340,7 +328,7 @@ PredictiveEcologyPackages <- c("reproducible", "SpaDES.core", "SpaDES.tools")
 workingShas <- function(date) {
   shas <- lapply(PredictiveEcologyPackages, devtools:::local_sha)
   names(shas) <- PredictiveEcologyPackages
-  shas$LandWeb <- system("git rev-parse HEAD", intern=TRUE)
+  shas$LandWeb <- system("git rev-parse HEAD", intern = TRUE)
   shas
 }
 
@@ -385,7 +373,6 @@ margin-left: -33px; /* half of the spinner's width */
 }
 "
 
-
 reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
   reloadPreviousWorkingLogical <- any(reloadPreviousWorking != FALSE)
   if (Sys.info()["nodename"] %in% c("W-VIC-A105388", "W-VIC-A128863")) {
@@ -393,7 +380,7 @@ reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
       if (!reloadPreviousWorkingLogical) {
         .reloadPreviousWorking <- 0
       } else {
-        .reloadPreviousWorking <- 1   
+        .reloadPreviousWorking <- 1
       }
     } else if (.reloadPreviousWorking != 2) {
       .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
@@ -403,26 +390,26 @@ reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
   } else {
     .reloadPreviousWorking <- 0
   }
-  
-  if(.reloadPreviousWorking==1) {
+
+  if (.reloadPreviousWorking == 1) {
     #library(git2r) # has git repo internally
     md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
-    if(NROW(md5s)) {
+    if (NROW(md5s)) {
       system("git stash")
-      if(is.character(reloadPreviousWorking))  {
+      if (is.character(reloadPreviousWorking))  {
         searchTerm <- reloadPreviousWorking
       } else {
         searchTerm <- unique(md5s$artifact)[as.numeric(reloadPreviousWorking)]
       }
       searchTerm <- unique(showCache(searchTerm, x = reproducibleCache)$artifact)
-      shas <- reloadWorkingShas(md5hash = searchTerm[1], 
+      shas <- reloadWorkingShas(md5hash = searchTerm[1],
                                 cachePath = reproducibleCache) # 1 is most recent
       .reloadPreviousWorking <- 2
       stop("Run app again")
     } else {
       message("No previous working version. Proceeding.")
     }
-  } 
-  
+  }
+
   return(.reloadPreviousWorking)
 }
