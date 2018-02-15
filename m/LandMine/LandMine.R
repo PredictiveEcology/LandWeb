@@ -34,7 +34,6 @@ defineModule(sim, list(
     expectsInput("rstTimeSinceFire", "Raster", "a time since fire raster layer", NA),
     expectsInput("pixelGroupMap", "RasterLayer", "Pixels with identical values share identical stand features"),
     expectsInput("rstCurrentBurnCumulative", "RasterLayer", "Cumulative number of times a pixel has burned")
-
   ),
   outputObjects = bind_rows(
     createsOutput("rstCurrentBurn", "RasterLayer", paste(
@@ -347,12 +346,11 @@ Burn <- function(sim) {
   if (is.null(sim$vegLeadingPercent)) {
     sim$vegLeadingPercent <- 0.8
   }
-  
+
   if (is.null(sim$rstCurrentBurnCumulative)) {
     sim$rstCurrentBurnCumulative <- raster(sim$pixelGroupMap)
-    sim$rstCurrentBurnCumulative[sim$rstTimeSinceFire[]==0] <- 1
+    sim$rstCurrentBurnCumulative[sim$rstTimeSinceFire[] == 0] <- 1
   }
-  
 
   # see https://github.com/PredictiveEcology/SpaDES.tools/issues#17 for discussion about this
   meta <- depends(sim)@dependencies
@@ -368,7 +366,7 @@ Burn <- function(sim) {
     if (!("rstCurrentBurnCumulative" %in% unlist(outputs[otherMods]))) { 
       if (is.null(sim$rstCurrentBurnCumulative)) {
         sim$rstCurrentBurnCumulative <- raster(sim$pixelGroupMap)
-        
+
       }
     }
   }
