@@ -37,7 +37,6 @@ library(SpaDES.shiny)
 # # setwd("~/GitHub/LandWeb/")
 # # shiny::runApp(".")
 
-
 Modules <- tribble(
   ~type,  ~name, ~id, ~parameters,
   "shinyModule", "timeSeriesofRasters", "timeSinceFire", list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull", "colorTableFile", "timeSinceFirePalette", "maxAge", "sim = mySim"),

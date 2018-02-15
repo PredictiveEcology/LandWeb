@@ -19,13 +19,12 @@ dashboardPage(
   ),
   dashboardBody(
     tabItems(
-      #tabItem("timeSinceFire", timeSeriesofRastersUI("timeSinceFire", length(tsf))),
+      tabItem("timeSinceFire", timeSeriesofRastersUI("timeSinceFire", length(tsf))),
       tabItem("largePatches", largePatchesUI("largePatches")),
       tabItem("simInfo", simInfoUI("simInfo")),
       tabItem("moduleInfo", moduleInfoUI("moduleInfo")),
       tabItem("inputTables", inputTablesUI("inputTables"))
     ),
-	  copyrightFooterUI("copyright")
+    copyrightFooterUI("copyright")
   )
 )
-
