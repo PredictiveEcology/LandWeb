@@ -23,7 +23,7 @@ defineModule(sim, list(
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
-    defineParameter(".useCache", "numeric", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant")
+    defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = bind_rows(
     expectsInput("rstStudyRegion","Raster", "A raster layer that is a factor raster, with at least 1 column called LTHRC, representing the fire return interval in years"),
@@ -164,7 +164,7 @@ plotFn <- function(sim) {
   if (time(sim) == P(sim)$.plotInitialTime) {
       Plot(sim$fireReturnInterval, title = "Fire Return Interval", speedup = 3, new = TRUE)
   }
-  if (is.null(sim$rstCurrentBurnCumulative)) {
+  if (!identical(extent(sim$rstCurrentBurnCumulative), extent(sim$rstCurrentBurn))) {
     sim$rstCurrentBurnCumulative <- raster(sim$rstCurrentBurn)
     sim$rstCurrentBurnCumulative[!is.na(sim$rstCurrentBurn)] <- 0
   }
@@ -346,6 +346,23 @@ Burn <- function(sim) {
 
   if (is.null(sim$vegLeadingPercent)) {
     sim$vegLeadingPercent <- 0.8
+  }
+
+  mods <- unlist(modules(sim))
+  if(all(names(a) %in% mods)) { # means there is more than just this module in the simList
+    meta <- depends(sim)
+    curMod <- currentModule(sim)
+    names(meta@dependencies) <- mods[seq(which(mods==curMod))]
+    inputs <- lapply(meta@dependencies, function(x) x@inputObjects$objectName)
+    outputs <- lapply(meta@dependencies, function(x) x@outputObjects$objectName)
+    otherMods <- mods[!(mods %in% currentModule(sim))]
+    
+    if (!("rstCurrentBurnCumulative" %in% unlist(outputs[otherMods]))) {
+      if (is.null(sim$rstCurrentBurnCumulative)) {
+        sim$rstCurrentBurnCumulative <- raster(sim$pixelGroupMap)
+        
+      }
+    }
   }
 
   return(invisible(sim))

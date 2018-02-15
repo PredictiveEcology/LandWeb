@@ -60,7 +60,7 @@ To deteremine which packages are used by `LandMine`, run `SpaDES::packages(modul
 library(igraph)
 library(SpaDES.core)
 
-workingDir <- file.path("~/GitHub/LandWeb")
+workingDir <- file.path(".")
 moduleDir <- file.path(workingDir, "m") %>% checkPath()
 inputDir <- file.path(workingDir, "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(workingDir, "outputs") %>% checkPath(create = TRUE)
@@ -83,7 +83,7 @@ paths <- list(
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
-spades(mySim, .plotInitialTime = times$start, progress = TRUE)
+mySimOut <- spades(mySim, .plotInitialTime = times$start, debug = TRUE)
 ```
 
 # Events
