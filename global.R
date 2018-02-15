@@ -20,8 +20,6 @@ reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used fo
 source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
 source("functions.R") # get functions used throughout this shiny app
 #source("shinyModules.R") # shiny modules
-source("footers.R") # minor footer stuff for app
-
 
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
@@ -310,10 +308,4 @@ clumpMod2Args <- list(
   largePatchesFn = largePatchesFn, countNumPatches = countNumPatches)
 clumpMod2Args <- clumpMod2Args[!unlist(lapply(clumpMod2Args, is.null))]
 
-copyrightInfo <- paste(
-  shiny::icon("copyright",  lib = "font-awesome"), "Copyright ",
-  format(Sys.time(), "%Y"),
-  paste("Her Majesty the Queen in Right of Canada,",
-        "as represented by the Minister of Natural Resources Canada.")
-)
 message("  Finished global.R")

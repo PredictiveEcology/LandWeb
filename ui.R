@@ -23,7 +23,8 @@ tabItem("largePatches", largePatchesUI("largePatches")),
 tabItem("simInfo", simInfoUI("simInfo")),
 tabItem("moduleInfo", moduleInfoUI("moduleInfo")),
 tabItem("inputTables", inputTablesUI("inputTables"))
-    )
+    ),
+	  copyrightFooterUI("copyright")
   )
 )
 
