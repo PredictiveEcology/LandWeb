@@ -34,7 +34,6 @@ loadStudyRegion <- function(shpPath, studyArea, crsKNNMaps) {
   list(shpStudyRegion = shpStudyRegion, shpStudyRegionFull = shpStudyRegionFull)
 }
 
-
 shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
   set.seed(853839)#set.seed(5567913)
   if (studyArea != "FULL") {
@@ -88,7 +87,6 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
     shpStudyRegion <- shpStudyRegionFull
   }
   return(shpStudyRegion)
-
 }
 
 #ggStudyRegion <- ggvisFireReturnInterval(shpStudyRegion, shpStudyRegionFull)

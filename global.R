@@ -94,9 +94,10 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
     shpStudyRegionFull <- shpStudyRegion
 
   } else {
-    shpStudyRegions <- Cache(loadStudyRegion, asPath(file.path(paths$inputPath,"shpLandWEB.shp")),
+    shpStudyRegions <- Cache(loadStudyRegion,
+                             asPath(file.path(paths$inputPath, "shpLandWEB.shp")),
                              studyArea = studyArea,
-                             crsKNNMaps=crsKNNMaps, cacheRepo=paths$cachePath)
+                             crsKNNMaps = crsKNNMaps, cacheRepo = paths$cachePath)
     list2env(shpStudyRegions, envir = environment())
   }
 
@@ -265,40 +266,7 @@ polygonsWithData <- leading[, unique(polygonNum[!is.na(proportion)]), by = ageCl
 vegLeadingTypes <- c(unique(leading$vegType))
 vegLeadingTypesWithAllSpecies <- c(vegLeadingTypes, "All species")
 
-inputTablesUI <- function(id) {
-  ns <- NS(id)
-  tagList(
-    fluidRow(
-      h3("Currently, these inputs are not changeable by specific regions"),
-      box(
-        width = 10,
-        solidHeader = TRUE,
-        status = "success",
-        title = "Species Inputs",
-        dataTableOutput(ns("speciesInputs"))
-      )
-    ),
-    fluidRow(
-      box(
-        width = 12,
-        solidHeader = TRUE,
-        status = "success",
-        title = "Geographically Varying Species Inputs. These are means (and SE) across all map regions",
-        dataTableOutput(ns("speciesEcoregionInputs"))
-      )
-    )
-  )
-}
-
-inputTables <- function(input, output, session) {
-  output$speciesInputs <- renderDataTable({
-    landisInputs
-  })
-
-  output$speciesEcoregionInputs <- renderDataTable({
-    spEcoReg
-  })
-}
+source("shiny-modules/inputTables.R")
 
 clumpMod2Args <- list(
   currentPolygon = polygons[[1 + length(polygons)/4]],
