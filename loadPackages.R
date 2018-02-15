@@ -24,7 +24,8 @@ shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
 Require(c(
   SpaDESPkgs,
   if (Sys.info()["sysname"] != "Windows") "Cairo",
-  if (Sys.info()["sysname"] == "Windows") "snow",# Required internally inside "parallel" package for Windows SOCK clusters
+  # `snow` required internally by `parallel` for Windows SOCK clusters
+  if (Sys.info()["sysname"] == "Windows") "snow",
   # shiny app
   shinyPkgs
 ))
