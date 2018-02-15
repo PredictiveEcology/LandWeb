@@ -21,6 +21,7 @@ SpaDESPkgs <- c(
 )
 shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
                "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
+
 Require(c(
   SpaDESPkgs,
   if (Sys.info()["sysname"] != "Windows") "Cairo",
