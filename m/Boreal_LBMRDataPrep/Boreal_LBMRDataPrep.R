@@ -301,7 +301,7 @@ estimateParameters <- function(sim) {
   sim$initialCommunities <- Cache(initialCommunitiesFn, initialCommunities, speciesTable,
                                   userTags = "stable")
 
-  assign("species", speciesTable, envir = .GlobalEnv)
+  # assign("species", speciesTable, envir = .GlobalEnv)
 
   sim$species <- speciesTable
   sim$minRelativeB <- data.frame(ecoregion = sim$ecoregion[active == "yes",]$ecoregion,
