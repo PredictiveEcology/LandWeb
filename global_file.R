@@ -1,6 +1,6 @@
 # List modules first, so we can get all their dependencies
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
 studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
