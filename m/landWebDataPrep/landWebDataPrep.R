@@ -142,7 +142,7 @@ Save <- function(sim) {
   #  defaultColor <- 'red'
   # }
 
-  dataPath <- file.path(modulePath(sim), "landWebDataPrep", "data")
+  dataPath <- dataPath(sim)
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
 
@@ -151,7 +151,8 @@ Save <- function(sim) {
   if(is.null(sim$biomassMap)) {
     sim$biomassMap <- Cache(prepInputs, 
                      targetFile = biomassMapFilename,
-                     archive = asPath("kNN-StructureBiomass.tar"),
+                     archive = asPath(c("kNN-StructureBiomass.tar", 
+                                        "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip")),
                      destinationPath= asPath(dataPath),
                      fun = "raster",
                      pkg = "raster", 
