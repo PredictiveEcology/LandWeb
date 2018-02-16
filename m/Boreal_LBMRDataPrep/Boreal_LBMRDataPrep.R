@@ -514,7 +514,6 @@ Save <- function(sim) {
                              cacheTags = c("stable", currentModule(sim)),
                              dataset = "EOSD2000",
                              quickCheck = .quickChecking)
-
   }
 
   if (is.null(sim$specieslayers)) {
