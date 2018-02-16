@@ -6,6 +6,7 @@ devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
 devtools::install_github("PredictiveEcology/webDatabases", ref = "master")
 
 library(dplyr)
+library(gdalUtils); gdal_setInstallation(rescan = TRUE)
 library(SpaDES.shiny)
 #load_all("~/GitHub/SpaDES.shiny")
 
@@ -69,4 +70,5 @@ appMetadata2 <- list(
 newApp(getwd(), appMetadata2)
 
 file.copy("global_file.R", "global.R", overwrite = TRUE)
+
 shiny::runApp(".")
