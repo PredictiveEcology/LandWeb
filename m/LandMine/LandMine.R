@@ -17,8 +17,8 @@ defineModule(sim, list(
     defineParameter("fireTimestep", "numeric", 1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter("burnInitialTime", "numeric", start(sim, "year") + 1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter("biggestPossibleFireSizeHa", "numeric", 1e5, 1e4, 1e6, "An upper limit, in hectares, of the truncated Pareto distribution of fire sizes"),
-    defineParameter("flushCachedRandomFRI", "logical", 1, 1, 1, "If no Fire Return Interval map is supplied, then a random one will be created and cached. Use this to make a new one."),
-    defineParameter("randomDefaultData", "logical", 3, NA, NA, "Only used for creating a starting dataset. If TRUE, then it will be randomly generated; FALSE, deterministic and identical each time."),
+    defineParameter("flushCachedRandomFRI", "logical", FALSE, NA, NA, "If no Fire Return Interval map is supplied, then a random one will be created and cached. Use this to make a new one."),
+    defineParameter("randomDefaultData", "logical", FALSE, NA, NA, "Only used for creating a starting dataset. If TRUE, then it will be randomly generated; FALSE, deterministic and identical each time."),
     defineParameter(".plotInitialTime", "numeric", start(sim, "year") + 1, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
@@ -358,8 +358,8 @@ Burn <- function(sim) {
   if(all(names(meta) %in% mods)) { # means there is more than just this module in the simList
     # meta <- depends(sim)
     curMod <- currentModule(sim)
-    inputs <- lapply(meta, function(x) {x$inputObjects$objectName})
-    outputs <- lapply(meta, function(x) {x$outputObjects$objectName})
+    inputs <- lapply(meta, function(x) {x@inputObjects$objectName})
+    outputs <- lapply(meta, function(x) {x@outputObjects$objectName})
     otherMods <- mods[!(mods %in% currentModule(sim))]
     
     # is it or will it be supplied by another module, if yes, don't load a default here

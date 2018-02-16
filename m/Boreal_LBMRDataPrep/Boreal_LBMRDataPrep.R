@@ -56,10 +56,10 @@ defineModule(sim, list(
     expectsInput(objectName = "rstStudyRegion", objectClass = "RasterLayer",
                  desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
-    expectsInput(objectName = "cellSize", objectClass = "numeric",
-                 desc = "define the cell size"),
-    expectsInput(objectName = "spinupMortalityfraction", objectClass = "numeric",
-                  desc = "define the mortality loss fraction in spin up-stage simulation, default is 0.001"),
+    # expectsInput(objectName = "cellSize", objectClass = "numeric",
+    #              desc = "define the cell size"),
+    # expectsInput(objectName = "spinupMortalityfraction", objectClass = "numeric",
+    #               desc = "define the mortality loss fraction in spin up-stage simulation, default is 0.001"),
     expectsInput(objectName = "studyArea", objectClass = "SpatialPolygons",
                  desc = "study area",
                  sourceURL = NA)
@@ -314,7 +314,7 @@ estimateParameters <- function(sim) {
 }
 
 Save <- function(sim) {
-  saveFiles(sim)
+  sim <- saveFiles(sim)
   return(invisible(sim))
 }
 
@@ -369,7 +369,7 @@ Save <- function(sim) {
     sim$shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache
 
   cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
-
+  
   if (is.null(sim$biomassMap)) {
     sim$biomassMap <- Cache(prepInputs,
                             targetFile = biomassMapFilename,
@@ -519,7 +519,7 @@ Save <- function(sim) {
 
   if (is.null(sim$specieslayers)) {
     sim$specieslayers <- Cache(loadAllSpeciesLayers, dataPath, sim$biomassMap,
-                               sim$shpStudyRegionFull, modulePath(sim), moduleName = currentModule(sim),
+                               sim$shpStudyRegionFull, moduleName = currentModule(sim),
                                quickCheck = .quickChecking,
                                cacheTags = cacheTags, # This is for the internal caching
                                userTags = cacheTags)
@@ -560,8 +560,8 @@ Save <- function(sim) {
                                     X4 = c(rep(0, 3), 0.5, 1), X5 = c(rep(0, 4), 1))
 
   sim$seedingAlgorithm <- "wardDispersal"
-  sim$spinupMortalityfraction <- 0.002
-  sim$cellSize <- 250
+  # sim$spinupMortalityfraction <- 0.002
+  # sim$cellSize <- 250
   sim$successionTimestep <- 10
 
   if (is.null(sim$studyArea)) {
