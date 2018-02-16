@@ -24,11 +24,14 @@ library(SpaDES.shiny)
 #     stringsAsFactors = FALSE
 #   )
 # )
-# appMetadata$modules$parameters <- list(list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull", "colorTableFile", "timeSinceFirePalette", "maxAge"),
-#                                        list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"),
-#                                        list("mySimOut[[1]]"),
-#                                        list("mySimOut[[1]]"),
-#                                        list())
+# appMetadata$modules$parameters <- list(
+#   list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull",
+#        "colorTableFile", "timeSinceFirePalette", "maxAge"),
+#   list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"),
+#   list("mySimOut[[1]]"),
+#   list("mySimOut[[1]]"),
+#   list()
+# )
 # appMetadata$layout$moduleUIParameters <- list(list("length(tsf)"), list(), list(), list(), list())
 #
 # # newApp(getwd(), appMetadata)
