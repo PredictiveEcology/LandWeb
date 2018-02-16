@@ -374,6 +374,8 @@ Save <- function(sim) {
     sim$biomassMap <- Cache(prepInputs,
                             targetFile = biomassMapFilename,
                             archive = asPath("kNN-StructureBiomass.tar"),
+                            archive = asPath(c("kNN-StructureBiomass.tar", 
+                                               "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip")),
                             destinationPath= asPath(dataPath),
                             studyArea = sim$shpStudySubRegion,
                             rasterInterpMethod = "bilinear",
