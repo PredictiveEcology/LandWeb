@@ -1,0 +1,89 @@
+
+# Everything in this file gets sourced during simInit, and all functions and objects
+# are put into the simList. To use objects, use sim$xxx, and are thus globally available
+# to all modules. Functions can be used without sim$ as they are namespaced, like functions
+# in R packages. If exact location is required, functions will be: sim$<moduleName>$FunctionName
+defineModule(sim, list(
+  name = "makeLeafletTiles",
+  description = NA, #"insert module description here",
+  keywords = NA, # c("insert key words here"),
+  authors = person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
+  childModules = character(0),
+  version = list(SpaDES.core = "0.1.1.9005", makeLeafletTiles = "0.0.1"),
+  spatialExtent = raster::extent(rep(NA_real_, 4)),
+  timeframe = as.POSIXlt(c(NA, NA)),
+  timeunit = "year",
+  citation = list("citation.bib"),
+  documentation = list("README.txt", "makeLeafletTiles.Rmd"),
+  reqdPkgs = list(),
+  parameters = rbind(
+    #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
+    defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
+    defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between plot events"),
+    defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
+    defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
+    defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant")
+  ),
+  inputObjects = bind_rows(
+    #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
+    expectsInput(objectName = NA, objectClass = NA, desc = NA, sourceURL = NA)
+  ),
+  outputObjects = bind_rows(
+    #createsOutput("objectName", "objectClass", "output object description", ...),
+    createsOutput(objectName = NA, objectClass = NA, desc = NA)
+  )
+))
+
+## event types
+#   - type `init` is required for initialiazation
+
+doEvent.makeLeafletTiles = function(sim, eventTime, eventType) {
+  switch(
+    eventType,
+    init = {
+      # schedule the one event -- making the tiles
+      sim <- scheduleEvent(sim, end(sim), "makeLeafletTiles", "makeAllTiles", eventPriority = .last() + 2)
+    },
+    makeAllTiles = {
+      makeTiles(sim)
+    },
+    warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
+                  "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
+  )
+  return(invisible(sim))
+}
+
+makeTiles <- function(sim) {
+  browser()
+
+  outs <- outputs(sim)
+  rastFiles <- outs[outs$fun=="writeRaster", "file"]
+  rasts <- lapply(rastFiles, function(r) {
+    raster(r)
+  })
+  lapply(rasts, gdal2Tiles, outputPath(sim), zoomRange = 1:11, colorTableFile)
+  gdal2Tiles()
+  return(invisible(sim))
+}
+
+
+.inputObjects <- function(sim) {
+  # Any code written here will be run during the simInit for the purpose of creating
+  # any objects required by this module and identified in the inputObjects element of defineModule.
+  # This is useful if there is something required before simulation to produce the module
+  # object dependencies, including such things as downloading default datasets, e.g.,
+  # downloadData("LCC2005", modulePath(sim)).
+  # Nothing should be created here that does not create an named object in inputObjects.
+  # Any other initiation procedures should be put in "init" eventType of the doEvent function.
+  # Note: the module developer can use 'sim$.userSuppliedObjNames' in their function below to
+  # selectively skip unnecessary steps because the user has provided those inputObjects in the
+  # simInit call. e.g.,
+  # if (!('defaultColor' %in% sim$.userSuppliedObjNames)) {
+  #  sim$defaultColor <- 'red'
+  # }
+  # ! ----- EDIT BELOW ----- ! #
+
+  # ! ----- STOP EDITING ----- ! #
+  return(invisible(sim))
+}
+### add additional events as needed by copy/pasting from above
