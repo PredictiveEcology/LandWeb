@@ -335,7 +335,7 @@ Save <- function(sim) {
   #  defaultColor <- 'red'
   # }
   # ! ----- EDIT BELOW ----- ! #
-  dataPath <- file.path(modulePath(sim), "Boreal_LBMRDataPrep", "data")
+  dataPath <- dataPath(sim)
 
   # 1. test if all input objects are already present (e.g., from inputs, objects or another module)
   a <- depends(sim)
@@ -374,8 +374,7 @@ Save <- function(sim) {
     sim$biomassMap <- Cache(prepInputs,
                             targetFile = biomassMapFilename,
                             archive = asPath("kNN-StructureBiomass.tar"),
-                            modulePath = modulePath(sim),
-                            moduleName = currentModule(sim),
+                            destinationPath= asPath(dataPath),
                             studyArea = sim$shpStudySubRegion,
                             rasterInterpMethod = "bilinear",
                             rasterDatatype = "INT2U",
@@ -399,8 +398,7 @@ Save <- function(sim) {
     sim$LCC2005 <- Cache(prepInputs,
                          targetFile = lcc2005Filename,
                          archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
-                         modulePath = modulePath(sim),
-                         moduleName = currentModule(sim),
+                         destinationPath= asPath(dataPath),
                          studyArea = sim$shpStudySubRegion,
                          rasterToMatch = sim$biomassMap,
                          rasterInterpMethod = "bilinear",
@@ -424,8 +422,7 @@ Save <- function(sim) {
                              targetFile = asPath(ecodistrictFilename),
                              archive = asPath("ecodistrict_shp.zip"),
                              alsoExtract = ecodistrictAE,
-                             modulePath = modulePath(sim),
-                             moduleName = currentModule(sim),
+                             destinationPath= asPath(dataPath),
                              studyArea = sim$shpStudyRegionFull,
                              pkg = "raster",
                              fun = "shapefile",
@@ -456,8 +453,7 @@ Save <- function(sim) {
                            targetFile = asPath(ecoregionFilename),
                            archive = asPath("ecoregion_shp.zip"),
                            alsoExtract = ecoregionAE,
-                           modulePath = modulePath(sim),
-                           moduleName = currentModule(sim),
+                           destinationPath= asPath(dataPath),
                            studyArea = sim$shpStudyRegionFull,
                            pkg = "raster",
                            fun = "shapefile",
@@ -472,8 +468,7 @@ Save <- function(sim) {
                          targetFile = asPath(ecozoneFilename),
                          archive = asPath("ecozone_shp.zip"),
                          alsoExtract = ecozoneAE,
-                         modulePath = modulePath(sim),
-                         moduleName = currentModule(sim),
+                         destinationPath= asPath(dataPath),
                          studyArea = sim$shpStudyRegionFull,
                          pkg = "raster",
                          fun = "shapefile",
@@ -506,8 +501,7 @@ Save <- function(sim) {
     sim$standAgeMap <- Cache(prepInputs,
                              targetFile = standAgeMapFilename,
                              archive = asPath("kNN-StructureStandVolume.tar"),
-                             modulePath = modulePath(sim),
-                             moduleName = currentModule(sim),
+                             destinationPath= asPath(dataPath),
                              fun = "raster",
                              pkg = "raster",
                              studyArea = sim$shpStudyRegionFull,
