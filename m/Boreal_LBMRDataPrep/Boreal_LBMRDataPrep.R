@@ -138,7 +138,7 @@ estimateParameters <- function(sim) {
                             speciesPresence = 50,
                             studyArea = sim$studyArea,
                             rstStudyArea = rstStudyRegionBinary,
-                            digestPathContent = .quickCheck,
+                            digestPathContent = .quickChecking,
                             userTags = "stable")
   ecoregionstatus <- data.table(active = "yes",
                                 ecoregion = 1:1031)
@@ -151,7 +151,7 @@ estimateParameters <- function(sim) {
                           studyArea = sim$studyArea,
                           rstStudyArea = rstStudyRegionBinary,
                           maskFn = fastMask,
-                          digestPathContent = .quickCheck,
+                          digestPathContent = .quickChecking,
                           userTags = "stable")
 
   message("3: ", Sys.time())
@@ -165,7 +165,7 @@ estimateParameters <- function(sim) {
                           ecoregion = ecoregionFiles$ecoregion,
                           initialCommunityMap = initialCommFiles$initialCommunityMap,
                           initialCommunity = initialCommFiles$initialCommunity,
-                          digestPathContent = .quickCheck,
+                          digestPathContent = .quickChecking,
                           userTags = "stable")
   message("4: ", Sys.time())
   #speciesEcoregionTable <- sim$obtainMaxBandANPPCached(speciesLayers = sim$specieslayers,
@@ -173,14 +173,14 @@ estimateParameters <- function(sim) {
                                  biomassLayer = sim$biomassMap,
                                  SALayer = sim$standAgeMap,
                                  ecoregionMap = simulationMaps$ecoregionMap,
-                                 digestPathContent = .quickCheck,
+                                 digestPathContent = .quickChecking,
                                  userTags = "stable")
 
   message("5: ", Sys.time())
   #septable <- sim$obtainSEPCached(ecoregionMap = simulationMaps$ecoregionMap,
   septable <- Cache(obtainSEP, ecoregionMap = simulationMaps$ecoregionMap,
                     speciesLayers = sim$specieslayers,
-                    digestPathContent = .quickCheck,
+                    digestPathContent = .quickChecking,
                     userTags = "stable")
   names(septable) <- c("ecoregion", "species", "SEP")
   septable[, SEP := round(SEP, 2)]
@@ -209,7 +209,7 @@ estimateParameters <- function(sim) {
                                   biggerEcoArea = sim$ecoRegion,
                                   biggerEcoAreaSource = "ecoRegion",
                                   NAData = NAdata,
-                                  digestPathContent = .quickCheck,
+                                  digestPathContent = .quickChecking,
                                   maskFn = fastMask,
                                   userTags = "stable")
     message("  6b obtainMaxBandANPPFormBiggerEcoArea: ", Sys.time())
@@ -225,7 +225,7 @@ estimateParameters <- function(sim) {
                                   SALayer = sim$standAgeMap, ecoregionMap = simulationMaps$ecoregionMap,
                                   biggerEcoArea = sim$ecoZone, biggerEcoAreaSource = "ecoZone",
                                   NAData = NAdata, maskFn = fastMask,
-                                  digestPathContent = .quickCheck,
+                                  digestPathContent = .quickChecking,
                                   userTags = "stable")
     message("  7b obtainMaxBandANPPFormBiggerEcoArea if NAdata exist: ", Sys.time())
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
@@ -247,7 +247,7 @@ estimateParameters <- function(sim) {
   sim$initialCommunitiesMap <- Cache(createInitCommMap, simulationMaps$initialCommunityMap,
                                      as.integer(simulationMaps$initialCommunityMap[]),
                                      file.path(outputPath(sim), "initialCommunitiesMap.tif"),
-                                     digestPathContent = .quickCheck,
+                                     digestPathContent = .quickChecking,
                                      userTags = "stable")
 
   message("9: ", Sys.time())
@@ -381,7 +381,7 @@ Save <- function(sim) {
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE,
                             cacheTags = c("stable", currentModule(sim)),
-                            quick = .quickCheck,
+                            quickCheck = .quickChecking,
                             dataset = "EOSD2000")
 
     # sim$biomassMap <- Cache(prepareIt,
@@ -407,7 +407,7 @@ Save <- function(sim) {
                          rasterDatatype = "INT2U",
                          writeCropped = TRUE,
                          cacheTags = currentModule(sim),
-                         quick = .quickCheck)
+                         quickCheck = .quickChecking)
 
     projection(sim$LCC2005) <- projection(sim$biomassMap)
     # sim$LCC2005 <- Cache(prepareIt,
@@ -432,7 +432,7 @@ Save <- function(sim) {
                              writeCropped = TRUE,
                              cacheTags = cacheTags,
                              userTags = cacheTags,
-                             quick = .quickCheck)
+                             quickCheck = .quickChecking)
     # sim$ecoDistrict <- Cache(prepareIt,
     #                       zipfileName = "ecodistrict_shp.zip",
     #                       zipExtractFolder = "Ecodistricts",
@@ -464,7 +464,7 @@ Save <- function(sim) {
                            writeCropped = TRUE,
                            cacheTags = cacheTags,
                            userTags = cacheTags,
-                           quick = .quickCheck)
+                           quickCheck = .quickChecking)
   }
 
   if (is.null(sim$ecoZone)) {
@@ -480,7 +480,7 @@ Save <- function(sim) {
                          writeCropped = TRUE,
                          cacheTags = cacheTags,
                          userTags = cacheTags,
-                         quick = .quickCheck)
+                         quickCheck = .quickChecking)
     # sim$ecoZone <- Cache(prepareIt,
     #                      zipfileName = asPath("ecozone_shp.zip"),
     #                      zipExtractFolder = "Ecozones",
@@ -517,14 +517,14 @@ Save <- function(sim) {
                              writeCropped = TRUE,
                              cacheTags = c("stable", currentModule(sim)),
                              dataset = "EOSD2000",
-                             quick = .quickCheck)
+                             quickCheck = .quickChecking)
 
   }
 
   if (is.null(sim$specieslayers)) {
     sim$specieslayers <- Cache(loadAllSpeciesLayers, dataPath, sim$biomassMap,
                                sim$shpStudyRegionFull, modulePath(sim), moduleName = currentModule(sim),
-                               quick = TRUE,
+                               quickCheck = .quickChecking,
                                cacheTags = cacheTags, # This is for the internal caching
                                userTags = cacheTags)
   }
@@ -547,7 +547,7 @@ Save <- function(sim) {
                         file.path(dataPath, "Landweb_CASFRI_GIDs_attributes3.csv")),
                       CASFRIheaderFile = asPath(
                         file.path(dataPath,"Landweb_CASFRI_GIDs_README.txt")),
-                      digestPathContent = .quickCheck#, debugCache = "quick"
+                      digestPathContent = .quickChecking#, debugCache = "quick"
     )
   } else {
     message("Using only 'Open source data sets'")

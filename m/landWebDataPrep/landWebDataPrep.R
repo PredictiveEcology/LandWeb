@@ -161,7 +161,8 @@ Save <- function(sim) {
                      rasterInterpMethod = "bilinear",
                      rasterDatatype = "INT2U",
                      writeCropped = TRUE, 
-                     cacheTags = c("stable", currentModule(sim)))
+                     cacheTags = c("stable", currentModule(sim)),
+                     quickCheck = .quickChecking)
   }
   
   if(is.null(sim$LCC2005)) {
@@ -175,7 +176,8 @@ Save <- function(sim) {
                          rasterInterpMethod = "bilinear",
                          rasterDatatype = "INT2U",
                          writeCropped = TRUE,
-                         cacheTags = currentModule(sim))
+                         cacheTags = currentModule(sim),
+                         quickCheck = .quickChecking)
     projection(sim$LCC2005) <- projection(sim$biomassMap)
   }
 

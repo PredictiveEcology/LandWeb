@@ -103,7 +103,7 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
 
 # simInit objects
   times <- list(start = 0, end = endTime)
-  .quickCheck <- TRUE
+  .quickChecking <- TRUE
   objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                   "shpStudySubRegion" = shpStudyRegion,
                   "successionTimestep" = successionTimestep,

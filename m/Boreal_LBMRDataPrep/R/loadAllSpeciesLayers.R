@@ -1,4 +1,4 @@
-loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modulePath, moduleName, cacheTags) {
+loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, moduleName, cacheTags, quickCheck = FALSE) {
   speciesNamesEnd <- c("Abie_sp", "Pice_Gla", "Pice_Mar",
                        "Pinu_sp", "Popu_Tre")
   speciesnamesRaw <- c("Abie_Las", "Pice_Gla", "Pice_Mar",
@@ -19,7 +19,8 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE,
                             cacheTags = c("stable", moduleName),
-                            dataset = "EOSD2000")
+                            dataset = "EOSD2000",
+                            quickCheck = .quickChecking)
 
     # species1[[sp]] <- Cache(prepareIt, quick = TRUE,
     #                         tarfileName = "kNN-Species.tar",
