@@ -68,42 +68,37 @@ parameters <- list(
     .runInitialTime = .1
   ),
   fireSense_FrequencyPredict = list(
-    f = 1600,
-    .runInitialTime = .2
+    f = 1600#,    .runInitialTime = .2
   ),
   fireSense_SizeFit = list(
     formula = list(beta = size ~ broadLeafPc + otherPc,
                    theta = size ~ broadLeafPc + otherPc),
-    a = 1,
-    .runInitialTime = .3
+    a = 1#,    .runInitialTime = .3
   ),
-  fireSense_SizePredict = list(
-    .runInitialTime = .4
-  ),
+  # fireSense_SizePredict = list(
+  #   .runInitialTime = .4
+  # ),
   fireSense_EscapeFit = list(
-    formula = cbind(escaped, n_fires) ~ broadLeafPc + otherPc,
-    .runInitialTime = .5
+    formula = cbind(escaped, n_fires) ~ broadLeafPc + otherPc#,    .runInitialTime = .5
   ),
-  fireSense_EscapePredict = list(
-    .runInitialTime = .6
-  ),
+  # fireSense_EscapePredict = list(
+  #   .runInitialTime = .6
+  # ),
   fireSense_SpreadFit = list(
     formula = ~ fireSense_SizePredicted_Beta + fireSense_SizePredicted_Theta,
     lower = c(.2, .1, .01, .3, 0.001, 0.001, 0.001),
     upper = c(.5, 10, .2, 4, .3, .3, .3),
-    trace = 1,
-    .runInitialTime = .7
+    trace = 1#,    .runInitialTime = .7
   ),
-  fireSense_SpreadPredict = list(
-    .runInitialTime = .8
-  ),
+  # fireSense_SpreadPredict = list(
+  #   .runInitialTime = .8
+  # ),
   fireSense = list(
     mapping = list(
       ignitionProb = "fireSense_FrequencyPredicted",
       escapeProb = "fireSense_EscapePredicted",
       spreadProb = "fireSense_SpreadPredicted"
-    ),
-    .runInitialTime = .9
+    )#,    .runInitialTime = .9
   )
 )
 modules <- list("CanadaWide_FireSense")
@@ -116,7 +111,7 @@ paths <- list(
 )
 
 mySim <- simInit(times = times, params = parameters, modules = modules,
-                 objects = objects, paths = paths)
+                 objects = objects, paths = paths, loadOrder = c("Boreal_FireSenseDataPrep", "fireSense_FrequencyFit", "fireSense_FrequencyPredict", "fireSense_SizeFit", "fireSense_SizePredict", "fireSense_EscapeFit", "fireSense_EscapePredict", "fireSense_SpreadFit", "fireSense_SpreadPredict", "fireSense"))
 
 spades(mySim, debug = TRUE)
 ```
