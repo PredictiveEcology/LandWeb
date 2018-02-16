@@ -21,8 +21,8 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 # Usage
 
 ```{r module_usage}
-devtools::install_github("PredictiveEcology/reproducible@development")
-devtools::install_github("PredictiveEcology/SpaDES.tools@prepInputs") # prepInputs with alsoExtract argument
+#devtools::install_github("PredictiveEcology/reproducible@development")
+#devtools::install_github("PredictiveEcology/SpaDES.tools@prepInputs") # prepInputs with alsoExtract argument
 devtools::install_github("ygc2l/webDatabases") # For fetching KNN layers from PFC repo
 
 library(igraph)
@@ -63,32 +63,47 @@ outputDir <- file.path(moduleDir, "outputs")
 times <- list(start = 0, end = 10)
 parameters <- list(
   fireSense_FrequencyFit = list(
-    formula = n_fires ~ bl + nl + ot - 1, 
-    family = negative.binomial(1, link = "identity")
+    formula = n_fires ~ broadLeafPc + needleLeafPc + otherPc - 1, 
+    family = negative.binomial(1, link = "identity"),
+    .runInitialTime = .1
   ),
   fireSense_FrequencyPredict = list(
-    f = 1600
+    f = 1600,
+    .runInitialTime = .2
   ),
   fireSense_SizeFit = list(
-    formula = list(beta = size ~ bl + ot,
-                   theta = size ~ bl + ot),
-    a = 1
+    formula = list(beta = size ~ broadLeafPc + otherPc,
+                   theta = size ~ broadLeafPc + otherPc),
+    a = 1,
+    .runInitialTime = .3
+  ),
+  fireSense_SizePredict = list(
+    .runInitialTime = .4
   ),
   fireSense_EscapeFit = list(
-    formula = cbind(escaped, n_fires) ~ bl + ot
+    formula = cbind(escaped, n_fires) ~ broadLeafPc + otherPc,
+    .runInitialTime = .5
+  ),
+  fireSense_EscapePredict = list(
+    .runInitialTime = .6
   ),
   fireSense_SpreadFit = list(
-    formula = ~ beta + theta,
+    formula = ~ fireSense_SizePredicted_Beta + fireSense_SizePredicted_Theta,
     lower = c(.2, .1, .01, .3, 0.001, 0.001, 0.001),
     upper = c(.5, 10, .2, 4, .3, .3, .3),
-    trace = 1
+    trace = 1,
+    .runInitialTime = .7
+  ),
+  fireSense_SpreadPredict = list(
+    .runInitialTime = .8
   ),
   fireSense = list(
     mapping = list(
       ignitionProb = "fireSense_FrequencyPredicted",
       escapeProb = "fireSense_EscapePredicted",
       spreadProb = "fireSense_SpreadPredicted"
-    )
+    ),
+    .runInitialTime = .9
   )
 )
 modules <- list("CanadaWide_FireSense")
@@ -103,7 +118,7 @@ paths <- list(
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
-spades(mySim)
+spades(mySim, debug = TRUE)
 ```
 
 # Events
