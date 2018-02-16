@@ -108,35 +108,35 @@ Init <- function(sim) {
 }
 
 
+prepGrid <- function(sim, studyArea, cellsize)
+{
+  gd <- Cache(
+    as,
+    SpatialPixels(
+      SpatialPoints( makegrid(studyArea, cellsize = cellsize) ),
+      proj4string = studyArea@proj4string
+    ),
+    "SpatialPolygons",
+    userTags = c("stable", currentModule(sim)), 
+    quick = .quickCheck
+  )
+  
+  isContained <- Cache(rgeos::gContains,
+                       studyArea, 
+                       gd, 
+                       byid = TRUE, 
+                       userTags = c("stable", currentModule(sim)), 
+                       quick = .quickCheck
+  )
+  
+  gd <- gd[isContained,]
+  gd <- st_as_sf(gd)
+  gd$CELL_ID <- 1:nrow(gd)
+  gd
+}
+
 prepFireSenseInputs <- function(sim)
 {
-  prepGrid <- function(sim, studyArea, cellsize)
-  {
-    gd <- Cache(
-      as,
-      SpatialPixels(
-        SpatialPoints( makegrid(studyArea, cellsize = cellsize) ),
-        proj4string = studyArea@proj4string
-      ),
-      "SpatialPolygons",
-      userTags = c("stable", currentModule(sim)), 
-      quick = .quickCheck
-    )
-    
-    isContained <- Cache(rgeos::gContains,
-                         studyArea, 
-                         gd, 
-                         byid = TRUE, 
-                         userTags = c("stable", currentModule(sim)), 
-                         quick = .quickCheck
-    )
-    
-    gd <- gd[isContained,]
-    gd <- st_as_sf(gd)
-    gd$CELL_ID <- 1:nrow(gd)
-    gd
-  }
-  
   # Make 10k grid (frequency and size analyses)
   template_10k_grid <- Cache(
     prepGrid, 
@@ -162,7 +162,7 @@ prepFireSenseInputs <- function(sim)
   message("  250m grid created")
   
   NFDB_10k_grid <- Cache(
-    st_join, template_10k_grid, sim$NFDB_point, left = TRUE,
+    st_join, template_10k_grid, st_as_sf(sim$NFDB_point), left = TRUE,
     userTags = c("stable", currentModule(sim)), quick = .quickCheck
   )
 
@@ -171,7 +171,7 @@ prepFireSenseInputs <- function(sim)
   rm(template_10k_grid)
   
   NFDB_250m_grid <- Cache(
-    st_join, template_250m_grid, sim$NFDB_point, left = FALSE,
+    st_join, template_250m_grid, st_as_sf(sim$NFDB_point), left = FALSE,
     userTags = c("stable", currentModule(sim)), quick = .quickCheck
   )
   
@@ -201,14 +201,13 @@ prepFireSenseInputs <- function(sim)
     sp = TRUE,
     userTags = c("stable", currentModule(sim)), 
     quick = .quickCheck
-  ) %>%
-    slot("data") %>%
-    rename(bl = !!names(sim$broadLeafPc), nl = !!names(sim$needleLeafPc)) %>%
-    mutate(ot = 100 - bl - nl) %>%
+  ) %>% slot("data") %>%
+    rename(broadLeafPc = !!names(sim$broadLeafPc), needleLeafPc = !!names(sim$needleLeafPc)) %>%
+    mutate(otherPc = 100 - broadLeafPc - needleLeafPc) %>%
     right_join(NFDB_10k_grid, "CELL_ID")
   
   message("  Extraction of veg data finished (10k)")
-  
+
   data_250m <- Cache(
     raster::extract, 
     sim$broadLeafPc, 
@@ -229,10 +228,9 @@ prepFireSenseInputs <- function(sim)
     sp = TRUE,
     userTags = c("stable", currentModule(sim)), 
     quick = .quickCheck
-  ) %>%
-    slot("data") %>%
-    rename(bl = !!names(sim$broadLeafPc), nl = !!names(sim$needleLeafPc)) %>%
-    mutate(ot = 100 - bl - nl) %>%
+  ) %>% slot("data") %>%
+    rename(broadLeafPc = !!names(sim$broadLeafPc), needleLeafPc = !!names(sim$needleLeafPc)) %>%
+    mutate(otherPc = 100 - broadLeafPc - needleLeafPc) %>%
     right_join(NFDB_250m_grid, "CELL_ID")
   
   message("  Extraction of veg data finished (250m)")
@@ -240,7 +238,7 @@ prepFireSenseInputs <- function(sim)
   sim <- frequencyInputs(sim, data_10k) 
   sim <- sizeInputs(sim, data_10k)
   sim <- escapeInputs(sim, data_250m)
-  sim <- spreadInputs(sim, data_250m)
+  sim <- spreadInputs(sim)
   
   rm(NFDB_point, studyArea, studyAreaNAD83, envir = envir(sim))
   
@@ -259,7 +257,7 @@ sizeInputs <- function(sim, .data)
 {
   sim$dataFireSense_SizeFit <- .data %>%
     filter(!is.na(SIZE_HA)) %>%
-    select(CELL_ID, SIZE_HA, bl, nl, ot) %>%
+    select(CELL_ID, SIZE_HA, broadLeafPc, needleLeafPc, otherPc) %>%
     rename(size = SIZE_HA) %>%
     filter(size >= 1)
   sim
@@ -269,20 +267,16 @@ sizeInputs <- function(sim, .data)
 escapeInputs <- function(sim, .data)
 {
   sim$dataFireSense_EscapeFit <- .data %>%
-    select(CELL_ID, SIZE_HA, bl, nl, ot) %>%
+    select(CELL_ID, n_fires, SIZE_HA, broadLeafPc, needleLeafPc, otherPc) %>%
     mutate(escaped = as.integer(SIZE_HA >= 1))
   sim
 }
 
 
-spreadInputs <- function(sim, .data)
+spreadInputs <- function(sim)
 {
-  sim$fireLoc_FireSense_SpreadFit <- .data %>%
-    select(CELL_ID, SIZE_HA) %>%
-    rename(size = SIZE_HA) %>%
-    group_by(CELL_ID) %>%
-    slice(which.max(size)) # When more than one fire started in the same cell
-                           # keep the largest fire
+  sim$fireLoc_FireSense_SpreadFit <- sim$NFDB_point[sim$NFDB_point$SIZE_HA >= 1, "SIZE_HA"]
+  colnames(sim$fireLoc_FireSense_SpreadFit@data) <- "size"
   sim
 }
 
@@ -324,12 +318,13 @@ spreadInputs <- function(sim, .data)
     modulePath = modulePath(sim),
     moduleName = currentModule(sim),
     studyArea = sim$studyAreaNAD83,
-    fun = "st_read",
-    pkg = "sf",
+    fun = "shapefile",
     writeCropped = TRUE, 
     cacheTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   )
+  
+  sim$NFDB_point@coords <- sim$NFDB_point@coords[, 1:2] # Drop the z dimension
   
   # KNN species %
   sim$broadLeafPc <- Cache(
@@ -357,6 +352,8 @@ spreadInputs <- function(sim, .data)
     cacheTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   )
+
+  sim$otherPc <- setValues(raster(sim$broadLeafPc), 100) - sim$broadLeafPc - sim$needleLeafPc
   
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
