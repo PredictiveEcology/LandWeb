@@ -502,7 +502,7 @@ Save <- function(sim) {
 
     sim$standAgeMap <- Cache(prepInputs,
                              targetFile = standAgeMapFilename,
-                             archive = asPath("kNN-StructureStandVolume.tar"),
+                             archive = asPath(c("kNN-StructureStandVolume.tar", "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip")),
                              destinationPath= asPath(dataPath),
                              fun = "raster",
                              pkg = "raster",
@@ -512,7 +512,7 @@ Save <- function(sim) {
                              rasterDatatype = "INT2U",
                              writeCropped = TRUE,
                              cacheTags = c("stable", currentModule(sim)),
-                             dataset = "EOSD2000",
+                             #dataset = "KNN",
                              quickCheck = .quickChecking)
 
   }
@@ -549,6 +549,7 @@ Save <- function(sim) {
     message("Using only 'Open source data sets'")
   }
 
+  sim$speciesTable <- prepInputs("speciesTraits.csv", destinationPath = dataPath, fun = "read.csv", pkg = "utils")
   sim$speciesTable <- read.csv(file.path(dataPath, "speciesTraits.csv"), header = TRUE,
                                stringsAsFactors = FALSE) %>%
     data.table()

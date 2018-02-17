@@ -7,8 +7,8 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
   for (sp in speciesnamesRaw) {
     species1[[sp]] <- Cache(prepInputs,
                             targetFile = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.tif"),
-                            archive = asPath("kNN-Species.tar"),
-                            alsoExtract = if (sp == speciesnamesRaw[1]) paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw[-1], "_v0.tif"),
+                            archive = asPath(c("kNN-Species.tar", paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.zip"))),
+                            #alsoExtract = if (sp == speciesnamesRaw[1]) paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw[-1], "_v0.tif"),
                             destinationPath= asPath(dataPath),
                             fun = "raster",
                             pkg = "raster",
@@ -18,7 +18,7 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE,
                             cacheTags = c("stable", moduleName),
-                            dataset = "EOSD2000",
+                            #dataset = "EOSD2000",
                             quickCheck = .quickChecking)
 
     # species1[[sp]] <- Cache(prepareIt, quick = TRUE,
@@ -36,7 +36,7 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
   newLayerName <- grep("Pinu", speciesNamesEnd, value = TRUE)
   a <- Cache(sumRastersBySpecies,
              species1[sumSpecies], newLayerName = newLayerName,
-             filenameToSave = SpaDES.tools:::.prefix(file.path(dataPath, "KNNPinu_sp.tif"), "Small"),
+             filenameToSave = .prefix(file.path(dataPath, "KNNPinu_sp.tif"), "Small"),
              userTags = "stable")
   species1[sumSpecies] <- NULL
   species1[[newLayerName]] <- a
