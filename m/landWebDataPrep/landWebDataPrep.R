@@ -35,8 +35,8 @@ defineModule(sim, list(
     expectsInput(objectName = "biomassMap", objectClass = "RasterLayer",
                  desc = "total biomass raster layer in study area, default is canada national biomass map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar"),
-    expectsInput(objectName = "LCC2005", objectClass = "RasterLayer", 
-                 desc = "2005 land classification map in study area, default is canada national land classification in 2005", 
+    expectsInput(objectName = "LCC2005", objectClass = "RasterLayer",
+                 desc = "2005 land classification map in study area, default is canada national land classification in 2005",
                  sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip")
   ),
   outputObjects = bind_rows(
@@ -148,24 +148,24 @@ Save <- function(sim) {
 
   #if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
   #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
-  if(is.null(sim$biomassMap)) {
-    sim$biomassMap <- Cache(prepInputs, 
+  if (is.null(sim$biomassMap)) {
+    sim$biomassMap <- Cache(prepInputs,
                      targetFile = biomassMapFilename,
-                     archive = asPath(c("kNN-StructureBiomass.tar", 
+                     archive = asPath(c("kNN-StructureBiomass.tar",
                                         "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip")),
                      destinationPath= asPath(dataPath),
                      fun = "raster",
-                     pkg = "raster", 
+                     pkg = "raster",
                      studyArea = sim$shpStudySubRegion,
                      rasterToMatch = NULL,
                      rasterInterpMethod = "bilinear",
                      rasterDatatype = "INT2U",
-                     writeCropped = TRUE, 
+                     writeCropped = TRUE,
                      cacheTags = c("stable", currentModule(sim)),
                      quickCheck = .quickChecking)
   }
-  
-  if(is.null(sim$LCC2005)) {
+
+  if (is.null(sim$LCC2005)) {
     sim$LCC2005 <- Cache(prepInputs,
                          targetFile = lcc2005Filename,
                          archive = asPath("LandCoverOfCanada2005_V1_4.zip"),

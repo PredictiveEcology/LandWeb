@@ -6,6 +6,7 @@ devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
 devtools::install_github("PredictiveEcology/webDatabases", ref = "master")
 
 library(dplyr)
+library(gdalUtils); gdal_setInstallation(rescan = TRUE)
 library(SpaDES.shiny)
 #load_all("~/GitHub/SpaDES.shiny")
 
@@ -24,11 +25,14 @@ library(SpaDES.shiny)
 #     stringsAsFactors = FALSE
 #   )
 # )
-# appMetadata$modules$parameters <- list(list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull", "colorTableFile", "timeSinceFirePalette", "maxAge"),
-#                                        list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"),
-#                                        list("mySimOut[[1]]"),
-#                                        list("mySimOut[[1]]"),
-#                                        list())
+# appMetadata$modules$parameters <- list(
+#   list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull",
+#        "colorTableFile", "timeSinceFirePalette", "maxAge"),
+#   list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"),
+#   list("mySimOut[[1]]"),
+#   list("mySimOut[[1]]"),
+#   list()
+# )
 # appMetadata$layout$moduleUIParameters <- list(list("length(tsf)"), list(), list(), list(), list())
 #
 # # newApp(getwd(), appMetadata)
@@ -66,4 +70,5 @@ appMetadata2 <- list(
 newApp(getwd(), appMetadata2)
 
 file.copy("global_file.R", "global.R", overwrite = TRUE)
+
 shiny::runApp(".")
