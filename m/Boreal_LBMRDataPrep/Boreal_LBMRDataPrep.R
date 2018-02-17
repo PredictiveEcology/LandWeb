@@ -24,25 +24,25 @@ defineModule(sim, list(
   inputObjects = bind_rows(
     #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
     expectsInput(objectName = "ecoDistrict", objectClass = "SpatialPolygonsDataFrame",
-                 desc = "ecodistricts in study area, default is canada national ecodistricts",
+                 desc = "ecodistricts in study area, default is Canada national ecodistricts",
                  sourceURL = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip"),
     expectsInput(objectName = "ecoRegion", objectClass = "SpatialPolygonsDataFrame",
-                 desc = "ecoregions in study area, default is canada national ecoregions",
+                 desc = "ecoregions in study area, default is Canada national ecoregions",
                  sourceURL = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip"),
     expectsInput(objectName = "ecoZone", objectClass = "SpatialPolygonsDataFrame",
-                 desc = "ecozones in study area, default is canada national ecozones",
+                 desc = "ecozones in study area, default is Canada national ecozones",
                  sourceURL = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip"),
     expectsInput(objectName = "biomassMap", objectClass = "RasterLayer",
-                 desc = "total biomass raster layer in study area, default is canada national biomass map",
+                 desc = "total biomass raster layer in study area, default is Canada national biomass map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar"),
     expectsInput(objectName = "standAgeMap", objectClass = "RasterLayer",
-                 desc = "stand age map in study area, default is canada national stand age map",
+                 desc = "stand age map in study area, default is Canada national stand age map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureStandVolume.tar"),
     expectsInput(objectName = "specieslayers", objectClass = "RasterStack",
-                 desc = "biomass percentage raster layers by species in canada species map",
+                 desc = "biomass percentage raster layers by species in Canada species map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-Species.tar"),
     expectsInput(objectName = "LCC2005", objectClass = "RasterLayer",
-                 desc = "2005 land classification map in study area, default is canada national land classification in 2005",
+                 desc = "2005 land classification map in study area, default is Canada national land classification in 2005",
                  sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip"),
     expectsInput(objectName = "speciesTable", objectClass = "data.table",
                  desc = "species attributes table, default is from Dominic and Yan's project",
@@ -369,12 +369,12 @@ Save <- function(sim) {
     sim$shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache
 
   cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
-  
+
   if (is.null(sim$biomassMap)) {
     sim$biomassMap <- Cache(prepInputs,
                             targetFile = biomassMapFilename,
                             archive = asPath("kNN-StructureBiomass.tar"),
-                            archive = asPath(c("kNN-StructureBiomass.tar", 
+                            archive = asPath(c("kNN-StructureBiomass.tar",
                                                "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip")),
                             destinationPath= asPath(dataPath),
                             studyArea = sim$shpStudySubRegion,
@@ -514,7 +514,6 @@ Save <- function(sim) {
                              cacheTags = c("stable", currentModule(sim)),
                              #dataset = "KNN",
                              quickCheck = .quickChecking)
-
   }
 
   if (is.null(sim$specieslayers)) {
