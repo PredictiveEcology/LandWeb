@@ -26,11 +26,9 @@ defineModule(sim, list(
   ),
   inputObjects = bind_rows(
     #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
-    expectsInput(objectName = NA, objectClass = NA, desc = NA, sourceURL = NA)
   ),
   outputObjects = bind_rows(
     #createsOutput("objectName", "objectClass", "output object description", ...),
-    createsOutput(objectName = NA, objectClass = NA, desc = NA)
   )
 ))
 
@@ -42,7 +40,8 @@ doEvent.makeLeafletTiles = function(sim, eventTime, eventType) {
     eventType,
     init = {
       # schedule the one event -- making the tiles
-      sim <- scheduleEvent(sim, end(sim), "makeLeafletTiles", "makeAllTiles", eventPriority = .last() + 2)
+      if (end(sim)>0)
+        sim <- scheduleEvent(sim, end(sim), "makeLeafletTiles", "makeAllTiles", eventPriority = .last() + 2)
     },
     makeAllTiles = {
       makeTiles(sim)
@@ -54,15 +53,31 @@ doEvent.makeLeafletTiles = function(sim, eventTime, eventType) {
 }
 
 makeTiles <- function(sim) {
-  browser()
-
   outs <- outputs(sim)
-  rastFiles <- outs[outs$fun=="writeRaster", "file"]
+  savedObjs <- outs$objectName
+  savedObjsUnique <- unique(savedObjs)
+  names(savedObjs) <- savedObjs
+  names(savedObjsUnique) <- savedObjsUnique
+  rastObjs <-
+    unlist(lapply(savedObjsUnique, function(obj)
+      inherits(sim[[obj]], "Raster")))
+  rastFiles <-
+    outs[outs$objectName %in% names(rastObjs)[rastObjs], "file"]
   rasts <- lapply(rastFiles, function(r) {
     raster(r)
   })
-  lapply(rasts, gdal2Tiles, outputPath(sim), zoomRange = 1:11, colorTableFile)
-  gdal2Tiles()
+  
+  browser()
+  outputPath <- file.path("www", "tiles")
+  Cache(lapply, rasts, function(r)
+    gdal2Tiles(
+      r,
+      outputPath,
+      zoomRange = 1:11,
+      colorTableFile = asPath(colorTableFile),
+      rasterForTransparency = asPath(file.path(outputPath(sim), "rstFlammable.grd")),
+      cacheRepo = cachePath(sim)
+    ))
   return(invisible(sim))
 }
 
