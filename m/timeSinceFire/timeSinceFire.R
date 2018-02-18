@@ -24,15 +24,15 @@ defineModule(sim, list(
     defineParameter(".useCache", "logical", FALSE, NA, NA, "This describes the simulation time at which the first save event should occur")
   ),
   inputObjects = data.frame(
-    objectName = c("LCC05","rstFlammable","rstStudyRegion","burnLoci", "rstCurrentBurn","fireTimestep"),
-    objectClass = c("RasterLayer","RasterLayer","RasterLayer","vector", "RasterLayer", "numeric"),
+    objectName = c("rstFlammable","rstStudyRegion","rstCurrentBurn","fireTimestep"),
+    objectClass = c("RasterLayer","RasterLayer", "RasterLayer", "numeric"),
     sourceURL = "",
     other = NA_character_,
     stringsAsFactors = FALSE
   ),
   outputObjects = data.frame(
-    objectName = c("rstTimeSinceFire"),
-    objectClass = c("RasterLayer"),
+    objectName = c("rstTimeSinceFire", "burnLoci"),
+    objectClass = c("RasterLayer", "numeric"),
     other = NA_character_,
     stringsAsFactors = FALSE
   )
@@ -47,12 +47,12 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
     ### (use `checkObject` or similar)
 
     # do stuff for this event
-    sim <- sim$timeSinceFireInit(sim)
+    sim <- Init(sim)
 
     # schedule future event(s)
-    sim <- scheduleEvent(sim, params(sim)$timeSinceFire$.plotInitialTime, "timeSinceFire", "plot")
-    sim <- scheduleEvent(sim, params(sim)$timeSinceFire$.saveInitialTime, "timeSinceFire", "save")
-    sim <- scheduleEvent(sim, params(sim)$timeSinceFire$startTime, "timeSinceFire", "age")
+    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "timeSinceFire", "plot")
+    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "timeSinceFire", "save")
+    sim <- scheduleEvent(sim, P(sim)$startTime, "timeSinceFire", "age")
   } else if (eventType == "age") {
     sim$burnLoci <- which(sim$rstCurrentBurn[]==1)
     fireTimestep <- if(is.null(sim$fireTimestep)) P(sim)$returnInterval else sim$fireTimestep
@@ -63,7 +63,7 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
   } else if (eventType == "plot") {
     Plot(sim$rstTimeSinceFire)
     # e.g.,
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$timeSinceFire$.plotInterval, "timeSinceFire", "plot")
+    sim <- scheduleEvent(sim, time(sim) + P(sim)$.plotInterval, "timeSinceFire", "plot")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "save") {
@@ -92,33 +92,14 @@ doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initialization
-timeSinceFireInit <- function(sim) {
-    #browser()
+Init <- function(sim) {
   if(is.null(sim$burnLoci)){
     sim$burnLoci <- which(sim$rstCurrentBurn[]==1)
   }
   # Much faster than call rasterize again
   sim$rstTimeSinceFire <- raster(sim$rstStudyRegion)
-  #sim$rstTimeSinceFire[] <- as.integer(sim$shpStudyRegion$LTHRC[sim$rstStudyRegion[]])
   sim$rstTimeSinceFire[] <- sim$rstStudyRegion[]
   sim$rstTimeSinceFire[sim$rstFlammable[] == 1] <- NA #non-flammable areas are permanent.
-  #assign legend and colours if you are serious
-  return(invisible(sim))
-}
-
-### template for save events
-timeSinceFireSave <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # do stuff for this event
-  sim <- saveFiles(sim)
-
-  # ! ----- STOP EDITING ----- ! #
-  return(invisible(sim))
-}
-
-### template for plot events
-timeSinceFirePlot <- function(sim) {
-
   return(invisible(sim))
 }
 
