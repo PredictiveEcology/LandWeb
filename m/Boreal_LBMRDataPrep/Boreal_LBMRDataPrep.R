@@ -56,6 +56,13 @@ defineModule(sim, list(
     expectsInput(objectName = "rstStudyRegion", objectClass = "RasterLayer",
                  desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
+    expectsInput("sufficientLight", "data.frame",
+                  desc = "define how the species with different shade tolerance respond to stand shadeness"),
+    expectsInput("seedingAlgorithm", "character",
+                  desc = "choose which seeding algorithm will be used among noDispersal, universalDispersal,
+                  and wardDispersal, default is wardDispersal"),
+    expectsInput("successionTimestep", "numeric",
+                  desc = "define the simulation time step, default is 10 years"),
     # expectsInput(objectName = "cellSize", objectClass = "numeric",
     #              desc = "define the cell size"),
     # expectsInput(objectName = "spinupMortalityfraction", objectClass = "numeric",
@@ -80,15 +87,12 @@ defineModule(sim, list(
                   desc = "define the maxANPP, maxB and SEP change with both ecoregion and simulation time"),
     createsOutput(objectName = "minRelativeB", objectClass = "data.frame",
                   desc = "define the cut points to classify stand shadeness"),
-    createsOutput(objectName = "sufficientLight", objectClass = "data.frame",
-                  desc = "define how the species with different shade tolerance respond to stand shadeness"),
-    createsOutput(objectName = "successionTimestep", objectClass = "numeric",
-                  desc = "define the simulation time step, default is 10 years"),
-    createsOutput(objectName = "seedingAlgorithm", objectClass = "character",
-                  desc = "choose which seeding algorithm will be used among noDispersal, universalDispersal,
-                  and wardDispersal, default is wardDispersal"),
     createsOutput(objectName = "useCache", objectClass = "logic",
-                  desc = "define which the caching for spinup simulation should be used, default is TRUE")
+                  desc = "define which the caching for spinup simulation should be used, default is TRUE"),
+    createsOutput("studyArea", "", ""), 
+    createsOutput("ecoDistrict", "", ""), 
+    createsOutput("ecoRegion", "", ""), 
+    createsOutput("ecoZone", "", "")
     )
 ))
 
