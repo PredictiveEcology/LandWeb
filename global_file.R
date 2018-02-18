@@ -1,6 +1,6 @@
 # List modules first, so we can get all their dependencies
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
+                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput", "makeLeafletTiles")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
 studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
@@ -66,9 +66,9 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
   successionTimestep <- 10 # was 2
 
   # Overall model times # start is default at 0
-  endTime <- 20
-  summaryInterval <- 10
-  summaryPeriod <- c(10, endTime)
+  endTime <- 2
+  summaryInterval <- 1
+  summaryPeriod <- c(1, endTime)
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
   # "shpStudyRegion"     "shpStudyRegionFull"
@@ -211,42 +211,42 @@ mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps,
 
 message("  Finished Experiment")
 
-message("  Identify which files were created during simulation")
-# outputs() function reports on any files that were created during the simulation
-filesFromOutputs <- lapply(seq_along(mySimOut), function(x) {
-  outputs(mySimOut[[x]])$file
-})
-
-for (simNum in seq_along(mySimOut)) {
-  mySimOut[[simNum]]@outputs$file <- lapply(
-    strsplit(outputs(mySimOut[[simNum]])$file,
-             split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")),
-    function(f) {
-      f[[2]]
-    }) %>%
-    unlist() %>%
-    file.path(paths$outputPath, .)
-}
-
-message("  Load rasters from disk, reproject them to leaflet projection")
-rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
-  grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
-}) %>% unlist()
-
-# Look for all files named rstTimeSinceFire -- these are several rasters each with a filename
-#   that represents the simulation "time" when it was created, e.g., 10, 20, 30 years
-tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
-# These are several rasters indicating vegetation type, again each one coming from a specific
-#   simulation time ... a time series of rasters...
-vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
-lenTSF <- length(tsf)
-rasterResolution <<- raster(tsf[1]) %>% res()
-
-lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
-
-globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = .quickCheck,
-                        lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
-                        flammableFile = asPath(file.path(paths$outputPath, "rstFlammable.grd")))
+# message("  Identify which files were created during simulation")
+# # outputs() function reports on any files that were created during the simulation
+# filesFromOutputs <- lapply(seq_along(mySimOut), function(x) {
+#   outputs(mySimOut[[x]])$file
+# })
+# 
+# for (simNum in seq_along(mySimOut)) {
+#   mySimOut[[simNum]]@outputs$file <- lapply(
+#     strsplit(outputs(mySimOut[[simNum]])$file,
+#              split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")),
+#     function(f) {
+#       f[[2]]
+#     }) %>%
+#     unlist() %>%
+#     file.path(paths$outputPath, .)
+# }
+# 
+# message("  Load rasters from disk, reproject them to leaflet projection")
+# rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
+#   grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
+# }) %>% unlist()
+# 
+# # Look for all files named rstTimeSinceFire -- these are several rasters each with a filename
+# #   that represents the simulation "time" when it was created, e.g., 10, 20, 30 years
+# tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
+# # These are several rasters indicating vegetation type, again each one coming from a specific
+# #   simulation time ... a time series of rasters...
+# vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
+# lenTSF <- length(tsf)
+# rasterResolution <<- raster(tsf[1]) %>% res()
+# 
+# lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
+# 
+# globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = .quickCheck,
+#                         lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
+#                         flammableFile = asPath(file.path(paths$outputPath, "rstFlammable.grd")))
 
 message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
 args <- list(leadingByStage, tsf, vtm,

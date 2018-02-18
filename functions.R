@@ -258,23 +258,6 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
   #setProgress(1)
 }
 
-reprojectRasts <- function(tsf, lfltFN, crs, endTime = end(mySim), flammableFile) {
-  message("Reprojecting rasters & loading into RAM")
-  rstFlammableNum <- raster(flammableFile)
-  rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs,
-                                   method = "ngb")
-  globalRasters <- lapply(seq_along(tsf), function(FN) {
-    r <- raster(tsf[[FN]])
-    r <- projectRaster(r, crs = crs, method = "ngb",
-                       datatype = "INT2U")
-    minAge <- as.numeric(strsplit(strsplit(tsf[[1]], split = "year")[[1]][2], split = "\\.tif")[[1]])
-    r[is.na(r) & (rstFlammableNum == 0)] <- minAge
-    r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE, datatype = "INT2U")
-    r
-  })
-  message("  Finished reprojecting rasters & loading into RAM")
-  globalRasters
-}
 
 
 # Set up gdal stuff -- first, find the installation
