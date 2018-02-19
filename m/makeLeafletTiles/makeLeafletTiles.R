@@ -28,6 +28,7 @@ defineModule(sim, list(
     #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
   ),
   outputObjects = bind_rows(
+    createsOutput("allRasters", "list", "List with all the rasters that had been written to disk, as described in outputs(sim)")
     #createsOutput("objectName", "objectClass", "output object description", ...),
   )
 ))
@@ -40,8 +41,7 @@ doEvent.makeLeafletTiles = function(sim, eventTime, eventType) {
     eventType,
     init = {
       # schedule the one event -- making the tiles
-      if (end(sim)>0)
-        sim <- scheduleEvent(sim, end(sim), "makeLeafletTiles", "makeAllTiles", eventPriority = .last() + 2)
+      sim <- scheduleEvent(sim, start(sim), "makeLeafletTiles", "makeAllTiles")
     },
     makeAllTiles = {
       makeTiles(sim)
@@ -58,18 +58,13 @@ makeTiles <- function(sim) {
   savedObjsUnique <- unique(savedObjs)
   names(savedObjs) <- savedObjs
   names(savedObjsUnique) <- savedObjsUnique
-  rastObjs <-
-    unlist(lapply(savedObjsUnique, function(obj)
-      inherits(sim[[obj]], "Raster")))
-  rastFiles <-
-    outs[outs$objectName %in% names(rastObjs)[rastObjs], "file"]
+  rastFiles <- outs[grepl("\\.tif|\\.grd", outs$file), "file"]
+  
   rasts <- lapply(rastFiles, function(r) {
     raster(r)
   })
-  
-  browser()
   outputPath <- file.path("www", "tiles")
-  Cache(lapply, rasts, function(r)
+  sim$allRasters <- Cache(lapply, rasts, function(r)
     gdal2Tiles(
       r,
       outputPath,
@@ -81,24 +76,3 @@ makeTiles <- function(sim) {
   return(invisible(sim))
 }
 
-
-.inputObjects <- function(sim) {
-  # Any code written here will be run during the simInit for the purpose of creating
-  # any objects required by this module and identified in the inputObjects element of defineModule.
-  # This is useful if there is something required before simulation to produce the module
-  # object dependencies, including such things as downloading default datasets, e.g.,
-  # downloadData("LCC2005", modulePath(sim)).
-  # Nothing should be created here that does not create an named object in inputObjects.
-  # Any other initiation procedures should be put in "init" eventType of the doEvent function.
-  # Note: the module developer can use 'sim$.userSuppliedObjNames' in their function below to
-  # selectively skip unnecessary steps because the user has provided those inputObjects in the
-  # simInit call. e.g.,
-  # if (!('defaultColor' %in% sim$.userSuppliedObjNames)) {
-  #  sim$defaultColor <- 'red'
-  # }
-  # ! ----- EDIT BELOW ----- ! #
-
-  # ! ----- STOP EDITING ----- ! #
-  return(invisible(sim))
-}
-### add additional events as needed by copy/pasting from above
