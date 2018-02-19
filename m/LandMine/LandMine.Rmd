@@ -92,7 +92,7 @@ mySimOut <- spades(mySim, .plotInitialTime = times$start, debug = TRUE)
 # Testing the burn algorithm
 
 ```{r testing, eval=FALSE}
-libs <- c("DEoptim", "spatialEco", "data.table", "raster")
+libs <- c("DEoptim", "spatialEco", "data.table", "raster", "parallel")
 Require(libs)
 s <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
@@ -198,27 +198,37 @@ libs <- c("SpaDES.tools", "data.table", "raster", "spatialEco")
 
 ########################################
 ### SET UP CLUSTER FOR PARALLEL
-cl <- parallel::makeCluster(4)
-parallel::clusterExport(cl, funs)
-parallel::clusterExport(cl, objs )
-#env <- environment()
-parallel::clusterExport(cl,  "libs", envir = parent.frame())
-parallel::clusterEvalQ(cl, {lapply(libs, library, character.only = TRUE)})
+numCores <- detectCores() - 1
+if (Sys.info()["sysname"]=="Windows") {
+  cl <- parallel::makeCluster(numCores)
+  parallel::clusterExport(cl, funs)
+  parallel::clusterExport(cl, objs )
+  #env <- environment()
+  parallel::clusterExport(cl,  "libs", envir = parent.frame())
+  parallel::clusterEvalQ(cl, {lapply(libs, library, character.only = TRUE)})
+  
+} else {
+  cl <- parallel::makeCluster(numCores, type = "FORK")
+}
 
 
 #################### OPTIMIZATION
-outs <- DEoptim(fitSN, lower = c(0.02, 0.02), upper = c(0.08, 0.03), 
-        control = DEoptim.control(itermax = 3, cluster = cl, NP = 20), 
-        ros, centreCell, fireSize, ros, 
+outs <- DEoptim(fitSN, lower = c(0.01, 0.01), upper = c(0.08, 0.04), 
+        control = DEoptim.control(VTR = 0.000001, itermax = 25, cluster = cl), 
+        rstFlammable, centreCell, fireSize, ros, 
                     sizeCutoffs, wholeExtentPoly)
 
 ############# MANUAL RUN
 
+#10,000 hectares burns gave this
 spawnNewActive[2:3] <- c(0.0235999945606232, 0.0263073265505955)
+#100,000 hectare burns gave this
+
 reps <- paste0("rep", 1:8)
 burnedMapList <- wrap(cl = cl, reps = reps, par = TRUE, funs = funs, objs = objs, libs = libs)
 names(burnedMapList$out) <- reps
 burnedMapList <- purrr::transpose(burnedMapList$out)
+rbindlist(burnedMapList$LM)
 Plot(burnedMapList$burnedMap, cols = c("white", "red"), new=FALSE)
 
 # 10000 sna[3] = 0.025 - pafd between 0.005 and 0.007
