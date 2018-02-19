@@ -63,8 +63,9 @@ appMetadata2 <- list(
   title = "LandWeb",
   copyright = paste("Her Majesty the Queen in Right of Canada,",
                     "as represented by the Minister of Natural Resources Canada."),
+  layout = as.data.frame(Layout),
   modules = as.data.frame(Modules),
-  layout = as.data.frame(Layout)
+  sidebar = NULL
 )
 
 newApp(getwd(), appMetadata2)
