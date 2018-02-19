@@ -26,8 +26,8 @@ defineModule(sim, list(
     defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = bind_rows(
-    expectsInput("rstStudyRegion","Raster", "A raster layer that is a factor raster, with at least 1 column called LTHRC, representing the fire return interval in years"),
     expectsInput("rstFlammable", "Raster", "A raster layer, with 0, 1 and NA, where 0 indicates areas that are flammable, 1 not flammable (e.g., lakes) and NA not applicable (e.g., masked)"),
+    expectsInput("rstStudyRegion","Raster", "A raster layer that is a factor raster, with at least 1 column called LTHRC, representing the fire return interval in years"),
     expectsInput("species", "data.table", "Columns: species, speciesCode, Indicating several features about species"),
     expectsInput("cohortData", "data.table", "Columns: B, pixelGroup, speciesCode, Indicating several features about ages and current vegetation of stand"),
     expectsInput("vegLeadingPercent", "numeric", "a proportion, between 0 and 1, that define whether a species is lead for a given pixel", NA),
@@ -160,11 +160,11 @@ Init <- function(sim) {
 
 ### plot events
 plotFn <- function(sim) {
-  if (time(sim) == P(sim)$.plotInitialTime) {
-      Plot(sim$fireReturnInterval, title = "Fire Return Interval", speedup = 3, new = TRUE)
-  }
   if (!identical(extent(sim$rstCurrentBurnCumulative), extent(sim$rstCurrentBurn))) {
     sim$rstCurrentBurnCumulative <- raster(sim$rstCurrentBurn)
+  }
+  if (time(sim) == P(sim)$.plotInitialTime) {
+    Plot(sim$fireReturnInterval, title = "Fire Return Interval", speedup = 3, new = TRUE)
     sim$rstCurrentBurnCumulative[!is.na(sim$rstCurrentBurn)] <- 0
   }
   sim$rstCurrentBurnCumulative <- sim$rstCurrentBurn +   sim$rstCurrentBurnCumulative
@@ -278,7 +278,6 @@ Burn <- function(sim) {
 
 .inputObjects = function(sim) {
   # Make random forest cover map
-  emptyRas <- raster(extent(0, 2e4, 0, 2e4), res = 250)
   nOT <- if (P(sim)$flushCachedRandomFRI) Sys.time() else NULL
   numDefaultPolygons <- 4L
   numDefaultPixelGroups <- 20L
@@ -295,8 +294,11 @@ Burn <- function(sim) {
   # }
 
   if (is.null(sim$rstFlammable)) {
+    emptyRas <- raster(extent(0, 2e4, 0, 2e4), res = 250)
     sim$rstFlammable <- raster(emptyRas)
     sim$rstFlammable[] <- 0  # 0 means flammable
+  } else {
+    emptyRas <- raster(sim$rstFlammable)
   }
 
   # names(sim$fireReturnInterval) <- "fireReturnInterval"
@@ -357,8 +359,6 @@ Burn <- function(sim) {
   mods <- unlist(modules(sim))
   if(all(names(meta) %in% mods)) { # means there is more than just this module in the simList
     # meta <- depends(sim)
-    curMod <- currentModule(sim)
-    inputs <- lapply(meta, function(x) {x@inputObjects$objectName})
     outputs <- lapply(meta, function(x) {x@outputObjects$objectName})
     otherMods <- mods[!(mods %in% currentModule(sim))]
     
