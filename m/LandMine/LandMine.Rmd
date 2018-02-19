@@ -58,7 +58,7 @@ To deteremine which packages are used by `LandMine`, run `SpaDES::packages(modul
 
 ```{r module_usage, eval = FALSE}
 library(igraph)
-library(SpaDES.core)
+library(SpaDES.core) # load also reproducible::Require
 
 workingDir <- file.path(".")
 moduleDir <- file.path(workingDir, "m") %>% checkPath()
@@ -92,13 +92,15 @@ mySimOut <- spades(mySim, .plotInitialTime = times$start, debug = TRUE)
 # Testing the burn algorithm
 
 ```{r testing, eval=FALSE}
+libs <- c("DEoptim", "spatialEco", "data.table", "raster")
+Require(libs)
 s <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 attach(s@.envir)
 attach(s@.envir$LandMine)
-rstFlammable <- raster(extent(0,1e5, 0, 1e5), res = 250, vals = 0)
-ros <- rstFlammable==0
-fireSize <- 5000
+ros <- raster(extent(0,3e5, 0, 3e5), res = 250, vals = 0)
+ros <- ros==0
+fireSize <- 100000
 e <- extent(ros)
 # coerce to a SpatialPolygons object
 wholeExtentPoly <- as(e, 'SpatialPolygons')  
@@ -106,31 +108,12 @@ wholeExtentPoly <- SpatialPolygonsDataFrame(wholeExtentPoly, data = data.frame(I
 
 ```
 
+```{r functions}
 
-# Optimizing parameters
-
-The following code chunk tries to find values of `spawnNewActive` that creates "reasonable" fire shapes at all sizes.
-```{r fit-values, eval=FALSE}
-wantParallel <- TRUE
-#spawnNewActive = c(0.46, 0.2, 0.26, 0.11)
-#sizeCutoffs = c(8e3, 2e4)
-spawnNewActive = c(0.1, 0.04, 0.025, 0.01)
-sizeCutoffs = c(8e3, 1e4)
-fireSize <- 10000
-
-centreCell <-
-  cellFromRowCol(rstFlammable,
-  rownr = nrow(rstFlammable) / 2,
-  colnr = ncol(rstFlammable) / 2)
-quarterCell <- 
-  cellFromRowCol(rstFlammable,
-  rownr = nrow(rstFlammable) / 4,
-  colnr = ncol(rstFlammable) / 4)
-
-burnFun <- function(rstFlammable, centreCell, fireSize, ros, 
+burnFun <- function(ros, centreCell, fireSize, 
                     spawnNewActive, sizeCutoffs, wholeExtentPoly) {
     burned <- burn1(
-      landscape = rstFlammable,
+      landscape = ros,
       startCells =centreCell,# c(quarterCell, centreCell),
       fireSizes = fireSize,
       spreadProb = 1,
@@ -163,10 +146,10 @@ makeParallel <- function(wantParallel, numClus, cl, funs, libs) {
 }
 
 
-wrap <- function(cl = NULL, reps, par, funs, obs, libs) {
-  cl <- makeParallel(TRUE, numClus = if(length(cl)) length(cl) else detectCores()-1, cl, c(funs, obs),
+wrap <- function(cl = NULL, reps, par, funs, objs, libs) {
+  cl <- makeParallel(TRUE, numClus = if(length(cl)) length(cl) else detectCores()-1, cl, c(funs, objs),
                libs)
-  objs <- mget(obs, envir = parent.frame())
+  objs <- mget(objs, envir = parent.frame())
   parallel::clusterExport(cl,  "objs", envir = parent.frame())
   burnMapList <- parallel::clusterApplyLB(cl, reps, function(r) {
     do.call("burnFun", objs)
@@ -174,44 +157,69 @@ wrap <- function(cl = NULL, reps, par, funs, obs, libs) {
   return(list(cl = cl, out = burnMapList))
 }
 
-reps <- paste0("rep", 1)
-
-
-
-fitSN <- function(sna, rstFlammable, centreCell, fireSize, ros, 
+####################################################################
+fitSN <- function(sna, ros, centreCell, fireSize, 
                     sizeCutoffs, wholeExtentPoly) {
   sna <- c(0.1, sna[1], sna[2], 0.01)
-  bf <- burnFun(rstFlammable, centreCell, fireSize, ros, 
+  bf <- burnFun(ros, centreCell, fireSize, 
                     sna, sizeCutoffs, wholeExtentPoly)
   abs(bf$LM$perimeter.area.frac.dim - 0.006)
 }
 
+```
 
-aa <- fitSN(sn = spawnNewActive, rstFlammable, centreCell, fireSize, ros, 
-                    sizeCutoffs, wholeExtentPoly)
+# Optimizing parameters
 
-library(DEoptim)
+The following code chunk tries to find values of `spawnNewActive` that creates "reasonable" fire shapes at all sizes.
+```{r fit-values, eval=FALSE}
+wantParallel <- TRUE
+#spawnNewActive = c(0.46, 0.2, 0.26, 0.11)
+#sizeCutoffs = c(8e3, 2e4)
+spawnNewActive = c(0.1, 0.04, 0.025, 0.01)
+sizeCutoffs = c(8e3, 1e4)
 
-objs <- c("rstFlammable", "centreCell", "fireSize", "ros", 
+centreCell <-
+  cellFromRowCol(ros,
+  rownr = nrow(ros) / 2,
+  colnr = ncol(ros) / 2)
+quarterCell <- 
+  cellFromRowCol(ros,
+  rownr = nrow(ros) / 4,
+  colnr = ncol(ros) / 4)
+
+
+#######################################
+###### Set variables
+#################################
+objs <- c("ros", "centreCell", "fireSize",  
                     "spawnNewActive", "sizeCutoffs", "wholeExtentPoly")
 funs <- c("burnFun", "burn1")
 libs <- c("SpaDES.tools", "data.table", "raster", "spatialEco")
+
+########################################
+### SET UP CLUSTER FOR PARALLEL
 cl <- parallel::makeCluster(4)
 parallel::clusterExport(cl, funs)
 parallel::clusterExport(cl, objs )
 #env <- environment()
 parallel::clusterExport(cl,  "libs", envir = parent.frame())
 parallel::clusterEvalQ(cl, {lapply(libs, library, character.only = TRUE)})
+
+
+#################### OPTIMIZATION
 outs <- DEoptim(fitSN, lower = c(0.02, 0.02), upper = c(0.08, 0.03), 
         control = DEoptim.control(itermax = 3, cluster = cl, NP = 20), 
-        rstFlammable, centreCell, fireSize, ros, 
+        ros, centreCell, fireSize, ros, 
                     sizeCutoffs, wholeExtentPoly)
 
-dev();
-#clearPlot()
-Plot(burnedMapList$burnedMap, cols = c("transparent", "red"), new=FALSE)
+############# MANUAL RUN
 
-
+spawnNewActive[2:3] <- c(0.0235999945606232, 0.0263073265505955)
+reps <- paste0("rep", 1:8)
+burnedMapList <- wrap(cl = cl, reps = reps, par = TRUE, funs = funs, objs = objs, libs = libs)
+names(burnedMapList$out) <- reps
+burnedMapList <- purrr::transpose(burnedMapList$out)
+Plot(burnedMapList$burnedMap, cols = c("white", "red"), new=FALSE)
 
 # 10000 sna[3] = 0.025 - pafd between 0.005 and 0.007
 # 10000 sna[3] = 0.025 - pafd = 0.0060 -- too round
