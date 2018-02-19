@@ -74,6 +74,9 @@
 #   return(a)
 # }
 
+
+#' @param sizeCutoffs Numeric vector, length 2, indicating in the units of the map (e.g., m), not
+#'                    pixels, the cutoff between the different \code{spawnNewActive} levels.
 burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36), 
                   spawnNewActive = c(0.46, 0.2, 0.26, 0.11),
                  sizeCutoffs = c(8e3, 2e4), spreadProbRel = spreadProbRel, spreadProb = 0.77) {
