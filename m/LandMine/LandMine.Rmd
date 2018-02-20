@@ -92,7 +92,7 @@ mySimOut <- spades(mySim, .plotInitialTime = times$start, debug = TRUE)
 # Testing the burn algorithm
 
 ```{r testing, eval=FALSE}
-libs <- c("DEoptim", "SDMtools", "data.table", "raster", "parallel")
+libs <- c("DEoptim", "SDMTools", "data.table", "raster", "parallel")
 Require(libs)
 s <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
@@ -209,7 +209,7 @@ quarterCell <-
 objs <- c("ros", "centreCell", "fireSize",  
                     "spawnNewActive", "sizeCutoffs", "wholeExtentPoly")
 funs <- c("burnFun", "burn1")
-libs <- c("SpaDES.tools", "data.table", "raster", "SDMtools")
+libs <- c("SpaDES.tools", "data.table", "raster", "SDMTools")
 
 ```
 
