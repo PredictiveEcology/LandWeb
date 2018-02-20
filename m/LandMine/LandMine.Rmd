@@ -245,7 +245,7 @@ if (!inherits(cl[[1]], "forknode")) {
 ```{r optimization}
 #################### OPTIMIZATION
 outs <- DEoptim(fitSN, lower = c(-1.75, -2, -3, -3, 3, 4), upper = c(-0.5, -0.5, -0.5, -1, 4, 5), 
-        control = DEoptim.control(VTR = 0.000001, itermax = 75, cluster = cl), 
+        control = DEoptim.control(VTR = 0.0001, itermax = 75, cluster = cl), 
         ros = ros, centreCell = centreCell, fireSize = fireSize, 
         wholeExtentPoly = wholeExtentPoly)
 
