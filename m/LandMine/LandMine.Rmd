@@ -163,9 +163,9 @@ fitSN <- function(sna, ros, centreCell, fireSize,
   
   sna <- c(10^(sna[1]), 10^(sna[2]), 10^(sna[3]), 10^(sna[4]))
   sizeCutoffs <- 10^sna[5:6]
-  bf <- burnFun(ros, centreCell, fireSize, 
+  bf <<- burnFun(ros, centreCell, fireSize, 
                     sna, sizeCutoffs, wholeExtentPoly)
-  abs(bf$LM$perimeter.area.frac.dim - 0.007)
+  abs(bf$LM$perimeter.area.frac.dim - 0.007) + (sum(bf$burnedMap[])*(250^2/1e4) < 9e4) # it needs to get to above 90,000 HA for it to count
 }
 
 ```
@@ -216,7 +216,7 @@ if (Sys.info()["sysname"]=="Windows") {
 
 
 #################### OPTIMIZATION
-outs <- DEoptim(fitSN, lower = c(-3, -3, -3, -3, 3, 4), upper = c(-1, -1, -1, -1, 4, 5), 
+outs <- DEoptim(fitSN, lower = c(-1.75, -2, -3, -3, 3, 4), upper = c(-0.5, -0.5, -0.5, -1, 4, 5), 
         control = DEoptim.control(VTR = 0.000001, itermax = 75, cluster = cl), 
         ros = ros, centreCell = centreCell, fireSize = fireSize, 
         sizeCutoffs = sizeCutoffs, wholeExtentPoly = wholeExtentPoly)
