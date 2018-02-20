@@ -160,11 +160,12 @@ wrap <- function(cl = NULL, reps, par, funs, objs, libs) {
 ####################################################################
 fitSN <- function(sna, ros, centreCell, fireSize, 
                     sizeCutoffs, wholeExtentPoly) {
-  sna <- c(0.1, sna[1], sna[2], 0.01)
-  sizeCutoffs[2] <- sna[3]
+  
+  sna <- c(10^(sna[1]), 10^(sna[2]), 10^(sna[3]), 10^(sna[4]))
+  sizeCutoffs <- 10^sna[5:6]
   bf <- burnFun(ros, centreCell, fireSize, 
                     sna, sizeCutoffs, wholeExtentPoly)
-  abs(bf$LM$perimeter.area.frac.dim - 0.006)
+  abs(bf$LM$perimeter.area.frac.dim - 0.007)
 }
 
 ```
@@ -177,7 +178,7 @@ wantParallel <- TRUE
 #spawnNewActive = c(0.46, 0.2, 0.26, 0.11)
 #sizeCutoffs = c(8e3, 2e4)
 spawnNewActive = c(0.1, 0.04, 0.025, 0.01)
-sizeCutoffs = c(8e3, 1e4)
+sizeCutoffs = c(8e3, 2e4)
 
 centreCell <-
   cellFromRowCol(ros,
@@ -215,8 +216,8 @@ if (Sys.info()["sysname"]=="Windows") {
 
 
 #################### OPTIMIZATION
-outs <- DEoptim(fitSN, lower = c(0.01, 0.01, 1e3), upper = c(0.08, 0.04, 1e5), 
-        control = DEoptim.control(VTR = 0.000001, itermax = 25, cluster = cl), 
+outs <- DEoptim(fitSN, lower = c(-3, -3, -3, -3, 3, 4), upper = c(-1, -1, -1, -1, 4, 5), 
+        control = DEoptim.control(VTR = 0.000001, itermax = 75, cluster = cl), 
         ros = ros, centreCell = centreCell, fireSize = fireSize, 
         sizeCutoffs = sizeCutoffs, wholeExtentPoly = wholeExtentPoly)
 
