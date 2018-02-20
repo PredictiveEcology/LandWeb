@@ -169,7 +169,7 @@ fitSN <- function(sna, ros, centreCell, fireSize,
   
   bf <<- burnFun(ros, centreCell, fireSize, 
                     sna, sizeCutoffs, wholeExtentPoly)
-  abs(bf$LM$perimeter.area.frac.dim - 0.007) + (sum(bf$burnedMap[])*(250^2/1e4) < 9e4) # it needs to get to above 90,000 HA for it to count
+  abs(log(bf$LM$perimeter.area.frac.dim) - log(0.007)) + (sum(bf$burnedMap[]) < 9e4) # it needs to get to above 90,000 HA for it to count
 }
 
 ```
