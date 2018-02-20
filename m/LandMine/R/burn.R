@@ -90,7 +90,6 @@ burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36
               asRaster = FALSE, exactSize = fireSizes, directions=8, #returnIndices = TRUE,
               #id = TRUE, plot.it = FALSE
               );
-  scs <- list()
   whActive <- attr(a, "spreadState")$whActive#a$state=="activeSource"
   while(any(whActive)) {
     
@@ -119,10 +118,6 @@ burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36
     # })
     # 
     set(b, , "pSpawnNewActive", spawnNewActive[1])
-    if (b$size < sizeCutoffs[2]) scs$sc1 <- scs$sc1 + 1
-    if (b$size < sizeCutoffs[1]) scs$sc2 <- scs$sc2 + 1
-    if (b$size > sizeCutoffs[2]) scs$sc3 <- scs$sc3 + 1
-    scs <<- list(scs$sc1, scs$sc2, scs$sc3)
     
     b[numActive>=nActiveCells1[1] & numActive<nActiveCells1[2] & size < sizeCutoffs[2], pSpawnNewActive:=spawnNewActive[2]]
     b[numActive>nActiveCells1[2] & size < sizeCutoffs[1], pSpawnNewActive:=spawnNewActive[4]]
