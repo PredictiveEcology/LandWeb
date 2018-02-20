@@ -14,8 +14,9 @@ paths <- list(
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
-reproducibleCache <- "reproducibleCache" # this is a separate cache ONLY used for saving snapshots of working LandWeb runs
-#                                         # It needs to be separate because it is an overarching one, regardless of scale
+# This is a separate cache ONLY used for saving snapshots of working LandWeb runs
+# It needs to be separate because it is an overarching one, regardless of scale
+reproducibleCache <- "reproducibleCache"
 
 source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
 source("functions.R") # get functions used throughout this shiny app
@@ -39,7 +40,7 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
   # Some shinycssloaders options
   options("spinner.type" = 5)
   # This will search for gdal utilities. If it finds nothing, and you are on Windows,
-  #   You should install the gdal that comes with QGIS -- use OSGeo4W Network Installer 64 bit
+  #   you should install the GDAL that comes with QGIS -- use OSGeo4W Network Installer 64 bit
   #   may be still here: http://www.qgis.org/en/site/forusers/download.html
   options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
   #options(spinner.color="blue")
@@ -149,67 +150,19 @@ mySim <<- simInit(times = times, params = parameters, modules = modules,
                   objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules))
 endSimInit <- Sys.time()
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
-# This needs simInit call to be run alread
+# This needs simInit call to be run already
 # a few map details for shiny app
 source("mapsForShiny.R")
 
 # Run Experiment
+source("runExperiment.R")
+
 seed <- sample(1e8, 1)
 set.seed(seed)
 message("Current seed is: ", seed)
-spadesAndExperiment <- function(mySim, experimentReps) {
-
-  if (TRUE) {
-    # # Do an initial run for each given study area so that all the data prep can be done once only
-    #initialRun1 <- spades(Copy(mySim), debug = TRUE)
-    # 5 minutes for 6e3 km2
-    # 30 minutes for 6e4 km2
-    mySimCopy <- Copy(mySim)
-    end(mySimCopy) <- 0
-    message("Running Initial spades call")
-    initialRun <<- Cache(spades, sim = mySimCopy, #notOlderThan = Sys.time(),
-                         debug = "paste(Sys.time(), paste(unname(current(sim)), collapse = ' '))",
-                         objects = "shpStudyRegion",
-                         #cacheRepo = cachePath(mySim),
-                         .plotInitialTime = NA,
-                         omitArgs = c("debug", ".plotInitialTime"),
-                         debugCache = "complete")
-  }
-
-  ##########
-  raster::endCluster()
-  seed <- sample(1e8, 1)
-  #seed <- 792282
-  set.seed(seed)
-  message("Current seed is: ", seed)
-  #startTime <<- st <<- Sys.time()
-  message("Running Experiment, starting at time: ", appStartTime)
-  objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
-  args <- list(experiment, mySim, replicates = experimentReps,
-               objects = objectsToHash,
-               debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
-               paste(unname(current(sim)), collapse = ' '))",
-               .plotInitialTime = NA,
-               clearSimEnv = TRUE,
-               debugCache = "complete",
-               omitArgs = c("debug", ".plotInitialTime"))
-  args <- args[!unlist(lapply(args, is.null))]
-  mySimOut <- do.call(Cache, args)
-  message(attr(mySimOut, "tags"))
-  mySimOut
-}
 
 objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
 
-# THIS IS THE MAIN "SIMULATION FUNCTION"
-# THE FOLLOWING OBJECT IS A LIST OF 1 simList,
-# A simList is a rich data structure that comes with the SpaDES.core package
-mySimOut <<- Cache(spadesAndExperiment, mySim, experimentReps,
-                   debugCache = "complete",
-                   objects = objectsToHash)#,
-                   #sideEffect = TRUE)
-
-message("  Finished Experiment")
 
 globalRasters <- makeTiles(mySim)
 rastersFromOutputs <- lapply(globalRasters, filename)
@@ -226,7 +179,7 @@ if (FALSE) {
   filesFromOutputs <- lapply(seq_along(mySimOut), function(x) {
     outputs(mySimOut[[x]])$file
   })
-  
+
   for (simNum in seq_along(mySimOut)) {
     mySimOut[[simNum]]@outputs$file <- lapply(
       strsplit(outputs(mySimOut[[simNum]])$file,
@@ -237,12 +190,12 @@ if (FALSE) {
       unlist() %>%
       file.path(paths$outputPath, .)
   }
-  
+
   message("  Load rasters from disk, reproject them to leaflet projection")
   rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
     grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
   }) %>% unlist()
-  
+
   # Look for all files named rstTimeSinceFire -- these are several rasters each with a filename
   #   that represents the simulation "time" when it was created, e.g., 10, 20, 30 years
   tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
@@ -251,9 +204,9 @@ if (FALSE) {
   vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
   lenTSF <- length(tsf)
   rasterResolution <<- raster(tsf[1]) %>% res()
-  
+
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
-  
+
   globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = .quickCheck,
                           lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
                           flammableFile = asPath(file.path(paths$outputPath, "rstFlammable.grd")))
