@@ -114,6 +114,7 @@ wholeExtentPoly <- SpatialPolygonsDataFrame(wholeExtentPoly, data = data.frame(I
 
 burnFun <- function(ros, centreCell, fireSize, 
                     spawnNewActive, sizeCutoffs, wholeExtentPoly) {
+  
     burned <- burn1(
       landscape = ros,
       startCells =centreCell,# c(quarterCell, centreCell),
@@ -161,10 +162,11 @@ wrap <- function(cl = NULL, reps, par, funs, objs, libs) {
 
 ####################################################################
 fitSN <- function(sna, ros, centreCell, fireSize, 
-                    sizeCutoffs, wholeExtentPoly) {
+                    wholeExtentPoly) {
   
-  sna <- c(10^(sna[1]), 10^(sna[2]), 10^(sna[3]), 10^(sna[4]))
   sizeCutoffs <- 10^sna[5:6]
+  sna <- c(10^(sna[1]), 10^(sna[2]), 10^(sna[3]), 10^(sna[4]))
+  
   bf <<- burnFun(ros, centreCell, fireSize, 
                     sna, sizeCutoffs, wholeExtentPoly)
   abs(bf$LM$perimeter.area.frac.dim - 0.007) + (sum(bf$burnedMap[])*(250^2/1e4) < 9e4) # it needs to get to above 90,000 HA for it to count
@@ -227,7 +229,7 @@ if (Sys.info()["sysname"]=="Windows") {
 outs <- DEoptim(fitSN, lower = c(-1.75, -2, -3, -3, 3, 4), upper = c(-0.5, -0.5, -0.5, -1, 4, 5), 
         control = DEoptim.control(VTR = 0.000001, itermax = 75, cluster = cl), 
         ros = ros, centreCell = centreCell, fireSize = fireSize, 
-        sizeCutoffs = sizeCutoffs, wholeExtentPoly = wholeExtentPoly)
+        wholeExtentPoly = wholeExtentPoly)
 
 ```
 
@@ -248,6 +250,12 @@ sizeCutoffs <- 10^sns[5:6]
 #spawnNewActive <- 10^c(-1.646419, -1.815395, -2.809013, -2.613337)
 #sizeCutoffs <- 10^c(3.888317,    4.641961)
 
+sns <- structure(c(-0.586503645288758, -1.08108837273903, -2.14391896536108, 
+-1.00221184641123, 3.37711253212765, 4.52040993282571), .Names = c("par1", 
+"par2", "par3", "par4", "par5", "par6"))
+spawnNewActive <- 10^sns[1:4]
+sizeCutoffs <- 10^(sns[5:6])
+
 dev()
 reps <- paste0("rep", 1:3)
 
@@ -255,6 +263,7 @@ burnedMapList <- wrap(cl = cl, reps = reps, par = TRUE, funs = funs, objs = objs
 names(burnedMapList$out) <- reps
 burnedMapList <- purrr::transpose(burnedMapList$out)
 rbindlist(burnedMapList$LM)
+clearPlot()
 Plot(burnedMapList$burnedMap, cols = c("white", "red"), new=FALSE)
 
 # 10000 sna[3] = 0.025 - pafd between 0.005 and 0.007
