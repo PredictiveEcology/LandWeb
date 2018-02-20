@@ -163,6 +163,8 @@ message("Current seed is: ", seed)
 
 objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
 
+## TEMPORARY: use `makeTiles` from makeLeafletTiles module
+source("m/makeLeafletTiles/R/makeTiles.R")
 
 globalRasters <- makeTiles(mySim)
 rastersFromOutputs <- lapply(globalRasters, filename)
