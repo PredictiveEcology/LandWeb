@@ -220,15 +220,33 @@ libs <- c("SpaDES.tools", "data.table", "raster", "SDMtools")
 numCores <- detectCores() - 1
 if (Sys.info()["sysname"]=="Windows") {
   cl <- parallel::makeCluster(numCores)
+  
+} else if (grepl("W-VIC-A1053", Sys.info()["nodename"])) {
+  Require("future")
+  NcoresOnEach <- 20
+  # make a cluster on 3 machines
+  machine1 <- "132.156.148.172"
+  machine2 <- "132.156.148.171"
+  machine3 <- "localhost"
+  clNames <- c(rep(machine1, NcoresOnEach),
+               rep(machine2, NcoresOnEach),
+               rep(machine3, NcoresOnEach))
+  cl <- makeClusterPSOCK(clNames, 
+                       homogeneous = FALSE, verbose = TRUE)
+  #cl <- parallel::makeCluster(numCores, type = "FORK")
+  clusterSetRNGStream(cl, sample(1e8,1))
+} else {
+  cl <- parallel::makeCluster(numCores, type = "FORK")
+  clusterSetRNGStream(cl, sample(1e8,1))
+}
+
+if (!inherits(cl[[1]], "forknode")) {
+
   parallel::clusterExport(cl, funs)
   parallel::clusterExport(cl, objs )
   #env <- environment()
   parallel::clusterExport(cl,  "libs", envir = parent.frame())
   parallel::clusterEvalQ(cl, {lapply(libs, library, character.only = TRUE)})
-  
-} else {
-  cl <- parallel::makeCluster(numCores, type = "FORK")
-  clusterSetRNGStream(cl, sample(1e8,1))
 }
 
 ```
