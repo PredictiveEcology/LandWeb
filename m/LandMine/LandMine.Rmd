@@ -161,6 +161,7 @@ wrap <- function(cl = NULL, reps, par, funs, objs, libs) {
 fitSN <- function(sna, ros, centreCell, fireSize, 
                     sizeCutoffs, wholeExtentPoly) {
   sna <- c(0.1, sna[1], sna[2], 0.01)
+  sizeCutoffs[2] <- sna[3]
   bf <- burnFun(ros, centreCell, fireSize, 
                     sna, sizeCutoffs, wholeExtentPoly)
   abs(bf$LM$perimeter.area.frac.dim - 0.006)
@@ -209,14 +210,15 @@ if (Sys.info()["sysname"]=="Windows") {
   
 } else {
   cl <- parallel::makeCluster(numCores, type = "FORK")
+  clusterSetRNGStream(cl, sample(1e8,1))
 }
 
 
 #################### OPTIMIZATION
-outs <- DEoptim(fitSN, lower = c(0.01, 0.01), upper = c(0.08, 0.04), 
+outs <- DEoptim(fitSN, lower = c(0.01, 0.01, 1e3), upper = c(0.08, 0.04, 1e5), 
         control = DEoptim.control(VTR = 0.000001, itermax = 25, cluster = cl), 
-        rstFlammable, centreCell, fireSize, ros, 
-                    sizeCutoffs, wholeExtentPoly)
+        ros = ros, centreCell = centreCell, fireSize = fireSize, 
+        sizeCutoffs = sizeCutoffs, wholeExtentPoly = wholeExtentPoly)
 
 ############# MANUAL RUN
 
