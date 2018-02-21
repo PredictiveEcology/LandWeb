@@ -237,7 +237,10 @@ if (FALSE) {
   vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
   lenTSF <- length(tsf)
   rasterResolution <<- raster(tsf[1]) %>% res()
+}
 
+## WORKAROUND: was part of the previous if(FALSE) block, but we need this
+if (TRUE) {
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
 
   globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = .quickCheck,
