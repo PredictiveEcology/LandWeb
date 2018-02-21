@@ -113,7 +113,7 @@ fireSize <- 100000
 ```{r functions}
 
 burnFun <- function(ros, centreCell, fireSize, 
-                    spawnNewActive, sizeCutoffs) {
+                    spawnNewActive, sizeCutoffs, burn1) {
   
     burned <- burn1(
       landscape = ros,
@@ -162,13 +162,13 @@ wrap <- function(cl = NULL, reps, par, funs, objs, libs) {
 
 ####################################################################
 fitSN <- function(sna, ros, centreCell, fireSizes = 10^(2:5), 
-                    desiredPerimeterArea = 0.004) {
+                    desiredPerimeterArea = 0.004, burnFun, burn1) {
   
   sizeCutoffs <- 10^sna[5:6]
   sna <- c(10^(sna[1]), 10^(sna[2]), 10^(sna[3]), 10^(sna[4]))
   bfs1 <<- lapply(fireSizes, function(fireSize) {
    burnFun(ros, centreCell, fireSize, 
-                    sna, sizeCutoffs)
+                    sna, sizeCutoffs, burn1 = burn1)
     
   })
   res <- lapply(seq(bfs1), function(bfCount) {
@@ -176,7 +176,7 @@ fitSN <- function(sna, ros, centreCell, fireSizes = 10^(2:5),
           log(desiredPerimeterArea)) + 
       100*(sum(bfs1[[bfCount]]$burnedMap[]) < fireSizes[bfCount]) # it needs to get to above 90,000 HA for it to count
   })
-  sum(unlist(res))
+  sum(unlist(res) * log10(fireSizes)) # weigh larger ones more
   
 }
 
@@ -264,7 +264,7 @@ if (Sys.info()["sysname"]=="Windows") {
 
 if (!inherits(cl[[1]], "forknode")) {
 
-  parallel::clusterExport(cl, funs)
+  #parallel::clusterExport(cl, funs)
   #parallel::clusterExport(cl, objs )
   #env <- environment()
   parallel::clusterExport(cl,  "libs", envir = parent.frame())
@@ -277,8 +277,8 @@ if (!inherits(cl[[1]], "forknode")) {
 #################### OPTIMIZATION
 outs <- DEoptim(fitSN, lower = c(-1.75, -2, -3, -3, 3, 4), upper = c(-0.3, -0.5, -0.5, -1, 4, 5), 
         control = DEoptim.control(VTR = 0.001, itermax = 75, cluster = cl, strategy = 6), 
-        ros = ros, centreCell = centreCell, fireSizes = c(100, 1000), 
-        desiredPerimeterArea = 0.003)
+        ros = ros, centreCell = centreCell, fireSizes = c(100, 1000, 10000, 100000), 
+        desiredPerimeterArea = 0.003, burnFun = burnFun, burn1 = burn1)
 
 ```
 
