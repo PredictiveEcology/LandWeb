@@ -506,7 +506,8 @@ Save <- function(sim) {
 
     sim$standAgeMap <- Cache(prepInputs,
                              targetFile = standAgeMapFilename,
-                             archive = asPath(c("kNN-StructureStandVolume.tar", "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip")),
+                             archive = asPath(c("kNN-StructureStandVolume.tar",
+                                                "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip")),
                              destinationPath= asPath(dataPath),
                              fun = "raster",
                              pkg = "raster",
@@ -532,9 +533,9 @@ Save <- function(sim) {
   # 3. species maps
   ## load Paul Pickell et al. and CASFRI
   #dataPath <- file.path(modulePath(sim), "Boreal_LBMRDataPrep", "data")
-  if (all(c("SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat", "Landweb_CASFRI_GIDs.tif",
+  if (!all(c("SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat", "Landweb_CASFRI_GIDs.tif",
             "Landweb_CASFRI_GIDs_attributes3.csv", "Landweb_CASFRI_GIDs_README.txt")
-          %in% dir(dataPath) )) {
+          %in% dir(dataPath))) {
     message("  Loading CASFRI and Pickell et al. layers")
     stackOut <- Cache(loadPaulAndCASFRI, paths = lapply(paths(sim), basename),
                       PaulRawFileName = asPath(
