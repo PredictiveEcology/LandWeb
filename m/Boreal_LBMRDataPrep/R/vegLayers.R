@@ -1,16 +1,3 @@
-# library(raster)
-# #library(SpaDES)
-# devtools::load_all("~/GitHub/SpaDES/.")
-# library(magrittr)
-# library(rgeos)
-# library(data.table)
-# library(gdalUtils)
-#
-#
-#
-# startTime <- Sys.time()
-# dev()
-# setPaths()
 loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
                               CASFRITifFile, CASFRIattrFile, CASFRIheaderFile) {
   #gdal_setInstallation(ignore.full_scan = TRUE, verbose = TRUE)
@@ -26,16 +13,19 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
   PaulRawFileName <- basename(PaulRawFileName)
   zipDownload <- file.path(dataFolder, "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.zip")
   if (!file.exists(PaulRawFileName))  {
-    if (!file.exists(zipDownload))
-      download.file(destfile = zipDownload, mode = "wb",
-                    "https://www.multcloud.com/action/share!downloadShare?drives.cloudType=GVRLlyNIUgk%2FbTv0n%2F2CQQ%3D%3D&drives.tokenId=39e0842dd49c4017ba098185753d9119&drives.fileId=hyYEQx%2BA477a6wLMX37l05HP4aJXROIPk1yfdjVDSIpT9MYgkQ%2FxhjAJblDkChSFQgAkmUcjDqO9uGAlNskSMg%3D%3D&drives.fileName=SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.zip&drives.fileSize=28597910&shareId=046c8562-691a-4342-97d5-f0ffd13d5621")
+    if (!file.exists(zipDownload)) {
+      googledrive::drive_auth(cache = FALSE, verbose = TRUE)
+      file_url <- "https://drive.google.com/file/d/0BxZrk9psrK4nTFVMY295WFFXZk0/view?usp=sharing"
+      googledrive::drive_download(googledrive::as_id(file_url), path = zipDownload,
+                                  overwrite = TRUE, verbose = TRUE)
+    }
     unzip(zipDownload, exdir = dataFolder, overwrite = TRUE)
   }
   PaulOnGoogleDrive1 <- raster(PaulRawFileName)
   LandWebStudyAreaRawPoly <- file.path(paths$inputPath, oldfilename)
 
   PaulOnGoogleDrive <- Cache(writeRaster, PaulOnGoogleDrive1, cacheRepo = paths$cachePath,
-                             filename = asPath(file.path(dataFolder,"PaulSppFilled.tif")),
+                             filename = asPath(file.path(dataFolder, "PaulSppFilled.tif")),
                              datatype = "INT2U",
                              overwrite = TRUE)#, debugCache="quick")
   shpStudyRegionFull <- Cache(loadShpAndMakeValid, file = asPath(LandWebStudyAreaRawPoly),
@@ -79,17 +69,30 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
   Paul250MaskedFilename <- "PaulTrimmed.tif"
   Cache(gdalwarp, overwrite=TRUE, cutline = "studyArea.shp",
         dstalpha = TRUE,
-        s_srs= as.character(crs(PaulOnGoogleDrive)),
-        t_srs= as.character(crs(PaulOnGoogleDrive)),
-        multi=TRUE, of="GTiff",
-        crop_to_cutline = TRUE, tr=c(250, 250),
+        s_srs = as.character(crs(PaulOnGoogleDrive)),
+        t_srs = as.character(crs(PaulOnGoogleDrive)),
+        multi = TRUE, of = "GTiff",
+        crop_to_cutline = TRUE, tr = c(250, 250),
         filename(PaulOnGoogleDrive), ot = "Byte",
         Paul250MaskedFilename,
         cacheRepo=paths$cachePath)
 
   message("Starting CASFRI stuff")
-  #CASFRITifFile <- file.path(paths$modulePath, "Boreal_LBMRDataPrep", "data", "Landweb_CASFRI_GIDs.tif")
-  if(file.exists(CASFRITifFile)) {
+  CASFRITifFile <- file.path(paths$modulePath, "Boreal_LBMRDataPrep", "data", "Landweb_CASFRI_GIDs.tif")
+
+  PaulRawFileName <- basename(PaulRawFileName)
+  zipDownload <- file.path(dataFolder, "CASFRI for Landweb.zip")
+  if (!file.exists(CASFRITifFile)) {
+    if (!file.exists(zipDownload)) {
+      googledrive::drive_auth(cache = FALSE, verbose = TRUE)
+      file_url <- "https://drive.google.com/file/d/1nhZwBKR1dJASFtZinO28yt0RVaCI-NOz/view?usp=sharing"
+      googledrive::drive_download(googledrive::as_id(file_url), path = zipDownload,
+                                  overwrite = TRUE, verbose = TRUE)
+    }
+    unzip(zipDownload, exdir = dataFolder, overwrite = TRUE)
+  }
+
+  if (file.exists(CASFRITifFile)) {
     CASFRIRas <- raster(CASFRITifFile)
   } else {
     stop("You need the CASFRI tif, supplied by Melina Houle and Pierre Racine")
