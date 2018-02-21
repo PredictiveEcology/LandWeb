@@ -386,8 +386,8 @@ Save <- function(sim) {
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE,
                             cacheTags = c("stable", currentModule(sim)),
-                            quickCheck = .quickChecking,
-                            dataset = "EOSD2000")
+                            quickCheck = .quickChecking)#,
+                            #dataset = "EOSD2000")
 
     # sim$biomassMap <- Cache(prepareIt,
     #                         tarfileName = "kNN-StructureBiomass.tar",
