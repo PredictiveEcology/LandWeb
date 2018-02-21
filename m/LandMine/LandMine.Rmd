@@ -82,6 +82,9 @@ paths <- list(
   outputPath = outputDir
 )
 
+```
+
+```{r Run-the-module, eval=FALSE}
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects, paths = paths)
 
@@ -101,20 +104,16 @@ attach(s@.envir)
 attach(s@.envir$LandMine)
 #detach(s@.envir$LandMine)
 #ros <- raster(extent(0,3e4, 0, 3e4), res = 250, vals = 0)
-ros <- raster(extent(0,3e5, 0, 3e5), res = 250, vals = 0)
+ros <- raster(extent(0,2.5e5, 0, 2.5e5), res = 250, vals = 0)
 ros <- ros==0
 fireSize <- 100000
-e <- extent(ros)
-# coerce to a SpatialPolygons object
-wholeExtentPoly <- as(e, 'SpatialPolygons')  
-wholeExtentPoly <- SpatialPolygonsDataFrame(wholeExtentPoly, data = data.frame(ID=1))
 
 ```
 
 ```{r functions}
 
 burnFun <- function(ros, centreCell, fireSize, 
-                    spawnNewActive, sizeCutoffs, wholeExtentPoly) {
+                    spawnNewActive, sizeCutoffs) {
   
     burned <- burn1(
       landscape = ros,
@@ -163,25 +162,48 @@ wrap <- function(cl = NULL, reps, par, funs, objs, libs) {
 
 ####################################################################
 fitSN <- function(sna, ros, centreCell, fireSizes = 10^(2:5), 
-                    wholeExtentPoly, desiredPerimeterArea = 0.004) {
+                    desiredPerimeterArea = 0.004) {
   
   sizeCutoffs <- 10^sna[5:6]
   sna <- c(10^(sna[1]), 10^(sna[2]), 10^(sna[3]), 10^(sna[4]))
   bfs1 <<- lapply(fireSizes, function(fireSize) {
    burnFun(ros, centreCell, fireSize, 
-                    sna, sizeCutoffs, wholeExtentPoly)
+                    sna, sizeCutoffs)
     
   })
   res <- lapply(seq(bfs1), function(bfCount) {
     abs(log(bfs1[[bfCount]]$LM[1,"perim.area.ratio"]) -
           log(desiredPerimeterArea)) + 
-      (sum(bfs1[[bfCount]]$burnedMap[]) < fireSizes[bfCount]) # it needs to get to above 90,000 HA for it to count
+      100*(sum(bfs1[[bfCount]]$burnedMap[]) < fireSizes[bfCount]) # it needs to get to above 90,000 HA for it to count
   })
   sum(unlist(res))
   
 }
 
+####################################################################
+fitSN2 <- function(par, ros, centreCell, fireSizes = 10^(2:5), 
+                   desiredPerimeterArea = 0.003) {
+  sizeCutoffs <- 10^c(par[4], par[5])
+  bfs1 <- lapply(fireSizes, function(fireSize) {
+    sna <- min(-0.15, par[1] + par[2]*log10(fireSize))
+    sna <- 10^c(sna*par[3], sna*2*par[3], sna*3*par[3], sna*4*par[3])
+    #sna <- -1
+    burnFun(ros, centreCell, fireSize, 
+            sna, sizeCutoffs)
+  })
+  res <- lapply(seq(bfs1), function(bfCount) {
+    abs(log(bfs1[[bfCount]]$LM[1,"perim.area.ratio"]) -
+          log(desiredPerimeterArea)) + 
+      100*(sum(bfs1[[bfCount]]$burnedMap[]) < fireSizes[bfCount]) # it needs to get to above 90,000 HA for it to count
+  })
+  a <- sum(unlist(res))
+  #attr(a, "bfs1") <- bfs1
+  a
+  
+}
+
 ```
+
 
 # Optimizing parameters
 
@@ -195,19 +217,15 @@ sizeCutoffs = c(8e3, 2e4)
 
 centreCell <-
   cellFromRowCol(ros,
-  rownr = nrow(ros) / 2,
-  colnr = ncol(ros) / 2)
-quarterCell <- 
-  cellFromRowCol(ros,
-  rownr = nrow(ros) / 4,
-  colnr = ncol(ros) / 4)
+  rownr = nrow(ros) / 4 * rep(1:3, 3),
+  colnr = ncol(ros) / 4 * rep(1:3, each = 3))
 
 
 #######################################
 ###### Set variables
 #################################
 objs <- c("ros", "centreCell", "fireSize",  
-                    "spawnNewActive", "sizeCutoffs", "wholeExtentPoly")
+                    "spawnNewActive", "sizeCutoffs")
 funs <- c("burnFun", "burn1")
 libs <- c("SpaDES.tools", "data.table", "raster", "SDMTools")
 
@@ -243,7 +261,7 @@ if (Sys.info()["sysname"]=="Windows") {
 if (!inherits(cl[[1]], "forknode")) {
 
   parallel::clusterExport(cl, funs)
-  parallel::clusterExport(cl, objs )
+  #parallel::clusterExport(cl, objs )
   #env <- environment()
   parallel::clusterExport(cl,  "libs", envir = parent.frame())
   parallel::clusterEvalQ(cl, {lapply(libs, library, character.only = TRUE)})
@@ -253,10 +271,30 @@ if (!inherits(cl[[1]], "forknode")) {
 
 ```{r optimization}
 #################### OPTIMIZATION
-outs <- DEoptim(fitSN, lower = c(-1.75, -2, -3, -3, 3, 4), upper = c(-0.5, -0.5, -0.5, -1, 4, 5), 
-        control = DEoptim.control(VTR = 0.000001, itermax = 75, cluster = cl), 
-        ros = ros, centreCell = centreCell, fireSize = fireSizes, 
-        wholeExtentPoly = wholeExtentPoly, desiredPerimeterArea = 0.004)
+outs <- DEoptim(fitSN, lower = c(-1.75, -2, -3, -3, 3, 4), upper = c(-0.3, -0.5, -0.5, -1, 4, 5), 
+        control = DEoptim.control(VTR = 0.001, itermax = 75, cluster = cl, strategy = 6), 
+        ros = ros, centreCell = centreCell, fireSizes = rep(100, 1000, 10000, 100000), 
+        desiredPerimeterArea = 0.003)
+
+```
+
+```{r relationship-btwn-perimArea-and-fireSize}
+fs <- round(runif(10, 10, 4000))
+out <- fitSN2(par = c(2, -0.63333, 1, 3.2, 4.4), 
+              ros, centreCell, fireSizes = fs, 0.003)
+bfs1 <- purrr::transpose(attr(out, "bfs1"))
+LM <- do.call(rbind,bfs1$LM)
+plot(fs, LM[,"perim.area.ratio"])
+```
+
+```{r optimization2}
+#################### OPTIMIZATION
+fs <- c(0.2,1:8)*10000
+outs <- DEoptim(fitSN2, lower = c(1, -1, 1, 3, 4), upper = c(3, -0.3, 3, 4, 5), 
+        control = DEoptim.control(VTR = 0.001, itermax = 40, 
+                                  cluster = cl, strategy = 6), 
+        ros = ros, centreCell = centreCell, 
+        fireSizes = fs, desiredPerimeterArea = 0.003)
 
 ```
 
@@ -283,16 +321,28 @@ sns <- structure(c(-1.641197,-1.152821,-0.697335,-1.751917, 3.720378, 4.034059),
 "par2", "par3", "par4", "par5", "par6"))
 spawnNewActive <- 10^sns[1:4]
 sizeCutoffs <- 10^(sns[5:6])
-fireSize <- 100
+fireSize <- 30000
+
+# from linear model version
+par <- c(1.548899,-0.396904, 2.191424, 3.903082, 4.854002)
+sizeCutoffs <- 10^c(par[4], par[5])
+sna <- min(-0.15, par[1] + par[2]*log10(fireSize))
+sna <- 10^c(sna*par[3], sna*2*par[3], sna*3*par[3], sna*4*par[3])
+spawnNewActive <- sna
+
+
+fireSize <- 1:9*2000
+#ros <- raster(extent(0,2e5, 0, 2e5), res = 250, vals = 0)
+#ros <- ros==0
 
 dev()
-reps <- paste0("rep", 1:12)
+reps <- paste0("rep", 1:3)
 
 burnedMapList <- wrap(cl = cl, reps = reps, par = TRUE, funs = funs, objs = objs, libs = libs)
 names(burnedMapList$out) <- reps
 burnedMapList <- purrr::transpose(burnedMapList$out)
 do.call(rbind, burnedMapList$LM)
-clearPlot()
+#clearPlot()
 Plot(burnedMapList$burnedMap, cols = c("white", "red"), new=FALSE)
 
 # 10000 sna[3] = 0.025 - pafd between 0.005 and 0.007
