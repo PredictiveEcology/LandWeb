@@ -89,9 +89,9 @@ defineModule(sim, list(
                   desc = "define the cut points to classify stand shadeness"),
     createsOutput(objectName = "useCache", objectClass = "logic",
                   desc = "define which the caching for spinup simulation should be used, default is TRUE"),
-    createsOutput("studyArea", "", ""), 
-    createsOutput("ecoDistrict", "", ""), 
-    createsOutput("ecoRegion", "", ""), 
+    createsOutput("studyArea", "", ""),
+    createsOutput("ecoDistrict", "", ""),
+    createsOutput("ecoRegion", "", ""),
     createsOutput("ecoZone", "", "")
     )
 ))
@@ -386,8 +386,8 @@ Save <- function(sim) {
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE,
                             cacheTags = c("stable", currentModule(sim)),
-                            quickCheck = .quickChecking,
-                            dataset = "EOSD2000")
+                            quickCheck = .quickChecking)#,
+                            #dataset = "EOSD2000")
 
     # sim$biomassMap <- Cache(prepareIt,
     #                         tarfileName = "kNN-StructureBiomass.tar",
@@ -559,7 +559,9 @@ Save <- function(sim) {
 
 
   sim$sufficientLight <- data.frame(speciesshadetolerance = 1:5,
-                                    X0 = 1, X1 = c(0.5, rep(1, 4)), X2 = c(0, 0.5, rep(1, 3)),
+                                    X0 = 1,
+                                    X1 = c(0.5, rep(1, 4)),
+                                    X2 = c(0, 0.5, rep(1, 3)),
                                     X3 = c(rep(0, 2), 0.5, rep(1, 2)),
                                     X4 = c(rep(0, 3), 0.5, 1), X5 = c(rep(0, 4), 1))
 
