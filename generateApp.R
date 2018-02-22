@@ -2,7 +2,7 @@ if (FALSE) { # these are FALSE for standard use, but individual cases may need t
   devtools::install_github("PredictiveEcology/quickPlot", ref = "development") 
   devtools::install_github("PredictiveEcology/reproducible", ref = "development") 
   devtools::install_github("PredictiveEcology/webDatabases", ref = "master") 
-  devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "prepInputs") 
+  devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development") 
   devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development") 
 } 
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
