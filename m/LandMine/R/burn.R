@@ -82,6 +82,8 @@ burn1 <- function(landscape, startCells, fireSizes = 5, nActiveCells1 = c(10, 36
                  sizeCutoffs = c(8e3, 2e4), spreadProbRel = spreadProbRel, spreadProb = 0.77) {
   # convert to pixels
   sizeCutoffs <- sizeCutoffs/(prod(res(landscape))/1e4)
+  # add a little bit of stochasticity
+  #spawnNewActive <- 10^rnorm(length(spawnNewActive), log10(spawnNewActive), 0.1)
   
   a = spread2(landscape, start = startCells, spreadProb = 1,  # initial step can have spreadProb 1 so garantees something
               spreadProbRel = spreadProbRel, #persistence = 0,
