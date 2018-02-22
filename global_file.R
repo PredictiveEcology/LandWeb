@@ -1,4 +1,4 @@
-library(googledrive)
+reproducible::Require(googledrive)
 
 # List modules first, so we can get all their dependencies
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
