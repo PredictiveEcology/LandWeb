@@ -554,9 +554,10 @@ Save <- function(sim) {
   # 3. species maps
   ## load Paul Pickell et al. and CASFRI
   #dPath <- file.path(modulePath(sim), "Boreal_LBMRDataPrep", "data")
-  if (!all(c("SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat", "Landweb_CASFRI_GIDs.tif",
-            "Landweb_CASFRI_GIDs_attributes3.csv", "Landweb_CASFRI_GIDs_README.txt")
-          %in% dir(dPath))) {
+  # if (!all(c("SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat", "Landweb_CASFRI_GIDs.tif",
+  #           "Landweb_CASFRI_GIDs_attributes3.csv", "Landweb_CASFRI_GIDs_README.txt")
+  #         %in% dir(dPath))) {
+  if (grepl("W-VIC-A", Sys.info()[["nodename"]])) {
     message("  Loading CASFRI and Pickell et al. layers")
     stackOut <- Cache(loadPaulAndCASFRI, paths = lapply(paths(sim), basename),
                       PaulRawFileName = asPath(
@@ -571,7 +572,7 @@ Save <- function(sim) {
                       digestPathContent = .quickChecking#, debugCache = "quick"
     )
   } else {
-    message("Using only 'Open source data sets'")
+   message("Using only 'Open source data sets'")
   }
 
   sim$speciesTable <- prepInputs("speciesTraits.csv", destinationPath = dPath, fun = "read.csv", pkg = "utils")
