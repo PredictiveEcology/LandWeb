@@ -1,3 +1,5 @@
+library(googledrive)
+
 # List modules first, so we can get all their dependencies
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
@@ -163,8 +165,15 @@ message("Current seed is: ", seed)
 
 objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
 
-## TEMPORARY: use `makeTiles` from makeLeafletTiles module
-source("m/makeLeafletTiles/R/makeTiles.R")
+# THIS IS THE MAIN "SIMULATION FUNCTION"
+# THE FOLLOWING OBJECT IS A LIST OF 1 simList,
+# A simList is a rich data structure that comes with the SpaDES.core package
+mySimOut <<- Cache(runExperiment, mySim, experimentReps,
+                   debugCache = "complete",
+                   objects = objectsToHash)#,
+#sideEffect = TRUE)
+
+message("  Finished Experiment")
 
 message("  Identify which files were created during simulation")
 # outputs() function reports on any files that were created during the simulation
@@ -228,7 +237,10 @@ if (FALSE) {
   vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
   lenTSF <- length(tsf)
   rasterResolution <<- raster(tsf[1]) %>% res()
+}
 
+## WORKAROUND: was part of the previous if(FALSE) block, but we need this
+if (TRUE) {
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
 
   globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = .quickCheck,
