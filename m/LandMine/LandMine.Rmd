@@ -119,16 +119,15 @@ burnFun <- function(ros, centreCell, fireSize,
       landscape = ros,
       startCells =centreCell,# c(quarterCell, centreCell),
       fireSizes = fireSize,
-      spreadProb = 1,
+      spreadProb = 0.9,
       spreadProbRel = ros,
       spawnNewActive = spawnNewActive,
       sizeCutoffs = sizeCutoffs)
     burnedMap <- raster(ros)
-    burnedMap[] <- 0
-    
-    burnedMap[burned$pixels] <- 1
+    burnedMap[] <- NA
+  
+    burnedMap[burned$pixels] <- burned$initialPixels
     LM <- SDMTools::PatchStat(burnedMap, cellsize = res(burnedMap)[1])
-    LM <- as.matrix(LM[LM$patchID==1,])
     list(burnedMap = burnedMap, LM = LM)
 }
 
