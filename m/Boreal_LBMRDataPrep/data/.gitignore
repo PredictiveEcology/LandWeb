@@ -1,3 +1,7 @@
+*.dbf
+*.prj
+*.shp
+*.shx
 *.tar
 *.tar.gz
 *.tif
