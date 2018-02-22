@@ -233,7 +233,7 @@ centreCell <-
 ###### Set variables
 #################################
 objs <- c("ros", "centreCell", "fireSize",  
-                    "spawnNewActive", "sizeCutoffs")
+                    "spawnNewActive", "sizeCutoffs", "spreadProb")
 funs <- c("burnFun", "burn1")
 libs <- c("SpaDES.tools", "data.table", "raster", "SDMTools")
 
@@ -355,6 +355,8 @@ sns <- c(-0.978947, -0.540946, -0.790736, -1.583039,  2.532013,  4.267547,  0.94
 
 spawnNewActive <- 10^sns[1:4]
 sizeCutoffs <- 10^(sns[5:6])
+if (length(sns)==7)
+  spreadProb <- sns[7]
 
 # from linear model version
 par <- c(1.548899,-0.396904, 2.191424, 3.903082, 4.854002)
