@@ -258,12 +258,20 @@ Burn <- function(sim) {
   ROSmap <- raster(sim$pixelGroupMap)
   ROSmap[] <- ROS
 
+  # From DEoptim fitting
+  spawnNewActive <- sns <- 10^c(-0.731520, -0.501823, -0.605968, -1.809726)
+  spreadProb <- 0.9
+  sizeCutoffs <- 10^c(2.202732,  4.696060)
+  
+  
   if (!all(is.na(thisYrStartCells)) & length(thisYrStartCells) > 0) {
     fires <- burn1(sim$fireReturnInterval, startCells = thisYrStartCells,
                    fireSizes = fireSizesInPixels, spreadProbRel = ROSmap,
-                   spawnNewActive = c(0.65, 0.6, 0.2, 0.2),
+                   #spawnNewActive = c(0.65, 0.6, 0.2, 0.2),
+                   sizeCutoffs = sizeCutoffs,
+                   spawnNewActive = spawnNewActive,
                    #spawnNewActive = c(0.76, 0.45, 1.0, 0.00),
-                   spreadProb = 0.77)
+                   spreadProb = spreadProb)
     fa <- attr(fires, "spreadState")$clusterDT
     print(fa[order(maxSize)][(.N - pmin(7, NROW(fa))):.N])
     print(fa[, list(numPixelsBurned = sum(size),
