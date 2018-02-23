@@ -7,7 +7,7 @@ makeStudyAreaMask <- function(ras, maskFilename, cache_path) {
   #ras[ras[]%in% c(255)] <- NA_integer_ # out of study area
   #rasterOptions(maxmemory=1e9)
   studyAreaMask <- raster(ras)
-  studyAreaMask[!is.na(ras[])] <- 1#!is.na(ras[])
+  studyAreaMask[ras[] != 255] <- 1#!is.na(ras[])
   Cache(writeRaster, studyAreaMask, filename = maskFilename,
         datatype = "INT1U", overwrite = TRUE, cacheRepo = cache_path)
 }

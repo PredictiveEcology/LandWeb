@@ -569,6 +569,8 @@ Save <- function(sim) {
                         file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv")),
                       CASFRIheaderFile = asPath(
                         file.path(dPath,"Landweb_CASFRI_GIDs_README.txt")),
+                      quick = .quickChecking,
+                      .quickChecking = .quickChecking,
                       digestPathContent = .quickChecking#, debugCache = "quick"
     )
     sim$specieslayers <- stackOut
