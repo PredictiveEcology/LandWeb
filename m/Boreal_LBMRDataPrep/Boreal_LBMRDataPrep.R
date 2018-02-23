@@ -553,9 +553,11 @@ Save <- function(sim) {
   
   # 3. species maps
   ## load Paul Pickell et al. and CASFRI
-  if (!exists("sessionCacheFile")) sessionCacheFile <- tempfile()
-  cacheVal <- if (grepl("W-VIC-A105", Sys.info()["nodename"])) sessionCacheFile else FALSE
-  googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = cacheVal)
+  if (!exists("sessionCacheFile")) { 
+    sessionCacheFile <<- tempfile() 
+  } 
+  .cacheVal <<- if (grepl("W-VIC-A105", Sys.info()["nodename"])) sessionCacheFile else FALSE
+  googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
   file_url <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
   aaa <- testthat::capture_error(googledrive::drive_download(googledrive::as_id(file_url), path = tempfile(),
                               overwrite = TRUE, verbose = FALSE))
