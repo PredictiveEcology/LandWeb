@@ -251,7 +251,7 @@ overlayStacks <- function(highQualityStack, lowQualityStack, cachePath,
         LQRast <- raster(LQRastName)
         LQRast[] <- LQRast[]
         unlink(LQRastName)
-        try(unlink(LQCurName))
+        try(unlink(LQCurName), silent = TRUE)
         
         if (hqLarger) {
           tmpHQName <- basename(tempfile(fileext=".tif"))
