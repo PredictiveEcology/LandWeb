@@ -1,4 +1,4 @@
-runExperiment <- function(sim, nReps) {
+runExperiment <- function(sim, nReps, objectsToHash = "") {
   if (TRUE) {
     # # Do an initial run for each given study area so that all the data prep can be done once only
     #initialRun1 <- spades(Copy(sim), debug = TRUE)
@@ -24,7 +24,6 @@ runExperiment <- function(sim, nReps) {
   message("Current seed is: ", seed)
   #startTime <<- st <<- Sys.time()
   message("Running Experiment, starting at time: ", appStartTime)
-  objectsToHash <- grep("useParallel", ls(sim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
   args <- list(experiment, sim, replicates = nReps,
                objects = objectsToHash,
                debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
