@@ -1,6 +1,9 @@
 loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
-                              CASFRITifFile, CASFRIattrFile, CASFRIheaderFile) {
-  gdal_setInstallation(rescan = TRUE)
+                              CASFRITifFile, CASFRIattrFile, CASFRIheaderFile, 
+                              .quickChecking = NULL) {
+  message("  Rescanning for gdal")
+  if (!("Windows" %in% Sys.info()["sysname"])) gdal_setInstallation(rescan = TRUE)
+  message("  Finished rescanning for gdal")
   # Step 1 -- Load LandWeb study area shapefile
   origDir <- getwd(); on.exit(setwd(origDir), add = TRUE)
   oldfilename <- "shpLandWEB.shp"
