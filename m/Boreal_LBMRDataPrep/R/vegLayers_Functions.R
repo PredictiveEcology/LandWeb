@@ -205,6 +205,10 @@ CASFRItoSpRasts <- function(cachePath, CASFRIRas, loadedCASFRI) {
 overlayStacks <- function(highQualityStack, lowQualityStack, cachePath,
                           outputFilenameSuffix = "overlay") {
   for(sp in layerNames(highQualityStack)) {
+    
+    hqLarger <- ncell(lowQualityStack) * prod(res(lowQualityStack)) <
+      ncell(highQualityStack) * prod(res(highQualityStack)) 
+    
     if(sp %in% layerNames(lowQualityStack)) {
       if(!(all(
         isTRUE(all.equal(extent(lowQualityStack), extent(highQualityStack))),
@@ -212,33 +216,66 @@ overlayStacks <- function(highQualityStack, lowQualityStack, cachePath,
         isTRUE(all.equal(res(lowQualityStack), res(highQualityStack)))))) {
         message("  ",sp," extents, or resolution, or projection did not match; ",
                 "using gdalwarp to make them overlap")
-        tmpName <- basename(tempfile(fileext=".tif"))
+        LQRastName <- basename(tempfile(fileext=".tif"))
+        if (!nzchar(filename(lowQualityStack[[sp]]))) {
+         LQCurName <- basename(tempfile(fileext=".tif"))
+         lowQualityStack[[sp]][] <- as.integer(lowQualityStack[[sp]][])
+         lowQualityStack[[sp]] <- writeRaster(lowQualityStack[[sp]], filename = LQCurName,
+                                              datatype = "INT2U")
+        }
+        
+        LQRastInHQcrs <- projectExtent(lowQualityStack, crs = crs(highQualityStack))
+        # project LQ raster into HQ dimensions
         gdalwarp(overwrite=TRUE,
                  dstalpha = TRUE,
                  s_srs= as.character(crs(lowQualityStack[[sp]])),
                  t_srs= as.character(crs(highQualityStack[[sp]])),
                  multi=TRUE, of="GTiff",
                  tr=res(highQualityStack),
-                 te=c(xmin(highQualityStack), ymin(highQualityStack),
-                      xmax(highQualityStack), ymax(highQualityStack)),
+                 te=c(xmin(LQRastInHQcrs), ymin(LQRastInHQcrs),
+                      xmax(LQRastInHQcrs), ymax(LQRastInHQcrs)),
                  filename(lowQualityStack[[sp]]), ot = "Byte",
-                 tmpName)
-
-        tmp <- raster(tmpName)
-        tmp[] <- tmp[]
-        unlink(tmpName)
+                 LQRastName)
+        
+        LQRast <- raster(LQRastName)
+        LQRast[] <- LQRast[]
+        unlink(LQRastName)
+        
+        if (hqLarger) {
+          tmpHQName <- basename(tempfile(fileext=".tif"))
+          
+          gdalwarp(overwrite=TRUE,
+                   dstalpha = TRUE,
+                   s_srs= as.character(crs(highQualityStack[[sp]])),
+                   t_srs= as.character(crs(highQualityStack[[sp]])),
+                   multi=TRUE, of="GTiff",
+                   tr=res(highQualityStack),
+                   te=c(xmin(LQRastInHQcrs), ymin(LQRastInHQcrs),
+                        xmax(LQRastInHQcrs), ymax(LQRastInHQcrs)),
+                   filename(highQualityStack[[sp]]), ot = "Byte",
+                   tmpHQName)
+          HQRast <- raster(tmpHQName)
+          HQRast[] <- HQRast[]
+          HQRast[HQRast[]==255] <- NA_integer_
+        } else {
+          HQRast <- highQualityStack[[sp]]
+        }
 
       } else {
-        tmp <- lowQualityStack[[sp]]
+        LQRast <- lowQualityStack[[sp]]
+        HQRast <- highQualityStack[[sp]]
       }
       message("Writing new, overlaid ",sp," raster to disk")
-      nas <- is.na(highQualityStack[[sp]][])
-      highQualityStack[[sp]][nas] <- tmp[][nas]
-      highQualityStack[[sp]] <- Cache(writeRaster, highQualityStack[[sp]], datatype = "INT2U",
+      if (!compareRaster(LQRast, HQRast)) stop("Stacks not identical, something is wrong with overlayStacks function")
+      nas <- is.na(HQRast[])
+      HQRast[nas] <- LQRast[][nas]
+      HQRast <- Cache(writeRaster, HQRast, datatype = "INT2U",
                             filename=paste0(sp,"_",outputFilenameSuffix,".tif"), overwrite = TRUE,
                             cacheRepo=cachePath)
+      names(HQRast) <- sp
+      if (!exists("HQStack")) HQStack <- stack(HQRast) else HQStack[[sp]] <- HQRast
     }
   }
-  highQualityStack
+  HQStack
 }
 

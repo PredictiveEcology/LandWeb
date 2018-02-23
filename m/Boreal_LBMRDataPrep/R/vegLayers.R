@@ -88,7 +88,7 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
           Paul250MaskedFilename,
           cacheRepo = cpath)
 
-    .gc()
+    if (!startsWith(Sys.info()["nodename"], prefix = "W-VIC-A105")) .gc()
   }
 
   ## CASFRI data
@@ -151,12 +151,13 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
                       outputFilenameSuffix = "CASFRI_PAUL",
                       cacheRepo = cpath)#, notOlderThan = Sys.time())
 
+    message("Overlay Paul and CASFRI stack with low quality open source stack")
     outStack2 <- Cache(overlayStacks, outStack, existingSpeciesLayers, 
                        cachePath = cpath,
                        outputFilenameSuffix = "CASFRI_PAUL_KNN",
                        cacheRepo = cpath)#, notOlderThan = Sys.time())
 
-    .gc()
+    if (!startsWith(Sys.info()["nodename"], prefix = "W-VIC-A105")) .gc()
   }
 
   return(outStack2)
