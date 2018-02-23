@@ -1,5 +1,5 @@
 loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
-                              CASFRITifFile, CASFRIattrFile, CASFRIheaderFile, 
+                              CASFRITifFile, CASFRIattrFile, CASFRIheaderFile,
                               .quickChecking = NULL) {
   message("  Rescanning for gdal")
   if (!("Windows" %in% Sys.info()["sysname"])) gdal_setInstallation(rescan = TRUE)
@@ -24,7 +24,7 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
   if (!file.exists(PaulRawFileName))  {
     if (!file.exists(zipDownload)) {
       googledrive::drive_auth(cache = FALSE, use_oob = TRUE, verbose = TRUE)
-      file_url <- "https://drive.google.com/file/d/0BxZrk9psrK4nTFVMY295WFFXZk0/view?usp=sharing"
+      file_url <- "https://drive.google.com/file/d/1R-ap8JkZTHtUSKFroQbG7ixo31OD0e-U/view?usp=sharing"
       googledrive::drive_download(googledrive::as_id(file_url), path = zipDownload,
                                   overwrite = TRUE, verbose = TRUE)
     }
@@ -108,7 +108,7 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
   if (!file.exists(CASFRITifFile)) {
     if (!file.exists(zipDownload)) {
       googledrive::drive_auth(cache = FALSE, use_oob = TRUE, verbose = TRUE)
-      file_url <- "https://drive.google.com/file/d/1nhZwBKR1dJASFtZinO28yt0RVaCI-NOz/view?usp=sharing"
+      file_url <- "https://drive.google.com/file/d/1y0ofr2H0c_IEMIpx19xf3_VTBheY0C9h/view?usp=sharing"
       googledrive::drive_download(googledrive::as_id(file_url), path = zipDownload,
                                   overwrite = TRUE, verbose = TRUE)
     }
@@ -159,7 +159,7 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
                       cacheRepo = cpath)#, notOlderThan = Sys.time())
 
     message("Overlay Paul and CASFRI stack with low quality open source stack")
-    outStack2 <- Cache(overlayStacks, outStack, existingSpeciesLayers, 
+    outStack2 <- Cache(overlayStacks, outStack, existingSpeciesLayers,
                        cachePath = cpath,
                        outputFilenameSuffix = "CASFRI_PAUL_KNN",
                        cacheRepo = cpath)#, notOlderThan = Sys.time())
