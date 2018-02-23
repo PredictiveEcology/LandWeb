@@ -192,6 +192,7 @@ CASFRItoSpRasts <- function(cachePath, CASFRIRas, loadedCASFRI) {
     spRasts[[sp]] <- Cache(
                   writeRaster, spRasts[[sp]],
                   filename = asPath(paste0("CASFRI",sp,".tif")), #objectLength = 1e6,
+                  digestPathContent = FALSE,
                   datatype = "INT2U", overwrite = TRUE,
                   cacheRepo = cachePath)
     message("  ", sp, " done")

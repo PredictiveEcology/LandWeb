@@ -151,7 +151,8 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
                       outputFilenameSuffix = "CASFRI_PAUL",
                       cacheRepo = cpath)#, notOlderThan = Sys.time())
 
-    outStack2 <- Cache(overlayStacks, outStack, specieslayers, cachePath = cpath,
+    outStack2 <- Cache(overlayStacks, outStack, existingSpeciesLayers, 
+                       cachePath = cpath,
                        outputFilenameSuffix = "CASFRI_PAUL_KNN",
                        cacheRepo = cpath)#, notOlderThan = Sys.time())
 
