@@ -1,5 +1,5 @@
 loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
-                              CASFRITifFile, CASFRIattrFile, CASFRIheaderFile, 
+                              CASFRITifFile, CASFRIattrFile, CASFRIheaderFile,
                               .quickChecking = NULL) {
   message("  Rescanning for gdal")
   if (!("Windows" %in% Sys.info()["sysname"])) gdal_setInstallation(rescan = TRUE)
