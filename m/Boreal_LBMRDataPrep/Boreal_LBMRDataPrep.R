@@ -571,7 +571,9 @@ Save <- function(sim) {
                         file.path(dPath,"Landweb_CASFRI_GIDs_README.txt")),
                       digestPathContent = .quickChecking#, debugCache = "quick"
     )
+    sim$specieslayers <- stackOut
   } else {
+    
    message("Using only 'Open source data sets'")
   }
 
