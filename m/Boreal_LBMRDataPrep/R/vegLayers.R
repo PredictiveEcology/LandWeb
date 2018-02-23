@@ -20,10 +20,9 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
   PaulRawFileName <- basename(PaulRawFileName)
   zipDownload <- file.path(dpath, "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.zip")
   
-  ## TODO: what if they aren't downloaded ?? need to error-proof this function!!!
   if (!file.exists(PaulRawFileName))  {
     if (!file.exists(zipDownload)) {
-      # googledrive::drive_auth(cache = FALSE, use_oob = TRUE, verbose = TRUE)
+      googledrive::drive_auth(cache = .cacheVal, use_oob = TRUE, verbose = TRUE)
       file_url <- "https://drive.google.com/file/d/1R-ap8JkZTHtUSKFroQbG7ixo31OD0e-U/view?usp=sharing"
       googledrive::drive_download(googledrive::as_id(file_url), path = zipDownload,
                                   overwrite = TRUE, verbose = TRUE)
@@ -117,7 +116,7 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
   ## TODO: what if they aren't downloaded ?? need to error-proof this function!!!
   if (!file.exists(CASFRITifFile)) {
     if (!file.exists(zipDownload)) {
-      # aa <- googledrive::drive_auth(cache = FALSE, use_oob = TRUE, verbose = TRUE)
+      aa <- googledrive::drive_auth(cache = .cacheVal, use_oob = TRUE, verbose = TRUE)
       file_url <- "https://drive.google.com/file/d/1y0ofr2H0c_IEMIpx19xf3_VTBheY0C9h/view?usp=sharing"
       googledrive::drive_download(googledrive::as_id(file_url), path = zipDownload,
                                   overwrite = TRUE, verbose = TRUE)
