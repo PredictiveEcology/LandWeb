@@ -40,13 +40,16 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
                                filename = asPath(file.path(dpath, "PaulSppFilled.tif")),
                                datatype = "INT2U",
                                overwrite = TRUE,
+                               quick = .quickChecking,
                                cacheRepo = cpath)#, debugCache="quick")
     shpStudyRegionFull <- Cache(loadShpAndMakeValid, file = asPath(LandWebStudyAreaRawPoly),
                                 cacheRepo = cpath)
 
     message("Make Study Area Mask polygon")
+    #browser()
     studyAreaMask <- Cache(makeStudyAreaMask, PaulOnGoogleDrive,
                            maskFilename = asPath(file.path(dpath, "StudyAreaMask.tif")),
+                           quick = .quickChecking,
                            cache_path = cpath, # cache path arg passed to makeStudyAreaMask
                            cacheRepo = cpath)  # cache path arg for Cache
 
@@ -146,6 +149,7 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
     #dd <- CASFRItoSpRasts(spRas, loadedCASFRI)
 
     #CASFRISpStack <- CASFRItoSpRasts(paths = paths, spRas, loadedCASFRI)
+    browser()
     CASFRISpStack <- Cache(CASFRItoSpRasts, cachePath = cpath,
                            CASFRIRas, loadedCASFRI, cacheRepo = cpath)
 
