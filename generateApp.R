@@ -85,4 +85,3 @@ newApp(getwd(), appMetadata2)
 
 file.copy("global_file.R", "global.R", overwrite = TRUE)
 shiny::runApp(".")
-print(appStartTime - Sys.time())
