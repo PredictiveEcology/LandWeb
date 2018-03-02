@@ -1,6 +1,6 @@
 reproducible::Require(googledrive)
 
-# THIS IS DANGEROUS, BUT NECESSARY FOR GUARANTEED RUNNING -- 
+# THIS IS DANGEROUS, BUT NECESSARY FOR GUARANTEED RUNNING --
 #    THIS MEANS that any values of objects will be OK and will trigger a cached return
 #    Only shpStudySubRegion and non-object arguments to simInit will make a new run
 guaranteedRun <- FALSE
