@@ -185,7 +185,7 @@ makePaulStack <- function(paths, Paul250MaskedFilename, uniqueKeepSp, .quickChec
 }
 
 
-CASFRItoSpRasts <- function(cachePath, CASFRIRas, loadedCASFRI, .quickChecking = FALSE) {
+CASFRItoSpRasts <- function(cacheRepo2, CASFRIRas, loadedCASFRI, .quickChecking = FALSE) {
   spRasts <- list()
   spRas <- raster(CASFRIRas) %>% setValues(.,NA_integer_)
   for(sp in unique(loadedCASFRI$keepSpecies$spGroup)) {
@@ -203,9 +203,10 @@ CASFRItoSpRasts <- function(cachePath, CASFRIRas, loadedCASFRI, .quickChecking =
     spRasts[[sp]] <- Cache(
       writeRaster, spRasts[[sp]],
       filename = asPath(paste0("CASFRI",sp,".tif")), #objectLength = 1e6,
-      digestPathContent = !.quickChecking, quick = .quickChecking,
       datatype = "INT2U", overwrite = TRUE,
-      cacheRepo = cachePath)
+      digestPathContent = !.quickChecking, quick = .quickChecking,
+      cacheRepo = cacheRepo2
+    )
     message("  ", sp, " done")
   }
   

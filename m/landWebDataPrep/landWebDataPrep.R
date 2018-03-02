@@ -148,11 +148,11 @@ Save <- function(sim) {
 
   #if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
   #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
-  if (is.null(sim$biomassMap)) {
+  if (!suppliedElsewhere("biomassMap")) {
     sim$biomassMap <- Cache(prepInputs,
                      targetFile = biomassMapFilename,
-                     archive = asPath(c("kNN-StructureBiomass.tar",
-                                        "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip")),
+                     archive = asPath(file.path(dataPath, c("kNN-StructureBiomass.tar",
+                                        "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))),
                      destinationPath= asPath(dataPath),
                      fun = "raster",
                      pkg = "raster",
@@ -161,11 +161,11 @@ Save <- function(sim) {
                      rasterInterpMethod = "bilinear",
                      rasterDatatype = "INT2U",
                      writeCropped = TRUE,
-                     cacheTags = c("stable", currentModule(sim)),
-                     quickCheck = .quickChecking)
+                     cacheTags = c("stable", currentModule(sim)))
   }
 
-  if (is.null(sim$LCC2005)) {
+  
+  if (!suppliedElsewhere("LCC2005")) {
     sim$LCC2005 <- Cache(prepInputs,
                          targetFile = lcc2005Filename,
                          archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
@@ -180,13 +180,11 @@ Save <- function(sim) {
     projection(sim$LCC2005) <- projection(sim$biomassMap)
   }
 
-
-
   # If there is no study Area, use a random one
-  if(is.null(sim$shpStudyRegionFull)) {
+  if (!suppliedElsewhere("shpStudyRegionFull")) {
     sim$shpStudyRegionFull <- SpaDES.tools::randomPolygon(cbind(-110, 59), 1e5) # somewhere in N-Central Canada
   }
-  if(is.null(sim$shpStudySubRegion)) {
+  if (!suppliedElsewhere("shpStudySubRegion")) {
     sim$shpStudySubRegion <- sim$shpStudyRegionFull
   }
   return(invisible(sim))

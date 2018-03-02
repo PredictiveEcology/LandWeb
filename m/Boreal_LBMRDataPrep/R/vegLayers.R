@@ -159,7 +159,7 @@ loadPaulAndCASFRI <- function(paths, PaulRawFileName, existingSpeciesLayers,
                          digestPathContent = !.quickChecking, quick = .quickChecking,
                          uniqueKeepSp, cacheRepo = cpath)
     message('Make stack from CASFRI data and headers')
-    CASFRISpStack <- Cache(CASFRItoSpRasts, cachePath = cpath,
+    CASFRISpStack <- Cache(CASFRItoSpRasts, cacheRepo2 = cpath,
                            CASFRIRas, loadedCASFRI, 
                            .quickChecking = .quickChecking,
                            digestPathContent = !.quickChecking, quick = .quickChecking,
