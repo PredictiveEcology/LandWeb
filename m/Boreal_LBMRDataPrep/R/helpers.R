@@ -7,7 +7,7 @@ sumRastersBySpecies <- function(specieslayers, layersToSum,
                                 filenameToSave, newLayerName, cachePath) {
   Pinu_sp <- calc(stack(specieslayers[layersToSum]), sum)
   names(Pinu_sp) <- newLayerName
-  writeRaster(Pinu_sp,
+  Pinu_sp <- writeRaster(Pinu_sp,
               filename = filenameToSave,
               datatype = "INT2U", overwrite = TRUE)
   Pinu_sp # Work around for Cache
