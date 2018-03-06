@@ -215,7 +215,6 @@ estimateParameters <- function(sim) {
     # # replace NA values with ecoregion  value
     #biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
 
-
     message("  6a obtainMaxBandANPPFormBiggerEcoArea: ", Sys.time())
     biomassFrombiggerMap <- Cache(obtainMaxBandANPPFormBiggerEcoArea,
                                   speciesLayers = sim$specieslayers,
@@ -557,35 +556,37 @@ Save <- function(sim) {
     sessionCacheFile <<- tempfile()
   }
   .cacheVal <<- if (grepl("W-VIC-A105", Sys.info()["nodename"])) sessionCacheFile else FALSE
-  googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
   file_url <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
-  aaa <- testthat::capture_error(googledrive::drive_download(googledrive::as_id(file_url), path = tempfile(),
-                              overwrite = TRUE, verbose = FALSE))
+  aaa <- testthat::capture_error({
+    googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
+    googledrive::drive_download(googledrive::as_id(file_url), path = tempfile(),
+                                overwrite = TRUE, verbose = FALSE)
+  })
 
   if (is.null(aaa)) { # means got the file
     message("  Loading CASFRI and Pickell et al. layers")
     sim$specieslayers <- Cache(loadPaulAndCASFRI, paths = lapply(paths(sim), basename),
-                      .quickChecking = .quickChecking,
-                      PaulRawFileName = asPath(
-                        file.path(dPath, "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")),
-                      existingSpeciesLayers = sim$specieslayers,
-                      CASFRITifFile = asPath(
-                        file.path(dPath, "Landweb_CASFRI_GIDs.tif")),
-                      CASFRIattrFile = asPath(
-                        file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv")),
-                      CASFRIheaderFile = asPath(
-                        file.path(dPath,"Landweb_CASFRI_GIDs_README.txt")),
-                      digestPathContent = .quickChecking#, debugCache = "quick"
+                               .quickChecking = .quickChecking,
+                               PaulRawFileName = asPath(
+                                 file.path(dPath, "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")),
+                               existingSpeciesLayers = sim$specieslayers,
+                               CASFRITifFile = asPath(
+                                 file.path(dPath, "Landweb_CASFRI_GIDs.tif")),
+                               CASFRIattrFile = asPath(
+                                 file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv")),
+                               CASFRIheaderFile = asPath(
+                                 file.path(dPath,"Landweb_CASFRI_GIDs_README.txt")),
+                               digestPathContent = .quickChecking#, debugCache = "quick"
     )
   } else {
     message("Using only 'Open source data sets'")
   }
 
-  sim$speciesTable <- prepInputs("speciesTraits.csv", destinationPath = dPath, fun = "read.csv", pkg = "utils")
+  sim$speciesTable <- prepInputs("speciesTraits.csv", destinationPath = dPath,
+                                 fun = "read.csv", pkg = "utils")
   sim$speciesTable <- read.csv(file.path(dPath, "speciesTraits.csv"), header = TRUE,
                                stringsAsFactors = FALSE) %>%
     data.table()
-
 
   sim$sufficientLight <- data.frame(speciesshadetolerance = 1:5,
                                     X0 = 1,
