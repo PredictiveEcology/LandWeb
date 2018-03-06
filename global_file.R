@@ -11,6 +11,12 @@ options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
 appURL <- "http://landweb.predictiveecology.org/Demo/"
 authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
 
+# THIS IS DANGEROUS, BUT NECESSARY FOR GUARANTEED RUNNING -- 
+#    THIS MEANS that any values of objects will be OK and will trigger a cached return
+#    Only shpStudySubRegion and non-object arguments to simInit will make a new run
+guaranteedRun <- FALSE
+if (any(c("emcintir") %in% Sys.info()["user"])) guaranteedRun <- TRUE
+
 # List modules first, so we can get all their dependencies
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
@@ -169,13 +175,17 @@ seed <- sample(1e8, 1)
 set.seed(seed)
 message("Current seed is: ", seed)
 
-objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
+if (guaranteedRun) {
+  objectsToHash <- "shpStudySubRegion" # basically only cache on non-.envir objects plus study area
+} else {
+  objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
+}
 
 # THIS IS THE MAIN "SIMULATION FUNCTION"
 # THE FOLLOWING OBJECT IS A LIST OF 1 simList,
 # A simList is a rich data structure that comes with the SpaDES.core package
 mySimOut <<- Cache(runExperiment, mySim, experimentReps,
-                   debugCache = "complete",
+                   debugCache = "complete", objectsToHash = objectsToHash,
                    objects = objectsToHash)#,
 #sideEffect = TRUE)
 

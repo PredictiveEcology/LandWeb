@@ -57,12 +57,12 @@ defineModule(sim, list(
                  desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput("sufficientLight", "data.frame",
-                  desc = "define how the species with different shade tolerance respond to stand shadeness"),
+                 desc = "define how the species with different shade tolerance respond to stand shadeness"),
     expectsInput("seedingAlgorithm", "character",
-                  desc = "choose which seeding algorithm will be used among noDispersal, universalDispersal,
-                  and wardDispersal, default is wardDispersal"),
+                 desc = "choose which seeding algorithm will be used among noDispersal, universalDispersal,
+                 and wardDispersal, default is wardDispersal"),
     expectsInput("successionTimestep", "numeric",
-                  desc = "define the simulation time step, default is 10 years"),
+                 desc = "define the simulation time step, default is 10 years"),
     # expectsInput(objectName = "cellSize", objectClass = "numeric",
     #              desc = "define the cell size"),
     # expectsInput(objectName = "spinupMortalityfraction", objectClass = "numeric",
@@ -70,7 +70,7 @@ defineModule(sim, list(
     expectsInput(objectName = "studyArea", objectClass = "SpatialPolygons",
                  desc = "study area",
                  sourceURL = NA)
-  ),
+    ),
   outputObjects = bind_rows(
     #createsOutput("objectName", "objectClass", "output object description", ...),
     createsOutput(objectName = "initialCommunities", objectClass = "data.table",
@@ -93,7 +93,7 @@ defineModule(sim, list(
     createsOutput("ecoDistrict", "", ""),
     createsOutput("ecoRegion", "", ""),
     createsOutput("ecoZone", "", "")
-    )
+  )
 ))
 
 ## event types
@@ -368,7 +368,7 @@ Save <- function(sim) {
   whThisMod <- which(unlist(lapply(a@dependencies, function(x) x@name)) == "Boreal_LBMRDataPrep")
   objNames <- a@dependencies[[whThisMod]]@inputObjects$objectName
   objExists <- !unlist(lapply(objNames,
-         function(x) is.null(sim[[x]])))
+                              function(x) is.null(sim[[x]])))
   names(objExists) <- objNames
 
   # Filenames
@@ -408,7 +408,7 @@ Save <- function(sim) {
                             writeCropped = TRUE,
                             cacheTags = c("stable", currentModule(sim)),
                             quickCheck = .quickChecking)#,
-                            #dataset = "EOSD2000")
+    #dataset = "EOSD2000")
 
     # sim$biomassMap <- Cache(prepareIt,
     #                         tarfileName = "kNN-StructureBiomass.tar",
@@ -553,13 +553,19 @@ Save <- function(sim) {
 
   # 3. species maps
   ## load Paul Pickell et al. and CASFRI
-  #dPath <- file.path(modulePath(sim), "Boreal_LBMRDataPrep", "data")
-  # if (!all(c("SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat", "Landweb_CASFRI_GIDs.tif",
-  #           "Landweb_CASFRI_GIDs_attributes3.csv", "Landweb_CASFRI_GIDs_README.txt")
-  #         %in% dir(dPath))) {
-  if (grepl("W-VIC-A", Sys.info()[["nodename"]])) {
+  if (!exists("sessionCacheFile")) {
+    sessionCacheFile <<- tempfile()
+  }
+  .cacheVal <<- if (grepl("W-VIC-A105", Sys.info()["nodename"])) sessionCacheFile else FALSE
+  googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
+  file_url <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
+  aaa <- testthat::capture_error(googledrive::drive_download(googledrive::as_id(file_url), path = tempfile(),
+                              overwrite = TRUE, verbose = FALSE))
+
+  if (is.null(aaa)) { # means got the file
     message("  Loading CASFRI and Pickell et al. layers")
-    stackOut <- Cache(loadPaulAndCASFRI, paths = lapply(paths(sim), basename),
+    sim$specieslayers <- Cache(loadPaulAndCASFRI, paths = lapply(paths(sim), basename),
+                      .quickChecking = .quickChecking,
                       PaulRawFileName = asPath(
                         file.path(dPath, "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")),
                       existingSpeciesLayers = sim$specieslayers,
@@ -569,14 +575,10 @@ Save <- function(sim) {
                         file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv")),
                       CASFRIheaderFile = asPath(
                         file.path(dPath,"Landweb_CASFRI_GIDs_README.txt")),
-                      quick = .quickChecking,
-                      .quickChecking = .quickChecking,
                       digestPathContent = .quickChecking#, debugCache = "quick"
     )
-    sim$specieslayers <- stackOut
   } else {
-
-   message("Using only 'Open source data sets'")
+    message("Using only 'Open source data sets'")
   }
 
   sim$speciesTable <- prepInputs("speciesTraits.csv", destinationPath = dPath, fun = "read.csv", pkg = "utils")
@@ -613,12 +615,12 @@ Save <- function(sim) {
     message("  Rasterizing the shpStudyRegionFull polygon map")
 
     fieldName <- if (is.null(nrow(studyArea))) {
-        NULL
-      } else if ("LTHRC" %in% names(sim$shpStudyRegionFull)) {
-        "LTHRC"
-      } else {
-        names(sim$shpStudyRegionFull)[1]
-      }
+      NULL
+    } else if ("LTHRC" %in% names(sim$shpStudyRegionFull)) {
+      "LTHRC"
+    } else {
+      names(sim$shpStudyRegionFull)[1]
+    }
 
     fasterizeFromSp <- function(sp, raster, fieldName) {
       fasterize::fasterize(sf::st_as_sf(sp), raster, field = fieldName)
