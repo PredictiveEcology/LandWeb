@@ -30,7 +30,7 @@ loadStudyRegion <- function(shpPath, studyArea, crsKNNMaps) {
   shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
   shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
 
-  shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea, targetCR = crsKNNMaps)
+  shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea, targetCRS = crsKNNMaps)
   list(shpStudyRegion = shpStudyRegion, shpStudyRegionFull = shpStudyRegionFull)
 }
 
@@ -79,7 +79,7 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
       Sr1 <- Polygon(cbind(X + xAdd, Y + yAdd))
       Srs1 <- Polygons(list(Sr1), "s1")
       inputMapPolygon <- SpatialPolygons(list(Srs1), 1L)
-      crs(inputMapPolygon) <- crsKNNMaps
+      crs(inputMapPolygon) <- targetCRS
       shpStudyRegion <- raster::intersect(shpStudyRegionFull, inputMapPolygon)
     }
 
