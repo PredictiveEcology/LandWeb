@@ -33,8 +33,12 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
 
   sumSpecies <- c("Pinu_Ban", "Pinu_Con")
   newLayerName <- grep("Pinu", speciesNamesEnd, value = TRUE)
-  a <- Cache(sumRastersBySpecies, species1[sumSpecies], newLayerName = newLayerName,
-             filenameToSave = .prefix(file.path(dataPath, "KNNPinu_sp.tif"), "Small"))
+  fname <- .prefix(file.path(dataPath, "KNNPinu_sp.tif"), "Small") 
+  a <- Cache(sumRastersBySpecies, 
+             species1[sumSpecies], newLayerName = newLayerName, 
+             filenameToSave = fname, 
+             userTags = "stable") 
+  a <- raster(fname) ## ensure a gets a filename 
   species1[sumSpecies] <- NULL
   species1[[newLayerName]] <- a
   names(species1)[grep("Abie", names(species1))] <- grep("Abie", speciesNamesEnd, value = TRUE)
