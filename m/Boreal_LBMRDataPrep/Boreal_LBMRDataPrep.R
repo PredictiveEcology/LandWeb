@@ -41,6 +41,12 @@ defineModule(sim, list(
     expectsInput(objectName = "specieslayers", objectClass = "RasterStack",
                  desc = "biomass percentage raster layers by species in Canada species map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-Species.tar"),
+    expectsInput(objectName = "SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.zip", objectClass = "RasterStack",
+                 desc = "biomass percentage raster layers by species in Canada species map, created by Pickell et al, UBC, resolution 100m x 100m from LandSat and KNN based on CASFRI",
+                 sourceURL = "https://drive.google.com/open?id=1M_L-7ovDpJLyY8dDOxG3xQTyzPx2HSg4"),
+    expectsInput(objectName = "CASFRI for Landweb.zip", objectClass = "RasterStack",
+                 desc = "biomass percentage raster layers by species in Canada species map, created by Pickell et al, UBC, resolution 100m x 100m from LandSat and KNN based on CASFRI",
+                 sourceURL = "https://drive.google.com/file/d/1y0ofr2H0c_IEMIpx19xf3_VTBheY0C9h/view?usp=sharing"),
     expectsInput(objectName = "LCC2005", objectClass = "RasterLayer",
                  desc = "2005 land classification map in study area, default is Canada national land classification in 2005",
                  sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip"),
@@ -143,7 +149,6 @@ estimateParameters <- function(sim) {
                             speciesPresence = 50,
                             studyArea = sim$studyArea,
                             rstStudyArea = rstStudyRegionBinary,
-                            digestPathContent = .quickChecking,
                             userTags = "stable")
   ecoregionstatus <- data.table(active = "yes",
                                 ecoregion = 1:1031)
@@ -159,7 +164,6 @@ estimateParameters <- function(sim) {
                           studyArea = sim$studyArea,
                           rstStudyArea = rstStudyRegionBinary,
                           maskFn = fastMask,
-                          digestPathContent = .quickChecking,
                           userTags = "stable")
 
   .gc()
@@ -175,7 +179,6 @@ estimateParameters <- function(sim) {
                           ecoregion = ecoregionFiles$ecoregion,
                           initialCommunityMap = initialCommFiles$initialCommunityMap,
                           initialCommunity = initialCommFiles$initialCommunity,
-                          digestPathContent = .quickChecking,
                           userTags = "stable")
 
   .gc()
@@ -186,7 +189,6 @@ estimateParameters <- function(sim) {
                                  biomassLayer = sim$biomassMap,
                                  SALayer = sim$standAgeMap,
                                  ecoregionMap = simulationMaps$ecoregionMap,
-                                 digestPathContent = .quickChecking,
                                  userTags = "stable")
 
   .gc()
@@ -195,7 +197,6 @@ estimateParameters <- function(sim) {
   #septable <- sim$obtainSEPCached(ecoregionMap = simulationMaps$ecoregionMap,
   septable <- Cache(obtainSEP, ecoregionMap = simulationMaps$ecoregionMap,
                     speciesLayers = sim$specieslayers,
-                    digestPathContent = .quickChecking,
                     userTags = "stable")
   names(septable) <- c("ecoregion", "species", "SEP")
   septable[, SEP := round(SEP, 2)]
@@ -224,7 +225,6 @@ estimateParameters <- function(sim) {
                                   biggerEcoArea = sim$ecoRegion,
                                   biggerEcoAreaSource = "ecoRegion",
                                   NAData = NAdata,
-                                  digestPathContent = .quickChecking,
                                   maskFn = fastMask,
                                   userTags = "stable")
     message("  6b obtainMaxBandANPPFormBiggerEcoArea: ", Sys.time())
@@ -243,7 +243,6 @@ estimateParameters <- function(sim) {
                                   SALayer = sim$standAgeMap, ecoregionMap = simulationMaps$ecoregionMap,
                                   biggerEcoArea = sim$ecoZone, biggerEcoAreaSource = "ecoZone",
                                   NAData = NAdata, maskFn = fastMask,
-                                  digestPathContent = .quickChecking,
                                   userTags = "stable")
     message("  7b obtainMaxBandANPPFormBiggerEcoArea if NAdata exist: ", Sys.time())
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
@@ -268,7 +267,6 @@ estimateParameters <- function(sim) {
   sim$initialCommunitiesMap <- Cache(createInitCommMap, simulationMaps$initialCommunityMap,
                                      as.integer(simulationMaps$initialCommunityMap[]),
                                      file.path(outputPath(sim), "initialCommunitiesMap.tif"),
-                                     digestPathContent = .quickChecking,
                                      userTags = "stable")
 
   .gc()
@@ -394,8 +392,8 @@ Save <- function(sim) {
     sim$shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache
 
   cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
-
-  if (is.null(sim$biomassMap)) {
+  
+  if (!suppliedElsewhere(sim$biomassMap)) {
     sim$biomassMap <- Cache(prepInputs,
                             targetFile = biomassMapFilename,
                             archive = asPath(c("kNN-StructureBiomass.tar",
@@ -405,8 +403,7 @@ Save <- function(sim) {
                             rasterInterpMethod = "bilinear",
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE,
-                            cacheTags = c("stable", currentModule(sim)),
-                            quickCheck = .quickChecking)#,
+                            cacheTags = c("stable", currentModule(sim)))#,
     #dataset = "EOSD2000")
 
     # sim$biomassMap <- Cache(prepareIt,
@@ -420,19 +417,18 @@ Save <- function(sim) {
   }
 
   # LCC2005
-  if (is.null(sim$LCC2005)) {
+  if (!suppliedElsewhere(sim$LCC2005)) {
     sim$LCC2005 <- Cache(prepInputs,
                          targetFile = lcc2005Filename,
                          archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
-                         destinationPath= asPath(dPath),
+                         destinationPath = asPath(dPath),
                          studyArea = sim$shpStudySubRegion,
                          rasterToMatch = sim$biomassMap,
                          rasterInterpMethod = "bilinear",
                          rasterDatatype = "INT2U",
                          writeCropped = TRUE,
-                         cacheTags = currentModule(sim),
-                         quickCheck = .quickChecking)
-
+                         cacheTags = currentModule(sim))
+    
     projection(sim$LCC2005) <- projection(sim$biomassMap)
     # sim$LCC2005 <- Cache(prepareIt,
     #                      zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
@@ -442,8 +438,8 @@ Save <- function(sim) {
     #                      userTags = cacheTags,
     #                      modulePath = modulePath(sim))
   }
-
-  if (is.null(sim$ecoDistrict)) {
+  
+  if (!suppliedElsewhere(sim$ecoDistrict)) {
     sim$ecoDistrict <- Cache(prepInputs,
                              targetFile = asPath(ecodistrictFilename),
                              archive = asPath("ecodistrict_shp.zip"),
@@ -454,8 +450,7 @@ Save <- function(sim) {
                              fun = "shapefile",
                              writeCropped = TRUE,
                              cacheTags = cacheTags,
-                             userTags = cacheTags,
-                             quickCheck = .quickChecking)
+                             userTags = cacheTags)
     # sim$ecoDistrict <- Cache(prepareIt,
     #                       zipfileName = "ecodistrict_shp.zip",
     #                       zipExtractFolder = "Ecodistricts",
@@ -465,8 +460,8 @@ Save <- function(sim) {
     #                       studyArea = sim$shpStudyRegionFull,
     #                       modulePath = modulePath(sim))
   }
-
-  if (is.null(sim$ecoRegion)) {
+  
+  if (!suppliedElsewhere(sim$ecoRegion)) {
     # sim$ecoRegion <- Cache(prepareIt,
     #                        zipfileName = asPath("ecoregion_shp.zip"),
     #                        zipExtractFolder = "Ecoregions",
@@ -485,12 +480,11 @@ Save <- function(sim) {
                            fun = "shapefile",
                            writeCropped = TRUE,
                            cacheTags = cacheTags,
-                           userTags = cacheTags,
-                           quickCheck = .quickChecking)
+                           userTags = cacheTags)
   }
-
-  if (is.null(sim$ecoZone)) {
-    sim$ecoZone <- Cache(prepInputs,
+  
+  if (!suppliedElsewhere(sim$ecoZone)) {
+    sim$ecoZone <- Cache(prepInputs, #notOlderThan = Sys.time(),
                          targetFile = asPath(ecozoneFilename),
                          archive = asPath("ecozone_shp.zip"),
                          alsoExtract = ecozoneAE,
@@ -500,31 +494,12 @@ Save <- function(sim) {
                          fun = "shapefile",
                          writeCropped = TRUE,
                          cacheTags = cacheTags,
-                         userTags = cacheTags,
-                         quickCheck = .quickChecking)
-    # sim$ecoZone <- Cache(prepareIt,
-    #                      zipfileName = asPath("ecozone_shp.zip"),
-    #                      zipExtractFolder = "Ecozones",
-    #                      spatialObjectFilename = ecozoneFilename,
-    #                      dataPath = dPath, #rasterToMatch = sim$biomassMap,
-    #                      studyArea = sim$shpStudyRegionFull,
-    #                      userTags = cacheTags,
-    #                      modulePath = modulePath(sim))
-
+                         userTags = cacheTags)
   }
 
   # stand age map
-  if (is.null(sim$standAgeMap)) {
-    # sim$standAgeMap <- Cache(prepareIt,
-    #                         tarfileName = "kNN-StructureStandVolume.tar",
-    #                         zipfileName = asPath("NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip"),
-    #                         spatialObjectFilename = standAgeMapFilename,
-    #                         dataPath = dPath, rasterToMatch = sim$biomassMap,
-    #                         studyArea = sim$shpStudyRegionFull,
-    #                         userTags = cacheTags,
-    #                         modulePath = modulePath(sim))
-
-    sim$standAgeMap <- Cache(prepInputs,
+  if (!suppliedElsewhere(sim$standAgeMap)) {
+    sim$standAgeMap <- Cache(prepInputs, #notOlderThan = Sys.time(),
                              targetFile = standAgeMapFilename,
                              archive = asPath(c("kNN-StructureStandVolume.tar",
                                                 "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip")),
@@ -536,48 +511,86 @@ Save <- function(sim) {
                              rasterInterpMethod = "bilinear",
                              rasterDatatype = "INT2U",
                              writeCropped = TRUE,
-                             cacheTags = c("stable", currentModule(sim)),
-                             #dataset = "KNN",
-                             quickCheck = .quickChecking)
+                             cacheTags = c("stable", currentModule(sim)))
   }
-
-  if (is.null(sim$specieslayers)) {
+  
+  if (!suppliedElsewhere(sim$specieslayers)) {
     sim$specieslayers <- Cache(loadAllSpeciesLayers, dPath, sim$biomassMap,
                                sim$shpStudyRegionFull, moduleName = currentModule(sim),
-                               quickCheck = .quickChecking,
-                               cacheTags = cacheTags, # This is for the internal caching
-                               userTags = cacheTags)
+                               cacheTags = cacheTags)#, # This is for the internal caching
+                               #userTags = cacheTags)
   }
-
-
+  
+  
+  
   # 3. species maps
   ## load Paul Pickell et al. and CASFRI
-  if (!exists("sessionCacheFile")) {
-    sessionCacheFile <<- tempfile()
-  }
-  .cacheVal <<- if (grepl("W-VIC-A105", Sys.info()["nodename"])) sessionCacheFile else FALSE
+  if (!exists("sessionCacheFile")) { 
+    sessionCacheFile <<- tempfile() 
+  } 
+  .cacheVal <<- if (grepl("VIC-A", Sys.info()["nodename"])) sessionCacheFile else FALSE
+  googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
   file_url <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
-  aaa <- testthat::capture_error({
-    googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
-    googledrive::drive_download(googledrive::as_id(file_url), path = tempfile(),
-                                overwrite = TRUE, verbose = FALSE)
-  })
-
+  aaa <- testthat::capture_error(googledrive::drive_download(googledrive::as_id(file_url), path = tempfile(),
+                              overwrite = TRUE, verbose = TRUE))
   if (is.null(aaa)) { # means got the file
     message("  Loading CASFRI and Pickell et al. layers")
-    sim$specieslayers <- Cache(loadPaulAndCASFRI, paths = lapply(paths(sim), basename),
-                               .quickChecking = .quickChecking,
-                               PaulRawFileName = asPath(
-                                 file.path(dPath, "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG.dat")),
-                               existingSpeciesLayers = sim$specieslayers,
-                               CASFRITifFile = asPath(
-                                 file.path(dPath, "Landweb_CASFRI_GIDs.tif")),
-                               CASFRIattrFile = asPath(
-                                 file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv")),
-                               CASFRIheaderFile = asPath(
-                                 file.path(dPath,"Landweb_CASFRI_GIDs_README.txt")),
-                               digestPathContent = .quickChecking#, debugCache = "quick"
-    )
+    Paul <- Cache(prepInputs,
+          targetFile = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.dat"),
+          archive = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.zip"),
+          alsoExtract = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.hdr"), 
+          destinationPath= asPath(dPath),
+          fun = "raster",
+          pkg = "raster",
+          studyArea = sim$shpStudySubRegion,
+          rasterToMatch = sim$biomassMap,
+          rasterInterpMethod = "bilinear",
+          rasterDatatype = "INT2U",
+          writeCropped = TRUE,
+          cacheTags = c("stable", currentModule(sim)))#, notOlderThan = Sys.time())
+    
+    CASFRITifFile = asPath(file.path(dPath, "Landweb_CASFRI_GIDs.tif"))
+    CASFRIattrFile = asPath(file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv"))
+    CASFRIheaderFile = asPath(file.path(dPath,"Landweb_CASFRI_GIDs_README.txt"))
+    CASFRIRas <- Cache(prepInputs,
+                  targetFile = asPath("Landweb_CASFRI_GIDs.tif"),
+                  archive = asPath("CASFRI for Landweb.zip"),
+                  alsoExtract = c(CASFRITifFile, CASFRIattrFile, CASFRIheaderFile),
+                  destinationPath= asPath(dPath),
+                  fun = "raster",
+                  pkg = "raster",
+                  studyArea = sim$shpStudySubRegion,
+                  rasterToMatch = sim$biomassMap,
+                  rasterInterpMethod = "bilinear",
+                  rasterDatatype = "INT2U",
+                  writeCropped = TRUE,
+                  cacheTags = c("stable", currentModule(sim)))
+    
+    message("Load CASFRI data and headers, and convert to long format, and define species groups")
+    loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile, 
+                          debugCache = "complete", userTags = "BigDataTable")
+    
+    message("Make stack of species layers from Paul's layer")
+    uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
+    # "Abie_sp"  "Betu_pap" "Lari_lar" "Pice_gla" "Pice_mar" "Pinu_sp" "Popu_tre"
+    PaulSpStack <- Cache(makePaulStack, paths = lapply(paths(sim), basename), 
+                         PaulRaster = Paul, uniqueKeepSp)
+    crs(PaulSpStack) <- crs(sim$biomassMap) # bug in writeRaster
+    
+    message('Make stack from CASFRI data and headers')
+    CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI)
+    
+    message("Overlay Paul and CASFRI stacks")
+    outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack, 
+                      outputFilenameSuffix = "CASFRI_PAUL")#, notOlderThan = Sys.time())
+    crs(outStack) <- crs(sim$biomassMap) # bug in writeRaster
+    
+    message("Overlay Paul_CASFRI with open data set stacks")
+    sim$specieslayers2 <- Cache(overlayStacks, outStack, sim$specieslayers, 
+                       outputFilenameSuffix = "CASFRI_PAUL_KNN")
+    crs(sim$specieslayers2) <- crs(sim$biomassMap)
+    sim$specieslayers <- sim$specieslayers2
+    rm(specieslayers2, envir = envir(sim))
   } else {
     message("Using only 'Open source data sets'")
   }
@@ -599,11 +612,11 @@ Save <- function(sim) {
   # sim$spinupMortalityfraction <- 0.002
   # sim$cellSize <- 250
   sim$successionTimestep <- 10
-
-  if (is.null(sim$studyArea)) {
+  
+  if (!suppliedElsewhere(sim$studyArea)) {
     sim$studyArea <- sim$shpStudyRegionFull
   }
-  if (is.null(sim$rstStudyRegion)) {
+  if (!suppliedElsewhere(sim$rstStudyRegion)) {
     needRstSR <- TRUE
   } else {
     if (!identical(extent(sim$rstStudyRegion), extent(biomassMap))) {
