@@ -11,12 +11,6 @@ options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
 appURL <- "http://landweb.predictiveecology.org/Demo/"
 authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
 
-# THIS IS DANGEROUS, BUT NECESSARY FOR GUARANTEED RUNNING -- 
-#    THIS MEANS that any values of objects will be OK and will trigger a cached return
-#    Only shpStudySubRegion and non-object arguments to simInit will make a new run
-guaranteedRun <- FALSE
-if (any(c("emcintir") %in% Sys.info()["user"])) guaranteedRun <- TRUE
-
 # List modules first, so we can get all their dependencies
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
@@ -168,127 +162,7 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
 # a few map details for shiny app
 source("mapsForShiny.R")
 
-# Run Experiment
+# Run Experiment (mostly moved to server.R)
 source("runExperiment.R")
-
-seed <- sample(1e8, 1)
-set.seed(seed)
-message("Current seed is: ", seed)
-
-if (guaranteedRun) {
-  objectsToHash <- "shpStudySubRegion" # basically only cache on non-.envir objects plus study area
-} else {
-  objectsToHash <- grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
-}
-
-# THIS IS THE MAIN "SIMULATION FUNCTION"
-# THE FOLLOWING OBJECT IS A LIST OF 1 simList,
-# A simList is a rich data structure that comes with the SpaDES.core package
-mySimOut <<- Cache(runExperiment, mySim, experimentReps,
-                   debugCache = "complete", objectsToHash = objectsToHash,
-                   objects = objectsToHash)#,
-#sideEffect = TRUE)
-
-message("  Finished Experiment")
-
-message("  Identify which files were created during simulation")
-# outputs() function reports on any files that were created during the simulation
-filesFromOutputs <- lapply(seq_along(mySimOut), function(x) {
-  outputs(mySimOut[[x]])$file
-})
-
-for (simNum in seq_along(mySimOut)) {
-  mySimOut[[simNum]]@outputs$file <- lapply(
-    strsplit(outputs(mySimOut[[simNum]])$file,
-             split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")),
-    function(f) {
-      f[[2]]
-    }) %>%
-    unlist() %>%
-    file.path(paths$outputPath, .)
-}
-
-message("  Load rasters from disk, reproject them to leaflet projection")
-rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
-  grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
-}) %>% unlist()
-
-# Look for all files named rstTimeSinceFire -- these are several rasters each with a filename
-#   that represents the simulation "time" when it was created, e.g., 10, 20, 30 years
-tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
-# These are several rasters indicating vegetation type, again each one coming from a specific
-#   simulation time ... a time series of rasters...
-vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
-lenTSF <- length(tsf)
-rasterResolution <<- raster(tsf[1]) %>% res()
-
-if (FALSE) {
-  message("  Identify which files were created during simulation")
-  # outputs() function reports on any files that were created during the simulation
-  filesFromOutputs <- lapply(seq_along(mySimOut), function(x) {
-    outputs(mySimOut[[x]])$file
-  })
-
-  for (simNum in seq_along(mySimOut)) {
-    mySimOut[[simNum]]@outputs$file <- lapply(
-      strsplit(outputs(mySimOut[[simNum]])$file,
-               split = paste0(outputPath(mySimOut[[simNum]]),"[\\/]+")),
-      function(f) {
-        f[[2]]
-      }) %>%
-      unlist() %>%
-      file.path(paths$outputPath, .)
-  }
-
-  message("  Load rasters from disk, reproject them to leaflet projection")
-  rastersFromOutputs <- lapply(seq_along(mySimOut), function(x) {
-    grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
-  }) %>% unlist()
-
-  # Look for all files named rstTimeSinceFire -- these are several rasters each with a filename
-  #   that represents the simulation "time" when it was created, e.g., 10, 20, 30 years
-  tsf <- grep(pattern = "rstTimeSinceFire", rastersFromOutputs, value = TRUE)
-  # These are several rasters indicating vegetation type, again each one coming from a specific
-  #   simulation time ... a time series of rasters...
-  vtm <- grep(pattern = "vegTypeMap", rastersFromOutputs, value = TRUE)
-  lenTSF <- length(tsf)
-  rasterResolution <<- raster(tsf[1]) %>% res()
-}
-
-## WORKAROUND: was part of the previous if(FALSE) block, but we need this
-if (TRUE) {
-  lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
-
-  globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = .quickCheck,
-                          lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
-                          flammableFile = asPath(file.path(paths$outputPath, "rstFlammable.grd")))
-}
-
-message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
-args <- list(leadingByStage, tsf, vtm,
-             polygonToSummarizeBy = ecodistricts,
-             cl = if (exists("cl")) cl,
-             omitArgs = "cl", digestPathContent = .quickCheck,
-             ageClasses = ageClasses, cacheRepo = paths$cachePath)
-args <- args[!unlist(lapply(args, is.null))]
-leading <- do.call(Cache, args)
-rm(args)
-
-
-message("  Determine number of large patches, by polygon (loading 2 rasters, summarize by polygon)")
-# Large patches
-polygonsWithData <- leading[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
-vegLeadingTypes <- c(unique(leading$vegType))
-vegLeadingTypesWithAllSpecies <- c(vegLeadingTypes, "All species")
-
-source("shiny-modules/inputTables.R")
-
-clumpMod2Args <- list(
-  currentPolygon = polygons[[1 + length(polygons)/4]],
-  tsf = tsf, vtm = vtm,
-  cl = if (exists("cl")) cl,
-  ageClasses = ageClasses, cacheRepo = paths$cachePath,
-  largePatchesFn = largePatchesFn, countNumPatches = countNumPatches)
-clumpMod2Args <- clumpMod2Args[!unlist(lapply(clumpMod2Args, is.null))]
 
 message("  Finished global.R")
