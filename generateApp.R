@@ -1,10 +1,10 @@
-if (FALSE) { # these are FALSE for standard use, but individual cases may need to run them 
-  devtools::install_github("PredictiveEcology/quickPlot", ref = "development") 
-  devtools::install_github("PredictiveEcology/reproducible", ref = "development") 
-  devtools::install_github("PredictiveEcology/webDatabases", ref = "master") 
-  devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development") 
-  devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development") 
-} 
+if (FALSE) { # these are FALSE for standard use, but individual cases may need to run them
+  devtools::install_github("PredictiveEcology/quickPlot", ref = "development")
+  devtools::install_github("PredictiveEcology/reproducible", ref = "development")
+  devtools::install_github("PredictiveEcology/webDatabases", ref = "master")
+  devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development")
+  devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development")
+}
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
 
 if (FALSE) {
@@ -86,4 +86,4 @@ appMetadata2 <- list(
 newApp(getwd(), appMetadata2)
 
 file.copy("global_file.R", "global.R", overwrite = TRUE)
-shiny::runApp(".")
+shiny::runApp(".", launch.browser = TRUE, port = 5921)
