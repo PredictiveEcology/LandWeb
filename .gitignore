@@ -1,4 +1,5 @@
 ## file types by extension
+.httr-oauth
 *.csv
 *.log
 *.rds
@@ -52,4 +53,3 @@ outputs*
 
 ## misc OS files
 Thumbs.db
-

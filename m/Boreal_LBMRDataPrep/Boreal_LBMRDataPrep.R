@@ -48,10 +48,10 @@ defineModule(sim, list(
                  desc = "species attributes table, default is from Dominic and Yan's project",
                  sourceURL = "https://raw.githubusercontent.com/dcyr/LANDIS-II_IA_generalUseFiles/master/speciesTraits.csv"),
     expectsInput(objectName = "shpStudyRegionFull", objectClass = "SpatialPolygonsDataFrame",
-                 desc = "this shape file contains two informaton: Full study areawith fire return interval attribute",
+                 desc = "this shape file contains two informaton: Full study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame",
-                 desc = "this shape file contains two informaton: Sub study areawith fire return interval attribute",
+                 desc = "this shape file contains two informaton: Sub study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput(objectName = "rstStudyRegion", objectClass = "RasterLayer",
                  desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
@@ -214,7 +214,6 @@ estimateParameters <- function(sim) {
   if (nrow(NAdata) > 1) {
     # # replace NA values with ecoregion  value
     #biomassFrombiggerMap <- sim$obtainMaxBandANPPFormBiggerEcoAreaCached(speciesLayers = sim$specieslayers,
-
 
     message("  6a obtainMaxBandANPPFormBiggerEcoArea: ", Sys.time())
     biomassFrombiggerMap <- Cache(obtainMaxBandANPPFormBiggerEcoArea,
@@ -557,11 +556,12 @@ Save <- function(sim) {
     sessionCacheFile <<- tempfile()
   }
   .cacheVal <<- if (grepl("W-VIC-A105", Sys.info()["nodename"])) sessionCacheFile else FALSE
-  googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
   file_url <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
-  aaa <- testthat::capture_error(googledrive::drive_download(googledrive::as_id(file_url),
-                                                             path = tempfile(),
-                                                             overwrite = TRUE, verbose = FALSE))
+  aaa <- testthat::capture_error({
+    googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
+    googledrive::drive_download(googledrive::as_id(file_url), path = tempfile(),
+                                overwrite = TRUE, verbose = FALSE)
+  })
 
   if (is.null(aaa)) { # means got the file
     message("  Loading CASFRI and Pickell et al. layers")
@@ -575,18 +575,18 @@ Save <- function(sim) {
                                CASFRIattrFile = asPath(
                                  file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv")),
                                CASFRIheaderFile = asPath(
-                                 file.path(dPath, "Landweb_CASFRI_GIDs_README.txt")),
+                                 file.path(dPath,"Landweb_CASFRI_GIDs_README.txt")),
                                digestPathContent = .quickChecking#, debugCache = "quick"
     )
   } else {
     message("Using only 'Open source data sets'")
   }
 
-  sim$speciesTable <- prepInputs("speciesTraits.csv", destinationPath = dPath, fun = "read.csv", pkg = "utils")
+  sim$speciesTable <- prepInputs("speciesTraits.csv", destinationPath = dPath,
+                                 fun = "read.csv", pkg = "utils")
   sim$speciesTable <- read.csv(file.path(dPath, "speciesTraits.csv"), header = TRUE,
                                stringsAsFactors = FALSE) %>%
     data.table()
-
 
   sim$sufficientLight <- data.frame(speciesshadetolerance = 1:5,
                                     X0 = 1,

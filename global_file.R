@@ -1,4 +1,15 @@
+reproducible::Require(googleAuthR)
 reproducible::Require(googledrive)
+reproducible::Require(googleID)
+
+options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
+                                        "https://www.googleapis.com/auth/userinfo.email",
+                                        "https://www.googleapis.com/auth/userinfo.profile"))
+options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
+options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
+
+appURL <- "http://landweb.predictiveecology.org/Demo/"
+authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
 
 # THIS IS DANGEROUS, BUT NECESSARY FOR GUARANTEED RUNNING --
 #    THIS MEANS that any values of objects will be OK and will trigger a cached return
@@ -13,9 +24,10 @@ modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
 studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
 studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
-## paths
+## paths -- NOTE: these are the 'default' paths for app setup;
+##                however, in-app, the paths need to be set as reactive values for authentication!
 paths <- list(
-  cachePath = paste0("appCache", studyArea),
+  cachePath = ifelse(paste0("appCache", studyArea)),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = paste0("outputs", studyArea)
@@ -109,7 +121,6 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
     list2env(shpStudyRegions, envir = environment())
   }
 
-
 # simInit objects
   times <- list(start = 0, end = endTime)
   .quickChecking <- TRUE
@@ -149,14 +160,9 @@ reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
                            saveTime = times$end), fun = "saveRDS", package = "base" )
   outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
                                   list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
-                             times = NROW(outputs)/length(objectNamesToSave)))
+                             times = NROW(outputs) / length(objectNamesToSave)))
   outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2), fill = TRUE))
 
-# Main simInit function call -- loads all data
-startSimInit <- Sys.time()
-mySim <<- simInit(times = times, params = parameters, modules = modules,
-                  objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules))
-endSimInit <- Sys.time()
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
 # This needs simInit call to be run already
 # a few map details for shiny app
