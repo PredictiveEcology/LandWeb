@@ -1,6 +1,5 @@
-reproducible::Require("googleAuthR")
-reproducible::Require("googledrive")
-reproducible::Require("googleID")
+# Put all loading in one call, makes versioning easier whenever we need that.
+reproducible::Require(c("googleAuthR", "googledrive", "googleID"))
 
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
                                         "https://www.googleapis.com/auth/userinfo.email",
@@ -22,7 +21,7 @@ modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
-studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
+studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
 ##                however, in-app, the paths need to be set as reactive values for authentication!
