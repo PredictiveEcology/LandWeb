@@ -1,6 +1,6 @@
-reproducible::Require(googleAuthR)
-reproducible::Require(googledrive)
-reproducible::Require(googleID)
+reproducible::Require("googleAuthR")
+reproducible::Require("googledrive")
+reproducible::Require("googleID")
 
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
                                         "https://www.googleapis.com/auth/userinfo.email",
@@ -22,12 +22,12 @@ modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
-#studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
+studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
 ##                however, in-app, the paths need to be set as reactive values for authentication!
 paths <- list(
-  cachePath = ifelse(paste0("appCache", studyArea)),
+  cachePath = paste0("appCache", studyArea),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = paste0("outputs", studyArea)
@@ -167,6 +167,11 @@ outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatyp
                            times = NROW(outputs)/length(objectNamesToSave)))
 outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2), fill = TRUE))
 
+# Main simInit function call -- loads all data 
+startSimInit <- Sys.time() 
+mySim <<- simInit(times = times, params = parameters, modules = modules, 
+                  objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules)) 
+endSimInit <- Sys.time()
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
 # This needs simInit call to be run already
 # a few map details for shiny app

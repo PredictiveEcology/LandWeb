@@ -567,7 +567,8 @@ Save <- function(sim) {
                   cacheTags = c("stable", currentModule(sim)))
     
     message("Load CASFRI data and headers, and convert to long format, and define species groups")
-    loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile, debugCache = "complete", userTags = "BigDataTable")
+    loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile, 
+                          debugCache = "complete", userTags = "BigDataTable")
     
     message("Make stack of species layers from Paul's layer")
     uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
