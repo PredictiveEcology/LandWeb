@@ -125,8 +125,9 @@ AllEvents <- function(sim) {
 
 
 .inputObjects = function(sim) {
-  sim$summaryPeriod <- c(1000, 1500)
-  if (is.null(sim$vegTypeMapGenerator)) { # otherwise created in LandMine
+  if (!suppliedElsewhere("summaryPeriod", sim)) 
+    sim$summaryPeriod <- c(1000, 1500)
+  if (!suppliedElsewhere("vegTypeMapGenerator", sim)) { # otherwise created in LandMine
     sim$vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap, vegLeadingPercent) {
       species[species == "Pinu_ban" | species == "Pinu_con" | species == "Pinu_sp", speciesGroup := "PINU"]
       species[species == "Betu_pap" | species == "Popu_bal" | species == "Popu_tre" |
@@ -181,11 +182,11 @@ AllEvents <- function(sim) {
     
   }
   sim$vegLeadingPercent <- 0.80
-  if (is.null(sim$cohortData))
+  if (!suppliedElsewhere("cohortData", sim))
     sim$cohortData <- data.table()
-  if (is.null(sim$pixelGroupMap))
+  if (!suppliedElsewhere("pixelGroupMap", sim))
     sim$pixelGroupMap <- raster()
-  if (is.null(sim$species)) {
+  if (!suppliedElsewhere("species", sim)) {
     localSpeciesFilename <- file.path(dataPath(sim), "speciesTraits.csv")
     if (!file.exists(localSpeciesFilename)) {
       mm <- moduleMetadata(currentModule(sim), getPaths()$modulePath)$inputObjects
@@ -193,7 +194,7 @@ AllEvents <- function(sim) {
                     destfile = localSpeciesFilename)
     }
     sim$species <- read.csv(localSpeciesFilename, header = TRUE,
-                                 stringsAsFactors = FALSE) %>%
+                            stringsAsFactors = FALSE) %>%
       data.table()
     
   }

@@ -1,35 +1,3 @@
-loadShpAndMakeValid <- function(file) {
-  shapefile(file) %>% gBuffer(byid = TRUE, width = 0)
-}
-
-makeStudyAreaMask <- function(ras, maskFilename, cache_path, .quickChecking = FALSE) {
-  studyAreaMask <- Cache(makeNArasterFromNAs, ras = ras,
-                         cacheRepo = cache_path,
-                         digestPathContent = !.quickChecking, quick = .quickChecking)
-  Cache(writeRaster, studyAreaMask, filename = maskFilename,
-        datatype = "INT1U", overwrite = TRUE, cacheRepo = cache_path,
-        digestPathContent = !.quickChecking, quick = .quickChecking
-  )
-}
-
-makeNArasterFromNAs <- function(ras) {
-  studyAreaMask <- raster(ras)
-  studyAreaMask[!is.na(ras[])] <- 1#!is.na(ras[])
-  studyAreaMask
-}
-
-loadStudyArea <- function(shapeFile, shpStudyRegionFull, crsPaul) {
-  studyAreaTooBig <- sp::spTransform(shpStudyRegionFull, crsPaul)
-  studyAreaTooBig$AREA <- NULL # width of Area column was not wide enough for data -- remove it
-  studyAreaTooBig$AREA_ha <- rgeos::gArea(studyAreaTooBig, byid = TRUE) / 1e4
-  studyAreaTooBig$AREA_ha <- round(studyAreaTooBig$AREA_ha, 2)
-
-  shpPaul <- shapefile(shapeFile)#[2, ]
-  shpPaul <- shpPaul[shpPaul$DN == 1, ]
-  shpPaul <- spTransform(shpPaul, CRSobj = crsPaul)
-  studyArea <- raster::intersect(studyAreaTooBig, shpPaul)
-}
-
 loadCASFRI <- function(CASFRIRas, attrFile, headerFile, .quickChecking = FALSE) {
   CASFRIattr <- fread(attrFile)
 
@@ -64,8 +32,7 @@ loadCASFRI <- function(CASFRIRas, attrFile, headerFile, .quickChecking = FALSE) 
     set(CASFRIattr, which(CASFRIattr[[paste0("SPECIES_PER_", i)]] <= 15),
         paste0("SPECIES_", i), NA_character_)
   }
-  #CASFRIattr[SPECIES_5>15,.N]
-
+  
   keepSpecies <- whSpecies(CASFRIattr, topN = 16) # 16 most abundant species
   CASFRIattrLong <- melt(CASFRIattr, id.vars = c("GID"),
                          measure.vars = paste0("SPECIES_", 1:5))
@@ -105,11 +72,11 @@ whSpecies <- function(CASFRIattr, topN = 16) {
   keepSpecies
 }
 
-makePaulStack <- function(paths, Paul250MaskedFilename, uniqueKeepSp, .quickChecking = FALSE) {
-  PaulTrimmed <- raster(Paul250MaskedFilename)
-  PaulTrimmed[] <- PaulTrimmed[]
-  PaulTrimmed[PaulTrimmed[]%in% c(230, 220, 255)] <- NA_integer_ # water, non veg
-  #Paulvals <- sort(unique(PaulTrimmed[]))
+
+makePaulStack <- function(paths, PaulRaster, uniqueKeepSp) {
+  PaulRaster[] <- PaulRaster[]
+  PaulRaster[PaulRaster[]%in% c(230, 220, 255)] <- NA_integer_ # water, non veg
+  #Paulvals <- sort(unique(PaulRaster[]))
   PaulStack <- list()
   #uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
 
@@ -119,68 +86,66 @@ makePaulStack <- function(paths, Paul250MaskedFilename, uniqueKeepSp, .quickChec
                                            NA_Sp[!(NA_Sp %in% uniqueKeepSp)])
   for (N in lapply(NA_Sp, grep, uniqueKeepSp, value = TRUE)) {
     message("  running ", N, ", assigning NA because not enough data")
-    PaulStack[[N]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
+    PaulStack[[N]] <- raster(PaulRaster) %>% setValues(NA_integer_)
     PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
                             filename = asPath(paste0("Paul",N, ".tif")),
-                            overwrite = TRUE, datatype = "INT2U",
-                            digestPathContent = !.quickChecking, quick = .quickChecking,
-                            cacheRepo = paths$cachePath)
+                            overwrite=TRUE, datatype = "INT2U",
+                            cacheRepo=paths$cachePath)
   }
 
   N <- "Pice_gla"
   message("  converting Paul's codes to pct cover raster, for ", N)
-  PaulStack[[N]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
-  PaulStack[[N]][PaulTrimmed[] %in% c(41, 42, 43)] <- 60
-  PaulStack[[N]][PaulTrimmed[] %in% c(44)] <- 80
-  PaulStack[[N]][PaulTrimmed[] %in% c(14, 34)] <- 40
-  PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
+  PaulStack[[N]] <- raster(PaulRaster) %>% setValues(NA_integer_)
+  PaulStack[[N]][PaulRaster[] %in% c(41, 42, 43)] <- 60
+  PaulStack[[N]][PaulRaster[] %in% c(44)] <- 80
+  PaulStack[[N]][PaulRaster[] %in% c(14, 34)] <- 40
+  PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]] ,
                           filename = asPath(paste0("Paul",N, ".tif")),
-                          overwrite = TRUE, datatype = "INT2U",
-                          digestPathContent = !.quickChecking, quick = .quickChecking,
-                          cacheRepo = paths$cachePath)
-
+                          overwrite=TRUE, datatype = "INT2U",
+                          cacheRepo=paths$cachePath)
+  
   # 5
   N <- "Pice_mar"
   message("  converting Paul's codes to pct cover raster, for ", N)
-  PaulStack[[N]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
-  PaulStack[[N]][PaulTrimmed[] %in% c(23, 26)] <- 60
-  PaulStack[[N]][PaulTrimmed[] %in% c(22)] <- 80
-  PaulStack[[N]][PaulTrimmed[] %in% c(32, 42)] <- 40
+  PaulStack[[N]] <- raster(PaulRaster) %>% setValues(NA_integer_)
+  PaulStack[[N]][PaulRaster[] %in% c(23, 26)] <- 60
+  PaulStack[[N]][PaulRaster[] %in% c(22)] <- 80
+  PaulStack[[N]][PaulRaster[] %in% c(32, 42)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
-                          filename = asPath(paste0("Paul", N, ".tif")),
-                          overwrite = TRUE, datatype = "INT2U",
-                          digestPathContent = !.quickChecking, quick = .quickChecking,
-                          cacheRepo = paths$cachePath)
-
+                          filename = asPath(paste0("Paul",N, ".tif")),
+                          overwrite=TRUE, datatype = "INT2U",
+                          cacheRepo=paths$cachePath)
+  
   # 6
   N <- "Pinu_sp"
   message("  converting Paul's codes to pct cover raster, for ", N)
-  PaulStack[[N]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
-  PaulStack[[N]][PaulTrimmed[] %in% c(31, 32, 34)] <- 60
-  PaulStack[[N]][PaulTrimmed[] %in% c(33)] <- 80
-  PaulStack[[N]][PaulTrimmed[] %in% c(23, 43)] <- 40
+  PaulStack[[N]] <- raster(PaulRaster) %>% setValues(NA_integer_)
+  PaulStack[[N]][PaulRaster[] %in% c(31, 32, 34)] <- 60
+  PaulStack[[N]][PaulRaster[] %in% c(33)] <- 80
+  PaulStack[[N]][PaulRaster[] %in% c(23, 43)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
-                          filename = asPath(paste0("Paul", N, ".tif")),
-                          overwrite = TRUE, datatype = "INT2U",
-                          digestPathContent = !.quickChecking, quick = .quickChecking,
-                          cacheRepo = paths$cachePath)
-
+                          filename = asPath(paste0("Paul",N, ".tif")),
+                          overwrite=TRUE, datatype = "INT2U",
+                          cacheRepo=paths$cachePath)
+  
+  
   # 7
   N <- "Popu_tre"
   message("  converting Paul's codes to pct cover raster, for ", N)
-  PaulStack[[N]] <- raster(PaulTrimmed) %>% setValues(NA_integer_)
-  PaulStack[[N]][PaulTrimmed[] %in% c(14)] <- 60
-  PaulStack[[N]][PaulTrimmed[] %in% c(11)] <- 80
-  PaulStack[[N]][PaulTrimmed[] %in% c(31, 41)] <- 40
+  PaulStack[[N]] <- raster(PaulRaster) %>% setValues(NA_integer_)
+  PaulStack[[N]][PaulRaster[] %in% c(14)] <- 60
+  PaulStack[[N]][PaulRaster[] %in% c(11)] <- 80
+  PaulStack[[N]][PaulRaster[] %in% c(31, 41)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
                           filename = asPath(paste0("Paul",N, ".tif")),
-                          overwrite = TRUE, datatype = "INT2U",
-                          digestPathContent = !.quickChecking, quick = .quickChecking,
-                          cacheRepo = paths$cachePath)
+                          overwrite=TRUE, datatype = "INT2U",
+                          cacheRepo=paths$cachePath)
+  
   stack(PaulStack)
 }
 
-CASFRItoSpRasts <- function(cachePath, CASFRIRas, loadedCASFRI, .quickChecking = FALSE) {
+
+CASFRItoSpRasts <- function(CASFRIRas, loadedCASFRI) {
   spRasts <- list()
   spRas <- raster(CASFRIRas) %>% setValues(.,NA_integer_)
   for(sp in unique(loadedCASFRI$keepSpecies$spGroup)) {
@@ -194,20 +159,28 @@ CASFRItoSpRasts <- function(cachePath, CASFRIRas, loadedCASFRI, .quickChecking =
     rm(aa2)
     spRasts[[sp]][cc$rastInd] <- cc$V1
     message("  ", sp, " writing to disk")
-    spRasts[[sp]] <- Cache(
-      writeRaster, spRasts[[sp]],
-      filename = asPath(paste0("CASFRI",sp,".tif")), #objectLength = 1e6,
-      digestPathContent = !.quickChecking, quick = .quickChecking,
-      datatype = "INT2U", overwrite = TRUE,
-      cacheRepo = cachePath)
+    rastTmp <- writeRaster(spRasts[[sp]],
+      filename = asPath(paste0("CASFRI",sp,".tif")), 
+      datatype = "INT2U", overwrite = TRUE
+    )
+    if (is(rastTmp, "Raster")) { # Rasters need to have their disk-backed value assigned, but not shapefiles
+      # This is a bug in writeRaster was spotted with crs of rastTmp became
+      # +proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs
+      # should have stayed at
+      # +proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0
+      if (!identical(crs(rastTmp), crs(spRasts[[sp]])))
+        crs(rastTmp) <- crs(spRasts[[sp]])
+      
+      spRasts[[sp]] <- rastTmp
+    }
     message("  ", sp, " done")
   }
 
   stack(spRasts)
 }
 
-overlayStacks <- function(highQualityStack, lowQualityStack, cachePath,
-                          outputFilenameSuffix = "overlay", .quickChecking = FALSE) {
+
+overlayStacks <- function(highQualityStack, lowQualityStack, outputFilenameSuffix = "overlay") {
   for(sp in layerNames(highQualityStack)) {
 
     hqLarger <- ncell(lowQualityStack) * prod(res(lowQualityStack)) <
@@ -276,10 +249,8 @@ overlayStacks <- function(highQualityStack, lowQualityStack, cachePath,
       if (!compareRaster(LQRast, HQRast)) stop("Stacks not identical, something is wrong with overlayStacks function")
       nas <- is.na(HQRast[])
       HQRast[nas] <- LQRast[][nas]
-      HQRast <- Cache(writeRaster, HQRast, datatype = "INT2U",
-                      filename=paste0(sp,"_",outputFilenameSuffix,".tif"), overwrite = TRUE,
-                      digestPathContent = !.quickChecking, quick = .quickChecking,
-                      cacheRepo=cachePath)
+      HQRast <- writeRaster(HQRast, datatype = "INT2U",
+                      filename=paste0(sp,"_",outputFilenameSuffix,".tif"), overwrite = TRUE)
       names(HQRast) <- sp
       if (!exists("HQStack")) HQStack <- stack(HQRast) else HQStack[[sp]] <- HQRast
     }
