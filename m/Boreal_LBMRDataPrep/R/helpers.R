@@ -5,10 +5,12 @@ createInitCommMap <- function(initCommMap, values, filename) {
 
 sumRastersBySpecies <- function(speciesLayers, layersToSum,
                                 filenameToSave, newLayerName, cachePath) {
-  ras_out <- raster::calc(raster::stack(speciesLayers[layersToSum]), sum)
-  names(ras_out) <- newLayerName
-  writeRaster(ras_out, filename = filenameToSave, datatype = "INT2U", overwrite = TRUE)
-  ras_out # Work around for Cache
+  Pinu_sp <- calc(stack(specieslayers[layersToSum]), sum)
+  names(Pinu_sp) <- newLayerName
+  Pinu_sp <- writeRaster(Pinu_sp,
+              filename = filenameToSave,
+              datatype = "INT2U", overwrite = TRUE)
+  Pinu_sp # Work around for Cache
 }
 
 toSentenceCase <- function(x) {
