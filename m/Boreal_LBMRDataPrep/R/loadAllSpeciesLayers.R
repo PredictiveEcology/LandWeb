@@ -35,7 +35,6 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
 
   sumSpecies <- c("Pinu_Ban", "Pinu_Con")
   newLayerName <- grep("Pinu", speciesNamesEnd, value = TRUE)
-  browser()
   a <- Cache(sumRastersBySpecies, species1[sumSpecies], newLayerName = newLayerName,
              filenameToSave = .prefix(file.path(dataPath, "KNNPinu_sp.tif"), "Small"))
   species1[sumSpecies] <- NULL
