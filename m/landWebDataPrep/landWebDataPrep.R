@@ -165,7 +165,7 @@ Save <- function(sim) {
                      cacheTags = c("stable", currentModule(sim)))
   }
 
-  
+
   if (!suppliedElsewhere("LCC2005")) {
     sim$LCC2005 <- Cache(prepInputs,
                          targetFile = lcc2005Filename,

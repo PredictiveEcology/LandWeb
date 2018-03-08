@@ -23,41 +23,10 @@ library(SpaDES.shiny)
 
 #load_all("~/GitHub/SpaDES.shiny")
 
-# appMetadata <- list(
-#   modules = data.frame(
-#     type = c("shinyModule", "shinyModule", "shinyModule", "shinyModule", "shinyModule"),
-#     name = c("timeSeriesofRasters", "largePatches", "simInfo", "moduleInfo", "inputTables"),
-#     id = c("timeSinceFire", "largePatches", "simInfo", "moduleInfo", "inputTables"),
-#     stringsAsFactors = FALSE
-#   ),
-#   layout = data.frame(
-#     tabName = c("timeSinceFire", "largePatches", "simInfo", "moduleInfo", "inputTables"),
-#     menuItemName = c("Maps - time since fire", "Large Patches", "Overview Diagrams", "Module Info", "LBMR (Succession) Model Inputs"),
-#     icon = c("map-o", "bar-chart", "sitemap", "puzzle-piece", "table"),
-#     moduleId = c("timeSinceFire", "largePatches", "simInfo", "moduleInfo", "inputTables"),
-#     stringsAsFactors = FALSE
-#   )
-# )
-# appMetadata$modules$parameters <- list(
-#   list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull",
-#        "colorTableFile", "timeSinceFirePalette", "maxAge"),
-#   list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"),
-#   list("mySimOut[[1]]"),
-#   list("mySimOut[[1]]"),
-#   list()
-# )
-# appMetadata$layout$moduleUIParameters <- list(list("length(tsf)"), list(), list(), list(), list())
-#
-# # newApp(getwd(), appMetadata)
-# #
-# # file.copy("global_file.R", "global.R", overwrite = TRUE)
-# # setwd("~/GitHub/LandWeb/")
-# # shiny::runApp(".")
-
 Modules <- tribble(
   ~type,  ~name, ~id, ~parameters,
   #"shinymodule", "authGoogle", "auth_google", list("authFile = authFile", "appURL = appURL"),
-  "shinyModule", "timeSeriesofRasters", "timeSinceFire", list("rasters = globalRasters", "polygonsList = polygons", "shpStudyRegionFull", "colorTableFile", "timeSinceFirePalette", "maxAge", "sim = mySim"),
+  "shinyModule", "timeSeriesofRasters", "timeSinceFire", list("rasterList = globalRasters", "polygonList = polygons", "shpStudyRegionFull", "colorTable = colorTableFile", "palette = timeSinceFirePalette", "maxAge = maxAge", "sim = mySim"),
   "shinyModule", "largePatches", "largePatches", list("numberOfSimulationTimes = lenTSF", "clumpMod2Args"),
   "shinyModule", "simInfo", "simInfo", list("mySimOut[[1]]"),
   "shinyModule", "moduleInfo", "moduleInfo", list("mySimOut[[1]]"),
