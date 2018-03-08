@@ -1,4 +1,4 @@
-loadCASFRI <- function(CASFRIRas, attrFile, headerFile, .quickChecking = FALSE) {
+loadCASFRI <- function(CASFRIRas, attrFile, headerFile, .quickChecking = FALSE) { # TODO: .quickChecking arg not used
   CASFRIattr <- fread(attrFile)
 
   ## WORKAROUND: maunally extracted the column names because the text file is

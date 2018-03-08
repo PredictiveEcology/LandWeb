@@ -174,7 +174,7 @@ cellNumbersForPolygon <- function(dummyRaster, Polygon) {
 largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
                            polygonToSummarizeBy, cl,
                            ageCutoffs = ageClassCutOffs, countNumPatches = countNumPatches,
-                           ageClasses, notOlderThan = Sys.time() - 1e7) {
+                           ageClasses, .quickCheck = TRUE, notOlderThan = Sys.time() - 1e7) {
 
   #  withProgress(message = 'Calculation in progress',
   #               detail = 'This may take a while...', value = 0, {
