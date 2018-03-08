@@ -14,8 +14,7 @@ authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/v
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
-studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
+studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
 ##                however, in-app, the paths need to be set as reactive values for authentication!
@@ -128,8 +127,5 @@ sapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source)
 # This needs simInit call to be run already
 # a few map details for shiny app
 source("mapsForShiny.R")
-
-# Run Experiment (mostly moved to server.R)
-source("runExperiment.R")
 
 message("  Finished global.R")
