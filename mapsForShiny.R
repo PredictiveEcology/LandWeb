@@ -33,17 +33,17 @@ getEcoMaps <- function(ecoDistrictPath, cacheRepo, lfltEPSG) {
   ecodistrictsDemo <- ecodistricts
   #AlbertaFMUDemo <- AlbertaFMU
   #AlbertaFMUFull <- AlbertaFMUFull
-  list(ecodistricts=ecodistricts,
-       ecodistrictsDemo=ecodistrictsDemo,
-       ecodistrictsFull=ecodistrictsFull,
-       ecodistrictsDemoLFLT=ecodistrictsDemoLFLT,
-       ecodistrictsFullLFLT=ecodistrictsFullLFLT
+  list(ecodistricts = ecodistricts,
+       ecodistrictsDemo = ecodistrictsDemo,
+       ecodistrictsFull = ecodistrictsFull,
+       ecodistrictsDemoLFLT = ecodistrictsDemoLFLT,
+       ecodistrictsFullLFLT = ecodistrictsFullLFLT
        )
-
 }
 
-out <- Cache(getEcoMaps, ecoDistrictPath=asPath(file.path(paths$modulePath,"Boreal_LBMRDataPrep", "data", "ecodistricts")),
-             lfltEPSG=lflt, cacheRepo=paths$cachePath, digestPathContent = TRUE)
+out <- Cache(getEcoMaps,
+             ecoDistrictPath = asPath(file.path(paths$modulePath, "Boreal_LBMRDataPrep", "data", "ecodistricts")),
+             lfltEPSG = lflt, cacheRepo = paths$cachePath, digestPathContent = TRUE)
 list2env(out, envir=.GlobalEnv)
 
 availablePolygons <- c("ecodistricts")#, "AlbertaFMU")

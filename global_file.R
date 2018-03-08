@@ -32,6 +32,7 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 reproducibleCache <- "reproducibleCache"
 
 source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
+
 if (any(c("emcintir") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
 }
@@ -52,10 +53,13 @@ appStartTime <- st <- Sys.time() - 1
 message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
+
 # leaflet parameters
-leafletZoomInit = 5
+leafletZoomInit <- 5
+
 # Some shinycssloaders options
 options("spinner.type" = 5)
+
 # This will search for gdal utilities. If it finds nothing, and you are on Windows,
 #   you should install the GDAL that comes with QGIS -- use OSGeo4W Network Installer 64 bit
 #   may be still here: http://www.qgis.org/en/site/forusers/download.html
@@ -99,6 +103,7 @@ if (studyArea == "RIA") {
     b <- buffer(a, 0, dissolve = FALSE)
     SpatialPolygonsDataFrame(b, data = as.data.frame(a))
   }
+
   fireReturnIntervalTemp <- 400
   shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
   shpStudyRegion[["fireReturnInterval"]] <- shpStudyRegion$LTHRC # Fire return interval
@@ -109,7 +114,6 @@ if (studyArea == "RIA") {
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
   #shpStudyRegion <- shpStudyRegion[1,]
   shpStudyRegionFull <- shpStudyRegion
-
 } else {
   shpStudyRegions <- Cache(loadStudyRegion,
                            asPath(file.path(paths$inputPath, "shpLandWEB.shp")),
@@ -117,6 +121,9 @@ if (studyArea == "RIA") {
                            crsKNNMaps = crsKNNMaps, cacheRepo = paths$cachePath)
   list2env(shpStudyRegions, envir = environment())
 }
+
+## source additional shiny modules
+sapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source)
 
 # This needs simInit call to be run already
 # a few map details for shiny app
