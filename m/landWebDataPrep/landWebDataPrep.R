@@ -150,32 +150,36 @@ Save <- function(sim) {
   #if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
   #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
   if (!suppliedElsewhere("biomassMap")) {
-    sim$biomassMap <- Cache(prepInputs,
-                     targetFile = biomassMapFilename,
-                     archive = asPath(file.path(dataPath, c("kNN-StructureBiomass.tar",
-                                        "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))),
-                     destinationPath= asPath(dataPath),
-                     fun = "raster",
-                     pkg = "raster",
-                     studyArea = sim$shpStudySubRegion,
-                     rasterToMatch = NULL,
-                     rasterInterpMethod = "bilinear",
-                     rasterDatatype = "INT2U",
-                     writeCropped = TRUE,
-                     cacheTags = c("stable", currentModule(sim)))
+    sim$biomassMap <- Cache(
+      prepInputs,
+      targetFile = biomassMapFilename,
+      archive = asPath(file.path(dataPath,
+                                 c("kNN-StructureBiomass.tar",
+                                   "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))),
+      destinationPath = asPath(dataPath),
+      fun = "raster",
+      pkg = "raster",
+      studyArea = sim$shpStudySubRegion,
+      rasterToMatch = NULL,
+      rasterInterpMethod = "bilinear",
+      rasterDatatype = "INT2U",
+      writeCropped = TRUE,
+      cacheRepo = cachePath(sim),
+      cacheTags = c("stable", currentModule(sim))
+    )
   }
-
 
   if (!suppliedElsewhere("LCC2005")) {
     sim$LCC2005 <- Cache(prepInputs,
                          targetFile = lcc2005Filename,
                          archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
-                         destinationPath= asPath(dataPath),
+                         destinationPath = asPath(dataPath),
                          studyArea = sim$shpStudySubRegion,
                          rasterToMatch = sim$biomassMap,
                          rasterInterpMethod = "bilinear",
                          rasterDatatype = "INT2U",
                          writeCropped = TRUE,
+                         cacheRepo = cachePath(sim),
                          cacheTags = currentModule(sim),
                          quickCheck = P(sim)$.quickChecking)
     projection(sim$LCC2005) <- projection(sim$biomassMap)

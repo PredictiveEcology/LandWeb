@@ -110,7 +110,8 @@ EstimateTruncPareto <- function(sim) {
   }
 
   sim$kBest <- Cache(optimize, interval = c(0.05, 0.99), f = findK_upper,
-                     upper1 = P(sim)$biggestPossibleFireSizeHa)$minimum
+                     upper1 = P(sim)$biggestPossibleFireSizeHa,
+                     cacheRepo = cachePath(sim))$minimum
   return(invisible(sim))
 }
 
@@ -118,7 +119,8 @@ Init <- function(sim) {
   message("Initializing fire maps")
   sim$fireTimestep <- P(sim)$fireTimestep
   sim$fireInitialTime <- P(sim)$burnInitialTime
-  numPixelsPerPolygonNumeric <- Cache(freq, sim$rstStudyRegion) %>% na.omit()
+  numPixelsPerPolygonNumeric <- Cache(freq, sim$rstStudyRegion, cacheRepo = cachePath(sim)) %>%
+    na.omit()
   ordPolygons <- order(numPixelsPerPolygonNumeric[, "value"])
   numPixelsPerPolygonNumeric <- numPixelsPerPolygonNumeric[ordPolygons,,drop = FALSE]
   sim$fireReturnIntervalsByPolygonNumeric <- numPixelsPerPolygonNumeric[,"value"]
@@ -293,7 +295,7 @@ Burn <- function(sim) {
 
   # if(is.null(sim$fireReturnInterval)) {
   #   sim$fireReturnInterval <- Cache(randomPolygons, emptyRas, numTypes = numDefaultPolygons,
-  #                                   notOlderThan = nOT)
+  #                                   notOlderThan = nOT, cacheRepo = cachePath(sim))
   #
   #   vals <- factor(sim$fireReturnInterval[],
   #                  levels = 1:numDefaultPolygons,
@@ -313,7 +315,8 @@ Burn <- function(sim) {
 
   if (is.null(sim$rstStudyRegion)) {
     sim$rstStudyRegion <- Cache(randomPolygons, emptyRas,
-                                numTypes = numDefaultPolygons, notOlderThan = nOT)
+                                numTypes = numDefaultPolygons, notOlderThan = nOT,
+                                cacheRepo = cachePath(sim))
 
     vals <- factor(sim$rstStudyRegion[],
                    levels = 1:numDefaultPolygons,
@@ -340,7 +343,7 @@ Burn <- function(sim) {
 
   if (is.null(sim$pixelGroupMap)) {
     sim$pixelGroupMap <- Cache(randomPolygons, emptyRas, numTypes = numDefaultPixelGroups,
-                               notOlderThan = nOT)
+                               notOlderThan = nOT, cacheRepo = cachePath(sim))
   }
 
   if (is.null(sim$rstTimeSinceFire)) {
