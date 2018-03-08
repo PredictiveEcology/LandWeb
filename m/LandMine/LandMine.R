@@ -264,8 +264,8 @@ Burn <- function(sim) {
   spawnNewActive <- sns <- 10^c(-0.731520, -0.501823, -0.605968, -1.809726)
   spreadProb <- 0.9
   sizeCutoffs <- 10^c(2.202732,  4.696060)
-  
-  
+
+
   if (!all(is.na(thisYrStartCells)) & length(thisYrStartCells) > 0) {
     fires <- burn1(sim$fireReturnInterval, startCells = thisYrStartCells,
                    fireSizes = fireSizesInPixels, spreadProbRel = ROSmap,
@@ -372,9 +372,9 @@ Burn <- function(sim) {
     # meta <- depends(sim)
     outputs <- lapply(meta, function(x) {x@outputObjects$objectName})
     otherMods <- mods[!(mods %in% currentModule(sim))]
-    
+
     # is it or will it be supplied by another module, if yes, don't load a default here
-    if (!("rstCurrentBurnCumulative" %in% unlist(outputs[otherMods]))) { 
+    if (!("rstCurrentBurnCumulative" %in% unlist(outputs[otherMods]))) {
       if (is.null(sim$rstCurrentBurnCumulative)) {
         sim$rstCurrentBurnCumulative <- raster(sim$pixelGroupMap)
 
