@@ -18,7 +18,7 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
                             writeCropped = TRUE)#,
                             #cacheTags = c("stable", moduleName),
                             #dataset = "EOSD2000",
-                            #quickCheck = .quickChecking)
+                            #quickCheck =  quickCheck)
 
     # species1[[sp]] <- Cache(prepareIt, quick = TRUE,
     #                         tarfileName = "kNN-Species.tar",
