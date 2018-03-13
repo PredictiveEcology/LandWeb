@@ -245,7 +245,7 @@ overlayStacks <- function(highQualityStack, lowQualityStack, outputFilenameSuffi
         LQRast <- lowQualityStack[[sp]]
         HQRast <- highQualityStack[[sp]]
       }
-      message("Writing new, overlaid ",sp," raster to disk")
+      message("  Writing new, overlaid ",sp," raster to disk")
       if (!compareRaster(LQRast, HQRast)) stop("Stacks not identical, something is wrong with overlayStacks function")
       nas <- is.na(HQRast[])
       HQRast[nas] <- LQRast[][nas]
