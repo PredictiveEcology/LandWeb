@@ -1,15 +1,34 @@
-# Put all loading in one call, makes versioning easier whenever we need that.
-reproducible::Require(c("googleAuthR", "googledrive", "googleID"))
+# Packages for global.R -- don't need to load packages for modules -- happens automatically
+  SpaDESPkgs <- c(
+    "PredictiveEcology/SpaDES.core@development",
+    "PredictiveEcology/SpaDES.tools@development",
+    "PredictiveEcology/SpaDES.shiny@develop",
+    "raster"
+  )
+  shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
+                 "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
+  googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
+  
+  reproducible::Require(c(
+    SpaDESPkgs,
+    shinyPkgs,
+    googleAuthPkgs,
+    if (Sys.info()["sysname"] != "Windows") "Cairo",
+    # `snow` required internally by `parallel` for Windows SOCK clusters
+    if (Sys.info()["sysname"] == "Windows") "snow"
+    # shiny app
+  ))
 
-options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
-                                        "https://www.googleapis.com/auth/userinfo.email",
-                                        "https://www.googleapis.com/auth/userinfo.profile"))
-options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
-options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
-
-appURL <- "http://landweb.predictiveecology.org/Demo/"
-authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
-
+# Google Authentication setup
+  options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
+                                          "https://www.googleapis.com/auth/userinfo.email",
+                                          "https://www.googleapis.com/auth/userinfo.profile"))
+  options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
+  options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
+  
+  appURL <- "http://landweb.predictiveecology.org/Demo/"
+  authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
+  
 # THIS IS DANGEROUS, BUT NECESSARY FOR GUARANTEED RUNNING --
 #    THIS MEANS that any values of objects will be OK and will trigger a cached return
 #    Only shpStudySubRegion and non-object arguments to simInit will make a new run
@@ -17,11 +36,11 @@ guaranteedRun <- FALSE
 if (any(c("emcintir") %in% Sys.info()["user"])) guaranteedRun <- TRUE
 
 # List modules first, so we can get all their dependencies
-modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine", "landWebProprietaryData", 
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
-studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
+studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
+#studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
 ##                however, in-app, the paths need to be set as reactive values for authentication!
@@ -37,7 +56,6 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 # It needs to be separate because it is an overarching one, regardless of scale
 reproducibleCache <- "reproducibleCache"
 
-source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
 if (any(c("emcintir") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
 }
@@ -135,6 +153,7 @@ objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
 parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
                                         .useCache = eventCaching),
                    landWebDataPrep = list(.useCache = eventCaching),
+                   landWebProprietaryData = list(.useCache = eventCaching),
                    Boreal_LBMRDataPrep = list(.useCache = eventCaching),
                    LandMine = list(biggestPossibleFireSizeHa = 5e5, fireTimestep = fireTimestep,
                                    burnInitialTime = fireTimestep,

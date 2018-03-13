@@ -10,26 +10,6 @@ if (FALSE) {
   #devtools::load_all("~/GitHub/SpaDES.shiny")
 }
 
-# Packages for global.R -- don't need to load packages for modules -- happens automatically
-library(reproducible)
-
-SpaDESPkgs <- c(
-  "PredictiveEcology/SpaDES.core@development",
-  "PredictiveEcology/SpaDES.tools@prepInputs",
-  "PredictiveEcology/SpaDES.shiny@develop",
-  "raster"
-)
-shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
-               "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
-
-Require(c(
-  SpaDESPkgs,
-  if (Sys.info()["sysname"] != "Windows") "Cairo",
-  # `snow` required internally by `parallel` for Windows SOCK clusters
-  if (Sys.info()["sysname"] == "Windows") "snow",
-  # shiny app
-  shinyPkgs
-))
 
 data.table::setDTthreads(6)
 

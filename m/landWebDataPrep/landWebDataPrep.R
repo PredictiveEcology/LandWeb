@@ -146,10 +146,11 @@ Save <- function(sim) {
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
 
+  
   #if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
   #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
   if (!suppliedElsewhere("biomassMap")) {
-    sim$biomassMap <- Cache(prepInputs,
+    bm <- Cache(prepInputs,
                      targetFile = biomassMapFilename,
                      archive = asPath(file.path(dataPath, c("kNN-StructureBiomass.tar",
                                         "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))),
@@ -157,12 +158,26 @@ Save <- function(sim) {
                      fun = "raster",
                      pkg = "raster",
                      studyArea = sim$shpStudySubRegion,
-                     rasterToMatch = NULL,
+                     rasterToMatch = NULL, # use the projection of this raster
                      rasterInterpMethod = "bilinear",
                      rasterDatatype = "INT2U",
                      writeCropped = TRUE,
                      cacheTags = c("stable", currentModule(sim)))
-  }
+    sim$biomassMap <- Cache(prepInputs,
+                            targetFile = biomassMapFilename,
+                            archive = asPath(file.path(dataPath, c("kNN-StructureBiomass.tar",
+                                                                   "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))),
+                            destinationPath= asPath(dataPath),
+                            fun = "raster",
+                            pkg = "raster",
+                            studyArea = sim$shpStudySubRegion,
+                            rasterToMatch = NULL, # use the projection of this raster
+                            rasterInterpMethod = "bilinear",
+                            rasterDatatype = "INT2U",
+                            writeCropped = TRUE,
+                            cacheTags = c("stable", currentModule(sim)))
+    
+      }
 
   
   if (!suppliedElsewhere("LCC2005")) {
