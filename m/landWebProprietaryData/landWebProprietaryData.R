@@ -1,4 +1,3 @@
-
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects, use sim$xxx, and are thus globally available
 # to all modules. Functions can be used without sim$ as they are namespaced, like functions
@@ -54,9 +53,7 @@ doEvent.landWebProprietaryData = function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {
-      
       sim <- Init(sim)
-
     },
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
@@ -69,22 +66,25 @@ Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
 
   ## load Paul Pickell et al. and CASFRI
-  if (!exists("sessionCacheFile")) { 
-    sessionCacheFile <<- tempfile() 
-  } 
+  if (!exists("sessionCacheFile")) {
+    sessionCacheFile <<- tempfile()
+  }
   .cacheVal <<- if (grepl("VIC-A", Sys.info()["nodename"])) sessionCacheFile else FALSE
-  googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
-  file_url <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
-  aaa <- testthat::capture_error(googledrive::drive_download(googledrive::as_id(file_url), path = tempfile(),
-                                                             overwrite = TRUE, verbose = TRUE))
+
+  aaa <- testthat::capture_error({
+    googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
+    file_url <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
+    googledrive::drive_download(googledrive::as_id(file_url), path = tempfile(),
+                                overwrite = TRUE, verbose = TRUE)
+  })
   if (is.null(aaa)) { # means got the file
     dPath <- dataPath(sim)
     message("  Loading CASFRI and Pickell et al. layers")
     Paul <- Cache(prepInputs,
                   targetFile = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.dat"),
                   archive = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.zip"),
-                  alsoExtract = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.hdr"), 
-                  destinationPath= asPath(dPath),
+                  alsoExtract = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.hdr"),
+                  destinationPath = asPath(dPath),
                   fun = "raster",
                   pkg = "raster",
                   studyArea = sim$shpStudySubRegion,
@@ -93,15 +93,15 @@ Init <- function(sim) {
                   rasterDatatype = "INT2U",
                   writeCropped = TRUE,
                   cacheTags = c("stable", currentModule(sim)))#, notOlderThan = Sys.time())
-    
-    CASFRITifFile = asPath(file.path(dPath, "Landweb_CASFRI_GIDs.tif"))
-    CASFRIattrFile = asPath(file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv"))
-    CASFRIheaderFile = asPath(file.path(dPath,"Landweb_CASFRI_GIDs_README.txt"))
+
+    CASFRITifFile <- asPath(file.path(dPath, "Landweb_CASFRI_GIDs.tif"))
+    CASFRIattrFile <- asPath(file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv"))
+    CASFRIheaderFile <- asPath(file.path(dPath,"Landweb_CASFRI_GIDs_README.txt"))
     CASFRIRas <- Cache(prepInputs,
                        targetFile = asPath("Landweb_CASFRI_GIDs.tif"),
                        archive = asPath("CASFRI for Landweb.zip"),
                        alsoExtract = c(CASFRITifFile, CASFRIattrFile, CASFRIheaderFile),
-                       destinationPath= asPath(dPath),
+                       destinationPath = asPath(dPath),
                        fun = "raster",
                        pkg = "raster",
                        studyArea = sim$shpStudySubRegion,
@@ -110,39 +110,38 @@ Init <- function(sim) {
                        rasterDatatype = "INT2U",
                        writeCropped = TRUE,
                        cacheTags = c("stable", currentModule(sim)))
-    
+
     message("Load CASFRI data and headers, and convert to long format, and define species groups")
-    loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile, 
+    loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile,
                           debugCache = "complete", userTags = "BigDataTable")
-    
+
     message("Make stack of species layers from Paul's layer")
     uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
     # "Abie_sp"  "Betu_pap" "Lari_lar" "Pice_gla" "Pice_mar" "Pinu_sp" "Popu_tre"
-    PaulSpStack <- Cache(makePaulStack, paths = lapply(paths(sim), basename), 
+    PaulSpStack <- Cache(makePaulStack, paths = lapply(paths(sim), basename),
                          PaulRaster = Paul, uniqueKeepSp)
     crs(PaulSpStack) <- crs(sim$biomassMap) # bug in writeRaster
-    
+
     message('Make stack from CASFRI data and headers')
     CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI)
-    
+
     message("Overlay Paul and CASFRI stacks")
-    outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack, 
+    outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack,
                       outputFilenameSuffix = "CASFRI_PAUL")#, notOlderThan = Sys.time())
     crs(outStack) <- crs(sim$biomassMap) # bug in writeRaster
-    
+
     message("Overlay Paul_CASFRI with open data set stacks")
-    specieslayers2 <- Cache(overlayStacks, outStack, sim$specieslayers, 
-                                outputFilenameSuffix = "CASFRI_PAUL_KNN")
+    specieslayers2 <- Cache(overlayStacks, outStack, sim$specieslayers,
+                            outputFilenameSuffix = "CASFRI_PAUL_KNN")
     crs(specieslayers2) <- crs(sim$biomassMap)
     sim$specieslayers <- specieslayers2
     message("Using LandWeb datasets from Paul Pickell and CASFRI")
   }
-  
+
   # ! ----- STOP EDITING ----- ! #
 
   return(invisible(sim))
 }
-
 
 .inputObjects <- function(sim) {
   dPath <- dataPath(sim)
@@ -157,11 +156,12 @@ Init <- function(sim) {
                             rasterInterpMethod = "bilinear",
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE,
-                            cacheTags = c("stable", currentModule(sim)))#,
+                            cacheTags = c("stable", currentModule(sim)))
   }
+
   if (!suppliedElsewhere("shpStudySubRegion")) {
     sim$shpStudySubRegion <- sim$shpStudyRegionFull
   }
-  
+
   return(invisible(sim))
 }

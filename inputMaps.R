@@ -17,17 +17,18 @@ loadShpAndMakeValid <- function(file) {
 useEcozoneMask <- function(studyArea, ecozoneFilename){
   A <- loadShpAndMakeValid(ecozoneFilename)
   #A <- shapefile(ecozoneFilename)
-  B <- A[grep("Cordillera", A$ZONE_NAME, invert = T),] %>%
-    .[grep("Prairie", B$ZONE_NAME, invert = TRUE),]
+  B <- A[grep("Cordillera", A$ZONE_NAME, invert = TRUE), ] %>%
+    .[grep("Prairie", B$ZONE_NAME, invert = TRUE), ]
   C <- raster::intersect(shpStudyRegionFull, B)
 }
 
-crsKNNMaps <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
+crsKNNMaps <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
+                        "+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
 
 loadStudyRegion <- function(shpPath, studyArea, crsKNNMaps) {
   shpStudyRegionFull <- loadShpAndMakeValid(file = shpPath)
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
-  shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
+  shpStudyRegionFull@data <- shpStudyRegionFull@data[, !(names(shpStudyRegionFull) %in% "ECODISTRIC")]
   shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
 
   shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea, targetCRS = crsKNNMaps)
@@ -44,9 +45,7 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
       shpStudyRegionFullNWT <- crop(shpStudyRegionFullLL, ext)
       shpStudyRegion <- spTransform(shpStudyRegionFullNWT, crs(shpStudyRegionFull))
       shpStudyRegion <- rgeos::gBuffer(shpStudyRegion, width = 0, byid = TRUE)
-
     } else {
-
       if (studyArea == "SMALL") {
         areaKm2 <- 10000#700000#2000#600000#too big for laptop
       } else if (studyArea == "VERYSMALL") {
@@ -82,7 +81,6 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
       crs(inputMapPolygon) <- targetCRS
       shpStudyRegion <- raster::intersect(shpStudyRegionFull, inputMapPolygon)
     }
-
   } else {
     shpStudyRegion <- shpStudyRegionFull
   }
