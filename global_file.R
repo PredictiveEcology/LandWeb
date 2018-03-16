@@ -214,7 +214,8 @@ if (guaranteedRun) {
 # THE FOLLOWING OBJECT IS A LIST OF 1 simList,
 # A simList is a rich data structure that comes with the SpaDES.core package
 mySimOut <<- Cache(runExperiment, mySim, experimentReps,
-                   debugCache = "complete", objectsToHash = objectsToHash,
+                   #debugCache = "complete", 
+                   objectsToHash = objectsToHash,
                    objects = objectsToHash)#,
 #sideEffect = TRUE)
 

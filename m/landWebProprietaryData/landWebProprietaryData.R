@@ -66,8 +66,6 @@ doEvent.landWebProprietaryData = function(sim, eventTime, eventType) {
 
 ### template initialization
 Init <- function(sim) {
-  # # ! ----- EDIT BELOW ----- ! #
-
   ## load Paul Pickell et al. and CASFRI
   if (!exists("sessionCacheFile")) {
     sessionCacheFile <<- tempfile()
@@ -116,7 +114,8 @@ Init <- function(sim) {
 
     message("Load CASFRI data and headers, and convert to long format, and define species groups")
     loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile,
-                          debugCache = "complete", userTags = "BigDataTable")
+                          #debugCache = "complete", 
+                          userTags = "BigDataTable")
 
     message("Make stack of species layers from Paul's layer")
     uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
@@ -140,9 +139,6 @@ Init <- function(sim) {
     sim$specieslayers <- specieslayers2
     message("Using LandWeb datasets from Paul Pickell and CASFRI")
   }
-
-  # ! ----- STOP EDITING ----- ! #
-
   return(invisible(sim))
 }
 
