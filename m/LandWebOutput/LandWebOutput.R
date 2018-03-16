@@ -46,7 +46,7 @@ defineModule(sim, list(
 
 doEvent.LandWebOutput = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
-    sim <- Init(sim)
+    #sim <- Init(sim)
     sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "allEvents", 
                          eventPriority = 7.5)
   }   else if (time(sim) >= sim$summaryPeriod[1] & eventType == "allEvents" & 
@@ -66,14 +66,6 @@ doEvent.LandWebOutput = function(sim, eventTime, eventType, debug = FALSE) {
 #   - `modulenameInit()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
-### template initialization
-Init <- function(sim) {
-  # # ! ----- EDIT BELOW ----- ! #
-  
-  # ! ----- STOP EDITING ----- ! #
-  
-  return(invisible(sim))
-}
 
 ### template for your event1
 AllEvents <- function(sim) {

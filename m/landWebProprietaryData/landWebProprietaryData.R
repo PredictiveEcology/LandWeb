@@ -66,13 +66,21 @@ doEvent.landWebProprietaryData = function(sim, eventTime, eventType) {
 
 ### template initialization
 Init <- function(sim) {
-  # # ! ----- EDIT BELOW ----- ! #
-
   ## load Paul Pickell et al. and CASFRI
   if (!exists("sessionCacheFile")) {
     sessionCacheFile <<- tempfile()
   }
-  .cacheVal <<- if (grepl("VIC-A", Sys.info()["nodename"])) sessionCacheFile else FALSE
+  isKnownUser <- (grepl("emcintir", Sys.info()["user"]))
+  .cacheVal <<- if (grepl("VIC-A", Sys.info()["nodename"])) {
+    sessionCacheFile 
+  } else if (isKnownUser) {
+    oauthFilePath <- file.path(modulePath(sim), "..", ".httr-oauth")
+    options(httr_oauth_cache = oauthFilePath)
+    oauthFilePath
+  } else {
+    FALSE
+  }
+  
 
   aaa <- testthat::capture_error({
     googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
@@ -116,7 +124,8 @@ Init <- function(sim) {
 
     message("Load CASFRI data and headers, and convert to long format, and define species groups")
     loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile,
-                          debugCache = "complete", userTags = "BigDataTable")
+                          #debugCache = "complete", 
+                          userTags = "BigDataTable")
 
     message("Make stack of species layers from Paul's layer")
     uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
@@ -140,9 +149,6 @@ Init <- function(sim) {
     sim$specieslayers <- specieslayers2
     message("Using LandWeb datasets from Paul Pickell and CASFRI")
   }
-
-  # ! ----- STOP EDITING ----- ! #
-
   return(invisible(sim))
 }
 
@@ -162,12 +168,8 @@ Init <- function(sim) {
                             cacheTags = c("stable", currentModule(sim)))
   }
   
-  if (!suppliedElsewhere("shpStudyRegionFull")) {
-    stop("shpStudyRegionFull is required. Please supply a polygon of the study area")
-  }
-  
   if (!suppliedElsewhere("shpStudySubRegion")) {
-    sim$shpStudySubRegion <- sim$shpStudyRegionFull
+    stop("shpStudySubRegion is required. Please supply a polygon of the study area")
   }
 
   return(invisible(sim))
