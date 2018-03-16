@@ -61,8 +61,6 @@ defineModule(sim, list(
     expectsInput("seedingAlgorithm", "character",
                  desc = "choose which seeding algorithm will be used among noDispersal, universalDispersal,
                  and wardDispersal, default is wardDispersal"),
-    expectsInput("successionTimestep", "numeric",
-                 desc = "define the simulation time step, default is 10 years"),
     expectsInput(objectName = "studyArea", objectClass = "SpatialPolygons",
                  desc = "study area",
                  sourceURL = NA)
@@ -495,8 +493,7 @@ Save <- function(sim) {
                                     X4 = c(rep(0, 3), 0.5, 1), X5 = c(rep(0, 4), 1))
 
   sim$seedingAlgorithm <- "wardDispersal"
-  sim$successionTimestep <- 10
-
+  
   if (!suppliedElsewhere(sim$studyArea)) {
     sim$studyArea <- sim$shpStudyRegionFull
   }
