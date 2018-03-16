@@ -45,7 +45,8 @@ loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsKNNMap
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHFC
   shpStudyRegionFull@data <- shpStudyRegionFull@data[, !(names(shpStudyRegionFull) %in% "ECODISTRIC")]
   shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
-
+  shpStudyRegionFull <- rgeos::gBuffer(shpStudyRegionFull, byid = TRUE, width = 0)
+  
   shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea, targetCRS = crsKNNMaps)
   list(shpStudyRegion = shpStudyRegion, shpStudyRegionFull = shpStudyRegionFull)
 }
