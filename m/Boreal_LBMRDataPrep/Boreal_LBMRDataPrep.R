@@ -146,6 +146,10 @@ estimateParameters <- function(sim) {
   .gc()
 
   message("ecoregionProducer: ", Sys.time())
+  if (!isTRUE(rgeos::gIsValid(sim$studyArea))) {
+    sim$studyArea <- rgeos::gBuffer(sim$studyArea, byid = TRUE, width = 0)
+  }
+  
   ecoregionFiles <- Cache(ecoregionProducer,
                           studyAreaRaster = initialCommFiles$initialCommunityMap,
                           ecoregionMapFull = sim$ecoDistrict,
@@ -378,8 +382,10 @@ Save <- function(sim) {
   if (!identical(crsUsed, crs(sim$shpStudyRegionFull)))
     sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
 
-  if (!identical(crsUsed, crs(sim$shpStudySubRegion)))
-    sim$shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache
+  if (!identical(crsUsed, crs(sim$shpStudySubRegion))) {
+    shpStudySubRegion <- spTransform(sim$shpStudySubRegion, crsUsed) #faster without Cache
+    sim$shpStudySubRegion <- rgeos::gBuffer(shpStudySubRegion, byid = TRUE, width = 0)
+  }
 
   cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
   
