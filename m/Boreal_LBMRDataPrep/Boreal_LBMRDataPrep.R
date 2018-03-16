@@ -63,10 +63,6 @@ defineModule(sim, list(
                  and wardDispersal, default is wardDispersal"),
     expectsInput("successionTimestep", "numeric",
                  desc = "define the simulation time step, default is 10 years"),
-    # expectsInput(objectName = "cellSize", objectClass = "numeric",
-    #              desc = "define the cell size"),
-    # expectsInput(objectName = "spinupMortalityfraction", objectClass = "numeric",
-    #               desc = "define the mortality loss fraction in spin up-stage simulation, default is 0.001"),
     expectsInput(objectName = "studyArea", objectClass = "SpatialPolygons",
                  desc = "study area",
                  sourceURL = NA)
@@ -398,14 +394,6 @@ Save <- function(sim) {
                             cacheTags = c("stable", currentModule(sim)))#,
     #dataset = "EOSD2000")
 
-    # sim$biomassMap <- Cache(prepareIt,
-    #                         tarfileName = "kNN-StructureBiomass.tar",
-    #                         untarfileNames = asPath("NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
-    #                         spatialObjectFilename = biomassMapFilename,
-    #                         dataPath = dPath, #rasterToMatch = sim$standAgeMap,
-    #                         studyArea = sim$shpStudySubRegion,
-    #                         userTags = cacheTags,
-    #                         modulePath = modulePath(sim))
   }
 
   # LCC2005
@@ -422,13 +410,6 @@ Save <- function(sim) {
                          cacheTags = currentModule(sim))
 
     projection(sim$LCC2005) <- projection(sim$biomassMap)
-    # sim$LCC2005 <- Cache(prepareIt,
-    #                      zipfileName = asPath("LandCoverOfCanada2005_V1_4.zip"),
-    #                      spatialObjectFilename = lcc2005Filename,
-    #                      dataPath = dPath, rasterToMatch = sim$biomassMap,
-    #                      studyArea = sim$shpStudySubRegion,
-    #                      userTags = cacheTags,
-    #                      modulePath = modulePath(sim))
   }
   
   if (!suppliedElsewhere("ecoDistrict", sim)) {
@@ -443,25 +424,9 @@ Save <- function(sim) {
                              writeCropped = TRUE,
                              cacheTags = cacheTags,
                              userTags = cacheTags)
-    # sim$ecoDistrict <- Cache(prepareIt,
-    #                       zipfileName = "ecodistrict_shp.zip",
-    #                       zipExtractFolder = "Ecodistricts",
-    #                       spatialObjectFilename = asPath(ecodistrictFilename),
-    #                       dataPath = dPath, #rasterToMatch = sim$biomassMap,
-    #                       userTags = cacheTags,
-    #                       studyArea = sim$shpStudyRegionFull,
-    #                       modulePath = modulePath(sim))
   }
   
   if (!suppliedElsewhere("ecoRegion", sim)) {
-    # sim$ecoRegion <- Cache(prepareIt,
-    #                        zipfileName = asPath("ecoregion_shp.zip"),
-    #                        zipExtractFolder = "Ecoregions",
-    #                        spatialObjectFilename = ecoregionFilename,
-    #                        dataPath = dPath, #rasterToMatch = sim$biomassMap,
-    #                        studyArea = sim$shpStudyRegionFull,
-    #                        userTags = cacheTags,
-    #                        modulePath = modulePath(sim))
     sim$ecoRegion <- Cache(prepInputs,
                            targetFile = asPath(ecoregionFilename),
                            archive = asPath("ecoregion_shp.zip"),
@@ -516,78 +481,6 @@ Save <- function(sim) {
 
 
   # 3. species maps
-  # ## load Paul Pickell et al. and CASFRI
-  # if (!exists("sessionCacheFile")) { 
-  #   sessionCacheFile <<- tempfile() 
-  # } 
-  # .cacheVal <<- if (grepl("VIC-A", Sys.info()["nodename"])) sessionCacheFile else FALSE
-  # googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
-  # file_url <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
-  # aaa <- testthat::capture_error(googledrive::drive_download(googledrive::as_id(file_url), path = tempfile(),
-  #                             overwrite = TRUE, verbose = TRUE))
-  # if (is.null(aaa)) { # means got the file
-  #   message("  Loading CASFRI and Pickell et al. layers")
-  #   extraExtents <- raster(file.path(dataPath(sim), "SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.dat"))
-  #   Paul <- Cache(prepInputs,
-  #         targetFile = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.dat"),
-  #         archive = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.zip"),
-  #         alsoExtract = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.hdr"), 
-  #         destinationPath= asPath(dPath),
-  #         fun = "raster",
-  #         pkg = "raster",
-  #         studyArea = sim$shpStudySubRegion,
-  #         rasterToMatch = sim$biomassMap,
-  #         rasterInterpMethod = "bilinear",
-  #         rasterDatatype = "INT2U",
-  #         writeCropped = TRUE,
-  #         cacheTags = c("stable", currentModule(sim)))#, notOlderThan = Sys.time())
-  #   
-  #   CASFRITifFile = asPath(file.path(dPath, "Landweb_CASFRI_GIDs.tif"))
-  #   CASFRIattrFile = asPath(file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv"))
-  #   CASFRIheaderFile = asPath(file.path(dPath,"Landweb_CASFRI_GIDs_README.txt"))
-  #   CASFRIRas <- Cache(prepInputs,
-  #                 targetFile = asPath("Landweb_CASFRI_GIDs.tif"),
-  #                 archive = asPath("CASFRI for Landweb.zip"),
-  #                 alsoExtract = c(CASFRITifFile, CASFRIattrFile, CASFRIheaderFile),
-  #                 destinationPath= asPath(dPath),
-  #                 fun = "raster",
-  #                 pkg = "raster",
-  #                 studyArea = sim$shpStudySubRegion,
-  #                 rasterToMatch = sim$biomassMap,
-  #                 rasterInterpMethod = "bilinear",
-  #                 rasterDatatype = "INT2U",
-  #                 writeCropped = TRUE,
-  #                 cacheTags = c("stable", currentModule(sim)))
-  #   
-  #   message("Load CASFRI data and headers, and convert to long format, and define species groups")
-  #   loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile, 
-  #                         debugCache = "complete", userTags = "BigDataTable")
-  #   
-  #   message("Make stack of species layers from Paul's layer")
-  #   uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
-  #   # "Abie_sp"  "Betu_pap" "Lari_lar" "Pice_gla" "Pice_mar" "Pinu_sp" "Popu_tre"
-  #   PaulSpStack <- Cache(makePaulStack, paths = lapply(paths(sim), basename), 
-  #                        PaulRaster = Paul, uniqueKeepSp)
-  #   crs(PaulSpStack) <- crs(sim$biomassMap) # bug in writeRaster
-  #   
-  #   message('Make stack from CASFRI data and headers')
-  #   CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI)
-  #   
-  #   message("Overlay Paul and CASFRI stacks")
-  #   outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack, 
-  #                     outputFilenameSuffix = "CASFRI_PAUL")#, notOlderThan = Sys.time())
-  #   crs(outStack) <- crs(sim$biomassMap) # bug in writeRaster
-  #   
-  #   message("Overlay Paul_CASFRI with open data set stacks")
-  #   sim$specieslayers2 <- Cache(overlayStacks, outStack, sim$specieslayers, 
-  #                      outputFilenameSuffix = "CASFRI_PAUL_KNN")
-  #   crs(sim$specieslayers2) <- crs(sim$biomassMap)
-  #   sim$specieslayers <- sim$specieslayers2
-  #   rm(specieslayers2, envir = envir(sim))
-  # } else {
-  #   message("Using only 'Open source data sets'")
-  # }
-
   sim$speciesTable <- prepInputs("speciesTraits.csv", destinationPath = dPath,
                                  fun = "read.csv", pkg = "utils")
   sim$speciesTable <- read.csv(file.path(dPath, "speciesTraits.csv"), header = TRUE,
@@ -602,8 +495,6 @@ Save <- function(sim) {
                                     X4 = c(rep(0, 3), 0.5, 1), X5 = c(rep(0, 4), 1))
 
   sim$seedingAlgorithm <- "wardDispersal"
-  # sim$spinupMortalityfraction <- 0.002
-  # sim$cellSize <- 250
   sim$successionTimestep <- 10
 
   if (!suppliedElsewhere(sim$studyArea)) {
