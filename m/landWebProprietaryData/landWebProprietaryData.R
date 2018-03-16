@@ -70,10 +70,13 @@ Init <- function(sim) {
   if (!exists("sessionCacheFile")) {
     sessionCacheFile <<- tempfile()
   }
+  isKnownUser <- (grepl("emcintir", Sys.info()["user"]))
   .cacheVal <<- if (grepl("VIC-A", Sys.info()["nodename"])) {
     sessionCacheFile 
-  } else if (grepl("emcintir", Sys.info()["user"])) {
-    file.path(modulePath(sim), "..", ".httr-oauth")
+  } else if (isKnownUser) {
+    oauthFilePath <- file.path(modulePath(sim), "..", ".httr-oauth")
+    options(httr_oauth_cache = oauthFilePath)
+    oauthFilePath
   } else {
     FALSE
   }
