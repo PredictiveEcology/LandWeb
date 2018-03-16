@@ -131,12 +131,13 @@ if (studyArea == "RIA") {
                               cacheRepo = paths$cachePath)
   shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
-  #shpStudyRegion <- shpStudyRegion[1,]
   shpStudyRegionFull <- shpStudyRegion
   
 } else {
   shpStudyRegions <- Cache(loadStudyRegion,
-                           asPath(file.path(paths$inputPath, "shpLandWEB.shp")),
+                           asPath(file.path(paths$inputPath, "studyarea-correct.shp")),
+                           fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
+                           #asPath(file.path(paths$inputPath, "shpLandWEB.shp")),
                            studyArea = studyArea,
                            crsKNNMaps = crsKNNMaps, cacheRepo = paths$cachePath)
   list2env(shpStudyRegions, envir = environment())

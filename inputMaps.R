@@ -25,8 +25,19 @@ useEcozoneMask <- function(studyArea, ecozoneFilename){
 crsKNNMaps <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
                         "+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
 
-loadStudyRegion <- function(shpPath, studyArea, crsKNNMaps) {
+loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsKNNMaps) {
+  # Dave Andison doesn't have .prj files -- this line will create one with NAD83 UTM11N downloading from spatialreference.org
+  createPrjFile(shpPath)
   shpStudyRegionFull <- loadShpAndMakeValid(file = shpPath)
+  
+  if (is.null(shpStudyRegionFull$fireReturnInterval)) {
+    # Dave Andison doesn't have .prj files -- this line will create one with NAD83 UTM11N downloading from spatialreference.org
+    createPrjFile(fireReturnIntervalMap)
+    fireReturnInterval <- loadShpAndMakeValid(file = fireReturnIntervalMap)
+  }
+  if (!identical(extent(shpStudyRegionFull), extent(fireReturnInterval))) {
+    shpStudyRegionFull <- intersect(shpStudyRegionFull, fireReturnInterval)
+  }
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
   shpStudyRegionFull@data <- shpStudyRegionFull@data[, !(names(shpStudyRegionFull) %in% "ECODISTRIC")]
   shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
@@ -90,3 +101,13 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
 #ggStudyRegion <- ggvisFireReturnInterval(shpStudyRegion, shpStudyRegionFull)
 
 set.seed(Sys.time())
+
+createPrjFile <- function(shp) {
+  basenameWithoutExt <- strsplit(shp, "\\.")[[1]]
+  basenameWithoutExt <- basenameWithoutExt[-length(basenameWithoutExt)]
+  prjFile <- paste0(basenameWithoutExt, ".prj")
+  if (!file.exists(prjFile)) {
+    download.file("http://spatialreference.org/ref/epsg/nad83-utm-zone-11n/prj/",
+                  destfile = prjFile)
+  }
+}
