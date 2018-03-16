@@ -100,12 +100,14 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
   } else {
     shpStudyRegion <- shpStudyRegionFull
   }
+  options("digits.secs" = 7)
+  on.exit(options("digits.secs" = NULL))
+  set.seed(Sys.time())
+  
   return(shpStudyRegion)
 }
 
 #ggStudyRegion <- ggvisFireReturnInterval(shpStudyRegion, shpStudyRegionFull)
-
-set.seed(Sys.time())
 
 createPrjFile <- function(shp) {
   basenameWithoutExt <- strsplit(shp, "\\.")[[1]]
