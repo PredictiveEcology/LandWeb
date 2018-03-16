@@ -70,7 +70,14 @@ Init <- function(sim) {
   if (!exists("sessionCacheFile")) {
     sessionCacheFile <<- tempfile()
   }
-  .cacheVal <<- if (grepl("VIC-A", Sys.info()["nodename"])) sessionCacheFile else FALSE
+  .cacheVal <<- if (grepl("VIC-A", Sys.info()["nodename"])) {
+    sessionCacheFile 
+  } else if (grepl("emcintir", Sys.info()["user"])) {
+    file.path(modulePath(sim), "..", ".httr-oauth")
+  } else {
+    FALSE
+  }
+  
 
   aaa <- testthat::capture_error({
     googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
