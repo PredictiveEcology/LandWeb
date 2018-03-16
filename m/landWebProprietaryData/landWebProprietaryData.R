@@ -21,7 +21,9 @@ defineModule(sim, list(
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
-    defineParameter(".useCache", "logical", TRUE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant")
+    defineParameter(".useCache", "logical", TRUE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant"),
+    defineParameter(name = "useParallel", class = "numeric", default = parallel::detectCores(),
+                    desc = "Used in reading csv file with fread. Will be passed to data.table::setDTthreads")
   ),
   inputObjects = bind_rows(
     expectsInput(objectName = "biomassMap", objectClass = "RasterLayer",
@@ -80,7 +82,6 @@ Init <- function(sim) {
   } else {
     FALSE
   }
-  
 
   aaa <- testthat::capture_error({
     googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
@@ -123,6 +124,7 @@ Init <- function(sim) {
                        cacheTags = c("stable", currentModule(sim)))
 
     message("Load CASFRI data and headers, and convert to long format, and define species groups")
+    if (P(sim)$useParallel > 1) data.table::setDTthreads(P(sim)$useParallel)
     loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile,
                           #debugCache = "complete", 
                           userTags = "BigDataTable")
