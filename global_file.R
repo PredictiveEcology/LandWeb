@@ -25,6 +25,7 @@
                                           "https://www.googleapis.com/auth/userinfo.profile"))
   options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
   options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
+  options(httr_oob_default = TRUE)
   
   appURL <- "http://landweb.predictiveecology.org/Demo/"
   authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
