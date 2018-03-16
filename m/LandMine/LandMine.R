@@ -23,7 +23,9 @@ defineModule(sim, list(
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
-    defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant")
+    defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant"),
+    defineParameter(name = "useParallel", class = "numeric", default = parallel::detectCores(),
+                    desc = "Used in burning. Will be passed to data.table::setDTthreads")
   ),
   inputObjects = bind_rows(
     expectsInput("rstFlammable", "Raster", "A raster layer, with 0, 1 and NA, where 0 indicates areas that are flammable, 1 not flammable (e.g., lakes) and NA not applicable (e.g., masked)"),
@@ -265,6 +267,8 @@ Burn <- function(sim) {
   
   
   if (!all(is.na(thisYrStartCells)) & length(thisYrStartCells) > 0) {
+    if (data.table::getDTthreads() < P(sim)$useParallel) 
+      data.table::setDTthreads(P(sim)$useParallel)
     fires <- burn1(sim$fireReturnInterval, startCells = thisYrStartCells,
                    fireSizes = fireSizesInPixels, spreadProbRel = ROSmap,
                    #spawnNewActive = c(0.65, 0.6, 0.2, 0.2),

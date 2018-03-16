@@ -149,11 +149,10 @@ times <- list(start = 0, end = endTime)
 .quickChecking <- TRUE
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
-                "successionTimestep" = successionTimestep,
                 "summaryPeriod" = summaryPeriod,
-                "useParallel" = FALSE)
+                "useParallel" = 6)
 parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
-                                        .useCache = eventCaching),
+                                        .useCache = "init"),
                    landWebDataPrep = list(.useCache = eventCaching),
                    landWebProprietaryData = list(.useCache = eventCaching),
                    Boreal_LBMRDataPrep = list(.useCache = eventCaching),
@@ -164,6 +163,7 @@ parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
                    ),
                    LBMR = list(.plotInitialTime = times$start,
                                .saveInitialTime = NA
+                               , successionTimestep = successionTimestep
                                , .useCache = eventCaching
                    ),
                    initBaseMaps = list(.useCache = eventCaching),
@@ -214,7 +214,8 @@ if (guaranteedRun) {
 # THE FOLLOWING OBJECT IS A LIST OF 1 simList,
 # A simList is a rich data structure that comes with the SpaDES.core package
 mySimOut <<- Cache(runExperiment, mySim, experimentReps,
-                   debugCache = "complete", objectsToHash = objectsToHash,
+                   #debugCache = "complete", 
+                   objectsToHash = objectsToHash,
                    objects = objectsToHash)#,
 #sideEffect = TRUE)
 
