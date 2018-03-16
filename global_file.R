@@ -150,9 +150,9 @@ times <- list(start = 0, end = endTime)
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
                 "summaryPeriod" = summaryPeriod,
-                "useParallel" = FALSE)
+                "useParallel" = 6)
 parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
-                                        .useCache = eventCaching),
+                                        .useCache = "init"),
                    landWebDataPrep = list(.useCache = eventCaching),
                    landWebProprietaryData = list(.useCache = eventCaching),
                    Boreal_LBMRDataPrep = list(.useCache = eventCaching),
