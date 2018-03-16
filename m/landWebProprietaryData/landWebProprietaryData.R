@@ -158,12 +158,8 @@ Init <- function(sim) {
                             cacheTags = c("stable", currentModule(sim)))
   }
   
-  if (!suppliedElsewhere("shpStudyRegionFull")) {
-    stop("shpStudyRegionFull is required. Please supply a polygon of the study area")
-  }
-  
   if (!suppliedElsewhere("shpStudySubRegion")) {
-    sim$shpStudySubRegion <- sim$shpStudyRegionFull
+    stop("shpStudySubRegion is required. Please supply a polygon of the study area")
   }
 
   return(invisible(sim))
