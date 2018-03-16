@@ -36,9 +36,9 @@ loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsKNNMap
     fireReturnInterval <- loadShpAndMakeValid(file = fireReturnIntervalMap)
   }
   if (!identical(extent(shpStudyRegionFull), extent(fireReturnInterval))) {
-    shpStudyRegionFull <- intersect(shpStudyRegionFull, fireReturnInterval)
+    shpStudyRegionFull <- raster::intersect(shpStudyRegionFull, fireReturnInterval)
   }
-  shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
+  shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHFC
   shpStudyRegionFull@data <- shpStudyRegionFull@data[, !(names(shpStudyRegionFull) %in% "ECODISTRIC")]
   shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
 

@@ -523,7 +523,6 @@ Save <- function(sim) {
   # file_url <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
   # aaa <- testthat::capture_error(googledrive::drive_download(googledrive::as_id(file_url), path = tempfile(),
   #                             overwrite = TRUE, verbose = TRUE))
-  # browser()
   # if (is.null(aaa)) { # means got the file
   #   message("  Loading CASFRI and Pickell et al. layers")
   #   extraExtents <- raster(file.path(dataPath(sim), "SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.dat"))
@@ -620,9 +619,7 @@ Save <- function(sim) {
   if (needRstSR) {
     message("  Rasterizing the shpStudyRegionFull polygon map")
 
-    fieldName <- if (is.null(nrow(studyArea))) {
-      NULL
-    } else if ("LTHRC" %in% names(sim$shpStudyRegionFull)) {
+    fieldName <- if ("LTHRC" %in% names(sim$shpStudyRegionFull)) {
       "LTHRC"
     } else {
       names(sim$shpStudyRegionFull)[1]
