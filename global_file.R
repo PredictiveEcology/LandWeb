@@ -149,7 +149,6 @@ times <- list(start = 0, end = endTime)
 .quickChecking <- TRUE
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
-                "successionTimestep" = successionTimestep,
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = FALSE)
 parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
@@ -164,6 +163,7 @@ parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
                    ),
                    LBMR = list(.plotInitialTime = times$start,
                                .saveInitialTime = NA
+                               , successionTimestep = successionTimestep
                                , .useCache = eventCaching
                    ),
                    initBaseMaps = list(.useCache = eventCaching),
