@@ -33,6 +33,9 @@ defineModule(sim, list(
     expectsInput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: Sub study area with fire return interval attribute",
                  sourceURL = ""),
+    expectsInput(objectName = "shpStudyRegionFull", objectClass = "SpatialPolygonsDataFrame",
+                 desc = "this shape file contains two informaton: Full study area with fire return interval attribute",
+                 sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput(objectName = "SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.zip", objectClass = "RasterStack",
                  desc = "biomass percentage raster layers by species in Canada species map, created by Pickell et al, UBC, resolution 100m x 100m from LandSat and KNN based on CASFRI",
                  sourceURL = "https://drive.google.com/open?id=1M_L-7ovDpJLyY8dDOxG3xQTyzPx2HSg4"),
@@ -158,7 +161,11 @@ Init <- function(sim) {
                             writeCropped = TRUE,
                             cacheTags = c("stable", currentModule(sim)))
   }
-
+  
+  if (!suppliedElsewhere("shpStudyRegionFull")) {
+    stop("shpStudyRegionFull is required. Please supply a polygon of the study area")
+  }
+  
   if (!suppliedElsewhere("shpStudySubRegion")) {
     sim$shpStudySubRegion <- sim$shpStudyRegionFull
   }
