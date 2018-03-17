@@ -520,6 +520,9 @@ Save <- function(sim) {
     }
     sim$rstStudyRegion <- crop(fasterizeFromSp(sim$shpStudyRegionFull, sim$biomassMap, fieldName),
                                sim$shpStudyRegionFull)
+    sim$rstStudyRegion <- Cache(writeRaster, sim$rstStudyRegion, filename = file.path(dataPath(sim), "rstStudyRegion.tif"),
+                                          datatype = "INT2U", overwrite = TRUE)
+    
   }
 
   return(invisible(sim))
