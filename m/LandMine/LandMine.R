@@ -105,7 +105,7 @@ EstimateTruncPareto <- function(sim) {
 
   findK_upper <- function(params=c(0.4), upper1 ) {
     fs <- round(rtruncpareto(1e6, 1, upper = upper1, shape = params[1]))
-    #meanFS <- meanTrucPareto(k = params[1], lower = 1, upper = upper1, alpha = 1)
+    #meanFS <- meanTruncPareto(k = params[1], lower = 1, upper = upper1, alpha = 1)
     #diff1 <- abs(quantile(fs, 0.95) - meanFS)
     #abs(sum(fs[fs>quantile(fs, 0.95)])/sum(fs) - 0.9) # "90% of area is in 5% of fires" # from Dave rule of thumb
 
@@ -135,9 +135,8 @@ Init <- function(sim) {
 
   message("Determine mean fire size")
 
-  meanFireSizeHa <- meanTrucPareto(k = sim$kBest, lower = 1,
-                                   upper = min(P(sim)$biggestPossibleFireSizeHa,
-                                               prod(res(sim$rstStudyRegion)) / 1e4 * res(sim$rstStudyRegion)),
+  meanFireSizeHa <- meanTruncPareto(k = sim$kBest, lower = 1,
+                                   upper = P(sim)$biggestPossibleFireSizeHa,
                                    alpha = 1)
   numFiresByPolygonNumeric <- numHaPerPolygonNumeric / meanFireSizeHa
   sim$numFiresPerYear <- numFiresByPolygonNumeric / returnInterval
@@ -389,7 +388,7 @@ Burn <- function(sim) {
 }
 
 
-meanTrucPareto <- function(k, lower, upper, alpha) {
+meanTruncPareto <- function(k, lower, upper, alpha) {
   k * lower^k * (upper^(1 - k) - alpha^(1 - k)) / ((1 - k) * (1 - (alpha/upper)^k))
 }
 
