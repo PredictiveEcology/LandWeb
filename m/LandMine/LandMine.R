@@ -71,6 +71,8 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
     ### (use `checkObject` or similar)
 
     # do stuff for this event
+    #  ff package, used in SpaDES.tools::spread2, doesn't always set this correctly.
+    options(fftempdir = tempdir())
     sim <- EstimateTruncPareto(sim)
     sim <- Init(sim)
 
