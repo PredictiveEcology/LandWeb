@@ -104,7 +104,7 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
   }
   options("digits.secs" = 7)
   on.exit(options("digits.secs" = NULL))
-  set.seed(Sys.time())
+  set.seed(as.numeric(format(Sys.time(), format = "%OS")))
   
   return(shpStudyRegion)
 }
