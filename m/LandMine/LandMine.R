@@ -155,7 +155,7 @@ Init <- function(sim) {
   message("6: ", Sys.time())
 
   sim$rstFlammableNum[] <- 1L - as.integer(sim$rstFlammable[])
-  sim$rstFlammableNum[is.na(sim$rstFlammableNum)] <- NA
+  sim$rstFlammableNum[is.na(sim$rstFlammableNum[])] <- NA
 
   # rm("rstFlammable", envir = envir(sim)) # don't need this in LandMine ... but it is used in timeSinceFire
   return(invisible(sim))
