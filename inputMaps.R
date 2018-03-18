@@ -41,6 +41,7 @@ loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsKNNMap
   if (!isTRUE("LTHRC" %in% names(shpStudyRegionFull))) {
     shpStudyRegionFull$LTHRC <- shpStudyRegionFull$LTHFC # Apparently, sometimes it is LTHFC, sometimes LTHRC
     shpStudyRegionFull$LTHFC <- NULL
+    shpStudyRegionFull$LTHRC[shpStudyRegionFull$LTHRC <= 20] <- NA
   }
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHFC
   shpStudyRegionFull@data <- shpStudyRegionFull@data[, !(names(shpStudyRegionFull) %in% "ECODISTRIC")]
