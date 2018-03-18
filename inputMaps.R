@@ -41,7 +41,8 @@ loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsKNNMap
   if (!isTRUE("LTHRC" %in% names(shpStudyRegionFull))) {
     shpStudyRegionFull$LTHRC <- shpStudyRegionFull$LTHFC # Apparently, sometimes it is LTHFC, sometimes LTHRC
     shpStudyRegionFull$LTHFC <- NULL
-    shpStudyRegionFull$LTHRC[shpStudyRegionFull$LTHRC <= 20] <- NA
+    # The fires of Fire Return Interval 30 years are not correctly simulated by LandMine, so they are removed.
+    shpStudyRegionFull$LTHRC[shpStudyRegionFull$LTHRC <= 30] <- NA
   }
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHFC
   shpStudyRegionFull@data <- shpStudyRegionFull@data[, !(names(shpStudyRegionFull) %in% "ECODISTRIC")]
