@@ -180,9 +180,13 @@ plotFn <- function(sim) {
 
 ### burn events
 Burn <- function(sim) {
-  numFiresThisPeriod <- rpois(length(sim$numFiresPerYear),
-                              lambda = sim$numFiresPerYear * P(sim)$fireTimestep)
+  # Poisson is too little variation
+  # numFiresThisPeriod <- rpois(length(sim$numFiresPerYear),
+  #                             lambda = sim$numFiresPerYear * P(sim)$fireTimestep)
 
+  numFiresThisPeriod <- rnbinom(length(sim$numFiresPerYear), 
+          mu = sim$numFiresPerYear * P(sim)$fireTimestep, 
+          size = 3)
   # meanTP <- function(k, lower, upper, alpha) {
   #   k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
   # }
