@@ -1,0 +1,160 @@
+#' Large patches (shiny module)
+#'
+#' Create summary for large patches function.
+#'
+#' @param id An ID string that corresponds with the ID used to call the module's UI function.
+#'
+#' @return shiny module UI.
+#'
+#' @author Mateusz Wyszynski
+#' @export
+#' @importFrom shiny fluidRow NS
+#' @importFrom shinydashboard box
+#' @rdname largePatches
+largePatchesUI <- function(id) {
+  ns <- NS(id)
+
+  fluidRow(
+    shinydashboard::box(
+      width = 12, solidHeader = TRUE, collapsible = TRUE,
+      clumpMod2UI(ns("largePatches"))
+    ),
+    shinydashboard::box(
+      width = 12, solidHeader = TRUE, collapsible = TRUE, slicerUI(ns("slicer"))
+    )
+  )
+}
+
+#' @param input    Shiny server input object.
+#'
+#' @param output   Shiny server output object.
+#'
+#' @param session  Shiny server session object.
+#'
+#' @param numberOfSimulationTimes  How many simulation time stamps there are.
+#'
+#' @param clumpMod2Args  List containing named arguments passed to \code{clumpMod2}.
+#'
+#' @return Shiny module server function.
+#'
+#' @author Mateusz Wyszynski
+#' @export
+#' @importFrom assertthat assert_that
+#' @importFrom shiny callModule reactive
+#' @importFrom data.table data.table
+#' @importFrom graphics hist
+#' @importFrom purrr map
+#' @rdname largePatches
+largePatches <- function(session, input, output, numberOfSimulationTimes, clumpMod2Args) {
+  #patchSize <- callModule(slider, "slider") ## TODO: where is this used? where is the UI component?
+
+  uiSequence <- data.table(category = c("ageClass", "polygonID", "vegCover"),
+                           uiType = c("tab", "tab", "box"))
+
+  ### remove this, since there is no `id` part to remove
+  # clumpMod2Args <- reactive({
+  #   args <- clumpMod2Args()
+  #   args["id"] <- NULL
+  #   args
+  # })
+
+  largePatchesData <- reactive({
+    clumpsReturn <- do.call(callModule, c(list(module = clumpMod2, id = "largePatches"), clumpMod2Args))
+
+    dt_out <- clumpsReturn()$Clumps
+    assertthat::assert_that(is.data.table(dt_out))
+    dt_out
+  })
+
+  callModule(slicer, "slicer", datatable = largePatchesData,
+             categoryValue = "LargePatches",
+             uiSequence = uiSequence,
+             serverFunction = function(datatable, chosenCategories, chosenValues) {
+               observeEvent(datatable, {
+                 histogramReactiveParams <- reactive({
+                   assertthat::assert_that(
+                     is.reactive(datatable),
+                     msg = "largePatches: callModule(slicer): serverFunction: datatable is not reactive"
+                   )
+
+                   dt <- datatable()
+                   assertthat::assert_that(
+                     is.data.table(dt),
+                     msg = "largePatches: callModule(slicer): serverFunction: dt is not a data.table"
+                   )
+
+                   subtableWith3DimensionsFixed <- getSubtable(dt, chosenCategories, chosenValues)
+                   ageClassPolygonSubtable <- getSubtable(dt, head(chosenCategories, 2), head(chosenValues, 2))
+browser()
+                   numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
+                   maxNumClusters <- if (length(numOfClusters) == 0) {
+                     6
+                   } else {
+                     pmax(6, max(numOfClusters) + 1)
+                   }
+
+                   patchesInTimeDistribution <- if (NROW(subtableWith3DimensionsFixed)) {
+                     numOfPatchesInTime <- subtableWith3DimensionsFixed[, .N, by = "rep"]
+                     numOfTimesWithPatches <- NROW(numOfPatchesInTime)
+
+                     seq(1, numberOfSimulationTimes) %>%
+                       map(function(simulationTime) {
+                         if (simulationTime <= numOfTimesWithPatches) {
+                           numOfPatchesInTime$N[simulationTime]
+                         } else {
+                           0
+                         }
+                       })
+                   } else {
+                     rep(0, numberOfSimulationTimes)
+                   }
+
+                   breaksLabels <- 0:maxNumClusters
+                   breaks <- breaksLabels - 0.5
+                   barplotBreaks <- breaksLabels + 0.5
+
+                   return(list(breaks = breaks,
+                               distribution = as.numeric(patchesInTimeDistribution),
+                               breaksLabels = breaksLabels,
+                               barplotBreaks = barplotBreaks))
+                 })
+
+                 breaks <- reactive(histogramReactiveParams()$breaks)
+
+                 distribution <- reactive(histogramReactiveParams()$distribution)
+
+                 addAxisParams <- reactive(
+                   list(side = 1,
+                        labels = histogramReactiveParams()$breaksLabels,
+                        at = histogramReactiveParams()$barplotBreaks)
+                 )
+
+                 histogramData <- reactive({
+                   actualPlot <- hist(distribution(), breaks = breaks())
+
+                   actualPlot$counts / sum(actualPlot$counts)
+                 })
+
+                 observeEvent({
+                   histogramData
+                   breaks
+                   distribution
+                   addAxisParams
+                 }, {
+                   brks <- breaks()
+                   distribution <- distribution()
+
+                   callModule(histogram, "histogram",
+                              histogramData, addAxisParams,
+                              width = rep(1, length(distribution)),
+                              xlim = range(brks), xlab = "",
+                              ylab = "Proportion in NRV", ## TODO: don't hardcode this
+                              col = "darkgrey", border = "grey", main = "",
+                              space = 0)
+                 })
+               })
+             },
+             uiFunction = function(ns) {
+               histogramUI(ns("histogram"), height = 300)
+             })
+}
