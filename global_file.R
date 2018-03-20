@@ -36,7 +36,9 @@ if (any(c("emcintir") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
 }
 
-source("functions.R") # get functions used throughout this shiny app
+## get additonal helper functions used throughout this shiny app
+source("functions.R")
+source("largePatchesFn.R")
 
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
@@ -122,7 +124,7 @@ if (studyArea == "RIA") {
 }
 
 ## source additional shiny modules
-sapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source)
+vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))
 
 # This needs simInit call to be run already
 # a few map details for shiny app
