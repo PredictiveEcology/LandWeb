@@ -10,9 +10,6 @@ options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
 appURL <- "http://landweb.predictiveecology.org/Demo/"
 authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
 
-# List modules first, so we can get all their dependencies
-modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
@@ -79,10 +76,6 @@ ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
     paste0(">", ageClassCutOffs[x])
   }
 })
-if (!exists("globalRasters")) globalRasters <- list()
-
-# Computation stuff
-experimentReps <- 1 # Currently, only using 1 -- more than 1 may not work
 
 # Time steps
 fireTimestep <- 1
