@@ -9,7 +9,7 @@
 #' @param session  Shiny server session object.
 #' @param ...      Additional arguments passed to \code{simInit}.
 #'
-#' @return A \code{simList} object
+#' @return A reactive \code{simList} object
 #' @seealso \code{\link[SpaDES.core]{simInit}}
 #'
 #' @author Alex Chubaty
@@ -17,7 +17,9 @@
 #' @importFrom SpaDES.core simInit
 #'
 spades_simInit <- function(input, output, session, ...) {
-  simInit(...)
+  reactive({
+    do.call(simInit, list(...))
+  })
 }
 
 #' Shiny module to run a \code{SpaDES} simulation experiment
@@ -29,9 +31,14 @@ spades_simInit <- function(input, output, session, ...) {
 #' @param input    Shiny server input object.
 #' @param output   Shiny server output object.
 #' @param session  Shiny server session object.
+#' @param sim      A reactive \code{simList} object (e.g., pass \code{sim = sim()}).
+#' @param reps     A reactive indicating the number of replicates (e.g., pass \code{reps = reps()}).
+#' @param seed     An integer to pass to \code{set.seed} for the simulation experiment.
+#' @param objectsToHash  A list of objects to hash (with \code{Cache}).
+#' @param cacheDebug  Cache debugging (default \code{"complete"}). See \code{\link{Cache}}.
 #' @param ...      Additional arguments passed to \code{experiment}.
 #'
-#' @return A \code{simList} object
+#' @return A list of \code{simList} objects.
 #' @seealso \code{\link[SpaDES.core]{experiment}}
 #'
 #' @author Alex Chubaty
@@ -40,13 +47,10 @@ spades_simInit <- function(input, output, session, ...) {
 #' @importFrom reproducible Cache Copy
 #' @importFrom SpaDES.core experiment
 #'
-spades_expt <- function(input, output, session, sim, debugCache = "complete",
-                        objectsToHash, reps, seed) {
-  # Run Experiment
-  set.seed(seed)
-  message("Current seed is: ", seed)
+spades_expt <- function(input, output, session, sim, reps, seed, objectsToHash,
+                        cacheDebug = "complete") {
 
-  runExperiment <- function(sim, nReps, seed, cacheDebug = "complete", objectsToHash = "") {
+  runExperiment <- function(sim, nReps, seed, objectsToHash = "") {
     # # Do an initial run for each given study area so that all the data prep can be done once only
     #initialRun1 <- spades(Copy(sim), debug = TRUE)
     # 5 minutes for 6e3 km2
@@ -59,8 +63,7 @@ spades_expt <- function(input, output, session, sim, debugCache = "complete",
                         objects = "shpStudyRegion",
                         #cacheRepo = cachePath(sim),
                         .plotInitialTime = NA,
-                        omitArgs = c("debug", ".plotInitialTime"),
-                        debugCache = cacheDebug)
+                        omitArgs = c("debug", ".plotInitialTime"))
 
     raster::endCluster()
     set.seed(seed)
@@ -70,7 +73,6 @@ spades_expt <- function(input, output, session, sim, debugCache = "complete",
                  debug = "paste(unname(current(sim)), collapse = ' ')",
                  .plotInitialTime = NA,
                  clearSimEnv = TRUE,
-                 debugCache = cacheDebug,
                  omitArgs = c("debug", ".plotInitialTime"))
     args <- args[!unlist(lapply(args, is.null))]
     simOut <- do.call(Cache, args)
@@ -78,14 +80,21 @@ spades_expt <- function(input, output, session, sim, debugCache = "complete",
     simOut
   }
 
-  # THIS IS THE MAIN "SIMULATION FUNCTION"
-  # THE FOLLOWING OBJECT IS A LIST OF 1 simList,
-  # A simList is a rich data structure that comes with the SpaDES.core package
-  message("  Starting Experiment...")
-  mySimOut <- Cache(runExperiment, sim, nReps = reps, seed = seed,
-                    cacheDebug = debugCache, debugCache = debugCache,
-                    objectsToHash = objectsToHash, objects = objectsToHash)#, sideEffect = TRUE)
-  message("  Finished Experiment")
+  reactive({
+    message("  Starting Experiment...")
 
-  mySimOut
+    set.seed(seed)
+    message("    current seed is: ", seed)
+
+    # THIS IS THE MAIN "SIMULATION FUNCTION"
+    # THE FOLLOWING OBJECT IS A LIST OF 1 simList,
+    # A simList is a rich data structure that comes with the SpaDES.core package
+    mySimOut <- Cache(runExperiment, sim(), nReps = reps(), seed = seed,
+                      debugCache = cacheDebug,
+                      objectsToHash = objectsToHash(), objects = objectsToHash())#, sideEffect = TRUE)
+
+    message("  Finished Experiment.")
+
+    mySimOut
+  })
 }
