@@ -34,7 +34,7 @@ Modules <- tribble(
   "shinyModule", "spades_simInit", "sim_init", list(),
   "shinyModule", "spades_expt", "sim_expt", list(),
   "shinyModule", "timeSeriesofRasters", "timeSinceFire", list("rasterList = globalRasters()", "polygonList = polygons()", "shpStudyRegionFull", "colorTable = colorTableFile", "palette = timeSinceFirePalette", "maxAge = maxAge", "sim = mySim()"),
-  "shinyModule", "largePatches", "largePatches", list("numberOfSimulationTimes = length(tsf())", "clumpMod2Args()"),
+  "shinyModule", "largePatches", "largePatches", list("nSimTimes = length(tsf())", "clumpMod2Args()"),
   "shinyModule", "simInfo", "simInfo", list("mySimOut()[[1]]"),
   "shinyModule", "moduleInfo", "moduleInfo", list("mySimOut()[[1]]"),
   "shinyModule", "inputTables", "inputTables", list()
