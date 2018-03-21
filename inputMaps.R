@@ -17,19 +17,38 @@ loadShpAndMakeValid <- function(file) {
 useEcozoneMask <- function(studyArea, ecozoneFilename){
   A <- loadShpAndMakeValid(ecozoneFilename)
   #A <- shapefile(ecozoneFilename)
-  B <- A[grep("Cordillera", A$ZONE_NAME, invert = T),] %>%
-    .[grep("Prairie", B$ZONE_NAME, invert = TRUE),]
+  B <- A[grep("Cordillera", A$ZONE_NAME, invert = TRUE), ] %>%
+    .[grep("Prairie", B$ZONE_NAME, invert = TRUE), ]
   C <- raster::intersect(shpStudyRegionFull, B)
 }
 
-crsKNNMaps <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
+crsKNNMaps <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
+                        "+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
 
-loadStudyRegion <- function(shpPath, studyArea, crsKNNMaps) {
+loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsKNNMaps) {
+  # Dave Andison doesn't have .prj files -- this line will create one with NAD83 UTM11N downloading from spatialreference.org
+  createPrjFile(shpPath)
   shpStudyRegionFull <- loadShpAndMakeValid(file = shpPath)
+  
+  if (is.null(shpStudyRegionFull$fireReturnInterval)) {
+    # Dave Andison doesn't have .prj files -- this line will create one with NAD83 UTM11N downloading from spatialreference.org
+    createPrjFile(fireReturnIntervalMap)
+    fireReturnInterval <- loadShpAndMakeValid(file = fireReturnIntervalMap)
+  }
+  if (!identical(extent(shpStudyRegionFull), extent(fireReturnInterval))) {
+    shpStudyRegionFull <- raster::intersect(shpStudyRegionFull, fireReturnInterval)
+  }
+  if (!isTRUE("LTHRC" %in% names(shpStudyRegionFull))) {
+    shpStudyRegionFull$LTHRC <- shpStudyRegionFull$LTHFC # Apparently, sometimes it is LTHFC, sometimes LTHRC # Get rid of LTHFC
+    shpStudyRegionFull$LTHFC <- NULL
+    # The fires of Fire Return Interval 30 years are not correctly simulated by LandMine, so they are removed.
+    shpStudyRegionFull$LTHRC[shpStudyRegionFull$LTHRC <= 30] <- NA
+  }
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
-  shpStudyRegionFull@data <- shpStudyRegionFull@data[,!(names(shpStudyRegionFull) %in% "ECODISTRIC")]
+  shpStudyRegionFull@data <- shpStudyRegionFull@data[, !(names(shpStudyRegionFull) %in% "ECODISTRIC")]
   shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsKNNMaps)
-
+  shpStudyRegionFull <- rgeos::gBuffer(shpStudyRegionFull, byid = TRUE, width = 0)
+  
   shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea, targetCRS = crsKNNMaps)
   list(shpStudyRegion = shpStudyRegion, shpStudyRegionFull = shpStudyRegionFull)
 }
@@ -44,9 +63,7 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
       shpStudyRegionFullNWT <- crop(shpStudyRegionFullLL, ext)
       shpStudyRegion <- spTransform(shpStudyRegionFullNWT, crs(shpStudyRegionFull))
       shpStudyRegion <- rgeos::gBuffer(shpStudyRegion, width = 0, byid = TRUE)
-
     } else {
-
       if (studyArea == "SMALL") {
         areaKm2 <- 10000#700000#2000#600000#too big for laptop
       } else if (studyArea == "VERYSMALL") {
@@ -82,13 +99,24 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, targetCRS) {
       crs(inputMapPolygon) <- targetCRS
       shpStudyRegion <- raster::intersect(shpStudyRegionFull, inputMapPolygon)
     }
-
   } else {
     shpStudyRegion <- shpStudyRegionFull
   }
+  options("digits.secs" = 7)
+  on.exit(options("digits.secs" = NULL))
+  set.seed(as.numeric(format(Sys.time(), format = "%OS")))
+  
   return(shpStudyRegion)
 }
 
 #ggStudyRegion <- ggvisFireReturnInterval(shpStudyRegion, shpStudyRegionFull)
 
-set.seed(Sys.time())
+createPrjFile <- function(shp) {
+  basenameWithoutExt <- strsplit(shp, "\\.")[[1]]
+  basenameWithoutExt <- basenameWithoutExt[-length(basenameWithoutExt)]
+  prjFile <- paste0(basenameWithoutExt, ".prj")
+  if (!file.exists(prjFile)) {
+    download.file("http://spatialreference.org/ref/epsg/nad83-utm-zone-11n/prj/",
+                  destfile = prjFile)
+  }
+}

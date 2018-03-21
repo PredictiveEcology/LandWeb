@@ -23,7 +23,9 @@ defineModule(sim, list(
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
-    defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant")
+    defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant"),
+    defineParameter(name = "useParallel", class = "numeric", default = parallel::detectCores(),
+                    desc = "Used in burning. Will be passed to data.table::setDTthreads")
   ),
   inputObjects = bind_rows(
     expectsInput("rstFlammable", "Raster", "A raster layer, with 0, 1 and NA, where 0 indicates areas that are flammable, 1 not flammable (e.g., lakes) and NA not applicable (e.g., masked)"),
@@ -69,6 +71,8 @@ doEvent.LandMine = function(sim, eventTime, eventType, debug = FALSE) {
     ### (use `checkObject` or similar)
 
     # do stuff for this event
+    #  ff package, used in SpaDES.tools::spread2, doesn't always set this correctly.
+    options(fftempdir = tempdir())
     sim <- EstimateTruncPareto(sim)
     sim <- Init(sim)
 
@@ -101,7 +105,7 @@ EstimateTruncPareto <- function(sim) {
 
   findK_upper <- function(params=c(0.4), upper1 ) {
     fs <- round(rtruncpareto(1e6, 1, upper = upper1, shape = params[1]))
-    #meanFS <- meanTrucPareto(k = params[1], lower = 1, upper = upper1, alpha = 1)
+    #meanFS <- meanTruncPareto(k = params[1], lower = 1, upper = upper1, alpha = 1)
     #diff1 <- abs(quantile(fs, 0.95) - meanFS)
     #abs(sum(fs[fs>quantile(fs, 0.95)])/sum(fs) - 0.9) # "90% of area is in 5% of fires" # from Dave rule of thumb
 
@@ -131,9 +135,8 @@ Init <- function(sim) {
 
   message("Determine mean fire size")
 
-  meanFireSizeHa <- meanTrucPareto(k = sim$kBest, lower = 1,
-                                   upper = min(P(sim)$biggestPossibleFireSizeHa,
-                                               prod(res(sim$rstStudyRegion)) / 1e4 * res(sim$rstStudyRegion)),
+  meanFireSizeHa <- meanTruncPareto(k = sim$kBest, lower = 1,
+                                   upper = P(sim)$biggestPossibleFireSizeHa,
                                    alpha = 1)
   numFiresByPolygonNumeric <- numHaPerPolygonNumeric / meanFireSizeHa
   sim$numFiresPerYear <- numFiresByPolygonNumeric / returnInterval
@@ -152,7 +155,7 @@ Init <- function(sim) {
   message("6: ", Sys.time())
 
   sim$rstFlammableNum[] <- 1L - as.integer(sim$rstFlammable[])
-  sim$rstFlammableNum[is.na(sim$rstFlammableNum)] <- NA
+  sim$rstFlammableNum[is.na(sim$rstFlammableNum[])] <- NA
 
   # rm("rstFlammable", envir = envir(sim)) # don't need this in LandMine ... but it is used in timeSinceFire
   return(invisible(sim))
@@ -177,9 +180,13 @@ plotFn <- function(sim) {
 
 ### burn events
 Burn <- function(sim) {
-  numFiresThisPeriod <- rpois(length(sim$numFiresPerYear),
-                              lambda = sim$numFiresPerYear * P(sim)$fireTimestep)
+  # Poisson is too little variation
+  # numFiresThisPeriod <- rpois(length(sim$numFiresPerYear),
+  #                             lambda = sim$numFiresPerYear * P(sim)$fireTimestep)
 
+  numFiresThisPeriod <- rnbinom(length(sim$numFiresPerYear), 
+          mu = sim$numFiresPerYear * P(sim)$fireTimestep, 
+          size = 3)
   # meanTP <- function(k, lower, upper, alpha) {
   #   k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
   # }
@@ -258,13 +265,15 @@ Burn <- function(sim) {
   ROSmap <- raster(sim$pixelGroupMap)
   ROSmap[] <- ROS
 
-  # From DEoptim fitting
+  # From DEoptim fitting - run in the LandMine.Rmd file
   spawnNewActive <- sns <- 10^c(-0.731520, -0.501823, -0.605968, -1.809726)
   spreadProb <- 0.9
   sizeCutoffs <- 10^c(2.202732,  4.696060)
   
   
   if (!all(is.na(thisYrStartCells)) & length(thisYrStartCells) > 0) {
+    if (data.table::getDTthreads() < P(sim)$useParallel) 
+      data.table::setDTthreads(P(sim)$useParallel)
     fires <- burn1(sim$fireReturnInterval, startCells = thisYrStartCells,
                    fireSizes = fireSizesInPixels, spreadProbRel = ROSmap,
                    #spawnNewActive = c(0.65, 0.6, 0.2, 0.2),
@@ -383,7 +392,7 @@ Burn <- function(sim) {
 }
 
 
-meanTrucPareto <- function(k, lower, upper, alpha) {
+meanTruncPareto <- function(k, lower, upper, alpha) {
   k * lower^k * (upper^(1 - k) - alpha^(1 - k)) / ((1 - k) * (1 - (alpha/upper)^k))
 }
 
