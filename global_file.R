@@ -19,12 +19,16 @@
     # shiny app
   ))
 
-# Google Authentication setup
+  # Options
+  options(reproducible.verbose = TRUE)
+  
+  # Google Authentication setup
   options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
                                           "https://www.googleapis.com/auth/userinfo.email",
                                           "https://www.googleapis.com/auth/userinfo.profile"))
   options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
   options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
+  options(httr_oob_default = TRUE)
   
   appURL <- "http://landweb.predictiveecology.org/Demo/"
   authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
@@ -131,12 +135,13 @@ if (studyArea == "RIA") {
                               cacheRepo = paths$cachePath)
   shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
-  #shpStudyRegion <- shpStudyRegion[1,]
   shpStudyRegionFull <- shpStudyRegion
   
 } else {
   shpStudyRegions <- Cache(loadStudyRegion,
-                           asPath(file.path(paths$inputPath, "shpLandWEB.shp")),
+                           asPath(file.path(paths$inputPath, "studyarea-correct.shp")),
+                           fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
+                           #asPath(file.path(paths$inputPath, "shpLandWEB.shp")),
                            studyArea = studyArea,
                            crsKNNMaps = crsKNNMaps, cacheRepo = paths$cachePath)
   list2env(shpStudyRegions, envir = environment())
@@ -147,11 +152,9 @@ times <- list(start = 0, end = endTime)
 .quickChecking <- TRUE
 objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
                 "shpStudySubRegion" = shpStudyRegion,
-                "successionTimestep" = successionTimestep,
                 "summaryPeriod" = summaryPeriod,
-                "useParallel" = FALSE)
-parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
-                                        .useCache = eventCaching),
+                "useParallel" = 6)
+parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval),
                    landWebDataPrep = list(.useCache = eventCaching),
                    landWebProprietaryData = list(.useCache = eventCaching),
                    Boreal_LBMRDataPrep = list(.useCache = eventCaching),
@@ -162,6 +165,7 @@ parameters <- list(LandWebOutput = list(summaryInterval = summaryInterval,
                    ),
                    LBMR = list(.plotInitialTime = times$start,
                                .saveInitialTime = NA
+                               , successionTimestep = successionTimestep
                                , .useCache = eventCaching
                    ),
                    initBaseMaps = list(.useCache = eventCaching),
@@ -212,7 +216,8 @@ if (guaranteedRun) {
 # THE FOLLOWING OBJECT IS A LIST OF 1 simList,
 # A simList is a rich data structure that comes with the SpaDES.core package
 mySimOut <<- Cache(runExperiment, mySim, experimentReps,
-                   debugCache = "complete", objectsToHash = objectsToHash,
+                   #debugCache = "complete", 
+                   objectsToHash = objectsToHash,
                    objects = objectsToHash)#,
 #sideEffect = TRUE)
 

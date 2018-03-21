@@ -12,8 +12,9 @@ runExperiment <- function(sim, nReps, objectsToHash = "") {
                          objects = "shpStudyRegion",
                          #cacheRepo = cachePath(sim),
                          .plotInitialTime = NA,
-                         omitArgs = c("debug", ".plotInitialTime"),
-                         debugCache = "complete")
+                         omitArgs = c("debug", ".plotInitialTime")#,
+                         #debugCache = "complete"
+                         )
   }
 
   ##########
@@ -30,7 +31,7 @@ runExperiment <- function(sim, nReps, objectsToHash = "") {
                paste(unname(current(sim)), collapse = ' '))",
                .plotInitialTime = NA,
                clearSimEnv = TRUE,
-               debugCache = "complete",
+               #debugCache = "complete",
                omitArgs = c("debug", ".plotInitialTime"))
   args <- args[!unlist(lapply(args, is.null))]
   simOut <- do.call(Cache, args)

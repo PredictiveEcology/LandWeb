@@ -51,11 +51,14 @@ Init <- function(sim) {
 
   message("fastRasterize for rstStudyRegion")
   fieldName <- if ("LTHRC" %in% names(sim$shpStudyRegion)) "LTHRC" else names(sim$shpStudyRegion)[1]
-  sim$rstStudyRegion <- Cache(SpaDES.tools::fastRasterize,
-                              polygon = sim$shpStudyRegion,
-                              ras = crop(sim$LCC2005, extent(sim$shpStudyRegion)),
-                              field = fieldName, datatype = "INT2U",
-                              filename = "rstStudyRegion")
+  sim$rstStudyRegion <- fasterize(sf::st_as_sf(sim$shpStudyRegion),
+                                  field = fieldName,
+                                  crop(sim$LCC2005, extent(sim$shpStudyRegion)))
+  # sim$rstStudyRegion <- Cache(SpaDES.tools::fastRasterize,
+  #                             polygon = sim$shpStudyRegion,
+  #                             ras = crop(sim$LCC2005, extent(sim$shpStudyRegion)),
+  #                             field = fieldName, datatype = "INT2U",
+  #                             filename = "rstStudyRegion")
 
   cropMask <- function(ras, poly, mask) {
     out <- crop(ras,poly)
