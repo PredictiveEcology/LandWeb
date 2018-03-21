@@ -54,3 +54,13 @@ m/landWebProprietaryData/data/SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FI
 m/landWebProprietaryData/data/SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL\.dat
 m/landWebProprietaryData/data/Landweb_CASFRI_GIDs_README\.txt
 \.httr-oauth-SUSPENDED
+
+inputs/Caribou/
+
+inputs/ecodistricts/National/
+
+inputs/ecozones/Alberta/
+
+inputs/ecozones/National/
+
+inputs/FMU_Alberta_2015-11/
