@@ -40,7 +40,7 @@ if (any(c("emcintir") %in% Sys.info()["user"])) guaranteedRun <- TRUE
 modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine", "landWebProprietaryData", 
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
+studyArea <- "FULL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
 #studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
@@ -109,9 +109,9 @@ fireTimestep <- 1
 successionTimestep <- 10 # was 2
 
 # Overall model times # start is default at 0
-endTime <- 20
+endTime <- 1000
 summaryInterval <- 10
-summaryPeriod <- c(10, endTime)
+summaryPeriod <- c(700, endTime)
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
 # "shpStudyRegion"     "shpStudyRegionFull"
