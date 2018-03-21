@@ -1,3 +1,110 @@
+#' Histogram module server function
+#'
+#' @param datatable         A reactive object containing a \code{data.table} object.
+#'                          See \code{\link[SpaDES.shiny]{getSubtable}}.
+#'
+#' @param chosenCategories  ... See \code{\link[SpaDES.shiny]{getSubtable}}.
+#'
+#' @param chosenValues      ... See \code{\link[SpaDES.shiny]{getSubtable}}.
+#'
+#' @param nSimTimes         Number of simulation times.
+#'
+#' @return
+#'
+#' @author Mateusz Wyszynski
+#' @author Alex Chubaty
+#' @importFrom assertthat assert_that
+#' @importFrom data.table is.data.table
+#' @importFrom graphics hist
+#' @importFrom purrr map
+#' @importFrom shiny callModule reactive
+#' @importFrom SpaDES.shiny getSubtable histogram
+#' @rdname
+histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
+  observeEvent(datatable, {
+    histogramReactiveParams <- reactive({
+      assertthat::assert_that(
+        is.reactive(datatable),
+        msg = "largePatches: callModule(slicer): serverFunction: datatable is not reactive"
+      )
+
+      dt <- datatable()
+      assertthat::assert_that(
+        is.data.table(dt),
+        msg = "largePatches: callModule(slicer): serverFunction: dt is not a data.table"
+      )
+
+      subtableWith3DimensionsFixed <- getSubtable(dt, chosenCategories, chosenValues)
+      ageClassPolygonSubtable <- getSubtable(dt, head(chosenCategories, 2), head(chosenValues, 2))
+      numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
+      maxNumClusters <- if (length(numOfClusters) == 0) {
+        6
+      } else {
+        pmax(6, max(numOfClusters) + 1)
+      }
+
+      patchesInTimeDistribution <- if (NROW(subtableWith3DimensionsFixed)) {
+        numOfPatchesInTime <- subtableWith3DimensionsFixed[, .N, by = "rep"]
+        numOfTimesWithPatches <- NROW(numOfPatchesInTime)
+
+        seq(1, nSimTimes) %>%
+          map(function(simulationTime) {
+            if (simulationTime <= numOfTimesWithPatches) {
+              numOfPatchesInTime$N[simulationTime]
+            } else {
+              0
+            }
+          })
+      } else {
+        rep(0, nSimTimes)
+      }
+
+      breaksLabels <- 0:maxNumClusters
+      breaks <- breaksLabels - 0.5
+      barplotBreaks <- breaksLabels + 0.5
+
+      return(list(breaks = breaks,
+                  distribution = as.numeric(patchesInTimeDistribution),
+                  breaksLabels = breaksLabels,
+                  barplotBreaks = barplotBreaks))
+    })
+
+    breaks <- reactive(histogramReactiveParams()$breaks)
+
+    distribution <- reactive(histogramReactiveParams()$distribution)
+
+    addAxisParams <- reactive(
+      list(side = 1,
+           labels = histogramReactiveParams()$breaksLabels,
+           at = histogramReactiveParams()$barplotBreaks)
+    )
+
+    histogramData <- reactive({
+      actualPlot <- hist(distribution(), breaks = breaks(), plot = FALSE)
+
+      actualPlot$counts / sum(actualPlot$counts)
+    })
+
+    observeEvent({
+      histogramData
+      breaks
+      distribution
+      addAxisParams
+    }, {
+      brks <- breaks()
+      distribution <- distribution()
+
+      callModule(histogram, "histogram",
+                 histogramData, addAxisParams,
+                 width = rep(1, length(distribution)),
+                 xlim = range(brks), xlab = "",
+                 ylab = "Proportion in NRV", ## TODO: don't hardcode this
+                 col = "darkgrey", border = "grey", main = "",
+                 space = 0)
+    })
+  })
+}
+
 #' Large patches (shiny module)
 #'
 #' Create summary for large patches function.
@@ -31,7 +138,7 @@ largePatchesUI <- function(id) {
 #'
 #' @param session  Shiny server session object.
 #'
-#' @param numberOfSimulationTimes  How many simulation time stamps there are.
+#' @param nSimTimes  How many simulation time stamps there are.
 #'
 #' @param clumpMod2Args  List containing named arguments passed to \code{clumpMod2}.
 #'
@@ -40,16 +147,12 @@ largePatchesUI <- function(id) {
 #' @author Mateusz Wyszynski
 #' @export
 #' @importFrom assertthat assert_that
+#' @importFrom data.table data.table is.data.table
 #' @importFrom shiny callModule reactive
-#' @importFrom data.table data.table
-#' @importFrom graphics hist
-#' @importFrom purrr map
+#' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
-largePatches <- function(session, input, output, numberOfSimulationTimes, clumpMod2Args) {
+largePatches <- function(session, input, output, nSimTimes, clumpMod2Args) {
   #patchSize <- callModule(slider, "slider") ## TODO: where is this used? where is the UI component?
-
-  uiSequence <- data.table(category = c("ageClass", "polygonID", "vegCover"),
-                           uiType = c("tab", "tab", "box"))
 
   ### remove this, since there is no `id` part to remove
   # clumpMod2Args <- reactive({
@@ -66,94 +169,13 @@ largePatches <- function(session, input, output, numberOfSimulationTimes, clumpM
     dt_out
   })
 
+  uiSequence <- data.table(category = c("ageClass", "polygonID", "vegCover"),
+                           uiType = c("tab", "tab", "box"))
+
   callModule(slicer, "slicer", datatable = largePatchesData,
-             categoryValue = "LargePatches",
+             categoryValue = "LargePatches", nSimTimes = nSimTimes,
              uiSequence = uiSequence,
-             serverFunction = function(datatable, chosenCategories, chosenValues) {
-               observeEvent(datatable, {
-                 histogramReactiveParams <- reactive({
-                   assertthat::assert_that(
-                     is.reactive(datatable),
-                     msg = "largePatches: callModule(slicer): serverFunction: datatable is not reactive"
-                   )
-
-                   dt <- datatable()
-                   assertthat::assert_that(
-                     is.data.table(dt),
-                     msg = "largePatches: callModule(slicer): serverFunction: dt is not a data.table"
-                   )
-
-                   subtableWith3DimensionsFixed <- getSubtable(dt, chosenCategories, chosenValues)
-                   ageClassPolygonSubtable <- getSubtable(dt, head(chosenCategories, 2), head(chosenValues, 2))
-browser()
-                   numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
-                   maxNumClusters <- if (length(numOfClusters) == 0) {
-                     6
-                   } else {
-                     pmax(6, max(numOfClusters) + 1)
-                   }
-
-                   patchesInTimeDistribution <- if (NROW(subtableWith3DimensionsFixed)) {
-                     numOfPatchesInTime <- subtableWith3DimensionsFixed[, .N, by = "rep"]
-                     numOfTimesWithPatches <- NROW(numOfPatchesInTime)
-
-                     seq(1, numberOfSimulationTimes) %>%
-                       map(function(simulationTime) {
-                         if (simulationTime <= numOfTimesWithPatches) {
-                           numOfPatchesInTime$N[simulationTime]
-                         } else {
-                           0
-                         }
-                       })
-                   } else {
-                     rep(0, numberOfSimulationTimes)
-                   }
-
-                   breaksLabels <- 0:maxNumClusters
-                   breaks <- breaksLabels - 0.5
-                   barplotBreaks <- breaksLabels + 0.5
-
-                   return(list(breaks = breaks,
-                               distribution = as.numeric(patchesInTimeDistribution),
-                               breaksLabels = breaksLabels,
-                               barplotBreaks = barplotBreaks))
-                 })
-
-                 breaks <- reactive(histogramReactiveParams()$breaks)
-
-                 distribution <- reactive(histogramReactiveParams()$distribution)
-
-                 addAxisParams <- reactive(
-                   list(side = 1,
-                        labels = histogramReactiveParams()$breaksLabels,
-                        at = histogramReactiveParams()$barplotBreaks)
-                 )
-
-                 histogramData <- reactive({
-                   actualPlot <- hist(distribution(), breaks = breaks())
-
-                   actualPlot$counts / sum(actualPlot$counts)
-                 })
-
-                 observeEvent({
-                   histogramData
-                   breaks
-                   distribution
-                   addAxisParams
-                 }, {
-                   brks <- breaks()
-                   distribution <- distribution()
-
-                   callModule(histogram, "histogram",
-                              histogramData, addAxisParams,
-                              width = rep(1, length(distribution)),
-                              xlim = range(brks), xlab = "",
-                              ylab = "Proportion in NRV", ## TODO: don't hardcode this
-                              col = "darkgrey", border = "grey", main = "",
-                              space = 0)
-                 })
-               })
-             },
+             serverFunction = histServerFn, ## calls histogram server module
              uiFunction = function(ns) {
                histogramUI(ns("histogram"), height = 300)
              })
