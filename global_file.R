@@ -19,7 +19,10 @@
     # shiny app
   ))
 
-# Google Authentication setup
+  # Options
+  options(reproducible.verbose = TRUE)
+  
+  # Google Authentication setup
   options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
                                           "https://www.googleapis.com/auth/userinfo.email",
                                           "https://www.googleapis.com/auth/userinfo.profile"))
