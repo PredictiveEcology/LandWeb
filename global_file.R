@@ -1,15 +1,38 @@
-# Put all loading in one call, makes versioning easier whenever we need that.
-reproducible::Require(c("googleAuthR", "googledrive", "googleID"))
+# Packages for global.R -- don't need to load packages for modules -- happens automatically
+  SpaDESPkgs <- c(
+    "PredictiveEcology/SpaDES.core@development",
+    "PredictiveEcology/SpaDES.tools@development",
+    "PredictiveEcology/SpaDES.shiny@develop",
+    "raster"
+  )
+  shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
+                 "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
+  googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
+  
+  reproducible::Require(c(
+    SpaDESPkgs,
+    shinyPkgs,
+    googleAuthPkgs,
+    if (Sys.info()["sysname"] != "Windows") "Cairo",
+    # `snow` required internally by `parallel` for Windows SOCK clusters
+    if (Sys.info()["sysname"] == "Windows") "snow"
+    # shiny app
+  ))
 
-options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
-                                        "https://www.googleapis.com/auth/userinfo.email",
-                                        "https://www.googleapis.com/auth/userinfo.profile"))
-options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
-options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
-
-appURL <- "http://landweb.predictiveecology.org/Demo/"
-authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
-
+  # Options
+  options(reproducible.verbose = TRUE)
+  
+  # Google Authentication setup
+  options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
+                                          "https://www.googleapis.com/auth/userinfo.email",
+                                          "https://www.googleapis.com/auth/userinfo.profile"))
+  options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
+  options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
+  options(httr_oob_default = TRUE)
+  
+  appURL <- "http://landweb.predictiveecology.org/Demo/"
+  authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
+  
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
@@ -26,8 +49,6 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 # This is a separate cache ONLY used for saving snapshots of working LandWeb runs
 # It needs to be separate because it is an overarching one, regardless of scale
 reproducibleCache <- "reproducibleCache"
-
-source("loadPackages.R") # load & install (if not available) package dependencies, with specific versioning
 
 if (any(c("emcintir") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
@@ -82,9 +103,9 @@ fireTimestep <- 1
 successionTimestep <- 10 # was 2
 
 # Overall model times # start is default at 0
-endTime <- 20
+endTime <- 1000
 summaryInterval <- 10
-summaryPeriod <- c(10, endTime)
+summaryPeriod <- c(700, endTime)
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
 # "shpStudyRegion"     "shpStudyRegionFull"
@@ -106,11 +127,12 @@ if (studyArea == "RIA") {
                               cacheRepo = paths$cachePath)
   shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
   shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
-  #shpStudyRegion <- shpStudyRegion[1,]
   shpStudyRegionFull <- shpStudyRegion
 } else {
   shpStudyRegions <- Cache(loadStudyRegion,
-                           asPath(file.path(paths$inputPath, "shpLandWEB.shp")),
+                           asPath(file.path(paths$inputPath, "studyarea-correct.shp")),
+                           fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
+                           #asPath(file.path(paths$inputPath, "shpLandWEB.shp")),
                            studyArea = studyArea,
                            crsKNNMaps = crsKNNMaps, cacheRepo = paths$cachePath)
   list2env(shpStudyRegions, envir = environment())

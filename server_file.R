@@ -20,24 +20,28 @@ modules4sim <- reactive({
 objects4sim <- reactive({
   list("shpStudyRegionFull" = shpStudyRegionFull,
        "shpStudySubRegion" = shpStudyRegion,
-       "successionTimestep" = successionTimestep,
        "summaryPeriod" = summaryPeriod,
-       "useParallel" = FALSE)
+       "useParallel" = 2) #6
 })
 
 parameters4sim <- reactive({
   list(
-    LandWebOutput = list(summaryInterval = summaryInterval, .useCache = eventCaching),
-    landWebDataPrep = list(.useCache = eventCaching, .quickChecking = TRUE),
+    LandWebOutput = list(summaryInterval = summaryInterval),
+    landWebDataPrep = list(.useCache = eventCaching),
+    landWebProprietaryData = list(.useCache = eventCaching),
     Boreal_LBMRDataPrep = list(.useCache = eventCaching),
     LandMine = list(biggestPossibleFireSizeHa = 5e5,
                     fireTimestep = fireTimestep,
                     burnInitialTime = fireTimestep,
                     .plotInitialTime = NA,
                     .useCache = eventCaching),
-    LBMR = list(.plotInitialTime = times4sim()$start, .saveInitialTime = NA, .useCache = eventCaching),
+    LBMR = list(successionTimeStep = successionTimeStep,
+                .plotInitialTime = times4sim()$start,
+                .saveInitialTime = NA,
+                .useCache = eventCaching),
     initBaseMaps = list(.useCache = eventCaching),
-    timeSinceFire = list(startTime = fireTimestep, .useCache = eventCaching),
+    timeSinceFire = list(startTime = fireTimestep,
+                         .useCache = eventCaching),
     fireDataPrep = list(.useCache = eventCaching)
   )
 })
