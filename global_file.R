@@ -1,23 +1,13 @@
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
-  SpaDESPkgs <- c(
-    "PredictiveEcology/SpaDES.core@development",
-    "PredictiveEcology/SpaDES.tools@development",
-    "PredictiveEcology/SpaDES.shiny@develop",
-    "raster"
-  )
-  shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
-                 "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
-  googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
-  
-  reproducible::Require(c(
-    SpaDESPkgs,
-    shinyPkgs,
-    googleAuthPkgs,
-    if (Sys.info()["sysname"] != "Windows") "Cairo",
-    # `snow` required internally by `parallel` for Windows SOCK clusters
-    if (Sys.info()["sysname"] == "Windows") "snow"
-    # shiny app
-  ))
+SpaDESPkgs <- c(
+  "PredictiveEcology/SpaDES.core@development",
+  "PredictiveEcology/SpaDES.tools@development",
+  "PredictiveEcology/SpaDES.shiny@develop",
+  "raster"
+)
+shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
+               "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
+googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 
   # Options
   options(reproducible.verbose = TRUE)
@@ -38,11 +28,12 @@ studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
 ##                however, in-app, the paths need to be set as reactive values for authentication!
+studyAreaCollapsed <- paste(studyArea, collapse = "_")
 paths <- list(
-  cachePath = paste0("appCache", studyArea),
+  cachePath = paste0("appCache", studyAreaCollapsed),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
-  outputPath = paste0("outputs", studyArea)
+  outputPath = paste0("outputs", studyAreaCollapsed)
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
@@ -110,13 +101,20 @@ summaryPeriod <- c(700, endTime)
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
 # "shpStudyRegion"     "shpStudyRegionFull"
 source("inputMaps.R") # source some functions
-loadLandisParams(path = paths$inputPath, envir = .GlobalEnv) # assigns 2 Landis objects to .GlobalEnv
-if (studyArea == "RIA") {
-  shpStudyRegion <- Cache(shapefile, file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))
-  loadAndBuffer <- function(shapefile) {
-    a <- shapefile(shapefile)
-    b <- buffer(a, 0, dissolve = FALSE)
-    SpatialPolygonsDataFrame(b, data = as.data.frame(a))
+
+# LANDIS-II params that are used
+landisInputs <- readRDS(file.path(paths$inputPath, "landisInputs.rds"))
+spEcoReg <- readRDS(file.path(paths$inputPath, "SpEcoReg.rds"))
+
+# The CRS for the Study
+crsStudyArea <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
+                        "+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
+
+studyAreaFilePath <- {
+  studyAreaFilename <- if ("RIA" %in% studyArea) {
+    "RIA_SE_ResourceDistricts_Clip.shp"
+  } else {
+    "studyarea-correct.shp"
   }
 
   fireReturnIntervalTemp <- 400
