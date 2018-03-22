@@ -154,14 +154,9 @@ largePatchesUI <- function(id) {
 largePatches <- function(session, input, output, nSimTimes, clumpMod2Args) {
   #patchSize <- callModule(slider, "slider") ## TODO: where is this used? where is the UI component?
 
-  ### remove this, since there is no `id` part to remove
-  # clumpMod2Args <- reactive({
-  #   args <- clumpMod2Args()
-  #   args["id"] <- NULL
-  #   args
-  # })
-
   largePatchesData <- reactive({
+    clumpMod2Args["id"] <- NULL # remove `id` so it deosn't mess with callModule below
+
     clumpsReturn <- do.call(callModule, c(list(module = clumpMod2, id = "largePatches"), clumpMod2Args))
 
     dt_out <- clumpsReturn()$Clumps
