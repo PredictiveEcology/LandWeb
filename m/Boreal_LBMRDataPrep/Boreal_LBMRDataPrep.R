@@ -492,8 +492,11 @@ Save <- function(sim) {
                                     X3 = c(rep(0, 2), 0.5, rep(1, 2)),
                                     X4 = c(rep(0, 3), 0.5, 1), X5 = c(rep(0, 4), 1))
 
-  sim$seedingAlgorithm <- "wardDispersal"
-  
+  if (!suppliedElsewhere("seedingAlgorithm", sim))
+    sim$seedingAlgorithm <- "wardDispersal"
+  if (!suppliedElsewhere("successionTimestep", sim))
+    sim$successionTimestep <- 10
+
   if (!suppliedElsewhere(sim$studyArea)) {
     sim$studyArea <- sim$shpStudyRegionFull
   }
