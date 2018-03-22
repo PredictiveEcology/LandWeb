@@ -114,9 +114,9 @@ fireTimestep <- 1
 successionTimestep <- 10 # was 2
 
 # Overall model times # start is default at 0
-endTime <- 20
+endTime <- 1000
 summaryInterval <- 10
-summaryPeriod <- c(10, endTime)
+summaryPeriod <- c(700, endTime)
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
 # "shpStudyRegion"     "shpStudyRegionFull"
