@@ -35,7 +35,7 @@ parameters4sim <- reactive({
                     burnInitialTime = fireTimestep,
                     .plotInitialTime = NA,
                     .useCache = eventCaching),
-    LBMR = list(successionTimeStep = successionTimeStep,
+    LBMR = list(successionTimestep = successionTimestep,
                 .plotInitialTime = times4sim()$start,
                 .saveInitialTime = NA,
                 .useCache = eventCaching),
