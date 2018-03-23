@@ -95,6 +95,7 @@ polygons <- append(polygons, polygonsLflt)
 
 
 availableScales <- c("Full", "Demo")
+availableProjections <- c("", "LFLT") 
 
 available <- data.frame(stringsAsFactors = FALSE,
                         expand.grid(stringsAsFactors = FALSE,
