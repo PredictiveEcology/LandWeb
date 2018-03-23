@@ -10,31 +10,31 @@ albertaEcozoneFiles <- asPath(c("Natural_Regions_Subregions_of_Alberta.dbf",
                            "nsr2005_final_letter.jpg", "nsr2005_final_letter.pdf"))
 albertaEcozoneURL <- "https://www.albertaparks.ca/media/429607/natural_regions_subregions_of_alberta.zip"
 albertaEcozoneFilename <- asPath("Natural_Regions_Subregions_of_Alberta.shp")
-polyAlbertaEcozone <- Cache(prepInputs, url = albertaEcozoneURL, targetFile = albertaEcozoneFilename,
+shpAlbertaEcozone <- Cache(prepInputs, url = albertaEcozoneURL, targetFile = albertaEcozoneFilename,
            fun = "shapefile", destinationPath = dPath, alsoExtract = albertaEcozoneFiles)
-polyAlbertaEcozone@data[[labelColumn]] <- shpAlbertaEcozone$NSRNAME
+shpAlbertaEcozone@data[[labelColumn]] <- shpAlbertaEcozone$NSRNAME
 
 # Nationa Ecozone
 dPath <- file.path(paths$inputPath, "ecozones", "National")
 ecozoneFilename <-   file.path(dPath, "ecozones.shp")
 ecozoneFiles <- c("ecozones.dbf", "ecozones.prj", 
                   "ecozones.sbn", "ecozones.sbx", "ecozones.shp", "ecozones.shx")
-polyNationalEcozone <- Cache(prepInputs, url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
+shpNationalEcozone <- Cache(prepInputs, url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
       targetFile = asPath(ecozoneFilename),
       alsoExtract = ecozoneFiles,
       fun = "shapefile", destinationPath = dPath)
-polyNationalEcozone@data[[labelColumn]] <- shpNationalEcozone$ZONE_NAME
+shpNationalEcozone@data[[labelColumn]] <- shpNationalEcozone$ZONE_NAME
 
 # Nationa Ecodistrict
 dPath <- file.path(paths$inputPath, "ecodistricts", "National")
 ecodistrictFilename <-   file.path(dPath, "ecodistricts.shp")
 ecodistrictFiles <- c("ecodistricts.dbf", "ecodistricts.prj", 
                   "ecodistricts.sbn", "ecodistricts.sbx", "ecodistricts.shp", "ecodistricts.shx")
-polyNationalEcodistrict <- Cache(prepInputs, url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip",
+shpNationalEcodistrict <- Cache(prepInputs, url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip",
                             targetFile = asPath(ecodistrictFilename),
                             alsoExtract = ecodistrictFiles,
                             fun = "shapefile", destinationPath = dPath)
-polyNationalEcodistrict@data[[labelColumn]] <- shpNationalEcodistrict$ZONE_NAME
+shpNationalEcodistrict@data[[labelColumn]] <- shpNationalEcodistrict$ZONE_NAME
 
 
 # Caribou Zones
@@ -45,13 +45,13 @@ caribouFiles <- c("LP_MASTERFILE_June62012.dbf", "LP_MASTERFILE_June62012.prj",
                   "LP_MASTERFILE_June62012.shp", "LP_MASTERFILE_June62012.shp.xml", 
                   "LP_MASTERFILE_June62012.shx")
 CaribouZonesColumn <- "HERD"
-polyCaribouZones <- Cache(prepInputs, 
+shpCaribouZones <- Cache(prepInputs, 
                          url = "https://drive.google.com/file/d/1J38DKQQavjBV9F3z2gGzHNuNE0s2rmhh/view?usp=sharing",
                          targetFile = asPath(caribouFilename),
                          alsoExtract = caribouFiles,
                          fun = "shapefile", 
                          destinationPath = dPath)
-polyCaribouZones@data[[labelColumn]] <- shpCaribouZones$HERD
+shpCaribouZones@data[[labelColumn]] <- shpCaribouZones$HERD
 
 
 ## Alberta FMU - only have local copy
@@ -61,13 +61,13 @@ albertaFMUFiles <- c("FMU_Alberta_2015-11.cpg", "FMU_Alberta_2015-11.dbf",
                      "FMU_Alberta_2015-11.prj", "FMU_Alberta_2015-11.sbn", 
                      "FMU_Alberta_2015-11.sbx", "FMU_Alberta_2015-11.shp", 
                      "FMU_Alberta_2015-11.shp.xml", "FMU_Alberta_2015-11.shx")
-polyAlbertaFMU <- Cache(prepInputs, 
+shpAlbertaFMU <- Cache(prepInputs, 
                          url = "https://drive.google.com/file/d/1JiCLcHh5fsBAy8yAx8NgtK7fxaZ4Tetl/view?usp=sharing",
                          targetFile = albertaFMUFilename,
                          alsoExtract = albertaFMUFiles,
                          fun = "shapefile", 
                          destinationPath = dPath)
-polyAlbertaFMU@data[[labelColumn]] <- shpAlbertaFMU$FMU_NAME
+shpAlbertaFMU@data[[labelColumn]] <- shpAlbertaFMU$FMU_NAME
 
 # Put all polygons together in a list
 # Polygons
