@@ -130,25 +130,15 @@ studyAreaFilePath <- {
   } else {
     "studyarea-correct.shp"
   }
-
-  fireReturnIntervalTemp <- 400
-  shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
-  shpStudyRegion[["fireReturnInterval"]] <- shpStudyRegion$LTHRC # Fire return interval
-
-  shpStudyRegionFull <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
-                              cacheRepo = paths$cachePath)
-  shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
-  shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
-  shpStudyRegionFull <- shpStudyRegion
-} else {
-  shpStudyRegions <- Cache(loadStudyRegion,
-                           asPath(file.path(paths$inputPath, "studyarea-correct.shp")),
-                           fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
-                           #asPath(file.path(paths$inputPath, "shpLandWEB.shp")),
-                           studyArea = studyArea,
-                           crsKNNMaps = crsKNNMaps, cacheRepo = paths$cachePath)
-  list2env(shpStudyRegions, envir = environment())
+  file.path(paths$inputPath, studyAreaFilename)
 }
+
+studyRegionsShps <- Cache(loadStudyRegion,
+                          asPath(studyAreaFilePath),
+                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
+                          studyArea = studyArea,
+                          crsStudyArea = crsStudyArea, cacheRepo = paths$cachePath)
+list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpStudyRegionFull
 
 ## source additional shiny modules
 vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))
