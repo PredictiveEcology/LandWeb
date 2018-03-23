@@ -2,6 +2,20 @@
 labelColumn <- "shinyLabel"
 lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
+## All FMAs - 
+dPath <- file.path(paths$inputPath, "allFMAs")
+shpAllFMAsFilename <- asPath(file.path(dPath, "FMA_Boudary.shp"))
+shpAllFMAsFiles <- c("FMA_Boudary.CPG", "FMA_Boudary.dbf", "FMA_Boudary.prj", 
+                     "FMA_Boudary.sbn", "FMA_Boudary.sbx", "FMA_Boudary.shp", "FMA_Boudary.shp.xml", 
+                     "FMA_Boudary.shx")
+shpAllFMAs <- Cache(prepInputs, purge = TRUE,
+                    url = "https://drive.google.com/open?id=1oCMiHRRT1bCWe0Uv69nRSrE1nsh-4Tic",
+                    #targetFile = albertaFMUFilename,
+                    #alsoExtract = albertaFMUFiles,
+                    fun = "shapefile", 
+                    destinationPath = dPath)
+shpAllFMAs@data[[labelColumn]] <- shpAllFMAs$FMU_NAME
+
 # Alberta Ecozone
 dPath <- asPath(file.path(paths$inputPath, "ecozones", "Alberta"))
 albertaEcozoneFiles <- asPath(c("Natural_Regions_Subregions_of_Alberta.dbf", 
@@ -56,6 +70,7 @@ shpCaribouZones@data[[labelColumn]] <- shpCaribouZones$HERD
 
 
 ## Alberta FMU - 
+
 dPath <- file.path(paths$inputPath, "FMU_Alberta_2015-11")
 albertaFMUFilename <- asPath(file.path(dPath, "FMU_Alberta_2015-11.shp"))
 albertaFMUFiles <- c("FMU_Alberta_2015-11.cpg", "FMU_Alberta_2015-11.dbf", 
@@ -69,6 +84,7 @@ shpAlbertaFMU <- Cache(prepInputs,
                        fun = "shapefile", 
                        destinationPath = dPath)
 shpAlbertaFMU@data[[labelColumn]] <- shpAlbertaFMU$FMU_NAME
+
 
 # Put all polygons together in a list
 # Polygons
