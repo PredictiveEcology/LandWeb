@@ -21,7 +21,7 @@ mySimOut_postExpt <- reactive({
   postExpt
 })
 
-print(isolate(mySimOut_postExpt()))
+#print(isolate(mySimOut_postExpt()))
 
 message("  Load rasters from disk, reproject them to leaflet projection")
 rastersFromOutputs <- reactive({
