@@ -94,12 +94,7 @@ names(polygonsLflt) <- paste0(names(polygonsLflt), "LFLT")
 polygons <- append(polygons, polygonsLflt)
 
 
-DemoPolygons <- Cache(lapply, availablePolygons, function(shp) {
-  spTransform(get(shp), CRSobj = crsStudyArea)
-})
-
-
-
+browser()
 availableScales <- c("Full", "Demo")
 
 available <- data.frame(stringsAsFactors = FALSE,
@@ -107,20 +102,12 @@ available <- data.frame(stringsAsFactors = FALSE,
                                     polygons = availablePolygons,
                                     scales = availableScales,
                                     projections = availableProjections),
-                        names = rep(c("Ecodistricts Full", #"Alberta FMUs Full",
-                                      "Ecodistricts Demo"#, "Alberta FMUs Demo"
-                        ), 2))
-polygons <- lapply(seq_len(NROW(available)), function(ii) {
-  get(paste0(available$polygons[ii], available$scales[ii], available$projections[ii]))
-}) %>%
-  setNames(available$names)
-
-
-
-lfltPolygonsDemo <- lapply(lfltPolygons, mask, )
+                        names = names(polygons)
+                        )
 
 #### Thin polygons
-a <- thin(shpNationalEcozone)
+if (FALSE)
+  a <- thin(shpNationalEcozone)
 
 
 
