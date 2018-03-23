@@ -19,7 +19,6 @@ defineModule(sim, list(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between plot events"),
-    defineParameter(".quickChecking", "logical", NA, NA, NA, "description needed"), # TODO: Eliot can you add a description?
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
     defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
     defineParameter(".useCache", "ANY", c(".inputObjects", "init"), NA, NA, "This describes the simulation time interval between save events")
@@ -147,7 +146,7 @@ Save <- function(sim) {
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
 
-  
+
   #if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
   #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
   if (!suppliedElsewhere("biomassMap")) {
@@ -155,7 +154,7 @@ Save <- function(sim) {
                      targetFile = biomassMapFilename,
                      archive = asPath(file.path(dataPath, c("kNN-StructureBiomass.tar",
                                         "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))),
-                     destinationPath= asPath(dataPath),
+                     destinationPath = asPath(dataPath),
                      fun = "raster",
                      pkg = "raster",
                      studyArea = sim$shpStudySubRegion,
@@ -168,7 +167,7 @@ Save <- function(sim) {
                             targetFile = biomassMapFilename,
                             archive = asPath(file.path(dataPath, c("kNN-StructureBiomass.tar",
                                                                    "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))),
-                            destinationPath= asPath(dataPath),
+                            destinationPath = asPath(dataPath),
                             fun = "raster",
                             pkg = "raster",
                             studyArea = sim$shpStudySubRegion,
@@ -177,7 +176,7 @@ Save <- function(sim) {
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE,
                             cacheTags = c("stable", currentModule(sim)))
-    
+
       }
 
   if (!suppliedElsewhere("LCC2005")) {
@@ -191,8 +190,7 @@ Save <- function(sim) {
                          rasterDatatype = "INT2U",
                          writeCropped = TRUE,
                          cacheRepo = cachePath(sim),
-                         cacheTags = currentModule(sim),
-                         quickCheck = P(sim)$.quickChecking)
+                         cacheTags = currentModule(sim))
     projection(sim$LCC2005) <- projection(sim$biomassMap)
   }
 
