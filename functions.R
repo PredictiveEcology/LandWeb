@@ -1,19 +1,25 @@
 intersectListShps <- function(listShps, intersectShp) {
-  browser()
   if (!is(intersectShp, "sf")) {
-    intersectShp <- sf::st_as_sf(intersectShp)
+    intersectSF <- sf::st_as_sf(intersectShp)
+  } else {
+    intersectSF <- intersectShp
   }
   
   outerOut <- lapply(listShps, function(shp) {
+    # if (!identical(crs(intersectShp), crs(shp)))
+    #   intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
+    # out <- raster::intersect(shp, intersectShp)
+    
     if (!is(shp, "sf")) {
       wasShp <- TRUE
-      shp <- sf::st_as_sf(shp)
+      shpSF <- sf::st_as_sf(shp)
     } else {
       wasShp <- FALSE
+      shpSF <- shp
     }
-    if (!identical(sf::st_crs(intersectShp), sf::st_crs(shp)))
-      intersectShp <- Cache(sf::st_transform, intersectShp, crs = sf::st_crs(shp) )
-    out <- sf::st_intersection(shp, intersectShp)
+    if (!identical(sf::st_crs(intersectSF), sf::st_crs(shpSF)))
+      intersectSF <- Cache(sf::st_transform, intersectSF, crs = sf::st_crs(shpSF) )
+    out <- sf::st_intersection(shpSF, intersectSF)
     if(wasShp) {
       out <- as(out, "Spatial")
     }
