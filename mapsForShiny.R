@@ -14,7 +14,7 @@ shpAllFMAs <- Cache(prepInputs, purge = TRUE,
                     #alsoExtract = albertaFMUFiles,
                     fun = "shapefile", 
                     destinationPath = dPath)
-shpAllFMAs@data[[labelColumn]] <- shpAllFMAs$FMU_NAME
+shpAllFMAs@data[[labelColumn]] <- shpAllFMAs$Name
 
 # Alberta Ecozone
 dPath <- asPath(file.path(paths$inputPath, "ecozones", "Alberta"))
