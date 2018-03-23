@@ -20,7 +20,7 @@ reproducible::Require(c(
 ))
 
 # Options
-options(reproducible.verbose = TRUE)
+options(reproducible.verbose = FALSE)
 
 # Google Authentication setup
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
