@@ -1,3 +1,31 @@
+intersectListShps <- function(listShps, intersectShp) {
+  if (!is(intersectShp, "sf")) {
+    intersectSF <- sf::st_as_sf(intersectShp)
+  } else {
+    intersectSF <- intersectShp
+  }
+  
+  outerOut <- lapply(listShps, function(shp) {
+    # if (!identical(crs(intersectShp), crs(shp)))
+    #   intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
+    # out <- raster::intersect(shp, intersectShp)
+    
+    if (!is(shp, "sf")) {
+      wasShp <- TRUE
+      shpSF <- sf::st_as_sf(shp)
+    } else {
+      wasShp <- FALSE
+      shpSF <- shp
+    }
+    if (!identical(sf::st_crs(intersectSF), sf::st_crs(shpSF)))
+      intersectSF <- Cache(sf::st_transform, intersectSF, crs = sf::st_crs(shpSF) )
+    out <- sf::st_intersection(shpSF, intersectSF)
+    if(wasShp) {
+      out <- as(out, "Spatial")
+    }
+  })
+}
+
 ggvisFireReturnInterval <- function(shpStudyRegion, shpStudyRegionFull) {
   shpStudyAreaFort <- broom::tidy(shpStudyRegion, region = 'Name_1')
   shpStudyAreaFort <- dplyr::left_join(shpStudyAreaFort, shpStudyRegion@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
