@@ -64,17 +64,17 @@ loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsStudyA
     shpStudyRegionFull@data <- shpStudyRegionFull@data[, !(names(shpStudyRegionFull) %in% "ECODISTRIC")]
     shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsStudyArea)
     shpStudyRegionFull <- rgeos::gBuffer(shpStudyRegionFull, byid = TRUE, width = 0)
-    
-    shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea, crsStudyArea = crsStudyArea)
+    shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea, 
+                                           crsStudyArea = crsStudyArea)
   }
   list(shpStudyRegion = shpStudyRegion, shpStudyRegionFull = shpStudyRegionFull)
 }
 
 shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, crsStudyArea) {
   canadaAdminNames <- c(BC = "British Columbia", 
-                             AB = "Alberta", 
-                             SK = "Saskatchewan", 
-                             MB = "Manitoba")
+                        AB = "Alberta", 
+                        SK = "Saskatchewan", 
+                        MB = "Manitoba")
   canadaAdminNamesAll <- c(names(canadaAdminNames), canadaAdminNames)
   
   if (!("FULL" %in% studyArea)) {
@@ -99,7 +99,7 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, crsStudyArea) {
       if ("SMALL" %in% studyArea) {
         areaKm2 <- 10000#700000#2000#600000#too big for laptop
       } else if ("VERYSMALL" %in% studyArea) {
-        areaKm2 <- 2000 #700000#2000#600000#too big for laptop
+        areaKm2 <- 3000 #700000#2000#600000#too big for laptop
       } else if ("MEDIUM" %in% studyArea) {
         areaKm2 <- 40000 #700000#2000#600000#too big for laptop
       } else if ("LARGE" %in% studyArea) {
@@ -108,8 +108,8 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, crsStudyArea) {
         areaKm2 <- 180000 #700000#2000#600000#too big for laptop
       }
 
-      minY <- 7778877 - 1.6e5
-      minX <- -1202250.2
+      minY <- 7678877 - 1.6e5
+      minX <- -1002250.2
       maxX <- minX + sqrt(areaKm2 * 1e6)
       maxY <- minY + sqrt(areaKm2 * 1e6)
       meanY <- mean(c(minY, maxY))
