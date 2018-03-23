@@ -2,29 +2,41 @@
 SpaDESPkgs <- c(
   "PredictiveEcology/SpaDES.core@development",
   "PredictiveEcology/SpaDES.tools@development",
-  "PredictiveEcology/SpaDES.shiny@develop",
+  #"PredictiveEcology/SpaDES.shiny@develop",
+  "PredictiveEcology/SpaDES.shiny@generalize-modules",
   "raster"
 )
 shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
                "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 
-  # Options
-  options(reproducible.verbose = TRUE)
-  
-  # Google Authentication setup
-  options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
-                                          "https://www.googleapis.com/auth/userinfo.email",
-                                          "https://www.googleapis.com/auth/userinfo.profile"))
-  options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
-  options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
-  options(httr_oob_default = TRUE)
-  
-  appURL <- "http://landweb.predictiveecology.org/Demo/"
-  authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
-  
+reproducible::Require(c(
+  SpaDESPkgs,
+  shinyPkgs,
+  googleAuthPkgs,
+  if (Sys.info()["sysname"] != "Windows") "Cairo",
+  # `snow` required internally by `parallel` for Windows SOCK clusters
+  if (Sys.info()["sysname"] == "Windows") "snow"
+  # shiny app
+))
+
+# Options
+options(reproducible.verbose = TRUE)
+
+# Google Authentication setup
+options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
+                                        "https://www.googleapis.com/auth/userinfo.email",
+                                        "https://www.googleapis.com/auth/userinfo.profile"))
+options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
+options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
+options(httr_oob_default = TRUE)
+
+appURL <- "http://landweb.predictiveecology.org/Demo/"
+authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
+
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
+#studyArea <- c("BC", "AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
 ##                however, in-app, the paths need to be set as reactive values for authentication!
