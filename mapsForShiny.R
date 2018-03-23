@@ -75,31 +75,27 @@ availablePolygons <- grep("^shp.+", ls(), value = TRUE)
 availablePolygons <- grep("Study", availablePolygons, invert = TRUE, value = TRUE) # remove shp
 polygons <- mget(availablePolygons)
 
+# Make them all crsStudyArea
+polygons <- Cache(lapply, polygons, function(shp) {
+  spTransform(shp, CRSobj = crsStudyArea)
+})
+
 # Make SubRegion
-polygonsSubRegion <- Cache(intersectListShps, polygons, shpStudyRegion)
-names(polygonsSubRegion) <- paste0(names(polygonsSubRegion), "Demo")
+  polygonsSubRegion <- Cache(intersectListShps, polygons, shpStudyRegion)
+  names(polygonsSubRegion) <- paste0(names(polygonsSubRegion), "Demo")
 polygons <- append(polygons, polygonsSubRegion)
+
 
 # Make Leaflet versions of all
 polygonsLflt <- Cache(lapply, polygons, function(shp) {
   spTransform(shp, CRSobj = CRS(lflt))
 })
-
+names(polygonsLflt) <- paste0(names(polygonsLflt), "LFLT")
 polygons <- append(polygons, polygonsLflt)
 
 
-
-
-# Make Leaflet
-availableProjections <- c("", "LFLT")
-lfltPolygons <- Cache(lapply, polygons, function(shp) {
-  spTransform(shp, CRSobj = CRS(lflt))
-})
-names(lfltPolygons) <- paste0(names(lfltPolygons), "LFLT")
-polygons <- append(polygons, lfltPolygons)
-
 DemoPolygons <- Cache(lapply, availablePolygons, function(shp) {
-  spTransform(get(shp), CRSobj = )
+  spTransform(get(shp), CRSobj = crsStudyArea)
 })
 
 
@@ -232,23 +228,3 @@ if (FALSE) {
 #   
 # }
 
-intersectListShps <- function(listShps, intersectShp) {
-  if (!is(intersectShp, "sf")) {
-    intersectShp <- sf::st_as_sf(intersectShp)
-  }
-  
-  outerOut <- lapply(listShps, function(shp) {
-    if (!is(shp, "sf")) {
-      wasShp <- TRUE
-      shp <- sf::st_as_sf(shp)
-    } else {
-      wasShp <- FALSE
-    }
-    if (!identical(sf::st_crs(intersectShp), sf::st_crs(shp)))
-      intersectShp <- Cache(sf::st_transform, intersectShp, crs = sf::st_crs(shp) )
-    out <- sf::st_intersection(shp, intersectShp)
-    if(wasShp) {
-      out <- as(out, "Spatial")
-    }
-  })
-}
