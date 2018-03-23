@@ -383,7 +383,7 @@ Save <- function(sim) {
   }
 
   cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
-  
+
   if (!suppliedElsewhere("biomassMap", sim)) {
     sim$biomassMap <- Cache(prepInputs,
                             targetFile = biomassMapFilename,
@@ -416,7 +416,7 @@ Save <- function(sim) {
 
     projection(sim$LCC2005) <- projection(sim$biomassMap)
   }
-  
+
   if (!suppliedElsewhere("ecoDistrict", sim)) {
     sim$ecoDistrict <- Cache(prepInputs,
                              targetFile = asPath(ecodistrictFilename),
@@ -431,7 +431,7 @@ Save <- function(sim) {
                              cacheTags = cacheTags,
                              userTags = cacheTags)
   }
-  
+
   if (!suppliedElsewhere("ecoRegion", sim)) {
     sim$ecoRegion <- Cache(prepInputs,
                            targetFile = asPath(ecoregionFilename),
@@ -446,7 +446,7 @@ Save <- function(sim) {
                            cacheTags = cacheTags,
                            userTags = cacheTags)
   }
-  
+
   if (!suppliedElsewhere("ecoZone", sim)) {
     sim$ecoZone <- Cache(prepInputs, #notOlderThan = Sys.time(),
                          targetFile = asPath(ecozoneFilename),
@@ -479,15 +479,16 @@ Save <- function(sim) {
                              cacheRepo = cpath,
                              cacheTags = c("stable", currentModule(sim)))
   }
-  
+
   if (!suppliedElsewhere("specieslayers", sim)) {
-    sim$specieslayers <- Cache(loadAllSpeciesLayers, dPath, sim$biomassMap,
-                               sim$shpStudyRegionFull, moduleName = currentModule(sim),
-                               cacheTags = cacheTags)#, # This is for the internal caching
-                               #userTags = cacheTags)
+    sim$specieslayers <- Cache(loadAllSpeciesLayers,
+                               dataPath = dPath,
+                               biomassMap = sim$biomassMap,
+                               shpStudyRegionFull = sim$shpStudyRegionFull,
+                               moduleName = currentModule(sim),
+                               cachePath = cpath,
+                               cacheTags = cacheTags)
   }
-
-
 
   # 3. species maps
   sim$speciesTable <- prepInputs("speciesTraits.csv", destinationPath = dPath,
@@ -536,7 +537,7 @@ Save <- function(sim) {
                                sim$shpStudyRegionFull)
     sim$rstStudyRegion <- Cache(writeRaster, sim$rstStudyRegion, filename = file.path(dataPath(sim), "rstStudyRegion.tif"),
                                           datatype = "INT2U", overwrite = TRUE)
-    
+
   }
 
   return(invisible(sim))

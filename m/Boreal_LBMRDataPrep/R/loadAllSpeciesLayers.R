@@ -1,5 +1,5 @@
 loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, moduleName,
-                                 cachePath, cacheTags, quickCheck = FALSE) {
+                                 cachePath, cacheTags) {
   speciesNamesEnd <- c("Abie_sp", "Pice_Gla", "Pice_Mar", "Pinu_sp", "Popu_Tre")
   speciesnamesRaw <- c("Abie_Las", "Pice_Gla", "Pice_Mar", "Pinu_Ban", "Pinu_Con", "Popu_Tre")
   species1 <- list()
@@ -20,7 +20,6 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
       cacheRepo = cachePath#,
       #cacheTags = c("stable", moduleName),
       #dataset = "EOSD2000",
-      #quickCheck =  quickCheck
     )
   }
 
