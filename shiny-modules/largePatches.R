@@ -164,8 +164,8 @@ largePatches <- function(session, input, output, nSimTimes, clumpMod2Args) {
     dt_out
   })
 
-  uiSequence <- data.table(category = c("ageClass", "polygonID", "vegCover"),
-                           uiType = c("tab", "tab", "box"))
+  uiSequence <- data.table::data.table(category = c("ageClass", "polygonID", "vegCover"),
+                                       uiType = c("tab", "tab", "box"))
 
   callModule(slicer, "slicer", datatable = largePatchesData,
              categoryValue = "LargePatches", nSimTimes = nSimTimes,

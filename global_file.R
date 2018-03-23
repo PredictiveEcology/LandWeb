@@ -11,7 +11,6 @@ shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 
 reproducible::Require(c(
-  "data.table",
   SpaDESPkgs,
   shinyPkgs,
   googleAuthPkgs,
