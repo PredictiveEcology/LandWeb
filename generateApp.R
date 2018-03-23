@@ -1,7 +1,6 @@
 if (FALSE) { # these are FALSE for standard use, but individual cases may need to run them
   devtools::install_github("PredictiveEcology/quickPlot", ref = "development")
-  if (packageVersion("reproducible") < "0.1.4.9004")
-    devtools::install_github("PredictiveEcology/reproducible", ref = "development")
+  devtools::install_github("PredictiveEcology/reproducible", ref = "development")
   devtools::install_github("PredictiveEcology/webDatabases", ref = "master")
   devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development")
   devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development")
@@ -9,8 +8,9 @@ if (FALSE) { # these are FALSE for standard use, but individual cases may need t
 #devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "generalize-modules", dependencies = FALSE)
 
-if (FALSE)
+if (FALSE) {
   options(shiny.reactlog = TRUE)
+}
 
 if (FALSE) {
   ## test download of private data from Google Drive
@@ -32,15 +32,14 @@ if (dir.exists(commonLinuxGdalPath)) {
   if (dir.exists(commonWindowsGdalPath)) {
     gdal_setInstallation(commonWindowsGdalPath)
     if (is.null(getOption("gdalUtils_gdalPath"))) {
-      gdal_setInstallation(rescan = TRUE)  
-    } 
+      gdal_setInstallation(rescan = TRUE)
+    }
   }
 }
 if (is.null(getOption("gdalUtils_gdalPath"))) {
-  gdal_setInstallation(rescan = TRUE)  
+  gdal_setInstallation(rescan = TRUE)
 }
 
-  
 library(SpaDES.shiny)
 
 #load_all("~/GitHub/SpaDES.shiny")
