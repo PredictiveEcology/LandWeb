@@ -1,3 +1,4 @@
+
 labelColumn <- "shinyLabel"
 lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
@@ -85,10 +86,33 @@ polygonsSubRegion <- Cache(intersectListShps, polygons, shpStudyRegion)
 names(polygonsSubRegion) <- paste0(names(polygonsSubRegion), "Demo")
 polygons <- append(polygons, polygonsSubRegion)
 
+#### Thin polygons
+if (FALSE) {
+message("Thinning polygons for faster plotting in leaflet")
+polygons <- Cache(mapply, p = polygons, nam = names(polygons), function(p, nam) {
+  print(nam)
+  out <- Cache(rgeos::gSimplify, p, tol = (xmax(p) - xmin(p))/10000, topologyPreserve = TRUE)
+  #out <- suppressWarnings(thin(p))
+  isSimp <- tryCatch(if(isTRUE(!all(rgeos::gIsSimple(out, byid = TRUE)))) FALSE else TRUE, 
+                     error = function(xx) FALSE)
+  browser(expr = "shpNationalEcodistrictDemo" %in% nam)
+  #if (rgeos::gIsSimple(out)) out <- raster::buffer(out, width = 0, dissolve = FALSE)
+  if (!isSimp) {
+    out <- raster::buffer(out, width = 0, dissolve = FALSE)
+  }
+  out <- SpatialPolygonsDataFrame(out, data = p@data, match.ID = TRUE)
+  
+  return(out)
+}) 
+}
 
 # Make Leaflet versions of all
-polygonsLflt <- Cache(lapply, polygons, function(shp) {
-  spTransform(shp, CRSobj = CRS(lflt))
+message("Making leaflet versions of all reporting polygons")
+browser()
+polygonsLflt <- Cache(mapply, p = polygons, nam = names(polygons), function(p, nam) {
+  message("  ", nam)
+  browser(expr = "shpNationalEcodistrictDemo" %in% nam)
+  spTransform(p, CRSobj = CRS(lflt))
 })
 names(polygonsLflt) <- paste0(names(polygonsLflt), "LFLT")
 polygons <- append(polygons, polygonsLflt)
@@ -104,20 +128,6 @@ available <- data.frame(stringsAsFactors = FALSE,
                                     projections = availableProjections),
                         names = names(polygons)
 )
-
-#### Thin polygons
-if (FALSE) {
-  browser()
-  polygonsThin <- lapply(polygons, thin, 20)
-}
-
-
-
-
-
-
-
-
 
 #############################################################################
 #############################################################################
