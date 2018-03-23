@@ -54,7 +54,7 @@ shpCaribouZones <- Cache(prepInputs,
 shpCaribouZones@data[[labelColumn]] <- shpCaribouZones$HERD
 
 
-## Alberta FMU - only have local copy
+## Alberta FMU - 
 dPath <- file.path(paths$inputPath, "FMU_Alberta_2015-11")
 albertaFMUFilename <- asPath(file.path(dPath, "FMU_Alberta_2015-11.shp"))
 albertaFMUFiles <- c("FMU_Alberta_2015-11.cpg", "FMU_Alberta_2015-11.dbf", 
