@@ -126,9 +126,11 @@ source("inputMaps.R") # source some functions
 landisInputs <- readRDS(file.path(paths$inputPath, "landisInputs.rds"))
 spEcoReg <- readRDS(file.path(paths$inputPath, "SpEcoReg.rds"))
 
-# The CRS for the Study
+# The CRS for the Study -- spTransform converts this first one to the second one, they are identical geographically
+# crsStudyArea <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
+#                         "+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
 crsStudyArea <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
-                        "+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
+                          "+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
 
 studyAreaFilePath <- {
   studyAreaFilename <- if ("RIA" %in% studyArea) {
