@@ -198,6 +198,7 @@ endSimInit <- Sys.time()
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
 # This needs simInit call to be run already
 # a few map details for shiny app
+message("Preparing polygon maps for reporting histograms")
 source("mapsForShiny.R")
 
 # Run Experiment
