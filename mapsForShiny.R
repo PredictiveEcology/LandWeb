@@ -4,8 +4,8 @@ lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 ## All FMAs - 
 dPath <- file.path(paths$inputPath, "allFMAs")
-shpAllFMAsFilename <- asPath(file.path(dPath, "FMA_Boudary.shp"))
-shpAllFMAsFiles <- c("FMA_Boudary.CPG", "FMA_Boudary.dbf", "FMA_Boudary.prj", 
+allFMAsFilename <- asPath(file.path(dPath, "FMA_Boudary.shp"))
+allFMAsFiles <- c("FMA_Boudary.CPG", "FMA_Boudary.dbf", "FMA_Boudary.prj", 
                      "FMA_Boudary.sbn", "FMA_Boudary.sbx", "FMA_Boudary.shp", "FMA_Boudary.shp.xml", 
                      "FMA_Boudary.shx")
 shpAllFMAs <- Cache(prepInputs, purge = TRUE,
@@ -124,10 +124,8 @@ polygons <- Cache(mapply, p = polygons, nam = names(polygons), function(p, nam) 
 
 # Make Leaflet versions of all
 message("Making leaflet versions of all reporting polygons")
-browser()
 polygonsLflt <- Cache(mapply, p = polygons, nam = names(polygons), function(p, nam) {
   message("  ", nam)
-  browser(expr = "shpNationalEcodistrictDemo" %in% nam)
   spTransform(p, CRSobj = CRS(lflt))
 })
 names(polygonsLflt) <- paste0(names(polygonsLflt), "LFLT")
