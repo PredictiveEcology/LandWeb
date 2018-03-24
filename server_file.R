@@ -77,11 +77,12 @@ cpath <- reactive({
   }
 })
 
-print(paste("User logged in:", isolate(session$userData$userLoggedIn())))
-print(paste("User authorized:", isolate(session$userData$userAuthorized())))
-print(isolate(cpath()))
-
 paths4sim <- reactive({
+  # debugging/testing paths
+  print(paste("User logged in:", session$userData$userLoggedIn()))
+  print(paste("User authorized:", session$userData$userAuthorized()))
+  print(cpath())
+
   list(
     cachePath = cpath(),
     modulePath = "m",
