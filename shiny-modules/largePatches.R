@@ -22,86 +22,62 @@
 #' @rdname
 histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
   observeEvent(datatable, {
-    histogramReactiveParams <- reactive({
-      assertthat::assert_that(
-        is.reactive(datatable),
-        msg = "largePatches: callModule(slicer): serverFunction: datatable is not reactive"
-      )
-
-      dt <- datatable()
-      assertthat::assert_that(
-        is.data.table(dt),
-        msg = "largePatches: callModule(slicer): serverFunction: dt is not a data.table"
-      )
-
-      subtableWith3DimensionsFixed <- getSubtable(dt, chosenCategories, chosenValues)
-      ageClassPolygonSubtable <- getSubtable(dt, head(chosenCategories, 2), head(chosenValues, 2))
-      numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
-      maxNumClusters <- if (length(numOfClusters) == 0) {
-        6
-      } else {
-        pmax(6, max(numOfClusters) + 1)
-      }
-
-      patchesInTimeDistribution <- if (NROW(subtableWith3DimensionsFixed)) {
-        numOfPatchesInTime <- subtableWith3DimensionsFixed[, .N, by = "rep"]
-        numOfTimesWithPatches <- NROW(numOfPatchesInTime)
-
-        seq(1, nSimTimes) %>%
-          map(function(simulationTime) {
-            if (simulationTime <= numOfTimesWithPatches) {
-              numOfPatchesInTime$N[simulationTime]
-            } else {
-              0
-            }
-          })
-      } else {
-        rep(0, nSimTimes)
-      }
-
-      breaksLabels <- 0:maxNumClusters
-      breaks <- breaksLabels - 0.5
-      barplotBreaks <- breaksLabels + 0.5
-
-      return(list(breaks = breaks,
-                  distribution = as.numeric(patchesInTimeDistribution),
-                  breaksLabels = breaksLabels,
-                  barplotBreaks = barplotBreaks))
-    })
-
-    breaks <- reactive(histogramReactiveParams()$breaks)
-
-    distribution <- reactive(histogramReactiveParams()$distribution)
-
-    addAxisParams <- reactive(
-      list(side = 1,
-           labels = histogramReactiveParams()$breaksLabels,
-           at = histogramReactiveParams()$barplotBreaks)
+    dt <- ifelse(is.reactive(datatable), datatable(), datatable)
+    assertthat::assert_that(
+      is.data.table(dt),
+      msg = "largePatches: callModule(slicer): serverFunction: dt is not a data.table"
     )
 
-    histogramData <- reactive({
-      actualPlot <- hist(distribution(), breaks = breaks(), plot = FALSE)
+    subtableWith3DimensionsFixed <- getSubtable(dt, chosenCategories, chosenValues)
+    ageClassPolygonSubtable <- getSubtable(dt, head(chosenCategories, 2), head(chosenValues, 2))
+    numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
+    maxNumClusters <- if (length(numOfClusters) == 0) {
+      6
+    } else {
+      pmax(6, max(numOfClusters) + 1)
+    }
 
-      actualPlot$counts / sum(actualPlot$counts)
-    })
+    patchesInTimeDistribution <- if (NROW(subtableWith3DimensionsFixed)) {
+      numOfPatchesInTime <- subtableWith3DimensionsFixed[, .N, by = "rep"]
+      numOfTimesWithPatches <- NROW(numOfPatchesInTime)
 
-    observeEvent({
-      histogramData
-      breaks
-      distribution
-      addAxisParams
-    }, {
-      brks <- breaks()
-      distribution <- distribution()
+      seq(1, nSimTimes) %>%
+        map(function(simulationTime) {
+          if (simulationTime <= numOfTimesWithPatches) {
+            numOfPatchesInTime$N[simulationTime]
+          } else {
+            0
+          }
+        })
+    } else {
+      rep(0, nSimTimes)
+    }
 
-      callModule(histogram, "histogram",
-                 histogramData, addAxisParams,
-                 width = rep(1, length(distribution)),
-                 xlim = range(brks), xlab = "",
-                 ylab = "Proportion in NRV", ## TODO: don't hardcode this
-                 col = "darkgrey", border = "grey", main = "",
-                 space = 0)
-    })
+    breaksLabels <- 0:maxNumClusters
+    breaks <- breaksLabels - 0.5
+    barplotBreaks <- breaksLabels + 0.5
+
+    histParams <- list(breaks = breaks,
+                       distribution = as.numeric(patchesInTimeDistribution),
+                       breaksLabels = breaksLabels,
+                       barplotBreaks = barplotBreaks)
+
+    addAxisParams <- list(side = 1,
+                          labels = histParams$breaksLabels,
+                          at = histParams$barplotBreaks)
+
+    actualPlot <- hist(histParams$distribution,
+                       breaks = histParams$breaks, plot = FALSE)
+
+    histogramData <- actualPlot$counts / sum(actualPlot$counts)
+
+    callModule(histogram, "histogram",
+               histogramData, addAxisParams,
+               width = rep(1, length(histParams$distribution)),
+               xlim = range(histParams$breaks), xlab = "",
+               ylab = "Proportion in NRV",
+               col = "darkgrey", border = "grey", main = "",
+               space = 0)
   })
 }
 
