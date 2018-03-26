@@ -22,7 +22,11 @@
 #' @rdname
 histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
   observeEvent(datatable, {
-    dt <- ifelse(is.reactive(datatable), datatable(), datatable)
+    dt <- if (is.reactive(datatable)) {
+      datatable()
+    } else {
+      datatable
+    }
     assertthat::assert_that(
       is.data.table(dt),
       msg = "largePatches: callModule(slicer): serverFunction: dt is not a data.table"
@@ -143,7 +147,7 @@ largePatches <- function(session, input, output, nSimTimes, clumpMod2Args) {
   uiSequence <- data.table::data.table(category = c("ageClass", "polygonID", "vegCover"),
                                        uiType = c("tab", "tab", "box"))
 
-  callModule(slicer, "slicer", datatable = largePatchesData,
+  callModule(slicer, "slicer", datatable = largePatchesData(),
              categoryValue = "LargePatches", nSimTimes = nSimTimes,
              uiSequence = uiSequence,
              serverFunction = histServerFn, ## calls histogram server module
