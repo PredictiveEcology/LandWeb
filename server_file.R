@@ -13,8 +13,13 @@ times4sim <- reactive({
 })
 
 modules4sim <- reactive({
-  list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-       "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
+  if (session$userData$userAuthorized()) {
+    list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine", "landWebProprietaryData",
+         "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
+  } else {
+    list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+         "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
+  }
 })
 
 objects4sim <- reactive({
