@@ -35,8 +35,9 @@ appURL <- "http://landweb.predictiveecology.org/Demo/"
 authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
 
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
-#studyArea <- c("BC", "AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
+studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
+studyArea <- c("AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
+#studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
 ##                however, in-app, the paths need to be set as reactive values for authentication!
@@ -145,6 +146,7 @@ vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("l
 
 # This needs simInit call to be run already
 # a few map details for shiny app
+message("Preparing polygon maps for reporting histograms")
 source("mapsForShiny.R")
 
 message("  Finished global.R")

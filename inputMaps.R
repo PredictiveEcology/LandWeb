@@ -25,7 +25,8 @@ useEcozoneMask <- function(studyArea, ecozoneFilename){
 
 loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsStudyArea) {
   if ("RIA" %in% studyArea) {
-    shpStudyRegion <- Cache(shapefile, file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))
+    shpStudyRegion <- Cache(shapefile, userTags = "stable", 
+                            file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))
     loadAndBuffer <- function(shapefile) {
       a <- shapefile(shapefile)
       b <- buffer(a, 0, dissolve = FALSE)
@@ -36,7 +37,7 @@ loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsStudyA
     shpStudyRegion[["fireReturnInterval"]] <- shpStudyRegion$LTHRC # Fire return interval
     
     shpStudyRegionFull <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
-                                cacheRepo = paths$cachePath)
+                                cacheRepo = paths$cachePath, userTags = "stable")
     shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
     shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
     shpStudyRegionFull <- shpStudyRegion
@@ -87,7 +88,7 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, crsStudyArea) {
       shpStudyRegion <- rgeos::gBuffer(shpStudyRegion, width = 0, byid = TRUE)
     } else if (any(studyArea %in% canadaAdminNamesAll)) {
       canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
-                         cacheRepo = paths$cachePath) 
+                         cacheRepo = paths$cachePath, userTags = "stable") 
       studyArea <- canadaAdminNames[canadaAdminNames %in% studyArea | 
                                       names(canadaAdminNames) %in% studyArea]
       inputMapPolygon <- spTransform(canadaMap[canadaMap$NAME_1 %in% studyArea,], crsStudyArea)
