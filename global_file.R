@@ -44,7 +44,7 @@ modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine", "
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
-studyArea <- c("AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
+studyArea <- c("BC","AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
 #studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
@@ -198,7 +198,6 @@ endSimInit <- Sys.time()
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
 # This needs simInit call to be run already
 # a few map details for shiny app
-message("Preparing polygon maps for reporting histograms")
 source("mapsForShiny.R")
 
 # Run Experiment
