@@ -127,26 +127,26 @@ Init <- function(sim) {
     if (P(sim)$useParallel > 1) data.table::setDTthreads(P(sim)$useParallel)
     loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile,
                           #debugCache = "complete", 
-                          userTags = "BigDataTable")
+                          userTags = c("stable", "BigDataTable"))
 
     message("Make stack of species layers from Paul's layer")
     uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
     # "Abie_sp"  "Betu_pap" "Lari_lar" "Pice_gla" "Pice_mar" "Pinu_sp" "Popu_tre"
     PaulSpStack <- Cache(makePaulStack, paths = lapply(paths(sim), basename),
-                         PaulRaster = Paul, uniqueKeepSp)
+                         PaulRaster = Paul, uniqueKeepSp, userTags = "stable")
     crs(PaulSpStack) <- crs(sim$biomassMap) # bug in writeRaster
 
     message('Make stack from CASFRI data and headers')
-    CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI)
+    CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI, userTags = "stable")
 
     message("Overlay Paul and CASFRI stacks")
-    outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack,
+    outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack, userTags = "stable",
                       outputFilenameSuffix = "CASFRI_PAUL")#, notOlderThan = Sys.time())
     crs(outStack) <- crs(sim$biomassMap) # bug in writeRaster
 
     message("Overlay Paul_CASFRI with open data set stacks")
     specieslayers2 <- Cache(overlayStacks, outStack, sim$specieslayers,
-                            outputFilenameSuffix = "CASFRI_PAUL_KNN")
+                            outputFilenameSuffix = "CASFRI_PAUL_KNN", userTags = "stable")
     crs(specieslayers2) <- crs(sim$biomassMap)
     sim$specieslayers <- specieslayers2
     message("Using LandWeb datasets from Paul Pickell and CASFRI")
