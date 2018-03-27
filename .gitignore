@@ -1,5 +1,4 @@
 ## file types by extension
-.httr-oauth
 *.csv
 *.log
 *.rds
@@ -7,11 +6,13 @@
 *.tif
 *.xml
 *.zip
+
 ## cache files
-cache/
-appCache*
+appCache*/
+cache*/
 reproducibleCache
 stableCache
+
 ## R and Rstudio files
 rsconnect/shinyapps.io/landweb/LandWebDemo.dcf
 .Rapp.history
@@ -19,54 +20,41 @@ rsconnect/shinyapps.io/landweb/LandWebDemo.dcf
 .Rhistory
 .Rproj.user
 *.Rproj
+
 ## R package management
-Packages
-Packages1
-Packages2
-Packages1
-Packages3
-Packages4
-Packages5
+Packages*
 packrat/lib*/
 packrat/src/
 R-Portable/
+
 ## shiny app files
 www/
 global.R
 server.R
 ui.R
+
 ## SpaDES-related files
 m/test/
 .checkpoint
 *ecodistricts.*
 *ecoregions.*
 *ecozones.*
-last.dump.rda
-mySimDigestSaved.rds
-mySimSaved.rds
-outputs*
-## misc OS files
-Thumbs.db
-
-# Module data
-*/*/*/SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG*
-m/Boreal_LBMRDataPrep/data/SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL\.dat
-m/landWebProprietaryData/data/SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL\.hdr
-m/landWebProprietaryData/data/SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL\.dat
-*Landweb_CASFRI_GIDs_README\.txt
-/home/emcintir/Documents/GitHub/LandWeb/m/../.httr-oauth
-
-.httr-oauth
-\.httr-oauth-SUSPENDED
-
+inputs/allFMAs/
 inputs/Caribou/
 inputs/ecodistricts/National/
 inputs/ecozones/Alberta/
 inputs/ecozones/National/
 inputs/FMU_Alberta_2015-11/
+last.dump.rda
+mySimDigestSaved.rds
+mySimSaved.rds
+outputs*
 
-inputs/allFMAs/
+## OAuth tokens
+.httr-oauth
+.httr-oauth-SUSPENDED
 
-cacheAllScales/
+## misc OS files
+Thumbs.db
 
-m/landWebProprietaryData/data/CurrentCondition/
+## !! Module data should be gitignored in the respective module's data dir !!
