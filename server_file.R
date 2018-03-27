@@ -70,7 +70,13 @@ outputs4sim <- reactive({
                                   list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
                              times = NROW(outputs) / length(objectNamesToSave)))
 
-  as.data.frame(data.table::rbindlist(list(outputs, outputs2), fill = TRUE))
+  outputs3 <- data.frame(stringsAsFactors = FALSE,
+                         objectName = "rstFlammable",
+                         saveTime = times$end, fun = "writeRaster", package = "raster",
+                         arguments = I(list(list(overwrite = TRUE, progress = FALSE,
+                                                 datatype = "INT2U", format = "raster"))))
+
+  as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 })
 
 ## paths for sim

@@ -155,17 +155,7 @@ Init <- function(sim) {
     sim$specieslayers <- specieslayers2
     message("Using LandWeb datasets from Paul Pickell and CASFRI")
   }
-  
-  
-  ########################################################
-  ########################################################
-  ### CURRENT CONDITION ##################################
-  message("Loading Current Condition Rasters")
-  CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce")
-  sim$rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames, 
-                                   url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
-                                   dPath = file.path(dataPath(sim), "CurrentCondition"))
-  
+
   return(invisible(sim))
 }
 
