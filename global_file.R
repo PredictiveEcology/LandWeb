@@ -62,8 +62,8 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 # It needs to be separate because it is an overarching one, regardless of scale
 reproducibleCache <- "reproducibleCache"
 
-if (any(c("emcintir") %in% Sys.info()["user"])) {
-  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
+if (any(c("emcintir", "achubaty") %in% Sys.info()["user"])) {
+  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
 }
 
 source("functions.R") # get functions used throughout this shiny app
