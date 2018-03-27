@@ -197,18 +197,43 @@ outputs2 <- data.frame(stringsAsFactors = FALSE,
 outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
                                 list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
                            times = NROW(outputs)/length(objectNamesToSave)))
-outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2), fill = TRUE))
+outputs3 <- data.frame(stringsAsFactors = FALSE,
+                       objectName = "rstFlammable",
+                       saveTime = times$end, fun = "writeRaster", package = "raster",
+                       arguments = I(list(list(overwrite = TRUE, progress = FALSE, 
+                                               datatype = "INT2U", format = "raster"))))
+outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 
 # Main simInit function call -- loads all data 
 startSimInit <- Sys.time() 
 mySim <<- simInit(times = times, params = parameters, modules = modules, 
                   objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules)) 
 endSimInit <- Sys.time()
+message("simInit took ", format(endSimInit - startSimInit, digits = 3))
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
 # This needs simInit call to be run already
 # a few map details for shiny app
 message("Preparing polygon maps for reporting histograms")
-source("mapsForShiny.R")
+labelColumn <- "shinyLabel"
+lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+########################################################
+########################################################
+# formerly in mapsForShiny.R
+# Reporting polygons
+message("Loading Reporting Polygons")
+reportingPolygons <- Cache(createReportingPolygons,
+                           c("Alberta Ecozones", "National Ecozones", 
+                             "National Ecodistricts", "Forest Management Areas", 
+                             "Alberta FMUs", "Caribou Herds"))
+
+### CURRENT CONDITION ##################################
+message("Loading Current Condition Rasters")
+dPath <- file.path(paths$inputPath, "CurrentCondition")
+CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce")
+rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames, 
+                                 url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                                 dPath = dPath)
 
 # Run Experiment
 source("runExperiment.R")
