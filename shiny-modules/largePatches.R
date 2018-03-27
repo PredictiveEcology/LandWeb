@@ -123,10 +123,8 @@ largePatchesUI <- function(id) {
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
 largePatches <- function(session, input, output, nSimTimes, clumpMod2Args) {
-  #patchSize <- callModule(slider, "slider") ## TODO: where is this used? where is the UI component?
-
   largePatchesData <- reactive({
-    clumpMod2Args["id"] <- NULL # remove `id` so it deosn't mess with callModule below
+    clumpMod2Args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
 
     clumpsReturn <- do.call(callModule, c(list(module = clumpMod2, id = "largePatches"), clumpMod2Args))
 
@@ -135,10 +133,12 @@ largePatches <- function(session, input, output, nSimTimes, clumpMod2Args) {
     dt_out
   })
 
-  uiSequence <- data.table::data.table(category = c("ageClass", "polygonID", "vegCover"),
-                                       uiType = c("tab", "tab", "box"))
+  uiSequence <- data.table::data.table(
+    category = c("ageClass", "polygonID", "vegCover"),
+    uiType = c("tab", "tab", "box")
+  )
 
-  callModule(slicer, "slicer", datatable = largePatchesData(),
+  callModule(slicer, "slicer", datatable = largePatchesData,
              categoryValue = "LargePatches", nSimTimes = nSimTimes,
              uiSequence = uiSequence,
              serverFunction = histServerFn, ## calls histogram server module
