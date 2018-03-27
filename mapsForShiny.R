@@ -2,30 +2,31 @@
 labelColumn <- "shinyLabel"
 lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
-## All FMAs - 
+## All FMAs -
 dPath <- file.path(paths$inputPath, "allFMAs")
 allFMAsFilename <- asPath(file.path(dPath, "FMA_Boudary.shp"))
-allFMAsFiles <- c("FMA_Boudary.CPG", "FMA_Boudary.dbf", "FMA_Boudary.prj", 
-                     "FMA_Boudary.sbn", "FMA_Boudary.sbx", "FMA_Boudary.shp", "FMA_Boudary.shp.xml", 
-                     "FMA_Boudary.shx")
-shpAllFMAs <- Cache(prepInputs, userTags = "stable", 
+exts <- c(".CPG", ".dbf", ".prj", ".sbn", ".sbx", ".shp", ".shp.xml", ".shx")
+allFMAsFiles <- paste0("FMA_Boudary", exts)
+shpAllFMAs <- Cache(prepInputs, userTags = "stable",
                     url = "https://drive.google.com/open?id=1oCMiHRRT1bCWe0Uv69nRSrE1nsh-4Tic",
                     #targetFile = albertaFMUFilename,
                     #alsoExtract = albertaFMUFiles,
-                    fun = "shapefile", 
+                    fun = "shapefile",
                     destinationPath = dPath)
 shpAllFMAs@data[[labelColumn]] <- shpAllFMAs$Name
 
 # Alberta Ecozone
 dPath <- asPath(file.path(paths$inputPath, "ecozones", "Alberta"))
-albertaEcozoneFiles <- asPath(c("Natural_Regions_Subregions_of_Alberta.dbf",
-                                "Natural_Regions_Subregions_of_Alberta.lyr", "Natural_Regions_Subregions_of_Alberta.prj",
-                                "Natural_Regions_Subregions_of_Alberta.shp.xml",
-                                "Natural_Regions_Subregions_of_Alberta.shx", "natural_regions_subregions_of_alberta.zip",
-                                "nsr2005_final_letter.jpg", "nsr2005_final_letter.pdf"))
+exts <- c(".dbf", ".lyr", ".prj", ".xml", ".shx")
+albertaEcozoneFiles <- asPath(
+  c(paste0("Natural_Regions_Subregions_of_Alberta", exts),
+    "natural_regions_subregions_of_alberta.zip",
+    "nsr2005_final_letter.jpg",
+    "nsr2005_final_letter.pdf")
+)
 albertaEcozoneURL <- "https://www.albertaparks.ca/media/429607/natural_regions_subregions_of_alberta.zip"
 albertaEcozoneFilename <- asPath("Natural_Regions_Subregions_of_Alberta.shp")
-shpAlbertaEcozone <- Cache(prepInputs, userTags = "stable", 
+shpAlbertaEcozone <- Cache(prepInputs, userTags = "stable",
                            url = albertaEcozoneURL, targetFile = albertaEcozoneFilename,
                            fun = "shapefile", destinationPath = dPath, alsoExtract = albertaEcozoneFiles)
 shpAlbertaEcozone@data[[labelColumn]] <- shpAlbertaEcozone$NSRNAME
@@ -35,7 +36,7 @@ dPath <- file.path(paths$inputPath, "ecozones", "National")
 ecozoneFilename <-   file.path(dPath, "ecozones.shp")
 ecozoneFiles <- c("ecozones.dbf", "ecozones.prj",
                   "ecozones.sbn", "ecozones.sbx", "ecozones.shp", "ecozones.shx")
-shpNationalEcozone <- Cache(prepInputs, userTags = "stable", 
+shpNationalEcozone <- Cache(prepInputs, userTags = "stable",
                             url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
                             targetFile = asPath(ecozoneFilename),
                             alsoExtract = ecozoneFiles,
@@ -47,7 +48,7 @@ dPath <- file.path(paths$inputPath, "ecodistricts", "National")
 ecodistrictFilename <-   file.path(dPath, "ecodistricts.shp")
 ecodistrictFiles <- c("ecodistricts.dbf", "ecodistricts.prj",
                       "ecodistricts.sbn", "ecodistricts.sbx", "ecodistricts.shp", "ecodistricts.shx")
-shpNationalEcodistrict <- Cache(prepInputs, userTags = "stable", 
+shpNationalEcodistrict <- Cache(prepInputs, userTags = "stable",
                                 url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip",
                                 targetFile = asPath(ecodistrictFilename),
                                 alsoExtract = ecodistrictFiles,
@@ -63,7 +64,7 @@ caribouFiles <- c("LP_MASTERFILE_June62012.dbf", "LP_MASTERFILE_June62012.prj",
                   "LP_MASTERFILE_June62012.shp", "LP_MASTERFILE_June62012.shp.xml",
                   "LP_MASTERFILE_June62012.shx")
 CaribouZonesColumn <- "HERD"
-shpCaribouZones <- Cache(prepInputs, userTags = "stable", 
+shpCaribouZones <- Cache(prepInputs, userTags = "stable",
                          url = "https://drive.google.com/file/d/1J38DKQQavjBV9F3z2gGzHNuNE0s2rmhh/view?usp=sharing",
                          targetFile = asPath(caribouFilename),
                          alsoExtract = caribouFiles,
@@ -79,7 +80,7 @@ albertaFMUFiles <- c("FMU_Alberta_2015-11.cpg", "FMU_Alberta_2015-11.dbf",
                      "FMU_Alberta_2015-11.prj", "FMU_Alberta_2015-11.sbn",
                      "FMU_Alberta_2015-11.sbx", "FMU_Alberta_2015-11.shp",
                      "FMU_Alberta_2015-11.shp.xml", "FMU_Alberta_2015-11.shx")
-shpAlbertaFMU <- Cache(prepInputs, userTags = "stable", 
+shpAlbertaFMU <- Cache(prepInputs, userTags = "stable",
                        url = "https://drive.google.com/file/d/1JiCLcHh5fsBAy8yAx8NgtK7fxaZ4Tetl/view?usp=sharing",
                        targetFile = albertaFMUFilename,
                        alsoExtract = albertaFMUFiles,
@@ -107,13 +108,13 @@ polygons <- append(polygons, polygonsSubRegion)
 #### Thin polygons
 if (FALSE) {
 message("Thinning polygons for faster plotting in leaflet")
-polygons <- Cache(mapply, p = polygons, nam = names(polygons), userTags = "stable", 
+polygons <- Cache(mapply, p = polygons, nam = names(polygons), userTags = "stable",
                   function(p, nam) {
   print(nam)
-  out <- Cache(rgeos::gSimplify, p, userTags = "stable", 
+  out <- Cache(rgeos::gSimplify, p, userTags = "stable",
                tol = (xmax(p) - xmin(p))/10000, topologyPreserve = TRUE)
   #out <- suppressWarnings(thin(p))
-  isSimp <- tryCatch(if(isTRUE(!all(rgeos::gIsSimple(out, byid = TRUE)))) FALSE else TRUE, 
+  isSimp <- tryCatch(if(isTRUE(!all(rgeos::gIsSimple(out, byid = TRUE)))) FALSE else TRUE,
                      error = function(xx) FALSE)
   browser(expr = "shpNationalEcodistrictDemo" %in% nam)
   #if (rgeos::gIsSimple(out)) out <- raster::buffer(out, width = 0, dissolve = FALSE)
@@ -121,14 +122,14 @@ polygons <- Cache(mapply, p = polygons, nam = names(polygons), userTags = "stabl
     out <- raster::buffer(out, width = 0, dissolve = FALSE)
   }
   out <- SpatialPolygonsDataFrame(out, data = p@data, match.ID = TRUE)
-  
+
   return(out)
-}) 
+})
 }
 
 # Make Leaflet versions of all
 message("Making leaflet versions of all reporting polygons")
-polygonsLflt <- Cache(mapply, p = polygons, nam = names(polygons), userTags = "stable", 
+polygonsLflt <- Cache(mapply, p = polygons, nam = names(polygons), userTags = "stable",
                       function(p, nam) {
   message("  ", nam)
   out <- tryCatch(spTransform(p, CRSobj = CRS(lflt)), error = function(x) {
