@@ -146,7 +146,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp, destinationPath) {
 }
 
 
-CASFRItoSpRasts <- function(CASFRIRas, loadedCASFRI) {
+CASFRItoSpRasts <- function(CASFRIRas, loadedCASFRI, destinationPath) {
   spRasts <- list()
   spRas <- raster(CASFRIRas) %>% setValues(.,NA_integer_)
   for(sp in unique(loadedCASFRI$keepSpecies$spGroup)) {
