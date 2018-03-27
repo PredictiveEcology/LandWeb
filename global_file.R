@@ -327,16 +327,16 @@ if (FALSE) {
 if (TRUE) {
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
   
-  globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = .quickChecking,
+  globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), #digestPathContent = .quickChecking,
                           lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
                           flammableFile = asPath(file.path(paths$outputPath, "rstFlammable.grd")))
 }
 
 message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
 args <- list(leadingByStage, tsf, vtm,
-             polygonToSummarizeBy = ecodistricts,
+             polygonToSummarizeBy = reportingPolygons$`National Ecozones`$crsLFLT$subStudyRegion,
              cl = if (exists("cl")) cl,
-             omitArgs = "cl", digestPathContent = .quickChecking,
+             omitArgs = "cl", #digestPathContent = .quickChecking,
              ageClasses = ageClasses, cacheRepo = paths$cachePath)
 args <- args[!unlist(lapply(args, is.null))]
 leading <- do.call(Cache, args)
@@ -352,10 +352,10 @@ vegLeadingTypesWithAllSpecies <- c(vegLeadingTypes, "All species")
 source("shiny-modules/inputTables.R")
 
 clumpMod2Args <- list(
-  currentPolygon = polygons[[1 + length(polygons)/4]],
+  currentPolygon = reportingPolygons$`National Ecozones`$crsSR$subStudyRegion,
   tsf = tsf, vtm = vtm,
   cl = if (exists("cl")) cl,
-  ageClasses = ageClasses, cacheRepo = paths$cachePath,
+  ageClasses = ageClasses, #cacheRepo = paths$cachePath,
   largePatchesFn = largePatchesFn, countNumPatches = countNumPatches)
 clumpMod2Args <- clumpMod2Args[!unlist(lapply(clumpMod2Args, is.null))]
 
