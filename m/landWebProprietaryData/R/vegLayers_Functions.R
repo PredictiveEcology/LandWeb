@@ -299,7 +299,8 @@ loadCCSpecies <- function(mapNames, url, dPath, userTags) {
     tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
     filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
     Cache(prepInputs, userTags = "stable",  
-          url = URL,
+          url =  url,
+          archive = "CurrentCondition.zip",
           targetFile = tifName,
           alsoExtract = filenames,
           destinationPath = dPath)
