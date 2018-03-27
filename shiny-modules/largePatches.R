@@ -57,28 +57,23 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
       rep(0, nSimTimes)
     }
 
+    distribution <- as.numeric(patchesInTimeDistribution)
+
     breaksLabels <- 0:maxNumClusters
     breaks <- breaksLabels - 0.5
     barplotBreaks <- breaksLabels + 0.5
 
-    histParams <- list(breaks = breaks,
-                       distribution = as.numeric(patchesInTimeDistribution),
-                       breaksLabels = breaksLabels,
-                       barplotBreaks = barplotBreaks)
-
     addAxisParams <- list(side = 1,
-                          labels = histParams$breaksLabels,
-                          at = histParams$barplotBreaks)
+                          labels = breaksLabels,
+                          at = barplotBreaks)
 
-    actualPlot <- hist(histParams$distribution,
-                       breaks = histParams$breaks, plot = FALSE)
+    actualPlot <- hist(distribution, breaks = breaks, plot = FALSE)
 
     histogramData <- actualPlot$counts / sum(actualPlot$counts)
 
-    callModule(histogram, "histogram",
-               histogramData, addAxisParams,
-               width = rep(1, length(histParams$distribution)),
-               xlim = range(histParams$breaks), xlab = "",
+    callModule(histogram, "histogram", histogramData, addAxisParams,
+               width = rep(1, length(distribution)),
+               xlim = range(breaks), xlab = "",
                ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "",
                space = 0)
