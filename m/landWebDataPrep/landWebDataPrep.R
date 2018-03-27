@@ -149,11 +149,11 @@ Save <- function(sim) {
 
   #if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
   #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
-  
-  oldCachePath <- cachePath(sim)
-  on.exit(cachePath(sim) <- oldCachePath)
-  cachePath(sim) <- file.path(cachePath(sim), "..", "cacheAllScales")
-  
+
+  # oldCachePath <- cachePath(sim)
+  # on.exit(cachePath(sim) <- oldCachePath)
+  # cachePath(sim) <- file.path(cachePath(sim), "..", "cacheAllScales")
+
   if (!suppliedElsewhere("biomassMap")) {
     bm <- Cache(prepInputs,
                      targetFile = biomassMapFilename,

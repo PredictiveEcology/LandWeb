@@ -383,11 +383,11 @@ Save <- function(sim) {
   }
 
   cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
-  
-  oldCachePath <- cachePath(sim)
-  on.exit(cachePath(sim) <- oldCachePath)
-  cachePath(sim) <- file.path(cachePath(sim), "..", "cacheAllScales")
-  
+
+  # oldCachePath <- cachePath(sim)
+  # on.exit(cachePath(sim) <- oldCachePath)
+  # cachePath(sim) <- file.path(cachePath(sim), "..", "cacheAllScales")
+
   if (!suppliedElsewhere("biomassMap", sim)) {
     sim$biomassMap <- Cache(prepInputs,
                             targetFile = biomassMapFilename,
