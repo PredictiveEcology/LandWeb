@@ -139,7 +139,8 @@ Init <- function(sim) {
     crs(PaulSpStack) <- crs(sim$biomassMap) # bug in writeRaster
 
     message('Make stack from CASFRI data and headers')
-    CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI, userTags = "stable")
+    CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI, 
+                           destinationPath = dPath, userTags = "stable")
 
     message("Overlay Paul and CASFRI stacks")
     outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack, userTags = "stable",
