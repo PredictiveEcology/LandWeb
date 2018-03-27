@@ -89,6 +89,9 @@ shpAlbertaFMU <- Cache(prepInputs, userTags = "stable",
 shpAlbertaFMU@data[[labelColumn]] <- shpAlbertaFMU$FMU_NAME
 
 
+########################################################
+########################################################
+########################################################
 # Put all polygons together in a list
 # Polygons
 availablePolygons <- grep("^shp.+", ls(), value = TRUE)
@@ -107,36 +110,36 @@ polygons <- append(polygons, polygonsSubRegion)
 
 #### Thin polygons
 if (FALSE) {
-message("Thinning polygons for faster plotting in leaflet")
-polygons <- Cache(mapply, p = polygons, nam = names(polygons), userTags = "stable",
-                  function(p, nam) {
-  print(nam)
-  out <- Cache(rgeos::gSimplify, p, userTags = "stable",
-               tol = (xmax(p) - xmin(p))/10000, topologyPreserve = TRUE)
-  #out <- suppressWarnings(thin(p))
-  isSimp <- tryCatch(if(isTRUE(!all(rgeos::gIsSimple(out, byid = TRUE)))) FALSE else TRUE,
-                     error = function(xx) FALSE)
-  browser(expr = "shpNationalEcodistrictDemo" %in% nam)
-  #if (rgeos::gIsSimple(out)) out <- raster::buffer(out, width = 0, dissolve = FALSE)
-  if (!isSimp) {
-    out <- raster::buffer(out, width = 0, dissolve = FALSE)
-  }
-  out <- SpatialPolygonsDataFrame(out, data = p@data, match.ID = TRUE)
-
-  return(out)
-})
+  message("Thinning polygons for faster plotting in leaflet")
+  polygons <- Cache(mapply, p = polygons, nam = names(polygons), userTags = "stable", 
+                    function(p, nam) {
+                      print(nam)
+                      out <- Cache(rgeos::gSimplify, p, userTags = "stable", 
+                                   tol = (xmax(p) - xmin(p))/10000, topologyPreserve = TRUE)
+                      #out <- suppressWarnings(thin(p))
+                      isSimp <- tryCatch(if(isTRUE(!all(rgeos::gIsSimple(out, byid = TRUE)))) FALSE else TRUE, 
+                                         error = function(xx) FALSE)
+                      browser(expr = "shpNationalEcodistrictDemo" %in% nam)
+                      #if (rgeos::gIsSimple(out)) out <- raster::buffer(out, width = 0, dissolve = FALSE)
+                      if (!isSimp) {
+                        out <- raster::buffer(out, width = 0, dissolve = FALSE)
+                      }
+                      out <- SpatialPolygonsDataFrame(out, data = p@data, match.ID = TRUE)
+                      
+                      return(out)
+                    }) 
 }
 
 # Make Leaflet versions of all
 message("Making leaflet versions of all reporting polygons")
 polygonsLflt <- Cache(mapply, p = polygons, nam = names(polygons), userTags = "stable",
                       function(p, nam) {
-  message("  ", nam)
-  out <- tryCatch(spTransform(p, CRSobj = CRS(lflt)), error = function(x) {
-    p <- spChFIDs(p, as.character(seq(NROW(p))))
-    spTransform(p, CRSobj = CRS(lflt))
-  })
-})
+                        message("  ", nam)
+                        out <- tryCatch(spTransform(p, CRSobj = CRS(lflt)), error = function(x) {
+                          p <- spChFIDs(p, as.character(seq(NROW(p))))
+                          spTransform(p, CRSobj = CRS(lflt))
+                        })
+                      })
 names(polygonsLflt) <- paste0(names(polygonsLflt), "LFLT")
 polygons <- append(polygons, polygonsLflt)
 
