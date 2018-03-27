@@ -76,7 +76,7 @@ dPath <- file.path(paths$inputPath, "FMU_Alberta_2015-11")
 albertaFMUFilename <- asPath(file.path(dPath, "FMU_Alberta_2015-11.shp"))
 fname <- "FMU_Alberta_2015-11"
 fexts <- c(".cpg", ".dbf", ".prj", ".sbn", ".sbx", ".shp", ".shp.xml", ".shx")
-albertaFMUFiles <- passte0(fname, fexts)
+albertaFMUFiles <- paste0(fname, fexts)
 shpAlbertaFMU <- Cache(prepInputs, userTags = "stable",
                        url = "https://drive.google.com/file/d/1JiCLcHh5fsBAy8yAx8NgtK7fxaZ4Tetl/view?usp=sharing",
                        targetFile = albertaFMUFilename,
