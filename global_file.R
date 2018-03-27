@@ -9,19 +9,28 @@ SpaDESPkgs <- c(
 shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
                "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
+moduleRqdPkgs <- c("data.table", "dplyr", "ecohealthalliance/fasterize", "fpCompare", 
+                   "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr", "PredictiveEcology/quickPlot@development", 
+                   "PredictiveEcology/SpaDES.tools@development", "PredictiveEcology/SpaDES.tools@prepInputs", 
+                   "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible", 
+                   "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", 
+                   "VGAM")
 
-reproducible::Require(c(
+reproducible::Require(unique(c(
   SpaDESPkgs,
   shinyPkgs,
   googleAuthPkgs,
   if (Sys.info()["sysname"] != "Windows") "Cairo",
   # `snow` required internally by `parallel` for Windows SOCK clusters
-  if (Sys.info()["sysname"] == "Windows") "snow"
+  if (Sys.info()["sysname"] == "Windows") "snow",
+  moduleRqdPkgs
   # shiny app
-))
+)))
 
 # Options
 options(reproducible.verbose = FALSE)
+options(reproducible.useMemoise = TRUE)
+options(spades.browserOnError = FALSE)
 
 # Google Authentication setup
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
@@ -42,10 +51,10 @@ studyArea <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "
 ##                however, in-app, the paths need to be set as reactive values for authentication!
 studyAreaCollapsed <- paste(studyArea, collapse = "_")
 paths <- list(
-  cachePath = paste0("appCache", studyAreaCollapsed),
+  cachePath = file.path("cache", paste0("appCache", studyAreaCollapsed)),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
-  outputPath = paste0("outputs", studyAreaCollapsed)
+  outputPath = file.path("outputs", paste0("outputs", studyAreaCollapsed))
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
@@ -106,9 +115,9 @@ fireTimestep <- 1
 successionTimestep <- 10 # was 2
 
 # Overall model times # start is default at 0
-endTime <- 2#1000
-summaryInterval <- 10
-summaryPeriod <- c(1, endTime)#c(700, endTime)
+endTime <- 4
+summaryInterval <- 2
+summaryPeriod <- c(2, endTime)
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
 # "shpStudyRegion"     "shpStudyRegionFull"
@@ -146,6 +155,7 @@ vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("l
 # This needs simInit call to be run already
 # a few map details for shiny app
 message("Preparing polygon maps for reporting histograms")
-source("mapsForShiny.R")
+labelColumn <- "shinyLabel"
+lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 message("  Finished global.R")
