@@ -12,8 +12,8 @@ if (FALSE) {
   options(shiny.reactlog = TRUE)
 }
 
+## test download of private data from Google Drive
 if (FALSE) {
-  ## test download of private data from Google Drive
   dataDir <- file.path("~/GitHub/LandWeb/m/Boreal_LBMRDataPrep/data")
 
   file.remove(c(
@@ -41,7 +41,6 @@ if (is.null(getOption("gdalUtils_gdalPath"))) {
 }
 
 library(SpaDES.shiny)
-
 #load_all("~/GitHub/SpaDES.shiny")
 
 Modules <- tribble(
