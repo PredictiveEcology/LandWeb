@@ -450,3 +450,200 @@ reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
 
   return(.reloadPreviousWorking)
 }
+
+
+loadCCSpecies <- function(mapNames, url, dPath, userTags) {
+  if (!any(grepl("1$", mapNames) )) {
+    filenames <- paste0(mapNames, "1")
+  } else {
+    filenames <- mapNames
+    mapNames <- gsub(mapNames, "1$", "")
+  }
+  names(filenames) <- mapNames
+  
+  mapply(filename = filenames, mapName = mapNames, function(filename, mapName) {
+    #fn <- paste0("CC", mapName, "Filename")
+    #mn <- paste0("CC", mapName, "Files")
+    tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
+    filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
+    Cache(prepInputs, userTags = "stable",  
+          url =  url,
+          archive = "CurrentCondition.zip",
+          targetFile = tifName,
+          alsoExtract = filenames,
+          destinationPath = dPath)
+  })
+  
+  
+}
+
+
+createReportingPolygons <- function(layerNames) {
+  layerNames <- c("Alberta Ecozones", "National Ecozones", 
+                  "National Ecodistricts", "Forest Management Areas", 
+                  "Alberta FMUs", "Caribou Herds")
+  names(layerNames) <- layerNames
+  
+  polys <- as.list(layerNames)
+  # Alberta Ecozone
+  layerNamesIndex <- 1
+  dPath <- asPath(file.path(paths$inputPath, "ecozones", "Alberta"))
+  albertaEcozoneFiles <- asPath(c("Natural_Regions_Subregions_of_Alberta.dbf", 
+                                  "Natural_Regions_Subregions_of_Alberta.lyr", "Natural_Regions_Subregions_of_Alberta.prj", 
+                                  "Natural_Regions_Subregions_of_Alberta.shp.xml", 
+                                  "Natural_Regions_Subregions_of_Alberta.shx", "natural_regions_subregions_of_alberta.zip", 
+                                  "nsr2005_final_letter.jpg", "nsr2005_final_letter.pdf"))
+  albertaEcozoneURL <- "https://www.albertaparks.ca/media/429607/natural_regions_subregions_of_alberta.zip"
+  albertaEcozoneFilename <- asPath("Natural_Regions_Subregions_of_Alberta.shp")
+  polys[[layerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable", 
+                                                url = albertaEcozoneURL, targetFile = albertaEcozoneFilename,
+                                                fun = "shapefile", destinationPath = dPath, alsoExtract = albertaEcozoneFiles)
+  polys[[layerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[layerNames[layerNamesIndex]]] $NSRNAME
+  
+  # National Ecozone
+  layerNamesIndex <- 2
+  dPath <- file.path(paths$inputPath, "ecozones", "National")
+  ecozoneFilename <-   file.path(dPath, "ecozones.shp")
+  ecozoneFiles <- c("ecozones.dbf", "ecozones.prj", 
+                    "ecozones.sbn", "ecozones.sbx", "ecozones.shp", "ecozones.shx")
+  polys[[layerNames[layerNamesIndex]]]  <- Cache(prepInputs, userTags = "stable", 
+                                                 url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
+                                                 targetFile = asPath(ecozoneFilename),
+                                                 alsoExtract = ecozoneFiles,
+                                                 fun = "shapefile", destinationPath = dPath)
+  polys[[layerNames[layerNamesIndex]]] @data[[labelColumn]] <- polys[[layerNames[layerNamesIndex]]] $ZONE_NAME
+  
+  # National Ecodistrict
+  layerNamesIndex <- 3
+  dPath <- file.path(paths$inputPath, "ecodistricts", "National")
+  ecodistrictFilename <-   file.path(dPath, "ecodistricts.shp")
+  ecodistrictFiles <- c("ecodistricts.dbf", "ecodistricts.prj", 
+                        "ecodistricts.sbn", "ecodistricts.sbx", "ecodistricts.shp", "ecodistricts.shx")
+  polys[[layerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable", 
+                                                url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip",
+                                                targetFile = asPath(ecodistrictFilename),
+                                                alsoExtract = ecodistrictFiles,
+                                                fun = "shapefile", destinationPath = dPath)
+  polys[[layerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[layerNames[layerNamesIndex]]]$ZONE_NAME
+  
+  
+  ## Polygons for report/shiny app
+  ## All FMAs - 
+  layerNamesIndex <- 4
+  dPath <- file.path(paths$inputPath, "allFMAs")
+  allFMAsFilename <- asPath(file.path(dPath, "FMA_Boudary.shp"))
+  allFMAsFiles <- c("FMA_Boudary.CPG", "FMA_Boudary.dbf", "FMA_Boudary.prj", 
+                    "FMA_Boudary.sbn", "FMA_Boudary.sbx", "FMA_Boudary.shp", "FMA_Boudary.shp.xml", 
+                    "FMA_Boudary.shx")
+  polys[[layerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable", 
+                                                url = "https://drive.google.com/open?id=1oCMiHRRT1bCWe0Uv69nRSrE1nsh-4Tic",
+                                                #targetFile = albertaFMUFilename,
+                                                #alsoExtract = albertaFMUFiles,
+                                                fun = "shapefile", 
+                                                destinationPath = dPath)
+  polys[[layerNames[layerNamesIndex]]]@data[[labelColumn]] <- 
+    polys[[layerNames[layerNamesIndex]]]$Name
+  
+  
+  ## Alberta FMU - 
+  layerNamesIndex <- 5
+  dPath <- file.path(paths$inputPath, "FMU_Alberta_2015-11")
+  albertaFMUFilename <- asPath(file.path(dPath, "FMU_Alberta_2015-11.shp"))
+  albertaFMUFiles <- c("FMU_Alberta_2015-11.cpg", "FMU_Alberta_2015-11.dbf", 
+                       "FMU_Alberta_2015-11.prj", "FMU_Alberta_2015-11.sbn", 
+                       "FMU_Alberta_2015-11.sbx", "FMU_Alberta_2015-11.shp", 
+                       "FMU_Alberta_2015-11.shp.xml", "FMU_Alberta_2015-11.shx")
+  polys[[layerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable", 
+                                                url = "https://drive.google.com/file/d/1JiCLcHh5fsBAy8yAx8NgtK7fxaZ4Tetl/view?usp=sharing",
+                                                targetFile = albertaFMUFilename,
+                                                alsoExtract = albertaFMUFiles,
+                                                fun = "shapefile", 
+                                                destinationPath = dPath)
+  polys[[layerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[layerNames[layerNamesIndex]]]$FMU_NAME
+  
+  
+  # Caribou Zones
+  layerNamesIndex <- 6
+  dPath <- file.path(paths$inputPath, "Caribou")
+  caribouFilename <-   file.path(dPath, "LP_MASTERFILE_June62012.shp")
+  caribouFiles <- c("LP_MASTERFILE_June62012.dbf", "LP_MASTERFILE_June62012.prj", 
+                    "LP_MASTERFILE_June62012.sbn", "LP_MASTERFILE_June62012.sbx", 
+                    "LP_MASTERFILE_June62012.shp", "LP_MASTERFILE_June62012.shp.xml", 
+                    "LP_MASTERFILE_June62012.shx")
+  CaribouZonesColumn <- "HERD"
+  polys[[layerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable", 
+                                                url = "https://drive.google.com/file/d/1J38DKQQavjBV9F3z2gGzHNuNE0s2rmhh/view?usp=sharing",
+                                                targetFile = asPath(caribouFilename),
+                                                alsoExtract = caribouFiles,
+                                                fun = "shapefile", 
+                                                destinationPath = dPath)
+  polys[[layerNames[layerNamesIndex]]]@data[[labelColumn]] <- 
+    polys[[layerNames[layerNamesIndex]]]$HERD
+  
+  
+  
+  
+  ########################################################
+  ########################################################
+  ########################################################
+  # Make them all crsStudyArea
+  polys <- Cache(lapply, polys, function(shp) {
+    spTransform(shp, CRSobj = crsStudyArea)
+  }, userTags = "stable")
+  
+  
+  # Make SubRegion
+  polysSubRegion <- Cache(intersectListShps, polys, shpStudyRegion, userTags = "stable")
+  #polys <- append(polys, polysSubRegion)
+  
+  #### Thin polygons
+  if (FALSE) {
+    message("Thinning polygons for faster plotting in leaflet")
+    polygons <- Cache(mapply, p = polygons, nam = names(polygons), userTags = "stable", 
+                      function(p, nam) {
+                        print(nam)
+                        out <- Cache(rgeos::gSimplify, p, userTags = "stable", 
+                                     tol = (xmax(p) - xmin(p))/10000, topologyPreserve = TRUE)
+                        #out <- suppressWarnings(thin(p))
+                        isSimp <- tryCatch(if(isTRUE(!all(rgeos::gIsSimple(out, byid = TRUE)))) FALSE else TRUE, 
+                                           error = function(xx) FALSE)
+                        browser(expr = "shpNationalEcodistrictDemo" %in% nam)
+                        #if (rgeos::gIsSimple(out)) out <- raster::buffer(out, width = 0, dissolve = FALSE)
+                        if (!isSimp) {
+                          out <- raster::buffer(out, width = 0, dissolve = FALSE)
+                        }
+                        out <- SpatialPolygonsDataFrame(out, data = p@data, match.ID = TRUE)
+                        
+                        return(out)
+                      }) 
+  }
+  
+  
+  # Make Leaflet versions of all
+  message("Making leaflet versions of all reporting polygons")
+  polysLflt <- Cache(mapply, p = polys, nam = names(polys), userTags = "stable", 
+                     function(p, nam) {
+                       message("  ", nam)
+                       out <- tryCatch(spTransform(p, CRSobj = CRS(lflt)), error = function(x) {
+                         p <- spChFIDs(p, as.character(seq(NROW(p))))
+                         spTransform(p, CRSobj = CRS(lflt))
+                       })
+                     })
+  polysLfltSubStudyRegion <- Cache(mapply, p = polysSubRegion, nam = names(polysSubRegion), userTags = "stable", 
+                                   function(p, nam) {
+                                     message("  ", nam)
+                                     out <- tryCatch(spTransform(p, CRSobj = CRS(lflt)), error = function(x) {
+                                       p <- spChFIDs(p, as.character(seq(NROW(p))))
+                                       spTransform(p, CRSobj = CRS(lflt))
+                                     })
+                                   })
+  
+  # Put them all together in the structure:
+  #   LayerName $ Projection (crsSR or crsLFLT) $ Scale (studyRegion or subStudyRegion)
+  polysAll <- list("crsSR" = list("studyRegion" = polys, 
+                                  "subStudyRegion" = polysSubRegion), 
+                   "crsLFLT" = list("studyRegion" = polysLflt, 
+                                    "subStudyRegion" = polysLfltSubStudyRegion))
+  reportingPolygonsTmp <- lapply(polysAll, purrr::transpose)
+  purrr::transpose(reportingPolygonsTmp)
+}
