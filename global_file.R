@@ -58,10 +58,10 @@ studyArea <- c("AB")  #other options: "BC", "AB", "SK", "MB" or combinations, pl
 ##                however, in-app, the paths need to be set as reactive values for authentication!
 studyAreaCollapsed <- paste(studyArea, collapse = "_")
 paths <- list(
-  cachePath = paste0("appCache", studyAreaCollapsed),
+  cachePath = file.path("cache", paste0("appCache", studyAreaCollapsed)),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
-  outputPath = paste0("outputs", studyAreaCollapsed)
+  outputPath = file.path("outputs", paste0("outputs", studyAreaCollapsed))
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
