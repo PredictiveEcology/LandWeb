@@ -154,8 +154,9 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
     a
   })
 
-  aadf <- data.frame(zone = rep(ecodistricts$ECODISTRIC[nonNulls], each = length(Factors)),
-                     polygonNum = rep(seq_along(ecodistricts$ECODISTRIC)[nonNulls], each = length(Factors)),
+  aadf <- data.frame(zone = rep(polygonToSummarizeBy$shinyLabel[nonNulls], 
+                                each = length(Factors)),
+                     polygonNum = rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors)),
                      vegType = vegType, do.call(rbind, aa1[nonNulls]),
                      stringsAsFactors = FALSE)
 
