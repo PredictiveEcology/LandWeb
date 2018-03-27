@@ -279,3 +279,29 @@ gdalwarp2 <- function(rasterWithDiskBacked, dstfilename, ...) {
   unlink(dstfilenameTmp)
   rr
 }
+
+
+
+loadCCSpecies <- function(mapNames, url, dPath, userTags) {
+  if (!any(grepl("1$", mapNames) )) {
+    filenames <- paste0(mapNames, "1")
+  } else {
+    filenames <- mapNames
+    mapNames <- gsub(mapNames, "1$", "")
+  }
+  names(filenames) <- mapNames
+  
+  mapply(filename = filenames, mapName = mapNames, function(filename, mapName) {
+    #fn <- paste0("CC", mapName, "Filename")
+    #mn <- paste0("CC", mapName, "Files")
+    tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
+    filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
+    Cache(prepInputs, userTags = "stable",  
+          url = URL,
+          targetFile = tifName,
+          alsoExtract = filenames,
+          destinationPath = dPath)
+  })
+  
+  
+}
