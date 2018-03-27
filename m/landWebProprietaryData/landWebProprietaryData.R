@@ -72,13 +72,13 @@ Init <- function(sim) {
   if (!exists("sessionCacheFile")) {
     sessionCacheFile <<- tempfile()
   }
-  isKnownUser <- (grepl("emcintir", Sys.info()["user"]))
-  .cacheVal <<- if (grepl("VIC-A", Sys.info()["nodename"])) {
-    sessionCacheFile 
-  } else if (isKnownUser) {
+  isKnownUser <- (!grepl("shiny", Sys.info()["user"]))
+  .cacheVal <<- if (isKnownUser) {
     oauthFilePath <- file.path(modulePath(sim), "..", ".httr-oauth")
     options(httr_oauth_cache = oauthFilePath)
     oauthFilePath
+  } else if (grepl("VIC-A", Sys.info()["nodename"])) {
+    sessionCacheFile 
   } else {
     FALSE
   }
@@ -126,31 +126,46 @@ Init <- function(sim) {
     message("Load CASFRI data and headers, and convert to long format, and define species groups")
     if (P(sim)$useParallel > 1) data.table::setDTthreads(P(sim)$useParallel)
     loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile,
+                          destinationPath = asPath(dPath),
                           #debugCache = "complete", 
-                          userTags = "BigDataTable")
+                          userTags = c("stable", "BigDataTable"))
 
     message("Make stack of species layers from Paul's layer")
     uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
     # "Abie_sp"  "Betu_pap" "Lari_lar" "Pice_gla" "Pice_mar" "Pinu_sp" "Popu_tre"
     PaulSpStack <- Cache(makePaulStack, paths = lapply(paths(sim), basename),
-                         PaulRaster = Paul, uniqueKeepSp)
+                         PaulRaster = Paul, uniqueKeepSp, destinationPath = dPath, 
+                         userTags = "stable")
     crs(PaulSpStack) <- crs(sim$biomassMap) # bug in writeRaster
 
     message('Make stack from CASFRI data and headers')
-    CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI)
+    CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI, 
+                           destinationPath = dPath, userTags = "stable")
 
     message("Overlay Paul and CASFRI stacks")
-    outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack,
-                      outputFilenameSuffix = "CASFRI_PAUL")#, notOlderThan = Sys.time())
+    outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack, userTags = "stable",
+                      outputFilenameSuffix = "CASFRI_PAUL", destinationPath = dPath)#, notOlderThan = Sys.time())
     crs(outStack) <- crs(sim$biomassMap) # bug in writeRaster
 
     message("Overlay Paul_CASFRI with open data set stacks")
     specieslayers2 <- Cache(overlayStacks, outStack, sim$specieslayers,
-                            outputFilenameSuffix = "CASFRI_PAUL_KNN")
+                            outputFilenameSuffix = "CASFRI_PAUL_KNN", 
+                            destinationPath = dPath, userTags = "stable")
     crs(specieslayers2) <- crs(sim$biomassMap)
     sim$specieslayers <- specieslayers2
     message("Using LandWeb datasets from Paul Pickell and CASFRI")
   }
+  
+  
+  ########################################################
+  ########################################################
+  ### CURRENT CONDITION ##################################
+  message("Loading Current Condition Rasters")
+  CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce")
+  sim$rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames, 
+                                   url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                                   dPath = file.path(dataPath(sim), "CurrentCondition"))
+  
   return(invisible(sim))
 }
 
