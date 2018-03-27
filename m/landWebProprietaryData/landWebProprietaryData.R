@@ -160,6 +160,7 @@ Init <- function(sim) {
   ########################################################
   ########################################################
   ### CURRENT CONDITION ##################################
+  message("Loading Current Condition Rasters")
   CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce")
   sim$rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames, 
                                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
