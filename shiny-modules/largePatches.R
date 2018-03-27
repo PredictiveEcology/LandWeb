@@ -63,9 +63,7 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
     breaks <- breaksLabels - 0.5
     barplotBreaks <- breaksLabels + 0.5
 
-    addAxisParams <- list(side = 1,
-                          labels = breaksLabels,
-                          at = barplotBreaks)
+    addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
 
     actualPlot <- hist(distribution, breaks = breaks, plot = FALSE)
 
@@ -73,10 +71,8 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
 
     callModule(histogram, "histogram", histogramData, addAxisParams,
                width = rep(1, length(distribution)),
-               xlim = range(breaks), xlab = "",
-               ylab = "Proportion in NRV",
-               col = "darkgrey", border = "grey", main = "",
-               space = 0)
+               xlim = range(breaks), xlab = "", ylab = "Proportion in NRV",
+               col = "darkgrey", border = "grey", main = "", space = 0)
   })
 }
 
