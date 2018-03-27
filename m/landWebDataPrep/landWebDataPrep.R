@@ -158,7 +158,7 @@ Save <- function(sim) {
     bm <- Cache(prepInputs,
                      targetFile = biomassMapFilename,
                      archive = asPath(file.path(dataPath, c("kNN-StructureBiomass.tar",
-                                        "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))),
+                                                            "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))),
                      destinationPath = asPath(dataPath),
                      fun = "raster",
                      pkg = "raster",
@@ -181,8 +181,7 @@ Save <- function(sim) {
                             rasterDatatype = "INT2U",
                             writeCropped = TRUE,
                             cacheTags = c("stable", currentModule(sim)))
-
-      }
+  }
 
   if (!suppliedElsewhere("LCC2005")) {
     sim$LCC2005 <- Cache(prepInputs,
