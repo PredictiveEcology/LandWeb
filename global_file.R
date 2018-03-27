@@ -53,7 +53,7 @@ modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine", "
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
-studyArea <- c("AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
+#studyArea <- c("AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
 #studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
@@ -123,9 +123,9 @@ fireTimestep <- 1
 successionTimestep <- 10 # was 2
 
 # Overall model times # start is default at 0
-endTime <- 1000
-summaryInterval <- 10
-summaryPeriod <- c(700, endTime)
+endTime <- 4
+summaryInterval <- 2
+summaryPeriod <- c(2, endTime)
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
 # "shpStudyRegion"     "shpStudyRegionFull"
@@ -151,11 +151,11 @@ studyAreaFilePath <- {
 }
 
 studyRegionsShps <- Cache(loadStudyRegion,
-                         asPath(studyAreaFilePath),
-                         fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
-                         studyArea = studyArea, 
-                         crsStudyArea = crsStudyArea, cacheRepo = paths$cachePath)
-  list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpStudyRegionFull
+                          asPath(studyAreaFilePath),
+                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
+                          studyArea = studyArea, 
+                          crsStudyArea = crsStudyArea, cacheRepo = paths$cachePath)
+list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpStudyRegionFull
 
 # simInit objects
 times <- list(start = 0, end = endTime)
