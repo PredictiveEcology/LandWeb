@@ -8,16 +8,23 @@ SpaDESPkgs <- c(
 shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
                "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
+moduleRqdPkgs <- c("data.table", "dplyr", "ecohealthalliance/fasterize", "fpCompare", 
+                   "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr", "PredictiveEcology/quickPlot@development", 
+                   "PredictiveEcology/SpaDES.tools@development", "PredictiveEcology/SpaDES.tools@prepInputs", 
+                   "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible", 
+                   "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", 
+                   "VGAM")
 
-reproducible::Require(c(
+reproducible::Require(unique(c(
   SpaDESPkgs,
   shinyPkgs,
   googleAuthPkgs,
   if (Sys.info()["sysname"] != "Windows") "Cairo",
   # `snow` required internally by `parallel` for Windows SOCK clusters
-  if (Sys.info()["sysname"] == "Windows") "snow"
+  if (Sys.info()["sysname"] == "Windows") "snow",
+  moduleRqdPkgs
   # shiny app
-))
+)))
 
 # Options
 options(reproducible.verbose = FALSE)
