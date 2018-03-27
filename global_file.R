@@ -28,6 +28,8 @@ reproducible::Require(unique(c(
 
 # Options
 options(reproducible.verbose = FALSE)
+options(reproducible.useMemoise = TRUE)
+options(spades.browserOnError = FALSE)
 
 # Google Authentication setup
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
@@ -70,7 +72,7 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 reproducibleCache <- "reproducibleCache"
 
 if (any(c("emcintir", "achubaty") %in% Sys.info()["user"])) {
-  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
+  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
 }
 
 source("functions.R") # get functions used throughout this shiny app
