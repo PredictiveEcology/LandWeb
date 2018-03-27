@@ -1,5 +1,4 @@
 ## file types by extension
-.httr-oauth
 *.csv
 *.log
 *.rds
@@ -9,8 +8,8 @@
 *.zip
 
 ## cache files
+appCache*/
 cache*/
-appCache*
 reproducibleCache
 stableCache
 
@@ -51,10 +50,11 @@ mySimDigestSaved.rds
 mySimSaved.rds
 outputs*
 
-## Oauth files
-/home/emcintir/Documents/GitHub/LandWeb/m/../.httr-oauth
+## OAuth tokens
 .httr-oauth
 .httr-oauth-SUSPENDED
 
 ## misc OS files
 Thumbs.db
+
+## !! Module data should be gitignored in the respective module's data dir !!
