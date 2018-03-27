@@ -146,14 +146,6 @@ Save <- function(sim) {
   biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
   lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
 
-  
-  #if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
-  #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
-  
-  oldCachePath <- cachePath(sim)
-  on.exit(cachePath(sim) <- oldCachePath)
-  cachePath(sim) <- file.path(cachePath(sim), "..", "cacheAllScales")
-  
   if (!suppliedElsewhere("biomassMap")) {
     bm <- Cache(prepInputs,
                      targetFile = biomassMapFilename,
