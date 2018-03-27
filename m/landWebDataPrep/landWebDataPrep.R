@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "landWebDataPrep.Rmd"),
-  reqdPkgs = list("data.table", "raster", "sp", "magrittr", "R.utils", "PredictiveEcology/SpaDES.tools@prepInputs"),
+  reqdPkgs = list("data.table", "raster", "sp", "magrittr", "R.utils", "PredictiveEcology/SpaDES.tools@development"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -149,6 +149,11 @@ Save <- function(sim) {
   
   #if(!identical(crsUsed, crs(sim$shpStudyRegionFull)))
   #  sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crsUsed) #faster without Cache
+  
+  oldCachePath <- cachePath(sim)
+  on.exit(cachePath(sim) <- oldCachePath)
+  cachePath(sim) <- file.path(cachePath(sim), "..", "cacheAllScales")
+  
   if (!suppliedElsewhere("biomassMap")) {
     bm <- Cache(prepInputs,
                      targetFile = biomassMapFilename,

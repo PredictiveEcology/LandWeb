@@ -1,4 +1,4 @@
-loadCASFRI <- function(CASFRIRas, attrFile, headerFile, .quickChecking = FALSE) { # TODO: .quickChecking not used
+loadCASFRI <- function(CASFRIRas, attrFile, headerFile, destinationPath, .quickChecking = FALSE) { # TODO: .quickChecking not used
   CASFRIattr <- fread(attrFile)
 
   ## WORKAROUND: maunally extracted the column names because the text file is
@@ -73,7 +73,7 @@ whSpecies <- function(CASFRIattr, topN = 16) {
 }
 
 
-makePaulStack <- function(paths, PaulRaster, uniqueKeepSp) {
+makePaulStack <- function(paths, PaulRaster, uniqueKeepSp, destinationPath) {
   PaulRaster[] <- PaulRaster[]
   PaulRaster[PaulRaster[] %in% c(230, 220, 255)] <- NA_integer_ # water, non veg
   #Paulvals <- sort(unique(PaulRaster[]))
@@ -89,7 +89,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp) {
     message("  running ", N, ", assigning NA because not enough data")
     PaulStack[[N]] <- raster(PaulRaster) %>% setValues(NA_integer_)
     PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
-                            filename = asPath(paste0("Paul", N, ".tif")),
+                            filename = asPath(file.path(destinationPath, paste0("Paul", N, ".tif"))),
                             overwrite = TRUE, datatype = "INT2U",
                             cacheRepo = paths$cachePath)
   }
@@ -101,7 +101,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp) {
   PaulStack[[N]][PaulRaster[] %in% c(44)] <- 80
   PaulStack[[N]][PaulRaster[] %in% c(14, 34)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]] ,
-                          filename = asPath(paste0("Paul",N, ".tif")),
+                          filename = asPath(file.path(destinationPath, paste0("Paul",N, ".tif"))),
                           overwrite=TRUE, datatype = "INT2U",
                           cacheRepo=paths$cachePath)
 
@@ -113,7 +113,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp) {
   PaulStack[[N]][PaulRaster[] %in% c(22)] <- 80
   PaulStack[[N]][PaulRaster[] %in% c(32, 42)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
-                          filename = asPath(paste0("Paul",N, ".tif")),
+                          filename = asPath(file.path(destinationPath, paste0("Paul",N, ".tif"))),
                           overwrite=TRUE, datatype = "INT2U",
                           cacheRepo=paths$cachePath)
 
@@ -125,7 +125,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp) {
   PaulStack[[N]][PaulRaster[] %in% c(33)] <- 80
   PaulStack[[N]][PaulRaster[] %in% c(23, 43)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
-                          filename = asPath(paste0("Paul",N, ".tif")),
+                          filename = asPath(file.path(destinationPath, paste0("Paul",N, ".tif"))),
                           overwrite=TRUE, datatype = "INT2U",
                           cacheRepo=paths$cachePath)
 
@@ -138,7 +138,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp) {
   PaulStack[[N]][PaulRaster[] %in% c(11)] <- 80
   PaulStack[[N]][PaulRaster[] %in% c(31, 41)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
-                          filename = asPath(paste0("Paul",N, ".tif")),
+                          filename = asPath(file.path(destinationPath, paste0("Paul",N, ".tif"))),
                           overwrite=TRUE, datatype = "INT2U",
                           cacheRepo=paths$cachePath)
 
@@ -146,7 +146,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp) {
 }
 
 
-CASFRItoSpRasts <- function(CASFRIRas, loadedCASFRI) {
+CASFRItoSpRasts <- function(CASFRIRas, loadedCASFRI, destinationPath) {
   spRasts <- list()
   spRas <- raster(CASFRIRas) %>% setValues(.,NA_integer_)
   for(sp in unique(loadedCASFRI$keepSpecies$spGroup)) {
@@ -161,7 +161,7 @@ CASFRItoSpRasts <- function(CASFRIRas, loadedCASFRI) {
     spRasts[[sp]][cc$rastInd] <- cc$V1
     message("  ", sp, " writing to disk")
     rastTmp <- writeRaster(spRasts[[sp]],
-      filename = asPath(paste0("CASFRI",sp,".tif")),
+      filename = asPath(file.path(destinationPath, paste0("CASFRI",sp,".tif"))),
       datatype = "INT2U", overwrite = TRUE
     )
     if (is(rastTmp, "Raster")) { # Rasters need to have their disk-backed value assigned, but not shapefiles
@@ -180,7 +180,8 @@ CASFRItoSpRasts <- function(CASFRIRas, loadedCASFRI) {
   stack(spRasts)
 }
 
-overlayStacks <- function(highQualityStack, lowQualityStack, outputFilenameSuffix = "overlay") {
+overlayStacks <- function(highQualityStack, lowQualityStack, outputFilenameSuffix = "overlay",
+                          destinationPath) {
   for (sp in layerNames(highQualityStack)) {
     hqLarger <- ncell(lowQualityStack) * prod(res(lowQualityStack)) <
       ncell(highQualityStack) * prod(res(highQualityStack))
@@ -250,7 +251,8 @@ overlayStacks <- function(highQualityStack, lowQualityStack, outputFilenameSuffi
       nas <- is.na(HQRast[])
       HQRast[nas] <- LQRast[][nas]
       HQRast <- writeRaster(HQRast, datatype = "INT2U",
-                            filename = paste0(sp, "_", outputFilenameSuffix, ".tif"),
+                            filename = file.path(destinationPath, 
+                                                 paste0(sp, "_", outputFilenameSuffix, ".tif")),
                             overwrite = TRUE)
       names(HQRast) <- sp
       if (!exists("HQStack")) HQStack <- stack(HQRast) else HQStack[[sp]] <- HQRast
@@ -278,4 +280,31 @@ gdalwarp2 <- function(rasterWithDiskBacked, dstfilename, ...) {
               datatype = dt,  overwrite = TRUE)
   unlink(dstfilenameTmp)
   rr
+}
+
+
+
+loadCCSpecies <- function(mapNames, url, dPath, userTags) {
+  if (!any(grepl("1$", mapNames) )) {
+    filenames <- paste0(mapNames, "1")
+  } else {
+    filenames <- mapNames
+    mapNames <- gsub(mapNames, "1$", "")
+  }
+  names(filenames) <- mapNames
+  
+  mapply(filename = filenames, mapName = mapNames, function(filename, mapName) {
+    #fn <- paste0("CC", mapName, "Filename")
+    #mn <- paste0("CC", mapName, "Files")
+    tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
+    filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
+    Cache(prepInputs, userTags = "stable",  
+          url =  url,
+          archive = "CurrentCondition.zip",
+          targetFile = tifName,
+          alsoExtract = filenames,
+          destinationPath = dPath)
+  })
+  
+  
 }
