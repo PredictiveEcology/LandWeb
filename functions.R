@@ -5,8 +5,8 @@ intersectListShps <- function(listShps, intersectShp) {
   } else {
     intersectSF <- intersectShp
   }
-  
-  outerOut <- mapply(shp = listShps, shpNames = names(listShps), 
+
+  outerOut <- mapply(shp = listShps, shpNames = names(listShps),
                      function(shp, shpNames, useSF = FALSE) {
     message("  ", shpNames)
     tryCatch({
@@ -29,9 +29,9 @@ intersectListShps <- function(listShps, intersectShp) {
         intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
       out <- raster::intersect(shp, intersectShp)
     })
-                       
-      
-    
+
+
+
   })
 }
 
@@ -210,14 +210,14 @@ gdalSet <- function() {
   getOption("gdalUtils_gdalPath")
 }
 
-gdal2TilesFn <- function(r, filename, zoomRange=6:11, color_text_file = asPath(colorTableFile)) {
+gdal2TilesFn <- function(r, filename, zoomRange = 6:11, color_text_file = asPath(colorTableFile)) {
   filename1 <- filename(r)
-  prefix <- file.path("www",studyArea)
+  prefix <- file.path("www", studyArea)
   checkPath(prefix, create = TRUE)
-  filename2 <- file.path(prefix, paste0("out",basename(filename1)))
-  filename3 <- file.path(prefix, paste0("out2",basename(filename1)))
-  filename4 <- file.path(prefix, paste0("out3",basename(filename1)))
-  filename5 <- file.path(prefix, paste0("out4",basename(filename1)))
+  filename2 <- file.path(prefix, paste0("out", basename(filename1)))
+  filename3 <- file.path(prefix, paste0("out2", basename(filename1)))
+  filename4 <- file.path(prefix, paste0("out3", basename(filename1)))
+  filename5 <- file.path(prefix, paste0("out4", basename(filename1)))
   filename5 <- gsub(pattern = "tif", x = filename5, replacement = "vrt")
   foldername <- gsub(pattern = ".tif", filename2, replacement = "")
 
