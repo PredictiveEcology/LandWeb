@@ -20,8 +20,11 @@
 #' @return A matrix with counts of number of large patches
 largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
                            polygonToSummarizeBy, cl,
-                           ageCutoffs = ageClassCutOffs, countNumPatches = countNumPatches,
+                           ageCutoffs = ageClassCutOffs,
+                           countNumPatches = countNumPatches,
                            ageClasses, .quickCheck = TRUE, notOlderThan = Sys.time() - 1e7) {
+
+  ## TODO: don't use paths$path unless a paths object is passed as argument
 
   #  withProgress(message = 'Calculation in progress',
   #               detail = 'This may take a while...', value = 0, {
@@ -35,8 +38,8 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
   rasWithNAs[] <- NA
 
   # identify which polygon each pixel is contained within == data.table with 2 columns, cell and polygonID
-  cellIDByPolygon <- Cache(cacheRepo = paths$cachePath, digestPathContent = .quickCheck,
-                           cellNumbersForPolygon, rasWithNAs, polygonToSummarizeBy)
+  cellIDByPolygon <- Cache(cacheRepo = paths$cachePath, cellNumbersForPolygon,
+                           rasWithNAs, polygonToSummarizeBy)
 
   if (missing(cl)) {
     lapplyFn <- "lapply"
