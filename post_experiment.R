@@ -59,9 +59,9 @@ globalRasters <- reactive({
 leading <- reactive({
   message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
   args <- list(leadingByStage, tsf(), vtm(),
-               polygonToSummarizeBy = ecodistricts,
+               polygonToSummarizeBy = ecodistricts, # TODO: use polygon from chooser
                cl = if (exists("cl")) cl,
-               omitArgs = "cl", digestPathContent = .quickCheck,
+               omitArgs = "cl",
                ageClasses = ageClasses, cacheRepo = cachePath(mySim()))
   args <- args[!unlist(lapply(args, is.null))]
   out <- do.call(Cache, args)
@@ -85,8 +85,10 @@ vegLeadingTypesWithAllSpecies <- reactive({
 })
 
 clumpMod2Args <- reactive({
+  req(chosenPoly)
+
   args <- list(
-    currentPolygon = reportingPolygons[[1 + length(reportingPolygons) / 4]],
+    currentPolygon = chosenPoly(),
     tsf = tsf(),
     vtm = vtm(),
     cl = if (exists("cl")) cl,
