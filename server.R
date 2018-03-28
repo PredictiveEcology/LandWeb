@@ -32,8 +32,8 @@ function(input, output, session) {
   # TODO: update generator to handle this assignment
   chosenPoly <-  callModule(timeSeriesofRasters, "timeSinceFire", rasterList = globalRasters(),
                             polygonList = polygonList(),
-                            subRegionName = "LandWeb Study Area",
-                            #shpStudyRegion = rctSSubSRXYXY(), # full study region # DON'T Change the argument name
+                            shpStudyRegionName = "LandWeb Study Area",
+                            defaultPolyName = NULL,
                             colorTable = colorTableFile, palette = timeSinceFirePalette,
                             mapLegend = paste0("Time since fire", br(), "(years)"),
                             maxAge = maxAge, zoom = 5, sim = mySimOut()[[1]],
