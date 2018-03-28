@@ -51,9 +51,9 @@ lfltFN <- reactive({
 })
 
 globalRasters <- reactive({
-  Cache(reprojectRasts, lapply(tsf(), asPath), digestPathContent = .quickCheck,
-        lfltFN(), sp::CRS(lflt),  cacheRepo = cachePath(mySim()),
-        flammableFile = asPath(file.path(outputPath(mySim()), "rstFlammable.grd")))
+  Cache(reprojectRasts, lapply(tsf(), asPath), lfltFN(), sp::CRS(lflt),
+        flammableFile = asPath(file.path(outputPath(mySim()), "rstFlammable.grd")),
+        cacheRepo = cachePath(mySim()))
 })
 
 leading <- reactive({
@@ -86,7 +86,7 @@ vegLeadingTypesWithAllSpecies <- reactive({
 
 clumpMod2Args <- reactive({
   args <- list(
-    currentPolygon = polygons[[1 + length(polygons) / 4]],
+    currentPolygon = reportingPolygons[[1 + length(reportingPolygons) / 4]],
     tsf = tsf(),
     vtm = vtm(),
     cl = if (exists("cl")) cl,
