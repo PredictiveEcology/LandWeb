@@ -369,7 +369,7 @@ loadCCSpecies <- function(mapNames, url, dPath, userTags) {
 }
 
 
-createReportingPolygons <- function(layerNames) {
+createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegion) {
   layerNames <- c("Alberta Ecozones", "National Ecozones", 
                   "National Ecodistricts", "Forest Management Areas", 
                   "Alberta FMUs", "Caribou Herds")
@@ -473,7 +473,6 @@ createReportingPolygons <- function(layerNames) {
   
   
   
-  
   ########################################################
   ########################################################
   ########################################################
@@ -484,8 +483,11 @@ createReportingPolygons <- function(layerNames) {
   
   
   # Make SubRegion
-  polysSubRegion <- Cache(intersectListShps, polys, shpStudyRegion, userTags = "stable")
-  #polys <- append(polys, polysSubRegion)
+  polysSubRegion <- Cache(intersectListShps, polys, shpSubStudyRegion, userTags = "stable")
+  
+  # Add shpStudyRegion and shpSubStudyRegion to lists
+  polys$`LandWeb Study Area` <- shpStudyRegion
+  polysSubRegion$`LandWeb Study Area` <- shpSubStudyRegion
   
   #### Thin polygons
   if (FALSE) {
