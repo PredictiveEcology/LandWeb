@@ -72,7 +72,7 @@ outputs4sim <- reactive({
 
   outputs3 <- data.frame(stringsAsFactors = FALSE,
                          objectName = "rstFlammable",
-                         saveTime = times$end, fun = "writeRaster", package = "raster",
+                         saveTime = times4sim()$end, fun = "writeRaster", package = "raster",
                          arguments = I(list(list(overwrite = TRUE, progress = FALSE,
                                                  datatype = "INT2U", format = "raster"))))
 
