@@ -285,6 +285,7 @@ reloadWorkingShas <- function(md5hash, cachePath, shaOnly = FALSE) {
   if (isTRUE(isError)) message("no previous branch on github with that sha")
   return(invisible(shas))
 }
+
 noLongerWaiting <- function() {
   hide("loading_page")
   #show("main_content")
@@ -364,8 +365,6 @@ loadCCSpecies <- function(mapNames, url, dPath, userTags) {
           alsoExtract = filenames,
           destinationPath = dPath)
   })
-
-
 }
 
 
@@ -389,7 +388,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   polys[[layerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable",
                                                 url = albertaEcozoneURL, targetFile = albertaEcozoneFilename,
                                                 fun = "shapefile", destinationPath = dPath, alsoExtract = albertaEcozoneFiles)
-  polys[[layerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[layerNames[layerNamesIndex]]] $NSRNAME
+  polys[[layerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[layerNames[layerNamesIndex]]]$NSRNAME
 
   # National Ecozone
   layerNamesIndex <- 2
@@ -402,7 +401,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                                                  targetFile = asPath(ecozoneFilename),
                                                  alsoExtract = ecozoneFiles,
                                                  fun = "shapefile", destinationPath = dPath)
-  polys[[layerNames[layerNamesIndex]]] @data[[labelColumn]] <- polys[[layerNames[layerNamesIndex]]] $ZONE_NAME
+  polys[[layerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[layerNames[layerNamesIndex]]]$ZONE_NAME
 
   # National Ecodistrict
   layerNamesIndex <- 3

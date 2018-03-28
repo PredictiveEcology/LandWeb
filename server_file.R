@@ -103,3 +103,12 @@ paths4sim <- reactive({
 })
 
 seed <- sample(1e8, 1)
+
+## list of polygons to use for simulation and app
+reportingPolygons <- reactive({
+  if (session$userData$userAuthorized()) {
+    reportingPolygonsFree[names(reportingPolygonsProprietary)] <- reportingPolygonsProprietary
+  } else {
+    reportingPolygonsFree
+  }
+})
