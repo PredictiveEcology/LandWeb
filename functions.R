@@ -35,39 +35,6 @@ intersectListShps <- function(listShps, intersectShp) {
   })
 }
 
-ggvisFireReturnInterval <- function(shpStudyRegion, shpStudyRegionFull) {
-  shpStudyAreaFort <- broom::tidy(shpStudyRegion, region = 'Name_1')
-  shpStudyAreaFort <- dplyr::left_join(shpStudyAreaFort, shpStudyRegion@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
-  shpStudyAreaOrigFort <- broom::tidy(shpStudyRegionFull, region = 'Name_1')
-  shpStudyAreaOrigFort <- dplyr::left_join(shpStudyAreaOrigFort, shpStudyRegionFull@data[, c("Name_1", "fireReturnInterval")], by = c("id" = "Name_1"))
-  #shpStudyAreaOrigFort<-shpStudyAreaOrigFort[order(shpStudyAreaOrigFort$order), ]
-
-  #map <- ggplot2::fortify(maine, region="name")
-
-  wdth <- 650
-  ht <- wdth * (ymax(shpStudyRegionFull) - ymin(shpStudyRegionFull)) /
-    (xmax(shpStudyRegionFull) - xmin(shpStudyRegionFull))
-  df2 <- data.frame(fri = unique(shpStudyAreaOrigFort$fireReturnInterval),
-                    colrs = colorRampPalette(c("orange", "dark green"))(diff(range(shpStudyAreaOrigFort$fireReturnInterval)))[unique(shpStudyAreaOrigFort$fireReturnInterval) - min(shpStudyAreaOrigFort$fireReturnInterval) + 1]
-  )
-  shpStudyAreaOrigFort <- dplyr::left_join(shpStudyAreaOrigFort, df2, by = c("fireReturnInterval" = "fri"))
-  #
-  a <- shpStudyAreaOrigFort %>%
-    ggvis(~long, ~lat) %>%
-    dplyr::group_by(group, id) %>%
-    layer_paths(strokeOpacity := 0.5, stroke := "#7f7f7f", fill := ~fireReturnInterval) %>%
-    add_tooltip(function(data) {
-      paste0("Fire Return Interval: ", data$fireReturnInterval)
-    }, "hover") %>%
-    layer_paths(data = shpStudyAreaFort %>% dplyr::group_by(group, id),
-                stroke := "red") %>%
-    #hide_legend("fill") %>%
-    hide_axis("x") %>% hide_axis("y") %>%
-    #set_options(width = 400, height = 800)#, keep_aspect = TRUE)
-    set_options(width = wdth, height = ht, keep_aspect = TRUE)
-
-}
-
 
 #' Calculate proportion of landscape occupied by each vegetation class
 #' @return A data.table with proportion of the pixels in each vegetation class, for
@@ -211,46 +178,6 @@ gdalSet <- function() {
   getOption("gdalUtils_gdalPath")
 }
 
-gdal2TilesFn <- function(r, filename, zoomRange = 6:11, color_text_file = asPath(colorTableFile)) {
-  filename1 <- filename(r)
-  prefix <- file.path("www", studyArea)
-  checkPath(prefix, create = TRUE)
-  filename2 <- file.path(prefix, paste0("out", basename(filename1)))
-  filename3 <- file.path(prefix, paste0("out2", basename(filename1)))
-  filename4 <- file.path(prefix, paste0("out3", basename(filename1)))
-  filename5 <- file.path(prefix, paste0("out4", basename(filename1)))
-  filename5 <- gsub(pattern = "tif", x = filename5, replacement = "vrt")
-  foldername <- gsub(pattern = ".tif", filename2, replacement = "")
-
-  if (anyNA(r[])) r[is.na(r[])] <- -1
-  if (minValue(r) < 0) r <- r - minValue(r)
-
-  r <- writeRaster(x = r, filename = filename2, overwrite = TRUE, datatype = "INT2S")
-  gdalUtils::gdaldem(mode = "color-relief", filename2, #alpha = TRUE,
-                     color_text_file = as.character(color_text_file), filename3)
-  system(paste0("python ",
-                file.path(getOption("gdalUtils_gdalPath")[[1]]$path, "rgb2pct.py "),
-                filename3,
-                " ",
-                filename4))
-  gdalUtils::gdal_translate(of = "VRT", expand = "rgb", filename4, filename5)
-  system(paste0("python ",
-                file.path(getOption("gdalUtils_gdalPath")[[1]]$path, "gdal2tiles.py "),
-                "--s_srs=EPSG:4326 ",
-                " --zoom=", min(zoomRange), "-", max(zoomRange), " ",
-                "--srcnodata=0 ",
-                filename5, " ",
-                foldername),
-         wait = TRUE)
-  unlink(filename5)
-  unlink(filename4)
-  unlink(filename3)
-  unlink(filename2)
-
-  return(invisible(NULL))
-}
-
-
 PredictiveEcologyPackages <- c("reproducible", "SpaDES.core", "SpaDES.tools")
 
 workingShas <- function(date) {
@@ -343,7 +270,7 @@ reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
   return(.reloadPreviousWorking)
 }
 
-
+# Used in global_file.R to load the Current Condition Rasters from SilvaCom
 loadCCSpecies <- function(mapNames, url, dPath, userTags) {
   if (!any(grepl("1$", mapNames) )) {
     filenames <- paste0(mapNames, "1")
@@ -488,9 +415,9 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   ########################################################
   ########################################################
   ########################################################
-  # Make them all crsStudyArea
+  # Make them all cfsSRXYXY
   polys <- Cache(lapply, polys, function(shp) {
-    spTransform(shp, CRSobj = crsStudyArea)
+    spTransform(shp, CRSobj = crsSRXYXY)
   }, userTags = "stable")
 
 
@@ -529,26 +456,27 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   polysLflt <- Cache(mapply, p = polys, nam = names(polys), userTags = "stable",
                      function(p, nam) {
                        message("  ", nam)
-                       out <- tryCatch(spTransform(p, CRSobj = CRS(lflt)), error = function(x) {
+                       out <- tryCatch(spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
                          p <- spChFIDs(p, as.character(seq(NROW(p))))
-                         spTransform(p, CRSobj = CRS(lflt))
+                         spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
                        })
                      })
   polysLfltSubStudyRegion <- Cache(mapply, p = polysSubRegion, nam = names(polysSubRegion), userTags = "stable",
                                    function(p, nam) {
                                      message("  ", nam)
-                                     out <- tryCatch(spTransform(p, CRSobj = CRS(lflt)), error = function(x) {
+                                     out <- tryCatch(
+                                       spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
                                        p <- spChFIDs(p, as.character(seq(NROW(p))))
-                                       spTransform(p, CRSobj = CRS(lflt))
+                                       spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
                                      })
                                    })
 
   # Put them all together in the structure:
   #   LayerName $ Projection (crsSR or crsLFLT) $ Scale (studyRegion or subStudyRegion)
-  polysAll <- list("crsSR" = list("studyRegion" = polys,
-                                  "subStudyRegion" = polysSubRegion),
-                   "crsLFLT" = list("studyRegion" = polysLflt,
-                                    "subStudyRegion" = polysLfltSubStudyRegion))
+  polysAll <- list("crsSR" = list("shpStudyRegion" = polys,
+                                  "shpSubStudyRegion" = polysSubRegion),
+                   "crsLFLT" = list("shpStudyRegion" = polysLflt,
+                                    "shpSubStudyRegion" = polysLfltSubStudyRegion))
   reportingPolygonsTmp <- lapply(polysAll, purrr::transpose)
   purrr::transpose(reportingPolygonsTmp)
 }

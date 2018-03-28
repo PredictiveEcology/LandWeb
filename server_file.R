@@ -23,8 +23,8 @@ modules4sim <- reactive({
 })
 
 objects4sim <- reactive({
-  list("shpStudyRegionFull" = shpStudyRegionFull,
-       "shpStudySubRegion" = shpStudyRegion,
+  list("shpStudyRegionFull" = sSRXYXY,
+       "shpStudySubRegion" = sSubSRXYXY,
        "summaryPeriod" = summaryPeriod,
        "useParallel" = 2) #6
 })
@@ -82,9 +82,9 @@ outputs4sim <- reactive({
 ## paths for sim
 cpath <- reactive({
   if (session$userData$userAuthorized()) {
-    paste0("appCache", studyArea, "_AUTH")
+    paste0("appCache", subSRNameXYXY, "_AUTH")
   } else {
-    paste0("appCache", studyArea)
+    paste0("appCache", subSRNameXYXY)
   }
 })
 
@@ -98,7 +98,7 @@ paths4sim <- reactive({
     cachePath = cpath(),
     modulePath = "m",
     inputPath = "inputs",
-    outputPath = paste0("outputs", studyArea)
+    outputPath = paste0("outputs", subSRNameXYXY)
   )
 })
 
@@ -117,6 +117,6 @@ polygonList <- reactive({
   lapply(reportingPolygons(), function(x) x$crsLFLT$subStudyRegion)
 })
 
-shpStudyRegion <- reactive({
+rctSSubSRXYXY <- reactive({
   reportingPolygons()[["LandWeb Study Area"]][["crsLFLT"]][["studyRegion"]]
 })

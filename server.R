@@ -33,10 +33,10 @@ function(input, output, session) {
   chosenPoly <-  callModule(timeSeriesofRasters, "timeSinceFire", rasterList = globalRasters(),
                             polygonList = polygonList(),
                             subRegionName = "LandWeb Study Area",
-                            shpStudyRegion = shpStudyRegion(), # full study region
+                            #shpStudyRegion = rctSSubSRXYXY(), # full study region # DON'T Change the argument name
                             colorTable = colorTableFile, palette = timeSinceFirePalette,
                             mapLegend = paste0("Time since fire", br(), "(years)"),
-                            maxAge = maxAge, zoom = 5, studyArea = studyArea, sim = mySimOut()[[1]],
+                            maxAge = maxAge, zoom = 5, sim = mySimOut()[[1]],
                             nPolygons = 1, nRasters = length(tsf()))
 
   callModule(largePatches, "largePatches", nSimTimes = length(tsf()), clumpMod2Args()) ## here
