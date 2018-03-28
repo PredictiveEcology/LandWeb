@@ -112,11 +112,3 @@ reportingPolygons <- reactive({
     reportingPolygonsFree
   }
 })
-
-polygonList <- reactive({
-  lapply(reportingPolygons(), function(x) x$crsLFLT$subStudyRegion)
-})
-
-rctSSubSRXYXY <- reactive({
-  reportingPolygons()[["LandWeb Study Area"]][["crsLFLT"]][["studyRegion"]]
-})

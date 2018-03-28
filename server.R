@@ -31,7 +31,7 @@ function(input, output, session) {
 
   # TODO: update generator to handle this assignment
   chosenPoly <-  callModule(timeSeriesofRasters, "timeSinceFire", rasterList = globalRasters(),
-                            polygonList = polygonList(),
+                            polygonList = reportingPolygons(),
                             shpStudyRegionName = "LandWeb Study Area",
                             defaultPolyName = NULL,
                             colorTable = colorTableFile, palette = timeSinceFirePalette,
