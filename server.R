@@ -29,7 +29,8 @@ function(input, output, session) {
   ## module calls
   callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
   callModule(timeSeriesofRasters, "timeSinceFire", rasterList = globalRasters(),
-             polygonList = lapply(reportingPolygons, function(x) x$crsLFLT$subStudyRegion), 
+             polygonList = lapply(reportingPolygons, function(x) x$crsLFLT$subStudyRegion),
+             subRegionName = "LandWeb Study Area",
              shpStudyRegionFull = reportingPolygons$`LandWeb Study Area`$crsLFLT$studyRegion, # full study region
              colorTable = colorTableFile, palette = timeSinceFirePalette,
              mapLegend = paste0("Time since fire", br(), "(years)"),
