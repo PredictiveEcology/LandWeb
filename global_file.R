@@ -169,12 +169,18 @@ lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 # formerly in mapsForShiny.R 
 # Reporting polygons 
 message("Loading Reporting Polygons") 
-reportingPolygons <- Cache(createReportingPolygons, 
+reportingPolygonsFree <- Cache(createReportingPolygons, 
                            c("Alberta Ecozones", "National Ecozones",  
-                             "National Ecodistricts", "Forest Management Areas",  
-                             "Alberta FMUs", "Caribou Herds"),
+                             "National Ecodistricts"),
                            shpStudyRegion = shpStudyRegionFull, # change the names here
                            shpSubStudyRegion = shpStudyRegion) 
+
+
+reportingPolygonsProprietary <- Cache(createReportingPolygons, 
+                               c("Forest Management Areas",  
+                                 "Alberta FMUs", "Caribou Herds"),
+                               shpStudyRegion = shpStudyRegionFull, # change the names here
+                               shpSubStudyRegion = shpStudyRegion) 
 
 ### CURRENT CONDITION ################################## 
 message("Loading Current Condition Rasters") 
