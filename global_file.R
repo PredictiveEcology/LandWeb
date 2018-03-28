@@ -160,32 +160,30 @@ lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 message("  Finished global.R")
 
-source("mapsForShiny.R") 
-labelColumn <- "shinyLabel" 
-lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs" 
+source("mapsForShiny.R")
+labelColumn <- "shinyLabel"
+lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
-######################################################## 
-######################################################## 
-# formerly in mapsForShiny.R 
-# Reporting polygons 
-message("Loading Reporting Polygons") 
-reportingPolygonsFree <- Cache(createReportingPolygons, 
-                           c("Alberta Ecozones", "National Ecozones",  
-                             "National Ecodistricts"),
-                           shpStudyRegion = shpStudyRegionFull, # change the names here
-                           shpSubStudyRegion = shpStudyRegion) 
+########################################################
+########################################################
+# formerly in mapsForShiny.R
+# Reporting polygons
+message("Loading Reporting Polygons")
+reportingPolygonsFree <- Cache(createReportingPolygons,
+                               c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
+                               shpStudyRegion = shpStudyRegionFull,
+                               shpSubStudyRegion = shpStudyRegion)
 
 
-reportingPolygonsProprietary <- Cache(createReportingPolygons, 
-                               c("Forest Management Areas",  
-                                 "Alberta FMUs", "Caribou Herds"),
-                               shpStudyRegion = shpStudyRegionFull, # change the names here
-                               shpSubStudyRegion = shpStudyRegion) 
+reportingPolygonsProprietary <- Cache(createReportingPolygons,
+                                      c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
+                                      shpStudyRegion = shpStudyRegionFull,
+                                      shpSubStudyRegion = shpStudyRegion)
 
-### CURRENT CONDITION ################################## 
-message("Loading Current Condition Rasters") 
-dPath <- file.path(paths$inputPath, "CurrentCondition") 
-CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce") 
-rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,  
-                                 url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1", 
-                                 dPath = dPath) 
+### CURRENT CONDITION ##################################
+message("Loading Current Condition Rasters")
+dPath <- file.path(paths$inputPath, "CurrentCondition")
+CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce")
+rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
+                                 url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                                 dPath = dPath)
