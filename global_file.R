@@ -9,11 +9,11 @@ SpaDESPkgs <- c(
 shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
                "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
-moduleRqdPkgs <- c("data.table", "dplyr", "ecohealthalliance/fasterize", "fpCompare", 
-                   "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr", "PredictiveEcology/quickPlot@development", 
-                   "PredictiveEcology/SpaDES.tools@development", "PredictiveEcology/SpaDES.tools@prepInputs", 
-                   "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible", 
-                   "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", 
+moduleRqdPkgs <- c("data.table", "dplyr", "ecohealthalliance/fasterize", "fpCompare",
+                   "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr", "PredictiveEcology/quickPlot@development",
+                   "PredictiveEcology/SpaDES.tools@development", "PredictiveEcology/SpaDES.tools@prepInputs",
+                   "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible",
+                   "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr",
                    "VGAM")
 
 reproducible::Require(unique(c(
