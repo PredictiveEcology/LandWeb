@@ -30,8 +30,6 @@ R-Portable/
 ## shiny app files
 www/
 global.R
-server.R
-ui.R
 
 ## SpaDES-related files
 m/test/

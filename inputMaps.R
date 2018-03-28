@@ -25,7 +25,7 @@ useEcozoneMask <- function(studyArea, ecozoneFilename){
 
 loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsStudyArea) {
   if ("RIA" %in% studyArea) {
-    shpStudyRegion <- Cache(shapefile, userTags = "stable", 
+    shpStudyRegion <- Cache(shapefile, userTags = "stable",
                             file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))
     loadAndBuffer <- function(shapefile) {
       a <- shapefile(shapefile)
@@ -35,18 +35,18 @@ loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsStudyA
     fireReturnIntervalTemp <- 400
     shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
     shpStudyRegion[["fireReturnInterval"]] <- shpStudyRegion$LTHRC # Fire return interval
-    
+
     shpStudyRegionFull <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
                                 cacheRepo = paths$cachePath, userTags = "stable")
     shpStudyRegionFull[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
     shpStudyRegionFull$fireReturnInterval <- shpStudyRegionFull$LTHRC
     shpStudyRegionFull <- shpStudyRegion
-    
+
   } else {
     # Dave Andison doesn't have .prj files -- this line will create one with NAD83 UTM11N downloading from spatialreference.org
     createPrjFile(shpPath)
     shpStudyRegionFull <- loadShpAndMakeValid(file = shpPath)
-    
+
     if (is.null(shpStudyRegionFull$fireReturnInterval)) {
       # Dave Andison doesn't have .prj files -- this line will create one with NAD83 UTM11N downloading from spatialreference.org
       createPrjFile(fireReturnIntervalMap)
@@ -65,19 +65,19 @@ loadStudyRegion <- function(shpPath, fireReturnIntervalMap, studyArea, crsStudyA
     shpStudyRegionFull@data <- shpStudyRegionFull@data[, !(names(shpStudyRegionFull) %in% "ECODISTRIC")]
     shpStudyRegionFull <- spTransform(shpStudyRegionFull, crsStudyArea)
     shpStudyRegionFull <- rgeos::gBuffer(shpStudyRegionFull, byid = TRUE, width = 0)
-    shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea, 
+    shpStudyRegion <- shpStudyRegionCreate(shpStudyRegionFull, studyArea = studyArea,
                                            crsStudyArea = crsStudyArea)
   }
   list(shpStudyRegion = shpStudyRegion, shpStudyRegionFull = shpStudyRegionFull)
 }
 
 shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, crsStudyArea) {
-  canadaAdminNames <- c(BC = "British Columbia", 
-                        AB = "Alberta", 
-                        SK = "Saskatchewan", 
+  canadaAdminNames <- c(BC = "British Columbia",
+                        AB = "Alberta",
+                        SK = "Saskatchewan",
                         MB = "Manitoba")
   canadaAdminNamesAll <- c(names(canadaAdminNames), canadaAdminNames)
-  
+
   if (!("FULL" %in% studyArea)) {
     if ("NWT" %in% studyArea) {
       shpStudyRegionFullLL <- spTransform(shpStudyRegionFull, CRS("+proj=longlat +datum=WGS84"))
@@ -88,13 +88,13 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, crsStudyArea) {
       shpStudyRegion <- rgeos::gBuffer(shpStudyRegion, width = 0, byid = TRUE)
     } else if (any(studyArea %in% canadaAdminNamesAll)) {
       canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
-                         cacheRepo = paths$cachePath, userTags = "stable") 
-      studyArea <- canadaAdminNames[canadaAdminNames %in% studyArea | 
+                         cacheRepo = paths$cachePath, userTags = "stable")
+      studyArea <- canadaAdminNames[canadaAdminNames %in% studyArea |
                                       names(canadaAdminNames) %in% studyArea]
       inputMapPolygon <- spTransform(canadaMap[canadaMap$NAME_1 %in% studyArea,], crsStudyArea)
       aa <- sf::st_intersection(sf::st_as_sf(shpStudyRegionFull), sf::st_as_sf(inputMapPolygon))
       shpStudyRegion <- as(aa, "Spatial")
-      
+
     } else {
       set.seed(853839)#set.seed(5567913)
       if ("SMALL" %in% studyArea) {
@@ -134,12 +134,12 @@ shpStudyRegionCreate <- function(shpStudyRegionFull, studyArea, crsStudyArea) {
       options("digits.secs" = 7)
       on.exit(options("digits.secs" = NULL))
       set.seed(as.numeric(format(Sys.time(), format = "%OS")))
-      
+
     }
   } else {
     shpStudyRegion <- shpStudyRegionFull
   }
-  
+
   return(shpStudyRegion)
 }
 
