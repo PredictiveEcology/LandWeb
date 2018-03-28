@@ -82,7 +82,7 @@ appMetadata2 <- list(
   sidebar = list(width = 300, footer = NULL)
 )
 
-newApp(getwd(), appMetadata2)
+# newApp(getwd(), appMetadata2)
 
 file.copy("global_file.R", "global.R", overwrite = TRUE)
 
