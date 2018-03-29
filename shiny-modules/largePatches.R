@@ -104,29 +104,50 @@ largePatchesUI <- function(id) {
 }
 
 #' @param input    Shiny server input object.
-#'
 #' @param output   Shiny server output object.
-#'
 #' @param session  Shiny server session object.
-#'
+#' @param chosenPolyName  The name of the selected polygon.
 #' @param nSimTimes  How many simulation time stamps there are.
-#'
-#' @param clumpMod2Args  List containing named arguments passed to \code{clumpMod2}.
 #'
 #' @return Shiny module server function.
 #'
 #' @author Mateusz Wyszynski
+#' @author Alex Chubaty
 #' @export
 #' @importFrom assertthat assert_that
 #' @importFrom data.table data.table is.data.table
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
-largePatches <- function(session, input, output, nSimTimes, clumpMod2Args) {
-  largePatchesData <- reactive({
-    clumpMod2Args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
+largePatches <- function(session, input, output, polygonList, chosenPolyName,
+                         tsf, vtm, cl = NULL, ageClasses, cachePath, FUN, nPatchesFun) { # TODO: add docs above
 
-    clumpsReturn <- do.call(callModule, c(list(module = clumpMod2, id = "largePatches"), clumpMod2Args))
+  clumpMod2Args <- reactive({
+    req(polygonList, chosenPolyName, tsf, vtm)
+
+    ## TODO: add assertions for other args
+    assertthat::assert_that(is.list(polygonList()), is.character(chosenPolyName()))
+
+    args <- list(
+      currentPolygon = polygonList[[chosenPolyName]][["crsSR"]][["shpSubStudyRegion"]],
+      tsf = tsf,
+      vtm = vtm,
+      cl = cl,
+      ageClasses = ageClasses,
+      cacheRepo = cachePath,
+      largePatchesFn = FUN,
+      countNumPatches = nPatchesFun
+    )
+    args <- args[!unlist(lapply(args, is.null))]
+    args
+  })
+
+
+  largePatchesData <- reactive({
+    args <- clumpMod2Args()
+    args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
+
+    clumpsReturn <- do.call(callModule, c(list(module = clumpMod2, id = "largePatches"), args))
 
     dt_out <- clumpsReturn()$Clumps
     assertthat::assert_that(is.data.table(dt_out))
@@ -139,7 +160,7 @@ largePatches <- function(session, input, output, nSimTimes, clumpMod2Args) {
   )
 
   callModule(slicer, "slicer", datatable = largePatchesData,
-             categoryValue = "LargePatches", nSimTimes = nSimTimes,
+             categoryValue = "LargePatches", nSimTimes = length(tsf),
              uiSequence = uiSequence,
              serverFunction = histServerFn, ## calls histogram server module
              uiFunction = function(ns) {
