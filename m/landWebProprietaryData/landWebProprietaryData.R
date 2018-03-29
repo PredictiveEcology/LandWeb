@@ -126,8 +126,8 @@ Init <- function(sim) {
     message("Load CASFRI data and headers, and convert to long format, and define species groups")
     if (P(sim)$useParallel > 1) data.table::setDTthreads(P(sim)$useParallel)
     loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile,
-                          destinationPath = asPath(dPath),
-                          #debugCache = "complete", 
+                          # destinationPath = asPath(dPath),
+                          # debugCache = "complete", 
                           userTags = c("stable", "BigDataTable"))
 
     message("Make stack of species layers from Paul's layer")
