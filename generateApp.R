@@ -86,5 +86,4 @@ appMetadata2 <- list(
 
 file.copy("global_file.R", "global.R", overwrite = TRUE)
 
-options(shiny.error = browser)
 shiny::runApp(".", launch.browser = TRUE, port = 5921)
