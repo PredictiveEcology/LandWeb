@@ -51,9 +51,13 @@ lfltFN <- reactive({
 })
 
 globalRasters <- reactive({
-  Cache(reprojectRasts, lapply(tsf(), asPath), lfltFN(), sp::CRS(SpaDES.shiny::proj4stringLFLT),
-        flammableFile = asPath(file.path(outputPath(mySim()), "rstFlammable.grd")),
-        cacheRepo = cachePath(mySim()))
+  tsfPaths <- lapply(tsf(), asPath)
+  lfltFun <- lfltFN()
+  flammableFilename <- asPath(file.path(outputPath(mySim()), "rstFlammable.grd"))
+  cpath <- cachePath(mySim())
+
+  Cache(reprojectRasts, tsfPaths, lfltFun, sp::CRS(SpaDES.shiny::proj4stringLFLT),
+        flammableFile = flammableFilename, cacheRepo = cpath)
 })
 
 leading <- reactive({
