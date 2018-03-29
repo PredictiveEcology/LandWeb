@@ -14,7 +14,7 @@ clumpMod2UI <- function(id) {
   ns <- NS(id)
 
   tagList(
-    numericInput(ns("PatchSize33"), value = 500, min = 100, max = NA,
+    numericInput(ns("patchSize"), value = 500, min = 100, max = NA,
                  label = paste0("Type patch size in hectares that defines 'Large', ",
                                 "(numbers below 100 will not work)")
     )
@@ -49,7 +49,7 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, cl,
                       ageClasses, patchSize, sizeInHa, cacheRepo,
                       largePatchesFn, countNumPatches) {
   clumps <- reactive({
-    patchSize <- as.integer(input$PatchSize33)
+    patchSize <- as.integer(input$patchSize)
 
     message(paste("Running largePatchesFn"))
     shiny::withProgress(message = "Calculation in progress",

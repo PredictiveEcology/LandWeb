@@ -30,16 +30,19 @@ function(input, output, session) {
   callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
 
   # TODO: update generator to handle this assignment
-  chosenPoly <-  callModule(timeSeriesofRasters, "timeSinceFire", rasterList = globalRasters(),
-                            polygonList = reportingPolygons(),
-                            shpStudyRegionName = "LandWeb Study Area",
-                            defaultPolyName = NULL,
-                            colorTable = colorTableFile, palette = timeSinceFirePalette,
-                            mapLegend = paste0("Time since fire", br(), "(years)"),
-                            maxAge = maxAge, zoom = 5, sim = mySimOut()[[1]],
-                            nPolygons = 1, nRasters = length(tsf()))
+  chosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire", rasterList = globalRasters(),
+                                polygonList = reportingPolygons,
+                                shpStudyRegionName = "LandWeb Study Area",
+                                defaultPolyName = NULL,
+                                colorTable = colorTableFile, palette = timeSinceFirePalette,
+                                mapLegend = paste0("Time since fire", br(), "(years)"),
+                                maxAge = maxAge, zoom = 5, sim = mySimOut()[[1]],
+                                nPolygons = 1, nRasters = length(tsf()))
 
-  callModule(largePatches, "largePatches", nSimTimes = length(tsf()), clumpMod2Args()) ## here
+  callModule(largePatches, "largePatches", polygonList = reportingPolygons(), ## TODO: write this with generator
+             chosenPolyName = chosenPolyName(), tsf = tsf(), vtm = vtm(), cl = NULL,
+             ageClasses = ageClasses, cachePath = cachePath(mySim()),
+             FUN = largePatchesFn, nPatchesFun = countNumPatches)
   callModule(simInfo, "simInfo", mySimOut()[[1]])
   callModule(moduleInfo, "moduleInfo", mySimOut()[[1]])
   callModule(inputTables, "inputTables")

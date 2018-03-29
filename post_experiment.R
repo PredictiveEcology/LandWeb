@@ -84,21 +84,4 @@ vegLeadingTypesWithAllSpecies <- reactive({
   c(vegLeadingTypes(), "All species")
 })
 
-clumpMod2Args <- reactive({
-  req(chosenPoly)
-
-  args <- list(
-    currentPolygon = chosenPoly(),
-    tsf = tsf(),
-    vtm = vtm(),
-    cl = if (exists("cl")) cl,
-    ageClasses = ageClasses,
-    cacheRepo = cachePath(mySim()),
-    largePatchesFn = largePatchesFn,
-    countNumPatches = countNumPatches
-  )
-  args <- args[!unlist(lapply(args, is.null))]
-  args
-})
-
 message("  Finished post_experiment.R")
