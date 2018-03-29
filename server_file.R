@@ -23,7 +23,7 @@ modules4sim <- reactive({
 })
 
 objects4sim <- reactive({
-  list("shpStudyRegionFull" = sSRXYXY,
+  list("shpStudyRegionFull" = shpStudyRegion,
        "shpStudySubRegion" = sSubSRXYXY,
        "summaryPeriod" = summaryPeriod,
        "useParallel" = 2) #6
@@ -82,9 +82,9 @@ outputs4sim <- reactive({
 ## paths for sim
 cpath <- reactive({
   if (session$userData$userAuthorized()) {
-    paste0("appCache", subSRNameXYXY, "_AUTH")
+    paste0("appCache", subStudyRegionName, "_AUTH")
   } else {
-    paste0("appCache", subSRNameXYXY)
+    paste0("appCache", subStudyRegionName)
   }
 })
 
@@ -98,7 +98,7 @@ paths4sim <- reactive({
     cachePath = cpath(),
     modulePath = "m",
     inputPath = "inputs",
-    outputPath = paste0("outputs", subSRNameXYXY)
+    outputPath = paste0("outputs", subStudyRegionName)
   )
 })
 
