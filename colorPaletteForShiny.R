@@ -7,7 +7,7 @@ timeSinceFirePalette <- leaflet::colorNumeric(
   domain = NULL
 )
 
-colorTableFile <- file.path("www", subSRNameXYXY, "color_table.txt")
+colorTableFile <- file.path("www", subStudyRegionName, "color_table.txt")
 checkPath(dirname(colorTableFile), create = TRUE)
 color_tableFn <- function(timeSinceFirePalette, maxAge) {
   a <- t(sapply(timeSinceFirePalette(1:maxAge), col2rgb))

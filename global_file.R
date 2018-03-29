@@ -44,17 +44,17 @@ appURL <- "http://landweb.predictiveecology.org/Demo/"
 authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
 
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-subSRNameXYXY <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
-#subSRNameXYXY <- c("AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
+subStudyRegionName <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
+#subStudyRegionName <- c("AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
 ##                however, in-app, the paths need to be set as reactive values for authentication!
-subSRNameCollapsedXYXY <- paste(subSRNameXYXY, collapse = "_")
+subStudyRegionNameCollapsed <- paste(subStudyRegionName, collapse = "_")
 paths <- list(
-  cachePath = file.path("cache", paste0("appCache", subSRNameCollapsedXYXY)),
+  cachePath = file.path("cache", paste0("appCache", subStudyRegionNameCollapsed)),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
-  outputPath = file.path("outputs", paste0("outputs", subSRNameCollapsedXYXY))
+  outputPath = file.path("outputs", paste0("outputs", subStudyRegionNameCollapsed))
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
@@ -120,7 +120,7 @@ summaryInterval <- 2
 summaryPeriod <- c(2, endTime)
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
-# "shpStudyRegion"     "sSRXYXY"
+# "shpStudyRegion"     "shpStudyRegion"
 source("inputMaps.R") # source some functions
 
 # LANDIS-II params that are used
@@ -128,26 +128,26 @@ landisInputs <- readRDS(file.path(paths$inputPath, "landisInputs.rds"))
 spEcoReg <- readRDS(file.path(paths$inputPath, "SpEcoReg.rds"))
 
 # The CRS for the Study -- spTransform converts this first one to the second one, they are identical geographically
-# crsSRXYXY <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
+# crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
 #                         "+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
-crsSRXYXY <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
+crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
                           "+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
 
-sRFilePXYXY <- {
-  sRFilenameXYXY <- if ("RIA" %in% subSRNameXYXY) {
+studyRegionFilePath <- {
+  studyRegionFilename <- if ("RIA" %in% subStudyRegionName) {
     "RIA_SE_ResourceDistricts_Clip.shp"
   } else {
     "studyarea-correct.shp"
   }
-  file.path(paths$inputPath, sRFilenameXYXY)
+  file.path(paths$inputPath, studyRegionFilename)
 }
 
 studyRegionsShps <- Cache(loadStudyRegions,
-                          asPath(sRFilePXYXY),
+                          asPath(studyRegionFilePath),
                           fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
-                          subSRNameXYXY = subSRNameXYXY,
-                          crsSRXYXY = crsSRXYXY, cacheRepo = paths$cachePath)
-list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & sSRXYXY
+                          subStudyRegionName = subStudyRegionName,
+                          crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)
+list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpStudyRegion
 
 ## source additional shiny modules
 vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))
@@ -156,7 +156,6 @@ vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("l
 # a few map details for shiny app
 message("Preparing polygon maps for reporting histograms")
 labelColumn <- "shinyLabel"
-lCNXYXY <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 message("  Finished global.R")
 
@@ -170,13 +169,13 @@ labelColumn <- "shinyLabel"
 message("Loading Reporting Polygons")
 reportingPolygonsFree <- Cache(createReportingPolygons,
                                c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
-                               shpStudyRegion = sSRXYXY,
+                               shpStudyRegion = shpStudyRegion,
                                shpSubStudyRegion = sSubSRXYXY)
 
 
 reportingPolygonsProprietary <- Cache(createReportingPolygons,
                                       c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
-                                      shpStudyRegion = sSRXYXY,
+                                      shpStudyRegion = shpStudyRegion,
                                       shpSubStudyRegion = sSubSRXYXY)
 
 ### CURRENT CONDITION ##################################
