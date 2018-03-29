@@ -417,7 +417,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   ########################################################
   # Make them all cfsSRXYXY
   polys <- Cache(lapply, polys, function(shp) {
-    spTransform(shp, CRSobj = crsSRXYXY)
+    spTransform(shp, CRSobj = crsStudyRegion)
   }, userTags = "stable")
 
 

@@ -10,8 +10,8 @@ loadShpAndMakeValid <- function(file) {
   shapefile(file) %>% gBuffer(byid = TRUE, width = 0)
 }
 
-loadStudyRegions <- function(shpPath, fireReturnIntervalMap, subSRNameXYXY, crsSRXYXY) {
-  if ("RIA" %in% subSRNameXYXY) {
+loadStudyRegions <- function(shpPath, fireReturnIntervalMap, subStudyRegionName, crsStudyRegion) {
+  if ("RIA" %in% subStudyRegionName) {
     sSubSRXYXY <- Cache(shapefile, userTags = "stable",
                             file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))
     loadAndBuffer <- function(shapefile) {
@@ -23,76 +23,76 @@ loadStudyRegions <- function(shpPath, fireReturnIntervalMap, subSRNameXYXY, crsS
     sSubSRXYXY[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
     sSubSRXYXY[["fireReturnInterval"]] <- sSubSRXYXY$LTHRC # Fire return interval
 
-    sSRXYXY <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
+    shpStudyRegion <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
                                 cacheRepo = paths$cachePath, userTags = "stable")
-    sSRXYXY[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
-    sSRXYXY$fireReturnInterval <- sSRXYXY$LTHRC
-    sSRXYXY <- sSubSRXYXY
+    shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
+    shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
+    shpStudyRegion <- sSubSRXYXY
 
   } else {
     # Dave Andison doesn't have .prj files -- this line will create one with NAD83 UTM11N downloading from spatialreference.org
     createPrjFile(shpPath)
-    sSRXYXY <- loadShpAndMakeValid(file = shpPath)
+    shpStudyRegion <- loadShpAndMakeValid(file = shpPath)
 
-    if (is.null(sSRXYXY$fireReturnInterval)) {
+    if (is.null(shpStudyRegion$fireReturnInterval)) {
       # Dave Andison doesn't have .prj files -- this line will create one with NAD83 UTM11N downloading from spatialreference.org
       createPrjFile(fireReturnIntervalMap)
       fireReturnInterval <- loadShpAndMakeValid(file = fireReturnIntervalMap)
     }
-    if (!identical(extent(sSRXYXY), extent(fireReturnInterval))) {
-      sSRXYXY <- raster::intersect(sSRXYXY, fireReturnInterval)
+    if (!identical(extent(shpStudyRegion), extent(fireReturnInterval))) {
+      shpStudyRegion <- raster::intersect(shpStudyRegion, fireReturnInterval)
     }
-    if (!isTRUE("LTHRC" %in% names(sSRXYXY))) {
-      sSRXYXY$LTHRC <- sSRXYXY$LTHFC # Apparently, sometimes it is LTHFC, sometimes LTHRC # Get rid of LTHFC
-      sSRXYXY$LTHFC <- NULL
+    if (!isTRUE("LTHRC" %in% names(shpStudyRegion))) {
+      shpStudyRegion$LTHRC <- shpStudyRegion$LTHFC # Apparently, sometimes it is LTHFC, sometimes LTHRC # Get rid of LTHFC
+      shpStudyRegion$LTHFC <- NULL
       # The fires of Fire Return Interval 30 years are not correctly simulated by LandMine, so they are removed.
-      sSRXYXY$LTHRC[sSRXYXY$LTHRC <= 30] <- NA
+      shpStudyRegion$LTHRC[shpStudyRegion$LTHRC <= 30] <- NA
     }
-    sSRXYXY$fireReturnInterval <- sSRXYXY$LTHRC
-    sSRXYXY@data <- sSRXYXY@data[, !(names(sSRXYXY) %in% "ECODISTRIC")]
-    sSRXYXY <- spTransform(sSRXYXY, crsSRXYXY)
-    sSRXYXY <- rgeos::gBuffer(sSRXYXY, byid = TRUE, width = 0)
-    sSubSRXYXY <- shpStudyRegionCreate(sSRXYXY, subSRNameXYXY = subSRNameXYXY,
-                                           crsSRXYXY = crsSRXYXY)
+    shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
+    shpStudyRegion@data <- shpStudyRegion@data[, !(names(shpStudyRegion) %in% "ECODISTRIC")]
+    shpStudyRegion <- spTransform(shpStudyRegion, crsStudyRegion)
+    shpStudyRegion <- rgeos::gBuffer(shpStudyRegion, byid = TRUE, width = 0)
+    sSubSRXYXY <- shpStudyRegionCreate(shpStudyRegion, subStudyRegionName = subStudyRegionName,
+                                           crsStudyRegion = crsStudyRegion)
   }
-  list(sSubSRXYXY = sSubSRXYXY, sSRXYXY = sSRXYXY)
+  list(sSubSRXYXY = sSubSRXYXY, shpStudyRegion = shpStudyRegion)
 }
 
-shpStudyRegionCreate <- function(sSRXYXY, subSRNameXYXY, crsSRXYXY) {
+shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyRegion) {
   canadaAdminNames <- c(BC = "British Columbia",
                         AB = "Alberta",
                         SK = "Saskatchewan",
                         MB = "Manitoba")
   canadaAdminNamesAll <- c(names(canadaAdminNames), canadaAdminNames)
 
-  if (!("FULL" %in% subSRNameXYXY)) {
-    if ("NWT" %in% subSRNameXYXY) {
-      sSRLFLTXYXY <- spTransform(sSRXYXY, SpaDES.shiny::proj4stringLFLT)
-      ext <- extent(sSRLFLTXYXY)
+  if (!("FULL" %in% subStudyRegionName)) {
+    if ("NWT" %in% subStudyRegionName) {
+      shpStudyRegionLFLT <- spTransform(shpStudyRegion, SpaDES.shiny::proj4stringLFLT)
+      ext <- extent(shpStudyRegionLFLT)
       ext@ymin <- 60
-      sSRNWTXYXY <- crop(sSRLFLTXYXY, ext)
-      sSubSRXYXY <- spTransform(sSRNWTXYXY, crs(sSRXYXY))
+      shpStudyRegionNWT <- crop(shpStudyRegionLFLT, ext)
+      sSubSRXYXY <- spTransform(shpStudyRegionNWT, crs(shpStudyRegion))
       sSubSRXYXY <- rgeos::gBuffer(sSubSRXYXY, width = 0, byid = TRUE)
-    } else if (any(subSRNameXYXY %in% canadaAdminNamesAll)) {
+    } else if (any(subStudyRegionName %in% canadaAdminNamesAll)) {
       canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
                          cacheRepo = paths$cachePath, userTags = "stable")
-      subSRNameXYXY <- canadaAdminNames[canadaAdminNames %in% subSRNameXYXY |
-                                      names(canadaAdminNames) %in% subSRNameXYXY]
-      inputMapPolygon <- spTransform(canadaMap[canadaMap$NAME_1 %in% subSRNameXYXY,], crsSRXYXY)
-      aa <- sf::st_intersection(sf::st_as_sf(sSRXYXY), sf::st_as_sf(inputMapPolygon))
+      subStudyRegionName <- canadaAdminNames[canadaAdminNames %in% subStudyRegionName |
+                                      names(canadaAdminNames) %in% subStudyRegionName]
+      inputMapPolygon <- spTransform(canadaMap[canadaMap$NAME_1 %in% subStudyRegionName,], crsStudyRegion)
+      aa <- sf::st_intersection(sf::st_as_sf(shpStudyRegion), sf::st_as_sf(inputMapPolygon))
       sSubSRXYXY <- as(aa, "Spatial")
 
     } else {
       set.seed(853839)#set.seed(5567913)
-      if ("SMALL" %in% subSRNameXYXY) {
+      if ("SMALL" %in% subStudyRegionName) {
         areaKm2 <- 10000#700000#2000#600000#too big for laptop
-      } else if ("VERYSMALL" %in% subSRNameXYXY) {
+      } else if ("VERYSMALL" %in% subStudyRegionName) {
         areaKm2 <- 3000 #700000#2000#600000#too big for laptop
-      } else if ("MEDIUM" %in% subSRNameXYXY) {
+      } else if ("MEDIUM" %in% subStudyRegionName) {
         areaKm2 <- 40000 #700000#2000#600000#too big for laptop
-      } else if ("LARGE" %in% subSRNameXYXY) {
+      } else if ("LARGE" %in% subStudyRegionName) {
         areaKm2 <- 80000 #700000#2000#600000#too big for laptop
-      } else if ("VERYLARGE" %in% subSRNameXYXY) {
+      } else if ("VERYLARGE" %in% subStudyRegionName) {
         areaKm2 <- 180000 #700000#2000#600000#too big for laptop
       }
 
@@ -116,15 +116,15 @@ shpStudyRegionCreate <- function(sSRXYXY, subSRNameXYXY, crsSRXYXY) {
       Sr1 <- Polygon(cbind(X + xAdd, Y + yAdd))
       Srs1 <- Polygons(list(Sr1), "s1")
       inputMapPolygon <- SpatialPolygons(list(Srs1), 1L)
-      crs(inputMapPolygon) <- crsSRXYXY
-      sSubSRXYXY <- raster::intersect(sSRXYXY, inputMapPolygon)
+      crs(inputMapPolygon) <- crsStudyRegion
+      sSubSRXYXY <- raster::intersect(shpStudyRegion, inputMapPolygon)
       options("digits.secs" = 7)
       on.exit(options("digits.secs" = NULL))
       set.seed(as.numeric(format(Sys.time(), format = "%OS")))
 
     }
   } else {
-    sSubSRXYXY <- sSRXYXY
+    sSubSRXYXY <- shpStudyRegion
   }
 
   return(sSubSRXYXY)
