@@ -2,6 +2,7 @@
 #    THIS MEANS that any values of objects will be OK and will trigger a cached return
 #    Only shpStudySubRegion and non-object arguments to simInit will make a new run
 guaranteedRun <- ifelse(any(c("emcintir") %in% Sys.info()["user"]), TRUE, FALSE)
+guaranteedRun <- FALSE
 
 experimentReps <- reactive({
   1 # Currently, only using 1 -- more than 1 may not work
