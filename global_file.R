@@ -177,6 +177,8 @@ reportingPolygonsProprietary <- Cache(createReportingPolygons,
                                       c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
                                       shpStudyRegion = shpStudyRegion,
                                       shpSubStudyRegion = sSubSRXYXY)
+reportingPolygons <- reportingPolygonsFree
+reportingPolygons[names(reportingPolygonsProprietary)] <- reportingPolygonsProprietary
 
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
@@ -185,3 +187,88 @@ CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType"
 rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
                                  url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                                  dPath = dPath)
+
+#############################
+
+
+mySimOut_postExptFn <- function(mySimOut) {
+  for (simNum in seq_along(mySimOut)) {
+    mySimOut[[simNum]]@outputs$file <- lapply(
+      strsplit(outputs(mySimOut[[simNum]])$file,
+               split = paste0(outputPath(mySimOut[[simNum]]), "[\\/]+")),
+      function(f) {
+        f[[2]]
+      }) %>%
+      unlist() %>%
+      file.path(outputPath(mySimOut[[simNum]]), .)
+  }
+  mySimOut
+}
+mySimOut_postExptFree <- mySimOut_postExptFn(mySimOutFree)
+mySimOut_postExptProprietary <- mySimOut_postExptFn(mySimOutProprietary)
+
+rastersFromOutputsFree <- lapply(seq_along(mySimOut_postExptFree), function(x) {
+  grep(pattern = ".grd$|.tif$", outputs(mySimOut_postExptFree[[x]])$file, value = TRUE)
+}) %>% unlist()
+
+rastersFromOutputsProprietary <- lapply(seq_along(mySimOut_postExptProprietary), function(x) {
+  grep(pattern = ".grd$|.tif$", outputs(mySimOut_postExptProprietary[[x]])$file, value = TRUE)
+}) %>% unlist()
+
+tsfFree <- grep(pattern = "rstTimeSinceFire", rastersFromOutputsFree, value = TRUE)
+tsfProprietary <- grep(pattern = "rstTimeSinceFire", rastersFromOutputsProprietary, value = TRUE)
+vtmFree <- grep(pattern = "vegTypeMap", rastersFromOutputsFree, value = TRUE)
+vtmProprietary <- grep(pattern = "vegTypeMap", rastersFromOutputsProprietary, value = TRUE)
+
+lfltFNFree <- gsub(tsfFree, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
+lfltFNProprietary <- gsub(tsfProprietary, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
+
+
+rasterResolutionFree <- raster::raster(tsfFree[1]) %>% res()
+rasterResolutionProprietary <- raster::raster(tsfProprietary[1]) %>% res()
+
+globalRastersFree <- 
+  Cache(reprojectRasts, lapply(tsf(), asPath), lfltFN(), sp::CRS(SpaDES.shiny::proj4stringLFLT),
+        flammableFile = asPath(file.path(outputPath(mySim()), "rstFlammable.grd")),
+        cacheRepo = cachePath(mySim()))
+
+globalRastersProprietary <- 
+  Cache(reprojectRasts, lapply(tsf(), asPath), lfltFN(), sp::CRS(SpaDES.shiny::proj4stringLFLT),
+        flammableFile = asPath(file.path(outputPath(mySim()), "rstFlammable.grd")),
+        cacheRepo = cachePath(mySim()))
+
+leading <- function(tsf, vtm, poly, cachePath) {
+  message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
+  args <- list(leadingByStage, tsf, vtm,
+               polygonToSummarizeBy = poly, 
+               cl = if (exists("cl")) cl,
+               omitArgs = "cl",
+               ageClasses = ageClasses, cacheRepo = cachePath)
+  args <- args[!unlist(lapply(args, is.null))]
+  out <- do.call(Cache, args)
+  rm(args)
+  out
+}
+
+leadingMultiPolygons <- function(reportingPolygons, tsf, vtm, cachePath) {
+  lapply(lapply(reportingPolygons, function(p) p$crsSR), function(poly) {
+    leading(tsf, vtm, poly, cachePath)
+  })
+}
+leadingFree <- leadingMultiPolygons(reportingPolygonsFree, tsfFree, 
+                                    vtmFree, cachePathFree)
+
+leadingProprietary <- 
+  leadingMultiPolygons(reportingPolygonsProprietary, tsfProprietary, 
+                                    vtmProprietary, cachePathProprietary)
+
+
+polygonsWithData <- reactive({
+  #  leading()[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
+})
+
+
+#############################
+
+
+
