@@ -1,4 +1,4 @@
-
+## logged in and autheticated users can see the proprietary model outputs
 modelType <- reactive({
   if (session$userData$userAuthorized()) {
     "Proprietary"
