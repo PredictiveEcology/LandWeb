@@ -388,14 +388,15 @@ extractFilepaths <- function(filename, rastersFromOutput) {
   grep(pattern = filename, rastersFromOutput, value = TRUE)
 }
 tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
-  extractFilepaths("rstTimeSinceFire", rastersFromOutput)
+  asPath(extractFilepaths("rstTimeSinceFire", rastersFromOutput))
 })
 
 vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
-  extractFilepaths("vegTypeMap", rastersFromOutput)
+  asPath(extractFilepaths("vegTypeMap", rastersFromOutput))
 })
 
 tsfLFLTFilenames <- lapply(tsfs, function(tsf) SpaDES.core::.suffix(tsf, "LFLT") )
+vtmLFLTFilenames <- lapply(vtms, function(vtm) SpaDES.core::.suffix(vtm, "LFLT") )
 
 rasterResolutions <- lapply(tsfs, function(x) raster(x[1]) %>% res(.))
 
@@ -403,11 +404,35 @@ flammableFiles <- lapply(mySimOuts, function(mySimOut) {
   asPath(file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd"))
 })
 
-tsfRasters <- emptyList
+#tsfRasters <- emptyList
 tsfRasters <- Cache(parallel::clusterMap, cl = cl, tsf = tsfs, 
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)),
                     SIMPLIFY = FALSE)
+
+tsfRasterTilePaths <- Cache(mapply, rst = tsfRasters, modelType = names(tsfRasters), 
+       MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
+       function(rst, modelType, zoomRange, colorTableFile) {
+         outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
+         filenames <- gdal2Tiles(rst, outputPath = outputPath, 
+                      zoomRange = zoomRange, colorTableFile = colorTableFile)  
+         return(filenames)
+       })
+
+if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
+  vtmRasters <- Cache(parallel::clusterMap, cl = cl, tsf = vtms, 
+                      lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
+                      reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)),
+                      SIMPLIFY = FALSE)
+  vtmRasterTilePaths <- mapply(rst = vtmRasters, modelType = names(vtmRasters), 
+                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
+                               function(rst, modelType, zoomRange, colorTableFile) {
+                                 outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
+                                 filenames <- gdal2Tiles(rst, outputPath = outputPath, 
+                                                         zoomRange = zoomRange, colorTableFile = colorTableFile)  
+                                 return(filenames)
+                               })
+}
 
 # leading <- function(tsf, vtm, poly, cl = NULL) {
 #   
@@ -424,7 +449,6 @@ tsfRasters <- Cache(parallel::clusterMap, cl = cl, tsf = tsfs,
 
 leadingMultiPolygons <- function(reportingPolygon, tsf, vtm, cl, ageClasses, ageClassCutOffs) {
   reportingPolysWOStudyArea <- reportingPolygon[-which(names(reportingPolygon)=="LandWeb Study Area")]
-  
   lapply(lapply(reportingPolysWOStudyArea, function(p) p$crsSR), function(poly) {
     message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
     Cache(leadingByStage, timeSinceFireFiles = asPath(tsf), 
@@ -435,26 +459,27 @@ leadingMultiPolygons <- function(reportingPolygon, tsf, vtm, cl, ageClasses, age
 }
 
 
-leading <- mapply(#cl = cl, 
+leading <- Cache(mapply, #cl = cl, 
   reportingPolygon = reportingPolygons, tsf = tsfs, vtm = vtms, 
   MoreArgs = list(cl = TRUE, ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs),
   leadingMultiPolygons)
 
-
 #########################
 
-polygonsWithData <- lapply(leading, function(polyWData) {
-  lapply(polyWData, function(dt) {
-    dt[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
+if (FALSE) {
+  polygonsWithData <- lapply(leading, function(polyWData) {
+    lapply(polyWData, function(dt) {
+      dt[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
+    })
   })
-})
-
-#  vegLeadingTypes NEEDED?
-
-vegLeadingTypesWithAllSpecies <- lapply(leading, function(polyWData) {
-  lapply(polyWData, function(dt) {
-    c(unique(dt$vegType), "All species")
+  
+  #  vegLeadingTypes NEEDED?
+  
+  vegLeadingTypesWithAllSpecies <- lapply(leading, function(polyWData) {
+    lapply(polyWData, function(dt) {
+      c(unique(dt$vegType), "All species")
+    })
   })
-})
-
+}
 #############################
+
