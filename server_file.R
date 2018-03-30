@@ -1,21 +1,17 @@
 
-
-## paths for sim
-rctCPath <- reactive({
+modelType <- reactive({
   if (session$userData$userAuthorized()) {
-    file.path("cache", paste0(subStudyRegionName, "_AUTH"))
+    "Proprietary"
   } else {
-    file.path("cache", paste0(subStudyRegionName))
-  }
-})
-
-## list of polygons to use for simulation and app
-rctReportingPolygons <- reactive({
-  if (session$userData$userAuthorized()) {
-    reportingPolygonsFree[names(reportingPolygonsProprietary)] <- reportingPolygonsProprietary
-  } else {
-    reportingPolygonsFree
+    "Free"
   }
 })
 
 
+rctTsf <- reactive(tsf[[modelType]])
+
+rctRasterList <- reactive(tsfRasters[[modelType]])
+
+rctPolygonList <- reactive(reportingPolygons[[modelType]])
+
+rctSim <- reactive(mySimOuts[[modelType]][[1]])
