@@ -14,10 +14,11 @@ function(input, output, session) {
                                 rctPolygonList = rctPolygonList,
                                 shpStudyRegionName = "LandWeb Study Area",
                                 defaultPolyName = NULL,
-                                colorTable = colorTableFile, palette = timeSinceFirePalette,
+                                colorTable = colorTableFile,
+                                palette = timeSinceFirePalette,
                                 mapLegend = paste0("Time since fire", br(), "(years)"),
-                                maxAge = maxAge, zoom = 5, rctSim = rctSim,
-                                nPolygons = 1, nRasters = length(rctTsf()))
+                                maxAge = maxAge, zoom = 5, nPolygons = 1,
+                                nRasters = length(rctTsf()))
 
   callModule(largePatches, "largePatches", polygonList = reportingPolygons,   ## TODO: write this with generator
              chosenPolyName = chosenPolyName(), tsf = tsf(), vtm = vtm(), cl = NULL,
