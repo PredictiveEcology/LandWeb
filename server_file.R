@@ -7,11 +7,11 @@ modelType <- reactive({
   }
 })
 
-rctTsf <- reactive(tsfs[[modelType]])
-rctVtm <- reactive(vtms[[modelType]])
+rctTsf <- reactive(tsfs[[modelType()]])
+rctVtm <- reactive(vtms[[modelType()]])
 
-rctRasterList <- reactive(tsfRasters[[modelType]])
+rctRasterList <- reactive(tsfRasters[[modelType()]])
 
-rctPolygonList <- reactive(reportingPolygons[[modelType]])
+rctPolygonList <- reactive(reportingPolygons[[modelType()]])
 
-rctSim <- reactive(mySimOuts[[modelType]][[1]])
+rctSim <- reactive(mySimOuts[[modelType()]][[1]])
