@@ -458,6 +458,3 @@ vegLeadingTypesWithAllSpecies <- lapply(leading, function(polyWData) {
 })
 
 #############################
-
-
-
