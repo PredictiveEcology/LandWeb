@@ -83,9 +83,17 @@ outputs4sim <- reactive({
 ## paths for sim
 cpath <- reactive({
   if (session$userData$userAuthorized()) {
-    paste0("appCache", subStudyRegionName, "_AUTH")
+    file.path("cache", paste0(subStudyRegionName, "_AUTH"))
   } else {
-    paste0("appCache", subStudyRegionName)
+    file.path("cache", paste0(subStudyRegionName))
+  }
+})
+
+opath <- reactive({
+  if (session$userData$userAuthorized()) {
+    file.path("outputs", paste0(subStudyRegionName, "_AUTH"))
+  } else {
+    file.path("outputs", paste0(subStudyRegionName))
   }
 })
 
@@ -99,14 +107,14 @@ paths4sim <- reactive({
     cachePath = cpath(),
     modulePath = "m",
     inputPath = "inputs",
-    outputPath = paste0("outputs", subStudyRegionName)
+    outputPath = opath()
   )
 })
 
 seed <- sample(1e8, 1)
 
 ## list of polygons to use for simulation and app
-reportingPolygons <- reactive({
+rctReportingPolygons <- reactive({
   if (session$userData$userAuthorized()) {
     reportingPolygonsFree[names(reportingPolygonsProprietary)] <- reportingPolygonsProprietary
   } else {
