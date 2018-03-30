@@ -5,24 +5,15 @@ function(input, output, session) {
   ## run additonal server code from server_file.R
   if (file.exists("server_file.R")) source("server_file.R", local = TRUE)
 
-  # simulation initialization
-  mySim <- callModule(spades_simInit, "sim_init",
-                      times = times4sim(),
-                      params = parameters4sim(),
-                      modules = modules4sim(),
-                      outputs = outputs4sim(),
-                      objects = objects4sim(),
-                      paths = paths4sim(),
-                      loadOrder = unlist(modules4sim()))
-
-  ## pre-experiment customizations
-  if (file.exists("pre_experiment.R")) source("pre_experiment.R", local = TRUE)
-
-  # run the simulation experiment
-  mySimOut <- callModule(spades_expt, "sim_expt", sim = mySim,
-                         reps = experimentReps, seed = seed,
-                         objectsToHash = objectsToHash, cacheDebug = debugCache)
-
+  # simulation initialization now in global.R (pre run all simulations)
+  mySimOut <- reactive({
+      if (session$userData$userAuthorized()) {
+        mySimOuts$Proprietary
+      } else {
+        mySimOuts$Free
+      }
+    })
+  
   ## post-experiment customizations
   if (file.exists("post_experiment.R")) source("post_experiment.R", local = TRUE)
 

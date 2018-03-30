@@ -77,11 +77,11 @@ polygonsWithData <- reactive({
 })
 
 vegLeadingTypes <- reactive({
-  c(unique(leading()$vegType))
+#  c(unique(leading()$vegType))
 })
 
 vegLeadingTypesWithAllSpecies <- reactive({
-  c(vegLeadingTypes(), "All species")
+#  c(vegLeadingTypes(), "All species")
 })
 
 message("  Finished post_experiment.R")
