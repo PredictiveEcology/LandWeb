@@ -13,7 +13,7 @@ function(input, output, session) {
         mySimOuts$Free
       }
     })
-  
+
   ## post-experiment customizations
   if (file.exists("post_experiment.R")) source("post_experiment.R", local = TRUE)
 
@@ -21,7 +21,8 @@ function(input, output, session) {
   callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
 
   # TODO: update generator to handle this assignment
-  chosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire", rasterList = globalRasters(),
+  chosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",
+                                rasterList = globalRasters(),
                                 rctPolygonList = rctReportingPolygons,
                                 shpStudyRegionName = "LandWeb Study Area",
                                 defaultPolyName = NULL,
