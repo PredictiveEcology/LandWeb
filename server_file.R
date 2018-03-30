@@ -7,8 +7,8 @@ modelType <- reactive({
   }
 })
 
-
-rctTsf <- reactive(tsf[[modelType]])
+rctTsf <- reactive(tsfs[[modelType]])
+rctVtm <- reactive(vtms[[modelType]])
 
 rctRasterList <- reactive(tsfRasters[[modelType]])
 

@@ -20,10 +20,9 @@ function(input, output, session) {
                                 maxAge = maxAge, zoom = 5, nPolygons = 1,
                                 nRasters = length(rctTsf()))
 
-  callModule(largePatches, "largePatches", polygonList = reportingPolygons,   ## TODO: write this with generator
-             chosenPolyName = chosenPolyName(), tsf = tsf(), vtm = vtm(), cl = NULL,
-             ageClasses = ageClasses, cachePath = cachePath(mySim()),
-             FUN = largePatchesFn, nPatchesFun = countNumPatches)
+  callModule(largePatches, "largePatches", polygonList = rctPolygonList(),   ## TODO: write this with generator
+             chosenPolyName = chosenPolyName(), tsf = rctTsf(), vtm = rctVtm(), cl = NULL,
+             ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
   callModule(simInfo, "simInfo", mySimOut()[[1]])
   callModule(moduleInfo, "moduleInfo", mySimOut()[[1]])
   callModule(inputTables, "inputTables")
