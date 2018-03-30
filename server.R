@@ -9,8 +9,8 @@ function(input, output, session) {
   callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
 
   # TODO: update generator to handle this assignment
-  chosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire", 
-                                rctRasterList = rctRasterList,
+  chosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",
+                                rasterList = rctRasterList(),
                                 rctPolygonList = rctPolygonList,
                                 shpStudyRegionName = "LandWeb Study Area",
                                 defaultPolyName = NULL,
