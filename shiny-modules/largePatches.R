@@ -103,9 +103,10 @@ largePatchesUI <- function(id) {
   )
 }
 
-#' @param input    Shiny server input object.
-#' @param output   Shiny server output object.
-#' @param session  Shiny server session object.
+#' @param input           Shiny server input object.
+#' @param output          Shiny server output object.
+#' @param session         Shiny server session object.
+#' @param polygonList      List of polygons for stuff # TODO: improve description
 #' @param chosenPolyName  The name of the selected polygon.
 #' @param nSimTimes  How many simulation time stamps there are.
 #'
@@ -119,14 +120,15 @@ largePatchesUI <- function(id) {
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
-largePatches <- function(session, input, output, polygonList, chosenPolyName,
+largePatches <- function(input, output, session, polygonList, chosenPolyName = NULL,
                          tsf, vtm, cl = NULL, ageClasses, cachePath, FUN, nPatchesFun) { # TODO: add docs above
 
   clumpMod2Args <- reactive({
-    req(polygonList, chosenPolyName, tsf, vtm)
+    if (is.null(chosenPolyName)) chosenPolyName <- names(polygonList)[1]
 
     ## TODO: add assertions for other args
-    assertthat::assert_that(is.list(polygonList()), is.character(chosenPolyName()))
+    assertthat::assert_that(is.list(polygonList), is.character(chosenPolyName),
+                            is.character(tsf), is.character(vtm))
 
     args <- list(
       currentPolygon = polygonList[[chosenPolyName]][["crsSR"]][["shpSubStudyRegion"]],
