@@ -31,7 +31,7 @@ function(input, output, session) {
 
   # TODO: update generator to handle this assignment
   chosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire", rasterList = globalRasters(),
-                                rctPolygonList = reportingPolygons,
+                                rctPolygonList = rctReportingPolygons,
                                 shpStudyRegionName = "LandWeb Study Area",
                                 defaultPolyName = NULL,
                                 colorTable = colorTableFile, palette = timeSinceFirePalette,
@@ -39,7 +39,7 @@ function(input, output, session) {
                                 maxAge = maxAge, zoom = 5, sim = mySimOut()[[1]],
                                 nPolygons = 1, nRasters = length(tsf()))
 
-  callModule(largePatches, "largePatches", polygonList = reportingPolygons(), ## TODO: write this with generator
+  callModule(largePatches, "largePatches", polygonList = rctReportingPolygons(),   ## TODO: write this with generator
              chosenPolyName = chosenPolyName(), tsf = tsf(), vtm = vtm(), cl = NULL,
              ageClasses = ageClasses, cachePath = cachePath(mySim()),
              FUN = largePatchesFn, nPatchesFun = countNumPatches)
