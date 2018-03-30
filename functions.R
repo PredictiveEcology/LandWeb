@@ -19,7 +19,7 @@ intersectListShps <- function(listShps, intersectShp) {
       }
       if (!identical(sf::st_crs(intersectSF), sf::st_crs(shpSF)))
         intersectSF <- Cache(sf::st_transform, intersectSF, crs = sf::st_crs(shpSF) )
-      out <- sf::st_intersection(shpSF, intersectSF)
+      out <- sf::st_intersection(st_geometry(shpSF), st_geometry(intersectSF))
       if(wasShp) {
         out <- as(out, "Spatial")
       }
@@ -41,22 +41,46 @@ intersectListShps <- function(listShps, intersectShp) {
 #'         each given age class within each polygon
 leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
                            polygonToSummarizeBy,
-                           ageCutoffs = ageClassCutOffs,  ageClasses, cl) {
-  if (missing(cl)) {
-    lapplyFn <- "lapply"
-  } else {
-    lapplyFn <- "parLapplyLB"
-    #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
-    if (Sys.info()[["sysname"]] == "Windows") {
-      clusterExport(cl = cl, varlist = list(ls()),
-                    envir = environment())
-      clusterEvalQ(cl = cl, {
-        library(raster)
-      })
+                           ageClassCutOffs,  ageClasses, cl) {
+  
+  lapplyFn <- "lapply"
+  if (!missing(cl)) { # not missing
+    if (!identical(cl, "FALSE")) { # is NOT FALSE
+      lapplyFn <- "parLapplyLB"
+      if (isTRUE(cl)) { # Is TRUE
+        if (detectCores() > 12) {
+          ncores <- min(length(timeSinceFireFiles), detectCores()/4)
+          message("making ", ncores, " node cluster")
+          if (Sys.info()[["sysname"]] == "Windows") {
+            cl <- makeCluster(ncores)  
+          } else {
+            cl <- makeForkCluster(ncores)  
+          }
+          on.exit({
+            message("Closing cores")
+            stopCluster(cl)
+            }
+          )
+        } else { # not enough clusters
+          break # not sure if this will work correctly
+        }
+      }
+      ## By here, it must be a cluster
+      #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
+      if (Sys.info()[["sysname"]] == "Windows") {
+        clusterExport(cl = cl, varlist = list(ls()),
+                      envir = environment())
+        clusterEvalQ(cl = cl, {
+          library(raster)
+        })
+      }
+      
     }
   }
-  out <- lapply(ageCutoffs, function(ages) {
-    y <- match(ages, ageCutoffs)
+ 
+
+  out <- lapply(ageClassCutOffs, function(ages) {
+    y <- match(ages, ageClassCutOffs)
     if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
       startList <- list(cl = cl)
     } else {
@@ -69,9 +93,9 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
         x <- match(x, timeSinceFireFiles)
         timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
         leadingRast <- raster(vegTypeMapFiles[x])
-        leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- 0
-        if ((y + 1) < length(ageCutoffs))
-          leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- 0
+        leadingRast[timeSinceFireFilesRast[] < ageClassCutOffs[y]] <- 0
+        if ((y + 1) < length(ageClassCutOffs))
+          leadingRast[timeSinceFireFilesRast[] >= ageClassCutOffs[y + 1]] <- 0
         leadingRast
       })))
     names(out1) <- gsub(paste(basename(dirname(timeSinceFireFiles)),
@@ -361,7 +385,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                                                   targetFile = asPath(ecodistrictFilename),
                                                   alsoExtract = ecodistrictFiles,
                                                   fun = "shapefile", destinationPath = dPath)
-    polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[cannonicalLayerNames[layerNamesIndex]]]$ZONE_NAME
+    polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[cannonicalLayerNames[layerNamesIndex]]]$ECODISTRIC
   }
 
   ## Polygons for report/shiny app
@@ -429,7 +453,6 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   polys <- Cache(lapply, polys, function(shp) {
     spTransform(shp, CRSobj = crsStudyRegion)
   }, userTags = "stable")
-
 
   # Make SubRegion
   polysSubRegion <- Cache(intersectListShps, polys, shpSubStudyRegion, userTags = "stable")

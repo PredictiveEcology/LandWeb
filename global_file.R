@@ -6,10 +6,10 @@ SpaDESPkgs <- c(
   "PredictiveEcology/SpaDES.shiny@generalize-modules",
   "raster"
 )
-shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
+shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster", "parallel",
                "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
-moduleRqdPkgs <- c("data.table", "dplyr", "ecohealthalliance/fasterize", "fpCompare",
+moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
                    "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr", "PredictiveEcology/quickPlot@development",
                    "PredictiveEcology/SpaDES.tools@development", "PredictiveEcology/SpaDES.tools@prepInputs",
                    "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible",
@@ -131,7 +131,7 @@ spEcoReg <- readRDS(file.path(paths$inputPath, "SpEcoReg.rds"))
 # crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
 #                         "+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
 crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
-                          "+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
+                            "+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
 
 studyRegionFilePath <- {
   studyRegionFilename <- if ("RIA" %in% subStudyRegionName) {
@@ -169,15 +169,15 @@ labelColumn <- "shinyLabel"
 message("Loading Reporting Polygons")
 reportingPolygons <- list()
 reportingPolygons$Free <- Cache(createReportingPolygons,
-                               c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
-                               shpStudyRegion = shpStudyRegion,
-                               shpSubStudyRegion = sSubSRXYXY)
+                                c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
+                                shpStudyRegion = shpStudyRegion,
+                                shpSubStudyRegion = sSubSRXYXY)
 
 
 tmpProprietary <- Cache(createReportingPolygons,
-                                      c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
-                                      shpStudyRegion = shpStudyRegion,
-                                      shpSubStudyRegion = sSubSRXYXY)
+                        c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
+                        shpStudyRegion = shpStudyRegion,
+                        shpSubStudyRegion = sSubSRXYXY)
 reportingPolygons$Proprietary <- reportingPolygons$Free
 reportingPolygons$Proprietary[names(tmpProprietary)] <- tmpProprietary
 rm(tmpProprietary)
@@ -210,9 +210,9 @@ times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
 
 modules4sim <- emptyList
 modules4sim$Free <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-                            "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+                         "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 modules4sim$Proprietary <- c(modules4sim$Free[1:4], "landWebProprietaryData", 
-                            modules4sim$Free[5:length(modules4sim$Free)])
+                             modules4sim$Free[5:length(modules4sim$Free)])
 
 objects4sim <- emptyList
 objects4sim <- lapply(objects4sim, function(x) 
@@ -304,13 +304,13 @@ oPaths <- mapply(pathFn, suffix = names(oPaths),
 paths4sim <- emptyList
 paths4sim <- mapply(cPath = cPaths, oPath = oPaths,  
                     function(cPath, oPath) {
-  list(
-    cachePath = cPath,
-    modulePath = "m",
-    inputPath = "inputs",
-    outputPath = oPath
-  )
-}, SIMPLIFY = FALSE)
+                      list(
+                        cachePath = cPath,
+                        modulePath = "m",
+                        inputPath = "inputs",
+                        outputPath = oPath
+                      )
+                    }, SIMPLIFY = FALSE)
 
 seed <- sample(1e8, 1)
 
@@ -321,10 +321,10 @@ mySims <- emptyList
 numCl <- min(length(emptyList), parallel::detectCores()/2)
 cl <- parallel::makeForkCluster(numCl, outfile = "outputs/log_cluster.txt")
 mySims <- parallel::clusterMap(cl = cl, simInit, times = times4sim, params = parameters4sim, 
-       modules = modules4sim, outputs = outputs4sim, 
-       objects = objects4sim, paths = paths4sim, loadOrder = lapply(modules4sim, unlist))
+                               modules = modules4sim, outputs = outputs4sim, 
+                               objects = objects4sim, paths = paths4sim, loadOrder = lapply(modules4sim, unlist))
 
-       
+
 ##### PRE experiment
 debugCache <- "complete"
 
@@ -373,7 +373,7 @@ message("    current seed is: ", seed)
 
 mySimOuts <- emptyList
 mySimOuts <- Cache(parallel::clusterMap, cl = cl, fun = runExperiment, sim = mySims, 
-                     nReps = experimentReps, objectsToHash = objectsToHash)
+                   nReps = experimentReps, objectsToHash = objectsToHash)
 message("  Finished Experiment.")
 ##### POST Experiment
 
@@ -409,46 +409,53 @@ tsfRasters <- Cache(parallel::clusterMap, cl = cl, tsf = tsfs,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)),
                     SIMPLIFY = FALSE)
 
-leading <- function(tsf, vtm, poly, cachePath) {
-  message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
-  args <- list(leadingByStage, tsf, vtm,
-               polygonToSummarizeBy = poly, 
-               cl = if (exists("cl")) cl,
-               omitArgs = "cl",
-               ageClasses = ageClasses, cacheRepo = cachePath)
-  args <- args[!unlist(lapply(args, is.null))]
-  out <- do.call(Cache, args)
-  rm(args)
-  out
-}
+# leading <- function(tsf, vtm, poly, cl = NULL) {
+#   
+#   args <- list(leadingByStage, tsf, vtm,
+#                polygonToSummarizeBy = poly, 
+#                cl = TRUE,
+#                omitArgs = "cl",
+#                ageClasses = ageClasses)
+#   args <- args[!unlist(lapply(args, is.null))]
+#   out <- do.call(Cache, args)
+#   rm(args)
+#   out
+# }
 
-leadingMultiPolygons <- function(reportingPolygons, tsf, vtm, cachePath) {
-  lapply(lapply(reportingPolygons, function(p) p$crsSR), function(poly) {
-    leading(tsf, vtm, poly, cachePath)
+leadingMultiPolygons <- function(reportingPolygon, tsf, vtm, cl, ageClasses, ageClassCutOffs) {
+  reportingPolysWOStudyArea <- reportingPolygon[-which(names(reportingPolygon)=="LandWeb Study Area")]
+  
+  lapply(lapply(reportingPolysWOStudyArea, function(p) p$crsSR), function(poly) {
+    message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
+    Cache(leadingByStage, timeSinceFireFiles = asPath(tsf), 
+          vegTypeMapFiles = asPath(vtm), 
+          polygonToSummarizeBy = poly$shpSubStudyRegion,
+          cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
   })
 }
-leadingFree <- leadingMultiPolygons(reportingPolygonsFree, tsfFree, 
-                                    vtmFree, cachePathFree)
-leadingProprietary <- 
-  leadingMultiPolygons(reportingPolygonsProprietary, tsfProprietary, 
-                                    vtmProprietary, cachePathProprietary)
 
 
-polygonsWithDataFree <- 
-  leadingFree[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
-
-polygonsWithDataProprietary <- 
-  leadingProprietary[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
-
-vegLeadingTypesFree <- c(unique(leadingFree$vegType))
-vegLeadingTypesProprietary <- c(unique(leadingProprietary$vegType))
-
-vegLeadingTypesWithAllSpeciesFree <- 
-  c(vegLeadingTypesFree, "All species")
-vegLeadingTypesWithAllSpeciesProprietary <- 
-  c(vegLeadingTypesProprietary, "All species")
+leading <- mapply(#cl = cl, 
+  reportingPolygon = reportingPolygons, tsf = tsfs, vtm = vtms, 
+  MoreArgs = list(cl = TRUE, ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs),
+  leadingMultiPolygons)
 
 
+#########################
+
+polygonsWithData <- lapply(leading, function(polyWData) {
+  lapply(polyWData, function(dt) {
+    dt[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
+  })
+})
+
+#  vegLeadingTypes NEEDED?
+
+vegLeadingTypesWithAllSpecies <- lapply(leading, function(polyWData) {
+  lapply(polyWData, function(dt) {
+    c(unique(dt$vegType), "All species")
+  })
+})
 
 #############################
 
