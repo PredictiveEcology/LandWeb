@@ -51,10 +51,10 @@ subStudyRegionName <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "M
 ##                however, in-app, the paths need to be set as reactive values for authentication!
 subStudyRegionNameCollapsed <- paste(subStudyRegionName, collapse = "_")
 paths <- list(
-  cachePath = file.path("cache", paste0("appCache", subStudyRegionNameCollapsed)),
+  cachePath = file.path("cache", paste0(subStudyRegionNameCollapsed)),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
-  outputPath = file.path("outputs", paste0("outputs", subStudyRegionNameCollapsed))
+  outputPath = file.path("outputs", paste0(subStudyRegionNameCollapsed))
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
@@ -167,18 +167,21 @@ labelColumn <- "shinyLabel"
 # formerly in mapsForShiny.R
 # Reporting polygons
 message("Loading Reporting Polygons")
-reportingPolygonsFree <- Cache(createReportingPolygons,
+reportingPolygons <- list()
+reportingPolygons$Free <- Cache(createReportingPolygons,
                                c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
                                shpStudyRegion = shpStudyRegion,
                                shpSubStudyRegion = sSubSRXYXY)
 
 
-reportingPolygonsProprietary <- Cache(createReportingPolygons,
+tmpProprietary <- Cache(createReportingPolygons,
                                       c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
                                       shpStudyRegion = shpStudyRegion,
                                       shpSubStudyRegion = sSubSRXYXY)
-reportingPolygons <- reportingPolygonsFree
-reportingPolygons[names(reportingPolygonsProprietary)] <- reportingPolygonsProprietary
+reportingPolygons$Proprietary <- reportingPolygons$Free
+reportingPolygons$Proprietary[names(tmpProprietary)] <- tmpProprietary
+rm(tmpProprietary)
+
 
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
@@ -190,52 +193,221 @@ rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
 
 #############################
 
+##### SERVER FILE.R
+emptyList <- list(Free = NULL, Proprietary = NULL)
+# THIS IS DANGEROUS, BUT NECESSARY FOR GUARANTEED RUNNING --
+#    THIS MEANS that any values of objects will be OK and will trigger a cached return
+#    Only shpStudySubRegion and non-object arguments to simInit will make a new run
+guaranteedRun <- ifelse(any(c("emcintir") %in% Sys.info()["user"]), TRUE, FALSE)
+guaranteedRun <- FALSE
 
-mySimOut_postExptFn <- function(mySimOut) {
-  for (simNum in seq_along(mySimOut)) {
-    mySimOut[[simNum]]@outputs$file <- lapply(
-      strsplit(outputs(mySimOut[[simNum]])$file,
-               split = paste0(outputPath(mySimOut[[simNum]]), "[\\/]+")),
+experimentReps <- emptyList
+experimentReps <- lapply(experimentReps, function(x) 1)
+
+# simInit objects
+times4sim <- emptyList
+times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
+
+modules4sim <- emptyList
+modules4sim$Free <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+                            "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+modules4sim$Proprietary <- c(modules4sim$Free[1:4], "landWebProprietaryData", 
+                            modules4sim$Free[5:length(modules4sim$Free)])
+
+objects4sim <- emptyList
+objects4sim <- lapply(objects4sim, function(x) 
+  list("shpStudyRegionFull" = shpStudyRegion,
+       "shpStudySubRegion" = sSubSRXYXY,
+       "summaryPeriod" = summaryPeriod,
+       "useParallel" = 2) 
+)
+
+
+parameters4sim <- emptyList
+parameters4sim <- lapply(parameters4sim, function(x) {
+  list(
+    LandWebOutput = list(summaryInterval = summaryInterval),
+    landWebDataPrep = list(.useCache = eventCaching),
+    landWebProprietaryData = list(.useCache = eventCaching),
+    Boreal_LBMRDataPrep = list(.useCache = eventCaching),
+    LandMine = list(biggestPossibleFireSizeHa = 5e5,
+                    fireTimestep = fireTimestep,
+                    burnInitialTime = fireTimestep,
+                    .plotInitialTime = NA,
+                    .useCache = eventCaching),
+    LBMR = list(successionTimestep = successionTimestep,
+                .plotInitialTime = times4sim$start,
+                .saveInitialTime = NA,
+                .useCache = eventCaching),
+    initBaseMaps = list(.useCache = eventCaching),
+    timeSinceFire = list(startTime = fireTimestep,
+                         .useCache = eventCaching),
+    fireDataPrep = list(.useCache = eventCaching)
+  )
+})
+
+
+outputs4simFn <- function(objects4sim, parameters4sim, times4sim, 
+                          objectNamesToSave) {
+  outputs <- data.frame(stringsAsFactors = FALSE,
+                        expand.grid(
+                          objectName = objectNamesToSave,#, "oldBigPatch"),
+                          saveTime = seq(objects4sim$summaryPeriod[1], objects4sim$summaryPeriod[2],
+                                         by = parameters4sim$LandWebOutput$summaryInterval)),
+                        fun = "writeRaster", package = "raster",
+                        file = paste0(objectNamesToSave, c(".tif", ".grd")))
+  
+  outputs2 <- data.frame(stringsAsFactors = FALSE,
+                         expand.grid(objectName = c("simulationOutput"), saveTime = times4sim$end),
+                         fun = "saveRDS",
+                         package = "base")
+  
+  outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
+                                  list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
+                             times = NROW(outputs) / length(objectNamesToSave)))
+  
+  outputs3 <- data.frame(stringsAsFactors = FALSE,
+                         objectName = "rstFlammable",
+                         saveTime = times4sim$end, fun = "writeRaster", package = "raster",
+                         arguments = I(list(list(overwrite = TRUE, progress = FALSE,
+                                                 datatype = "INT2U", format = "raster"))))
+  
+  as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
+}
+objectNamesToSave <- emptyList
+objectNamesToSave <- lapply(objectNamesToSave, function(x) {
+  c("rstTimeSinceFire", "vegTypeMap")
+})
+
+outputs4sim <- mapply(objects4sim = objects4sim,
+                      parameters4sim = parameters4sim,
+                      times4sim = times4sim,
+                      objectNamesToSave = objectNamesToSave,
+                      outputs4simFn, SIMPLIFY = FALSE
+)
+
+## paths for sim
+pathFn <- function(pathType, basename, suffix) {
+  file.path(pathType, paste0(basename, "_", suffix))
+}
+
+cPaths <- emptyList
+cPaths <- mapply(pathFn, suffix = names(cPaths),  
+                 MoreArgs = list(basename = subStudyRegionName, pathType = "cache"), 
+                 SIMPLIFY = FALSE)
+
+oPaths <- emptyList
+oPaths <- mapply(pathFn, suffix = names(oPaths),  
+                 MoreArgs = list(basename = subStudyRegionName, pathType = "outputs"), 
+                 SIMPLIFY = FALSE)
+
+paths4sim <- emptyList
+paths4sim <- mapply(cPath = cPaths, oPath = oPaths,  
+                    function(cPath, oPath) {
+  list(
+    cachePath = cPath,
+    modulePath = "m",
+    inputPath = "inputs",
+    outputPath = oPath
+  )
+}, SIMPLIFY = FALSE)
+
+seed <- sample(1e8, 1)
+
+######## SimInit
+
+
+mySims <- emptyList
+numCl <- min(length(emptyList), parallel::detectCores()/2)
+cl <- parallel::makeForkCluster(numCl, outfile = "outputs/log_cluster.txt")
+mySims <- parallel::clusterMap(cl = cl, simInit, times = times4sim, params = parameters4sim, 
+       modules = modules4sim, outputs = outputs4sim, 
+       objects = objects4sim, paths = paths4sim, loadOrder = lapply(modules4sim, unlist))
+
+       
+##### PRE experiment
+debugCache <- "complete"
+
+objectsToHash <- emptyList
+objectsToHash <- mapply(mySim = mySims, objectsToHash = objectsToHash, 
+                        MoreArgs = list(guaranteedRun = guaranteedRun),
+                        FUN = function(mySim, objectsToHash, guaranteedRun) {
+                          if (guaranteedRun) {
+                            "shpStudySubRegion" # basically only cache on non-.envir objects plus study area
+                          } else {
+                            grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
+                          }
+                          
+                        }
+) 
+
+#########################################
+# run the simulation experiment
+runExperiment <- function(sim, nReps, objectsToHash = "") {
+  args <- list(experiment, sim, replicates = nReps,
+               objects = objectsToHash,
+               .plotInitialTime = NA,
+               clearSimEnv = TRUE,
+               omitArgs = c("debug", ".plotInitialTime"))
+  args <- args[!unlist(lapply(args, is.null))]
+  simOut <- do.call(Cache, args)
+  message(attr(simOut, "tags"))
+  
+  for (simNum in seq_along(simOut)) {
+    simOut[[simNum]]@outputs$file <- lapply(
+      strsplit(outputs(simOut[[simNum]])$file,
+               split = paste0(outputPath(simOut[[simNum]]), "[\\/]+")),
       function(f) {
         f[[2]]
       }) %>%
       unlist() %>%
-      file.path(outputPath(mySimOut[[simNum]]), .)
+      file.path(outputPath(simOut[[simNum]]), .)
   }
-  mySimOut
+  simOut
 }
-mySimOut_postExptFree <- mySimOut_postExptFn(mySimOutFree)
-mySimOut_postExptProprietary <- mySimOut_postExptFn(mySimOutProprietary)
 
-rastersFromOutputsFree <- lapply(seq_along(mySimOut_postExptFree), function(x) {
-  grep(pattern = ".grd$|.tif$", outputs(mySimOut_postExptFree[[x]])$file, value = TRUE)
-}) %>% unlist()
+message("  Starting Experiment...")
 
-rastersFromOutputsProprietary <- lapply(seq_along(mySimOut_postExptProprietary), function(x) {
-  grep(pattern = ".grd$|.tif$", outputs(mySimOut_postExptProprietary[[x]])$file, value = TRUE)
-}) %>% unlist()
+set.seed(seed)
+message("    current seed is: ", seed)
 
-tsfFree <- grep(pattern = "rstTimeSinceFire", rastersFromOutputsFree, value = TRUE)
-tsfProprietary <- grep(pattern = "rstTimeSinceFire", rastersFromOutputsProprietary, value = TRUE)
-vtmFree <- grep(pattern = "vegTypeMap", rastersFromOutputsFree, value = TRUE)
-vtmProprietary <- grep(pattern = "vegTypeMap", rastersFromOutputsProprietary, value = TRUE)
+mySimOuts <- emptyList
+mySimOuts <- Cache(parallel::clusterMap, cl = cl, fun = runExperiment, sim = mySims, 
+                     nReps = experimentReps, objectsToHash = objectsToHash)
+message("  Finished Experiment.")
+##### POST Experiment
 
-lfltFNFree <- gsub(tsfFree, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
-lfltFNProprietary <- gsub(tsfProprietary, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
+rastersFromOutputs <- emptyList
+rastersFromOutputs <- lapply(mySimOuts, function(mySimOut) {
+  lapply(seq_along(mySimOut), function(x) {
+    grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
+  }) %>% unlist()
+})
 
+extractFilepaths <- function(filename, rastersFromOutput) {
+  grep(pattern = filename, rastersFromOutput, value = TRUE)
+}
+tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
+  extractFilepaths("rstTimeSinceFire", rastersFromOutput)
+})
 
-rasterResolutionFree <- raster::raster(tsfFree[1]) %>% res()
-rasterResolutionProprietary <- raster::raster(tsfProprietary[1]) %>% res()
+vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
+  extractFilepaths("vegTypeMap", rastersFromOutput)
+})
 
-globalRastersFree <- 
-  Cache(reprojectRasts, lapply(tsf(), asPath), lfltFN(), sp::CRS(SpaDES.shiny::proj4stringLFLT),
-        flammableFile = asPath(file.path(outputPath(mySim()), "rstFlammable.grd")),
-        cacheRepo = cachePath(mySim()))
+tsfLFLTFilenames <- lapply(tsfs, function(tsf) SpaDES.core::.suffix(tsf, "LFLT") )
 
-globalRastersProprietary <- 
-  Cache(reprojectRasts, lapply(tsf(), asPath), lfltFN(), sp::CRS(SpaDES.shiny::proj4stringLFLT),
-        flammableFile = asPath(file.path(outputPath(mySim()), "rstFlammable.grd")),
-        cacheRepo = cachePath(mySim()))
+rasterResolutions <- lapply(tsfs, function(x) raster(x[1]) %>% res(.))
+
+flammableFiles <- lapply(mySimOuts, function(mySimOut) {
+  asPath(file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd"))
+})
+
+tsfRasters <- emptyList
+tsfRasters <- Cache(parallel::clusterMap, cl = cl, tsf = tsfs, 
+                    lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
+                    reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)),
+                    SIMPLIFY = FALSE)
 
 leading <- function(tsf, vtm, poly, cachePath) {
   message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
@@ -257,15 +429,25 @@ leadingMultiPolygons <- function(reportingPolygons, tsf, vtm, cachePath) {
 }
 leadingFree <- leadingMultiPolygons(reportingPolygonsFree, tsfFree, 
                                     vtmFree, cachePathFree)
-
 leadingProprietary <- 
   leadingMultiPolygons(reportingPolygonsProprietary, tsfProprietary, 
                                     vtmProprietary, cachePathProprietary)
 
 
-polygonsWithData <- reactive({
-  #  leading()[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
-})
+polygonsWithDataFree <- 
+  leadingFree[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
+
+polygonsWithDataProprietary <- 
+  leadingProprietary[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
+
+vegLeadingTypesFree <- c(unique(leadingFree$vegType))
+vegLeadingTypesProprietary <- c(unique(leadingProprietary$vegType))
+
+vegLeadingTypesWithAllSpeciesFree <- 
+  c(vegLeadingTypesFree, "All species")
+vegLeadingTypesWithAllSpeciesProprietary <- 
+  c(vegLeadingTypesProprietary, "All species")
+
 
 
 #############################

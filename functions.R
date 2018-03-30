@@ -157,18 +157,28 @@ cellNumbersForPolygon <- function(dummyRaster, Polygon) {
 }
 
 reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
-  message("Reprojecting rasters & loading into RAM")
+  message("Reprojecting rasters, filling in minimum age, saving to disk")
   rstFlammableNum <- raster(flammableFile)
   rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs, method = "ngb")
   globalRasts <- lapply(seq_along(tsf), function(FN) {
     r <- raster(tsf[[FN]])
+    # gdalwarp(srcfile = filename(r), dstfile = lfltFN[FN], s_srs = crs(r),
+    #          t_srs = crs, r = "near", 
+    #          te = c(xmin(rstFlammableNum), ymin(rstFlammableNum),
+    #                 xmax(rstFlammableNum), ymax(rstFlammableNum)),
+    #          tr = res(rstFlammableNum),
+    #          overwrite = TRUE
+    # )
+    # r2 <- raster(lfltFN[FN])
+    # r2 <- setMinMax(r2)
+    # r2[] <- r2[]
     r <- projectRaster(r, crs = crs, method = "ngb", datatype = "INT2U")
     minAge <- as.numeric(strsplit(strsplit(tsf[[1]], split = "year")[[1]][2], split = "\\.tif")[[1]])
     r[is.na(r) & (rstFlammableNum == 0)] <- minAge
     r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE, datatype = "INT2U")
     r
   })
-  message("  Finished reprojecting rasters & loading into RAM")
+  message("  Finished reprojecting rasters")
   globalRasts
 }
 
