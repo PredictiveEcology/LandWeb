@@ -5,33 +5,21 @@ function(input, output, session) {
   ## run additonal server code from server_file.R
   if (file.exists("server_file.R")) source("server_file.R", local = TRUE)
 
-  # simulation initialization now in global.R (pre run all simulations)
-  mySimOut <- reactive({
-      if (session$userData$userAuthorized()) {
-        mySimOuts$Proprietary
-      } else {
-        mySimOuts$Free
-      }
-    })
-
-  ## post-experiment customizations
-  if (file.exists("post_experiment.R")) source("post_experiment.R", local = TRUE)
-
   ## module calls
   callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
 
   # TODO: update generator to handle this assignment
   chosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",
-                                rasterList = globalRasters(),
-                                rctPolygonList = rctReportingPolygons,
+                                rasterList = rctRasterList(),
+                                rctPolygonList = rctPolygonList,
                                 shpStudyRegionName = "LandWeb Study Area",
                                 defaultPolyName = NULL,
                                 colorTable = colorTableFile, palette = timeSinceFirePalette,
                                 mapLegend = paste0("Time since fire", br(), "(years)"),
-                                maxAge = maxAge, zoom = 5, sim = mySimOut()[[1]],
-                                nPolygons = 1, nRasters = length(tsf()))
+                                maxAge = maxAge, zoom = 5, rctSim = rctSim,
+                                nPolygons = 1, nRasters = length(rctTsf()))
 
-  callModule(largePatches, "largePatches", polygonList = rctReportingPolygons(),   ## TODO: write this with generator
+  callModule(largePatches, "largePatches", polygonList = reportingPolygons,   ## TODO: write this with generator
              chosenPolyName = chosenPolyName(), tsf = tsf(), vtm = vtm(), cl = NULL,
              ageClasses = ageClasses, cachePath = cachePath(mySim()),
              FUN = largePatchesFn, nPatchesFun = countNumPatches)
