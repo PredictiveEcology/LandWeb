@@ -315,8 +315,6 @@ paths4sim <- mapply(cPath = cPaths, oPath = oPaths,
 seed <- sample(1e8, 1)
 
 ######## SimInit
-
-
 mySims <- emptyList
 numCl <- min(length(emptyList), parallel::detectCores()/2)
 outputLogFile <- file.path("outputs", "log_cluster.txt")
@@ -324,8 +322,8 @@ if (file.exists(outputLogFile)) unlink(outputLogFile)
 cl <- parallel::makeForkCluster(numCl, outfile = outputLogFile)
 mySims <- parallel::clusterMap(cl = cl, simInit, times = times4sim, params = parameters4sim,
                                modules = modules4sim, outputs = outputs4sim,
-                               objects = objects4sim, paths = paths4sim, loadOrder = lapply(modules4sim, unlist))
-
+                               objects = objects4sim, paths = paths4sim,
+                               loadOrder = lapply(modules4sim, unlist))
 
 ##### PRE experiment
 debugCache <- "complete"
