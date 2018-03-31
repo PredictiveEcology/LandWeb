@@ -211,15 +211,15 @@ times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
 modules4sim <- emptyList
 modules4sim$Free <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                          "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
-modules4sim$Proprietary <- c(modules4sim$Free[1:4], "landWebProprietaryData", 
+modules4sim$Proprietary <- c(modules4sim$Free[1:4], "landWebProprietaryData",
                              modules4sim$Free[5:length(modules4sim$Free)])
 
 objects4sim <- emptyList
-objects4sim <- lapply(objects4sim, function(x) 
+objects4sim <- lapply(objects4sim, function(x)
   list("shpStudyRegionFull" = shpStudyRegion,
        "shpStudySubRegion" = sSubSRXYXY,
        "summaryPeriod" = summaryPeriod,
-       "useParallel" = 2) 
+       "useParallel" = 2)
 )
 
 
@@ -247,7 +247,7 @@ parameters4sim <- lapply(parameters4sim, function(x) {
 })
 
 
-outputs4simFn <- function(objects4sim, parameters4sim, times4sim, 
+outputs4simFn <- function(objects4sim, parameters4sim, times4sim,
                           objectNamesToSave) {
   outputs <- data.frame(stringsAsFactors = FALSE,
                         expand.grid(
@@ -256,22 +256,22 @@ outputs4simFn <- function(objects4sim, parameters4sim, times4sim,
                                          by = parameters4sim$LandWebOutput$summaryInterval)),
                         fun = "writeRaster", package = "raster",
                         file = paste0(objectNamesToSave, c(".tif", ".grd")))
-  
+
   outputs2 <- data.frame(stringsAsFactors = FALSE,
                          expand.grid(objectName = c("simulationOutput"), saveTime = times4sim$end),
                          fun = "saveRDS",
                          package = "base")
-  
+
   outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
                                   list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
                              times = NROW(outputs) / length(objectNamesToSave)))
-  
+
   outputs3 <- data.frame(stringsAsFactors = FALSE,
                          objectName = "rstFlammable",
                          saveTime = times4sim$end, fun = "writeRaster", package = "raster",
                          arguments = I(list(list(overwrite = TRUE, progress = FALSE,
                                                  datatype = "INT2U", format = "raster"))))
-  
+
   as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 }
 objectNamesToSave <- emptyList
@@ -292,17 +292,17 @@ pathFn <- function(pathType, basename, suffix) {
 }
 
 cPaths <- emptyList
-cPaths <- mapply(pathFn, suffix = names(cPaths),  
-                 MoreArgs = list(basename = subStudyRegionName, pathType = "cache"), 
+cPaths <- mapply(pathFn, suffix = names(cPaths),
+                 MoreArgs = list(basename = subStudyRegionName, pathType = "cache"),
                  SIMPLIFY = FALSE)
 
 oPaths <- emptyList
-oPaths <- mapply(pathFn, suffix = names(oPaths),  
-                 MoreArgs = list(basename = subStudyRegionName, pathType = "outputs"), 
+oPaths <- mapply(pathFn, suffix = names(oPaths),
+                 MoreArgs = list(basename = subStudyRegionName, pathType = "outputs"),
                  SIMPLIFY = FALSE)
 
 paths4sim <- emptyList
-paths4sim <- mapply(cPath = cPaths, oPath = oPaths,  
+paths4sim <- mapply(cPath = cPaths, oPath = oPaths,
                     function(cPath, oPath) {
                       list(
                         cachePath = cPath,
@@ -319,9 +319,11 @@ seed <- sample(1e8, 1)
 
 mySims <- emptyList
 numCl <- min(length(emptyList), parallel::detectCores()/2)
-cl <- parallel::makeForkCluster(numCl, outfile = "outputs/log_cluster.txt")
-mySims <- parallel::clusterMap(cl = cl, simInit, times = times4sim, params = parameters4sim, 
-                               modules = modules4sim, outputs = outputs4sim, 
+outputLogFile <- file.path("outputs", "log_cluster.txt")
+if (file.exists(outputLogFile)) unlink(outputLogFile)
+cl <- parallel::makeForkCluster(numCl, outfile = outputLogFile)
+mySims <- parallel::clusterMap(cl = cl, simInit, times = times4sim, params = parameters4sim,
+                               modules = modules4sim, outputs = outputs4sim,
                                objects = objects4sim, paths = paths4sim, loadOrder = lapply(modules4sim, unlist))
 
 
@@ -329,7 +331,7 @@ mySims <- parallel::clusterMap(cl = cl, simInit, times = times4sim, params = par
 debugCache <- "complete"
 
 objectsToHash <- emptyList
-objectsToHash <- mapply(mySim = mySims, objectsToHash = objectsToHash, 
+objectsToHash <- mapply(mySim = mySims, objectsToHash = objectsToHash,
                         MoreArgs = list(guaranteedRun = guaranteedRun),
                         FUN = function(mySim, objectsToHash, guaranteedRun) {
                           if (guaranteedRun) {
@@ -337,9 +339,9 @@ objectsToHash <- mapply(mySim = mySims, objectsToHash = objectsToHash,
                           } else {
                             grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
                           }
-                          
+
                         }
-) 
+)
 
 #########################################
 # run the simulation experiment
@@ -352,7 +354,7 @@ runExperiment <- function(sim, nReps, objectsToHash = "") {
   args <- args[!unlist(lapply(args, is.null))]
   simOut <- do.call(Cache, args)
   message(attr(simOut, "tags"))
-  
+
   for (simNum in seq_along(simOut)) {
     simOut[[simNum]]@outputs$file <- lapply(
       strsplit(outputs(simOut[[simNum]])$file,
@@ -372,7 +374,7 @@ set.seed(seed)
 message("    current seed is: ", seed)
 
 mySimOuts <- emptyList
-mySimOuts <- Cache(parallel::clusterMap, cl = cl, fun = runExperiment, sim = mySims, 
+mySimOuts <- Cache(parallel::clusterMap, cl = cl, fun = runExperiment, sim = mySims,
                    nReps = experimentReps, objectsToHash = objectsToHash)
 message("  Finished Experiment.")
 ##### POST Experiment
@@ -405,39 +407,39 @@ flammableFiles <- lapply(mySimOuts, function(mySimOut) {
 })
 
 #tsfRasters <- emptyList
-tsfRasters <- Cache(parallel::clusterMap, cl = cl, tsf = tsfs, 
+tsfRasters <- Cache(parallel::clusterMap, cl = cl, tsf = tsfs,
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)),
                     SIMPLIFY = FALSE)
 
-tsfRasterTilePaths <- Cache(mapply, rst = tsfRasters, modelType = names(tsfRasters), 
+tsfRasterTilePaths <- Cache(mapply, rst = tsfRasters, modelType = names(tsfRasters),
        MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
        function(rst, modelType, zoomRange, colorTableFile) {
          outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
-         filenames <- gdal2Tiles(rst, outputPath = outputPath, 
-                      zoomRange = zoomRange, colorTableFile = colorTableFile)  
+         filenames <- gdal2Tiles(rst, outputPath = outputPath,
+                      zoomRange = zoomRange, colorTableFile = colorTableFile)
          return(filenames)
        })
 
 if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
-  vtmRasters <- Cache(parallel::clusterMap, cl = cl, tsf = vtms, 
+  vtmRasters <- Cache(parallel::clusterMap, cl = cl, tsf = vtms,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)),
                       SIMPLIFY = FALSE)
-  vtmRasterTilePaths <- mapply(rst = vtmRasters, modelType = names(vtmRasters), 
+  vtmRasterTilePaths <- mapply(rst = vtmRasters, modelType = names(vtmRasters),
                                MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                                function(rst, modelType, zoomRange, colorTableFile) {
                                  outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
-                                 filenames <- gdal2Tiles(rst, outputPath = outputPath, 
-                                                         zoomRange = zoomRange, colorTableFile = colorTableFile)  
+                                 filenames <- gdal2Tiles(rst, outputPath = outputPath,
+                                                         zoomRange = zoomRange, colorTableFile = colorTableFile)
                                  return(filenames)
                                })
 }
 
 # leading <- function(tsf, vtm, poly, cl = NULL) {
-#   
+#
 #   args <- list(leadingByStage, tsf, vtm,
-#                polygonToSummarizeBy = poly, 
+#                polygonToSummarizeBy = poly,
 #                cl = TRUE,
 #                omitArgs = "cl",
 #                ageClasses = ageClasses)
@@ -451,16 +453,16 @@ leadingMultiPolygons <- function(reportingPolygon, tsf, vtm, cl, ageClasses, age
   reportingPolysWOStudyArea <- reportingPolygon[-which(names(reportingPolygon)=="LandWeb Study Area")]
   lapply(lapply(reportingPolysWOStudyArea, function(p) p$crsSR), function(poly) {
     message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
-    Cache(leadingByStage, timeSinceFireFiles = asPath(tsf), 
-          vegTypeMapFiles = asPath(vtm), 
+    Cache(leadingByStage, timeSinceFireFiles = asPath(tsf),
+          vegTypeMapFiles = asPath(vtm),
           polygonToSummarizeBy = poly$shpSubStudyRegion,
           cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
   })
 }
 
 
-leading <- Cache(mapply, #cl = cl, 
-  reportingPolygon = reportingPolygons, tsf = tsfs, vtm = vtms, 
+leading <- Cache(mapply, #cl = cl,
+  reportingPolygon = reportingPolygons, tsf = tsfs, vtm = vtms,
   MoreArgs = list(cl = TRUE, ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs),
   leadingMultiPolygons)
 
@@ -472,9 +474,9 @@ if (FALSE) {
       dt[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
     })
   })
-  
+
   #  vegLeadingTypes NEEDED?
-  
+
   vegLeadingTypesWithAllSpecies <- lapply(leading, function(polyWData) {
     lapply(polyWData, function(dt) {
       c(unique(dt$vegType), "All species")
