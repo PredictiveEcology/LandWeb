@@ -188,7 +188,7 @@ reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
   message("Reprojecting rasters, filling in minimum age, saving to disk")
   rstFlammableNum <- raster(flammableFile)
   rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs, method = "ngb")
-  globalRasts <- lapply(seq_along(tsf), function(FN) {
+  rastsLFLT <- lapply(seq_along(tsf), function(FN) {
     r <- raster(tsf[[FN]])
     # gdalwarp(srcfile = filename(r), dstfile = lfltFN[FN], s_srs = crs(r),
     #          t_srs = crs, r = "near", 
@@ -206,6 +206,11 @@ reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
     r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE, datatype = "INT2U")
     r
   })
+  rastsCRSSR2 <- lapply(tsf, raster)
+  
+  globalRasts <- list("crsSR" = rastsCRSSR2,
+                   "crsLFLT" = rastsLFLT)
+  
   message("  Finished reprojecting rasters")
   globalRasts
 }
