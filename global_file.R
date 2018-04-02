@@ -320,70 +320,14 @@ paths4sim <- Map(cPath = cPaths, oPath = oPaths,
 seed <- sample(1e8, 1)
 
 ######## SimInit
-#numCl <- min(length(emptyList), parallel::detectCores()/2)
-#cl <- parallel::makeForkCluster(numCl, 
-#                                outfile = paste0("outputs/log_cluster", 
-#                                                 paste(sample(LETTERS,5), collapse = ""),
-#                                                 ".txt"))
-# parallel::clusterMap
-mySims <- Map(simInit, times = times4sim, params = parameters4sim, 
+mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim, 
                  modules = modules4sim, 
                  outputs = outputs4sim, 
-                 objects = objects4sim, 
-                 paths = paths4sim, loadOrder = lapply(modules4sim, unlist))
+                      objects4sim = objects4sim, 
+                      paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
+                      emptyList = emptyList)
 
 
-##### PRE experiment
-debugCache <- "complete"
-
-objectsToHash <- emptyList
-objectsToHash <- Map(mySim = mySims, objectsToHash = objectsToHash,
-                        MoreArgs = list(guaranteedRun = guaranteedRun),
-                        function(mySim, objectsToHash, guaranteedRun) {
-                          if (guaranteedRun) {
-                            "shpStudySubRegion" # basically only cache on non-.envir objects plus study area
-                          } else {
-                            grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
-                          }
-
-                        }) 
-
-#########################################
-# run the simulation experiment
-runExperiment <- function(sim, nReps, objectsToHash = "") {
-  args <- list(experiment, sim, replicates = nReps,
-               objects = objectsToHash,
-               debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
-               paste(unname(current(sim)), collapse = ' '))",
-               .plotInitialTime = NA,
-               clearSimEnv = TRUE,
-               omitArgs = c("debug", ".plotInitialTime"))
-  args <- args[!unlist(lapply(args, is.null))]
-  simOut <- do.call(Cache, args)
-  message(attr(simOut, "tags"))
-
-  for (simNum in seq_along(simOut)) {
-    simOut[[simNum]]@outputs$file <- lapply(
-      strsplit(outputs(simOut[[simNum]])$file,
-               split = paste0(outputPath(simOut[[simNum]]), "[\\/]+")),
-      function(f) {
-        f[[2]]
-      }) %>%
-      unlist() %>%
-      file.path(outputPath(simOut[[simNum]]), .)
-  }
-  simOut
-}
-
-message("  Starting Experiment...")
-
-set.seed(seed)
-message("    current seed is: ", seed)
-
-mySimOuts <- emptyList
-# parallel::clusterMap, cl = cl, 
-mySimOuts <- Cache(Map, runExperiment, sim = mySims, 
-                   nReps = experimentReps, objectsToHash = objectsToHash)
 message("  Finished Experiment.")
 ##### POST Experiment
 

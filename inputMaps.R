@@ -1,9 +1,3 @@
-# Thsee are used in server.R for filling the tables of parameters
-loadLandisParams <- function(path) {
-  landisInputs <- readRDS(file.path(path, "landisInputs.rds"))
-  spEcoReg <- readRDS(file.path(path, "SpEcoReg.rds"))
-  return(list(landisInputs = landisInputs, spEcoReg = spEcoReg))
-}
 
 # Study area original shapefile
 loadShpAndMakeValid <- function(file) {
