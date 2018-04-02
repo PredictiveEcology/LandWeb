@@ -8,19 +8,28 @@ SpaDESPkgs <- c(
 shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster",
                "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
+moduleRqdPkgs <- c("data.table", "dplyr", "ecohealthalliance/fasterize", "fpCompare", 
+                   "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr", "PredictiveEcology/quickPlot@development", 
+                   "PredictiveEcology/SpaDES.tools@development", "PredictiveEcology/SpaDES.tools@prepInputs", 
+                   "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible", 
+                   "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", 
+                   "VGAM")
 
-reproducible::Require(c(
+reproducible::Require(unique(c(
   SpaDESPkgs,
   shinyPkgs,
   googleAuthPkgs,
   if (Sys.info()["sysname"] != "Windows") "Cairo",
   # `snow` required internally by `parallel` for Windows SOCK clusters
-  if (Sys.info()["sysname"] == "Windows") "snow"
+  if (Sys.info()["sysname"] == "Windows") "snow",
+  moduleRqdPkgs
   # shiny app
-))
+)))
 
 # Options
 options(reproducible.verbose = FALSE)
+options(reproducible.useMemoise = TRUE)
+options(spades.browserOnError = FALSE)
 
 # Google Authentication setup
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
@@ -51,10 +60,10 @@ studyArea <- c("BC","AB")  #other options: "BC", "AB", "SK", "MB" or combination
 ##                however, in-app, the paths need to be set as reactive values for authentication!
 studyAreaCollapsed <- paste(studyArea, collapse = "_")
 paths <- list(
-  cachePath = paste0("appCache", studyAreaCollapsed),
+  cachePath = file.path("cache", paste0("appCache", studyAreaCollapsed)),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
-  outputPath = paste0("outputs", studyAreaCollapsed)
+  outputPath = file.path("outputs", paste0("outputs", studyAreaCollapsed))
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
@@ -62,7 +71,7 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 # It needs to be separate because it is an overarching one, regardless of scale
 reproducibleCache <- "reproducibleCache"
 
-if (any(c("emcintir") %in% Sys.info()["user"])) {
+if (any(c("emcintir", "achubaty") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
 }
 
@@ -114,9 +123,9 @@ fireTimestep <- 1
 successionTimestep <- 10 # was 2
 
 # Overall model times # start is default at 0
-endTime <- 1000
-summaryInterval <- 10
-summaryPeriod <- c(700, endTime)
+endTime <- 4
+summaryInterval <- 2
+summaryPeriod <- c(2, endTime)
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
 # "shpStudyRegion"     "shpStudyRegionFull"
@@ -142,11 +151,11 @@ studyAreaFilePath <- {
 }
 
 studyRegionsShps <- Cache(loadStudyRegion,
-                         asPath(studyAreaFilePath),
-                         fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
-                         studyArea = studyArea, 
-                         crsStudyArea = crsStudyArea, cacheRepo = paths$cachePath)
-  list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpStudyRegionFull
+                          asPath(studyAreaFilePath),
+                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
+                          studyArea = studyArea, 
+                          crsStudyArea = crsStudyArea, cacheRepo = paths$cachePath)
+list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpStudyRegionFull
 
 # simInit objects
 times <- list(start = 0, end = endTime)
@@ -188,17 +197,43 @@ outputs2 <- data.frame(stringsAsFactors = FALSE,
 outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
                                 list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
                            times = NROW(outputs)/length(objectNamesToSave)))
-outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2), fill = TRUE))
+outputs3 <- data.frame(stringsAsFactors = FALSE,
+                       objectName = "rstFlammable",
+                       saveTime = times$end, fun = "writeRaster", package = "raster",
+                       arguments = I(list(list(overwrite = TRUE, progress = FALSE, 
+                                               datatype = "INT2U", format = "raster"))))
+outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 
 # Main simInit function call -- loads all data 
 startSimInit <- Sys.time() 
 mySim <<- simInit(times = times, params = parameters, modules = modules, 
                   objects = objects, paths = paths, outputs = outputs, loadOrder = unlist(modules)) 
 endSimInit <- Sys.time()
+message("simInit took ", format(endSimInit - startSimInit, digits = 3))
 # i = i + 1; a[[i]] <- .robustDigest(mySim); b[[i]] <- mySim
 # This needs simInit call to be run already
 # a few map details for shiny app
-source("mapsForShiny.R")
+message("Preparing polygon maps for reporting histograms")
+labelColumn <- "shinyLabel"
+lflt <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+########################################################
+########################################################
+# formerly in mapsForShiny.R
+# Reporting polygons
+message("Loading Reporting Polygons")
+reportingPolygons <- Cache(createReportingPolygons,
+                           c("Alberta Ecozones", "National Ecozones", 
+                             "National Ecodistricts", "Forest Management Areas", 
+                             "Alberta FMUs", "Caribou Herds"))
+
+### CURRENT CONDITION ##################################
+message("Loading Current Condition Rasters")
+dPath <- file.path(paths$inputPath, "CurrentCondition")
+CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce")
+rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames, 
+                                 url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                                 dPath = dPath)
 
 # Run Experiment
 source("runExperiment.R")
@@ -292,16 +327,16 @@ if (FALSE) {
 if (TRUE) {
   lfltFN <- gsub(tsf, pattern = ".grd$|.tif$", replacement = "LFLT.tif")
   
-  globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), digestPathContent = .quickChecking,
+  globalRasters <<- Cache(reprojectRasts, lapply(tsf, asPath), #digestPathContent = .quickChecking,
                           lfltFN, sp::CRS(lflt), end(mySim), cacheRepo = paths$cachePath,
                           flammableFile = asPath(file.path(paths$outputPath, "rstFlammable.grd")))
 }
 
 message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
 args <- list(leadingByStage, tsf, vtm,
-             polygonToSummarizeBy = ecodistricts,
+             polygonToSummarizeBy = reportingPolygons$`National Ecozones`$crsLFLT$subStudyRegion,
              cl = if (exists("cl")) cl,
-             omitArgs = "cl", digestPathContent = .quickChecking,
+             omitArgs = "cl", #digestPathContent = .quickChecking,
              ageClasses = ageClasses, cacheRepo = paths$cachePath)
 args <- args[!unlist(lapply(args, is.null))]
 leading <- do.call(Cache, args)
@@ -317,10 +352,10 @@ vegLeadingTypesWithAllSpecies <- c(vegLeadingTypes, "All species")
 source("shiny-modules/inputTables.R")
 
 clumpMod2Args <- list(
-  currentPolygon = polygons[[1 + length(polygons)/4]],
+  currentPolygon = reportingPolygons$`National Ecozones`$crsSR$subStudyRegion,
   tsf = tsf, vtm = vtm,
   cl = if (exists("cl")) cl,
-  ageClasses = ageClasses, cacheRepo = paths$cachePath,
+  ageClasses = ageClasses, #cacheRepo = paths$cachePath,
   largePatchesFn = largePatchesFn, countNumPatches = countNumPatches)
 clumpMod2Args <- clumpMod2Args[!unlist(lapply(clumpMod2Args, is.null))]
 
