@@ -319,8 +319,6 @@ loadCCSpecies <- function(mapNames, url, dPath, userTags) {
   names(filenames) <- mapNames
 
   mapply(filename = filenames, mapName = mapNames, function(filename, mapName) {
-    #fn <- paste0("CC", mapName, "Filename")
-    #mn <- paste0("CC", mapName, "Files")
     tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
     filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
     Cache(prepInputs, userTags = "stable",
@@ -517,3 +515,19 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   reportingPolygonsTmp <- lapply(polysAll, purrr::transpose)
   purrr::transpose(reportingPolygonsTmp)
 }
+
+
+leadingMultiPolygons <- function(reportingPolygon, tsf, vtm, cl, ageClasses, ageClassCutOffs) {
+  reportingPolysWOStudyArea <- reportingPolygon[-which(names(reportingPolygon)=="LandWeb Study Area")]
+  Map(poly = lapply(reportingPolysWOStudyArea, function(p) p$crsSR), 
+      polyNames = names(reportingPolysWOStudyArea), 
+      function(poly, polyNames) {
+        message("  Determine leading species by age class, by polygon (loading, ", length(tsf), 
+                " rasters, summarize by ", polyNames, ")")
+        Cache(leadingByStage, timeSinceFireFiles = asPath(tsf, 2),
+              vegTypeMapFiles = asPath(vtm, 2), 
+              polygonToSummarizeBy = poly$shpSubStudyRegion,
+              cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
+      })
+}
+
