@@ -46,7 +46,7 @@ appURL <- "http://landweb.predictiveecology.org/Demo/"
 authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
 
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-subStudyRegionName <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
+subStudyRegionName <- "FULL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
 #subStudyRegionName <- c("AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
@@ -117,9 +117,9 @@ fireTimestep <- 1
 successionTimestep <- 10 # was 2
 
 # Overall model times # start is default at 0
-endTime <- 4
-summaryInterval <- 2
-summaryPeriod <- c(2, endTime)
+endTime <- 800
+summaryInterval <- 10
+summaryPeriod <- c(500, endTime)
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
 # "shpStudyRegion"     "shpStudyRegion"
