@@ -39,6 +39,7 @@ m/test/
 *ecozones.*
 inputs/allFMAs/
 inputs/Caribou/
+inputs/CurrentCondition/
 inputs/ecodistricts/National/
 inputs/ecozones/Alberta/
 inputs/ecozones/National/
@@ -46,7 +47,7 @@ inputs/FMU_Alberta_2015-11/
 last.dump.rda
 mySimDigestSaved.rds
 mySimSaved.rds
-outputs*
+outputs/*
 
 ## OAuth tokens
 .httr-oauth
@@ -56,5 +57,3 @@ outputs*
 Thumbs.db
 
 ## !! Module data should be gitignored in the respective module's data dir !!
-
-inputs/CurrentCondition/
