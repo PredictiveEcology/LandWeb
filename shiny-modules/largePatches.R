@@ -1,6 +1,6 @@
 #' Histogram module server function
 #'
-#' @param datatable         A reactive object containing a \code{data.table} object.
+#' @param datatable         A \code{data.table} object.
 #'                          See \code{\link[SpaDES.shiny]{getSubtable}}.
 #'
 #' @param chosenCategories  ... See \code{\link[SpaDES.shiny]{getSubtable}}.
@@ -21,7 +21,7 @@
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
 histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
-  observeEvent(datatable, {
+  observeEvent(datatable, label = chosenValues, {
     dt <- if (is.reactive(datatable)) {
       datatable()
     } else {
@@ -95,10 +95,11 @@ largePatchesUI <- function(id) {
   fluidRow(
     shinydashboard::box(
       width = 12, solidHeader = TRUE, collapsible = TRUE,
-      clumpMod2UI(ns("largePatches"))
+      clumpMod2UI(ns("clumpMod2"))
     ),
     shinydashboard::box(
-      width = 12, solidHeader = TRUE, collapsible = TRUE, slicerUI(ns("slicer"))
+      width = 12, solidHeader = TRUE, collapsible = TRUE,
+      slicerUI(ns("slicer"))
     )
   )
 }
@@ -106,8 +107,8 @@ largePatchesUI <- function(id) {
 #' @param input           Shiny server input object.
 #' @param output          Shiny server output object.
 #' @param session         Shiny server session object.
-#' @param polygonList     A list of polygons for to use while calculating large patches results
-#' @param chosenPolyName  Name of the polygon to extract from polygonList.
+#' @param rctPolygonList     A list of polygons for to use while calculating large patches results
+#' @param rctChosenPolyName  Name of the polygon to extract from polygonList.
 #' @param nSimTimes  How many simulation time stamps there are.
 #'
 #' @return Shiny module server function.
@@ -120,21 +121,20 @@ largePatchesUI <- function(id) {
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
-largePatches <- function(input, output, session, polygonList, chosenPolyName = NULL,
-                         tsf, vtm, cl = NULL, ageClasses, cachePath, FUN, nPatchesFun) { # TODO: add docs above
+largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
+                         rctTsf, rctVtm, cl = NULL, ageClasses, cachePath, FUN, nPatchesFun) { # TODO: add docs above
 
-  clumpMod2Args <- reactive({
-    if (is.null(chosenPolyName)) chosenPolyName <- names(polygonList)[1]
-    browser()
-    
+  clumpMod2Args <- reactive(label = "clumpMod2Args", {
+    if (is.null(rctChosenPolyName())) rctChosenPolyName <- reactive(names(rctPolygonList())[1])
+
     ## TODO: add assertions for other args
-    assertthat::assert_that(is.list(polygonList), is.character(chosenPolyName),
-                            is.character(tsf), is.character(vtm))
+    assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
+                            is.character(rctTsf()), is.character(rctVtm()))
 
     args <- list(
-      currentPolygon = polygonList[[chosenPolyName]][["crsSR"]][["shpSubStudyRegion"]],
-      tsf = tsf,
-      vtm = vtm,
+      tsf = rctTsf(),
+      vtm = rctVtm(),
+      currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]],
       cl = cl,
       ageClasses = ageClasses,
       cacheRepo = cachePath,
@@ -145,16 +145,13 @@ largePatches <- function(input, output, session, polygonList, chosenPolyName = N
     args
   })
 
-
-  largePatchesData <- reactive({
+  rctLargePatchesData <- reactive({
     args <- clumpMod2Args()
     args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
 
-    clumpsReturn <- do.call(callModule, c(list(module = clumpMod2, id = "largePatches"), args))
+    rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
 
-    dt_out <- clumpsReturn()$Clumps
-    assertthat::assert_that(is.data.table(dt_out))
-    dt_out
+    rctClumps()$ClumpsDT
   })
 
   uiSequence <- data.table::data.table(
@@ -162,8 +159,8 @@ largePatches <- function(input, output, session, polygonList, chosenPolyName = N
     uiType = c("tab", "tab", "box")
   )
 
-  callModule(slicer, "slicer", datatable = largePatchesData,
-             categoryValue = "LargePatches", nSimTimes = length(tsf),
+  callModule(slicer, "slicer", datatable = rctLargePatchesData,
+             categoryValue = "LargePatches", nSimTimes = length(rctTsf()),
              uiSequence = uiSequence,
              serverFunction = histServerFn, ## calls histogram server module
              uiFunction = function(ns) {

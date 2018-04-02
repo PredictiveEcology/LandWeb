@@ -18,10 +18,8 @@
 #' 10. There is a reactive element that lets user choose to "omit" any clump that is "less than XXX hectares", set to 500 at start.
 #'
 #' @return A matrix with counts of number of large patches
-largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles,
-                           polygonToSummarizeBy, cl,
-                           ageCutoffs = ageClassCutOffs,
-                           countNumPatches = countNumPatches,
+largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy, cl,
+                           ageCutoffs = ageClassCutOffs, countNumPatches = countNumPatches,
                            ageClasses, .quickCheck = TRUE, notOlderThan = Sys.time() - 1e7) {
 
   ## TODO: don't use paths$path unless a paths object is passed as argument
