@@ -15,3 +15,5 @@ rctRasterList <- reactive(tsfRasters[[modelType()]])
 rctPolygonList <- reactive(reportingPolygons[[modelType()]])
 
 rctSim <- reactive(mySimOuts[[modelType()]][[1]])
+
+rctUrlTemplate <- reactive(tsfRasterTilePaths[[modelType()]])
