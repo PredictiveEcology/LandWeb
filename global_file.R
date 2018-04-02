@@ -1,3 +1,5 @@
+emptyList <- list(Free = NULL)
+emptyList <- list(Proprietary = NULL)
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 SpaDESPkgs <- c(
   "PredictiveEcology/SpaDES.core@development",
@@ -157,8 +159,6 @@ vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("l
 message("Preparing polygon maps for reporting histograms")
 labelColumn <- "shinyLabel"
 
-message("  Finished global.R")
-
 source("colorPaletteForShiny.R")
 labelColumn <- "shinyLabel"
 
@@ -194,7 +194,6 @@ rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
 #############################
 
 ##### SERVER FILE.R
-emptyList <- list(Free = NULL, Proprietary = NULL)
 # THIS IS DANGEROUS, BUT NECESSARY FOR GUARANTEED RUNNING --
 #    THIS MEANS that any values of objects will be OK and will trigger a cached return
 #    Only shpStudySubRegion and non-object arguments to simInit will make a new run
@@ -213,6 +212,7 @@ modules4sim$Free <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "Lan
                          "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 modules4sim$Proprietary <- c(modules4sim$Free[1:4], "landWebProprietaryData", 
                              modules4sim$Free[5:length(modules4sim$Free)])
+modules4sim <- modules4sim[names(emptyList)]
 
 objects4sim <- emptyList
 objects4sim <- lapply(objects4sim, function(x) 
@@ -318,11 +318,17 @@ seed <- sample(1e8, 1)
 
 
 mySims <- emptyList
-numCl <- min(length(emptyList), parallel::detectCores()/2)
-cl <- parallel::makeForkCluster(numCl, outfile = "outputs/log_cluster.txt")
-mySims <- parallel::clusterMap(cl = cl, simInit, times = times4sim, params = parameters4sim, 
-                               modules = modules4sim, outputs = outputs4sim, 
-                               objects = objects4sim, paths = paths4sim, loadOrder = lapply(modules4sim, unlist))
+#numCl <- min(length(emptyList), parallel::detectCores()/2)
+#cl <- parallel::makeForkCluster(numCl, 
+#                                outfile = paste0("outputs/log_cluster", 
+#                                                 paste(sample(LETTERS,5), collapse = ""),
+#                                                 ".txt"))
+# parallel::clusterMap
+mySims <- mapply(simInit, times = times4sim, params = parameters4sim, 
+                 modules = modules4sim, 
+                 outputs = outputs4sim, 
+                 objects = objects4sim, 
+                 paths = paths4sim, loadOrder = lapply(modules4sim, unlist))
 
 
 ##### PRE experiment
@@ -338,7 +344,7 @@ objectsToHash <- mapply(mySim = mySims, objectsToHash = objectsToHash,
                             grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
                           }
                           
-                        }
+                        }, SIMPLIFY = FALSE
 ) 
 
 #########################################
@@ -346,6 +352,8 @@ objectsToHash <- mapply(mySim = mySims, objectsToHash = objectsToHash,
 runExperiment <- function(sim, nReps, objectsToHash = "") {
   args <- list(experiment, sim, replicates = nReps,
                objects = objectsToHash,
+               debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
+               paste(unname(current(sim)), collapse = ' '))",
                .plotInitialTime = NA,
                clearSimEnv = TRUE,
                omitArgs = c("debug", ".plotInitialTime"))
@@ -372,7 +380,8 @@ set.seed(seed)
 message("    current seed is: ", seed)
 
 mySimOuts <- emptyList
-mySimOuts <- Cache(parallel::clusterMap, cl = cl, fun = runExperiment, sim = mySims, 
+# parallel::clusterMap, cl = cl, 
+mySimOuts <- Cache(mapply, runExperiment, sim = mySims, 
                    nReps = experimentReps, objectsToHash = objectsToHash)
 message("  Finished Experiment.")
 ##### POST Experiment
@@ -413,11 +422,13 @@ tsfRasters <- Cache(parallel::clusterMap, cl = cl, tsf = tsfs,
 tsfRasterTilePaths <- Cache(mapply, rst = tsfRasters, modelType = names(tsfRasters), 
        MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
        function(rst, modelType, zoomRange, colorTableFile) {
-         outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
+         outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed)
          filenames <- gdal2Tiles(rst, outputPath = outputPath, 
                       zoomRange = zoomRange, colorTableFile = colorTableFile)  
          return(filenames)
-       })
+       }, SIMPLIFY = FALSE)
+
+
 
 if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
   vtmRasters <- Cache(parallel::clusterMap, cl = cl, tsf = vtms, 
