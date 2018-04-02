@@ -11,6 +11,7 @@ function(input, output, session) {
   # TODO: update generator to handle this assignment
   chosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",
                                 rasterList = rctRasterList(),
+                                urlTemplate = rctUrlTemplate(),
                                 rctPolygonList = rctPolygonList,
                                 shpStudyRegionName = "LandWeb Study Area",
                                 defaultPolyName = NULL,
