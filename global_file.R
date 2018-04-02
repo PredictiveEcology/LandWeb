@@ -225,7 +225,7 @@ modules4sim <- modules4sim[names(emptyList)]
 objects4sim <- emptyList
 objects4sim <- lapply(objects4sim, function(x)
   list("shpStudyRegionFull" = shpStudyRegion,
-       "shpStudySubRegion" = sSubSRXYXY,
+       "shpStudySubRegion" = shpSubStudyRegion,
        "summaryPeriod" = summaryPeriod,
        "useParallel" = 2)
 )
