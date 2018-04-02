@@ -285,12 +285,11 @@ objectNamesToSave <- lapply(objectNamesToSave, function(x) {
   c("rstTimeSinceFire", "vegTypeMap")
 })
 
-outputs4sim <- mapply(objects4sim = objects4sim,
+outputs4sim <- Map(objects4sim = objects4sim,
                       parameters4sim = parameters4sim,
                       times4sim = times4sim,
                       objectNamesToSave = objectNamesToSave,
-                      outputs4simFn, SIMPLIFY = FALSE
-)
+                      outputs4simFn)
 
 ## paths for sim
 pathFn <- function(pathType, basename, suffix) {
@@ -298,17 +297,15 @@ pathFn <- function(pathType, basename, suffix) {
 }
 
 cPaths <- emptyList
-cPaths <- mapply(pathFn, suffix = names(cPaths),
-                 MoreArgs = list(basename = subStudyRegionName, pathType = "cache"),
-                 SIMPLIFY = FALSE)
+cPaths <- Map(pathFn, suffix = names(cPaths),
+                 MoreArgs = list(basename = subStudyRegionName, pathType = "cache"))
 
 oPaths <- emptyList
-oPaths <- mapply(pathFn, suffix = names(oPaths),
-                 MoreArgs = list(basename = subStudyRegionName, pathType = "outputs"),
-                 SIMPLIFY = FALSE)
+oPaths <- Map(pathFn, suffix = names(oPaths),
+                 MoreArgs = list(basename = subStudyRegionName, pathType = "outputs"))
 
 paths4sim <- emptyList
-paths4sim <- mapply(cPath = cPaths, oPath = oPaths,
+paths4sim <- Map(cPath = cPaths, oPath = oPaths,
                     function(cPath, oPath) {
                       list(
                         cachePath = cPath,
@@ -316,19 +313,18 @@ paths4sim <- mapply(cPath = cPaths, oPath = oPaths,
                         inputPath = "inputs",
                         outputPath = oPath
                       )
-                    }, SIMPLIFY = FALSE)
+                    })
 
 seed <- sample(1e8, 1)
 
 ######## SimInit
-mySims <- emptyList
 #numCl <- min(length(emptyList), parallel::detectCores()/2)
 #cl <- parallel::makeForkCluster(numCl, 
 #                                outfile = paste0("outputs/log_cluster", 
 #                                                 paste(sample(LETTERS,5), collapse = ""),
 #                                                 ".txt"))
 # parallel::clusterMap
-mySims <- mapply(simInit, times = times4sim, params = parameters4sim, 
+mySims <- Map(simInit, times = times4sim, params = parameters4sim, 
                  modules = modules4sim, 
                  outputs = outputs4sim, 
                  objects = objects4sim, 
@@ -339,17 +335,16 @@ mySims <- mapply(simInit, times = times4sim, params = parameters4sim,
 debugCache <- "complete"
 
 objectsToHash <- emptyList
-objectsToHash <- mapply(mySim = mySims, objectsToHash = objectsToHash,
+objectsToHash <- Map(mySim = mySims, objectsToHash = objectsToHash,
                         MoreArgs = list(guaranteedRun = guaranteedRun),
-                        FUN = function(mySim, objectsToHash, guaranteedRun) {
+                        function(mySim, objectsToHash, guaranteedRun) {
                           if (guaranteedRun) {
                             "shpStudySubRegion" # basically only cache on non-.envir objects plus study area
                           } else {
                             grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
                           }
 
-                        }, SIMPLIFY = FALSE
-) 
+                        }) 
 
 #########################################
 # run the simulation experiment
@@ -385,7 +380,7 @@ message("    current seed is: ", seed)
 
 mySimOuts <- emptyList
 # parallel::clusterMap, cl = cl, 
-mySimOuts <- Cache(mapply, runExperiment, sim = mySims, 
+mySimOuts <- Cache(Map, runExperiment, sim = mySims, 
                    nReps = experimentReps, objectsToHash = objectsToHash)
 message("  Finished Experiment.")
 ##### POST Experiment
@@ -418,28 +413,26 @@ flammableFiles <- lapply(mySimOuts, function(mySimOut) {
 })
 
 #tsfRasters <- emptyList
-tsfRasters <- Cache(parallel::clusterMap, cl = cl, tsf = tsfs,
+tsfRasters <- Cache(Map, tsf = tsfs,
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
-                    reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)),
-                    SIMPLIFY = FALSE)
+                    reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
-tsfRasterTilePaths <- Cache(mapply, rst = tsfRasters, modelType = names(tsfRasters),
+tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters),
        MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
        function(rst, modelType, zoomRange, colorTableFile) {
          outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
          filenames <- gdal2Tiles(rst, outputPath = outputPath,
                       zoomRange = zoomRange, colorTableFile = colorTableFile)
          return(filenames)
-       }, SIMPLIFY = FALSE)
+       })
 
 
 
 if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
-  vtmRasters <- Cache(parallel::clusterMap, cl = cl, tsf = vtms,
+  vtmRasters <- Cache(Map, cl = cl, tsf = vtms,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
-                      reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)),
-                      SIMPLIFY = FALSE)
-  vtmRasterTilePaths <- mapply(rst = vtmRasters, modelType = names(vtmRasters),
+                      reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
+  vtmRasterTilePaths <- Map(rst = vtmRasters, modelType = names(vtmRasters),
                                MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                                function(rst, modelType, zoomRange, colorTableFile) {
                                  outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
@@ -474,7 +467,7 @@ leadingMultiPolygons <- function(reportingPolygon, tsf, vtm, cl, ageClasses, age
 }
 
 
-leading <- Cache(mapply, #cl = cl,
+leading <- Cache(Map, #cl = cl,
   reportingPolygon = reportingPolygons, tsf = tsfs, vtm = vtms,
   MoreArgs = list(cl = TRUE, ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs),
   leadingMultiPolygons)
