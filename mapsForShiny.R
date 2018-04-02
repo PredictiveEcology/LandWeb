@@ -10,10 +10,12 @@ allFMAsFiles <- c("FMA_Boudary.CPG", "FMA_Boudary.dbf", "FMA_Boudary.prj",
                      "FMA_Boudary.shx")
 shpAllFMAs <- Cache(prepInputs, userTags = "stable", 
                     url = "https://drive.google.com/open?id=1oCMiHRRT1bCWe0Uv69nRSrE1nsh-4Tic",
-                    #targetFile = albertaFMUFilename,
-                    #alsoExtract = albertaFMUFiles,
+                    targetFile = allFMAsFilename,
+                    alsoExtract = allFMAsFiles,
                     fun = "shapefile", 
                     destinationPath = dPath)
+# if (suppressWarnings(any(!rgeos::gIsValid(shpAllFMAs, byid = TRUE))))
+#   shpAllFMAs <- raster::buffer(shpAllFMAs, width = 0, dissolve = FALSE)
 shpAllFMAs@data[[labelColumn]] <- shpAllFMAs$Name
 
 # Alberta Ecozone

@@ -1,3 +1,4 @@
+# cacheId for 1000 years: 2e35699c4ade1b4bfa82e864558c7436, 7.3 days - on 342
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 SpaDESPkgs <- c(
   "PredictiveEcology/SpaDES.core@development",
@@ -44,7 +45,7 @@ modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine", "
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")#, "makeLeafletTiles")
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 studyArea <- "VERYSMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
-studyArea <- c("AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
+studyArea <- c("FULL")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
 #studyArea <- "RIA"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA", "VERYSMALL"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
