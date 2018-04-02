@@ -1,11 +1,19 @@
+# Overall model times # start is default at 0
+endTime <- 2
+summaryInterval <- 1
+summaryPeriod <- c(1, endTime)
+
 # cacheId for 1000 years: 2e35699c4ade1b4bfa82e864558c7436, 7.3 days - on 342
-emptyList <- list(Free = NULL)
-emptyList <- list(Proprietary = NULL)
+authenticationType <- list("Free") # Can do one or both of "Free" "Proprietary"
+# Spatial stuff -- determines the size of the area that will be "run" in the simulations
+subStudyRegionName <- "FULL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
+                              #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
+
+
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 SpaDESPkgs <- c(
   "PredictiveEcology/SpaDES.core@development",
   "PredictiveEcology/SpaDES.tools@development",
-  #"PredictiveEcology/SpaDES.shiny@develop",
   "PredictiveEcology/SpaDES.shiny@generalize-modules",
   "raster"
 )
@@ -27,7 +35,6 @@ reproducible::Require(unique(c(
   # `snow` required internally by `parallel` for Windows SOCK clusters
   if (Sys.info()["sysname"] == "Windows") "snow",
   moduleRqdPkgs
-  # shiny app
 )))
 
 # Options
@@ -45,10 +52,6 @@ options(httr_oob_default = TRUE)
 
 appURL <- "http://landweb.predictiveecology.org/Demo/"
 authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
-
-# Spatial stuff -- determines the size of the area that will be "run" in the simulations
-subStudyRegionName <- "FULL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
-#subStudyRegionName <- c("AB")  #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
 ##                however, in-app, the paths need to be set as reactive values for authentication!
@@ -116,11 +119,6 @@ ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
 # Time steps
 fireTimestep <- 1
 successionTimestep <- 10 # was 2
-
-# Overall model times # start is default at 0
-endTime <- 800
-summaryInterval <- 10
-summaryPeriod <- c(500, endTime)
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
 # "shpStudyRegion"     "shpStudyRegion"
@@ -195,6 +193,9 @@ rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
 #############################
 
 ##### SERVER FILE.R
+names(authenticationType) <- authenticationType
+emptyList <- lapply(authenticationType, function(x) NULL)
+
 # THIS IS DANGEROUS, BUT NECESSARY FOR GUARANTEED RUNNING --
 #    THIS MEANS that any values of objects will be OK and will trigger a cached return
 #    Only shpStudySubRegion and non-object arguments to simInit will make a new run
