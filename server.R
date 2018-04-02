@@ -10,23 +10,23 @@ function(input, output, session) {
   callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
 
   # TODO: update generator to handle this assignment
-  rctChosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",
-                                rctRasterList = rctRasterList,
-                                rctUrlTemplate = rctUrlTemplate,
-                                rctPolygonList = rctPolygonList,
-                                shpStudyRegionName = "LandWeb Study Area",
-                                defaultPolyName = NULL,
-                                colorTable = colorTableFile,
-                                palette = timeSinceFirePalette,
-                                mapLegend = paste0("Time since fire", br(), "(years)"),
-                                maxAge = maxAge, zoom = 5, nPolygons = 1,
-                                nRasters = length(rctTsf()))
+  rctChosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
+                                   rctRasterList = rctRasterList,
+                                   rctUrlTemplate = rctUrlTemplate,
+                                   rctPolygonList = rctPolygonList,
+                                   shpStudyRegionName = "LandWeb Study Area",
+                                   defaultPolyName = NULL,
+                                   colorTable = colorTableFile,
+                                   palette = timeSinceFirePalette,
+                                   mapLegend = paste0("Time since fire", br(), "(years)"),
+                                   maxAge = maxAge, zoom = 5, nPolygons = 1,
+                                   nRasters = length(rctTsf()))
 
   callModule(largePatches, "largePatches", polygonList = rctPolygonList(),   ## TODO: write this with generator
              chosenPolyName = rctChosenPolyName(), tsf = rctTsf(), vtm = rctVtm(), cl = NULL,
              ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
-  callModule(simInfo, "simInfo", mySimOut()[[1]])
-  callModule(moduleInfo, "moduleInfo", mySimOut()[[1]])
+  callModule(simInfo, "simInfo", rctSim())
+  callModule(moduleInfo, "moduleInfo", rctSim())
   callModule(inputTables, "inputTables")
 
   ## footers (see ?copyrightFooter)
