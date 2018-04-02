@@ -491,3 +491,11 @@ if (FALSE) {
 }
 #############################
 
+
+globalEndTime <- Sys.time()
+onStop(function() {
+  appStopTime <<- Sys.time()
+  cat("App took", format(appStopTime - appStartTime), "\n")
+  cat("Global.R took", format(globalEndTime - appStartTime), "\n")
+  cat("Server took", format(appStopTime - serverStartTime))
+})

@@ -1,4 +1,5 @@
 function(input, output, session) {
+  serverStartTime <<- Sys.time()
   session$userData$userLoggedIn <- reactiveVal(FALSE)
   session$userData$userAuthorized <- reactiveVal(FALSE)
 
