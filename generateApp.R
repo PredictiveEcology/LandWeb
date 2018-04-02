@@ -84,6 +84,5 @@ appMetadata2 <- list(
 
 # newApp(getwd(), appMetadata2)
 
-devtools::load_all("~/GitHub/SpaDES.shiny")
 file.copy("global_file.R", "global.R", overwrite = TRUE)
 shiny::runApp(".", launch.browser = TRUE, port = 5921)
