@@ -6,7 +6,7 @@ summaryPeriod <- c(1, endTime)
 # cacheId for 1000 years: 2e35699c4ade1b4bfa82e864558c7436, 7.3 days - on 342
 authenticationType <- list("Free") # Can do one or both of "Free" "Proprietary"
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
-subStudyRegionName <- "FULL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
+subStudyRegionName <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
                               #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
 
 
@@ -172,15 +172,15 @@ reportingPolygons$Free <- Cache(createReportingPolygons,
                                 shpStudyRegion = shpStudyRegion,
                                 shpSubStudyRegion = sSubSRXYXY)
 
-
-tmpProprietary <- Cache(createReportingPolygons,
-                        c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
-                        shpStudyRegion = shpStudyRegion,
-                        shpSubStudyRegion = sSubSRXYXY)
-reportingPolygons$Proprietary <- reportingPolygons$Free
-reportingPolygons$Proprietary[names(tmpProprietary)] <- tmpProprietary
-rm(tmpProprietary)
-
+if ("Proprietary" %in% authenticationType) {
+  tmpProprietary <- Cache(createReportingPolygons,
+                          c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
+                          shpStudyRegion = shpStudyRegion,
+                          shpSubStudyRegion = sSubSRXYXY)
+  reportingPolygons$Proprietary <- reportingPolygons$Free
+  reportingPolygons$Proprietary[names(tmpProprietary)] <- tmpProprietary
+  rm(tmpProprietary)
+}
 
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
@@ -194,6 +194,10 @@ rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
 
 ##### SERVER FILE.R
 names(authenticationType) <- authenticationType
+authenticationTypePossibilities <- c("Free", "Proprietary")
+if (!all(authenticationType %in% authenticationTypePossibilities)) {
+  stop("authenticationType must be one or both of ", authenticationTypePossibilities)
+}
 emptyList <- lapply(authenticationType, function(x) NULL)
 
 # THIS IS DANGEROUS, BUT NECESSARY FOR GUARANTEED RUNNING --
