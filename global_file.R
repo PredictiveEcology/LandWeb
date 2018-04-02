@@ -338,7 +338,6 @@ flammableFiles <- lapply(mySimOuts, function(mySimOut) {
   asPath(file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd"))
 })
 
-#tsfRasters <- emptyList
 tsfRasters <- Cache(Map, tsf = tsfs,
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
@@ -347,7 +346,7 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
        MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
        function(rst, modelType, zoomRange, colorTableFile) {
          outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
-         filenames <- gdal2Tiles(rst, outputPath = outputPath,
+         filenames <- gdal2Tiles(rst$crsLFLT, outputPath = outputPath,
                       zoomRange = zoomRange, colorTableFile = colorTableFile)
          return(filenames)
        })
