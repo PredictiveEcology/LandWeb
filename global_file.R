@@ -11,6 +11,7 @@ subStudyRegionName <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "M
 
 
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
+packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
   "PredictiveEcology/SpaDES.core@development",
   "PredictiveEcology/SpaDES.tools@development",
@@ -36,6 +37,7 @@ reproducible::Require(unique(c(
   if (Sys.info()["sysname"] == "Windows") "snow",
   moduleRqdPkgs
 )))
+packageLoadEndTime <- Sys.time()
 
 # Options
 options(reproducible.verbose = FALSE)
@@ -495,7 +497,9 @@ if (FALSE) {
 globalEndTime <- Sys.time()
 onStop(function() {
   appStopTime <<- Sys.time()
+  
   cat("App took", format(appStopTime - appStartTime), "\n")
+  cat("Package loading took", format(packageLoadEndTime - packageLoadStartTime), "\n")
   cat("Global.R took", format(globalEndTime - appStartTime), "\n")
   cat("Server took", format(appStopTime - serverStartTime))
 })
