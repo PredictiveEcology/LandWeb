@@ -1,3 +1,4 @@
+source("simInitAndExperiment.R")
 intersectListShps <- function(listShps, intersectShp) {
   message("Intersecting reporting polygons with shpStudyRegion")
   if (!is(intersectShp, "sf")) {

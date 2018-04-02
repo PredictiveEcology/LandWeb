@@ -25,10 +25,10 @@ inputTablesUI <- function(id) {
 
 inputTables <- function(input, output, session) {
   output$speciesInputs <- renderDataTable({
-    landisInputs
+    landisInputs # global object
   })
 
   output$speciesEcoregionInputs <- renderDataTable({
-    spEcoReg
+    spEcoReg # global object
   })
 }
