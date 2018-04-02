@@ -415,11 +415,12 @@ if (FALSE) {
 
 
 globalEndTime <- Sys.time()
+
 onStop(function() {
   appStopTime <<- Sys.time()
   
   cat("App took", format(appStopTime - appStartTime), "\n")
   cat("Package loading took", format(packageLoadEndTime - packageLoadStartTime), "\n")
   cat("Global.R took", format(globalEndTime - appStartTime), "\n")
-  cat("Server took", format(appStopTime - serverStartTime))
+  cat("Server took", format(appStopTime - serverStartTime), "\n")
 })
