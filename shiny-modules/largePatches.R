@@ -106,8 +106,8 @@ largePatchesUI <- function(id) {
 #' @param input           Shiny server input object.
 #' @param output          Shiny server output object.
 #' @param session         Shiny server session object.
-#' @param polygonList      List of polygons for stuff # TODO: improve description
-#' @param chosenPolyName  The name of the selected polygon.
+#' @param polygonList     A list of polygons for to use while calculating large patches results
+#' @param chosenPolyName  Name of the polygon to extract from polygonList.
 #' @param nSimTimes  How many simulation time stamps there are.
 #'
 #' @return Shiny module server function.
@@ -125,7 +125,8 @@ largePatches <- function(input, output, session, polygonList, chosenPolyName = N
 
   clumpMod2Args <- reactive({
     if (is.null(chosenPolyName)) chosenPolyName <- names(polygonList)[1]
-
+    browser()
+    
     ## TODO: add assertions for other args
     assertthat::assert_that(is.list(polygonList), is.character(chosenPolyName),
                             is.character(tsf), is.character(vtm))

@@ -10,7 +10,7 @@ function(input, output, session) {
   callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
 
   # TODO: update generator to handle this assignment
-  chosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",
+  rctChosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",
                                 rctRasterList = rctRasterList,
                                 rctUrlTemplate = rctUrlTemplate,
                                 rctPolygonList = rctPolygonList,
@@ -23,7 +23,7 @@ function(input, output, session) {
                                 nRasters = length(rctTsf()))
 
   callModule(largePatches, "largePatches", polygonList = rctPolygonList(),   ## TODO: write this with generator
-             chosenPolyName = chosenPolyName(), tsf = rctTsf(), vtm = rctVtm(), cl = NULL,
+             chosenPolyName = rctChosenPolyName(), tsf = rctTsf(), vtm = rctVtm(), cl = NULL,
              ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
   callModule(simInfo, "simInfo", mySimOut()[[1]])
   callModule(moduleInfo, "moduleInfo", mySimOut()[[1]])
