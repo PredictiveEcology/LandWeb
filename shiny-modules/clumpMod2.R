@@ -14,7 +14,7 @@ clumpMod2UI <- function(id) {
   ns <- NS(id)
 
   tagList(
-    numericInput(ns("patchSize"), value = 500, min = 100, max = NA,
+    numericInput(ns("patchSize"), value = 500L, min = 100L, max = NA_integer_,
                  label = paste0("Type patch size in hectares that defines 'Large', ",
                                 "(numbers below 100 will not work)")
     )
@@ -33,8 +33,6 @@ clumpMod2UI <- function(id) {
 #' @param currentPolygon ...
 #' @param cl ...
 #' @param ageClasses ...
-#' @param patchSize ...
-#' @param sizeInHa ...
 #' @param cacheRepo ...
 #' @param largePatchesFn ...
 #' @param countNumPatches ...
@@ -46,11 +44,8 @@ clumpMod2UI <- function(id) {
 #' @importFrom shiny withProgress setProgress
 #' @rdname clumpMod2
 clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, cl,
-                      ageClasses, patchSize, sizeInHa, cacheRepo,
-                      largePatchesFn, countNumPatches) {
+                      ageClasses, cacheRepo, largePatchesFn, countNumPatches) {
   clumps <- reactive({
-    patchSize <- as.integer(input$patchSize)
-
     message(paste("Running largePatchesFn"))
     shiny::withProgress(message = "Calculation in progress",
                         detail = "This may take a while...", value = 0, {
@@ -67,11 +62,15 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, cl,
                                        omitArgs = "cl")
                           args <- args[!unlist(lapply(args, is.null))]
                           largePatches <- do.call(Cache, args)
+                          assertthat::assert_that(is.data.table(largePatches))
                           shiny::setProgress(1)
                         })
     message(paste("  Finished largePatchesFn"))
 
-    return(list(Clumps = largePatches[sizeInHa > patchSize], patchSize = patchSize))
+    return(reactive(
+      list(ClumpsDT = largePatches[sizeInHa > as.integer(input$patchSize)],
+           patchSize = as.integer(input$patchSize))
+    ))
   })
 
   return(clumps)

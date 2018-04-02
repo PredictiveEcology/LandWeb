@@ -22,8 +22,8 @@ function(input, output, session) {
                                    maxAge = maxAge, zoom = 5, nPolygons = 1,
                                    nRasters = length(rctTsf()))
 
-  callModule(largePatches, "largePatches", polygonList = rctPolygonList(),   ## TODO: write this with generator
-             chosenPolyName = rctChosenPolyName(), tsf = rctTsf(), vtm = rctVtm(), cl = NULL,
+  callModule(largePatches, "largePatches", rctPolygonList = rctPolygonList,   ## TODO: write this with generator
+             rctChosenPolyName = rctChosenPolyName, rctTsf = rctTsf, rctVtm = rctVtm, cl = NULL,
              ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())
