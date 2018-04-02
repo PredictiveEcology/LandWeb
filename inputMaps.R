@@ -6,7 +6,7 @@ loadShpAndMakeValid <- function(file) {
 
 loadStudyRegions <- function(shpPath, fireReturnIntervalMap, subStudyRegionName, crsStudyRegion) {
   if ("RIA" %in% subStudyRegionName) {
-    sSubSRXYXY <- Cache(shapefile, userTags = "stable",
+    shpSubStudyRegion <- Cache(shapefile, userTags = "stable",
                             file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))
     loadAndBuffer <- function(shapefile) {
       a <- shapefile(shapefile)
@@ -14,14 +14,14 @@ loadStudyRegions <- function(shpPath, fireReturnIntervalMap, subStudyRegionName,
       SpatialPolygonsDataFrame(b, data = as.data.frame(a))
     }
     fireReturnIntervalTemp <- 400
-    sSubSRXYXY[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
-    sSubSRXYXY[["fireReturnInterval"]] <- sSubSRXYXY$LTHRC # Fire return interval
+    shpSubStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
+    shpSubStudyRegion[["fireReturnInterval"]] <- shpSubStudyRegion$LTHRC # Fire return interval
 
     shpStudyRegion <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
                                 cacheRepo = paths$cachePath, userTags = "stable")
     shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
     shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
-    shpStudyRegion <- sSubSRXYXY
+    shpStudyRegion <- shpSubStudyRegion
 
   } else {
     # Dave Andison doesn't have .prj files -- this line will create one with NAD83 UTM11N downloading from spatialreference.org
@@ -46,10 +46,10 @@ loadStudyRegions <- function(shpPath, fireReturnIntervalMap, subStudyRegionName,
     shpStudyRegion@data <- shpStudyRegion@data[, !(names(shpStudyRegion) %in% "ECODISTRIC")]
     shpStudyRegion <- spTransform(shpStudyRegion, crsStudyRegion)
     shpStudyRegion <- rgeos::gBuffer(shpStudyRegion, byid = TRUE, width = 0)
-    sSubSRXYXY <- shpStudyRegionCreate(shpStudyRegion, subStudyRegionName = subStudyRegionName,
+    shpSubStudyRegion <- shpStudyRegionCreate(shpStudyRegion, subStudyRegionName = subStudyRegionName,
                                            crsStudyRegion = crsStudyRegion)
   }
-  list(sSubSRXYXY = sSubSRXYXY, shpStudyRegion = shpStudyRegion)
+  list(shpSubStudyRegion = shpSubStudyRegion, shpStudyRegion = shpStudyRegion)
 }
 
 shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyRegion) {
@@ -65,8 +65,8 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
       ext <- extent(shpStudyRegionLFLT)
       ext@ymin <- 60
       shpStudyRegionNWT <- crop(shpStudyRegionLFLT, ext)
-      sSubSRXYXY <- spTransform(shpStudyRegionNWT, crs(shpStudyRegion))
-      sSubSRXYXY <- rgeos::gBuffer(sSubSRXYXY, width = 0, byid = TRUE)
+      shpSubStudyRegion <- spTransform(shpStudyRegionNWT, crs(shpStudyRegion))
+      shpSubStudyRegion <- rgeos::gBuffer(shpSubStudyRegion, width = 0, byid = TRUE)
     } else if (any(subStudyRegionName %in% canadaAdminNamesAll)) {
       canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
                          cacheRepo = paths$cachePath, userTags = "stable")
@@ -74,7 +74,7 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
                                       names(canadaAdminNames) %in% subStudyRegionName]
       inputMapPolygon <- spTransform(canadaMap[canadaMap$NAME_1 %in% subStudyRegionName,], crsStudyRegion)
       aa <- sf::st_intersection(sf::st_as_sf(shpStudyRegion), sf::st_as_sf(inputMapPolygon))
-      sSubSRXYXY <- as(aa, "Spatial")
+      shpSubStudyRegion <- as(aa, "Spatial")
 
     } else {
       set.seed(853839)#set.seed(5567913)
@@ -111,17 +111,17 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
       Srs1 <- Polygons(list(Sr1), "s1")
       inputMapPolygon <- SpatialPolygons(list(Srs1), 1L)
       crs(inputMapPolygon) <- crsStudyRegion
-      sSubSRXYXY <- raster::intersect(shpStudyRegion, inputMapPolygon)
+      shpSubStudyRegion <- raster::intersect(shpStudyRegion, inputMapPolygon)
       options("digits.secs" = 7)
       on.exit(options("digits.secs" = NULL))
       set.seed(as.numeric(format(Sys.time(), format = "%OS")))
 
     }
   } else {
-    sSubSRXYXY <- shpStudyRegion
+    shpSubStudyRegion <- shpStudyRegion
   }
 
-  return(sSubSRXYXY)
+  return(shpSubStudyRegion)
 }
 
 createPrjFile <- function(shp) {
