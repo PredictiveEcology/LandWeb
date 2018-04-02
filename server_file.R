@@ -1,5 +1,5 @@
 ## logged in and autheticated users can see the proprietary model outputs
-modelType <- reactive({
+rctAuthenticationType <- reactive({
   if (session$userData$userAuthorized()) {
     "Proprietary"
   } else {
@@ -7,13 +7,13 @@ modelType <- reactive({
   }
 })
 
-rctTsf <- reactive(tsfs[[modelType()]])
-rctVtm <- reactive(vtms[[modelType()]])
+rctTsf <- reactive(tsfs[[rctAuthenticationType()]])
+rctVtm <- reactive(vtms[[rctAuthenticationType()]])
 
-rctRasterList <- reactive(tsfRasters[[modelType()]])
+rctRasterList <- reactive(tsfRasters[[rctAuthenticationType()]])
 
-rctPolygonList <- reactive(reportingPolygons[[modelType()]])
+rctPolygonList <- reactive(reportingPolygons[[rctAuthenticationType()]])
 
-rctSim <- reactive(mySimOuts[[modelType()]][[1]])
+rctSim <- reactive(mySimOuts[[rctAuthenticationType()]][[1]])
 
-rctUrlTemplate <- reactive(tsfRasterTilePaths[[modelType()]])
+rctUrlTemplate <- reactive(tsfRasterTilePaths[[rctAuthenticationType()]])

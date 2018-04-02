@@ -62,20 +62,23 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
             }
           )
         } else { # not enough clusters
-          break # not sure if this will work correctly
+          lapplyFn <- "lapply"
+          cl <- FALSE
         }
       }
-      ## By here, it must be a cluster
-      #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
-      if (Sys.info()[["sysname"]] == "Windows") {
-        clusterExport(cl = cl, varlist = list(ls()),
-                      envir = environment())
-        clusterEvalQ(cl = cl, {
-          library(raster)
-        })
-      }
-      
     }
+  }
+  if (is(cl, "cluster")) {
+    ## By here, it must be a cluster
+    #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
+    if (Sys.info()[["sysname"]] == "Windows") {
+      clusterExport(cl = cl, varlist = list(ls()),
+                    envir = environment())
+      clusterEvalQ(cl = cl, {
+        library(raster)
+      })
+    }
+    
   }
  
 
