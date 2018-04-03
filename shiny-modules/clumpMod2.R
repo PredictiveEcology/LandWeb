@@ -60,7 +60,7 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, cl,
                                        polygonToSummarizeBy = currentPolygon,
                                        ageClasses = ageClasses,
                                        countNumPatches = countNumPatches,
-                                       paths = paths,
+                                       paths = paths, 
                                        omitArgs = "cl")
                           args <- args[!unlist(lapply(args, is.null))]
                           lrgPatches <- do.call(Cache, args)
