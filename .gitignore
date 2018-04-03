@@ -47,7 +47,7 @@ inputs/FMU_Alberta_2015-11/
 last.dump.rda
 mySimDigestSaved.rds
 mySimSaved.rds
-outputs/*
+outputs*
 
 ## OAuth tokens
 .httr-oauth
