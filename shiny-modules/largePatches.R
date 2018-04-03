@@ -20,7 +20,8 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
+histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes, 
+                         patchSize) {
   observeEvent(datatable, label = chosenValues, {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -69,7 +70,6 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
 
     histogramData <- actualPlot$counts / sum(actualPlot$counts)
 
-    browser()
     callModule(histogram, "histogram", histogramData, addAxisParams,
                width = rep(1, length(distribution)),
                xlim = range(breaks), xlab = "", ylab = "Proportion in NRV",
@@ -151,7 +151,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
 
     rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
 
-    rctClumps()$ClumpsDT
+    return(rctClumps()$ClumpsDT)
   })
 
 
@@ -166,7 +166,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
 
   callModule(slicer, "slicer", datatable = rctLargePatchesData,
              categoryValue = "LargePatches", nSimTimes = length(rctTsf()),
-             uiSequence = uiSequence(),
+             uiSequence = uiSequence(), 
+             #patchSize = rctLargePatchesData()$patchSize,
              serverFunction = histServerFn, ## calls histogram server module
              uiFunction = function(ns) {
                histogramUI(ns("histogram"), height = 300)
