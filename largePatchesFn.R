@@ -34,8 +34,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   rasWithNAs[] <- NA
 
   # identify which polygon each pixel is contained within == data.table with 2 columns, cell and polygonID
-  cellIDByPolygon <- Cache(cacheRepo = paths$cachePath, cellNumbersForPolygon,
-                           rasWithNAs, polygonToSummarizeBy)
+  cellIDByPolygon <- Cache(cellNumbersForPolygon, rasWithNAs, polygonToSummarizeBy)
 
   if (missing(cl)) {
     lapplyFn <- "lapply"
@@ -63,8 +62,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
       startList <- list()
     }
     startList <- append(startList, list(y = y))
-    out1 <- Cache(cacheRepo = paths$cachePath,
-                  do.call, lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
+    out1 <- Cache(do.call, lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
                     x <- match(x, timeSinceFireFiles)
                     timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
                     leadingRast <- raster(vegTypeMapFiles[x])
