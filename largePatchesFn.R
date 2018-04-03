@@ -20,7 +20,7 @@
 #' @return A matrix with counts of number of large patches
 largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy, cl,
                            ageCutoffs = ageClassCutOffs, countNumPatches = countNumPatches,
-                           ageClasses, .quickCheck = TRUE, notOlderThan = Sys.time() - 1e7) {
+                           ageClasses) {
 
   ## TODO: don't use paths$path unless a paths object is passed as argument
 
@@ -65,7 +65,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
       startList <- list()
     }
     startList <- append(startList, list(y = y))
-    out1 <- Cache(cacheRepo = paths$cachePath, #notOlderThan = Sys.time(),
+    out1 <- Cache(cacheRepo = paths$cachePath,
                   do.call, lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
                     x <- match(x, timeSinceFireFiles)
                     timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
