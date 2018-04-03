@@ -15,7 +15,7 @@ function(input, output, session) {
                                    rctUrlTemplate = rctUrlTemplate,
                                    rctPolygonList = rctPolygonList,
                                    shpStudyRegionName = "LandWeb Study Area",
-                                   defaultPolyName = NULL,
+                                   defaultPolyName = "National Ecozones",
                                    colorPalette = timeSinceFirePalette,
                                    mapLegend = paste0("Time since fire", br(), "(years)"),
                                    maxAge = maxAge, zoom = 5, nPolygons = 1,
