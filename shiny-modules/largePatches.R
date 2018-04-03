@@ -154,7 +154,6 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     return(rctClumps()$ClumpsDT)
   })
 
-
   uiSequence <- reactive({
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
