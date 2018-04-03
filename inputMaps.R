@@ -47,7 +47,7 @@ loadStudyRegions <- function(shpPath, fireReturnIntervalMap, subStudyRegionName,
     shpStudyRegion <- spTransform(shpStudyRegion, crsStudyRegion)
     shpStudyRegion <- rgeos::gBuffer(shpStudyRegion, byid = TRUE, width = 0)
     shpSubStudyRegion <- shpStudyRegionCreate(shpStudyRegion, subStudyRegionName = subStudyRegionName,
-                                           crsStudyRegion = crsStudyRegion)
+                                              crsStudyRegion = crsStudyRegion)
   }
   list(shpSubStudyRegion = shpSubStudyRegion, shpStudyRegion = shpStudyRegion)
 }
@@ -71,7 +71,7 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
       canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
                          cacheRepo = paths$cachePath, userTags = "stable")
       subStudyRegionName <- canadaAdminNames[canadaAdminNames %in% subStudyRegionName |
-                                      names(canadaAdminNames) %in% subStudyRegionName]
+                                               names(canadaAdminNames) %in% subStudyRegionName]
       inputMapPolygon <- spTransform(canadaMap[canadaMap$NAME_1 %in% subStudyRegionName,], crsStudyRegion)
       aa <- sf::st_intersection(sf::st_as_sf(shpStudyRegion), sf::st_as_sf(inputMapPolygon))
       shpSubStudyRegion <- as(aa, "Spatial")
