@@ -30,7 +30,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   yearNames <- unlist(lapply(strsplit(withoutPath, split = "_|\\."), # split on _ and .
                              function(x) x[length(x) - 1])) # ... take second last one
 
-  rasWithNAs <- raster(raster(timeSinceFireFiles[1]))
+  rasWithNAs <- raster(raster(timeSinceFireFiles[1])) ## empty raster with same dimensions
   rasWithNAs[] <- NA
 
   # identify which polygon each pixel is contained within == data.table with 2 columns, cell and polygonID

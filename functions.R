@@ -164,7 +164,6 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
 
 # A function that creates a raster with contiguous patches labelled as such
 countNumPatches <- function(ras, cellIDByPolygon, ...) {
-  
   clumpedRas <- clump(ras, gaps = FALSE, ...)
   tryCatch(cellIDByPolygon[, newRas := clumpedRas[][cell]], warning = function(x) browser())
   cellIDByPolygon[, list(sizeInHa = .N * prod(res(clumpedRas))/1e4),
@@ -174,9 +173,10 @@ countNumPatches <- function(ras, cellIDByPolygon, ...) {
 cellNumbersForPolygon <- function(dummyRaster, Polygon) {
   aa <- raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE)
   notNull <- !unlist(lapply(aa, is.null))
-  rbindlist(lapply(seq_along(aa)[notNull], function(x) data.frame(stringsAsFactors = FALSE,
-                                                                  cell = aa[[x]][,"cell"], 
-                                                                  polygonID = as.character(x))))
+  dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) {
+    data.table(cell = aa[[x]][, "cell"], polygonID = as.character(x))
+  }))
+  return(data.table::copy(dt))
 }
 
 reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
