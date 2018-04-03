@@ -22,7 +22,6 @@
 #' @rdname
 histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
   observeEvent(datatable, label = chosenValues, {
-    browser()
     dt <- if (is.reactive(datatable)) {
       datatable()
     } else {
@@ -70,6 +69,7 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
 
     histogramData <- actualPlot$counts / sum(actualPlot$counts)
 
+    browser()
     callModule(histogram, "histogram", histogramData, addAxisParams,
                width = rep(1, length(distribution)),
                xlim = range(breaks), xlab = "", ylab = "Proportion in NRV",
