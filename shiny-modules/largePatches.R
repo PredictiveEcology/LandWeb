@@ -68,11 +68,11 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
 
     actualPlot <- hist(distribution, breaks = breaks, plot = FALSE)
 
-    histogramData <- actualPlot$counts / sum(actualPlot$counts)
+    histogramData <- actualPlot$counts # / sum(actualPlot$counts)
 
     callModule(histogram, "histogram", histogramData, addAxisParams,
                width = rep(1, length(distribution)),
-               xlim = range(breaks), xlab = "", ylab = "Proportion in NRV",
+               xlim = range(breaks), ylim = c(0, sum(actualPlot$counts)), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
 }
@@ -155,14 +155,13 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   })
 
   uiSequence <- reactive({
-    browser()
-    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]$shinyLabel
+    polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]))
     
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
       category = c("ageClass", "polygonID", "vegCover"),
       uiType = c("tab", "tab", "box"),
-      possibleValues = list(ageClasses, polygonIDs, levels(rasVtmTmp)[[1]][,2])
+      possibleValues = list(ageClasses, polygonIDs, c(levels(rasVtmTmp)[[1]][,2], "All species"))
     )
   })
 
