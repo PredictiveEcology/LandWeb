@@ -21,7 +21,7 @@ intersectListShps <- function(listShps, intersectShp) {
       if (!identical(sf::st_crs(intersectSF), sf::st_crs(shpSF)))
         intersectSF <- Cache(sf::st_transform, intersectSF, crs = sf::st_crs(shpSF) )
       out <- sf::st_intersection(st_geometry(shpSF), st_geometry(intersectSF))
-      if(wasShp) {
+      if (wasShp) {
         out <- as(out, "Spatial")
       }
     }, error = function(x) {
@@ -30,32 +30,29 @@ intersectListShps <- function(listShps, intersectShp) {
         intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
       out <- raster::intersect(shp, intersectShp)
     })
-
-
-
   })
 }
 
-
 #' Calculate proportion of landscape occupied by each vegetation class
+#'
 #' @return A data.table with proportion of the pixels in each vegetation class, for
 #'         each given age class within each polygon
 leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
                            polygonToSummarizeBy,
                            ageClassCutOffs,  ageClasses, cl) {
-  
+
   lapplyFn <- "lapply"
   if (!missing(cl)) { # not missing
     if (!identical(cl, "FALSE")) { # is NOT FALSE
       lapplyFn <- "parLapplyLB"
       if (isTRUE(cl)) { # Is TRUE
         if (detectCores() > 12) {
-          ncores <- min(length(timeSinceFireFiles), detectCores()/4)
+          ncores <- min(length(timeSinceFireFiles), detectCores() / 4)
           message("making ", ncores, " node cluster")
           if (Sys.info()[["sysname"]] == "Windows") {
-            cl <- makeCluster(ncores)  
+            cl <- makeCluster(ncores)
           } else {
-            cl <- makeForkCluster(ncores)  
+            cl <- makeForkCluster(ncores)
           }
           on.exit({
             message("Closing cores")
@@ -73,15 +70,13 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
     ## By here, it must be a cluster
     #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
     if (Sys.info()[["sysname"]] == "Windows") {
-      clusterExport(cl = cl, varlist = list(ls()),
-                    envir = environment())
+      clusterExport(cl = cl, varlist = list(ls()), envir = environment())
       clusterEvalQ(cl = cl, {
         library(raster)
       })
     }
-    
+
   }
- 
 
   out <- lapply(ageClassCutOffs, function(ages) {
     y <- match(ages, ageClassCutOffs)
@@ -167,8 +162,6 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
   aa
 }
 
-
-
 # A function that creates a raster with contiguous patches labelled as such
 countNumPatches <- function(ras, cellIDByPolygon, ...) {
   clumpedRas <- clump(ras, gaps = FALSE, ...)
@@ -176,7 +169,6 @@ countNumPatches <- function(ras, cellIDByPolygon, ...) {
   cellIDByPolygon[, list(sizeInHa = .N * prod(res(clumpedRas))/1e4),
                   by = c("polygonID","newRas")] %>% na.omit()
 }
-
 
 cellNumbersForPolygon <- function(dummyRaster, Polygon) {
   aa <- raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE)
@@ -191,7 +183,7 @@ reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
   rastsLFLT <- lapply(seq_along(tsf), function(FN) {
     r <- raster(tsf[[FN]])
     # gdalwarp(srcfile = filename(r), dstfile = lfltFN[FN], s_srs = crs(r),
-    #          t_srs = crs, r = "near", 
+    #          t_srs = crs, r = "near",
     #          te = c(xmin(rstFlammableNum), ymin(rstFlammableNum),
     #                 xmax(rstFlammableNum), ymax(rstFlammableNum)),
     #          tr = res(rstFlammableNum),
@@ -207,10 +199,9 @@ reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
     r
   })
   rastsCRSSR2 <- lapply(tsf, raster)
-  
-  globalRasts <- list("crsSR" = rastsCRSSR2,
-                   "crsLFLT" = rastsLFLT)
-  
+
+  globalRasts <- list("crsSR" = rastsCRSSR2, "crsLFLT" = rastsLFLT)
+
   message("  Finished reprojecting rasters")
   globalRasts
 }
@@ -341,7 +332,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   cannonicalLayerNames <- c("Alberta Ecozones", "National Ecozones",
                    "National Ecodistricts", "Forest Management Areas",
                    "Alberta FMUs", "Caribou Herds")
-  if (!(all(layerNames %in% cannonicalLayerNames)) ){
+  if (!(all(layerNames %in% cannonicalLayerNames)) ) {
     stop("This function can only handle ", paste(cannonicalLayerNames, collapse = ", "))
   }
 
@@ -359,10 +350,12 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                                     "nsr2005_final_letter.jpg", "nsr2005_final_letter.pdf"))
     albertaEcozoneURL <- "https://www.albertaparks.ca/media/429607/natural_regions_subregions_of_alberta.zip"
     albertaEcozoneFilename <- asPath("Natural_Regions_Subregions_of_Alberta.shp")
-    polys[[cannonicalLayerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable",
-                                                  url = albertaEcozoneURL, targetFile = albertaEcozoneFilename,
-                                                  fun = "shapefile", destinationPath = dPath, alsoExtract = albertaEcozoneFiles)
-    polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[cannonicalLayerNames[layerNamesIndex]]] $NSRNAME
+    polys[[cannonicalLayerNames[layerNamesIndex]]] <- Cache(
+      prepInputs, userTags = "stable",
+      url = albertaEcozoneURL, targetFile = albertaEcozoneFilename,
+      fun = "shapefile", destinationPath = dPath, alsoExtract = albertaEcozoneFiles
+    )
+    polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[cannonicalLayerNames[layerNamesIndex]]]$NSRNAME
   }
 
   # National Ecozone
@@ -372,12 +365,14 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
     ecozoneFilename <-   file.path(dPath, "ecozones.shp")
     ecozoneFiles <- c("ecozones.dbf", "ecozones.prj",
                       "ecozones.sbn", "ecozones.sbx", "ecozones.shp", "ecozones.shx")
-    polys[[cannonicalLayerNames[layerNamesIndex]]]  <- Cache(prepInputs, userTags = "stable",
-                                                   url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
-                                                   targetFile = asPath(ecozoneFilename),
-                                                   alsoExtract = ecozoneFiles,
-                                                   fun = "shapefile", destinationPath = dPath)
-    polys[[cannonicalLayerNames[layerNamesIndex]]] @data[[labelColumn]] <- polys[[cannonicalLayerNames[layerNamesIndex]]] $ZONE_NAME
+    polys[[cannonicalLayerNames[layerNamesIndex]]]  <- Cache(
+      prepInputs, userTags = "stable",
+      url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
+      targetFile = asPath(ecozoneFilename),
+      alsoExtract = ecozoneFiles,
+      fun = "shapefile", destinationPath = dPath
+    )
+    polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[cannonicalLayerNames[layerNamesIndex]]]$ZONE_NAME
   }
 
   # National Ecodistrict
@@ -477,7 +472,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                         out <- Cache(rgeos::gSimplify, p, userTags = "stable",
                                      tol = (xmax(p) - xmin(p))/10000, topologyPreserve = TRUE)
                         #out <- suppressWarnings(thin(p))
-                        isSimp <- tryCatch(if(isTRUE(!all(rgeos::gIsSimple(out, byid = TRUE)))) FALSE else TRUE,
+                        isSimp <- tryCatch(if (isTRUE(!all(rgeos::gIsSimple(out, byid = TRUE)))) FALSE else TRUE,
                                            error = function(xx) FALSE)
                         browser(expr = "shpNationalEcodistrictDemo" %in% nam)
                         #if (rgeos::gIsSimple(out)) out <- raster::buffer(out, width = 0, dissolve = FALSE)
@@ -523,16 +518,15 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
 
 
 leadingMultiPolygons <- function(reportingPolygon, tsf, vtm, cl, ageClasses, ageClassCutOffs) {
-  reportingPolysWOStudyArea <- reportingPolygon[-which(names(reportingPolygon)=="LandWeb Study Area")]
-  Map(poly = lapply(reportingPolysWOStudyArea, function(p) p$crsSR), 
-      polyNames = names(reportingPolysWOStudyArea), 
+  reportingPolysWOStudyArea <- reportingPolygon[-which(names(reportingPolygon) == "LandWeb Study Area")]
+  Map(poly = lapply(reportingPolysWOStudyArea, function(p) p$crsSR),
+      polyNames = names(reportingPolysWOStudyArea),
       function(poly, polyNames) {
-        message("  Determine leading species by age class, by polygon (loading, ", length(tsf), 
+        message("  Determine leading species by age class, by polygon (loading, ", length(tsf),
                 " rasters, summarize by ", polyNames, ")")
         Cache(leadingByStage, timeSinceFireFiles = asPath(tsf, 2),
-              vegTypeMapFiles = asPath(vtm, 2), 
+              vegTypeMapFiles = asPath(vtm, 2),
               polygonToSummarizeBy = poly$shpSubStudyRegion,
               cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
       })
 }
-

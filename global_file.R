@@ -22,8 +22,10 @@ shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster", "parallel",
                "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
-                   "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr", "PredictiveEcology/quickPlot@development",
-                   "PredictiveEcology/SpaDES.tools@development", "PredictiveEcology/SpaDES.tools@prepInputs",
+                   "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr",
+                   "PredictiveEcology/quickPlot@development",
+                   "PredictiveEcology/SpaDES.tools@development",
+                   "PredictiveEcology/SpaDES.tools@prepInputs",
                    "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible",
                    "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr",
                    "VGAM")
@@ -210,7 +212,6 @@ objects4sim <- lapply(objects4sim, function(x)
        "useParallel" = 2)
 )
 
-
 parameters4sim <- emptyList
 parameters4sim <- lapply(parameters4sim, function(x) {
   list(
@@ -280,32 +281,32 @@ pathFn <- function(pathType, basename, suffix) {
 
 cPaths <- emptyList
 cPaths <- Map(pathFn, suffix = names(cPaths),
-                 MoreArgs = list(basename = subStudyRegionName, pathType = "cache"))
+              MoreArgs = list(basename = subStudyRegionName, pathType = "cache"))
 
 oPaths <- emptyList
 oPaths <- Map(pathFn, suffix = names(oPaths),
-                 MoreArgs = list(basename = subStudyRegionName, pathType = "outputs"))
+              MoreArgs = list(basename = subStudyRegionName, pathType = "outputs"))
 
 paths4sim <- emptyList
 paths4sim <- Map(cPath = cPaths, oPath = oPaths,
-                    function(cPath, oPath) {
-                      list(
-                        cachePath = cPath,
-                        modulePath = "m",
-                        inputPath = "inputs",
-                        outputPath = oPath
-                      )
-                    })
+                 function(cPath, oPath) {
+                   list(
+                     cachePath = cPath,
+                     modulePath = "m",
+                     inputPath = "inputs",
+                     outputPath = oPath
+                   )
+                 })
 
 seed <- sample(1e8, 1)
 
 ######## SimInit and Experiment
-mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim, 
-                 modules = modules4sim, 
-                 outputs = outputs4sim, 
-                      objects4sim = objects4sim, # study area -- cache will respect this
-                      paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
-                      emptyList = emptyList)
+mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim,
+                   modules = modules4sim,
+                   outputs = outputs4sim,
+                   objects4sim = objects4sim, # study area -- cache will respect this
+                   paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
+                   emptyList = emptyList)
 
 
 message("  Finished simInit and Experiment.")
@@ -388,7 +389,6 @@ if ("Proprietary" %in% authenticationType) {
   rm(tmpProprietary)
 }
 
-
 leading <- Cache(Map, #cl = cl,
   reportingPolygon = reportingPolygons, tsf = tsfs, vtm = vtms,
   MoreArgs = list(cl = TRUE, ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs),
@@ -418,7 +418,7 @@ globalEndTime <- Sys.time()
 
 onStop(function() {
   appStopTime <<- Sys.time()
-  
+
   cat("App took", format(appStopTime - appStartTime), "\n")
   cat("Package loading took", format(packageLoadEndTime - packageLoadStartTime), "\n")
   cat("Global.R took", format(globalEndTime - appStartTime), "\n")
