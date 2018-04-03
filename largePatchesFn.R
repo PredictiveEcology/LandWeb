@@ -22,15 +22,13 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                            ageCutoffs = ageClassCutOffs, countNumPatches = countNumPatches,
                            ageClasses, paths) {
 
-  ## TODO: don't use paths$path unless a paths object is passed as argument
-
   #  withProgress(message = 'Calculation in progress',
   #               detail = 'This may take a while...', value = 0, {
 
-  withoutPath <- unlist(lapply(strsplit(timeSinceFireFiles, split = paths$outputPath), function(x) x[-1])) %>%
-    gsub(pattern = "\\/", replacement = "_")
-  yearNames <- unlist(lapply(strsplit(withoutPath, split = "_rstTimeSinceFire_|\\."), function(x)
-    paste0(gsub(x[-length(x)], pattern = "\\/", replacement = "_"), collapse = "")))
+  
+  withoutPath <- basename(timeSinceFireFiles)
+  yearNames <- unlist(lapply(strsplit(withoutPath, split = "_|\\."), # split on _ and . 
+                             function(x) x[length(x) -1])) # ... take second last one
 
   rasWithNAs <- raster(raster(timeSinceFireFiles[1]))
   rasWithNAs[] <- NA
