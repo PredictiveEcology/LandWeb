@@ -23,7 +23,9 @@ function(input, output, session) {
                                    rasterStepSize = summaryInterval)
 
   callModule(largePatches, "largePatches", rctPolygonList = rctPolygonList,   ## TODO: write this with generator
-             rctChosenPolyName = rctChosenPolyName, rctTsf = rctTsf, rctVtm = rctVtm, cl = NULL,
+             #rctChosenPolyName = rctChosenPolyName,
+             rctChosenPolyName = reactive("Alberta Ecozones"),
+             rctTsf = rctTsf, rctVtm = rctVtm, cl = NULL,
              ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())

@@ -33,7 +33,6 @@ clumpMod2UI <- function(id) {
 #' @param currentPolygon ...
 #' @param cl ...
 #' @param ageClasses ...
-#' @param cacheRepo ...
 #' @param largePatchesFn ...
 #' @param countNumPatches ...
 #'
@@ -44,8 +43,10 @@ clumpMod2UI <- function(id) {
 #' @importFrom shiny withProgress setProgress
 #' @rdname clumpMod2
 clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, cl,
-                      ageClasses, cacheRepo, largePatchesFn, countNumPatches) {
+                      ageClasses, largePatchesFn, countNumPatches) {
   clumps <- reactive({
+    patchSize <- as.integer(input$patchSize)
+
     message(paste("Running largePatchesFn"))
     shiny::withProgress(message = "Calculation in progress",
                         detail = "This may take a while...", value = 0, {
@@ -57,8 +58,6 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, cl,
                                        polygonToSummarizeBy = currentPolygon,
                                        ageClasses = ageClasses,
                                        countNumPatches = countNumPatches,
-                                       cacheRepo = cacheRepo,
-                                       debugCache = "complete",
                                        omitArgs = "cl")
                           args <- args[!unlist(lapply(args, is.null))]
                           largePatches <- do.call(Cache, args)
@@ -68,8 +67,8 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, cl,
     message(paste("  Finished largePatchesFn"))
 
     return(reactive(
-      list(ClumpsDT = largePatches[sizeInHa > as.integer(input$patchSize)],
-           patchSize = as.integer(input$patchSize))
+      list(ClumpsDT = largePatches[sizeInHa > patchSize],
+           patchSize = patchSize)
     ))
   })
 

@@ -122,11 +122,9 @@ largePatchesUI <- function(id) {
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
 largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
-                         rctTsf, rctVtm, cl = NULL, ageClasses, cachePath, FUN, nPatchesFun) { # TODO: add docs above
+                         rctTsf, rctVtm, cl = NULL, ageClasses, FUN, nPatchesFun) { # TODO: add docs above
 
   clumpMod2Args <- reactive(label = "clumpMod2Args", {
-    if (is.null(rctChosenPolyName())) rctChosenPolyName <- reactive(names(rctPolygonList())[1])
-
     ## TODO: add assertions for other args
     assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
                             is.character(rctTsf()), is.character(rctVtm()))
@@ -137,7 +135,6 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
       currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]],
       cl = cl,
       ageClasses = ageClasses,
-      cacheRepo = cachePath,
       largePatchesFn = FUN,
       countNumPatches = nPatchesFun
     )
