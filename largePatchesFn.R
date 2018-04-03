@@ -20,7 +20,7 @@
 #' @return A matrix with counts of number of large patches
 largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy, cl,
                            ageCutoffs = ageClassCutOffs, countNumPatches = countNumPatches,
-                           ageClasses) {
+                           ageClasses, paths) {
 
   ## TODO: don't use paths$path unless a paths object is passed as argument
 
