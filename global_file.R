@@ -377,7 +377,7 @@ reportingAndLeading <- Cache(reportingAndLeadingFn,
                              authenticationType = authenticationType,
                              ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
                              tsfs, vtms, cl = TRUE)
-list2env(reportingAndLeading, envir = .GlobalEnv) # leading and reportingPolygons
+list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
 
 #########################
 
