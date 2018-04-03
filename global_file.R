@@ -18,7 +18,7 @@ SpaDESPkgs <- c(
   "PredictiveEcology/SpaDES.shiny@generalize-modules",
   "raster"
 )
-shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster", "parallel",
+shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster", "parallel", "shinyWidgets",
                "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
