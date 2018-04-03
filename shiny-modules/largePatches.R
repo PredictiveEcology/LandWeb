@@ -153,14 +153,19 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     rctClumps()$ClumpsDT
   })
 
-  uiSequence <- data.table::data.table(
-    category = c("ageClass", "polygonID", "vegCover"),
-    uiType = c("tab", "tab", "box")
-  )
+  
+  uiSequence <- reactive({
+    rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
+    data.table::data.table(
+      category = c("ageClass", "polygonID", "vegCover"),
+      uiType = c("tab", "tab", "box"),
+      possibleValues = list(ageClasses, NULL, levels(rasVtmTmp)[[1]][,2])
+    )
+  })
 
   callModule(slicer, "slicer", datatable = rctLargePatchesData,
              categoryValue = "LargePatches", nSimTimes = length(rctTsf()),
-             uiSequence = uiSequence,
+             uiSequence = uiSequence(),
              serverFunction = histServerFn, ## calls histogram server module
              uiFunction = function(ns) {
                histogramUI(ns("histogram"), height = 300)
