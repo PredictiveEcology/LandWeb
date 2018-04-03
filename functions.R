@@ -531,16 +531,17 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   purrr::transpose(reportingPolygonsTmp)
 }
 
-createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authenticationType) {
+createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authenticationType, 
+                                       createReportingPolygonsFn) {
   message("Loading Reporting Polygons")
   reportingPolygons <- list()
-  reportingPolygons$Free <- Cache(createReportingPolygons,
+  reportingPolygons$Free <- Cache(createReportingPolygonsFn,
                                   c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
                                   shpStudyRegion = shpStudyRegion,
                                   shpSubStudyRegion = shpSubStudyRegion)
 
   if ("Proprietary" %in% authenticationType) {
-    tmpProprietary <- Cache(createReportingPolygons,
+    tmpProprietary <- Cache(createReportingPolygonsFn,
                             c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
                             shpStudyRegion = shpStudyRegion,
                             shpSubStudyRegion = shpSubStudyRegion)
@@ -552,9 +553,11 @@ createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authen
 }
 
 
-reportingAndLeadingFn <- function(createReportingPolygonsAll, shpStudyRegion, shpSubStudyRegion, authenticationType,
+reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingPolygonsFn, 
+                                  shpStudyRegion, shpSubStudyRegion, authenticationType,
                                  tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
-  reportingPolygon <- createReportingPolygonsAll(shpStudyRegion, shpSubStudyRegion, authenticationType)
+  reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType, 
+                                                 createReportingPolygonsFn = createReportingPolygonsFn)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
   leadingOut <- Map(reportingPolys = reportingPolysWOStudyArea, tsf = tsfs, vtm = vtms,
                     MoreArgs = list(cl = cl, ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs),

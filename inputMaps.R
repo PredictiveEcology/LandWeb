@@ -4,7 +4,8 @@ loadShpAndMakeValid <- function(file) {
   shapefile(file) %>% gBuffer(byid = TRUE, width = 0)
 }
 
-loadStudyRegions <- function(shpPath, fireReturnIntervalMap, subStudyRegionName, crsStudyRegion) {
+loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn, 
+                             fireReturnIntervalMap, subStudyRegionName, crsStudyRegion) {
   if ("RIA" %in% subStudyRegionName) {
     shpSubStudyRegion <- Cache(shapefile, userTags = "stable",
                             file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))
@@ -46,7 +47,7 @@ loadStudyRegions <- function(shpPath, fireReturnIntervalMap, subStudyRegionName,
     shpStudyRegion@data <- shpStudyRegion@data[, !(names(shpStudyRegion) %in% "ECODISTRIC")]
     shpStudyRegion <- spTransform(shpStudyRegion, crsStudyRegion)
     shpStudyRegion <- rgeos::gBuffer(shpStudyRegion, byid = TRUE, width = 0)
-    shpSubStudyRegion <- shpStudyRegionCreate(shpStudyRegion, subStudyRegionName = subStudyRegionName,
+    shpSubStudyRegion <- shpStudyRegionCreateFn(shpStudyRegion, subStudyRegionName = subStudyRegionName,
                                               crsStudyRegion = crsStudyRegion)
   }
   list(shpSubStudyRegion = shpSubStudyRegion, shpStudyRegion = shpStudyRegion)
