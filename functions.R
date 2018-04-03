@@ -7,30 +7,38 @@ intersectListShps <- function(listShps, intersectShp) {
     intersectSF <- intersectShp
   }
 
+  intersectShp <- raster::aggregate(intersectShp)
+  problem1 <- !rgeos::gIsSimple(intersectShp)
+  problem2 <- !rgeos::gIsValid(intersectShp)
+  if (isTRUE(problem1 || problem2 )) {
+    browser()
+  }
+  
   outerOut <- mapply(shp = listShps, shpNames = names(listShps),
                      function(shp, shpNames, useSF = FALSE) {
-    message("  ", shpNames)
-    tryCatch({
-      if (!is(shp, "sf")) {
-        wasShp <- TRUE
-        shpSF <- sf::st_as_sf(shp)
-      } else {
-        wasShp <- FALSE
-        shpSF <- shp
-      }
-      if (!identical(sf::st_crs(intersectSF), sf::st_crs(shpSF)))
-        intersectSF <- Cache(sf::st_transform, intersectSF, crs = sf::st_crs(shpSF) )
-      out <- sf::st_intersection(st_geometry(shpSF), st_geometry(intersectSF))
-      if (wasShp) {
-        out <- as(out, "Spatial")
-      }
-    }, error = function(x) {
-      message("  intersectListShps -- sf package failed, using sp")
-      if (!identical(crs(intersectShp), crs(shp)))
-        intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
-      out <- raster::intersect(shp, intersectShp)
-    })
-  })
+                       message("  ", shpNames)
+                       # tryCatch({
+                       #   if (!is(shp, "sf")) {
+                       #     wasShp <- TRUE
+                       #     shpSF <- sf::st_as_sf(shp)
+                       #   } else {
+                       #     wasShp <- FALSE
+                       #     shpSF <- shp
+                       #   }
+                       #   if (!identical(sf::st_crs(intersectSF), sf::st_crs(shpSF)))
+                       #     intersectSF <- Cache(sf::st_transform, intersectSF, crs = sf::st_crs(shpSF) )
+                       #   intersectSF <- sf::st_combine(intersectSF)
+                       #   out <- sf::st_intersection(sf::st_geometry(intersectSF), sf::st_geometry(shpSF))
+                       #   if (wasShp) {
+                       #     out <- as(out, "Spatial")
+                       #   }
+                       # }, error = function(x) {
+                       #   message("  intersectListShps -- sf package failed, using sp")
+                         if (!identical(crs(intersectShp), crs(shp)))
+                           intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
+                         out <- raster::intersect(shp, intersectShp)
+                       #})
+                     })
 }
 
 #' Calculate proportion of landscape occupied by each vegetation class
