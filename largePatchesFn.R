@@ -34,8 +34,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   rasWithNAs[] <- NA
 
   # identify which polygon each pixel is contained within == data.table with 2 columns, cell and polygonID
-  cellIDByPolygon <- Cache(cellNumbersForPolygon, rasWithNAs, polygonToSummarizeBy,
-                           notOlderThan = Sys.time())
+  cellIDByPolygon <- Cache(cellNumbersForPolygon, rasWithNAs, polygonToSummarizeBy)
   if (missing(cl)) {
     lapplyFn <- "lapply"
   } else {
@@ -69,7 +68,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                     timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
                     leadingRast <- raster(vegTypeMapFiles[x])
                     leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- NA
-                    if ((y + 1) < length(ageCutoffs))
+                    if ((y + 1) <= length(ageCutoffs))
                       leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- NA
 
                     clumpedRasts <- lapply(raster::levels(leadingRast)[[1]]$ID, function(ID) {
