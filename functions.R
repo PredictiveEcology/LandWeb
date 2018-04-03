@@ -166,7 +166,8 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
 countNumPatches <- function(ras, cellIDByPolygon, ...) {
   
   clumpedRas <- clump(ras, gaps = FALSE, ...)
-  tryCatch(cellIDByPolygon[, newRas := clumpedRas[][cell]], warning = function(x) browser())
+  data.table::set(cellIDByPolygon, , "newRas", clumpedRas[][cellIDByPolygon$cell])
+  # tryCatch(cellIDByPolygon[, newRas := clumpedRas[][cell]], warning = function(x) browser())
   cellIDByPolygon[, list(sizeInHa = .N * prod(res(clumpedRas))/1e4),
                   by = c("polygonID","newRas")] %>% na.omit()
 }
@@ -174,9 +175,12 @@ countNumPatches <- function(ras, cellIDByPolygon, ...) {
 cellNumbersForPolygon <- function(dummyRaster, Polygon) {
   aa <- raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE)
   notNull <- !unlist(lapply(aa, is.null))
-  rbindlist(lapply(seq_along(aa)[notNull], function(x) data.frame(stringsAsFactors = FALSE,
+  dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) data.table(
                                                                   cell = aa[[x]][,"cell"], 
                                                                   polygonID = as.character(x))))
+  return(data.table::copy(dt)) # There is a weird bug that makes the data.table from previous line .. copy() is a work around
+    # Error in data.table::set(cellIDByPolygon, , "newRas", clumpedRas[][cellIDByPolygon$cell]) : 
+    #   Internal logical error. DT passed to assign has not been allocated enough column slots. l=2, tl=2, adding 1
 }
 
 reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
