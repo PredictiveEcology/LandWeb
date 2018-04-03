@@ -33,8 +33,10 @@ clumpMod2UI <- function(id) {
 #' @param currentPolygon ...
 #' @param cl ...
 #' @param ageClasses ...
-#' @param largePatchesFn ...
-#' @param countNumPatches ...
+#' @param largePatchesFn   ...
+#' @param countNumPatches  ...
+#' @param paths            A named list of paths containining \code{cachePath},
+#'                         \code{modulePath}, \code{inputPath}, \code{outputPath}.
 #'
 #' @return A reactive list containing items \code{Clumps} and \code{patchSize}.
 #'
@@ -43,7 +45,7 @@ clumpMod2UI <- function(id) {
 #' @importFrom shiny withProgress setProgress
 #' @rdname clumpMod2
 clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, cl,
-                      ageClasses, largePatchesFn, countNumPatches) {
+                      ageClasses, largePatchesFn, countNumPatches, paths) {
   clumps <- reactive({
     patchSize <- as.integer(input$patchSize)
 
@@ -58,18 +60,16 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, cl,
                                        polygonToSummarizeBy = currentPolygon,
                                        ageClasses = ageClasses,
                                        countNumPatches = countNumPatches,
+                                       paths = paths,
                                        omitArgs = "cl")
                           args <- args[!unlist(lapply(args, is.null))]
-                          largePatches <- do.call(Cache, args)
-                          assertthat::assert_that(is.data.table(largePatches))
+                          lrgPatches <- do.call(Cache, args)
+                          assertthat::assert_that(is.data.table(lrgPatches))
                           shiny::setProgress(1)
                         })
     message(paste("  Finished largePatchesFn"))
 
-    return(reactive(
-      list(ClumpsDT = largePatches[sizeInHa > patchSize],
-           patchSize = patchSize)
-    ))
+    return(list(ClumpsDT = lrgPatches[sizeInHa > patchSize], patchSize = patchSize))
   })
 
   return(clumps)

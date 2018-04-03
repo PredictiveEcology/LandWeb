@@ -104,12 +104,14 @@ largePatchesUI <- function(id) {
   )
 }
 
-#' @param input           Shiny server input object.
-#' @param output          Shiny server output object.
-#' @param session         Shiny server session object.
-#' @param rctPolygonList     A list of polygons for to use while calculating large patches results
+#' @param input              Shiny server input object.
+#' @param output             Shiny server output object.
+#' @param session            Shiny server session object.
+#' @param rctPolygonList     A list of polygons for to use while calculating large patches results.
 #' @param rctChosenPolyName  Name of the polygon to extract from polygonList.
-#' @param nSimTimes  How many simulation time stamps there are.
+#' @param nSimTimes          How many simulation time stamps there are.
+#' @param paths              A named list of paths containining \code{cachePath},
+#'                           \code{modulePath}, \code{inputPath}, \code{outputPath}.
 #'
 #' @return Shiny module server function.
 #'
@@ -122,8 +124,8 @@ largePatchesUI <- function(id) {
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
 largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
-                         rctTsf, rctVtm, cl = NULL, ageClasses, FUN, nPatchesFun) { # TODO: add docs above
-
+                         rctTsf, rctVtm, cl = NULL, ageClasses, FUN, nPatchesFun, paths) { # TODO: add docs above
+browser()
   clumpMod2Args <- reactive(label = "clumpMod2Args", {
     ## TODO: add assertions for other args
     assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
@@ -136,7 +138,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
       cl = cl,
       ageClasses = ageClasses,
       largePatchesFn = FUN,
-      countNumPatches = nPatchesFun
+      countNumPatches = nPatchesFun,
+      paths = paths
     )
     args <- args[!unlist(lapply(args, is.null))]
     args
