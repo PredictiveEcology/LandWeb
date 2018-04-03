@@ -8,7 +8,10 @@ rctAuthenticationType <- reactive({
 })
 
 rctTsf <- reactive(tsfs[[rctAuthenticationType()]])
+
 rctVtm <- reactive(vtms[[rctAuthenticationType()]])
+
+rctPaths4sim <- reactive(paths4sim[[rctAuthenticationType()]])
 
 rctRasterList <- reactive(tsfRasters[[rctAuthenticationType()]])
 
