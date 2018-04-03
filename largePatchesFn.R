@@ -35,6 +35,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
 
   # identify which polygon each pixel is contained within == data.table with 2 columns, cell and polygonID
   cellIDByPolygon <- Cache(cellNumbersForPolygon, rasWithNAs, polygonToSummarizeBy)
+  browser()
 
   if (missing(cl)) {
     lapplyFn <- "lapply"
@@ -62,7 +63,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
       startList <- list()
     }
     startList <- append(startList, list(y = y))
-    out1 <- Cache(do.call, lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
+    out1 <- Cache(do.call, notOlderThan = Sys.time(), lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
                     x <- match(x, timeSinceFireFiles)
                     timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
                     leadingRast <- raster(vegTypeMapFiles[x])
@@ -71,6 +72,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                       leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- NA
 
                     clumpedRasts <- lapply(raster::levels(leadingRast)[[1]]$ID, function(ID) {
+                      browser()
                       spRas <- leadingRast
                       spRas[spRas != ID] <- NA
                       countNumPatches(spRas, cellIDByPolygon, directions = 8)
@@ -98,6 +100,11 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
     out[[z]][, ageClass := names(out)[z]]
   }))
 
+  browser()
+  if (is.numeric(out[[chosenCategories[[length(chosenCategories)]]]]))
+    set(datatable, , chosenCategories[[length(chosenCategories)]], as.character(datatable[[chosenCategories[[length(chosenCategories)]]]]))
+  
+  
   out[sizeInHa >= 100] # never will need patches smaller than 100 ha
   #setProgress(1)
 }

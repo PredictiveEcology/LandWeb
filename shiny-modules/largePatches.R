@@ -22,6 +22,7 @@
 #' @rdname
 histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
   observeEvent(datatable, label = chosenValues, {
+    browser()
     dt <- if (is.reactive(datatable)) {
       datatable()
     } else {
