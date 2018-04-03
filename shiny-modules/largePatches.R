@@ -155,11 +155,14 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   })
 
   uiSequence <- reactive({
+    browser()
+    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]$shinyLabel
+    
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
       category = c("ageClass", "polygonID", "vegCover"),
       uiType = c("tab", "tab", "box"),
-      possibleValues = list(ageClasses, NULL, levels(rasVtmTmp)[[1]][,2])
+      possibleValues = list(ageClasses, polygonIDs, levels(rasVtmTmp)[[1]][,2])
     )
   })
 
