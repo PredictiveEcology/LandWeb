@@ -24,8 +24,8 @@ function(input, output, session) {
 
   callModule(largePatches, "largePatches", rctPolygonList = rctPolygonList,   ## TODO: write this with generator
              #rctChosenPolyName = rctChosenPolyName,
-             rctChosenPolyName = reactive("Alberta Ecozones"),
-             rctTsf = rctTsf, rctVtm = rctVtm, cl = NULL, paths = paths,
+             rctChosenPolyName = reactive("National Ecozones"),
+             rctTsf = rctTsf, rctVtm = rctVtm, cl = NULL, rctPaths = rctPaths4sim,
              ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())
