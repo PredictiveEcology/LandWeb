@@ -69,7 +69,6 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
 
     histogramData <- actualPlot$counts / sum(actualPlot$counts)
 
-    browser()
     callModule(histogram, "histogram", histogramData, addAxisParams,
                width = rep(1, length(distribution)),
                xlim = range(breaks), xlab = "", ylab = "Proportion in NRV",
@@ -151,9 +150,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
 
     rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
 
-    rctClumps()$ClumpsDT
+    return(rctClumps()$ClumpsDT)
   })
-
 
   uiSequence <- reactive({
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
