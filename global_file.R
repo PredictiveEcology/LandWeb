@@ -126,7 +126,7 @@ successionTimestep <- 10 # was 2
 # "shpStudyRegion"     "shpStudyRegion"
 source("inputMaps.R") # source some functions
 
-# LANDIS-II params that are used
+# These are used in inputTables.R for filling the tables of parameters in 
 landisInputs <- readRDS(file.path(paths$inputPath, "landisInputs.rds"))
 spEcoReg <- readRDS(file.path(paths$inputPath, "SpEcoReg.rds"))
 
@@ -301,8 +301,8 @@ seed <- sample(1e8, 1)
 
 ######## SimInit and Experiment
 mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim, 
-                 modules = modules4sim, 
-                 outputs = outputs4sim, 
+                      modules = modules4sim, 
+                      outputs = outputs4sim, 
                       objects4sim = objects4sim, # study area -- cache will respect this
                       paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
                       emptyList = emptyList)
@@ -354,7 +354,7 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 
 
 if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
-  vtmRasters <- Cache(Map, cl = cl, tsf = vtms,
+  vtmRasters <- Cache(Map, tsf = vtms,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
   vtmRasterTilePaths <- Map(rst = vtmRasters, modelType = names(vtmRasters),
@@ -371,28 +371,13 @@ if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need
 ########################################################
 # formerly in mapsForShiny.R
 # Reporting polygons
-message("Loading Reporting Polygons")
-reportingPolygons <- list()
-reportingPolygons$Free <- Cache(createReportingPolygons,
-                                c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
-                                shpStudyRegion = shpStudyRegion,
-                                shpSubStudyRegion = shpSubStudyRegion)
-
-if ("Proprietary" %in% authenticationType) {
-  tmpProprietary <- Cache(createReportingPolygons,
-                          c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
-                          shpStudyRegion = shpStudyRegion,
-                          shpSubStudyRegion = shpSubStudyRegion)
-  reportingPolygons$Proprietary <- reportingPolygons$Free
-  reportingPolygons$Proprietary[names(tmpProprietary)] <- tmpProprietary
-  rm(tmpProprietary)
-}
-
-
-leading <- Cache(Map, #cl = cl,
-  reportingPolygon = reportingPolygons, tsf = tsfs, vtm = vtms,
-  MoreArgs = list(cl = TRUE, ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs),
-  leadingMultiPolygons)
+reportingAndLeading <- Cache(reportingAndLeadingFn, 
+                             createReportingPolygonsAll = createReportingPolygonsAll, # pass function in so Caching captures function
+                             shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
+                             authenticationType = authenticationType,
+                             ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                             tsfs, vtms, cl = TRUE)
+list2env(reportingAndLeading, envir = .GlobalEnv) # leading and reportingPolygons
 
 #########################
 
