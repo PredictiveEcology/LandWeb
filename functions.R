@@ -188,7 +188,7 @@ reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
   message("Reprojecting rasters, filling in minimum age, saving to disk")
   rstFlammableNum <- raster(flammableFile)
   rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs, method = "ngb")
-  globalRasts <- lapply(seq_along(tsf), function(FN) {
+  rastsLFLT <- lapply(seq_along(tsf), function(FN) {
     r <- raster(tsf[[FN]])
     # gdalwarp(srcfile = filename(r), dstfile = lfltFN[FN], s_srs = crs(r),
     #          t_srs = crs, r = "near", 
@@ -206,6 +206,11 @@ reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
     r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE, datatype = "INT2U")
     r
   })
+  rastsCRSSR2 <- lapply(tsf, raster)
+  
+  globalRasts <- list("crsSR" = rastsCRSSR2,
+                   "crsLFLT" = rastsLFLT)
+  
   message("  Finished reprojecting rasters")
   globalRasts
 }
@@ -319,8 +324,6 @@ loadCCSpecies <- function(mapNames, url, dPath, userTags) {
   names(filenames) <- mapNames
 
   mapply(filename = filenames, mapName = mapNames, function(filename, mapName) {
-    #fn <- paste0("CC", mapName, "Filename")
-    #mn <- paste0("CC", mapName, "Files")
     tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
     filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
     Cache(prepInputs, userTags = "stable",
@@ -453,7 +456,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   ########################################################
   ########################################################
   ########################################################
-  # Make them all cfsSRXYXY
+  # Make them all crsStudyRegion
   polys <- Cache(lapply, polys, function(shp) {
     spTransform(shp, CRSobj = crsStudyRegion)
   }, userTags = "stable")
@@ -517,3 +520,19 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   reportingPolygonsTmp <- lapply(polysAll, purrr::transpose)
   purrr::transpose(reportingPolygonsTmp)
 }
+
+
+leadingMultiPolygons <- function(reportingPolygon, tsf, vtm, cl, ageClasses, ageClassCutOffs) {
+  reportingPolysWOStudyArea <- reportingPolygon[-which(names(reportingPolygon)=="LandWeb Study Area")]
+  Map(poly = lapply(reportingPolysWOStudyArea, function(p) p$crsSR), 
+      polyNames = names(reportingPolysWOStudyArea), 
+      function(poly, polyNames) {
+        message("  Determine leading species by age class, by polygon (loading, ", length(tsf), 
+                " rasters, summarize by ", polyNames, ")")
+        Cache(leadingByStage, timeSinceFireFiles = asPath(tsf, 2),
+              vegTypeMapFiles = asPath(vtm, 2), 
+              polygonToSummarizeBy = poly$shpSubStudyRegion,
+              cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
+      })
+}
+

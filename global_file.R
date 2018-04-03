@@ -164,26 +164,6 @@ source("colorPaletteForShiny.R")
 labelColumn <- "shinyLabel"
 
 ########################################################
-########################################################
-# formerly in mapsForShiny.R
-# Reporting polygons
-message("Loading Reporting Polygons")
-reportingPolygons <- list()
-reportingPolygons$Free <- Cache(createReportingPolygons,
-                                c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
-                                shpStudyRegion = shpStudyRegion,
-                                shpSubStudyRegion = sSubSRXYXY)
-
-if ("Proprietary" %in% authenticationType) {
-  tmpProprietary <- Cache(createReportingPolygons,
-                          c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
-                          shpStudyRegion = shpStudyRegion,
-                          shpSubStudyRegion = sSubSRXYXY)
-  reportingPolygons$Proprietary <- reportingPolygons$Free
-  reportingPolygons$Proprietary[names(tmpProprietary)] <- tmpProprietary
-  rm(tmpProprietary)
-}
-
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
 dPath <- file.path(paths$inputPath, "CurrentCondition")
@@ -225,7 +205,7 @@ modules4sim <- modules4sim[names(emptyList)]
 objects4sim <- emptyList
 objects4sim <- lapply(objects4sim, function(x)
   list("shpStudyRegionFull" = shpStudyRegion,
-       "shpStudySubRegion" = sSubSRXYXY,
+       "shpStudySubRegion" = shpSubStudyRegion,
        "summaryPeriod" = summaryPeriod,
        "useParallel" = 2)
 )
@@ -319,18 +299,18 @@ paths4sim <- Map(cPath = cPaths, oPath = oPaths,
 
 seed <- sample(1e8, 1)
 
-######## SimInit
+######## SimInit and Experiment
 mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim, 
                  modules = modules4sim, 
                  outputs = outputs4sim, 
-                      objects4sim = objects4sim, 
+                      objects4sim = objects4sim, # study area -- cache will respect this
                       paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
                       emptyList = emptyList)
 
 
-message("  Finished Experiment.")
-##### POST Experiment
+message("  Finished simInit and Experiment.")
 
+##### POST Experiment
 rastersFromOutputs <- emptyList
 rastersFromOutputs <- lapply(mySimOuts, function(mySimOut) {
   lapply(seq_along(mySimOut), function(x) {
@@ -358,7 +338,6 @@ flammableFiles <- lapply(mySimOuts, function(mySimOut) {
   asPath(file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd"))
 })
 
-#tsfRasters <- emptyList
 tsfRasters <- Cache(Map, tsf = tsfs,
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
@@ -367,7 +346,7 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
        MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
        function(rst, modelType, zoomRange, colorTableFile) {
          outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
-         filenames <- gdal2Tiles(rst, outputPath = outputPath,
+         filenames <- gdal2Tiles(rst$crsLFLT, outputPath = outputPath,
                       zoomRange = zoomRange, colorTableFile = colorTableFile)
          return(filenames)
        })
@@ -388,28 +367,25 @@ if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need
                                })
 }
 
-# leading <- function(tsf, vtm, poly, cl = NULL) {
-#
-#   args <- list(leadingByStage, tsf, vtm,
-#                polygonToSummarizeBy = poly,
-#                cl = TRUE,
-#                omitArgs = "cl",
-#                ageClasses = ageClasses)
-#   args <- args[!unlist(lapply(args, is.null))]
-#   out <- do.call(Cache, args)
-#   rm(args)
-#   out
-# }
 
-leadingMultiPolygons <- function(reportingPolygon, tsf, vtm, cl, ageClasses, ageClassCutOffs) {
-  reportingPolysWOStudyArea <- reportingPolygon[-which(names(reportingPolygon)=="LandWeb Study Area")]
-  lapply(lapply(reportingPolysWOStudyArea, function(p) p$crsSR), function(poly) {
-    message("  Determine leading species by age class, by polygon (loading 2 rasters, summarize by polygon)")
-    Cache(leadingByStage, timeSinceFireFiles = asPath(tsf),
-          vegTypeMapFiles = asPath(vtm),
-          polygonToSummarizeBy = poly$shpSubStudyRegion,
-          cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
-  })
+########################################################
+# formerly in mapsForShiny.R
+# Reporting polygons
+message("Loading Reporting Polygons")
+reportingPolygons <- list()
+reportingPolygons$Free <- Cache(createReportingPolygons,
+                                c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
+                                shpStudyRegion = shpStudyRegion,
+                                shpSubStudyRegion = shpSubStudyRegion)
+
+if ("Proprietary" %in% authenticationType) {
+  tmpProprietary <- Cache(createReportingPolygons,
+                          c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
+                          shpStudyRegion = shpStudyRegion,
+                          shpSubStudyRegion = shpSubStudyRegion)
+  reportingPolygons$Proprietary <- reportingPolygons$Free
+  reportingPolygons$Proprietary[names(tmpProprietary)] <- tmpProprietary
+  rm(tmpProprietary)
 }
 
 
@@ -439,11 +415,12 @@ if (FALSE) {
 
 
 globalEndTime <- Sys.time()
+
 onStop(function() {
   appStopTime <<- Sys.time()
   
   cat("App took", format(appStopTime - appStartTime), "\n")
   cat("Package loading took", format(packageLoadEndTime - packageLoadStartTime), "\n")
   cat("Global.R took", format(globalEndTime - appStartTime), "\n")
-  cat("Server took", format(appStopTime - serverStartTime))
+  cat("Server took", format(appStopTime - serverStartTime), "\n")
 })
