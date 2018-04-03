@@ -269,10 +269,10 @@ objectNamesToSave <- lapply(objectNamesToSave, function(x) {
 })
 
 outputs4sim <- Map(objects4sim = objects4sim,
-                      parameters4sim = parameters4sim,
-                      times4sim = times4sim,
-                      objectNamesToSave = objectNamesToSave,
-                      outputs4simFn)
+                   parameters4sim = parameters4sim,
+                   times4sim = times4sim,
+                   objectNamesToSave = objectNamesToSave,
+                   outputs4simFn)
 
 ## paths for sim
 pathFn <- function(pathType, basename, suffix) {
