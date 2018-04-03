@@ -49,6 +49,7 @@ mySimDigestSaved.rds
 mySimSaved.rds
 outputs*
 FULL_*
+SMALL_*
 
 ## OAuth tokens
 .httr-oauth
@@ -58,3 +59,5 @@ FULL_*
 Thumbs.db
 
 ## !! Module data should be gitignored in the respective module's data dir !!
+
+
