@@ -22,6 +22,7 @@
 #' @rdname
 histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
   observeEvent(datatable, label = chosenValues, {
+    browser()
     dt <- if (is.reactive(datatable)) {
       datatable()
     } else {
@@ -124,9 +125,7 @@ largePatchesUI <- function(id) {
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
 largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
-                         rctTsf, rctVtm, cl = NULL, ageClasses, FUN, nPatchesFun,
-                         rctPaths) { # TODO: add docs above
-
+                         rctTsf, rctVtm, cl = NULL, ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
   clumpMod2Args <- reactive(label = "clumpMod2Args", {
     ## TODO: add assertions for other args
     assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
@@ -155,14 +154,19 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     rctClumps()$ClumpsDT
   })
 
-  uiSequence <- data.table::data.table(
-    category = c("ageClass", "polygonID", "vegCover"),
-    uiType = c("tab", "tab", "box")
-  )
+
+  uiSequence <- reactive({
+    rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
+    data.table::data.table(
+      category = c("ageClass", "polygonID", "vegCover"),
+      uiType = c("tab", "tab", "box"),
+      possibleValues = list(ageClasses, NULL, levels(rasVtmTmp)[[1]][,2])
+    )
+  })
 
   callModule(slicer, "slicer", datatable = rctLargePatchesData,
              categoryValue = "LargePatches", nSimTimes = length(rctTsf()),
-             uiSequence = uiSequence,
+             uiSequence = uiSequence(),
              serverFunction = histServerFn, ## calls histogram server module
              uiFunction = function(ns) {
                histogramUI(ns("histogram"), height = 300)
