@@ -20,7 +20,8 @@ function(input, output, session) {
                                    palette = timeSinceFirePalette,
                                    mapLegend = paste0("Time since fire", br(), "(years)"),
                                    maxAge = maxAge, zoom = 5, nPolygons = 1,
-                                   nRasters = length(rctTsf()))
+                                   nRasters = length(rctTsf()),
+                                   rasterStepSize = summaryInterval)
 
   callModule(largePatches, "largePatches", polygonList = rctPolygonList(),   ## TODO: write this with generator
              chosenPolyName = rctChosenPolyName(), tsf = rctTsf(), vtm = rctVtm(), cl = NULL,
