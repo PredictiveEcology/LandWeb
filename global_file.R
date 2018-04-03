@@ -160,8 +160,6 @@ vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("l
 # This needs simInit call to be run already
 # a few map details for shiny app
 message("Preparing polygon maps for reporting histograms")
-labelColumn <- "shinyLabel"
-
 source("colorPaletteForShiny.R")
 labelColumn <- "shinyLabel"
 
