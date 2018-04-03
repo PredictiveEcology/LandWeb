@@ -25,10 +25,10 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   #  withProgress(message = 'Calculation in progress',
   #               detail = 'This may take a while...', value = 0, {
 
-  
+
   withoutPath <- basename(timeSinceFireFiles)
-  yearNames <- unlist(lapply(strsplit(withoutPath, split = "_|\\."), # split on _ and . 
-                             function(x) x[length(x) -1])) # ... take second last one
+  yearNames <- unlist(lapply(strsplit(withoutPath, split = "_|\\."), # split on _ and .
+                             function(x) x[length(x) - 1])) # ... take second last one
 
   rasWithNAs <- raster(raster(timeSinceFireFiles[1]))
   rasWithNAs[] <- NA
@@ -78,12 +78,10 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
                       countNumPatches(spRas, cellIDByPolygon, directions = 8)
                     })
                     names(clumpedRasts) <- raster::levels(leadingRast)[[1]]$Factor
-                    clumpedRasts <- append(clumpedRasts,
-                                           list("All species" =
-                                                  countNumPatches(leadingRast,
-                                                                  cellIDByPolygon,
-                                                                  directions = 8)
-                                           ))
+                    clumpedRasts <- append(
+                      clumpedRasts,
+                      list("All species" = countNumPatches(leadingRast, cellIDByPolygon, directions = 8))
+                    )
                     clumpedRasts
                   })))
     names(out1) <- yearNames
