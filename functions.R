@@ -173,7 +173,8 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
 # A function that creates a raster with contiguous patches labelled as such
 countNumPatches <- function(ras, cellIDByPolygon, ...) {
   clumpedRas <- clump(ras, gaps = FALSE, ...)
-  data.table::set(cellIDByPolygon, , "newRas", clumpedRas[][cellIDByPolygon$cell])
+  #data.table::set(cellIDByPolygon, , "newRas", clumpedRas[][cellIDByPolygon$cell])
+  cellIDByPolygon[, newRas:=  clumpedRas[][cell]]
   cellIDByPolygon[, list(sizeInHa = .N * prod(res(clumpedRas))/1e4),
                   by = c("polygonID","newRas")] %>% na.omit()
 }
