@@ -48,6 +48,7 @@ last.dump.rda
 mySimDigestSaved.rds
 mySimSaved.rds
 outputs*
+FULL_*
 
 ## OAuth tokens
 .httr-oauth
