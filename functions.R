@@ -516,17 +516,45 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   purrr::transpose(reportingPolygonsTmp)
 }
 
+createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authenticationType) {
+  message("Loading Reporting Polygons")
+  reportingPolygons <- list()
+  reportingPolygons$Free <- Cache(createReportingPolygons,
+                                  c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
+                                  shpStudyRegion = shpStudyRegion,
+                                  shpSubStudyRegion = shpSubStudyRegion)
 
-leadingMultiPolygons <- function(reportingPolygon, tsf, vtm, cl, ageClasses, ageClassCutOffs) {
-  reportingPolysWOStudyArea <- reportingPolygon[-which(names(reportingPolygon) == "LandWeb Study Area")]
-  Map(poly = lapply(reportingPolysWOStudyArea, function(p) p$crsSR),
-      polyNames = names(reportingPolysWOStudyArea),
-      function(poly, polyNames) {
-        message("  Determine leading species by age class, by polygon (loading, ", length(tsf),
-                " rasters, summarize by ", polyNames, ")")
-        Cache(leadingByStage, timeSinceFireFiles = asPath(tsf, 2),
-              vegTypeMapFiles = asPath(vtm, 2),
-              polygonToSummarizeBy = poly$shpSubStudyRegion,
-              cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
-      })
+  if ("Proprietary" %in% authenticationType) {
+    tmpProprietary <- Cache(createReportingPolygons,
+                            c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
+                            shpStudyRegion = shpStudyRegion,
+                            shpSubStudyRegion = shpSubStudyRegion)
+    reportingPolygons$Proprietary <- reportingPolygons$Free
+    reportingPolygons$Proprietary[names(tmpProprietary)] <- tmpProprietary
+    rm(tmpProprietary)
+  }
+  reportingPolygons
+}
+
+
+reportingAndLeadingFn <- function(createReportingPolygonsAll, shpStudyRegion, shpSubStudyRegion, authenticationType,
+                                 tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
+  reportingPolygon <- createReportingPolygonsAll(shpStudyRegion, shpSubStudyRegion, authenticationType)
+  reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
+  leadingOut <- Map(reportingPolys = reportingPolysWOStudyArea, tsf = tsfs, vtm = vtms,
+                    MoreArgs = list(cl = cl, ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs),
+                    function(reportingPolys, tsf, vtm, cl, ageClasses, ageClassCutOffs) {
+                      polys = lapply(reportingPolys, function(p) p$crsSR)
+                      polyNames = names(reportingPolys)
+                      message("  Determine leading species by age class, by polygon (loading, ", length(tsf),
+                              " rasters, summarize by ", polyNames, ")")
+                      Map(poly = polys, polyName = polyNames, function(poly, polyName) {
+                        message("    Doing ", polyName)
+                        Cache(leadingByStage, timeSinceFireFiles = asPath(tsf, 2),
+                              vegTypeMapFiles = asPath(vtm, 2),
+                              polygonToSummarizeBy = poly$shpSubStudyRegion,
+                              cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
+                        })
+                    })
+  return(list(leading = leadingOut, reportingPolygons = reportingPolygon))
 }

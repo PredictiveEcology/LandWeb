@@ -1,10 +1,10 @@
 # Overall model times # start is default at 0
-endTime <- 2
-summaryInterval <- 1
-summaryPeriod <- c(1, endTime)
+endTime <- 30
+summaryInterval <- 5
+summaryPeriod <- c(20, endTime)
 
 # cacheId for 1000 years: 2e35699c4ade1b4bfa82e864558c7436, 7.3 days - on 342
-authenticationType <- list("Free") # Can do one or both of "Free" "Proprietary"
+authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free" "Proprietary"
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 subStudyRegionName <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
                               #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
@@ -18,7 +18,7 @@ SpaDESPkgs <- c(
   "PredictiveEcology/SpaDES.shiny@generalize-modules",
   "raster"
 )
-shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster", "parallel",
+shinyPkgs <- c("leaflet", "gdalUtils", "rgeos", "raster", "parallel", "shinyWidgets",
                "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
@@ -128,7 +128,7 @@ successionTimestep <- 10 # was 2
 # "shpStudyRegion"     "shpStudyRegion"
 source("inputMaps.R") # source some functions
 
-# LANDIS-II params that are used
+# These are used in inputTables.R for filling the tables of parameters in
 landisInputs <- readRDS(file.path(paths$inputPath, "landisInputs.rds"))
 spEcoReg <- readRDS(file.path(paths$inputPath, "SpEcoReg.rds"))
 
@@ -308,7 +308,6 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
                    emptyList = emptyList)
 
-
 message("  Finished simInit and Experiment.")
 
 ##### POST Experiment
@@ -331,7 +330,6 @@ vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
 })
 
 tsfLFLTFilenames <- lapply(tsfs, function(tsf) SpaDES.core::.suffix(tsf, "LFLT") )
-vtmLFLTFilenames <- lapply(vtms, function(vtm) SpaDES.core::.suffix(vtm, "LFLT") )
 
 rasterResolutions <- lapply(tsfs, function(x) raster(x[1]) %>% res(.))
 
@@ -354,15 +352,24 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 
 
 
-if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
-  vtmRasters <- Cache(Map, cl = cl, tsf = vtms,
+if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
+  vtmsTifs <- Cache(lapply, vtms, function(vtmsInner) {
+    vtmTifs <- lapply(vtmsInner, function(vtm) {
+      vtmRas <- raster(vtm)
+      vtmRas <- writeRaster(vtmRas, file = gsub(".grd", ".tif", filename(vtmRas)), overwrite = TRUE)
+    })
+    return(unlist(lapply(vtmTifs, filename)))
+  })
+  vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.core::.suffix(vtm, "LFLT") )
+
+  vtmRasters <- Cache(Map, tsf = vtmsTifs,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
-  vtmRasterTilePaths <- Map(rst = vtmRasters, modelType = names(vtmRasters),
+  vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                                MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                                function(rst, modelType, zoomRange, colorTableFile) {
                                  outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
-                                 filenames <- gdal2Tiles(rst, outputPath = outputPath,
+                                 filenames <- gdal2Tiles(rst$crsLFLT, outputPath = outputPath,
                                                          zoomRange = zoomRange, colorTableFile = colorTableFile)
                                  return(filenames)
                                })
@@ -372,27 +379,13 @@ if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need
 ########################################################
 # formerly in mapsForShiny.R
 # Reporting polygons
-message("Loading Reporting Polygons")
-reportingPolygons <- list()
-reportingPolygons$Free <- Cache(createReportingPolygons,
-                                c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
-                                shpStudyRegion = shpStudyRegion,
-                                shpSubStudyRegion = shpSubStudyRegion)
-
-if ("Proprietary" %in% authenticationType) {
-  tmpProprietary <- Cache(createReportingPolygons,
-                          c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
-                          shpStudyRegion = shpStudyRegion,
-                          shpSubStudyRegion = shpSubStudyRegion)
-  reportingPolygons$Proprietary <- reportingPolygons$Free
-  reportingPolygons$Proprietary[names(tmpProprietary)] <- tmpProprietary
-  rm(tmpProprietary)
-}
-
-leading <- Cache(Map, #cl = cl,
-  reportingPolygon = reportingPolygons, tsf = tsfs, vtm = vtms,
-  MoreArgs = list(cl = TRUE, ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs),
-  leadingMultiPolygons)
+reportingAndLeading <- Cache(reportingAndLeadingFn,
+                             createReportingPolygonsAll = createReportingPolygonsAll, # pass function in so Caching captures function
+                             shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
+                             authenticationType = authenticationType,
+                             ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                             tsfs, vtms, cl = TRUE)
+list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
 
 #########################
 
