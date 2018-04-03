@@ -147,7 +147,7 @@ studyRegionFilePath <- {
   file.path(paths$inputPath, studyRegionFilename)
 }
 
-studyRegionsShps <- Cache(loadStudyRegions,
+studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyRegionCreate,
                           asPath(studyRegionFilePath),
                           fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
                           subStudyRegionName = subStudyRegionName,
@@ -160,8 +160,6 @@ vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("l
 # This needs simInit call to be run already
 # a few map details for shiny app
 message("Preparing polygon maps for reporting histograms")
-labelColumn <- "shinyLabel"
-
 source("colorPaletteForShiny.R")
 labelColumn <- "shinyLabel"
 
@@ -380,7 +378,8 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
 # formerly in mapsForShiny.R
 # Reporting polygons
 reportingAndLeading <- Cache(reportingAndLeadingFn,
-                             createReportingPolygonsAll = createReportingPolygonsAll, # pass function in so Caching captures function
+                             createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
+                             createReportingPolygonsFn = createReportingPolygons,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
                              authenticationType = authenticationType,
                              ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
