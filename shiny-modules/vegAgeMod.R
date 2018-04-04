@@ -20,7 +20,7 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-vegHistServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
+vegHistServerFn <- function(datatable, chosenCategories, chosenValues) {
   observeEvent(datatable, label = chosenValues, {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -36,8 +36,8 @@ vegHistServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes
     propVeg <- vegDT$proportion
 
     breaksLabels <- (0:11)/10
-    breaks <- breaksLabels - 0.5
-    barplotBreaks <- breaksLabels + 0.5
+    breaks <- breaksLabels - 0.05
+    barplotBreaks <- breaksLabels + 0.05
 
     addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
 
@@ -57,68 +57,41 @@ vegHistServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes
 vegAgeModUI <- function(id) {
   ns <- NS(id)
 
-  ids <- strsplit(id, split = "_")[[1]]
-  ageClassIndex <- as.numeric(ids[1])
-  polygonIndex <- as.numeric(ids[2])
-  vegTypeIndex <- as.numeric(ids[3])
-  tagList(
-    box(width = 4, solidHeader = TRUE, collapsible = TRUE,
-        title = paste0(vegLeadingTypes[vegTypeIndex]),
-        withSpinner(plotOutput(ns("propCoverHists"), height = 300))
+  fluidRow(
+    shinydashboard::box(
+      width = 12, solidHeader = TRUE, collapsible = TRUE,
+      slicerUI(ns("vegSlicer"))
     )
   )
 }
 
 vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
-                      rctTsf, rctVtm, cl = NULL, ageClasses, FUN, nPatchesFun, rctPaths) {
-
-  clumpMod2Args <- reactive(label = "clumpMod2Args", {
-    ## TODO: add assertions for other args
-    assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
-                            is.character(rctTsf()), is.character(rctVtm()))
-
-    args <- list(
-      tsf = rctTsf(),
-      vtm = rctVtm(),
-      currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]],
-      cl = cl,
-      ageClasses = ageClasses,
-      largePatchesFn = FUN,
-      countNumPatches = nPatchesFun,
-      paths = rctPaths()
-    )
-    args <- args[!unlist(lapply(args, is.null))]
-    args
-  })
+                      rctLeadingDTlist, rctVtm, ageClasses) {
 
   rctVegData <- reactive({
-    args <- clumpMod2Args()
-    args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
+    assertthat::assert_that(is.character(rctChosenPolyName()), is.list(rctLeadingDTlist()))
 
-    rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
-
-    return(rctClumps()$ClumpsDT)
-
-    #####
-    leadingDT[[rctChosenPolyName()]]
+    rctLeadingDTlist()[[rctChosenPolyName()]]
   })
 
   uiSequence <- reactive({
+    assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()), is.character(rctVtm()))
+
     polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]))
 
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
       category = c("ageClass", "polygonID", "vegCover"),
       uiType = c("tab", "tab", "box"),
-      possibleValues = list(ageClasses, polygonIDs, c(levels(rasVtmTmp)[[1]][,2], "All species"))
+      possibleValues = list(ageClasses, polygonIDs, c(levels(rasVtmTmp)[[1]][, 2], "All species"))
     )
   })
 
-  callModule(slicer, "slicer", datatable = rctVegDT,
-             categoryValue = "vegAgeMod", nSimTimes = length(rctVtm()),
+  callModule(slicer, "vegSlicer", datatable = rctVegData,
+             categoryValue = "vegAgeMod",
              uiSequence = uiSequence(),
              serverFunction = vegHistServerFn, ## calls histogram server module
              uiFunction = function(ns) {
-               histogramUI(ns("histogram"), height = 300)
+               histogramUI(ns("vegHists"), height = 300)
   })
 }

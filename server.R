@@ -22,16 +22,17 @@ function(input, output, session) {
                                    nRasters = length(rctTsf()),
                                    rasterStepSize = summaryInterval)
 
-  callModule(largePatches, "largePatches",
-             rctPolygonList = rctPolygonList,   ## TODO: write this with generator
-             rctChosenPolyName = rctChosenPolyName,
-             rctTsf = rctTsf, rctVtm = rctVtm, cl = NULL, rctPaths = rctPaths4sim,
-             ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
-  # callModule(vegAgeMod, "vegArea",
+  # callModule(largePatches, "largePatches",
   #            rctPolygonList = rctPolygonList,   ## TODO: write this with generator
   #            rctChosenPolyName = rctChosenPolyName,
   #            rctTsf = rctTsf, rctVtm = rctVtm, cl = NULL, rctPaths = rctPaths4sim,
   #            ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
+  callModule(vegAgeMod, "vegArea",
+             rctPolygonList = rctPolygonList,   ## TODO: write this with generator
+             rctChosenPolyName = rctChosenPolyName,
+             rctLeadingDTlist = rctLeadingDTlist,
+             rctVtm = rctVtm,
+             ageClasses = ageClasses)
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())
   callModule(inputTables, "inputTables")
