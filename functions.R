@@ -614,14 +614,16 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
   CCvtm <- which.max(stkCurrentCondition)
   CCspeciesNames <- c(CCspeciesNames, "Mixed" = "Mixed")
   levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
+  CCvtm <- writeRaster(CCvtm, filename = file.path(dPath, "currentConditionVTM"), overwrite = TRUE)
   
   # tsf
   CCtsf <- Cache(loadCCSpecies, ageName,
                                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                                    destinationPath = dPath,
                                    studyArea = shpSubStudyRegion,
-                                   rasterToMatch = tsfRasters[[1]]$crsSR[[1]]
+                                   rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
   )
+  names(CCtsf$Age) <- "CurrentCondition"
   
   list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
 }
