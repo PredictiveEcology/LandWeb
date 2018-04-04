@@ -321,7 +321,7 @@ reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
 }
 
 # Used in global_file.R to load the Current Condition Rasters from SilvaCom
-loadCCSpecies <- function(mapNames, url, dPath, userTags) {
+loadCCSpecies <- function(mapNames, userTags, ...) {
   if (!any(grepl("1$", mapNames) )) {
     filenames <- paste0(mapNames, "1")
   } else {
@@ -330,20 +330,20 @@ loadCCSpecies <- function(mapNames, url, dPath, userTags) {
   }
   names(filenames) <- mapNames
 
-  mapply(filename = filenames, mapName = mapNames, function(filename, mapName) {
-    tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
-    filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
-    Cache(prepInputs, userTags = "stable",
-          url =  url,
-          archive = "CurrentCondition.zip",
-          targetFile = tifName,
-          alsoExtract = filenames,
-          destinationPath = dPath)
-  })
+  Map(filename = filenames, mapName = mapNames, 
+      function(filename, mapName) {
+        tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
+        filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
+        Cache(prepInputs, userTags = "stable",
+              archive = "CurrentCondition.zip",
+              targetFile = tifName,
+              alsoExtract = filenames, ...)
+      })
 }
 
 
-createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegion) {
+createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegion,
+                                    intersectListShpsFn) {
 
   cannonicalLayerNames <- c("Alberta Ecozones", "National Ecozones",
                    "National Ecodistricts", "Forest Management Areas",
@@ -473,7 +473,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   }, userTags = "stable")
 
   # Make SubRegion
-  polysSubRegion <- Cache(intersectListShps, polys, shpSubStudyRegion, userTags = "stable")
+  polysSubRegion <- Cache(intersectListShpsFn, polys, shpSubStudyRegion, userTags = "stable")
 
   # Add shpStudyRegion and shpSubStudyRegion to lists
   polys$`LandWeb Study Area` <- shpStudyRegion
@@ -533,16 +533,16 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
 }
 
 createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authenticationType, 
-                                       createReportingPolygonsFn) {
+                                       createReportingPolygonsFn, intersectListShpsFn) {
   message("Loading Reporting Polygons")
   reportingPolygons <- list()
-  reportingPolygons$Free <- Cache(createReportingPolygonsFn,
+  reportingPolygons$Free <- Cache(createReportingPolygonsFn, intersectListShpsFn = intersectListShps,
                                   c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
                                   shpStudyRegion = shpStudyRegion,
                                   shpSubStudyRegion = shpSubStudyRegion)
 
   if ("Proprietary" %in% authenticationType) {
-    tmpProprietary <- Cache(createReportingPolygonsFn,
+    tmpProprietary <- Cache(createReportingPolygonsFn, intersectListShpsFn = intersectListShps,
                             c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
                             shpStudyRegion = shpStudyRegion,
                             shpSubStudyRegion = shpSubStudyRegion)
@@ -554,7 +554,8 @@ createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authen
 }
 
 
-reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingPolygonsFn, 
+reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingPolygonsFn,
+                                  intersectListShpsFn, 
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
                                  tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
   reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType, 
@@ -576,4 +577,51 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
                         })
                     })
   return(list(leading = leadingOut, reportingPolygons = reportingPolygon))
+}
+
+createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesFn, 
+                            shpSubStudyRegion, tsfRasters) {
+  ageName <- CCspeciesNames[agrep("age", CCspeciesNames)]
+  onlySpeciesNames <- CCspeciesNames[CCspeciesNames %in% c("Pine", "BlackSpruce", "Deciduous", "WhiteSpruce")]
+  simulatedMapVegTypes <- lapply(vtmRasters, function(r) {
+    as.character(levels(r$crsSR[[1]])[[1]][,2])
+  })
+  #lapply(simulatedMapVegTypes, function(vtm) {
+  matchSpNames <- lapply(CCspeciesNames, function(sn) {
+    agrep(sn, simulatedMapVegTypes$Proprietary)
+  }
+  )
+  CCspeciesNames <- Map(msn = seq(matchSpNames), 
+                        MoreArgs = list(matchSpNames = matchSpNames, CCspeciesNames = CCspeciesNames,
+                                        simulatedSpNames = simulatedMapVegTypes$Proprietary), 
+                        function(msn, matchSpNames, CCspeciesNames, simulatedSpNames) {
+                          if (length(matchSpNames[[msn]])>0)
+                            names(CCspeciesNames)[msn] <- simulatedSpNames[matchSpNames[[msn]]]
+                          CCspeciesNames[msn]
+                        })
+  CCspeciesNames <- unlist(CCspeciesNames, use.names = TRUE)
+  CCspeciesNames <- CCspeciesNames[nzchar(names(CCspeciesNames))]
+  
+  rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
+                                   url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                                   destinationPath = dPath,
+                                   studyArea = shpSubStudyRegion,
+                                   rasterToMatch = tsfRasters[[1]]$crsSR[[1]]
+  )
+  stkCurrentCondition <- stack(rstCurrentConditionList[CCspeciesNames])
+  sumVegPct <- sum(stkCurrentCondition)
+  stkCurrentCondition$Mixed <- all(stkCurrentCondition/sumVegPct < vegLeadingPercent)*10
+  CCvtm <- which.max(stkCurrentCondition)
+  CCspeciesNames <- c(CCspeciesNames, "Mixed" = "Mixed")
+  levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
+  
+  # tsf
+  CCtsf <- Cache(loadCCSpecies, ageName,
+                                   url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                                   destinationPath = dPath,
+                                   studyArea = shpSubStudyRegion,
+                                   rasterToMatch = tsfRasters[[1]]$crsSR[[1]]
+  )
+  
+  list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
 }
