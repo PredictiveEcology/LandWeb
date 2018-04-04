@@ -29,7 +29,7 @@ vegHistServerFn <- function(datatable, chosenCategories, chosenValues) {
     }
     assertthat::assert_that(
       is.data.table(dt),
-      msg = "histServerFn: `datatable` is not a data.table"
+      msg = "vegHistServerFn: `datatable` is not a data.table"
     )
 
     vegDT <- getSubtable(dt, chosenCategories, chosenValues)
@@ -45,8 +45,11 @@ vegHistServerFn <- function(datatable, chosenCategories, chosenValues) {
 
     histogramData <- vegHist$counts / sum(vegHist$counts)
 
-    callModule(histogram, "histogram", histogramData, addAxisParams,
-               width = rep(1, length(distribution)),
+    sigdigs <- ceiling(-log10(diff(range(breaks)) / length(breaks) / 10))
+    barWidth <- unique(round(diff(vegHist$breaks), digits = sigdigs))
+
+    callModule(histogram, "vegHists", histogramData, addAxisParams,
+               width = barWidth,
                xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
@@ -83,7 +86,7 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
     data.table::data.table(
       category = c("ageClass", "polygonID", "vegCover"),
       uiType = c("tab", "tab", "box"),
-      possibleValues = list(ageClasses, polygonIDs, c(levels(rasVtmTmp)[[1]][, 2], "All species"))
+      possibleValues = list(ageClasses, polygonIDs, levels(rasVtmTmp)[[1]][, 2])
     )
   })
 

@@ -28,7 +28,7 @@ function(input, output, session) {
   #            rctTsf = rctTsf, rctVtm = rctVtm, cl = NULL, rctPaths = rctPaths4sim,
   #            ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
   callModule(vegAgeMod, "vegArea",
-             rctPolygonList = rctPolygonList,   ## TODO: write this with generator
+             rctPolygonList = rctPolygonList,        ## TODO: write this with generator
              rctChosenPolyName = rctChosenPolyName,
              rctLeadingDTlist = rctLeadingDTlist,
              rctVtm = rctVtm,
