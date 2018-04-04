@@ -91,7 +91,7 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
         areaKm2 <- 180000 #700000#2000#600000#too big for laptop
       }
 
-      minY <- 7678877 - 1.6e5
+      minY <- 7678877 - 3.6e5
       minX <- -1002250.2
       maxX <- minX + sqrt(areaKm2 * 1e6)
       maxY <- minY + sqrt(areaKm2 * 1e6)
