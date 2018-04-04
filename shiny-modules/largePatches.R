@@ -102,7 +102,7 @@ largePatchesUI <- function(id) {
     ),
     shinydashboard::box(
       width = 12, solidHeader = TRUE, collapsible = TRUE,
-      slicerUI(ns("slicer"))
+      slicerUI(ns("largePatchSlicer"))
     )
   )
 }
@@ -198,7 +198,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     )
   })
 
-  callModule(slicer, "larguPatchSlicer", datatable = rctLargePatchesDataCC,
+  callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesDataCC,
              categoryValue = "LargePatches", nSimTimes = length(rctTsf()),
              uiSequence = uiSequence(),
              #patchSize = rctLargePatchesData()$patchSize,
