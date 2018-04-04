@@ -390,9 +390,9 @@ list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPo
 message("Loading Current Condition Rasters")
 dPath <- file.path(paths$inputPath, "CurrentCondition")
 CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce")
-CurrentConditions <- Cache(createCCfromVtmTsf, CCspeciesNames, vtmRasters, 
-               dPath = dPath, loadCCSpeciesFn = loadCCSpecies, 
-               shpSubStudyRegion = shpSubStudyRegion, tsfRasters = tsfRasters)
+CurrentConditions <- Cache(createCCfromVtmTsf, CCspeciesNames, vtmRasters,
+                           dPath = dPath, loadCCSpeciesFn = loadCCSpecies,
+                           shpSubStudyRegion = shpSubStudyRegion, tsfRasters = tsfRasters)
 #########################
 
 if (FALSE) {
