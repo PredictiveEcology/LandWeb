@@ -150,7 +150,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
     rownames(a) <- NULL
     a
   })
-
+browser()
   aadf <- data.frame(zone = rep(polygonToSummarizeBy$shinyLabel[nonNulls],
                                 each = length(Factors)),
                      polygonNum = as.character(rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors))),
@@ -554,7 +554,7 @@ createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authen
 
 
 reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingPolygonsFn,
-                                  intersectListShpsFn,
+                                  intersectListShpsFn, leadingByStageFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
                                  tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
   reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
@@ -569,7 +569,7 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
                               " rasters, summarize by ", polyNames, ")")
                       Map(poly = polys, polyName = polyNames, function(poly, polyName) {
                         message("    Doing ", polyName)
-                        Cache(leadingByStage, timeSinceFireFiles = asPath(tsf, 2),
+                        Cache(leadingByStageFn, timeSinceFireFiles = asPath(tsf, 2),
                               vegTypeMapFiles = asPath(vtm, 2),
                               polygonToSummarizeBy = poly$shpSubStudyRegion,
                               cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
