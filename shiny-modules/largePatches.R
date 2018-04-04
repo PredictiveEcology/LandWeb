@@ -35,6 +35,7 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
 
     subtableWith3DimensionsFixed <- getSubtable(dt, chosenCategories, chosenValues)
     ageClassPolygonSubtable <- getSubtable(dt, head(chosenCategories, 2), head(chosenValues, 2))
+    
     numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
     maxNumClusters <- if (length(numOfClusters) == 0) {
       6
@@ -68,11 +69,11 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
 
     actualPlot <- hist(distribution, breaks = breaks, plot = FALSE)
 
-    histogramData <- actualPlot$counts # / sum(actualPlot$counts)
-
+    histogramData <- actualPlot$counts / sum(actualPlot$counts)
+    
     callModule(histogram, "histogram", histogramData, addAxisParams,
                width = rep(1, length(distribution)),
-               xlim = range(breaks), ylim = c(0, sum(actualPlot$counts)), xlab = "", ylab = "Proportion in NRV",
+               xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
 }
