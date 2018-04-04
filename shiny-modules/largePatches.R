@@ -20,8 +20,7 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
-                         patchSize) {
+histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
   observeEvent(datatable, label = chosenValues, {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -30,12 +29,12 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
     }
     assertthat::assert_that(
       is.data.table(dt),
-      msg = "largePatches: callModule(slicer): serverFunction: dt is not a data.table"
+      msg = "histServerFn: `datatable` is not a data.table"
     )
 
     subtableWith3DimensionsFixed <- getSubtable(dt, chosenCategories, chosenValues)
     ageClassPolygonSubtable <- getSubtable(dt, head(chosenCategories, 2), head(chosenValues, 2))
-    
+
     numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
     maxNumClusters <- if (length(numOfClusters) == 0) {
       6
@@ -70,7 +69,7 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
     actualPlot <- hist(distribution, breaks = breaks, plot = FALSE)
 
     histogramData <- actualPlot$counts / sum(actualPlot$counts)
-    
+
     callModule(histogram, "histogram", histogramData, addAxisParams,
                width = rep(1, length(distribution)),
                xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
