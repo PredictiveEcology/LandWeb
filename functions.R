@@ -320,7 +320,7 @@ reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
 }
 
 # Used in global_file.R to load the Current Condition Rasters from SilvaCom
-loadCCSpecies <- function(mapNames, userTags, ...) {
+loadCCSpecies <- function(mapNames, userTags = "", ...) {
   if (!any(grepl("1$", mapNames) )) {
     filenames <- paste0(mapNames, "1")
   } else {
@@ -329,13 +329,13 @@ loadCCSpecies <- function(mapNames, userTags, ...) {
   }
   names(filenames) <- mapNames
 
-  Map(filename = filenames, mapName = mapNames,
-      function(filename, mapName) {
+  Map(filename = filenames, mapName = mapNames, MoreArgs = list(userTags = userTags),
+      function(filename, mapName, userTags) {
         tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
         filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
-        Cache(prepInputs, userTags = "stable",
+        Cache(prepInputs, userTags = c(userTags, "stable"),
               archive = "CurrentCondition.zip",
-              targetFile = tifName,
+              targetFile = tifName, 
               alsoExtract = filenames, ...)
       })
 }
@@ -557,7 +557,7 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
                                   intersectListShpsFn, leadingByStageFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
                                   tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
-  reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
+  reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType, 
                                                  createReportingPolygonsFn = createReportingPolygonsFn)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
   leadingOut <- Map(reportingPolys = reportingPolysWOStudyArea, tsf = tsfs, vtm = vtms,
@@ -603,7 +603,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
 
   rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
                                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
-                                   destinationPath = dPath,
+                                   destinationPath = dPath, 
                                    studyArea = shpSubStudyRegion,
                                    rasterToMatch = tsfRasters[[1]]$crsSR[[1]]
   )
@@ -617,12 +617,12 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
 
   # tsf
   CCtsf <- Cache(loadCCSpecies, ageName,
-                                   url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
-                                   destinationPath = dPath,
-                                   studyArea = shpSubStudyRegion,
-                                   rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
+                 url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                 destinationPath = dPath,
+                 studyArea = shpSubStudyRegion, 
+                 writeCropped = "CurrentCondition.tif",
+                 rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
   )
-  names(CCtsf$Age) <- "CurrentCondition"
-
+  
   list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
 }
