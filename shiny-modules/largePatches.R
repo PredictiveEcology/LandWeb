@@ -96,6 +96,16 @@ largePatchesUI <- function(id) {
   ns <- NS(id)
 
   fluidRow(
+    ## TODO: this will need to be moved to server portion and will need to use renderUI/uiOutput
+
+    # column(width = 12, h2("NRV of number of 'large' (",strong(ClumpsReturn()$patchSize," hectares"),"), ",
+    #                       strong(tolower(ageClasses[ageClassIndex]))," patches")),
+    # column(width = 12, h4("These figures show the NRV of the probability distribution",
+    #                       "of ",tolower(ageClasses[ageClassIndex])," patches that are",ClumpsReturn()$patchSize," hectares",
+    #                       "or larger, for each given combination of Age Class, ",
+    #                       "Leading Vegetation, and Polygon.",
+    #                       "To change the patch size that defines these, type a new value",
+    #                       "in the menu at the left.")),
     shinydashboard::box(
       width = 12, solidHeader = TRUE, collapsible = TRUE,
       clumpMod2UI(ns("clumpMod2"))

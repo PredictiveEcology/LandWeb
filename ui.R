@@ -10,9 +10,14 @@ dashboardPage(
     sidebarMenu(
       id = "wholeThing",
       authGoogleUI("auth_google"), # TODO: have this automatically added!!
+      br(), ## TODO: add this to generator
       menuItem("Maps - time since fire", tabName = "timeSinceFire", icon = icon("map-o")),
+      br(), ## TODO: add this to generator
+      h4(HTML("&nbsp;"), "NRV"),  ## TODO: add this to generator
       menuItem("Large Patches", tabName = "largePatches", icon = icon("bar-chart")),
-      menuItem("Vegetation Cover", tabName = "vegArea", icon = icon("bar-chart")), # TO DO: add this to generator
+      menuItem("Vegetation Cover", tabName = "vegArea", icon = icon("bar-chart")), ## TODO: add this to generator
+      br(), ## TODO: add this to generator
+      h4(HTML("&nbsp;"), "Model Details"),  ## TODO: add this to generator
       menuItem("Overview Diagrams", tabName = "simInfo", icon = icon("sitemap")),
       menuItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece")),
       menuItem("LBMR (Succession) Model Inputs", tabName = "inputTables", icon = icon("table"))
