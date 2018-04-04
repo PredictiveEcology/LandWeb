@@ -20,7 +20,8 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
+histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
+                         authStatus) {
   observeEvent(datatable, label = chosenValues, {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -32,7 +33,6 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
       msg = "histServerFn: `datatable` is not a data.table"
     )
 
-    browser()
     subtableWith3DimensionsFixed <- getSubtable(dt, chosenCategories, chosenValues)
     ageClassPolygonSubtable <- getSubtable(dt, head(chosenCategories, 2), head(chosenValues, 2))
 
@@ -43,37 +43,29 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
       pmax(6, max(numOfClusters) + 1)
     }
 
-
-
     breaksLabels <- 0:maxNumClusters
     breaks <- breaksLabels - 0.5
     barplotBreaks <- breaksLabels + 0.5
 
     addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
 
+    subtableWith3DimensionsFixedOnlyCC <- subtableWith3DimensionsFixed[rep == "CurrentCondition"]
     subtableWith3DimensionsFixedNoCC <- subtableWith3DimensionsFixed[rep != "CurrentCondition"]
-    patchesInTimeDistribution <- if (NROW(subtableWith3DimensionsFixed)) {
-      numOfPatchesInTime <- subtableWith3DimensionsFixed[, .N, by = "rep"]
-      numOfTimesWithPatches <- NROW(numOfPatchesInTime)
+    out <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedNoCC, nSimTimes, 
+                                               breaks = breaks)
+    histogramData <- out$actualPlot$counts / sum(out$actualPlot$counts)
 
-      seq(1, nSimTimes) %>%
-        map(function(simulationTime) {
-          if (simulationTime <= numOfTimesWithPatches) {
-            numOfPatchesInTime$N[simulationTime]
-          } else {
-            0
-          }
-        })
+    outCC <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedOnlyCC, 
+                                                 nSimTimes = 1, breaks = breaks)
+    verticalLineAtX <- if (authStatus) {
+      outCC$actualPlot$breaks[c(FALSE, as.logical(outCC$actualPlot$counts))]
     } else {
-      rep(0, nSimTimes)
+      NULL
     }
-    distribution <- as.numeric(patchesInTimeDistribution)
-    actualPlot <- hist(distribution, breaks = breaks, plot = FALSE)
-
-    histogramData <- actualPlot$counts / sum(actualPlot$counts)
-
-    callModule(histogram, "histogram", histogramData, addAxisParams,
-               width = rep(1, length(distribution)),
+    
+    callModule(histogram, "histogram", histogramData, addAxisParams, 
+               verticalBar = verticalLineAtX,
+               width = rep(1, length(out$distribution)),
                xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
@@ -210,10 +202,32 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
 
   callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesDataCC,
              categoryValue = "LargePatches", nSimTimes = length(rctTsf()),
-             uiSequence = uiSequence(),
+             uiSequence = uiSequence(), authStatus = session$userData$userAuthorized(), 
              #patchSize = rctLargePatchesData()$patchSize,
              serverFunction = histServerFn, ## calls histogram server module
              uiFunction = function(ns) {
                histogramUI(ns("histogram"), height = 300)
              })
 }
+
+
+.patchesInTimeDistributionFn <- function(dt, nSimTimes, breaks) {
+  patchesInTimeDistribution <- if (NROW(dt)) {
+    numOfPatchesInTime <- dt[, .N, by = "rep"]
+    numOfTimesWithPatches <- NROW(numOfPatchesInTime)
+    
+    seq(1, nSimTimes) %>%
+      map(function(simulationTime) {
+        if (simulationTime <= numOfTimesWithPatches) {
+          numOfPatchesInTime$N[simulationTime]
+        } else {
+          0
+        }
+      })
+  } else {
+    rep(0, nSimTimes)
+  }
+  distribution <- as.numeric(patchesInTimeDistribution)
+  actualPlot <- hist(distribution, breaks = breaks, plot = FALSE)
+  return(list(actualPlot = actualPlot, distribution = distribution))
+} 
