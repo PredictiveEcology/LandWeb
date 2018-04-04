@@ -43,8 +43,8 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
       pmax(6, max(numOfClusters) + 1)
     }
 
-    
-    
+
+
     breaksLabels <- 0:maxNumClusters
     breaks <- breaksLabels - 0.5
     barplotBreaks <- breaksLabels + 0.5
@@ -55,7 +55,7 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes) {
     patchesInTimeDistribution <- if (NROW(subtableWith3DimensionsFixed)) {
       numOfPatchesInTime <- subtableWith3DimensionsFixed[, .N, by = "rep"]
       numOfTimesWithPatches <- NROW(numOfPatchesInTime)
-      
+
       seq(1, nSimTimes) %>%
         map(function(simulationTime) {
           if (simulationTime <= numOfTimesWithPatches) {
@@ -128,7 +128,7 @@ largePatchesUI <- function(id) {
 #' @rdname largePatches
 largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
                          rctTsf, rctVtm, cl = NULL, ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
-  
+
   clumpMod2ArgsCC <- reactive(label = "clumpMod2ArgsCC", {
     ## TODO: add assertions for other args
     assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
@@ -161,7 +161,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     ## TODO: add assertions for other args
     assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
                             is.character(rctTsf()), is.character(rctVtm()))
-    
+
     args <- list(
       tsf = rctTsf(),
       vtm = rctVtm(),
@@ -175,19 +175,18 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     args <- args[!unlist(lapply(args, is.null))]
     args
   })
-  
+
   rctLargePatchesDataCC <- reactive({
     args <- clumpMod2ArgsCC()
     args2 <- clumpMod2Args()
     args$tsf <- asPath(c(args2$tsf, args$tsf), 2)
     args$vtm <- asPath(c(args2$vtm, args$vtm), 2)
     args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
-    
+
     rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
     return(rctClumps()$ClumpsDT)
   })
-  
-  
+
   uiSequence <- reactive({
     polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]))
 
@@ -195,11 +194,11 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     data.table::data.table(
       category = c("ageClass", "polygonID", "vegCover"),
       uiType = c("tab", "tab", "box"),
-      possibleValues = list(ageClasses, polygonIDs, c(levels(rasVtmTmp)[[1]][,2], "All species"))
+      possibleValues = list(ageClasses, polygonIDs, c(levels(rasVtmTmp)[[1]][, 2], "All species"))
     )
   })
-  
-  callModule(slicer, "slicer", datatable = rctLargePatchesDataCC,
+
+  callModule(slicer, "larguPatchSlicer", datatable = rctLargePatchesDataCC,
              categoryValue = "LargePatches", nSimTimes = length(rctTsf()),
              uiSequence = uiSequence(),
              #patchSize = rctLargePatchesData()$patchSize,

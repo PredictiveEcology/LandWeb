@@ -13,7 +13,7 @@ intersectListShps <- function(listShps, intersectShp) {
   if (isTRUE(problem1 || problem2 )) {
     browser()
   }
-  
+
   outerOut <- mapply(shp = listShps, shpNames = names(listShps),
                      function(shp, shpNames, useSF = FALSE) {
                        message("  ", shpNames)
@@ -45,8 +45,7 @@ intersectListShps <- function(listShps, intersectShp) {
 #'
 #' @return A data.table with proportion of the pixels in each vegetation class, for
 #'         each given age class within each polygon
-leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
-                           polygonToSummarizeBy,
+leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy,
                            ageClassCutOffs,  ageClasses, cl) {
 
   lapplyFn <- "lapply"
@@ -174,9 +173,9 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles,
 countNumPatches <- function(ras, cellIDByPolygon, ...) {
   clumpedRas <- clump(ras, gaps = FALSE, ...)
   #data.table::set(cellIDByPolygon, , "newRas", clumpedRas[][cellIDByPolygon$cell])
-  cellIDByPolygon[, newRas:=  clumpedRas[][cell]]
-  cellIDByPolygon[, list(sizeInHa = .N * prod(res(clumpedRas))/1e4),
-                  by = c("polygonID","newRas")] %>% na.omit()
+  cellIDByPolygon[, newRas := clumpedRas[][cell]]
+  cellIDByPolygon[, list(sizeInHa = .N * prod(res(clumpedRas)) / 1e4),
+                  by = c("polygonID", "newRas")] %>% na.omit()
 }
 
 cellNumbersForPolygon <- function(dummyRaster, Polygon) {
@@ -330,7 +329,7 @@ loadCCSpecies <- function(mapNames, userTags, ...) {
   }
   names(filenames) <- mapNames
 
-  Map(filename = filenames, mapName = mapNames, 
+  Map(filename = filenames, mapName = mapNames,
       function(filename, mapName) {
         tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
         filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
@@ -532,7 +531,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   purrr::transpose(reportingPolygonsTmp)
 }
 
-createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authenticationType, 
+createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authenticationType,
                                        createReportingPolygonsFn, intersectListShpsFn) {
   message("Loading Reporting Polygons")
   reportingPolygons <- list()
@@ -555,10 +554,10 @@ createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authen
 
 
 reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingPolygonsFn,
-                                  intersectListShpsFn, 
+                                  intersectListShpsFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
                                  tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
-  reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType, 
+  reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
                                                  createReportingPolygonsFn = createReportingPolygonsFn)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
   leadingOut <- Map(reportingPolys = reportingPolysWOStudyArea, tsf = tsfs, vtm = vtms,
@@ -579,7 +578,7 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
   return(list(leading = leadingOut, reportingPolygons = reportingPolygon))
 }
 
-createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesFn, 
+createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesFn,
                             shpSubStudyRegion, tsfRasters) {
   ageName <- CCspeciesNames[agrep("age", CCspeciesNames)]
   onlySpeciesNames <- CCspeciesNames[CCspeciesNames %in% c("Pine", "BlackSpruce", "Deciduous", "WhiteSpruce")]
@@ -591,17 +590,17 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
     agrep(sn, simulatedMapVegTypes$Proprietary)
   }
   )
-  CCspeciesNames <- Map(msn = seq(matchSpNames), 
+  CCspeciesNames <- Map(msn = seq(matchSpNames),
                         MoreArgs = list(matchSpNames = matchSpNames, CCspeciesNames = CCspeciesNames,
-                                        simulatedSpNames = simulatedMapVegTypes$Proprietary), 
+                                        simulatedSpNames = simulatedMapVegTypes$Proprietary),
                         function(msn, matchSpNames, CCspeciesNames, simulatedSpNames) {
-                          if (length(matchSpNames[[msn]])>0)
+                          if (length(matchSpNames[[msn]]) > 0)
                             names(CCspeciesNames)[msn] <- simulatedSpNames[matchSpNames[[msn]]]
                           CCspeciesNames[msn]
                         })
   CCspeciesNames <- unlist(CCspeciesNames, use.names = TRUE)
   CCspeciesNames <- CCspeciesNames[nzchar(names(CCspeciesNames))]
-  
+
   rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
                                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                                    destinationPath = dPath,
@@ -615,7 +614,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
   CCspeciesNames <- c(CCspeciesNames, "Mixed" = "Mixed")
   levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
   CCvtm <- writeRaster(CCvtm, filename = file.path(dPath, "currentConditionVTM"), overwrite = TRUE)
-  
+
   # tsf
   CCtsf <- Cache(loadCCSpecies, ageName,
                                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
@@ -624,6 +623,6 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                                    rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
   )
   names(CCtsf$Age) <- "CurrentCondition"
-  
+
   list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
 }
