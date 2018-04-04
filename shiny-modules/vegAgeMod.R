@@ -61,6 +61,11 @@ vegAgeModUI <- function(id) {
   ns <- NS(id)
 
   fluidRow(
+    column(width = 12, h2("NRV of forest, by leading vegetation for each age class in each polygon")),
+    column(width = 12, h4("These figures show the NRV of the proportion of forests for each age class,",
+                          "in each polygon, that are in each leading vegetation type.",
+                          "The proportions are proportions", em("within"), "age class.",
+                          "In any given replicate, the numbers below sum to 1.")),
     shinydashboard::box(
       width = 12, solidHeader = TRUE, collapsible = TRUE,
       slicerUI(ns("vegSlicer"))
