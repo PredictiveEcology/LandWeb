@@ -110,6 +110,8 @@ options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
 ## spades module variables
 eventCaching <- c(".inputObjects", "init")
 maxAge <- 400
+vegLeadingPercent <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
+                         # If all are below this, then it is a "mixed" stand
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
 ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
@@ -163,14 +165,6 @@ message("Preparing polygon maps for reporting histograms")
 source("colorPaletteForShiny.R")
 labelColumn <- "shinyLabel"
 
-########################################################
-### CURRENT CONDITION ##################################
-message("Loading Current Condition Rasters")
-dPath <- file.path(paths$inputPath, "CurrentCondition")
-CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce")
-rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
-                                 url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
-                                 dPath = dPath)
 
 #############################
 
@@ -207,7 +201,8 @@ objects4sim <- lapply(objects4sim, function(x)
   list("shpStudyRegionFull" = shpStudyRegion,
        "shpStudySubRegion" = shpSubStudyRegion,
        "summaryPeriod" = summaryPeriod,
-       "useParallel" = 2)
+       "useParallel" = 2,
+       "vegLeadingPercent" = vegLeadingPercent)
 )
 
 parameters4sim <- emptyList
@@ -380,12 +375,21 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
 reportingAndLeading <- Cache(reportingAndLeadingFn,
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
                              createReportingPolygonsFn = createReportingPolygons,
+                             intersectListShpsFn = intersectListShps,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
                              authenticationType = authenticationType,
                              ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
                              tsfs, vtms, cl = TRUE)
 list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
 
+########################################################
+### CURRENT CONDITION ##################################
+message("Loading Current Condition Rasters")
+dPath <- file.path(paths$inputPath, "CurrentCondition")
+CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce")
+CurrentConditions <- Cache(createCCfromVtmTsf, CCspeciesNames, vtmRasters, 
+               dPath = dPath, loadCCSpeciesFn = loadCCSpecies, 
+               shpSubStudyRegion = shpSubStudyRegion, tsfRasters = tsfRasters)
 #########################
 
 if (FALSE) {
