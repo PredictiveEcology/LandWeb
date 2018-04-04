@@ -20,7 +20,7 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes, 
+histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
                          patchSize) {
   observeEvent(datatable, label = chosenValues, {
     dt <- if (is.reactive(datatable)) {
@@ -156,7 +156,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
 
   uiSequence <- reactive({
     polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]))
-    
+
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
       category = c("ageClass", "polygonID", "vegCover"),
@@ -167,7 +167,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
 
   callModule(slicer, "slicer", datatable = rctLargePatchesData,
              categoryValue = "LargePatches", nSimTimes = length(rctTsf()),
-             uiSequence = uiSequence(), 
+             uiSequence = uiSequence(),
              #patchSize = rctLargePatchesData()$patchSize,
              serverFunction = histServerFn, ## calls histogram server module
              uiFunction = function(ns) {
