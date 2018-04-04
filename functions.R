@@ -620,9 +620,9 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                                    destinationPath = dPath,
                                    studyArea = shpSubStudyRegion,
+                 writeCropped = "CurrentCondition.tif",
                                    rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
   )
-  names(CCtsf$Age) <- "CurrentCondition"
 
   list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
 }
