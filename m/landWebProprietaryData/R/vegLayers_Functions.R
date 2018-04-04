@@ -1,4 +1,4 @@
-loadCASFRI <- function(CASFRIRas, attrFile, headerFile, cachePath) {
+loadCASFRI <- function(CASFRIRas, attrFile, headerFile) {
   CASFRIattr <- fread(attrFile)
 
   ## WORKAROUND: maunally extracted the column names because the text file is
@@ -89,8 +89,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp, destinationPath) {
     PaulStack[[N]] <- raster(PaulRaster) %>% setValues(NA_integer_)
     PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
                             filename = asPath(file.path(destinationPath, paste0("Paul", N, ".tif"))),
-                            overwrite = TRUE, datatype = "INT2U",
-                            cacheRepo = paths$cachePath)
+                            overwrite = TRUE, datatype = "INT2U")
   }
 
   N <- "Pice_gla"
@@ -101,8 +100,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp, destinationPath) {
   PaulStack[[N]][PaulRaster[] %in% c(14, 34)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]] ,
                           filename = asPath(file.path(destinationPath, paste0("Paul", N, ".tif"))),
-                          overwrite = TRUE, datatype = "INT2U",
-                          cacheRepo = paths$cachePath)
+                          overwrite = TRUE, datatype = "INT2U")
 
   # 5
   N <- "Pice_mar"
@@ -113,8 +111,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp, destinationPath) {
   PaulStack[[N]][PaulRaster[] %in% c(32, 42)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
                           filename = asPath(file.path(destinationPath, paste0("Paul", N, ".tif"))),
-                          overwrite = TRUE, datatype = "INT2U",
-                          cacheRepo = paths$cachePath)
+                          overwrite = TRUE, datatype = "INT2U")
 
   # 6
   N <- "Pinu_sp"
@@ -125,8 +122,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp, destinationPath) {
   PaulStack[[N]][PaulRaster[] %in% c(23, 43)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
                           filename = asPath(file.path(destinationPath, paste0("Paul", N, ".tif"))),
-                          overwrite = TRUE, datatype = "INT2U",
-                          cacheRepo = paths$cachePath)
+                          overwrite = TRUE, datatype = "INT2U")
 
 
   # 7
@@ -138,8 +134,7 @@ makePaulStack <- function(paths, PaulRaster, uniqueKeepSp, destinationPath) {
   PaulStack[[N]][PaulRaster[] %in% c(31, 41)] <- 40
   PaulStack[[N]] <- Cache(writeRaster, PaulStack[[N]],
                           filename = asPath(file.path(destinationPath, paste0("Paul", N, ".tif"))),
-                          overwrite = TRUE, datatype = "INT2U",
-                          cacheRepo = paths$cachePath)
+                          overwrite = TRUE, datatype = "INT2U")
 
   stack(PaulStack)
 }
