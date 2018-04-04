@@ -150,18 +150,18 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
     rownames(a) <- NULL
     a
   })
-browser()
+
   aadf <- data.frame(zone = rep(polygonToSummarizeBy$shinyLabel[nonNulls],
                                 each = length(Factors)),
-                     polygonNum = as.character(rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors))),
-                     vegType = vegType, do.call(rbind, aa1[nonNulls]),
+                     polygonID = as.character(rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors))),
+                     vegCover = vegType, do.call(rbind, aa1[nonNulls]),
                      stringsAsFactors = FALSE)
 
   temp <- list()
   for (ages in ageClasses) {
     temp[[ages]] <- aadf %>%
-      dplyr::select(starts_with(ages) , zone:vegType) %>%
-      tidyr::gather(key = "label", value = "proportion", -(zone:vegType)) %>%
+      dplyr::select(starts_with(ages) , zone:vegCover) %>%
+      tidyr::gather(key = "label", value = "proportion", -(zone:vegCover)) %>%
       mutate(ageClass = unlist(lapply(strsplit(label, split = "\\."), function(x) x[[1]])))
   }
 
@@ -556,7 +556,7 @@ createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authen
 reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingPolygonsFn,
                                   intersectListShpsFn, leadingByStageFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
-                                 tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
+                                  tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
   reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
                                                  createReportingPolygonsFn = createReportingPolygonsFn)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])

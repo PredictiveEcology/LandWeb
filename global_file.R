@@ -383,7 +383,7 @@ reportingAndLeading <- Cache(reportingAndLeadingFn,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
                              authenticationType = authenticationType,
                              ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                             tsfs, vtms, cl = TRUE)
+                             tsfs = tsfs, vtms = vtms, cl = TRUE)
 list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
 
 ########################################################

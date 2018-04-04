@@ -12,7 +12,7 @@ dashboardPage(
       authGoogleUI("auth_google"), # TODO: have this automatically added!!
       menuItem("Maps - time since fire", tabName = "timeSinceFire", icon = icon("map-o")),
       #menuItem("Large Patches", tabName = "largePatches", icon = icon("bar-chart")),
-      menuItem("Proportion Area", tabName = "vegArea", icon = icon("bar-chart")), # TO DO: add this to generator
+      menuItem("Vegetation Cover", tabName = "vegArea", icon = icon("bar-chart")), # TO DO: add this to generator
       menuItem("Overview Diagrams", tabName = "simInfo", icon = icon("sitemap")),
       menuItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece")),
       menuItem("LBMR (Succession) Model Inputs", tabName = "inputTables", icon = icon("table"))
@@ -23,7 +23,8 @@ dashboardPage(
     useShinyjs(),
     tabItems(
       tabItem("timeSinceFire", timeSeriesofRastersUI("timeSinceFire")),
-      tabItem("largePatches", largePatchesUI("largePatches")),
+      #tabItem("largePatches", largePatchesUI("largePatches")),
+      tabItem("vegArea", vegAgeModUI("vegArea")), # TO DO: add this to generator
       tabItem("simInfo", simInfoUI("simInfo")),
       tabItem("moduleInfo", moduleInfoUI("moduleInfo")),
       tabItem("inputTables", inputTablesUI("inputTables"))
