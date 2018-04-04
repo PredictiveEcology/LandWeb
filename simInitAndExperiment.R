@@ -3,7 +3,7 @@ simInitAndExperiment <- function( times, params,
                                   outputs, 
                                   objects4sim, 
                                   paths, loadOrder,
-                                  emptyList) {
+                                  emptyList, cacheSpades = TRUE) {
   mySims <- Map(simInit, times = times, params = params, 
                 modules = modules, 
                 outputs = outputs, 
@@ -28,9 +28,10 @@ simInitAndExperiment <- function( times, params,
   
   #########################################
   # run the simulation experiment
-  runExperiment <- function(sim, nReps, objectsToHash = "") {
+  runExperiment <- function(sim, nReps, objectsToHash = "", cacheSpades) {
     args <- list(experiment, sim, replicates = nReps,
-                 objects = objectsToHash,
+                 objects = objectsToHash, 
+                 cache = cacheSpades, # cache each spades call
                  debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
                  paste(unname(current(sim)), collapse = ' '))",
                  .plotInitialTime = NA,
@@ -61,5 +62,6 @@ simInitAndExperiment <- function( times, params,
   mySimOuts <- emptyList
   # parallel::clusterMap, cl = cl, 
   mySimOuts <- Cache(Map, runExperiment, sim = mySims, 
-                     nReps = experimentReps, objectsToHash = objectsToHash)
+                     nReps = experimentReps, objectsToHash = objectsToHash, 
+                     cacheSpades = cacheSpades)
 }
