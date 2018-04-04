@@ -76,7 +76,7 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 reproducibleCache <- "reproducibleCache"
 
 if (any(c("achubaty", "emcintir") %in% Sys.info()["user"])) {
-  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
+  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
 }
 
 ## get additonal helper functions used throughout this shiny app
