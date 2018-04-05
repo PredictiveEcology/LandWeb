@@ -32,7 +32,7 @@ vegHistServerFn <- function(datatable, chosenCategories, chosenValues) {
       msg = "vegHistServerFn: `datatable` is not a data.table"
     )
 
-    vegDT <- getSubtable(dt, chosenCategories, chosenValues)
+    vegDT <- getSubtableMem(dt, chosenCategories, chosenValues)
     propVeg <- vegDT$proportion
 
     breaksLabels <- (0:11)/10
