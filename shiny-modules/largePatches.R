@@ -113,11 +113,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                          ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
 
   patchSize <- reactive({
-    if (is.null(input$patchSize)) {
-      500L
-    } else {
       as.integer(input$patchSize)
-    }
   })
 
   output$largePatchUI <- renderUI({
