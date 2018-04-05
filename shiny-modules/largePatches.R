@@ -167,10 +167,15 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   # })
 
   rctLargePatchesData <- reactive({
-    browser()
+    dt <- if (!is.null(rctLrgPatchesCC())) {
+      dt <- rbindlist(list(rctLrgPatches()[[rctChosenPolyName()]], 
+                           rctLrgPatchesCC()[[rctChosenPolyName()]]))
+    } else {
+      rctLrgPatches()[[rctChosenPolyName()]]
+    }
       #currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
-      rbindlist(list(rctLrgPatches()[[rctChosenPolyName()]], 
-                     rctLrgPatchesCC()[[rctChosenPolyName()]]))
+    dt[sizeInHa > patchSize()]
+      
       # args <- clumpMod2ArgsCC()
       # args2 <- clumpMod2Args()
       # args$tsf <- asPath(c(args2$tsf, args$tsf), 2)
