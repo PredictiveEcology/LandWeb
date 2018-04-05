@@ -14,6 +14,7 @@ clumpMod2UI <- function(id) {
   ns <- NS(id)
 
   tagList(
+    h4("This selector is from clumpMod2 and will be removed."),
     numericInput(ns("patchSize"), value = 500L, min = 100L, max = NA_integer_,
                  label = paste0("Type patch size in hectares that defines 'Large', ",
                                 "(numbers below 100 will not work)")
