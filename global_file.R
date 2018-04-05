@@ -388,10 +388,15 @@ list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPo
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
 dPath <- file.path(paths$inputPath, "CurrentCondition")
-CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce")
-CurrentConditions <- Cache(createCCfromVtmTsf, CCspeciesNames, vtmRasters,
-                           dPath = dPath, loadCCSpeciesFn = loadCCSpecies,
-                           shpSubStudyRegion = shpSubStudyRegion, tsfRasters = tsfRasters)
+CCspeciesNames <- list(Free = c(), 
+                       Proprietary = c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce"))
+CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
+CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames, 
+                           MoreArgs = list(vtmRasters = vtmRasters, 
+                                           dPath = dPath, 
+                                           loadCCSpeciesFn = loadCCSpecies, 
+                                           shpSubStudyRegion = shpSubStudyRegion, 
+                                           tsfRasters = tsfRasters))
 #########################
 
 message(paste("Running largePatchesFn"))
@@ -409,12 +414,13 @@ lrgPatches <- Cache(Map, timeSinceFireFiles = tsfs,
                     countNumPatchesFn = countNumPatches,
                     ageCutoffs = ageClassCutOffs)
 )
-lrgPatchesCC <- Cache(Map,
-                      timeSinceFireFiles = filename(CurrentConditions$CCtsf),
-                      vegTypeMapFiles = filename(CurrentConditions$CCvtm),
+lrgPatchesCC <- Cache(Map, largePatchesFn,
+                      timeSinceFireFiles = lapply(CurrentConditions, function(x) {
+                        if (!is.null(x)) filename(x$CCtsf)}),
+                      vegTypeMapFiles = lapply(CurrentConditions, function(x) {
+                        if (!is.null(x)) filename(x$CCvtm)}),
                       reportingPolygons = rp4LrgPatches,
                       authenticationType = authenticationType,
-                      largePatchesFn,
                       MoreArgs = list(ageClasses = ageClasses,
                                       countNumPatchesFn = countNumPatches,
                                       ageCutoffs = ageClassCutOffs)
