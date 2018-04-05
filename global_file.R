@@ -404,33 +404,24 @@ lrgPatches <- Cache(Map, timeSinceFireFiles = tsfs,
     vegTypeMapFiles = vtms,
     reportingPolygons = rp4LrgPatches,
     authenticationType = authenticationType,
-    largePatchesFn, 
+    largePatchesFn,
     MoreArgs = list(ageClasses = ageClasses,
                     countNumPatchesFn = countNumPatches,
-                    ageCutoffs = ageClassCutOffs
-                    #paths = paths,
-                    #omitArgs = "cl"
-                    )
+                    ageCutoffs = ageClassCutOffs)
 )
-lrgPatchesCC <- Cache(Map, 
+lrgPatchesCC <- Cache(Map,
                       timeSinceFireFiles = filename(CurrentConditions$CCtsf),
                       vegTypeMapFiles = filename(CurrentConditions$CCvtm),
-                      #timeSinceFireFiles = tsfs,
-                     #vegTypeMapFiles = vtms,
                       reportingPolygons = rp4LrgPatches,
                       authenticationType = authenticationType,
-                      largePatchesFn, 
+                      largePatchesFn,
                       MoreArgs = list(ageClasses = ageClasses,
                                       countNumPatchesFn = countNumPatches,
-                                      ageCutoffs = ageClassCutOffs
-                                      #paths = paths,
-                                      #omitArgs = "cl"
-                      )
+                                      ageCutoffs = ageClassCutOffs)
 )
 message(paste("Finished largePatchesFn"))
 
-########################################################
-
+##### TODO: remove this??
 if (FALSE) {
   polygonsWithData <- lapply(leading, function(polyWData) {
     lapply(polyWData, function(dt) {
@@ -446,8 +437,7 @@ if (FALSE) {
     })
   })
 }
-#############################
-
+################################################################################
 
 globalEndTime <- Sys.time()
 

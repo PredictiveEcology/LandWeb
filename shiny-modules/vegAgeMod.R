@@ -55,8 +55,8 @@ vegHistServerFn <- function(datatable, chosenCategories, chosenValues) {
   })
 }
 
-#
-#
+#'
+#'
 vegAgeModUI <- function(id) {
   ns <- NS(id)
 
@@ -68,11 +68,13 @@ vegAgeModUI <- function(id) {
                           "In any given replicate, the numbers below sum to 1.")),
     shinydashboard::box(
       width = 12, solidHeader = TRUE, collapsible = TRUE,
-      slicerUI(ns("vegSlicer"))
+      shinycssloaders::withSpinner(slicerUI(ns("vegSlicer")))
     )
   )
 }
 
+#'
+#'
 vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
                       rctLeadingDTlist, rctVtm, ageClasses) {
 
