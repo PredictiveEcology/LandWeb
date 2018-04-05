@@ -81,7 +81,6 @@ if (any(c("achubaty", "emcintir") %in% Sys.info()["user"])) {
 
 ## get additonal helper functions used throughout this shiny app
 source("functions.R")
-source("largePatchesFn.R")
 
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
@@ -386,7 +385,6 @@ reportingAndLeading <- Cache(reportingAndLeadingFn,
                              tsfs = tsfs, vtms = vtms, cl = TRUE)
 list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
 
-########################################################
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
 dPath <- file.path(paths$inputPath, "CurrentCondition")
@@ -395,6 +393,43 @@ CurrentConditions <- Cache(createCCfromVtmTsf, CCspeciesNames, vtmRasters,
                            dPath = dPath, loadCCSpeciesFn = loadCCSpecies,
                            shpSubStudyRegion = shpSubStudyRegion, tsfRasters = tsfRasters)
 #########################
+
+message(paste("Running largePatchesFn"))
+rp4LrgPatches <- lapply(reportingPolygons, function(rpAll) {
+  lapply(rpAll, function(rp) {
+    rp$crsSR$shpSubStudyRegion
+  })
+})
+lrgPatches <- Cache(Map, timeSinceFireFiles = tsfs,
+    vegTypeMapFiles = vtms,
+    reportingPolygons = rp4LrgPatches,
+    authenticationType = authenticationType,
+    largePatchesFn, 
+    MoreArgs = list(ageClasses = ageClasses,
+                    countNumPatchesFn = countNumPatches,
+                    ageCutoffs = ageClassCutOffs
+                    #paths = paths,
+                    #omitArgs = "cl"
+                    )
+)
+lrgPatchesCC <- Cache(Map, 
+                      timeSinceFireFiles = filename(CurrentConditions$CCtsf),
+                      vegTypeMapFiles = filename(CurrentConditions$CCvtm),
+                      #timeSinceFireFiles = tsfs,
+                     #vegTypeMapFiles = vtms,
+                      reportingPolygons = rp4LrgPatches,
+                      authenticationType = authenticationType,
+                      largePatchesFn, 
+                      MoreArgs = list(ageClasses = ageClasses,
+                                      countNumPatchesFn = countNumPatches,
+                                      ageCutoffs = ageClassCutOffs
+                                      #paths = paths,
+                                      #omitArgs = "cl"
+                      )
+)
+message(paste("Finished largePatchesFn"))
+
+########################################################
 
 if (FALSE) {
   polygonsWithData <- lapply(leading, function(polyWData) {

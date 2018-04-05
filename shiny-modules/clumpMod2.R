@@ -50,25 +50,27 @@ clumpMod2 <- function(input, output, session, tsf, vtm, currentPolygon, cl,
   clumps <- reactive({
     patchSize <- as.integer(input$patchSize)
 
-    message(paste("Running largePatchesFn"))
-    shiny::withProgress(message = "Calculation in progress",
-                        detail = "...", value = 0, {
-                          args <- list(largePatchesFn,
-                                       timeSinceFireFiles = tsf,
-                                       vegTypeMapFiles = vtm,
-                                       cl = if (tryCatch(is(cl, "cluster"),
-                                                         error = function(x) FALSE)) cl,
-                                       polygonToSummarizeBy = currentPolygon,
-                                       ageClasses = ageClasses,
-                                       countNumPatches = countNumPatches,
-                                       paths = paths,
-                                       omitArgs = "cl")
-                          args <- args[!unlist(lapply(args, is.null))]
-                          lrgPatches <- do.call(Cache, args)
-                          assertthat::assert_that(is.data.table(lrgPatches))
-                          shiny::setProgress(1)
-                        })
-    message(paste("  Finished largePatchesFn"))
+    if (FALSE) {
+      message(paste("Running largePatchesFn"))
+      shiny::withProgress(message = "Calculation in progress",
+                          detail = "...", value = 0, {
+                            args <- list(largePatchesFn,
+                                         timeSinceFireFiles = tsf,
+                                         vegTypeMapFiles = vtm,
+                                         cl = if (tryCatch(is(cl, "cluster"),
+                                                           error = function(x) FALSE)) cl,
+                                         polygonToSummarizeBy = currentPolygon,
+                                         ageClasses = ageClasses,
+                                         countNumPatches = countNumPatches,
+                                         paths = paths,
+                                         omitArgs = "cl")
+                            args <- args[!unlist(lapply(args, is.null))]
+                            lrgPatches <- do.call(Cache, args)
+                            assertthat::assert_that(is.data.table(lrgPatches))
+                            shiny::setProgress(1)
+                          })
+      message(paste("  Finished largePatchesFn"))
+    }
 
     return(list(ClumpsDT = lrgPatches[sizeInHa > patchSize], patchSize = patchSize))
   })

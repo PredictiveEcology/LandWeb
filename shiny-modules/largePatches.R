@@ -110,68 +110,81 @@ largePatchesUI <- function(id) {
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
 largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
-                         rctTsf, rctVtm, cl = NULL, ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
+                         rctLrgPatches,
+                         rctLrgPatchesCC, 
+                         rctTsf, rctVtm, 
+                         ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
 
   ###
   patchSize <- reactive(as.integer(input$patchSize))
   ###
+  # clumpMod2ArgsCC <- reactive(label = "clumpMod2ArgsCC", {
+  #   ## TODO: add assertions for other args
+  #   assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
+  #                           is.character(rctTsf()), is.character(rctVtm()))
+  # 
+  #   args <- list(
+  #     tsf = filename(CurrentConditions$CCtsf),
+  #     vtm = filename(CurrentConditions$CCvtm),
+  #     currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]],
+  #     cl = cl,
+  #     ageClasses = ageClasses,
+  #     largePatchesFn = FUN,
+  #     countNumPatches = nPatchesFun,
+  #     paths = rctPaths()
+  #   )
+  #   args <- args[!unlist(lapply(args, is.null))]
+  #   args
+  # })
 
-  clumpMod2ArgsCC <- reactive(label = "clumpMod2ArgsCC", {
-    ## TODO: add assertions for other args
-    assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
-                            is.character(rctTsf()), is.character(rctVtm()))
+  # rctLargePatchesData <- reactive({
+  #   browser()
+  #   args <- clumpMod2Args()
+  #   args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
+  # 
+  #   rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
+  # 
+  #   return(rctClumps()$ClumpsDT)
+  # })
 
-    args <- list(
-      tsf = filename(CurrentConditions$CCtsf),
-      vtm = filename(CurrentConditions$CCvtm),
-      currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]],
-      cl = cl,
-      ageClasses = ageClasses,
-      largePatchesFn = FUN,
-      countNumPatches = nPatchesFun,
-      paths = rctPaths()
-    )
-    args <- args[!unlist(lapply(args, is.null))]
-    args
-  })
+  # clumpMod2Args <- reactive(label = "clumpMod2Args", {
+  #   ## TODO: add assertions for other args
+  #   assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
+  #                           is.character(rctTsf()), is.character(rctVtm()))
+  # 
+  #   args <- list(
+  #     tsf = rctTsf(),
+  #     vtm = rctVtm(),
+  #     currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]],
+  #     cl = cl,
+  #     ageClasses = ageClasses,
+  #     largePatchesFn = FUN,
+  #     countNumPatches = nPatchesFun,
+  #     paths = rctPaths()
+  #   )
+  #   args <- args[!unlist(lapply(args, is.null))]
+  #   args
+  # })
 
   rctLargePatchesData <- reactive({
-    args <- clumpMod2Args()
-    args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
-
-    rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
-
-    return(rctClumps()$ClumpsDT)
-  })
-
-  clumpMod2Args <- reactive(label = "clumpMod2Args", {
-    ## TODO: add assertions for other args
-    assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
-                            is.character(rctTsf()), is.character(rctVtm()))
-
-    args <- list(
-      tsf = rctTsf(),
-      vtm = rctVtm(),
-      currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]],
-      cl = cl,
-      ageClasses = ageClasses,
-      largePatchesFn = FUN,
-      countNumPatches = nPatchesFun,
-      paths = rctPaths()
-    )
-    args <- args[!unlist(lapply(args, is.null))]
-    args
-  })
-
-  rctLargePatchesDataCC <- reactive({
-    args <- clumpMod2ArgsCC()
-    args2 <- clumpMod2Args()
-    args$tsf <- asPath(c(args2$tsf, args$tsf), 2)
-    args$vtm <- asPath(c(args2$vtm, args$vtm), 2)
-    args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
-
-    rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
-    return(rctClumps()$ClumpsDT)
+    dt <- if (!is.null(rctLrgPatchesCC())) {
+      dt <- rbindlist(list(rctLrgPatches()[[rctChosenPolyName()]], 
+                           rctLrgPatchesCC()[[rctChosenPolyName()]]))
+    } else {
+      rctLrgPatches()[[rctChosenPolyName()]]
+    }
+      #currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
+    dt[sizeInHa > patchSize()]
+      
+      # args <- clumpMod2ArgsCC()
+      # args2 <- clumpMod2Args()
+      # args$tsf <- asPath(c(args2$tsf, args$tsf), 2)
+      # args$vtm <- asPath(c(args2$vtm, args$vtm), 2)
+      # args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
+      # 
+      # rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
+      # return(rctClumps()$ClumpsDT)
+    
   })
 
   uiSequence <- reactive({
@@ -185,7 +198,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     )
   })
 
-  callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesDataCC,
+  callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
              categoryValue = "LargePatches", nSimTimes = length(rctTsf()),
              uiSequence = uiSequence(), authStatus = session$userData$userAuthorized(),
              #patchSize = rctLargePatchesData()$patchSize,

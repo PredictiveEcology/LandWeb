@@ -13,6 +13,9 @@ rctVtm <- reactive(vtms[[rctAuthenticationType()]])
 
 rctLeadingDTlist <- reactive(leading[[rctAuthenticationType()]])
 
+rctLrgPatches <- reactive(lrgPatches[[rctAuthenticationType()]])
+rctLrgPatchesCC <- reactive(lrgPatchesCC[[rctAuthenticationType()]])
+
 rctPaths4sim <- reactive(paths4sim[[rctAuthenticationType()]])
 
 rctRasterList <- reactive(tsfRasters[[rctAuthenticationType()]])
