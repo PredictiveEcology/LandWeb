@@ -400,14 +400,15 @@ rp4LrgPatches <- lapply(reportingPolygons, function(rpAll) {
     rp$crsSR$shpSubStudyRegion
   })
 })
-lrgPatches <- Cache(Map, timeSinceFireFiles = tsfs,
-    vegTypeMapFiles = vtms,
-    reportingPolygons = rp4LrgPatches,
-    authenticationType = authenticationType,
-    largePatchesFn,
-    MoreArgs = list(ageClasses = ageClasses,
-                    countNumPatchesFn = countNumPatches,
-                    ageCutoffs = ageClassCutOffs)
+lrgPatches <- Cache(Map,
+                    timeSinceFireFiles = tsfs,
+                    vegTypeMapFiles = vtms,
+                    reportingPolygons = rp4LrgPatches,
+                    authenticationType = authenticationType,
+                    largePatchesFn,
+                    MoreArgs = list(ageClasses = ageClasses,
+                                    countNumPatchesFn = countNumPatches,
+                                    ageCutoffs = ageClassCutOffs)
 )
 lrgPatchesCC <- Cache(Map,
                       timeSinceFireFiles = filename(CurrentConditions$CCtsf),
