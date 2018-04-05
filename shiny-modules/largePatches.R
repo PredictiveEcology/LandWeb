@@ -20,8 +20,7 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
-                         authStatus) {
+histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes, authStatus) {
   observeEvent(datatable, label = chosenValues, {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -51,13 +50,13 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
 
     subtableWith3DimensionsFixedOnlyCC <- subtableWith3DimensionsFixed[rep == "CurrentCondition"]
     subtableWith3DimensionsFixedNoCC <- subtableWith3DimensionsFixed[rep != "CurrentCondition"]
-    out <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedNoCC, nSimTimes,
-                                               breaks = breaks)
+
+    out <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedNoCC, nSimTimes, breaks = breaks)
+    outCC <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedOnlyCC, nSimTimes = 1, breaks = breaks)
+
     histogramData <- out$actualPlot$counts / sum(out$actualPlot$counts)
 
-    outCC <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedOnlyCC,
-                                                 nSimTimes = 1, breaks = breaks)
-    verticalLineAtX <- if (authStatus) {
+    verticalLineAtX <- if (isTRUE(authStatus)) {
       outCC$actualPlot$breaks[c(FALSE, as.logical(outCC$actualPlot$counts))]
     } else {
       NULL
@@ -110,19 +109,38 @@ largePatchesUI <- function(id) {
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
 largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
-                         rctLrgPatches,
-                         rctLrgPatchesCC, 
-                         rctTsf, rctVtm, 
+                         rctLrgPatches, rctLrgPatchesCC, rctTsf, rctVtm,
                          ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
 
-  ###
-  patchSize <- reactive(as.integer(input$patchSize))
-  ###
+  output$largePatchUI <- renderUI({
+    ns <- session$ns
+
+    fluidRow(
+      column(width = 12, h2("NRV of number of 'large' (", strong(as.character(input$patchSize)),
+                            " hectares) patches")),
+      column(width = 12, h4("These figures show the NRV of the probability distribution",
+                            "of patches that are ", as.character(input$patchSize), " hectares ",
+                            "or larger, for each given combination of Age Class, ",
+                            "Leading Vegetation, and Polygon."),
+             h4("To change the patch size that defines these, type a new value below.")),
+      shinydashboard::box(
+        width = 12, solidHeader = TRUE, collapsible = TRUE,
+        numericInput(ns("patchSize"), value = 500L, min = 100L, max = NA_integer_,
+                     label = paste0("Type patch size in hectares that defines 'Large', ",
+                                    "(numbers below 100 will not work)"))
+      ),
+      shinydashboard::box(
+        width = 12, solidHeader = TRUE, collapsible = TRUE,
+        shinycssloaders::withSpinner(slicerUI(ns("largePatchSlicer")))
+      )
+    )
+  })
+
   # clumpMod2ArgsCC <- reactive(label = "clumpMod2ArgsCC", {
   #   ## TODO: add assertions for other args
   #   assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
   #                           is.character(rctTsf()), is.character(rctVtm()))
-  # 
+  #
   #   args <- list(
   #     tsf = filename(CurrentConditions$CCtsf),
   #     vtm = filename(CurrentConditions$CCvtm),
@@ -141,9 +159,9 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   #   browser()
   #   args <- clumpMod2Args()
   #   args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
-  # 
+  #
   #   rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
-  # 
+  #
   #   return(rctClumps()$ClumpsDT)
   # })
 
@@ -151,7 +169,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   #   ## TODO: add assertions for other args
   #   assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
   #                           is.character(rctTsf()), is.character(rctVtm()))
-  # 
+  #
   #   args <- list(
   #     tsf = rctTsf(),
   #     vtm = rctVtm(),
@@ -168,23 +186,24 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
 
   rctLargePatchesData <- reactive({
     dt <- if (!is.null(rctLrgPatchesCC())) {
-      dt <- rbindlist(list(rctLrgPatches()[[rctChosenPolyName()]], 
+      dt <- rbindlist(list(rctLrgPatches()[[rctChosenPolyName()]],
                            rctLrgPatchesCC()[[rctChosenPolyName()]]))
     } else {
       rctLrgPatches()[[rctChosenPolyName()]]
     }
-      #currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
-    dt[sizeInHa > patchSize()]
-      
-      # args <- clumpMod2ArgsCC()
-      # args2 <- clumpMod2Args()
-      # args$tsf <- asPath(c(args2$tsf, args$tsf), 2)
-      # args$vtm <- asPath(c(args2$vtm, args$vtm), 2)
-      # args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
-      # 
-      # rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
-      # return(rctClumps()$ClumpsDT)
-    
+
+    #currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
+
+    # args <- clumpMod2ArgsCC()
+    # args2 <- clumpMod2Args()
+    # args$tsf <- asPath(c(args2$tsf, args$tsf), 2)
+    # args$vtm <- asPath(c(args2$vtm, args$vtm), 2)
+    # args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
+    #
+    # rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
+    # return(rctClumps()$ClumpsDT)
+
+    dt[sizeInHa > input$patchSize]
   })
 
   uiSequence <- reactive({
@@ -199,37 +218,15 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   })
 
   callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
-             categoryValue = "LargePatches", nSimTimes = length(rctTsf()),
-             uiSequence = uiSequence(), authStatus = session$userData$userAuthorized(),
-             #patchSize = rctLargePatchesData()$patchSize,
+             categoryValue = "LargePatches",
+             uiSequence = uiSequence(),
              serverFunction = histServerFn, ## calls histogram server module
              uiFunction = function(ns) {
                histogramUI(ns("histogram"), height = 300)
-  })
-
-  output$largePatchUI <- renderUI({
-    ns <- session$ns
-
-    fluidRow(
-      column(width = 12, h2("NRV of number of 'large' (", strong(as.character(input$patchSize))," hectares",") patches")),
-      column(width = 12, h4("These figures show the NRV of the probability distribution",
-                            "of patches that are ", as.character(input$patchSize), " hectares ",
-                            "or larger, for each given combination of Age Class, ",
-                            "Leading Vegetation, and Polygon.",
-                            "To change the patch size that defines these, type a new value",
-                            "in the menu at the left.")),
-      shinydashboard::box(
-        width = 12, solidHeader = TRUE, collapsible = TRUE,
-        numericInput(ns("patchSize"), value = 500L, min = 100L, max = NA_integer_,
-                     label = paste0("Type patch size in hectares that defines 'Large', ",
-                                    "(numbers below 100 will not work)"))
-      ),
-      shinydashboard::box(
-          width = 12, solidHeader = TRUE, collapsible = TRUE,
-          shinycssloaders::withSpinner(slicerUI(ns("largePatchSlicer")))
-      )
-    )
-  })
+             },
+             nSimTimes = length(rctTsf()),
+             authStatus = session$userData$userAuthorized()
+  )
 }
 
 .patchesInTimeDistributionFn <- function(dt, nSimTimes, breaks) {
