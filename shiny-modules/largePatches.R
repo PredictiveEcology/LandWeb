@@ -192,7 +192,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
              serverFunction = histServerFn, ## calls histogram server module
              uiFunction = function(ns) {
                histogramUI(ns("histogram"), height = 300)
-             })
+  })
 
   output$largePatchUI <- renderUI({
     ns <- session$ns
