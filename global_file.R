@@ -445,6 +445,17 @@ if (FALSE) {
   })
 }
 ################################################################################
+# Write all Proprietary input shapefiles to disk
+polySubDir <- file.path(oPaths$Proprietary, "Polygons")
+dir.create(polySubDir, showWarnings = FALSE)
+out <- Cache(Map, polys = lapply(reportingPolygons$Proprietary, function(p) p$crsSR$shpSubStudyRegion), 
+    namesPolys = names(reportingPolygons$Proprietary),
+    function(polys, namesPolys) {
+      raster::shapefile(polys, 
+                        filename = file.path(polySubDir, namesPolys),
+                        overwrite = TRUE)
+    })
+
 
 globalEndTime <- Sys.time()
 
