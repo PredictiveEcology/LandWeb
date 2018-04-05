@@ -25,6 +25,7 @@ dashboardPage(
     sidebarFooterUI("sidebar")
   ),
   dashboardBody(
+    includeCSS("www/style.css"), ## TODO: add this to generator
     useShinyjs(),
     tabItems(
       tabItem("timeSinceFire", timeSeriesofRastersUI("timeSinceFire")),
