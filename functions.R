@@ -587,49 +587,51 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
 
 createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesFn,
                             shpSubStudyRegion, tsfRasters) {
-  ageName <- CCspeciesNames[agrep("age", CCspeciesNames)]
-  onlySpeciesNames <- CCspeciesNames[CCspeciesNames %in% c("Pine", "BlackSpruce", "Deciduous", "WhiteSpruce")]
-  simulatedMapVegTypes <- lapply(vtmRasters, function(r) {
-    as.character(levels(r$crsSR[[1]])[[1]][,2])
-  })
-  #lapply(simulatedMapVegTypes, function(vtm) {
-  matchSpNames <- lapply(CCspeciesNames, function(sn) {
-    agrep(sn, simulatedMapVegTypes$Proprietary)
-  }
-  )
-  CCspeciesNames <- Map(msn = seq(matchSpNames),
-                        MoreArgs = list(matchSpNames = matchSpNames, CCspeciesNames = CCspeciesNames,
-                                        simulatedSpNames = simulatedMapVegTypes$Proprietary),
-                        function(msn, matchSpNames, CCspeciesNames, simulatedSpNames) {
-                          if (length(matchSpNames[[msn]]) > 0)
-                            names(CCspeciesNames)[msn] <- simulatedSpNames[matchSpNames[[msn]]]
-                          CCspeciesNames[msn]
-                        })
-  CCspeciesNames <- unlist(CCspeciesNames, use.names = TRUE)
-  CCspeciesNames <- CCspeciesNames[nzchar(names(CCspeciesNames))]
-
-  rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
-                                   url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
-                                   destinationPath = dPath, 
-                                   studyArea = shpSubStudyRegion,
-                                   rasterToMatch = tsfRasters[[1]]$crsSR[[1]]
-  )
-  stkCurrentCondition <- stack(rstCurrentConditionList[CCspeciesNames])
-  sumVegPct <- sum(stkCurrentCondition)
-  stkCurrentCondition$Mixed <- all(stkCurrentCondition/sumVegPct < vegLeadingPercent)*10
-  CCvtm <- which.max(stkCurrentCondition)
-  CCspeciesNames <- c(CCspeciesNames, "Mixed" = "Mixed")
-  levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
-  CCvtm <- writeRaster(CCvtm, filename = file.path(dPath, "currentConditionVTM"), overwrite = TRUE)
-
-  # tsf
-  CCtsf <- Cache(loadCCSpecies, ageName,
-                 url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
-                 destinationPath = dPath,
-                 studyArea = shpSubStudyRegion, 
-                 writeCropped = "CurrentCondition.tif",
-                 rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
-  )
+  if (!is.null(CCspeciesNames)) {
+    ageName <- CCspeciesNames[agrep("age", CCspeciesNames)]
+    onlySpeciesNames <- CCspeciesNames[CCspeciesNames %in% c("Pine", "BlackSpruce", "Deciduous", "WhiteSpruce")]
+    simulatedMapVegTypes <- lapply(vtmRasters, function(r) {
+      as.character(levels(r$crsSR[[1]])[[1]][,2])
+    })
+    #lapply(simulatedMapVegTypes, function(vtm) {
+    matchSpNames <- lapply(CCspeciesNames, function(sn) {
+      agrep(sn, simulatedMapVegTypes$Proprietary)
+    }
+    )
+    CCspeciesNames <- Map(msn = seq(matchSpNames),
+                          MoreArgs = list(matchSpNames = matchSpNames, CCspeciesNames = CCspeciesNames,
+                                          simulatedSpNames = simulatedMapVegTypes$Proprietary),
+                          function(msn, matchSpNames, CCspeciesNames, simulatedSpNames) {
+                            if (length(matchSpNames[[msn]]) > 0)
+                              names(CCspeciesNames)[msn] <- simulatedSpNames[matchSpNames[[msn]]]
+                            CCspeciesNames[msn]
+                          })
+    CCspeciesNames <- unlist(CCspeciesNames, use.names = TRUE)
+    CCspeciesNames <- CCspeciesNames[nzchar(names(CCspeciesNames))]
   
-  list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
+    rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
+                                     url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                                     destinationPath = dPath, 
+                                     studyArea = shpSubStudyRegion,
+                                     rasterToMatch = tsfRasters[[1]]$crsSR[[1]]
+    )
+    stkCurrentCondition <- stack(rstCurrentConditionList[CCspeciesNames])
+    sumVegPct <- sum(stkCurrentCondition)
+    stkCurrentCondition$Mixed <- all(stkCurrentCondition/sumVegPct < vegLeadingPercent)*10
+    CCvtm <- which.max(stkCurrentCondition)
+    CCspeciesNames <- c(CCspeciesNames, "Mixed" = "Mixed")
+    levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
+    CCvtm <- writeRaster(CCvtm, filename = file.path(dPath, "currentConditionVTM"), overwrite = TRUE)
+  
+    # tsf
+    CCtsf <- Cache(loadCCSpecies, ageName,
+                   url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                   destinationPath = dPath,
+                   studyArea = shpSubStudyRegion, 
+                   writeCropped = "CurrentCondition.tif",
+                   rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
+    )
+    
+    list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
+  }
 }
