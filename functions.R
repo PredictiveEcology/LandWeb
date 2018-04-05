@@ -1,4 +1,6 @@
 source("simInitAndExperiment.R")
+source("largePatchesFn.R")
+
 intersectListShps <- function(listShps, intersectShp) {
   message("Intersecting reporting polygons with shpStudyRegion")
   if (!is(intersectShp, "sf")) {
@@ -178,17 +180,22 @@ countNumPatches <- function(ras, cellIDByPolygon, ...) {
                   by = c("polygonID", "newRas")] %>% na.omit()
 }
 
-cellNumbersForPolygon <- function(dummyRaster, Polygon) {
-  aa <- raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE)
-  notNull <- !unlist(lapply(aa, is.null))
-  dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) {
-    data.table(cell = aa[[x]][, "cell"], polygonID = as.character(x))
-  }))
-
+cellNumbersForPolygon <- function(dummyRaster, Polygons) {
+  dtList <- Map(Polygon = Polygons, PolygonName = names(Polygons), 
+                function(Polygon, PolygonName) {
+                  message("  Assigning PolygonIDs for each pixel from ", PolygonName)
+                  aa <- raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE)
+                  notNull <- !unlist(lapply(aa, is.null))
+                  dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) {
+                    data.table(cell = aa[[x]][, "cell"], polygonID = as.character(x))
+                  }))
+                  data.table::copy(dt)
+  })
+  
   # There is a weird bug that makes the data.table from previous line. copy() is a work around
   # Error in data.table::set(cellIDByPolygon, , "newRas", clumpedRas[][cellIDByPolygon$cell]) :
   #   Internal logical error. DT passed to assign has not been allocated enough column slots. l=2, tl=2, adding 1
-  return(data.table::copy(dt))
+  return(dtList)
 }
 
 reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
