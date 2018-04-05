@@ -87,8 +87,8 @@ largePatchesUI <- function(id) {
   ns <- NS(id)
 
   fluidRow(
-    textOutput(ns("title")),
-    textOutput(ns("details")),
+    htmlOutput(ns("title")),
+    htmlOutput(ns("details")),
     shinydashboard::box(
       width = 12, solidHeader = TRUE, collapsible = TRUE,
       numericInput(ns("patchSize"), value = 500L, min = 100L, max = NA_integer_,
@@ -125,12 +125,12 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                          rctLrgPatches, rctLrgPatchesCC, rctTsf, rctVtm,
                          ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
 
-  output$title <- renderText({
+  output$title <- renderUI({
     column(width = 12, h2("NRV of number of 'large' (", strong(as.character(input$patchSize)),
                           " hectares) patches"))
   })
 
-  output$details <- renderText({
+  output$details <- renderUI({
     column(width = 12,
            h4("These figures show the NRV of the probability distribution",
               "of patches that are ", as.character(input$patchSize), " hectares ",
