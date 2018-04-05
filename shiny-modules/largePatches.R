@@ -86,7 +86,20 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes, a
 largePatchesUI <- function(id) {
   ns <- NS(id)
 
-  uiOutput(ns("largePatchUI"))
+  fluidRow(
+    textOutput(ns("title")),
+    textOutput(ns("details")),
+    shinydashboard::box(
+      width = 12, solidHeader = TRUE, collapsible = TRUE,
+      numericInput(ns("patchSize"), value = 500L, min = 100L, max = NA_integer_,
+                   label = paste0("Type patch size in hectares that defines 'Large', ",
+                                  "(numbers below 100 will not work)"))
+    ),
+    shinydashboard::box(
+      width = 12, solidHeader = TRUE, collapsible = TRUE,
+      shinycssloaders::withSpinner(slicerUI(ns("largePatchSlicer")))
+    )
+  )
 }
 
 #' @param input              Shiny server input object.
@@ -112,28 +125,18 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                          rctLrgPatches, rctLrgPatchesCC, rctTsf, rctVtm,
                          ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
 
-  output$largePatchUI <- renderUI({
-    ns <- session$ns
+  output$title <- renderText({
+    column(width = 12, h2("NRV of number of 'large' (", strong(as.character(input$patchSize)),
+                          " hectares) patches"))
+  })
 
-    fluidRow(
-      column(width = 12, h2("NRV of number of 'large' (", strong(as.character(input$patchSize)),
-                            " hectares) patches")),
-      column(width = 12, h4("These figures show the NRV of the probability distribution",
-                            "of patches that are ", as.character(input$patchSize), " hectares ",
-                            "or larger, for each given combination of Age Class, ",
-                            "Leading Vegetation, and Polygon."),
-             h4("To change the patch size that defines these, type a new value below.")),
-      shinydashboard::box(
-        width = 12, solidHeader = TRUE, collapsible = TRUE,
-        numericInput(ns("patchSize"), value = 500L, min = 100L, max = NA_integer_,
-                     label = paste0("Type patch size in hectares that defines 'Large', ",
-                                    "(numbers below 100 will not work)"))
-      ),
-      shinydashboard::box(
-        width = 12, solidHeader = TRUE, collapsible = TRUE,
-        shinycssloaders::withSpinner(slicerUI(ns("largePatchSlicer")))
-      )
-    )
+  output$details <- renderText({
+    column(width = 12,
+           h4("These figures show the NRV of the probability distribution",
+              "of patches that are ", as.character(input$patchSize), " hectares ",
+              "or larger, for each given combination of Age Class, ",
+              "Leading Vegetation, and Polygon."),
+           h4("To change the patch size that defines these, type a new value below."))
   })
 
   rctLargePatchesData <- reactive({
