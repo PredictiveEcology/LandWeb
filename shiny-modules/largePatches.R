@@ -32,8 +32,8 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes, a
       msg = "histServerFn: `datatable` is not a data.table"
     )
 
-    subtableWith3DimensionsFixed <- getSubtable(dt, chosenCategories, chosenValues)
-    ageClassPolygonSubtable <- getSubtable(dt, head(chosenCategories, 2), head(chosenValues, 2))
+    subtableWith3DimensionsFixed <- getSubtableMem(dt, chosenCategories, chosenValues)
+    ageClassPolygonSubtable <- getSubtableMem(dt, head(chosenCategories, 2), head(chosenValues, 2))
 
     numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
     maxNumClusters <- if (length(numOfClusters) == 0) {
