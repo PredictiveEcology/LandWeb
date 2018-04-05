@@ -40,6 +40,7 @@ function(input, output, session) {
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())
   callModule(inputTables, "inputTables")
+  callModule(downloadOutputs, "downloadOutputs") ## TODO: write this with generator
 
   ## footers (see ?copyrightFooter)
   callModule(copyrightFooter, "copyright", "Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada.")
