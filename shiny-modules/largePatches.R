@@ -51,19 +51,19 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
 
     subtableWith3DimensionsFixedOnlyCC <- subtableWith3DimensionsFixed[rep == "CurrentCondition"]
     subtableWith3DimensionsFixedNoCC <- subtableWith3DimensionsFixed[rep != "CurrentCondition"]
-    out <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedNoCC, nSimTimes, 
+    out <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedNoCC, nSimTimes,
                                                breaks = breaks)
     histogramData <- out$actualPlot$counts / sum(out$actualPlot$counts)
 
-    outCC <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedOnlyCC, 
+    outCC <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedOnlyCC,
                                                  nSimTimes = 1, breaks = breaks)
     verticalLineAtX <- if (authStatus) {
       outCC$actualPlot$breaks[c(FALSE, as.logical(outCC$actualPlot$counts))]
     } else {
       NULL
     }
-    
-    callModule(histogram, "histogram", histogramData, addAxisParams, 
+
+    callModule(histogram, "histogram", histogramData, addAxisParams,
                verticalBar = verticalLineAtX,
                width = rep(1, length(out$distribution)),
                xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
@@ -87,26 +87,7 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes,
 largePatchesUI <- function(id) {
   ns <- NS(id)
 
-  fluidRow(
-    ## TODO: this will need to be moved to server portion and will need to use renderUI/uiOutput
-
-    # column(width = 12, h2("NRV of number of 'large' (",strong(ClumpsReturn()$patchSize," hectares"),"), ",
-    #                       strong(tolower(ageClasses[ageClassIndex]))," patches")),
-    # column(width = 12, h4("These figures show the NRV of the probability distribution",
-    #                       "of ",tolower(ageClasses[ageClassIndex])," patches that are",ClumpsReturn()$patchSize," hectares",
-    #                       "or larger, for each given combination of Age Class, ",
-    #                       "Leading Vegetation, and Polygon.",
-    #                       "To change the patch size that defines these, type a new value",
-    #                       "in the menu at the left.")),
-    shinydashboard::box(
-      width = 12, solidHeader = TRUE, collapsible = TRUE,
-      clumpMod2UI(ns("clumpMod2"))
-    ),
-    shinydashboard::box(
-      width = 12, solidHeader = TRUE, collapsible = TRUE,
-      slicerUI(ns("largePatchSlicer"))
-    )
-  )
+  uiOutput(ns("largePatchUI"))
 }
 
 #' @param input              Shiny server input object.
@@ -134,6 +115,9 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                          rctTsf, rctVtm, 
                          ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
 
+  ###
+  patchSize <- reactive(as.integer(input$patchSize))
+  ###
   # clumpMod2ArgsCC <- reactive(label = "clumpMod2ArgsCC", {
   #   ## TODO: add assertions for other args
   #   assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
@@ -211,20 +195,43 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
 
   callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
              categoryValue = "LargePatches", nSimTimes = length(rctTsf()),
-             uiSequence = uiSequence(), authStatus = session$userData$userAuthorized(), 
+             uiSequence = uiSequence(), authStatus = session$userData$userAuthorized(),
              #patchSize = rctLargePatchesData()$patchSize,
              serverFunction = histServerFn, ## calls histogram server module
              uiFunction = function(ns) {
                histogramUI(ns("histogram"), height = 300)
              })
-}
 
+  output$largePatchUI <- renderUI({
+    ns <- session$ns
+
+    fluidRow(
+      column(width = 12, h2("NRV of number of 'large' (", strong(as.character(input$patchSize))," hectares",") patches")),
+      column(width = 12, h4("These figures show the NRV of the probability distribution",
+                            "of patches that are ", as.character(input$patchSize), " hectares ",
+                            "or larger, for each given combination of Age Class, ",
+                            "Leading Vegetation, and Polygon.",
+                            "To change the patch size that defines these, type a new value",
+                            "in the menu at the left.")),
+      shinydashboard::box(
+        width = 12, solidHeader = TRUE, collapsible = TRUE,
+        numericInput(ns("patchSize"), value = 500L, min = 100L, max = NA_integer_,
+                     label = paste0("Type patch size in hectares that defines 'Large', ",
+                                    "(numbers below 100 will not work)"))
+      ),
+      shinydashboard::box(
+          width = 12, solidHeader = TRUE, collapsible = TRUE,
+          shinycssloaders::withSpinner(slicerUI(ns("largePatchSlicer")))
+      )
+    )
+  })
+}
 
 .patchesInTimeDistributionFn <- function(dt, nSimTimes, breaks) {
   patchesInTimeDistribution <- if (NROW(dt)) {
     numOfPatchesInTime <- dt[, .N, by = "rep"]
     numOfTimesWithPatches <- NROW(numOfPatchesInTime)
-    
+
     seq(1, nSimTimes) %>%
       map(function(simulationTime) {
         if (simulationTime <= numOfTimesWithPatches) {
@@ -239,4 +246,4 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   distribution <- as.numeric(patchesInTimeDistribution)
   actualPlot <- hist(distribution, breaks = breaks, plot = FALSE)
   return(list(actualPlot = actualPlot, distribution = distribution))
-} 
+}
