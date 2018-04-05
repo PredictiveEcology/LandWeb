@@ -27,7 +27,7 @@ function(input, output, session) {
              rctChosenPolyName = rctChosenPolyName,
              rctLrgPatches = rctLrgPatches,
              rctLrgPatchesCC = rctLrgPatchesCC,
-             rctTsf = rctTsf, rctVtm = rctVtm, 
+             rctTsf = rctTsf, rctVtm = rctVtm,
              rctPaths = rctPaths4sim,
              ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
   callModule(vegAgeMod, "vegArea",
