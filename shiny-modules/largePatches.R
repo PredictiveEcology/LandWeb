@@ -20,8 +20,10 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes, authStatus) {
-  observeEvent(datatable, label = chosenValues, {
+histServerFn <- function(datatable, nsNames, breaks, #chosenCategories, chosenValues, 
+                         nSimTimes, authStatus) {
+  observeEvent(datatable, #label = chosenValues, 
+               {
     dt <- if (is.reactive(datatable)) {
       datatable()
     } else {
@@ -32,27 +34,27 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes, a
       msg = "histServerFn: `datatable` is not a data.table"
     )
 
-    subtableWith3DimensionsFixed <- getSubtableMem(dt, chosenCategories, chosenValues)
-    ageClassPolygonSubtable <- getSubtableMem(dt, head(chosenCategories, 2), head(chosenValues, 2))
+    # subtableWith3DimensionsFixed <- getSubtableMem(dt, chosenCategories, chosenValues)
+    # ageClassPolygonSubtable <- getSubtableMem(dt, head(chosenCategories, 2), head(chosenValues, 2))
+    # 
+    # numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
+    # maxNumClusters <- if (length(numOfClusters) == 0) {
+    #   6
+    # } else {
+    #   pmax(6, max(numOfClusters) + 1)
+    # }
+    # 
+    # breaksLabels <- 0:maxNumClusters
+    # breaks <- breaksLabels - 0.5
+    # barplotBreaks <- breaksLabels + 0.5
+    # 
+    # addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
+    # 
+    dtOnlyCC <- dt[rep == "CurrentCondition"]
+    dtNoCC <- dt[rep != "CurrentCondition"]
 
-    numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
-    maxNumClusters <- if (length(numOfClusters) == 0) {
-      6
-    } else {
-      pmax(6, max(numOfClusters) + 1)
-    }
-
-    breaksLabels <- 0:maxNumClusters
-    breaks <- breaksLabels - 0.5
-    barplotBreaks <- breaksLabels + 0.5
-
-    addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
-
-    subtableWith3DimensionsFixedOnlyCC <- subtableWith3DimensionsFixed[rep == "CurrentCondition"]
-    subtableWith3DimensionsFixedNoCC <- subtableWith3DimensionsFixed[rep != "CurrentCondition"]
-
-    out <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedNoCC, nSimTimes, breaks = breaks)
-    outCC <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedOnlyCC, nSimTimes = 1, breaks = breaks)
+    out <- .patchesInTimeDistributionFn(dtNoCC, nSimTimes, breaks = breaks)
+    outCC <- .patchesInTimeDistributionFn(dtOnlyCC, nSimTimes = 1, breaks = breaks)
 
     histogramData <- out$actualPlot$counts / sum(out$actualPlot$counts)
 
