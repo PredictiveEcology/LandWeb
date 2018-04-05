@@ -116,7 +116,13 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                          ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
 
   ###
-  patchSize <- reactive(as.integer(input$patchSize))
+  patchSize <- reactive({
+    if (is.null(input$patchSize)) {
+      500L
+    } else {
+      as.integer(input$patchSize)  
+    }
+  })
   ###
   # clumpMod2ArgsCC <- reactive(label = "clumpMod2ArgsCC", {
   #   ## TODO: add assertions for other args
@@ -173,17 +179,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     } else {
       rctLrgPatches()[[rctChosenPolyName()]]
     }
-      #currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
     dt[sizeInHa > patchSize()]
-      
-      # args <- clumpMod2ArgsCC()
-      # args2 <- clumpMod2Args()
-      # args$tsf <- asPath(c(args2$tsf, args$tsf), 2)
-      # args$vtm <- asPath(c(args2$vtm, args$vtm), 2)
-      # args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
-      # 
-      # rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
-      # return(rctClumps()$ClumpsDT)
     
   })
 
