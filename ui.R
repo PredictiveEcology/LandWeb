@@ -11,7 +11,8 @@ dashboardPage(
       id = "wholeThing",
       authGoogleUI("auth_google"), # TODO: have this automatically added!!
       br(), ## TODO: add this to generator
-      menuItem("Maps - time since fire", tabName = "timeSinceFire", icon = icon("map-o")),
+      h4(HTML("&nbsp;"), "Maps"),  ## TODO: add this to generator
+      menuItem("Time since fire", tabName = "timeSinceFire", icon = icon("map-o")),
       br(), ## TODO: add this to generator
       h4(HTML("&nbsp;"), "NRV"),  ## TODO: add this to generator
       menuItem("Large Patches", tabName = "largePatches", icon = icon("bar-chart")),

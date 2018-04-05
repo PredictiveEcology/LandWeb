@@ -112,18 +112,14 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                          rctLrgPatches, rctLrgPatchesCC, rctTsf, rctVtm,
                          ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
 
-  patchSize <- reactive({
-      as.integer(input$patchSize)
-  })
-
   output$largePatchUI <- renderUI({
     ns <- session$ns
 
     fluidRow(
-      column(width = 12, h2("NRV of number of 'large' (", strong(as.character(patchSize())),
+      column(width = 12, h2("NRV of number of 'large' (", strong(as.character(input$patchSize)),
                             " hectares) patches")),
       column(width = 12, h4("These figures show the NRV of the probability distribution",
-                            "of patches that are ", as.character(patchSize()), " hectares ",
+                            "of patches that are ", as.character(input$patchSize), " hectares ",
                             "or larger, for each given combination of Age Class, ",
                             "Leading Vegetation, and Polygon."),
              h4("To change the patch size that defines these, type a new value below.")),
@@ -140,74 +136,18 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     )
   })
 
-  # clumpMod2ArgsCC <- reactive(label = "clumpMod2ArgsCC", {
-  #   ## TODO: add assertions for other args
-  #   assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
-  #                           is.character(rctTsf()), is.character(rctVtm()))
-  #
-  #   args <- list(
-  #     tsf = filename(CurrentConditions$CCtsf),
-  #     vtm = filename(CurrentConditions$CCvtm),
-  #     currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]],
-  #     cl = cl,
-  #     ageClasses = ageClasses,
-  #     largePatchesFn = FUN,
-  #     countNumPatches = nPatchesFun,
-  #     paths = rctPaths()
-  #   )
-  #   args <- args[!unlist(lapply(args, is.null))]
-  #   args
-  # })
-
-  # rctLargePatchesData <- reactive({
-  #   browser()
-  #   args <- clumpMod2Args()
-  #   args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
-  #
-  #   rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
-  #
-  #   return(rctClumps()$ClumpsDT)
-  # })
-
-  # clumpMod2Args <- reactive(label = "clumpMod2Args", {
-  #   ## TODO: add assertions for other args
-  #   assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()),
-  #                           is.character(rctTsf()), is.character(rctVtm()))
-  #
-  #   args <- list(
-  #     tsf = rctTsf(),
-  #     vtm = rctVtm(),
-  #     currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]],
-  #     cl = cl,
-  #     ageClasses = ageClasses,
-  #     largePatchesFn = FUN,
-  #     countNumPatches = nPatchesFun,
-  #     paths = rctPaths()
-  #   )
-  #   args <- args[!unlist(lapply(args, is.null))]
-  #   args
-  # })
-
   rctLargePatchesData <- reactive({
-    dt <- if (!is.null(rctLrgPatchesCC())) {
-      dt <- rbindlist(list(rctLrgPatches()[[rctChosenPolyName()]],
-                           rctLrgPatchesCC()[[rctChosenPolyName()]]))
-    } else {
+    dt <- if (is.null(rctLrgPatchesCC())) {
+      ## free
       rctLrgPatches()[[rctChosenPolyName()]]
+    } else {
+      ## proprietary
+      rbindlist(list(rctLrgPatches()[[rctChosenPolyName()]],
+                     rctLrgPatchesCC()[[rctChosenPolyName()]]))
     }
 
-    #currentPolygon = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
-
-    # args <- clumpMod2ArgsCC()
-    # args2 <- clumpMod2Args()
-    # args$tsf <- asPath(c(args2$tsf, args$tsf), 2)
-    # args$vtm <- asPath(c(args2$vtm, args$vtm), 2)
-    # args["id"] <- NULL # remove `id` so it doesn't mess with callModule below
-    #
-    # rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
-    # return(rctClumps()$ClumpsDT)
-
-    dt[sizeInHa > patchSize()]
+    assertthat::assert_that(is.data.table(dt))
+    dt[sizeInHa > input$patchSize]
   })
 
   uiSequence <- reactive({
