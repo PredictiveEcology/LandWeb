@@ -112,14 +112,22 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                          rctLrgPatches, rctLrgPatchesCC, rctTsf, rctVtm,
                          ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
 
+  patchSize <- reactive({
+    if (is.null(input$patchSize)) {
+      500L
+    } else {
+      as.integer(input$patchSize)
+    }
+  })
+
   output$largePatchUI <- renderUI({
     ns <- session$ns
 
     fluidRow(
-      column(width = 12, h2("NRV of number of 'large' (", strong(as.character(input$patchSize)),
+      column(width = 12, h2("NRV of number of 'large' (", strong(as.character(patchSize())),
                             " hectares) patches")),
       column(width = 12, h4("These figures show the NRV of the probability distribution",
-                            "of patches that are ", as.character(input$patchSize), " hectares ",
+                            "of patches that are ", as.character(patchSize()), " hectares ",
                             "or larger, for each given combination of Age Class, ",
                             "Leading Vegetation, and Polygon."),
              h4("To change the patch size that defines these, type a new value below.")),
@@ -203,7 +211,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     # rctClumps <- do.call(callModule, c(list(module = clumpMod2, id = "clumpMod2"), args))
     # return(rctClumps()$ClumpsDT)
 
-    dt[sizeInHa > input$patchSize]
+    dt[sizeInHa > patchSize()]
   })
 
   uiSequence <- reactive({
