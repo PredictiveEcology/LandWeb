@@ -21,7 +21,9 @@ dashboardPage(
       h4(HTML("&nbsp;"), "Model Details"),  ## TODO: add this to generator
       menuItem("Overview Diagrams", tabName = "simInfo", icon = icon("sitemap")),
       menuItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece")),
-      menuItem("LBMR (Succession) Model Inputs", tabName = "inputTables", icon = icon("table"))
+      menuItem("LBMR (Succession) Model Inputs", tabName = "inputTables", icon = icon("table")),
+      br(),
+      downloadOutputsUI("downloadOutputs") ## TODO: write this with generator
     ),
     sidebarFooterUI("sidebar")
   ),

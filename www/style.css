@@ -1,3 +1,8 @@
+/* downlooad button */
+.shiny-download-link {
+  margin: 0 20px;
+}
+
 /* footer */
 footer {
   position: absolute;
