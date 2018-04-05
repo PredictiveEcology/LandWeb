@@ -17,6 +17,7 @@ function(input, output, session) {
                                    shpStudyRegionName = "LandWeb Study Area",
                                    defaultPolyName = "National Ecozones",
                                    colorPalette = timeSinceFirePalette,
+                                   mapTitle = "Time since fire",
                                    mapLegend = paste0("Time since fire", br(), "(years)"),
                                    maxAge = maxAge, zoom = 5, nPolygons = 1,
                                    nRasters = length(rctTsf()),
