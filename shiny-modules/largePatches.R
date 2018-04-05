@@ -137,11 +137,13 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   })
 
   rctLargePatchesData <- reactive({
-    dt <- if (!is.null(rctLrgPatchesCC())) {
+    dt <- if (is.null(rctLrgPatchesCC())) {
+      ## free
+      rctLrgPatches()[[rctChosenPolyName()]]
+    } else {
+      ## proprietary
       rbindlist(list(rctLrgPatches()[[rctChosenPolyName()]],
                      rctLrgPatchesCC()[[rctChosenPolyName()]]))
-    } else {
-      rctLrgPatches()[[rctChosenPolyName()]]
     }
 
     assertthat::assert_that(is.data.table(dt))
