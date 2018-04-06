@@ -323,11 +323,13 @@ flammableFiles <- lapply(mySimOuts, function(mySimOut) {
 })
 
 tsfRasters <- Cache(Map, tsf = tsfs, 
+                    userTags = c("reprojectRasts", "tsf", "tsfs"),
                     cacheId = if (exists("cacheIdTsfRasters")) cacheIdTsfRasters else NULL,
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
 tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters),
+                            userTags = c("gdal2Tiles", "tsf", "tsfs"),
                             cacheId = if (exists("cacheIdTsfRasterTilePaths")) 
                               cacheIdTsfRasterTilePaths else NULL,
                             
@@ -342,7 +344,9 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 
 
 if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
-  vtmsTifs <- Cache(lapply, vtms, function(vtmsInner) {
+  vtmsTifs <- Cache(lapply, vtms, 
+                    userTags = c("writeRaster", "tifs"),
+                    function(vtmsInner) {
     vtmTifs <- lapply(vtmsInner, function(vtm) {
       vtmRas <- raster(vtm)
       vtmRas <- writeRaster(vtmRas, file = gsub(".grd", ".tif", filename(vtmRas)), overwrite = TRUE)
@@ -351,12 +355,13 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
   })
   vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.core::.suffix(vtm, "LFLT") )
 
-  vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = "reprojectRasts",
+  vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
                       cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
   
   vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
+                              userTags = c("gdal2Tiles", "vtm", "vtms"),
                                MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                                function(rst, modelType, zoomRange, colorTableFile) {
                                  outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
@@ -373,6 +378,7 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
 reportingAndLeading <- Cache(reportingAndLeadingFn,
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
                              createReportingPolygonsFn = createReportingPolygons,
+                             userTags = c("leading", "reportingPolygons"),
                              leadingByStageFn = leadingByStage,
                              intersectListShpsFn = intersectListShps,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
@@ -388,6 +394,7 @@ CCspeciesNames <- list(Free = c(),
                        Proprietary = c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce"))
 CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
 CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames, 
+                           userTags = c("createCCfromVtmTsf", "CurrentConditions"),
                            MoreArgs = list(vtmRasters = vtmRasters, 
                                            dPath = dPath, 
                                            loadCCSpeciesFn = loadCCSpecies, 
