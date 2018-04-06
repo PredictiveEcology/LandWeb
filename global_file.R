@@ -282,7 +282,6 @@ paths4sim <- Map(cPath = cPaths, oPath = oPaths,
 seed <- sample(1e8, 1)
 
 if (!exists("cacheIds4Experiment")) {
-  browser()
   cacheIds4Experiment <- emptyList  
 }
 
