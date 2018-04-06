@@ -351,7 +351,7 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
   })
   vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.core::.suffix(vtm, "LFLT") )
 
-  vtmRasters <- Cache(Map, tsf = vtmsTifs,
+  vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = "reprojectRasts",
                       cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
