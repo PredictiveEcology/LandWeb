@@ -203,6 +203,7 @@ reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
   rstFlammableNum <- raster(flammableFile)
   rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs, method = "ngb")
   rastsLFLT <- lapply(seq_along(tsf), function(FN) {
+    message("  ", tsf[[FN]])
     r <- raster(tsf[[FN]])
     # gdalwarp(srcfile = filename(r), dstfile = lfltFN[FN], s_srs = crs(r),
     #          t_srs = crs, r = "near",
