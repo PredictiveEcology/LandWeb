@@ -17,19 +17,30 @@ function(input, output, session) {
                                    shpStudyRegionName = "LandWeb Study Area",
                                    defaultPolyName = "National Ecozones",
                                    colorPalette = timeSinceFirePalette,
+                                   mapTitle = "Time since fire",
                                    mapLegend = paste0("Time since fire", br(), "(years)"),
                                    maxAge = maxAge, zoom = 5, nPolygons = 1,
                                    nRasters = length(rctTsf()),
                                    rasterStepSize = summaryInterval)
 
-  callModule(largePatches, "largePatches", rctPolygonList = rctPolygonList,   ## TODO: write this with generator
+  callModule(largePatches, "largePatches",
+             rctPolygonList = rctPolygonList,   ## TODO: write this with generator
              rctChosenPolyName = rctChosenPolyName,
-             #rctChosenPolyName = reactive("National Ecozones"),
-             rctTsf = rctTsf, rctVtm = rctVtm, cl = NULL, rctPaths = rctPaths4sim,
+             rctLrgPatches = rctLrgPatches,
+             rctLrgPatchesCC = rctLrgPatchesCC,
+             rctTsf = rctTsf, rctVtm = rctVtm,
+             rctPaths = rctPaths4sim,
              ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
+  callModule(vegAgeMod, "vegArea",
+             rctPolygonList = rctPolygonList,        ## TODO: write this with generator
+             rctChosenPolyName = rctChosenPolyName,
+             rctLeadingDTlist = rctLeadingDTlist,
+             rctVtm = rctVtm,
+             ageClasses = ageClasses)
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())
   callModule(inputTables, "inputTables")
+  callModule(downloadOutputs, "downloadOutputs") ## TODO: write this with generator
 
   ## footers (see ?copyrightFooter)
   callModule(copyrightFooter, "copyright", "Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada.")

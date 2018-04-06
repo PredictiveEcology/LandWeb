@@ -1,3 +1,8 @@
+/* downlooad button */
+.shiny-download-link {
+  margin: 0 20px;
+}
+
 /* footer */
 footer {
   position: absolute;
@@ -11,5 +16,5 @@ footer #copyright {
 
 footer #sidebar {
   font-size: 14px;
-  padding: 10px 20px;
+  padding: 5px 10px;
 }
