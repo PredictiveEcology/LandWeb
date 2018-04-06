@@ -2,14 +2,13 @@ simInitAndExperiment <- function( times, params,
                                   modules, 
                                   outputs, 
                                   objects4sim, 
-                                  paths, loadOrder,
+                                  paths, loadOrder, cacheIds4Experiment = NULL,
                                   emptyList, cacheSpades = TRUE) {
   mySims <- Map(simInit, times = times, params = params, 
                 modules = modules, 
                 outputs = outputs, 
                 objects = objects4sim, 
                 paths = paths, loadOrder = lapply(modules, unlist))
-  
   
   ##### PRE experiment
   debugCache <- "complete"
@@ -28,14 +27,14 @@ simInitAndExperiment <- function( times, params,
   
   #########################################
   # run the simulation experiment
-  runExperiment <- function(sim, nReps, objectsToHash = "", cacheSpades) {
+  runExperiment <- function(sim, nReps, objectsToHash = "", cacheSpades, cacheIds = NULL) {
     args <- list(experiment, sim, replicates = nReps,
                  objects = objectsToHash, 
                  cache = cacheSpades, # cache each spades call
                  debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
                  paste(unname(current(sim)), collapse = ' '))",
-                 .plotInitialTime = NA,
-                 clearSimEnv = TRUE,
+                 .plotInitialTime = NA, cacheId = cacheIds,
+                 clearSimEnv = TRUE, 
                  omitArgs = c("debug", ".plotInitialTime"))
     args <- args[!unlist(lapply(args, is.null))]
     simOut <- do.call(Cache, args)
@@ -61,7 +60,7 @@ simInitAndExperiment <- function( times, params,
   
   mySimOuts <- emptyList
   # parallel::clusterMap, cl = cl, 
-  mySimOuts <- Cache(Map, runExperiment, sim = mySims, 
+  mySimOuts <- Cache(Map, runExperiment, sim = mySims, cacheIds = cacheIds4Experiment, 
                      nReps = experimentReps, objectsToHash = objectsToHash, 
                      cacheSpades = cacheSpades)
 }

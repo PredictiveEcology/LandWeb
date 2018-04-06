@@ -1,46 +1,5 @@
-if (FALSE) { # these are FALSE for standard use, but individual cases may need to run them
-  devtools::install_github("PredictiveEcology/quickPlot", ref = "development")
-  devtools::install_github("PredictiveEcology/reproducible", ref = "development")
-  devtools::install_github("PredictiveEcology/webDatabases", ref = "master")
-  devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development")
-  devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development")
-}
-#devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "develop")
-devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "generalize-modules", dependencies = FALSE)
-
-if (FALSE) {
-  options(shiny.reactlog = TRUE)
-}
-
-## test download of private data from Google Drive
-if (FALSE) {
-  dataDir <- file.path("~/GitHub/LandWeb/m/Boreal_LBMRDataPrep/data")
-
-  file.remove(c(
-    list.files(dataDir, pattern = "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG", full.names = TRUE),
-    list.files(dataDir, pattern = "CASFRI", full.names = TRUE)
-  ))
-}
-
-library(dplyr)
-library(gdalUtils)
-commonLinuxGdalPath <- "/usr/bin"
-commonWindowsGdalPath <- "C:/OSGEO4~1/bin/"
-if (dir.exists(commonLinuxGdalPath)) {
-  gdal_setInstallation(commonLinuxGdalPath)
-} else {
-  if (dir.exists(commonWindowsGdalPath)) {
-    gdal_setInstallation(commonWindowsGdalPath)
-    if (is.null(getOption("gdalUtils_gdalPath"))) {
-      gdal_setInstallation(rescan = TRUE)
-    }
-  }
-}
-if (is.null(getOption("gdalUtils_gdalPath"))) {
-  gdal_setInstallation(rescan = TRUE)
-}
-
 library(SpaDES.shiny)
+library(dplyr)
 #load_all("~/GitHub/SpaDES.shiny")
 
 Modules <- tribble(
@@ -65,7 +24,7 @@ Modules <- tribble(
 
 Layout <- tribble( # TODO: add authGoogleUI to ui.R (it's not a menuItem!)
   ~tabName,  ~menuItemName, ~icon, ~moduleId, ~moduleUIParameters,
-#  "authGoogle", NA_character_, NA_character_, "auth_google", list(),
+  #  "authGoogle", NA_character_, NA_character_, "auth_google", list(),
   "timeSinceFire", "Maps - time since fire", "map-o", "timeSinceFire", list("length(tsf())"),
   "largePatches", "Large Patches", "bar-chart",  "largePatches", list(),
   "simInfo", "Overview Diagrams", "sitemap", "simInfo", list(),
@@ -82,7 +41,4 @@ appMetadata2 <- list(
   sidebar = list(width = 300, footer = NULL)
 )
 
-# newApp(getwd(), appMetadata2)
-
-file.copy("global_file.R", "global.R", overwrite = TRUE)
-shiny::runApp(".", launch.browser = TRUE, port = 5921)
+newApp(getwd(), appMetadata2)
