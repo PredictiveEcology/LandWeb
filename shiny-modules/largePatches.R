@@ -213,7 +213,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
            h4("To change the patch size that defines these, type a new value below."))
   })
 
-  rctLargePatchesData <- reactive({
+  rctLargePatchesDataOrig <- reactive({
     dt <- if (is.null(rctLrgPatchesCC())) {
       ## free
       rctLrgPatches()[[rctChosenPolyName()]]
@@ -224,9 +224,12 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     }
 
     assertthat::assert_that(is.data.table(dt))
-    dt[sizeInHa > input$patchSize]
+    dt
   })
-
+  
+  rctLargePatchesData <- reactive({
+    rctLargePatchesDataOrig()[sizeInHa > input$patchSize]
+  })
   uiSequence <- reactive({
     polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]))
 
