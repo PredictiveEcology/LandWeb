@@ -36,7 +36,7 @@ downloadOutputs <- function(input, output, session) {
       destZip <- tempfile(fileext = ".zip")
       zip(destZip, files = allFiles2zip)
 
-      #rm(destZip)
+      #unlink(destZip)
     },
     contentType = "application/zip"
   )

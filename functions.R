@@ -153,11 +153,12 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
     a
   })
 
-  aadf <- data.frame(zone = rep(polygonToSummarizeBy$shinyLabel[nonNulls],
-                                each = length(Factors)),
-                     polygonID = as.character(rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors))),
-                     vegCover = vegType, do.call(rbind, aa1[nonNulls]),
-                     stringsAsFactors = FALSE)
+  aadf <- data.frame(
+    zone = rep(polygonToSummarizeBy$shinyLabel[nonNulls], each = length(Factors)),
+    polygonID = as.character(rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors))), ## TODO:
+    vegCover = vegType, do.call(rbind, aa1[nonNulls]),
+    stringsAsFactors = FALSE
+  )
 
   temp <- list()
   for (ages in ageClasses) {
@@ -181,7 +182,7 @@ countNumPatches <- function(ras, cellIDByPolygon, ...) {
 }
 
 cellNumbersForPolygon <- function(dummyRaster, Polygons) {
-  dtList <- Map(Polygon = Polygons, PolygonName = names(Polygons), 
+  dtList <- Map(Polygon = Polygons, PolygonName = names(Polygons),
                 function(Polygon, PolygonName) {
                   message("  Assigning PolygonIDs for each pixel from ", PolygonName)
                   aa <- raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE)
@@ -191,7 +192,7 @@ cellNumbersForPolygon <- function(dummyRaster, Polygons) {
                   }))
                   data.table::copy(dt)
   })
-  
+
   # There is a weird bug that makes the data.table from previous line. copy() is a work around
   # Error in data.table::set(cellIDByPolygon, , "newRas", clumpedRas[][cellIDByPolygon$cell]) :
   #   Internal logical error. DT passed to assign has not been allocated enough column slots. l=2, tl=2, adding 1
@@ -343,7 +344,7 @@ loadCCSpecies <- function(mapNames, userTags = "", ...) {
         filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
         Cache(prepInputs, userTags = c(userTags, "stable"),
               archive = "CurrentCondition.zip",
-              targetFile = tifName, 
+              targetFile = tifName,
               alsoExtract = filenames, ...)
       })
 }
@@ -565,7 +566,7 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
                                   intersectListShpsFn, leadingByStageFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
                                   tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
-  reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType, 
+  reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
                                                  createReportingPolygonsFn = createReportingPolygonsFn)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
   leadingOut <- Map(reportingPolys = reportingPolysWOStudyArea, tsf = tsfs, vtm = vtms,
@@ -609,10 +610,10 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                           })
     CCspeciesNames <- unlist(CCspeciesNames, use.names = TRUE)
     CCspeciesNames <- CCspeciesNames[nzchar(names(CCspeciesNames))]
-  
+
     rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
                                      url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
-                                     destinationPath = dPath, 
+                                     destinationPath = dPath,
                                      studyArea = shpSubStudyRegion,
                                      rasterToMatch = tsfRasters[[1]]$crsSR[[1]]
     )
@@ -623,16 +624,16 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
     CCspeciesNames <- c(CCspeciesNames, "Mixed" = "Mixed")
     levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
     CCvtm <- writeRaster(CCvtm, filename = file.path(dPath, "currentConditionVTM"), overwrite = TRUE)
-  
+
     # tsf
     CCtsf <- Cache(loadCCSpecies, ageName,
                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                    destinationPath = dPath,
-                   studyArea = shpSubStudyRegion, 
+                   studyArea = shpSubStudyRegion,
                    writeCropped = "CurrentCondition.tif",
                    rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
     )
-    
+
     list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
   }
 }
