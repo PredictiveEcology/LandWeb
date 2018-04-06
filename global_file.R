@@ -322,11 +322,15 @@ flammableFiles <- lapply(mySimOuts, function(mySimOut) {
   asPath(file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd"))
 })
 
-tsfRasters <- Cache(Map, tsf = tsfs,
+tsfRasters <- Cache(Map, tsf = tsfs, 
+                    cacheId = if (exists("cacheIdTsfRasters")) cacheIdTsfRasters else NULL,
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
 tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters),
+                            cacheId = if (exists("cacheIdTsfRasterTilePaths")) 
+                              cacheIdTsfRasterTilePaths else NULL,
+                            
        MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
        function(rst, modelType, zoomRange, colorTableFile) {
          outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
@@ -348,8 +352,10 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
   vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.core::.suffix(vtm, "LFLT") )
 
   vtmRasters <- Cache(Map, tsf = vtmsTifs,
+                      cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
+  
   vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                                MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                                function(rst, modelType, zoomRange, colorTableFile) {
