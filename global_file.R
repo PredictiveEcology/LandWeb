@@ -62,12 +62,11 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 reproducibleCache <- "reproducibleCache"
 
 if (any(c("achubaty", "emcintir") %in% Sys.info()["user"])) {
-  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
+  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
 }
 
 ## get additonal helper functions used throughout this shiny app
 source("functions.R")
-source("largePatchesFn.R")
 
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 reloadPreviousWorking <- FALSE#c("SMALL","50") # This can be:
@@ -369,23 +368,58 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
 reportingAndLeading <- Cache(reportingAndLeadingFn,
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
                              createReportingPolygonsFn = createReportingPolygons,
+                             leadingByStageFn = leadingByStage,
                              intersectListShpsFn = intersectListShps,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
                              authenticationType = authenticationType,
                              ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                             tsfs, vtms, cl = TRUE)
+                             tsfs = tsfs, vtms = vtms, cl = TRUE)
 list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
 
-########################################################
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
 dPath <- file.path(paths$inputPath, "CurrentCondition")
-CCspeciesNames <- c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce")
-CurrentConditions <- Cache(createCCfromVtmTsf, CCspeciesNames, vtmRasters, 
-               dPath = dPath, loadCCSpeciesFn = loadCCSpecies, 
-               shpSubStudyRegion = shpSubStudyRegion, tsfRasters = tsfRasters)
+CCspeciesNames <- list(Free = c(), 
+                       Proprietary = c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce"))
+CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
+CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames, 
+                           MoreArgs = list(vtmRasters = vtmRasters, 
+                                           dPath = dPath, 
+                                           loadCCSpeciesFn = loadCCSpecies, 
+                                           shpSubStudyRegion = shpSubStudyRegion, 
+                                           tsfRasters = tsfRasters))
 #########################
 
+message(paste("Running largePatchesFn"))
+rp4LrgPatches <- lapply(reportingPolygons, function(rpAll) {
+  lapply(rpAll, function(rp) {
+    rp$crsSR$shpSubStudyRegion
+  })
+})
+lrgPatches <- Cache(Map,
+                    timeSinceFireFiles = tsfs,
+                    vegTypeMapFiles = vtms,
+                    reportingPolygons = rp4LrgPatches,
+                    authenticationType = authenticationType,
+                    largePatchesFn,
+                    MoreArgs = list(ageClasses = ageClasses,
+                                    countNumPatchesFn = countNumPatches,
+                                    ageCutoffs = ageClassCutOffs)
+)
+lrgPatchesCC <- Cache(Map, largePatchesFn,
+                      timeSinceFireFiles = lapply(CurrentConditions, function(x) {
+                        if (!is.null(x)) filename(x$CCtsf)}),
+                      vegTypeMapFiles = lapply(CurrentConditions, function(x) {
+                        if (!is.null(x)) filename(x$CCvtm)}),
+                      reportingPolygons = rp4LrgPatches,
+                      authenticationType = authenticationType,
+                      MoreArgs = list(ageClasses = ageClasses,
+                                      countNumPatchesFn = countNumPatches,
+                                      ageCutoffs = ageClassCutOffs)
+)
+message(paste("Finished largePatchesFn"))
+
+##### TODO: remove this??
 if (FALSE) {
   polygonsWithData <- lapply(leading, function(polyWData) {
     lapply(polyWData, function(dt) {
@@ -401,7 +435,17 @@ if (FALSE) {
     })
   })
 }
-#############################
+################################################################################
+# Write all Proprietary input shapefiles to disk
+polySubDir <- file.path(oPaths$Proprietary, "Polygons")
+dir.create(polySubDir, showWarnings = FALSE)
+out <- Cache(Map, polys = lapply(reportingPolygons$Proprietary, function(p) p$crsSR$shpSubStudyRegion), 
+    namesPolys = names(reportingPolygons$Proprietary),
+    function(polys, namesPolys) {
+      raster::shapefile(polys, 
+                        filename = file.path(polySubDir, namesPolys),
+                        overwrite = TRUE)
+    })
 
 
 globalEndTime <- Sys.time()

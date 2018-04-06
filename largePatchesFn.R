@@ -18,85 +18,72 @@
 #' 10. There is a reactive element that lets user choose to "omit" any clump that is "less than XXX hectares", set to 500 at start.
 #'
 #' @return A matrix with counts of number of large patches
-largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy, cl,
-                           ageCutoffs = ageClassCutOffs, countNumPatches = countNumPatches,
-                           ageClasses, paths) {
-
-  #  withProgress(message = 'Calculation in progress',
-  #               detail = 'This may take a while...', value = 0, {
-
-
-  withoutPath <- basename(timeSinceFireFiles)
-  yearNames <- unlist(lapply(strsplit(withoutPath, split = "_|\\."), # split on _ and .
-                             function(x) x[length(x) - 1])) # ... take second last one
-
-  rasWithNAs <- raster(raster(timeSinceFireFiles[1])) ## empty raster with same dimensions
-  rasWithNAs[] <- NA
-
-  # identify which polygon each pixel is contained within == data.table with 2 columns, cell and polygonID
-  cellIDByPolygon <- Cache(cellNumbersForPolygon, rasWithNAs, polygonToSummarizeBy)
-  if (missing(cl)) {
-    lapplyFn <- "lapply"
-  } else {
-    lapplyFn <- "parLapplyLB"
-    if (Sys.info()[["sysname"]] == "Windows") {
-
-      clusterExport(cl = cl,
-                    varlist = list(c(ls(), "countNumPatches")),
-                    envir = environment())
-      clusterEvalQ(cl = cl, {
-        library(raster)
-        library(magrittr)
-        library(SpaDES.core)
-        library(data.table)
-      })
-    }
+largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, reportingPolygons,
+                           ageCutoffs, countNumPatchesFn,
+                           ageClasses, authenticationType) {
+  if (!is.null(timeSinceFireFiles)) {
+    message(authenticationType, ": Calculating patch sizes")
+    withoutPath <- basename(timeSinceFireFiles)
+    yearNames <- unlist(lapply(strsplit(withoutPath, split = "_|\\."), # split on _ and .
+                               function(x) x[length(x) - 1])) # ... take second last one
+  
+    rasWithNAs <- raster(raster(timeSinceFireFiles[1])) ## empty raster with same dimensions
+    rasWithNAs[] <- NA
+  
+    # identify which polygon each pixel is contained within == data.table with 2 columns, cell and polygonID
+    cellIDByPolygons <- Cache(cellNumbersForPolygon, rasWithNAs, reportingPolygons)
+  
+    Map(cellIDByPolygon = cellIDByPolygons, polygonName = names(cellIDByPolygons),
+        MoreArgs = list(ageCutoffs = ageCutoffs, countNumPatches = countNumPatches,
+                        timeSinceFireFiles = timeSinceFireFiles,
+                        vegTypeMapFiles = vegTypeMapFiles),
+        function(cellIDByPolygon, polygonName, ageCutoffs, countNumPatches, timeSinceFireFiles,
+                 vegTypeMapFiles) {
+          message("  ", polygonName)
+          out <- lapply(ageCutoffs, function(ages) {
+            y <- match(ages, ageCutoffs)
+            startList <- list(y = y)
+            message("    Age class ", ageClasses[y])
+            out1 <- Cache(do.call, lapply,
+                          list(y = y, cellIDByPolygon = cellIDByPolygon,
+                               countNumPatches = countNumPatches,
+                               X = timeSinceFireFiles, function(x, ...) {
+                                 x <- match(x, timeSinceFireFiles)
+                                 message("      Raster: ", basename(vegTypeMapFiles[x]))
+                                 timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
+                                 leadingRast <- raster(vegTypeMapFiles[x])
+                                 leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- NA
+                                 if ((y + 1) <= length(ageCutoffs))
+                                   leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- NA
+  
+                                 clumpedRasts <- lapply(raster::levels(leadingRast)[[1]]$ID, function(ID) {
+                                   spRas <- leadingRast
+                                   spRas[spRas != ID] <- NA
+                                   countNumPatches(spRas, cellIDByPolygon, directions = 8)
+                                 })
+                                 names(clumpedRasts) <- raster::levels(leadingRast)[[1]]$Factor
+                                 clumpedRasts <- append(
+                                   clumpedRasts,
+                                   list("All species" = countNumPatches(leadingRast, cellIDByPolygon, directions = 8))
+                                 )
+                                 clumpedRasts
+                               }))
+            names(out1) <- yearNames
+  
+            # collapse to a single data.table
+            outDT <- rbindlist(lapply(seq_along(out1), function(y) {
+              a <- rbindlist(lapply(seq_along(out1[[y]]), function(x) out1[[y]][[x]][, vegCover := names(out1[[y]])[x]]))
+              a[, rep := names(out1)[y]]
+            }))
+          })
+          out <- setNames(out, ageClasses)
+          out <- rbindlist(lapply(seq_along(out), function(z) {
+            out[[z]][, ageClass := names(out)[z]]
+          }))
+  
+          assertthat::assert_that(is.data.table(out),
+                                  msg = "largePatchesFn: out is not a data.table.")
+          out[sizeInHa >= 100] # never will need patches smaller than 100 ha
+        })
   }
-
-  out <- lapply(ageCutoffs, function(ages) {
-    y <- match(ages, ageCutoffs)
-    if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
-      startList <- list(cl = cl)
-    } else {
-      startList <- list()
-    }
-    startList <- append(startList, list(y = y))
-    out1 <- Cache(do.call, lapplyFn, 
-                  append(startList, list(countNumPatches = countNumPatches, 
-                                         X = timeSinceFireFiles, function(x, ...) {
-                    x <- match(x, timeSinceFireFiles)
-                    timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
-                    leadingRast <- raster(vegTypeMapFiles[x])
-                    leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- NA
-                    if ((y + 1) <= length(ageCutoffs))
-                      leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- NA
-
-                    clumpedRasts <- lapply(raster::levels(leadingRast)[[1]]$ID, function(ID) {
-                      spRas <- leadingRast
-                      spRas[spRas != ID] <- NA
-                      countNumPatches(spRas, cellIDByPolygon, directions = 8)
-                    })
-                    names(clumpedRasts) <- raster::levels(leadingRast)[[1]]$Factor
-                    clumpedRasts <- append(
-                      clumpedRasts,
-                      list("All species" = countNumPatches(leadingRast, cellIDByPolygon, directions = 8))
-                    )
-                    clumpedRasts
-                  })))
-    names(out1) <- yearNames
-
-    # collapse to a single data.table
-    outDT <- rbindlist(lapply(seq_along(out1), function(y) {
-      a <- rbindlist(lapply(seq_along(out1[[y]]), function(x) out1[[y]][[x]][, vegCover := names(out1[[y]])[x]]))
-      a[, rep := names(out1)[y]]
-    }))
-  })
-
-  out <- setNames(out, ageClasses)
-  out <- rbindlist(lapply(seq_along(out), function(z) {
-    out[[z]][, ageClass := names(out)[z]]
-  }))
-
-  out[sizeInHa >= 100] # never will need patches smaller than 100 ha
-  #setProgress(1)
 }
