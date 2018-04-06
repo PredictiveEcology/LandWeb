@@ -87,7 +87,8 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
   uiSequence <- reactive({
     assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()), is.character(rctVtm()))
 
-    polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]))
+    #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]))
+    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]$shinyLabel
 
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
