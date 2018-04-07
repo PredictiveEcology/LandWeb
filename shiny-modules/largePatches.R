@@ -20,7 +20,7 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn2 <- function(datatable, id, .dtFull, nSimTimes, authStatus, uiSeq) {
+histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatus, uiSeq) {
   observeEvent(datatable, {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -31,51 +31,28 @@ histServerFn2 <- function(datatable, id, .dtFull, nSimTimes, authStatus, uiSeq) 
       is.data.table(dt),
       msg = "histServerFn2: `datatable` is not a data.table"
     )
-browser()
+
     ## calculate breaks
     # calculate breaks -- 1 set of breaks for each group of plots
-    dtList <- split(.dtFull, by = uiSeq$category[-length(uiSeq$category)], flatten = FALSE)
     dtListShort <- split(.dtFull, by = uiSeq$category[-length(uiSeq$category)], flatten = FALSE)
 
     # need to get a single set of breaks for all simultaneously visible histograms
-    breaksAndParams <- lapply(dtListShort, function(dtInner) {
-      nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
+    dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
 
-      maxNumClusters <- if (length(nClusters) == 0) {
-        6
-      } else {
-        pmax(6, max(nClusters) + 1)
-      }
+    nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
 
-      breaksLabels <- 0:maxNumClusters
-      breaks <- breaksLabels - 0.5
-      barplotBreaks <- breaksLabels + 0.5
+    maxNumClusters <- if (length(nClusters) == 0) {
+      6
+    } else {
+      pmax(6, max(nClusters) + 1)
+    }
 
-      addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
-      list(breaks = breaks, addAxisParams = addAxisParams)
-    })
+    breaksLabels <- 0:maxNumClusters
+    breaks <- breaksLabels - 0.5
+    barplotBreaks <- breaksLabels + 0.5
 
-    # This is length dtList -- i.e., breaks and addAxisParams for each histogram
-    breaksAndParamsFull <- lapply(names(dtList), function(n) {
-      breaksAndParams[startsWith(n, names(dtListShort))]
-    })
+    addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
 
-    # subtableWith3DimensionsFixed <- getSubtableMem(dt, chosenCategories, chosenValues)
-    # ageClassPolygonSubtable <- getSubtableMem(dt, head(chosenCategories, 2), head(chosenValues, 2))
-    #
-    # numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
-    # maxNumClusters <- if (length(numOfClusters) == 0) {
-    #   6
-    # } else {
-    #   pmax(6, max(numOfClusters) + 1)
-    # }
-    #
-    # breaksLabels <- 0:maxNumClusters
-    # breaks <- breaksLabels - 0.5
-    # barplotBreaks <- breaksLabels + 0.5
-    #
-    # addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
-    #
     dtOnlyCC <- dt[rep == "CurrentCondition"]
     dtNoCC <- dt[rep != "CurrentCondition"]
 
@@ -90,9 +67,9 @@ browser()
       NULL
     }
 
-    callModule(histogram, "histogram", histogramData, addAxisParams,
+    callModule(histogram, id, histogramData, addAxisParams,
                verticalBar = verticalLineAtX,
-               width = rep(1, length(out$distribution)),
+               width = 1,
                xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
@@ -273,7 +250,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
       possibleValues = list(ageClasses, polygonIDs, c(levels(rasVtmTmp)[[1]][, 2], "All species"))
     )
   })
-#browser()
+
   callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
              uiSequence = uiSequence(),
              #serverFunction = histServerFn, ## calls histogram server module
