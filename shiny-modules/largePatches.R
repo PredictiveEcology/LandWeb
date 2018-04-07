@@ -20,56 +20,59 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn2 <- function(datatable, nsNames, breaks, #chosenCategories, chosenValues, 
-                         nSimTimes, authStatus) {
-  observeEvent(datatable, #label = chosenValues, 
-               {
-                 dt <- if (is.reactive(datatable)) {
-                   datatable()
-                 } else {
-                   datatable
-                 }
-                 assertthat::assert_that(
-                   is.data.table(dt),
-                   msg = "histServerFn: `datatable` is not a data.table"
-                 )
-                 
-                 # subtableWith3DimensionsFixed <- getSubtableMem(dt, chosenCategories, chosenValues)
-                 # ageClassPolygonSubtable <- getSubtableMem(dt, head(chosenCategories, 2), head(chosenValues, 2))
-                 # 
-                 # numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
-                 # maxNumClusters <- if (length(numOfClusters) == 0) {
-                 #   6
-                 # } else {
-                 #   pmax(6, max(numOfClusters) + 1)
-                 # }
-                 # 
-                 # breaksLabels <- 0:maxNumClusters
-                 # breaks <- breaksLabels - 0.5
-                 # barplotBreaks <- breaksLabels + 0.5
-                 # 
-                 # addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
-                 # 
-                 dtOnlyCC <- dt[rep == "CurrentCondition"]
-                 dtNoCC <- dt[rep != "CurrentCondition"]
-                 
-                 out <- .patchesInTimeDistributionFn(dtNoCC, nSimTimes, breaks = breaks)
-                 outCC <- .patchesInTimeDistributionFn(dtOnlyCC, nSimTimes = 1, breaks = breaks)
-                 
-                 histogramData <- out$actualPlot$counts / sum(out$actualPlot$counts)
-                 
-                 verticalLineAtX <- if (isTRUE(authStatus)) {
-                   outCC$actualPlot$breaks[c(FALSE, as.logical(outCC$actualPlot$counts))]
-                 } else {
-                   NULL
-                 }
-                 
-                 callModule(histogram, "histogram", histogramData, addAxisParams,
-                            verticalBar = verticalLineAtX,
-                            width = rep(1, length(out$distribution)),
-                            xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
-                            col = "darkgrey", border = "grey", main = "", space = 0)
-               })
+histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatus, uiSeq) {
+  observeEvent(datatable, {
+    dt <- if (is.reactive(datatable)) {
+      datatable()
+    } else {
+      datatable
+    }
+    assertthat::assert_that(
+      is.data.table(dt),
+      msg = "histServerFn2: `datatable` is not a data.table"
+    )
+
+    ## calculate breaks
+    # calculate breaks -- 1 set of breaks for each group of plots
+    dtListShort <- split(.dtFull, by = uiSeq$category[-length(uiSeq$category)], flatten = FALSE)
+
+    # need to get a single set of breaks for all simultaneously visible histograms
+    dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
+
+    nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
+
+    maxNumClusters <- if (length(nClusters) == 0) {
+      6
+    } else {
+      pmax(6, max(nClusters) + 1)
+    }
+
+    breaksLabels <- 0:maxNumClusters
+    breaks <- breaksLabels - 0.5
+    barplotBreaks <- breaksLabels + 0.5
+
+    addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
+
+    dtOnlyCC <- dt[rep == "CurrentCondition"]
+    dtNoCC <- dt[rep != "CurrentCondition"]
+
+    out <- .patchesInTimeDistributionFn(dtNoCC, nSimTimes, breaks = breaks)
+    outCC <- .patchesInTimeDistributionFn(dtOnlyCC, nSimTimes = 1, breaks = breaks)
+
+    histogramData <- out$actualPlot$counts / sum(out$actualPlot$counts)
+
+    verticalLineAtX <- if (isTRUE(authStatus)) {
+      outCC$actualPlot$breaks[c(FALSE, as.logical(outCC$actualPlot$counts))]
+    } else {
+      NULL
+    }
+
+    callModule(histogram, id, histogramData, addAxisParams,
+               verticalBar = verticalLineAtX,
+               width = 1,
+               xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
+               col = "darkgrey", border = "grey", main = "", space = 0)
+  })
 }
 
 #' Histogram module server function
@@ -224,21 +227,22 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     }
 
     # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
-    curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
+    curPoly <- isolate(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]])
     polygonID <- as.character(seq_along(curPoly))
     polygonName <- curPoly$shinyLabel
     dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
     assertthat::assert_that(is.data.table(dt))
     dt
   })
-  
+
   rctLargePatchesData <- reactive({
     rctLargePatchesDataOrig()[sizeInHa > input$patchSize]
   })
+
   uiSequence <- reactive({
     #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]))
     polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]$shinyLabel
-    
+
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
       category = c("ageClass", "polygonID", "vegCover"),
@@ -248,15 +252,15 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   })
 
   callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
-             categoryValue = "LargePatches",
              uiSequence = uiSequence(),
-             serverFunction = histServerFn, ## calls histogram server module
-             # serverFunction = histServerFn2, ## The one without recursion
-             uiFunction = function(ns) {
-               histogramUI(ns("histogram"), height = 300)
+             #serverFunction = histServerFn, ## calls histogram server module
+             serverFunction = histServerFn2, ## The one without recursion
+             uiFunction = function(id) {
+               histogramUI(id, height = 300)
              },
              nSimTimes = length(rctTsf()),
-             authStatus = session$userData$userAuthorized()
+             authStatus = session$userData$userAuthorized(),
+             uiSeq = uiSequence()
   )
 }
 
