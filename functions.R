@@ -200,35 +200,41 @@ cellNumbersForPolygon <- function(dummyRaster, Polygons) {
 }
 
 reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
-  message("Reprojecting rasters, filling in minimum age, saving to disk")
-  rstFlammableNum <- raster(flammableFile)
-  rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs, method = "ngb")
-  rastsLFLT <- Cache(lapply, userTags = "reprojectRasts",
-                     seq_along(tsf), function(FN) {
-    message("  ", tsf[[FN]])
-    r <- raster(tsf[[FN]])
-    # gdalwarp(srcfile = filename(r), dstfile = lfltFN[FN], s_srs = crs(r),
-    #          t_srs = crs, r = "near",
-    #          te = c(xmin(rstFlammableNum), ymin(rstFlammableNum),
-    #                 xmax(rstFlammableNum), ymax(rstFlammableNum)),
-    #          tr = res(rstFlammableNum),
-    #          overwrite = TRUE
-    # )
-    # r2 <- raster(lfltFN[FN])
-    # r2 <- setMinMax(r2)
-    # r2[] <- r2[]
-    r <- projectRaster(r, crs = crs, method = "ngb", datatype = "INT2U")
-    minAge <- as.numeric(strsplit(strsplit(tsf[[1]], split = "year")[[1]][2], split = "\\.tif")[[1]])
-    r[is.na(r) & (rstFlammableNum == 0)] <- minAge
-    r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE, datatype = "INT2U")
-    r
-  })
-  rastsCRSSR2 <- lapply(tsf, raster)
+  rastsLFLT <- if (!(isTRUE(all(unlist(lapply(tsfLFLTFilenames, file.exists)))))) {
 
-  globalRasts <- list("crsSR" = rastsCRSSR2, "crsLFLT" = rastsLFLT)
+    message("Reprojecting rasters, filling in minimum age, saving to disk")
+    rstFlammableNum <- raster(flammableFile)
+    rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs, method = "ngb")
+    rastsLFLT <- Cache(lapply, userTags = "reprojectRasts",
+                       seq_along(tsf), function(FN) {
+      message("  ", tsf[[FN]])
+      r <- raster(tsf[[FN]])
+      # gdalwarp(srcfile = filename(r), dstfile = lfltFN[FN], s_srs = crs(r),
+      #          t_srs = crs, r = "near",
+      #          te = c(xmin(rstFlammableNum), ymin(rstFlammableNum),
+      #                 xmax(rstFlammableNum), ymax(rstFlammableNum)),
+      #          tr = res(rstFlammableNum),
+      #          overwrite = TRUE
+      # )
+      # r2 <- raster(lfltFN[FN])
+      # r2 <- setMinMax(r2)
+      # r2[] <- r2[]
+      r <- projectRaster(r, crs = crs, method = "ngb", datatype = "INT2U")
+      minAge <- as.numeric(strsplit(strsplit(tsf[[1]], split = "year")[[1]][2], split = "\\.tif")[[1]])
+      r[is.na(r) & (rstFlammableNum == 0)] <- minAge
+      r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE, datatype = "INT2U")
+      r
+    })
+  } else {
+    rastsLFLT <- lapply(lfltFN, raster)
+  }
 
-  message("  Finished reprojecting rasters")
-  globalRasts
+    rastsCRSSR2 <- lapply(tsf, raster)
+
+    globalRasts <- list("crsSR" = rastsCRSSR2, "crsLFLT" = rastsLFLT)
+
+    message("  Finished reprojecting rasters")
+    globalRasts
 }
 
 # Set up gdal stuff -- first, find the installation
