@@ -58,7 +58,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   on.exit({
     if (exists("cl")) {
       message("      Closing cores")
-      if (inherits(cl, "cluster")) stopCluster(cl)
+      try(stopCluster(cl))
     }
   }, add = TRUE)
   lapplyFn <- clParams$lapplyFn
@@ -589,20 +589,6 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
                                   intersectListShpsFn, leadingByStageFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
                                   tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
-  if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>10) {
-    numClusters = 10
-    message("  Starting cluster for raster::extract")
-    beginCluster(min(numClusters, detectCores() / 4))
-    on.exit({
-      if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>10) {
-        message("    Ending cluster for raster::extract")
-        endCluster()
-      }
-    }, add = TRUE)
-
-  }
-
-
   reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
                                                  createReportingPolygonsFn = createReportingPolygonsFn)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
