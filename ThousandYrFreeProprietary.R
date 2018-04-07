@@ -1,6 +1,6 @@
 if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>numClusters) {
   message("  Closing existing cluster for raster::extract")
-  endCluster()
+  raster::endCluster()
   message("  Starting ",numClusters, "  node cluster for raster::extract")
   raster::beginCluster(min(numClusters, detectCores() / 4))
 }
