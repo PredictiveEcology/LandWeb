@@ -200,7 +200,7 @@ cellNumbersForPolygon <- function(dummyRaster, Polygons) {
 }
 
 reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
-  rastsLFLT <- if (!(isTRUE(all(unlist(lapply(tsfLFLTFilenames, file.exists)))))) {
+  rastsLFLT <- if (!(isTRUE(all(unlist(lapply(lfltFN, file.exists)))))) {
     
     message("Reprojecting rasters, filling in minimum age, saving to disk")
     rstFlammableNum <- raster(flammableFile)
