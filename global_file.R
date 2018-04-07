@@ -306,17 +306,26 @@ rastersFromOutputs <- lapply(mySimOuts, function(mySimOut) {
 extractFilepaths <- function(filename, rastersFromOutput) {
   grep(pattern = filename, rastersFromOutput, value = TRUE)
 }
+
 tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
-  asPath(extractFilepaths("rstTimeSinceFire", rastersFromOutput))
+  fps <- extractFilepaths("rstTimeSinceFire", rastersFromOutput)
+  fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  asPath(fps)
 })
 
 vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
-  asPath(extractFilepaths("vegTypeMap", rastersFromOutput))
+  fps <- extractFilepaths("vegTypeMap", rastersFromOutput)
+  fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  asPath(fps)
 })
 
 tsfLFLTFilenames <- lapply(tsfs, function(tsf) SpaDES.core::.suffix(tsf, "LFLT") )
 
 rasterResolutions <- lapply(tsfs, function(x) raster(x[1]) %>% res(.))
+rasterResolutions <- lapply(tsfs, function(x) {
+    raster(x[1]) %>% res(.)
+  }
+  )
 
 flammableFiles <- lapply(mySimOuts, function(mySimOut) {
   asPath(file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd"))
