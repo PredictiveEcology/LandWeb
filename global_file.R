@@ -310,32 +310,47 @@ extractFilepaths <- function(filename, rastersFromOutput) {
 tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- extractFilepaths("rstTimeSinceFire", rastersFromOutput)
   fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["user"]=="emcintir" && Sys.info()["sysname"]=="Windows")
+    fps <- convertPath(fps, old = "/home/emcintir/Documents", new = "C:/Eliot")
   asPath(fps)
 })
 
 vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- extractFilepaths("vegTypeMap", rastersFromOutput)
   fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["user"]=="emcintir" && Sys.info()["sysname"]=="Windows")
+    fps <- convertPath(fps, old = "/home/emcintir/Documents", new = "C:/Eliot")
   asPath(fps)
 })
 
 tsfLFLTFilenames <- lapply(tsfs, function(tsf) SpaDES.core::.suffix(tsf, "LFLT") )
 
 rasterResolutions <- lapply(tsfs, function(x) raster(x[1]) %>% res(.))
-rasterResolutions <- lapply(tsfs, function(x) {
-    raster(x[1]) %>% res(.)
-  }
-  )
 
 flammableFiles <- lapply(mySimOuts, function(mySimOut) {
-  asPath(file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd"))
+  fps <- file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd")
+  fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["user"]=="emcintir" && Sys.info()["sysname"]=="Windows")
+    fps <- convertPath(fps, old = "/home/emcintir/Documents", new = "C:/Eliot")
+  asPath(fps)
 })
+
 
 tsfRasters <- Cache(Map, tsf = tsfs, 
                     userTags = c("reprojectRasts", "tsf", "tsfs"),
                     cacheId = if (exists("cacheIdTsfRasters")) cacheIdTsfRasters else NULL,
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
+
+if (Sys.info()["user"]=="emcintir" && Sys.info()["sysname"]=="Windows")
+  tsfRasters <- lapply(tsfRasters, function(Free) {
+    lapply(Free, function(crsTypes) {
+      lapply(crsTypes, function(ras) {
+        ras@file@name <- convertPath(ras@file@name, old = "/home/emcintir/Documents", new = "C:/Eliot")
+        ras
+      })
+    })
+  })
 
 tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters),
                             userTags = c("gdal2Tiles", "tsf", "tsfs"),
