@@ -200,13 +200,12 @@ cellNumbersForPolygon <- function(dummyRaster, Polygons) {
 }
 
 reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
-  rastsLFLT <- if (!(isTRUE(all(unlist(lapply(tsfLFLTFilenames, file.exists)))))) {
+  rastsLFLT <- if (!(isTRUE(all(unlist(lapply(lfltFN, file.exists)))))) {
     
     message("Reprojecting rasters, filling in minimum age, saving to disk")
     rstFlammableNum <- raster(flammableFile)
-    rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs, method = "ngb")
-    rastsLFLT <- Cache(lapply, userTags = "reprojectRasts", 
-                       seq_along(tsf), function(FN) {
+    rstFlammableNum <- Cache(projectRaster, rstFlammableNum, crs = crs, method = "ngb")
+    rastsLFLT <- lapply(seq_along(tsf), function(FN) {
       message("  ", tsf[[FN]])
       r <- raster(tsf[[FN]])
       # gdalwarp(srcfile = filename(r), dstfile = lfltFN[FN], s_srs = crs(r),
@@ -525,7 +524,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                        out <- tryCatch(spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
                          p <- spChFIDs(p, as.character(seq(NROW(p))))
                          spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
-                       })
+                       }, error = function(x) NULL)
                      })
   polysLfltSubStudyRegion <- Cache(mapply, p = polysSubRegion, nam = names(polysSubRegion), userTags = "stable",
                                    function(p, nam) {
@@ -534,7 +533,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                                        spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
                                        p <- spChFIDs(p, as.character(seq(NROW(p))))
                                        spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
-                                     })
+                                     }, error = function(x) NULL)
                                    })
 
   # Put them all together in the structure:
