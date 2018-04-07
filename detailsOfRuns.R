@@ -3,6 +3,10 @@ showCache(cF, userTags = "experiment")[tagKey=="cacheId"]$tagValue
 cP <- paths4sim$Proprietary$cachePath
 showCache(cP, userTags = "experiment")[tagKey=="cacheId"]$tagValue
 
+pa <- paths$cachePath
+dput(showCache(pa, userTags = "Map")[tagKey=="cacheId"]$tagValue)
+dput(showCache(pa, userTags = "reportingAndLeadingFn")[tagKey=="cacheId"]$tagValue)
+
 1. Get Free and Proprietary on one machine, copying cache/Free
 2. 
 
