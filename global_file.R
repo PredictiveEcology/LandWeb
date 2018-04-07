@@ -377,6 +377,12 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
     })
     return(unlist(lapply(vtmTifs, filename)))
   })
+  if (Sys.info()["user"]=="emcintir" && Sys.info()["sysname"]=="Windows")
+    vtmsTifs <- lapply(vtmsTifs, function(fps) {
+      fps <- convertPath(fps, old = "/home/emcintir/Documents", new = "C:/Eliot")
+      fps
+    })
+  
   vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.core::.suffix(vtm, "LFLT") )
 
   vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
