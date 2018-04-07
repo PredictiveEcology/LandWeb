@@ -443,6 +443,7 @@ rp4LrgPatches <- lapply(reportingPolygons, function(rpAll) {
 lrgPatches <- Cache(Map,
                     timeSinceFireFiles = tsfs,
                     vegTypeMapFiles = vtms,
+                    userTags = c("largePatchesFn", "Large Patches"),
                     reportingPolygons = rp4LrgPatches,
                     authenticationType = authenticationType,
                     largePatchesFn,
@@ -453,6 +454,7 @@ lrgPatches <- Cache(Map,
 lrgPatchesCC <- Cache(Map, largePatchesFn,
                       timeSinceFireFiles = lapply(CurrentConditions, function(x) {
                         if (!is.null(x)) filename(x$CCtsf)}),
+                      userTags = c("largePatchesFn", "CurrentConditions"),
                       vegTypeMapFiles = lapply(CurrentConditions, function(x) {
                         if (!is.null(x)) filename(x$CCvtm)}),
                       reportingPolygons = rp4LrgPatches,
