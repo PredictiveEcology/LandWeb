@@ -589,19 +589,6 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
                                   intersectListShpsFn, leadingByStageFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
                                   tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
-  if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>10) {
-    numClusters = 10
-    message("  Starting cluster for raster::extract")
-    beginCluster(min(numClusters, detectCores() / 4))
-    on.exit({
-      if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>10) {
-        message("    Ending cluster for raster::extract")
-        endCluster()
-      }
-    }, add = TRUE)
-    
-  }
-  
   
   reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
                                                  createReportingPolygonsFn = createReportingPolygonsFn)
@@ -720,3 +707,4 @@ setupParallelCluster <- function(cl, numClusters) {
   }
   return(list(cl = cl, lapplyFn = lapplyFn))
 }
+
