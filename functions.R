@@ -50,42 +50,54 @@ intersectListShps <- function(listShps, intersectShp) {
 leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy,
                            ageClassCutOffs,  ageClasses, cl) {
 
-  lapplyFn <- "lapply"
-  if (!missing(cl)) { # not missing
-    if (!identical(cl, "FALSE")) { # is NOT FALSE
-      lapplyFn <- "parLapplyLB"
-      if (isTRUE(cl)) { # Is TRUE
-        if (detectCores() > 12) {
-          ncores <- min(length(timeSinceFireFiles), detectCores() / 4)
-          message("making ", ncores, " node cluster")
-          if (Sys.info()[["sysname"]] == "Windows") {
-            cl <- makeCluster(ncores)
-          } else {
-            cl <- makeForkCluster(ncores)
-          }
-          on.exit({
-            message("Closing cores")
-            stopCluster(cl)
-            }
-          )
-        } else { # not enough clusters
-          lapplyFn <- "lapply"
-          cl <- FALSE
-        }
-      }
+  
+  numClusters = length(timeSinceFireFiles)
+  
+  clParams <- setupParallelCluster(cl, numClusters = numClusters)
+  cl <- clParams$cl
+  on.exit({
+    if (exists("cl")) {
+      message("      Closing cores")
+      stopCluster(cl)
     }
-  }
-  if (is(cl, "cluster")) {
-    ## By here, it must be a cluster
-    #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
-    if (Sys.info()[["sysname"]] == "Windows") {
-      clusterExport(cl = cl, varlist = list(ls()), envir = environment())
-      clusterEvalQ(cl = cl, {
-        library(raster)
-      })
-    }
-
-  }
+  }, add = TRUE)
+  lapplyFn <- clParams$lapplyFn
+  # lapplyFn <- "lapply"
+  # if (!missing(cl)) { # not missing
+  #   if (!identical(cl, "FALSE")) { # is NOT FALSE
+  #     lapplyFn <- "parLapplyLB"
+  #     if (isTRUE(cl)) { # Is TRUE
+  #       if (detectCores() > 12) {
+  #         ncores <- min(length(timeSinceFireFiles), detectCores() / 4)
+  #         message("making ", ncores, " node cluster")
+  #         if (Sys.info()[["sysname"]] == "Windows") {
+  #           cl <- makeCluster(ncores)
+  #         } else {
+  #           cl <- makeForkCluster(ncores)
+  #         }
+  #         on.exit({
+  #           message("Closing cores")
+  #           stopCluster(cl)
+  #           }
+  #         )
+  #       } else { # not enough clusters
+  #         lapplyFn <- "lapply"
+  #         cl <- FALSE
+  #       }
+  #     }
+  #   }
+  # }
+  # if (is(cl, "cluster")) {
+  #   ## By here, it must be a cluster
+  #   #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
+  #   if (Sys.info()[["sysname"]] == "Windows") {
+  #     clusterExport(cl = cl, varlist = list(ls()), envir = environment())
+  #     clusterEvalQ(cl = cl, {
+  #       library(raster)
+  #     })
+  #   }
+  # 
+  # }
 
   out <- lapply(ageClassCutOffs, function(ages) {
     y <- match(ages, ageClassCutOffs)
@@ -96,6 +108,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
     }
     startList <- append(startList, list(y = y))
 
+    message("    ", ageClasses[y], " for\n      ", paste0(basename(timeSinceFireFiles), collapse = "\n      "))
     out1 <- #Cache(cacheRepo = paths$cachePath,
       do.call(lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
         x <- match(x, timeSinceFireFiles)
@@ -127,7 +140,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   aa <- tryCatch(
     raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack))),
     error = function(x) NULL)
-
+  
   aa1 <- lapply(aa, function(x,  ...) {
     if (!is.null(x)) {
       apply(x, 2, function(y) {
@@ -576,6 +589,20 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
                                   intersectListShpsFn, leadingByStageFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
                                   tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
+  if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>10) {
+    numClusters = 10
+    message("  Starting cluster for raster::extract")
+    beginCluster(min(numClusters, detectCores() / 4))
+    on.exit({
+      if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>10) {
+        message("    Ending cluster for raster::extract")
+        endCluster()
+      }
+    }, add = TRUE)
+    
+  }
+  
+  
   reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
                                                  createReportingPolygonsFn = createReportingPolygonsFn)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
@@ -655,4 +682,41 @@ convertPath <- function(paths, old, new) {
   }
   paths
   
+}
+
+
+setupParallelCluster <- function(cl, numClusters) {
+  lapplyFn <- "lapply"
+  if (!missing(cl)) { # not missing
+    if (!identical(cl, "FALSE")) { # is NOT FALSE
+      lapplyFn <- "parLapplyLB"
+      if (isTRUE(cl)) { # Is TRUE
+        if (detectCores() > 12) {
+          ncores <- min(numClusters, detectCores() / 4)
+          message("   making ", ncores, " node cluster")
+          if (Sys.info()[["sysname"]] == "Windows") {
+            cl <- makeCluster(ncores)
+          } else {
+            cl <- makeForkCluster(ncores)
+          }
+          
+        } else { # not enough clusters
+          lapplyFn <- "lapply"
+          cl <- FALSE
+        }
+      }
+    }
+  }
+  if (is(cl, "cluster")) {
+    ## By here, it must be a cluster
+    #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
+    if (Sys.info()[["sysname"]] == "Windows") {
+      clusterExport(cl = cl, varlist = list(ls()), envir = environment())
+      clusterEvalQ(cl = cl, {
+        library(raster)
+      })
+    }
+    
+  }
+  return(list(cl = cl, lapplyFn = lapplyFn))
 }
