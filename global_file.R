@@ -287,7 +287,8 @@ if (!exists("cacheIds4Experiment")) {
 
 ######## SimInit and Experiment
 mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim,
-                   modules = modules4sim,
+                   modules = modules4sim, 
+                   cacheId = if (exists("cacheId4Experiment")) cacheId4Experiment else NULL,
                    outputs = outputs4sim, cacheIds4Experiment = cacheIds4Experiment,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
