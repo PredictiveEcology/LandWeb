@@ -354,7 +354,7 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 
 
 
-if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
+#if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
   vtmsTifs <- Cache(lapply, vtms, 
                     cacheId = if (exists("cacheIdVtmsTifs")) 
                       cacheIdVtmsTifs else NULL,
@@ -373,7 +373,6 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
   
-  
   vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                               userTags = c("gdal2Tiles", "vtm", "vtms"),
                               cacheId = if (exists("cacheIdVtmRasterTilePaths")) 
@@ -385,7 +384,7 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
                                                         zoomRange = zoomRange, colorTableFile = colorTableFile)
                                 return(filenames)
                               })
-}
+#}
 
 
 ########################################################
