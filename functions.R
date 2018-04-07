@@ -637,3 +637,12 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
     list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
   }
 }
+
+convertPath <- function(paths, old, new) {
+  hasOldPathStyle <- grepl(pattern = old, paths)
+  if (any(hasOldPathStyle)) {
+    paths <- gsub(pattern = old, replacement = new, x = paths)
+  }
+  paths
+  
+}
