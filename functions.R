@@ -12,7 +12,7 @@ intersectListShps <- function(listShps, intersectShp) {
   intersectShp <- raster::aggregate(intersectShp)
   problem1 <- !rgeos::gIsSimple(intersectShp)
   problem2 <- !rgeos::gIsValid(intersectShp)
-  if (isTRUE(problem1 || problem2 )) {
+  if (isTRUE(problem1 || problem2)) {
     browser()
   }
 
@@ -203,7 +203,7 @@ reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
   message("Reprojecting rasters, filling in minimum age, saving to disk")
   rstFlammableNum <- raster(flammableFile)
   rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs, method = "ngb")
-  rastsLFLT <- Cache(lapply, userTags = "reprojectRasts", 
+  rastsLFLT <- Cache(lapply, userTags = "reprojectRasts",
                      seq_along(tsf), function(FN) {
     message("  ", tsf[[FN]])
     r <- raster(tsf[[FN]])
@@ -645,5 +645,5 @@ convertPath <- function(paths, old, new) {
     paths <- gsub(pattern = old, replacement = new, x = paths)
   }
   paths
-  
+
 }
