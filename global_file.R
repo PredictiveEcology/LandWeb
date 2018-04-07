@@ -287,7 +287,8 @@ if (!exists("cacheIds4Experiment")) {
 
 ######## SimInit and Experiment
 mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim,
-                   modules = modules4sim,
+                   modules = modules4sim, 
+                   cacheId = if (exists("cacheId4Experiment")) cacheId4Experiment else NULL,
                    outputs = outputs4sim, cacheIds4Experiment = cacheIds4Experiment,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
@@ -353,8 +354,10 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 
 
 
-if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
+#if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
   vtmsTifs <- Cache(lapply, vtms, 
+                    cacheId = if (exists("cacheIdVtmsTifs")) 
+                      cacheIdVtmsTifs else NULL,
                     userTags = c("writeRaster", "tifs"),
                     function(vtmsInner) {
                       vtmTifs <- lapply(vtmsInner, function(vtm) {
@@ -372,6 +375,8 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
   
   vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                               userTags = c("gdal2Tiles", "vtm", "vtms"),
+                              cacheId = if (exists("cacheIdVtmRasterTilePaths")) 
+                                cacheIdVtmRasterTilePaths else NULL,
                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                               function(rst, modelType, zoomRange, colorTableFile) {
                                 outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
@@ -379,7 +384,7 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
                                                         zoomRange = zoomRange, colorTableFile = colorTableFile)
                                 return(filenames)
                               })
-}
+#}
 
 
 ########################################################
