@@ -124,7 +124,9 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   IDs <- raster::levels(out[[1]][[1]])[[1]]$ID
   Factors <- raster::levels(out[[1]][[1]])[[1]]$Factor
   ii <- 3
-  aa <- raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack)))
+  aa <- tryCatch(
+    raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack))),
+    error = function(x) NULL)
 
   aa1 <- lapply(aa, function(x,  ...) {
     if (!is.null(x)) {
@@ -161,11 +163,13 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   )
 
   temp <- list()
-  for (ages in ageClasses) {
-    temp[[ages]] <- aadf %>%
-      dplyr::select(starts_with(ages) , zone:vegCover) %>%
-      tidyr::gather(key = "label", value = "proportion", -(zone:vegCover)) %>%
-      mutate(ageClass = unlist(lapply(strsplit(label, split = "\\."), function(x) x[[1]])))
+  if (NROW(aadf) > 0) { # if polygon doesn't overlap, the tryCatch on raster::extract returns NULL
+    for (ages in ageClasses) {
+      temp[[ages]] <- aadf %>%
+        dplyr::select(starts_with(ages) , zone:vegCover) %>%
+        tidyr::gather(key = "label", value = "proportion", -(zone:vegCover)) %>%
+        mutate(ageClass = unlist(lapply(strsplit(label, split = "\\."), function(x) x[[1]])))
+    }
   }
 
   aa <- rbindlist(temp)
