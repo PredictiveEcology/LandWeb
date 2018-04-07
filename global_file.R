@@ -389,17 +389,17 @@ if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need 
                       cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
-  
   vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                               userTags = c("gdal2Tiles", "vtm", "vtms"),
-                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
+                              cacheId = if (exists("cacheIdVtmRasterTilePaths")) cacheIdVtmRasterTilePaths else NULL,
+                              MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                                function(rst, modelType, zoomRange, colorTableFile) {
                                  outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
                                  filenames <- gdal2Tiles(rst$crsLFLT, outputPath = outputPath,
                                                          zoomRange = zoomRange, colorTableFile = colorTableFile)
                                  return(filenames)
                                })
-}
+  }
 
 
 ########################################################
@@ -409,6 +409,7 @@ reportingAndLeading <- Cache(reportingAndLeadingFn,
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
                              createReportingPolygonsFn = createReportingPolygons,
                              userTags = c("leading", "reportingPolygons"),
+                             cacheId = if (exists("cacheIdReportingAndLeadingFn"))  cacheIdReportingAndLeadingFn else NULL,
                              leadingByStageFn = leadingByStage,
                              intersectListShpsFn = intersectListShps,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
@@ -425,6 +426,7 @@ CCspeciesNames <- list(Free = c(),
 CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
 CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames, 
                            userTags = c("createCCfromVtmTsf", "CurrentConditions"),
+                           cacheId = if (exists("cacheIdCurrentConditions"))  cacheIdCurrentConditions else NULL,
                            MoreArgs = list(vtmRasters = vtmRasters, 
                                            dPath = dPath, 
                                            loadCCSpeciesFn = loadCCSpecies, 
