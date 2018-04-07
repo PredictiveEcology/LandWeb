@@ -12,7 +12,7 @@ intersectListShps <- function(listShps, intersectShp) {
   intersectShp <- raster::aggregate(intersectShp)
   problem1 <- !rgeos::gIsSimple(intersectShp)
   problem2 <- !rgeos::gIsValid(intersectShp)
-  if (isTRUE(problem1 || problem2 )) {
+  if (isTRUE(problem1 || problem2)) {
     browser()
   }
 
@@ -50,9 +50,9 @@ intersectListShps <- function(listShps, intersectShp) {
 leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy,
                            ageClassCutOffs,  ageClasses, cl) {
 
-  
+
   numClusters = length(timeSinceFireFiles)
-  
+
   clParams <- setupParallelCluster(cl, numClusters = numClusters)
   cl <- clParams$cl
   on.exit({
@@ -96,7 +96,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   #       library(raster)
   #     })
   #   }
-  # 
+  #
   # }
 
   out <- lapply(ageClassCutOffs, function(ages) {
@@ -140,7 +140,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   aa <- tryCatch(
     raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack))),
     error = function(x) NULL)
-  
+
   aa1 <- lapply(aa, function(x,  ...) {
     if (!is.null(x)) {
       apply(x, 2, function(y) {
@@ -218,7 +218,7 @@ cellNumbersForPolygon <- function(dummyRaster, Polygons) {
 
 reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
   rastsLFLT <- if (!(isTRUE(all(unlist(lapply(lfltFN, file.exists)))))) {
-    
+
     message("Reprojecting rasters, filling in minimum age, saving to disk")
     rstFlammableNum <- raster(flammableFile)
     rstFlammableNum <- Cache(projectRaster, rstFlammableNum, crs = crs, method = "ngb")
@@ -246,9 +246,9 @@ reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
   }
 
     rastsCRSSR2 <- lapply(tsf, raster)
-  
+
     globalRasts <- list("crsSR" = rastsCRSSR2, "crsLFLT" = rastsLFLT)
-  
+
     message("  Finished reprojecting rasters")
     globalRasts
 }
@@ -589,7 +589,6 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
                                   intersectListShpsFn, leadingByStageFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
                                   tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
-  
   reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
                                                  createReportingPolygonsFn = createReportingPolygonsFn)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
@@ -668,7 +667,6 @@ convertPath <- function(paths, old, new) {
     paths <- gsub(pattern = old, replacement = new, x = paths)
   }
   paths
-  
 }
 
 
@@ -686,7 +684,7 @@ setupParallelCluster <- function(cl, numClusters) {
           } else {
             cl <- makeForkCluster(ncores)
           }
-          
+
         } else { # not enough clusters
           lapplyFn <- "lapply"
           cl <- FALSE
@@ -703,8 +701,7 @@ setupParallelCluster <- function(cl, numClusters) {
         library(raster)
       })
     }
-    
+
   }
   return(list(cl = cl, lapplyFn = lapplyFn))
 }
-
