@@ -524,7 +524,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                        out <- tryCatch(spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
                          p <- spChFIDs(p, as.character(seq(NROW(p))))
                          spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
-                       })
+                       }, error = function(x) NULL)
                      })
   polysLfltSubStudyRegion <- Cache(mapply, p = polysSubRegion, nam = names(polysSubRegion), userTags = "stable",
                                    function(p, nam) {
@@ -533,7 +533,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                                        spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
                                        p <- spChFIDs(p, as.character(seq(NROW(p))))
                                        spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
-                                     })
+                                     }, error = function(x) NULL)
                                    })
 
   # Put them all together in the structure:
