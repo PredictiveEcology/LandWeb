@@ -58,7 +58,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   on.exit({
     if (exists("cl")) {
       message("      Closing cores")
-      stopCluster(cl)
+      if (inherits(cl, "cluster")) stopCluster(cl)
     }
   }, add = TRUE)
   lapplyFn <- clParams$lapplyFn
