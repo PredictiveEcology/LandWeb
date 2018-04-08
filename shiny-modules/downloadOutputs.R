@@ -26,6 +26,7 @@ downloadOutputs <- function(input, output, session) {
       paste("LandWeb_data-", Sys.Date(), ".zip", sep = "")
     },
     content = function(file) {
+      ## TODO: add the selected polygon as a shp file for download?
       caches2zip <- list.files(file.path("cache", paste0(subStudyRegionName, "_Proprietary"), "rasters"),
                                recursive = TRUE, full.names = TRUE)
       outputs2zip <- list.files(file.path("outputs", paste0(subStudyRegionName, "_Proprietary")),
