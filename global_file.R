@@ -390,16 +390,23 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 ########################################################
 # formerly in mapsForShiny.R
 # Reporting polygons
+if (isTRUE(useParallelCluster)) {
+  message("  Also starting a cluster with 10 threads")
+  if (!exists("cl10"))
+    cl10 <- makeForkCluster(10)
+}
+
 reportingAndLeading <- Cache(reportingAndLeadingFn,
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
                              createReportingPolygonsFn = createReportingPolygons,
                              userTags = c("leading", "reportingPolygons"),
+                             cacheId = if (exists("cachdIds4ReportingAndLeadingFn")) cachdIds4ReportingAndLeadingFn else NULL,
                              leadingByStageFn = leadingByStage,
                              intersectListShpsFn = intersectListShps,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
                              authenticationType = authenticationType,
                              ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                             tsfs = tsfs, vtms = vtms, cl = TRUE)
+                             tsfs = tsfs, vtms = vtms, cl = cl10, lapplyFn = lapplyFn)
 list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
 
 ### CURRENT CONDITION ##################################
@@ -423,13 +430,14 @@ rp4LrgPatches <- lapply(reportingPolygons, function(rpAll) {
     rp$crsSR$shpSubStudyRegion
   })
 })
-lrgPatches <- Cache(Map,
+lrgPatches <- Cache(Map, largePatchesFn, 
                     timeSinceFireFiles = tsfs,
                     vegTypeMapFiles = vtms,
                     reportingPolygons = rp4LrgPatches,
                     authenticationType = authenticationType,
-                    largePatchesFn,
+                    omitArgs = c("cl", "lapplyFn"),
                     MoreArgs = list(ageClasses = ageClasses,
+                                    cl = cl10, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles 
                                     countNumPatchesFn = countNumPatches,
                                     ageCutoffs = ageClassCutOffs)
 )
@@ -440,7 +448,9 @@ lrgPatchesCC <- Cache(Map, largePatchesFn,
                         if (!is.null(x)) filename(x$CCvtm)}),
                       reportingPolygons = rp4LrgPatches,
                       authenticationType = authenticationType,
+                      omitArgs = c("cl", "lapplyFn"),
                       MoreArgs = list(ageClasses = ageClasses,
+                                      cl = cl10, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles 
                                       countNumPatchesFn = countNumPatches,
                                       ageCutoffs = ageClassCutOffs)
 )
