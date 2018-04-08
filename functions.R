@@ -48,7 +48,7 @@ intersectListShps <- function(listShps, intersectShp) {
 #' @return A data.table with proportion of the pixels in each vegetation class, for
 #'         each given age class within each polygon
 leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy,
-                           ageClassCutOffs,  ageClasses, cl, lapplyFn) {
+                           ageClassCutOffs,  ageClasses, cl = NULL, lapplyFn = "lapply") {
   out <- lapply(ageClassCutOffs, function(ages) {
     y <- match(ages, ageClassCutOffs)
     if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
@@ -542,7 +542,7 @@ createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authen
 reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingPolygonsFn,
                                   intersectListShpsFn, leadingByStageFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
-                                  tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
+                                  tsfs, vtms, cl, lapplyFn, ageClasses, ageClassCutOffs) {
   reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
                                                  createReportingPolygonsFn = createReportingPolygonsFn)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
