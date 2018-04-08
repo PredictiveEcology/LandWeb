@@ -1,3 +1,7 @@
+ssh -L 8080:132.156.148.172:80 inf2.pfc.forestry.ca
+ssh -L 22:132.156.148.172:22 inf2.pfc.forestry.ca
+
+
 cF <- paths4sim$Free$cachePath
 showCache(cF, userTags = "experiment")[tagKey=="cacheId"]$tagValue
 cP <- paths4sim$Proprietary$cachePath
