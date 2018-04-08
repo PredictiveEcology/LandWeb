@@ -373,3 +373,7 @@ keepCache(after = "2018-04-08 10:35:01")
 keepCache(paths4sim$Free$cachePath, after = "2018-04-08 10:35:01")
 keepCache(paths4sim$Proprietary$cachePath, after = "2018-04-08 10:35:01")
 
+#################
+
+ssh -N -L 2323:132.156.148.172:22 emcintir@inf2.pfc.forestry.ca
+rsync -auve "ssh -p 2323" ui.R emcintir@localhost:~/Documents/ui.R
