@@ -49,8 +49,6 @@ intersectListShps <- function(listShps, intersectShp) {
 #'         each given age class within each polygon
 leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy,
                            ageClassCutOffs,  ageClasses, cl, lapplyFn) {
-  
-  
   out <- lapply(ageClassCutOffs, function(ages) {
     y <- match(ages, ageClassCutOffs)
     if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {

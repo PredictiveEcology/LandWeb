@@ -20,19 +20,18 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-vegHistServerFn <- function(datatable, chosenCategories, chosenValues) {
-  observeEvent(datatable, label = chosenValues, {
-    dt <- if (is.reactive(datatable)) {
+vegHistServerFn <- function(datatable, id, .current, .dtFull) {
+  observeEvent(datatable, {
+    vegDT <- if (is.reactive(datatable)) {
       datatable()
     } else {
       datatable
     }
     assertthat::assert_that(
-      is.data.table(dt),
+      is.data.table(vegDT),
       msg = "vegHistServerFn: `datatable` is not a data.table"
     )
 
-    vegDT <- getSubtableMem(dt, chosenCategories, chosenValues)
     propVeg <- vegDT$proportion
 
     breaksLabels <- (0:11)/10
@@ -43,12 +42,16 @@ vegHistServerFn <- function(datatable, chosenCategories, chosenValues) {
 
     vegHist <- hist(propVeg, breaks = breaks, plot = FALSE)
 
-    histogramData <- vegHist$counts / sum(vegHist$counts)
+    histogramData <- if (sum(vegHist$counts) == 0) {
+      vegHist$counts
+    } else {
+      vegHist$counts / sum(vegHist$counts)
+    }
 
     sigdigs <- ceiling(-log10(diff(range(breaks)) / length(breaks) / 10))
     barWidth <- unique(round(diff(vegHist$breaks), digits = sigdigs))
 
-    callModule(histogram, "vegHists", histogramData, addAxisParams,
+    callModule(histogram, id, histogramData, addAxisParams,
                width = barWidth,
                xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
@@ -81,7 +84,15 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
   rctVegData <- reactive({
     assertthat::assert_that(is.character(rctChosenPolyName()), is.list(rctLeadingDTlist()))
 
-    rctLeadingDTlist()[[rctChosenPolyName()]]
+    dt <- rctLeadingDTlist()[[rctChosenPolyName()]]
+
+    # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
+    curPoly <- isolate(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]])
+    polygonID <- as.character(seq_along(curPoly))
+    polygonName <- curPoly$shinyLabel
+    dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
+    assertthat::assert_that(is.data.table(dt))
+    dt
   })
 
   uiSequence <- reactive({
@@ -89,6 +100,7 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
 
     #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]))
     polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]$shinyLabel
+
 
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
@@ -98,11 +110,9 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
     )
   })
 
-  callModule(slicer, "vegSlicer", datatable = rctVegData,
-             categoryValue = "vegAgeMod",
-             uiSequence = uiSequence(),
+  callModule(slicer, "vegSlicer", datatable = rctVegData, uiSequence = uiSequence(),
              serverFunction = vegHistServerFn, ## calls histogram server module
-             uiFunction = function(ns) {
-               histogramUI(ns("vegHists"), height = 300)
+             uiFunction = function(id) {
+               histogramUI(id, height = 300)
   })
 }
