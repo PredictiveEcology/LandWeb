@@ -440,9 +440,24 @@ CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNa
                                            loadCCSpeciesFn = loadCCSpecies, 
                                            shpSubStudyRegion = shpSubStudyRegion, 
                                            tsfRasters = tsfRasters))
-tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) filename(x$CCtsf)})
-vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) filename(x$CCvtm)})
+tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
+  fps <- convertPath(filename(x$CCtsf), old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+  }
+  asPath(fps)
+}
+})
+vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
+  fps <- convertPath(filename(x$CCvtm), old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+  }
+  asPath(fps)
+}
+})
   
+
 reportingAndLeading <- Cache(reportingAndLeadingFn,
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
                              createReportingPolygonsFn = createReportingPolygons,
