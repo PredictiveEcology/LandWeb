@@ -1,3 +1,7 @@
+ssh -L 8080:132.156.148.172:80 inf2.pfc.forestry.ca
+ssh -L 22:132.156.148.172:22 inf2.pfc.forestry.ca
+
+
 cF <- paths4sim$Free$cachePath
 showCache(cF, userTags = "experiment")[tagKey=="cacheId"]$tagValue
 cP <- paths4sim$Proprietary$cachePath
@@ -359,4 +363,13 @@ rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/cac
 rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/outputs/MB_Free/* outputs/MB_Free/ --delete
 rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/www/Free/MB/* www/Free/MB/ --delete
 
+
+#################
+showCache(after = "2018-04-08 10:35:01")
+showCache(paths4sim$Free$cachePath, after = "2018-04-08 10:35:01")
+showCache(paths4sim$Proprietary$cachePath, after = "2018-04-08 10:35:01")
+
+keepCache(after = "2018-04-08 10:35:01")
+keepCache(paths4sim$Free$cachePath, after = "2018-04-08 10:35:01")
+keepCache(paths4sim$Proprietary$cachePath, after = "2018-04-08 10:35:01")
 
