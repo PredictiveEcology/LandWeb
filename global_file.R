@@ -372,26 +372,26 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 
 
 vtmsTifs <- Cache(lapply, vtms, 
-                    cacheId = if (exists("cacheIdVtmsTifs")) 
-                      cacheIdVtmsTifs else NULL,
-                    userTags = c("writeRaster", "tifs"),
-                    function(vtmsInner) {
-                      vtmTifs <- lapply(vtmsInner, function(vtm) {
-                        vtmRas <- raster(vtm)
-                        vtmRas <- writeRaster(vtmRas, file = gsub(".grd", ".tif", filename(vtmRas)), overwrite = TRUE)
-                      })
-                      return(unlist(lapply(vtmTifs, filename)))
+                  cacheId = if (exists("cacheIdVtmsTifs")) 
+                    cacheIdVtmsTifs else NULL,
+                  userTags = c("writeRaster", "tifs"),
+                  function(vtmsInner) {
+                    vtmTifs <- lapply(vtmsInner, function(vtm) {
+                      vtmRas <- raster(vtm)
+                      vtmRas <- writeRaster(vtmRas, file = gsub(".grd", ".tif", filename(vtmRas)), overwrite = TRUE)
                     })
-  vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.core::.suffix(vtm, "LFLT") )
-  
-  vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
-                      cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
-                      lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
-                      reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
-  
-  
-  if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
-    vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
+                    return(unlist(lapply(vtmTifs, filename)))
+                  })
+vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.core::.suffix(vtm, "LFLT") )
+
+vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
+                    cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
+                    lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
+                    reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
+
+
+if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
+  vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                               userTags = c("gdal2Tiles", "vtm", "vtms"),
                               cacheId = if (exists("cacheIdVtmRasterTilePaths")) 
                                 cacheIdVtmRasterTilePaths else NULL,
@@ -402,7 +402,7 @@ vtmsTifs <- Cache(lapply, vtms,
                                                         zoomRange = zoomRange, colorTableFile = colorTableFile)
                                 return(filenames)
                               })
-  }
+}
 
 
 ########################################################
@@ -424,7 +424,7 @@ if (isTRUE(useParallelCluster)) {
   cl6 <- NULL
 }
 
-  
+
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
 dPath <- file.path(paths$inputPath, "CurrentCondition")
@@ -456,7 +456,7 @@ vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
   asPath(fps)
 }
 })
-  
+
 
 reportingAndLeading <- Cache(reportingAndLeadingFn,
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
@@ -472,18 +472,19 @@ reportingAndLeading <- Cache(reportingAndLeadingFn,
 list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
 
 reportingAndLeadingCC <- Cache(reportingAndLeadingFn, #notOlderThan = Sys.time(),
-                             createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
-                             createReportingPolygonsFn = createReportingPolygons,
-                             userTags = c("leading", "reportingPolygons"),
-                             cacheId = if (exists("cachdId4ReportingAndLeadingFnCC")) cachdId4ReportingAndLeadingFnCC else NULL,
-                             leadingByStageFn = leadingByStage,
-                             intersectListShpsFn = intersectListShps,
-                             shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
-                             authenticationType = authenticationType,
-                             ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                             tsfs = tsfsCC, vtms = vtmsCC, cl = cl6, lapplyFn = lapplyFn)
+                               createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
+                               createReportingPolygonsFn = createReportingPolygons,
+                               userTags = c("leading", "reportingPolygons"),
+                               cacheId = if (exists("cachdId4ReportingAndLeadingFnCC")) cachdId4ReportingAndLeadingFnCC else NULL,
+                               leadingByStageFn = leadingByStage,
+                               intersectListShpsFn = intersectListShps,
+                               shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
+                               authenticationType = authenticationType,
+                               ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                               tsfs = tsfsCC, vtms = vtmsCC, cl = cl6, lapplyFn = lapplyFn)
 reportingPolygonsCC <- reportingAndLeadingCC$reportingPolygons
 leadingCC <- reportingAndLeadingCC$leading
+leadingCC$Free <- NULL
 
 
 #########################
@@ -548,8 +549,8 @@ out <- Cache(Map, polys = lapply(reportingPolygons$Proprietary, function(p) p$cr
                cacheIdWriteShapefiles else NULL,
              function(polys, namesPolys) {
                tryCatch(raster::shapefile(polys, 
-                                 filename = file.path(polySubDir, namesPolys),
-                                 overwrite = TRUE), error = function(x) NULL)
+                                          filename = file.path(polySubDir, namesPolys),
+                                          overwrite = TRUE), error = function(x) NULL)
              })
 
 
