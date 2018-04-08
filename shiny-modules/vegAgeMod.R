@@ -20,7 +20,8 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosenPolyName) {
+vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosenPolyName,
+                            nSimTimes, authStatus) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     vegDT <- if (is.reactive(datatable)) {
       datatable()
@@ -32,6 +33,13 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
       msg = "vegHistServerFn: `datatable` is not a data.table"
     )
 
+    # ## calculate breaks
+    # # calculate breaks -- 1 set of breaks for each group of plots
+    # dtListShort <- split(.dtFull, by = c("ageClass", "polygonID"), flatten = FALSE)
+    #
+    # # need to get a single set of breaks for all simultaneously visible histograms
+    # dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
+
     propVeg <- vegDT$proportion
 
     breaksLabels <- (0:11)/10
@@ -39,8 +47,12 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
     barplotBreaks <- breaksLabels + 0.05
 
     addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
+#if (authStatus) browser()
+    dtOnlyCC <- vegDT[grepl("CurrentCondition", label)]
+    dtNoCC <- vegDT[!grepl("CurrentCondition", label)]
 
-    vegHist <- hist(propVeg, breaks = breaks, plot = FALSE)
+    vegHist <- hist(dtNoCC$proportion, breaks = breaks, plot = FALSE)
+    vegHistCC <- hist(dtOnlyCC$proportion, breaks = breaks, plot = FALSE)
 
     histogramData <- if (sum(vegHist$counts) == 0) {
       vegHist$counts
@@ -51,12 +63,22 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
     sigdigs <- ceiling(-log10(diff(range(breaks)) / length(breaks) / 10))
     barWidth <- unique(round(diff(vegHist$breaks), digits = sigdigs))
 
+    verticalLineAtX <- if (isTRUE(authStatus)) {
+      if (length(dtOnlyCC$proportion) == 0) {
+        0
+      } else  {
+        dtOnlyCC$proportion
+      }
+    } else {
+      NULL
+    }
+
     polyName <- chosenPolyName %>% gsub(" ", "_", .)
     pngDir <- file.path(outputPath, "histograms", polyName, "vegAgeMod") %>% checkPath(create = TRUE)
     pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
     pngPath <- file.path(pngDir, pngFile)
 
-    callModule(histogram, id, histogramData, addAxisParams,
+    callModule(histogram, id, histogramData, addAxisParams, verticalBar = verticalLineAtX,
                width = barWidth, file = if (file.exists(pngPath)) NULL else pngPath,
                xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
@@ -84,12 +106,19 @@ vegAgeModUI <- function(id) {
 #'
 #'
 vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive({NULL}),
-                      rctLeadingDTlist, rctVtm, ageClasses, outputPath) {
+                      rctLeadingDTlist, rctLeadingDTlistCC, rctVtm, ageClasses, outputPath) {
 
   rctVegData <- reactive({
     assertthat::assert_that(is.character(rctChosenPolyName()), is.list(rctLeadingDTlist()))
 
-    dt <- rctLeadingDTlist()[[rctChosenPolyName()]]
+    dt <- if (is.null(rctLeadingDTlistCC())) {
+      ## free
+      rctLeadingDTlist()[[rctChosenPolyName()]]
+    } else {
+      ## proprietary
+      rbindlist(list(rctLeadingDTlist()[[rctChosenPolyName()]],
+                     rctLeadingDTlistCC()[[rctChosenPolyName()]]))
+    }
 
     # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
     curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
@@ -121,6 +150,10 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
                histogramUI(id, height = 300)
              },
              outputPath = outputPath,
-             chosenPolyName = rctChosenPolyName()
+             chosenPolyName = rctChosenPolyName(),
+             nSimTimes = length(rctVtm()),
+             authStatus = session$userData$userAuthorized()
   )
+
+  return(rctVegData)
 }
