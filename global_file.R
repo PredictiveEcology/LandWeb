@@ -396,8 +396,11 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 if (isTRUE(useParallelCluster)) {
   numClus <- 6
   message("  Also starting a cluster with ", numClus," threads")
-  if (!exists("cl6"))
-    cl6 <- makeForkCluster(numClus)
+  if (!exists("cl6")) {
+    cl6 <- parallel::makeForkCluster(numClus)
+  } 
+} else {
+  cl6 <- NULL
 }
 
 reportingAndLeading <- Cache(reportingAndLeadingFn,
@@ -490,9 +493,9 @@ dir.create(polySubDir, showWarnings = FALSE)
 out <- Cache(Map, polys = lapply(reportingPolygons$Proprietary, function(p) p$crsSR$shpSubStudyRegion), 
              namesPolys = names(reportingPolygons$Proprietary),
              function(polys, namesPolys) {
-               raster::shapefile(polys, 
+               tryCatch(raster::shapefile(polys, 
                                  filename = file.path(polySubDir, namesPolys),
-                                 overwrite = TRUE)
+                                 overwrite = TRUE), error = function(x) NULL)
              })
 
 
