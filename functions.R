@@ -202,12 +202,16 @@ cellNumbersForPolygon <- function(dummyRaster, Polygons) {
   dtList <- Map(Polygon = Polygons, PolygonName = names(Polygons),
                 function(Polygon, PolygonName) {
                   message("  Assigning PolygonIDs for each pixel from ", PolygonName)
-                  aa <- raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE)
-                  notNull <- !unlist(lapply(aa, is.null))
-                  dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) {
-                    data.table(cell = aa[[x]][, "cell"], polygonID = as.character(x))
-                  }))
-                  data.table::copy(dt)
+                  aa <- tryCatch(raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE), error = function(x) NULL)
+                  if (!is.null(aa)) {
+                    notNull <- !unlist(lapply(aa, is.null))
+                    dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) {
+                      data.table(cell = aa[[x]][, "cell"], polygonID = as.character(x))
+                    }))
+                    data.table::copy(dt)
+                  } else {
+                    data.table(cell = numeric(), polygonID = character())
+                  }
   })
 
   # There is a weird bug that makes the data.table from previous line. copy() is a work around
