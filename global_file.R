@@ -329,7 +329,9 @@ rasterResolutions <- lapply(tsfs, function(x) {
 )
 
 flammableFiles <- lapply(mySimOuts, function(mySimOut) {
-  asPath(file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd"))
+  fps <- file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd")
+  fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  asPath(fps)
 })
 
 tsfRasters <- Cache(Map, tsf = tsfs, 
