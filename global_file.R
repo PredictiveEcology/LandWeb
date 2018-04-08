@@ -398,6 +398,8 @@ if (isTRUE(useParallelCluster)) {
   message("  Also starting a cluster with ", numClus," threads")
   if (!exists("cl6"))
     cl6 <- makeForkCluster(numClus)
+  else 
+    cl6 <- NULL
 }
 
 reportingAndLeading <- Cache(reportingAndLeadingFn,
