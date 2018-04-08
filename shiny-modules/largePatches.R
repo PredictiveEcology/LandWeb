@@ -20,8 +20,9 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatus, uiSeq) {
-  observeEvent(datatable, {
+histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatus,
+                          uiSeq, outputPath, chosenPolyName) {
+  observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {
       datatable()
     } else {
@@ -67,9 +68,14 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       NULL
     }
 
+    polyName <- chosenPolyName %>% gsub(" ", "_", .)
+    pngDir <- file.path(outputPath, "histograms", polyName, "largePatches") %>% checkPath(create = TRUE)
+    pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
+    pngPath <- file.path(pngDir, pngFile)
+
     callModule(histogram, id, histogramData, addAxisParams,
                verticalBar = verticalLineAtX,
-               width = 1,
+               width = 1, file = if (file.exists(pngPath)) NULL else pngPath,
                xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
@@ -185,8 +191,7 @@ largePatchesUI <- function(id) {
 #' @param rctPolygonList     A list of polygons for to use while calculating large patches results.
 #' @param rctChosenPolyName  Name of the polygon to extract from polygonList.
 #' @param nSimTimes          How many simulation time stamps there are.
-#' @param rctPaths           A named list of paths containining \code{cachePath},
-#'                           \code{modulePath}, \code{inputPath}, \code{outputPath}.
+#' @param outputPath         The path weher outputs are stored.
 #'
 #' @return Shiny module server function.
 #'
@@ -198,9 +203,9 @@ largePatchesUI <- function(id) {
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
-largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
+largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive({NULL}),
                          rctLrgPatches, rctLrgPatchesCC, rctTsf, rctVtm,
-                         ageClasses, FUN, nPatchesFun, rctPaths) { # TODO: add docs above
+                         ageClasses, FUN, nPatchesFun, outputPath) { # TODO: add docs above
 
   output$title <- renderUI({
     column(width = 12, h2("NRV of number of 'large' (", strong(as.character(input$patchSize)),
@@ -217,6 +222,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   })
 
   rctLargePatchesDataOrig <- reactive({
+    assertthat::assert_that(is.character(rctChosenPolyName()))
+
     dt <- if (is.null(rctLrgPatchesCC())) {
       ## free
       rctLrgPatches()[[rctChosenPolyName()]]
@@ -227,7 +234,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     }
 
     # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
-    curPoly <- isolate(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]])
+    curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
     polygonID <- as.character(seq_along(curPoly))
     polygonName <- curPoly$shinyLabel
     dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
@@ -260,7 +267,9 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
              },
              nSimTimes = length(rctTsf()),
              authStatus = session$userData$userAuthorized(),
-             uiSeq = uiSequence()
+             uiSeq = uiSequence(),
+             outputPath = outputPath,
+             chosenPolyName = rctChosenPolyName()
   )
 }
 

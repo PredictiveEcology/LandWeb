@@ -2,6 +2,10 @@
 endTime <- 30
 summaryInterval <- 5
 summaryPeriod <- c(20, endTime)
+useParallelCluster <- FALSE
+cl6 <- NULL
+lapplyFn <- "lapply"
+
 
 # cacheId for 1000 years: 2e35699c4ade1b4bfa82e864558c7436, 7.3 days - on 342
 authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free" "Proprietary"
