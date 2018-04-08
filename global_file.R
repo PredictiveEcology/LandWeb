@@ -311,12 +311,18 @@ extractFilepaths <- function(filename, rastersFromOutput) {
 tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- extractFilepaths("rstTimeSinceFire", rastersFromOutput)
   fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+  }
   asPath(fps)
 })
 
 vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- extractFilepaths("vegTypeMap", rastersFromOutput)
   fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+  }
   asPath(fps)
 })
 
@@ -331,6 +337,9 @@ rasterResolutions <- lapply(tsfs, function(x) {
 flammableFiles <- lapply(mySimOuts, function(mySimOut) {
   fps <- file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd")
   fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+  }
   asPath(fps)
 })
 
