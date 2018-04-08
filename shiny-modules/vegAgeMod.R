@@ -20,8 +20,8 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-vegHistServerFn <- function(datatable, id, .current, .dtFull) {
-  observeEvent(datatable, {
+vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosenPolyName) {
+  observeEvent(datatable, label = paste(.current, collapse = "-"), {
     vegDT <- if (is.reactive(datatable)) {
       datatable()
     } else {
@@ -51,8 +51,13 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull) {
     sigdigs <- ceiling(-log10(diff(range(breaks)) / length(breaks) / 10))
     barWidth <- unique(round(diff(vegHist$breaks), digits = sigdigs))
 
+    polyName <- chosenPolyName %>% gsub(" ", "_", .)
+    pngDir <- file.path(outputPath, "histograms", polyName, "vegAgeMod") %>% checkPath(create = TRUE)
+    pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
+    pngPath <- file.path(pngDir, pngFile)
+
     callModule(histogram, id, histogramData, addAxisParams,
-               width = barWidth,
+               width = barWidth, file = if (file.exists(pngPath)) NULL else pngPath,
                xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
@@ -78,8 +83,8 @@ vegAgeModUI <- function(id) {
 
 #'
 #'
-vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
-                      rctLeadingDTlist, rctVtm, ageClasses) {
+vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive({NULL}),
+                      rctLeadingDTlist, rctVtm, ageClasses, outputPath) {
 
   rctVegData <- reactive({
     assertthat::assert_that(is.character(rctChosenPolyName()), is.list(rctLeadingDTlist()))
@@ -87,7 +92,7 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
     dt <- rctLeadingDTlist()[[rctChosenPolyName()]]
 
     # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
-    curPoly <- isolate(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]])
+    curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
     polygonID <- as.character(seq_along(curPoly))
     polygonName <- curPoly$shinyLabel
     dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
@@ -114,5 +119,8 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
              serverFunction = vegHistServerFn, ## calls histogram server module
              uiFunction = function(id) {
                histogramUI(id, height = 300)
-  })
+             },
+             outputPath = outputPath,
+             chosenPolyName = rctChosenPolyName()
+  )
 }
