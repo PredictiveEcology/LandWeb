@@ -8,3 +8,5 @@ authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free"
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 subStudyRegionName <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
                               #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
+
+useParallelCluster <- FALSE
