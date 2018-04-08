@@ -11,11 +11,10 @@ downloadOutputs <- function(input, output, session) {
   output$downloadBtn <- renderUI({
     ns <- session$ns
 
-    if (TRUE) {
-    #if (isTRUE(session$userData$userAuthorized())) {
+    if (isTRUE(session$userData$userAuthorized())) {
       tagList(
         h4(HTML("&nbsp;"), "Download model outputs (.zip)"),
-        downloadButton('downloadData', 'Download')
+        downloadButton(ns("downloadData"), "Download")
       )
     } else {
       NULL
@@ -24,7 +23,7 @@ downloadOutputs <- function(input, output, session) {
 
   output$downloadData <- downloadHandler(
     filename = function() {
-      paste("data-", Sys.Date(), ".zip", sep = "")
+      paste("LandWeb_data-", Sys.Date(), ".zip", sep = "")
     },
     content = function(file) {
       caches2zip <- list.files(file.path("cache", paste0(subStudyRegionName, "_Proprietary"), "rasters"),
@@ -34,10 +33,10 @@ downloadOutputs <- function(input, output, session) {
 
       allFiles2zip <- c(caches2zip, outputs2zip)
 
-      destZip <- tempfile(fileext = ".zip")
-      zip(destZip, files = allFiles2zip)
+      print(allFiles2zip)
+      print(file)
 
-      #unlink(destZip)
+      zip(file, files = allFiles2zip)
     },
     contentType = "application/zip"
   )
