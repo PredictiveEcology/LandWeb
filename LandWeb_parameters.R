@@ -1,4 +1,4 @@
-numClusters <- 4
+numClusters <- 3
 source("ThousandYrFreeProprietary.R")
 subStudyRegionName <- "FULL"
 authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free" "Proprietary"
