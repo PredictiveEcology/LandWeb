@@ -348,15 +348,21 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
                             MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                             function(rst, modelType, zoomRange, colorTableFile) {
                               outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
-                              filenames <- Cache(gdal2Tiles, rst$crsLFLT, outputPath = outputPath, 
-                                                 userTags = c("gdal2Tiles", "tsf", "tsfs"),
-                                                 zoomRange = zoomRange, colorTableFile = colorTableFile)
+                              filenames <- unlist(lapply(rst$crsLFLT, function(ras) filename(ras)))
+                              lfltDirNames <- gsub(file.path(outputPath, paste0("out", basename(filenames))), pattern = "\\.tif$", replacement = "")
+                              filenames <- if (!(all(dir.exists(lfltDirNames))))  {
+                                Cache(gdal2Tiles, rst$crsLFLT, outputPath = outputPath, 
+                                      userTags = c("gdal2Tiles", "tsf", "tsfs"),
+                                      zoomRange = zoomRange, colorTableFile = colorTableFile)
+                              } else {
+                                lfltDirNames
+                              }
                               return(filenames)
                             })
 
 
 
-  vtmsTifs <- Cache(lapply, vtms, 
+vtmsTifs <- Cache(lapply, vtms, 
                     cacheId = if (exists("cacheIdVtmsTifs")) 
                       cacheIdVtmsTifs else NULL,
                     userTags = c("writeRaster", "tifs"),
@@ -394,6 +400,12 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 # formerly in mapsForShiny.R
 # Reporting polygons
 if (isTRUE(useParallelCluster)) {
+  library(parallel)
+  message("  Closing existing cluster for raster::extract")
+  raster::endCluster()
+  message("  Starting ",numClusters, "  node cluster for raster::extract")
+  raster::beginCluster(min(numClusters, parallel::detectCores() / 4))
+  
   numClus <- 6
   message("  Also starting a cluster with ", numClus," threads")
   if (!exists("cl6")) {
