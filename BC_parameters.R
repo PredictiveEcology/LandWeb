@@ -1,4 +1,4 @@
-numClusters <- 4
+numClusters <- 0
 source("ThousandYrFreeProprietary.R")
 subStudyRegionName <- "BC"
 authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free" "Proprietary"
@@ -8,10 +8,10 @@ cacheIdTsfRasters <- "533b3cd126e2f677e7f2f10f6be96180"
 cacheIdTsfRasterTilePaths <- "f4fc5c006fd19e773ad2b2de596a4d49"
 cacheIdVtmsTifs <- "33592b38fed37a504c05309fa8bfc48d"
 cacheIdVtmRasters <- "d6cd2eeff74edea2ec923df188001460"
-# cachdId4ReportingAndLeadingFn <- "023347a9fe75496f2c9808a970d5b04e"
-# cacheIdCurrentCondition <- "1a5b31f5a136890cba72ec7ee9704aee"
-# cacheIdLrgPatches <- "6a02a05747940f4a3e3ac5ff36ab0cf3"
-# cacheIdLrgPatchesCC <- "87b611a9161947e23d19fd5a88f1660a"
+cachdId4ReportingAndLeadingFn <- "5b61d814de1c291723a90371fc113551"
+cacheIdCurrentCondition <- "7e7862e290a6272c474e52d3765de81f"
+cacheIdLrgPatches <- "c5ace17ce47749227fff4b2d16595878"
+cacheIdLrgPatchesCC <- "843d93ce0ce50dc2230bad3917116d8b"
 
 if (FALSE) {
   # From MB
