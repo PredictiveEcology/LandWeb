@@ -555,11 +555,15 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
                               " rasters, summarize by ", polyNames, ")")
                       Map(poly = polys, polyName = polyNames, function(poly, polyName) {
                         message("    Doing ", polyName)
-                        Cache(leadingByStageFn, timeSinceFireFiles = asPath(tsf, 2),
-                              vegTypeMapFiles = asPath(vtm, 2),
-                              polygonToSummarizeBy = poly$shpSubStudyRegion,
-                              cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
-                        })
+                        if (!is.null(tsf)) {
+                          Cache(leadingByStageFn, timeSinceFireFiles = asPath(tsf, 2),
+                                vegTypeMapFiles = asPath(vtm, 2),
+                                polygonToSummarizeBy = poly$shpSubStudyRegion,
+                                cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
+                        } else {
+                          NULL
+                        }
+                      })
                     })
   return(list(leading = leadingOut, reportingPolygons = reportingPolygon))
 }

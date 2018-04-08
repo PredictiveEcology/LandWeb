@@ -311,12 +311,18 @@ extractFilepaths <- function(filename, rastersFromOutput) {
 tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- extractFilepaths("rstTimeSinceFire", rastersFromOutput)
   fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+  }
   asPath(fps)
 })
 
 vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- extractFilepaths("vegTypeMap", rastersFromOutput)
   fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+  }
   asPath(fps)
 })
 
@@ -331,6 +337,9 @@ rasterResolutions <- lapply(tsfs, function(x) {
 flammableFiles <- lapply(mySimOuts, function(mySimOut) {
   fps <- file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd")
   fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+  }
   asPath(fps)
 })
 
@@ -415,20 +424,7 @@ if (isTRUE(useParallelCluster)) {
   cl6 <- NULL
 }
 
-reportingAndLeading <- Cache(reportingAndLeadingFn,
-                             createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
-                             createReportingPolygonsFn = createReportingPolygons,
-                             userTags = c("leading", "reportingPolygons"),
-                             cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL,
-                             leadingByStageFn = leadingByStage,
-                             intersectListShpsFn = intersectListShps,
-                             shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
-                             authenticationType = authenticationType,
-                             ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                             tsfs = tsfs, vtms = vtms, cl = cl6, lapplyFn = lapplyFn)
-list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
-
-
+  
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
 dPath <- file.path(paths$inputPath, "CurrentCondition")
@@ -444,6 +440,52 @@ CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNa
                                            loadCCSpeciesFn = loadCCSpecies, 
                                            shpSubStudyRegion = shpSubStudyRegion, 
                                            tsfRasters = tsfRasters))
+tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
+  fps <- convertPath(filename(x$CCtsf), old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+  }
+  asPath(fps)
+}
+})
+vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
+  fps <- convertPath(filename(x$CCvtm), old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+  }
+  asPath(fps)
+}
+})
+  
+
+reportingAndLeading <- Cache(reportingAndLeadingFn,
+                             createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
+                             createReportingPolygonsFn = createReportingPolygons,
+                             userTags = c("leading", "reportingPolygons"),
+                             cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL,
+                             leadingByStageFn = leadingByStage,
+                             intersectListShpsFn = intersectListShps,
+                             shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
+                             authenticationType = authenticationType,
+                             ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                             tsfs = tsfs, vtms = vtms, cl = cl6, lapplyFn = lapplyFn)
+list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
+
+reportingAndLeadingCC <- Cache(reportingAndLeadingFn, #notOlderThan = Sys.time(),
+                             createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
+                             createReportingPolygonsFn = createReportingPolygons,
+                             userTags = c("leading", "reportingPolygons"),
+                             cacheId = if (exists("cachdId4ReportingAndLeadingFnCC")) cachdId4ReportingAndLeadingFnCC else NULL,
+                             leadingByStageFn = leadingByStage,
+                             intersectListShpsFn = intersectListShps,
+                             shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
+                             authenticationType = authenticationType,
+                             ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                             tsfs = tsfsCC, vtms = vtmsCC, cl = cl6, lapplyFn = lapplyFn)
+reportingPolygonsCC <- reportingAndLeadingCC$reportingPolygons
+leadingCC <- reportingAndLeadingCC$leading
+
+
 #########################
 
 message(paste("Running largePatchesFn"))
@@ -466,10 +508,8 @@ lrgPatches <- Cache(Map, largePatchesFn,
                                     ageCutoffs = ageClassCutOffs)
 )
 lrgPatchesCC <- Cache(Map, largePatchesFn,
-                      timeSinceFireFiles = lapply(CurrentConditions, function(x) {
-                        if (!is.null(x)) filename(x$CCtsf)}),
-                      vegTypeMapFiles = lapply(CurrentConditions, function(x) {
-                        if (!is.null(x)) filename(x$CCvtm)}),
+                      timeSinceFireFiles = tsfsCC,
+                      vegTypeMapFiles = vtmsCC,
                       cacheId = if (exists("cacheIdLrgPatchesCC")) 
                         cacheIdLrgPatchesCC else NULL,
                       reportingPolygons = rp4LrgPatches,
