@@ -415,20 +415,7 @@ if (isTRUE(useParallelCluster)) {
   cl6 <- NULL
 }
 
-reportingAndLeading <- Cache(reportingAndLeadingFn,
-                             createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
-                             createReportingPolygonsFn = createReportingPolygons,
-                             userTags = c("leading", "reportingPolygons"),
-                             cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL,
-                             leadingByStageFn = leadingByStage,
-                             intersectListShpsFn = intersectListShps,
-                             shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
-                             authenticationType = authenticationType,
-                             ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                             tsfs = tsfs, vtms = vtms, cl = cl6, lapplyFn = lapplyFn)
-list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
-
-
+  
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
 dPath <- file.path(paths$inputPath, "CurrentCondition")
@@ -444,6 +431,36 @@ CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNa
                                            loadCCSpeciesFn = loadCCSpecies, 
                                            shpSubStudyRegion = shpSubStudyRegion, 
                                            tsfRasters = tsfRasters))
+tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) filename(x$CCtsf)})
+vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) filename(x$CCvtm)})
+  
+reportingAndLeading <- Cache(reportingAndLeadingFn,
+                             createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
+                             createReportingPolygonsFn = createReportingPolygons,
+                             userTags = c("leading", "reportingPolygons"),
+                             cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL,
+                             leadingByStageFn = leadingByStage,
+                             intersectListShpsFn = intersectListShps,
+                             shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
+                             authenticationType = authenticationType,
+                             ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                             tsfs = tsfs, vtms = vtms, cl = cl6, lapplyFn = lapplyFn)
+list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
+
+reportingAndLeadingCC <- Cache(reportingAndLeadingFn,
+                             createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
+                             createReportingPolygonsFn = createReportingPolygons,
+                             userTags = c("leading", "reportingPolygons"),
+                             cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL,
+                             leadingByStageFn = leadingByStage,
+                             intersectListShpsFn = intersectListShps,
+                             shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
+                             authenticationType = authenticationType,
+                             ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                             tsfs = tsfsCC, vtms = vtmsCC, cl = cl6, lapplyFn = lapplyFn)
+list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
+
+
 #########################
 
 message(paste("Running largePatchesFn"))
@@ -466,10 +483,8 @@ lrgPatches <- Cache(Map, largePatchesFn,
                                     ageCutoffs = ageClassCutOffs)
 )
 lrgPatchesCC <- Cache(Map, largePatchesFn,
-                      timeSinceFireFiles = lapply(CurrentConditions, function(x) {
-                        if (!is.null(x)) filename(x$CCtsf)}),
-                      vegTypeMapFiles = lapply(CurrentConditions, function(x) {
-                        if (!is.null(x)) filename(x$CCvtm)}),
+                      timeSinceFireFiles = tsfsCC,
+                      vegTypeMapFiles = vtmsCC,
                       cacheId = if (exists("cacheIdLrgPatchesCC")) 
                         cacheIdLrgPatchesCC else NULL,
                       reportingPolygons = rp4LrgPatches,
