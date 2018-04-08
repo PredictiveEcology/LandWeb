@@ -29,13 +29,14 @@ function(input, output, session) {
              rctLrgPatches = rctLrgPatches,
              rctLrgPatchesCC = rctLrgPatchesCC,
              rctTsf = rctTsf, rctVtm = rctVtm,
-             rctPaths = rctPaths4sim,
+             outputPath = rctPaths4sim()$outputPath,
              ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
   callModule(vegAgeMod, "vegArea",
              rctPolygonList = rctPolygonList,        ## TODO: write this with generator
              rctChosenPolyName = rctChosenPolyName,
              rctLeadingDTlist = rctLeadingDTlist,
              rctVtm = rctVtm,
+             outputPath = rctPaths4sim()$outputPath,
              ageClasses = ageClasses)
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())
