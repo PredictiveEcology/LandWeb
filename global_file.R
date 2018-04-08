@@ -504,6 +504,8 @@ polySubDir <- file.path(oPaths$Proprietary, "Polygons")
 dir.create(polySubDir, showWarnings = FALSE)
 out <- Cache(Map, polys = lapply(reportingPolygons$Proprietary, function(p) p$crsSR$shpSubStudyRegion), 
              namesPolys = names(reportingPolygons$Proprietary),
+             cacheId = if (exists("cacheIdWriteShapefiles")) 
+               cacheIdWriteShapefiles else NULL,
              function(polys, namesPolys) {
                tryCatch(raster::shapefile(polys, 
                                  filename = file.path(polySubDir, namesPolys),
