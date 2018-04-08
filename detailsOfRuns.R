@@ -4,7 +4,12 @@ cP <- paths4sim$Proprietary$cachePath
 showCache(cP, userTags = "experiment")[tagKey=="cacheId"]$tagValue
 
 cP <- paths$cachePath
-dput(showCache(cP, userTags = "Map")[tagKey=="cacheId"]$tagValue)
+dput(showCache(cP, userTags = "Map", after = Sys.time() - 60)[tagKey=="cacheId"]$tagValue)
+
+a <- showCache(paths$cachePath)
+data.table::setkey(a, "createdDate")
+a[artifact == artifact[NROW(artifact)] & tagKey=="cacheId"]$tagValue
+
 
 cP <- paths$cachePath
 showCache(cP, userTags = "simInitAndExperiment")[tagKey=="cacheId"]$tagValue
@@ -248,10 +253,13 @@ rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/www
 #############################################################################################################################
 #############################################################################################################################
 ##### From 172 to Laptop
+cd /c/Eliot/GitHub/LandWeb
+cd /f/LandWeb
+
 # NWT
 rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/cache/NWT/* cache/NWT/
 # NWT Proprietary
-cd /c/Eliot/GitHub/LandWeb
+
 rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/cache/NWT_Proprietary/* cache/NWT_Proprietary/
 rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/outputs/NWT_Proprietary/* outputs/NWT_Proprietary/
 rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/www/Proprietary/NWT/* www/Proprietary/NWT/
@@ -274,16 +282,16 @@ rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/www
 #rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/www/Free/SK/* www/Free/SK/
 
 # BC
-rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/cache/BC/* cache/BC/
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/cache/BC/* cache/BC/
 # BC Proprietary
-rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/cache/BC_Proprietary/* cache/BC_Proprietary/
-rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/outputs/BC_Proprietary/* outputs/BC_Proprietary/
-rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/www/Proprietary/BC/* www/Proprietary/BC/
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/cache/BC_Proprietary/* cache/BC_Proprietary/
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/outputs/BC_Proprietary/* outputs/BC_Proprietary/
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/www/Proprietary/BC/* www/Proprietary/BC/
 
 # BC Free
-rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/cache/BC_Free/* cache/BC_Free/
-rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/outputs/BC_Free/* outputs/BC_Free/
-rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/www/Free/BC/* www/Free/BC/
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/cache/BC_Free/* cache/BC_Free/
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/outputs/BC_Free/* outputs/BC_Free/
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/www/Free/BC/* www/Free/BC/
 
 # MB
 rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/cache/MB/* cache/MB/
@@ -335,4 +343,20 @@ rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/cac
 rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/cache/NWT_Free/* /home/emcintir/Documents/GitHub/LandWeb/cache/NWT_Free/
 rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/outputs/NWT_Free/* /home/emcintir/Documents/GitHub/LandWeb/outputs/NWT_Free/
 rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/www/Free/NWT/* /home/emcintir/Documents/GitHub/LandWeb/www/Free/NWT/
+
+
+################################# -- delete
+
+# MB
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/cache/MB/* cache/MB/ --delete
+# MB Proprietary
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/cache/MB_Proprietary/* cache/MB_Proprietary/ --delete
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/outputs/MB_Proprietary/* outputs/MB_Proprietary/ --delete
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/www/Proprietary/MB/* www/Proprietary/MB/ --delete
+
+# MB Free
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/cache/MB_Free/* cache/MB_Free/ --delete
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/outputs/MB_Free/* outputs/MB_Free/ --delete
+rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/www/Free/MB/* www/Free/MB/ --delete
+
 
