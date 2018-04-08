@@ -36,9 +36,9 @@ intersectListShps <- function(listShps, intersectShp) {
                        #   }
                        # }, error = function(x) {
                        #   message("  intersectListShps -- sf package failed, using sp")
-                         if (!identical(crs(intersectShp), crs(shp)))
-                           intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
-                         out <- raster::intersect(shp, intersectShp)
+                       if (!identical(crs(intersectShp), crs(shp)))
+                         intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
+                       out <- raster::intersect(shp, intersectShp)
                        #})
                      })
 }
@@ -48,57 +48,7 @@ intersectListShps <- function(listShps, intersectShp) {
 #' @return A data.table with proportion of the pixels in each vegetation class, for
 #'         each given age class within each polygon
 leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy,
-                           ageClassCutOffs,  ageClasses, cl) {
-
-
-  numClusters = length(timeSinceFireFiles)
-
-  clParams <- setupParallelCluster(cl, numClusters = numClusters)
-  cl <- clParams$cl
-  on.exit({
-    if (exists("cl")) {
-      message("      Closing cores")
-      try(stopCluster(cl))
-    }
-  }, add = TRUE)
-  lapplyFn <- clParams$lapplyFn
-  # lapplyFn <- "lapply"
-  # if (!missing(cl)) { # not missing
-  #   if (!identical(cl, "FALSE")) { # is NOT FALSE
-  #     lapplyFn <- "parLapplyLB"
-  #     if (isTRUE(cl)) { # Is TRUE
-  #       if (detectCores() > 12) {
-  #         ncores <- min(length(timeSinceFireFiles), detectCores() / 4)
-  #         message("making ", ncores, " node cluster")
-  #         if (Sys.info()[["sysname"]] == "Windows") {
-  #           cl <- makeCluster(ncores)
-  #         } else {
-  #           cl <- makeForkCluster(ncores)
-  #         }
-  #         on.exit({
-  #           message("Closing cores")
-  #           stopCluster(cl)
-  #           }
-  #         )
-  #       } else { # not enough clusters
-  #         lapplyFn <- "lapply"
-  #         cl <- FALSE
-  #       }
-  #     }
-  #   }
-  # }
-  # if (is(cl, "cluster")) {
-  #   ## By here, it must be a cluster
-  #   #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
-  #   if (Sys.info()[["sysname"]] == "Windows") {
-  #     clusterExport(cl = cl, varlist = list(ls()), envir = environment())
-  #     clusterEvalQ(cl = cl, {
-  #       library(raster)
-  #     })
-  #   }
-  #
-  # }
-
+                           ageClassCutOffs,  ageClasses, cl = NULL, lapplyFn = "lapply") {
   out <- lapply(ageClassCutOffs, function(ages) {
     y <- match(ages, ageClassCutOffs)
     if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
@@ -107,7 +57,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
       startList <- list()
     }
     startList <- append(startList, list(y = y))
-
+    
     message("    ", ageClasses[y], " for\n      ", paste0(basename(timeSinceFireFiles), collapse = "\n      "))
     out1 <- #Cache(cacheRepo = paths$cachePath,
       do.call(lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
@@ -202,12 +152,16 @@ cellNumbersForPolygon <- function(dummyRaster, Polygons) {
   dtList <- Map(Polygon = Polygons, PolygonName = names(Polygons),
                 function(Polygon, PolygonName) {
                   message("  Assigning PolygonIDs for each pixel from ", PolygonName)
-                  aa <- raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE)
-                  notNull <- !unlist(lapply(aa, is.null))
-                  dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) {
-                    data.table(cell = aa[[x]][, "cell"], polygonID = as.character(x))
-                  }))
-                  data.table::copy(dt)
+                  aa <- tryCatch(raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE), error = function(x) NULL)
+                  if (!is.null(aa)) {
+                    notNull <- !unlist(lapply(aa, is.null))
+                    dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) {
+                      data.table(cell = aa[[x]][, "cell"], polygonID = as.character(x))
+                    }))
+                    data.table::copy(dt)
+                  } else {
+                    data.table(cell = numeric(), polygonID = character())
+                  }
   })
 
   # There is a weird bug that makes the data.table from previous line. copy() is a work around
@@ -588,7 +542,7 @@ createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authen
 reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingPolygonsFn,
                                   intersectListShpsFn, leadingByStageFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
-                                  tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
+                                  tsfs, vtms, cl, lapplyFn, ageClasses, ageClassCutOffs) {
   reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
                                                  createReportingPolygonsFn = createReportingPolygonsFn)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
