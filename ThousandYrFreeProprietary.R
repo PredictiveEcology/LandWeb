@@ -1,12 +1,6 @@
 
 
 if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>numClusters) {
-  library(parallel)
-  message("  Closing existing cluster for raster::extract")
-  raster::endCluster()
-  message("  Starting ",numClusters, "  node cluster for raster::extract")
-  raster::beginCluster(min(numClusters, parallel::detectCores() / 4))
-
   useParallelCluster <- TRUE
   lapplyFn <- "parLapplyLB"
 } else {
