@@ -348,15 +348,24 @@ rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/www
 ################################# -- delete
 
 # MB
-rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/cache/MB/* cache/MB/ --delete
+rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/cache/MB/* cache/MB/ --delete
 # MB Proprietary
-rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/cache/MB_Proprietary/* cache/MB_Proprietary/ --delete
-rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/outputs/MB_Proprietary/* outputs/MB_Proprietary/ --delete
-rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/www/Proprietary/MB/* www/Proprietary/MB/ --delete
+rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/cache/MB_Proprietary/* cache/MB_Proprietary/ --delete
+rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/outputs/MB_Proprietary/* outputs/MB_Proprietary/ --delete
+rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/www/Proprietary/MB/* www/Proprietary/MB/ --delete
 
 # MB Free
-rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/cache/MB_Free/* cache/MB_Free/ --delete
-rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/outputs/MB_Free/* outputs/MB_Free/ --delete
-rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/www/Free/MB/* www/Free/MB/ --delete
+rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/cache/MB_Free/* cache/MB_Free/ --delete
+rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/outputs/MB_Free/* outputs/MB_Free/ --delete
+rsync -avzh emcintir@132.156.148.172:/home/emcintir/Documents/GitHub/LandWeb/www/Free/MB/* www/Free/MB/ --delete
 
+
+#################
+showCache(after = "2018-04-08 10:35:01")
+showCache(paths4sim$Free$cachePath, after = "2018-04-08 10:35:01")
+showCache(paths4sim$Proprietary$cachePath, after = "2018-04-08 10:35:01")
+
+keepCache(after = "2018-04-08 10:35:01")
+keepCache(paths4sim$Free$cachePath, after = "2018-04-08 10:35:01")
+keepCache(paths4sim$Proprietary$cachePath, after = "2018-04-08 10:35:01")
 
