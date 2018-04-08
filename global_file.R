@@ -493,9 +493,9 @@ dir.create(polySubDir, showWarnings = FALSE)
 out <- Cache(Map, polys = lapply(reportingPolygons$Proprietary, function(p) p$crsSR$shpSubStudyRegion), 
              namesPolys = names(reportingPolygons$Proprietary),
              function(polys, namesPolys) {
-               raster::shapefile(polys, 
+               tryCatch(raster::shapefile(polys, 
                                  filename = file.path(polySubDir, namesPolys),
-                                 overwrite = TRUE)
+                                 overwrite = TRUE), error = function(x) NULL)
              })
 
 
