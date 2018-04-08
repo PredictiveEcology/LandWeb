@@ -329,7 +329,9 @@ rasterResolutions <- lapply(tsfs, function(x) {
 )
 
 flammableFiles <- lapply(mySimOuts, function(mySimOut) {
-  asPath(file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd"))
+  fps <- file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd")
+  fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+  asPath(fps)
 })
 
 tsfRasters <- Cache(Map, tsf = tsfs, 
@@ -338,7 +340,7 @@ tsfRasters <- Cache(Map, tsf = tsfs,
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
-tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters),
+tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters), 
                             userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
                             cacheId = if (exists("cacheIdTsfRasterTilePaths")) 
                               cacheIdTsfRasterTilePaths else NULL,
@@ -346,7 +348,7 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
                             MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                             function(rst, modelType, zoomRange, colorTableFile) {
                               outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
-                              filenames <- Cache(gdal2Tiles, rst$crsLFLT, outputPath = outputPath,
+                              filenames <- Cache(gdal2Tiles, rst$crsLFLT, outputPath = outputPath, 
                                                  userTags = c("gdal2Tiles", "tsf", "tsfs"),
                                                  zoomRange = zoomRange, colorTableFile = colorTableFile)
                               return(filenames)
@@ -354,7 +356,6 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 
 
 
-#if (TRUE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
   vtmsTifs <- Cache(lapply, vtms, 
                     cacheId = if (exists("cacheIdVtmsTifs")) 
                       cacheIdVtmsTifs else NULL,
@@ -373,7 +374,9 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
   
-  vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
+  
+  if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
+    vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                               userTags = c("gdal2Tiles", "vtm", "vtms"),
                               cacheId = if (exists("cacheIdVtmRasterTilePaths")) 
                                 cacheIdVtmRasterTilePaths else NULL,
@@ -384,23 +387,32 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
                                                         zoomRange = zoomRange, colorTableFile = colorTableFile)
                                 return(filenames)
                               })
-#}
+  }
 
 
 ########################################################
 # formerly in mapsForShiny.R
 # Reporting polygons
+if (isTRUE(useParallelCluster)) {
+  numClus <- 6
+  message("  Also starting a cluster with ", numClus," threads")
+  if (!exists("cl6"))
+    cl6 <- makeForkCluster(numClus)
+}
+
 reportingAndLeading <- Cache(reportingAndLeadingFn,
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
                              createReportingPolygonsFn = createReportingPolygons,
                              userTags = c("leading", "reportingPolygons"),
+                             cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL,
                              leadingByStageFn = leadingByStage,
                              intersectListShpsFn = intersectListShps,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
                              authenticationType = authenticationType,
                              ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                             tsfs = tsfs, vtms = vtms, cl = TRUE)
+                             tsfs = tsfs, vtms = vtms, cl = cl6, lapplyFn = lapplyFn)
 list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
+
 
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
@@ -410,6 +422,8 @@ CCspeciesNames <- list(Free = c(),
 CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
 CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames, 
                            userTags = c("createCCfromVtmTsf", "CurrentConditions"),
+                           cacheId = if (exists("cacheIdCurrentCondition")) 
+                             cacheIdCurrentCondition else NULL,
                            MoreArgs = list(vtmRasters = vtmRasters, 
                                            dPath = dPath, 
                                            loadCCSpeciesFn = loadCCSpecies, 
@@ -423,13 +437,16 @@ rp4LrgPatches <- lapply(reportingPolygons, function(rpAll) {
     rp$crsSR$shpSubStudyRegion
   })
 })
-lrgPatches <- Cache(Map,
+lrgPatches <- Cache(Map, largePatchesFn, 
                     timeSinceFireFiles = tsfs,
                     vegTypeMapFiles = vtms,
                     reportingPolygons = rp4LrgPatches,
                     authenticationType = authenticationType,
-                    largePatchesFn,
+                    cacheId = if (exists("cacheIdLrgPatches")) 
+                      cacheIdLrgPatches else NULL,
+                    omitArgs = c("cl", "lapplyFn"),
                     MoreArgs = list(ageClasses = ageClasses,
+                                    cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles 
                                     countNumPatchesFn = countNumPatches,
                                     ageCutoffs = ageClassCutOffs)
 )
@@ -438,9 +455,13 @@ lrgPatchesCC <- Cache(Map, largePatchesFn,
                         if (!is.null(x)) filename(x$CCtsf)}),
                       vegTypeMapFiles = lapply(CurrentConditions, function(x) {
                         if (!is.null(x)) filename(x$CCvtm)}),
+                      cacheId = if (exists("cacheIdLrgPatchesCC")) 
+                        cacheIdLrgPatchesCC else NULL,
                       reportingPolygons = rp4LrgPatches,
                       authenticationType = authenticationType,
+                      omitArgs = c("cl", "lapplyFn"),
                       MoreArgs = list(ageClasses = ageClasses,
+                                      cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles 
                                       countNumPatchesFn = countNumPatches,
                                       ageCutoffs = ageClassCutOffs)
 )
