@@ -393,17 +393,26 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 ########################################################
 # formerly in mapsForShiny.R
 # Reporting polygons
+if (isTRUE(useParallelCluster)) {
+  numClus <- 6
+  message("  Also starting a cluster with ", numClus," threads")
+  if (!exists("cl6"))
+    cl6 <- makeForkCluster(numClus)
+}
+
 reportingAndLeading <- Cache(reportingAndLeadingFn,
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
                              createReportingPolygonsFn = createReportingPolygons,
                              userTags = c("leading", "reportingPolygons"),
+                             cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL,
                              leadingByStageFn = leadingByStage,
                              intersectListShpsFn = intersectListShps,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
                              authenticationType = authenticationType,
                              ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                             tsfs = tsfs, vtms = vtms, cl = TRUE)
+                             tsfs = tsfs, vtms = vtms, cl = cl6, lapplyFn = lapplyFn)
 list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
+
 
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
@@ -413,6 +422,8 @@ CCspeciesNames <- list(Free = c(),
 CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
 CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames, 
                            userTags = c("createCCfromVtmTsf", "CurrentConditions"),
+                           cacheId = if (exists("cacheIdCurrentCondition")) 
+                             cacheIdCurrentCondition else NULL,
                            MoreArgs = list(vtmRasters = vtmRasters, 
                                            dPath = dPath, 
                                            loadCCSpeciesFn = loadCCSpecies, 
@@ -426,13 +437,16 @@ rp4LrgPatches <- lapply(reportingPolygons, function(rpAll) {
     rp$crsSR$shpSubStudyRegion
   })
 })
-lrgPatches <- Cache(Map,
+lrgPatches <- Cache(Map, largePatchesFn, 
                     timeSinceFireFiles = tsfs,
                     vegTypeMapFiles = vtms,
                     reportingPolygons = rp4LrgPatches,
                     authenticationType = authenticationType,
-                    largePatchesFn,
+                    cacheId = if (exists("cacheIdLrgPatches")) 
+                      cacheIdLrgPatches else NULL,
+                    omitArgs = c("cl", "lapplyFn"),
                     MoreArgs = list(ageClasses = ageClasses,
+                                    cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles 
                                     countNumPatchesFn = countNumPatches,
                                     ageCutoffs = ageClassCutOffs)
 )
@@ -441,9 +455,13 @@ lrgPatchesCC <- Cache(Map, largePatchesFn,
                         if (!is.null(x)) filename(x$CCtsf)}),
                       vegTypeMapFiles = lapply(CurrentConditions, function(x) {
                         if (!is.null(x)) filename(x$CCvtm)}),
+                      cacheId = if (exists("cacheIdLrgPatchesCC")) 
+                        cacheIdLrgPatchesCC else NULL,
                       reportingPolygons = rp4LrgPatches,
                       authenticationType = authenticationType,
+                      omitArgs = c("cl", "lapplyFn"),
                       MoreArgs = list(ageClasses = ageClasses,
+                                      cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles 
                                       countNumPatchesFn = countNumPatches,
                                       ageCutoffs = ageClassCutOffs)
 )
