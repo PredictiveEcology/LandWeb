@@ -12,7 +12,7 @@ intersectListShps <- function(listShps, intersectShp) {
   intersectShp <- raster::aggregate(intersectShp)
   problem1 <- !rgeos::gIsSimple(intersectShp)
   problem2 <- !rgeos::gIsValid(intersectShp)
-  if (isTRUE(problem1 || problem2 )) {
+  if (isTRUE(problem1 || problem2)) {
     browser()
   }
 
@@ -36,9 +36,9 @@ intersectListShps <- function(listShps, intersectShp) {
                        #   }
                        # }, error = function(x) {
                        #   message("  intersectListShps -- sf package failed, using sp")
-                         if (!identical(crs(intersectShp), crs(shp)))
-                           intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
-                         out <- raster::intersect(shp, intersectShp)
+                       if (!identical(crs(intersectShp), crs(shp)))
+                         intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
+                       out <- raster::intersect(shp, intersectShp)
                        #})
                      })
 }
@@ -48,45 +48,7 @@ intersectListShps <- function(listShps, intersectShp) {
 #' @return A data.table with proportion of the pixels in each vegetation class, for
 #'         each given age class within each polygon
 leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy,
-                           ageClassCutOffs,  ageClasses, cl) {
-
-  lapplyFn <- "lapply"
-  if (!missing(cl)) { # not missing
-    if (!identical(cl, "FALSE")) { # is NOT FALSE
-      lapplyFn <- "parLapplyLB"
-      if (isTRUE(cl)) { # Is TRUE
-        if (detectCores() > 12) {
-          ncores <- min(length(timeSinceFireFiles), detectCores() / 4)
-          message("making ", ncores, " node cluster")
-          if (Sys.info()[["sysname"]] == "Windows") {
-            cl <- makeCluster(ncores)
-          } else {
-            cl <- makeForkCluster(ncores)
-          }
-          on.exit({
-            message("Closing cores")
-            stopCluster(cl)
-            }
-          )
-        } else { # not enough clusters
-          lapplyFn <- "lapply"
-          cl <- FALSE
-        }
-      }
-    }
-  }
-  if (is(cl, "cluster")) {
-    ## By here, it must be a cluster
-    #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
-    if (Sys.info()[["sysname"]] == "Windows") {
-      clusterExport(cl = cl, varlist = list(ls()), envir = environment())
-      clusterEvalQ(cl = cl, {
-        library(raster)
-      })
-    }
-
-  }
-
+                           ageClassCutOffs,  ageClasses, cl = NULL, lapplyFn = "lapply") {
   out <- lapply(ageClassCutOffs, function(ages) {
     y <- match(ages, ageClassCutOffs)
     if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
@@ -95,7 +57,8 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
       startList <- list()
     }
     startList <- append(startList, list(y = y))
-
+    
+    message("    ", ageClasses[y], " for\n      ", paste0(basename(timeSinceFireFiles), collapse = "\n      "))
     out1 <- #Cache(cacheRepo = paths$cachePath,
       do.call(lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
         x <- match(x, timeSinceFireFiles)
@@ -124,7 +87,9 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
   IDs <- raster::levels(out[[1]][[1]])[[1]]$ID
   Factors <- raster::levels(out[[1]][[1]])[[1]]$Factor
   ii <- 3
-  aa <- raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack)))
+  aa <- tryCatch(
+    raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack))),
+    error = function(x) NULL)
 
   aa1 <- lapply(aa, function(x,  ...) {
     if (!is.null(x)) {
@@ -153,18 +118,21 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
     a
   })
 
-  aadf <- data.frame(zone = rep(polygonToSummarizeBy$shinyLabel[nonNulls],
-                                each = length(Factors)),
-                     polygonID = as.character(rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors))),
-                     vegCover = vegType, do.call(rbind, aa1[nonNulls]),
-                     stringsAsFactors = FALSE)
+  aadf <- data.frame(
+    zone = rep(polygonToSummarizeBy$shinyLabel[nonNulls], each = length(Factors)),
+    polygonID = as.character(rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors))), ## TODO:
+    vegCover = vegType, do.call(rbind, aa1[nonNulls]),
+    stringsAsFactors = FALSE
+  )
 
   temp <- list()
-  for (ages in ageClasses) {
-    temp[[ages]] <- aadf %>%
-      dplyr::select(starts_with(ages) , zone:vegCover) %>%
-      tidyr::gather(key = "label", value = "proportion", -(zone:vegCover)) %>%
-      mutate(ageClass = unlist(lapply(strsplit(label, split = "\\."), function(x) x[[1]])))
+  if (NROW(aadf) > 0) { # if polygon doesn't overlap, the tryCatch on raster::extract returns NULL
+    for (ages in ageClasses) {
+      temp[[ages]] <- aadf %>%
+        dplyr::select(starts_with(ages) , zone:vegCover) %>%
+        tidyr::gather(key = "label", value = "proportion", -(zone:vegCover)) %>%
+        mutate(ageClass = unlist(lapply(strsplit(label, split = "\\."), function(x) x[[1]])))
+    }
   }
 
   aa <- rbindlist(temp)
@@ -181,17 +149,21 @@ countNumPatches <- function(ras, cellIDByPolygon, ...) {
 }
 
 cellNumbersForPolygon <- function(dummyRaster, Polygons) {
-  dtList <- Map(Polygon = Polygons, PolygonName = names(Polygons), 
+  dtList <- Map(Polygon = Polygons, PolygonName = names(Polygons),
                 function(Polygon, PolygonName) {
                   message("  Assigning PolygonIDs for each pixel from ", PolygonName)
-                  aa <- raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE)
-                  notNull <- !unlist(lapply(aa, is.null))
-                  dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) {
-                    data.table(cell = aa[[x]][, "cell"], polygonID = as.character(x))
-                  }))
-                  data.table::copy(dt)
+                  aa <- tryCatch(raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE), error = function(x) NULL)
+                  if (!is.null(aa)) {
+                    notNull <- !unlist(lapply(aa, is.null))
+                    dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) {
+                      data.table(cell = aa[[x]][, "cell"], polygonID = as.character(x))
+                    }))
+                    data.table::copy(dt)
+                  } else {
+                    data.table(cell = numeric(), polygonID = character())
+                  }
   })
-  
+
   # There is a weird bug that makes the data.table from previous line. copy() is a work around
   # Error in data.table::set(cellIDByPolygon, , "newRas", clumpedRas[][cellIDByPolygon$cell]) :
   #   Internal logical error. DT passed to assign has not been allocated enough column slots. l=2, tl=2, adding 1
@@ -199,34 +171,40 @@ cellNumbersForPolygon <- function(dummyRaster, Polygons) {
 }
 
 reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
-  message("Reprojecting rasters, filling in minimum age, saving to disk")
-  rstFlammableNum <- raster(flammableFile)
-  rstFlammableNum <- projectRaster(rstFlammableNum, crs = crs, method = "ngb")
-  rastsLFLT <- lapply(seq_along(tsf), function(FN) {
-    message("  ", tsf[[FN]])
-    r <- raster(tsf[[FN]])
-    # gdalwarp(srcfile = filename(r), dstfile = lfltFN[FN], s_srs = crs(r),
-    #          t_srs = crs, r = "near",
-    #          te = c(xmin(rstFlammableNum), ymin(rstFlammableNum),
-    #                 xmax(rstFlammableNum), ymax(rstFlammableNum)),
-    #          tr = res(rstFlammableNum),
-    #          overwrite = TRUE
-    # )
-    # r2 <- raster(lfltFN[FN])
-    # r2 <- setMinMax(r2)
-    # r2[] <- r2[]
-    r <- projectRaster(r, crs = crs, method = "ngb", datatype = "INT2U")
-    minAge <- as.numeric(strsplit(strsplit(tsf[[1]], split = "year")[[1]][2], split = "\\.tif")[[1]])
-    r[is.na(r) & (rstFlammableNum == 0)] <- minAge
-    r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE, datatype = "INT2U")
-    r
-  })
-  rastsCRSSR2 <- lapply(tsf, raster)
+  rastsLFLT <- if (!(isTRUE(all(unlist(lapply(lfltFN, file.exists)))))) {
 
-  globalRasts <- list("crsSR" = rastsCRSSR2, "crsLFLT" = rastsLFLT)
+    message("Reprojecting rasters, filling in minimum age, saving to disk")
+    rstFlammableNum <- raster(flammableFile)
+    rstFlammableNum <- Cache(projectRaster, rstFlammableNum, crs = crs, method = "ngb")
+    rastsLFLT <- lapply(seq_along(tsf), function(FN) {
+      message("  ", tsf[[FN]])
+      r <- raster(tsf[[FN]])
+      # gdalwarp(srcfile = filename(r), dstfile = lfltFN[FN], s_srs = crs(r),
+      #          t_srs = crs, r = "near",
+      #          te = c(xmin(rstFlammableNum), ymin(rstFlammableNum),
+      #                 xmax(rstFlammableNum), ymax(rstFlammableNum)),
+      #          tr = res(rstFlammableNum),
+      #          overwrite = TRUE
+      # )
+      # r2 <- raster(lfltFN[FN])
+      # r2 <- setMinMax(r2)
+      # r2[] <- r2[]
+      r <- projectRaster(r, crs = crs, method = "ngb", datatype = "INT2U")
+      minAge <- as.numeric(strsplit(strsplit(tsf[[1]], split = "year")[[1]][2], split = "\\.tif")[[1]])
+      r[is.na(r) & (rstFlammableNum == 0)] <- minAge
+      r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE, datatype = "INT2U")
+      r
+    })
+  } else {
+    rastsLFLT <- lapply(lfltFN, raster)
+  }
 
-  message("  Finished reprojecting rasters")
-  globalRasts
+    rastsCRSSR2 <- lapply(tsf, raster)
+
+    globalRasts <- list("crsSR" = rastsCRSSR2, "crsLFLT" = rastsLFLT)
+
+    message("  Finished reprojecting rasters")
+    globalRasts
 }
 
 # Set up gdal stuff -- first, find the installation
@@ -343,7 +321,7 @@ loadCCSpecies <- function(mapNames, userTags = "", ...) {
         filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
         Cache(prepInputs, userTags = c(userTags, "stable"),
               archive = "CurrentCondition.zip",
-              targetFile = tifName, 
+              targetFile = tifName,
               alsoExtract = filenames, ...)
       })
 }
@@ -517,7 +495,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                        out <- tryCatch(spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
                          p <- spChFIDs(p, as.character(seq(NROW(p))))
                          spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
-                       })
+                       }, error = function(x) NULL)
                      })
   polysLfltSubStudyRegion <- Cache(mapply, p = polysSubRegion, nam = names(polysSubRegion), userTags = "stable",
                                    function(p, nam) {
@@ -526,7 +504,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                                        spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
                                        p <- spChFIDs(p, as.character(seq(NROW(p))))
                                        spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
-                                     })
+                                     }, error = function(x) NULL)
                                    })
 
   # Put them all together in the structure:
@@ -564,8 +542,8 @@ createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authen
 reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingPolygonsFn,
                                   intersectListShpsFn, leadingByStageFn,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
-                                  tsfs, vtms, cl, ageClasses, ageClassCutOffs) {
-  reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType, 
+                                  tsfs, vtms, cl, lapplyFn, ageClasses, ageClassCutOffs) {
+  reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
                                                  createReportingPolygonsFn = createReportingPolygonsFn)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
   leadingOut <- Map(reportingPolys = reportingPolysWOStudyArea, tsf = tsfs, vtm = vtms,
@@ -609,10 +587,10 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                           })
     CCspeciesNames <- unlist(CCspeciesNames, use.names = TRUE)
     CCspeciesNames <- CCspeciesNames[nzchar(names(CCspeciesNames))]
-  
+
     rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
                                      url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
-                                     destinationPath = dPath, 
+                                     destinationPath = dPath,
                                      studyArea = shpSubStudyRegion,
                                      rasterToMatch = tsfRasters[[1]]$crsSR[[1]]
     )
@@ -623,16 +601,61 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
     CCspeciesNames <- c(CCspeciesNames, "Mixed" = "Mixed")
     levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
     CCvtm <- writeRaster(CCvtm, filename = file.path(dPath, "currentConditionVTM"), overwrite = TRUE)
-  
+
     # tsf
     CCtsf <- Cache(loadCCSpecies, ageName,
                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                    destinationPath = dPath,
-                   studyArea = shpSubStudyRegion, 
+                   studyArea = shpSubStudyRegion,
                    writeCropped = "CurrentCondition.tif",
                    rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
     )
-    
+
     list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
   }
+}
+
+convertPath <- function(paths, old, new) {
+  hasOldPathStyle <- grepl(pattern = old, paths)
+  if (any(hasOldPathStyle)) {
+    paths <- gsub(pattern = old, replacement = new, x = paths)
+  }
+  paths
+}
+
+
+setupParallelCluster <- function(cl, numClusters) {
+  lapplyFn <- "lapply"
+  if (!missing(cl)) { # not missing
+    if (!identical(cl, "FALSE")) { # is NOT FALSE
+      lapplyFn <- "parLapplyLB"
+      if (isTRUE(cl)) { # Is TRUE
+        if (detectCores() > 12) {
+          ncores <- min(numClusters, detectCores() / 4)
+          message("   making ", ncores, " node cluster")
+          if (Sys.info()[["sysname"]] == "Windows") {
+            cl <- makeCluster(ncores)
+          } else {
+            cl <- makeForkCluster(ncores)
+          }
+
+        } else { # not enough clusters
+          lapplyFn <- "lapply"
+          cl <- FALSE
+        }
+      }
+    }
+  }
+  if (is(cl, "cluster")) {
+    ## By here, it must be a cluster
+    #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
+    if (Sys.info()[["sysname"]] == "Windows") {
+      clusterExport(cl = cl, varlist = list(ls()), envir = environment())
+      clusterEvalQ(cl = cl, {
+        library(raster)
+      })
+    }
+
+  }
+  return(list(cl = cl, lapplyFn = lapplyFn))
 }

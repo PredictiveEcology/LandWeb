@@ -40,13 +40,13 @@ subStudyRegionName <- if (nzchar(Sys.getenv("subStudyRegionName"))) {
 screen
 
 cd Documents/GitHub/LandWeb/
-R -e 'source("App_MB.R")'
+  R -e 'source("App_MB.R")'
 
 # 171
 screen
 
 cd Documents/GitHub/LandWeb/
-R -e 'source("App_NWT.R")'
+  R -e 'source("App_NWT.R")'
 
 # Nothing
 screen
@@ -78,7 +78,7 @@ R -e 'source("App_LandWeb.R")'
 screen
 
 cd Documents/GitHub/LandWeb/
-subStudyRegionName="MB"
+  subStudyRegionName="MB"
 export subStudyRegionName
 R -e 'source("global_file.R")'
 
@@ -86,7 +86,7 @@ R -e 'source("global_file.R")'
 screen
 
 cd Documents/GitHub/LandWeb/
-subStudyRegionName="NWT"
+  subStudyRegionName="NWT"
 export subStudyRegionName
 R -e 'source("global_file.R")'
 
@@ -94,7 +94,7 @@ R -e 'source("global_file.R")'
 screen
 
 cd Documents/GitHub/LandWeb/
-subStudyRegionName="BC"
+  subStudyRegionName="BC"
 export subStudyRegionName
 R -e 'source("global_file.R")'
 
@@ -102,7 +102,7 @@ R -e 'source("global_file.R")'
 screen
 
 cd Documents/GitHub/LandWeb/
-subStudyRegionName="AB"
+  subStudyRegionName="AB"
 export subStudyRegionName
 R -e 'source("global_file.R")'
 
@@ -110,11 +110,11 @@ R -e 'source("global_file.R")'
 screen
 
 cd Documents/GitHub/LandWeb/
-subStudyRegionName="SK"
+  subStudyRegionName="SK"
 export subStudyRegionName
 R -e 'source("global_file.R")'
 
- 
+
 
 echo $subStudyRegionName
 
