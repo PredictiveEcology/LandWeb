@@ -31,6 +31,7 @@ function(input, output, session) {
                                     rctTsf = rctTsf, rctVtm = rctVtm,
                                     outputPath = rctPaths4sim()$outputPath,
                                     ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
+
   rctVegData <- callModule(vegAgeMod, "vegArea",
                            rctPolygonList = rctPolygonList,        ## TODO: write this with generator
                            rctChosenPolyName = rctChosenPolyName,
@@ -39,6 +40,7 @@ function(input, output, session) {
                            rctVtm = rctVtm,
                            outputPath = rctPaths4sim()$outputPath,
                            ageClasses = ageClasses)
+
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())
   callModule(inputTables, "inputTables")

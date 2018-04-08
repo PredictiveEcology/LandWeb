@@ -208,8 +208,9 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                          ageClasses, FUN, nPatchesFun, outputPath) { # TODO: add docs above
 
   output$title <- renderUI({
-    column(width = 12, h2("NRV of number of 'large' (", strong(as.character(input$patchSize)),
-                          " hectares) patches"))
+    column(width = 12,
+           h2("NRV of number of 'large' (", strong(as.character(input$patchSize)),
+              " hectares) patches in ", rctChosenPolyName(), " polygon"))
   })
 
   output$details <- renderUI({

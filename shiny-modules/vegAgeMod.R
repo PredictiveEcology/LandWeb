@@ -91,11 +91,8 @@ vegAgeModUI <- function(id) {
   ns <- NS(id)
 
   fluidRow(
-    column(width = 12, h2("NRV of forest, by leading vegetation for each age class in each polygon")),
-    column(width = 12, h4("These figures show the NRV of the proportion of forests for each age class,",
-                          "in each polygon, that are in each leading vegetation type.",
-                          "The proportions are proportions", em("within"), "age class.",
-                          "In any given replicate, the numbers below sum to 1.")),
+    htmlOutput(ns("vegTitle")),
+    htmlOutput(ns("vegDetails")),
     shinydashboard::box(
       width = 12, solidHeader = TRUE, collapsible = TRUE,
       shinycssloaders::withSpinner(slicerUI(ns("vegSlicer")))
@@ -107,6 +104,20 @@ vegAgeModUI <- function(id) {
 #'
 vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive({NULL}),
                       rctLeadingDTlist, rctLeadingDTlistCC, rctVtm, ageClasses, outputPath) {
+
+  output$vegTitle <- renderUI({
+    column(width = 12,
+           h2("NRV of forest, by leading vegetation for each age class in each polygon (",
+              rctChosenPolyName(), ")"))
+  })
+
+  output$vegDetails <- renderUI({
+    column(width = 12,
+           h4("These figures show the NRV of the proportion of forests for each age class,",
+              "in each polygon, that are in each leading vegetation type.",
+              "The proportions are proportions", em("within"), "age class.",
+              "In any given replicate, the numbers below sum to 1."))
+  })
 
   rctVegData <- reactive({
     assertthat::assert_that(is.character(rctChosenPolyName()), is.list(rctLeadingDTlist()))
