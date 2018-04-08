@@ -21,7 +21,7 @@
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
 vegHistServerFn <- function(datatable, id, .current, .dtFull) {
-  observeEvent(datatable, {
+  observeEvent(datatable, label = paste(.current, collapse = "-"), {
     vegDT <- if (is.reactive(datatable)) {
       datatable()
     } else {
