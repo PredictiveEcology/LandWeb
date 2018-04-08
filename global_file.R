@@ -390,10 +390,13 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 ########################################################
 # formerly in mapsForShiny.R
 # Reporting polygons
+  
 reportingAndLeading <- Cache(reportingAndLeadingFn,
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
                              createReportingPolygonsFn = createReportingPolygons,
                              userTags = c("leading", "reportingPolygons"),
+                             cacheId = if (exists("cacheIdReportingAndLeading")) 
+                               cacheIdReportingAndLeading else NULL,
                              leadingByStageFn = leadingByStage,
                              intersectListShpsFn = intersectListShps,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
@@ -401,6 +404,7 @@ reportingAndLeading <- Cache(reportingAndLeadingFn,
                              ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
                              tsfs = tsfs, vtms = vtms, cl = TRUE)
 list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
+
 
 ### CURRENT CONDITION ##################################
 message("Loading Current Condition Rasters")
@@ -410,6 +414,8 @@ CCspeciesNames <- list(Free = c(),
 CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
 CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames, 
                            userTags = c("createCCfromVtmTsf", "CurrentConditions"),
+                           cacheId = if (exists("cacheIdCurrentCondition")) 
+                               cacheIdCurrentCondition else NULL,
                            MoreArgs = list(vtmRasters = vtmRasters, 
                                            dPath = dPath, 
                                            loadCCSpeciesFn = loadCCSpecies, 
