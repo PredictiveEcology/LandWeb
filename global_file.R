@@ -396,10 +396,11 @@ tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters)
 if (isTRUE(useParallelCluster)) {
   numClus <- 6
   message("  Also starting a cluster with ", numClus," threads")
-  if (!exists("cl6"))
-    cl6 <- makeForkCluster(numClus)
-  else 
-    cl6 <- NULL
+  if (!exists("cl6")) {
+    cl6 <- parallel::makeForkCluster(numClus)
+  } 
+} else {
+  cl6 <- NULL
 }
 
 reportingAndLeading <- Cache(reportingAndLeadingFn,
