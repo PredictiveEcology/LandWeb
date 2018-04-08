@@ -1,4 +1,4 @@
-numClusters <- 0
+numClusters <- 4
 source("ThousandYrFreeProprietary.R")
 subStudyRegionName <- "MB"
 authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free" "Proprietary"
@@ -13,3 +13,4 @@ cachdId4ReportingAndLeadingFn <- "95a1e38ca60cb523d67b7d1ef3a82e09"
 cacheIdCurrentCondition <- "5ed7bc3c9e7866304678c47ed0cfae05"
 cacheIdLrgPatchesCC <- "90a14691c0071e983476c0cb001a951a"
 cacheIdLrgPatches <- "1907907b3f3825df92e4c8a840783509"
+cachdId4ReportingAndLeadingFnCC <- "342972fb2a9749052a30c96ddb297be4"
