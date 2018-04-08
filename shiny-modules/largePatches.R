@@ -21,7 +21,7 @@
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
 histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatus, uiSeq) {
-  observeEvent(datatable, {
+  observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {
       datatable()
     } else {
@@ -217,6 +217,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   })
 
   rctLargePatchesDataOrig <- reactive({
+    assertthat::assert_that(is.character(rctChosenPolyName()))
+
     dt <- if (is.null(rctLrgPatchesCC())) {
       ## free
       rctLrgPatches()[[rctChosenPolyName()]]
