@@ -9,6 +9,7 @@ if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>numClusters && num
   lapplyFn <- "lapply"
 }
 
+pathToLandWebApp <- "C:/Eliot/"
 
 # Overall model times # start is default at 0
 endTime <- 1000
