@@ -391,9 +391,10 @@ vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters)
 # formerly in mapsForShiny.R
 # Reporting polygons
 if (isTRUE(useParallelCluster)) {
-  message("  Also starting a cluster with 10 threads")
+  numClus <- 6
+  message("  Also starting a cluster with ", numClus," threads")
   if (!exists("cl6"))
-    cl6 <- makeForkCluster(6)
+    cl6 <- makeForkCluster(numClus)
 }
 
 reportingAndLeading <- Cache(reportingAndLeadingFn,
@@ -438,6 +439,8 @@ lrgPatches <- Cache(Map, largePatchesFn,
                     vegTypeMapFiles = vtms,
                     reportingPolygons = rp4LrgPatches,
                     authenticationType = authenticationType,
+                    cacheId = if (exists("cacheIdLrgPatches")) 
+                      cacheIdLrgPatches else NULL,
                     omitArgs = c("cl", "lapplyFn"),
                     MoreArgs = list(ageClasses = ageClasses,
                                     cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles 
@@ -449,6 +452,8 @@ lrgPatchesCC <- Cache(Map, largePatchesFn,
                         if (!is.null(x)) filename(x$CCtsf)}),
                       vegTypeMapFiles = lapply(CurrentConditions, function(x) {
                         if (!is.null(x)) filename(x$CCvtm)}),
+                      cacheId = if (exists("cacheIdLrgPatchesCC")) 
+                        cacheIdLrgPatchesCC else NULL,
                       reportingPolygons = rp4LrgPatches,
                       authenticationType = authenticationType,
                       omitArgs = c("cl", "lapplyFn"),
