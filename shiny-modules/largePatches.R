@@ -122,7 +122,7 @@ histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes, a
     maxNumClusters <- if (length(numOfClusters) == 0) {
       6
     } else {
-      pmax(6, max(numOfClusters) + 1)
+      pmin(20, pmax(6, max(nClusters) + 1))
     }
 
     breaksLabels <- 0:maxNumClusters
