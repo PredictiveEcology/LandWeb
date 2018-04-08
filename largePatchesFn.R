@@ -38,7 +38,7 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, reportingPolygon
                         timeSinceFireFiles = timeSinceFireFiles,
                         vegTypeMapFiles = vegTypeMapFiles, cl = cl, lapplyFn = lapplyFn),
         function(cellIDByPolygon, polygonName, ageCutoffs, countNumPatches, timeSinceFireFiles,
-                 vegTypeMapFiles, cl) {
+                 vegTypeMapFiles, cl, lapplyFn) {
           message("  ", polygonName)
           out <- lapply(ageCutoffs, function(ages) {
             y <- match(ages, ageCutoffs)
@@ -50,7 +50,6 @@ largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, reportingPolygon
             } else {
               startList <- list()
             }
-            browser()
             startList <- append(startList, list(y = y))
             out1 <- Cache(do.call, lapplyFn,
                           append(startList, list(cellIDByPolygon = cellIDByPolygon,
