@@ -11,6 +11,8 @@ rctAuthenticationType <- reactive({
 
 rctLeadingDTlist <- reactive(leading[[rctAuthenticationType()]])
 
+rctLeadingDTlistCC <- reactive(leadingCC[[rctAuthenticationType()]])
+
 rctLrgPatches <- reactive(lrgPatches[[rctAuthenticationType()]])
 
 rctLrgPatchesCC <- reactive(lrgPatchesCC[[rctAuthenticationType()]])

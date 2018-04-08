@@ -271,6 +271,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
              outputPath = outputPath,
              chosenPolyName = rctChosenPolyName()
   )
+
+  return(rctLargePatchesData)
 }
 
 .patchesInTimeDistributionFn <- function(dt, nSimTimes, breaks) {

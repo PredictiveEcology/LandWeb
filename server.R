@@ -23,25 +23,31 @@ function(input, output, session) {
                                    nRasters = length(rctTsf()),
                                    rasterStepSize = summaryInterval)
 
-  callModule(largePatches, "largePatches",
-             rctPolygonList = rctPolygonList,   ## TODO: write this with generator
-             rctChosenPolyName = rctChosenPolyName,
-             rctLrgPatches = rctLrgPatches,
-             rctLrgPatchesCC = rctLrgPatchesCC,
-             rctTsf = rctTsf, rctVtm = rctVtm,
-             outputPath = rctPaths4sim()$outputPath,
-             ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
-  callModule(vegAgeMod, "vegArea",
-             rctPolygonList = rctPolygonList,        ## TODO: write this with generator
-             rctChosenPolyName = rctChosenPolyName,
-             rctLeadingDTlist = rctLeadingDTlist,
-             rctVtm = rctVtm,
-             outputPath = rctPaths4sim()$outputPath,
-             ageClasses = ageClasses)
+  rctLargePatchesData <- callModule(largePatches, "largePatches",
+                                    rctPolygonList = rctPolygonList,   ## TODO: write this with generator
+                                    rctChosenPolyName = rctChosenPolyName,
+                                    rctLrgPatches = rctLrgPatches,
+                                    rctLrgPatchesCC = rctLrgPatchesCC,
+                                    rctTsf = rctTsf, rctVtm = rctVtm,
+                                    outputPath = rctPaths4sim()$outputPath,
+                                    ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
+  rctVegData <- callModule(vegAgeMod, "vegArea",
+                           rctPolygonList = rctPolygonList,        ## TODO: write this with generator
+                           rctChosenPolyName = rctChosenPolyName,
+                           rctLeadingDTlist = rctLeadingDTlist,
+                           rctLeadingDTlistCC = rctLeadingDTlistCC,
+                           rctVtm = rctVtm,
+                           outputPath = rctPaths4sim()$outputPath,
+                           ageClasses = ageClasses)
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())
   callModule(inputTables, "inputTables")
-  callModule(downloadOutputs, "downloadOutputs") ## TODO: write this with generator
+
+  callModule(downloadOutputs, "downloadOutputs",
+             rctLargePatchesData = rctLargePatchesData,
+             rctVegData = rctVegData,
+             rctPolygonList = rctPolygonList,
+             rctChosenPolyName = rctChosenPolyName) ## TODO: write this with generator
 
   ## footers (see ?copyrightFooter)
   callModule(copyrightFooter, "copyright", "Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada.")
