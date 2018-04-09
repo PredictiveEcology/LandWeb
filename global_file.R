@@ -514,6 +514,15 @@ reportingAndLeadingCC <- Cache(reportingAndLeadingFn, #notOlderThan = Sys.time()
                                tsfs = tsfsCC, vtms = vtmsCC, cl = cl6, lapplyFn = lapplyFn)
 reportingPolygonsCC <- reportingAndLeadingCC$reportingPolygons
 leadingCC <- reportingAndLeadingCC$leading
+vegCoverLabels <- levels(CurrentConditions$Proprietary$CCvtm)[[1]]
+leadingCC$Proprietary
+leadingCC$Proprietary <- lapply(leadingCC$Proprietary, function(poly) {
+  if (!is.null(poly)) {
+    poly$vegCover <- as.character(vegCoverLabels$Factor[as.numeric(poly$vegCover)])
+  }
+  poly
+})
+
 leadingCC$Free <- NULL
 
 
