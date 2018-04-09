@@ -35,12 +35,7 @@ downloadOutputs <- function(input, output, session, rctLargePatchesData, rctVegD
       outputs2zip <- list.files(file.path("outputs", paste0(subStudyRegionName, "_Proprietary")),
                                 recursive = TRUE, full.names = TRUE)
 
-      ## TODO: add the selected polygon as a shp file for download
-      #chosenPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
-      #polyNameClean <- rctChosenPolyName() %>% gsub(" ", "_", .)
-      #shpfile <- rgdal::writeOGR(chosenPoly, file.path(tempdir(), polyNameClean), driver = "ESRI Shapefile")
-
-      allFiles2zip <- c(caches2zip, outputs2zip)#, shpfile)
+      allFiles2zip <- c(caches2zip, outputs2zip)
 
       zip(file, files = allFiles2zip)
     },
