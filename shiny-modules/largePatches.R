@@ -33,20 +33,19 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       msg = "histServerFn2: `datatable` is not a data.table"
     )
 
-    
+
     ## calculate breaks
     # calculate breaks -- 1 set of breaks for each group of plots
-    
+
     dtListShort <- split(.dtFull, by = uiSeq$category[-length(uiSeq$category)], flatten = FALSE)
 
     # need to get a single set of breaks for all simultaneously visible histograms
     dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-    
-    if (NROW(dtInner)>0) {
-      
+
+    if (NROW(dtInner) > 0) {
       dtOnlyCC <- dt[rep == "CurrentCondition"]
       dtNoCC <- dt[rep != "CurrentCondition"]
-      
+
       out <- dtNoCC[, .N, by = c("vegCover", "rep")]$N
       if (isTRUE(authStatus)) {
         outCC <- max(0, dtOnlyCC[, .N, by = c("vegCover", "rep")]$N)
@@ -54,7 +53,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       } else {
         verticalLineAtX <- NULL
         outCC <- numeric()
-      } 
+      }
       nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
       minNumBars <- 6
       maxNumBars <- 30
@@ -67,17 +66,17 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       breaksInterval <- diff(breaksLabels)[1]
       dataForHistogram <- hist(out, plot = FALSE, breaks = prettyBreaks)
       histogramData <- dataForHistogram$counts/sum(dataForHistogram$counts)
-      
+
       histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
       # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
       # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
-      
+
     } else {
       if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
         verticalLineAtX <- 0
       } else {
         verticalLineAtX <- NULL
-      } 
+      }
       histogramData <- c(1,0,0,0,0,0,0)
       breaksLabels = 0:6
       breaksInterval <- 1
@@ -88,13 +87,13 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
     xlim <- range(ticksAt) - breaksInterval/2
     addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks - min(breaksLabels))
     verticalLineAtX <- verticalLineAtX + breaksInterval/2 # THe barplot xaxis is 1/2 a barwidth off
-    
+
     polyName <- chosenPolyName %>% gsub(" ", "_", .)
     pngDir <- file.path(outputPath, "histograms", polyName, "largePatches") %>% checkPath(create = TRUE)
     pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
     pngPath <- file.path(pngDir, pngFile)
 
-    # browser(expr = .current$ageClass=="Mature" && .current$polygonID == "Boreal Shield" && 
+    # browser(expr = .current$ageClass=="Mature" && .current$polygonID == "Boreal Shield" &&
     #              .current$vegCover == "Deciduous leading")
     callModule(histogram, id, histogramData, addAxisParams,
                verticalBar = verticalLineAtX,
@@ -282,19 +281,24 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     )
   })
 
-  callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
-             uiSequence = uiSequence(),
-             #serverFunction = histServerFn, ## calls histogram server module
-             serverFunction = histServerFn2, ## The one without recursion
-             uiFunction = function(id) {
-               histogramUI(id, height = 300)
-             },
-             nSimTimes = length(rctTsf()),
-             authStatus = session$userData$userAuthorized(),
-             uiSeq = uiSequence(),
-             outputPath = outputPath,
-             chosenPolyName = rctChosenPolyName()
-  )
+  observeEvent({
+    rctChosenPolyName()
+    input$patchSize
+  }, {
+    callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
+               uiSequence = uiSequence(),
+               #serverFunction = histServerFn, ## calls histogram server module
+               serverFunction = histServerFn2, ## The one without recursion
+               uiFunction = function(id) {
+                 histogramUI(id, height = 300)
+               },
+               nSimTimes = length(rctTsf()),
+               authStatus = session$userData$userAuthorized(),
+               uiSeq = uiSequence(),
+               outputPath = outputPath,
+               chosenPolyName = rctChosenPolyName()
+    )
+  })
 
   return(rctLargePatchesData)
 }

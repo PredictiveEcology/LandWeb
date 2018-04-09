@@ -41,7 +41,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
     # # need to get a single set of breaks for all simultaneously visible histograms
       dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
     }
-      
+
     propVeg <- vegDT$proportion
 
     breaksLabels <- (0:11)/10
@@ -79,15 +79,15 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
 
     if (FALSE) {
       dtListShort <- split(.dtFull, by = uiSeq$category[-length(uiSeq$category)], flatten = FALSE)
-      
+
       # need to get a single set of breaks for all simultaneously visible histograms
       dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-      
+
       if (NROW(dtInner)>0) {
-        
+
         dtOnlyCC <- dt[rep == "CurrentCondition"]
         dtNoCC <- dt[rep != "CurrentCondition"]
-        
+
         out <- dtNoCC[, .N, by = c("vegCover", "rep")]$N
         if (isTRUE(authStatus)) {
           outCC <- max(0, dtOnlyCC[, .N, by = c("vegCover", "rep")]$N)
@@ -95,7 +95,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
         } else {
           verticalLineAtX <- NULL
           outCC <- numeric()
-        } 
+        }
         nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
         minNumBars <- 6
         maxNumBars <- 30
@@ -108,17 +108,17 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
         breaksInterval <- diff(breaksLabels)[1]
         dataForHistogram <- hist(out, plot = FALSE, breaks = prettyBreaks)
         histogramData <- dataForHistogram$counts/sum(dataForHistogram$counts)
-        
+
         histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
         # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
         # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
-        
+
       } else {
         if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
           verticalLineAtX <- 0
         } else {
           verticalLineAtX <- NULL
-        } 
+        }
         histogramData <- c(1,0,0,0,0,0,0)
         breaksLabels = 0:6
         breaksInterval <- 1
@@ -129,7 +129,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
       xlim <- range(ticksAt) - breaksInterval/2
       addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks - min(breaksLabels))
       verticalLineAtX <- verticalLineAtX + breaksInterval/2 # THe barplot xaxis is 1/2 a barwidth off
-      
+
     }
     polyName <- chosenPolyName %>% gsub(" ", "_", .)
     pngDir <- file.path(outputPath, "histograms", polyName, "vegAgeMod") %>% checkPath(create = TRUE)
@@ -214,16 +214,18 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
     )
   })
 
-  callModule(slicer, "vegSlicer", datatable = rctVegData, uiSequence = uiSequence(),
-             serverFunction = vegHistServerFn, ## calls histogram server module
-             uiFunction = function(id) {
-               histogramUI(id, height = 300)
-             },
-             outputPath = outputPath,
-             chosenPolyName = rctChosenPolyName(),
-             nSimTimes = length(rctVtm()),
-             authStatus = session$userData$userAuthorized()
-  )
+  observeEvent(rctChosenPolyName(), {
+    callModule(slicer, "vegSlicer", datatable = rctVegData, uiSequence = uiSequence(),
+               serverFunction = vegHistServerFn, ## calls histogram server module
+               uiFunction = function(id) {
+                 histogramUI(id, height = 300)
+               },
+               outputPath = outputPath,
+               chosenPolyName = rctChosenPolyName(),
+               nSimTimes = length(rctVtm()),
+               authStatus = session$userData$userAuthorized()
+    )
+  })
 
   return(rctVegData)
 }
