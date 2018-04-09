@@ -312,7 +312,7 @@ tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- extractFilepaths("rstTimeSinceFire", rastersFromOutput)
   fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
   if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
   }
   asPath(fps)
 })
@@ -321,7 +321,7 @@ vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- extractFilepaths("vegTypeMap", rastersFromOutput)
   fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
   if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
   }
   asPath(fps)
 })
@@ -338,7 +338,7 @@ flammableFiles <- lapply(mySimOuts, function(mySimOut) {
   fps <- file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd")
   fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
   if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
   }
   asPath(fps)
 })
@@ -348,6 +348,21 @@ tsfRasters <- Cache(Map, tsf = tsfs,
                     cacheId = if (exists("cacheIdTsfRasters")) cacheIdTsfRasters else NULL,
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
+if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+  tsfRasters <- lapply(tsfRasters, function(authType) {
+    lapply(authType, function(crsType) {
+      lapply(crsType, function(ras) {
+        
+        fps <- ras@file@name
+        fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+        fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
+        ras@file@name <- fps
+        ras
+      })
+    })
+    
+  })
+}
 
 tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters),
                             userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
@@ -388,6 +403,21 @@ vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", 
                     cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
                     lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
+if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
+  vtmRasters <- lapply(vtmRasters, function(authType) {
+    lapply(authType, function(crsType) {
+      lapply(crsType, function(ras) {
+        
+        fps <- ras@file@name
+        fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
+        fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
+        ras@file@name <- fps
+        ras
+      })
+    })
+    
+  })
+}
 
 
 if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
@@ -443,7 +473,7 @@ CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNa
 tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
   fps <- convertPath(filename(x$CCtsf), old = "outputsFULL", new = "outputs/FULL_Proprietary")
   if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
   }
   asPath(fps)
 }
@@ -451,7 +481,7 @@ tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
 vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
   fps <- convertPath(filename(x$CCvtm), old = "outputsFULL", new = "outputs/FULL_Proprietary")
   if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = "C:/Eliot/")
+    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
   }
   asPath(fps)
 }
