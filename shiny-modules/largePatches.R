@@ -33,50 +33,73 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       msg = "histServerFn2: `datatable` is not a data.table"
     )
 
+    
     ## calculate breaks
     # calculate breaks -- 1 set of breaks for each group of plots
+    
     dtListShort <- split(.dtFull, by = uiSeq$category[-length(uiSeq$category)], flatten = FALSE)
 
     # need to get a single set of breaks for all simultaneously visible histograms
     dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-
-    nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
-
-    maxNumClusters <- if (length(nClusters) == 0) {
-      6
+    
+    if (NROW(dtInner)>0) {
+      
+      dtOnlyCC <- dt[rep == "CurrentCondition"]
+      dtNoCC <- dt[rep != "CurrentCondition"]
+      
+      out <- dtNoCC[, .N, by = c("vegCover", "rep")]$N
+      if (isTRUE(authStatus)) {
+        outCC <- max(0, dtOnlyCC[, .N, by = c("vegCover", "rep")]$N)
+        verticalLineAtX <- outCC
+      } else {
+        verticalLineAtX <- NULL
+        outCC <- numeric()
+      } 
+      nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
+      minNumBars <- 6
+      maxNumBars <- 30
+      rangeNClusters <- range(c(outCC, nClusters, minNumBars))
+      attemptedNumBars <- max(minNumBars, min(maxNumBars, diff(rangeNClusters)))
+      breaksRaw <- seq(rangeNClusters[1], rangeNClusters[2], length.out = attemptedNumBars)
+      prettyBreaks <- pretty(breaksRaw, n = attemptedNumBars, min.n = min(attemptedNumBars, minNumBars))
+      dataForBreaks <- hist(nClusters, plot = FALSE, breaks = prettyBreaks)
+      breaksLabels <- dataForBreaks$breaks
+      breaksInterval <- diff(breaksLabels)[1]
+      dataForHistogram <- hist(out, plot = FALSE, breaks = prettyBreaks)
+      histogramData <- dataForHistogram$counts/sum(dataForHistogram$counts)
+      
+      histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
+      # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
+      # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
+      
     } else {
-      pmax(6, max(nClusters) + 1)
+      if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
+        verticalLineAtX <- 0
+      } else {
+        verticalLineAtX <- NULL
+      } 
+      histogramData <- c(1,0,0,0,0,0,0)
+      breaksLabels = 0:6
+      breaksInterval <- 1
     }
-
-    breaksLabels <- 0:maxNumClusters
-    breaks <- breaksLabels - 0.5
-    barplotBreaks <- breaksLabels + 0.5
-
-    addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
-
-    dtOnlyCC <- dt[rep == "CurrentCondition"]
-    dtNoCC <- dt[rep != "CurrentCondition"]
-
-    out <- .patchesInTimeDistributionFn(dtNoCC, nSimTimes, breaks = breaks)
-    outCC <- .patchesInTimeDistributionFn(dtOnlyCC, nSimTimes = 1, breaks = breaks)
-
-    histogramData <- out$actualPlot$counts / sum(out$actualPlot$counts)
-
-    verticalLineAtX <- if (isTRUE(authStatus)) {
-      outCC$actualPlot$breaks[c(FALSE, as.logical(outCC$actualPlot$counts))]
-    } else {
-      NULL
-    }
-
+    breaks <- breaksLabels - breaksInterval/2
+    barplotBreaks <- breaksLabels + breaksInterval/2
+    ticksAt <- barplotBreaks - min(breaksLabels)
+    xlim <- range(ticksAt) - breaksInterval/2
+    addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks - min(breaksLabels))
+    verticalLineAtX <- verticalLineAtX + breaksInterval/2 # THe barplot xaxis is 1/2 a barwidth off
+    
     polyName <- chosenPolyName %>% gsub(" ", "_", .)
     pngDir <- file.path(outputPath, "histograms", polyName, "largePatches") %>% checkPath(create = TRUE)
     pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
     pngPath <- file.path(pngDir, pngFile)
 
+    # browser(expr = .current$ageClass=="Mature" && .current$polygonID == "Boreal Shield" && 
+    #              .current$vegCover == "Deciduous leading")
     callModule(histogram, id, histogramData, addAxisParams,
                verticalBar = verticalLineAtX,
-               width = 1, file = if (file.exists(pngPath)) NULL else pngPath,
-               xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
+               width = breaksInterval, file = if (file.exists(pngPath)) NULL else pngPath,
+               xlim = xlim, ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
 }
