@@ -35,11 +35,13 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
 
     # ## calculate breaks
     # # calculate breaks -- 1 set of breaks for each group of plots
-    # dtListShort <- split(.dtFull, by = c("ageClass", "polygonID"), flatten = FALSE)
+    if (FALSE) {
+      dtListShort <- split(.dtFull, by = c("ageClass", "polygonID"), flatten = FALSE)
     #
     # # need to get a single set of breaks for all simultaneously visible histograms
-    # dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-
+      dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
+    }
+      
     propVeg <- vegDT$proportion
 
     breaksLabels <- (0:11)/10
@@ -52,7 +54,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
     dtNoCC <- vegDT[!grepl("CurrentCondition", label)]
 
     vegHist <- hist(dtNoCC$proportion, breaks = breaks, plot = FALSE)
-    vegHistCC <- hist(dtOnlyCC$proportion, breaks = breaks, plot = FALSE)
+    #vegHistCC <- hist(dtOnlyCC$proportion, breaks = breaks, plot = FALSE)
 
     histogramData <- if (sum(vegHist$counts) == 0) {
       vegHist$counts
