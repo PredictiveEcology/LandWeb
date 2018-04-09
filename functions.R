@@ -319,7 +319,7 @@ loadCCSpecies <- function(mapNames, userTags = "", ...) {
       function(filename, mapName, userTags) {
         tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
         filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
-        Cache(prepInputs, userTags = c(userTags, "stable"),
+        prepInputs(userTags = c(userTags, "stable"),
               archive = "CurrentCondition.zip",
               targetFile = tifName,
               alsoExtract = filenames, ...)
@@ -555,7 +555,7 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
                               " rasters, summarize by ", polyNames, ")")
                       Map(poly = polys, polyName = polyNames, function(poly, polyName) {
                         message("    Doing ", polyName)
-                        if (!is.null(tsf)) {
+                        if (!is.null(tsf) & !is.null(poly$shpSubStudyRegion)) {
                           Cache(leadingByStageFn, timeSinceFireFiles = asPath(tsf, 2),
                                 vegTypeMapFiles = asPath(vtm, 2),
                                 polygonToSummarizeBy = poly$shpSubStudyRegion,
@@ -569,7 +569,7 @@ reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingP
 }
 
 createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesFn,
-                            shpSubStudyRegion, tsfRasters) {
+                            shpSubStudyRegion, tsfRasters, ...) {
   if (!is.null(CCspeciesNames)) {
     ageName <- CCspeciesNames[agrep("age", CCspeciesNames)]
     onlySpeciesNames <- CCspeciesNames[CCspeciesNames %in% c("Pine", "BlackSpruce", "Deciduous", "WhiteSpruce")]
@@ -592,10 +592,10 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
     CCspeciesNames <- unlist(CCspeciesNames, use.names = TRUE)
     CCspeciesNames <- CCspeciesNames[nzchar(names(CCspeciesNames))]
 
-    rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames,
+    rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames, #notOlderThan = Sys.time(),
                                      url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                                      destinationPath = dPath,
-                                     studyArea = shpSubStudyRegion,
+                                     studyArea = shpSubStudyRegion, ...,
                                      rasterToMatch = tsfRasters[[1]]$crsSR[[1]]
     )
     stkCurrentCondition <- stack(rstCurrentConditionList[CCspeciesNames])
@@ -607,11 +607,11 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
     CCvtm <- writeRaster(CCvtm, filename = file.path(dPath, "currentConditionVTM"), overwrite = TRUE)
 
     # tsf
-    CCtsf <- Cache(loadCCSpecies, ageName,
+    CCtsf <- Cache(loadCCSpecies, ageName, #notOlderThan = Sys.time(),
                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                    destinationPath = dPath,
-                   studyArea = shpSubStudyRegion,
-                   writeCropped = "CurrentCondition.tif",
+                   studyArea = shpSubStudyRegion, omitArgs = "purge",
+                   writeCropped = "CurrentCondition.tif", ..., 
                    rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
     )
 
