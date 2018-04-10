@@ -158,26 +158,28 @@ labelColumn <- "shinyLabel"
 
 ##### SERVER FILE.R
 names(authenticationType) <- authenticationType
-authenticationTypePossibilities <- c("Free", "Proprietary")
+authenticationTypePossibilities <- c("Free", "Proprietary", "All")
 if (!all(authenticationType %in% authenticationTypePossibilities)) {
   stop("authenticationType must be one or both of ", authenticationTypePossibilities)
 }
-emptyListFree <- lapply(authenticationType[1], function(x) NULL)
-emptyList <- lapply(authenticationType, function(x) NULL)
+emptyList <- Map(function(y) y, authenticationTypePossibilities) # creates named list
+emptyListAll <- emptyList["All"] # creates named list
+emptyListFree <- emptyList["Free"] # creates named list
+emptyListFreeProprietary <- emptyList[c("Free", "Proprietary")] # creates named list
 
-experimentReps <- emptyListFree
+experimentReps <- emptyListAll
 experimentReps <- lapply(experimentReps, function(x) 1)
 
 # simInit objects
-times4sim <- emptyListFree
+times4sim <- emptyListAll
 times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
 
-modules4sim <- emptyListFree
-modules4sim$Free <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+modules4sim <- emptyListAll
+modules4sim$All <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                          "landWebProprietaryData",
                          "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
-objects4sim <- emptyListFree
+objects4sim <- emptyListAll
 objects4sim <- lapply(objects4sim, function(x)
   list("shpStudyRegionFull" = shpStudyRegion,
        "shpStudySubRegion" = shpSubStudyRegion,
@@ -186,7 +188,7 @@ objects4sim <- lapply(objects4sim, function(x)
        "vegLeadingPercent" = vegLeadingPercent)
 )
 
-parameters4sim <- emptyListFree
+parameters4sim <- emptyListAll
 parameters4sim <- lapply(parameters4sim, function(x) {
   list(
     LandWebOutput = list(summaryInterval = summaryInterval),
@@ -237,7 +239,7 @@ outputs4simFn <- function(objects4sim, parameters4sim, times4sim,
 
   as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 }
-objectNamesToSave <- emptyListFree
+objectNamesToSave <- emptyListAll
 objectNamesToSave <- lapply(objectNamesToSave, function(x) {
   c("rstTimeSinceFire", "vegTypeMap")
 })
@@ -253,15 +255,15 @@ pathFn <- function(pathType, basename, suffix) {
   file.path(pathType, paste0(basename, "_", suffix))
 }
 
-cPaths <- emptyListFree
+cPaths <- emptyListAll
 cPaths <- Map(pathFn, suffix = names(cPaths),
               MoreArgs = list(basename = subStudyRegionName, pathType = "cache"))
 
-oPaths <- emptyListFree
+oPaths <- emptyListAll
 oPaths <- Map(pathFn, suffix = names(oPaths),
               MoreArgs = list(basename = subStudyRegionName, pathType = "outputs"))
 
-paths4sim <- emptyListFree
+paths4sim <- emptyListAll
 paths4sim <- Map(cPath = cPaths, oPath = oPaths,
                  function(cPath, oPath) {
                    list(
@@ -274,18 +276,16 @@ paths4sim <- Map(cPath = cPaths, oPath = oPaths,
 
 seed <- sample(1e8, 1)
 
-if (!exists("cacheIds4Experiment")) {
-  cacheIds4Experiment <- emptyListFree
-}
 
 ######## SimInit and Experiment
 mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim,
                    modules = modules4sim,
                    cacheId = if (exists("cacheId4Experiment")) cacheId4Experiment else NULL,
-                   outputs = outputs4sim, cacheIds4Experiment = cacheIds4Experiment,
+                   outputs = outputs4sim, 
+                   cacheIds4Experiment = if (exists("cacheIds4Experiment")) cacheIds4Experiment else NULL,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
-                   emptyList = emptyListFree)
+                   emptyList = emptyListAll)
 
 message("  Finished simInit and Experiment.")
 
@@ -300,21 +300,20 @@ extractFilepaths <- function(filename, rastersFromOutput) {
   grep(pattern = filename, rastersFromOutput, value = TRUE)
 }
 
+# convert paths to local machine -- this will do nothing if prior runs were on this machine
+pathConversions <- list(pattern = c("outputsFULL", "/home/emcintir/Documents/"),
+                        replacement = c("outputs/FULL_Proprietary", getwd()))
 tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
-  fps <- extractFilepaths("rstTimeSinceFire", rastersFromOutput)
-  fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
-  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
-  }
+  fps <- grep(pattern = "rstTimeSinceFire", rastersFromOutput, value = TRUE)
+  fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+                      replacement = pathConversions$replacement)
   asPath(fps)
 })
 
 vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
-  fps <- extractFilepaths("vegTypeMap", rastersFromOutput)
-  fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
-  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
-  }
+  fps <- grep(pattern = "vegTypeMap", rastersFromOutput, value = TRUE)
+  fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+                      replacement = pathConversions$replacement)
   asPath(fps)
 })
 
@@ -328,10 +327,8 @@ rasterResolutions <- lapply(tsfs, function(x) {
 
 flammableFiles <- lapply(mySimOuts, function(mySimOut) {
   fps <- file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd")
-  fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
-  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
-  }
+  fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+                      replacement = pathConversions$replacement)
   asPath(fps)
 })
 
@@ -340,21 +337,11 @@ tsfRasters <- Cache(Map, tsf = tsfs,
                     cacheId = if (exists("cacheIdTsfRasters")) cacheIdTsfRasters else NULL,
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
-if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-  tsfRasters <- lapply(tsfRasters, function(authType) {
-    lapply(authType, function(crsType) {
-      lapply(crsType, function(ras) {
-        
-        fps <- ras@file@name
-        fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
-        fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
-        ras@file@name <- fps
-        ras
-      })
-    })
-    
-  })
-}
+
+tsfRasters <- convertRasterFileBackendPath(tsfRasters, 
+                                           pattern = pathConversions$pattern,
+                                           replacement = pathConversions$replacement)
+
 
 tsfRasterTilePaths <- Cache(Map, rst = tsfRasters, modelType = names(tsfRasters),
                             userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
@@ -395,36 +382,22 @@ vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", 
                     cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
                     lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
-if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-  vtmRasters <- lapply(vtmRasters, function(authType) {
-    lapply(authType, function(crsType) {
-      lapply(crsType, function(ras) {
-        
-        fps <- ras@file@name
-        fps <- convertPath(fps, old = "outputsFULL", new = "outputs/FULL_Proprietary")
-        fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
-        ras@file@name <- fps
-        ras
-      })
-    })
-    
-  })
-}
 
+vtmRasters <- convertRasterFileBackendPath(vtmRasters, 
+                                           pattern = pathConversions$pattern,
+                                           replacement = pathConversions$replacement)
 
-if (FALSE) { # This is to have vegetation type maps -- TODO: they are .grd, need to be .tif & color table
-  vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
-                              userTags = c("gdal2Tiles", "vtm", "vtms"),
-                              cacheId = if (exists("cacheIdVtmRasterTilePaths"))
-                                cacheIdVtmRasterTilePaths else NULL,
-                              MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
-                              function(rst, modelType, zoomRange, colorTableFile) {
-                                outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
-                                filenames <- gdal2Tiles(rst$crsLFLT, outputPath = outputPath,
-                                                        zoomRange = zoomRange, colorTableFile = colorTableFile)
-                                return(filenames)
-                              })
-}
+vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
+                            userTags = c("gdal2Tiles", "vtm", "vtms"),
+                            cacheId = if (exists("cacheIdVtmRasterTilePaths"))
+                              cacheIdVtmRasterTilePaths else NULL,
+                            MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
+                            function(rst, modelType, zoomRange, colorTableFile) {
+                              outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
+                              filenames <- gdal2Tiles(rst$crsLFLT, outputPath = outputPath,
+                                                      zoomRange = zoomRange, colorTableFile = colorTableFile)
+                            return(filenames)
+                          })
 
 
 ########################################################
@@ -462,23 +435,26 @@ CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNa
                                            loadCCSpeciesFn = loadCCSpecies,
                                            shpSubStudyRegion = shpSubStudyRegion,
                                            tsfRasters = tsfRasters))
+CurrentConditions <- convertRasterFileBackendPath(CurrentConditions, pattern = pathConversions$pattern, 
+                             replacement = pathConversions$replacement)
 tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
-  fps <- convertPath(filename(x$CCtsf), old = "outputsFULL", new = "outputs/FULL_Proprietary")
-  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
-  }
+  fps <- filename(x$CCtsf)
+  fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+                      replacement = pathConversions$replacement)
   asPath(fps)
 }
 })
 vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
-  fps <- convertPath(filename(x$CCvtm), old = "outputsFULL", new = "outputs/FULL_Proprietary")
-  if (Sys.info()["sysname"]=="Windows" && Sys.info()["user"]=="emcintir") {
-    fps <- convertPath(fps, old = "/home/emcintir/Documents/", new = pathToLandWebApp)
-  }
+  fps <- filename(x$CCvtm)
+  fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+                      replacement = pathConversions$replacement)
   asPath(fps)
 }
 })
 
+
+freeReportingPolygonNames <- c("Alberta Ecozones", "National Ecozones", "National Ecodistricts")
+proprietaryReportingPolygonNames <- c("Forest Management Areas", "Alberta FMUs", "Caribou Ranges")
 
 reportingAndLeading <- Cache(reportingAndLeadingFn,
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
@@ -486,6 +462,8 @@ reportingAndLeading <- Cache(reportingAndLeadingFn,
                              userTags = c("leading", "reportingPolygons"),
                              cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL,
                              leadingByStageFn = leadingByStage,
+                             freeReportingPolygonNames = freeReportingPolygonNames, 
+                             proprietaryReportingPolygonNames = proprietaryReportingPolygonNames,
                              intersectListShpsFn = intersectListShps,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
                              authenticationType = authenticationType,
@@ -499,6 +477,8 @@ reportingAndLeadingCC <- Cache(reportingAndLeadingFn, #notOlderThan = Sys.time()
                                userTags = c("leading", "reportingPolygons"),
                                cacheId = if (exists("cachdId4ReportingAndLeadingFnCC")) cachdId4ReportingAndLeadingFnCC else NULL,
                                leadingByStageFn = leadingByStage,
+                               freeReportingPolygonNames = freeReportingPolygonNames, 
+                               proprietaryReportingPolygonNames = proprietaryReportingPolygonNames,
                                intersectListShpsFn = intersectListShps,
                                shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
                                authenticationType = authenticationType,
@@ -507,7 +487,6 @@ reportingAndLeadingCC <- Cache(reportingAndLeadingFn, #notOlderThan = Sys.time()
 reportingPolygonsCC <- reportingAndLeadingCC$reportingPolygons
 leadingCC <- reportingAndLeadingCC$leading
 vegCoverLabels <- levels(CurrentConditions$Proprietary$CCvtm)[[1]]
-leadingCC$Proprietary
 leadingCC$Proprietary <- lapply(leadingCC$Proprietary, function(poly) {
   if (!is.null(poly)) {
     poly$vegCover <- as.character(vegCoverLabels$Factor[as.numeric(poly$vegCover)])
@@ -526,32 +505,43 @@ rp4LrgPatches <- lapply(reportingPolygons, function(rpAll) {
     rp$crsSR$shpSubStudyRegion
   })
 })
-lrgPatches <- Cache(Map, largePatchesFn,
-                    timeSinceFireFiles = tsfs,
-                    vegTypeMapFiles = vtms,
+
+getAllIfExists(tsfs, ifNot = "Proprietary")
+
+# some of the args oare for largePatchesFn, some passed through to largePatchesInnerFn, 
+lrgPatches <- Cache(largePatchesFn,
                     reportingPolygons = rp4LrgPatches,
                     authenticationType = authenticationType,
                     cacheId = if (exists("cacheIdLrgPatches"))
                       cacheIdLrgPatches else NULL,
                     omitArgs = c("cl", "lapplyFn"),
-                    MoreArgs = list(ageClasses = ageClasses,
-                                    cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles
-                                    countNumPatchesFn = countNumPatches,
-                                    ageCutoffs = ageClassCutOffs)
+                    ageClasses = ageClasses, 
+                    countNumPatchesFn = countNumPatches,
+                    cellNumbersForPolygonFn = cellNumbersForPolygon,
+                    largePatchesInnerFn = largePatchesInnerFn,
+                    largePatchesInner2Fn = largePatchesInner2Fn,
+                    timeSinceFireFiles = getAllIfExists(tsfs, ifNot = "Proprietary"),
+                    vegTypeMapFiles = getAllIfExists(vtms, ifNot = "Proprietary"),
+                    cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles
+                    ageCutoffs = ageClassCutOffs
 )
-lrgPatchesCC <- Cache(Map, largePatchesFn,
-                      timeSinceFireFiles = tsfsCC,
-                      vegTypeMapFiles = vtmsCC,
-                      cacheId = if (exists("cacheIdLrgPatchesCC"))
-                        cacheIdLrgPatchesCC else NULL,
-                      reportingPolygons = rp4LrgPatches,
-                      authenticationType = authenticationType,
-                      omitArgs = c("cl", "lapplyFn"),
-                      MoreArgs = list(ageClasses = ageClasses,
-                                      cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles
-                                      countNumPatchesFn = countNumPatches,
-                                      ageCutoffs = ageClassCutOffs)
+lrgPatchesCC <- Cache(largePatchesFn,
+                    reportingPolygons = rp4LrgPatches,
+                    authenticationType = authenticationType,
+                    cacheId = if (exists("cacheIdLrgPatches"))
+                      cacheIdLrgPatches else NULL,
+                    omitArgs = c("cl", "lapplyFn"),
+                    ageClasses = ageClasses, 
+                    countNumPatchesFn = countNumPatches,
+                    cellNumbersForPolygonFn = cellNumbersForPolygon,
+                    largePatchesInnerFn = largePatchesInnerFn,
+                    largePatchesInner2Fn = largePatchesInner2Fn,
+                    timeSinceFireFiles = getAllIfExists(tsfsCC, ifNot = "Proprietary"),
+                    vegTypeMapFiles = getAllIfExists(vtmsCC, ifNot = "Proprietary"),
+                    cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles
+                    ageCutoffs = ageClassCutOffs
 )
+
 message(paste("Finished largePatchesFn"))
 
 ##### TODO: remove this??
@@ -572,10 +562,11 @@ if (FALSE) {
 }
 ################################################################################
 # Write all Proprietary input shapefiles to disk
-polySubDir <- file.path(oPaths$Proprietary, "Polygons")
+polySubDir <- file.path(getAllIfExists(oPaths, ifNot = "Proprietary"), "Polygons")
 dir.create(polySubDir, showWarnings = FALSE)
-out <- Cache(Map, polys = lapply(reportingPolygons$Proprietary, function(p) p$crsSR$shpSubStudyRegion),
-             namesPolys = names(reportingPolygons$Proprietary),
+out <- Cache(Map, polys = lapply(getAllIfExists(reportingPolygons, ifNot = "Proprietary"), 
+                                 function(p) p$crsSR$shpSubStudyRegion),
+             namesPolys = names(getAllIfExists(reportingPolygons, "Proprietary")),
              cacheId = if (exists("cacheIdWriteShapefiles"))
                cacheIdWriteShapefiles else NULL,
              function(polys, namesPolys) {
