@@ -208,9 +208,9 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
 
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
-      category = c("ageClass", "polygonID", "vegCover"),
+      category = c("vegCover", "polygonID", "ageClass"),
       uiType = c("tab", "tab", "box"),
-      possibleValues = list(ageClasses, polygonIDs, levels(rasVtmTmp)[[1]][, 2])
+      possibleValues = list(levels(rasVtmTmp)[[1]][, 2], polygonIDs, ageClasses)
     )
   })
 
