@@ -151,8 +151,8 @@ countNumPatches <- function(ras, cellIDByPolygon, ...) {
 cellNumbersForPolygon <- function(dummyRaster, Polygons) {
   dtList <- Map(Polygon = Polygons, PolygonName = names(Polygons),
                 function(Polygon, PolygonName) {
-                  message("  Assigning PolygonIDs for each pixel from ", PolygonName)
-                  aa <- tryCatch(raster::extract(dummyRaster, y = Polygon, cellnumbers = TRUE), error = function(x) NULL)
+                  message("        ", PolygonName)
+                  aa <- tryCatch(Cache(raster::extract, dummyRaster, y = Polygon, cellnumbers = TRUE), error = function(x) NULL)
                   if (!is.null(aa)) {
                     notNull <- !unlist(lapply(aa, is.null))
                     dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) {
