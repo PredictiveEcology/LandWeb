@@ -1,41 +1,25 @@
 source("simInitAndExperiment.R")
 source("largePatchesFn.R")
 
+#' Check and intersect a list of shapefiles with one single shapefile.
+#' Caches and internal \code{spTransform} to 
+#' 
+#' @param listShps List of shapefiles
+#' @param intersectShp The single shapefile to oversect with each of \codeP{listShps}
+#' 
 intersectListShps <- function(listShps, intersectShp) {
   message("Intersecting reporting polygons with shpStudyRegion")
-  if (!is(intersectShp, "sf")) {
-    intersectSF <- sf::st_as_sf(intersectShp)
-  } else {
-    intersectSF <- intersectShp
-  }
-
+  
   intersectShp <- raster::aggregate(intersectShp)
   problem1 <- !rgeos::gIsSimple(intersectShp)
   problem2 <- !rgeos::gIsValid(intersectShp)
   if (isTRUE(problem1 || problem2)) {
-    browser()
+    stop("intersectShp inside the function 'intersectListShps' is either not valid or not simple")
   }
 
   outerOut <- mapply(shp = listShps, shpNames = names(listShps),
                      function(shp, shpNames, useSF = FALSE) {
                        message("  ", shpNames)
-                       # tryCatch({
-                       #   if (!is(shp, "sf")) {
-                       #     wasShp <- TRUE
-                       #     shpSF <- sf::st_as_sf(shp)
-                       #   } else {
-                       #     wasShp <- FALSE
-                       #     shpSF <- shp
-                       #   }
-                       #   if (!identical(sf::st_crs(intersectSF), sf::st_crs(shpSF)))
-                       #     intersectSF <- Cache(sf::st_transform, intersectSF, crs = sf::st_crs(shpSF) )
-                       #   intersectSF <- sf::st_combine(intersectSF)
-                       #   out <- sf::st_intersection(sf::st_geometry(intersectSF), sf::st_geometry(shpSF))
-                       #   if (wasShp) {
-                       #     out <- as(out, "Spatial")
-                       #   }
-                       # }, error = function(x) {
-                       #   message("  intersectListShps -- sf package failed, using sp")
                        if (!identical(crs(intersectShp), crs(shp)))
                          intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
                        out <- raster::intersect(shp, intersectShp)
@@ -58,7 +42,7 @@ leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummari
     }
     startList <- append(startList, list(y = y))
     
-    message("    ", ageClasses[y], " for\n      ", paste0(basename(timeSinceFireFiles), collapse = "\n      "))
+    message("      ", ageClasses[y], " for\n        ", paste0(basename(timeSinceFireFiles), collapse = "\n        "))
     out1 <- #Cache(cacheRepo = paths$cachePath,
       do.call(lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
         x <- match(x, timeSinceFireFiles)
@@ -332,7 +316,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
 
   cannonicalLayerNames <- c("Alberta Ecozones", "National Ecozones",
                    "National Ecodistricts", "Forest Management Areas",
-                   "Alberta FMUs", "Caribou Herds")
+                   "Alberta FMUs", "Caribou Ranges")
   if (!(all(layerNames %in% cannonicalLayerNames)) ) {
     stop("This function can only handle ", paste(cannonicalLayerNames, collapse = ", "))
   }
@@ -437,7 +421,6 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                       "LP_MASTERFILE_June62012.sbn", "LP_MASTERFILE_June62012.sbx",
                       "LP_MASTERFILE_June62012.shp", "LP_MASTERFILE_June62012.shp.xml",
                       "LP_MASTERFILE_June62012.shx")
-    CaribouZonesColumn <- "HERD"
     polys[[cannonicalLayerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable",
                                                   url = "https://drive.google.com/file/d/1J38DKQQavjBV9F3z2gGzHNuNE0s2rmhh/view?usp=sharing",
                                                   targetFile = asPath(caribouFilename),
@@ -445,7 +428,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
                                                   fun = "shapefile",
                                                   destinationPath = dPath)
     polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <-
-      polys[[cannonicalLayerNames[layerNamesIndex]]]$HERD
+      polys[[cannonicalLayerNames[layerNamesIndex]]]$LABEL2
   }
 
 
@@ -517,18 +500,20 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   purrr::transpose(reportingPolygonsTmp)
 }
 
+
 createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authenticationType,
+                                       freeReportingPolygonNames, proprietaryReportingPolygonNames,
                                        createReportingPolygonsFn, intersectListShpsFn) {
   message("Loading Reporting Polygons")
   reportingPolygons <- list()
   reportingPolygons$Free <- Cache(createReportingPolygonsFn, intersectListShpsFn = intersectListShps,
-                                  c("Alberta Ecozones", "National Ecozones", "National Ecodistricts"),
+                                  freeReportingPolygonNames,
                                   shpStudyRegion = shpStudyRegion,
                                   shpSubStudyRegion = shpSubStudyRegion)
 
   if ("Proprietary" %in% authenticationType) {
     tmpProprietary <- Cache(createReportingPolygonsFn, intersectListShpsFn = intersectListShps,
-                            c("Forest Management Areas", "Alberta FMUs", "Caribou Herds"),
+                            proprietaryReportingPolygonNames,
                             shpStudyRegion = shpStudyRegion,
                             shpSubStudyRegion = shpSubStudyRegion)
     reportingPolygons$Proprietary <- reportingPolygons$Free
@@ -539,20 +524,24 @@ createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authen
 }
 
 
+
 reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingPolygonsFn,
                                   intersectListShpsFn, leadingByStageFn,
+                                  freeReportingPolygonNames, proprietaryReportingPolygonNames,
                                   shpStudyRegion, shpSubStudyRegion, authenticationType,
                                   tsfs, vtms, cl, lapplyFn, ageClasses, ageClassCutOffs) {
   reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
-                                                 createReportingPolygonsFn = createReportingPolygonsFn)
+                                                 createReportingPolygonsFn = createReportingPolygonsFn,
+                                                 freeReportingPolygonNames = freeReportingPolygonNames, 
+                                                 proprietaryReportingPolygonNames = proprietaryReportingPolygonNames)
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
   leadingOut <- Map(reportingPolys = reportingPolysWOStudyArea, tsf = tsfs, vtm = vtms,
                     MoreArgs = list(cl = cl, ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs),
                     function(reportingPolys, tsf, vtm, cl, ageClasses, ageClassCutOffs) {
                       polys = lapply(reportingPolys, function(p) p$crsSR)
                       polyNames = names(reportingPolys)
-                      message("  Determine leading species by age class, by polygon (loading, ", length(tsf),
-                              " rasters, summarize by ", polyNames, ")")
+                      message("  Determine leading species by age class, by polygon (loading ", length(tsf),
+                              " rasters, determine leading species by ", paste(polyNames, collapse = ", "), ")")
                       Map(poly = polys, polyName = polyNames, function(poly, polyName) {
                         message("    Doing ", polyName)
                         if (!is.null(tsf) & !is.null(poly$shpSubStudyRegion)) {
@@ -572,24 +561,24 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                             shpSubStudyRegion, tsfRasters, ...) {
   if (!is.null(CCspeciesNames)) {
     ageName <- CCspeciesNames[agrep("age", CCspeciesNames)]
-    onlySpeciesNames <- CCspeciesNames[CCspeciesNames %in% c("Pine", "BlackSpruce", "Deciduous", "WhiteSpruce")]
     simulatedMapVegTypes <- lapply(vtmRasters, function(r) {
       as.character(levels(r$crsSR[[1]])[[1]][,2])
     })
-    #lapply(simulatedMapVegTypes, function(vtm) {
+    
     matchSpNames <- lapply(CCspeciesNames, function(sn) {
-      agrep(sn, simulatedMapVegTypes$Proprietary)
+      agrep(sn, getAllIfExists(simulatedMapVegTypes, ifNot = "Proprietary"))
     }
     )
+    
     CCspeciesNames <- Map(msn = seq(matchSpNames),
                           MoreArgs = list(matchSpNames = matchSpNames, CCspeciesNames = CCspeciesNames,
-                                          simulatedSpNames = simulatedMapVegTypes$Proprietary),
+                                          simulatedSpNames = getAllIfExists(simulatedMapVegTypes, ifNot = "Proprietary")),
                           function(msn, matchSpNames, CCspeciesNames, simulatedSpNames) {
                             if (length(matchSpNames[[msn]]) > 0)
                               names(CCspeciesNames)[msn] <- simulatedSpNames[matchSpNames[[msn]]]
                             CCspeciesNames[msn]
                           })
-    CCspeciesNames <- unlist(CCspeciesNames, use.names = TRUE)
+    CCspeciesNames <- mapply(function(y) y, unlist(CCspeciesNames), USE.NAMES = TRUE)
     CCspeciesNames <- CCspeciesNames[nzchar(names(CCspeciesNames))]
 
     rstCurrentConditionList <- Cache(loadCCSpecies, CCspeciesNames, #notOlderThan = Sys.time(),
@@ -619,14 +608,26 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
   }
 }
 
-convertPath <- function(paths, old, new) {
-  hasOldPathStyle <- grepl(pattern = old, paths)
-  if (any(hasOldPathStyle)) {
-    paths <- gsub(pattern = old, replacement = new, x = paths)
+
+convertPaths <- function(paths, ...) {
+  dots <- list(...)
+  for (i in seq_along(dots$pattern)) {
+    paths <- gsub(x = paths, pattern = dots$pattern[i], replacement = dots$pattern[i])
   }
   paths
 }
 
+convertRasterFileBackendPath <- function(rasterObj, ...) {
+  if (is.list(rasterObj)) {
+    rasterObj <- lapply(rasterObj, convertRasterFileBackendPath, ...)
+  } else if (!is.null(rasterObj)) {
+    fps <- rasterObj@file@name
+    fps <- convertPaths(fps, ...)
+    rasterObj@file@name <- fps
+  }
+  rasterObj # handles null case
+  
+}
 
 setupParallelCluster <- function(cl, numClusters) {
   lapplyFn <- "lapply"
@@ -662,4 +663,34 @@ setupParallelCluster <- function(cl, numClusters) {
 
   }
   return(list(cl = cl, lapplyFn = lapplyFn))
+}
+
+getAllIfExists <- function(List, ifNot, returnList = FALSE) {
+  if ("All" %in% names(List)) {
+    if (returnList) {
+      List["All"]
+    } else {
+      List[["All"]]
+    }
+    
+  } else {
+    if (missing(ifNot)) {
+      if (length(List) > 1) {
+        List
+      } else {
+        if (returnList) {
+          List[1]
+        } else {
+          List[[1]]
+        }
+        
+      }
+    } else{
+      if (returnList) {
+        List[ifNot]
+      } else {
+        List[[ifNot]]
+      }
+    }
+  }
 }
