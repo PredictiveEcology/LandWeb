@@ -1,7 +1,7 @@
 # Overall model times # start is default at 0
-endTime <- 30
-summaryInterval <- 5
-summaryPeriod <- c(20, endTime)
+endTime <- 6
+summaryInterval <- 1
+summaryPeriod <- c(4, endTime)
 useParallelCluster <- FALSE
 cl6 <- NULL
 lapplyFn <- "lapply"
@@ -12,3 +12,5 @@ authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free"
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 subStudyRegionName <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
                               #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
+
+cacheId4Experiment <- "ec54422f9e77a388514b03d3e97bf5ed"
