@@ -162,24 +162,22 @@ authenticationTypePossibilities <- c("Free", "Proprietary")
 if (!all(authenticationType %in% authenticationTypePossibilities)) {
   stop("authenticationType must be one or both of ", authenticationTypePossibilities)
 }
+emptyListFree <- lapply(authenticationType[1], function(x) NULL)
 emptyList <- lapply(authenticationType, function(x) NULL)
 
-
-experimentReps <- emptyList
+experimentReps <- emptyListFree
 experimentReps <- lapply(experimentReps, function(x) 1)
 
 # simInit objects
-times4sim <- emptyList
+times4sim <- emptyListFree
 times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
 
-modules4sim <- emptyList
+modules4sim <- emptyListFree
 modules4sim$Free <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+                         "landWebProprietaryData",
                          "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
-modules4sim$Proprietary <- c(modules4sim$Free[1:4], "landWebProprietaryData",
-                             modules4sim$Free[5:length(modules4sim$Free)])
-modules4sim <- modules4sim[names(emptyList)]
 
-objects4sim <- emptyList
+objects4sim <- emptyListFree
 objects4sim <- lapply(objects4sim, function(x)
   list("shpStudyRegionFull" = shpStudyRegion,
        "shpStudySubRegion" = shpSubStudyRegion,
@@ -188,7 +186,7 @@ objects4sim <- lapply(objects4sim, function(x)
        "vegLeadingPercent" = vegLeadingPercent)
 )
 
-parameters4sim <- emptyList
+parameters4sim <- emptyListFree
 parameters4sim <- lapply(parameters4sim, function(x) {
   list(
     LandWebOutput = list(summaryInterval = summaryInterval),
@@ -239,7 +237,7 @@ outputs4simFn <- function(objects4sim, parameters4sim, times4sim,
 
   as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 }
-objectNamesToSave <- emptyList
+objectNamesToSave <- emptyListFree
 objectNamesToSave <- lapply(objectNamesToSave, function(x) {
   c("rstTimeSinceFire", "vegTypeMap")
 })
@@ -255,15 +253,15 @@ pathFn <- function(pathType, basename, suffix) {
   file.path(pathType, paste0(basename, "_", suffix))
 }
 
-cPaths <- emptyList
+cPaths <- emptyListFree
 cPaths <- Map(pathFn, suffix = names(cPaths),
               MoreArgs = list(basename = subStudyRegionName, pathType = "cache"))
 
-oPaths <- emptyList
+oPaths <- emptyListFree
 oPaths <- Map(pathFn, suffix = names(oPaths),
               MoreArgs = list(basename = subStudyRegionName, pathType = "outputs"))
 
-paths4sim <- emptyList
+paths4sim <- emptyListFree
 paths4sim <- Map(cPath = cPaths, oPath = oPaths,
                  function(cPath, oPath) {
                    list(
@@ -277,7 +275,7 @@ paths4sim <- Map(cPath = cPaths, oPath = oPaths,
 seed <- sample(1e8, 1)
 
 if (!exists("cacheIds4Experiment")) {
-  cacheIds4Experiment <- emptyList
+  cacheIds4Experiment <- emptyListFree
 }
 
 ######## SimInit and Experiment
@@ -287,7 +285,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
                    outputs = outputs4sim, cacheIds4Experiment = cacheIds4Experiment,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
-                   emptyList = emptyList)
+                   emptyList = emptyListFree)
 
 message("  Finished simInit and Experiment.")
 
