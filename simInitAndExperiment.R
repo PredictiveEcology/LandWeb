@@ -18,34 +18,7 @@ simInitAndExperiment <- function( times, params,
                        grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
   })
                         
-  
   #########################################
-  # run the simulation experiment
-  runExperiment <- function(sim, nReps, objectsToHash = "", cacheSpades, cacheIds = NULL) {
-    args <- list(experiment, sim, replicates = nReps,
-                 objects = objectsToHash, 
-                 cache = cacheSpades, # cache each spades call
-                 debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
-                 paste(unname(current(sim)), collapse = ' '))",
-                 .plotInitialTime = NA, cacheId = cacheIds,
-                 clearSimEnv = TRUE, 
-                 omitArgs = c("debug", ".plotInitialTime"))
-    args <- args[!unlist(lapply(args, is.null))]
-    simOut <- do.call(Cache, args)
-    message(attr(simOut, "tags"))
-    
-    for (simNum in seq_along(simOut)) {
-      simOut[[simNum]]@outputs$file <- lapply(
-        strsplit(outputs(simOut[[simNum]])$file,
-                 split = paste0(outputPath(simOut[[simNum]]), "[\\/]+")),
-        function(f) {
-          f[[2]]
-        }) %>%
-        unlist() %>%
-        file.path(outputPath(simOut[[simNum]]), .)
-    }
-    simOut
-  }
   
   message("  Starting Experiment...")
   
@@ -54,7 +27,37 @@ simInitAndExperiment <- function( times, params,
   
   mySimOuts <- emptyList
   # parallel::clusterMap, cl = cl, 
-  mySimOuts <- Cache(Map, runExperiment, sim = mySims, cacheIds = cacheIds4Experiment, 
+  if (!exists("cacheId4sExperiment")) cacheId4sExperiment <- Map(function(y) NULL, names(mySimOuts))
+  mySimOuts <- Cache(Map, runExperiment, sim = mySims, 
+                     cacheIds = cacheId4sExperiment,
                      nReps = experimentReps, objectsToHash = objectsToHash, 
                      cacheSpades = cacheSpades)
+}
+
+
+# run the simulation experiment
+runExperiment <- function(sim, nReps, objectsToHash = "", cacheSpades, cacheIds = NULL) {
+  args <- list(experiment, sim, replicates = nReps,
+               objects = objectsToHash, 
+               cache = cacheSpades, # cache each spades call
+               debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
+                 paste(unname(current(sim)), collapse = ' '))",
+               .plotInitialTime = NA, cacheId = cacheIds,
+               clearSimEnv = TRUE, 
+               omitArgs = c("debug", ".plotInitialTime"))
+  args <- args[!unlist(lapply(args, is.null))]
+  simOut <- do.call(Cache, args)
+  message(attr(simOut, "tags"))
+  
+  for (simNum in seq_along(simOut)) {
+    simOut[[simNum]]@outputs$file <- lapply(
+      strsplit(outputs(simOut[[simNum]])$file,
+               split = paste0(outputPath(simOut[[simNum]]), "[\\/]+")),
+      function(f) {
+        f[[2]]
+      }) %>%
+      unlist() %>%
+      file.path(outputPath(simOut[[simNum]]), .)
+  }
+  simOut
 }
