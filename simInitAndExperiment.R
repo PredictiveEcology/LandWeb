@@ -14,16 +14,10 @@ simInitAndExperiment <- function( times, params,
   debugCache <- "complete"
   
   objectsToHash <- emptyList
-  objectsToHash <- Map(mySim = mySims, objectsToHash = objectsToHash,
-                       MoreArgs = list(guaranteedRun = guaranteedRun),
-                       function(mySim, objectsToHash, guaranteedRun) {
-                         if (guaranteedRun) {
-                           "shpStudySubRegion" # basically only cache on non-.envir objects plus study area
-                         } else {
-                           grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
-                         }
-                         
-                       }) 
+  objectsToHash <- Map(mySim = mySims, function(mySim) {
+                       grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
+  })
+                        
   
   #########################################
   # run the simulation experiment
