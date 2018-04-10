@@ -164,11 +164,6 @@ if (!all(authenticationType %in% authenticationTypePossibilities)) {
 }
 emptyList <- lapply(authenticationType, function(x) NULL)
 
-# THIS IS DANGEROUS, BUT NECESSARY FOR GUARANTEED RUNNING --
-#    THIS MEANS that any values of objects will be OK and will trigger a cached return
-#    Only shpStudySubRegion and non-object arguments to simInit will make a new run
-guaranteedRun <- ifelse(any(c("emcintir") %in% Sys.info()["user"]), TRUE, FALSE)
-guaranteedRun <- FALSE
 
 experimentReps <- emptyList
 experimentReps <- lapply(experimentReps, function(x) 1)
@@ -297,7 +292,6 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
 message("  Finished simInit and Experiment.")
 
 ##### POST Experiment
-rastersFromOutputs <- emptyList
 rastersFromOutputs <- lapply(mySimOuts, function(mySimOut) {
   lapply(seq_along(mySimOut), function(x) {
     grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
