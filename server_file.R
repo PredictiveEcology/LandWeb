@@ -17,16 +17,16 @@ rctLrgPatches <- reactive(lrgPatches[[rctAuthenticationType()]])
 
 rctLrgPatchesCC <- reactive(lrgPatchesCC[[rctAuthenticationType()]])
 
-rctPaths4sim <- reactive(paths4sim[[rctAuthenticationType()]])
+rctPaths4sim <- reactive(getAllIfExists(paths4sim, ifNot = rctAuthenticationType()))
 
 rctPolygonList <- reactive(reportingPolygons[[rctAuthenticationType()]])
 
-rctRasterList <- reactive(tsfRasters[[rctAuthenticationType()]])
+rctRasterList <- reactive(getAllIfExists(tsfRasters, ifNot = rctAuthenticationType()))
 
-rctSim <- reactive(mySimOuts[[rctAuthenticationType()]][[1]])
+rctSim <- reactive(getAllIfExists(mySimOuts, ifNot = rctAuthenticationType()))
 
-rctTsf <- reactive(tsfs[[rctAuthenticationType()]])
+rctTsf <- reactive(getAllIfExists(tsfs, ifNot = rctAuthenticationType()))
 
-rctUrlTemplate <- reactive(tsfRasterTilePaths[[rctAuthenticationType()]])
+rctUrlTemplate <- reactive(getAllIfExists(tsfRasterTilePaths, ifNot = rctAuthenticationType()))
 
-rctVtm <- reactive(vtms[[rctAuthenticationType()]])
+rctVtm <- reactive(getAllIfExists(vtms, ifNot = rctAuthenticationType()))
