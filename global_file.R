@@ -290,7 +290,7 @@ seed <- sample(1e8, 1)
 mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim,
                    modules = modules4sim,
                    cacheId = if (exists("cacheId4Experiment")) cacheId4Experiment else NULL,
-                   outputs = outputs4sim, 
+                   outputs = outputs4sim,
                    cacheIds4Experiment = if (exists("cacheIds4Experiment")) cacheIds4Experiment else NULL,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
@@ -314,14 +314,14 @@ pathConversions <- list(pattern = c("outputsFULL", "/home/emcintir/Documents/"),
                         replacement = c("outputs/FULL_Proprietary", getwd()))
 tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- grep(pattern = "rstTimeSinceFire", rastersFromOutput, value = TRUE)
-  fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+  fps <- convertPaths(fps, pattern = pathConversions$pattern,
                       replacement = pathConversions$replacement)
   asPath(fps)
 })
 
 vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- grep(pattern = "vegTypeMap", rastersFromOutput, value = TRUE)
-  fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+  fps <- convertPaths(fps, pattern = pathConversions$pattern,
                       replacement = pathConversions$replacement)
   asPath(fps)
 })
@@ -336,7 +336,7 @@ rasterResolutions <- lapply(tsfs, function(x) {
 
 flammableFiles <- lapply(mySimOuts, function(mySimOut) {
   fps <- file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd")
-  fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+  fps <- convertPaths(fps, pattern = pathConversions$pattern,
                       replacement = pathConversions$replacement)
   asPath(fps)
 })
@@ -347,7 +347,7 @@ tsfRasters <- Cache(Map, tsf = tsfs,
                     lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
-tsfRasters <- convertRasterFileBackendPath(tsfRasters, 
+tsfRasters <- convertRasterFileBackendPath(tsfRasters,
                                            pattern = pathConversions$pattern,
                                            replacement = pathConversions$replacement)
 
@@ -392,7 +392,7 @@ vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", 
                     lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                     reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
-vtmRasters <- convertRasterFileBackendPath(vtmRasters, 
+vtmRasters <- convertRasterFileBackendPath(vtmRasters,
                                            pattern = pathConversions$pattern,
                                            replacement = pathConversions$replacement)
 
@@ -444,18 +444,18 @@ CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNa
                                            loadCCSpeciesFn = loadCCSpecies,
                                            shpSubStudyRegion = shpSubStudyRegion,
                                            tsfRasters = tsfRasters))
-CurrentConditions <- convertRasterFileBackendPath(CurrentConditions, pattern = pathConversions$pattern, 
+CurrentConditions <- convertRasterFileBackendPath(CurrentConditions, pattern = pathConversions$pattern,
                              replacement = pathConversions$replacement)
 tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
   fps <- filename(x$CCtsf)
-  fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+  fps <- convertPaths(fps, pattern = pathConversions$pattern,
                       replacement = pathConversions$replacement)
   asPath(fps)
 }
 })
 vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
   fps <- filename(x$CCvtm)
-  fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+  fps <- convertPaths(fps, pattern = pathConversions$pattern,
                       replacement = pathConversions$replacement)
   asPath(fps)
 }
@@ -471,7 +471,7 @@ reportingAndLeading <- Cache(reportingAndLeadingFn,
                              userTags = c("leading", "reportingPolygons"),
                              cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL,
                              leadingByStageFn = leadingByStage,
-                             freeReportingPolygonNames = freeReportingPolygonNames, 
+                             freeReportingPolygonNames = freeReportingPolygonNames,
                              proprietaryReportingPolygonNames = proprietaryReportingPolygonNames,
                              intersectListShpsFn = intersectListShps,
                              shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
@@ -486,7 +486,7 @@ reportingAndLeadingCC <- Cache(reportingAndLeadingFn, #notOlderThan = Sys.time()
                                userTags = c("leading", "reportingPolygons"),
                                cacheId = if (exists("cachdId4ReportingAndLeadingFnCC")) cachdId4ReportingAndLeadingFnCC else NULL,
                                leadingByStageFn = leadingByStage,
-                               freeReportingPolygonNames = freeReportingPolygonNames, 
+                               freeReportingPolygonNames = freeReportingPolygonNames,
                                proprietaryReportingPolygonNames = proprietaryReportingPolygonNames,
                                intersectListShpsFn = intersectListShps,
                                shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
@@ -517,14 +517,14 @@ rp4LrgPatches <- lapply(reportingPolygons, function(rpAll) {
 
 getAllIfExists(tsfs, ifNot = "Proprietary")
 
-# some of the args oare for largePatchesFn, some passed through to largePatchesInnerFn, 
+# some of the args oare for largePatchesFn, some passed through to largePatchesInnerFn,
 lrgPatches <- Cache(largePatchesFn,
                     reportingPolygons = rp4LrgPatches,
                     authenticationType = authenticationType,
                     cacheId = if (exists("cacheIdLrgPatches"))
                       cacheIdLrgPatches else NULL,
                     omitArgs = c("cl", "lapplyFn"),
-                    ageClasses = ageClasses, 
+                    ageClasses = ageClasses,
                     countNumPatchesFn = countNumPatches,
                     cellNumbersForPolygonFn = cellNumbersForPolygon,
                     largePatchesInnerFn = largePatchesInnerFn,
@@ -540,7 +540,7 @@ lrgPatchesCC <- Cache(largePatchesFn,
                     cacheId = if (exists("cacheIdLrgPatches"))
                       cacheIdLrgPatches else NULL,
                     omitArgs = c("cl", "lapplyFn"),
-                    ageClasses = ageClasses, 
+                    ageClasses = ageClasses,
                     countNumPatchesFn = countNumPatches,
                     cellNumbersForPolygonFn = cellNumbersForPolygon,
                     largePatchesInnerFn = largePatchesInnerFn,
@@ -573,7 +573,7 @@ if (FALSE) {
 # Write all Proprietary input shapefiles to disk
 polySubDir <- file.path(getAllIfExists(oPaths, ifNot = "Proprietary"), "Polygons")
 dir.create(polySubDir, showWarnings = FALSE)
-out <- Cache(Map, polys = lapply(getAllIfExists(reportingPolygons, ifNot = "Proprietary"), 
+out <- Cache(Map, polys = lapply(getAllIfExists(reportingPolygons, ifNot = "Proprietary"),
                                  function(p) p$crsSR$shpSubStudyRegion),
              namesPolys = names(getAllIfExists(reportingPolygons, "Proprietary")),
              cacheId = if (exists("cacheIdWriteShapefiles"))
