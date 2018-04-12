@@ -1,3 +1,12 @@
+## LandWeb app information
+appInfo <- list(
+  name = "LandWeb",
+  version = numeric_version("1.0.0"),
+  authors = c(
+    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut"),
+    person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre"))
+  )
+)
 
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 packageLoadStartTime <- Sys.time()
