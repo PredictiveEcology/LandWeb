@@ -46,6 +46,7 @@ function(input, output, session) {
   callModule(inputTables, "inputTables")
 
   callModule(downloadOutputs, "downloadOutputs",
+             appInfo = appInfo, ## defined in global.R
              rctLargePatchesData = rctLargePatchesData,
              rctVegData = rctVegData,
              rctPolygonList = rctPolygonList,
