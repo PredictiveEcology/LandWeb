@@ -19,21 +19,19 @@
 #'
 #' @return A matrix with counts of number of large patches
 largePatchesFn <- function(timeSinceFireFiles, vegTypeMapFiles, reportingPolygons,
-                           largePatchesInnerFn, authenticationType, ... ) {
-  mapLists <- list(reportingPolygons = reportingPolygons, authenticationType = authenticationType)
-  moreArgsLists <- list(...)
-  filesLists <- list(timeSinceFireFiles = timeSinceFireFiles,
-                     vegTypeMapFiles = vegTypeMapFiles)
-  if (length(reportingPolygons) == length(timeSinceFireFiles)) {
-    mapLists <- append(mapLists, filesLists)
-  } else {
-    moreArgsLists <- append(moreArgsLists, filesLists)
-  }
-  
-  do.call(Map, append(list(largePatchesInnerFn, MoreArgs = moreArgsLists), mapLists))
+                           authenticationType, largePatchesInnerFn, ... ) {
+  # call Map on reportingPolygons, authenticationType, and possibly timeSinceFireFiles and vegTypeMapFiles.
+  #   These latter two be lists matching reportingPolygons, or may be a single list with "All"
+  MapWithVariableInputs(reportingPolygons = reportingPolygons, 
+                        authenticationType = authenticationType,
+                        f = largePatchesInnerFn,
+                        possibleList = list(timeSinceFireFiles = timeSinceFireFiles,
+                                            vegTypeMapFiles = vegTypeMapFiles), 
+                        MoreArgs = list(...))
 }
 
-largePatchesInnerFn <- function(timeSinceFireFiles, vegTypeMapFiles, reportingPolygons,
+largePatchesInnerFn <- function(timeSinceFireFiles, #vegTypeMapFiles, 
+                                reportingPolygons,
                                 largePatchesInner2Fn,
                                 cellNumbersForPolygonFn,
                                 authenticationType,  
@@ -51,23 +49,21 @@ largePatchesInnerFn <- function(timeSinceFireFiles, vegTypeMapFiles, reportingPo
     message("  ", timeSinceFireFiles[1])
     message("      Calculating PolygonID for all similar rasters for:")
     cellIDByPolygons <- cellNumbersForPolygonFn(rasWithNAs, reportingPolygons)
-    numClusters = length(timeSinceFireFiles)
+    message("      Running largePatchesInner2Fn")
     out <- Map(cellIDByPolygon = cellIDByPolygons, polygonName = names(cellIDByPolygons),
-               MoreArgs = list(#ageCutoffs = ageCutoffs, 
-                 timeSinceFireFiles = timeSinceFireFiles,
-                 vegTypeMapFiles = vegTypeMapFiles, #cl = cl, 
-                 yearNames = yearNames, ...),
+               MoreArgs = append(list(timeSinceFireFiles = timeSinceFireFiles,
+                               yearNames = yearNames), list(...)),
                largePatchesInner2Fn)
     
   }
 }
 
-largePatchesInner2Fn <- function(cellIDByPolygon, polygonName, ageCutoffs, 
+largePatchesInner2Fn <- function(cellIDByPolygon, polygonName, ageClassCutOffs, 
                                  countNumPatchesFn, timeSinceFireFiles, ageClasses,
-                                 vegTypeMapFiles, cl, lapplyFn, yearNames) {
+                                 vegTypeMapFiles, cl, lapplyFn, yearNames, ...) {
   message("  ", polygonName)
-  out <- lapply(ageCutoffs, function(ages) {
-    y <- match(ages, ageCutoffs)
+  out <- lapply(ageClassCutOffs, function(ages) {
+    y <- match(ages, ageClassCutOffs)
     startList <- list()
     message("    Age class ", ageClasses[y])
     data.table::setDTthreads(5)
@@ -85,9 +81,9 @@ largePatchesInner2Fn <- function(cellIDByPolygon, polygonName, ageCutoffs,
                                            message("      Raster: ", basename(vegTypeMapFiles[x]))
                                            timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
                                            leadingRast <- raster(vegTypeMapFiles[x])
-                                           leadingRast[timeSinceFireFilesRast[] < ageCutoffs[y]] <- NA
-                                           if ((y + 1) <= length(ageCutoffs))
-                                             leadingRast[timeSinceFireFilesRast[] >= ageCutoffs[y + 1]] <- NA
+                                           leadingRast[timeSinceFireFilesRast[] < ageClassCutOffs[y]] <- NA
+                                           if ((y + 1) <= length(ageClassCutOffs))
+                                             leadingRast[timeSinceFireFilesRast[] >= ageClassCutOffs[y + 1]] <- NA
                                            
                                            clumpedRasts <- lapply(raster::levels(leadingRast)[[1]]$ID, function(ID) {
                                              spRas <- leadingRast
