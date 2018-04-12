@@ -307,14 +307,14 @@ tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- grep(pattern = "rstTimeSinceFire", rastersFromOutput, value = TRUE)
   fps <- convertPaths(fps, pattern = pathConversions$pattern, 
                       replacement = pathConversions$replacement)
-  asPath(fps)
+  asPath(fps, 2) # the tsfs, if used in a Cache situation, should be Cached to 2 parent directories
 })
 
 vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
   fps <- grep(pattern = "vegTypeMap", rastersFromOutput, value = TRUE)
   fps <- convertPaths(fps, pattern = pathConversions$pattern, 
                       replacement = pathConversions$replacement)
-  asPath(fps)
+  asPath(fps, 2)
 })
 
 tsfLFLTFilenames <- lapply(tsfs, function(tsf) SpaDES.core::.suffix(tsf, "LFLT") )
@@ -329,7 +329,7 @@ flammableFiles <- lapply(mySimOuts, function(mySimOut) {
   fps <- file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd")
   fps <- convertPaths(fps, pattern = pathConversions$pattern, 
                       replacement = pathConversions$replacement)
-  asPath(fps)
+  asPath(fps, 2)
 })
 
 tsfRasters <- Cache(Map, tsf = tsfs,
@@ -441,14 +441,14 @@ tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
   fps <- filename(x$CCtsf)
   fps <- convertPaths(fps, pattern = pathConversions$pattern, 
                       replacement = pathConversions$replacement)
-  asPath(fps)
+  asPath(fps, 2)
 }
 })
 vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
   fps <- filename(x$CCvtm)
   fps <- convertPaths(fps, pattern = pathConversions$pattern, 
                       replacement = pathConversions$replacement)
-  asPath(fps)
+  asPath(fps, 2)
 }
 })
 
@@ -456,36 +456,40 @@ vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
 freeReportingPolygonNames <- c("Alberta Ecozones", "National Ecozones", "National Ecodistricts")
 proprietaryReportingPolygonNames <- c("Forest Management Areas", "Alberta FMUs", "Caribou Ranges")
 
-reportingAndLeading <- Cache(reportingAndLeadingFn,
+
+# Do two steps together, making Cache a bit faster
+reportingAndLeading <- Cache(reportingAndLeading,
+                             # Used in reportingAndLeading
                              createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
+                             calculateLeadingVegTypeFn = calculateLeadingVegType,
+                             
+                             # Passed into createReportingPolygonsAllFn
                              createReportingPolygonsFn = createReportingPolygons,
                              userTags = c("leading", "reportingPolygons"),
-                             cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL,
-                             leadingByStageFn = leadingByStage,
                              freeReportingPolygonNames = freeReportingPolygonNames, 
                              proprietaryReportingPolygonNames = proprietaryReportingPolygonNames,
-                             intersectListShpsFn = intersectListShps,
-                             shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
                              authenticationType = authenticationType,
-                             ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                             tsfs = tsfs, vtms = vtms, cl = cl6, lapplyFn = lapplyFn)
+                             # Passed into createReportingPolygonsFn
+                             intersectListShpsFn = intersectListShps,
+                             shpStudyRegion = shpStudyRegion, 
+                             shpSubStudyRegion = shpSubStudyRegion,
+                             
+                             # Passed into calculateLeadingVegTypeFn
+                             leadingByStageFn = leadingByStage,
+                             tsfs = tsfs, vtms = vtms, cl = cl6,
+                             ageClass = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                             lapplyFn = lapplyFn,
+                             
+                             # Used by Cache
+                             cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL)
 list2env(reportingAndLeading, envir = .GlobalEnv) # puts leading and reportingPolygons into .GlobalEnv
 
-reportingAndLeadingCC <- Cache(reportingAndLeadingFn, #notOlderThan = Sys.time(),
-                               createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
-                               createReportingPolygonsFn = createReportingPolygons,
-                               userTags = c("leading", "reportingPolygons"),
-                               cacheId = if (exists("cachdId4ReportingAndLeadingFnCC")) cachdId4ReportingAndLeadingFnCC else NULL,
-                               leadingByStageFn = leadingByStage,
-                               freeReportingPolygonNames = freeReportingPolygonNames, 
-                               proprietaryReportingPolygonNames = proprietaryReportingPolygonNames,
-                               intersectListShpsFn = intersectListShps,
-                               shpStudyRegion = shpStudyRegion, shpSubStudyRegion = shpSubStudyRegion,
-                               authenticationType = authenticationType,
-                               ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                               tsfs = tsfsCC, vtms = vtmsCC, cl = cl6, lapplyFn = lapplyFn)
-reportingPolygonsCC <- reportingAndLeadingCC$reportingPolygons
-leadingCC <- reportingAndLeadingCC$leading
+leadingCC <- Cache(calculateLeadingVegType, reportingPolygons, #calculateLeadingVegType = calculateLeadingVegType,
+                                     tsfs = tsfsCC, vtms = vtmsCC, cl = cl6, 
+                                     ageClasses = ageClasses, 
+                                     ageClassCutOffs = ageClassCutOffs, 
+                                     leadingByStageFn = leadingByStage) 
+  
 vegCoverLabels <- levels(CurrentConditions$Proprietary$CCvtm)[[1]]
 leadingCC$Proprietary <- lapply(leadingCC$Proprietary, function(poly) {
   if (!is.null(poly)) {
@@ -506,41 +510,45 @@ rp4LrgPatches <- lapply(reportingPolygons, function(rpAll) {
   })
 })
 
-getAllIfExists(tsfs, ifNot = "Proprietary")
 
 # some of the args oare for largePatchesFn, some passed through to largePatchesInnerFn, 
-lrgPatches <- Cache(largePatchesFn,
-                    reportingPolygons = rp4LrgPatches,
-                    authenticationType = authenticationType,
-                    cacheId = if (exists("cacheIdLrgPatches"))
-                      cacheIdLrgPatches else NULL,
-                    omitArgs = c("cl", "lapplyFn"),
-                    ageClasses = ageClasses, 
-                    countNumPatchesFn = countNumPatches,
-                    cellNumbersForPolygonFn = cellNumbersForPolygon,
-                    largePatchesInnerFn = largePatchesInnerFn,
-                    largePatchesInner2Fn = largePatchesInner2Fn,
-                    timeSinceFireFiles = getAllIfExists(tsfs, ifNot = "Proprietary"),
-                    vegTypeMapFiles = getAllIfExists(vtms, ifNot = "Proprietary"),
-                    cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles
-                    ageCutoffs = ageClassCutOffs
+
+lrgPatchesArgs <- list(largePatchesFn,
+      reportingPolygons = rp4LrgPatches,
+      authenticationType = authenticationType,
+      largePatchesInnerFn = largePatchesInnerFn,
+      
+      # Passed through to largePatchesInnerFn
+      largePatchesInner2Fn = largePatchesInner2Fn,
+      cellNumbersForPolygonFn = cellNumbersForPolygon,
+      
+      # Passed through to largePatchesInner2Fn
+      ageClassCutOffs = ageClassCutOffs,
+      ageClasses = ageClasses, 
+      cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles
+      countNumPatchesFn = countNumPatches,
+      
+      omitArgs = c("cl", "lapplyFn")
 )
-lrgPatchesCC <- Cache(largePatchesFn,
-                    reportingPolygons = rp4LrgPatches,
-                    authenticationType = authenticationType,
-                    cacheId = if (exists("cacheIdLrgPatches"))
-                      cacheIdLrgPatches else NULL,
-                    omitArgs = c("cl", "lapplyFn"),
-                    ageClasses = ageClasses, 
-                    countNumPatchesFn = countNumPatches,
-                    cellNumbersForPolygonFn = cellNumbersForPolygon,
-                    largePatchesInnerFn = largePatchesInnerFn,
-                    largePatchesInner2Fn = largePatchesInner2Fn,
-                    timeSinceFireFiles = getAllIfExists(tsfsCC, ifNot = "Proprietary"),
-                    vegTypeMapFiles = getAllIfExists(vtmsCC, ifNot = "Proprietary"),
-                    cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles
-                    ageCutoffs = ageClassCutOffs
-)
+
+
+# Only pass unique arguments here -- all tsfs & vtms and cacheId
+lrgPatches <- do.call(Cache, append(list(
+  timeSinceFireFiles = getAllIfExists(tsfs, ifNot = "Proprietary"),
+  vegTypeMapFiles = getAllIfExists(vtms, ifNot = "Proprietary"),
+  cacheId = if (exists("cacheIdLrgPatches"))
+    cacheIdLrgPatches else NULL
+),
+lrgPatchesArgs))
+
+# Only pass unique arguments here -- all tsfsCC & vtmsCC and cacheId
+lrgPatchesCC <- do.call(Cache, append(list(
+  timeSinceFireFiles = getAllIfExists(tsfsCC, ifNot = "Proprietary"),
+  vegTypeMapFiles = getAllIfExists(vtmsCC, ifNot = "Proprietary"),
+  cacheId = if (exists("cacheIdLrgPatchesCC"))
+    cacheIdLrgPatchesCC else NULL
+),
+lrgPatchesArgs))
 
 message(paste("Finished largePatchesFn"))
 
