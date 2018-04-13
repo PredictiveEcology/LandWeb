@@ -278,7 +278,7 @@ seed <- sample(1e8, 1)
 
 
 ######## SimInit and Experiment
-mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim,
+mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim, 
                    modules = modules4sim,
                    cacheId = if (exists("cacheId4Experiment")) cacheId4Experiment else NULL,
                    outputs = outputs4sim, 
