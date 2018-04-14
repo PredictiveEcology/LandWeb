@@ -440,7 +440,7 @@ reportingAndLeading <- function(createReportingPolygonsAllFn, calculateLeadingVe
   # remove study area
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
   leadingOut <- calculateLeadingVegTypeFn(reportingPolys = reportingPolysWOStudyArea, ...)
-  return(list(leading = leadingOut, reportingPolygons = reportingPolysWOStudyArea))
+  return(list(leading = leadingOut, reportingPolygons = reportingPolygon))
 }
 
 calculateLeadingVegType <- function(reportingPolys, leadingByStageFn, tsfs, vtms, ...) {
