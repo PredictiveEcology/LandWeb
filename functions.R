@@ -27,101 +27,6 @@ intersectListShps <- function(listShps, intersectShp) {
                      })
 }
 
-#' Calculate proportion of landscape occupied by each vegetation class
-#'
-#' @return A data.table with proportion of the pixels in each vegetation class, for
-#'         each given age class within each polygon
-leadingByStage <- function(timeSinceFireFiles, vegTypeMapFiles, polygonToSummarizeBy,
-                           ageClassCutOffs,  ageClasses, cl = NULL, lapplyFn = "lapply") {
-  out <- lapply(ageClassCutOffs, function(ages) {
-    y <- match(ages, ageClassCutOffs)
-    if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
-      startList <- list(cl = cl)
-    } else {
-      startList <- list()
-    }
-    startList <- append(startList, list(y = y))
-    
-    message("      ", ageClasses[y], " for\n        ", paste0(basename(timeSinceFireFiles), collapse = "\n        "))
-    out1 <- #Cache(cacheRepo = paths$cachePath,
-      do.call(lapplyFn, append(startList, list(X = timeSinceFireFiles, function(x, ...) {
-        x <- match(x, timeSinceFireFiles)
-        timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
-        leadingRast <- raster(vegTypeMapFiles[x])
-        leadingRast[timeSinceFireFilesRast[] < ageClassCutOffs[y]] <- 0
-        if ((y + 1) < length(ageClassCutOffs))
-          leadingRast[timeSinceFireFilesRast[] >= ageClassCutOffs[y + 1]] <- 0
-        leadingRast
-      })))
-    names(out1) <- gsub(paste(basename(dirname(timeSinceFireFiles)),
-                              basename(timeSinceFireFiles), sep = "_"),
-                        replacement = "_", pattern = "\\.")
-    out1
-  })
-  names(out) <- ageClasses
-  allStack <- raster::stack(unlist(lapply(out, function(ageClasses) {
-    out <- lapply(ageClasses, function(rep) {
-      #lapply(rep, function(vegType) {
-      rep
-      #})
-    })
-    #names(out) <-
-    out
-  })))
-  IDs <- raster::levels(out[[1]][[1]])[[1]]$ID
-  Factors <- raster::levels(out[[1]][[1]])[[1]]$Factor
-  ii <- 3
-  aa <- tryCatch(
-    raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack))),
-    error = function(x) NULL)
-
-  aa1 <- lapply(aa, function(x,  ...) {
-    if (!is.null(x)) {
-      apply(x, 2, function(y) {
-        nonNACells <- na.omit(y)
-        if (length(nonNACells)) {
-          vals <- tabulate(nonNACells, max(IDs))
-          names(vals)[IDs] <- Factors
-          vals <- vals[!is.na(names(vals))]
-          if (sum(vals)) {
-            vals / sum(vals)
-          } else {
-            vals
-          }
-        }
-      })
-    } else {
-      NULL
-    }
-  })
-
-  nonNulls <- unlist(lapply(aa1, function(x) !is.null(x)))
-  vegType <- unlist(lapply(aa1[nonNulls], rownames))
-  aa1 <- lapply(aa1, function(a) {
-    rownames(a) <- NULL
-    a
-  })
-
-  aadf <- data.frame(
-    zone = rep(polygonToSummarizeBy$shinyLabel[nonNulls], each = length(Factors)),
-    polygonID = as.character(rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors))), ## TODO:
-    vegCover = vegType, do.call(rbind, aa1[nonNulls]),
-    stringsAsFactors = FALSE
-  )
-
-  temp <- list()
-  if (NROW(aadf) > 0) { # if polygon doesn't overlap, the tryCatch on raster::extract returns NULL
-    for (ages in ageClasses) {
-      temp[[ages]] <- aadf %>%
-        dplyr::select(starts_with(ages) , zone:vegCover) %>%
-        tidyr::gather(key = "label", value = "proportion", -(zone:vegCover)) %>%
-        mutate(ageClass = unlist(lapply(strsplit(label, split = "\\."), function(x) x[[1]])))
-    }
-  }
-
-  aa <- rbindlist(temp)
-  aa
-}
 
 # A function that creates a raster with contiguous patches labelled as such
 countNumPatches <- function(ras, cellIDByPolygon, ...) {
@@ -311,22 +216,21 @@ loadCCSpecies <- function(mapNames, userTags = "", ...) {
 }
 
 
-createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegion,
-                                    intersectListShpsFn) {
-
+createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyRegion,
+                                    intersectListShpsFn, ...) {
   cannonicalLayerNames <- c("Alberta Ecozones", "National Ecozones",
                    "National Ecodistricts", "Forest Management Areas",
                    "Alberta FMUs", "Caribou Ranges")
-  if (!(all(layerNames %in% cannonicalLayerNames)) ) {
+  if (!(all(polygonNames %in% cannonicalLayerNames)) ) {
     stop("This function can only handle ", paste(cannonicalLayerNames, collapse = ", "))
   }
 
-  names(layerNames) <- layerNames
+  names(polygonNames) <- polygonNames
 
-  polys <- as.list(layerNames)
+  polys <- as.list(polygonNames)
   # Alberta Ecozone
   layerNamesIndex <- 1
-  if (cannonicalLayerNames[layerNamesIndex] %in% layerNames) {
+  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
     dPath <- asPath(file.path(paths$inputPath, "ecozones", "Alberta"))
     albertaEcozoneFiles <- asPath(c("Natural_Regions_Subregions_of_Alberta.dbf",
                                     "Natural_Regions_Subregions_of_Alberta.lyr", "Natural_Regions_Subregions_of_Alberta.prj",
@@ -345,7 +249,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
 
   # National Ecozone
   layerNamesIndex <- 2
-  if (cannonicalLayerNames[layerNamesIndex] %in% layerNames) {
+  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
     dPath <- file.path(paths$inputPath, "ecozones", "National")
     ecozoneFilename <-   file.path(dPath, "ecozones.shp")
     ecozoneFiles <- c("ecozones.dbf", "ecozones.prj",
@@ -362,7 +266,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
 
   # National Ecodistrict
   layerNamesIndex <- 3
-  if (cannonicalLayerNames[layerNamesIndex] %in% layerNames) {
+  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
     dPath <- file.path(paths$inputPath, "ecodistricts", "National")
     ecodistrictFilename <-   file.path(dPath, "ecodistricts.shp")
     ecodistrictFiles <- c("ecodistricts.dbf", "ecodistricts.prj",
@@ -378,7 +282,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   ## Polygons for report/shiny app
   ## All FMAs -
   layerNamesIndex <- 4
-  if (cannonicalLayerNames[layerNamesIndex] %in% layerNames) {
+  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
     dPath <- file.path(paths$inputPath, "allFMAs")
     allFMAsFilename <- asPath(file.path(dPath, "FMA_Boudary.shp"))
     allFMAsFiles <- c("FMA_Boudary.CPG", "FMA_Boudary.dbf", "FMA_Boudary.prj",
@@ -396,7 +300,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
 
   ## Alberta FMU -
   layerNamesIndex <- 5
-  if (cannonicalLayerNames[layerNamesIndex] %in% layerNames) {
+  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
     dPath <- file.path(paths$inputPath, "FMU_Alberta_2015-11")
     albertaFMUFilename <- asPath(file.path(dPath, "FMU_Alberta_2015-11.shp"))
     albertaFMUFiles <- c("FMU_Alberta_2015-11.cpg", "FMU_Alberta_2015-11.dbf",
@@ -414,7 +318,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
 
   # Caribou Zones
   layerNamesIndex <- 6
-  if (cannonicalLayerNames[layerNamesIndex] %in% layerNames) {
+  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
     dPath <- file.path(paths$inputPath, "Caribou")
     caribouFilename <-   file.path(dPath, "LP_MASTERFILE_June62012.shp")
     caribouFiles <- c("LP_MASTERFILE_June62012.dbf", "LP_MASTERFILE_June62012.prj",
@@ -444,7 +348,9 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
   polysSubRegion <- Cache(intersectListShpsFn, polys, shpSubStudyRegion, userTags = "stable")
 
   # Add shpStudyRegion and shpSubStudyRegion to lists
+  shpStudyRegion$shinyLabel <- as.character(seq(NROW(shpStudyRegion)))
   polys$`LandWeb Study Area` <- shpStudyRegion
+  shpSubStudyRegion$shinyLabel <- as.character(seq(NROW(shpSubStudyRegion)))
   polysSubRegion$`LandWeb Study Area` <- shpSubStudyRegion
 
   #### Thin polygons
@@ -471,7 +377,7 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
 
 
   # Make Leaflet versions of all
-  message("Making leaflet versions of all reporting polygons")
+  message("Making leaflet crs versions of reportingPolygons")
   polysLflt <- Cache(mapply, p = polys, nam = names(polys), userTags = "stable",
                      function(p, nam) {
                        message("  ", nam)
@@ -501,21 +407,23 @@ createReportingPolygons <- function(layerNames, shpStudyRegion, shpSubStudyRegio
 }
 
 
-createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authenticationType,
-                                       freeReportingPolygonNames, proprietaryReportingPolygonNames,
-                                       createReportingPolygonsFn, intersectListShpsFn) {
+#' @param freeReportingPolygonNames Character vector which will be the names given to the polygons that are in the Free
+#' @param proprietaryReportingPolygonNames Character vector which will be the names given to the polygons that are in the Proprietary
+#' @param authenticationType Character vector, currently expected to be Free, Proprietary or All
+#' @param ... Passed to \code{createReportingPolygonsFn}, so \code{polygonNames}, \code{shpStudyRegion}, 
+#'            \code{shpSubStudyRegion}, \code{intersectListShpsFn}
+createReportingPolygonsAll <- function(authenticationType,
+                                       freeReportingPolygonNames, 
+                                       proprietaryReportingPolygonNames,
+                                       createReportingPolygonsFn, 
+                                       ...
+                                       ) {
   message("Loading Reporting Polygons")
   reportingPolygons <- list()
-  reportingPolygons$Free <- Cache(createReportingPolygonsFn, intersectListShpsFn = intersectListShps,
-                                  freeReportingPolygonNames,
-                                  shpStudyRegion = shpStudyRegion,
-                                  shpSubStudyRegion = shpSubStudyRegion)
-
+  reportingPolygons$Free <- createReportingPolygonsFn(polygonNames = freeReportingPolygonNames, ...)
+  
   if ("Proprietary" %in% authenticationType) {
-    tmpProprietary <- Cache(createReportingPolygonsFn, intersectListShpsFn = intersectListShps,
-                            proprietaryReportingPolygonNames,
-                            shpStudyRegion = shpStudyRegion,
-                            shpSubStudyRegion = shpSubStudyRegion)
+    tmpProprietary <- createReportingPolygonsFn(polygonNames = proprietaryReportingPolygonNames, ...)
     reportingPolygons$Proprietary <- reportingPolygons$Free
     reportingPolygons$Proprietary[names(tmpProprietary)] <- tmpProprietary
     rm(tmpProprietary)
@@ -524,38 +432,142 @@ createReportingPolygonsAll <- function(shpStudyRegion, shpSubStudyRegion, authen
 }
 
 
-
-reportingAndLeadingFn <- function(createReportingPolygonsAllFn, createReportingPolygonsFn,
-                                  intersectListShpsFn, leadingByStageFn,
-                                  freeReportingPolygonNames, proprietaryReportingPolygonNames,
-                                  shpStudyRegion, shpSubStudyRegion, authenticationType,
-                                  tsfs, vtms, cl, lapplyFn, ageClasses, ageClassCutOffs) {
-  reportingPolygon <- createReportingPolygonsAllFn(shpStudyRegion, shpSubStudyRegion, authenticationType,
-                                                 createReportingPolygonsFn = createReportingPolygonsFn,
-                                                 freeReportingPolygonNames = freeReportingPolygonNames, 
-                                                 proprietaryReportingPolygonNames = proprietaryReportingPolygonNames)
+#' Run a collection of functions
+#' @param createReportingPolygonsAllFn The function called createReportingPolygonsAll
+#' @param calculateLeadingVegTypeFn The function called calculateLeadingVegType
+#' @param ... Passed to \code{createReportingPolygonsAll} (e.g., ) and \code{calculateLeadingVegType}
+reportingAndLeading <- function(createReportingPolygonsAllFn, calculateLeadingVegTypeFn, ...) {
+  reportingPolygon <- createReportingPolygonsAllFn(...)
+  
+  # remove study area
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
-  leadingOut <- Map(reportingPolys = reportingPolysWOStudyArea, tsf = tsfs, vtm = vtms,
-                    MoreArgs = list(cl = cl, ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs),
-                    function(reportingPolys, tsf, vtm, cl, ageClasses, ageClassCutOffs) {
-                      polys = lapply(reportingPolys, function(p) p$crsSR)
-                      polyNames = names(reportingPolys)
-                      message("  Determine leading species by age class, by polygon (loading ", length(tsf),
-                              " rasters, determine leading species by ", paste(polyNames, collapse = ", "), ")")
-                      Map(poly = polys, polyName = polyNames, function(poly, polyName) {
-                        message("    Doing ", polyName)
-                        if (!is.null(tsf) & !is.null(poly$shpSubStudyRegion)) {
-                          Cache(leadingByStageFn, timeSinceFireFiles = asPath(tsf, 2),
-                                vegTypeMapFiles = asPath(vtm, 2),
-                                polygonToSummarizeBy = poly$shpSubStudyRegion,
-                                cl = TRUE, omitArgs = "cl", ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
-                        } else {
-                          NULL
-                        }
-                      })
-                    })
+  leadingOut <- calculateLeadingVegTypeFn(reportingPolys = reportingPolysWOStudyArea, ...)
   return(list(leading = leadingOut, reportingPolygons = reportingPolygon))
 }
+
+calculateLeadingVegType <- function(reportingPolys, leadingByStageFn, tsfs, vtms, ...) {
+  Map(reportingPoly = reportingPolys, tsf = tsfs, vtm = vtms,
+      MoreArgs = list(...), 
+      f = function(reportingPoly, tsf, vtm, ...){
+        polys = lapply(reportingPoly, function(p) p$crsSR)
+        polyNames = names(reportingPoly)
+        message("  ",paste(polyNames, collapse = ", ")," -- Determine leading species by age class, for each")
+        Map(poly = polys, polyName = polyNames, MoreArgs = append(list(tsf = tsf, vtm = vtm), list(...)), 
+            function(poly, polyName, tsf, vtm, ...) {
+          message("    ", polyName)
+          if (!is.null(poly$shpSubStudyRegion)) {
+            a <- Cache(leadingByStageFn, tsf = tsf,
+                  vtm = vtm,
+                  polygonToSummarizeBy = poly$shpSubStudyRegion,
+                  omitArgs = "cl", 
+                  ...
+                  )
+          } else {
+            NULL
+          }
+        })
+      })
+}
+
+#' Calculate proportion of landscape occupied by each vegetation class
+#'
+#' @return A data.table with proportion of the pixels in each vegetation class, for
+#'         each given age class within each polygon
+leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
+                           ageClassCutOffs,  ageClasses, cl = NULL, lapplyFn = "lapply", ...) {
+  if (!is.null(tsf)) {
+    out <- lapply(ageClassCutOffs, function(ages) {
+      y <- match(ages, ageClassCutOffs)
+      if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
+        startList <- list(cl = cl)
+      } else {
+        startList <- list()
+      }
+      startList <- append(startList, list(y = y))
+      
+      message("      ", ageClasses[y], " for\n        ", paste0(basename(tsf), collapse = "\n        "))
+      out1 <- #Cache(cacheRepo = paths$cachePath,
+        do.call(lapplyFn, append(startList, list(X = tsf, function(x, ...) {
+          x <- match(x, tsf)
+          timeSinceFireFilesRast <- raster(tsf[x])
+          leadingRast <- raster(vtm[x])
+          leadingRast[timeSinceFireFilesRast[] < ageClassCutOffs[y]] <- 0
+          if ((y + 1) < length(ageClassCutOffs))
+            leadingRast[timeSinceFireFilesRast[] >= ageClassCutOffs[y + 1]] <- 0
+          leadingRast
+        })))
+      names(out1) <- gsub(paste(basename(dirname(tsf)),
+                                basename(tsf), sep = "_"),
+                          replacement = "_", pattern = "\\.")
+      out1
+    })
+    names(out) <- ageClasses
+    allStack <- raster::stack(unlist(lapply(out, function(ageClasses) {
+      out <- lapply(ageClasses, function(rep) {
+        #lapply(rep, function(vegType) {
+        rep
+        #})
+      })
+      #names(out) <-
+      out
+    })))
+    IDs <- raster::levels(out[[1]][[1]])[[1]]$ID
+    Factors <- raster::levels(out[[1]][[1]])[[1]]$Factor
+    ii <- 3
+    aa <- tryCatch(
+      raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack))),
+      error = function(x) NULL)
+    
+    aa1 <- lapply(aa, function(x,  ...) {
+      if (!is.null(x)) {
+        apply(x, 2, function(y) {
+          nonNACells <- na.omit(y)
+          if (length(nonNACells)) {
+            vals <- tabulate(nonNACells, max(IDs))
+            names(vals)[IDs] <- Factors
+            vals <- vals[!is.na(names(vals))]
+            if (sum(vals)) {
+              vals / sum(vals)
+            } else {
+              vals
+            }
+          }
+        })
+      } else {
+        NULL
+      }
+    })
+    
+    nonNulls <- unlist(lapply(aa1, function(x) !is.null(x)))
+    vegType <- unlist(lapply(aa1[nonNulls], rownames))
+    aa1 <- lapply(aa1, function(a) {
+      rownames(a) <- NULL
+      a
+    })
+    
+    aadf <- data.frame(
+      zone = rep(polygonToSummarizeBy$shinyLabel[nonNulls], each = length(Factors)),
+      polygonID = as.character(rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors))), ## TODO:
+      vegCover = vegType, do.call(rbind, aa1[nonNulls]),
+      stringsAsFactors = FALSE
+    )
+    
+    temp <- list()
+    if (NROW(aadf) > 0) { # if polygon doesn't overlap, the tryCatch on raster::extract returns NULL
+      for (ages in ageClasses) {
+        temp[[ages]] <- aadf %>%
+          dplyr::select(starts_with(ages) , zone:vegCover) %>%
+          tidyr::gather(key = "label", value = "proportion", -(zone:vegCover)) %>%
+          mutate(ageClass = unlist(lapply(strsplit(label, split = "\\."), function(x) x[[1]])))
+      }
+    }
+    
+    aa <- rbindlist(temp)
+    aa
+  } 
+}
+
+
 
 createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesFn,
                             shpSubStudyRegion, tsfRasters, ...) {
@@ -597,12 +609,12 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
 
     # tsf
     CCtsf <- Cache(loadCCSpecies, ageName, #notOlderThan = Sys.time(),
-                   url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
-                   destinationPath = dPath,
-                   studyArea = shpSubStudyRegion, omitArgs = "purge",
-                   writeCropped = "CurrentCondition.tif", ..., 
-                   rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
-    )
+                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                    destinationPath = dPath,
+                    studyArea = shpSubStudyRegion, omitArgs = "purge",
+                    writeCropped = "CurrentCondition.tif", ..., 
+                    rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
+      )
 
     list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
   }
@@ -653,7 +665,7 @@ setupParallelCluster <- function(cl, numClusters) {
   }
   if (is(cl, "cluster")) {
     ## By here, it must be a cluster
-    #clusterExport(cl = cl, varlist = list("timeSinceFireFiles", "vegTypeMapFiles", "polygonToSummarizeBy"),
+    #clusterExport(cl = cl, varlist = list("tsf", "vtm", "polygonToSummarizeBy"),
     if (Sys.info()[["sysname"]] == "Windows") {
       clusterExport(cl = cl, varlist = list(ls()), envir = environment())
       clusterEvalQ(cl = cl, {
@@ -693,4 +705,31 @@ getAllIfExists <- function(List, ifNot, returnList = FALSE) {
       }
     }
   }
+}
+
+
+MapWithVariableInputs <- function(f, ..., possibleList, MoreArgs) {
+  f <- match.call()$f
+  #mapLists <- list(reportingPolygons = reportingPolygons, authenticationType = authenticationType)
+  dots <- list(...)
+  if (length(unique(unlist(lapply(dots, function(x) length(x))))) == 1) {
+    if (length(unique(unlist(lapply(possibleList, function(x) length(x))))) == 1) {
+      if (length(dots[[1]]) == length(possibleList[[1]])) {
+        putInDots <- TRUE
+      } else {
+        putInDots <- FALSE
+      }
+    } else {
+      putInDots <- FALSE
+    }
+  } else {
+    stop("Map requires that all elements of ... be the same length")
+  }
+  
+  if (putInDots) {
+    dots <- append(dots, possibleList)
+  } else {
+    MoreArgs <- append(MoreArgs, possibleList)
+  }
+  do.call(Map, append(list(f = f, MoreArgs = MoreArgs), dots))  
 }
