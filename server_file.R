@@ -23,7 +23,7 @@ rctPolygonList <- reactive(reportingPolygons[[rctAuthenticationType()]])
 
 rctRasterList <- reactive(getAllIfExists(tsfRasters, ifNot = rctAuthenticationType()))
 
-rctSim <- reactive(getAllIfExists(mySimOuts, ifNot = rctAuthenticationType()))
+rctSim <- reactive(getAllIfExists(mySimOuts, ifNot = rctAuthenticationType())[[1]])
 
 rctTsf <- reactive(getAllIfExists(tsfs, ifNot = rctAuthenticationType()))
 
