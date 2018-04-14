@@ -348,7 +348,9 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
   polysSubRegion <- Cache(intersectListShpsFn, polys, shpSubStudyRegion, userTags = "stable")
 
   # Add shpStudyRegion and shpSubStudyRegion to lists
+  shpStudyRegion$shinyLabel <- as.character(seq(NROW(shpStudyRegion)))
   polys$`LandWeb Study Area` <- shpStudyRegion
+  shpSubStudyRegion$shinyLabel <- as.character(seq(NROW(shpSubStudyRegion)))
   polysSubRegion$`LandWeb Study Area` <- shpSubStudyRegion
 
   #### Thin polygons
