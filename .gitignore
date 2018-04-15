@@ -61,3 +61,7 @@ Thumbs.db
 ## !! Module data should be gitignored in the respective module's data dir !!
 
 
+
+*.gri
+
+*.grd
