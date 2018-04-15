@@ -357,7 +357,6 @@ Init <- function(sim) {
   # Write all Proprietary input shapefiles to disk
   
   
-  browser()
   sim$getAllIfExists <- getAllIfExists
   return(invisible(sim))
 }
