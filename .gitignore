@@ -6,6 +6,10 @@
 *.tif
 *.xml
 *.zip
+*.dbf
+*.ovr
+*.cpg
+*.tfw
 
 ## cache files
 appCache*/
