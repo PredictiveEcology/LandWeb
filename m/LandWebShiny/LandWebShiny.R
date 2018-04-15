@@ -207,7 +207,7 @@ Init <- function(sim) {
   ### CURRENT CONDITION ##################################
   message("Loading Current Condition Rasters")
   
-  dPath <- file.path(sim$paths$inputPath, "CurrentCondition")
+  dPath <- dataPath(sim)
   CCspeciesNames <- list(Free = c(),
                          Proprietary = c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce"))
   CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
