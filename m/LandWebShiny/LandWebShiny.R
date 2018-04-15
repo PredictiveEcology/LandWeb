@@ -149,7 +149,7 @@ Init <- function(sim) {
                               })
   
   
-  vtmsTifs <- Cache(lapply, sim$vtms, notOlderThan = Sys.time(),
+  vtmsTifs <- Cache(lapply, sim$vtms, #notOlderThan = Sys.time(),
                     cacheId = if (exists("cacheIdVtmsTifs"))
                       cacheIdVtmsTifs else NULL,
                     userTags = c("writeRaster", "tifs"),

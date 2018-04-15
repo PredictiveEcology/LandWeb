@@ -193,7 +193,7 @@ reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
 }
 
 # Used in global_file.R to load the Current Condition Rasters from SilvaCom
-loadCCSpecies <- function(mapNames, userTags = "", ...) {
+loadCCSpecies <- function(mapNames, userTags = "", destinationPath, ...) {
   if (!any(grepl("1$", mapNames) )) {
     filenames <- paste0(mapNames, "1")
   } else {
@@ -202,13 +202,16 @@ loadCCSpecies <- function(mapNames, userTags = "", ...) {
   }
   names(filenames) <- mapNames
 
-  Map(filename = filenames, mapName = mapNames, MoreArgs = list(userTags = userTags),
-      function(filename, mapName, userTags) {
-        tifName <-  asPath(file.path(dPath, paste0(filename, ".tif")))
-        filenames <- asPath(paste0(filenames, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
+  Map(filename = filenames, mapName = mapNames, MoreArgs = list(userTags = userTags,
+                                                                destinationPath = destinationPath),
+      function(filename, mapName, userTags, destinationPath) {
+        tifName <-  asPath(file.path(destinationPath, paste0(filename, ".tif")))
+        
+        filenames <- asPath(paste0(filename, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
         prepInputs(userTags = c(userTags, "stable"),
               archive = "CurrentCondition.zip",
               targetFile = tifName,
+              destinationPath = destinationPath,
               alsoExtract = filenames, ...)
       })
 }
@@ -600,7 +603,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
     stkCurrentCondition <- stack(rstCurrentConditionList[CCspeciesNames])
     sumVegPct <- sum(stkCurrentCondition)
     stkCurrentCondition$Mixed <- all(stkCurrentCondition/sumVegPct < vegLeadingPercent)*10
-    CCvtm <- which.max(stkCurrentCondition)
+    CCvtm <- raster::which.max(stkCurrentCondition)
     CCspeciesNames <- c(CCspeciesNames, "Mixed" = "Mixed")
     levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
     CCvtm <- writeRaster(CCvtm, filename = file.path(dPath, "currentConditionVTM"), overwrite = TRUE)
