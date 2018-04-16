@@ -32,8 +32,8 @@ function(input, output, session) {
                                     outputPath = rctPaths4sim()$outputPath,
                                     ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
 
-  rctVegData <- callModule(vegAgeMod, "vegArea",
-                           rctPolygonList = rctPolygonList,        ## TODO: write this with generator
+  rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
+                           rctPolygonList = rctPolygonList,
                            rctChosenPolyName = rctChosenPolyName,
                            rctLeadingDTlist = rctLeadingDTlist,
                            rctLeadingDTlistCC = rctLeadingDTlistCC,
@@ -41,16 +41,18 @@ function(input, output, session) {
                            outputPath = rctPaths4sim()$outputPath,
                            ageClasses = ageClasses)
 
+  callModule(landwebAppInfo, "appInfo", appInfo)
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())
   callModule(inputTables, "inputTables")
 
-  callModule(downloadOutputs, "downloadOutputs",
+  callModule(downloadOutputs, "downloadOutputs", ## TODO: write this with generator
              appInfo = appInfo, ## defined in global.R
              rctLargePatchesData = rctLargePatchesData,
              rctVegData = rctVegData,
              rctPolygonList = rctPolygonList,
-             rctChosenPolyName = rctChosenPolyName) ## TODO: write this with generator
+             rctChosenPolyName = rctChosenPolyName,
+             patchSize = inputs$patchSize)
 
   ## footers (see ?copyrightFooter)
   callModule(copyrightFooter, "copyright", "Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada.")

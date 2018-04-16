@@ -28,20 +28,15 @@ LandWeb_v1.0.0_2018-04-13/
          |_ <rctChosenPolyName>/
              |_ histograms/
                  |_ largePatches/
+                     |_ 500/          ## currently selected patchSize
                  |_ vegAgeMod/
          |_ Polygons/
          |_ experiment.RData
-         |_ initialCommunitiesMap.tif
          |_ largePatches.csv
-         |_ rstFlammable*.grd
-         |_ rstFlammable*.gri
          |_ rstTimeSinceFire_*.tif
          |_ simulationOutput_*.rds
          |_ vegArea.csv
-         |_ vegTypeMap_*.grd
-         |_ vegTypeMap_*.gri
-         |_ vegTypeMap_*.tif
-         |_ vegTypeMap_*.tif.aux.xml
+         |_ vegTypeMap_*.tif*
  |_ README.Rmd
 ```
 

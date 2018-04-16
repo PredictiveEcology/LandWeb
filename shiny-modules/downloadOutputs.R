@@ -5,14 +5,16 @@ downloadOutputsUI <- function(id) {
 }
 
 downloadOutputs <- function(input, output, session, appInfo,
-                            rctLargePatchesData, rctVegData, rctPolygonList, rctChosenPolyName) {
+                            rctLargePatchesData, rctVegData, rctPolygonList,
+                            rctChosenPolyName, patchSize) {
 
   ## only authorized users can download model outputs
 
   output$downloadModel <- renderUI({
     ns <- session$ns
 
-    if (isTRUE(session$userData$userAuthorized())) {
+    if (TRUE) {
+    #if (isTRUE(session$userData$userAuthorized())) {
       tagList(
         h4(HTML("&nbsp;"), "Download model data (.zip):"),
         actionButton(ns("showDownloadOptions"), "Download Options")
@@ -30,8 +32,10 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       h5("Inputs:"), ## TODO: rename this subsection
       checkboxInput(ns("dlPolygon"), "Currently selected reporting polygon (.shp)", TRUE),
-      checkboxInput(ns("dlCachedRasters"), "Cached raster input files (.tif)", TRUE),
-      checkboxInput(ns("dlInitCommMap"), "Inital communities map (.tif)", TRUE),
+      #checkboxInput(ns("dlCachedRasters"), "Cached raster input files (.tif)", TRUE),
+      ###
+      h5("Current Condition:"),
+      checkboxInput(ns("dlCC"), "Map of current condition (.tif)", TRUE),
       ###
       h5("Outputs:"),
       h6("Large Patches Data for study region"),
@@ -43,12 +47,12 @@ downloadOutputs <- function(input, output, session, appInfo,
       checkboxInput(ns("dlVegAgeHists"), "Leading Vegetaiton Cover histograms (.png)", TRUE),
 
       h6("Simulation Rasters (cropped to study reagion)"),
-      checkboxInput(ns("dlFlammableMaps"), "Flammability maps (.grd)", TRUE),
       checkboxInput(ns("dlTimeSinceFireMaps"), "Time Since Fire maps (.tif)", TRUE),
       checkboxInput(ns("dlVegTypeMaps"), "Vegetation type maps (.grd, .tif)", TRUE),
-
-      h6("Additional R Data Files"),
-      checkboxInput(ns("dlSimOutputs"), "Simulation data files (.RData, .rds)", FALSE), ## false by default
+      ###
+      h5("Additional R Data Files"), ## all of these should be false by default
+      checkboxInput(ns("dlSimOutputs"), "Simulation data files (.RData, .rds)", FALSE),
+      #checkboxInput(ns("dlInitCommMap"), "Inital communities map (.tif)", FALSE),
       ###
       radioButtons(ns("usePrefix"), "Prefix all filenames with app version info:",
                    choices = list(yes = TRUE, no = FALSE), inline = TRUE, selected = FALSE), ## false by default
@@ -78,18 +82,19 @@ downloadOutputs <- function(input, output, session, appInfo,
         fileList <- append(fileList, polygonFiles)
       }
 
-      if (isTRUE(input$dlInitCommMap)) {
-        initCommMapFile <- file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
-                                     "initialCommunitiesMap.tif")
-        fileList <- append(fileList, initCommMapFile)
-      }
-
       if (isTRUE(input$dlCachedRasters)) {
         cachedRasterFiles <- list.files(
           file.path("cache", paste0(subStudyRegionName, "_Proprietary"), "rasters"),
           recursive = TRUE, full.names = TRUE
         )
         fileList <- append(fileList, cachedRasterFiles)
+      }
+
+      ### Current condition
+      if (isTRUE(input$dlCC)) {
+        ccFile <- file.path("cache", paste0(subStudyRegionName, "_Proprietary"),
+                             "rasters", "CurrentCondition.tif")
+        fileList <- append(fileList, ccFile)
       }
 
       ### Large Patches Data
@@ -104,7 +109,7 @@ downloadOutputs <- function(input, output, session, appInfo,
         histFiles1 <- list.files(
           file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
                     "histograms", gsub(" ", "_", rctChosenPolyName()),
-                    "largePatches"),
+                    "largePatches", patchSize),
           recursive = TRUE, full.names = TRUE
         )
         fileList <- append(fileList, histFiles1)
@@ -129,14 +134,6 @@ downloadOutputs <- function(input, output, session, appInfo,
       }
 
       ### Simulation rasters
-      if (isTRUE(input$dlFlammableMaps)) {
-        flammableMapFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")),
-          recursive = TRUE, full.names = TRUE, pattern = "rstFlammable"
-        )
-        fileList <- append(fileList, flammableMapFiles)
-      }
-
       if (isTRUE(input$dlTimeSinceFireMaps)) {
         tsfMapFiles <- list.files(
           file.path("outputs", paste0(subStudyRegionName, "_Proprietary")),
@@ -148,7 +145,7 @@ downloadOutputs <- function(input, output, session, appInfo,
       if (isTRUE(input$dlVegTypeMaps)) {
         vegTypeMapFiles <- list.files(
           file.path("outputs", paste0(subStudyRegionName, "_Proprietary")),
-          recursive = TRUE, full.names = TRUE, pattern = "vegTypeMap"
+          recursive = TRUE, full.names = TRUE, pattern = "vegTypeMap.+[0-9]\\.tif"
         )
         fileList <- append(fileList, vegTypeMapFiles)
       }
@@ -160,6 +157,12 @@ downloadOutputs <- function(input, output, session, appInfo,
           recursive = TRUE, full.names = TRUE, pattern = "[.]RData|[.]rds"
         )
         fileList <- append(fileList, simOutputFiles)
+      }
+
+      if (isTRUE(input$dlInitCommMap)) {
+        initCommMapFile <- file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
+                                     "initialCommunitiesMap.tif")
+        fileList <- append(fileList, initCommMapFile)
       }
 
       ### append filename prefix if selected
