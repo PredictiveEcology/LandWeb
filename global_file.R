@@ -5,7 +5,10 @@ appInfo <- list(
   authors = c(
     person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut"),
     person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre"))
-  )
+  ),
+  copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
+                    "Her Majesty the Queen in Right of Canada,",
+                    "as represented by the Minister of Natural Resources Canada.")
 )
 
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
