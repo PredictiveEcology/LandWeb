@@ -1,3 +1,12 @@
+## LandWeb app information
+appInfo <- list(
+  name = "LandWeb",
+  version = numeric_version("1.0.0"),
+  authors = c(
+    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut"),
+    person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre"))
+  )
+)
 
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 packageLoadStartTime <- Sys.time()
@@ -271,10 +280,10 @@ seed <- sample(1e8, 1)
 
 
 ######## SimInit and Experiment
-mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim, 
+mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim,
                    modules = modules4sim,
                    cacheId = if (exists("cacheId4Experiment")) cacheId4Experiment else NULL,
-                   outputs = outputs4sim, 
+                   outputs = outputs4sim,
                    cacheIds4Experiment = if (exists("cacheIds4Experiment")) cacheIds4Experiment else NULL,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
@@ -283,12 +292,11 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
 message("  Finished simInit and Experiment.")
 
 message("  Running LandWebShiny module")
-sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(), 
-              modules = list("LandWebShiny"), 
+sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
+              modules = list("LandWebShiny"),
               list(mySimOuts = mySimOuts,  # can't name "objects" arg in simInit because same as Cache
                    paths = paths4sim$All),
-              paths = paths4sim$All
-              )
+              paths = paths4sim$All)
 
 globalEndTime <- Sys.time()
 
