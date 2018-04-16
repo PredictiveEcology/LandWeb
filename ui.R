@@ -23,6 +23,8 @@ dashboardPage(
       menuItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece")),
       menuItem("LBMR (Succession) Model Inputs", tabName = "inputTables", icon = icon("table")),
       br(),
+      menuItem("App Information", tabName = "appInfo", icon = icon("info-circle")),
+      br(),
       downloadOutputsUI("downloadOutputs") ## TODO: write this with generator
     ),
     sidebarFooterUI("sidebar")
@@ -33,7 +35,9 @@ dashboardPage(
     tabItems(
       tabItem("timeSinceFire", timeSeriesofRastersUI("timeSinceFire")),
       tabItem("largePatches", largePatchesUI("largePatches")),
-      tabItem("vegArea", vegAgeModUI("vegArea")), # TO DO: add this to generator
+      tabItem("vegArea", vegAgeModUI("vegArea")), ## TODO: add this to generator
+
+      tabItem("appInfo", landwebAppInfoUI("appInfo")), ## TODO: add this to generator
       tabItem("simInfo", simInfoUI("simInfo")),
       tabItem("moduleInfo", moduleInfoUI("moduleInfo")),
       tabItem("inputTables", inputTablesUI("inputTables"))

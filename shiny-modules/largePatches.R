@@ -214,7 +214,7 @@ largePatchesUI <- function(id) {
 #' @param rctPolygonList     A list of polygons for to use while calculating large patches results.
 #' @param rctChosenPolyName  Name of the polygon to extract from polygonList.
 #' @param nSimTimes          How many simulation time stamps there are.
-#' @param outputPath         The path weher outputs are stored.
+#' @param outputPath         The path where outputs are stored.
 #'
 #' @return Shiny module server function.
 #'

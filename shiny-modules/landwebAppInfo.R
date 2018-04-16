@@ -11,9 +11,9 @@ landwebAppInfo <- function(input, output, session, appInfo) {
     tagList(
       fluidRow(
         shinydashboard::box(
-          title = "Funding", status = "success",
+          title = "Funding & Partners", status = "success",
           solidHeader = TRUE, collapsible = TRUE, width = 12,
-          p("TODO: add fRI logo etc.")
+          p("TODO: add fRI + contributors' logos etc.")
         )
       ),
       copyrightAuthorsUI(ns("about-app"))
