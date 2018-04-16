@@ -103,8 +103,8 @@ downloadOutputs <- function(input, output, session, appInfo,
       if (isTRUE(input$dlLargePatchesHists)) {
         histFiles1 <- list.files(
           file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
-                    gsub(" ", "_", rctChosenPolyName()),
-                    "histograms", "largePatches"),
+                    "histograms", gsub(" ", "_", rctChosenPolyName()),
+                    "largePatches"),
           recursive = TRUE, full.names = TRUE
         )
         fileList <- append(fileList, histFiles1)
@@ -121,8 +121,8 @@ downloadOutputs <- function(input, output, session, appInfo,
       if (isTRUE(input$dlVegAgeHists)) {
         histFiles2 <- list.files(
           file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
-                    gsub(" ", "_", rctChosenPolyName()),
-                    "histograms", "vegAgeMod"),
+                    "histograms", gsub(" ", "_", rctChosenPolyName()),
+                    "vegAgeMod"),
           recursive = TRUE, full.names = TRUE
         )
         fileList <- append(fileList, histFiles2)
@@ -175,7 +175,7 @@ downloadOutputs <- function(input, output, session, appInfo,
       } else {
         fileList
       }
-
+browser()
       ## TODO: improve info/metadata in this file
       readmeFile <- "README.Rmd"
 
