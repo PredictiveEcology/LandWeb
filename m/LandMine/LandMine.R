@@ -182,17 +182,11 @@ plotFn <- function(sim) {
 
 ### burn events
 Burn <- function(sim) {
-  # Poisson is too little variation
-  # numFiresThisPeriod <- rpois(length(sim$numFiresPerYear),
-  #                             lambda = sim$numFiresPerYear * P(sim)$fireTimestep)
-
+  
   numFiresThisPeriod <- rnbinom(length(sim$numFiresPerYear), 
           mu = sim$numFiresPerYear * P(sim)$fireTimestep, 
           size = 3)
-  # meanTP <- function(k, lower, upper, alpha) {
-  #   k*lower^k*(upper^(1-k) - alpha^(1-k))/((1-k)*(1-(alpha/upper)^k))
-  # }
-
+  
   thisYrStartCells <- data.table(pixel = 1:ncell(sim$rstStudyRegion),
                                polygonNumeric = sim$rstStudyRegion[] * sim$rstFlammableNum[],
                                key = "polygonNumeric")
@@ -208,16 +202,6 @@ Burn <- function(sim) {
                                       upper = P(sim)$biggestPossibleFireSizeHa,
                                       shape = sim$kBest)
   # Because annual number of fires is
-  #
-  # fireSizesInPixels <- lapply(truncVals + decimalVals, function(x)
-  #   rtruncpareto(x, lower = 1, upper = P(sim)$biggestPossibleFireSizeHa,
-  #                shape = sim$kBest))
-  # names(fireSizesInPixels) <- seq_along(sim$fireReturnIntervalsByPolygonNumeric)
-
-
-  # fireSizesInPixels <- round(pmax(1, fireSizesThisPeriod)/
-  #                     (prod(res(sim$rstFlammableNum))/1e4))
-
   fireSizesInPixels <- fireSizesThisPeriod / (prod(res(sim$rstFlammableNum)) / 1e4)
   ranDraws <- runif(length(fireSizesInPixels))
   truncVals <- trunc(fireSizesInPixels)
