@@ -175,7 +175,7 @@ downloadOutputs <- function(input, output, session, appInfo,
       } else {
         fileList
       }
-browser()
+
       ## TODO: improve info/metadata in this file
       readmeFile <- "README.Rmd"
 
