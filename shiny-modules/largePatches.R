@@ -21,7 +21,7 @@
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
 histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatus,
-                          uiSeq, outputPath, chosenPolyName) {
+                          uiSeq, outputPath, chosenPolyName, patchSize) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -65,7 +65,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       breaksLabels <- dataForBreaks$breaks
       breaksInterval <- diff(breaksLabels)[1]
       dataForHistogram <- hist(out, plot = FALSE, breaks = prettyBreaks)
-      histogramData <- dataForHistogram$counts/sum(dataForHistogram$counts)
+      histogramData <- dataForHistogram$counts / sum(dataForHistogram$counts)
 
       histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
       # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
@@ -81,15 +81,16 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       breaksLabels = 0:6
       breaksInterval <- 1
     }
-    breaks <- breaksLabels - breaksInterval/2
-    barplotBreaks <- breaksLabels + breaksInterval/2
+    breaks <- breaksLabels - breaksInterval / 2
+    barplotBreaks <- breaksLabels + breaksInterval / 2
     ticksAt <- barplotBreaks - min(breaksLabels)
-    xlim <- range(ticksAt) - breaksInterval/2
+    xlim <- range(ticksAt) - breaksInterval / 2
     addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks - min(breaksLabels))
-    verticalLineAtX <- verticalLineAtX + breaksInterval/2 # THe barplot xaxis is 1/2 a barwidth off
+    verticalLineAtX <- verticalLineAtX + breaksInterval / 2 # The barplot xaxis is 1/2 a barwidth off
 
     polyName <- chosenPolyName %>% gsub(" ", "_", .)
-    pngDir <- file.path(outputPath, "histograms", polyName, "largePatches") %>% checkPath(create = TRUE)
+    pngDir <- file.path(outputPath, "histograms", polyName, "largePatches", patchSize) %>%
+      checkPath(create = TRUE)
     pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
     pngPath <- file.path(pngDir, pngFile)
 
@@ -296,7 +297,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                authStatus = session$userData$userAuthorized(),
                uiSeq = uiSequence(),
                outputPath = outputPath,
-               chosenPolyName = rctChosenPolyName()
+               chosenPolyName = rctChosenPolyName(),
+               patchSize = as.character(input$patchSize)
     )
   })
 
