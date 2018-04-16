@@ -1,0 +1,30 @@
+landwebAppInfoUI <- function(id) {
+  ns <- NS(id)
+
+  uiOutput(ns("appInfoUI"))
+}
+
+landwebAppInfo <- function(input, output, session, appInfo) {
+  output$appInfoUI <- renderUI({
+    ns <- session$ns
+
+    tagList(
+      fluidRow(
+        shinydashboard::box(
+          title = "Funding", status = "success",
+          solidHeader = TRUE, collapsible = TRUE, width = 12,
+          p("TODO: add fRI logo etc.")
+        )
+      ),
+      copyrightAuthorsUI(ns("about-app"))
+    )
+  })
+
+  callModule(copyrightAuthors, "about-app",
+             appName = paste0(appInfo$name, " v", appInfo$version),
+             authorInfo = appInfo$authors,
+             copyrightInfo = appInfo$copyright,
+             licenseFile = NULL, #"LICENSE",
+             status = "success" ## make the boxes have green colour
+  )
+}
