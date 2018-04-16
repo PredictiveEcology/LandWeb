@@ -3,6 +3,5 @@ gdalSet <- function() {
   getOption("gdalUtils_gdalPath")
 }
 
-
 source("simInitAndExperiment.R")
 #source("largePatchesFn.R")
