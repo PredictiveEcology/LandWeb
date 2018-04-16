@@ -1,0 +1,3 @@
+[submodule "m/LandMine"]
+	path = m/LandMine
+	url = git@github.com:PredictiveEcology/LandMine.git
