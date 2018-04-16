@@ -135,7 +135,7 @@ estimateParameters <- function(sim) {
                             speciesPresence = 50,
                             studyArea = sim$studyArea,
                             rstStudyArea = rstStudyRegionBinary,
-                            cacheRepo = cpath, userTags = "stable")
+                            userTags = "stable")
   ecoregionstatus <- data.table(active = "yes",
                                 ecoregion = 1:1031)
 
@@ -150,7 +150,6 @@ estimateParameters <- function(sim) {
                           studyArea = sim$studyArea,
                           rstStudyArea = rstStudyRegionBinary,
                           maskFn = fastMask,
-                          cacheRepo = cpath,
                           userTags = "stable")
 
   .gc()
@@ -167,7 +166,7 @@ estimateParameters <- function(sim) {
                           ecoregion = ecoregionFiles$ecoregion,
                           initialCommunityMap = initialCommFiles$initialCommunityMap,
                           initialCommunity = initialCommFiles$initialCommunity,
-                          cacheRepo = cpath, userTags = "stable")
+                          userTags = "stable")
 
   .gc()
 
@@ -177,7 +176,7 @@ estimateParameters <- function(sim) {
                                  biomassLayer = sim$biomassMap,
                                  SALayer = sim$standAgeMap,
                                  ecoregionMap = simulationMaps$ecoregionMap,
-                                 cacheRepo = cpath, userTags = "stable")
+                                 userTags = "stable")
 
   .gc()
 
@@ -185,7 +184,7 @@ estimateParameters <- function(sim) {
   #septable <- sim$obtainSEPCached(ecoregionMap = simulationMaps$ecoregionMap,
   septable <- Cache(obtainSEP, ecoregionMap = simulationMaps$ecoregionMap,
                     speciesLayers = sim$specieslayers,
-                    cacheRepo = cpath, userTags = "stable")
+                    userTags = "stable")
   names(septable) <- c("ecoregion", "species", "SEP")
   septable[, SEP := round(SEP, 2)]
   .gc()
@@ -213,7 +212,6 @@ estimateParameters <- function(sim) {
                                   biggerEcoAreaSource = "ecoRegion",
                                   NAData = NAdata,
                                   maskFn = fastMask,
-                                  cacheRepo = cpath,
                                   userTags = "stable")
     message("  6b obtainMaxBandANPPFormBiggerEcoArea: ", Sys.time())
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
@@ -231,7 +229,7 @@ estimateParameters <- function(sim) {
                                   SALayer = sim$standAgeMap, ecoregionMap = simulationMaps$ecoregionMap,
                                   biggerEcoArea = sim$ecoZone, biggerEcoAreaSource = "ecoZone",
                                   NAData = NAdata, maskFn = fastMask,
-                                  cacheRepo = cpath, userTags = "stable")
+                                  userTags = "stable")
     message("  7b obtainMaxBandANPPFormBiggerEcoArea if NAdata exist: ", Sys.time())
     NON_NAdata <- rbind(NON_NAdata, biomassFrombiggerMap$addData[!is.na(maxBiomass), .(ecoregion, species, maxBiomass, maxANPP, SEP)])
     NAdata <- biomassFrombiggerMap$addData[is.na(maxBiomass),.(ecoregion, species, maxBiomass, maxANPP, SEP)]
@@ -255,7 +253,7 @@ estimateParameters <- function(sim) {
   sim$initialCommunitiesMap <- Cache(createInitCommMap, simulationMaps$initialCommunityMap,
                                      as.integer(simulationMaps$initialCommunityMap[]),
                                      file.path(outputPath(sim), "initialCommunitiesMap.tif"),
-                                     cacheRepo = cpath, userTags = "stable")
+                                     userTags = "stable")
 
   .gc()
 
@@ -308,7 +306,7 @@ estimateParameters <- function(sim) {
   message("12: ", Sys.time())
 
   sim$initialCommunities <- Cache(initialCommunitiesFn, initialCommunities, speciesTable,
-                                  cacheRepo = cpath, userTags = "stable")
+                                  userTags = "stable")
 
   # assign("species", speciesTable, envir = .GlobalEnv)
 
@@ -391,11 +389,10 @@ Save <- function(sim) {
                                                "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip")),
                             destinationPath = asPath(dPath),
                             studyArea = sim$shpStudySubRegion,
-                            rasterInterpMethod = "bilinear",
-                            rasterDatatype = "INT2U",
+                            method = "bilinear",
+                            datatype = "INT2U",
                             writeCropped = TRUE,
-                            cacheRepo = cpath,
-                            cacheTags = c("stable", currentModule(sim)))#,
+                            userTags = c("stable", currentModule(sim)))#,
     #dataset = "EOSD2000")
 
   }
@@ -408,11 +405,10 @@ Save <- function(sim) {
                          destinationPath = asPath(dPath),
                          studyArea = sim$shpStudySubRegion,
                          rasterToMatch = sim$biomassMap,
-                         rasterInterpMethod = "bilinear",
-                         rasterDatatype = "INT2U",
+                         method = "bilinear",
+                         datatype = "INT2U",
                          writeCropped = TRUE,
-                         cacheRepo = cpath,
-                         cacheTags = currentModule(sim))
+                         userTags = currentModule(sim))
 
     projection(sim$LCC2005) <- projection(sim$biomassMap)
   }
@@ -424,11 +420,8 @@ Save <- function(sim) {
                              alsoExtract = ecodistrictAE,
                              destinationPath = asPath(dPath),
                              studyArea = sim$shpStudyRegionFull,
-                             pkg = "raster",
-                             fun = "shapefile",
+                             fun = "raster::shapefile",
                              writeCropped = TRUE,
-                             cacheRepo = cpath,
-                             cacheTags = cacheTags,
                              userTags = cacheTags)
   }
 
@@ -439,11 +432,8 @@ Save <- function(sim) {
                            alsoExtract = ecoregionAE,
                            destinationPath = asPath(dPath),
                            studyArea = sim$shpStudyRegionFull,
-                           pkg = "raster",
-                           fun = "shapefile",
+                           fun = "raster::shapefile",
                            writeCropped = TRUE,
-                           cacheRepo = cpath,
-                           cacheTags = cacheTags,
                            userTags = cacheTags)
   }
 
@@ -454,11 +444,8 @@ Save <- function(sim) {
                          alsoExtract = ecozoneAE,
                          destinationPath = asPath(dPath),
                          studyArea = sim$shpStudyRegionFull,
-                         pkg = "raster",
-                         fun = "shapefile",
+                         fun = "raster::shapefile",
                          writeCropped = TRUE,
-                         cacheRepo = cpath,
-                         cacheTags = cacheTags,
                          userTags = cacheTags)
   }
 
@@ -469,15 +456,13 @@ Save <- function(sim) {
                              archive = asPath(c("kNN-StructureStandVolume.tar",
                                                 "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip")),
                              destinationPath = asPath(dPath),
-                             fun = "raster",
-                             pkg = "raster",
+                             fun = "raster::raster",
                              studyArea = sim$shpStudyRegionFull,
                              rasterToMatch = sim$biomassMap,
-                             rasterInterpMethod = "bilinear",
-                             rasterDatatype = "INT2U",
+                             method = "bilinear",
+                             datatype = "INT2U",
                              writeCropped = TRUE,
-                             cacheRepo = cpath,
-                             cacheTags = c("stable", currentModule(sim)))
+                             userTags = c("stable", currentModule(sim)))
   }
 
   if (!suppliedElsewhere("specieslayers", sim)) {
@@ -487,7 +472,7 @@ Save <- function(sim) {
                                shpStudyRegionFull = sim$shpStudyRegionFull,
                                moduleName = currentModule(sim),
                                cachePath = cpath,
-                               cacheTags = cacheTags)
+                               userTags = cacheTags)
   }
 
   # 3. species maps

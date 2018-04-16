@@ -9,24 +9,24 @@ rctAuthenticationType <- reactive({
   }
 })
 
-rctLeadingDTlist <- reactive(leading[[rctAuthenticationType()]])
+rctLeadingDTlist <- reactive(sim2$leading[[rctAuthenticationType()]])
 
-rctLeadingDTlistCC <- reactive(leadingCC[[rctAuthenticationType()]])
+rctLeadingDTlistCC <- reactive(sim2$leadingCC[[rctAuthenticationType()]])
 
-rctLrgPatches <- reactive(lrgPatches[[rctAuthenticationType()]])
+rctLrgPatches <- reactive(sim2$lrgPatches[[rctAuthenticationType()]])
 
-rctLrgPatchesCC <- reactive(lrgPatchesCC[[rctAuthenticationType()]])
+rctLrgPatchesCC <- reactive(sim2$lrgPatchesCC[[rctAuthenticationType()]])
 
-rctPaths4sim <- reactive(getAllIfExists(paths4sim, ifNot = rctAuthenticationType()))
+rctPaths4sim <- reactive(sim2$getAllIfExists(paths4sim, ifNot = rctAuthenticationType()))
 
-rctPolygonList <- reactive(reportingPolygons[[rctAuthenticationType()]])
+rctPolygonList <- reactive(sim2$reportingPolygons[[rctAuthenticationType()]])
 
-rctRasterList <- reactive(getAllIfExists(tsfRasters, ifNot = rctAuthenticationType()))
+rctRasterList <- reactive(sim2$getAllIfExists(sim2$tsfRasters, ifNot = rctAuthenticationType()))
 
-rctSim <- reactive(getAllIfExists(mySimOuts, ifNot = rctAuthenticationType()))
+rctSim <- reactive(sim2$getAllIfExists(mySimOuts, ifNot = rctAuthenticationType())[[1]])
 
-rctTsf <- reactive(getAllIfExists(tsfs, ifNot = rctAuthenticationType()))
+rctTsf <- reactive(sim2$getAllIfExists(sim2$tsfs, ifNot = rctAuthenticationType()))
 
-rctUrlTemplate <- reactive(getAllIfExists(tsfRasterTilePaths, ifNot = rctAuthenticationType()))
+rctUrlTemplate <- reactive(sim2$getAllIfExists(sim2$tsfRasterTilePaths, ifNot = rctAuthenticationType()))
 
-rctVtm <- reactive(getAllIfExists(vtms, ifNot = rctAuthenticationType()))
+rctVtm <- reactive(sim2$getAllIfExists(sim2$vtms, ifNot = rctAuthenticationType()))

@@ -97,14 +97,13 @@ Init <- function(sim) {
                   archive = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.zip"),
                   alsoExtract = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.hdr"),
                   destinationPath = asPath(dPath),
-                  fun = "raster",
-                  pkg = "raster",
+                  fun = "raster::raster",
                   studyArea = sim$shpStudySubRegion,
                   rasterToMatch = sim$biomassMap,
-                  rasterInterpMethod = "bilinear",
-                  rasterDatatype = "INT2U",
+                  method = "bilinear",
+                  datatype = "INT2U",
                   writeCropped = TRUE,
-                  cacheTags = c("stable", currentModule(sim)))#, notOlderThan = Sys.time())
+                  userTags = c("stable", currentModule(sim)))#, notOlderThan = Sys.time())
 
     CASFRITifFile <- asPath(file.path(dPath, "Landweb_CASFRI_GIDs.tif"))
     CASFRIattrFile <- asPath(file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv"))
@@ -114,14 +113,13 @@ Init <- function(sim) {
                        archive = asPath("CASFRI for Landweb.zip"),
                        alsoExtract = c(CASFRITifFile, CASFRIattrFile, CASFRIheaderFile),
                        destinationPath = asPath(dPath),
-                       fun = "raster",
-                       pkg = "raster",
+                       fun = "raster::raster",
                        studyArea = sim$shpStudySubRegion,
                        rasterToMatch = sim$biomassMap,
-                       rasterInterpMethod = "bilinear",
-                       rasterDatatype = "INT2U",
+                       method = "bilinear",
+                       datatype = "INT2U",
                        writeCropped = TRUE,
-                       cacheTags = c("stable", currentModule(sim)))
+                       userTags = c("stable", currentModule(sim)))
 
     message("Load CASFRI data and headers, and convert to long format, and define species groups")
     if (P(sim)$useParallel > 1) data.table::setDTthreads(P(sim)$useParallel)
@@ -169,10 +167,10 @@ Init <- function(sim) {
                                                "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip")),
                             destinationPath = asPath(dPath),
                             studyArea = sim$shpStudySubRegion,
-                            rasterInterpMethod = "bilinear",
-                            rasterDatatype = "INT2U",
+                            method = "bilinear",
+                            datatype = "INT2U",
                             writeCropped = TRUE,
-                            cacheTags = c("stable", currentModule(sim)))
+                            userTags = c("stable", currentModule(sim)))
   }
   
   if (!suppliedElsewhere("shpStudySubRegion")) {
