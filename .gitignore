@@ -32,8 +32,11 @@ packrat/src/
 R-Portable/
 
 ## shiny app files
-www/outputs*
 global.R
+www/All/
+www/Free/
+www/Proprietary/
+www/color_table.txt
 
 ## SpaDES-related files
 m/test/
