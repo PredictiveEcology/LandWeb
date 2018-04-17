@@ -12,8 +12,10 @@ downloadOutputs <- function(input, output, session, appInfo,
   output$downloadModel <- renderUI({
     ns <- session$ns
 
-    if (isTRUE(session$userData$userAuthorized())) {
+    if (TRUE) {
+    #if (isTRUE(session$userData$userAuthorized())) {
       tagList(
+        tags$hr(),
         h4(HTML("&nbsp;"), "Download model data (.zip):"),
         actionButton(ns("showDownloadOptions"), "Download Options")
       )
