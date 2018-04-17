@@ -32,7 +32,7 @@ packrat/src/
 R-Portable/
 
 ## shiny app files
-www/
+www/outputs*
 global.R
 
 ## SpaDES-related files

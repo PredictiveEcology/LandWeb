@@ -4,11 +4,10 @@ downloadOutputsUI <- function(id) {
   uiOutput(ns("downloadModel"))
 }
 
+#' only authorized users can download model outputs
 downloadOutputs <- function(input, output, session, appInfo,
                             rctLargePatchesData, rctVegData, rctPolygonList,
                             rctChosenPolyName, patchSize) {
-
-  ## only authorized users can download model outputs
 
   output$downloadModel <- renderUI({
     ns <- session$ns
