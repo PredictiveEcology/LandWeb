@@ -33,10 +33,7 @@ R-Portable/
 
 ## shiny app files
 global.R
-www/All/
-www/Free/
-www/Proprietary/
-www/color_table.txt
+www/
 
 ## SpaDES-related files
 m/test/
