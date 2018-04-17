@@ -180,7 +180,7 @@ downloadOutputs <- function(input, output, session, appInfo,
       }
 
       ## TODO: improve info/metadata in this file
-      readmeFile <- "README.Rmd"
+      readmeFile <- "README.md"
 
       ## create the zip file containing the selected files
       zip(file, files = c(readmeFile, unlist(fileListRenamed)))
