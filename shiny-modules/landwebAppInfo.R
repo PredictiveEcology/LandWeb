@@ -16,7 +16,7 @@ landwebAppInfo <- function(input, output, session, appInfo) {
           p("TODO: add fRI + contributors' logos etc.")
         )
       ),
-      copyrightAuthorsUI(ns("about-app"))
+      copyrightAuthorsUI(ns("about-app")) ## already in a fluidRow
     )
   })
 
