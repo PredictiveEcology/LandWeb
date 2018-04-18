@@ -4,7 +4,7 @@ loadShpAndMakeValid <- function(file) {
   shapefile(file) %>% gBuffer(byid = TRUE, width = 0)
 }
 
-loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn, 
+loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
                              fireReturnIntervalMap, subStudyRegionName, crsStudyRegion) {
   if ("RIA" %in% subStudyRegionName) {
     shpSubStudyRegion <- Cache(shapefile, userTags = "stable",
@@ -73,7 +73,7 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
                          cacheRepo = paths$cachePath, userTags = "stable")
       subStudyRegionName <- canadaAdminNames[canadaAdminNames %in% subStudyRegionName |
                                                names(canadaAdminNames) %in% subStudyRegionName]
-      inputMapPolygon <- spTransform(canadaMap[canadaMap$NAME_1 %in% subStudyRegionName,], crsStudyRegion)
+      inputMapPolygon <- spTransform(canadaMap[canadaMap$NAME_1 %in% subStudyRegionName, ], crsStudyRegion)
       aa <- sf::st_intersection(sf::st_as_sf(shpStudyRegion), sf::st_as_sf(inputMapPolygon))
       shpSubStudyRegion <- as(aa, "Spatial")
 
