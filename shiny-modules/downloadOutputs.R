@@ -19,8 +19,6 @@ downloadOutputs <- function(input, output, session, appInfo,
         h4(HTML("&nbsp;"), "Download model data (.zip):"),
         actionButton(ns("showDownloadOptions"), "Download Options")
       )
-    } else {
-      NULL
     }
   })
 
