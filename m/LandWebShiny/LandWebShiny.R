@@ -238,9 +238,44 @@ Init <- function(sim) {
   })
   
   
-  freeReportingPolygonNames <- c("Alberta Ecozones", "National Ecozones", "National Ecodistricts")
-  proprietaryReportingPolygonNames <- c("Forest Management Areas", "Alberta FMUs", "Caribou Ranges")
   
+  namedUrlsLabelColumnNames <- 
+    list("Mountain Northern Caribou Ranges" = 
+           list(url = "https://drive.google.com/file/d/1Oz2vSor3oIKf2uGv3KRtLoLRWEfX5Mas/view?usp=sharing",
+                labelColumnName = "Name"),
+         "Provincial Parks" = 
+           list(url = "https://drive.google.com/file/d/1GHgTI4JY-YhAXvWkgV20vugbvLNqEEGH/view?usp=sharing",
+                labelColumnName = "Name"),
+         "NWT Ecoregions" = 
+           list(url = "https://drive.google.com/file/d/1iRAQfARkmS6-XVHFnTkB-iltzMNPAczC/view?usp=sharing",
+                labelColumnName = "Name"),
+         "National Parks" = 
+           list(url = "https://drive.google.com/file/d/1B3VUU8PDn4NPveAyF76OBPY0vZkxScEt/view?usp=sharing",
+                labelColumnName = "Name"),
+         "AB Natural Sub Regions" = 
+           list(url = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
+                labelColumnName = "Name"),
+         # "LP MASTERFILE June62012" = 
+         #   list(url = "https://drive.google.com/file/d/1J38DKQQavjBV9F3z2gGzHNuNE0s2rmhh/view?usp=sharing",
+         #        labelColumnName = "Name"),
+         "BC Bio Geoclimatic Zones" = 
+           list(url = "https://drive.google.com/file/d/1VAwsax63l2akOM2j_O4Je9p0ZiYg8Hl-/view?usp=sharing",
+                labelColumnName = "ZONE_NAME"),
+         "FMU Alberta 2015-11" = 
+           list(url = "https://drive.google.com/file/d/1JiCLcHh5fsBAy8yAx8NgtK7fxaZ4Tetl/view?usp=sharing",
+                labelColumnName = "FMU_NAME"),
+         "FMA Boundary Updated" = 
+           list(url = "https://drive.google.com/file/d/1nTFOcrdMf1hIsxd_yNCSTr8RrYNHHwuc/view?usp=sharing",
+                labelColumnName = "Name"),
+         "Boreal Caribou Ranges" = 
+           list(url = "https://drive.google.com/file/d/1PYLou8J1wcrme7Z2tx1wtA4GvaWnU1Jy/view?usp=sharing",
+                labelColumnName = "Name")
+    )
+  freeReportingPolygonNames <- c("Alberta Ecozones", "National Ecozones", "National Ecodistricts", 
+                                 "Provincial Parks", "NWT Ecoregions", "National Parks", 
+                                 "BC Bio Geoclimatic Zones", "AB Natural Sub Regions")
+  proprietaryReportingPolygonNames <- c("FMA Boundary Updated", "FMU Alberta 2015-11", "Boreal Caribou Ranges",
+                                        "Northern Mountain Caribou Ranges")
   
   # Do two steps together, making Cache a bit faster
   reportingAndLeading <- Cache(reportingAndLeading,
@@ -258,12 +293,15 @@ Init <- function(sim) {
                                intersectListShpsFn = intersectListShps,
                                shpStudyRegion = shpStudyRegion, 
                                shpSubStudyRegion = shpSubStudyRegion,
+                               namedUrlsLabelColumnNames = namedUrlsLabelColumnNames,
+                               labelColumn = sim$labelColumn,
                                
                                # Passed into calculateLeadingVegTypeFn
                                leadingByStageFn = leadingByStage,
                                tsfs = sim$tsfs, vtms = sim$vtms, cl = cl6,
                                ageClass = ageClasses, ageClassCutOffs = ageClassCutOffs,
                                lapplyFn = lapplyFn,
+                               destinationPath = dataPath(sim),
                                
                                # Used by Cache
                                cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL)
