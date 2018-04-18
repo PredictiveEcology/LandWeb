@@ -27,22 +27,22 @@ simInitAndExperiment <- function( times, params,
   
   mySimOuts <- emptyList
   # parallel::clusterMap, cl = cl, 
-  if (!exists("cacheId4sExperiment")) cacheId4sExperiment <- Map(function(y) NULL, names(mySimOuts))
+  if (!exists("cacheIds4Experiment")) cacheIds4Experiment <- Map(function(y) NULL, names(mySimOuts))
   mySimOuts <- Cache(Map, runExperiment, sim = mySims, 
-                     cacheIds = cacheId4sExperiment,
+                     cacheId = cacheIds4Experiment,
                      nReps = experimentReps, objectsToHash = objectsToHash, 
                      cacheSpades = cacheSpades)
 }
 
 
 # run the simulation experiment
-runExperiment <- function(sim, nReps, objectsToHash = "", cacheSpades, cacheIds = NULL) {
+runExperiment <- function(sim, nReps, objectsToHash = "", cacheSpades, cacheId = NULL) {
   args <- list(experiment, sim, replicates = nReps,
                objects = objectsToHash, 
                cache = cacheSpades, # cache each spades call
                debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
                  paste(unname(current(sim)), collapse = ' '))",
-               .plotInitialTime = NA, cacheId = cacheIds,
+               .plotInitialTime = NA, cacheId = cacheId,
                clearSimEnv = TRUE, 
                omitArgs = c("debug", ".plotInitialTime"))
   args <- args[!unlist(lapply(args, is.null))]
