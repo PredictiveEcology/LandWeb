@@ -218,21 +218,14 @@ loadCCSpecies <- function(mapNames, userTags = "", destinationPath, ...) {
 
 
 createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyRegion,
-                                    intersectListShpsFn, ...) {
-  cannonicalLayerNames <- c("Alberta Ecozones", "National Ecozones",
-                   "National Ecodistricts", "Forest Management Areas",
-                   "Alberta FMUs", "Caribou Ranges")
-  if (!(all(polygonNames %in% cannonicalLayerNames)) ) {
-    stop("This function can only handle ", paste(cannonicalLayerNames, collapse = ", "))
-  }
-
+                                    intersectListShpsFn, destinationPath, labelColumn, ...) {
   names(polygonNames) <- polygonNames
 
-  polys <- as.list(polygonNames)
-  # Alberta Ecozone
-  layerNamesIndex <- 1
-  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
-    dPath <- asPath(file.path(paths$inputPath, "ecozones", "Alberta"))
+  polys <- list()
+  
+  layerNamesIndex <- "AB Natural Sub Regions"
+  if (layerNamesIndex %in% polygonNames) {
+    #dPath <- asPath(file.path(paths$inputPath, "ecozones", "Alberta"))
     albertaEcozoneFiles <- asPath(c("Natural_Regions_Subregions_of_Alberta.dbf",
                                     "Natural_Regions_Subregions_of_Alberta.lyr", "Natural_Regions_Subregions_of_Alberta.prj",
                                     "Natural_Regions_Subregions_of_Alberta.shp.xml",
@@ -240,103 +233,59 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
                                     "nsr2005_final_letter.jpg", "nsr2005_final_letter.pdf"))
     albertaEcozoneURL <- "https://www.albertaparks.ca/media/429607/natural_regions_subregions_of_alberta.zip"
     albertaEcozoneFilename <- asPath("Natural_Regions_Subregions_of_Alberta.shp")
-    polys[[cannonicalLayerNames[layerNamesIndex]]] <- Cache(
+    polys[[layerNamesIndex]] <- Cache(
       prepInputs, userTags = "stable",
       url = albertaEcozoneURL, targetFile = albertaEcozoneFilename,
-      fun = "shapefile", destinationPath = dPath, alsoExtract = albertaEcozoneFiles
+      fun = "shapefile", alsoExtract = albertaEcozoneFiles, destinationPath = destinationPath
     )
-    polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[cannonicalLayerNames[layerNamesIndex]]]$NSRNAME
+    polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$NSRNAME
   }
 
   # National Ecozone
-  layerNamesIndex <- 2
-  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
-    dPath <- file.path(paths$inputPath, "ecozones", "National")
-    ecozoneFilename <-   file.path(dPath, "ecozones.shp")
+  layerNamesIndex <- "National Ecozones"
+  if (layerNamesIndex %in% polygonNames) {
+    #dPath <- file.path(paths$inputPath, "ecozones", "National")
+    ecozoneFilename <-   file.path(destinationPath, "ecozones.shp")
     ecozoneFiles <- c("ecozones.dbf", "ecozones.prj",
                       "ecozones.sbn", "ecozones.sbx", "ecozones.shp", "ecozones.shx")
-    polys[[cannonicalLayerNames[layerNamesIndex]]]  <- Cache(
+    polys[[layerNamesIndex]]  <- Cache(
       prepInputs, userTags = "stable",
       url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
       targetFile = asPath(ecozoneFilename),
       alsoExtract = ecozoneFiles,
-      fun = "shapefile", destinationPath = dPath
+      fun = "shapefile", destinationPath = destinationPath
     )
-    polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[cannonicalLayerNames[layerNamesIndex]]]$ZONE_NAME
+    polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ZONE_NAME
   }
 
   # National Ecodistrict
-  layerNamesIndex <- 3
-  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
-    dPath <- file.path(paths$inputPath, "ecodistricts", "National")
-    ecodistrictFilename <-   file.path(dPath, "ecodistricts.shp")
+  layerNamesIndex <- "National Ecodistricts"
+  if (layerNamesIndex %in% polygonNames) {
+    #dPath <- file.path(paths$inputPath, "ecodistricts", "National")
+    ecodistrictFilename <-   file.path(destinationPath, "ecodistricts.shp")
     ecodistrictFiles <- c("ecodistricts.dbf", "ecodistricts.prj",
                           "ecodistricts.sbn", "ecodistricts.sbx", "ecodistricts.shp", "ecodistricts.shx")
-    polys[[cannonicalLayerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable",
+    polys[[layerNamesIndex]] <- Cache(prepInputs, userTags = "stable",
                                                   url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip",
                                                   targetFile = asPath(ecodistrictFilename),
                                                   alsoExtract = ecodistrictFiles,
-                                                  fun = "shapefile", destinationPath = dPath)
-    polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[cannonicalLayerNames[layerNamesIndex]]]$ECODISTRIC
+                                                  fun = "shapefile", destinationPath = destinationPath)
+    polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ECODISTRIC
   }
 
-  ## Polygons for report/shiny app
-  ## All FMAs -
-  layerNamesIndex <- 4
-  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
-    dPath <- file.path(paths$inputPath, "allFMAs")
-    allFMAsFilename <- asPath(file.path(dPath, "FMA_Boudary.shp"))
-    allFMAsFiles <- c("FMA_Boudary.CPG", "FMA_Boudary.dbf", "FMA_Boudary.prj",
-                      "FMA_Boudary.sbn", "FMA_Boudary.sbx", "FMA_Boudary.shp", "FMA_Boudary.shp.xml",
-                      "FMA_Boudary.shx")
-    polys[[cannonicalLayerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable",
-                                                  url = "https://drive.google.com/open?id=1oCMiHRRT1bCWe0Uv69nRSrE1nsh-4Tic",
-                                                  #targetFile = albertaFMUFilename,
-                                                  #alsoExtract = albertaFMUFiles,
-                                                  fun = "shapefile",
-                                                  destinationPath = dPath)
-    polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <-
-      polys[[cannonicalLayerNames[layerNamesIndex]]]$Name
+  polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1) 
+  
+  # Get all SilvaCom-generated datasets - they have a common structure
+  polys2 <- prepInputsFromSilvacom(polygonNames = polygonNames, 
+                         shinyLabel = labelColumn, destinationPath = destinationPath, ...)
+  
+  polys[names(polys2)] <- polys2
+  if ("National Ecozones" %in% names(polys)) {
+    # remove the french name column because it has accents that aren't correctly dealt with
+    polys$`National Ecozones`@data <- 
+      polys$`National Ecozones`@data[-which(colnames(polys$`National Ecozones`@data)=="ZONE_NOM")]
   }
-
-  ## Alberta FMU -
-  layerNamesIndex <- 5
-  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
-    dPath <- file.path(paths$inputPath, "FMU_Alberta_2015-11")
-    albertaFMUFilename <- asPath(file.path(dPath, "FMU_Alberta_2015-11.shp"))
-    albertaFMUFiles <- c("FMU_Alberta_2015-11.cpg", "FMU_Alberta_2015-11.dbf",
-                         "FMU_Alberta_2015-11.prj", "FMU_Alberta_2015-11.sbn",
-                         "FMU_Alberta_2015-11.sbx", "FMU_Alberta_2015-11.shp",
-                         "FMU_Alberta_2015-11.shp.xml", "FMU_Alberta_2015-11.shx")
-    polys[[cannonicalLayerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable",
-                                                  url = "https://drive.google.com/file/d/1JiCLcHh5fsBAy8yAx8NgtK7fxaZ4Tetl/view?usp=sharing",
-                                                  targetFile = albertaFMUFilename,
-                                                  alsoExtract = albertaFMUFiles,
-                                                  fun = "shapefile",
-                                                  destinationPath = dPath)
-    polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <- polys[[cannonicalLayerNames[layerNamesIndex]]]$FMU_NAME
-  }
-
-  # Caribou Zones
-  layerNamesIndex <- 6
-  if (cannonicalLayerNames[layerNamesIndex] %in% polygonNames) {
-    dPath <- file.path(paths$inputPath, "Caribou")
-    caribouFilename <-   file.path(dPath, "LP_MASTERFILE_June62012.shp")
-    caribouFiles <- c("LP_MASTERFILE_June62012.dbf", "LP_MASTERFILE_June62012.prj",
-                      "LP_MASTERFILE_June62012.sbn", "LP_MASTERFILE_June62012.sbx",
-                      "LP_MASTERFILE_June62012.shp", "LP_MASTERFILE_June62012.shp.xml",
-                      "LP_MASTERFILE_June62012.shx")
-    polys[[cannonicalLayerNames[layerNamesIndex]]] <- Cache(prepInputs, userTags = "stable",
-                                                  url = "https://drive.google.com/file/d/1J38DKQQavjBV9F3z2gGzHNuNE0s2rmhh/view?usp=sharing",
-                                                  targetFile = asPath(caribouFilename),
-                                                  alsoExtract = caribouFiles,
-                                                  fun = "shapefile",
-                                                  destinationPath = dPath)
-    polys[[cannonicalLayerNames[layerNamesIndex]]]@data[[labelColumn]] <-
-      polys[[cannonicalLayerNames[layerNamesIndex]]]$LABEL2
-  }
-
-
+  
   ########################################################
   ########################################################
   ########################################################
@@ -735,3 +684,38 @@ MapWithVariableInputs <- function(f, ..., possibleList, MoreArgs) {
   do.call(Map, append(list(f = f, MoreArgs = MoreArgs), dots))  
 }
 
+prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, polygonNames, 
+                                   shinyLabel, ...) {
+  out <- Map(url = namedUrlsLabelColumnNames, layerName = names(namedUrlsLabelColumnNames), 
+      MoreArgs = list(destinationPath = destinationPath,
+                      polygonNames = polygonNames,
+                      shinyLabel = shinyLabel),
+      function(url, layerName, destinationPath, polygonNames, 
+               shinyLabel) {
+        
+        if (layerName %in% polygonNames) {
+          #dPath <- file.path(paths$inputPath, "Caribou")
+          target <- gsub(pattern = " ", replacement = "_", layerName)
+          targetZip <- paste0(target, ".zip") 
+          targetFilename <-   file.path(destinationPath, paste0(target, ".shp"))
+          targetFilenames <- paste0(target, c(".dbf", ".prj",
+                                              ".sbn", ".sbx",
+                                              ".shp", ".shp.xml",
+                                              ".shx"))
+          message(layerName, ": Running prepInputs")
+          polygonOut <- Cache(prepInputs, userTags = "stable", 
+                                                                  archive = asPath(targetZip),
+                                                                  url = url$url,
+                                                                  targetFile = asPath(targetFilename),
+                                                                  alsoExtract = asPath(targetFilenames),
+                                                                  fun = "shapefile", destinationPath = destinationPath)
+          polygonOut@data[[shinyLabel]] <-
+            polygonOut[[url$labelColumnName]]
+          polygonOut
+        } 
+      }
+  )
+  out[!unlist(lapply(out, is.null))]
+  
+  
+}
