@@ -69,12 +69,12 @@ paths <- list(
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
-# This is a separate cache ONLY used for saving snapshots of working LandWeb runs
-# It needs to be separate because it is an overarching one, regardless of scale
-reproducibleCache <- "reproducibleCache"
 
-if (any(c("achubaty", "emcintir") %in% Sys.info()["user"])) {
+if (any(c("achubaty") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
+}
+if (any(c("emcintir") %in% Sys.info()["user"])) {
+  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
 }
 
 ## get additonal helper functions used throughout this shiny app
@@ -284,10 +284,10 @@ seed <- sample(1e8, 1)
 
 ######## SimInit and Experiment
 mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim,
-                   modules = modules4sim,
-                   cacheId = if (exists("cacheId4Experiment")) cacheId4Experiment else NULL,
+                   modules = modules4sim, #notOlderThan = Sys.time(),
+                   cacheId = cacheId$simInitAndExperiment,
                    outputs = outputs4sim,
-                   cacheIds4Experiment = if (exists("cacheIds4Experiment")) cacheIds4Experiment else NULL,
+                   cacheIds4Experiment = cacheId$runExperiment,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
                    emptyList = emptyListAll)
@@ -296,9 +296,10 @@ message("  Finished simInit and Experiment.")
 
 message("  Running LandWebShiny module")
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
-              modules = list("LandWebShiny"),
+              modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
               list(mySimOuts = mySimOuts,  # can't name "objects" arg in simInit because same as Cache
-                   paths = paths4sim$All),
+                   paths = paths4sim$All,
+                   labelColumn = labelColumn),
               paths = paths4sim$All)
 
 globalEndTime <- Sys.time()
