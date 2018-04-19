@@ -273,6 +273,7 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
   }
 
   polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1)
+  polys$provinces[[labelColumn]] <- polys$provinces$NAME_1
 
   # Get all SilvaCom-generated datasets - they have a common structure
   polys2 <- prepInputsFromSilvacom(polygonNames = polygonNames,
