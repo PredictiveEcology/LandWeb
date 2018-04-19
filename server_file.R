@@ -19,7 +19,7 @@ rctLrgPatchesCC <- reactive(sim2$lrgPatchesCC[[rctAuthenticationType()]])
 
 rctPaths4sim <- reactive(sim2$getAllIfExists(paths4sim, ifNot = rctAuthenticationType()))
 
-rctPolygonList <- reactiveVal(sim2$reportingPolygons[[rctAuthenticationType()]])
+rctPolygonList <- reactive(sim2$reportingPolygons[[rctAuthenticationType()]])
 
 rctRasterList <- reactive(sim2$getAllIfExists(sim2$tsfRasters, ifNot = rctAuthenticationType()))
 
