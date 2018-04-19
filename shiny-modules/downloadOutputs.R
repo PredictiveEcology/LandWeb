@@ -105,7 +105,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       if (isTRUE(input$dlLargePatchesHists)) {
         histFiles1 <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"), ## currently in _All not _Proprietary
                     "histograms", gsub(" ", "_", rctChosenPolyName()),
                     "largePatches", patchSize),
           recursive = TRUE, full.names = TRUE
@@ -123,7 +123,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       if (isTRUE(input$dlVegAgeHists)) {
         histFiles2 <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"), ## currently in _All not _Proprietary
                     "histograms", gsub(" ", "_", rctChosenPolyName()),
                     "vegAgeMod"),
           recursive = TRUE, full.names = TRUE
@@ -134,7 +134,7 @@ downloadOutputs <- function(input, output, session, appInfo,
       ### Simulation rasters
       if (isTRUE(input$dlTimeSinceFireMaps)) {
         tsfMapFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")),
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")), ## currently in _All not _Proprietary
           recursive = TRUE, full.names = TRUE, pattern = "rstTimeSinceFire"
         )
         fileList <- append(fileList, tsfMapFiles)
@@ -142,7 +142,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       if (isTRUE(input$dlVegTypeMaps)) {
         vegTypeMapFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")),
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")), ## currently in _All not _Proprietary
           recursive = TRUE, full.names = TRUE, pattern = "vegTypeMap.+[0-9]\\.tif"
         )
         fileList <- append(fileList, vegTypeMapFiles)
@@ -151,16 +151,10 @@ downloadOutputs <- function(input, output, session, appInfo,
       ### other simulation data files
       if (isTRUE(input$dlSimOutputs)) {
         simOutputFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")),
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")), ## currently in _All not _Proprietary
           recursive = TRUE, full.names = TRUE, pattern = "[.]RData|[.]rds"
         )
         fileList <- append(fileList, simOutputFiles)
-      }
-
-      if (isTRUE(input$dlInitCommMap)) {
-        initCommMapFile <- file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
-                                     "initialCommunitiesMap.tif")
-        fileList <- append(fileList, initCommMapFile)
       }
 
       ### append filename prefix if selected
