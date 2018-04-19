@@ -13,9 +13,8 @@ landwebAppInfo <- function(input, output, session, appInfo) {
         shinydashboard::box(
           title = "Funding & Partners", status = "success",
           solidHeader = TRUE, collapsible = TRUE, width = 12,
-          img(src = "images/fRI_logo.png", align = "left", width = 250),
-          br(),
-          p("TODO: add contributors' logos etc.")
+          img(src = "images/fRI_logo.png", align = "left", width = 250)
+          ## TODO: add other partner info/logos
         )
       ),
       copyrightAuthorsUI(ns("about-app")) ## already in a fluidRow
