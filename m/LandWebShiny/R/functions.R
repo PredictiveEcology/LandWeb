@@ -633,7 +633,6 @@ getAllIfExists <- function(List, ifNot, returnList = FALSE) {
     } else {
       List[["All"]]
     }
-
   } else {
     if (missing(ifNot)) {
       if (length(List) > 1) {
@@ -644,9 +643,8 @@ getAllIfExists <- function(List, ifNot, returnList = FALSE) {
         } else {
           List[[1]]
         }
-
       }
-    } else{
+    } else {
       if (returnList) {
         List[ifNot]
       } else {
@@ -683,36 +681,34 @@ MapWithVariableInputs <- function(f, ..., possibleList, MoreArgs) {
   do.call(Map, append(list(f = f, MoreArgs = MoreArgs), dots))
 }
 
-prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, polygonNames,
-                                   shinyLabel, ...) {
-  out <- Map(url = namedUrlsLabelColumnNames, layerName = names(namedUrlsLabelColumnNames),
-      MoreArgs = list(destinationPath = destinationPath,
-                      polygonNames = polygonNames,
-                      shinyLabel = shinyLabel),
-      function(url, layerName, destinationPath, polygonNames,
-               shinyLabel) {
-
-        if (layerName %in% polygonNames) {
-          #dPath <- file.path(paths$inputPath, "Caribou")
-          target <- gsub(pattern = " ", replacement = "_", layerName)
-          targetZip <- paste0(target, ".zip")
-          targetFilename <-   file.path(destinationPath, paste0(target, ".shp"))
-          targetFilenames <- paste0(target, c(".dbf", ".prj",
-                                              ".sbn", ".sbx",
-                                              ".shp", ".shp.xml",
-                                              ".shx"))
-          message(layerName, ": Running prepInputs")
-          polygonOut <- Cache(prepInputs, userTags = "stable",
-                                                                  archive = asPath(targetZip),
-                                                                  url = url$url,
-                                                                  targetFile = asPath(targetFilename),
-                                                                  alsoExtract = asPath(targetFilenames),
-                                                                  fun = "shapefile", destinationPath = destinationPath)
-          polygonOut@data[[shinyLabel]] <-
-            polygonOut[[url$labelColumnName]]
-          polygonOut
-        }
-      }
+prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath,
+                                   polygonNames, shinyLabel, ...) {
+  out <- Map(url = namedUrlsLabelColumnNames,
+             layerName = names(namedUrlsLabelColumnNames),
+             MoreArgs = list(destinationPath = destinationPath,
+                             polygonNames = polygonNames,
+                             shinyLabel = shinyLabel),
+             function(url, layerName, destinationPath, polygonNames, shinyLabel) {
+               if (layerName %in% polygonNames) {
+                 #dPath <- file.path(paths$inputPath, "Caribou")
+                 target <- gsub(pattern = " ", replacement = "_", layerName)
+                 targetZip <- paste0(target, ".zip")
+                 targetFilename <-   file.path(destinationPath, paste0(target, ".shp"))
+                 targetFilenames <- paste0(target, c(".dbf", ".prj",
+                                                     ".sbn", ".sbx",
+                                                     ".shp", ".shp.xml", ".shx"))
+                 message(layerName, ": Running prepInputs")
+                 polygonOut <- Cache(prepInputs, userTags = "stable",
+                                     archive = asPath(targetZip),
+                                     url = url$url,
+                                     targetFile = asPath(targetFilename),
+                                     alsoExtract = asPath(targetFilenames),
+                                     fun = "shapefile",
+                                     destinationPath = destinationPath)
+                 polygonOut@data[[shinyLabel]] <- polygonOut[[url$labelColumnName]]
+                 polygonOut
+               }
+             }
   )
   out[!unlist(lapply(out, is.null))]
 }
