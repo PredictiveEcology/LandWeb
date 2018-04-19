@@ -11,7 +11,7 @@ function(input, output, session) {
 
   rctUserInfo <- callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
 
-  observeEvent(session$userData$userAuthorized(), {
+  rctPolygonListUser <- reactive({
     if (isTRUE(session$userData$userAuthorized())) {
       userEmail <- rctUserInfo()$emails[1, "value"] %>%
         gsub("/", "_", .) ## `/` is valid for email addresses but not filenames
@@ -19,15 +19,14 @@ function(input, output, session) {
 
       rctUploadedPolygon <- callModule(uploadPolygon, "uploadPolygon", userDir())
 
-      ## assign updated value to rctPolygonList
-      rctPolyList(append(reactPolyList()), rctUploadedPolygon())
+      append(reactPolyList(), rctUploadedPolygon())
     }
   })
 
   rctChosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
                                    rctRasterList = rctRasterList,
                                    rctUrlTemplate = rctUrlTemplate,
-                                   rctPolygonList = rctPolygonList,
+                                   rctPolygonList = rctPolygonListUser,
                                    shpStudyRegionName = "LandWeb Study Area",
                                    defaultPolyName = "National Ecozones",
                                    colorPalette = timeSinceFirePalette,
@@ -37,8 +36,8 @@ function(input, output, session) {
                                    nRasters = length(rctTsf()),
                                    rasterStepSize = summaryInterval)
 
-  rctLargePatchesData <- callModule(largePatches, "largePatches",
-                                    rctPolygonList = rctPolygonList,   ## TODO: write this with generator
+  rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
+                                    rctPolygonList = rctPolygonListUser,
                                     rctChosenPolyName = rctChosenPolyName,
                                     rctLrgPatches = rctLrgPatches,
                                     rctLrgPatchesCC = rctLrgPatchesCC,
@@ -47,7 +46,7 @@ function(input, output, session) {
                                     ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
 
   rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
-                           rctPolygonList = rctPolygonList,
+                           rctPolygonList = rctPolygonListUser,
                            rctChosenPolyName = rctChosenPolyName,
                            rctLeadingDTlist = rctLeadingDTlist,
                            rctLeadingDTlistCC = rctLeadingDTlistCC,
@@ -64,7 +63,7 @@ function(input, output, session) {
              appInfo = appInfo, ## defined in global.R
              rctLargePatchesData = rctLargePatchesData,
              rctVegData = rctVegData,
-             rctPolygonList = rctPolygonList,
+             rctPolygonList = rctPolygonListUser,
              rctChosenPolyName = rctChosenPolyName,
              patchSize = inputs$patchSize)
 
