@@ -30,7 +30,6 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       h5("Inputs:"), ## TODO: rename this subsection
       checkboxInput(ns("dlPolygon"), "Currently selected reporting polygon (.shp)", TRUE),
-      #checkboxInput(ns("dlCachedRasters"), "Cached raster input files (.tif)", TRUE),
       ###
       h5("Current Condition:"),
       checkboxInput(ns("dlCC"), "Map of current condition (.tif)", TRUE),
@@ -78,14 +77,6 @@ downloadOutputs <- function(input, output, session, appInfo,
           pattern = rctChosenPolyName(), recursive = TRUE, full.names = TRUE
         )
         fileList <- append(fileList, polygonFiles)
-      }
-
-      if (isTRUE(input$dlCachedRasters)) {
-        cachedRasterFiles <- list.files(
-          file.path("cache", paste0(subStudyRegionName, "_Proprietary"), "rasters"),
-          recursive = TRUE, full.names = TRUE
-        )
-        fileList <- append(fileList, cachedRasterFiles)
       }
 
       ### Current condition
