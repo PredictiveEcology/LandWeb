@@ -7,9 +7,23 @@ function(input, output, session) {
   if (file.exists("server_file.R")) source("server_file.R", local = TRUE)
 
   ## module calls
-  callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
+  # TODO: update generator to handle these assignments
 
-  # TODO: update generator to handle this assignment
+  rctUserInfo <- callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
+
+  observeEvent(session$userData$userAuthorized(), {
+    if (isTRUE(session$userData$userAuthorized())) {
+      userEmail <- rctUserInfo()$emails[1, "value"] %>%
+        gsub("/", "_", .) ## `/` is valid for email addresses but not filenames
+      userDir <- filePath("uploads", userEmail)
+
+      rctUploadedPolygon <- callModule(uploadPolygon, "uploadPolygon", userDir())
+
+      ## assign updated value to rctPolygonList
+      rctPolyList(append(reactPolyList()), rctUploadedPolygon())
+    }
+  })
+
   rctChosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
                                    rctRasterList = rctRasterList,
                                    rctUrlTemplate = rctUrlTemplate,
