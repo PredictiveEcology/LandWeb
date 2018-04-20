@@ -19,7 +19,13 @@ function(input, output, session) {
 
       rctUploadedPolygon <- callModule(uploadPolygon, "uploadPolygon", userDir())
 
-      append(reactPolyList(), rctUploadedPolygon())
+      if (req(rctUploadedPolygon())) {
+        append(rctPolygonList(), rctUploadedPolygon())
+      } else {
+        rctPolyList()
+      }
+    } else {
+      rctPolygonList()
     }
   })
 
