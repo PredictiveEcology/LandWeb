@@ -9,7 +9,7 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
   suffix <- paste0("_", suffix)
   for (sp in speciesnamesRaw) {
     targetFile <- paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.tif")
-    writeCropped <- .suffix(targetFile, suffix = suffix)
+    postProcessedFilename <- .suffix(targetFile, suffix = suffix)
     species1[[sp]] <- prepInputs(
       targetFile = targetFile,
       archive = asPath(c("kNN-Species.tar", paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.zip"))),
@@ -20,7 +20,7 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
       rasterToMatch = biomassMap,
       method = "bilinear",
       datatype = "INT2U",
-      writeCropped = writeCropped
+      postProcessedFilename = postProcessedFilename
     )
   }
 
