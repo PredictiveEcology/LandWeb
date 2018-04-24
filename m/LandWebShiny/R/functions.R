@@ -706,7 +706,6 @@ prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, p
                                               ".shp", ".shp.xml",
                                               ".shx"))
           message(layerName, ": Running prepInputs")
-          browser()
           polygonOut <- Cache(prepInputs, userTags = "stable", 
                               archive = asPath(targetZip),
                               url = url$url,
