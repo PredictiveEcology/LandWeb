@@ -1,7 +1,7 @@
 # Overall model times # start is default at 0
-endTime <- 6
-summaryInterval <- 1
-summaryPeriod <- c(4, endTime)
+endTime <- 60
+summaryInterval <- 10
+summaryPeriod <- c(40, endTime)
 useParallelCluster <- FALSE
 cl6 <- NULL
 lapplyFn <- "lapply"

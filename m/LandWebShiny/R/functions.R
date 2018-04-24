@@ -274,6 +274,7 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
   }
 
   polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1) 
+  polys$provinces[[labelColumn]] <- polys$provinces$NAME_1
   
   # Get all SilvaCom-generated datasets - they have a common structure
   polys2 <- prepInputsFromSilvacom(polygonNames = polygonNames, 
@@ -409,7 +410,9 @@ calculateLeadingVegType <- function(reportingPolys, leadingByStageFn, tsfs, vtms
             a <- Cache(leadingByStageFn, tsf = tsf,
                   vtm = vtm,
                   polygonToSummarizeBy = poly$shpSubStudyRegion,
-                  omitArgs = "cl", 
+                  omitArgs = c("cl", "showSimilar", 
+                               formalsNotInCurrentDots(leadingByStageFn, ...)), 
+                  showSimilar = TRUE,
                   ...
                   )
           } else {
@@ -703,12 +706,13 @@ prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, p
                                               ".shp", ".shp.xml",
                                               ".shx"))
           message(layerName, ": Running prepInputs")
+          browser()
           polygonOut <- Cache(prepInputs, userTags = "stable", 
-                                                                  archive = asPath(targetZip),
-                                                                  url = url$url,
-                                                                  targetFile = asPath(targetFilename),
-                                                                  alsoExtract = asPath(targetFilenames),
-                                                                  fun = "shapefile", destinationPath = destinationPath)
+                              archive = asPath(targetZip),
+                              url = url$url,
+                              targetFile = asPath(targetFilename),
+                              alsoExtract = asPath(targetFilenames),
+                              fun = "shapefile", destinationPath = destinationPath)
           polygonOut@data[[shinyLabel]] <-
             polygonOut[[url$labelColumnName]]
           polygonOut
@@ -718,4 +722,8 @@ prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, p
   out[!unlist(lapply(out, is.null))]
   
   
+}
+
+formalsNotInCurrentDots <- function(fun, ...) {
+  names(list(...))[!(names(list(...)) %in% names(formals(fun)))]
 }
