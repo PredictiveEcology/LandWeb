@@ -331,18 +331,18 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
   polysLflt <- Cache(mapply, p = polys, nam = names(polys), userTags = "stable",
                      function(p, nam) {
                        message("  ", nam)
-                       out <- tryCatch(spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
+                       out <- tryCatch(spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT)), error = function(x) {
                          p <- spChFIDs(p, as.character(seq(NROW(p))))
-                         spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
+                         spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT))
                        }, error = function(x) NULL)
                      })
   polysLfltSubStudyRegion <- Cache(mapply, p = polysSubRegion, nam = names(polysSubRegion), userTags = "stable",
                                    function(p, nam) {
                                      message("  ", nam)
                                      out <- tryCatch(
-                                       spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
+                                       spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT)), error = function(x) {
                                        p <- spChFIDs(p, as.character(seq(NROW(p))))
-                                       spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
+                                       spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT))
                                      }, error = function(x) NULL)
                                    })
 
