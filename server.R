@@ -7,24 +7,40 @@ function(input, output, session) {
   if (file.exists("server_file.R")) source("server_file.R", local = TRUE)
 
   ## module calls
-  callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
+  # TODO: update generator to handle these assignments
 
-  # TODO: update generator to handle this assignment
-  rctChosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
+  rctUserInfo <- callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
+
+  defaultPolyName <- "National Ecozones"  ## TODO: move to global.R ?
+
+  userEmail <- reactive({
+    rctUserInfo()$emails[1, "value"] %>%
+      gsub("/", "_", .) ## `/` is valid for email addresses but not filenames
+  })
+
+  rctChosenPolyUser <-  callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
                                    rctRasterList = rctRasterList,
                                    rctUrlTemplate = rctUrlTemplate,
-                                   rctPolygonList = rctPolygonList,
+                                   rctPolygonList = rctPolygonListUser,
                                    shpStudyRegionName = "LandWeb Study Area",
-                                   defaultPolyName = "National Ecozones",
+                                   defaultPolyName = defaultPolyName,
                                    colorPalette = timeSinceFirePalette,
                                    mapTitle = "Time since fire",
                                    mapLegend = paste0("Time since fire", br(), "(years)"),
                                    maxAge = maxAge, zoom = 5, nPolygons = 1,
                                    nRasters = length(rctTsf()),
-                                   rasterStepSize = summaryInterval)
+                                   rasterStepSize = summaryInterval,
+                                   uploadOpts = list(
+                                     auth = isTRUE(session$userData$userAuthorized()),
+                                     path = "uploads",
+                                     user = userEmail()
+                                   ))
 
-  rctLargePatchesData <- callModule(largePatches, "largePatches",
-                                    rctPolygonList = rctPolygonList,   ## TODO: write this with generator
+  rctPolygonListUser <- reactive(rctChosenPolyUser()$polygons)
+  rctChosenPolyName <- reactive(rctChosenPolyUser()$selected)
+
+  rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
+                                    rctPolygonList = rctPolygonListUser,
                                     rctChosenPolyName = rctChosenPolyName,
                                     rctLrgPatches = rctLrgPatches,
                                     rctLrgPatchesCC = rctLrgPatchesCC,
@@ -33,7 +49,7 @@ function(input, output, session) {
                                     ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
 
   rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
-                           rctPolygonList = rctPolygonList,
+                           rctPolygonList = rctPolygonListUser,
                            rctChosenPolyName = rctChosenPolyName,
                            rctLeadingDTlist = rctLeadingDTlist,
                            rctLeadingDTlistCC = rctLeadingDTlistCC,
@@ -50,7 +66,7 @@ function(input, output, session) {
              appInfo = appInfo, ## defined in global.R
              rctLargePatchesData = rctLargePatchesData,
              rctVegData = rctVegData,
-             rctPolygonList = rctPolygonList,
+             rctPolygonList = rctPolygonListUser,
              rctChosenPolyName = rctChosenPolyName,
              patchSize = inputs$patchSize)
 

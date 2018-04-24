@@ -158,7 +158,6 @@ message("Preparing polygon maps for reporting histograms")
 source("colorPaletteForShiny.R")
 labelColumn <- "shinyLabel"
 
-
 #############################
 
 ##### SERVER FILE.R
@@ -181,8 +180,8 @@ times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
 
 modules4sim <- emptyListAll
 modules4sim$All <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-                         "landWebProprietaryData",
-                         "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+                        "landWebProprietaryData",
+                        "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
 objects4sim <- emptyListAll
 objects4sim <- lapply(objects4sim, function(x)
@@ -216,7 +215,6 @@ parameters4sim <- lapply(parameters4sim, function(x) {
   )
 })
 
-
 outputs4simFn <- function(objects4sim, parameters4sim, times4sim,
                           objectNamesToSave) {
   outputs <- data.frame(stringsAsFactors = FALSE,
@@ -244,6 +242,7 @@ outputs4simFn <- function(objects4sim, parameters4sim, times4sim,
 
   as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 }
+
 objectNamesToSave <- emptyListAll
 objectNamesToSave <- lapply(objectNamesToSave, function(x) {
   c("rstTimeSinceFire", "vegTypeMap")
@@ -280,7 +279,6 @@ paths4sim <- Map(cPath = cPaths, oPath = oPaths,
                  })
 
 seed <- sample(1e8, 1)
-
 
 ######## SimInit and Experiment
 mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim,

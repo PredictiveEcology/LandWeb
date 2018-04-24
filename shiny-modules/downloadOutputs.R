@@ -14,11 +14,10 @@ downloadOutputs <- function(input, output, session, appInfo,
 
     if (isTRUE(session$userData$userAuthorized())) {
       tagList(
+        tags$hr(),
         h4(HTML("&nbsp;"), "Download model data (.zip):"),
         actionButton(ns("showDownloadOptions"), "Download Options")
       )
-    } else {
-      NULL
     }
   })
 
@@ -30,7 +29,6 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       h5("Inputs:"), ## TODO: rename this subsection
       checkboxInput(ns("dlPolygon"), "Currently selected reporting polygon (.shp)", TRUE),
-      #checkboxInput(ns("dlCachedRasters"), "Cached raster input files (.tif)", TRUE),
       ###
       h5("Current Condition:"),
       checkboxInput(ns("dlCC"), "Map of current condition (.tif)", TRUE),
@@ -80,14 +78,6 @@ downloadOutputs <- function(input, output, session, appInfo,
         fileList <- append(fileList, polygonFiles)
       }
 
-      if (isTRUE(input$dlCachedRasters)) {
-        cachedRasterFiles <- list.files(
-          file.path("cache", paste0(subStudyRegionName, "_Proprietary"), "rasters"),
-          recursive = TRUE, full.names = TRUE
-        )
-        fileList <- append(fileList, cachedRasterFiles)
-      }
-
       ### Current condition
       if (isTRUE(input$dlCC)) {
         ccFile <- file.path("cache", paste0(subStudyRegionName, "_Proprietary"),
@@ -105,7 +95,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       if (isTRUE(input$dlLargePatchesHists)) {
         histFiles1 <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"), ## currently in _All not _Proprietary
                     "histograms", gsub(" ", "_", rctChosenPolyName()),
                     "largePatches", patchSize),
           recursive = TRUE, full.names = TRUE
@@ -123,7 +113,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       if (isTRUE(input$dlVegAgeHists)) {
         histFiles2 <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"), ## currently in _All not _Proprietary
                     "histograms", gsub(" ", "_", rctChosenPolyName()),
                     "vegAgeMod"),
           recursive = TRUE, full.names = TRUE
@@ -134,7 +124,7 @@ downloadOutputs <- function(input, output, session, appInfo,
       ### Simulation rasters
       if (isTRUE(input$dlTimeSinceFireMaps)) {
         tsfMapFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")),
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")), ## currently in _All not _Proprietary
           recursive = TRUE, full.names = TRUE, pattern = "rstTimeSinceFire"
         )
         fileList <- append(fileList, tsfMapFiles)
@@ -142,7 +132,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       if (isTRUE(input$dlVegTypeMaps)) {
         vegTypeMapFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")),
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")), ## currently in _All not _Proprietary
           recursive = TRUE, full.names = TRUE, pattern = "vegTypeMap.+[0-9]\\.tif"
         )
         fileList <- append(fileList, vegTypeMapFiles)
@@ -151,16 +141,10 @@ downloadOutputs <- function(input, output, session, appInfo,
       ### other simulation data files
       if (isTRUE(input$dlSimOutputs)) {
         simOutputFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")),
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")), ## currently in _All not _Proprietary
           recursive = TRUE, full.names = TRUE, pattern = "[.]RData|[.]rds"
         )
         fileList <- append(fileList, simOutputFiles)
-      }
-
-      if (isTRUE(input$dlInitCommMap)) {
-        initCommMapFile <- file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
-                                     "initialCommunitiesMap.tif")
-        fileList <- append(fileList, initCommMapFile)
       }
 
       ### append filename prefix if selected
