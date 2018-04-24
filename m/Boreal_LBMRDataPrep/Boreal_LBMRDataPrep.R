@@ -467,8 +467,7 @@ Save <- function(sim) {
                                shpStudyRegionFull = sim$shpStudyRegionFull,
                                moduleName = currentModule(sim),
                                cachePath = asPath(cpath),
-                               userTags = cacheTags,
-                               showSimilar = TRUE)
+                               userTags = cacheTags)
   }
 
   # 3. species maps
