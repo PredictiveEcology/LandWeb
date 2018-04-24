@@ -11,36 +11,33 @@ function(input, output, session) {
 
   rctUserInfo <- callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
 
-  rctPolygonListUser <- reactive({
-    if (isTRUE(session$userData$userAuthorized())) {
-      userEmail <- rctUserInfo()$emails[1, "value"] %>%
-        gsub("/", "_", .) ## `/` is valid for email addresses but not filenames
-      userDir <- filePath("uploads", userEmail)
+  defaultPolyName <- "National Ecozones"  ## TODO: move to global.R ?
 
-      rctUploadedPolygon <- callModule(uploadPolygon, "uploadPolygon", userDir())
-
-      if (req(rctUploadedPolygon())) {
-        append(rctPolygonList(), rctUploadedPolygon())
-      } else {
-        rctPolyList()
-      }
-    } else {
-      rctPolygonList()
-    }
+  userEmail <- reactive({
+    rctUserInfo()$emails[1, "value"] %>%
+      gsub("/", "_", .) ## `/` is valid for email addresses but not filenames
   })
 
-  rctChosenPolyName <-  callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
+  rctChosenPolyUser <-  callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
                                    rctRasterList = rctRasterList,
                                    rctUrlTemplate = rctUrlTemplate,
                                    rctPolygonList = rctPolygonListUser,
                                    shpStudyRegionName = "LandWeb Study Area",
-                                   defaultPolyName = "National Ecozones",
+                                   defaultPolyName = defaultPolyName,
                                    colorPalette = timeSinceFirePalette,
                                    mapTitle = "Time since fire",
                                    mapLegend = paste0("Time since fire", br(), "(years)"),
                                    maxAge = maxAge, zoom = 5, nPolygons = 1,
                                    nRasters = length(rctTsf()),
-                                   rasterStepSize = summaryInterval)
+                                   rasterStepSize = summaryInterval,
+                                   uploadOpts = list(
+                                     auth = isTRUE(session$userData$userAuthorized()),
+                                     path = "uploads",
+                                     user = userEmail()
+                                   ))
+
+  rctPolygonListUser <- reactive(rctChosenPolyUser()$polygons)
+  rctChosenPolyName <- reactive(rctChosenPolyUser()$selected)
 
   rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
                                     rctPolygonList = rctPolygonListUser,
