@@ -155,7 +155,6 @@ estimateParameters <- function(sim) {
   activeStatusTable <- data.table(active = c(rep("yes", 15), rep("no", 25)),
                                   mapcode = 1:40)[mapcode %in% c(34, 35), active := "yes"]
   #simulationMaps <- sim$nonActiveEcoregionProducerCached(nonactiveRaster = sim$LCC2005,
-  browser()
   simulationMaps <- Cache(nonActiveEcoregionProducer, nonactiveRaster = sim$LCC2005,
                           activeStatus = activeStatusTable,
                           ecoregionMap = ecoregionFiles$ecoregionMap,
@@ -422,7 +421,6 @@ Save <- function(sim) {
   }
 
   if (!suppliedElsewhere("ecoRegion", sim)) {
-    browser()
     sim$ecoRegion <- Cache(prepInputs,
                            targetFile = asPath(ecoregionFilename),
                            archive = asPath("ecoregion_shp.zip"),

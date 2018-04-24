@@ -102,7 +102,7 @@ Init <- function(sim) {
     asPath(fps, 2)
   })
   
-  tsfLFLTFilenames <- lapply(sim$tsfs, function(tsf) SpaDES.core::.suffix(tsf, "LFLT") )
+  tsfLFLTFilenames <- lapply(sim$tsfs, function(tsf) SpaDES.tools::.suffix(tsf, "LFLT") )
   
   rasterResolutions <- lapply(sim$tsfs, function(x) raster(x[1]) %>% res(.))
   rasterResolutions <- lapply(sim$tsfs, function(x) {
@@ -128,7 +128,6 @@ Init <- function(sim) {
                                              replacement = pathConversions$replacement)
   
   
-  browser()
   sim$tsfRasterTilePaths <- Cache(Map, rst = sim$tsfRasters, modelType = names(sim$tsfRasters),
                               userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
                               cacheId = if (exists("cacheIdTsfRasterTilePaths"))
@@ -139,7 +138,6 @@ Init <- function(sim) {
                                 outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
                                 filenames <- unlist(lapply(rst$crsLFLT, function(ras) filename(ras)))
                                 lfltDirNames <- gsub(file.path(outputPath, paste0("out", basename(filenames))), pattern = "\\.tif$", replacement = "")
-                                browser()
                                 filenames <- #if (!(all(dir.exists(lfltDirNames))))  {
                                   Cache(gdal2Tiles, rst$crsLFLT, outputPath = asPath(outputPath, 3),
                                         userTags = c("gdal2Tiles", "tsf", "tsfs"),
@@ -162,7 +160,7 @@ Init <- function(sim) {
                       })
                       return(unlist(lapply(vtmTifs, filename)))
                     })
-  vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.core::.suffix(vtm, "LFLT") )
+  vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.tools::.suffix(vtm, "LFLT") )
   
   vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
                       cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
@@ -213,7 +211,6 @@ Init <- function(sim) {
   CCspeciesNames <- list(Free = c(),
                          Proprietary = c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce"))
   CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
-  browser()
   CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames,
                              userTags = c("createCCfromVtmTsf", "CurrentConditions"),
                              cacheId = if (exists("cacheIdCurrentCondition"))

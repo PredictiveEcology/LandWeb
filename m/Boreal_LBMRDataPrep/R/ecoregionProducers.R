@@ -63,7 +63,6 @@ ecoregionProducer <- function(studyAreaRaster, ecoregionMapFull, ecoregionName,
 
 nonActiveEcoregionProducer <- function(nonactiveRaster, activeStatus, ecoregionMap,
                                        ecoregion, initialCommunityMap, initialCommunity) {
-  browser()
   nonactiveRasterSmall <- crop(nonactiveRaster, ecoregionMap)
   nonecomapcode <- activeStatus[active == "no", ]$mapcode
   whNANonActiveRasterSmall <- which(nonactiveRasterSmall[] %in% nonecomapcode)
