@@ -102,7 +102,7 @@ Init <- function(sim) {
                   rasterToMatch = sim$biomassMap,
                   method = "bilinear",
                   datatype = "INT2U",
-                  writeCropped = TRUE,
+                  postProcessedFilename = TRUE,
                   userTags = c("stable", currentModule(sim)))#, notOlderThan = Sys.time())
 
     CASFRITifFile <- asPath(file.path(dPath, "Landweb_CASFRI_GIDs.tif"))
@@ -118,7 +118,7 @@ Init <- function(sim) {
                        rasterToMatch = sim$biomassMap,
                        method = "bilinear",
                        datatype = "INT2U",
-                       writeCropped = TRUE,
+                       postProcessedFilename = TRUE,
                        userTags = c("stable", currentModule(sim)))
 
     message("Load CASFRI data and headers, and convert to long format, and define species groups")
@@ -169,7 +169,7 @@ Init <- function(sim) {
                             studyArea = sim$shpStudySubRegion,
                             method = "bilinear",
                             datatype = "INT2U",
-                            writeCropped = TRUE,
+                            postProcessedFilename = TRUE,
                             userTags = c("stable", currentModule(sim)))
   }
   
