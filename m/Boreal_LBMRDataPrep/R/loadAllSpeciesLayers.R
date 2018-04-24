@@ -4,9 +4,14 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
   speciesnamesRaw <- c("Abie_Las", "Pice_Gla", "Pice_Mar", "Pinu_Ban", "Pinu_Con", "Popu_Tre")
   species1 <- list()
   a11 <- 1
+  suffix <- if (basename(cachePath) == "cache") paste0(as.character(ncell(biomassMap)),"px") else
+    basename(cachePath)
+  suffix <- paste0("_", suffix)
   for (sp in speciesnamesRaw) {
+    targetFile <- paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.tif")
+    writeCropped <- .suffix(targetFile, suffix = suffix)
     species1[[sp]] <- prepInputs(
-      targetFile = paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.tif"),
+      targetFile = targetFile,
       archive = asPath(c("kNN-Species.tar", paste0("NFI_MODIS250m_kNN_Species_", sp, "_v0.zip"))),
       #alsoExtract = if (sp == speciesnamesRaw[1]) paste0("NFI_MODIS250m_kNN_Species_", speciesnamesRaw[-1], "_v0.tif"),
       destinationPath = asPath(dataPath),
@@ -15,16 +20,16 @@ loadAllSpeciesLayers <- function(dataPath, biomassMap, shpStudyRegionFull, modul
       rasterToMatch = biomassMap,
       method = "bilinear",
       datatype = "INT2U",
-      writeCropped = TRUE
+      writeCropped = writeCropped
     )
   }
 
   sumSpecies <- c("Pinu_Ban", "Pinu_Con")
   newLayerName <- grep("Pinu", speciesNamesEnd, value = TRUE)
-  fname <- .prefix(file.path(dataPath, "KNNPinu_sp.tif"), "Small")
+  fname <- .suffix(file.path(dataPath, "KNNPinu_sp.tif"), suffix)
   a <- Cache(sumRastersBySpecies,
              species1[sumSpecies], newLayerName = newLayerName,
-             filenameToSave = fname,
+             filenameToSave = asPath(fname),
              ...)
   a <- raster(fname) ## ensure a gets a filename
   species1[sumSpecies] <- NULL

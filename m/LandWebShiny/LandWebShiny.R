@@ -128,6 +128,7 @@ Init <- function(sim) {
                                              replacement = pathConversions$replacement)
   
   
+  browser()
   sim$tsfRasterTilePaths <- Cache(Map, rst = sim$tsfRasters, modelType = names(sim$tsfRasters),
                               userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
                               cacheId = if (exists("cacheIdTsfRasterTilePaths"))
@@ -138,13 +139,14 @@ Init <- function(sim) {
                                 outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
                                 filenames <- unlist(lapply(rst$crsLFLT, function(ras) filename(ras)))
                                 lfltDirNames <- gsub(file.path(outputPath, paste0("out", basename(filenames))), pattern = "\\.tif$", replacement = "")
-                                filenames <- if (!(all(dir.exists(lfltDirNames))))  {
-                                  Cache(gdal2Tiles, rst$crsLFLT, outputPath = outputPath,
+                                browser()
+                                filenames <- #if (!(all(dir.exists(lfltDirNames))))  {
+                                  Cache(gdal2Tiles, rst$crsLFLT, outputPath = asPath(outputPath, 3),
                                         userTags = c("gdal2Tiles", "tsf", "tsfs"),
                                         zoomRange = zoomRange, colorTableFile = colorTableFile)
-                                } else {
-                                  lfltDirNames
-                                }
+                                #} else {
+                                #  lfltDirNames
+                                #}
                                 return(filenames)
                               })
   
@@ -211,6 +213,7 @@ Init <- function(sim) {
   CCspeciesNames <- list(Free = c(),
                          Proprietary = c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce"))
   CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
+  browser()
   CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames,
                              userTags = c("createCCfromVtmTsf", "CurrentConditions"),
                              cacheId = if (exists("cacheIdCurrentCondition"))
@@ -275,7 +278,7 @@ Init <- function(sim) {
                                  "Provincial Parks", "NWT Ecoregions", "National Parks", 
                                  "BC Bio Geoclimatic Zones", "AB Natural Sub Regions")
   proprietaryReportingPolygonNames <- c("FMA Boundary Updated", "FMU Alberta 2015-11", "Boreal Caribou Ranges",
-                                        "Northern Mountain Caribou Ranges")
+                                        "Mountain Northern Caribou Ranges")
   
   # Do two steps together, making Cache a bit faster
   reportingAndLeading <- Cache(reportingAndLeading,
