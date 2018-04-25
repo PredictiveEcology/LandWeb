@@ -294,7 +294,7 @@ message("  Finished simInit and Experiment.")
 
 message("  Running LandWebShiny module")
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
-              modules = list("LandWebShiny"), notOlderThan = Sys.time(),
+              modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
               list(mySimOuts = mySimOuts,  # can't name "objects" arg in simInit because same as Cache
                    paths = paths4sim$All,
                    labelColumn = labelColumn),

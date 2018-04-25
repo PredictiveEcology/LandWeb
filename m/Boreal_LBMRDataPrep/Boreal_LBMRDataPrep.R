@@ -377,7 +377,6 @@ Save <- function(sim) {
 
   cacheTags = c(currentModule(sim), "function:.inputObjects", "function:spades")
   
-  browser()
   if (!suppliedElsewhere("biomassMap", sim)) {
     sim$biomassMap <- Cache(prepInputs,
                             targetFile = biomassMapFilename,

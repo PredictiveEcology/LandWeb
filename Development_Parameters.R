@@ -1,5 +1,5 @@
 # Overall model times # start is default at 0
-endTime <- 5
+endTime <- 3
 summaryInterval <- 1
 summaryPeriod <- c(2, endTime)
 useParallelCluster <- FALSE
