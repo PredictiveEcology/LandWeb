@@ -74,7 +74,7 @@ if (any(c("achubaty") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
 }
 if (any(c("emcintir") %in% Sys.info()["user"])) {
-  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
+  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
 }
 
 ## get additonal helper functions used throughout this shiny app
@@ -288,7 +288,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
                    cacheIds4Experiment = cacheId$runExperiment,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
-                   emptyList = emptyListAll)
+                   emptyList = emptyListAll, showSimilar = TRUE)
 
 message("  Finished simInit and Experiment.")
 

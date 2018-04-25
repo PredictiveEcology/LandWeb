@@ -102,7 +102,7 @@ Init <- function(sim) {
     asPath(fps, 2)
   })
   
-  tsfLFLTFilenames <- lapply(sim$tsfs, function(tsf) SpaDES.core::.suffix(tsf, "LFLT") )
+  tsfLFLTFilenames <- lapply(sim$tsfs, function(tsf) SpaDES.tools::.suffix(tsf, "LFLT") )
   
   rasterResolutions <- lapply(sim$tsfs, function(x) raster(x[1]) %>% res(.))
   rasterResolutions <- lapply(sim$tsfs, function(x) {
@@ -138,13 +138,13 @@ Init <- function(sim) {
                                 outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
                                 filenames <- unlist(lapply(rst$crsLFLT, function(ras) filename(ras)))
                                 lfltDirNames <- gsub(file.path(outputPath, paste0("out", basename(filenames))), pattern = "\\.tif$", replacement = "")
-                                filenames <- if (!(all(dir.exists(lfltDirNames))))  {
-                                  Cache(gdal2Tiles, rst$crsLFLT, outputPath = outputPath,
+                                filenames <- #if (!(all(dir.exists(lfltDirNames))))  {
+                                  Cache(gdal2Tiles, rst$crsLFLT, outputPath = asPath(outputPath, 3),
                                         userTags = c("gdal2Tiles", "tsf", "tsfs"),
                                         zoomRange = zoomRange, colorTableFile = colorTableFile)
-                                } else {
-                                  lfltDirNames
-                                }
+                                #} else {
+                                #  lfltDirNames
+                                #}
                                 return(filenames)
                               })
   
@@ -160,7 +160,7 @@ Init <- function(sim) {
                       })
                       return(unlist(lapply(vtmTifs, filename)))
                     })
-  vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.core::.suffix(vtm, "LFLT") )
+  vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.tools::.suffix(vtm, "LFLT") )
   
   vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
                       cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
@@ -275,7 +275,7 @@ Init <- function(sim) {
                                  "Provincial Parks", "NWT Ecoregions", "National Parks", 
                                  "BC Bio Geoclimatic Zones", "AB Natural Sub Regions")
   proprietaryReportingPolygonNames <- c("FMA Boundary Updated", "FMU Alberta 2015-11", "Boreal Caribou Ranges",
-                                        "Northern Mountain Caribou Ranges")
+                                        "Mountain Northern Caribou Ranges")
   
   # Do two steps together, making Cache a bit faster
   reportingAndLeading <- Cache(reportingAndLeading,
