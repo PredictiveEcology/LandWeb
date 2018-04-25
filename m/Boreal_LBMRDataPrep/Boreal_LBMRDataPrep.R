@@ -118,12 +118,11 @@ doEvent.Boreal_LBMRDataPrep = function(sim, eventTime, eventType, debug = FALSE)
 estimateParameters <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
   cpath <- cachePath(sim)
-
   sim$studyArea <- spTransform(sim$studyArea, crs(sim$specieslayers))
   sim$ecoDistrict <- spTransform(sim$ecoDistrict, crs(sim$specieslayers))
   sim$ecoRegion <- spTransform(sim$ecoRegion, crs(sim$specieslayers))
   sim$ecoZone <- spTransform(sim$ecoZone, crs(sim$specieslayers))
-
+  
   message("1: ", Sys.time())
   rstStudyRegionBinary <- raster(sim$rstStudyRegion)
   rstStudyRegionBinary[] <- NA
@@ -139,8 +138,6 @@ estimateParameters <- function(sim) {
   ecoregionstatus <- data.table(active = "yes",
                                 ecoregion = 1:1031)
 
-  .gc()
-
   message("ecoregionProducer: ", Sys.time())
   ecoregionFiles <- Cache(ecoregionProducer,
                           studyAreaRaster = initialCommFiles$initialCommunityMap,
@@ -151,8 +148,6 @@ estimateParameters <- function(sim) {
                           rstStudyArea = rstStudyRegionBinary,
                           maskFn = fastMask,
                           userTags = "stable")
-
-  .gc()
 
   message("3: ", Sys.time())
   # LCC05 -- land covers 1 to 15 are forested with tree dominated... 34 and 35 are recent burns
@@ -345,7 +340,7 @@ Save <- function(sim) {
   # }
   # ! ----- EDIT BELOW ----- ! #
   cpath <- cachePath(sim)
-  dPath <- dataPath(sim)
+  dPath <- asPath(dataPath(sim), 1)
 
   # 1. test if all input objects are already present (e.g., from inputs, objects or another module)
   a <- depends(sim)
@@ -387,11 +382,11 @@ Save <- function(sim) {
                             targetFile = biomassMapFilename,
                             archive = asPath(c("kNN-StructureBiomass.tar",
                                                "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip")),
-                            destinationPath = asPath(dPath),
+                            destinationPath = dPath,
                             studyArea = sim$shpStudySubRegion,
                             method = "bilinear",
                             datatype = "INT2U",
-                            writeCropped = TRUE,
+                            postProcessedFilename = TRUE,
                             userTags = c("stable", currentModule(sim)))#,
     #dataset = "EOSD2000")
 
@@ -402,12 +397,12 @@ Save <- function(sim) {
     sim$LCC2005 <- Cache(prepInputs,
                          targetFile = lcc2005Filename,
                          archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
-                         destinationPath = asPath(dPath),
+                         destinationPath = dPath,
                          studyArea = sim$shpStudySubRegion,
                          rasterToMatch = sim$biomassMap,
                          method = "bilinear",
                          datatype = "INT2U",
-                         writeCropped = TRUE,
+                         postProcessedFilename = TRUE,
                          userTags = currentModule(sim))
 
     projection(sim$LCC2005) <- projection(sim$biomassMap)
@@ -418,10 +413,10 @@ Save <- function(sim) {
                              targetFile = asPath(ecodistrictFilename),
                              archive = asPath("ecodistrict_shp.zip"),
                              alsoExtract = ecodistrictAE,
-                             destinationPath = asPath(dPath),
+                             destinationPath = dPath,
                              studyArea = sim$shpStudyRegionFull,
                              fun = "raster::shapefile",
-                             writeCropped = TRUE,
+                             postProcessedFilename = TRUE,
                              userTags = cacheTags)
   }
 
@@ -430,10 +425,10 @@ Save <- function(sim) {
                            targetFile = asPath(ecoregionFilename),
                            archive = asPath("ecoregion_shp.zip"),
                            alsoExtract = ecoregionAE,
-                           destinationPath = asPath(dPath),
+                           destinationPath = dPath,
                            studyArea = sim$shpStudyRegionFull,
                            fun = "raster::shapefile",
-                           writeCropped = TRUE,
+                           postProcessedFilename = TRUE,
                            userTags = cacheTags)
   }
 
@@ -442,10 +437,10 @@ Save <- function(sim) {
                          targetFile = asPath(ecozoneFilename),
                          archive = asPath("ecozone_shp.zip"),
                          alsoExtract = ecozoneAE,
-                         destinationPath = asPath(dPath),
+                         destinationPath = dPath,
                          studyArea = sim$shpStudyRegionFull,
                          fun = "raster::shapefile",
-                         writeCropped = TRUE,
+                         postProcessedFilename = TRUE,
                          userTags = cacheTags)
   }
 
@@ -455,13 +450,13 @@ Save <- function(sim) {
                              targetFile = standAgeMapFilename,
                              archive = asPath(c("kNN-StructureStandVolume.tar",
                                                 "NFI_MODIS250m_kNN_Structure_Stand_Age_v0.zip")),
-                             destinationPath = asPath(dPath),
+                             destinationPath = dPath,
                              fun = "raster::raster",
                              studyArea = sim$shpStudyRegionFull,
                              rasterToMatch = sim$biomassMap,
                              method = "bilinear",
                              datatype = "INT2U",
-                             writeCropped = TRUE,
+                             postProcessedFilename = TRUE,
                              userTags = c("stable", currentModule(sim)))
   }
 
@@ -471,17 +466,15 @@ Save <- function(sim) {
                                biomassMap = sim$biomassMap,
                                shpStudyRegionFull = sim$shpStudyRegionFull,
                                moduleName = currentModule(sim),
-                               cachePath = cpath,
+                               cachePath = asPath(cpath),
                                userTags = cacheTags)
   }
 
   # 3. species maps
   sim$speciesTable <- prepInputs("speciesTraits.csv", destinationPath = dPath,
-                                 fun = "read.csv", pkg = "utils")
-  sim$speciesTable <- read.csv(file.path(dPath, "speciesTraits.csv"), header = TRUE,
-                               stringsAsFactors = FALSE) %>%
+                                 fun = "utils::read.csv", header = TRUE, stringsAsFactors = FALSE) %>% 
     data.table()
-
+  
   sim$sufficientLight <- data.frame(speciesshadetolerance = 1:5,
                                     X0 = 1,
                                     X1 = c(0.5, rep(1, 4)),

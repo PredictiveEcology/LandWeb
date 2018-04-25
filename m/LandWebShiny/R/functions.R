@@ -272,9 +272,9 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
     polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ECODISTRIC
   }
 
-  polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1)
+  polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1) 
   polys$provinces[[labelColumn]] <- polys$provinces$NAME_1
-
+  
   # Get all SilvaCom-generated datasets - they have a common structure
   polys2 <- prepInputsFromSilvacom(polygonNames = polygonNames,
                          shinyLabel = labelColumn, destinationPath = destinationPath, ...)
@@ -409,7 +409,9 @@ calculateLeadingVegType <- function(reportingPolys, leadingByStageFn, tsfs, vtms
             a <- Cache(leadingByStageFn, tsf = tsf,
                   vtm = vtm,
                   polygonToSummarizeBy = poly$shpSubStudyRegion,
-                  omitArgs = "cl",
+                  omitArgs = c("cl", "showSimilar", 
+                               formalsNotInCurrentDots(leadingByStageFn, ...)), 
+                  showSimilar = TRUE,
                   ...
                   )
           } else {
@@ -562,7 +564,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                     url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                     destinationPath = dPath,
                     studyArea = shpSubStudyRegion, omitArgs = "purge",
-                    writeCropped = "CurrentCondition.tif", ...,
+                    postProcessedFilename = "CurrentCondition.tif", ..., 
                     rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
       )
 
@@ -682,34 +684,40 @@ MapWithVariableInputs <- function(f, ..., possibleList, MoreArgs) {
   do.call(Map, append(list(f = f, MoreArgs = MoreArgs), dots))
 }
 
-prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath,
-                                   polygonNames, shinyLabel, ...) {
-  out <- Map(url = namedUrlsLabelColumnNames,
-             layerName = names(namedUrlsLabelColumnNames),
-             MoreArgs = list(destinationPath = destinationPath,
-                             polygonNames = polygonNames,
-                             shinyLabel = shinyLabel),
-             function(url, layerName, destinationPath, polygonNames, shinyLabel) {
-               if (layerName %in% polygonNames) {
-                 #dPath <- file.path(paths$inputPath, "Caribou")
-                 target <- gsub(pattern = " ", replacement = "_", layerName)
-                 targetZip <- paste0(target, ".zip")
-                 targetFilename <-   file.path(destinationPath, paste0(target, ".shp"))
-                 targetFilenames <- paste0(target, c(".dbf", ".prj",
-                                                     ".sbn", ".sbx",
-                                                     ".shp", ".shp.xml", ".shx"))
-                 message(layerName, ": Running prepInputs")
-                 polygonOut <- Cache(prepInputs, userTags = "stable",
-                                     archive = asPath(targetZip),
-                                     url = url$url,
-                                     targetFile = asPath(targetFilename),
-                                     alsoExtract = asPath(targetFilenames),
-                                     fun = "shapefile",
-                                     destinationPath = destinationPath)
-                 polygonOut@data[[shinyLabel]] <- polygonOut[[url$labelColumnName]]
-                 polygonOut
-               }
-             }
+prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, polygonNames, 
+                                   shinyLabel, ...) {
+  out <- Map(url = namedUrlsLabelColumnNames, layerName = names(namedUrlsLabelColumnNames), 
+      MoreArgs = list(destinationPath = destinationPath,
+                      polygonNames = polygonNames,
+                      shinyLabel = shinyLabel),
+      function(url, layerName, destinationPath, polygonNames, 
+               shinyLabel) {
+        
+        if (layerName %in% polygonNames) {
+          #dPath <- file.path(paths$inputPath, "Caribou")
+          target <- gsub(pattern = " ", replacement = "_", layerName)
+          targetZip <- paste0(target, ".zip") 
+          targetFilename <-   file.path(destinationPath, paste0(target, ".shp"))
+          targetFilenames <- paste0(target, c(".dbf", ".prj",
+                                              ".sbn", ".sbx",
+                                              ".shp", ".shp.xml",
+                                              ".shx"))
+          message(layerName, ": Running prepInputs")
+          polygonOut <- Cache(prepInputs, userTags = "stable", 
+                              archive = asPath(targetZip),
+                              url = url$url,
+                              targetFile = asPath(targetFilename),
+                              alsoExtract = asPath(targetFilenames),
+                              fun = "shapefile", destinationPath = destinationPath)
+          polygonOut@data[[shinyLabel]] <-
+            polygonOut[[url$labelColumnName]]
+          polygonOut
+        } 
+      }
   )
   out[!unlist(lapply(out, is.null))]
+}
+
+formalsNotInCurrentDots <- function(fun, ...) {
+  names(list(...))[!(names(list(...)) %in% names(formals(fun)))]
 }
