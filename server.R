@@ -21,7 +21,7 @@ function(input, output, session) {
   rctChosenPolyUser <-  callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
                                    rctRasterList = rctRasterList,
                                    rctUrlTemplate = rctUrlTemplate,
-                                   rctPolygonList = rctPolygonListUser,
+                                   rctPolygonList = rctPolygonList,
                                    shpStudyRegionName = "LandWeb Study Area",
                                    defaultPolyName = defaultPolyName,
                                    colorPalette = timeSinceFirePalette,
