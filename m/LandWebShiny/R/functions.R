@@ -226,9 +226,11 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
   if (layerNamesIndex %in% polygonNames) {
     #dPath <- asPath(file.path(paths$inputPath, "ecozones", "Alberta"))
     albertaEcozoneFiles <- asPath(c("Natural_Regions_Subregions_of_Alberta.dbf",
-                                    "Natural_Regions_Subregions_of_Alberta.lyr", "Natural_Regions_Subregions_of_Alberta.prj",
+                                    "Natural_Regions_Subregions_of_Alberta.lyr",
+                                    "Natural_Regions_Subregions_of_Alberta.prj",
                                     "Natural_Regions_Subregions_of_Alberta.shp.xml",
-                                    "Natural_Regions_Subregions_of_Alberta.shx", "natural_regions_subregions_of_alberta.zip",
+                                    "Natural_Regions_Subregions_of_Alberta.shx",
+                                    "natural_regions_subregions_of_alberta.zip",
                                     "nsr2005_final_letter.jpg", "nsr2005_final_letter.pdf"))
     albertaEcozoneURL <- "https://www.albertaparks.ca/media/429607/natural_regions_subregions_of_alberta.zip"
     albertaEcozoneFilename <- asPath("Natural_Regions_Subregions_of_Alberta.shp")
@@ -272,9 +274,9 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
     polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ECODISTRIC
   }
 
-  polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1) 
+  polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1)
   polys$provinces[[labelColumn]] <- polys$provinces$NAME_1
-  
+
   # Get all SilvaCom-generated datasets - they have a common structure
   polys2 <- prepInputsFromSilvacom(polygonNames = polygonNames,
                          shinyLabel = labelColumn, destinationPath = destinationPath, ...)
@@ -366,8 +368,7 @@ createReportingPolygonsAll <- function(authenticationType,
                                        freeReportingPolygonNames,
                                        proprietaryReportingPolygonNames,
                                        createReportingPolygonsFn,
-                                       ...
-                                       ) {
+                                       ...) {
   message("Loading Reporting Polygons")
   reportingPolygons <- list()
   reportingPolygons$Free <- createReportingPolygonsFn(polygonNames = freeReportingPolygonNames, ...)
@@ -409,8 +410,8 @@ calculateLeadingVegType <- function(reportingPolys, leadingByStageFn, tsfs, vtms
             a <- Cache(leadingByStageFn, tsf = tsf,
                   vtm = vtm,
                   polygonToSummarizeBy = poly$shpSubStudyRegion,
-                  omitArgs = c("cl", "showSimilar", 
-                               formalsNotInCurrentDots(leadingByStageFn, ...)), 
+                  omitArgs = c("cl", "showSimilar",
+                               formalsNotInCurrentDots(leadingByStageFn, ...)),
                   showSimilar = TRUE,
                   ...
                   )
@@ -564,7 +565,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                     url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                     destinationPath = dPath,
                     studyArea = shpSubStudyRegion, omitArgs = "purge",
-                    postProcessedFilename = "CurrentCondition.tif", ..., 
+                    postProcessedFilename = "CurrentCondition.tif", ...,
                     rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
       )
 
@@ -684,26 +685,26 @@ MapWithVariableInputs <- function(f, ..., possibleList, MoreArgs) {
   do.call(Map, append(list(f = f, MoreArgs = MoreArgs), dots))
 }
 
-prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, polygonNames, 
+prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, polygonNames,
                                    shinyLabel, ...) {
-  out <- Map(url = namedUrlsLabelColumnNames, layerName = names(namedUrlsLabelColumnNames), 
+  out <- Map(url = namedUrlsLabelColumnNames, layerName = names(namedUrlsLabelColumnNames),
       MoreArgs = list(destinationPath = destinationPath,
                       polygonNames = polygonNames,
                       shinyLabel = shinyLabel),
-      function(url, layerName, destinationPath, polygonNames, 
+      function(url, layerName, destinationPath, polygonNames,
                shinyLabel) {
-        
+
         if (layerName %in% polygonNames) {
           #dPath <- file.path(paths$inputPath, "Caribou")
           target <- gsub(pattern = " ", replacement = "_", layerName)
-          targetZip <- paste0(target, ".zip") 
+          targetZip <- paste0(target, ".zip")
           targetFilename <-   file.path(destinationPath, paste0(target, ".shp"))
           targetFilenames <- paste0(target, c(".dbf", ".prj",
                                               ".sbn", ".sbx",
                                               ".shp", ".shp.xml",
                                               ".shx"))
           message(layerName, ": Running prepInputs")
-          polygonOut <- Cache(prepInputs, userTags = "stable", 
+          polygonOut <- Cache(prepInputs, userTags = "stable",
                               archive = asPath(targetZip),
                               url = url$url,
                               targetFile = asPath(targetFilename),
@@ -712,7 +713,7 @@ prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, p
           polygonOut@data[[shinyLabel]] <-
             polygonOut[[url$labelColumnName]]
           polygonOut
-        } 
+        }
       }
   )
   out[!unlist(lapply(out, is.null))]
