@@ -34,7 +34,8 @@ function(input, output, session) {
                                      auth = isTRUE(session$userData$userAuthorized()),
                                      path = "uploads",
                                      user = userEmail()
-                                   ))
+                                   ),
+                                   studyArea = rctStudyArea())
 
   rctPolygonListUser <- reactive(rctChosenPolyUser()$polygons)
   rctChosenPolyName <- reactive(rctChosenPolyUser()$selected)
