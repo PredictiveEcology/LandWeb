@@ -13,6 +13,7 @@ function(input, output, session) {
 
   defaultPolyName <- "National Ecozones"  ## TODO: move to global.R ?
 
+  authStatus <- reactive(isTruthy(session$userData$userAuthorized()))
   userEmail <- reactive({
     rctUserInfo()$emails[1, "value"] %>%
       gsub("/", "_", .) ## `/` is valid for email addresses but not filenames
@@ -31,13 +32,13 @@ function(input, output, session) {
                                    nRasters = length(rctTsf()),
                                    rasterStepSize = summaryInterval,
                                    uploadOpts = list(
-                                     auth = isTRUE(session$userData$userAuthorized()),
+                                     auth = authStatus(),
                                      path = "uploads",
                                      user = userEmail()
                                    ),
                                    studyArea = rctStudyArea())
 
-  rctPolygonListUser <- reactive(rctChosenPolyUser()$polygons)
+  rctPolygonListUser <- reactive(do.call(polygonList, rctChosenPolyUser()$polygons))
   rctChosenPolyName <- reactive(rctChosenPolyUser()$selected)
 
   rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
