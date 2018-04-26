@@ -7,8 +7,8 @@ loadShpAndMakeValid <- function(file) {
 loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
                              fireReturnIntervalMap, subStudyRegionName, crsStudyRegion) {
   if ("RIA" %in% subStudyRegionName) {
-    shpSubStudyRegion <- Cache(shapefile, userTags = "stable",
-                            file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp"))
+    shpfile <- file.path(paths$inputPath, "RIA_SE_ResourceDistricts_Clip.shp")
+    shpSubStudyRegion <- Cache(shapefile, userTags = "stable", shpfile)
     loadAndBuffer <- function(shapefile) {
       a <- shapefile(shapefile)
       b <- buffer(a, 0, dissolve = FALSE)
