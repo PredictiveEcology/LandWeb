@@ -7,20 +7,9 @@
 intersectListShps <- function(listShps, intersectShp) {
   message("Intersecting reporting polygons with shpStudyRegion")
 
-  intersectShp <- raster::aggregate(intersectShp)
-  problem1 <- !rgeos::gIsSimple(intersectShp)
-  problem2 <- !rgeos::gIsValid(intersectShp)
-  if (isTRUE(problem1 || problem2)) {
-    stop("intersectShp inside the function 'intersectListShps' is either not valid or not simple")
-  }
-
-  outerOut <- mapply(shp = listShps, shpNames = names(listShps),
-                     function(shp, shpNames, useSF = FALSE) {
-                       message("  ", shpNames)
-                       if (!identical(crs(intersectShp), crs(shp)))
-                         intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
-                       out <- raster::intersect(shp, intersectShp)
-                       #})
+  outerOut <- lapply(listShps, function(shp) {
+                       message("  ", names(shp))
+                       out <- SpaDES.tools::maskInputs(shp, intersectShp)
                      })
 }
 

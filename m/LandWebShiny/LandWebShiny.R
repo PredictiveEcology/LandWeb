@@ -299,6 +299,7 @@ Init <- function(sim) {
                                freeReportingPolygonNames = freeReportingPolygonNames,
                                proprietaryReportingPolygonNames = proprietaryReportingPolygonNames,
                                authenticationType = authenticationType,
+
                                # Passed into createReportingPolygonsFn
                                intersectListShpsFn = intersectListShps,
                                shpStudyRegion = shpStudyRegion,
@@ -315,6 +316,7 @@ Init <- function(sim) {
 
                                # Used by Cache
                                cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL)
+
   list2env(reportingAndLeading, envir = envir(sim)) # puts leading and reportingPolygons into .GlobalEnv
 
   sim$leadingCC <- Cache(calculateLeadingVegType, sim$reportingPolygons, #calculateLeadingVegType = calculateLeadingVegType,
