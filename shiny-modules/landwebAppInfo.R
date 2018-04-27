@@ -104,10 +104,9 @@ landwebAppInfo <- function(input, output, session, appInfo) {
                   img(src = "images/logos/Tolko.jpg", align = "left", width = 165)
                 ),
 
-                # Vanderwall Forest Products
-                ## TODO: is this Vanderwell Contractors? http://www.vanderwell.com/
-                a(href = "https://friresearch.ca/partner/nolink",
-                  img(src = "images/logos/noimg.png", align = "left", width = 165) ###
+                # Vanderwall Contractors (1971) Ltd.
+                a(href = "https://fgrow.friresearch.ca/partner/vanderwell-contractors-1971-ltd",
+                  img(src = "images/logos/Vanderwell.jpg", align = "left", width = 165) ###
                 ),
 
                 # Louisiana Pacific (LP BUilding Products)
