@@ -43,6 +43,7 @@ reproducible::Require(unique(c(
 packageLoadEndTime <- Sys.time()
 
 # Options
+options(reproducible.cachePath = file.path("cache"))
 options(reproducible.verbose = FALSE)
 options(reproducible.useMemoise = TRUE)
 options(spades.browserOnError = FALSE)
@@ -310,4 +311,3 @@ onStop(function() {
   cat("Global.R took", format(globalEndTime - appStartTime), "\n")
   cat("Server took", format(appStopTime - serverStartTime), "\n")
 })
-
