@@ -38,7 +38,9 @@ function(input, output, session) {
                                    ),
                                    studyArea = rctStudyArea())
 
-  rctPolygonListUser <- reactive(do.call(polygonList, rctChosenPolyUser()$polygons))
+  rctPolygonListUser <- reactive({
+    do.call(polygonList, append(rctChosenPolyUser()$polygons, list(studyArea = rctStudyArea())))
+  })
   rctChosenPolyName <- reactive(rctChosenPolyUser()$selected)
 
   rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
