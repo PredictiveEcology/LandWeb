@@ -248,7 +248,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   rctLargePatchesDataOrig <- reactive({
     assertthat::assert_that(is.character(rctChosenPolyName()))
 
-    dt <- if (is.null(rctLrgPatchesCC())) {
+    
+    dt <- if (is.null(rctLrgPatchesCC()[[rctChosenPolyName()]])) {
       ## free
       rctLrgPatches()[[rctChosenPolyName()]]
     } else {
