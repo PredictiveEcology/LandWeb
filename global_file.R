@@ -148,7 +148,7 @@ studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyReg
                           fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
                           subStudyRegionName = subStudyRegionName,
                           crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)
-list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpStudyRegion
+list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpSubStudyRegion
 
 ## source additional shiny modules
 vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))
@@ -294,6 +294,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
 message("  Finished simInit and Experiment.")
 
 message("  Running LandWebShiny module")
+
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
               modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
               list(mySimOuts = mySimOuts,  # can't name "objects" arg in simInit because same as Cache
