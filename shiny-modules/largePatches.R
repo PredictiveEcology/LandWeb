@@ -262,8 +262,13 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpStudySubRegion"]]
     polygonID <- as.character(seq_along(curPoly))
     polygonName <- curPoly$shinyLabel
+    
     dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
-    assertthat::assert_that(is.data.table(dt))
+    
+    haveNumericPolyId <- dt$polygonID %in% polygonID
+    dt$polygonID[haveNumericPolyId] <- polygonName[match(dt$polygonID[haveNumericPolyId], polygonID)]
+    
+    assertthat::assert_that(is.data.table(dt) || is.null(dt))
     dt
   })
 
@@ -278,9 +283,9 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
 
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
-      category = c("ageClass", "polygonID", "vegCover"),
+      category = c("polygonID", "ageClass", "vegCover"),
       uiType = c("tab", "tab", "box"),
-      possibleValues = list(ageClasses, polygonIDs, c(levels(rasVtmTmp)[[1]][, 2], "All species"))
+      possibleValues = list(polygonIDs, ageClasses, c(levels(rasVtmTmp)[[1]][, 2], "All species"))
     )
   })
 
