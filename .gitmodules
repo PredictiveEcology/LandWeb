@@ -1,3 +1,9 @@
 [submodule "m/LandMine"]
 	path = m/LandMine
 	url = git@github.com:PredictiveEcology/LandMine.git
+[submodule "m/LBMR"]
+	path = m/LBMR
+	url = git@github.com:eliotmcintire/LBMR.git
+[submodule "m/Boreal_LBMRDataPrep"]
+	path = m/Boreal_LBMRDataPrep
+	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git

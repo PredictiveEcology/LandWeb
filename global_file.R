@@ -3,8 +3,8 @@ appInfo <- list(
   name = "LandWeb",
   version = numeric_version("1.0.0"),
   authors = c(
-    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut"),
-    person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre"))
+    person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
+    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut")
   ),
   copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
                     "Her Majesty the Queen in Right of Canada,",
@@ -43,6 +43,7 @@ reproducible::Require(unique(c(
 packageLoadEndTime <- Sys.time()
 
 # Options
+options(reproducible.cachePath = file.path("cache"))
 options(reproducible.verbose = FALSE)
 options(reproducible.useMemoise = TRUE)
 options(spades.browserOnError = FALSE)
@@ -74,7 +75,7 @@ if (any(c("achubaty") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
 }
 if (any(c("emcintir") %in% Sys.info()["user"])) {
-  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = TRUE)
+  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
 }
 
 ## get additonal helper functions used throughout this shiny app
@@ -158,7 +159,6 @@ message("Preparing polygon maps for reporting histograms")
 source("colorPaletteForShiny.R")
 labelColumn <- "shinyLabel"
 
-
 #############################
 
 ##### SERVER FILE.R
@@ -181,8 +181,8 @@ times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
 
 modules4sim <- emptyListAll
 modules4sim$All <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-                         "landWebProprietaryData",
-                         "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+                        "landWebProprietaryData",
+                        "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
 objects4sim <- emptyListAll
 objects4sim <- lapply(objects4sim, function(x)
@@ -216,7 +216,6 @@ parameters4sim <- lapply(parameters4sim, function(x) {
   )
 })
 
-
 outputs4simFn <- function(objects4sim, parameters4sim, times4sim,
                           objectNamesToSave) {
   outputs <- data.frame(stringsAsFactors = FALSE,
@@ -244,6 +243,7 @@ outputs4simFn <- function(objects4sim, parameters4sim, times4sim,
 
   as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 }
+
 objectNamesToSave <- emptyListAll
 objectNamesToSave <- lapply(objectNamesToSave, function(x) {
   c("rstTimeSinceFire", "vegTypeMap")
@@ -281,7 +281,6 @@ paths4sim <- Map(cPath = cPaths, oPath = oPaths,
 
 seed <- sample(1e8, 1)
 
-
 ######## SimInit and Experiment
 mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim,
                    modules = modules4sim, #notOlderThan = Sys.time(),
@@ -290,7 +289,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
                    cacheIds4Experiment = cacheId$runExperiment,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
-                   emptyList = emptyListAll)
+                   emptyList = emptyListAll, showSimilar = TRUE)
 
 message("  Finished simInit and Experiment.")
 
@@ -312,4 +311,3 @@ onStop(function() {
   cat("Global.R took", format(globalEndTime - appStartTime), "\n")
   cat("Server took", format(appStopTime - serverStartTime), "\n")
 })
-

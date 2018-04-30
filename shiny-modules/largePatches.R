@@ -248,7 +248,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   rctLargePatchesDataOrig <- reactive({
     assertthat::assert_that(is.character(rctChosenPolyName()))
 
-    dt <- if (is.null(rctLrgPatchesCC())) {
+    
+    dt <- if (is.null(rctLrgPatchesCC()[[rctChosenPolyName()]])) {
       ## free
       rctLrgPatches()[[rctChosenPolyName()]]
     } else {
@@ -258,7 +259,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     }
 
     # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
-    curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
+    curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpStudySubRegion"]]
     polygonID <- as.character(seq_along(curPoly))
     polygonName <- curPoly$shinyLabel
     dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
@@ -271,8 +272,9 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   })
 
   uiSequence <- reactive({
-    #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]))
-    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]$shinyLabel
+    
+    #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpStudySubRegion"]]))
+    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpStudySubRegion"]]$shinyLabel
 
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
@@ -286,6 +288,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     rctChosenPolyName()
     input$patchSize
   }, {
+    
     callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
                uiSequence = uiSequence(),
                #serverFunction = histServerFn, ## calls histogram server module

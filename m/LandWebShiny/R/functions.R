@@ -1,27 +1,15 @@
-
 #' Check and intersect a list of shapefiles with one single shapefile.
-#' Caches and internal \code{spTransform} to 
-#' 
+#' Caches and internal \code{spTransform} to
+#'
 #' @param listShps List of shapefiles
 #' @param intersectShp The single shapefile to oversect with each of \codeP{listShps}
-#' 
+#'
 intersectListShps <- function(listShps, intersectShp) {
   message("Intersecting reporting polygons with shpStudyRegion")
-  
-  intersectShp <- raster::aggregate(intersectShp)
-  problem1 <- !rgeos::gIsSimple(intersectShp)
-  problem2 <- !rgeos::gIsValid(intersectShp)
-  if (isTRUE(problem1 || problem2)) {
-    stop("intersectShp inside the function 'intersectListShps' is either not valid or not simple")
-  }
 
-  outerOut <- mapply(shp = listShps, shpNames = names(listShps),
-                     function(shp, shpNames, useSF = FALSE) {
-                       message("  ", shpNames)
-                       if (!identical(crs(intersectShp), crs(shp)))
-                         intersectShp <- Cache(spTransform, intersectShp, crs(shp) )
-                       out <- raster::intersect(shp, intersectShp)
-                       #})
+  outerOut <- lapply(listShps, function(shp) {
+                       message("  ", names(shp))
+                       out <- SpaDES.tools::maskInputs(shp, intersectShp)
                      })
 }
 
@@ -206,7 +194,7 @@ loadCCSpecies <- function(mapNames, userTags = "", destinationPath, ...) {
                                                                 destinationPath = destinationPath),
       function(filename, mapName, userTags, destinationPath) {
         tifName <-  asPath(file.path(destinationPath, paste0(filename, ".tif")))
-        
+
         filenames <- asPath(paste0(filename, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
         prepInputs(userTags = c(userTags, "stable"),
               archive = "CurrentCondition.zip",
@@ -222,14 +210,16 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
   names(polygonNames) <- polygonNames
 
   polys <- list()
-  
+
   layerNamesIndex <- "AB Natural Sub Regions"
   if (layerNamesIndex %in% polygonNames) {
     #dPath <- asPath(file.path(paths$inputPath, "ecozones", "Alberta"))
     albertaEcozoneFiles <- asPath(c("Natural_Regions_Subregions_of_Alberta.dbf",
-                                    "Natural_Regions_Subregions_of_Alberta.lyr", "Natural_Regions_Subregions_of_Alberta.prj",
+                                    "Natural_Regions_Subregions_of_Alberta.lyr",
+                                    "Natural_Regions_Subregions_of_Alberta.prj",
                                     "Natural_Regions_Subregions_of_Alberta.shp.xml",
-                                    "Natural_Regions_Subregions_of_Alberta.shx", "natural_regions_subregions_of_alberta.zip",
+                                    "Natural_Regions_Subregions_of_Alberta.shx",
+                                    "natural_regions_subregions_of_alberta.zip",
                                     "nsr2005_final_letter.jpg", "nsr2005_final_letter.pdf"))
     albertaEcozoneURL <- "https://www.albertaparks.ca/media/429607/natural_regions_subregions_of_alberta.zip"
     albertaEcozoneFilename <- asPath("Natural_Regions_Subregions_of_Alberta.shp")
@@ -273,19 +263,20 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
     polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ECODISTRIC
   }
 
-  polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1) 
-  
+  polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1)
+  polys$provinces[[labelColumn]] <- polys$provinces$NAME_1
+
   # Get all SilvaCom-generated datasets - they have a common structure
-  polys2 <- prepInputsFromSilvacom(polygonNames = polygonNames, 
+  polys2 <- prepInputsFromSilvacom(polygonNames = polygonNames,
                          shinyLabel = labelColumn, destinationPath = destinationPath, ...)
-  
+
   polys[names(polys2)] <- polys2
   if ("National Ecozones" %in% names(polys)) {
     # remove the french name column because it has accents that aren't correctly dealt with
-    polys$`National Ecozones`@data <- 
-      polys$`National Ecozones`@data[-which(colnames(polys$`National Ecozones`@data)=="ZONE_NOM")]
+    polys$`National Ecozones`@data <-
+      polys$`National Ecozones`@data[-which(colnames(polys$`National Ecozones`@data) == "ZONE_NOM")]
   }
-  
+
   ########################################################
   ########################################################
   ########################################################
@@ -331,18 +322,18 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
   polysLflt <- Cache(mapply, p = polys, nam = names(polys), userTags = "stable",
                      function(p, nam) {
                        message("  ", nam)
-                       out <- tryCatch(spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
+                       out <- tryCatch(spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT)), error = function(x) {
                          p <- spChFIDs(p, as.character(seq(NROW(p))))
-                         spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
+                         spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT))
                        }, error = function(x) NULL)
                      })
   polysLfltSubStudyRegion <- Cache(mapply, p = polysSubRegion, nam = names(polysSubRegion), userTags = "stable",
                                    function(p, nam) {
                                      message("  ", nam)
                                      out <- tryCatch(
-                                       spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT)), error = function(x) {
+                                       spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT)), error = function(x) {
                                        p <- spChFIDs(p, as.character(seq(NROW(p))))
-                                       spTransform(p, CRSobj = CRS(SpaDES.shiny:::proj4stringLFLT))
+                                       spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT))
                                      }, error = function(x) NULL)
                                    })
 
@@ -360,18 +351,17 @@ createReportingPolygons <- function(polygonNames, shpStudyRegion, shpSubStudyReg
 #' @param freeReportingPolygonNames Character vector which will be the names given to the polygons that are in the Free
 #' @param proprietaryReportingPolygonNames Character vector which will be the names given to the polygons that are in the Proprietary
 #' @param authenticationType Character vector, currently expected to be Free, Proprietary or All
-#' @param ... Passed to \code{createReportingPolygonsFn}, so \code{polygonNames}, \code{shpStudyRegion}, 
+#' @param ... Passed to \code{createReportingPolygonsFn}, so \code{polygonNames}, \code{shpStudyRegion},
 #'            \code{shpSubStudyRegion}, \code{intersectListShpsFn}
 createReportingPolygonsAll <- function(authenticationType,
-                                       freeReportingPolygonNames, 
+                                       freeReportingPolygonNames,
                                        proprietaryReportingPolygonNames,
-                                       createReportingPolygonsFn, 
-                                       ...
-                                       ) {
+                                       createReportingPolygonsFn,
+                                       ...) {
   message("Loading Reporting Polygons")
   reportingPolygons <- list()
   reportingPolygons$Free <- createReportingPolygonsFn(polygonNames = freeReportingPolygonNames, ...)
-  
+
   if ("Proprietary" %in% authenticationType) {
     tmpProprietary <- createReportingPolygonsFn(polygonNames = proprietaryReportingPolygonNames, ...)
     reportingPolygons$Proprietary <- reportingPolygons$Free
@@ -388,7 +378,7 @@ createReportingPolygonsAll <- function(authenticationType,
 #' @param ... Passed to \code{createReportingPolygonsAll} (e.g., ) and \code{calculateLeadingVegType}
 reportingAndLeading <- function(createReportingPolygonsAllFn, calculateLeadingVegTypeFn, ...) {
   reportingPolygon <- createReportingPolygonsAllFn(...)
-  
+
   # remove study area
   reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
   leadingOut <- calculateLeadingVegTypeFn(reportingPolys = reportingPolysWOStudyArea, ...)
@@ -397,19 +387,21 @@ reportingAndLeading <- function(createReportingPolygonsAllFn, calculateLeadingVe
 
 calculateLeadingVegType <- function(reportingPolys, leadingByStageFn, tsfs, vtms, ...) {
   Map(reportingPoly = reportingPolys, tsf = tsfs, vtm = vtms,
-      MoreArgs = list(...), 
+      MoreArgs = list(...),
       f = function(reportingPoly, tsf, vtm, ...){
         polys = lapply(reportingPoly, function(p) p$crsSR)
         polyNames = names(reportingPoly)
         message("  ",paste(polyNames, collapse = ", ")," -- Determine leading species by age class, for each")
-        Map(poly = polys, polyName = polyNames, MoreArgs = append(list(tsf = tsf, vtm = vtm), list(...)), 
+        Map(poly = polys, polyName = polyNames, MoreArgs = append(list(tsf = tsf, vtm = vtm), list(...)),
             function(poly, polyName, tsf, vtm, ...) {
           message("    ", polyName)
           if (!is.null(poly$shpSubStudyRegion)) {
             a <- Cache(leadingByStageFn, tsf = tsf,
                   vtm = vtm,
                   polygonToSummarizeBy = poly$shpSubStudyRegion,
-                  omitArgs = "cl", 
+                  omitArgs = c("cl", "showSimilar",
+                               formalsNotInCurrentDots(leadingByStageFn, ...)),
+                  showSimilar = TRUE,
                   ...
                   )
           } else {
@@ -434,7 +426,7 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
         startList <- list()
       }
       startList <- append(startList, list(y = y))
-      
+
       message("      ", ageClasses[y], " for\n        ", paste0(basename(tsf), collapse = "\n        "))
       out1 <- #Cache(cacheRepo = paths$cachePath,
         do.call(lapplyFn, append(startList, list(X = tsf, function(x, ...) {
@@ -467,7 +459,7 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
     aa <- tryCatch(
       raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack))),
       error = function(x) NULL)
-    
+
     aa1 <- lapply(aa, function(x,  ...) {
       if (!is.null(x)) {
         apply(x, 2, function(y) {
@@ -487,21 +479,21 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
         NULL
       }
     })
-    
+
     nonNulls <- unlist(lapply(aa1, function(x) !is.null(x)))
     vegType <- unlist(lapply(aa1[nonNulls], rownames))
     aa1 <- lapply(aa1, function(a) {
       rownames(a) <- NULL
       a
     })
-    
+
     aadf <- data.frame(
       zone = rep(polygonToSummarizeBy$shinyLabel[nonNulls], each = length(Factors)),
       polygonID = as.character(rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors))), ## TODO:
       vegCover = vegType, do.call(rbind, aa1[nonNulls]),
       stringsAsFactors = FALSE
     )
-    
+
     temp <- list()
     if (NROW(aadf) > 0) { # if polygon doesn't overlap, the tryCatch on raster::extract returns NULL
       for (ages in ageClasses) {
@@ -511,10 +503,10 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
           mutate(ageClass = unlist(lapply(strsplit(label, split = "\\."), function(x) x[[1]])))
       }
     }
-    
+
     aa <- rbindlist(temp)
     aa
-  } 
+  }
 }
 
 
@@ -526,12 +518,12 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
     simulatedMapVegTypes <- lapply(vtmRasters, function(r) {
       as.character(levels(r$crsSR[[1]])[[1]][,2])
     })
-    
+
     matchSpNames <- lapply(CCspeciesNames, function(sn) {
       agrep(sn, getAllIfExists(simulatedMapVegTypes, ifNot = "Proprietary"))
     }
     )
-    
+
     CCspeciesNames <- Map(msn = seq(matchSpNames),
                           MoreArgs = list(matchSpNames = matchSpNames, CCspeciesNames = CCspeciesNames,
                                           simulatedSpNames = getAllIfExists(simulatedMapVegTypes, ifNot = "Proprietary")),
@@ -562,7 +554,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                     url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                     destinationPath = dPath,
                     studyArea = shpSubStudyRegion, omitArgs = "purge",
-                    writeCropped = "CurrentCondition.tif", ..., 
+                    postProcessedFilename = "CurrentCondition.tif", ...,
                     rasterToMatch = tsfRasters$Proprietary$crsSR[[1]]
       )
 
@@ -588,7 +580,7 @@ convertRasterFileBackendPath <- function(rasterObj, ...) {
     rasterObj@file@name <- fps
   }
   rasterObj # handles null case
-  
+
 }
 
 setupParallelCluster <- function(cl, numClusters) {
@@ -634,7 +626,6 @@ getAllIfExists <- function(List, ifNot, returnList = FALSE) {
     } else {
       List[["All"]]
     }
-    
   } else {
     if (missing(ifNot)) {
       if (length(List) > 1) {
@@ -645,9 +636,8 @@ getAllIfExists <- function(List, ifNot, returnList = FALSE) {
         } else {
           List[[1]]
         }
-        
       }
-    } else{
+    } else {
       if (returnList) {
         List[ifNot]
       } else {
@@ -675,47 +665,49 @@ MapWithVariableInputs <- function(f, ..., possibleList, MoreArgs) {
   } else {
     stop("Map requires that all elements of ... be the same length")
   }
-  
+
   if (putInDots) {
     dots <- append(dots, possibleList)
   } else {
     MoreArgs <- append(MoreArgs, possibleList)
   }
-  do.call(Map, append(list(f = f, MoreArgs = MoreArgs), dots))  
+  do.call(Map, append(list(f = f, MoreArgs = MoreArgs), dots))
 }
 
-prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, polygonNames, 
+prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, polygonNames,
                                    shinyLabel, ...) {
-  out <- Map(url = namedUrlsLabelColumnNames, layerName = names(namedUrlsLabelColumnNames), 
+  out <- Map(url = namedUrlsLabelColumnNames, layerName = names(namedUrlsLabelColumnNames),
       MoreArgs = list(destinationPath = destinationPath,
                       polygonNames = polygonNames,
                       shinyLabel = shinyLabel),
-      function(url, layerName, destinationPath, polygonNames, 
+      function(url, layerName, destinationPath, polygonNames,
                shinyLabel) {
-        
+
         if (layerName %in% polygonNames) {
           #dPath <- file.path(paths$inputPath, "Caribou")
           target <- gsub(pattern = " ", replacement = "_", layerName)
-          targetZip <- paste0(target, ".zip") 
+          targetZip <- paste0(target, ".zip")
           targetFilename <-   file.path(destinationPath, paste0(target, ".shp"))
           targetFilenames <- paste0(target, c(".dbf", ".prj",
                                               ".sbn", ".sbx",
                                               ".shp", ".shp.xml",
                                               ".shx"))
           message(layerName, ": Running prepInputs")
-          polygonOut <- Cache(prepInputs, userTags = "stable", 
-                                                                  archive = asPath(targetZip),
-                                                                  url = url$url,
-                                                                  targetFile = asPath(targetFilename),
-                                                                  alsoExtract = asPath(targetFilenames),
-                                                                  fun = "shapefile", destinationPath = destinationPath)
+          polygonOut <- Cache(prepInputs, userTags = "stable",
+                              archive = asPath(targetZip),
+                              url = url$url,
+                              targetFile = asPath(targetFilename),
+                              alsoExtract = asPath(targetFilenames),
+                              fun = "shapefile", destinationPath = destinationPath)
           polygonOut@data[[shinyLabel]] <-
             polygonOut[[url$labelColumnName]]
           polygonOut
-        } 
+        }
       }
   )
   out[!unlist(lapply(out, is.null))]
-  
-  
+}
+
+formalsNotInCurrentDots <- function(fun, ...) {
+  names(list(...))[!(names(list(...)) %in% names(formals(fun)))]
 }

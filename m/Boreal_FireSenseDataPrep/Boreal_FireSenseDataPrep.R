@@ -319,7 +319,7 @@ spreadInputs <- function(sim)
     moduleName = currentModule(sim),
     studyArea = sim$studyAreaNAD83,
     fun = "shapefile",
-    writeCropped = TRUE, 
+    postProcessedFilename = TRUE, 
     cacheTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   )
@@ -335,7 +335,7 @@ spreadInputs <- function(sim)
     modulePath = modulePath(sim),
     moduleName = currentModule(sim),
     studyArea = sim$studyAreaNAD83,
-    writeCropped = TRUE, 
+    postProcessedFilename = TRUE, 
     cacheTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   )
@@ -348,7 +348,7 @@ spreadInputs <- function(sim)
     modulePath = modulePath(sim),
     moduleName = currentModule(sim),
     studyArea = sim$studyAreaNAD83,
-    writeCropped = TRUE, 
+    postProcessedFilename = TRUE, 
     cacheTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   )
