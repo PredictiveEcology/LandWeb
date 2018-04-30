@@ -29,10 +29,10 @@ landwebAppInfo <- function(input, output, session, appInfo) {
             div(style = "display: inline-block;",
                 # Gov't of Alberta (Ag and Forestry, plus Environment)
                 a(href = "https://friresearch.ca/partner/alberta-agriculture-forestry",
-                  img(src = "images/logos/Alberta.jpg", align = "left", width = 165)
+                  img(src = "images/logos/AB_Ag_For.png", align = "left", width = 165)
                 ),
                 a(href = "https://friresearch.ca/partner/alberta-environment-and-parks",
-                  img(src = "images/logos/Alberta.jpg", align = "left", width = 165)
+                  img(src = "images/logos/AB_Enviro_Parks.jpeg", align = "left", width = 165)
                 ),
 
                 # Gov't of Saskatchewan
