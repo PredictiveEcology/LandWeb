@@ -12,8 +12,8 @@ if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>numClusters && num
 pathToLandWebApp <- "C:/Eliot/"
 
 # Overall model times # start is default at 0
-endTime <- 1000
-summaryInterval <- 10
+endTime <- 1500
+summaryInterval <- 20
 summaryPeriod <- c(700, endTime)
 
 # cacheId for 1000 years: 2e35699c4ade1b4bfa82e864558c7436, 7.3 days - on 342
