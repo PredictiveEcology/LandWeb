@@ -119,7 +119,7 @@ Init <- function(sim) {
 
   sim$tsfRasters <- Cache(Map, tsf = sim$tsfs,
                       userTags = c("reprojectRasts", "tsf", "tsfs"),
-                      cacheId = if (exists("cacheIdTsfRasters")) cacheIdTsfRasters else NULL,
+                      cacheId = cacheId$tsfRasters,
                       lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
@@ -130,9 +130,7 @@ Init <- function(sim) {
 
   sim$tsfRasterTilePaths <- Cache(Map, rst = sim$tsfRasters, modelType = names(sim$tsfRasters),
                               userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
-                              cacheId = if (exists("cacheIdTsfRasterTilePaths"))
-                                cacheIdTsfRasterTilePaths else NULL,
-
+                              cacheId = cacheId$tsfRasterTilePaths,
                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                               function(rst, modelType, zoomRange, colorTableFile) {
                                 outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
@@ -150,8 +148,7 @@ Init <- function(sim) {
 
 
   vtmsTifs <- Cache(lapply, sim$vtms, #notOlderThan = Sys.time(),
-                    cacheId = if (exists("cacheIdVtmsTifs"))
-                      cacheIdVtmsTifs else NULL,
+                    cacheId = cacheId$vtmsTifs,
                     userTags = c("writeRaster", "tifs"),
                     function(vtmsInner) {
                       vtmTifs <- lapply(vtmsInner, function(vtm) {
@@ -163,7 +160,7 @@ Init <- function(sim) {
   vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.tools::.suffix(vtm, "LFLT") )
 
   vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
-                      cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
+                      cacheId = cacheId$vtmRasters,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
@@ -173,8 +170,7 @@ Init <- function(sim) {
 
   vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                               userTags = c("gdal2Tiles", "vtm", "vtms"),
-                              cacheId = if (exists("cacheIdVtmRasterTilePaths"))
-                                cacheIdVtmRasterTilePaths else NULL,
+                              cacheId = cacheId$vtmRasterTilePaths,
                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                               function(rst, modelType, zoomRange, colorTableFile) {
                                 outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
@@ -187,10 +183,11 @@ Init <- function(sim) {
   ########################################################
   # formerly in mapsForShiny.R
   # Reporting polygons
+  browser()
   if (isTRUE(useParallelCluster)) {
     library(parallel)
     message("  Closing existing cluster for raster::extract")
-    raster::endCluster()
+    try(raster::endCluster(), silent = TRUE)
     message("  Starting ",numClusters, "  node cluster for raster::extract")
     raster::beginCluster(min(numClusters, parallel::detectCores() / 4))
 
