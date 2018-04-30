@@ -40,8 +40,9 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
     dtListShort <- split(.dtFull, by = uiSeq$category[-length(uiSeq$category)], flatten = FALSE)
 
     # need to get a single set of breaks for all simultaneously visible histograms
-    dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-
+    dtInner <- dtListShort[[.current[[1]]]][[.current[[2]]]] # this should be in order it is received
+    #dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
+    
     if (NROW(dtInner) > 0) {
       dtOnlyCC <- dt[rep == "CurrentCondition"]
       dtNoCC <- dt[rep != "CurrentCondition"]
