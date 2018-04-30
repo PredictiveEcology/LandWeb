@@ -516,7 +516,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
   if (!is.null(CCspeciesNames)) {
     ageName <- CCspeciesNames[agrep("age", CCspeciesNames)]
     simulatedMapVegTypes <- lapply(vtmRasters, function(r) {
-      as.character(levels(r$crsSR[[1]])[[1]][,2])
+      as.character(raster::levels(r$crsSR[[1]])[[1]][,2])
     })
 
     matchSpNames <- lapply(CCspeciesNames, function(sn) {
