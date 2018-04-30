@@ -22,8 +22,9 @@ dashboardPage(
       menuItem("Overview Diagrams", tabName = "simInfo", icon = icon("sitemap")),
       menuItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece")),
       menuItem("LBMR (Succession) Model Inputs", tabName = "inputTables", icon = icon("table")),
-      br(),
-      menuItem("App Information", tabName = "appInfo", icon = icon("info-circle")),
+      tags$hr(),
+      h4(HTML("&nbsp;"), "App Information"),  ## TODO: add this to generator
+      menuItem("App Details", tabName = "appInfo", icon = icon("info-circle")),
       br(),
       downloadOutputsUI("downloadOutputs") ## TODO: write this with generator
     ),

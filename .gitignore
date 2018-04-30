@@ -33,7 +33,10 @@ R-Portable/
 
 ## shiny app files
 global.R
-www/
+www/*
+!www/images/
+www/images/*
+!www/images/logos/
 
 ## SpaDES-related files
 m/test/
