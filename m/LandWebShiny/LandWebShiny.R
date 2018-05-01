@@ -29,7 +29,8 @@ defineModule(sim, list(
     expectsInput(objectName = "mySimOuts", objectClass = "list", desc = "A list of simLists, from an experiment call, with files saved and described with outputs(sim)"),
     expectsInput("paths", "character", ""),
     expectsInput("studyAreaName", "character", "The name of the studyArea, in early stages of this module, these were SMALL, MEDIUM, LARGE, EXTRALARGE, FULL"),
-    expectsInput("cacheId", "list", "A list of cacheId values, with the name of the list element matching the name of the object being returned"),
+    expectsInput("cacheIdName", "Character string", "Used with cacheIdEnv to get the cacheId list. Not passed in as a list directly to avoid false failures in Caching"),
+    expectsInput("cacheIdEnv", "Environment", "Used with cacheIdName to get the cacheId list. Not passed in as a list directly to avoid false failures in Caching"),
     expectsInput("shpStudyArea", "SpatialPolygon", "The Study Area. This polygon is used to clip or intersect all others provided")
   ),
   outputObjects = bind_rows(
@@ -77,10 +78,11 @@ doEvent.LandWebShiny = function(sim, eventTime, eventType) {
 ### template initialization
 Init <- function(sim) {
 
+  cacheId <- get(sim$cacheIdName, envir = sim$cacheIdEnv)
   ##### POST Experiment
-  rastersFromOutputs <- lapply(sim$mySimOuts, function(mySimOut) {
-    lapply(seq_along(mySimOut), function(x) {
-      grep(pattern = ".grd$|.tif$", outputs(mySimOut[[x]])$file, value = TRUE)
+  rastersFromOutputs <- lapply(sim$outputs, function(output) {
+    lapply(output, function(x) {
+      grep(pattern = ".grd$|.tif$", x$file, value = TRUE)
     }) %>% unlist()
   })
 
@@ -113,8 +115,8 @@ Init <- function(sim) {
   }
   )
 
-  flammableFiles <- lapply(sim$mySimOuts, function(mySimOut) {
-    fps <- file.path(outputPath(mySimOut[[1]]), "rstFlammable.grd")
+  flammableFiles <- lapply(sim$outputPaths, function(op) {
+    fps <- file.path(op[[1]], "rstFlammable.grd")
     fps <- convertPaths(fps, pattern = pathConversions$pattern,
                         replacement = pathConversions$replacement)
     asPath(fps, 2)
@@ -122,7 +124,7 @@ Init <- function(sim) {
 
   sim$tsfRasters <- Cache(Map, tsf = sim$tsfs,
                       userTags = c("reprojectRasts", "tsf", "tsfs"),
-                      cacheId = sim$cacheId$tsfRasters,
+                      cacheId = cacheId$tsfRasters,
                       lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
@@ -133,7 +135,7 @@ Init <- function(sim) {
 
   sim$tsfRasterTilePaths <- Cache(Map, rst = sim$tsfRasters, modelType = names(sim$tsfRasters),
                               userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
-                              cacheId = sim$cacheId$tsfRasterTilePaths,
+                              cacheId = cacheId$tsfRasterTilePaths,
                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                               function(rst, modelType, zoomRange, colorTableFile) {
                                 outputPath <- file.path("www", modelType, sim$studyAreaName, "map-tiles")
@@ -151,7 +153,7 @@ Init <- function(sim) {
 
 
   vtmsTifs <- Cache(lapply, sim$vtms, #notOlderThan = Sys.time(),
-                    cacheId = sim$cacheId$vtmsTifs,
+                    cacheId = cacheId$vtmsTifs,
                     userTags = c("writeRaster", "tifs"),
                     function(vtmsInner) {
                       vtmTifs <- lapply(vtmsInner, function(vtm) {
@@ -163,7 +165,7 @@ Init <- function(sim) {
   vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.tools::.suffix(vtm, "LFLT") )
 
   vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
-                      cacheId = sim$cacheId$vtmRasters,
+                      cacheId = cacheId$vtmRasters,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
@@ -173,7 +175,7 @@ Init <- function(sim) {
 
   vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                               userTags = c("gdal2Tiles", "vtm", "vtms"),
-                              cacheId = sim$cacheId$vtmRasterTilePaths,
+                              cacheId = cacheId$vtmRasterTilePaths,
                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                               function(rst, modelType, zoomRange, colorTableFile) {
                                 outputPath <- file.path("www", modelType, sim$studyAreaName, "map-tiles")
@@ -212,7 +214,7 @@ Init <- function(sim) {
   CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
   CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames,
                              userTags = c("createCCfromVtmTsf", "CurrentConditions"),
-                             cacheId = sim$cacheId$currentCondition,
+                             cacheId = cacheId$currentCondition,
                              MoreArgs = list(vtmRasters = vtmRasters,
                                              dPath = dPath,
                                              loadCCSpeciesFn = loadCCSpecies,
@@ -313,7 +315,7 @@ Init <- function(sim) {
                                destinationPath = dataPath(sim),
 
                                # Used by Cache
-                               cacheId = sim$cacheId$ReportingAndLeadingFn)
+                               cacheId = cacheId$ReportingAndLeadingFn)
   list2env(reportingAndLeading, envir = envir(sim)) # puts leading and reportingPolygons into .GlobalEnv
   
   
@@ -370,7 +372,7 @@ Init <- function(sim) {
   sim$lrgPatches <- do.call(Cache, append(list(
     timeSinceFireFiles = getAllIfExists(sim$tsfs, ifNot = "Proprietary"),
     vegTypeMapFiles = getAllIfExists(sim$vtms, ifNot = "Proprietary"),
-    cacheId = sim$cacheId$lrgPatches
+    cacheId = cacheId$lrgPatches
   ),
   lrgPatchesArgs))
 
@@ -378,7 +380,7 @@ Init <- function(sim) {
   sim$lrgPatchesCC <- do.call(Cache, append(list(
     timeSinceFireFiles = getAllIfExists(sim$tsfsCC, ifNot = "Proprietary"),
     vegTypeMapFiles = getAllIfExists(vtmsCC, ifNot = "Proprietary"),
-    cacheId = sim$cacheId$lrgPatchesCC
+    cacheId = cacheId$lrgPatchesCC
   ),
   lrgPatchesArgs))
 
@@ -415,7 +417,7 @@ Save <- function(sim) {
   out <- Cache(Map, polys = lapply(getAllIfExists(sim$reportingPolygons, ifNot = "Proprietary"),
                                    function(p) p$crsSR$shpStudyRegion),
                namesPolys = names(getAllIfExists(sim$reportingPolygons, "Proprietary")),
-               cacheId = sim$cacheId$writeShapefiles,
+               cacheId = cacheId$writeShapefiles,
                function(polys, namesPolys) {
                  tryCatch(raster::shapefile(polys,
                                             filename = file.path(polySubDir, namesPolys),
