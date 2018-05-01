@@ -204,7 +204,7 @@ loadCCSpecies <- function(mapNames, userTags = "", destinationPath, ...) {
 }
 
 
-createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion, 
+createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
                                     shpStudyArea,
                                     prepInputsFromSilvacomFn,
                                     namedUrlsLabelColumnNames = namedUrlsLabelColumnNames,
@@ -270,9 +270,9 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
 
   # Get all SilvaCom-generated datasets - they have a common structure
   polys2 <- prepInputsFromSilvacomFn(polygonNames = polygonNames, studyArea = shpStudyArea,
-                                     shinyLabel = labelColumn, destinationPath = destinationPath, 
+                                     shinyLabel = labelColumn, destinationPath = destinationPath,
                                      namedUrlsLabelColumnNames = namedUrlsLabelColumnNames)
-  
+
   polys[names(polys2)] <- polys2
   if ("National Ecozones" %in% names(polys)) {
     # remove the french name column because it has accents that aren't correctly dealt with
@@ -280,9 +280,9 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
       polys$`National Ecozones`@data[-which(colnames(polys$`National Ecozones`@data) == "ZONE_NOM")]
   }
 
-  polys3 <- studyAreaPolygonsFn(shpLandWebSA, shpStudyArea, labelColumn) 
+  polys3 <- studyAreaPolygonsFn(shpLandWebSA, shpStudyArea, labelColumn)
   polys[names(polys3)] <- polys3
-  
+
   ########################################################
   ########################################################
   ########################################################
@@ -291,7 +291,7 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
     spTransform(shp, CRSobj = crsStudyRegion)
   }, userTags = "stable")
 
-  
+
   # Make Leaflet versions of all
   message("Making leaflet crs versions of reportingPolygons")
   polysLflt <- Map(p = polys, nam = names(polys), #userTags = "stable",
@@ -313,7 +313,7 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
   #                                  })
 
   # Put them all together in the structure:
-  #   LayerName $ Projection (crsSR or crsLFLT) 
+  #   LayerName $ Projection (crsSR or crsLFLT)
   polysAll <- list("crsSR" = polys, "crsLFLT" = polysLflt)
   purrr::transpose(polysAll)
 }
@@ -480,7 +480,7 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
 
 
 createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesFn,
-                            shpStudyArea, tsfRasters, vegLeadingPercent, ...) {
+                               shpStudyArea, tsfRasters, vegLeadingPercent, ...) {
   if (!is.null(CCspeciesNames)) {
     ageName <- CCspeciesNames[agrep("age", CCspeciesNames)]
     simulatedMapVegTypes <- lapply(vtmRasters, function(r) {
@@ -663,12 +663,12 @@ prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, p
           message(layerName, ": Running prepInputs")
           polygonOut <- Cache(prepInputs, userTags = "stable",
                               archive = asPath(targetZip),
-                              url = url$url, 
+                              url = url$url,
                               targetFile = asPath(targetFilename),
                               alsoExtract = asPath(targetFilenames),
-                              fun = "shapefile", destinationPath = destinationPath, 
+                              fun = "shapefile", destinationPath = destinationPath,
                               studyArea = studyArea)
-          
+
           if (!is.null(polygonOut))
             polygonOut@data[[shinyLabel]] <-
               polygonOut[[url$labelColumnName]]
@@ -690,15 +690,17 @@ studyAreaPolygonsFn <- function(shpLandWebSA = NULL, shpStudyArea = NULL, labelC
   polys <- list()
   if (!is.null(shpLandWebSA)) {
     polys[["LandWeb Study Area"]] <- raster::aggregate(shpLandWebSA, dissolve = TRUE)
-    polys[["LandWeb Study Area"]] <- 
-      SpatialPolygonsDataFrame(polys[["LandWeb Study Area"]], data = data.frame(NAME = wholeStudyAreaTxt))
+    polys[["LandWeb Study Area"]] <- SpatialPolygonsDataFrame(
+      polys[["LandWeb Study Area"]], data = data.frame(NAME = wholeStudyAreaTxt)
+    )
     polys[["LandWeb Study Area"]][[labelColumn]] <- wholeStudyAreaTxt
   }
-  
+
   if (!is.null(shpStudyArea)) {
     polys[["shpStudyArea"]] <- raster::aggregate(shpStudyArea, dissolve = TRUE)
-    polys[["shpStudyArea"]] <- 
-      SpatialPolygonsDataFrame(polys[["shpStudyArea"]], data = data.frame(NAME = wholeStudyAreaTxt))
+    polys[["shpStudyArea"]] <- sp::SpatialPolygonsDataFrame(
+      polys[["shpStudyArea"]], data = data.frame(NAME = wholeStudyAreaTxt)
+    )
     polys[["shpStudyArea"]][[labelColumn]] <- wholeStudyAreaTxt
   }
   polys
