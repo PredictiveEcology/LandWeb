@@ -648,8 +648,7 @@ prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, p
       MoreArgs = list(destinationPath = destinationPath,
                       polygonNames = polygonNames,
                       shinyLabel = shinyLabel),
-      function(url, layerName, destinationPath, polygonNames,
-               shinyLabel) {
+      function(url, layerName, destinationPath, polygonNames, shinyLabel) {
 
         if (layerName %in% polygonNames) {
           #dPath <- file.path(paths$inputPath, "Caribou")

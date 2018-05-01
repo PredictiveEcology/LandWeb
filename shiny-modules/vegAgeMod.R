@@ -44,7 +44,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
 
     propVeg <- vegDT$proportion
 
-    breaksLabels <- (0:11)/10
+    breaksLabels <- (0:11) / 10
     breaks <- breaksLabels - 0.05
     barplotBreaks <- breaksLabels + 0.05
 
@@ -83,8 +83,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
       # need to get a single set of breaks for all simultaneously visible histograms
       dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
 
-      if (NROW(dtInner)>0) {
-
+      if (NROW(dtInner) > 0) {
         dtOnlyCC <- dt[rep == "CurrentCondition"]
         dtNoCC <- dt[rep != "CurrentCondition"]
 
@@ -112,7 +111,6 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
         histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
         # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
         # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
-
       } else {
         if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
           verticalLineAtX <- 0
@@ -193,12 +191,12 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
     curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
     polygonID <- as.character(seq_along(curPoly))
     polygonName <- curPoly$shinyLabel
-    
+
     dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
-    
+
     haveNumericPolyId <- dt$polygonID %in% polygonID
     dt$polygonID[haveNumericPolyId] <- polygonName[match(dt$polygonID[haveNumericPolyId], polygonID)]
-    
+
     assertthat::assert_that(is.data.table(dt) || is.null(dt))
     dt
   })
