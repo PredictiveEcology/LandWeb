@@ -21,7 +21,7 @@
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
 histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatus,
-                          uiSeq, outputPath, chosenPolyName, patchSize) {
+                          uiSeq, outputPath, chosenPolyName, patchSize, rebuildHistPNGs) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -93,7 +93,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       checkPath(create = TRUE)
     pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
     pngPath <- file.path(pngDir, pngFile)
-    pngFilePath <- if (isTRUE(authStatus)) {
+    pngFilePath <- if (isTRUE(rebuildHistPNGs)) {
       if (file.exists(pngPath)) {
         NULL
       } else {
@@ -237,7 +237,7 @@ largePatchesUI <- function(id) {
 #' @rdname largePatches
 largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive({NULL}),
                          rctLrgPatches, rctLrgPatchesCC, rctTsf, rctVtm,
-                         ageClasses, FUN, nPatchesFun, outputPath) { # TODO: add docs above
+                         ageClasses, FUN, nPatchesFun, outputPath, rebuildHistPNGs) { # TODO: add docs above
 
   output$title <- renderUI({
     column(width = 12,
@@ -282,11 +282,13 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   })
 
   rctLargePatchesData <- reactive({
-    rctLargePatchesDataOrig()[sizeInHa > input$patchSize]
+    dtFn <- function(rctLargePatchesDataOrig, patchSize) {
+      rctLargePatchesDataOrig()[sizeInHa > patchSize]
+    }
+    Cache(dtFn, rctLargePatchesDataOrig = rctLargePatchesDataOrig, patchSize = input$patchSize)
   })
 
   uiSequence <- reactive({
-
     #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]))
     polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]$shinyLabel
 
@@ -302,7 +304,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     rctChosenPolyName()
     input$patchSize
   }, {
-
+    needResave <- isTRUE(attr(rctLargePatchesData(), "newCache"))
     callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
                uiSequence = uiSequence(),
                #serverFunction = histServerFn, ## calls histogram server module
@@ -315,7 +317,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                uiSeq = uiSequence(),
                outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
-               patchSize = as.character(input$patchSize)
+               patchSize = as.character(input$patchSize),
+               rebuildHistPNGs = needResave
     )
   })
 
