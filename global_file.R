@@ -289,7 +289,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
                    cacheIds4Experiment = cacheId$runExperiment,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
-                   emptyList = emptyListAll, showSimilar = TRUE)
+                   emptyList = emptyListAll)
 
 message("  Finished simInit and Experiment.")
 
