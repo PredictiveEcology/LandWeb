@@ -14,25 +14,20 @@ Model outputs are available to download for authorived app users.
 The downloaded file (*e.g.*, `LandWeb_v1.0.0_2018-04-13.zip`) can be unzipped and contains the following directory and file structure:
 
 ```
-LandWeb_v1.0.0_2018-04-13/
- |_ cache/
-     |_ <subStudyRegionName>_Proprietary/
-         |_ rasters/
- |_ outputs/
-     |_ <subStudyRegionName>_Proprietary/
-         |_ <rctChosenPolyName>/
-             |_ histograms/
-                 |_ largePatches/
-                     |_ 500/          ## currently selected patchSize
-                 |_ vegAgeMod/
-         |_ Polygons/
-         |_ experiment.RData
-         |_ largePatches.csv
-         |_ rstTimeSinceFire_*.tif
-         |_ simulationOutput_*.rds
-         |_ vegArea.csv
-         |_ vegTypeMap_*.tif*
+LandWeb_v1.0.0_2018-04-30/
+ |_ histograms/
+     |_ largePatches/
+         |_ 500/                  ## currently selected patchSize
+     |_ vegAgeMod/
+ |_ polygons/
+ |_ rasters/
+     |_ rstTimeSinceFire_*.tif
+     |_ vegTypeMap_*.tif*
+ |_ experiment.RData
+ |_ largePatches.csv
  |_ README.Rmd
+ |_ simulationOutput_*.rds
+ |_ vegArea.csv
 ```
 
 ### "Inputs"

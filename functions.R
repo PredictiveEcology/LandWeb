@@ -4,4 +4,3 @@ gdalSet <- function() {
 }
 
 source("simInitAndExperiment.R")
-#source("largePatchesFn.R")

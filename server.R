@@ -51,7 +51,9 @@ function(input, output, session) {
                                     rctLrgPatchesCC = rctLrgPatchesCC,
                                     rctTsf = rctTsf, rctVtm = rctVtm,
                                     outputPath = rctPaths4sim()$outputPath,
-                                    ageClasses = ageClasses, FUN = largePatchesFn, nPatchesFun = countNumPatches)
+                                    ageClasses = ageClasses,
+                                    FUN = largePatchesFn,
+                                    nPatchesFun = countNumPatches)
 
   rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
                            rctPolygonList = rctPolygonListUser,
@@ -73,7 +75,7 @@ function(input, output, session) {
              rctVegData = rctVegData,
              rctPolygonList = rctPolygonListUser,
              rctChosenPolyName = rctChosenPolyName,
-             patchSize = inputs$patchSize)
+             patchSize = "500") ## TODO: get patchSize from largePatches module
 
   ## footers (see ?copyrightFooter)
   callModule(copyrightFooter, "copyright", "Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada.")
