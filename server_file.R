@@ -31,4 +31,6 @@ rctUrlTemplate <- reactive(sim2$getAllIfExists(sim2$tsfRasterTilePaths, ifNot = 
 
 rctVtm <- reactive(sim2$getAllIfExists(sim2$vtms, ifNot = rctAuthenticationType()))
 
-rctStudyArea <- reactive(rctPolygonList()[["LandWeb Study Area"]]$crsSR$shpStudyRegion)
+rctStudyArea <- reactive(rctPolygonList()[["shpStudyArea"]]$crsSR)
+
+#rctSubStudyArea <- reactive(rctPolygonList()[["LandWeb Study Area"]]$crsSR)

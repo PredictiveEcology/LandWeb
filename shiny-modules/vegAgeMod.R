@@ -180,7 +180,6 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
   rctVegData <- reactive({
     assertthat::assert_that(is.character(rctChosenPolyName()), is.list(rctLeadingDTlist()))
 
-    browser()
     dt <- if (is.null(rctLeadingDTlistCC())) {
       ## free
       rctLeadingDTlist()[[rctChosenPolyName()]]
@@ -191,27 +190,31 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
     }
 
     # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
-    curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]
+    curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
     polygonID <- as.character(seq_along(curPoly))
     polygonName <- curPoly$shinyLabel
+    
+    dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
+    
     haveNumericPolyId <- dt$polygonID %in% polygonID
     dt$polygonID[haveNumericPolyId] <- polygonName[match(dt$polygonID[haveNumericPolyId], polygonID)]
-    assertthat::assert_that(is.data.table(dt))
+    
+    assertthat::assert_that(is.data.table(dt) || is.null(dt))
     dt
   })
 
   uiSequence <- reactive({
     assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()), is.character(rctVtm()))
 
-    #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]))
-    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpSubStudyRegion"]]$shinyLabel
+    #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]))
+    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]$shinyLabel
 
 
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
-      category = c("vegCover", "polygonID", "ageClass"),
+      category = c("polygonID", "vegCover", "ageClass"),
       uiType = c("tab", "tab", "box"),
-      possibleValues = list(levels(rasVtmTmp)[[1]][, 2], polygonIDs, ageClasses)
+      possibleValues = list(polygonIDs, levels(rasVtmTmp)[[1]][, 2], ageClasses)
     )
   })
 

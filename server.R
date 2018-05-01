@@ -36,7 +36,8 @@ function(input, output, session) {
                                      path = "uploads",
                                      user = userEmail()
                                    ),
-                                   studyArea = rctStudyArea())
+                                   rctStudyArea = rctStudyArea)#,
+                                   #subStudyArea = rctSubStudyArea())
 
   rctPolygonListUser <- reactive({
     do.call(polygonList, append(rctChosenPolyUser()$polygons, list(studyArea = rctStudyArea())))
