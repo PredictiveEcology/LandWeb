@@ -67,84 +67,109 @@ downloadOutputs <- function(input, output, session, appInfo,
       paste(filePrefix, Sys.Date(), ".zip", sep = "")
     },
     content = function(file) {
+      tmpDir <- file.path(tempdir(), SpaDES.core::rndstr(1, 10, characterFirst = TRUE)) %>%
+        reproducible::checkPath(., create = TRUE)
+      outputDirs <- c("histograms", "polygons", "rasters")
+      lapply(file.path(tmpDir, outputDirs), reproducible::checkPath, create = TRUE)
+      on.exit(unlink(tmpDir, recursive = TRUE), add = TRUE)
+
       fileList <- list()
+
+      currPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
 
       ### "inputs"
       if (isTRUE(input$dlPolygon)) {
-        polygonFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"), "Polygons"),
-          pattern = rctChosenPolyName(), recursive = TRUE, full.names = TRUE
-        )
-        fileList <- append(fileList, polygonFiles)
+        polygonFile2 <- file.path(tmpDir, "polygons", paste0(rctChosenPolyName(), ".shp"))
+        raster::shapefile(currPoly, filename = polygonFile2)
+        fileList <- append(fileList, polygonFile2)
       }
 
       ### Current condition
       if (isTRUE(input$dlCC)) {
-        ccFile <- file.path("cache", paste0(subStudyRegionName, "_Proprietary"),
-                             "rasters", "CurrentCondition.tif")
-        fileList <- append(fileList, ccFile)
+        ccFile <- file.path("cache", paste0(subStudyRegionName), "rasters", "CurrentCondition.tif")
+        ccFile2 <- file.path(tmpDir, "rasters", basename(ccFile))
+
+        raster::raster(ccFile) %>%
+          SpaDES.tools::postProcess(., targetFilePath = ccFile2, studyArea = currPoly) ## TODO: fix: files not being created!
+        fileList <- append(fileList, ccFile2)
       }
 
       ### Large Patches Data
       if (isTRUE(input$dlLargePatchesData)) {
-        largePatchesDataFile <- file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
-                                          "largePatches.csv")
-        write.csv(rctLargePatchesData(), largePatchesDataFile)
-        fileList <- append(fileList, largePatchesDataFile)
+        largePatchesDataFile2 <- file.path(tmpDir, "largePatches.csv")
+        write.csv(rctLargePatchesData(), largePatchesDataFile2)
+        fileList <- append(fileList, largePatchesDataFile2)
       }
 
       if (isTRUE(input$dlLargePatchesHists)) {
-        histFiles1 <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"), ## currently in _All not _Proprietary
+        histFilesLP <- list.files(
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
                     "histograms", gsub(" ", "_", rctChosenPolyName()),
                     "largePatches", patchSize),
           recursive = TRUE, full.names = TRUE
         )
-        fileList <- append(fileList, histFiles1)
+        histFilesLP2 <- file.path(tmpDir, "histograms", "largePatches", patchSize, basename(histFilesLP))
+        unique(dirname(histFilesLP2)) %>% reproducible::checkPath(., create = TRUE)
+        file.copy(histFilesLP, histFilesLP2)
+        fileList <- append(fileList, histFilesLP2)
       }
 
       ### Veg Class Data
       if (isTRUE(input$dlVegData)) {
-        vegDataFile <- file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
-                                 "vegArea.csv")
-        write.csv(rctVegData(), vegDataFile)
-        fileList <- append(fileList, vegDataFile)
+        vegDataFile2 <- file.path(tmpDir, "vegArea.csv")
+        write.csv(rctVegData(), vegDataFile2)
+        fileList <- append(fileList, vegDataFile2)
       }
 
       if (isTRUE(input$dlVegAgeHists)) {
-        histFiles2 <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"), ## currently in _All not _Proprietary
+        histFilesVA <- list.files(
+          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
                     "histograms", gsub(" ", "_", rctChosenPolyName()),
                     "vegAgeMod"),
           recursive = TRUE, full.names = TRUE
         )
-        fileList <- append(fileList, histFiles2)
+        histFilesVA2 <- file.path(tmpDir, "histograms", "vegAgeMod", basename(histFilesVA))
+        dir.create(unique(dirname(histFilesVA2)))
+        file.copy(histFilesVA, histFilesVA2)
+        fileList <- append(fileList, histFilesVA2)
       }
 
       ### Simulation rasters
       if (isTRUE(input$dlTimeSinceFireMaps)) {
         tsfMapFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")), ## currently in _All not _Proprietary
+          file.path("outputs", paste0(subStudyRegionName, "_All")),
           recursive = TRUE, full.names = TRUE, pattern = "rstTimeSinceFire"
         )
-        fileList <- append(fileList, tsfMapFiles)
+        tsfMapFiles2 <- file.path(tmpDir, "rasters",  basename(tsfMapFiles))
+
+        tsfRasterList <- lapply(tsfMapFiles, raster::raster)
+        Map(x = tsfRasterList, targetFilePath = tsfMapFiles2,
+            MoreArgs = list(studyArea = currPoly), SpaDES.tools::postProcess) ## TODO: fix: files not being created!
+        fileList <- append(fileList, tsfMapFiles2)
       }
 
       if (isTRUE(input$dlVegTypeMaps)) {
         vegTypeMapFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")), ## currently in _All not _Proprietary
-          recursive = TRUE, full.names = TRUE, pattern = "vegTypeMap.+[0-9]\\.tif"
+          file.path("outputs", paste0(subStudyRegionName, "_All")),
+          recursive = TRUE, full.names = TRUE, pattern = "vegTypeMap.+[0-9]\\.tif$"
         )
-        fileList <- append(fileList, vegTypeMapFiles)
+        vegTypeMapFiles2 <- file.path(tmpDir, "rasters",  basename(vegTypeMapFiles))
+
+        tsfRasterList <- lapply(vegTypeMapFiles, raster::raster)
+        Map(x = tsfRasterList, targetFilePath = vegTypeMapFiles2,
+            MoreArgs = list(studyArea = currPoly), SpaDES.tools::postProcess)
+        fileList <- append(fileList, vegTypeMapFiles2)
       }
 
       ### other simulation data files
       if (isTRUE(input$dlSimOutputs)) {
         simOutputFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary")), ## currently in _All not _Proprietary
+          file.path("outputs", paste0(subStudyRegionName, "_All")),
           recursive = TRUE, full.names = TRUE, pattern = "[.]RData|[.]rds"
         )
-        fileList <- append(fileList, simOutputFiles)
+        simOutputFiles2 <- file.path(tmpDir, basename(simOutputFiles))
+        file.copy(simOutputFiles, simOutputFiles2)
+        fileList <- append(fileList, simOutputFiles2)
       }
 
       ### append filename prefix if selected
@@ -163,9 +188,11 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       ## TODO: improve info/metadata in this file
       readmeFile <- "README.md"
+      readmeFile2 <- file.path(tmpDir, basename(readmeFile))
+      file.copy(readmeFile, readmeFile2)
 
       ## create the zip file containing the selected files
-      zip(file, files = c(readmeFile, unlist(fileListRenamed)))
+      zip(file, files = c(readmeFile2, unlist(fileListRenamed)))
     },
     contentType = "application/zip"
   )
