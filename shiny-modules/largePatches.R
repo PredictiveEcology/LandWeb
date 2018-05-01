@@ -304,7 +304,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     rctChosenPolyName()
     input$patchSize
   }, {
-    needResave <- isTRUE(attr(rctLargePatchesData(), "newCache"))
+    needResave <- isTRUE(attr(rctLargePatchesData(), "newCache")) &&
+      isTRUE(session$userData$userAuthorized())
     callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
                uiSequence = uiSequence(),
                #serverFunction = histServerFn, ## calls histogram server module
