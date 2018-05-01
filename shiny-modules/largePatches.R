@@ -42,7 +42,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
     # need to get a single set of breaks for all simultaneously visible histograms
     dtInner <- dtListShort[[.current[[1]]]][[.current[[2]]]] # this should be in order it is received
     #dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-    
+
     if (NROW(dtInner) > 0) {
       dtOnlyCC <- dt[rep == "CurrentCondition"]
       dtNoCC <- dt[rep != "CurrentCondition"]
@@ -79,7 +79,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
         verticalLineAtX <- NULL
       }
       histogramData <- c(1,0,0,0,0,0,0)
-      breaksLabels = 0:6
+      breaksLabels <- 0:6
       breaksInterval <- 1
     }
     breaks <- breaksLabels - breaksInterval / 2
@@ -249,7 +249,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   rctLargePatchesDataOrig <- reactive({
     assertthat::assert_that(is.character(rctChosenPolyName()))
 
-    
+
     dt <- if (is.null(rctLrgPatchesCC()[[rctChosenPolyName()]])) {
       ## free
       rctLrgPatches()[[rctChosenPolyName()]]
@@ -263,12 +263,12 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
     polygonID <- as.character(seq_along(curPoly))
     polygonName <- curPoly$shinyLabel
-    
+
     dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
-    
+
     haveNumericPolyId <- dt$polygonID %in% polygonID
     dt$polygonID[haveNumericPolyId] <- polygonName[match(dt$polygonID[haveNumericPolyId], polygonID)]
-    
+
     assertthat::assert_that(is.data.table(dt) || is.null(dt))
     dt
   })
@@ -278,7 +278,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   })
 
   uiSequence <- reactive({
-    
+
     #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]))
     polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]$shinyLabel
 
@@ -294,7 +294,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     rctChosenPolyName()
     input$patchSize
   }, {
-    
+
     callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
                uiSequence = uiSequence(),
                #serverFunction = histServerFn, ## calls histogram server module
