@@ -21,7 +21,7 @@
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
 vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosenPolyName,
-                            nSimTimes, authStatus) {
+                            nSimTimes, authStatus, rebuildHistPNGs) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     vegDT <- if (is.reactive(datatable)) {
       datatable()
@@ -44,7 +44,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
 
     propVeg <- vegDT$proportion
 
-    breaksLabels <- (0:11)/10
+    breaksLabels <- (0:11) / 10
     breaks <- breaksLabels - 0.05
     barplotBreaks <- breaksLabels + 0.05
 
@@ -83,8 +83,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
       # need to get a single set of breaks for all simultaneously visible histograms
       dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
 
-      if (NROW(dtInner)>0) {
-
+      if (NROW(dtInner) > 0) {
         dtOnlyCC <- dt[rep == "CurrentCondition"]
         dtNoCC <- dt[rep != "CurrentCondition"]
 
@@ -112,7 +111,6 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
         histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
         # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
         # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
-
       } else {
         if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
           verticalLineAtX <- 0
@@ -135,9 +133,18 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
     pngDir <- file.path(outputPath, "histograms", polyName, "vegAgeMod") %>% checkPath(create = TRUE)
     pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
     pngPath <- file.path(pngDir, pngFile)
+    pngFilePath <- if (isTRUE(rebuildHistPNGs)) {
+      if (file.exists(pngPath)) {
+        NULL
+      } else {
+        pngPath
+      }
+    } else {
+      NULL
+    }
 
     callModule(histogram, id, histogramData, addAxisParams, verticalBar = verticalLineAtX,
-               width = barWidth, file = if (file.exists(pngPath)) NULL else pngPath,
+               width = barWidth, file = pngFilePath,
                xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
@@ -189,18 +196,21 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
                      rctLeadingDTlistCC()[[rctChosenPolyName()]]))
     }
 
-    # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
-    curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
-    polygonID <- as.character(seq_along(curPoly))
-    polygonName <- curPoly$shinyLabel
-    
-    dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
-    
-    haveNumericPolyId <- dt$polygonID %in% polygonID
-    dt$polygonID[haveNumericPolyId] <- polygonName[match(dt$polygonID[haveNumericPolyId], polygonID)]
-    
-    assertthat::assert_that(is.data.table(dt) || is.null(dt))
-    dt
+    dtFn <- function(dt, rctPolygonList, rctChosenPolyName) {
+      # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
+      curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
+      polygonID <- as.character(seq_along(curPoly))
+      polygonName <- curPoly$shinyLabel
+
+      dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
+
+      haveNumericPolyId <- dt$polygonID %in% polygonID
+      dt$polygonID[haveNumericPolyId] <- polygonName[match(dt$polygonID[haveNumericPolyId], polygonID)]
+
+      assertthat::assert_that(is.data.table(dt) || is.null(dt))
+      dt
+    }
+    Cache(dtFn, dt = dt, rctPolygonList = rctPolygonList, rctChosenPolyName = rctChosenPolyName)
   })
 
   uiSequence <- reactive({
@@ -219,7 +229,10 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
   })
 
   observeEvent(rctChosenPolyName(), {
-    callModule(slicer, "vegSlicer", datatable = rctVegData, uiSequence = uiSequence(),
+    needResave <- isTRUE(attr(rctVegData(), "newCache")) &&
+      isTRUE(session$userData$userAuthorized())
+    callModule(slicer, "vegSlicer", datatable = rctVegData,
+               uiSequence = uiSequence(),
                serverFunction = vegHistServerFn, ## calls histogram server module
                uiFunction = function(id) {
                  histogramUI(id, height = 300)
@@ -227,7 +240,8 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
                outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
                nSimTimes = length(rctVtm()),
-               authStatus = session$userData$userAuthorized()
+               authStatus = session$userData$userAuthorized(),
+               rebuildHistPNGs = needResave
     )
   })
 

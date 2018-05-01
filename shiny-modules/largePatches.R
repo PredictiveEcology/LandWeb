@@ -21,7 +21,7 @@
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
 histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatus,
-                          uiSeq, outputPath, chosenPolyName, patchSize) {
+                          uiSeq, outputPath, chosenPolyName, patchSize, rebuildHistPNGs) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -42,7 +42,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
     # need to get a single set of breaks for all simultaneously visible histograms
     dtInner <- dtListShort[[.current[[1]]]][[.current[[2]]]] # this should be in order it is received
     #dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-    
+
     if (NROW(dtInner) > 0) {
       dtOnlyCC <- dt[rep == "CurrentCondition"]
       dtNoCC <- dt[rep != "CurrentCondition"]
@@ -71,7 +71,6 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
       # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
       # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
-
     } else {
       if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
         verticalLineAtX <- 0
@@ -79,7 +78,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
         verticalLineAtX <- NULL
       }
       histogramData <- c(1,0,0,0,0,0,0)
-      breaksLabels = 0:6
+      breaksLabels <- 0:6
       breaksInterval <- 1
     }
     breaks <- breaksLabels - breaksInterval / 2
@@ -94,12 +93,21 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       checkPath(create = TRUE)
     pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
     pngPath <- file.path(pngDir, pngFile)
+    pngFilePath <- if (isTRUE(rebuildHistPNGs)) {
+      if (file.exists(pngPath)) {
+        NULL
+      } else {
+        pngPath
+      }
+    } else {
+      NULL
+    }
 
     # browser(expr = .current$ageClass=="Mature" && .current$polygonID == "Boreal Shield" &&
     #              .current$vegCover == "Deciduous leading")
     callModule(histogram, id, histogramData, addAxisParams,
                verticalBar = verticalLineAtX,
-               width = breaksInterval, file = if (file.exists(pngPath)) NULL else pngPath,
+               width = breaksInterval, file = pngFilePath,
                xlim = xlim, ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
@@ -229,7 +237,7 @@ largePatchesUI <- function(id) {
 #' @rdname largePatches
 largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive({NULL}),
                          rctLrgPatches, rctLrgPatchesCC, rctTsf, rctVtm,
-                         ageClasses, FUN, nPatchesFun, outputPath) { # TODO: add docs above
+                         ageClasses, FUN, nPatchesFun, outputPath, rebuildHistPNGs) { # TODO: add docs above
 
   output$title <- renderUI({
     column(width = 12,
@@ -249,7 +257,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   rctLargePatchesDataOrig <- reactive({
     assertthat::assert_that(is.character(rctChosenPolyName()))
 
-    
+
     dt <- if (is.null(rctLrgPatchesCC()[[rctChosenPolyName()]])) {
       ## free
       rctLrgPatches()[[rctChosenPolyName()]]
@@ -263,22 +271,24 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
     polygonID <- as.character(seq_along(curPoly))
     polygonName <- curPoly$shinyLabel
-    
+
     dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
-    
+
     haveNumericPolyId <- dt$polygonID %in% polygonID
     dt$polygonID[haveNumericPolyId] <- polygonName[match(dt$polygonID[haveNumericPolyId], polygonID)]
-    
+
     assertthat::assert_that(is.data.table(dt) || is.null(dt))
     dt
   })
 
   rctLargePatchesData <- reactive({
-    rctLargePatchesDataOrig()[sizeInHa > input$patchSize]
+    dtFn <- function(rctLargePatchesDataOrig, patchSize) {
+      rctLargePatchesDataOrig()[sizeInHa > patchSize]
+    }
+    Cache(dtFn, rctLargePatchesDataOrig = rctLargePatchesDataOrig, patchSize = input$patchSize)
   })
 
   uiSequence <- reactive({
-    
     #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]))
     polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]$shinyLabel
 
@@ -294,7 +304,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     rctChosenPolyName()
     input$patchSize
   }, {
-    
+    needResave <- isTRUE(attr(rctLargePatchesData(), "newCache")) &&
+      isTRUE(session$userData$userAuthorized())
     callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
                uiSequence = uiSequence(),
                #serverFunction = histServerFn, ## calls histogram server module
@@ -307,7 +318,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                uiSeq = uiSequence(),
                outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
-               patchSize = as.character(input$patchSize)
+               patchSize = as.character(input$patchSize),
+               rebuildHistPNGs = needResave
     )
   })
 
