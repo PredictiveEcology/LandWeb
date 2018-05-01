@@ -43,8 +43,8 @@ defineModule(sim, list(
     createsOutput("reportingPolygons", "list", ""),
     createsOutput("tsfRasterTilePaths", "list", ""),
     createsOutput("tsfRasters", "list", ""),
-    createsOutput("tsfs", "list", ""),
-    createsOutput("tsfsCC", "list", ""),
+    createsOutput("tsfs", "list", ""), 
+    createsOutput("tsfsCC", "list", ""), 
     createsOutput("vtms", "list", ""),
     createsOutput("getAllIfExists", "function", "")
   )
@@ -77,7 +77,6 @@ doEvent.LandWebShiny = function(sim, eventTime, eventType) {
 
 ### template initialization
 Init <- function(sim) {
-
   cacheId <- get(sim$cacheIdName, envir = sim$cacheIdEnv)
   ##### POST Experiment
   rastersFromOutputs <- lapply(sim$outputs, function(output) {
@@ -85,54 +84,59 @@ Init <- function(sim) {
       grep(pattern = ".grd$|.tif$", x$file, value = TRUE)
     }) %>% unlist()
   })
-
+  
   extractFilepaths <- function(filename, rastersFromOutput) {
     grep(pattern = filename, rastersFromOutput, value = TRUE)
   }
-
+  
   # convert paths to local machine -- this will do nothing if prior runs were on this machine
-  pathConversions <- list(pattern = c("outputsFULL", "/home/emcintir/Documents/"),
-                          replacement = c("outputs/FULL_Proprietary", getwd()))
+  pathConversions <- list(pattern = c("outputsFULL", "/home/emcintir/Documents/GitHub/LandWeb/"),
+                          replacement = c("outputs/FULL_Proprietary", paste0(getwd(), "/")))
   sim$tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
     fps <- grep(pattern = "rstTimeSinceFire", rastersFromOutput, value = TRUE)
-    fps <- convertPaths(fps, pattern = pathConversions$pattern,
+    fps <- convertPaths(fps, pattern = pathConversions$pattern, 
                         replacement = pathConversions$replacement)
     asPath(fps, 2) # the tsfs, if used in a Cache situation, should be Cached to 2 parent directories
   })
-
+  
   sim$vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
     fps <- grep(pattern = "vegTypeMap", rastersFromOutput, value = TRUE)
-    fps <- convertPaths(fps, pattern = pathConversions$pattern,
+    fps <- convertPaths(fps, pattern = pathConversions$pattern, 
                         replacement = pathConversions$replacement)
     asPath(fps, 2)
   })
-
+  
+  # remove any files that don't exist. This should never happen, but it did once
+  sim$tsfs <- lapply(sim$tsfs, function(x) {
+    x[file.exists(x)]})
+  sim$vtms <- lapply(sim$vtms, function(x) {
+    x[file.exists(x)]})
+  
   tsfLFLTFilenames <- lapply(sim$tsfs, function(tsf) SpaDES.tools::.suffix(tsf, "LFLT") )
-
+  
   rasterResolutions <- lapply(sim$tsfs, function(x) raster(x[1]) %>% res(.))
   rasterResolutions <- lapply(sim$tsfs, function(x) {
     raster(x[1]) %>% res(.)
   }
   )
-
   flammableFiles <- lapply(sim$outputPaths, function(op) {
     fps <- file.path(op[[1]], "rstFlammable.grd")
     fps <- convertPaths(fps, pattern = pathConversions$pattern,
                         replacement = pathConversions$replacement)
     asPath(fps, 2)
   })
-
+  
   sim$tsfRasters <- Cache(Map, tsf = sim$tsfs,
                       userTags = c("reprojectRasts", "tsf", "tsfs"),
                       cacheId = cacheId$tsfRasters,
                       lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
-
-  sim$tsfRasters <- convertRasterFileBackendPath(sim$tsfRasters,
+  
+  sim$tsfRasters <- convertRasterFileBackendPath(sim$tsfRasters, 
                                              pattern = pathConversions$pattern,
                                              replacement = pathConversions$replacement)
-
-
+  
+  
   sim$tsfRasterTilePaths <- Cache(Map, rst = sim$tsfRasters, modelType = names(sim$tsfRasters),
                               userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
                               cacheId = cacheId$tsfRasterTilePaths,
@@ -150,8 +154,8 @@ Init <- function(sim) {
                                 #}
                                 return(filenames)
                               })
-
-
+  
+  
   vtmsTifs <- Cache(lapply, sim$vtms, #notOlderThan = Sys.time(),
                     cacheId = cacheId$vtmsTifs,
                     userTags = c("writeRaster", "tifs"),
@@ -163,38 +167,38 @@ Init <- function(sim) {
                       return(unlist(lapply(vtmTifs, filename)))
                     })
   vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.tools::.suffix(vtm, "LFLT") )
-
+  
   vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
                       cacheId = cacheId$vtmRasters,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
-
-  vtmRasters <- convertRasterFileBackendPath(vtmRasters,
+  
+  vtmRasters <- convertRasterFileBackendPath(vtmRasters, 
                                              pattern = pathConversions$pattern,
                                              replacement = pathConversions$replacement)
-
+  
   vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                               userTags = c("gdal2Tiles", "vtm", "vtms"),
                               cacheId = cacheId$vtmRasterTilePaths,
                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                               function(rst, modelType, zoomRange, colorTableFile) {
-                                outputPath <- file.path("www", modelType, sim$studyAreaName, "map-tiles")
+                                outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
                                 filenames <- gdal2Tiles(rst$crsLFLT, outputPath = outputPath,
                                                         zoomRange = zoomRange, colorTableFile = colorTableFile)
                                 return(filenames)
                               })
-
-
+  
+  
   ########################################################
   # formerly in mapsForShiny.R
   # Reporting polygons
   if (isTRUE(useParallelCluster)) {
     library(parallel)
     message("  Closing existing cluster for raster::extract")
-    try(raster::endCluster(), silent = TRUE)
+    raster::endCluster()
     message("  Starting ",numClusters, "  node cluster for raster::extract")
     raster::beginCluster(min(numClusters, parallel::detectCores() / 4))
-
+    
     numClus <- 6
     message("  Also starting a cluster with ", numClus," threads")
     if (!exists("cl6")) {
@@ -203,11 +207,11 @@ Init <- function(sim) {
   } else {
     cl6 <- NULL
   }
-
-
+  
+  
   ### CURRENT CONDITION ##################################
   message("Loading Current Condition Rasters")
-
+  
   dPath <- dataPath(sim)
   CCspeciesNames <- list(Free = c(),
                          Proprietary = c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce"))
@@ -225,100 +229,88 @@ Init <- function(sim) {
                                                     replacement = pathConversions$replacement)
   sim$tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
     fps <- filename(x$CCtsf)
-    fps <- convertPaths(fps, pattern = pathConversions$pattern,
+    fps <- convertPaths(fps, pattern = pathConversions$pattern, 
                         replacement = pathConversions$replacement)
     asPath(fps, 2)
   }
   })
   vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
     fps <- filename(x$CCvtm)
-    fps <- convertPaths(fps, pattern = pathConversions$pattern,
+    fps <- convertPaths(fps, pattern = pathConversions$pattern, 
                         replacement = pathConversions$replacement)
     asPath(fps, 2)
   }
   })
-
-
-  namedUrlsLabelColumnNames <- list(
-    "Mountain Northern Caribou Ranges" = list(
-      url = "https://drive.google.com/file/d/1Oz2vSor3oIKf2uGv3KRtLoLRWEfX5Mas/view?usp=sharing",
-      labelColumnName = "Name"
-    ),
-    "Provincial Parks" =  list(
-      url = "https://drive.google.com/file/d/1GHgTI4JY-YhAXvWkgV20vugbvLNqEEGH/view?usp=sharing",
-      labelColumnName = "Name"
-    ),
-    "NWT Ecoregions" = list(
-      url = "https://drive.google.com/file/d/1iRAQfARkmS6-XVHFnTkB-iltzMNPAczC/view?usp=sharing",
-      labelColumnName = "Name"
-    ),
-    "National Parks" = list(
-      url = "https://drive.google.com/file/d/1B3VUU8PDn4NPveAyF76OBPY0vZkxScEt/view?usp=sharing",
-      labelColumnName = "Name"
-    ),
-    "AB Natural Sub Regions" = list(
-      url = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
-      labelColumnName = "Name"
-    ),
-    # "LP MASTERFILE June62012" =
-    #   list(url = "https://drive.google.com/file/d/1J38DKQQavjBV9F3z2gGzHNuNE0s2rmhh/view?usp=sharing",
-    #        labelColumnName = "Name"),
-    "BC Bio Geoclimatic Zones" =  list(
-      url = "https://drive.google.com/file/d/1VAwsax63l2akOM2j_O4Je9p0ZiYg8Hl-/view?usp=sharing",
-      labelColumnName = "ZONE_NAME"
-    ),
-    "FMU Alberta 2015-11" = list(
-      url = "https://drive.google.com/file/d/1JiCLcHh5fsBAy8yAx8NgtK7fxaZ4Tetl/view?usp=sharing",
-      labelColumnName = "FMU_NAME"
-    ),
-    "FMA Boundary Updated" = list(
-      url = "https://drive.google.com/file/d/1nTFOcrdMf1hIsxd_yNCSTr8RrYNHHwuc/view?usp=sharing",
-      labelColumnName = "Name"
-    ),
-    "Boreal Caribou Ranges" = list(
-      url = "https://drive.google.com/file/d/1PYLou8J1wcrme7Z2tx1wtA4GvaWnU1Jy/view?usp=sharing",
-      labelColumnName = "Name"
+  
+  
+  
+  namedUrlsLabelColumnNames <- 
+    list("Mountain Northern Caribou Ranges" = 
+           list(url = "https://drive.google.com/file/d/1Oz2vSor3oIKf2uGv3KRtLoLRWEfX5Mas/view?usp=sharing",
+                labelColumnName = "Name"),
+         "Provincial Parks" = 
+           list(url = "https://drive.google.com/file/d/1GHgTI4JY-YhAXvWkgV20vugbvLNqEEGH/view?usp=sharing",
+                labelColumnName = "Name"),
+         "NWT Ecoregions" = 
+           list(url = "https://drive.google.com/file/d/1iRAQfARkmS6-XVHFnTkB-iltzMNPAczC/view?usp=sharing",
+                labelColumnName = "Name"),
+         "National Parks" = 
+           list(url = "https://drive.google.com/file/d/1B3VUU8PDn4NPveAyF76OBPY0vZkxScEt/view?usp=sharing",
+                labelColumnName = "Name"),
+         "AB Natural Sub Regions" = 
+           list(url = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
+                labelColumnName = "Name"),
+         # "LP MASTERFILE June62012" = 
+         #   list(url = "https://drive.google.com/file/d/1J38DKQQavjBV9F3z2gGzHNuNE0s2rmhh/view?usp=sharing",
+         #        labelColumnName = "Name"),
+         "BC Bio Geoclimatic Zones" = 
+           list(url = "https://drive.google.com/file/d/1VAwsax63l2akOM2j_O4Je9p0ZiYg8Hl-/view?usp=sharing",
+                labelColumnName = "ZONE_NAME"),
+         "FMU Alberta 2015-11" = 
+           list(url = "https://drive.google.com/file/d/1JiCLcHh5fsBAy8yAx8NgtK7fxaZ4Tetl/view?usp=sharing",
+                labelColumnName = "FMU_NAME"),
+         "FMA Boundary Updated" = 
+           list(url = "https://drive.google.com/file/d/1nTFOcrdMf1hIsxd_yNCSTr8RrYNHHwuc/view?usp=sharing",
+                labelColumnName = "Name"),
+         "Boreal Caribou Ranges" = 
+           list(url = "https://drive.google.com/file/d/1PYLou8J1wcrme7Z2tx1wtA4GvaWnU1Jy/view?usp=sharing",
+                labelColumnName = "Name")
     )
-  )
-
-  freeReportingPolygonNames <- c("Alberta Ecozones", "National Ecozones", "National Ecodistricts",
-                                 "Provincial Parks", "NWT Ecoregions", "National Parks",
+  freeReportingPolygonNames <- c("Alberta Ecozones", "National Ecozones", "National Ecodistricts", 
+                                 "Provincial Parks", "NWT Ecoregions", "National Parks", 
                                  "BC Bio Geoclimatic Zones", "AB Natural Sub Regions")
   proprietaryReportingPolygonNames <- c("FMA Boundary Updated", "FMU Alberta 2015-11", "Boreal Caribou Ranges",
                                         "Mountain Northern Caribou Ranges")
-
+  
   # Do two steps together, making Cache a bit faster
   reportingAndLeading <- Cache(reportingAndLeading,
                                # Used in reportingAndLeading
                                createReportingPolygonsAllFn = createReportingPolygonsAll, # pass function in so Caching captures function
                                calculateLeadingVegTypeFn = calculateLeadingVegType,
-
+                               
                                # Passed into createReportingPolygonsAllFn
                                createReportingPolygonsFn = createReportingPolygons,
                                userTags = c("leading", "reportingPolygons"),
-                               freeReportingPolygonNames = freeReportingPolygonNames,
+                               freeReportingPolygonNames = freeReportingPolygonNames, 
                                proprietaryReportingPolygonNames = proprietaryReportingPolygonNames,
                                authenticationType = authenticationType,
-
                                # Passed into createReportingPolygonsFn
                                prepInputsFromSilvacomFn = prepInputsFromSilvacom,
                                shpLandWebSA = sim$shpLandWebSA,
                                shpStudyArea = sim$shpStudyArea,
                                namedUrlsLabelColumnNames = namedUrlsLabelColumnNames,
                                labelColumn = sim$labelColumn,
-
+                               
                                # Passed into calculateLeadingVegTypeFn
                                leadingByStageFn = leadingByStage,
                                tsfs = sim$tsfs, vtms = sim$vtms, cl = cl6,
                                ageClass = ageClasses, ageClassCutOffs = ageClassCutOffs,
                                lapplyFn = lapplyFn,
                                destinationPath = dataPath(sim),
-
+                               
                                # Used by Cache
                                cacheId = cacheId$ReportingAndLeadingFn)
   list2env(reportingAndLeading, envir = envir(sim)) # puts leading and reportingPolygons into .GlobalEnv
-  
-  
   
   sim$leadingCC <- Cache(calculateLeadingVegType, sim$reportingPolygons, #calculateLeadingVegType = calculateLeadingVegType,
                      tsfs = sim$tsfsCC, vtms = vtmsCC, cl = cl6,
@@ -334,41 +326,41 @@ Init <- function(sim) {
     }
     poly
   })
-
+  
   sim$leadingCC$Free <- NULL
-
-
+  
+  
   #########################
-
+  
   message(paste("Running largePatchesFn"))
   rp4LrgPatches <- lapply(sim$reportingPolygons, function(rpAll) {
     lapply(rpAll, function(rp) {
       rp$crsSR
     })
   })
-
-
-  # some of the args oare for largePatchesFn, some passed through to largePatchesInnerFn,
-
+  
+  
+  # some of the args oare for largePatchesFn, some passed through to largePatchesInnerFn, 
+  
   lrgPatchesArgs <- list(largePatchesFn,
                          reportingPolygons = rp4LrgPatches,
                          authenticationType = authenticationType,
                          largePatchesInnerFn = largePatchesInnerFn,
-
+                         
                          # Passed through to largePatchesInnerFn
                          largePatchesInner2Fn = largePatchesInner2Fn,
                          cellNumbersForPolygonFn = cellNumbersForPolygon,
-
+                         
                          # Passed through to largePatchesInner2Fn
                          ageClassCutOffs = ageClassCutOffs,
-                         ageClasses = ageClasses,
+                         ageClasses = ageClasses, 
                          cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles
                          countNumPatchesFn = countNumPatches,
-
+                         
                          omitArgs = c("cl", "lapplyFn")
   )
-
-
+  
+  
   # Only pass unique arguments here -- all tsfs & vtms and cacheId
   sim$lrgPatches <- do.call(Cache, append(list(
     timeSinceFireFiles = getAllIfExists(sim$tsfs, ifNot = "Proprietary"),
@@ -376,7 +368,7 @@ Init <- function(sim) {
     cacheId = cacheId$lrgPatches
   ),
   lrgPatchesArgs))
-
+  
   # Only pass unique arguments here -- all sim$tsfsCC & vtmsCC and cacheId
   sim$lrgPatchesCC <- do.call(Cache, append(list(
     timeSinceFireFiles = getAllIfExists(sim$tsfsCC, ifNot = "Proprietary"),
@@ -384,9 +376,9 @@ Init <- function(sim) {
     cacheId = cacheId$lrgPatchesCC
   ),
   lrgPatchesArgs))
-
+  
   message(paste("Finished largePatchesFn"))
-
+  
   ##### TODO: remove this??
   if (FALSE) {
     polygonsWithData <- lapply(leading, function(polyWData) {
@@ -394,9 +386,9 @@ Init <- function(sim) {
         dt[, unique(polygonNum[!is.na(proportion)]), by = ageClass]
       })
     })
-
+    
     #  vegLeadingTypes NEEDED?
-
+    
     vegLeadingTypesWithAllSpecies <- lapply(leading, function(polyWData) {
       lapply(polyWData, function(dt) {
         c(unique(dt$vegType), "All species")
@@ -405,8 +397,8 @@ Init <- function(sim) {
   }
   ################################################################################
   # Write all Proprietary input shapefiles to disk
-
-
+  
+  
   sim$getAllIfExists <- getAllIfExists
   return(invisible(sim))
 }
@@ -416,7 +408,7 @@ Save <- function(sim) {
   polySubDir <- file.path(getAllIfExists(oPaths, ifNot = "Proprietary"), "Polygons")
   dir.create(polySubDir, showWarnings = FALSE)
   out <- Cache(Map, polys = lapply(getAllIfExists(sim$reportingPolygons, ifNot = "Proprietary"),
-                                   function(p) p$crsSR$shpStudyRegion),
+                                   function(p) p$crsSR),
                namesPolys = names(getAllIfExists(sim$reportingPolygons, "Proprietary")),
                cacheId = cacheId$writeShapefiles,
                function(polys, namesPolys) {
