@@ -43,7 +43,6 @@ reproducible::Require(unique(c(
 packageLoadEndTime <- Sys.time()
 
 # Options
-options(reproducible.cachePath = file.path("cache"))
 options(reproducible.verbose = FALSE)
 options(reproducible.useMemoise = TRUE)
 options(spades.browserOnError = FALSE)
@@ -148,7 +147,7 @@ studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyReg
                           fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
                           subStudyRegionName = subStudyRegionName,
                           crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)
-list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpStudyRegion
+list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpSubStudyRegion
 
 ## source additional shiny modules
 vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))
@@ -289,15 +288,20 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
                    cacheIds4Experiment = cacheId$runExperiment,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
-                   emptyList = emptyListAll, showSimilar = TRUE)
+                   emptyList = emptyListAll)
 
 message("  Finished simInit and Experiment.")
 
 message("  Running LandWebShiny module")
+
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
               modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
               list(mySimOuts = mySimOuts,  # can't name "objects" arg in simInit because same as Cache
                    paths = paths4sim$All,
+                   shpLandWebSA = shpStudyRegion,
+                   shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
+                   studyAreaName = subStudyRegionNameCollapsed,
+                   vegLeadingPercent = vegLeadingPercent,
                    labelColumn = labelColumn),
               paths = paths4sim$All)
 
