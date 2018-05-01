@@ -183,7 +183,6 @@ Init <- function(sim) {
   ########################################################
   # formerly in mapsForShiny.R
   # Reporting polygons
-  browser()
   if (isTRUE(useParallelCluster)) {
     library(parallel)
     message("  Closing existing cluster for raster::extract")
@@ -210,8 +209,7 @@ Init <- function(sim) {
   CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
   CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames,
                              userTags = c("createCCfromVtmTsf", "CurrentConditions"),
-                             cacheId = if (exists("cacheIdCurrentCondition"))
-                               cacheIdCurrentCondition else NULL,
+                             cacheId = cacheId$currentCondition,
                              MoreArgs = list(vtmRasters = vtmRasters,
                                              dPath = dPath,
                                              loadCCSpeciesFn = loadCCSpecies,
@@ -233,7 +231,6 @@ Init <- function(sim) {
     asPath(fps, 2)
   }
   })
-
 
 
   namedUrlsLabelColumnNames <- list(
