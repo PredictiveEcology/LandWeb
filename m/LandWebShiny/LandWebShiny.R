@@ -237,7 +237,6 @@ Init <- function(sim) {
   })
 
 
-
   namedUrlsLabelColumnNames <- list(
     "Mountain Northern Caribou Ranges" = list(
       url = "https://drive.google.com/file/d/1Oz2vSor3oIKf2uGv3KRtLoLRWEfX5Mas/view?usp=sharing",
