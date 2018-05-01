@@ -28,6 +28,7 @@ defineModule(sim, list(
     #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
     expectsInput(objectName = "mySimOuts", objectClass = "list", desc = "A list of simLists, from an experiment call, with files saved and described with outputs(sim)"),
     expectsInput("paths", "character", ""),
+    expectsInput("studyAreaName", "character", "The name of the studyArea, in early stages of this module, these were SMALL, MEDIUM, LARGE, EXTRALARGE, FULL"),
     expectsInput("cacheId", "list", "A list of cacheId values, with the name of the list element matching the name of the object being returned"),
     expectsInput("shpStudyArea", "SpatialPolygon", "The Study Area. This polygon is used to clip or intersect all others provided")
   ),
@@ -135,7 +136,7 @@ Init <- function(sim) {
                               cacheId = sim$cacheId$tsfRasterTilePaths,
                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                               function(rst, modelType, zoomRange, colorTableFile) {
-                                outputPath <- file.path("www", modelType, sim$studyRegionNameCollapsed, "map-tiles")
+                                outputPath <- file.path("www", modelType, sim$studyAreaName, "map-tiles")
                                 filenames <- unlist(lapply(rst$crsLFLT, function(ras) filename(ras)))
                                 lfltDirNames <- gsub(file.path(outputPath, paste0("out", basename(filenames))), pattern = "\\.tif$", replacement = "")
                                 filenames <- #if (!(all(dir.exists(lfltDirNames))))  {
@@ -175,7 +176,7 @@ Init <- function(sim) {
                               cacheId = sim$cacheId$vtmRasterTilePaths,
                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                               function(rst, modelType, zoomRange, colorTableFile) {
-                                outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
+                                outputPath <- file.path("www", modelType, sim$studyAreaName, "map-tiles")
                                 filenames <- gdal2Tiles(rst$crsLFLT, outputPath = outputPath,
                                                         zoomRange = zoomRange, colorTableFile = colorTableFile)
                                 return(filenames)
