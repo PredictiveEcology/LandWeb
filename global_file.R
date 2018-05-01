@@ -300,7 +300,7 @@ sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(
                    paths = paths4sim$All,
                    shpLandWebSA = shpStudyRegion,
                    shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
-                   #studyAreaNameCollapsed = subStudyRegionNameCollapsed,
+                   studyAreaName = subStudyRegionNameCollapsed,
                    vegLeadingPercent = vegLeadingPercent,
                    labelColumn = labelColumn),
               paths = paths4sim$All)
