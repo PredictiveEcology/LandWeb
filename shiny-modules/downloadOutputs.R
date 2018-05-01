@@ -103,7 +103,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       if (isTRUE(input$dlLargePatchesHists)) {
         histFilesLP <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
+          file.path("outputs", paste0(subStudyRegionName, "_All"),
                     "histograms", gsub(" ", "_", rctChosenPolyName()),
                     "largePatches", patchSize),
           recursive = TRUE, full.names = TRUE
@@ -123,7 +123,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
       if (isTRUE(input$dlVegAgeHists)) {
         histFilesVA <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_Proprietary"),
+          file.path("outputs", paste0(subStudyRegionName, "_All"),
                     "histograms", gsub(" ", "_", rctChosenPolyName()),
                     "vegAgeMod"),
           recursive = TRUE, full.names = TRUE

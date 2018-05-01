@@ -71,7 +71,6 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
       # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
       # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
-
     } else {
       if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
         verticalLineAtX <- 0
@@ -94,12 +93,21 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       checkPath(create = TRUE)
     pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
     pngPath <- file.path(pngDir, pngFile)
+    pngFilePath <- if (isTRUE(authStatus)) {
+      if (file.exists(pngPath)) {
+        NULL
+      } else {
+        pngPath
+      }
+    } else {
+      NULL
+    }
 
     # browser(expr = .current$ageClass=="Mature" && .current$polygonID == "Boreal Shield" &&
     #              .current$vegCover == "Deciduous leading")
     callModule(histogram, id, histogramData, addAxisParams,
                verticalBar = verticalLineAtX,
-               width = breaksInterval, file = if (file.exists(pngPath)) NULL else pngPath,
+               width = breaksInterval, file = pngFilePath,
                xlim = xlim, ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
