@@ -43,7 +43,6 @@ reproducible::Require(unique(c(
 packageLoadEndTime <- Sys.time()
 
 # Options
-options(reproducible.cachePath = file.path("cache"))
 options(reproducible.verbose = FALSE)
 options(reproducible.useMemoise = TRUE)
 options(spades.browserOnError = FALSE)
@@ -299,6 +298,10 @@ sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(
               modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
               list(mySimOuts = mySimOuts,  # can't name "objects" arg in simInit because same as Cache
                    paths = paths4sim$All,
+                   shpLandWebSA = shpStudyRegion,
+                   shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
+                   #studyAreaNameCollapsed = subStudyRegionNameCollapsed,
+                   vegLeadingPercent = vegLeadingPercent,
                    labelColumn = labelColumn),
               paths = paths4sim$All)
 

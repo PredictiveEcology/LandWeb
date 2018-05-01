@@ -190,7 +190,7 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
     }
 
     # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
-    curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpStudySubRegion"]]
+    curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
     polygonID <- as.character(seq_along(curPoly))
     polygonName <- curPoly$shinyLabel
     
@@ -206,8 +206,8 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
   uiSequence <- reactive({
     assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()), is.character(rctVtm()))
 
-    #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpStudySubRegion"]]))
-    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]][["shpStudySubRegion"]]$shinyLabel
+    #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]))
+    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]$shinyLabel
 
 
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
