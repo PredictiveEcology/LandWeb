@@ -83,7 +83,7 @@ source("functions.R")
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 
 # App - variables
-appStartTime <- st <- Sys.time() - 1
+appStartTime <- st <- Sys.time()
 message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
