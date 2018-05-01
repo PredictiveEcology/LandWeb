@@ -133,9 +133,18 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
     pngDir <- file.path(outputPath, "histograms", polyName, "vegAgeMod") %>% checkPath(create = TRUE)
     pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
     pngPath <- file.path(pngDir, pngFile)
+    pngFilePath <- if (isTRUE(authStatus)) {
+      if (file.exists(pngPath)) {
+        NULL
+      } else {
+        pngPath
+      }
+    } else {
+      NULL
+    }
 
     callModule(histogram, id, histogramData, addAxisParams, verticalBar = verticalLineAtX,
-               width = barWidth, file = if (file.exists(pngPath)) NULL else pngPath,
+               width = barWidth, file = pngFilePath,
                xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
