@@ -291,37 +291,7 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
     spTransform(shp, CRSobj = crsStudyRegion)
   }, userTags = "stable")
 
-  # Make SubRegion
-  #polysSubRegion <- Cache(intersectListShpsFn, polys, shpSubStudyRegion, userTags = "stable")
-
-  # Add shpStudyRegion and shpSubStudyRegion to lists
   
-  #shpSubStudyRegion$shinyLabel <- as.character(seq(NROW(shpSubStudyRegion)))
-  #polysSubRegion$`LandWeb Study Area` <- shpSubStudyRegion
-
-  #### Thin polygons
-  if (FALSE) {
-    message("Thinning polygons for faster plotting in leaflet")
-    polygons <- Cache(mapply, p = polygons, nam = names(polygons), userTags = "stable",
-                      function(p, nam) {
-                        print(nam)
-                        out <- Cache(rgeos::gSimplify, p, userTags = "stable",
-                                     tol = (xmax(p) - xmin(p))/10000, topologyPreserve = TRUE)
-                        #out <- suppressWarnings(thin(p))
-                        isSimp <- tryCatch(if (isTRUE(!all(rgeos::gIsSimple(out, byid = TRUE)))) FALSE else TRUE,
-                                           error = function(xx) FALSE)
-                        browser(expr = "shpNationalEcodistrictDemo" %in% nam)
-                        #if (rgeos::gIsSimple(out)) out <- raster::buffer(out, width = 0, dissolve = FALSE)
-                        if (!isSimp) {
-                          out <- raster::buffer(out, width = 0, dissolve = FALSE)
-                        }
-                        out <- SpatialPolygonsDataFrame(out, data = p@data, match.ID = TRUE)
-
-                        return(out)
-                      })
-  }
-
-
   # Make Leaflet versions of all
   message("Making leaflet crs versions of reportingPolygons")
   polysLflt <- Map(p = polys, nam = names(polys), #userTags = "stable",
@@ -343,13 +313,8 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
   #                                  })
 
   # Put them all together in the structure:
-  #   LayerName $ Projection (crsSR or crsLFLT) $ Scale (studyRegion or subStudyRegion)
+  #   LayerName $ Projection (crsSR or crsLFLT) 
   polysAll <- list("crsSR" = polys, "crsLFLT" = polysLflt)
-  # polysAll <- list("crsSR" = list("shpStudyRegion" = polys,
-  #                                 "shpSubStudyRegion" = polysSubRegion),
-  #                  "crsLFLT" = list("shpStudyRegion" = polysLflt,
-  #                                   "shpSubStudyRegion" = polysLfltSubStudyRegion))
-  #reportingPolygonsTmp <- lapply(polysAll, purrr::transpose)
   purrr::transpose(polysAll)
 }
 
@@ -357,8 +322,7 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
 #' @param freeReportingPolygonNames Character vector which will be the names given to the polygons that are in the Free
 #' @param proprietaryReportingPolygonNames Character vector which will be the names given to the polygons that are in the Proprietary
 #' @param authenticationType Character vector, currently expected to be Free, Proprietary or All
-#' @param ... Passed to \code{createReportingPolygonsFn}, so \code{polygonNames}, 
-#'            \code{shpSubStudyRegion}, \code{intersectListShpsFn}
+#' @param ... Passed to \code{createReportingPolygonsFn}, so \code{polygonNames}
 createReportingPolygonsAll <- function(authenticationType,
                                        freeReportingPolygonNames,
                                        proprietaryReportingPolygonNames,
