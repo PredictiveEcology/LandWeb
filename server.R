@@ -73,7 +73,7 @@ function(input, output, session) {
              rctVegData = rctVegData,
              rctPolygonList = rctPolygonListUser,
              rctChosenPolyName = rctChosenPolyName,
-             patchSize = inputs$patchSize)
+             patchSize = "500") ## TODO: get patchSize from largePatches module
 
   ## footers (see ?copyrightFooter)
   callModule(copyrightFooter, "copyright", "Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada.")
