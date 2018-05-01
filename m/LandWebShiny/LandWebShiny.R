@@ -27,7 +27,9 @@ defineModule(sim, list(
   inputObjects = bind_rows(
     #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
     expectsInput(objectName = "mySimOuts", objectClass = "list", desc = "A list of simLists, from an experiment call, with files saved and described with outputs(sim)"),
-    expectsInput("paths", "character", "")
+    expectsInput("paths", "character", ""),
+    expectsInput("cacheId", "list", "A list of cacheId values, with the name of the list element matching the name of the object being returned"),
+    expectsInput("shpStudyArea", "SpatialPolygon", "The Study Area. This polygon is used to clip or intersect all others provided")
   ),
   outputObjects = bind_rows(
     #createsOutput("objectName", "objectClass", "output object description", ...),
@@ -119,7 +121,7 @@ Init <- function(sim) {
 
   sim$tsfRasters <- Cache(Map, tsf = sim$tsfs,
                       userTags = c("reprojectRasts", "tsf", "tsfs"),
-                      cacheId = if (exists("cacheIdTsfRasters")) cacheIdTsfRasters else NULL,
+                      cacheId = sim$cacheId$tsfRasters,
                       lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
@@ -130,12 +132,10 @@ Init <- function(sim) {
 
   sim$tsfRasterTilePaths <- Cache(Map, rst = sim$tsfRasters, modelType = names(sim$tsfRasters),
                               userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
-                              cacheId = if (exists("cacheIdTsfRasterTilePaths"))
-                                cacheIdTsfRasterTilePaths else NULL,
-
+                              cacheId = sim$cacheId$tsfRasterTilePaths,
                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                               function(rst, modelType, zoomRange, colorTableFile) {
-                                outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
+                                outputPath <- file.path("www", modelType, sim$studyRegionNameCollapsed, "map-tiles")
                                 filenames <- unlist(lapply(rst$crsLFLT, function(ras) filename(ras)))
                                 lfltDirNames <- gsub(file.path(outputPath, paste0("out", basename(filenames))), pattern = "\\.tif$", replacement = "")
                                 filenames <- #if (!(all(dir.exists(lfltDirNames))))  {
@@ -150,8 +150,7 @@ Init <- function(sim) {
 
 
   vtmsTifs <- Cache(lapply, sim$vtms, #notOlderThan = Sys.time(),
-                    cacheId = if (exists("cacheIdVtmsTifs"))
-                      cacheIdVtmsTifs else NULL,
+                    cacheId = sim$cacheId$vtmsTifs,
                     userTags = c("writeRaster", "tifs"),
                     function(vtmsInner) {
                       vtmTifs <- lapply(vtmsInner, function(vtm) {
@@ -163,7 +162,7 @@ Init <- function(sim) {
   vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.tools::.suffix(vtm, "LFLT") )
 
   vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
-                      cacheId = if (exists("cacheIdVtmRasters")) cacheIdVtmRasters else NULL,
+                      cacheId = sim$cacheId$vtmRasters,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
@@ -173,8 +172,7 @@ Init <- function(sim) {
 
   vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                               userTags = c("gdal2Tiles", "vtm", "vtms"),
-                              cacheId = if (exists("cacheIdVtmRasterTilePaths"))
-                                cacheIdVtmRasterTilePaths else NULL,
+                              cacheId = sim$cacheId$vtmRasterTilePaths,
                               MoreArgs = list(zoomRange = 1:10, colorTableFile = asPath(colorTableFile)),
                               function(rst, modelType, zoomRange, colorTableFile) {
                                 outputPath <- file.path("www", modelType, subStudyRegionNameCollapsed, "map-tiles")
@@ -190,7 +188,7 @@ Init <- function(sim) {
   if (isTRUE(useParallelCluster)) {
     library(parallel)
     message("  Closing existing cluster for raster::extract")
-    raster::endCluster()
+    try(raster::endCluster(), silent = TRUE)
     message("  Starting ",numClusters, "  node cluster for raster::extract")
     raster::beginCluster(min(numClusters, parallel::detectCores() / 4))
 
@@ -213,13 +211,13 @@ Init <- function(sim) {
   CCspeciesNames <- CCspeciesNames[names(authenticationType)] # make sure it has the names in authenticationType
   CurrentConditions <- Cache(Map, createCCfromVtmTsf, CCspeciesNames = CCspeciesNames,
                              userTags = c("createCCfromVtmTsf", "CurrentConditions"),
-                             cacheId = if (exists("cacheIdCurrentCondition"))
-                               cacheIdCurrentCondition else NULL,
+                             cacheId = sim$cacheId$currentCondition,
                              MoreArgs = list(vtmRasters = vtmRasters,
                                              dPath = dPath,
                                              loadCCSpeciesFn = loadCCSpecies,
-                                             shpSubStudyRegion = shpSubStudyRegion,
-                                             tsfRasters = sim$tsfRasters))
+                                             shpStudyArea = sim$shpStudyArea,
+                                             tsfRasters = sim$tsfRasters,
+                                             vegLeadingPercent = sim$vegLeadingPercent))
   CurrentConditions <- convertRasterFileBackendPath(CurrentConditions, pattern = pathConversions$pattern,
                                                     replacement = pathConversions$replacement)
   sim$tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
@@ -301,9 +299,9 @@ Init <- function(sim) {
                                authenticationType = authenticationType,
 
                                # Passed into createReportingPolygonsFn
-                               intersectListShpsFn = intersectListShps,
-                               shpStudyRegion = shpStudyRegion,
-                               shpSubStudyRegion = shpSubStudyRegion,
+                               prepInputsFromSilvacomFn = prepInputsFromSilvacom,
+                               shpLandWebSA = sim$shpLandWebSA,
+                               shpStudyArea = sim$shpStudyArea,
                                namedUrlsLabelColumnNames = namedUrlsLabelColumnNames,
                                labelColumn = sim$labelColumn,
 
@@ -315,10 +313,11 @@ Init <- function(sim) {
                                destinationPath = dataPath(sim),
 
                                # Used by Cache
-                               cacheId = if (exists("cachdId4ReportingAndLeadingFn")) cachdId4ReportingAndLeadingFn else NULL)
-
+                               cacheId = sim$cacheId$ReportingAndLeadingFn)
   list2env(reportingAndLeading, envir = envir(sim)) # puts leading and reportingPolygons into .GlobalEnv
-
+  
+  
+  
   sim$leadingCC <- Cache(calculateLeadingVegType, sim$reportingPolygons, #calculateLeadingVegType = calculateLeadingVegType,
                      tsfs = sim$tsfsCC, vtms = vtmsCC, cl = cl6,
                      ageClasses = ageClasses,
@@ -341,7 +340,7 @@ Init <- function(sim) {
   message(paste("Running largePatchesFn"))
   rp4LrgPatches <- lapply(sim$reportingPolygons, function(rpAll) {
     lapply(rpAll, function(rp) {
-      rp$crsSR$shpSubStudyRegion
+      rp$crsSR
     })
   })
 
@@ -371,8 +370,7 @@ Init <- function(sim) {
   sim$lrgPatches <- do.call(Cache, append(list(
     timeSinceFireFiles = getAllIfExists(sim$tsfs, ifNot = "Proprietary"),
     vegTypeMapFiles = getAllIfExists(sim$vtms, ifNot = "Proprietary"),
-    cacheId = if (exists("cacheIdLrgPatches"))
-      cacheIdLrgPatches else NULL
+    cacheId = sim$cacheId$lrgPatches
   ),
   lrgPatchesArgs))
 
@@ -380,8 +378,7 @@ Init <- function(sim) {
   sim$lrgPatchesCC <- do.call(Cache, append(list(
     timeSinceFireFiles = getAllIfExists(sim$tsfsCC, ifNot = "Proprietary"),
     vegTypeMapFiles = getAllIfExists(vtmsCC, ifNot = "Proprietary"),
-    cacheId = if (exists("cacheIdLrgPatchesCC"))
-      cacheIdLrgPatchesCC else NULL
+    cacheId = sim$cacheId$lrgPatchesCC
   ),
   lrgPatchesArgs))
 
@@ -416,10 +413,9 @@ Save <- function(sim) {
   polySubDir <- file.path(getAllIfExists(oPaths, ifNot = "Proprietary"), "Polygons")
   dir.create(polySubDir, showWarnings = FALSE)
   out <- Cache(Map, polys = lapply(getAllIfExists(sim$reportingPolygons, ifNot = "Proprietary"),
-                                   function(p) p$crsSR$shpSubStudyRegion),
+                                   function(p) p$crsSR$shpStudyRegion),
                namesPolys = names(getAllIfExists(sim$reportingPolygons, "Proprietary")),
-               cacheId = if (exists("cacheIdWriteShapefiles"))
-                 cacheIdWriteShapefiles else NULL,
+               cacheId = sim$cacheId$writeShapefiles,
                function(polys, namesPolys) {
                  tryCatch(raster::shapefile(polys,
                                             filename = file.path(polySubDir, namesPolys),
