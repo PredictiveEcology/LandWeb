@@ -298,6 +298,7 @@ sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(
               modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
               list(mySimOuts = mySimOuts,  # can't name "objects" arg in simInit because same as Cache
                    paths = paths4sim$All,
+                   cacheId = cacheId,
                    shpLandWebSA = shpStudyRegion,
                    shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
                    studyAreaName = subStudyRegionNameCollapsed,
