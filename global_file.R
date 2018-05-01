@@ -1,16 +1,3 @@
-## LandWeb app information
-appInfo <- list(
-  name = "LandWeb",
-  version = numeric_version("1.0.0"),
-  authors = c(
-    person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
-    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut")
-  ),
-  copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
-                    "Her Majesty the Queen in Right of Canada,",
-                    "as represented by the Minister of Natural Resources Canada.")
-)
-
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -41,6 +28,19 @@ reproducible::Require(unique(c(
   moduleRqdPkgs
 )))
 packageLoadEndTime <- Sys.time()
+
+## LandWeb app information -- needed packages loaded, e.g., for icon
+appInfo <- list(
+  name = "LandWeb",
+  version = numeric_version("1.0.0"),
+  authors = c(
+    person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
+    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut")
+  ),
+  copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
+                    "Her Majesty the Queen in Right of Canada,",
+                    "as represented by the Minister of Natural Resources Canada.")
+)
 
 # Options
 options(reproducible.verbose = FALSE)
