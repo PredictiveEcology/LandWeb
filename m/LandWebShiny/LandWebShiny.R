@@ -324,7 +324,8 @@ Init <- function(sim) {
                      tsfs = sim$tsfsCC, vtms = vtmsCC, cl = cl6,
                      ageClasses = ageClasses,
                      ageClassCutOffs = ageClassCutOffs,
-                     leadingByStageFn = leadingByStage)
+                     leadingByStageFn = leadingByStage,
+                     cacheId = cacheId$calculateLeadingVegType)
 
   vegCoverLabels <- raster::levels(CurrentConditions$Proprietary$CCvtm)[[1]]
   sim$leadingCC$Proprietary <- lapply(sim$leadingCC$Proprietary, function(poly) {
