@@ -294,17 +294,26 @@ message("  Finished simInit and Experiment.")
 
 message("  Running LandWebShiny module")
 
+cacheIdEnv <- new.env(parent = environment()) # don't pass the environment with cacheId...
+                                           # pass the child... 
+                                           # will get it due to inheritance, 
+                                           # but don't want to cache it
+objList <- list(
+  outputs = lapply(mySimOuts, function(auth) lapply(auth, outputs)),
+  outputPaths = lapply(mySimOuts, function(auth) lapply(auth, outputPath)),
+  paths = paths4sim$All,
+  cacheIdName = "cacheId",
+  cacheIdEnv = cacheIdEnv,
+  shpLandWebSA = shpStudyRegion,
+  shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
+  studyAreaName = subStudyRegionNameCollapsed,
+  vegLeadingPercent = vegLeadingPercent,
+  labelColumn = labelColumn)
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
               modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
-              list(mySimOuts = mySimOuts,  # can't name "objects" arg in simInit because same as Cache
-                   paths = paths4sim$All,
-                   cacheId = cacheId,
-                   shpLandWebSA = shpStudyRegion,
-                   shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
-                   studyAreaName = subStudyRegionNameCollapsed,
-                   vegLeadingPercent = vegLeadingPercent,
-                   labelColumn = labelColumn),
-              paths = paths4sim$All)
+              objList,# can't provide argument name "objects" here because same as Cache
+              cacheId = cacheId$simInitAndSpades,
+              paths = paths4sim$All, showSimilar = TRUE)
 
 globalEndTime <- Sys.time()
 
