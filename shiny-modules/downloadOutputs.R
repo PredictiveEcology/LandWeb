@@ -90,7 +90,7 @@ downloadOutputs <- function(input, output, session, appInfo,
         ccFile2 <- file.path(tmpDir, "rasters", basename(ccFile))
 
         raster::raster(ccFile) %>%
-          SpaDES.tools::postProcess(., targetFilePath = ccFile2, studyArea = currPoly) ## TODO: fix: files not being created!
+          SpaDES.tools::postProcess(., postProcessedFilename = ccFile2, studyArea = currPoly)
         fileList <- append(fileList, ccFile2)
       }
 
@@ -143,8 +143,8 @@ downloadOutputs <- function(input, output, session, appInfo,
         tsfMapFiles2 <- file.path(tmpDir, "rasters",  basename(tsfMapFiles))
 
         tsfRasterList <- lapply(tsfMapFiles, raster::raster)
-        Map(x = tsfRasterList, targetFilePath = tsfMapFiles2,
-            MoreArgs = list(studyArea = currPoly), SpaDES.tools::postProcess) ## TODO: fix: files not being created!
+        Map(x = tsfRasterList, postProcessedFilename = tsfMapFiles2,
+            MoreArgs = list(studyArea = currPoly), SpaDES.tools::postProcess)
         fileList <- append(fileList, tsfMapFiles2)
       }
 
@@ -155,8 +155,8 @@ downloadOutputs <- function(input, output, session, appInfo,
         )
         vegTypeMapFiles2 <- file.path(tmpDir, "rasters",  basename(vegTypeMapFiles))
 
-        tsfRasterList <- lapply(vegTypeMapFiles, raster::raster)
-        Map(x = tsfRasterList, targetFilePath = vegTypeMapFiles2,
+        vegRasterList <- lapply(vegTypeMapFiles, raster::raster)
+        Map(x = vegRasterList, postProcessedFilename = vegTypeMapFiles2,
             MoreArgs = list(studyArea = currPoly), SpaDES.tools::postProcess)
         fileList <- append(fileList, vegTypeMapFiles2)
       }
@@ -192,6 +192,8 @@ downloadOutputs <- function(input, output, session, appInfo,
       file.copy(readmeFile, readmeFile2)
 
       ## create the zip file containing the selected files
+      cwd <- getwd()
+      setwd(tmpDir); on.exit(setwd(cwd), add = TRUE)
       zip(file, files = c(readmeFile2, unlist(fileListRenamed)))
     },
     contentType = "application/zip"
