@@ -70,11 +70,10 @@ function(input, output, session) {
 
   callModule(downloadOutputs, "downloadOutputs", ## TODO: write this with generator
              appInfo = appInfo, ## defined in global.R
-             rctLargePatchesData = rctLargePatchesData,
+             rctLargePatches = rctLargePatchesData,
              rctVegData = rctVegData,
              rctPolygonList = rctPolygonListUser,
-             rctChosenPolyName = rctChosenPolyName,
-             patchSize = "500") ## TODO: get patchSize from largePatches module
+             rctChosenPolyName = rctChosenPolyName)
 
   ## footers (see ?copyrightFooter)
   callModule(copyrightFooter, "copyright", "Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada.")
