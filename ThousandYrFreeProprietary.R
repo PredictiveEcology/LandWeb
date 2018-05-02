@@ -1,7 +1,7 @@
 
 
 if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>numClusters && numClusters > 0) {
-  useParallelCluster <- TRUE
+  useParallelCluster <- FALSE
   lapplyFn <- "parLapplyLB"
 } else {
   useParallelCluster <- FALSE

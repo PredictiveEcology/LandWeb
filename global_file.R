@@ -1,16 +1,3 @@
-## LandWeb app information
-appInfo <- list(
-  name = "LandWeb",
-  version = numeric_version("1.0.0"),
-  authors = c(
-    person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
-    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut")
-  ),
-  copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
-                    "Her Majesty the Queen in Right of Canada,",
-                    "as represented by the Minister of Natural Resources Canada.")
-)
-
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -41,6 +28,19 @@ reproducible::Require(unique(c(
   moduleRqdPkgs
 )))
 packageLoadEndTime <- Sys.time()
+
+## LandWeb app information -- needed packages loaded, e.g., for icon
+appInfo <- list(
+  name = "LandWeb",
+  version = numeric_version("1.0.0"),
+  authors = c(
+    person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
+    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut")
+  ),
+  copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
+                    "Her Majesty the Queen in Right of Canada,",
+                    "as represented by the Minister of Natural Resources Canada.")
+)
 
 # Options
 options(reproducible.verbose = FALSE)
@@ -83,7 +83,7 @@ source("functions.R")
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 
 # App - variables
-appStartTime <- st <- Sys.time() - 1
+appStartTime <- st <- Sys.time()
 message("Started at ", appStartTime)
 rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
@@ -289,22 +289,39 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
                    emptyList = emptyListAll)
+if (exists("oldStyle")) {
+  if (oldStyle) {
+    tmp <- mySimOuts[[2]]
+    mySimOuts <- list()
+    mySimOuts$All <- tmp
+  }
+  
+}
 
 message("  Finished simInit and Experiment.")
 
 message("  Running LandWebShiny module")
 
+cacheIdEnv <- new.env(parent = environment()) # don't pass the environment with cacheId...
+                                           # pass the child... 
+                                           # will get it due to inheritance, 
+                                           # but don't want to cache it
+objList <- list(
+  outputs = lapply(mySimOuts, function(auth) lapply(auth, outputs)),
+  outputPaths = lapply(mySimOuts, function(auth) lapply(auth, outputPath)),
+  paths = paths4sim$All,
+  cacheIdName = "cacheId",
+  cacheIdEnv = cacheIdEnv,
+  shpLandWebSA = shpStudyRegion,
+  shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
+  studyAreaName = subStudyRegionNameCollapsed,
+  vegLeadingPercent = vegLeadingPercent,
+  labelColumn = labelColumn)
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
               modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
-              list(mySimOuts = mySimOuts,  # can't name "objects" arg in simInit because same as Cache
-                   paths = paths4sim$All,
-                   cacheId = cacheId,
-                   shpLandWebSA = shpStudyRegion,
-                   shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
-                   studyAreaName = subStudyRegionNameCollapsed,
-                   vegLeadingPercent = vegLeadingPercent,
-                   labelColumn = labelColumn),
-              paths = paths4sim$All)
+              objList,# can't provide argument name "objects" here because same as Cache
+              cacheId = cacheId$simInitAndSpades,
+              paths = paths4sim$All, showSimilar = TRUE)
 
 globalEndTime <- Sys.time()
 

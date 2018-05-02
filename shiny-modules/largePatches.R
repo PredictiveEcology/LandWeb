@@ -285,7 +285,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     dtFn <- function(rctLargePatchesDataOrig, patchSize) {
       rctLargePatchesDataOrig()[sizeInHa > patchSize]
     }
-    Cache(dtFn, rctLargePatchesDataOrig = rctLargePatchesDataOrig, patchSize = input$patchSize)
+    # too slow with Cache
+    dtFn(rctLargePatchesDataOrig = rctLargePatchesDataOrig, patchSize = input$patchSize)
   })
 
   uiSequence <- reactive({
