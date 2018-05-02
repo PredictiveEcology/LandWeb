@@ -229,8 +229,7 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
   })
 
   observeEvent(rctChosenPolyName(), {
-    needResave <- isTRUE(attr(rctVegData(), "newCache")) &&
-      isTRUE(session$userData$userAuthorized())
+    authStatus <- isTRUE(session$userData$userAuthorized())
     callModule(slicer, "vegSlicer", datatable = rctVegData,
                uiSequence = uiSequence(),
                serverFunction = vegHistServerFn, ## calls histogram server module
@@ -240,8 +239,8 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
                outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
                nSimTimes = length(rctVtm()),
-               authStatus = session$userData$userAuthorized(),
-               rebuildHistPNGs = needResave
+               authStatus = authStatus,
+               rebuildHistPNGs = authStatus
     )
   })
 
