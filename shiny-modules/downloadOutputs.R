@@ -6,7 +6,7 @@ downloadOutputsUI <- function(id) {
 
 #' only authorized users can download model outputs
 downloadOutputs <- function(input, output, session, appInfo,
-                            rctLargePatchesData, rctVegData, rctPolygonList,
+                            rctLargePatches, rctVegData, rctPolygonList,
                             rctChosenPolyName, patchSize) {
 
   output$downloadModel <- renderUI({
@@ -110,7 +110,7 @@ downloadOutputs <- function(input, output, session, appInfo,
         ### Large Patches Data
         if (isTRUE(input$dlLargePatchesData)) {
           largePatchesDataFile2 <- file.path(tmpDir, "largePatches.csv")
-          write.csv(rctLargePatchesData(), largePatchesDataFile2)
+          write.csv(rctLargePatches()$data, largePatchesDataFile2)
           fileList <- append(fileList, largePatchesDataFile2)
           incProgress(1/n)
         }
@@ -119,10 +119,11 @@ downloadOutputs <- function(input, output, session, appInfo,
           histFilesLP <- list.files(
             file.path("outputs", paste0(subStudyRegionName, "_All"),
                       "histograms", gsub(" ", "_", rctChosenPolyName()),
-                      "largePatches", patchSize),
+                      "largePatches", rctLargePatches()$patchSize),
             recursive = TRUE, full.names = TRUE
           )
-          histFilesLP2 <- file.path(tmpDir, "histograms", "largePatches", patchSize, basename(histFilesLP))
+          histFilesLP2 <- file.path(tmpDir, "histograms", "largePatches",
+                                    rctLargePatches()$patchSize, basename(histFilesLP))
           unique(dirname(histFilesLP2)) %>% reproducible::checkPath(., create = TRUE)
           file.copy(histFilesLP, histFilesLP2)
           fileList <- append(fileList, histFilesLP2)

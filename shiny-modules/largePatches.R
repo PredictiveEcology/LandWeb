@@ -324,7 +324,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     )
   })
 
-  return(rctLargePatchesData)
+  return(reactive(list(data = rctLargePatchesData(), patchSize = input$patchSize)))
 }
 
 .patchesInTimeDistributionFn <- function(dt, nSimTimes, breaks) {
