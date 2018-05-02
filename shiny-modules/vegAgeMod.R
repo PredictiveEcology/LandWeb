@@ -196,9 +196,9 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
                      rctLeadingDTlistCC()[[rctChosenPolyName()]]))
     }
 
-    dtFn <- function(dt, rctPolygonList, rctChosenPolyName) {
+    dtFn <- function(dt, curPoly) {
       # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
-      curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
+      #curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
       polygonID <- as.character(seq_along(curPoly))
       polygonName <- curPoly$shinyLabel
 
@@ -210,7 +210,7 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
       assertthat::assert_that(is.data.table(dt) || is.null(dt))
       dt
     }
-    Cache(dtFn, dt = dt, rctPolygonList = rctPolygonList, rctChosenPolyName = rctChosenPolyName)
+    dtFn(dt = dt, curPoly = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]])
   })
 
   uiSequence <- reactive({
