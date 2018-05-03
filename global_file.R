@@ -321,7 +321,7 @@ sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(
               modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
               objList,# can't provide argument name "objects" here because same as Cache
               cacheId = cacheId$simInitAndSpades,
-              paths = paths4sim$All, showSimilar = TRUE)
+              paths = paths4sim$All)
 
 globalEndTime <- Sys.time()
 
