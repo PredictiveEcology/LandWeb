@@ -20,7 +20,7 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatus,
+histServerFn2 <- function(datatable, id, .current, .dtFull, dtInner, nSimTimes, authStatus,
                           uiSequence, outputPath, chosenPolyName, patchSize, rebuildHistPNGs) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {
@@ -33,28 +33,28 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       msg = "histServerFn2: `datatable` is not a data.table"
     )
 
-    ## calculate breaks
-    # calculate breaks -- 1 set of breaks for each group of plots
-
-    dtListShort <- split(.dtFull, by = uiSequence$category[-length(uiSequence$category)], flatten = FALSE)
-
-    # need to get a single set of breaks for all simultaneously visible histograms
-    dtInner <- dtListShort[[.current[[1]]]][[.current[[2]]]] # this should be in order it is received
-    #dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-
+    current3Names <- names(.current)[[3]]
     if (NROW(dtInner) > 0) {
       dtOnlyCC <- dt[rep == "CurrentCondition"]
       dtNoCC <- dt[rep != "CurrentCondition"]
 
-      out <- dtNoCC[, .N, by = c("vegCover", "rep")]$N
+      out <- dtNoCC[, .N, by = c(current3Names, "rep")]$N # not hard coded
       if (isTRUE(authStatus)) {
-        outCC <- max(0, dtOnlyCC[, .N, by = c("vegCover", "rep")]$N)
+        outCC <- max(0, dtOnlyCC[, .N, by = c(current3Names, "rep")]$N)
         verticalLineAtX <- outCC
       } else {
         verticalLineAtX <- NULL
         outCC <- numeric()
       }
-      nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
+
+      # Sometimes there are missing elements --- this means that zero must be in the range for x axis
+      dtInnerEmpty <- data.table(current3 = uiSequence$possibleValues[[3]], N = 0)
+      setnames(dtInnerEmpty, old = "current3", new = current3Names)
+      nClustersDT <- dtInner[, .N, by = c(current3Names, "rep")]
+      nClustersDT <- nClustersDT[dtInnerEmpty, on = c(current3Names), nomatch = NA]
+      nClustersDT[is.na(N), N := 0]
+      nClusters <- nClustersDT$N
+
       minNumBars <- 6
       maxNumBars <- 30
       rangeNClusters <- range(c(outCC, nClusters, minNumBars))
@@ -64,7 +64,12 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       dataForBreaks <- hist(nClusters, plot = FALSE, breaks = prettyBreaks)
       breaksLabels <- dataForBreaks$breaks
       breaksInterval <- diff(breaksLabels)[1]
-      dataForHistogram <- hist(out, plot = FALSE, breaks = prettyBreaks)
+      dataForHistogram <- if (NROW(out) == 0) { # add a bar at zero if there are no patches
+        hist(0, plot = FALSE, breaks = prettyBreaks)
+      } else {
+        hist(out, plot = FALSE, breaks = prettyBreaks)
+      }
+
       histogramData <- dataForHistogram$counts / sum(dataForHistogram$counts)
 
       histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
@@ -76,7 +81,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       } else {
         verticalLineAtX <- NULL
       }
-      histogramData <- c(1,0,0,0,0,0,0)
+      histogramData <- c(1, 0, 0, 0, 0, 0, 0)
       breaksLabels <- 0:6
       breaksInterval <- 1
     }

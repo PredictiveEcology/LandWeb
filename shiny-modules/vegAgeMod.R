@@ -20,8 +20,11 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosenPolyName,
-                            nSimTimes, authStatus, rebuildHistPNGs) {
+vegHistServerFn <- function(datatable, id, .current, .dtFull, 
+                            outputPath, chosenPolyName,
+                            #nSimTimes, 
+                            authStatus, rebuildHistPNGs,
+                            ...) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     vegDT <- if (is.reactive(datatable)) {
       datatable()
@@ -35,12 +38,12 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
 
     # ## calculate breaks
     # # calculate breaks -- 1 set of breaks for each group of plots
-    if (FALSE) {
-      dtListShort <- split(.dtFull, by = c("ageClass", "polygonID"), flatten = FALSE)
-    #
-    # # need to get a single set of breaks for all simultaneously visible histograms
-      dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-    }
+    # if (FALSE) {
+    #   dtListShort <- split(.dtFull, by = c("ageClass", "polygonID"), flatten = FALSE)
+    # #
+    # # # need to get a single set of breaks for all simultaneously visible histograms
+    #   dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
+    # }
 
     propVeg <- vegDT$proportion
 
@@ -77,58 +80,58 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath, chosen
       NULL
     }
 
-    if (FALSE) {
-      dtListShort <- split(.dtFull, by = uiSeq$category[-length(uiSeq$category)], flatten = FALSE)
-
-      # need to get a single set of breaks for all simultaneously visible histograms
-      dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-
-      if (NROW(dtInner) > 0) {
-        dtOnlyCC <- dt[rep == "CurrentCondition"]
-        dtNoCC <- dt[rep != "CurrentCondition"]
-
-        out <- dtNoCC[, .N, by = c("vegCover", "rep")]$N
-        if (isTRUE(authStatus)) {
-          outCC <- max(0, dtOnlyCC[, .N, by = c("vegCover", "rep")]$N)
-          verticalLineAtX <- outCC
-        } else {
-          verticalLineAtX <- NULL
-          outCC <- numeric()
-        }
-        nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
-        minNumBars <- 6
-        maxNumBars <- 30
-        rangeNClusters <- range(c(outCC, nClusters, minNumBars))
-        attemptedNumBars <- max(minNumBars, min(maxNumBars, diff(rangeNClusters)))
-        breaksRaw <- seq(rangeNClusters[1], rangeNClusters[2], length.out = attemptedNumBars)
-        prettyBreaks <- pretty(breaksRaw, n = attemptedNumBars, min.n = min(attemptedNumBars, minNumBars))
-        dataForBreaks <- hist(nClusters, plot = FALSE, breaks = prettyBreaks)
-        breaksLabels <- dataForBreaks$breaks
-        breaksInterval <- diff(breaksLabels)[1]
-        dataForHistogram <- hist(out, plot = FALSE, breaks = prettyBreaks)
-        histogramData <- dataForHistogram$counts/sum(dataForHistogram$counts)
-
-        histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
-        # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
-        # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
-      } else {
-        if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
-          verticalLineAtX <- 0
-        } else {
-          verticalLineAtX <- NULL
-        }
-        histogramData <- c(1,0,0,0,0,0,0)
-        breaksLabels = 0:6
-        breaksInterval <- 1
-      }
-      breaks <- breaksLabels - breaksInterval/2
-      barplotBreaks <- breaksLabels + breaksInterval/2
-      ticksAt <- barplotBreaks - min(breaksLabels)
-      xlim <- range(ticksAt) - breaksInterval/2
-      addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks - min(breaksLabels))
-      verticalLineAtX <- verticalLineAtX + breaksInterval/2 # THe barplot xaxis is 1/2 a barwidth off
-
-    }
+    # if (FALSE) {
+    #   dtListShort <- split(.dtFull, by = uiSequence$category[-length(uiSequence$category)], flatten = FALSE)
+    # 
+    #   # need to get a single set of breaks for all simultaneously visible histograms
+    #   dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
+    # 
+    #   if (NROW(dtInner) > 0) {
+    #     dtOnlyCC <- dt[rep == "CurrentCondition"]
+    #     dtNoCC <- dt[rep != "CurrentCondition"]
+    # 
+    #     out <- dtNoCC[, .N, by = c("vegCover", "rep")]$N
+    #     if (isTRUE(authStatus)) {
+    #       outCC <- max(0, dtOnlyCC[, .N, by = c("vegCover", "rep")]$N)
+    #       verticalLineAtX <- outCC
+    #     } else {
+    #       verticalLineAtX <- NULL
+    #       outCC <- numeric()
+    #     }
+    #     nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
+    #     minNumBars <- 6
+    #     maxNumBars <- 30
+    #     rangeNClusters <- range(c(outCC, nClusters, minNumBars))
+    #     attemptedNumBars <- max(minNumBars, min(maxNumBars, diff(rangeNClusters)))
+    #     breaksRaw <- seq(rangeNClusters[1], rangeNClusters[2], length.out = attemptedNumBars)
+    #     prettyBreaks <- pretty(breaksRaw, n = attemptedNumBars, min.n = min(attemptedNumBars, minNumBars))
+    #     dataForBreaks <- hist(nClusters, plot = FALSE, breaks = prettyBreaks)
+    #     breaksLabels <- dataForBreaks$breaks
+    #     breaksInterval <- diff(breaksLabels)[1]
+    #     dataForHistogram <- hist(out, plot = FALSE, breaks = prettyBreaks)
+    #     histogramData <- dataForHistogram$counts/sum(dataForHistogram$counts)
+    # 
+    #     histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
+    #     # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
+    #     # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
+    #   } else {
+    #     if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
+    #       verticalLineAtX <- 0
+    #     } else {
+    #       verticalLineAtX <- NULL
+    #     }
+    #     histogramData <- c(1,0,0,0,0,0,0)
+    #     breaksLabels = 0:6
+    #     breaksInterval <- 1
+    #   }
+    #   breaks <- breaksLabels - breaksInterval/2
+    #   barplotBreaks <- breaksLabels + breaksInterval/2
+    #   ticksAt <- barplotBreaks - min(breaksLabels)
+    #   xlim <- range(ticksAt) - breaksInterval/2
+    #   addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks - min(breaksLabels))
+    #   verticalLineAtX <- verticalLineAtX + breaksInterval/2 # THe barplot xaxis is 1/2 a barwidth off
+    # 
+    # }
     polyName <- chosenPolyName %>% gsub(" ", "_", .)
     pngDir <- file.path(outputPath, "histograms", polyName, "vegAgeMod") %>% checkPath(create = TRUE)
     pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
