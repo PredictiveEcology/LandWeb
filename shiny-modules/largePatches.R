@@ -238,7 +238,7 @@ largePatchesUI <- function(id) {
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
-largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive({NULL}),
+largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
                          rctLrgPatches, rctLrgPatchesCC, rctTsf, rctVtm,
                          ageClasses, FUN, nPatchesFun, outputPath, rebuildHistPNGs) { # TODO: add docs above
 
