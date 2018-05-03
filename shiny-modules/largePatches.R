@@ -106,8 +106,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
     # browser(expr = .current$ageClass=="Mature" && .current$polygonID == "Boreal Shield" &&
     #              .current$vegCover == "Deciduous leading")
     callModule(histogram, id, histogramData, addAxisParams,
-               verticalBar = verticalLineAtX,
-               width = breaksInterval, file = pngFilePath,
+               verticalBar = verticalLineAtX, width = breaksInterval, file = pngFilePath,
                xlim = xlim, ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
