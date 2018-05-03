@@ -295,7 +295,7 @@ if (exists("oldStyle")) {
     mySimOuts <- list()
     mySimOuts$All <- tmp
   }
-  
+
 }
 
 message("  Finished simInit and Experiment.")
@@ -303,9 +303,9 @@ message("  Finished simInit and Experiment.")
 message("  Running LandWebShiny module")
 
 cacheIdEnv <- new.env(parent = environment()) # don't pass the environment with cacheId...
-                                           # pass the child... 
-                                           # will get it due to inheritance, 
-                                           # but don't want to cache it
+                                              # pass the child...
+                                              # will get it due to inheritance,
+                                              # but don't want to cache it
 objList <- list(
   outputs = lapply(mySimOuts, function(auth) lapply(auth, outputs)),
   outputPaths = lapply(mySimOuts, function(auth) lapply(auth, outputPath)),
@@ -317,12 +317,14 @@ objList <- list(
   studyAreaName = subStudyRegionNameCollapsed,
   vegLeadingPercent = vegLeadingPercent,
   labelColumn = labelColumn)
+
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
               modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
               objList,# can't provide argument name "objects" here because same as Cache
               cacheId = cacheId$simInitAndSpades,
-              paths = paths4sim$All, showSimilar = TRUE)
+              paths = paths4sim$All)
 
+################################################################################
 globalEndTime <- Sys.time()
 
 onStop(function() {
