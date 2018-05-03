@@ -189,12 +189,12 @@ loadCCSpecies <- function(mapNames, userTags = "", destinationPath, ...) {
     mapNames <- gsub(mapNames, "1$", "")
   }
   names(filenames) <- mapNames
-  
+
   Map(filename = filenames, mapName = mapNames, MoreArgs = list(userTags = userTags,
                                                                 destinationPath = destinationPath),
       function(filename, mapName, userTags, destinationPath) {
         tifName <-  asPath(file.path(destinationPath, paste0(filename, ".tif")))
-        
+
         filenames <- asPath(paste0(filename, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
         prepInputs(userTags = c(userTags, "stable"),
                    archive = "CurrentCondition.zip",
@@ -211,7 +211,7 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
                                     namedUrlsLabelColumnNames = namedUrlsLabelColumnNames,
                                     destinationPath, labelColumn, ...) {
   names(polygonNames) <- polygonNames
-  
+
   polys <- list()
 
   layerNamesIndex <- "AB Natural Sub Regions"
@@ -265,10 +265,10 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
                                                   fun = "shapefile", destinationPath = destinationPath)
     polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ECODISTRIC
   }
-  
+
   polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1)
   polys$provinces[[labelColumn]] <- polys$provinces$NAME_1
-  
+
   # Get all SilvaCom-generated datasets - they have a common structure
   polys2 <- prepInputsFromSilvacomFn(polygonNames = polygonNames, studyArea = shpStudyArea,
                                      shinyLabel = labelColumn, destinationPath = destinationPath,
@@ -293,8 +293,8 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
   }, userTags = "stable")
 
 
-  
-  
+
+
   # Make Leaflet versions of all
   message("Making leaflet crs versions of reportingPolygons")
   polysLflt <- Cache(Map, p = polys, nam = names(polys), userTags = "stable",
@@ -497,8 +497,6 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
   }
 }
 
-
-
 createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesFn,
                                shpStudyArea, tsfRasters, vegLeadingPercent, ...) {
   if (!is.null(CCspeciesNames)) {
@@ -550,7 +548,6 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
   }
 }
 
-
 convertPaths <- function(paths, ...) {
   dots <- list(...)
   for (i in seq_along(dots$pattern)) {
@@ -569,14 +566,14 @@ convertRasterFileBackendPath <- function(rasterObj, ...) {
       } else {
         rasterObj <- raster()
       }
-    } 
-    
+    }
+
     fps <- rasterObj@file@name
     fps <- convertPaths(fps, ...)
     rasterObj@file@name <- fps
   }
   rasterObj # handles null case
-  
+
 }
 
 setupParallelCluster <- function(cl, numClusters) {
@@ -643,7 +640,6 @@ getAllIfExists <- function(List, ifNot, returnList = FALSE) {
   }
 }
 
-
 MapWithVariableInputs <- function(f, ..., possibleList, MoreArgs) {
   f <- match.call()$f
   #mapLists <- list(reportingPolygons = reportingPolygons, authenticationType = authenticationType)
@@ -677,16 +673,13 @@ prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, p
                       polygonNames = polygonNames,
                       shinyLabel = shinyLabel),
       function(url, layerName, destinationPath, polygonNames, shinyLabel) {
-
         if (layerName %in% polygonNames) {
           #dPath <- file.path(paths$inputPath, "Caribou")
           target <- gsub(pattern = " ", replacement = "_", layerName)
           targetZip <- paste0(target, ".zip")
           targetFilename <-   file.path(destinationPath, paste0(target, ".shp"))
-          targetFilenames <- paste0(target, c(".dbf", ".prj",
-                                              ".sbn", ".sbx",
-                                              ".shp", ".shp.xml",
-                                              ".shx"))
+          targetFilenames <- paste0(target, c(".dbf", ".prj", ".sbn", ".sbx",
+                                              ".shp", ".shp.xml", ".shx"))
           message(layerName, ": Running prepInputs")
           polygonOut <- Cache(prepInputs, userTags = "stable",
                               archive = asPath(targetZip),
@@ -697,8 +690,7 @@ prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, p
                               studyArea = studyArea)
 
           if (!is.null(polygonOut))
-            polygonOut@data[[shinyLabel]] <-
-              polygonOut[[url$labelColumnName]]
+            polygonOut@data[[shinyLabel]] <- polygonOut[[url$labelColumnName]]
           polygonOut
         }
       }
