@@ -20,7 +20,7 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn <- function(datatable, id, .current, .dtFull, dtInner, nSimTimes, authStatus,
+histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, nSimTimes, authStatus,
                           uiSequence, outputPath, chosenPolyName, patchSize, rebuildHistPNGs) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {
@@ -34,7 +34,7 @@ histServerFn <- function(datatable, id, .current, .dtFull, dtInner, nSimTimes, a
     )
 
     current3Names <- names(.current)[[3]]
-    if (NROW(dtInner) > 0) {
+    if (NROW(.dtInner) > 0) {
       dtOnlyCC <- dt[rep == "CurrentCondition"]
       dtNoCC <- dt[rep != "CurrentCondition"]
 
@@ -50,7 +50,7 @@ histServerFn <- function(datatable, id, .current, .dtFull, dtInner, nSimTimes, a
       # Sometimes there are missing elements --- this means that zero must be in the range for x axis
       dtInnerEmpty <- data.table(current3 = uiSequence$possibleValues[[3]], N = 0)
       setnames(dtInnerEmpty, old = "current3", new = current3Names)
-      nClustersDT <- dtInner[, .N, by = c(current3Names, "rep")]
+      nClustersDT <- .dtInner[, .N, by = c(current3Names, "rep")]
       nClustersDT <- nClustersDT[dtInnerEmpty, on = c(current3Names), nomatch = NA]
       nClustersDT[is.na(N), N := 0]
       nClusters <- nClustersDT$N
@@ -76,7 +76,8 @@ histServerFn <- function(datatable, id, .current, .dtFull, dtInner, nSimTimes, a
       # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
       # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
     } else {
-      if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
+      if (isTRUE(authStatus)) {
+        # need a default value for vertical line, in case there are no .dtInner
         verticalLineAtX <- 0
       } else {
         verticalLineAtX <- NULL
