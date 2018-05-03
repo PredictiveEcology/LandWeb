@@ -21,7 +21,7 @@
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
 histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatus,
-                          uiSeq, outputPath, chosenPolyName, patchSize, rebuildHistPNGs) {
+                          uiSequence, outputPath, chosenPolyName, patchSize, rebuildHistPNGs) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -33,11 +33,10 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       msg = "histServerFn2: `datatable` is not a data.table"
     )
 
-
     ## calculate breaks
     # calculate breaks -- 1 set of breaks for each group of plots
 
-    dtListShort <- split(.dtFull, by = uiSeq$category[-length(uiSeq$category)], flatten = FALSE)
+    dtListShort <- split(.dtFull, by = uiSequence$category[-length(uiSequence$category)], flatten = FALSE)
 
     # need to get a single set of breaks for all simultaneously visible histograms
     dtInner <- dtListShort[[.current[[1]]]][[.current[[2]]]] # this should be in order it is received
@@ -307,14 +306,12 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     authStatus <- isTRUE(session$userData$userAuthorized())
     callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
                uiSequence = uiSequence(),
-               #serverFunction = histServerFn, ## calls histogram server module
-               serverFunction = histServerFn2, ## The one without recursion
+               serverFunction = histServerFn2, ## calls histogram server module
                uiFunction = function(id) {
                  histogramUI(id, height = 300)
                },
                nSimTimes = length(rctTsf()),
                authStatus = authStatus,
-               uiSeq = uiSequence(),
                outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
                patchSize = as.character(input$patchSize),
