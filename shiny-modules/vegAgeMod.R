@@ -227,7 +227,6 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
                },
                outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
-               nSimTimes = length(rctVtm()),
                authStatus = authStatus,
                rebuildHistPNGs = authStatus
     )

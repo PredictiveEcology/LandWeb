@@ -244,7 +244,6 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                uiFunction = function(id) {
                  histogramUI(id, height = 300)
                },
-               nSimTimes = length(rctTsf()),
                authStatus = authStatus,
                outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
