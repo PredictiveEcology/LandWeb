@@ -425,35 +425,52 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
       out
     })))
     IDs <- raster::levels(out[[1]][[1]])[[1]]$ID
-    Factors <- raster::levels(out[[1]][[1]])[[1]]$Factor
-    ii <- 3
-    aa <- tryCatch(
-      raster::extract(allStack, spTransform(polygonToSummarizeBy, CRSobj = crs(allStack))),
-      error = function(x) NULL)
-
-    aa1 <- lapply(aa, function(x,  ...) {
-      if (!is.null(x)) {
-        apply(x, 2, function(y) {
-          nonNACells <- na.omit(y)
-          if (length(nonNACells)) {
-            vals <- tabulate(nonNACells, max(IDs))
-            names(vals)[IDs] <- Factors
-            vals <- vals[!is.na(names(vals))]
-            if (sum(vals)) {
-              vals / sum(vals)
-            } else {
-              vals
+    Factors <- as.character(raster::levels(out[[1]][[1]])[[1]]$Factor)
+    
+    extractAndTabulate <- function(allStack, poly, IDs, Factors) {
+      aa <- tryCatch(
+        raster::extract(allStack, poly),
+        error = function(x) NULL)
+      
+      aa1 <- lapply(aa, function(x,  ...) {
+        if (!is.null(x)) {
+          apply(x, 2, function(y) {
+            nonNACells <- na.omit(y)
+            if (length(nonNACells)) {
+              vals <- tabulate(nonNACells, max(IDs))
+              names(vals)[IDs] <- Factors
+              vals <- vals[!is.na(names(vals))]
+              if (sum(vals)) {
+                vals / sum(vals)
+              } else {
+                vals
+              }
             }
-          }
-        })
-      } else {
-        NULL
-      }
-    })
-
+          })
+        } else {
+          NULL
+        }
+      })
+    }
+    aa1 <- Cache(extractAndTabulate, allStack, 
+          poly = spTransform(polygonToSummarizeBy, CRSobj = crs(allStack)),
+          IDs = IDs, Factors = Factors)
+    
     nonNulls <- unlist(lapply(aa1, function(x) !is.null(x)))
+    aa1[nonNulls] <- lapply(aa1[nonNulls], function(a) {
+      isNull <- unlist(lapply(a, is.null))
+      if (isTRUE(any(isNull))) {
+        a[isNull] <- lapply(a[isNull], function(x) {
+          b <- a[[!isNull[1]]]
+          b[seq(length(b))] <- 0
+          b
+        })
+        a <- do.call(cbind, a)
+      }
+      a
+    })
     vegType <- unlist(lapply(aa1[nonNulls], rownames))
-    aa1 <- lapply(aa1, function(a) {
+    aa1[nonNulls] <- lapply(aa1[nonNulls], function(a) {
       rownames(a) <- NULL
       a
     })
