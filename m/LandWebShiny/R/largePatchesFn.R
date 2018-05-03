@@ -15,9 +15,9 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
     if (is.null(id)) {
       id <- gsub(basename(tsfFile), pattern = "\\.tif", replacement = "")
       id <- strsplit(id, split = "_")
-      id <- lapply(id, function(x) {
+      id <- unlist(lapply(id, function(x) {
         x[length(x)]
-      })
+      }))
     }
     if (length(tsfFile) > 1) {
       message("" , polyName, ": Calculating patch sizes")
