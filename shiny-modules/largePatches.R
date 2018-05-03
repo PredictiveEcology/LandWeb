@@ -20,7 +20,7 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn2 <- function(datatable, id, .current, .dtFull, dtInner, nSimTimes, authStatus,
+histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, nSimTimes, authStatus,
                           uiSequence, outputPath, chosenPolyName, patchSize, rebuildHistPNGs) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {
@@ -34,7 +34,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, dtInner, nSimTimes, 
     )
 
     current3Names <- names(.current)[[3]]
-    if (NROW(dtInner) > 0) {
+    if (NROW(.dtInner) > 0) {
       dtOnlyCC <- dt[rep == "CurrentCondition"]
       dtNoCC <- dt[rep != "CurrentCondition"]
 
@@ -50,7 +50,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, dtInner, nSimTimes, 
       # Sometimes there are missing elements --- this means that zero must be in the range for x axis
       dtInnerEmpty <- data.table(current3 = uiSequence$possibleValues[[3]], N = 0)
       setnames(dtInnerEmpty, old = "current3", new = current3Names)
-      nClustersDT <- dtInner[, .N, by = c(current3Names, "rep")]
+      nClustersDT <- .dtInner[, .N, by = c(current3Names, "rep")]
       nClustersDT <- nClustersDT[dtInnerEmpty, on = c(current3Names), nomatch = NA]
       nClustersDT[is.na(N), N := 0]
       nClusters <- nClustersDT$N
@@ -76,7 +76,8 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, dtInner, nSimTimes, 
       # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
       # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
     } else {
-      if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
+      if (isTRUE(authStatus)) {
+        # need a default value for vertical line, in case there are no .dtInner
         verticalLineAtX <- 0
       } else {
         verticalLineAtX <- NULL
@@ -112,78 +113,6 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, dtInner, nSimTimes, 
     callModule(histogram, id, histogramData, addAxisParams,
                verticalBar = verticalLineAtX, width = breaksInterval, file = pngFilePath,
                xlim = xlim, ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
-               col = "darkgrey", border = "grey", main = "", space = 0)
-  })
-}
-
-#' Histogram module server function
-#'
-#' @param datatable         A \code{data.table} object.
-#'                          See \code{\link[SpaDES.shiny]{getSubtable}}.
-#'
-#' @param chosenCategories  ... See \code{\link[SpaDES.shiny]{getSubtable}}.
-#'
-#' @param chosenValues      ... See \code{\link[SpaDES.shiny]{getSubtable}}.
-#'
-#' @param nSimTimes         Number of simulation times.
-#'
-#' @return
-#'
-#' @author Mateusz Wyszynski
-#' @author Alex Chubaty
-#' @importFrom assertthat assert_that
-#' @importFrom data.table is.data.table
-#' @importFrom graphics hist
-#' @importFrom purrr map
-#' @importFrom shiny callModule reactive
-#' @importFrom SpaDES.shiny getSubtable histogram
-#' @rdname
-histServerFn <- function(datatable, chosenCategories, chosenValues, nSimTimes, authStatus) {
-  observeEvent(datatable, label = chosenValues, {
-    dt <- if (is.reactive(datatable)) {
-      datatable()
-    } else {
-      datatable
-    }
-    assertthat::assert_that(
-      is.data.table(dt),
-      msg = "histServerFn: `datatable` is not a data.table"
-    )
-
-    subtableWith3DimensionsFixed <- getSubtableMem(dt, chosenCategories, chosenValues)
-    ageClassPolygonSubtable <- getSubtableMem(dt, head(chosenCategories, 2), head(chosenValues, 2))
-
-    numOfClusters <- ageClassPolygonSubtable[, .N, by = c("vegCover", "rep")]$N
-    maxNumClusters <- if (length(numOfClusters) == 0) {
-      6
-    } else {
-      pmin(20, pmax(6, max(nClusters) + 1))
-    }
-
-    breaksLabels <- 0:maxNumClusters
-    breaks <- breaksLabels - 0.5
-    barplotBreaks <- breaksLabels + 0.5
-
-    addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
-
-    subtableWith3DimensionsFixedOnlyCC <- subtableWith3DimensionsFixed[rep == "CurrentCondition"]
-    subtableWith3DimensionsFixedNoCC <- subtableWith3DimensionsFixed[rep != "CurrentCondition"]
-
-    out <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedNoCC, nSimTimes, breaks = breaks)
-    outCC <- .patchesInTimeDistributionFn(subtableWith3DimensionsFixedOnlyCC, nSimTimes = 1, breaks = breaks)
-
-    histogramData <- out$actualPlot$counts / sum(out$actualPlot$counts)
-
-    verticalLineAtX <- if (isTRUE(authStatus)) {
-      outCC$actualPlot$breaks[c(FALSE, as.logical(outCC$actualPlot$counts))]
-    } else {
-      NULL
-    }
-
-    callModule(histogram, "histogram", histogramData, addAxisParams,
-               verticalBar = verticalLineAtX,
-               width = rep(1, length(out$distribution)),
-               xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
 }
@@ -238,7 +167,7 @@ largePatchesUI <- function(id) {
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
-largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive({NULL}),
+largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
                          rctLrgPatches, rctLrgPatchesCC, rctTsf, rctVtm,
                          ageClasses, FUN, nPatchesFun, outputPath, rebuildHistPNGs) { # TODO: add docs above
 
@@ -311,11 +240,10 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     authStatus <- isTRUE(session$userData$userAuthorized())
     callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
                uiSequence = uiSequence(),
-               serverFunction = histServerFn2, ## calls histogram server module
+               serverFunction = histServerFn, ## calls histogram server module
                uiFunction = function(id) {
                  histogramUI(id, height = 300)
                },
-               nSimTimes = length(rctTsf()),
                authStatus = authStatus,
                outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),

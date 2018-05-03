@@ -7,8 +7,6 @@
 #'
 #' @param chosenValues      ... See \code{\link[SpaDES.shiny]{getSubtable}}.
 #'
-#' @param nSimTimes         Number of simulation times.
-#'
 #' @return
 #'
 #' @author Mateusz Wyszynski
@@ -20,11 +18,8 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-vegHistServerFn <- function(datatable, id, .current, .dtFull, 
-                            outputPath, chosenPolyName,
-                            #nSimTimes, 
-                            authStatus, rebuildHistPNGs,
-                            ...) {
+vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
+                            chosenPolyName, authStatus, rebuildHistPNGs, ...) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     vegDT <- if (is.reactive(datatable)) {
       datatable()
@@ -36,15 +31,6 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull,
       msg = "vegHistServerFn: `datatable` is not a data.table"
     )
 
-    # ## calculate breaks
-    # # calculate breaks -- 1 set of breaks for each group of plots
-    # if (FALSE) {
-    #   dtListShort <- split(.dtFull, by = c("ageClass", "polygonID"), flatten = FALSE)
-    # #
-    # # # need to get a single set of breaks for all simultaneously visible histograms
-    #   dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-    # }
-
     propVeg <- vegDT$proportion
 
     breaksLabels <- (0:11) / 10
@@ -52,7 +38,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull,
     barplotBreaks <- breaksLabels + 0.05
 
     addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
-#if (authStatus) browser()
+
     dtOnlyCC <- vegDT[grepl("CurrentCondition", label)]
     dtNoCC <- vegDT[!grepl("CurrentCondition", label)]
 
@@ -241,7 +227,6 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
                },
                outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
-               nSimTimes = length(rctVtm()),
                authStatus = authStatus,
                rebuildHistPNGs = authStatus
     )
