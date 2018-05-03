@@ -293,8 +293,6 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
   }, userTags = "stable")
 
 
-
-
   # Make Leaflet versions of all
   message("Making leaflet crs versions of reportingPolygons")
   polysLflt <- Cache(Map, p = polys, nam = names(polys), userTags = "stable",
@@ -452,6 +450,7 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
         }
       })
     }
+    
     aa1 <- Cache(extractAndTabulate, allStack, 
           poly = spTransform(polygonToSummarizeBy, CRSobj = crs(allStack)),
           IDs = IDs, Factors = Factors)
