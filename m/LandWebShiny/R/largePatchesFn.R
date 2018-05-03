@@ -67,36 +67,18 @@ largePatchesInner2Fn <- function(cellIDByPolygon, polygonName, ageClassCutOffs,
     startList <- list()
     message("    Age class ", ageClasses[y])
     data.table::setDTthreads(5)
+    moreArgsList <- list(cellIDByPolygon = cellIDByPolygon,
+                         countNumPatchesFn = countNumPatchesFn,
+                         y = y)
     if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
-      startList <- list(cl = cl)
+      out1 <- clusterMap(cl = cl, makeClumpedRasters, timeSinceFireFile = timeSinceFireFiles,
+                         vegTypeMapFile = vegTypeMapFiles,
+                         MoreArgs = moreArgsList)
     } else {
-      startList <- list()
+      out1 <- Map(makeClumpedRasters, timeSinceFireFile = timeSinceFireFiles,
+                         vegTypeMapFile = vegTypeMapFiles,
+                         MoreArgs = moreArgsList)
     }
-    startList <- append(startList, list(y = y))
-    out1 <- Cache(do.call, lapplyFn,
-                  append(startList, list(cellIDByPolygon = cellIDByPolygon,
-                                         countNumPatchesFn = countNumPatchesFn,
-                                         X = timeSinceFireFiles, function(x, ...) {
-                                           x <- match(x, timeSinceFireFiles)
-                                           message("      Raster: ", basename(vegTypeMapFiles[x]))
-                                           timeSinceFireFilesRast <- raster(timeSinceFireFiles[x])
-                                           leadingRast <- raster(vegTypeMapFiles[x])
-                                           leadingRast[timeSinceFireFilesRast[] < ageClassCutOffs[y]] <- NA
-                                           if ((y + 1) <= length(ageClassCutOffs))
-                                             leadingRast[timeSinceFireFilesRast[] >= ageClassCutOffs[y + 1]] <- NA
-                                           
-                                           clumpedRasts <- lapply(raster::levels(leadingRast)[[1]]$ID, function(ID) {
-                                             spRas <- leadingRast
-                                             spRas[spRas != ID] <- NA
-                                             countNumPatchesFn(spRas, cellIDByPolygon, directions = 8)
-                                           })
-                                           names(clumpedRasts) <- raster::levels(leadingRast)[[1]]$Factor
-                                           clumpedRasts <- append(
-                                             clumpedRasts,
-                                             list("All species" = countNumPatchesFn(leadingRast, cellIDByPolygon, directions = 8))
-                                           )
-                                           clumpedRasts
-                                         })))
     names(out1) <- yearNames
     
     # collapse to a single data.table
@@ -114,4 +96,29 @@ largePatchesInner2Fn <- function(cellIDByPolygon, polygonName, ageClassCutOffs,
                           msg = "largePatchesFn: out is not a data.table.")
   out[sizeInHa >= 100] # never will need patches smaller than 100 ha
   
+}
+
+makeClumpedRasters <- function(timeSinceFireFile, vegTypeMapFile,
+                                cellIDByPolygon = cellIDByPolygon,
+                                countNumPatchesFn = countNumPatchesFn,
+                                y = y) {
+  #x <- match(x, timeSinceFireFiles)
+  message("      Raster: ", basename(vegTypeMapFile))
+  timeSinceFireFilesRast <- raster(timeSinceFireFile)
+  leadingRast <- raster(vegTypeMapFile)
+  leadingRast[timeSinceFireFilesRast[] < ageClassCutOffs[y]] <- NA
+  if ((y + 1) <= length(ageClassCutOffs))
+    leadingRast[timeSinceFireFilesRast[] >= ageClassCutOffs[y + 1]] <- NA
+  
+  clumpedRasts <- lapply(raster::levels(leadingRast)[[1]]$ID, function(ID) {
+    spRas <- leadingRast
+    spRas[spRas != ID] <- NA
+    Cache(countNumPatchesFn, spRas, cellIDByPolygon, directions = 8)
+  })
+  names(clumpedRasts) <- raster::levels(leadingRast)[[1]]$Factor
+  clumpedRasts <- append(
+    clumpedRasts,
+    list("All species" = Cache(countNumPatchesFn, leadingRast, cellIDByPolygon, directions = 8))
+  )
+  clumpedRasts
 }
