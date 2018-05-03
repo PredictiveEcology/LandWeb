@@ -14,37 +14,6 @@ intersectListShps <- function(listShps, intersectShp) {
 }
 
 
-# A function that creates a raster with contiguous patches labelled as such
-countNumPatches <- function(ras, cellIDByPolygon, ...) {
-  clumpedRas <- clump(ras, gaps = FALSE, ...)
-  #data.table::set(cellIDByPolygon, , "newRas", clumpedRas[][cellIDByPolygon$cell])
-  cellIDByPolygon[, newRas := clumpedRas[][cell]]
-  cellIDByPolygon[, list(sizeInHa = .N * prod(res(clumpedRas)) / 1e4),
-                  by = c("polygonID", "newRas")] %>% na.omit()
-}
-
-cellNumbersForPolygon <- function(dummyRaster, Polygons) {
-  dtList <- Map(Polygon = Polygons, PolygonName = names(Polygons),
-                function(Polygon, PolygonName) {
-                  message("        ", PolygonName)
-                  aa <- tryCatch(Cache(raster::extract, dummyRaster, y = Polygon, cellnumbers = TRUE), error = function(x) NULL)
-                  if (!is.null(aa)) {
-                    notNull <- !unlist(lapply(aa, is.null))
-                    dt <- rbindlist(lapply(seq_along(aa)[notNull], function(x) {
-                      data.table(cell = aa[[x]][, "cell"], polygonID = as.character(x))
-                    }))
-                    data.table::copy(dt)
-                  } else {
-                    data.table(cell = numeric(), polygonID = character())
-                  }
-  })
-
-  # There is a weird bug that makes the data.table from previous line. copy() is a work around
-  # Error in data.table::set(cellIDByPolygon, , "newRas", clumpedRas[][cellIDByPolygon$cell]) :
-  #   Internal logical error. DT passed to assign has not been allocated enough column slots. l=2, tl=2, adding 1
-  return(dtList)
-}
-
 reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
   rastsLFLT <- if (!(isTRUE(all(unlist(lapply(lfltFN, file.exists)))))) {
 

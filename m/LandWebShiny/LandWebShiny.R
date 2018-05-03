@@ -341,40 +341,21 @@ Init <- function(sim) {
   
   # some of the args oare for largePatchesFn, some passed through to largePatchesInnerFn, 
   
-  lrgPatchesArgs <- list(largePatchesFn,
-                         reportingPolygons = rp4LrgPatches,
-                         authenticationType = authenticationType,
-                         largePatchesInnerFn = largePatchesInnerFn,
-                         
-                         # Passed through to largePatchesInnerFn
-                         largePatchesInner2Fn = largePatchesInner2Fn,
-                         cellNumbersForPolygonFn = cellNumbersForPolygon,
-                         
-                         # Passed through to largePatchesInner2Fn
-                         ageClassCutOffs = ageClassCutOffs,
-                         ageClasses = ageClasses, 
-                         cl = cl6, lapplyFn = lapplyFn, # this is passed to lapply on timeSinceFireFiles
-                         countNumPatchesFn = countNumPatches,
-                         
-                         omitArgs = c("cl", "lapplyFn")
-  )
+  sim$lrgPatches <- Cache(largePatchesCalc, 
+                          byPoly = rp4LrgPatches, 
+                          tsfFile = getAllIfExists(sim$tsfs, ifNot = "Proprietary"), 
+                          vtmFile = getAllIfExists(sim$vtms, ifNot = "Proprietary"),
+                          ageClasses = ageClasses, 
+                          ageClassCutOffs = ageClassCutOffs,
+                          labelColumn = sim$labelColumn)
   
-  
-  # Only pass unique arguments here -- all tsfs & vtms and cacheId
-  sim$lrgPatches <- do.call(Cache, append(list(
-    timeSinceFireFiles = getAllIfExists(sim$tsfs, ifNot = "Proprietary"),
-    vegTypeMapFiles = getAllIfExists(sim$vtms, ifNot = "Proprietary"),
-    cacheId = cacheId$lrgPatches
-  ),
-  lrgPatchesArgs))
-  
-  # Only pass unique arguments here -- all sim$tsfsCC & vtmsCC and cacheId
-  sim$lrgPatchesCC <- do.call(Cache, append(list(
-    timeSinceFireFiles = getAllIfExists(sim$tsfsCC, ifNot = "Proprietary"),
-    vegTypeMapFiles = getAllIfExists(vtmsCC, ifNot = "Proprietary"),
-    cacheId = cacheId$lrgPatchesCC
-  ),
-  lrgPatchesArgs))
+  sim$lrgPatchesCC <- Cache(largePatchesCalc, 
+                          byPoly = rp4LrgPatches, 
+                          tsfFile = getAllIfExists(sim$tsfsCC, ifNot = "Proprietary"), 
+                          vtmFile = getAllIfExists(vtmsCC, ifNot = "Proprietary"),
+                          ageClasses = ageClasses, 
+                          ageClassCutOffs = ageClassCutOffs,
+                          labelColumn = sim$labelColumn)
   
   message(paste("Finished largePatchesFn"))
   
