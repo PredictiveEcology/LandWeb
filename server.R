@@ -9,6 +9,9 @@ function(input, output, session) {
   ## module calls
   # TODO: update generator to handle these assignments
 
+  unsuspendModule("largePatches")
+  unsuspendModule("vegArea")
+
   rctUserInfo <- callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
 
   defaultPolyName <- "National Ecozones"  ## TODO: move to global.R ?
