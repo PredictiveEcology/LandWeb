@@ -194,13 +194,12 @@ Init <- function(sim) {
   # Reporting polygons
   if (isTRUE(useParallelCluster)) {
     library(parallel)
-    message("  Closing existing cluster for raster::extract")
-    raster::endCluster()
-    message("  Starting ",numClusters, "  node cluster for raster::extract")
-    raster::beginCluster(min(numClusters, parallel::detectCores() / 4))
+    #message("  Closing existing cluster for raster::extract")
+    #raster::endCluster()
+    #message("  Starting ",numClusters, "  node cluster for raster::extract")
+    #raster::beginCluster(min(numClusters, parallel::detectCores() / 4))
     
-    numClus <- 6
-    message("  Also starting a cluster with ", numClus," threads")
+    message("  Starting a cluster with ", numClus," threads")
     if (!exists("cl6")) {
       cl6 <- parallel::makeForkCluster(numClus)
     }
