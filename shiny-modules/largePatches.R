@@ -285,7 +285,8 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     dtFn <- function(rctLargePatchesDataOrig, patchSize) {
       rctLargePatchesDataOrig()[sizeInHa > patchSize]
     }
-    Cache(dtFn, rctLargePatchesDataOrig = rctLargePatchesDataOrig, patchSize = input$patchSize)
+    # too slow with Cache
+    dtFn(rctLargePatchesDataOrig = rctLargePatchesDataOrig, patchSize = input$patchSize)
   })
 
   uiSequence <- reactive({
@@ -304,8 +305,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     rctChosenPolyName()
     input$patchSize
   }, {
-    needResave <- isTRUE(attr(rctLargePatchesData(), "newCache")) &&
-      isTRUE(session$userData$userAuthorized())
+    authStatus <- isTRUE(session$userData$userAuthorized())
     callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
                uiSequence = uiSequence(),
                #serverFunction = histServerFn, ## calls histogram server module
@@ -314,16 +314,16 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
                  histogramUI(id, height = 300)
                },
                nSimTimes = length(rctTsf()),
-               authStatus = session$userData$userAuthorized(),
+               authStatus = authStatus,
                uiSeq = uiSequence(),
                outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
                patchSize = as.character(input$patchSize),
-               rebuildHistPNGs = needResave
+               rebuildHistPNGs = authStatus
     )
   })
 
-  return(rctLargePatchesData)
+  return(reactive(list(data = rctLargePatchesData(), patchSize = input$patchSize)))
 }
 
 .patchesInTimeDistributionFn <- function(dt, nSimTimes, breaks) {

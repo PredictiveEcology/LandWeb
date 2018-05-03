@@ -6,7 +6,7 @@ downloadOutputsUI <- function(id) {
 
 #' only authorized users can download model outputs
 downloadOutputs <- function(input, output, session, appInfo,
-                            rctLargePatchesData, rctVegData, rctPolygonList,
+                            rctLargePatches, rctVegData, rctPolygonList,
                             rctChosenPolyName, patchSize) {
 
   output$downloadModel <- renderUI({
@@ -48,11 +48,11 @@ downloadOutputs <- function(input, output, session, appInfo,
       ###
       h5("Additional R Data Files"), ## all of these should be false by default
       checkboxInput(ns("dlSimOutputs"), "Simulation data files (.RData, .rds)", FALSE),
-      #checkboxInput(ns("dlInitCommMap"), "Inital communities map (.tif)", FALSE),
       ###
       radioButtons(ns("usePrefix"), "Prefix all filenames with app version info:",
                    choices = list(yes = TRUE, no = FALSE), inline = TRUE, selected = FALSE), ## false by default
       ###
+      h4("NOTE: download may take a moment to start."),
       downloadButton(ns("downloadData"), "Download"),
       modalButton("Cancel", icon("ban")),
       footer = h6(paste(appInfo$name, "version", appInfo$version)),
@@ -73,126 +73,150 @@ downloadOutputs <- function(input, output, session, appInfo,
       lapply(file.path(tmpDir, outputDirs), reproducible::checkPath, create = TRUE)
       on.exit(unlink(tmpDir, recursive = TRUE), add = TRUE)
 
-      fileList <- list()
+      dlSteps <- c(input$dlPolygon, input$dlCC,
+                   input$dlLargePatchesData, input$dlLargePatchesHists,
+                   input$dlVegData, input$dlVegAgeHists,
+                   input$dlTimeSinceFireMaps, input$dlVegTypeMaps,
+                   input$dlSimOutputs)
 
-      currPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
+      ## number of steps for the progress bar
+      ## NOTE: progress bar only incremented for dlSteps that are true
+      n <- length(which(dlSteps == TRUE))
 
-      ### "inputs"
-      if (isTRUE(input$dlPolygon)) {
-        polygonFile2 <- file.path(tmpDir, "polygons", paste0(rctChosenPolyName(), ".shp"))
-        raster::shapefile(currPoly, filename = polygonFile2)
-        fileList <- append(fileList, polygonFile2)
-      }
+      withProgress(message = 'Preparing download...', value = 0, {
+        fileList <- list()
 
-      ### Current condition
-      if (isTRUE(input$dlCC)) {
-        ccFile <- file.path("cache", paste0(subStudyRegionName), "rasters", "CurrentCondition.tif")
-        ccFile2 <- file.path(tmpDir, "rasters", basename(ccFile))
+        currPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
 
-        raster::raster(ccFile) %>%
-          SpaDES.tools::postProcess(., targetFilePath = ccFile2, studyArea = currPoly) ## TODO: fix: files not being created!
-        fileList <- append(fileList, ccFile2)
-      }
+        ### "inputs"
+        if (isTRUE(input$dlPolygon)) {
+          polygonFile2 <- file.path(tmpDir, "polygons", paste0(rctChosenPolyName(), ".shp"))
+          raster::shapefile(currPoly, filename = polygonFile2)
+          fileList <- append(fileList, polygonFile2)
+          incProgress(1/n)
+        }
 
-      ### Large Patches Data
-      if (isTRUE(input$dlLargePatchesData)) {
-        largePatchesDataFile2 <- file.path(tmpDir, "largePatches.csv")
-        write.csv(rctLargePatchesData(), largePatchesDataFile2)
-        fileList <- append(fileList, largePatchesDataFile2)
-      }
+        ### Current condition
+        if (isTRUE(input$dlCC)) {
+          ccFile <- file.path("cache", paste0(subStudyRegionName), "rasters", "CurrentCondition.tif")
+          ccFile2 <- file.path(tmpDir, "rasters", basename(ccFile))
 
-      if (isTRUE(input$dlLargePatchesHists)) {
-        histFilesLP <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_All"),
-                    "histograms", gsub(" ", "_", rctChosenPolyName()),
-                    "largePatches", patchSize),
-          recursive = TRUE, full.names = TRUE
-        )
-        histFilesLP2 <- file.path(tmpDir, "histograms", "largePatches", patchSize, basename(histFilesLP))
-        unique(dirname(histFilesLP2)) %>% reproducible::checkPath(., create = TRUE)
-        file.copy(histFilesLP, histFilesLP2)
-        fileList <- append(fileList, histFilesLP2)
-      }
+          raster::raster(ccFile) %>%
+            SpaDES.tools::postProcess(., postProcessedFilename = ccFile2, studyArea = currPoly)
+          fileList <- append(fileList, ccFile2)
+          incProgress(1/n)
+        }
 
-      ### Veg Class Data
-      if (isTRUE(input$dlVegData)) {
-        vegDataFile2 <- file.path(tmpDir, "vegArea.csv")
-        write.csv(rctVegData(), vegDataFile2)
-        fileList <- append(fileList, vegDataFile2)
-      }
+        ### Large Patches Data
+        if (isTRUE(input$dlLargePatchesData)) {
+          largePatchesDataFile2 <- file.path(tmpDir, "largePatches.csv")
+          write.csv(rctLargePatches()$data, largePatchesDataFile2)
+          fileList <- append(fileList, largePatchesDataFile2)
+          incProgress(1/n)
+        }
 
-      if (isTRUE(input$dlVegAgeHists)) {
-        histFilesVA <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_All"),
-                    "histograms", gsub(" ", "_", rctChosenPolyName()),
-                    "vegAgeMod"),
-          recursive = TRUE, full.names = TRUE
-        )
-        histFilesVA2 <- file.path(tmpDir, "histograms", "vegAgeMod", basename(histFilesVA))
-        dir.create(unique(dirname(histFilesVA2)))
-        file.copy(histFilesVA, histFilesVA2)
-        fileList <- append(fileList, histFilesVA2)
-      }
+        if (isTRUE(input$dlLargePatchesHists)) {
+          histFilesLP <- list.files(
+            file.path("outputs", paste0(subStudyRegionName, "_All"),
+                      "histograms", gsub(" ", "_", rctChosenPolyName()),
+                      "largePatches", rctLargePatches()$patchSize),
+            recursive = TRUE, full.names = TRUE
+          )
+          histFilesLP2 <- file.path(tmpDir, "histograms", "largePatches",
+                                    rctLargePatches()$patchSize, basename(histFilesLP))
+          unique(dirname(histFilesLP2)) %>% reproducible::checkPath(., create = TRUE)
+          file.copy(histFilesLP, histFilesLP2)
+          fileList <- append(fileList, histFilesLP2)
+          incProgress(1/n)
+        }
 
-      ### Simulation rasters
-      if (isTRUE(input$dlTimeSinceFireMaps)) {
-        tsfMapFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_All")),
-          recursive = TRUE, full.names = TRUE, pattern = "rstTimeSinceFire"
-        )
-        tsfMapFiles2 <- file.path(tmpDir, "rasters",  basename(tsfMapFiles))
+        ### Veg Class Data
+        if (isTRUE(input$dlVegData)) {
+          vegDataFile2 <- file.path(tmpDir, "vegArea.csv")
+          write.csv(rctVegData(), vegDataFile2)
+          fileList <- append(fileList, vegDataFile2)
+          incProgress(1/n)
+        }
 
-        tsfRasterList <- lapply(tsfMapFiles, raster::raster)
-        Map(x = tsfRasterList, targetFilePath = tsfMapFiles2,
-            MoreArgs = list(studyArea = currPoly), SpaDES.tools::postProcess) ## TODO: fix: files not being created!
-        fileList <- append(fileList, tsfMapFiles2)
-      }
+        if (isTRUE(input$dlVegAgeHists)) {
+          histFilesVA <- list.files(
+            file.path("outputs", paste0(subStudyRegionName, "_All"),
+                      "histograms", gsub(" ", "_", rctChosenPolyName()),
+                      "vegAgeMod"),
+            recursive = TRUE, full.names = TRUE
+          )
+          histFilesVA2 <- file.path(tmpDir, "histograms", "vegAgeMod", basename(histFilesVA))
+          dir.create(unique(dirname(histFilesVA2)))
+          file.copy(histFilesVA, histFilesVA2)
+          fileList <- append(fileList, histFilesVA2)
+          incProgress(1/n)
+        }
 
-      if (isTRUE(input$dlVegTypeMaps)) {
-        vegTypeMapFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_All")),
-          recursive = TRUE, full.names = TRUE, pattern = "vegTypeMap.+[0-9]\\.tif$"
-        )
-        vegTypeMapFiles2 <- file.path(tmpDir, "rasters",  basename(vegTypeMapFiles))
+        ### Simulation rasters
+        if (isTRUE(input$dlTimeSinceFireMaps)) {
+          tsfMapFiles <- list.files(
+            file.path("outputs", paste0(subStudyRegionName, "_All")),
+            recursive = TRUE, full.names = TRUE, pattern = "rstTimeSinceFire"
+          )
+          tsfMapFiles2 <- file.path(tmpDir, "rasters",  basename(tsfMapFiles))
 
-        tsfRasterList <- lapply(vegTypeMapFiles, raster::raster)
-        Map(x = tsfRasterList, targetFilePath = vegTypeMapFiles2,
-            MoreArgs = list(studyArea = currPoly), SpaDES.tools::postProcess)
-        fileList <- append(fileList, vegTypeMapFiles2)
-      }
+          tsfRasterList <- lapply(tsfMapFiles, raster::raster)
+          Map(x = tsfRasterList, postProcessedFilename = tsfMapFiles2,
+              MoreArgs = list(studyArea = currPoly), SpaDES.tools::postProcess)
+          fileList <- append(fileList, tsfMapFiles2)
+          incProgress(1/n)
+        }
 
-      ### other simulation data files
-      if (isTRUE(input$dlSimOutputs)) {
-        simOutputFiles <- list.files(
-          file.path("outputs", paste0(subStudyRegionName, "_All")),
-          recursive = TRUE, full.names = TRUE, pattern = "[.]RData|[.]rds"
-        )
-        simOutputFiles2 <- file.path(tmpDir, basename(simOutputFiles))
-        file.copy(simOutputFiles, simOutputFiles2)
-        fileList <- append(fileList, simOutputFiles2)
-      }
+        if (isTRUE(input$dlVegTypeMaps)) {
+          vegTypeMapFiles <- list.files(
+            file.path("outputs", paste0(subStudyRegionName, "_All")),
+            recursive = TRUE, full.names = TRUE, pattern = "vegTypeMap.+[0-9]\\.tif$"
+          )
+          vegTypeMapFiles2 <- file.path(tmpDir, "rasters",  basename(vegTypeMapFiles))
 
-      ### append filename prefix if selected
-      fileListRenamed <- if (input$usePrefix == "TRUE") {
-        renamedFiles <- lapply(fileList, function(fname) {
-          filePrefix <- paste0(appInfo$name, "_v", appInfo$version, "_")
-          file.path(dirname(fname), .prefix(basename(fname), filePrefix)) %>%
-            gsub("/\\./", "/", .)
-        })
-        mapply(file.copy, fileList, renamedFiles)
-        on.exit(lapply(fileListRenamed, unlink), add = TRUE)
-        renamedFiles
-      } else {
-        fileList
-      }
+          vegRasterList <- lapply(vegTypeMapFiles, raster::raster)
+          Map(x = vegRasterList, postProcessedFilename = vegTypeMapFiles2,
+              MoreArgs = list(studyArea = currPoly), SpaDES.tools::postProcess)
+          fileList <- append(fileList, vegTypeMapFiles2)
+          incProgress(1/n)
+        }
 
-      ## TODO: improve info/metadata in this file
-      readmeFile <- "README.md"
-      readmeFile2 <- file.path(tmpDir, basename(readmeFile))
-      file.copy(readmeFile, readmeFile2)
+        ### other simulation data files
+        if (isTRUE(input$dlSimOutputs)) {
+          simOutputFiles <- list.files(
+            file.path("outputs", paste0(subStudyRegionName, "_All")),
+            recursive = TRUE, full.names = TRUE, pattern = "[.]RData|[.]rds"
+          )
+          simOutputFiles2 <- file.path(tmpDir, basename(simOutputFiles))
+          file.copy(simOutputFiles, simOutputFiles2)
+          fileList <- append(fileList, simOutputFiles2)
+          incProgress(1/n)
+        }
 
-      ## create the zip file containing the selected files
-      zip(file, files = c(readmeFile2, unlist(fileListRenamed)))
+        ### append filename prefix if selected
+        fileListRenamed <- if (input$usePrefix == "TRUE") {
+          renamedFiles <- lapply(fileList, function(fname) {
+            filePrefix <- paste0(appInfo$name, "_v", appInfo$version, "_")
+            file.path(dirname(fname), .prefix(basename(fname), filePrefix)) %>%
+              gsub("/\\./", "/", .)
+          })
+          mapply(file.copy, fileList, renamedFiles)
+          on.exit(lapply(fileListRenamed, unlink), add = TRUE)
+          renamedFiles
+        } else {
+          fileList
+        }
+
+        ## TODO: improve info/metadata in this file
+        readmeFile <- "README.md"
+        readmeFile2 <- file.path(tmpDir, basename(readmeFile))
+        file.copy(readmeFile, readmeFile2)
+
+        ## create the zip file containing the selected files
+        cwd <- getwd()
+        setwd(tmpDir); on.exit(setwd(cwd), add = TRUE)
+        zip(file, files = list.files(tmpDir, recursive = TRUE))
+      })
     },
     contentType = "application/zip"
   )
