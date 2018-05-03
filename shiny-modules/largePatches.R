@@ -20,8 +20,8 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatus,
-                          uiSeq, outputPath, chosenPolyName, patchSize, rebuildHistPNGs) {
+histServerFn2 <- function(datatable, id, .current, .dtFull, dtInner, nSimTimes, authStatus,
+                          uiSequence, outputPath, chosenPolyName, patchSize, rebuildHistPNGs) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -33,29 +33,28 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       msg = "histServerFn2: `datatable` is not a data.table"
     )
 
-
-    ## calculate breaks
-    # calculate breaks -- 1 set of breaks for each group of plots
-
-    dtListShort <- split(.dtFull, by = uiSeq$category[-length(uiSeq$category)], flatten = FALSE)
-
-    # need to get a single set of breaks for all simultaneously visible histograms
-    dtInner <- dtListShort[[.current[[1]]]][[.current[[2]]]] # this should be in order it is received
-    #dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-
+    current3Names <- names(.current)[[3]]
     if (NROW(dtInner) > 0) {
       dtOnlyCC <- dt[rep == "CurrentCondition"]
       dtNoCC <- dt[rep != "CurrentCondition"]
 
-      out <- dtNoCC[, .N, by = c("vegCover", "rep")]$N
+      out <- dtNoCC[, .N, by = c(current3Names, "rep")]$N # not hard coded
       if (isTRUE(authStatus)) {
-        outCC <- max(0, dtOnlyCC[, .N, by = c("vegCover", "rep")]$N)
+        outCC <- max(0, dtOnlyCC[, .N, by = c(current3Names, "rep")]$N)
         verticalLineAtX <- outCC
       } else {
         verticalLineAtX <- NULL
         outCC <- numeric()
       }
-      nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
+
+      # Sometimes there are missing elements --- this means that zero must be in the range for x axis
+      dtInnerEmpty <- data.table(current3 = uiSequence$possibleValues[[3]], N = 0)
+      setnames(dtInnerEmpty, old = "current3", new = current3Names)
+      nClustersDT <- dtInner[, .N, by = c(current3Names, "rep")]
+      nClustersDT <- nClustersDT[dtInnerEmpty, on = c(current3Names), nomatch = NA]
+      nClustersDT[is.na(N), N := 0]
+      nClusters <- nClustersDT$N
+
       minNumBars <- 6
       maxNumBars <- 30
       rangeNClusters <- range(c(outCC, nClusters, minNumBars))
@@ -65,7 +64,12 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       dataForBreaks <- hist(nClusters, plot = FALSE, breaks = prettyBreaks)
       breaksLabels <- dataForBreaks$breaks
       breaksInterval <- diff(breaksLabels)[1]
-      dataForHistogram <- hist(out, plot = FALSE, breaks = prettyBreaks)
+      dataForHistogram <- if (NROW(out) == 0) { # add a bar at zero if there are no patches
+        hist(0, plot = FALSE, breaks = prettyBreaks)
+      } else {
+        hist(out, plot = FALSE, breaks = prettyBreaks)
+      }
+
       histogramData <- dataForHistogram$counts / sum(dataForHistogram$counts)
 
       histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
@@ -77,7 +81,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
       } else {
         verticalLineAtX <- NULL
       }
-      histogramData <- c(1,0,0,0,0,0,0)
+      histogramData <- c(1, 0, 0, 0, 0, 0, 0)
       breaksLabels <- 0:6
       breaksInterval <- 1
     }
@@ -106,8 +110,7 @@ histServerFn2 <- function(datatable, id, .current, .dtFull, nSimTimes, authStatu
     # browser(expr = .current$ageClass=="Mature" && .current$polygonID == "Boreal Shield" &&
     #              .current$vegCover == "Deciduous leading")
     callModule(histogram, id, histogramData, addAxisParams,
-               verticalBar = verticalLineAtX,
-               width = breaksInterval, file = pngFilePath,
+               verticalBar = verticalLineAtX, width = breaksInterval, file = pngFilePath,
                xlim = xlim, ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
@@ -308,14 +311,12 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     authStatus <- isTRUE(session$userData$userAuthorized())
     callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
                uiSequence = uiSequence(),
-               #serverFunction = histServerFn, ## calls histogram server module
-               serverFunction = histServerFn2, ## The one without recursion
+               serverFunction = histServerFn2, ## calls histogram server module
                uiFunction = function(id) {
                  histogramUI(id, height = 300)
                },
                nSimTimes = length(rctTsf()),
                authStatus = authStatus,
-               uiSeq = uiSequence(),
                outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
                patchSize = as.character(input$patchSize),
