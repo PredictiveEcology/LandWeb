@@ -194,14 +194,14 @@ devtools::install_github("PredictiveEcology/SpaDES.shiny@generalize-modules")
 mkdir -p ~/Documents/GitHub/
 
 # Connect to github
-ssh-keygen -t rsa -b 4096 -C "landweb@landweb.ca"
+ssh-keygen -t rsa -b 4096 -C "alex.chubaty+landweb@gmail.com"
 eval $(ssh-agent -s)
-ssh-add ~/.ssh/id_rsa
-cat ~/.ssh/id_rsa.pub
+ssh-add ~/.ssh/id_rsa_github
+cat ~/.ssh/id_rsa_github.pub
 
 # clone repository
 cd ~/Documents/GitHub/
-git clone git@github.com:eliotmcintire/LandWeb.git
+git clone --recurse-submodules git@github.com:eliotmcintire/LandWeb.git
 # git clone git@github.com:PredictiveEcology/quickPlot.git
 # git clone git@github.com:PredictiveEcology/reproducible.git
 # git clone git@github.com:PredictiveEcology/SpaDES.git
@@ -213,24 +213,22 @@ git clone git@github.com:eliotmcintire/LandWeb.git
 
 ```bash
 ## rsync 388 directly to /srv/shiny-server & ssh
-rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/Demo2/
-ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo chown -R shiny:shiny /srv/shiny-server/Demo/. && sudo chmod 775 -R /srv/shiny-server/Demo/.'
+rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/LandWeb/
 
-ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo service shiny-server restart'
+ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo chown -R shiny:shiny /srv/shiny-server/LandWeb/. && sudo chmod 775 -R /srv/shiny-server/LandWeb/.'
 
-## rsync on AWS between two locations
-rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e /srv/shiny-server/Demo/ /srv/shiny-server/Main/
+ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo systemctl restart shiny-server.service'
 
-# or log onto remote Amazon
+# or log onto remote server
 ssh -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca
 sudo mkdir /srv/shiny-server/LandWeb
 sudo chown -R shiny:shiny /srv/shiny-server/LandWeb/.
 sudo chmod 775 -R /srv/shiny-server/LandWeb/.
 sudo chmod g+s -R /srv/shiny-server/LandWeb/.
 
-sudo chown -R shiny:shiny /home/emcintir/Documents/GitHub/LandWeb/.
-sudo chmod 775 -R /home/emcintir/Documents/GitHub/LandWeb/.
-sudo chmod g+s -R /home/emcintir/Documents/GitHub/LandWeb/.
+sudo chown -R shiny:shiny /home/ubuntu/Documents/GitHub/LandWeb/.
+sudo chmod 775 -R /home/ubuntu/Documents/GitHub/LandWeb/.
+sudo chmod g+s -R /home/ubuntu/Documents/GitHub/LandWeb/.
 ```
 
 ### Additional config
