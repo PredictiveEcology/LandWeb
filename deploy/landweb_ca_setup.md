@@ -235,27 +235,48 @@ sudo chmod g+s -R /home/emcintir/Documents/GitHub/LandWeb/.
 
 ### Additional config
 
-```bash
-## shiny config file
-sudo nano /etc/shiny-server/shiny-server.conf
+#### shiny server
 
+```bash
+sudo nano /etc/shiny-server/shiny-server.conf
+```
+
+```
 ## Need to edit a few things in the shiny-server.conf
 server_name landweb.ca
 listen 80;
 
 app_idle_timeout 24000; # 6 hours
 google_analytics_id UA-XXXXX;
+```
 
-## Restart shiny server
-sudo systemctl restart shiny-server.service
-
+```bash
 # once shiny-server is up and running:
 sudo rm -rf /srv/shiny-server/sample-apps
 
+# restart shiny server
+sudo systemctl restart shiny-server.service
+```
+#### Rstudio server
+
+```bash
+sudo nano /etc/rstudio/rserver.conf
+```
+
+```
+www-port=8787
+```
+
+```bash
+## restart rstudio server
+sudo rstudio-server restart
+```
+
+#### firewall & security
+
+```bash
 ### Configure -- for security from
 ### https://www.thefanclub.co.za/how-to/how-secure-ubuntu-1604-lts-server-part-1-basics
-
-sudo systemctl stop shiny-server.service
 
 #sudo apt install ufw ## already installed and configured to allow https and https traffic
 sudo ufw allow ssh
@@ -263,17 +284,16 @@ sudo ufw allow ssh
 #sudo ufw allow https
 sudo ufw allow 8787/tcp # all for Rstudio server
 
-sudo systemctl stop shiny-server.service
-
-## restart rstudio server
-sudo systemctl restart rstudio-server.service
-
 sudo apt install fail2ban
 
 # configure fail2ban
 sudo nano /etc/fail2ban/jail.conf
 sudo service fail2ban restart
+```
 
+### Copy app files
+
+```bash
 ## rsync 388 directly to 342
 rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/Landweb/
 
