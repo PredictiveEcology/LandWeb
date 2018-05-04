@@ -8,22 +8,14 @@ landweb.ca (104.37.196.228)
 
 Ubuntu 16.04 was pre-installed with user `ubuntu`.
 
-### Tutorials
-
-1. https://aws.amazon.com/getting-started/launch-a-virtual-machine-B-0/launch-a-virtual-machine-B-1/
-
-2. https://www.r-bloggers.com/shiny-server-on-aws/
-
-3. http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/managing-users.html
-
-4. http://www.tekgoblin.com/2013/04/29/aws-guides-how-to-increase-your-ec2-linux-root-volume-size/
-
 ### System setup
 
 ```bash
 # set up ubuntu unattended upgrades
 sudo apt install unattended-upgrades
 sudo dpkg-reconfigure unattended-upgrades
+
+sudo apt install htop
 ```
 
 ### Install R
@@ -221,50 +213,43 @@ sudo chmod g+s -R /home/emcintir/Documents/GitHub/LandWeb/.
 ### Additional config
 
 ```bash
-## Restart shiny server
-sudo service shiny-server restart
-
-## Shiny config file
+## shiny config file
 sudo nano /etc/shiny-server/shiny-server.conf
 
 ## Need to edit a few things in the shiny-server.conf
 app_idle_timeout 24000; # 6 hours
 listen 80;
-server_name landweb.predictiveecology.org
+server_name landweb.ca
 
-### To 388 as a server
-ssh emcintir@132.156.149.44
+## Restart shiny server
+sudo systemctl restart shiny-server.service
 
 ### Configure -- for security from
 ### https://www.thefanclub.co.za/how-to/how-secure-ubuntu-1604-lts-server-part-1-basics
 
-sudo service shiny-server stop
-sudo apt install ufw # will turn on nginx
+sudo systemctl stop shiny-server.service
+
+#sudo apt install ufw ## already installed and configured to allow https and https traffic
 sudo ufw allow ssh
-sudo ufw allow http
+#sudo ufw allow http
+#sudo ufw allow https
 sudo ufw allow 8787/tcp # all for Rstudio server
-sudo service nginx stop
-sudo service shiny-server start
+
+sudo systemctl stop shiny-server.service
+
+## restart rstudio server
+sudo systemctl restart rstudio-server.service
 
 sudo apt install fail2ban
 
-# configure fali2ban
+# configure fail2ban
 sudo nano /etc/fail2ban/jail.conf
 sudo service fail2ban restart
 
 ## rsync 388 directly to 342
-rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i .ssh/laptopTesting.pem" ~/Documents/GitHub/LandWeb/ emcintir@ec2-52-26-180-235.us-west-2.compute.amazonaws.com:/srv/shiny-server/Demo/
+rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/Landweb/
 
 ## create symlinks
 rm -r /home/emcintir/Documents/GitHub/LandWeb
-
-ln -s /srv/shiny-server/Demo/ /home/emcintir/Documents/GitHub/LandWeb
-ln -s /srv/shiny-server/Demo2/ /home/emcintir/Documents/GitHub/LandWeb
-#ln -sf /srv/shiny-server/Demo2 /home/emcintir/Documents/GitHub/LandWeb
-
-# move from Demo2 to Demo
-sudo mkdir /srv/shiny-server/Demo3
-
-sudo mv /srv/shiny-server/Demo/* /srv/shiny-server/Demo3/
-sudo mv /srv/shiny-server/Demo2/* /srv/shiny-server/Demo/
+ln -s /srv/shiny-server/LandWeb/ /home/ubuntu/Documents/GitHub/LandWeb
 ```
