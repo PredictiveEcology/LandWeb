@@ -26,7 +26,7 @@
 
 ```bash
 # set up ubuntu unattended upgrades
-sudo apt-get install unattended-upgrades
+sudo apt install unattended-upgrades
 sudo dpkg-reconfigure unattended-upgrades
 
 # add users
@@ -65,21 +65,21 @@ exit
 ssh -i .ssh/laptopTesting.pem emcintir@ec2-52-26-180-235.us-west-2.compute.amazonaws.com
 
 # Install R
-sudo apt-get update
-sudo apt-get -y install nginx
+sudo apt update
+sudo apt -y install nginx
 
 sudo sh -c 'echo "deb https://cran.rstudio.com/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list'
 gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
 gpg -a --export E084DAB9 | sudo apt-key add -
-sudo apt-get update
-sudo apt-get -y install r-base
-sudo apt-get -y install r-base-dev
+sudo apt update
+sudo apt -y install r-base
+sudo apt -y install r-base-dev
 
 R
 > sessionInfo()
 > q()
 
-sudo apt-get -y install gdebi-core
+sudo apt -y install gdebi-core
 sudo su - -c "R -e \"install.packages('shiny', repos='http://cran.rstudio.com/')\""
 wget https://download3.rstudio.org/ubuntu-12.04/x86_64/shiny-server-1.5.1.834-amd64.deb
 sudo gdebi shiny-server-1.5.1.834-amd64.deb
@@ -91,12 +91,12 @@ sudo adduser emcintir shiny
 
 ```bash
 # Rstudio
-sudo apt-get install gdebi-core
+sudo apt install gdebi-core
 wget https://download2.rstudio.org/rstudio-server-1.1.442-amd64.deb
 sudo gdebi rstudio-server-1.1.442-amd64.deb
 
 # Other things
-sudo apt-get install -y \
+sudo apt install -y \
     pandoc \
     pandoc-citeproc \
     libssl-dev \
@@ -129,7 +129,7 @@ pkgNamespaces <- c("htmlwidgets", "shiny", "shinydashboard", "shinyBS", "leaflet
   if (!require("RandomFieldsUtils", character.only = TRUE)) install.packages("RandomFieldsUtils")
   if (!require("RandomFields", character.only = TRUE)) install.packages("RandomFields")
 
-sudo apt-get install r-cran-tkrplot
+sudo apt install r-cran-tkrplot
 
 sudo chown -R emcintir:emcintir /usr/local/lib/R/site-library
 sudo chmod 775 -R /usr/local/lib/R/site-library
@@ -203,14 +203,14 @@ ssh emcintir@132.156.149.44
 ### https://www.thefanclub.co.za/how-to/how-secure-ubuntu-1604-lts-server-part-1-basics
 
 sudo service shiny-server stop
-sudo apt-get install ufw # will turn on nginx
+sudo apt install ufw # will turn on nginx
 sudo ufw allow ssh
 sudo ufw allow http
 sudo ufw allow 8787/tcp # all for Rstudio server
 sudo service nginx stop
 sudo service shiny-server start
 
-sudo apt-get install fail2ban
+sudo apt install fail2ban
 
 # configure fali2ban
 sudo nano /etc/fail2ban/jail.conf
