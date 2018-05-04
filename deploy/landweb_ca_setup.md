@@ -183,6 +183,8 @@ notInstalled <- vapply(pkgs, function(p) {
 }, logical(1))
 pkgs2install <- pkgs[notInstalled]
 install.packages(pkgs2install, dependencies = TRUE, lib = .Library.site[1], repos = "https://cran.rstudio.com/")
+
+devtools::install_github("PredictiveEcology/SpaDES.shiny@generalize-modules")
 ```
 
 ### GitHub config
@@ -211,20 +213,20 @@ git clone git@github.com:eliotmcintire/LandWeb.git
 
 ```bash
 ## rsync 388 directly to /srv/shiny-server & ssh
-rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i .ssh/laptopTesting.pem" ~/Documents/GitHub/LandWeb/ emcintir@ec2-52-26-180-235.us-west-2.compute.amazonaws.com:/srv/shiny-server/Demo2/
-ssh -t -i .ssh/laptopTesting.pem emcintir@ec2-52-26-180-235.us-west-2.compute.amazonaws.com 'sudo chown -R shiny:shiny /srv/shiny-server/Demo/. && sudo chmod 775 -R /srv/shiny-server/Demo/.'
+rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/Demo2/
+ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo chown -R shiny:shiny /srv/shiny-server/Demo/. && sudo chmod 775 -R /srv/shiny-server/Demo/.'
 
-ssh -t -i .ssh/laptopTesting.pem emcintir@ec2-52-26-180-235.us-west-2.compute.amazonaws.com 'sudo service shiny-server restart'
+ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo service shiny-server restart'
 
 ## rsync on AWS between two locations
 rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e /srv/shiny-server/Demo/ /srv/shiny-server/Main/
 
 # or log onto remote Amazon
-ssh -i .ssh/laptopTesting.pem emcintir@ec2-52-26-180-235.us-west-2.compute.amazonaws.com
-sudo mkdir /srv/shiny-server/Demo2
-sudo chown -R shiny:shiny /srv/shiny-server/Demo2/.
-sudo chmod 775 -R /srv/shiny-server/Demo2/.
-sudo chmod g+s -R /srv/shiny-server/Demo2/.
+ssh -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca
+sudo mkdir /srv/shiny-server/LandWeb
+sudo chown -R shiny:shiny /srv/shiny-server/LandWeb/.
+sudo chmod 775 -R /srv/shiny-server/LandWeb/.
+sudo chmod g+s -R /srv/shiny-server/LandWeb/.
 
 sudo chown -R shiny:shiny /home/emcintir/Documents/GitHub/LandWeb/.
 sudo chmod 775 -R /home/emcintir/Documents/GitHub/LandWeb/.
@@ -238,12 +240,17 @@ sudo chmod g+s -R /home/emcintir/Documents/GitHub/LandWeb/.
 sudo nano /etc/shiny-server/shiny-server.conf
 
 ## Need to edit a few things in the shiny-server.conf
-app_idle_timeout 24000; # 6 hours
-listen 80;
 server_name landweb.ca
+listen 80;
+
+app_idle_timeout 24000; # 6 hours
+google_analytics_id UA-XXXXX;
 
 ## Restart shiny server
 sudo systemctl restart shiny-server.service
+
+# once shiny-server is up and running:
+sudo rm -rf /srv/shiny-server/sample-apps
 
 ### Configure -- for security from
 ### https://www.thefanclub.co.za/how-to/how-secure-ubuntu-1604-lts-server-part-1-basics
