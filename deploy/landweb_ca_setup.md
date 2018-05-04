@@ -31,6 +31,11 @@ gpg -a --export E084DAB9 | sudo apt-key add -
 sudo apt update
 sudo apt -y install r-base
 sudo apt -y install r-base-dev
+
+## install GIS tool
+sudo add-apt-repository ppa:ubuntugis/ppa
+sudo apt update
+
 ```
 
 Check installed R version:
@@ -57,9 +62,16 @@ sudo adduser ubuntu shiny
 sudo apt -y install gdebi-core
 wget https://download2.rstudio.org/rstudio-server-1.1.447-amd64.deb
 sudo gdebi rstudio-server-1.1.447-amd64.deb
+```
 
-# Other things
+### Install additional R package dependencies
+
+```bash
+sudo apt build-dep r-cran-rjava
+sudo R CMD javareconf
+
 sudo apt install -y \
+    gdal-bin \
     git \
     libcairo2-dev \
     libcurl4-gnutls-dev \
@@ -69,13 +81,20 @@ sudo apt install -y \
     libprotobuf-dev \
     libprotoc-dev \
     libssl-dev \
+    libudunits2-dev \
     libv8-dev \
     libxml2-dev \
     libxt-dev \
     pandoc \
     pandoc-citeproc \
     protobuf-compiler \
+    python-gdal \
+    python3-gdal \
     r-cran-tkrplot
+
+sudo add-apt-repository -y ppa:opencpu/jq
+sudo apt update
+sudo apt install libjq-dev
 
 # Make /usr/lib/R/site-library owned by user
 sudo chown -R ubuntu:ubuntu /usr/local/lib/R/site-library
@@ -130,36 +149,38 @@ pkgs <- c(
   "DBI",
   "devtools",
   "ggvis",
-  "grid",
   "htmlwidgets",
   "influenceR",
   "leaflet",
   "magrittr",
   "maptools",
   "markdown",
-  "parallel",
   "shiny",
   "shinyBS",
   "shinydashboard",
+  "shinyjs",
   "R.methodsS3",
   "R.oo",
   "RandomFieldsUtils",
   "raster",
   "RCurl",
-  #"rgdal",
-  #"rgeos",
+  "rgdal",
+  "rgeos",
   "rgexf",
+  "rJava",
   "rmarkdown",
   "RSQLite",
   "sf",
-  #"sp",
+  "sp",
   "SpaDES",
   "VGAM",
   "viridis",
   "visNetwork"
 )
 
-notInstalled <- vapply(pkgs, function(p) !require(p, quietly = TRUE, character.only = TRUE), logical(1))
+notInstalled <- vapply(pkgs, function(p) {
+  !require(p, quietly = TRUE, character.only = TRUE)
+}, logical(1))
 pkgs2install <- pkgs[notInstalled]
 install.packages(pkgs2install, dependencies = TRUE, lib = .Library.site[1], repos = "https://cran.rstudio.com/")
 ```
