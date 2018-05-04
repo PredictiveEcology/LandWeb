@@ -1,17 +1,20 @@
 largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
                              ageClasses, ageClassCutOffs,
-                             labelColumn, id = NULL) {
+                             labelColumn, id = NULL, useParallelCluster = NULL) {
   if (is.list(byPoly)) {
+    moreArgsList <- list(tsfFile = tsfFile,
+                         vtmFile = vtmFile,
+                         ageClasses = ageClasses,
+                         ageClassCutOffs = ageClassCutOffs,
+                         labelColumn = labelColumn, 
+                         id = id,
+                         useParallelCluster = useParallelCluster)
     out <- Map(byPoly = byPoly,
                polyName = names(byPoly),
                largePatchesCalc,
-               MoreArgs = list(tsfFile = tsfFile,
-                               vtmFile = vtmFile,
-                               ageClasses = ageClasses,
-                               ageClassCutOffs = ageClassCutOffs,
-                               labelColumn = labelColumn, 
-                               id = id))
+               MoreArgs = moreArgsList)
   } else {
+    
     if (is.null(id)) {
       id <- gsub(basename(tsfFile), pattern = "\\.tif", replacement = "")
       id <- strsplit(id, split = "_")
@@ -21,20 +24,41 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
     }
     if (length(tsfFile) > 1) {
       message("" , polyName, ": Calculating patch sizes")
-      out <- Map(tsfFile = tsfFile, vtmFile = vtmFile, id = id,
-                 Cache, 
-                 MoreArgs = list(largePatchesCalc, byPoly = byPoly, 
-                                 polyName = polyName,
-                                 ageClasses = ageClasses, 
-                                 ageClassCutOffs = ageClassCutOffs,
-                                 labelColumn = labelColumn))
+      if (useParallelCluster) {
+        library(parallel)
+        message("  Starting a cluster with ", numClus," threads")
+        cl <- parallel::makeForkCluster(numClus)
+        clusterSetRNGStream(cl, sample(1e7,1))
+        
+        out <- clusterMap(cl = cl, tsfFile = tsfFile, vtmFile = vtmFile, id = id,
+                   Cache, 
+                   MoreArgs = list(largePatchesCalc, byPoly = byPoly, 
+                                   polyName = polyName,
+                                   ageClasses = ageClasses, 
+                                   ageClassCutOffs = ageClassCutOffs,
+                                   labelColumn = labelColumn),
+                   .scheduling = "dynamic")
+        
+      } else {
+        out <- Map(tsfFile = tsfFile, vtmFile = vtmFile, id = id,
+                   Cache, 
+                   MoreArgs = list(largePatchesCalc, byPoly = byPoly, 
+                                   polyName = polyName,
+                                   ageClasses = ageClasses, 
+                                   ageClassCutOffs = ageClassCutOffs,
+                                   labelColumn = labelColumn))
+        
+      }
       out1 <- rbindlist(out)
 
     } else {
+      
       # once for each raster combo
+      startTime <- Sys.time()
       message(" ", polyName,": ", basename(tsfFile), " -- calculating patch sizes")
       
       timeSinceFireFilesRast <- raster(tsfFile)
+      timeSinceFireFilesRast[] <- timeSinceFireFilesRast[] # 10 seconds
       tsf <- reclassify(timeSinceFireFilesRast, 
                         cbind(from = ageClassCutOffs-0.1, to = c(ageClassCutOffs[-1], Inf), seq_along(ageClasses)))
       levels(tsf) <- data.frame(ID = seq_along(ageClasses), Factor = ageClasses)
@@ -46,54 +70,73 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
       
       # 3rd raster
       rasVeg <- raster(vtmFile)
+      rasVeg[] <- rasVeg[] # 3 seconds
       
       splitVal <- paste0("_", 75757575, "_") # unlikely to occur for any other reason
       
       # Individual species
-      ff <- paste(as.character(factorValues(tsf, tsf[])$Factor), 
-                  as.character(factorValues(rasVeg, rasVeg[])$Factor), 
-                  as.character(factorValues(rasRepPoly, rasRepPoly[])$Factor), sep = splitVal)
-      ff[grepl("NA", ff)] <- NA
+      nas3 <- is.na(rasRepPoly[])
+      nas2 <- is.na(rasVeg[])
+      nas1 <- is.na(tsf[])
+      nas <- nas3 | nas2 | nas1
+      name1 <- as.character(raster::levels(tsf)[[1]]$Factor)[tsf[][!nas]]
+      name2 <- as.character(raster::levels(rasVeg)[[1]]$Factor)[rasVeg[][!nas]]
+      name3 <- as.character(raster::levels(rasRepPoly)[[1]]$Factor)[rasRepPoly[][!nas]]
+      ff <- paste(name1, name2, name3, sep = splitVal) # 4 seconds
+      #ff[nas] <- NA # faster
+      #ff[grepl("NA", ff)] <- NA
       ras <- raster(rasVeg)
-      ffFactor <- factor(ff)
-      ras[] <- ffFactor
-      polyIndivSpecies <- Cache(gdal_polygonizeR, ras)
-      pArea <- as.numeric(sf::st_area(polyIndivSpecies)/1e4)
+      ffFactor <- factor(ff) 
+      ras[!nas] <- ffFactor # 2 seconds
+      
+      #ras <- raster::trim(ras) # 18 seconds many polygons will be smaller than full area -- this takes of NAs
+      areaAndPolyOut <- Cache(areaAndPolyValue, ras, length = Inf) # maybe lots of NAs on edge
+      #polyIndivSpecies <- Cache(gdal_polygonizeR, ras) # 99 seconds with full ras
+      #pArea <- as.numeric(sf::st_area(polyIndivSpecies)/1e4)
       #pArea <- rgeos::gArea(polyIndivSpecies, byid = TRUE)/1e4 
-      eTable <- raster::levels(ras)[[1]]
+      eTable <- data.frame(ID = seq_along(levels(ffFactor)), VALUE = levels(ffFactor))
+      #eTable <- raster::levels(ras)[[1]]
       types <- strsplit(as.character(eTable$VALUE), split = splitVal)
       types <- do.call(rbind, types)
-      facPolygonID <- factor(types[polyIndivSpecies$DN,3])
+      
+      facPolygonID <- factor(types[areaAndPolyOut$polyID,3])
       outBySpecies <- data.table(polygonID = as.numeric(facPolygonID), 
-                                 sizeInHa = pArea, 
-                                 vegCover = types[polyIndivSpecies$DN,2], 
+                                 sizeInHa = areaAndPolyOut$sizeInHa, 
+                                 vegCover = types[areaAndPolyOut$polyID,2], 
                                  rep = id,
-                                 ageClass = types[polyIndivSpecies$DN,1], 
+                                 ageClass = types[areaAndPolyOut$polyID,1], 
                                  polygonName = as.character(facPolygonID))
       
-      # All species combined
-      ff <- paste(as.character(factorValues(tsf, tsf[])$Factor), 
-                  #as.character(factorValues(rasVeg, rasVeg[])$Factor), 
-                  as.character(factorValues(rasRepPoly, rasRepPoly[])$Factor), sep = splitVal)
+      # All species combined # remove name2
+      ff <- paste(name1, name3, sep = splitVal)
       ff[grepl("NA", ff)] <- NA
       ras <- raster(rasVeg)
       ffFactor <- factor(ff)
-      ras[] <- ffFactor
-      polyAllSpecies <- Cache(gdal_polygonizeR, ras)
-      pArea <- as.numeric(sf::st_area(polyAllSpecies)/1e4 )
-      eTable <- raster::levels(ras)[[1]]
+      ras[!nas] <- ffFactor
+      
+      rm(areaAndPolyOut)
+      #ras <- raster::trim(ras) # many polygons will be smaller than full area -- this takes of NAs
+      areaAndPolyOut2 <- Cache(areaAndPolyValue, ras, length = Inf) # maybe lots of NAs on edge
+      
+      #polyAllSpecies <- gdal_polygonizeR(ras)
+      #areaAndPolyOut2$sizeInHa <- as.numeric(sf::st_area(polyAllSpecies)/1e4 )
+      eTable <- data.frame(ID = seq_along(levels(ffFactor)), VALUE = levels(ffFactor))
+      #eTable <- raster::levels(ras)[[1]]
       types <- strsplit(as.character(eTable$VALUE), split = splitVal)
       types <- do.call(rbind, types)
-      facPolygonID <- factor(types[polyAllSpecies$DN,2])
+      facPolygonID <- factor(types[areaAndPolyOut2$polyID,2])
       outAllSpecies <- data.table(polygonID = as.numeric(facPolygonID), 
-                                  sizeInHa = pArea, 
+                                  sizeInHa = areaAndPolyOut2$sizeInHa, 
                                   vegCover = "All species", 
                                   rep = id,
-                                  ageClass = types[polyAllSpecies$DN,1], 
+                                  ageClass = types[areaAndPolyOut2$polyID,1], 
                                   polygonName = as.character(facPolygonID))
       
       out <- rbindlist(list(outBySpecies, outAllSpecies))
       bb <- out[sizeInHa >= 100] # never will need patches smaller than 100 ha
+      endTime <- Sys.time()
+      message("    Patch size calculation took ", format(endTime - startTime, digits = 2))
+      
     }
   }
   
@@ -140,4 +183,8 @@ gdal_polygonizeR <- function(x, outshape=NULL, gdalformat = 'ESRI Shapefile',
   return(NULL)
 }
 
-
+areaAndPolyValue <- function(ras) {
+  polyIndivSpecies <- gdal_polygonizeR(ras) # 99 seconds with full ras
+  pArea <- as.numeric(sf::st_area(polyIndivSpecies)/1e4)
+  list(sizeInHa = pArea, polyID = polyIndivSpecies$DN)
+}
