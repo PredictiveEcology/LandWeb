@@ -1,13 +1,14 @@
 
 
 if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>numClusters && numClusters > 0) {
-  useParallelCluster <- FALSE
-  lapplyFn <- "parLapplyLB"
+  useParallelCluster <- TRUE
+  numClus <- 8
+  cl6 <- NULL
 } else {
   useParallelCluster <- FALSE
   cl6 <- NULL
-  lapplyFn <- "lapply"
 }
+lapplyFn <- if (useParallelCluster) "parLapplyLB" else "lapply"
 
 pathToLandWebApp <- "C:/Eliot/"
 

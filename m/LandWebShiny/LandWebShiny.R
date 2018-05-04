@@ -192,21 +192,6 @@ Init <- function(sim) {
   ########################################################
   # formerly in mapsForShiny.R
   # Reporting polygons
-  if (isTRUE(useParallelCluster)) {
-    library(parallel)
-    #message("  Closing existing cluster for raster::extract")
-    #raster::endCluster()
-    #message("  Starting ",numClusters, "  node cluster for raster::extract")
-    #raster::beginCluster(min(numClusters, parallel::detectCores() / 4))
-    
-    message("  Starting a cluster with ", numClus," threads")
-    if (!exists("cl6")) {
-      cl6 <- parallel::makeForkCluster(numClus)
-    }
-  } else {
-    cl6 <- NULL
-  }
-  
   
   ### CURRENT CONDITION ##################################
   message("Loading Current Condition Rasters")
@@ -347,7 +332,9 @@ Init <- function(sim) {
                           vtmFile = getAllIfExists(sim$vtms, ifNot = "Proprietary"),
                           ageClasses = ageClasses, 
                           ageClassCutOffs = ageClassCutOffs,
-                          labelColumn = sim$labelColumn)
+                          labelColumn = sim$labelColumn,
+                          useParallelCluster = useParallelCluster,
+                          omitArgs = "useParallelCluster")
   
   sim$lrgPatchesCC <- Cache(largePatchesCalc, 
                           byPoly = rp4LrgPatches, 
@@ -355,7 +342,9 @@ Init <- function(sim) {
                           vtmFile = getAllIfExists(vtmsCC, ifNot = "Proprietary"),
                           ageClasses = ageClasses, 
                           ageClassCutOffs = ageClassCutOffs,
-                          labelColumn = sim$labelColumn)
+                          labelColumn = sim$labelColumn,
+                          useParallelCluster = useParallelCluster,
+                          omitArgs = "useParallelCluster")
   
   message(paste("Finished largePatchesFn"))
   
