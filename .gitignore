@@ -12,10 +12,7 @@
 *.tfw
 
 ## cache files
-appCache*/
-cache*/
-reproducibleCache
-stableCache
+cache/
 
 ## R and Rstudio files
 rsconnect/shinyapps.io/landweb/LandWebDemo.dcf
