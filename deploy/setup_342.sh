@@ -1,5 +1,5 @@
-mkdir -p /mnt/shared/LandWeb/outputs
 mkdir -p /mnt/shared/LandWeb/cache
+mkdir -p /mnt/shared/LandWeb/outputs
 mkdir -p /mnt/shared/LandWeb/www
 
 sudo groupadd landweb
