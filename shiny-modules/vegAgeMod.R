@@ -116,7 +116,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
     #   xlim <- range(ticksAt) - breaksInterval/2
     #   addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks - min(breaksLabels))
     #   verticalLineAtX <- verticalLineAtX + breaksInterval/2 # THe barplot xaxis is 1/2 a barwidth off
-    # 
+    #
     # }
     polyName <- chosenPolyName %>% gsub(" ", "_", .)
     pngDir <- file.path(outputPath, "histograms", polyName, "vegAgeMod") %>% checkPath(create = TRUE)
@@ -169,7 +169,8 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
     column(width = 12,
            h4("These figures show the NRV of the proportion of forests for each age class,",
               "in each polygon, that are in each leading vegetation type.",
-              "The proportions are proportions", em("within"), "age class.",
+              "The proportions are proportions", em("within"), "age class: ",
+              "Young (<40 yrs), Immature (40-80 yrs), Mature (80-120 yrs), Old (>120 yrs).",
               "In any given replicate, the numbers below sum to 1."))
   })
 

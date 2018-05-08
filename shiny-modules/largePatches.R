@@ -183,6 +183,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
               "of patches that are ", as.character(input$patchSize), " hectares ",
               "or larger, for each given combination of Age Class, ",
               "Leading Vegetation, and Polygon."),
+           h4("Age classes: Young (<40 yrs), Immature (40-80 yrs), Mature (80-120 yrs), Old (>120 yrs)."),
            h4("To change the patch size that defines these, type a new value below."))
   })
 
