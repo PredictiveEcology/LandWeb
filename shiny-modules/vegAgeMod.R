@@ -68,14 +68,14 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
 
     # if (FALSE) {
     #   dtListShort <- split(.dtFull, by = uiSequence$category[-length(uiSequence$category)], flatten = FALSE)
-    # 
+    #
     #   # need to get a single set of breaks for all simultaneously visible histograms
     #   dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-    # 
+    #
     #   if (NROW(dtInner) > 0) {
     #     dtOnlyCC <- dt[rep == "CurrentCondition"]
     #     dtNoCC <- dt[rep != "CurrentCondition"]
-    # 
+    #
     #     out <- dtNoCC[, .N, by = c("vegCover", "rep")]$N
     #     if (isTRUE(authStatus)) {
     #       outCC <- max(0, dtOnlyCC[, .N, by = c("vegCover", "rep")]$N)
@@ -96,7 +96,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
     #     breaksInterval <- diff(breaksLabels)[1]
     #     dataForHistogram <- hist(out, plot = FALSE, breaks = prettyBreaks)
     #     histogramData <- dataForHistogram$counts/sum(dataForHistogram$counts)
-    # 
+    #
     #     histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
     #     # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
     #     # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
