@@ -1,0 +1,9 @@
+Name	Email
+Dave Andison	andison.d.w@gmail.com
+Kathleen Groenewegen	kathleen.groenewegen@gmail.com
+Neal McLoughlin	neal.mcloughlin@gov.ab.ca
+James Norman	jamesn@albertanewsprint.com
+Shane Sadoway	shanew.sadoway@gmail.com
+Lisa Smith	lisa_smithereen@yahoo.ca
+Gordon Whitmore	gwhitm@gmail.com
+Jim Witiw	TBA
