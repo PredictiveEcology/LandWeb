@@ -34,6 +34,7 @@ dashboardPage(
     sidebarFooterUI("sidebar")
   ),
   dashboardBody(
+    tags$head(includeScript("google-analytics.js")),
     includeCSS("www/style.css"), ## TODO: add this to generator
     useShinyjs(),
     tabItems(
