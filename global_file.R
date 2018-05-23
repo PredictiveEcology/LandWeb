@@ -41,8 +41,10 @@ appInfo <- list(
                     "Her Majesty the Queen in Right of Canada,",
                     "as represented by the Minister of Natural Resources Canada."),
   support = list(
-    email = "dwismer@friresearch.ca",
-    name = "Dan Wismer"
+    model.email = "eliot.mcintire@canada.ca",
+    model.name = "Eliot McIntire",
+    tech.email = "dwismer@friresearch.ca",
+    tech.name = "Dan Wismer"
   )
 )
 

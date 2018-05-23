@@ -22,11 +22,19 @@ landwebAppSupport <- function(input, output, session, appInfo) {
           title = "Additional Support", status = "success",
           solidHeader = TRUE, collapsible = TRUE, width = 12,
 
-          p("For additional suuport, please contact: "),
+          h4("Model Interpretation"),
           HTML(
-            paste0(appInfo$support$name, " (",
-                   a(appInfo$support$email,
-                     href = paste0("mailto:", appInfo$support$email, "&subject='",
+            paste0(appInfo$support$model.name, " (",
+                   a(appInfo$support$model.email,
+                     href = paste0("mailto:", appInfo$support$model.email, "&subject='",
+                                   appInfo$name, " Model Support'")), ")")
+          ),
+
+          h4("Technical Support"),
+          HTML(
+            paste0(appInfo$support$tech.name, " (",
+                   a(appInfo$support$tech.email,
+                     href = paste0("mailto:", appInfo$support$tech.email, "&subject='",
                                    appInfo$name, " App Support'")), ")")
           )
         )
