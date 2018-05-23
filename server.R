@@ -9,6 +9,11 @@ function(input, output, session) {
   ## module calls
   # TODO: update generator to handle these assignments
 
+  callModule(landwebAppInfo, "appInfo", appInfo)
+  callModule(landwebAppPrivacy, "appPrivacy")  # TODO: generate from a file for use in SpaDES.shiny
+  callModule(landwebAppToS, "appToS")          # TODO: genearte from a file for use in SpaDES.shiny
+  callModule(landwebAppSupport, "appSupport", appInfo)
+
   unsuspendModule("largePatches")
   unsuspendModule("vegArea")
 
@@ -66,7 +71,6 @@ function(input, output, session) {
                            outputPath = rctPaths4sim()$outputPath,
                            ageClasses = ageClasses)
 
-  callModule(landwebAppInfo, "appInfo", appInfo)
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())
   callModule(inputTables, "inputTables")

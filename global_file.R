@@ -39,7 +39,11 @@ appInfo <- list(
   ),
   copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
                     "Her Majesty the Queen in Right of Canada,",
-                    "as represented by the Minister of Natural Resources Canada.")
+                    "as represented by the Minister of Natural Resources Canada."),
+  support = list(
+    email = "dwismer@friresearch.ca",
+    name = "Dan Wismer"
+  )
 )
 
 # Options
