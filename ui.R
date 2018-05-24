@@ -28,7 +28,7 @@ dashboardPage(
       menuItem("Overview Diagrams", tabName = "simInfo", icon = icon("sitemap")),
       menuItem("Module Info", tabName = "moduleInfo", icon = icon("puzzle-piece")),
       menuItem("LBMR (Succession) Model Inputs", tabName = "inputTables", icon = icon("table")),
-      tags$hr(),
+
       downloadOutputsUI("downloadOutputs")
     ),
     sidebarFooterUI("sidebar")
