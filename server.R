@@ -44,7 +44,9 @@ function(input, output, session) {
                                      path = "uploads",
                                      user = userEmail()
                                    ),
-                                   rctStudyArea = rctStudyArea)
+                                   rctStudyArea = rctStudyArea,
+                                   omitPolys = c("AB Natural Sub Regions",
+                                                 "LandWeb Study Area")) ## TODO: remove this workaround
 
   rctPolygonListUser <- reactive({
     do.call(polygonList, append(rctChosenPolyUser()$polygons, list(studyArea = rctStudyArea())))
