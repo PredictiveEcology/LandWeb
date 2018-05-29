@@ -1,5 +1,5 @@
 numClusters <- 0
-source("ThousandYrFreeProprietary.R")
+source(file.path("R", "ThousandYrFreeProprietary.R"))
 subStudyRegionName <- "BC"
 authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free" "Proprietary"
 cacheIds4Experiment <- list("da34e6451516dfb638d00539af72d571", "1d14bc9f7a16788687bef13f22b41815")

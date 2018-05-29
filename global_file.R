@@ -90,7 +90,7 @@ if (any(c("emcintir") %in% Sys.info()["user"])) {
 }
 
 ## get additonal helper functions used throughout this shiny app
-source("functions.R")
+source(file.path("R", "functions.R"))
 
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 
@@ -133,7 +133,7 @@ successionTimestep <- 10 # was 2
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
 # "shpStudyRegion"     "shpStudyRegion"
-source("inputMaps.R") # source some functions
+source(file.path("R", "inputMaps.R")) # source some functions
 
 # These are used in inputTables.R for filling the tables of parameters in
 landisInputs <- readRDS(file.path(paths$inputPath, "landisInputs.rds"))
@@ -167,7 +167,7 @@ vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("l
 # This needs simInit call to be run already
 # a few map details for shiny app
 message("Preparing polygon maps for reporting histograms")
-source("colorPaletteForShiny.R")
+source(file.path("R", "colorPaletteForShiny.R"))
 labelColumn <- "shinyLabel"
 
 #############################
