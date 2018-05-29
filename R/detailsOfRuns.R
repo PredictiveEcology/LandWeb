@@ -28,7 +28,7 @@ dput(showCache(cP, userTags = c("reportingAndLeadingFn"))[tagKey=="cacheId"]$tag
 
 
 1. Get Free and Proprietary on one machine, copying cache/Free
-2. 
+2.
 
 # Overall model times # start is default at 0
 endTime <- 1000
@@ -49,36 +49,36 @@ subStudyRegionName <- if (nzchar(Sys.getenv("subStudyRegionName"))) {
 screen
 
 cd Documents/GitHub/LandWeb/
-  R -e 'source("App_MB.R")'
+Rscript -e 'source("params/App_MB.R")'
 
 # 171
 screen
 
 cd Documents/GitHub/LandWeb/
-  R -e 'source("App_NWT.R")'
+Rscript -e 'source("params/App_NWT.R")'
 
 # Nothing
 screen
 
 cd Documents/GitHub/LandWeb/
-R -e 'source("App_BC.R")'
+Rscript -e 'source("params/App_BC.R")'
 
 # 172
 screen
 
 cd Documents/GitHub/LandWeb/
-R -e 'source("App_SK.R")'
+Rscript -e 'source("params/App_SK.R")'
 
 # 388
 screen
 
 cd Documents/GitHub/LandWeb/
-R -e 'source("App_AB.R")'
+Rscript -e 'source("params/App_AB.R")'
 
 screen
 
 cd Documents/GitHub/LandWeb/
-R -e 'source("App_LandWeb.R")'
+Rscript -e 'source("params/App_LandWeb.R")'
 
 ############# FREE
 
@@ -89,7 +89,7 @@ screen
 cd Documents/GitHub/LandWeb/
   subStudyRegionName="MB"
 export subStudyRegionName
-R -e 'source("global_file.R")'
+Rscript -e 'source("global_file.R")'
 
 # 172
 screen
@@ -97,7 +97,7 @@ screen
 cd Documents/GitHub/LandWeb/
   subStudyRegionName="NWT"
 export subStudyRegionName
-R -e 'source("global_file.R")'
+Rscript -e 'source("global_file.R")'
 
 # 172
 screen
@@ -105,7 +105,7 @@ screen
 cd Documents/GitHub/LandWeb/
   subStudyRegionName="BC"
 export subStudyRegionName
-R -e 'source("global_file.R")'
+Rscript -e 'source("global_file.R")'
 
 # 388
 screen
@@ -113,7 +113,7 @@ screen
 cd Documents/GitHub/LandWeb/
   subStudyRegionName="AB"
 export subStudyRegionName
-R -e 'source("global_file.R")'
+Rscript -e 'source("global_file.R")'
 
 # 388
 screen
@@ -121,7 +121,7 @@ screen
 cd Documents/GitHub/LandWeb/
   subStudyRegionName="SK"
 export subStudyRegionName
-R -e 'source("global_file.R")'
+Rscript -e 'source("global_file.R")'
 
 
 
@@ -143,7 +143,7 @@ rsync -avzh emcintir@132.156.148.171:/home/emcintir/Documents/GitHub/LandWeb/out
 rsync -avzh emcintir@132.156.148.171:/home/emcintir/Documents/GitHub/LandWeb/www/Proprietary/NWT/* /home/emcintir/Documents/GitHub/LandWeb/www/Proprietary/NWT/
 
 # NWT Free
-# Already on 172 
+# Already on 172
 
 # SK
 rsync -avzh emcintir@132.156.149.44:/home/emcintir/Documents/GitHub/LandWeb/cache/SK/* /home/emcintir/Documents/GitHub/LandWeb/cache/SK/

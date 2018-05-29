@@ -3,4 +3,4 @@ gdalSet <- function() {
   getOption("gdalUtils_gdalPath")
 }
 
-source("simInitAndExperiment.R")
+source(file.path("R", "simInitAndExperiment.R"))

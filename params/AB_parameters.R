@@ -1,5 +1,5 @@
 numClusters <- 3
-source("ThousandYrFreeProprietary.R")
+source(file.path("R", "ThousandYrFreeProprietary.R"))
 subStudyRegionName <- "AB"
 authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free" "Proprietary"
 
