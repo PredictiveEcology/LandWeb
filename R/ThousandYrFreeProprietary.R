@@ -10,7 +10,7 @@ if (Sys.info()["sysname"] == "Linux" &&
 }
 lapplyFn <- if (useParallelCluster) "parLapplyLB" else "lapply"
 
-pathToLandWebApp <- "C:/Eliot/"
+pathToLandWebApp <- "C:/Eliot/" ## not used anywhere in the code; just a helper for Eliot
 
 # Overall model times # start is default at 0
 endTime <- 1500
