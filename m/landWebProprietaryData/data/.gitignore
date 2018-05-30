@@ -1,0 +1,6 @@
+*.grd
+*.gri
+
+CurrentCondition/
+Landweb_CASFRI_GIDs_README.txt
+*SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL*

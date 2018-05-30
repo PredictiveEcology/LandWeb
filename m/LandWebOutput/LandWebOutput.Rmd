@@ -1,14 +1,21 @@
 ---
 title: "LandWebOutput"
-author: ""
-date: "26 January 2017"
-output: pdf_document
+author: "Eliot McIntire and Alex M Chubaty"
+date: "18 May 2018"
+output:
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
 
 # Overview
 
-This module creates 3 raster layers, `seralStageMap`, `vegTypeMap`, and `oldBigPatch`. The module will save these layers to disk as scheduled by `summaryInterval`. These can then be used for post-processing.
-
+This module creates 3 raster layers, `seralStageMap`, `vegTypeMap`, and `oldBigPatch`. The module will save these layers to disk as scheduled by `summaryInterval`.
+These can then be used for post-processing.
 
 # Usage
 
@@ -16,7 +23,7 @@ This module creates 3 raster layers, `seralStageMap`, `vegTypeMap`, and `oldBigP
 library(igraph)
 library(SpaDES)
 
-moduleDir <- file.path("C:/Users/yonluo/Documents/GitHub/LandWeb")
+moduleDir <- file.path("~/GitHub/LandWeb")
 inputDir <- file.path(moduleDir, "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(moduleDir, "outputs")
 cacheDir <- file.path(outputDir, "cache")
@@ -42,3 +49,6 @@ mySim <- simInit(times = times, params = parameters, modules = modules,
 spades(mySim)
 ```
 
+# References
+
+<!-- automatically generated; see https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html -->

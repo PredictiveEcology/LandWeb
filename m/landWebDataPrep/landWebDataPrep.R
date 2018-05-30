@@ -14,31 +14,29 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "landWebDataPrep.Rmd"),
-  reqdPkgs = list("data.table", "raster", "sp", "magrittr"),
+  reqdPkgs = list("data.table", "raster", "sp", "magrittr", "R.utils", "PredictiveEcology/SpaDES.tools@development"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
-    defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events")
+    defineParameter(".saveInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between save events"),
+    defineParameter(".useCache", "ANY", c(".inputObjects", "init"), NA, NA, "This describes the simulation time interval between save events")
   ),
   inputObjects = bind_rows(
     #expectsInput("objectName", "objectClass", "input object description", sourceURL, ...),
-    expectsInput(objectName = "calibrate", objectClass = "logical",
-                 desc = "determine whether all the growth and mortality in LBMR are detailed recorded, default is FALSE", 
-                 sourceURL = ""),
     expectsInput(objectName = "shpStudyRegionFull", objectClass = "SpatialPolygonsDataFrame",
-                 desc = "this shape file contains two informaton: Full study areawith fire return interval attribute", 
+                 desc = "this shape file contains two informaton: Full study area with fire return interval attribute",
                  #sourceURL = "https://ln.sync.com/dl/4c0ccab80#txwgbma8-d7ta56ar-4pf8rp5d-icpis7ga"), # i guess this is study area and fire return interval
                  sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame",
-                 desc = "this shape file contains two informaton: Subset of the study area, with fire return interval attribute", 
+                 desc = "this shape file contains two informaton: Subset of the study area, with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
-    expectsInput(objectName = "biomassMap", objectClass = "RasterLayer", 
-                 desc = "total biomass raster layer in study area, default is canada national biomass map", 
+    expectsInput(objectName = "biomassMap", objectClass = "RasterLayer",
+                 desc = "total biomass raster layer in study area, default is canada national biomass map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar"),
-    expectsInput(objectName = "LCC2005", objectClass = "RasterLayer", 
-                 desc = "2005 land classification map in study area, default is canada national land classification in 2005", 
+    expectsInput(objectName = "LCC2005", objectClass = "RasterLayer",
+                 desc = "2005 land classification map in study area, default is canada national land classification in 2005",
                  sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip")
   ),
   outputObjects = bind_rows(
@@ -48,14 +46,12 @@ defineModule(sim, list(
                  desc = "output as input for Boreal_LBMRDataPrep"),
     createsOutput(objectName = "calibrate", objectClass = "logical",
                   desc = "output as input for Boreal_LBMRDataPrep"),
-    createsOutput(objectName = "LCC2005", objectClass = "RasterLayer", 
+    createsOutput(objectName = "LCC2005", objectClass = "RasterLayer",
                   desc = "output as input for Boreal_LBMRDataPrep"),
-    createsOutput(objectName = "biomassMap", objectClass = "RasterLayer", 
-                  desc = "output as input for Boreal_LBMRDataPrep"),
-    createsOutput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame", 
-                 desc = "output as input for initBaseMaps"),
-    createsOutput(objectName = "LCC05X", objectClass = "RasterLayer", 
-                 desc = "output as input for initBaseMaps")
+    createsOutput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame",
+                 desc = "output as input for initBaseMaps")#,
+    # createsOutput(objectName = "LCC05X", objectClass = "RasterLayer",
+    #              desc = "output as input for initBaseMaps")
   )
 ))
 
@@ -66,10 +62,10 @@ doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
-    
+
     # do stuff for this event
-    sim <- sim$landWebDataPrepInit(sim)
-    
+    sim <- Init(sim)
+
     # schedule future event(s)
     sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "landWebDataPrep", "plot")
     sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "landWebDataPrep", "save")
@@ -78,23 +74,23 @@ doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
     # do stuff for this event
     #Plot(objectFromModule) # uncomment this, replace with object to plot
     # schedule future event(s)
-    
+
     # e.g.,
     #sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "landWebDataPrep", "plot")
-    
+
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "save") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
-    
+
     # e.g., call your custom functions/methods here
     # you can define your own methods below this `doEvent` function
-    
+
     # schedule future event(s)
-    
+
     # e.g.,
     # sim <- scheduleEvent(sim, time(sim) + increment, "landWebDataPrep", "save")
-    
+
     # ! ----- STOP EDITING ----- ! #
   } else {
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
@@ -109,31 +105,23 @@ doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initialization
-landWebDataPrepInit <- function(sim) {
+Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
   projection(sim$LCC2005) <- projection(sim$biomassMap)
   sim$studyArea <- spTransform(sim$shpStudySubRegion, crs(sim$biomassMap))
   sim$shpStudySubRegion <- sim$studyArea
-  sim$LCC05X <- sim$LCC2005
+  # sim$LCC05X <- sim$LCC2005
+  sim$calibrate <- FALSE
+
   return(invisible(sim))
 }
 
 ### template for save events
-landWebDataPrepSave <- function(sim) {
+Save <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   sim <- saveFiles(sim)
-  
-  # ! ----- STOP EDITING ----- ! #
-  return(invisible(sim))
-}
 
-### template for plot events
-landWebDataPrepPlot <- function(sim) {
-  # ! ----- EDIT BELOW ----- ! #
-  # do stuff for this event
-  #Plot("object")
-  
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -153,116 +141,46 @@ landWebDataPrepPlot <- function(sim) {
   # if(!('defaultColor' %in% sim$userSuppliedObjNames)) {
   #  defaultColor <- 'red'
   # }
-  
-  dataPath <- file.path(modulePath(sim), "landWebDataPrep", "data")
-  
-  # 1. test if all input objects are already present (e.g., from inputs, objects or another module)
-  needDownloads <- is.null(sim$biomassMap) | is.null(sim$LCC2005) | 
-    !all(sim$.userSuppliedObjNames %in% c("LCC2005", "biomassMap"))
-  
-  # 2. if any missing, start downloading
-  if(needDownloads) {
-    dataPathFiles <- dir(dataPath)
-    # downloadData will download zips, tars etc. as per sourceURL. 
-    # checksums.txt has all the necessary "final" files, i.e., after downloading, 
-    #   untaring, unzipping, cropping
-    dd <- downloadData(module = "landWebDataPrep", path = modulePath(sim), 
-                quickCheck = .quickCheck)
-    biomassMapFilename <- file.path(dataPath, grep(dd$expectedFile, value = TRUE, 
-                                                   pattern = "TotalLiveAboveGround"))
-    
-    lcc2005Filename <- file.path(dataPath, grep(dd$expectedFile, value = TRUE, 
-                            pattern = "LCC2005"))
-  
-    # dd shows which expected files don't have actual files  
-    # Some may fail, i.e., there are intermediate steps, or missing end files
-    # 3. if any not "OK", go through one input object at a time
-    if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
-      checkTable <- data.table(dd)
-      needBiomass <- is.na(dd$result[dd$expectedFile==basename(biomassMapFilename)]) | 
-        (dd$result[dd$expectedFile==basename(biomassMapFilename)] != "OK")
-      needLCC <- is.na(dd$result[dd$expectedFile==basename(lcc2005Filename)]) | 
-          (dd$result[dd$expectedFile==basename(lcc2005Filename)] != "OK")
-        
-      # Untar and unzip
-      if(needBiomass) {
-        intermediateBiomass <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
-        if (!file.exists(intermediateBiomass)) {
-          message("  Unzipping Biomass")
-          if (!file.exists(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))) {
-            untar(file.path(dataPath, "kNN-StructureBiomass.tar"),
-                  files = "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip",
-                  exdir = dataPath, tar = "internal")
-          }
-          unzip(file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"),
-                exdir = dataPath, overwrite = TRUE)
-        }
-        biomassMapFilenameSmall <- biomassMapFilename
-        biomassMapFilename <- file.path(dataPath, strsplit(biomassMapFilename, split = "Small")[[1]][2])
-      }
-      if(needLCC) {
-        intermediateLCC <- file.path(dataPath, "LCC2005_V1_4a.tif")
-        if(!file.exists(intermediateLCC)) {
-          message("  Unzipping LCC2005")
-          unzip(file.path(dataPath, "LandCoverOfCanada2005_V1_4.zip"),
-                exdir = dataPath, overwrite = TRUE) 
-        }
-        lcc2005FilenameSmall <- lcc2005Filename
-        lcc2005Filename <- file.path(dataPath, strsplit(lcc2005Filename, split = "Small")[[1]][2])
-      }
-    }
-    
-    # 4. load all input objects
-    sim$biomassMap <- raster(biomassMapFilename)
-    sim$LCC2005 <- raster(lcc2005Filename)
-    LCC2005LayerName <- names(sim$LCC2005) 
-    projection(sim$LCC2005) <- projection(sim$biomassMap)
-    
-    # 5. if there is a shpStudyRegionFull, then crop all relevant files
-    # Cropping to shpStudyRegionFull
-    if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
-      if(!is.null(sim$shpStudyRegionFull)) {
-        if(needBiomass) {
-          sim$shpStudyRegionFull <- spTransform(sim$shpStudyRegionFull, crs(sim$biomassMap))
-          sim$biomassMap <- crop(sim$biomassMap, sim$shpStudyRegionFull,
-                                 overwrite=TRUE, format = "GTiff", datatype = "INT2U",
-                                 filename = file.path(dataPath, 
-                                                      basename(biomassMapFilenameSmall)))
-          if(!file.exists(biomassMapFilenameSmall)) {
-            sim$biomassMap <- writeRaster(sim$biomassMap, filename = biomassMapFilenameSmall, datatype = "INT2U",
-                                       format = "GTiff")
-          }
-        }
-        
-        if(needLCC) {
-          sim$LCC2005 <- crop(sim$LCC2005, sim$shpStudyRegionFull,
-                              filename = lcc2005FilenameSmall, 
-                              overwrite=TRUE)
-          if(!file.exists(lcc2005FilenameSmall)) {
-            sim$LCC2005 <- writeRaster(sim$LCC2005, filename = lcc2005FilenameSmall, datatype = "INT2U",
-                                       format = "GTiff")
-          }
-            
-        }
-        
-      } else {
-        message("  landWebDataPrep.R expects a shpStudyRegionFull object to crop biomassMap and LCC2005 to")
-      }
-    } 
-    if(!isTRUE(all(dd$result=="OK"))) { # might be NA, which returns NA for the == "OK"
-      a <- checksums("landWebDataPrep", modulePath(sim), write = TRUE)
-      a <- a[grep(a$file, pattern = ".tar|.zip|^LCC2005_V1|^NFI", invert = TRUE),]
-      write.table(a, file = file.path(dataPath, "CHECKSUMS.txt"), row.names = FALSE)
-      message("*** Created a new CHECKSUMS.txt file with downloaded objects for ","landWebDataPrep","***")
-    }
+
+  dataPath <- dataPath(sim)
+  biomassMapFilename <- file.path(dataPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
+  lcc2005Filename <- file.path(dataPath, "LCC2005_V1_4a.tif")
+
+  if (!suppliedElsewhere("biomassMap")) {
+    sim$biomassMap <- Cache(prepInputs,
+                            targetFile = biomassMapFilename,
+                            archive = asPath(file.path(dataPath, c("kNN-StructureBiomass.tar",
+                                                                   "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))),
+                            destinationPath = asPath(dataPath),
+                            fun = "raster::raster",
+                            studyArea = sim$shpStudySubRegion,
+                            rasterToMatch = NULL, # use the projection of this raster
+                            method = "bilinear",
+                            datatype = "INT2U",
+                            postProcessedFilename = TRUE,
+                            userTags = c("stable", currentModule(sim)))
   }
-  sim$calibrate <- FALSE
-  
+
+  if (!suppliedElsewhere("LCC2005")) {
+    sim$LCC2005 <- Cache(prepInputs,
+                         targetFile = lcc2005Filename,
+                         archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
+                         destinationPath = asPath(dataPath),
+                         studyArea = sim$shpStudySubRegion,
+                         rasterToMatch = sim$biomassMap,
+                         method = "bilinear",
+                         datatype = "INT2U",
+                         postProcessedFilename = TRUE,
+                         cacheRepo = cachePath(sim),
+                         userTags = currentModule(sim))
+    projection(sim$LCC2005) <- projection(sim$biomassMap)
+  }
+
   # If there is no study Area, use a random one
-  if(is.null(sim$shpStudyRegionFull)) {
+  if (!suppliedElsewhere("shpStudyRegionFull")) {
     sim$shpStudyRegionFull <- SpaDES.tools::randomPolygon(cbind(-110, 59), 1e5) # somewhere in N-Central Canada
   }
-  if(is.null(sim$shpStudySubRegion)) {
+  if (!suppliedElsewhere("shpStudySubRegion")) {
     sim$shpStudySubRegion <- sim$shpStudyRegionFull
   }
   return(invisible(sim))
