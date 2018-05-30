@@ -1,9 +1,16 @@
 ---
 title: "makeLeafletTiles"
-author: ""
-date: "15 February 2018"
-output: pdf_document
+author: "Eliot McIntire and Alex M Chubaty"
+date: "18 May 2018"
+output:
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
 
 # Overview
 
@@ -23,7 +30,7 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 ```{r module_usage}
 library(SpaDES)
 
-setPaths(modulePath = file.path("C:/Eliot/GitHub/LandWeb/m"))
+setPaths(modulePath = file.path("~GitHub/LandWeb/m"))
 getPaths() # shows where the 4 relevant paths are
 
 times <- list(start = 0, end = 10)

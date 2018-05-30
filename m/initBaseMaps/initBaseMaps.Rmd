@@ -2,22 +2,29 @@
 title: "initBaseMaps"
 author: "Steve Cumming"
 date: "15 October 2016"
-output: pdf_document
+output:
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+bibliography: bibliography.bib
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
 
 # Overview
 
-Loads, reprojects and crops all initial maps and shapefile required to run LandWEB models.
+Loads, reprojects and crops all initial maps and shapefile required to run LandWeb models.
 
 It is based on the crop module developed by McIntire in 2015. 
 
-The present version faciitate testing of the LandWEB neutral fire model.
+The present version faciitate testing of the LandWeb neutral fire model.
 
 All the objects to be processes are assumed to already exist in the sim list, having been specified as inputs in any model containing this module.
 
-We assume that a Canada Landcover 2005 \cite{latifovic2008} map will exists as 
-**sim$LCC05**  and that shapefile **sim$shpStudyRegion**  will exist to delineate the study region.
-
+We assume that a Canada Landcover 2005 [@latifovic2008] map will exists as 
+`sim$LCC05`  and that shapefile `sim$shpStudyRegion`  will exist to delineate the study region.
 
 # Events
 
@@ -40,10 +47,10 @@ canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
 dev()
 clearPlot()
 Plot(canadaMap, speedup = 5, visualSqueeze = 0.9) # 5 seemed optimal
-if(!exists("shpStudyRegionFull")) {
+if (!exists("shpStudyRegionFull")) {
   message("Since there is no object called 'shpStudyRegionFull', please draw a study area with 10 points")
   severalrandompoints <- Cache(clickCoordinates, 10, cacheRepo = cachePath)
-  if(startsWith(attr(severalrandompoints, "tags"), "cache")) message("Taking shpStudyRegionFull from Cache")
+  if (startsWith(attr(severalrandompoints, "tags"), "cache")) message("Taking shpStudyRegionFull from Cache")
   shpStudyRegionFull <- SpatialPolygons(list(Polygons(list(Polygon(severalrandompoints$coords)), ID = 1)),
                                proj4string = crs(canadaMap))
 }
@@ -69,3 +76,6 @@ simOut <- spades(mySim)
 
 ```
 
+# References
+
+<!-- automatically generated; see https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html -->

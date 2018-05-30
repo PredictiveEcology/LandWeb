@@ -39,10 +39,10 @@ defineModule(sim, list(
                  desc = "this shape file contains two informaton: Full study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput(objectName = "SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.zip", objectClass = "RasterStack",
-                 desc = "biomass percentage raster layers by species in Canada species map, created by Pickell et al, UBC, resolution 100m x 100m from LandSat and KNN based on CASFRI",
+                 desc = "biomass percentage raster layers by species in Canada species map, created by Pickell et al., UBC, resolution 100m x 100m from LandSat and kNN based on CASFRI.",
                  sourceURL = "https://drive.google.com/open?id=1M_L-7ovDpJLyY8dDOxG3xQTyzPx2HSg4"),
     expectsInput(objectName = "CASFRI for Landweb.zip", objectClass = "RasterStack",
-                 desc = "biomass percentage raster layers by species in Canada species map, created by Pickell et al, UBC, resolution 100m x 100m from LandSat and KNN based on CASFRI",
+                 desc = "biomass percentage raster layers by species in Canada species map, created by Pickell et al., UBC, resolution 100m x 100m from LandSat and kNN based on CASFRI.",
                  sourceURL = "https://drive.google.com/file/d/1y0ofr2H0c_IEMIpx19xf3_VTBheY0C9h/view?usp=sharing")
   ),
   outputObjects = bind_rows(
@@ -78,7 +78,7 @@ Init <- function(sim) {
     options(httr_oauth_cache = oauthFilePath)
     oauthFilePath
   } else if (grepl("VIC-A", Sys.info()["nodename"])) {
-    sessionCacheFile 
+    sessionCacheFile
   } else {
     FALSE
   }
@@ -125,19 +125,19 @@ Init <- function(sim) {
     if (P(sim)$useParallel > 1) data.table::setDTthreads(P(sim)$useParallel)
     loadedCASFRI <- Cache(loadCASFRI, CASFRIRas, CASFRIattrFile, CASFRIheaderFile,
                           # destinationPath = asPath(dPath),
-                          # debugCache = "complete", 
+                          # debugCache = "complete",
                           userTags = c("stable", "BigDataTable"))
 
     message("Make stack of species layers from Paul's layer")
     uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
     # "Abie_sp"  "Betu_pap" "Lari_lar" "Pice_gla" "Pice_mar" "Pinu_sp" "Popu_tre"
     PaulSpStack <- Cache(makePaulStack, paths = lapply(paths(sim), basename),
-                         PaulRaster = Paul, uniqueKeepSp, destinationPath = dPath, 
+                         PaulRaster = Paul, uniqueKeepSp, destinationPath = dPath,
                          userTags = "stable")
     crs(PaulSpStack) <- crs(sim$biomassMap) # bug in writeRaster
 
     message('Make stack from CASFRI data and headers')
-    CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI, 
+    CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI,
                            destinationPath = dPath, userTags = "stable")
 
     message("Overlay Paul and CASFRI stacks")
@@ -147,7 +147,7 @@ Init <- function(sim) {
 
     message("Overlay Paul_CASFRI with open data set stacks")
     specieslayers2 <- Cache(overlayStacks, outStack, sim$specieslayers,
-                            outputFilenameSuffix = "CASFRI_PAUL_KNN", 
+                            outputFilenameSuffix = "CASFRI_PAUL_KNN",
                             destinationPath = dPath, userTags = "stable")
     crs(specieslayers2) <- crs(sim$biomassMap)
     sim$specieslayers <- specieslayers2
@@ -172,7 +172,7 @@ Init <- function(sim) {
                             postProcessedFilename = TRUE,
                             userTags = c("stable", currentModule(sim)))
   }
-  
+
   if (!suppliedElsewhere("shpStudySubRegion")) {
     stop("shpStudySubRegion is required. Please supply a polygon of the study area")
   }
