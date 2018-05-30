@@ -8,6 +8,12 @@ landweb.ca (104.37.196.228)
 
 Ubuntu 16.04 was pre-installed with user `ubuntu`.
 
+Create a new (non-admin) user for use with Rstudio:
+
+```bash
+sudo adduser achubaty
+```
+
 ### System setup
 
 ```bash
@@ -190,20 +196,47 @@ devtools::install_github("PredictiveEcology/SpaDES.shiny@generalize-modules")
 ### GitHub config
 
 ```bash
+# switch user
+su achubaty
+cd /home/achubaty
+
+# git config
 git config --global core.editor nano
 git config --global user.name "LandWeb.ca"
 git config --global user.email "alex.chubaty+landweb@gmail.com"
 
 # Make directory for receiving app data
-mkdir -p ~/Documents/GitHub
+mkdir -p ~/Documents/GitHub/
+```
 
-# Connect to github
+#### SSH keys
+
+Create ssh key for use with GitHub:
+
+```bash
 ssh-keygen -t rsa -b 4096 -C "alex.chubaty+landweb@gmail.com"
 eval $(ssh-agent -s)
 ssh-add ~/.ssh/id_rsa_github
 cat ~/.ssh/id_rsa_github.pub
+```
 
-# clone repository
+Copy the output and add the key at GitHub.com.
+See https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account/.
+
+#### SSH config
+
+Edit `~/.ssh/config` to add:
+
+```
+Host github.com
+	HostName github.com
+	IdentityFile ~/.ssh/id_rsa_github
+	User git
+```
+
+#### Repository setup
+
+```bash
 cd ~/Documents/GitHub/
 
 # git clone git@github.com:PredictiveEcology/quickPlot.git
@@ -220,6 +253,14 @@ git submodule update --init --recursive
 ## Copy app data/outputs to new server
 
 ```bash
+## rsync from 342 to landweb.ca
+rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/LandWeb/
+
+ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo chown -R shiny:shiny /srv/shiny-server/LandWeb/. && sudo chmod 775 -R /srv/shiny-server/LandWeb/.'
+
+ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo systemctl restart shiny-server.service'
+
+# or log onto remote server
 ssh -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca
 sudo mkdir /srv/shiny-server/LandWeb
 sudo chown -R shiny:shiny /srv/shiny-server/LandWeb
@@ -246,7 +287,7 @@ server_name landweb.ca
 listen 80;
 
 app_idle_timeout 24000; # 6 hours
-google_analytics_id UA-XXXXX;
+google_analytics_id UA-119802371-1;
 ```
 
 ```bash
@@ -293,10 +334,12 @@ sudo service fail2ban restart
 ### Copy app files
 
 ```bash
-## rsync 388 directly to 342
-rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/Landweb/
+## rsync directly from 342
+rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/cache/* ubuntu@landweb.ca:/home/ubuntu/Documents/GitHub/LandWeb/cache/
+rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/outputs/* ubuntu@landweb.ca:/home/ubuntu/Documents/GitHub/LandWeb/outputs/
+rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/www ubuntu@landweb.ca:/home/ubuntu/Documents/GitHub/LandWeb/
 
 ## create symlinks
-rm -r /home/ubuntu/Documents/GitHub/LandWeb
-ln -s /srv/shiny-server/LandWeb/ /home/ubuntu/Documents/GitHub/LandWeb
+rm -r /home/achubaty/Documents/GitHub/LandWeb
+ln -s /srv/shiny-server/LandWeb/ /home/achubaty/Documents/GitHub/LandWeb
 ```

@@ -39,7 +39,13 @@ appInfo <- list(
   ),
   copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
                     "Her Majesty the Queen in Right of Canada,",
-                    "as represented by the Minister of Natural Resources Canada.")
+                    "as represented by the Minister of Natural Resources Canada."),
+  support = list(
+    model.email = "eliot.mcintire@canada.ca",
+    model.name = "Eliot McIntire",
+    tech.email = "dwismer@friresearch.ca",
+    tech.name = "Dan Wismer"
+  )
 )
 
 # Options
@@ -51,6 +57,12 @@ options(spades.browserOnError = FALSE)
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
                                         "https://www.googleapis.com/auth/userinfo.email",
                                         "https://www.googleapis.com/auth/userinfo.profile"))
+
+## LandWeb.ca (live version)
+#options(googleAuthR.webapp.client_id = "680957910261-kmlslu6vu0fo9129oj1fckksapg94gja.apps.googleusercontent.com")
+#options(googleAuthR.webapp.client_secret = "Qe0TE327wRf9DYM-BEhDxe4a")
+
+## LandWeb.org (Alex's development version)
 options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
 options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
 options(httr_oob_default = TRUE)
