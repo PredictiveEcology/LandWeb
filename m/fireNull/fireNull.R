@@ -5,7 +5,7 @@ defineModule(sim, list(
   name = "fireNull",
   description = "implement a spatially stratified vanWagner fire model",
   keywords = c("fire cycle", "burn probability"),
-  authors = c(person(c("Steven", "G"), "Cumming", email="stevec@sbf.ulaval.ca", role=c("aut", "cre"))),
+  authors = c(person(c("Steven", "G"), "Cumming", email = "stevec@sbf.ulaval.ca", role = c("aut", "cre"))),
   childModules = character(),
   version = numeric_version("1.1.1.9001"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
@@ -16,13 +16,13 @@ defineModule(sim, list(
   reqdPkgs = list("raster", "Rcpp"),
   parameters = rbind( #should initial times be 0 or 1?
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
-    defineParameter("returnInterval", "numeric", 1.0, NA, NA, desc="interval between main events"),
-    defineParameter("startTime","numeric", 0, NA, NA, desc="time of first burn event"),
-    defineParameter(".plotInitialTime", "numeric", NA, NA, NA, desc="This describes the simulation time at which the first plot event should occur"),
-    defineParameter(".plotInterval", "numeric", NA, NA, NA, desc="This describes the simulation time at which the first plot event should occur"),
-    defineParameter(".saveInitialTime", "numeric", NA, NA, NA, desc="This describes the simulation time at which the first save event should occur"),
-    defineParameter(".saveInterval", "numeric", NA, NA, NA, desc="This describes the simulation time at which the first save event should occur"),
-    defineParameter(".statsInitialTime", "numeric", NA, NA, NA, desc="This describes the simulation time at which the first stats event should occur")
+    defineParameter("returnInterval", "numeric", 1.0, NA, NA, desc = "interval between main events"),
+    defineParameter("startTime","numeric", 0, NA, NA, desc = "time of first burn event"),
+    defineParameter(".plotInitialTime", "numeric", NA, NA, NA, desc = "This describes the simulation time at which the first plot event should occur"),
+    defineParameter(".plotInterval", "numeric", NA, NA, NA, desc = "This describes the simulation time at which the first plot event should occur"),
+    defineParameter(".saveInitialTime", "numeric", NA, NA, NA, desc = "This describes the simulation time at which the first save event should occur"),
+    defineParameter(".saveInterval", "numeric", NA, NA, NA, desc = "This describes the simulation time at which the first save event should occur"),
+    defineParameter(".statsInitialTime", "numeric", NA, NA, NA, desc = "This describes the simulation time at which the first stats event should occur")
   ),
   inputObjects = data.frame(
     #should LCC05, the fire regime shapefile and the study area raster be specified?

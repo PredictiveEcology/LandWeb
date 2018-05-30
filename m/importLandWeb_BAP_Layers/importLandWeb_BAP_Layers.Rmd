@@ -1,9 +1,16 @@
 ---
 title: "importLandWeb_BAP_Layers"
-author: ""
-date: "16 December 2016"
-output: pdf_document
+author: "Eliot McIntire and Alex M Chubaty"
+date: "18 May 2018"
+output:
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
 
 # Overview
 
@@ -24,7 +31,7 @@ For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 library(igraph)
 library(SpaDES)
 
-moduleDir <- file.path("C:/Eliot/SpaDES/modules")
+moduleDir <- file.path("~/SpaDES/modules")
 inputDir <- file.path(moduleDir, "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(moduleDir, "outputs") %>% checkPath(create = TRUE)
 cacheDir <- file.path(outputDir, "cache") %>% checkPath(create = TRUE)
@@ -77,3 +84,6 @@ Description of the module outputs.
 
 Describe any anticipated linkages to other modules.
 
+# References
+
+<!-- automatically generated; see https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html -->

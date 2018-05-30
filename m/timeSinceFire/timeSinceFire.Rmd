@@ -2,8 +2,15 @@
 title: "timeSinceFire"
 author: "Steve Cummming"
 date: "21 October 2016"
-output: pdf_document
+output:
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
 
 # Overview
 
