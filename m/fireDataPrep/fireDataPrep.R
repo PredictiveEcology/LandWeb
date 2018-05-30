@@ -1,8 +1,3 @@
-
-
-
-
-
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(
@@ -11,12 +6,7 @@ defineModule(
     name = "fireDataPrep",
     description = "basic data preparation for LCC05 based fire models",
     keywords = c("LCC05"),
-    authors = c(person(
-      c("Steve", "G"),
-      "Cumming",
-      email = "stevec@sbf.ulaval.ca",
-      role = c("aut", "cre")
-    )),
+    authors = c(person(c("Steve", "G"), "Cumming", email = "stevec@sbf.ulaval.ca", role = c("aut", "cre"))),
     childModules = character(),
     version = numeric_version("1.2.0.9005"),
     spatialExtent = raster::extent(rep(NA_real_, 4)),
@@ -130,11 +120,11 @@ Init <- function(sim) {
       filename = file.path(outputPath(sim), "rstFlammable"),
       overwrite = TRUE
     )
-  
+
   setColors(sim$rstFlammable, n = 2) <-
     colorRampPalette(c("blue", "red"))(2)
   sim$rstFlammable[is.na(sim$rstStudyRegion[])] <- NA
-  
+
   # Much faster than call rasterize again
   return(invisible(sim))
 }
@@ -142,7 +132,7 @@ Init <- function(sim) {
 
 .inputObjects = function(sim) {
   # if (is.null(sim$shpStudyRegion)) {
-  
+
   #   sim$shpStudyRegion <- randomPolygon(matrix(c(-90, 60), ncol = 2), 5)
   # }
   # if (is.null(sim$LCC05)) {
@@ -151,7 +141,7 @@ Init <- function(sim) {
   # if (is.null(sim$rstStudyRegion)) {
   #   sim$rstStudyRegion <- rasterize(sim$shpStudyRegion, sim$LCC05)
   # }
-  
+
   return(invisible(sim))
 }
 ### add additional events as needed by copy/pasting from above
