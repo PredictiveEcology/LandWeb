@@ -1,8 +1,8 @@
-
-
-if (Sys.info()["sysname"]=="Linux" && parallel::detectCores()>numClusters && numClusters > 0) {
+if (Sys.info()["sysname"] == "Linux" &&
+    parallel::detectCores() > numClusters &&
+    numClusters > 0) {
   useParallelCluster <- TRUE
-  numClus <- 8
+  numClus <- min(8, parallel::detectCores() / 2)
   cl6 <- NULL
 } else {
   useParallelCluster <- FALSE
