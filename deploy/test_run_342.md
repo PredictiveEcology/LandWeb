@@ -10,7 +10,8 @@ drive_download(as_id("https://drive.google.com/file/d/1y0ofr2H0c_IEMIpx19xf3_VTB
 ## Run the app
 
 ```r
-source("LandWeb_parameters.R")
+## see app/App_Landweb.R
+source("params/LandWeb_parameters.R")
 file.copy("global_file.R", "global.R", overwrite = TRUE)
 shiny::runApp(".", launch.browser = TRUE, port = 5921)
 ```
