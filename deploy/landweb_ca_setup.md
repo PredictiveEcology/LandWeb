@@ -251,7 +251,7 @@ cd ~/Documents/GitHub/
 # git clone git@github.com:PredictiveEcology/SpaDES.tools.git
 
 git clone --recurse-submodules git@github.com:eliotmcintire/LandWeb.git
-git checkout reactive-sims
+git checkout development
 git submodule update --init --recursive
 ```
 
