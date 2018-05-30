@@ -43,8 +43,8 @@ defineModule(sim, list(
     createsOutput("reportingPolygons", "list", ""),
     createsOutput("tsfRasterTilePaths", "list", ""),
     createsOutput("tsfRasters", "list", ""),
-    createsOutput("tsfs", "list", ""), 
-    createsOutput("tsfsCC", "list", ""), 
+    createsOutput("tsfs", "list", ""),
+    createsOutput("tsfsCC", "list", ""),
     createsOutput("vtms", "list", ""),
     createsOutput("getAllIfExists", "function", "")
   )
@@ -84,36 +84,36 @@ Init <- function(sim) {
       grep(pattern = ".grd$|.tif$", x$file, value = TRUE)
     }) %>% unlist()
   })
-  
+
   extractFilepaths <- function(filename, rastersFromOutput) {
     grep(pattern = filename, rastersFromOutput, value = TRUE)
   }
-  
+
   # convert paths to local machine -- this will do nothing if prior runs were on this machine
   pathConversions <- list(pattern = c("outputsFULL", "/home/emcintir/Documents/GitHub/LandWeb/"),
                           replacement = c("outputs/FULL_Proprietary", paste0(getwd(), "/")))
   sim$tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
     fps <- grep(pattern = "rstTimeSinceFire", rastersFromOutput, value = TRUE)
-    fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+    fps <- convertPaths(fps, pattern = pathConversions$pattern,
                         replacement = pathConversions$replacement)
     asPath(fps, 2) # the tsfs, if used in a Cache situation, should be Cached to 2 parent directories
   })
-  
+
   sim$vtms <- lapply(rastersFromOutputs, function(rastersFromOutput) {
     fps <- grep(pattern = "vegTypeMap", rastersFromOutput, value = TRUE)
-    fps <- convertPaths(fps, pattern = pathConversions$pattern, 
+    fps <- convertPaths(fps, pattern = pathConversions$pattern,
                         replacement = pathConversions$replacement)
     asPath(fps, 2)
   })
-  
+
   # remove any files that don't exist. This should never happen, but it did once
   sim$tsfs <- lapply(sim$tsfs, function(x) {
     x[file.exists(x)]})
   sim$vtms <- lapply(sim$vtms, function(x) {
     x[file.exists(x)]})
-  
+
   tsfLFLTFilenames <- lapply(sim$tsfs, function(tsf) SpaDES.tools::.suffix(tsf, "LFLT") )
-  
+
   rasterResolutions <- lapply(sim$tsfs, function(x) raster(x[1]) %>% res(.))
   rasterResolutions <- lapply(sim$tsfs, function(x) {
     raster(x[1]) %>% res(.)
@@ -125,18 +125,18 @@ Init <- function(sim) {
                         replacement = pathConversions$replacement)
     asPath(fps, 2)
   })
-  
+
   sim$tsfRasters <- Cache(Map, tsf = sim$tsfs,
                       userTags = c("reprojectRasts", "tsf", "tsfs"),
                       cacheId = cacheId$tsfRasters,
                       lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
-  
-  sim$tsfRasters <- convertRasterFileBackendPath(sim$tsfRasters, 
+
+  sim$tsfRasters <- convertRasterFileBackendPath(sim$tsfRasters,
                                              pattern = pathConversions$pattern,
                                              replacement = pathConversions$replacement)
-  
-  
+
+
   sim$tsfRasterTilePaths <- Cache(Map, rst = sim$tsfRasters, modelType = names(sim$tsfRasters),
                               userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
                               cacheId = cacheId$tsfRasterTilePaths,
@@ -154,8 +154,8 @@ Init <- function(sim) {
                                 #}
                                 return(filenames)
                               })
-  
-  
+
+
   vtmsTifs <- Cache(lapply, sim$vtms, #notOlderThan = Sys.time(),
                     cacheId = cacheId$vtmsTifs,
                     userTags = c("writeRaster", "tifs"),
@@ -167,16 +167,16 @@ Init <- function(sim) {
                       return(unlist(lapply(vtmTifs, filename)))
                     })
   vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.tools::.suffix(vtm, "LFLT") )
-  
+
   vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
                       cacheId = cacheId$vtmRasters,
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
-  
-  vtmRasters <- convertRasterFileBackendPath(vtmRasters, 
+
+  vtmRasters <- convertRasterFileBackendPath(vtmRasters,
                                              pattern = pathConversions$pattern,
                                              replacement = pathConversions$replacement)
-  
+
   vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                               userTags = c("gdal2Tiles", "vtm", "vtms"),
                               cacheId = cacheId$vtmRasterTilePaths,
@@ -187,15 +187,15 @@ Init <- function(sim) {
                                                         zoomRange = zoomRange, colorTableFile = colorTableFile)
                                 return(filenames)
                               })
-  
-  
+
+
   ########################################################
   # formerly in mapsForShiny.R
   # Reporting polygons
-  
+
   ### CURRENT CONDITION ##################################
   message("Loading Current Condition Rasters")
-  
+
   dPath <- dataPath(sim)
   CCspeciesNames <- list(Free = c(),
                          Proprietary = c("Pine", "Age", "BlackSpruce", "Deciduous", "Fir", "LandType", "WhiteSpruce"))
