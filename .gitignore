@@ -13,6 +13,7 @@
 
 ## cache files
 cache/
+cache
 
 ## R and Rstudio files
 rsconnect/shinyapps.io/landweb/LandWebDemo.dcf

@@ -29,3 +29,6 @@ exit
 
 sudo chown -R :landweb /mnt/shared/LandWeb
 sudo chmod -R g+w /mnt/shared/LandWeb
+
+## backup LandWeb outputs on 342
+rsync -avP /mnt/shared/LandWeb/ /mnt/data/LandWeb-backup/
