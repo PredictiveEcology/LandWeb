@@ -190,6 +190,11 @@ notInstalled <- vapply(pkgs, function(p) {
 pkgs2install <- pkgs[notInstalled]
 install.packages(pkgs2install, dependencies = TRUE, lib = .Library.site[1], repos = "https://cran.rstudio.com/")
 
+## requires older version of shiny (see # 32) [packrat could help here!]
+if (packageVersion("shiny") > "1.0.5") {
+  install.packages("https://cran.r-project.org/src/contrib/Archive/shiny/shiny_1.0.5.tar.gz", repos = NULL)
+}
+
 devtools::install_github("PredictiveEcology/SpaDES.shiny@generalize-modules")
 ```
 
