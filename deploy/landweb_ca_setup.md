@@ -190,8 +190,12 @@ devtools::install_github("PredictiveEcology/SpaDES.shiny@generalize-modules")
 ### GitHub config
 
 ```bash
+git config --global core.editor nano
+git config --global user.name "LandWeb.ca"
+git config --global user.email "alex.chubaty+landweb@gmail.com"
+
 # Make directory for receiving app data
-mkdir -p ~/Documents/GitHub/
+mkdir -p ~/Documents/GitHub
 
 # Connect to github
 ssh-keygen -t rsa -b 4096 -C "alex.chubaty+landweb@gmail.com"
@@ -201,34 +205,31 @@ cat ~/.ssh/id_rsa_github.pub
 
 # clone repository
 cd ~/Documents/GitHub/
-git clone --recurse-submodules git@github.com:eliotmcintire/LandWeb.git
+
 # git clone git@github.com:PredictiveEcology/quickPlot.git
 # git clone git@github.com:PredictiveEcology/reproducible.git
 # git clone git@github.com:PredictiveEcology/SpaDES.git
 # git clone git@github.com:PredictiveEcology/SpaDES.core.git
 # git clone git@github.com:PredictiveEcology/SpaDES.tools.git
+
+git clone --recurse-submodules git@github.com:eliotmcintire/LandWeb.git
+git checkout reactive-sims
+git submodule update --init --recursive
 ```
 
 ## Copy app data/outputs to new server
 
 ```bash
-## rsync 388 directly to /srv/shiny-server & ssh
-rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/LandWeb/
-
-ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo chown -R shiny:shiny /srv/shiny-server/LandWeb/. && sudo chmod 775 -R /srv/shiny-server/LandWeb/.'
-
-ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo systemctl restart shiny-server.service'
-
-# or log onto remote server
 ssh -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca
 sudo mkdir /srv/shiny-server/LandWeb
-sudo chown -R shiny:shiny /srv/shiny-server/LandWeb/.
-sudo chmod 775 -R /srv/shiny-server/LandWeb/.
-sudo chmod g+s -R /srv/shiny-server/LandWeb/.
+sudo chown -R shiny:shiny /srv/shiny-server/LandWeb
+sudo chmod 775 -R /srv/shiny-server/LandWeb
+sudo chmod g+s -R /srv/shiny-server/LandWeb
+```
 
-sudo chown -R shiny:shiny /home/ubuntu/Documents/GitHub/LandWeb/.
-sudo chmod 775 -R /home/ubuntu/Documents/GitHub/LandWeb/.
-sudo chmod g+s -R /home/ubuntu/Documents/GitHub/LandWeb/.
+```bash
+## rsync 388 directly to /srv/shiny-server & ssh
+rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/LandWeb/
 ```
 
 ### Additional config
@@ -296,6 +297,6 @@ sudo service fail2ban restart
 rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/Landweb/
 
 ## create symlinks
-rm -r /home/emcintir/Documents/GitHub/LandWeb
+rm -r /home/ubuntu/Documents/GitHub/LandWeb
 ln -s /srv/shiny-server/LandWeb/ /home/ubuntu/Documents/GitHub/LandWeb
 ```
