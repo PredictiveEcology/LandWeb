@@ -1,4 +1,3 @@
-
 # source("R/locateGdal.R")
 # source("R/updateSpaDES@developmentPkgs.R")
 # source("R/developmentParameters.R") # endTime, authenticationType
