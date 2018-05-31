@@ -4,8 +4,8 @@
 # in R packages. If exact location is required, functions will be: sim$<moduleName>$FunctionName
 defineModule(sim, list(
   name = "landWebProprietaryData",
-  description = NA, #"insert module description here",
-  keywords = NA, # c("insert key words here"),
+  description = "Download and pre-process proprietary LandWeb data.",
+  keywords = c("LandWeb"),
   authors = person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
   childModules = character(0),
   version = list(SpaDES.core = "0.1.1.9006", landWebProprietaryData = "0.0.1"),
@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "landWebProprietaryData.Rmd"),
-  reqdPkgs = list(),
+  reqdPkgs = list("googledrive", "reproducible", "SpaDES.core", "SpaDES.tools"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
