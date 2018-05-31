@@ -10,8 +10,8 @@ function(input, output, session) {
   # TODO: update generator to handle these assignments
 
   callModule(landwebAppInfo, "appInfo", appInfo)
-  callModule(landwebAppPrivacy, "appPrivacy")  # TODO: generate from a file for use in SpaDES.shiny
-  callModule(landwebAppToS, "appToS")          # TODO: genearte from a file for use in SpaDES.shiny
+  callModule(privacyStatement, "appPrivacy", "PRIVACY.md", "success")
+  callModule(termsOfService, "appToS", "TERMS.md", "success")
   callModule(landwebAppSupport, "appSupport", appInfo)
 
   unsuspendModule("largePatches")
