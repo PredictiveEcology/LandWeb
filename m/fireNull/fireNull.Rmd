@@ -2,32 +2,41 @@
 title: "fireNull"
 author: "Steve Cumming"
 date: "04 August 2016"
-output: html_document
-bibliography: citation.bib
+output:
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+bibliography: bibliography.bib
 ---
 
 # Overview
 
-This module provide a basic representation of spatially variable fire regime. It is designed for use as a null fire model in LandWeb simulation. 
+This module provide a basic representation of spatially variable fire regime.
+It is designed for use as a null fire model in LandWeb simulation. 
 
-The spatially variable fire regime paramater is the
-__Fire Return Interval__. We expect the parent LandWeb module to provide a shapefile in the sim environment that contains this element. The expected shapefile name is
+The spatially variable fire regime paramater is the `Fire Return Interval`.
+We expect the parent LandWeb module to provide a shapefile in the sim environment that contains this element.
+The expected shapefile name is `shapeFileFireRegime` and the expected field name is `fireReturnInterval`.
 
-**shapeFileFireRegime**
+This shapefile was derived by Cumming's lab from an image on a power point slide, prepared by Dr. David Andison.
+This image presented Andison and Company's estimates of pre-modern fire return intervals by ecoregion or ecodistrict, within what we take to be the LandWeb study region.
+An image of this map, and references to any supporting documents, will be addded to this .Rmd file in due course. 
 
-and the expected field name is
+The module code is based on Cumming's spatialised implementation of the model of @wagner1978age.
+This very widely used theoretical model relates forest age distributions to the "fire cycle", defined as the length of time by which accumulated fires will burn an total area equal to the size of a given study area.
+Under very strong assumptions of stationarity and spatial homogeneity (assumptions which almost nobody now believes to hold anywhere), this is equivalent to the periodic probability of burning at a point.
+A fire cycle of length `f` can be simulated in SpaDES by burning raster cells with periodic probability `p = 1/f`.
+This model simulates a fire cycle of length `f` by randomly burning pixels with a  probability `p`,  that may vary among spatial polygons but is uniform within spatial polygons.
+The units of time are years.
 
-**fireReturnInterval**
-
-This shapefile was derived by Cumming's lab from an image on a power point slide, prepared by Dr. David Andison. This image presented Andison and Company's estimates of pre-modern fire return intervals by ecoregion or ecodistrict, within what we take to be the LandWeb study region. An image of this map, and references to any supporting documents, will be addded to this .Rmd file in due course. 
-
-The module code is based on Cumming's spatialised implementation of the model of @wagner1978age. This very widley used theoretical model relates forest age distributions to the "fire cycle"", defined as the length of time by which accumulated fires will burn an total area equal to the size of a given study area. Under very strong assumptions of stationarity and spatial homogeneity (assumptions which almost nobody now believes to hold anywhere), this is equivalent to the periodic probability of burning at a point. A fire cycle of length __f__ can be simulated in SpaDES by burning raster cells with periodic probability  __p = 1/f__. This model simulates a fire cycle of length __f__ by randomly burning pixels with a  probability __p__,  that may vary among spatial polygons but is uniform within spatial polygons. The units of time are years.
-
-According to @reed2006note, the equation relating __p__ and __f__ only applies if the size of fires is constant. For any other size distribution, the expected length of simulated fire cycles is longer than __f__.  In this module, where each pixel burns independently, all fires have size one pixel, so Reed's condition applies. However, users should take note that, because of the dependency on the fire size distribution, the application of the original fire cycle concept "causes confusion in simulation studies" [@reed2006note].
+According to @reed2006note, the equation relating `p` and `f` only applies if the size of fires is constant.
+For any other size distribution, the expected length of simulated fire cycles is longer than `f`.
+In this module, where each pixel burns independently, all fires have size one pixel, so Reed's condition applies.
+However, users should take note that, because of the dependency on the fire size distribution, the application of the original fire cycle concept "causes confusion in simulation studies" [@reed2006note].
 
 # Usage
 
-```{r module_usage,eval=FALSE}
+```{r module_usage, eval=FALSE}
 library(igraph)
 library(rgdal)
 library(raster)
@@ -38,7 +47,7 @@ library(SpaDES)
 SMALL <- FALSE # change this if you want to run on just a small area for testing
 
 rasterOptions(maxmemory = 1e9)
-baseDir<-file.path("~","Dropbox","SpaDES","Data")
+baseDir <- file.path("~", "Dropbox", "SpaDES", "Data")
 
 parentModule <- "fireNull" #which module should hold the cached data for GitHub
                            #this would normally be a parent module, hence the name
@@ -50,18 +59,15 @@ moduleDir <- file.path(".")
 setPaths() # sets default paths, including cachePath
 cacheDir <- .paths()$cachePath
 
-LCC05 <-raster(file.path(baseDir, 
-                                  "LandCoverOfCanada2005_V1_4",
-                                  "LCC2005_V1_4a.tif")
-                        )
+LCC05 <-raster(file.path(baseDir, "LandCoverOfCanada2005_V1_4", "LCC2005_V1_4a.tif"))
 
-foo<-path.expand(file.path(baseDir,"LandWEB","shp")) #somebody does not like ~s
-shpStudyRegion <- SpaDES::cache(cacheDir, readOGR, foo,"shpLandWEB")#, notOlderThan = Sys.time())
+foo <- path.expand(file.path(baseDir, "LandWeb", "shp")) #somebody does not like ~s
+shpStudyRegion <- SpaDES::cache(cacheDir, readOGR, foo,"shpLandWeb")#, notOlderThan = Sys.time())
 shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC #because of course it does.
 rm(foo)
 
 # small polygon for testing
-if(SMALL) {
+if (SMALL) {
   smallExt <- new("Extent" , xmin = -983660, xmax = -899973, 
                   ymin = 8007529, ymax = 8085986)
   shpStudyRegion2 <- spTransform(shpStudyRegion, crs(LCC05))
@@ -87,8 +93,8 @@ parameters <- list(
   initBaseMaps = list(),
   fireDataPrep = list()
 )
-modules <- list("initBaseMaps","fireDataPrep","fireNull","timeSinceFire")#, #"landWebDataPrep", "LBMR")
-objects <- list(LCC05X=LCC05,shpStudySubRegion=shpStudyRegion)
+modules <- list("initBaseMaps", "fireDataPrep", "fireNull", "timeSinceFire")#, #"landWebDataPrep", "LBMR")
+objects <- list(LCC05X = LCC05, shpStudySubRegion = shpStudyRegion)
 
 paths <- list(
   modulePath = moduleDir,
@@ -98,8 +104,8 @@ paths <- list(
 )
 #devtools::load_all("~/GitHub/SpaDES/.")
 system.time(mySim <- simInit(times = times, params = parameters, 
-                       modules = modules, objects = objects, 
-                       paths = paths))
+                             modules = modules, objects = objects, 
+                             paths = paths))
 
 #archivist::createLocalRepo(cachePath(mySim))
 #set.seed(123);system.time(nxtSim<-spades(SpaDES::copy(mySim), debug = TRUE))
@@ -109,50 +115,59 @@ system.time(mySim <- simInit(times = times, params = parameters,
 
 ## Init
 
-This creates an optional cummulative burn record in the form of sim raster object __timeSinceFireMap__ that  conforms to the study area template raster, here assumed to be sim raster object __studyAreaRaster__. The tsfMap is initialised to 0.
+This creates an optional cummulative burn record in the form of sim raster object `timeSinceFireMap` that conforms to the study area template raster, here assumed to be sim raster object `studyAreaRaster`.
+The tsfMap is initialised to `0`.
 
 ## Burn
 
-This event simply applies the burn probability map to randomly select pixels for burning, and returns a vector of the burned cells as sim vector object __ignitionLoci__
+This event simply applies the burn probability map to randomly select pixels for burning, and returns a vector of the burned cells as sim vector object `ignitionLoci`.
 
-If the __timeSinceFireMap__ exists, it is updated.
+If the `timeSinceFireMap` exists, it is updated.
 
 ## Plotting
 
-No plots are generated unless the param doAgeMapping is TRUE, in which case the time since fire map is plotted.
+No plots are generated unless the parameter `doAgeMapping` is `TRUE`, in which case the time since fire map is plotted.
 
 ## Saving
 
-No files or state are saved
+No files or state are saved.
 
 ## Stats
 
-Some summary statistics are gathered, inherited from Cumming's vanWagner module. 
+Some summary statistics are gathered, inherited from Cumming's `vanWagner` module. 
 
 # Data dependencies
 
 ## Input data
 
-__shapeFileFireRegime__ is defines the regions and species their fire return intervals; this value is expected in a field/collumn named __fireReturnInterval__
+`shapeFileFireRegime` is defines the regions and species their fire return intervals; this value is expected in a field/collumn named `fireReturnInterval`.
 
-__rasterStudyArea__ is the template raster for the study region
+`rasterStudyArea` is the template raster for the study region.
 
-__LCC05__ raster of Land Cover. Must conform to rasterStudyArea. 
+`LCC05` raster of land cover. Must conform to `rasterStudyArea`.
 
 ## Output data
 
-Description of the module outputs.
+Description of the module outputs:
 
-__rasterFlammable__ derived from __LCC05__ in the init module,
+- `rasterFlammable` derived from `LCC05` in the init module;
 
-__rasterBurnProb__ created in the init event from the shapefile and the template raster, but with non flammable cells set to 0. 
+- `rasterBurnProb` created in the init event from the shapefile and the template raster, but with non flammable cells set to 0;
 
-__burnLoci__ annual: a numeric vector of locations of burned cells relative to the template raster
+- `burnLoci` annual is a numeric vector of locations of burned cells relative to the template raster;
 
-__currentBurnMap__ annual: a logical map of the currently burned locations, just a very long-winded representation of __burnLoci__. This map conforms to the template raster.
+- `currentBurnMap` annual is a logical map of the currently burned locations, just a very long-winded representation of `burnLoci` (this map conforms to the template raster).
 
 # Links to other modules
 
-Describe any anticipated linkages to other modules.
+As suggested above, this module was developed to be used with several other modules:
 
+1. `initBaseMaps`;
+2. `fireDataPrep`;
+3. `timeSinceFire`;
+4. `landWebDataPrep`;
+5. `LBMR`.
 
+# References
+
+<!-- automatically generated; see https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html -->

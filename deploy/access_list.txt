@@ -1,0 +1,17 @@
+Name	Email
+Dave Andison	andison.d.w@gmail.com
+Christopher Bater	Chris.Bater@gov.ab.ca
+Bob Christian	bob.christian@forcorp.com
+Kathleen Groenewegen	kathleen.groenewegen@gmail.com
+Neal McLoughlin	Neal.McLoughlin@gov.ab.ca
+James Norman	jamesn@albertanewsprint.com
+Shane Sadoway	shanew.sadoway@gmail.com
+Lisa Smith	lisa_smithereen@yahoo.ca
+John Stadt	John.Stadt@gov.ab.ca
+Gordon Whitmore	gwhitm@gmail.com
+Jim Witiw	TBA
+
+
+Millar Western	mwfp.nrv@gmail.com
+West Fraser	westfrasertimber@gmail.com
+
