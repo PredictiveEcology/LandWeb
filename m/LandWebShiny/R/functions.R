@@ -393,12 +393,12 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
     })))
     IDs <- raster::levels(out[[1]][[1]])[[1]]$ID
     Factors <- as.character(raster::levels(out[[1]][[1]])[[1]]$Factor)
-    
+
     extractAndTabulate <- function(allStack, poly, IDs, Factors) {
       aa <- tryCatch(
         raster::extract(allStack, poly),
         error = function(x) NULL)
-      
+
       aa1 <- lapply(aa, function(x,  ...) {
         if (!is.null(x)) {
           apply(x, 2, function(y) {
@@ -419,11 +419,11 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
         }
       })
     }
-    
-    aa1 <- Cache(extractAndTabulate, allStack, 
+
+    aa1 <- Cache(extractAndTabulate, allStack,
           poly = spTransform(polygonToSummarizeBy, CRSobj = crs(allStack)),
           IDs = IDs, Factors = Factors)
-    
+
     nonNulls <- unlist(lapply(aa1, function(x) !is.null(x)))
     aa1[nonNulls] <- lapply(aa1[nonNulls], function(a) {
       isNull <- unlist(lapply(a, is.null))
@@ -677,7 +677,7 @@ studyAreaPolygonsFn <- function(shpLandWebSA = NULL, shpStudyArea = NULL, labelC
   polys <- list()
   if (!is.null(shpLandWebSA)) {
     polys[["LandWeb Study Area"]] <- raster::aggregate(shpLandWebSA, dissolve = TRUE)
-    polys[["LandWeb Study Area"]] <- SpatialPolygonsDataFrame(
+    polys[["LandWeb Study Area"]] <- sp::SpatialPolygonsDataFrame(
       polys[["LandWeb Study Area"]], data = data.frame(NAME = wholeStudyAreaTxt)
     )
     polys[["LandWeb Study Area"]][[labelColumn]] <- wholeStudyAreaTxt

@@ -1,3 +1,5 @@
+# landWebProprietaryData
 
-Any other details that a user may need to know, like where to get more information,
-where to download data, etc.
+Download and pre-process proprietary LandWeb data.
+Data only available to authorized Google users.
+

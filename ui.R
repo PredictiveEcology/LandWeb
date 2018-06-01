@@ -39,8 +39,8 @@ dashboardPage(
     useShinyjs(),
     tabItems(
       tabItem("appInfo", landwebAppInfoUI("appInfo")),          ## TODO: add this to generator
-      tabItem("appPrivacy", landwebAppPrivacyUI("appPrivacy")), ## TODO: add this to generator
-      tabItem("appToS", landwebAppToSUI("appToS")),             ## TODO: add this to generator
+      tabItem("appPrivacy", privacyStatementUI("appPrivacy")), ## TODO: add this to generator
+      tabItem("appToS", termsOfServiceUI("appToS")),             ## TODO: add this to generator
       tabItem("appSupport", landwebAppSupportUI("appSupport")), ## TODO: add this to generator
 
       tabItem("timeSinceFire", timeSeriesofRastersUI("timeSinceFire")),

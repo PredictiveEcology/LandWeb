@@ -11,7 +11,8 @@ bibliography: bibliography.bib
 
 # Overview
 
-This module provide a basic representation of spatially variable fire regime. It is designed for use as a null fire model in LandWeb simulation. 
+This module provide a basic representation of spatially variable fire regime.
+It is designed for use as a null fire model in LandWeb simulation. 
 
 The spatially variable fire regime paramater is the `Fire Return Interval`.
 We expect the parent LandWeb module to provide a shapefile in the sim environment that contains this element.

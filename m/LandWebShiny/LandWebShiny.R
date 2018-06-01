@@ -1,21 +1,23 @@
-
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects, use sim$xxx, and are thus globally available
 # to all modules. Functions can be used without sim$ as they are namespaced, like functions
 # in R packages. If exact location is required, functions will be: sim$<moduleName>$FunctionName
 defineModule(sim, list(
   name = "LandWebShiny",
-  description = NA, #"insert module description here",
-  keywords = NA, # c("insert key words here"),
+  description = "Prepare reporting polygons and LandWeb model outputs for use in the shiny app.",
+  keywords = c("LandWeb"),
   authors = person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
   childModules = character(0),
-  version = list(SpaDES.core = "0.1.1.9009", LandWebShiny = "0.0.1"),
+  version = list(SpaDES.core = "0.1.1.9009", LandWebShiny = "0.0.2"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandWebShiny.Rmd"),
-  reqdPkgs = list(),
+  reqdPkgs = list("archivist", "devtools", "dplyr", "fasterize", "parallel", "purrr",
+                  "raster", "reproducible", "sf", "sp", "SpaDES.core",
+                  "PredictiveEcology/SpaDES.shiny@generalize-modules",
+                  "SpaDES.tools", "tidyr"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -92,6 +94,7 @@ Init <- function(sim) {
   # convert paths to local machine -- this will do nothing if prior runs were on this machine
   pathConversions <- list(pattern = c("outputsFULL", "/home/emcintir/Documents/GitHub/LandWeb/"),
                           replacement = c("outputs/FULL_Proprietary", paste0(getwd(), "/")))
+
   sim$tsfs <- lapply(rastersFromOutputs, function(rastersFromOutput) {
     fps <- grep(pattern = "rstTimeSinceFire", rastersFromOutput, value = TRUE)
     fps <- convertPaths(fps, pattern = pathConversions$pattern,
@@ -106,19 +109,17 @@ Init <- function(sim) {
     asPath(fps, 2)
   })
 
-  # remove any files that don't exist. This should never happen, but it did once
-  sim$tsfs <- lapply(sim$tsfs, function(x) {
-    x[file.exists(x)]})
-  sim$vtms <- lapply(sim$vtms, function(x) {
-    x[file.exists(x)]})
+  # remove any files that don't exist. This should never happen, but it did once.
+  sim$tsfs <- lapply(sim$tsfs, function(x) x[file.exists(x)])
+  sim$vtms <- lapply(sim$vtms, function(x) x[file.exists(x)])
 
   tsfLFLTFilenames <- lapply(sim$tsfs, function(tsf) SpaDES.tools::.suffix(tsf, "LFLT") )
 
   rasterResolutions <- lapply(sim$tsfs, function(x) raster(x[1]) %>% res(.))
   rasterResolutions <- lapply(sim$tsfs, function(x) {
     raster(x[1]) %>% res(.)
-  }
-  )
+  })
+
   flammableFiles <- lapply(sim$outputPaths, function(op) {
     fps <- file.path(op[[1]], "rstFlammable.grd")
     fps <- convertPaths(fps, pattern = pathConversions$pattern,
@@ -127,15 +128,14 @@ Init <- function(sim) {
   })
 
   sim$tsfRasters <- Cache(Map, tsf = sim$tsfs,
-                      userTags = c("reprojectRasts", "tsf", "tsfs"),
-                      cacheId = cacheId$tsfRasters,
-                      lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
-                      reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
+                          userTags = c("reprojectRasts", "tsf", "tsfs"),
+                          cacheId = cacheId$tsfRasters,
+                          lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
+                          reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
   sim$tsfRasters <- convertRasterFileBackendPath(sim$tsfRasters,
-                                             pattern = pathConversions$pattern,
-                                             replacement = pathConversions$replacement)
-
+                                                 pattern = pathConversions$pattern,
+                                                 replacement = pathConversions$replacement)
 
   sim$tsfRasterTilePaths <- Cache(Map, rst = sim$tsfRasters, modelType = names(sim$tsfRasters),
                               userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
@@ -216,17 +216,13 @@ Init <- function(sim) {
     fps <- convertPaths(fps, pattern = pathConversions$pattern,
                         replacement = pathConversions$replacement)
     asPath(fps, 2)
-  }
-  })
+  }})
   vtmsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
     fps <- filename(x$CCvtm)
     fps <- convertPaths(fps, pattern = pathConversions$pattern,
                         replacement = pathConversions$replacement)
     asPath(fps, 2)
-  }
-  })
-
-
+  }})
 
   namedUrlsLabelColumnNames <- list(
     "Mountain Northern Caribou Ranges" =
@@ -313,7 +309,6 @@ Init <- function(sim) {
 
   sim$leadingCC$Free <- NULL
 
-
   #########################
 
   message(paste("Running largePatchesFn"))
@@ -323,9 +318,7 @@ Init <- function(sim) {
     })
   })
 
-
   # some of the args oare for largePatchesFn, some passed through to largePatchesInnerFn,
-
   sim$lrgPatches <- Cache(largePatchesCalc,
                           byPoly = rp4LrgPatches,
                           tsfFile = getAllIfExists(sim$tsfs, ifNot = "Proprietary"),
@@ -364,10 +357,8 @@ Init <- function(sim) {
       })
     })
   }
-  ################################################################################
+
   # Write all Proprietary input shapefiles to disk
-
-
   sim$getAllIfExists <- getAllIfExists
   return(invisible(sim))
 }

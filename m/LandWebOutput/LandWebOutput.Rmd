@@ -14,41 +14,6 @@ knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 
 # Overview
 
-This module creates 3 raster layers, `seralStageMap`, `vegTypeMap`, and `oldBigPatch`. The module will save these layers to disk as scheduled by `summaryInterval`.
+This module creates 3 raster layers, `seralStageMap`, `vegTypeMap`, and `oldBigPatch`.
+The module will save these layers to disk as scheduled by `summaryInterval`.
 These can then be used for post-processing.
-
-# Usage
-
-```{r module_usage}
-library(igraph)
-library(SpaDES)
-
-moduleDir <- file.path("~/GitHub/LandWeb")
-inputDir <- file.path(moduleDir, "inputs") %>% checkPath(create = TRUE)
-outputDir <- file.path(moduleDir, "outputs")
-cacheDir <- file.path(outputDir, "cache")
-times <- list(start = 0, end = 10)
-parameters <- list(
-  #.progress = list(type = "text", interval = 1), # for a progress bar
-  ## If there are further modules, each can have its own set of parameters:
-  #module1 = list(param1 = value1, param2 = value2),
-  #module2 = list(param1 = value1, param2 = value2)
-)
-modules <- list("LandWebOutput")
-objects <- list()
-paths <- list(
-  cachePath = cacheDir,
-  modulePath = moduleDir,
-  inputPath = inputDir,
-  outputPath = outputDir
-)
-
-mySim <- simInit(times = times, params = parameters, modules = modules,
-                 objects = objects, paths = paths)
-
-spades(mySim)
-```
-
-# References
-
-<!-- automatically generated; see https://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html -->
