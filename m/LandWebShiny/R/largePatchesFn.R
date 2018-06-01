@@ -1,3 +1,4 @@
+#' A recursive function for calculating patch size, given tsf and vtm fil
 largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
                              ageClasses, ageClassCutOffs,
                              labelColumn, id = NULL, useParallelCluster = NULL) {
@@ -47,14 +48,14 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
                                    labelColumn = labelColumn))
 
       }
-      out1 <- rbindlist(out)
-    } else {
+      out <- rbindlist(out)
+    } else { # The single tsf/vtm 
       # once for each raster combo
       startTime <- Sys.time()
       message(" ", polyName,": ", basename(tsfFile), " -- calculating patch sizes")
 
       timeSinceFireFilesRast <- raster(tsfFile)
-      timeSinceFireFilesRast[] <- timeSinceFireFilesRast[] # 10 seconds
+      timeSinceFireFilesRast[] <- timeSinceFireFilesRast[] # 10 seconds to load into RAM
       tsf <- reclassify(timeSinceFireFilesRast,
                         cbind(from = ageClassCutOffs-0.1, to = c(ageClassCutOffs[-1], Inf), seq_along(ageClasses)))
       levels(tsf) <- data.frame(ID = seq_along(ageClasses), Factor = ageClasses)
@@ -129,11 +130,12 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
                                   polygonName = as.character(facPolygonID))
 
       out <- rbindlist(list(outBySpecies, outAllSpecies))
-      bb <- out[sizeInHa >= 100] # never will need patches smaller than 100 ha
+      out <- out[sizeInHa >= 100] # never will need patches smaller than 100 ha
       endTime <- Sys.time()
       message("    Patch size calculation took ", format(endTime - startTime, digits = 2))
     }
   }
+  return(out)
 }
 
 #' Polygonize with gdal
