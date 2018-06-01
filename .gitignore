@@ -5,6 +5,7 @@
 .RData
 .Rhistory
 .Rproj.user
+cache
 appCache*
 reproducibleCache
 stableCache
