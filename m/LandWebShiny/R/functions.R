@@ -160,8 +160,8 @@ loadCCSpecies <- function(mapNames, userTags = "", destinationPath, ...) {
   names(filenames) <- mapNames
 
   Map(filename = filenames, mapName = mapNames, MoreArgs = list(userTags = userTags,
-                                                                destinationPath = destinationPath),
-      function(filename, mapName, userTags, destinationPath) {
+                                                                destinationPath = destinationPath, ...),
+      function(filename, mapName, userTags, destinationPath, ...) {
         tifName <-  asPath(file.path(destinationPath, paste0(filename, ".tif")))
 
         filenames <- asPath(paste0(filename, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
@@ -169,7 +169,7 @@ loadCCSpecies <- function(mapNames, userTags = "", destinationPath, ...) {
                    archive = "CurrentCondition.zip",
                    targetFile = tifName,
                    destinationPath = destinationPath,
-                   alsoExtract = filenames, ...)
+                   alsoExtract = filenames, ...) # dots include things like method = "ngb" for projectRaster
       })
 }
 
@@ -506,7 +506,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
     # tsf
     CCtsf <- Cache(loadCCSpecies, ageName, #notOlderThan = Sys.time(),
                     url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
-                    destinationPath = dPath, #method = "ngb",
+                    destinationPath = dPath, method = "ngb",
                     studyArea = shpStudyArea, omitArgs = "purge",
                     postProcessedFilename = "CurrentCondition.tif", ...,
                     rasterToMatch = getAllIfExists(tsfRasters, "Proprietary")$crsSR[[1]]
