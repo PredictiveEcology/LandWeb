@@ -48,14 +48,14 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
                                    labelColumn = labelColumn))
 
       }
-      out1 <- rbindlist(out)
+      out <- rbindlist(out)
     } else { # The single tsf/vtm 
       # once for each raster combo
       startTime <- Sys.time()
       message(" ", polyName,": ", basename(tsfFile), " -- calculating patch sizes")
 
       timeSinceFireFilesRast <- raster(tsfFile)
-      timeSinceFireFilesRast[] <- timeSinceFireFilesRast[] # 10 seconds
+      timeSinceFireFilesRast[] <- timeSinceFireFilesRast[] # 10 seconds to load into RAM
       tsf <- reclassify(timeSinceFireFilesRast,
                         cbind(from = ageClassCutOffs-0.1, to = c(ageClassCutOffs[-1], Inf), seq_along(ageClasses)))
       levels(tsf) <- data.frame(ID = seq_along(ageClasses), Factor = ageClasses)
