@@ -4,12 +4,18 @@ landwebAppInfoUI <- function(id) {
   uiOutput(ns("appInfoUI"))
 }
 
-landwebAppInfo <- function(input, output, session, appInfo) {
+landwebAppInfo <- function(input, output, session, appInfo, readmeFile = "README.md") {
   output$appInfoUI <- renderUI({
     ns <- session$ns
 
     tagList(
       fluidRow(
+        shinydashboard::box(
+          title = "About", status = "success",
+          solidHeader = TRUE, collapsible = TRUE, width = 12,
+
+          includeMarkdown(readmeFile)
+        ),
         shinydashboard::box(
           title = "Funding & Partners", status = "success",
           solidHeader = TRUE, collapsible = TRUE, width = 12,
