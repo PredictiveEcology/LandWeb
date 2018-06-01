@@ -21,7 +21,7 @@ landwebAppSupport <- function(input, output, session, appInfo) {
           p("Downloads are only available to authorized (logged in) users. Please log in using your Google account."),
 
           h4("3. Can I run the model over my own spatial area instead of using the built-in reporting polygons?"),
-          p("Yes. Logged in users can upload their own shapefiles by selecting 'Upload' on the Time Sinnce Fire maps page.")
+          p("Yes. Logged in users can upload their own shapefiles by selecting 'Upload' on the Time Since Fire maps page.")
         ),
 
         shinydashboard::box(
