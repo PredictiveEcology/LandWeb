@@ -1,0 +1,20 @@
+/* downlooad button */
+.shiny-download-link {
+  margin: 0 20px;
+}
+
+/* footer */
+footer {
+  position: absolute;
+  bottom: 10px;
+}
+
+footer #copyright {
+  font-size: 12px;
+  padding: 10px 0;
+}
+
+footer #sidebar {
+  font-size: 14px;
+  padding: 5px 10px;
+}
