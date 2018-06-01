@@ -1,0 +1,694 @@
+#' Check and intersect a list of shapefiles with one single shapefile.
+#' Caches and internal \code{spTransform} to
+#'
+#' @param listShps List of shapefiles
+#' @param intersectShp The single shapefile to oversect with each of \codeP{listShps}
+#'
+intersectListShps <- function(listShps, intersectShp) {
+  message("Intersecting reporting polygons with intersectShp")
+
+  outerOut <- lapply(listShps, function(shp) {
+                       message("  ", names(shp))
+                       out <- SpaDES.tools::maskInputs(shp, intersectShp)
+                     })
+}
+
+
+reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
+  rastsLFLT <- if (!(isTRUE(all(unlist(lapply(lfltFN, file.exists)))))) {
+
+    message("Reprojecting rasters, filling in minimum age, saving to disk")
+    rstFlammableNum <- raster(flammableFile)
+    rstFlammableNum <- Cache(projectRaster, rstFlammableNum, crs = crs, method = "ngb")
+    rastsLFLT <- lapply(seq_along(tsf), function(FN) {
+      message("  ", tsf[[FN]])
+      r <- raster(tsf[[FN]])
+      # gdalwarp(srcfile = filename(r), dstfile = lfltFN[FN], s_srs = crs(r),
+      #          t_srs = crs, r = "near",
+      #          te = c(xmin(rstFlammableNum), ymin(rstFlammableNum),
+      #                 xmax(rstFlammableNum), ymax(rstFlammableNum)),
+      #          tr = res(rstFlammableNum),
+      #          overwrite = TRUE
+      # )
+      # r2 <- raster(lfltFN[FN])
+      # r2 <- setMinMax(r2)
+      # r2[] <- r2[]
+      r <- projectRaster(r, crs = crs, method = "ngb", datatype = "INT2U")
+      minAge <- as.numeric(strsplit(strsplit(tsf[[1]], split = "year")[[1]][2], split = "\\.tif")[[1]])
+      r[is.na(r) & (rstFlammableNum == 0)] <- minAge
+      r <- writeRaster(r, filename = lfltFN[FN], overwrite = TRUE, datatype = "INT2U")
+      r
+    })
+  } else {
+    rastsLFLT <- lapply(lfltFN, raster)
+  }
+
+    rastsCRSSR2 <- lapply(tsf, raster)
+
+    globalRasts <- list("crsSR" = rastsCRSSR2, "crsLFLT" = rastsLFLT)
+
+    message("  Finished reprojecting rasters")
+    globalRasts
+}
+
+# Set up gdal stuff -- first, find the installation
+gdalSet <- function() {
+  gdal_setInstallation()
+  getOption("gdalUtils_gdalPath")
+}
+
+PredictiveEcologyPackages <- c("reproducible", "SpaDES.core", "SpaDES.tools")
+
+workingShas <- function(date) {
+  shas <- lapply(PredictiveEcologyPackages, devtools:::local_sha)
+  names(shas) <- PredictiveEcologyPackages
+  shas$LandWeb <- system("git rev-parse HEAD", intern = TRUE)
+  shas
+}
+
+showWorkingShas <- function(cachePath) {
+  sc <- showCache(cachePath, "workingShas")
+  setorderv(sc, "createdDate", order = -1L)
+  sc
+}
+
+reloadWorkingShas <- function(md5hash, cachePath, shaOnly = FALSE) {
+  shas <- archivist::loadFromLocalRepo(repoDir = cachePath, md5hash, value = TRUE)
+  whPackages <- names(shas) %in% PredictiveEcologyPackages
+  lapply(seq_along(shas[whPackages]), function(n) {
+    if ((devtools:::local_sha(names(shas)[n])) != shas[[n]]) {
+      install_github(paste0("PredictiveEcology/",names(shas)[n], "@", shas[n]),
+                     dependencies = FALSE)
+    } else {
+      message(names(shas)[n], " is already correct version")
+    }
+  })
+  isError <- tryCatch(
+    checkoutCondition <<- reproducible:::checkoutVersion(
+      paste0("eliotmcintire/LandWeb@", shas$LandWeb), cred = "GITHUB_PAT"),
+    error = function(x) TRUE)
+  #checkoutCondition <- reproducible:::checkoutVersion(shas$LandWeb, cred = "GITHUB_PAT")
+  if (isTRUE(isError)) message("no previous branch on github with that sha")
+  return(invisible(shas))
+}
+
+noLongerWaiting <- function() {
+  hide("loading_page")
+  #show("main_content")
+}
+
+mycss <- "
+#loading-spinner {
+position: absolute;
+left: 50%;
+top: 50%;
+z-index: -1;
+margin-top: -33px;  /* half of the spinner's height */
+margin-left: -33px; /* half of the spinner's width */
+}
+"
+
+reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
+  reloadPreviousWorkingLogical <- any(reloadPreviousWorking != FALSE)
+  if (Sys.info()["nodename"] %in% c("W-VIC-A105388", "W-VIC-A128863")) {
+    if (!exists(".reloadPreviousWorking")) {
+      if (!reloadPreviousWorkingLogical) {
+        .reloadPreviousWorking <- 0
+      } else {
+        .reloadPreviousWorking <- 1
+      }
+    } else if (.reloadPreviousWorking != 2) {
+      .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
+    } else if (reloadPreviousWorkingLogical) {
+      .reloadPreviousWorking <- reloadPreviousWorkingLogical + 0
+    }
+  } else {
+    .reloadPreviousWorking <- 0
+  }
+
+  if (.reloadPreviousWorking == 1) {
+    #library(git2r) # has git repo internally
+    md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
+    if (NROW(md5s)) {
+      system("git stash")
+      if (is.character(reloadPreviousWorking))  {
+        searchTerm <- reloadPreviousWorking
+      } else {
+        searchTerm <- unique(md5s$artifact)[as.numeric(reloadPreviousWorking)]
+      }
+      searchTerm <- unique(showCache(searchTerm, x = reproducibleCache)$artifact)
+      shas <- reloadWorkingShas(md5hash = searchTerm[1],
+                                cachePath = reproducibleCache) # 1 is most recent
+      .reloadPreviousWorking <- 2
+      stop("Run app again")
+    } else {
+      message("No previous working version. Proceeding.")
+    }
+  }
+
+  return(.reloadPreviousWorking)
+}
+
+# Used in global_file.R to load the Current Condition Rasters from SilvaCom
+loadCCSpecies <- function(mapNames, userTags = "", destinationPath, ...) {
+  if (!any(grepl("1$", mapNames) )) {
+    filenames <- paste0(mapNames, "1")
+  } else {
+    filenames <- mapNames
+    mapNames <- gsub(mapNames, "1$", "")
+  }
+  names(filenames) <- mapNames
+
+  Map(filename = filenames, mapName = mapNames, MoreArgs = list(userTags = userTags,
+                                                                destinationPath = destinationPath),
+      function(filename, mapName, userTags, destinationPath) {
+        tifName <-  asPath(file.path(destinationPath, paste0(filename, ".tif")))
+
+        filenames <- asPath(paste0(filename, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
+        prepInputs(userTags = c(userTags, "stable"),
+                   archive = "CurrentCondition.zip",
+                   targetFile = tifName,
+                   destinationPath = destinationPath,
+                   alsoExtract = filenames, ...)
+      })
+}
+
+
+createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
+                                    shpStudyArea,
+                                    prepInputsFromSilvacomFn,
+                                    namedUrlsLabelColumnNames = namedUrlsLabelColumnNames,
+                                    destinationPath, labelColumn, ...) {
+  names(polygonNames) <- polygonNames
+
+  polys <- list()
+
+  layerNamesIndex <- "AB Natural Sub Regions"
+  if (layerNamesIndex %in% polygonNames) {
+    #dPath <- asPath(file.path(paths$inputPath, "ecozones", "Alberta"))
+    albertaEcozoneFiles <- asPath(c("Natural_Regions_Subregions_of_Alberta.dbf",
+                                    "Natural_Regions_Subregions_of_Alberta.lyr",
+                                    "Natural_Regions_Subregions_of_Alberta.prj",
+                                    "Natural_Regions_Subregions_of_Alberta.shp.xml",
+                                    "Natural_Regions_Subregions_of_Alberta.shx",
+                                    "natural_regions_subregions_of_alberta.zip",
+                                    "nsr2005_final_letter.jpg", "nsr2005_final_letter.pdf"))
+    albertaEcozoneURL <- "https://www.albertaparks.ca/media/429607/natural_regions_subregions_of_alberta.zip"
+    albertaEcozoneFilename <- asPath("Natural_Regions_Subregions_of_Alberta.shp")
+    polys[[layerNamesIndex]] <- Cache(
+      prepInputs, userTags = "stable",
+      url = albertaEcozoneURL, targetFile = albertaEcozoneFilename, studyArea = shpStudyArea,
+      fun = "shapefile", alsoExtract = albertaEcozoneFiles, destinationPath = destinationPath
+    )
+    polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$NSRNAME
+  }
+
+  # National Ecozone
+  layerNamesIndex <- "National Ecozones"
+  if (layerNamesIndex %in% polygonNames) {
+    #dPath <- file.path(paths$inputPath, "ecozones", "National")
+    ecozoneFilename <-   file.path(destinationPath, "ecozones.shp")
+    ecozoneFiles <- c("ecozones.dbf", "ecozones.prj",
+                      "ecozones.sbn", "ecozones.sbx", "ecozones.shp", "ecozones.shx")
+    polys[[layerNamesIndex]]  <- Cache(
+      prepInputs, userTags = "stable",
+      url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
+      targetFile = asPath(ecozoneFilename),
+      alsoExtract = ecozoneFiles, studyArea = shpStudyArea,
+      fun = "shapefile", destinationPath = destinationPath
+    )
+    polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ZONE_NAME
+  }
+
+  # National Ecodistrict
+  layerNamesIndex <- "National Ecodistricts"
+  if (layerNamesIndex %in% polygonNames) {
+    #dPath <- file.path(paths$inputPath, "ecodistricts", "National")
+    ecodistrictFilename <-   file.path(destinationPath, "ecodistricts.shp")
+    ecodistrictFiles <- c("ecodistricts.dbf", "ecodistricts.prj",
+                          "ecodistricts.sbn", "ecodistricts.sbx", "ecodistricts.shp", "ecodistricts.shx")
+    polys[[layerNamesIndex]] <- Cache(prepInputs, userTags = "stable",
+                                                  url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip",
+                                                  targetFile = asPath(ecodistrictFilename),
+                                                  alsoExtract = ecodistrictFiles, studyArea = shpStudyArea,
+                                                  fun = "shapefile", destinationPath = destinationPath)
+    polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ECODISTRIC
+  }
+
+  polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1)
+  polys$provinces[[labelColumn]] <- polys$provinces$NAME_1
+
+  # Get all SilvaCom-generated datasets - they have a common structure
+  polys2 <- prepInputsFromSilvacomFn(polygonNames = polygonNames, studyArea = shpStudyArea,
+                                     shinyLabel = labelColumn, destinationPath = destinationPath,
+                                     namedUrlsLabelColumnNames = namedUrlsLabelColumnNames)
+
+  polys[names(polys2)] <- polys2
+  if ("National Ecozones" %in% names(polys)) {
+    # remove the french name column because it has accents that aren't correctly dealt with
+    polys$`National Ecozones`@data <-
+      polys$`National Ecozones`@data[-which(colnames(polys$`National Ecozones`@data) == "ZONE_NOM")]
+  }
+
+  polys3 <- studyAreaPolygonsFn(shpLandWebSA, shpStudyArea, labelColumn)
+  polys[names(polys3)] <- polys3
+
+  ########################################################
+  ########################################################
+  ########################################################
+  # Make them all crsStudyRegion
+  polys <- Cache(lapply, polys, function(shp) {
+    spTransform(shp, CRSobj = crsStudyRegion)
+  }, userTags = "stable")
+
+
+  # Make Leaflet versions of all
+  message("Making leaflet crs versions of reportingPolygons")
+  polysLflt <- Cache(Map, p = polys, nam = names(polys), userTags = "stable",
+                     function(p, nam) {
+                       message("  ", nam)
+                       out <- tryCatch(Cache(spTransform, p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT)), error = function(x) {
+                         p <- spChFIDs(p, as.character(seq(NROW(p))))
+                         spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT))
+                       }, error = function(x) NULL)
+                     })
+  # polysLfltSubStudyRegion <- Cache(mapply, p = polysSubRegion, nam = names(polysSubRegion), userTags = "stable",
+  #                                  function(p, nam) {
+  #                                    message("  ", nam)
+  #                                    out <- tryCatch(
+  #                                      spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT)), error = function(x) {
+  #                                      p <- spChFIDs(p, as.character(seq(NROW(p))))
+  #                                      spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT))
+  #                                    }, error = function(x) NULL)
+  #                                  })
+
+  # Put them all together in the structure:
+  #   LayerName $ Projection (crsSR or crsLFLT)
+  polysAll <- list("crsSR" = polys, "crsLFLT" = polysLflt)
+  purrr::transpose(polysAll)
+}
+
+
+#' @param freeReportingPolygonNames Character vector which will be the names given to the polygons that are in the Free
+#' @param proprietaryReportingPolygonNames Character vector which will be the names given to the polygons that are in the Proprietary
+#' @param authenticationType Character vector, currently expected to be Free, Proprietary or All
+#' @param ... Passed to \code{createReportingPolygonsFn}, so \code{polygonNames}
+createReportingPolygonsAll <- function(authenticationType,
+                                       freeReportingPolygonNames,
+                                       proprietaryReportingPolygonNames,
+                                       createReportingPolygonsFn,
+                                       ...) {
+  message("Loading Reporting Polygons")
+  reportingPolygons <- list()
+  reportingPolygons$Free <- createReportingPolygonsFn(polygonNames = freeReportingPolygonNames, ...)
+
+  if ("Proprietary" %in% authenticationType) {
+    tmpProprietary <- createReportingPolygonsFn(polygonNames = proprietaryReportingPolygonNames, ...)
+    reportingPolygons$Proprietary <- reportingPolygons$Free
+    reportingPolygons$Proprietary[names(tmpProprietary)] <- tmpProprietary
+    rm(tmpProprietary)
+  }
+  reportingPolygons
+}
+
+
+#' Run a collection of functions
+#' @param createReportingPolygonsAllFn The function called createReportingPolygonsAll
+#' @param calculateLeadingVegTypeFn The function called calculateLeadingVegType
+#' @param ... Passed to \code{createReportingPolygonsAll} (e.g., ) and \code{calculateLeadingVegType}
+reportingAndLeading <- function(createReportingPolygonsAllFn, calculateLeadingVegTypeFn, ...) {
+  reportingPolygon <- createReportingPolygonsAllFn(...)
+
+  # remove study area
+  reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) rp[-which(names(rp) == "LandWeb Study Area")])
+  leadingOut <- calculateLeadingVegTypeFn(reportingPolys = reportingPolysWOStudyArea, ...)
+  return(list(leading = leadingOut, reportingPolygons = reportingPolygon))
+}
+
+calculateLeadingVegType <- function(reportingPolys, leadingByStageFn, tsfs, vtms, ...) {
+  Map(reportingPoly = reportingPolys, tsf = tsfs, vtm = vtms,
+      MoreArgs = list(...),
+      f = function(reportingPoly, tsf, vtm, ...){
+        polys = lapply(reportingPoly, function(p) p$crsSR)
+        polyNames = names(reportingPoly)
+        Map(poly = polys, polyName = polyNames, MoreArgs = append(list(tsf = tsf, vtm = vtm), list(...)),
+            function(poly, polyName, tsf, vtm, ...) {
+              message("    ",polyName," -- Determine leading species by age class")
+              if (!is.null(poly)) {
+                a <- Cache(leadingByStageFn, tsf = tsf,
+                           vtm = vtm,
+                           polygonToSummarizeBy = poly,
+                           omitArgs = c("cl", "showSimilar",
+                                        formalsNotInCurrentDots(leadingByStageFn, ...)),
+                           ...
+                )
+              } else {
+                NULL
+              }
+            })
+      })
+}
+
+#' Calculate proportion of landscape occupied by each vegetation class
+#'
+#' @return A data.table with proportion of the pixels in each vegetation class, for
+#'         each given age class within each polygon
+leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
+                           ageClassCutOffs,  ageClasses, cl = NULL, lapplyFn = "lapply", ...) {
+  if (!is.null(tsf)) {
+    out <- lapply(ageClassCutOffs, function(ages) {
+      y <- match(ages, ageClassCutOffs)
+      if (tryCatch(is(cl, "cluster"), error = function(x) FALSE)) {
+        startList <- list(cl = cl)
+      } else {
+        startList <- list()
+      }
+      startList <- append(startList, list(y = y))
+
+      message("      ", ageClasses[y], " for\n        ", paste0(basename(tsf), collapse = "\n        "))
+      out1 <- #Cache(cacheRepo = paths$cachePath,
+        do.call(lapplyFn, append(startList, list(X = tsf, function(x, ...) {
+          x <- match(x, tsf)
+          timeSinceFireFilesRast <- raster(tsf[x])
+          leadingRast <- raster(vtm[x])
+          leadingRast[timeSinceFireFilesRast[] < ageClassCutOffs[y]] <- 0
+          if ((y + 1) < length(ageClassCutOffs))
+            leadingRast[timeSinceFireFilesRast[] >= ageClassCutOffs[y + 1]] <- 0
+          leadingRast
+        })))
+      names(out1) <- gsub(paste(basename(dirname(tsf)),
+                                basename(tsf), sep = "_"),
+                          replacement = "_", pattern = "\\.")
+      out1
+    })
+    names(out) <- ageClasses
+    allStack <- raster::stack(unlist(lapply(out, function(ageClasses) {
+      out <- lapply(ageClasses, function(rep) {
+        #lapply(rep, function(vegType) {
+        rep
+        #})
+      })
+      #names(out) <-
+      out
+    })))
+    IDs <- raster::levels(out[[1]][[1]])[[1]]$ID
+    Factors <- as.character(raster::levels(out[[1]][[1]])[[1]]$Factor)
+
+    extractAndTabulate <- function(allStack, poly, IDs, Factors) {
+      aa <- tryCatch(
+        raster::extract(allStack, poly),
+        error = function(x) NULL)
+
+      aa1 <- lapply(aa, function(x,  ...) {
+        if (!is.null(x)) {
+          apply(x, 2, function(y) {
+            nonNACells <- na.omit(y)
+            if (length(nonNACells)) {
+              vals <- tabulate(nonNACells, max(IDs))
+              names(vals)[IDs] <- Factors
+              vals <- vals[!is.na(names(vals))]
+              if (sum(vals)) {
+                vals / sum(vals)
+              } else {
+                vals
+              }
+            }
+          })
+        } else {
+          NULL
+        }
+      })
+    }
+
+    aa1 <- Cache(extractAndTabulate, allStack,
+          poly = spTransform(polygonToSummarizeBy, CRSobj = crs(allStack)),
+          IDs = IDs, Factors = Factors)
+
+    nonNulls <- unlist(lapply(aa1, function(x) !is.null(x)))
+    aa1[nonNulls] <- lapply(aa1[nonNulls], function(a) {
+      isNull <- unlist(lapply(a, is.null))
+      if (isTRUE(any(isNull))) {
+        a[isNull] <- lapply(a[isNull], function(x) {
+          b <- a[[!isNull[1]]]
+          b[seq(length(b))] <- 0
+          b
+        })
+        a <- do.call(cbind, a)
+      }
+      a
+    })
+    vegType <- unlist(lapply(aa1[nonNulls], rownames))
+    aa1[nonNulls] <- lapply(aa1[nonNulls], function(a) {
+      rownames(a) <- NULL
+      a
+    })
+
+    aadf <- data.frame(
+      zone = rep(polygonToSummarizeBy$shinyLabel[nonNulls], each = length(Factors)),
+      polygonID = as.character(rep(seq_along(polygonToSummarizeBy$shinyLabel)[nonNulls], each = length(Factors))), ## TODO:
+      vegCover = vegType, do.call(rbind, aa1[nonNulls]),
+      stringsAsFactors = FALSE
+    )
+
+    temp <- list()
+    if (NROW(aadf) > 0) { # if polygon doesn't overlap, the tryCatch on raster::extract returns NULL
+      for (ages in ageClasses) {
+        temp[[ages]] <- aadf %>%
+          dplyr::select(starts_with(ages) , zone:vegCover) %>%
+          tidyr::gather(key = "label", value = "proportion", -(zone:vegCover)) %>%
+          mutate(ageClass = unlist(lapply(strsplit(label, split = "\\."), function(x) x[[1]])))
+      }
+    }
+
+    aa <- rbindlist(temp)
+    aa
+  }
+}
+
+createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesFn,
+                               shpStudyArea, tsfRasters, vegLeadingPercent, ...) {
+  if (!is.null(CCspeciesNames)) {
+    ageName <- CCspeciesNames[agrep("age", CCspeciesNames)]
+    simulatedMapVegTypes <- lapply(vtmRasters, function(r) {
+      as.character(raster::levels(r$crsSR[[1]])[[1]][,2])
+    })
+
+    matchSpNames <- lapply(CCspeciesNames, function(sn) {
+      agrep(sn, getAllIfExists(simulatedMapVegTypes, ifNot = "Proprietary"))
+    }
+    )
+
+    CCspeciesNames <- Map(msn = seq(matchSpNames),
+                          MoreArgs = list(matchSpNames = matchSpNames, CCspeciesNames = CCspeciesNames,
+                                          simulatedSpNames = getAllIfExists(simulatedMapVegTypes, ifNot = "Proprietary")),
+                          function(msn, matchSpNames, CCspeciesNames, simulatedSpNames) {
+                            if (length(matchSpNames[[msn]]) > 0)
+                              names(CCspeciesNames)[msn] <- simulatedSpNames[matchSpNames[[msn]]]
+                            CCspeciesNames[msn]
+                          })
+    CCspeciesNames <- mapply(function(y) y, unlist(CCspeciesNames), USE.NAMES = TRUE)
+    CCspeciesNames <- CCspeciesNames[nzchar(names(CCspeciesNames))]
+
+    rstCurrentConditionList <- Cache(loadCCSpeciesFn, CCspeciesNames, #notOlderThan = Sys.time(),
+                                     url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                                     destinationPath = dPath, #method = "ngb",
+                                     studyArea = shpStudyArea, ...,
+                                     rasterToMatch = getAllIfExists(tsfRasters, "Proprietary")$crsSR[[1]]
+    )
+    stkCurrentCondition <- stack(rstCurrentConditionList[CCspeciesNames])
+    sumVegPct <- sum(stkCurrentCondition, na.rm = TRUE)
+    stkCurrentCondition$Mixed <- all(stkCurrentCondition/sumVegPct < vegLeadingPercent)*10
+    CCvtm <- raster::which.max(stkCurrentCondition)
+    CCspeciesNames <- c(CCspeciesNames, "Mixed" = "Mixed")
+    levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
+    CCvtm <- writeRaster(CCvtm, filename = file.path(dPath, "currentConditionVTM"), overwrite = TRUE)
+
+    # tsf
+    CCtsf <- Cache(loadCCSpecies, ageName, #notOlderThan = Sys.time(),
+                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+                    destinationPath = dPath, #method = "ngb",
+                    studyArea = shpStudyArea, omitArgs = "purge",
+                    postProcessedFilename = "CurrentCondition.tif", ...,
+                    rasterToMatch = getAllIfExists(tsfRasters, "Proprietary")$crsSR[[1]]
+    )
+
+    list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
+  }
+}
+
+convertPaths <- function(paths, ...) {
+  dots <- list(...)
+  for (i in seq_along(dots$pattern)) {
+    paths <- gsub(x = paths, pattern = dots$pattern[i], replacement = dots$replacement[i])
+  }
+  paths
+}
+
+convertRasterFileBackendPath <- function(rasterObj, ...) {
+  if (is.list(rasterObj)) {
+    rasterObj <- lapply(rasterObj, convertRasterFileBackendPath, ...)
+  } else if (!is.null(rasterObj)) {
+    if (is.character(rasterObj)) {
+      if (length(rasterObj) > 1) {
+        rasterObj <- lapply(rasterObj, convertRasterFileBackendPath, ...)
+      } else {
+        rasterObj <- raster()
+      }
+    }
+
+    fps <- rasterObj@file@name
+    fps <- convertPaths(fps, ...)
+    rasterObj@file@name <- fps
+  }
+  rasterObj # handles null case
+
+}
+
+setupParallelCluster <- function(cl, numClusters) {
+  lapplyFn <- "lapply"
+  if (!missing(cl)) { # not missing
+    if (!identical(cl, "FALSE")) { # is NOT FALSE
+      lapplyFn <- "parLapplyLB"
+      if (isTRUE(cl)) { # Is TRUE
+        if (detectCores() > 12) {
+          ncores <- min(numClusters, detectCores() / 4)
+          message("   making ", ncores, " node cluster")
+          if (Sys.info()[["sysname"]] == "Windows") {
+            cl <- makeCluster(ncores)
+          } else {
+            cl <- makeForkCluster(ncores)
+          }
+
+        } else { # not enough clusters
+          lapplyFn <- "lapply"
+          cl <- FALSE
+        }
+      }
+    }
+  }
+  if (is(cl, "cluster")) {
+    ## By here, it must be a cluster
+    #clusterExport(cl = cl, varlist = list("tsf", "vtm", "polygonToSummarizeBy"),
+    if (Sys.info()[["sysname"]] == "Windows") {
+      clusterExport(cl = cl, varlist = list(ls()), envir = environment())
+      clusterEvalQ(cl = cl, {
+        library(raster)
+      })
+    }
+
+  }
+  return(list(cl = cl, lapplyFn = lapplyFn))
+}
+
+getAllIfExists <- function(List, ifNot, returnList = FALSE) {
+  if ("All" %in% names(List)) {
+    if (returnList) {
+      List["All"]
+    } else {
+      List[["All"]]
+    }
+  } else {
+    if (missing(ifNot)) {
+      if (length(List) > 1) {
+        List
+      } else {
+        if (returnList) {
+          List[1]
+        } else {
+          List[[1]]
+        }
+      }
+    } else {
+      if (returnList) {
+        List[ifNot]
+      } else {
+        List[[ifNot]]
+      }
+    }
+  }
+}
+
+MapWithVariableInputs <- function(f, ..., possibleList, MoreArgs) {
+  f <- match.call()$f
+  #mapLists <- list(reportingPolygons = reportingPolygons, authenticationType = authenticationType)
+  dots <- list(...)
+  if (length(unique(unlist(lapply(dots, function(x) length(x))))) == 1) {
+    if (length(unique(unlist(lapply(possibleList, function(x) length(x))))) == 1) {
+      if (length(dots[[1]]) == length(possibleList[[1]])) {
+        putInDots <- TRUE
+      } else {
+        putInDots <- FALSE
+      }
+    } else {
+      putInDots <- FALSE
+    }
+  } else {
+    stop("Map requires that all elements of ... be the same length")
+  }
+
+  if (putInDots) {
+    dots <- append(dots, possibleList)
+  } else {
+    MoreArgs <- append(MoreArgs, possibleList)
+  }
+  do.call(Map, append(list(f = f, MoreArgs = MoreArgs), dots))
+}
+
+prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, polygonNames,
+                                   shinyLabel, studyArea) {
+  out <- Map(url = namedUrlsLabelColumnNames, layerName = names(namedUrlsLabelColumnNames),
+      MoreArgs = list(destinationPath = destinationPath,
+                      polygonNames = polygonNames,
+                      shinyLabel = shinyLabel),
+      function(url, layerName, destinationPath, polygonNames, shinyLabel) {
+        if (layerName %in% polygonNames) {
+          #dPath <- file.path(paths$inputPath, "Caribou")
+          target <- gsub(pattern = " ", replacement = "_", layerName)
+          targetZip <- paste0(target, ".zip")
+          targetFilename <-   file.path(destinationPath, paste0(target, ".shp"))
+          targetFilenames <- paste0(target, c(".dbf", ".prj", ".sbn", ".sbx",
+                                              ".shp", ".shp.xml", ".shx"))
+          message(layerName, ": Running prepInputs")
+          polygonOut <- Cache(prepInputs, userTags = "stable",
+                              archive = asPath(targetZip),
+                              url = url$url,
+                              targetFile = asPath(targetFilename),
+                              alsoExtract = asPath(targetFilenames),
+                              fun = "shapefile", destinationPath = destinationPath,
+                              studyArea = studyArea)
+
+          if (!is.null(polygonOut))
+            polygonOut@data[[shinyLabel]] <- polygonOut[[url$labelColumnName]]
+          polygonOut
+        }
+      }
+  )
+  out[!unlist(lapply(out, is.null))]
+}
+
+formalsNotInCurrentDots <- function(fun, ...) {
+  names(list(...))[!(names(list(...)) %in% names(formals(fun)))]
+}
+
+
+studyAreaPolygonsFn <- function(shpLandWebSA = NULL, shpStudyArea = NULL, labelColumn) {
+  wholeStudyAreaTxt <- "Whole Study Area"
+  #shpLandWebSA$shinyLabel <- as.character(seq(NROW(shpLandWebSA)))
+  polys <- list()
+  if (!is.null(shpLandWebSA)) {
+    polys[["LandWeb Study Area"]] <- raster::aggregate(shpLandWebSA, dissolve = TRUE)
+    polys[["LandWeb Study Area"]] <- sp::SpatialPolygonsDataFrame(
+      polys[["LandWeb Study Area"]], data = data.frame(NAME = wholeStudyAreaTxt)
+    )
+    polys[["LandWeb Study Area"]][[labelColumn]] <- wholeStudyAreaTxt
+  }
+
+  if (!is.null(shpStudyArea)) {
+    polys[["shpStudyArea"]] <- raster::aggregate(shpStudyArea, dissolve = TRUE)
+    polys[["shpStudyArea"]] <- sp::SpatialPolygonsDataFrame(
+      polys[["shpStudyArea"]], data = data.frame(NAME = wholeStudyAreaTxt)
+    )
+    polys[["shpStudyArea"]][[labelColumn]] <- wholeStudyAreaTxt
+  }
+  polys
+}

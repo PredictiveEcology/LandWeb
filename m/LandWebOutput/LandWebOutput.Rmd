@@ -1,44 +1,19 @@
 ---
 title: "LandWebOutput"
-author: ""
-date: "26 January 2017"
-output: pdf_document
+author: "Eliot McIntire and Alex M Chubaty"
+date: "18 May 2018"
+output:
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
 
 # Overview
 
-This module creates 3 raster layers, `seralStageMap`, `vegTypeMap`, and `oldBigPatch`. The module will save these layers to disk as scheduled by `summaryInterval`. These can then be used for post-processing.
-
-
-# Usage
-
-```{r module_usage}
-library(igraph)
-library(SpaDES)
-
-moduleDir <- file.path("C:/Users/yonluo/Documents/GitHub/LandWeb")
-inputDir <- file.path(moduleDir, "inputs") %>% checkPath(create = TRUE)
-outputDir <- file.path(moduleDir, "outputs")
-cacheDir <- file.path(outputDir, "cache")
-times <- list(start = 0, end = 10)
-parameters <- list(
-  #.progress = list(type = "text", interval = 1), # for a progress bar
-  ## If there are further modules, each can have its own set of parameters:
-  #module1 = list(param1 = value1, param2 = value2),
-  #module2 = list(param1 = value1, param2 = value2)
-)
-modules <- list("LandWebOutput")
-objects <- list()
-paths <- list(
-  cachePath = cacheDir,
-  modulePath = moduleDir,
-  inputPath = inputDir,
-  outputPath = outputDir
-)
-
-mySim <- simInit(times = times, params = parameters, modules = modules,
-                 objects = objects, paths = paths)
-
-spades(mySim)
-```
-
+This module creates 3 raster layers, `seralStageMap`, `vegTypeMap`, and `oldBigPatch`.
+The module will save these layers to disk as scheduled by `summaryInterval`.
+These can then be used for post-processing.
