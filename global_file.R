@@ -30,23 +30,7 @@ reproducible::Require(unique(c(
 packageLoadEndTime <- Sys.time()
 
 ## LandWeb app information -- needed packages loaded, e.g., for icon
-appInfo <- list(
-  name = "LandWeb",
-  version = numeric_version("1.0.0"),
-  authors = c(
-    person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
-    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut")
-  ),
-  copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
-                    "Her Majesty the Queen in Right of Canada,",
-                    "as represented by the Minister of Natural Resources Canada."),
-  support = list(
-    model.email = "eliot.mcintire@canada.ca",
-    model.name = "Eliot McIntire",
-    tech.email = "dwismer@friresearch.ca",
-    tech.name = "Dan Wismer"
-  )
-)
+source("appInfo.R")
 
 # Options
 options(reproducible.verbose = FALSE)
@@ -54,7 +38,8 @@ options(reproducible.useMemoise = TRUE)
 options(spades.browserOnError = FALSE)
 
 # Google Authentication setup
-options(googleAuthR.scopes.selected = "https://www.googleapis.com/auth/drive.readonly")
+options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/userinfo.email",
+                                        "https://www.googleapis.com/auth/userinfo.profile"))
 
 ## LandWeb.ca (live version)
 #options(googleAuthR.webapp.client_id = "680957910261-kmlslu6vu0fo9129oj1fckksapg94gja.apps.googleusercontent.com")
