@@ -17,8 +17,8 @@ function(input, output, session) {
   unsuspendModule("largePatches")
   unsuspendModule("vegArea")
 
-  rctUserInfo <- callModule(authGoogle, "auth_google", authFile = authFile,
-                            appURL = appURL, icon = NULL)
+  rctUserInfo <- callModule(authGoogle, "auth_google", appURL = appURL,
+                            authUsers = appInfo$users, icon = NULL)
 
   defaultPolyName <- "National Ecozones"  ## TODO: move to global.R ?
 
