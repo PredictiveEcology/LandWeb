@@ -54,9 +54,7 @@ options(reproducible.useMemoise = TRUE)
 options(spades.browserOnError = FALSE)
 
 # Google Authentication setup
-options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/drive.readonly",
-                                        "https://www.googleapis.com/auth/userinfo.email",
-                                        "https://www.googleapis.com/auth/userinfo.profile"))
+options(googleAuthR.scopes.selected = "https://www.googleapis.com/auth/drive.readonly")
 
 ## LandWeb.ca (live version)
 #options(googleAuthR.webapp.client_id = "680957910261-kmlslu6vu0fo9129oj1fckksapg94gja.apps.googleusercontent.com")
@@ -67,7 +65,7 @@ options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8
 options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
 options(httr_oob_default = TRUE)
 
-appURL <- "http://landweb.predictiveecology.org/Demo/"
+appURL <- "http://landweb.ca"
 authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
