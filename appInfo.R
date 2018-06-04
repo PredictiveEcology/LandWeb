@@ -22,6 +22,7 @@ appInfo <- list(
     "bob.christian@forcorp.com",
     "Chris.Bater@gov.ab.ca",
     "eliot.mcintire@gmail.com",
+    "fri.LandWeb@gmail.com",
     "gwhitm@gmail.com",
     "jamesn@albertanewsprint.com",
     "John.Stadt@gov.ab.ca",
