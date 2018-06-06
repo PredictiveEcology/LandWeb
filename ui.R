@@ -8,7 +8,7 @@ dashboardPage(
   dashboardSidebar(
     width = 300,
     sidebarMenu(
-      id = "wholeThing", ## TODO: update generator to add the various modules and headings!!
+      id = "sidebar_menu", ## TODO: update generator to add the various modules and headings!!
       authGoogleUI("auth_google"),
       br(),
       h4(HTML("&nbsp;"), "App Information"),
