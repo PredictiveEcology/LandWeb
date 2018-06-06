@@ -4,7 +4,7 @@ library(shinyBS)
 
 dashboardPage(
   skin = "green",
-  dashboardHeader(title = "LandWeb"),
+  dashboardHeader(title = "LandWeb", titleWidth = 300),
   dashboardSidebar(
     width = 300,
     sidebarMenu(
