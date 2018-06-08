@@ -207,10 +207,10 @@ downloadOutputs <- function(input, output, session, appInfo,
           fileList
         }
 
-        ## TODO: improve info/metadata in this file
-        readmeFile <- "README.md"
-        readmeFile2 <- file.path(tmpDir, basename(readmeFile))
-        file.copy(readmeFile, readmeFile2)
+        ## README, TERMS, ETC.
+        otherFiles <- c("README.md", "TERMS.pdf")
+        otherFiles2 <- file.path(tmpDir, basename(otherFiles))
+        file.copy(otherFiles, otherFiles2)
 
         ## create the zip file containing the selected files
         cwd <- getwd()
