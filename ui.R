@@ -39,10 +39,6 @@ dashboardPage(
     includeCSS("www/style.css"), ## TODO: add this to generator
     useShinyjs(),
 
-    ## display ToS to user when they first start the app
-    # bsModal(id = "appToS_modal", title = "Terms of Service", trigger = "", size = "large",
-    #         includeMarkdown("TERMS.md")),
-
     tabItems(
       tabItem("appInfo", landwebAppInfoUI("appInfo")),          ## TODO: add this to generator
       #tabItem("appPrivacy", privacyStatementUI("appPrivacy")), ## TODO: add this to generator
