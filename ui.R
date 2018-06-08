@@ -38,10 +38,15 @@ dashboardPage(
     tags$head(includeScript("google-analytics.js")),
     includeCSS("www/style.css"), ## TODO: add this to generator
     useShinyjs(),
+
+    ## display ToS to user when they first start the app
+    # bsModal(id = "appToS_modal", title = "Terms of Service", trigger = "", size = "large",
+    #         includeMarkdown("TERMS.md")),
+
     tabItems(
       tabItem("appInfo", landwebAppInfoUI("appInfo")),          ## TODO: add this to generator
-      tabItem("appPrivacy", privacyStatementUI("appPrivacy")), ## TODO: add this to generator
-      tabItem("appToS", termsOfServiceUI("appToS")),             ## TODO: add this to generator
+      #tabItem("appPrivacy", privacyStatementUI("appPrivacy")), ## TODO: add this to generator
+      tabItem("appToS", termsOfServiceUI("appToS")),            ## TODO: add this to generator
       tabItem("appSupport", landwebAppSupportUI("appSupport")), ## TODO: add this to generator
 
       tabItem("timeSinceFire", timeSeriesofRastersUI("timeSinceFire")),
