@@ -6,6 +6,9 @@ function(input, output, session) {
   ## run additonal server code from server_file.R
   if (file.exists("server_file.R")) source("server_file.R", local = TRUE)
 
+  ## show the user the ToS when they start the app
+  #toggleModal(session, "appToS_modal", toggle = "open")
+
   ## module calls
   # TODO: update generator to handle these assignments
 
