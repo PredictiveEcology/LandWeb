@@ -6,19 +6,24 @@ function(input, output, session) {
   ## run additonal server code from server_file.R
   if (file.exists("server_file.R")) source("server_file.R", local = TRUE)
 
+  ## show the user the ToS when they start the app, but not after logging in
+  #showModal(modalDialog(
+  #  title = NULL, easyClose = FALSE, size = "l", footer = modalButton("Accept"),
+  #  includeMarkdown("TERMS.md")
+  #))
+
   ## module calls
   # TODO: update generator to handle these assignments
 
   callModule(landwebAppInfo, "appInfo", appInfo)
-  callModule(privacyStatement, "appPrivacy", "PRIVACY.md", "success")
   callModule(termsOfService, "appToS", "TERMS.md", "success")
   callModule(landwebAppSupport, "appSupport", appInfo)
 
   unsuspendModule("largePatches")
   unsuspendModule("vegArea")
 
-  rctUserInfo <- callModule(authGoogle, "auth_google", authFile = authFile,
-                            appURL = appURL, icon = NULL)
+  rctUserInfo <- callModule(authGoogle, "auth_google", appURL = appURL,
+                            authUsers = appInfo$users, icon = NULL)
 
   defaultPolyName <- "National Ecozones"  ## TODO: move to global.R ?
 
