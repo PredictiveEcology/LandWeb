@@ -158,6 +158,7 @@ studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyReg
                           asPath(studyRegionFilePath),
                           fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
                           subStudyRegionName = subStudyRegionName,
+                          cacheId = cacheId$loadStudyRegions,
                           crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)
 list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpSubStudyRegion
 
