@@ -15,7 +15,7 @@ function(input, output, session) {
                            class = "btn btn-default-green", # defined in www/style.css
                            `data-dismiss` = "modal",
                            "Accept"),
-      includeMarkdown("TERMS.md")
+      wellPanel(includeMarkdown("TERMS.md"), style = "overflow-y:scroll; max-height: 600px")
     ))
     if (isTruthy(session$userData$userLoggedIn())) removeModal()
   })
