@@ -9,7 +9,12 @@ function(input, output, session) {
   ## show the user the ToS when they start the app, but not after logging in
   observe({
     showModal(modalDialog(
-      title = NULL, easyClose = FALSE, size = "l", footer = modalButton("Accept"),
+      title = NULL, easyClose = FALSE, size = "l",
+      # footer = modalButton("Accept"),
+      footer = tags$button(type = "button",
+                           class = "btn btn-default-green", # defined in www/style.css
+                           `data-dismiss` = "modal",
+                           "Accept"),
       includeMarkdown("TERMS.md")
     ))
     if (isTruthy(session$userData$userLoggedIn())) removeModal()

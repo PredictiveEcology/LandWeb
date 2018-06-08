@@ -1,6 +1,11 @@
-/* downlooad button */
+/* download button */
 .shiny-download-link {
   margin: 0 20px;
+}
+
+.btn-default-green {
+  color: #fff;
+  background-color: #00a65a;
 }
 
 /* footer */
