@@ -7,10 +7,13 @@ function(input, output, session) {
   if (file.exists("server_file.R")) source("server_file.R", local = TRUE)
 
   ## show the user the ToS when they start the app, but not after logging in
-  #showModal(modalDialog(
-  #  title = NULL, easyClose = FALSE, size = "l", footer = modalButton("Accept"),
-  #  includeMarkdown("TERMS.md")
-  #))
+  observe({
+    showModal(modalDialog(
+      title = NULL, easyClose = FALSE, size = "l", footer = modalButton("Accept"),
+      includeMarkdown("TERMS.md")
+    ))
+    if (isTruthy(session$userData$userLoggedIn())) removeModal()
+  })
 
   ## module calls
   # TODO: update generator to handle these assignments
