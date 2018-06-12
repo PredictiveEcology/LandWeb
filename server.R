@@ -6,18 +6,32 @@ function(input, output, session) {
   ## run additonal server code from server_file.R
   if (file.exists("server_file.R")) source("server_file.R", local = TRUE)
 
+  ## show the user the ToS when they start the app, but not after logging in
+  observe({
+    showModal(modalDialog(
+      title = NULL, easyClose = FALSE, size = "l",
+      # footer = modalButton("Accept"),
+      footer = tags$button(type = "button",
+                           class = "btn btn-default-green", # defined in www/style.css
+                           `data-dismiss` = "modal",
+                           "Accept"),
+      wellPanel(includeMarkdown("TERMS.md"), style = "overflow-y:scroll; max-height: 600px")
+    ))
+    if (isTruthy(session$userData$userLoggedIn())) removeModal()
+  })
+
   ## module calls
   # TODO: update generator to handle these assignments
 
   callModule(landwebAppInfo, "appInfo", appInfo)
-  callModule(landwebAppPrivacy, "appPrivacy")  # TODO: generate from a file for use in SpaDES.shiny
-  callModule(landwebAppToS, "appToS")          # TODO: genearte from a file for use in SpaDES.shiny
+  callModule(termsOfService, "appToS", "TERMS.md", "success")
   callModule(landwebAppSupport, "appSupport", appInfo)
 
   unsuspendModule("largePatches")
   unsuspendModule("vegArea")
 
-  rctUserInfo <- callModule(authGoogle, "auth_google", authFile = authFile, appURL = appURL) ## TODO: write this with generator
+  rctUserInfo <- callModule(authGoogle, "auth_google", appURL = appURL,
+                            authUsers = appInfo$users, icon = NULL)
 
   defaultPolyName <- "National Ecozones"  ## TODO: move to global.R ?
 

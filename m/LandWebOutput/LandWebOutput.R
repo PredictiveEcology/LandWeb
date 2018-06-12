@@ -1,37 +1,35 @@
-
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
   name = "LandWebOutput",
-  description = "Summary the output for the LandWeb natural range of variation",
-  keywords = c("land NRV"),
-  authors = person("Yong", "Luo", email = "yong.luo@canada.ca", 
-                   role = c("aut", "cre")),
+  description = "Summarize the output for the LandWeb natural range of variation.",
+  keywords = c("LandWeb", "NRV"),
+  authors = person("Yong", "Luo", email = "yong.luo@canada.ca", role = c("aut", "cre")),
   childModules = character(0),
-  version = numeric_version("1.3.1.9027"),
+  version = numeric_version("1.3.2"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandWebOutput.Rmd"),
-  reqdPkgs = list(""),
+  reqdPkgs = list("data.table", "raster", "SpaDES.tools"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter("summaryInterval", "numeric", 50, NA, NA, "This describes summary interval for this module"),
     defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = bind_rows(
-    expectsInput(objectName = "summaryPeriod", objectClass = "numeric", 
-                 desc = "a numeric vector contains the start year and end year of summary", 
+    expectsInput(objectName = "summaryPeriod", objectClass = "numeric",
+                 desc = "a numeric vector contains the start year and end year of summary",
                  sourceURL = NA),
-    expectsInput(objectName = "vegLeadingPercent", objectClass = "numeric", 
-                 desc = "a number that define whether a species is lead for a given pixel", 
+    expectsInput(objectName = "vegLeadingPercent", objectClass = "numeric",
+                 desc = "a number that define whether a species is lead for a given pixel",
                  sourceURL = NA),
-    expectsInput(objectName = "cohortData", objectClass = "data.table", 
+    expectsInput(objectName = "cohortData", objectClass = "data.table",
                  desc = "age cohort-biomass table hooked to pixel group map by pixelGroupIndex at
                  succession time step, this is imported from forest succession module",
                  sourceURL = NA),
-    expectsInput(objectName = "pixelGroupMap", objectClass = "RasterLayer", 
+    expectsInput(objectName = "pixelGroupMap", objectClass = "RasterLayer",
                  desc = "updated community map at each succession time step, this is imported from
                  forest succession module",
                  sourceURL = NA),
@@ -47,9 +45,9 @@ defineModule(sim, list(
 doEvent.LandWebOutput = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     #sim <- Init(sim)
-    sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "allEvents", 
+    sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "allEvents",
                          eventPriority = 7.5)
-  }   else if (time(sim) >= sim$summaryPeriod[1] & eventType == "allEvents" & 
+  }   else if (time(sim) >= sim$summaryPeriod[1] & eventType == "allEvents" &
                time(sim) <= sim$summaryPeriod[2]) {
     sim <- AllEvents(sim)
     sim <- scheduleEvent(sim,  time(sim) + P(sim)$summaryInterval,
@@ -69,47 +67,47 @@ doEvent.LandWebOutput = function(sim, eventTime, eventType, debug = FALSE) {
 
 ### template for your event1
 AllEvents <- function(sim) {
-  sim$vegTypeMap <- sim$vegTypeMapGenerator(sim$species, sim$cohortData, sim$pixelGroupMap, 
+  sim$vegTypeMap <- sim$vegTypeMapGenerator(sim$species, sim$cohortData, sim$pixelGroupMap,
                                                      sim$vegLeadingPercent)
 
-    # vegetation type summary 
+    # vegetation type summary
   # if(is.null(sim$LandMine$vegTypeMapGenerator)) { # This may be produced in a specific fire module
   #   species <- sim$species
-  #   species[species == "Pinu_sp" | species == "Pinu_sp", speciesGroup := "PINU"] 
-  #   species[species == "Betu_pap" | species == "Popu_bal"| 
-  #             species == "Popu_tre" | species == "Lari_lar", speciesGroup := "DECI"] 
-  #   species[species == "Pice_mar" | species == "Pice_gla", speciesGroup := "PICE"] 
+  #   species[species == "Pinu_sp" | species == "Pinu_sp", speciesGroup := "PINU"]
+  #   species[species == "Betu_pap" | species == "Popu_bal"|
+  #             species == "Popu_tre" | species == "Lari_lar", speciesGroup := "DECI"]
+  #   species[species == "Pice_mar" | species == "Pice_gla", speciesGroup := "PICE"]
   #   cohortdata <- sim$cohortData
-  #   shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,.(speciesCode, speciesGroup)], 
-  #                                                             speciesCode), nomatch = 0] 
-  #   shortcohortdata[, totalB := sum(B, na.rm = TRUE), by = pixelGroup] 
-  #   shortcohortdata <- shortcohortdata[,.(speciesGroupB = sum(B, na.rm = TRUE), 
-  #                                         totalB = mean(totalB, na.rm = TRUE)), 
-  #                                      by = c("pixelGroup", "speciesGroup")] 
-  #   shortcohortdata[,speciesPercentage:=speciesGroupB/totalB] 
+  #   shortcohortdata <- setkey(cohortdata, speciesCode)[setkey(species[,.(speciesCode, speciesGroup)],
+  #                                                             speciesCode), nomatch = 0]
+  #   shortcohortdata[, totalB := sum(B, na.rm = TRUE), by = pixelGroup]
+  #   shortcohortdata <- shortcohortdata[,.(speciesGroupB = sum(B, na.rm = TRUE),
+  #                                         totalB = mean(totalB, na.rm = TRUE)),
+  #                                      by = c("pixelGroup", "speciesGroup")]
+  #   shortcohortdata[,speciesPercentage:=speciesGroupB/totalB]
   #   shortcohortdata[speciesGroup == "PINU" & speciesPercentage > vegLeadingPercent,
-  #                   speciesLeading := 1]# pine leading 
+  #                   speciesLeading := 1]# pine leading
   #   shortcohortdata[speciesGroup == "DECI" & speciesPercentage > vegLeadingPercent,
-  #                   speciesLeading := 2]# deciduous leading 
+  #                   speciesLeading := 2]# deciduous leading
   #   shortcohortdata[speciesGroup == "PICE" & speciesPercentage > vegLeadingPercent,
-  #                   speciesLeading := 3]# spruce leading 
-  #   shortcohortdata[is.na(speciesLeading), speciesLeading := 0] 
-  #   shortcohortdata[,speciesLeading:=max(speciesLeading, na.rm = TRUE), by = pixelGroup] 
-  #   shortcohortdata <- unique(shortcohortdata[,.(pixelGroup, speciesLeading)], by = "pixelGroup") 
-  #   shortcohortdata[speciesLeading == 0, speciesLeading := 4] # 4 is mixed forests 
+  #                   speciesLeading := 3]# spruce leading
+  #   shortcohortdata[is.na(speciesLeading), speciesLeading := 0]
+  #   shortcohortdata[,speciesLeading:=max(speciesLeading, na.rm = TRUE), by = pixelGroup]
+  #   shortcohortdata <- unique(shortcohortdata[,.(pixelGroup, speciesLeading)], by = "pixelGroup")
+  #   shortcohortdata[speciesLeading == 0, speciesLeading := 4] # 4 is mixed forests
   #   attritable <- data.table(ID = unique(shortcohortdata$speciesLeading))
   #   attritable[ID == 1, Factor := "Pine leading"]
   #   attritable[ID == 2, Factor := "Deciduous leading"]
   #   attritable[ID == 3, Factor := "Spruce leading"]
   #   attritable[ID == 4, Factor := "Mixed"]
   #   pixelGroupMap <- sim$pixelGroupMap
-  #   vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading") 
+  #   vegTypeMap <- rasterizeReduced(shortcohortdata, pixelGroupMap, "speciesLeading")
   #   vegTypeMap <- setValues(vegTypeMap, as.integer(getValues(vegTypeMap)))
   #   levels(vegTypeMap) <- as.data.frame(attritable)
   #   projection(vegTypeMap) <- projection(sim$pixelGroupMap)
   #   sim$vegTypeMap <- vegTypeMap
   # } else {
-  #   sim$vegTypeMap <- sim$LandMine$vegTypeMapGenerator(sim$species, sim$cohortData, sim$pixelGroupMap, 
+  #   sim$vegTypeMap <- sim$LandMine$vegTypeMapGenerator(sim$species, sim$cohortData, sim$pixelGroupMap,
   #                                             sim$vegLeadingPercent)
   # }
   return(invisible(sim))
@@ -117,7 +115,7 @@ AllEvents <- function(sim) {
 
 
 .inputObjects = function(sim) {
-  if (!suppliedElsewhere("summaryPeriod", sim)) 
+  if (!suppliedElsewhere("summaryPeriod", sim))
     sim$summaryPeriod <- c(1000, 1500)
   if (!suppliedElsewhere("vegTypeMapGenerator", sim)) { # otherwise created in LandMine
     sim$vegTypeMapGenerator <- function(species, cohortdata, pixelGroupMap, vegLeadingPercent) {
@@ -135,7 +133,7 @@ AllEvents <- function(sim) {
                                              totalB = mean(totalB, na.rm = TRUE)),
                                          by = c("pixelGroup", "speciesGroup")]
       shortcohortdata[,speciesPercentage := speciesGroupB/totalB]
-      
+
       speciesLeading <- NULL
       Factor <- NULL
       ID <- NULL
@@ -146,7 +144,7 @@ AllEvents <- function(sim) {
       totalB <- NULL
       B <- NULL
       speciesGroupB <- NULL
-      
+
       shortcohortdata[speciesGroup == "PINU" & speciesPercentage > vegLeadingPercent,
                       speciesLeading := 1]# pine leading
       shortcohortdata[speciesGroup == "DECI" & speciesPercentage > vegLeadingPercent,
@@ -171,8 +169,8 @@ AllEvents <- function(sim) {
       projection(vegTypeMap) <- projection(pixelGroupMap)
       vegTypeMap
     }
-    
   }
+
   sim$vegLeadingPercent <- 0.80
   if (!suppliedElsewhere("cohortData", sim))
     sim$cohortData <- data.table()
@@ -182,13 +180,12 @@ AllEvents <- function(sim) {
     localSpeciesFilename <- file.path(dataPath(sim), "speciesTraits.csv")
     if (!file.exists(localSpeciesFilename)) {
       mm <- moduleMetadata(currentModule(sim), getPaths()$modulePath)$inputObjects
-      download.file(subset(mm, objectName=="species")$sourceURL, 
+      download.file(subset(mm, objectName == "species")$sourceURL,
                     destfile = localSpeciesFilename)
     }
     sim$species <- read.csv(localSpeciesFilename, header = TRUE,
                             stringsAsFactors = FALSE) %>%
       data.table()
-    
   }
   return(invisible(sim))
 }
