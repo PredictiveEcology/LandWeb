@@ -4,23 +4,24 @@ library(shinyBS)
 
 dashboardPage(
   skin = "green",
-  dashboardHeader(title = "LandWeb"),
+  dashboardHeader(title = "LandWeb", titleWidth = 300),
   dashboardSidebar(
     width = 300,
     sidebarMenu(
-      id = "wholeThing", ## TODO: update generator to add the various modules and headings!!
+      id = "sidebar_menu", ## TODO: update generator to add the various modules and headings!!
       authGoogleUI("auth_google"),
       br(),
       h4(HTML("&nbsp;"), "App Information"),
       menuItem("About", tabName = "appInfo", icon = icon("info-circle")),
-      menuItem("Privacy Statement", tabName = "appPrivacy", icon = icon("eye-slash")),
+      menuItem("Privacy Policy",
+               href = "https://friresearch.ca/content/friresearchca-privacy-policy",
+               newtab = TRUE,
+               icon = icon("eye-slash")),
       menuItem("Terms of Service", tabName = "appToS", icon = icon("file")),
       menuItem("Support", tabName = "appSupport", icon = icon("question-circle")),
       br(),
-      h4(HTML("&nbsp;"), "Maps"),
-      menuItem("Time since fire", tabName = "timeSinceFire", icon = icon("map-o"), selected = TRUE),
-      br(),
       h4(HTML("&nbsp;"), "NRV"),
+      menuItem("Time Since Fire Maps", tabName = "timeSinceFire", icon = icon("map-o"), selected = TRUE),
       menuItem("Large Patches", tabName = "largePatches", icon = icon("bar-chart")),
       menuItem("Vegetation Cover", tabName = "vegArea", icon = icon("bar-chart")),
       br(),
@@ -37,10 +38,11 @@ dashboardPage(
     tags$head(includeScript("google-analytics.js")),
     includeCSS("www/style.css"), ## TODO: add this to generator
     useShinyjs(),
+
     tabItems(
       tabItem("appInfo", landwebAppInfoUI("appInfo")),          ## TODO: add this to generator
-      tabItem("appPrivacy", landwebAppPrivacyUI("appPrivacy")), ## TODO: add this to generator
-      tabItem("appToS", landwebAppToSUI("appToS")),             ## TODO: add this to generator
+      #tabItem("appPrivacy", privacyStatementUI("appPrivacy")), ## TODO: add this to generator
+      tabItem("appToS", termsOfServiceUI("appToS")),            ## TODO: add this to generator
       tabItem("appSupport", landwebAppSupportUI("appSupport")), ## TODO: add this to generator
 
       tabItem("timeSinceFire", timeSeriesofRastersUI("timeSinceFire")),
