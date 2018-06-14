@@ -1,6 +1,7 @@
 appInfo <- list(
   name = "LandWeb",
   version = numeric_version("1.0.0"),
+  appdir = file.path("/mnt/shared"), ## TODO: change this on the landweb.ca machine
   authors = c(
     person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
     person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut")

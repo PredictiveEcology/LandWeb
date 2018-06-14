@@ -320,6 +320,14 @@ sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(
               cacheId = cacheId$simInitAndSpades,
               paths = paths4sim$All)
 
+### mod
+sim2@.envir$tsfs   <- lapply(sim2@.envir$tsfs, function(f) {
+  gsub(pattern = "/home/emcintir/Documents/GitHub/", replacement = appInfo$appdir, f)
+})
+sim2@.envir$vtms   <- lapply(sim2@.envir$vtms, function(f) {
+  gsub(pattern = "/home/emcintir/Documents/GitHub/", replacement = appInfo$appdir, f)
+})
+
 ################################################################################
 globalEndTime <- Sys.time()
 
