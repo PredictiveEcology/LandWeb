@@ -65,6 +65,7 @@ histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, nSimTimes, 
       breaksLabels <- dataForBreaks$breaks
       breaksInterval <- diff(breaksLabels)[1]
       dataForHistogram <- if (NROW(out) == 0) { # add a bar at zero if there are no patches
+        browser()
         hist(0, plot = FALSE, breaks = prettyBreaks)
       } else {
         hist(out, plot = FALSE, breaks = prettyBreaks)

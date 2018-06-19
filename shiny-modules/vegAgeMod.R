@@ -207,7 +207,6 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
     #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]))
     polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]$shinyLabel
 
-
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
       category = c("polygonID", "vegCover", "ageClass"),
