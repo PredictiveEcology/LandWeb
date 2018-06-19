@@ -57,15 +57,15 @@ histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, nSimTimes, 
 
       minNumBars <- 6
       maxNumBars <- 30
-      rangeNClusters <- range(c(outCC, nClusters, minNumBars))
+      rangeNClusters <- range(c(0, outCC, nClusters, minNumBars)) ## TODO: verify
       attemptedNumBars <- max(minNumBars, min(maxNumBars, diff(rangeNClusters)))
       breaksRaw <- seq(rangeNClusters[1], rangeNClusters[2], length.out = attemptedNumBars)
       prettyBreaks <- pretty(breaksRaw, n = attemptedNumBars, min.n = min(attemptedNumBars, minNumBars))
       dataForBreaks <- hist(nClusters, plot = FALSE, breaks = prettyBreaks)
       breaksLabels <- dataForBreaks$breaks
       breaksInterval <- diff(breaksLabels)[1]
-      dataForHistogram <- if (NROW(out) == 0) { # add a bar at zero if there are no patches
-        browser()
+      dataForHistogram <- if (NROW(out) == 0) {
+        # add a bar at zero if there are no patches
         hist(0, plot = FALSE, breaks = prettyBreaks)
       } else {
         hist(out, plot = FALSE, breaks = prettyBreaks)
