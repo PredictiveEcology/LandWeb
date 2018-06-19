@@ -87,7 +87,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
     #     nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
     #     minNumBars <- 6
     #     maxNumBars <- 30
-    #     rangeNClusters <- range(c(outCC, nClusters, minNumBars))
+    #     rangeNClusters <- range(c(0, outCC, nClusters, minNumBars)) ## TODO: verify
     #     attemptedNumBars <- max(minNumBars, min(maxNumBars, diff(rangeNClusters)))
     #     breaksRaw <- seq(rangeNClusters[1], rangeNClusters[2], length.out = attemptedNumBars)
     #     prettyBreaks <- pretty(breaksRaw, n = attemptedNumBars, min.n = min(attemptedNumBars, minNumBars))
