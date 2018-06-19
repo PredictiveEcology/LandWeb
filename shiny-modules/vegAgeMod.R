@@ -115,7 +115,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
     #   ticksAt <- barplotBreaks - min(breaksLabels)
     #   xlim <- range(ticksAt) - breaksInterval/2
     #   addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks - min(breaksLabels))
-    #   verticalLineAtX <- verticalLineAtX + breaksInterval/2 # THe barplot xaxis is 1/2 a barwidth off
+    #   verticalLineAtX <- verticalLineAtX + breaksInterval/2 # The barplot xaxis is 1/2 a barwidth off
     #
     # }
     polyName <- chosenPolyName %>% gsub(" ", "_", .)
@@ -140,7 +140,6 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
 }
 
 #'
-#'
 vegAgeModUI <- function(id) {
   ns <- NS(id)
 
@@ -154,7 +153,6 @@ vegAgeModUI <- function(id) {
   )
 }
 
-#'
 #'
 vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive({NULL}),
                       rctLeadingDTlist, rctLeadingDTlistCC, rctVtm, ageClasses, outputPath) {

@@ -1,6 +1,7 @@
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
+  "PredictiveEcology/quickPlot@development",
   "PredictiveEcology/SpaDES.core@development",
   "PredictiveEcology/SpaDES.tools@development",
   "PredictiveEcology/SpaDES.shiny@generalize-modules",
@@ -13,7 +14,6 @@ moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
                    "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr",
                    "PredictiveEcology/quickPlot@development",
                    "PredictiveEcology/SpaDES.tools@development",
-                   "PredictiveEcology/SpaDES.tools@prepInputs",
                    "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible",
                    "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr",
                    "VGAM")
