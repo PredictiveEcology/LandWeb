@@ -6,7 +6,7 @@
 #'
 intersectListShps <- function(listShps, intersectShp) {
   message("Intersecting reporting polygons with intersectShp")
-  
+
   outerOut <- lapply(listShps, function(shp) {
     message("  ", names(shp))
     out <- SpaDES.tools::maskInputs(shp, intersectShp)
@@ -16,7 +16,7 @@ intersectListShps <- function(listShps, intersectShp) {
 
 reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
   rastsLFLT <- if (!(isTRUE(all(unlist(lapply(lfltFN, file.exists)))))) {
-    
+
     message("Reprojecting rasters, filling in minimum age, saving to disk")
     rstFlammableNum <- raster(flammableFile)
     rstFlammableNum <- Cache(projectRaster, rstFlammableNum, crs = crs, method = "ngb")
@@ -42,11 +42,11 @@ reprojectRasts <- function(tsf, lfltFN, crs, flammableFile) {
   } else {
     rastsLFLT <- lapply(lfltFN, raster)
   }
-  
+
   rastsCRSSR2 <- lapply(tsf, raster)
-  
+
   globalRasts <- list("crsSR" = rastsCRSSR2, "crsLFLT" = rastsLFLT)
-  
+
   message("  Finished reprojecting rasters")
   globalRasts
 }
@@ -125,7 +125,7 @@ reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
   } else {
     .reloadPreviousWorking <- 0
   }
-  
+
   if (.reloadPreviousWorking == 1) {
     #library(git2r) # has git repo internally
     md5s <- tryCatch(showWorkingShas(reproducibleCache), error = function(x) TRUE)
@@ -145,7 +145,7 @@ reloadPreviousWorkingFn <- function(reloadPreviousWorking) {
       message("No previous working version. Proceeding.")
     }
   }
-  
+
   return(.reloadPreviousWorking)
 }
 
@@ -158,12 +158,12 @@ loadCCSpecies <- function(mapNames, userTags = "", destinationPath, ...) {
     mapNames <- gsub(mapNames, "1$", "")
   }
   names(filenames) <- mapNames
-  
+
   Map(filename = filenames, mapName = mapNames, MoreArgs = list(userTags = userTags,
                                                                 destinationPath = destinationPath, ...),
       function(filename, mapName, userTags, destinationPath, ...) {
         tifName <-  asPath(file.path(destinationPath, paste0(filename, ".tif")))
-        
+
         filenames <- asPath(paste0(filename, ".", c("tfw", "tif.aux.xml", "tif.ovr", "tif.vat.cpg", "tif.vat.dbf")))
         prepInputs(userTags = c(userTags, "stable"),
                    archive = "CurrentCondition.zip",
@@ -180,9 +180,9 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
                                     namedUrlsLabelColumnNames = namedUrlsLabelColumnNames,
                                     destinationPath, labelColumn, ...) {
   names(polygonNames) <- polygonNames
-  
+
   polys <- list()
-  
+
   layerNamesIndex <- "AB Natural Sub Regions"
   if (layerNamesIndex %in% polygonNames) {
     #dPath <- asPath(file.path(paths$inputPath, "ecozones", "Alberta"))
@@ -202,7 +202,7 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
     )
     polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$NSRNAME
   }
-  
+
   # National Ecozone
   layerNamesIndex <- "National Ecozones"
   if (layerNamesIndex %in% polygonNames) {
@@ -219,7 +219,7 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
     )
     polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ZONE_NAME
   }
-  
+
   # National Ecodistrict
   layerNamesIndex <- "National Ecodistricts"
   if (layerNamesIndex %in% polygonNames) {
@@ -234,25 +234,25 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
                                       fun = "shapefile", destinationPath = destinationPath)
     polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ECODISTRIC
   }
-  
+
   polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1)
   polys$provinces[[labelColumn]] <- polys$provinces$NAME_1
-  
+
   # Get all SilvaCom-generated datasets - they have a common structure
   polys2 <- prepInputsFromSilvacomFn(polygonNames = polygonNames, studyArea = shpStudyArea,
                                      shinyLabel = labelColumn, destinationPath = destinationPath,
                                      namedUrlsLabelColumnNames = namedUrlsLabelColumnNames)
-  
+
   polys[names(polys2)] <- polys2
   if ("National Ecozones" %in% names(polys)) {
     # remove the french name column because it has accents that aren't correctly dealt with
     polys$`National Ecozones`@data <-
       polys$`National Ecozones`@data[-which(colnames(polys$`National Ecozones`@data) == "ZONE_NOM")]
   }
-  
+
   polys3 <- studyAreaPolygonsFn(shpLandWebSA, shpStudyArea, labelColumn)
   polys[names(polys3)] <- polys3
-  
+
   ########################################################
   ########################################################
   ########################################################
@@ -260,8 +260,8 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
   polys <- Cache(lapply, polys, function(shp) {
     spTransform(shp, CRSobj = crsStudyRegion)
   }, userTags = "stable")
-  
-  
+
+
   # Make Leaflet versions of all
   message("Making leaflet crs versions of reportingPolygons")
   polysLflt <- Cache(Map, p = polys, nam = names(polys), userTags = "stable",
@@ -281,7 +281,7 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
   #                                      spTransform(p, CRSobj = CRS(SpaDES.shiny::proj4stringLFLT))
   #                                    }, error = function(x) NULL)
   #                                  })
-  
+
   # Put them all together in the structure:
   #   LayerName $ Projection (crsSR or crsLFLT)
   polysAll <- list("crsSR" = polys, "crsLFLT" = polysLflt)
@@ -301,7 +301,7 @@ createReportingPolygonsAll <- function(authenticationType,
   message("Loading Reporting Polygons")
   reportingPolygons <- list()
   reportingPolygons$Free <- createReportingPolygonsFn(polygonNames = freeReportingPolygonNames, ...)
-  
+
   if ("Proprietary" %in% authenticationType) {
     tmpProprietary <- createReportingPolygonsFn(polygonNames = proprietaryReportingPolygonNames, ...)
     reportingPolygons$Proprietary <- reportingPolygons$Free
@@ -314,10 +314,10 @@ createReportingPolygonsAll <- function(authenticationType,
 
 #' Run a collection of functions
 #' @param createReportingPolygonsAllFn The function called createReportingPolygonsAll
-#' @param ... Passed to \code{createReportingPolygonsAll} (e.g., ) 
+#' @param ... Passed to \code{createReportingPolygonsAll} (e.g., )
 reportingAndLeading <- function(createReportingPolygonsAllFn, leadingByStageFn, ...) {
   reportingPolygon <- createReportingPolygonsAllFn(...)
-  
+
   # remove study area
   reportingPolysWOStudyArea <-
     lapply(reportingPolygon, function(rp) {
@@ -341,8 +341,8 @@ reportingAndLeading <- function(createReportingPolygonsAllFn, leadingByStageFn, 
 #'
 #' This function is recursive. If \code{polygonToSummarizeBy} is a SpatialPolygon,
 #' then the function will enter once, and convert this to a fasterized version, and
-#' pass that in to the function replacing \code{polygonToSummarizeBy}. It is 
-#' also recursive of passed a vector of filenames for \code{tsf} and \code{vtm}. 
+#' pass that in to the function replacing \code{polygonToSummarizeBy}. It is
+#' also recursive of passed a vector of filenames for \code{tsf} and \code{vtm}.
 #' @return A data.table with proportion of the pixels in each vegetation class, for
 #'         each given age class within each polygon
 leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
@@ -411,7 +411,7 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
           if (length(tsf) > 1) {
             # recursive call to this same function, but one tsf and vtm at a time
             numClust <- optimalClusterNum(16000, maxNumClusters = length(tsf))
-            out <- 
+            out <-
               if (numClust > 1) {
                 cl <- makeForkCluster(numClust, type = "FORK")
                 on.exit(stopCluster(cl))
@@ -441,7 +441,7 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
                   )
                 )
               }
-            
+
             names(out) <- basename(names(out))
             out <- rbindlist(out)
             amc::.gc()
@@ -452,18 +452,18 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
               objName = basename(tsf)
             }
             message("        ", objName, ":  Calculating leading species by stage")
-            
-            
+
+
             # main function code
             if (tail(ageClassCutOffs, 1) != Inf)
               ageClassCutOffs <- c(ageClassCutOffs, Inf)
-            
+
             timeSinceFireFilesRast <- raster(tsf[1])
             timeSinceFireFilesRast[] <- timeSinceFireFilesRast[]
-            
+
             # Use this when NOT in parallel
             #timeSinceFireFilesRast <- Cache(rasterToMemory, tsf[1])
-            
+
             rasTsf <- reclassify(
               timeSinceFireFilesRast,
               cbind(
@@ -473,16 +473,16 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
                 seq_along(ageClasses)
               )
             )
-            
+
             levels(rasTsf) <-
               data.frame(ID = seq_along(ageClasses), Factor = ageClasses)
-            
+
             rasVeg <- raster(vtm[1])
             rasVeg[] <- rasVeg[] # 3 seconds
-            
+
             splitVal <-
               paste0("_", 75757575, "_") # unlikely to occur for any other reason
-            
+
             # Individual species
             nas3 <- is.na(rasVeg[]) | rasVeg[] == 0
             nas1 <- is.na(rasTsf[]) | rasTsf[] == 0
@@ -494,22 +494,22 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
               as.character(factorValues(rasVeg, rasVeg[][!nas])[, 1])
             #as.character(raster::levels(rasVeg)[[1]]$Factor)[rasVeg[][!nas]]
             ff <- paste(name1, name3, sep = splitVal) # 4 seconds
-            
-            
+
+
             ras <- raster(rasVeg)
             ffFactor <- factor(ff)
             ras[!nas] <- ffFactor # 2 seconds
-            
+
             eTable <-
               data.frame(ID = seq_along(levels(ffFactor)),
                          VALUE = levels(ffFactor))
             types <-
               strsplit(as.character(eTable$VALUE), split = splitVal)
             types <- do.call(rbind, types)
-            
+
             levels(ras) <-
               data.frame(eTable, ageClass = types[, 1], vegCover = types[, 2])
-            
+
             levs <- raster::levels(polygonToSummarizeBy)[[1]]
             levs <-
               factorValues(polygonToSummarizeBy, levs$ID) # this is same, if all values present, e.g., 1, 2, 3, 4, 5 ... but not if missing, 1, 2, 3, 5
@@ -519,7 +519,7 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
                 polygonToSummarizeBy[],
                 att = c("shinyLabel", "polygonNum")
               )
-            
+
             bb <-
               data.table(
                 zone = facVals$shinyLabel,
@@ -527,16 +527,16 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
                 cell = seq_len(ncell(ras))
               )
             #bb <- na.omit(bb)
-            
+
             # add age and vegCover by reference
             bb[, c("ageClass", "vegCover") := factorValues(ras, ras[][bb$cell], att = c("ageClass", "vegCover"))]
             bb <- na.omit(bb)
-            
+
             #set(bb, , "zone", polygonToSummarizeBy$shinyLabel[as.numeric(bb$polygonNum)])
             tabulated <-
               bb[, list(N1 = .N), by = c("zone", "polygonID", "ageClass", "vegCover")]
             tabulated[, proportion := round(N1 / sum(N1), 4), by = c("zone", "ageClass")]
-            
+
             allCombos <-
               expand.grid(
                 ageClass = ageClasses,
@@ -548,9 +548,9 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
               match(allCombos$zone, levs$shinyLabel)
             #allCombos$proportion <- 0
             data.table::setDT(allCombos)
-            
+
             #allCombos[tabulated, on = c("zone", "vegCover", "ageClass")]
-            
+
             tabulated <-
               merge(
                 tabulated,
@@ -568,11 +568,11 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
                   paste(basename(dirname(tsf)), basename(tsf), sep = "_"),
                   sep = "."
                 ))
-            
+
             endTime <- Sys.time()
             message("    Leading cover calculation took ",
                     format(endTime - startTime, digits = 2))
-            
+
             return(tabulated)
           }
         }
@@ -588,12 +588,12 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
     simulatedMapVegTypes <- lapply(vtmRasters, function(r) {
       as.character(raster::levels(r$crsSR[[1]])[[1]][,2])
     })
-    
+
     matchSpNames <- lapply(CCspeciesNames, function(sn) {
       agrep(sn, getAllIfExists(simulatedMapVegTypes, ifNot = "Proprietary"))
     }
     )
-    
+
     CCspeciesNames <- Map(msn = seq(matchSpNames),
                           MoreArgs = list(matchSpNames = matchSpNames, CCspeciesNames = CCspeciesNames,
                                           simulatedSpNames = getAllIfExists(simulatedMapVegTypes, ifNot = "Proprietary")),
@@ -604,7 +604,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                           })
     CCspeciesNames <- mapply(function(y) y, unlist(CCspeciesNames), USE.NAMES = TRUE)
     CCspeciesNames <- CCspeciesNames[nzchar(names(CCspeciesNames))]
-    
+
     rstCurrentConditionList <- Cache(loadCCSpeciesFn, CCspeciesNames, #notOlderThan = Sys.time(),
                                      url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                                      destinationPath = dPath, #method = "ngb",
@@ -618,7 +618,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
     CCspeciesNames <- c(CCspeciesNames, "Mixed" = "Mixed")
     levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
     CCvtm <- writeRaster(CCvtm, filename = file.path(dPath, "currentConditionVTM"), overwrite = TRUE)
-    
+
     # tsf
     CCtsf <- Cache(loadCCSpecies, ageName, #notOlderThan = Sys.time(),
                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
@@ -627,37 +627,9 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                    postProcessedFilename = "CurrentCondition.tif", ...,
                    rasterToMatch = getAllIfExists(tsfRasters, "Proprietary")$crsSR[[1]]
     )
-    
+
     list(CCvtm = CCvtm, CCtsf = CCtsf$Age)
   }
-}
-
-convertPaths <- function(paths, ...) {
-  dots <- list(...)
-  for (i in seq_along(dots$pattern)) {
-    paths <- gsub(x = paths, pattern = dots$pattern[i], replacement = dots$replacement[i])
-  }
-  paths
-}
-
-convertRasterFileBackendPath <- function(rasterObj, ...) {
-  if (is.list(rasterObj)) {
-    rasterObj <- lapply(rasterObj, convertRasterFileBackendPath, ...)
-  } else if (!is.null(rasterObj)) {
-    if (is.character(rasterObj)) {
-      if (length(rasterObj) > 1) {
-        rasterObj <- lapply(rasterObj, convertRasterFileBackendPath, ...)
-      } else {
-        rasterObj <- raster()
-      }
-    }
-    
-    fps <- rasterObj@file@name
-    fps <- convertPaths(fps, ...)
-    rasterObj@file@name <- fps
-  }
-  rasterObj # handles null case
-  
 }
 
 setupParallelCluster <- function(cl, numClusters) {
@@ -674,7 +646,6 @@ setupParallelCluster <- function(cl, numClusters) {
           } else {
             cl <- makeForkCluster(ncores)
           }
-          
         } else { # not enough clusters
           lapplyFn <- "lapply"
           cl <- FALSE
@@ -691,7 +662,6 @@ setupParallelCluster <- function(cl, numClusters) {
         library(raster)
       })
     }
-    
   }
   return(list(cl = cl, lapplyFn = lapplyFn))
 }
@@ -741,7 +711,7 @@ MapWithVariableInputs <- function(f, ..., possibleList, MoreArgs) {
   } else {
     stop("Map requires that all elements of ... be the same length")
   }
-  
+
   if (putInDots) {
     dots <- append(dots, possibleList)
   } else {
@@ -772,7 +742,7 @@ prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, p
                                      alsoExtract = asPath(targetFilenames),
                                      fun = "shapefile", destinationPath = destinationPath,
                                      studyArea = studyArea)
-                 
+
                  if (!is.null(polygonOut))
                    polygonOut@data[[shinyLabel]] <- polygonOut[[url$labelColumnName]]
                  polygonOut
@@ -798,7 +768,7 @@ studyAreaPolygonsFn <- function(shpLandWebSA = NULL, shpStudyArea = NULL, labelC
     )
     polys[["LandWeb Study Area"]][[labelColumn]] <- wholeStudyAreaTxt
   }
-  
+
   if (!is.null(shpStudyArea)) {
     polys[["shpStudyArea"]] <- raster::aggregate(shpStudyArea, dissolve = TRUE)
     polys[["shpStudyArea"]] <- sp::SpatialPolygonsDataFrame(
@@ -815,12 +785,12 @@ optimalClusterNum <- function(memRequiredMB = 5000, maxNumClusters = 1) {
   if (Sys.info()["sysname"] == "Linux") {
     detectedNumCores <- parallel::detectCores()
     shouldUseCluster <- (maxNumClusters > 0)
-    
+
     if (shouldUseCluster) {
       # try to scale to available RAM
       try(aa <- system("free -lm", intern = TRUE))
       if (!is(aa, "try-error")) {
-        bb <- strsplit(aa[2], split = " "); 
+        bb <- strsplit(aa[2], split = " ");
         availMem <- as.numeric(bb[[1]][nzchar(bb[[1]])][7]) # available column in "free -lm" call
         numClusters <- floor(min(detectedNumCores, availMem / memRequiredMB))
       } else {
@@ -840,7 +810,7 @@ optimalClusterNum <- function(memRequiredMB = 5000, maxNumClusters = 1) {
 
 
 #' Create a parallel Fork cluster, if useful
-#' 
+#'
 #' Given the size of a problem, it may not be useful to create a cluster.
 #' This will make a Fork cluster (so Linux only)
 #' @param useParallel Logical. If \code{FALSE}, returns NULL
@@ -849,28 +819,28 @@ optimalClusterNum <- function(memRequiredMB = 5000, maxNumClusters = 1) {
 #' @param maxNumClusters Numeric or Integer. The theoretical upper limit
 #'        for number of clusters to create (e.g., because there are only
 #'        3 problems to solve, not \code{parallel::detectCores})
-#' @param ... Passed to \code{makeForkClusterRandom}. 
+#' @param ... Passed to \code{makeForkClusterRandom}.
 #'            Only relevant for \code{iseed}.
-makeOptimalCluster <- function(useParallel = FALSE, MBper = 5e3, 
-                               maxNumClusters = parallel::detectCores(), 
+makeOptimalCluster <- function(useParallel = FALSE, MBper = 5e3,
+                               maxNumClusters = parallel::detectCores(),
                                ...) {
   if (useParallel && tolower(Sys.info()[["sysname"]]) != "windows") {
     numClus <- optimalClusterNum(MBper, maxNumClusters = maxNumClusters)
     if (numClus <= 1) {
       NULL
     } else {
-      makeForkClusterRandom(numClus, ...)  
+      makeForkClusterRandom(numClus, ...)
     }
   } else {
     NULL
   }
 }
 #' Fasterize with crop & spTransform first
-#' 
-#' @param emptyRaster An empty raster with res, crs, extent all 
+#'
+#' @param emptyRaster An empty raster with res, crs, extent all
 #'        correct for to pass to \code{fasterize}
-#' @param polygonToFasterize passed to \code{fasterize}, but it 
-#'        will be cropped first if 
+#' @param polygonToFasterize passed to \code{fasterize}, but it
+#'        will be cropped first if
 #'        \code{extent(emptyRaster) < extent(polygonToFasterize)}
 #' @param field passed to fasterize
 fasterize2 <- function(emptyRaster, polygonToFasterize, field) {
@@ -886,8 +856,8 @@ fasterize2 <- function(emptyRaster, polygonToFasterize, field) {
   }
   aa2 <-
     fasterize::fasterize(sf::st_as_sf(thePoly), ras, field = field)
-  levels(aa2) <- 
-    data.frame(ID = seq_len(nlevels(thePoly[[field]])), 
+  levels(aa2) <-
+    data.frame(ID = seq_len(nlevels(thePoly[[field]])),
                Factor = levels(thePoly[[field]]))
   # levels(aa2) <-
   #   data.frame(ID = seq_along(thePoly), as.data.frame(thePoly))
@@ -896,12 +866,12 @@ fasterize2 <- function(emptyRaster, polygonToFasterize, field) {
 
 
 #' \code{makeForkCluster} with random seed set
-#' 
+#'
 #' This will set different randon seeds on the clusters (not the default)
 #' with \code{makeForkCluster}. It also defaults to creating a logfile with
 #' message of where it is.
-#' 
-#' @param ... passed to \code{makeForkCluster}, e.g., 
+#'
+#' @param ... passed to \code{makeForkCluster}, e.g.,
 #' @param iseed passed to \code{clusterSetRNGStream}
 makeForkClusterRandom <- function(..., iseed = NULL) {
   require(parallel)
@@ -918,9 +888,9 @@ makeForkClusterRandom <- function(..., iseed = NULL) {
 }
 
 #' Map and parallel::clusterMap together
-#' 
+#'
 #' This will send to Map or clusterMap, depending on whether cl is provided.
-#' 
+#'
 #' @param ... passed to Map or clusterMap
 #' @param cl passed to clusterMap
 Map2 <- function(..., cl = NULL) {
