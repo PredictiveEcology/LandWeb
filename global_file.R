@@ -211,8 +211,7 @@ parameters4sim <- lapply(parameters4sim, function(x) {
   )
 })
 
-outputs4simFn <- function(objects4sim, parameters4sim, times4sim,
-                          objectNamesToSave) {
+outputs4simFn <- function(objects4sim, parameters4sim, times4sim, objectNamesToSave) {
   outputs <- data.frame(stringsAsFactors = FALSE,
                         expand.grid(
                           objectName = objectNamesToSave,#, "oldBigPatch"),
@@ -285,13 +284,13 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
                    emptyList = emptyListAll)
+
 if (exists("oldStyle")) {
   if (oldStyle) {
     tmp <- mySimOuts[[2]]
     mySimOuts <- list()
     mySimOuts$All <- tmp
   }
-
 }
 
 message("  Finished simInit and Experiment.")
@@ -320,12 +319,21 @@ sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(
               cacheId = cacheId$simInitAndSpades,
               paths = paths4sim$All)
 
-### mod
-sim2@.envir$tsfs   <- lapply(sim2@.envir$tsfs, function(f) {
-  gsub(pattern = "/home/emcintir/Documents/GitHub/", replacement = appInfo$appdir, f)
+### update file paths for rasters
+oldPath <- "/home/emcintir/Documents/GitHub/" ## needs trailing slash!
+newPath <- appInfo$appdir
+
+sim2@.envir$tsfs <- lapply(sim2@.envir$tsfs, function(f) {
+  gsub(pattern = oldPath, replacement = newPath, f)
 })
+
+## requires reproducible >= 0.2.0.9000
+sim2@.envir$tsfRasters <- convertRasterPaths(sim2@.envir$tsfRasters,
+                                             pattern = oldPath,
+                                             replacement = newPath)
+
 sim2@.envir$vtms   <- lapply(sim2@.envir$vtms, function(f) {
-  gsub(pattern = "/home/emcintir/Documents/GitHub/", replacement = appInfo$appdir, f)
+  gsub(pattern = oldPath, replacement = newPath, f)
 })
 
 ################################################################################

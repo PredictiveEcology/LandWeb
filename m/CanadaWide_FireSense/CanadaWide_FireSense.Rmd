@@ -22,7 +22,6 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 
 ```{r module_usage}
 #devtools::install_github("PredictiveEcology/reproducible@development")
-#devtools::install_github("PredictiveEcology/SpaDES.tools@prepInputs") # prepInputs with alsoExtract argument
 devtools::install_github("ygc2l/webDatabases") # For fetching KNN layers from PFC repo
 
 library(igraph)
