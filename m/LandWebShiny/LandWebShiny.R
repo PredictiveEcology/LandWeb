@@ -8,7 +8,7 @@ defineModule(sim, list(
   keywords = c("LandWeb"),
   authors = person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
   childModules = character(0),
-  version = list(SpaDES.core = "0.1.1.9009", LandWebShiny = "0.0.2"),
+  version = list(SpaDES.core = "0.1.1.9009", LandWebShiny = "0.0.2", reproducible = "0.2.0.9000"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
@@ -137,9 +137,9 @@ Init <- function(sim) {
                           lfltFN = tsfLFLTFilenames, flammableFile = flammableFiles,
                           reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
-  sim$tsfRasters <- convertRasterFileBackendPath(sim$tsfRasters,
-                                                 pattern = pathConversions$pattern,
-                                                 replacement = pathConversions$replacement)
+  sim$tsfRasters <- convertRasterPaths(sim$tsfRasters,
+                                       pattern = pathConversions$pattern,
+                                       replacement = pathConversions$replacement)
 
   sim$tsfRasterTilePaths <- Cache(Map, rst = sim$tsfRasters, modelType = names(sim$tsfRasters),
                                   userTags = c("gdal2TilesWrapper", "tsf", "tsfs"),
@@ -176,9 +176,9 @@ Init <- function(sim) {
                       lfltFN = vtmLFLTFilenames, flammableFile = flammableFiles,
                       reprojectRasts, MoreArgs = list(crs = sp::CRS(SpaDES.shiny::proj4stringLFLT)))
 
-  vtmRasters <- convertRasterFileBackendPath(vtmRasters,
-                                             pattern = pathConversions$pattern,
-                                             replacement = pathConversions$replacement)
+  vtmRasters <- convertRasterPaths(vtmRasters,
+                                   pattern = pathConversions$pattern,
+                                   replacement = pathConversions$replacement)
 
   vtmRasterTilePaths <- Cache(Map, rst = vtmRasters, modelType = names(vtmRasters),
                               userTags = c("gdal2Tiles", "vtm", "vtms"),
@@ -212,8 +212,9 @@ Init <- function(sim) {
                                              shpStudyArea = sim$shpStudyArea,
                                              tsfRasters = sim$tsfRasters,
                                              vegLeadingPercent = sim$vegLeadingPercent))
-  CurrentConditions <- convertRasterFileBackendPath(CurrentConditions, pattern = pathConversions$pattern,
-                                                    replacement = pathConversions$replacement)
+  CurrentConditions <- convertRasterPaths(CurrentConditions,
+                                          pattern = pathConversions$pattern,
+                                          replacement = pathConversions$replacement)
   sim$tsfsCC <- lapply(CurrentConditions, function(x) {if (!is.null(x)) {
     fps <- filename(x$CCtsf)
     fps <- convertPaths(fps, pattern = pathConversions$pattern,
