@@ -117,7 +117,7 @@ Init <- function(sim) {
   sim$tsfs <- lapply(sim$tsfs, function(x) x[file.exists(x)])
   sim$vtms <- lapply(sim$vtms, function(x) x[file.exists(x)])
 
-  tsfLFLTFilenames <- lapply(sim$tsfs, function(tsf) SpaDES.tools::.suffix(tsf, "LFLT") )
+  tsfLFLTFilenames <- lapply(sim$tsfs, function(tsf) .suffix(tsf, "LFLT") )
 
   rasterResolutions <- lapply(sim$tsfs, function(x) raster(x[1]) %>% res(.))
   rasterResolutions <- lapply(sim$tsfs, function(x) {
@@ -169,7 +169,7 @@ Init <- function(sim) {
                       })
                       return(unlist(lapply(vtmTifs, filename)))
                     })
-  vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) SpaDES.tools::.suffix(vtm, "LFLT") )
+  vtmLFLTFilenames <- lapply(vtmsTifs, function(vtm) .suffix(vtm, "LFLT") )
 
   vtmRasters <- Cache(Map, tsf = vtmsTifs, userTags = c("reprojectRasts", "vtms", "vtm"),
                       cacheId = cacheId$vtmRasters,
