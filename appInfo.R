@@ -5,7 +5,7 @@ appInfo <- list(
   appmoddir = file.path("~/GitHub/m"), ## TODO: change this on the landweb.ca machine
   authors = c(
     person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
-    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut")
+    person("Alex M", "Chubaty", email = "achubaty@friresearch.ca", role = "aut")
   ),
   copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
                     "Her Majesty the Queen in Right of Canada,",
