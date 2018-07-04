@@ -311,13 +311,17 @@ objList <- list(
   shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
   studyAreaName = subStudyRegionNameCollapsed,
   vegLeadingPercent = vegLeadingPercent,
-  labelColumn = labelColumn)
+  labelColumn = labelColumn
+)
 
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
               modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
               objList,# can't provide argument name "objects" here because same as Cache
               cacheId = cacheId$simInitAndSpades,
               paths = paths4sim$All)
+
+### update modulePath
+modulePath(sim2) <- "~/GitHub/LandWeb/m"
 
 ### update file paths for rasters
 oldPath <- "/home/emcintir/Documents/GitHub/" ## needs trailing slash!
