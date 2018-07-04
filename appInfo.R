@@ -12,8 +12,8 @@ appInfo <- list(
   support = list(
     model.email = "eliot.mcintire@canada.ca",
     model.name = "Eliot McIntire",
-    tech.email = "dwismer@friresearch.ca",
-    tech.name = "Dan Wismer"
+    tech.email = "achubaty@friresearch.ca",
+    tech.name = "Alex Chubaty"
   ),
 
   ### list of authorized users
