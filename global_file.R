@@ -64,7 +64,6 @@ paths <- list(
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
-
 if (any(c("achubaty") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
 }
@@ -321,7 +320,7 @@ sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(
               paths = paths4sim$All)
 
 ### update modulePath
-modulePath(sim2) <- "~/GitHub/LandWeb/m"
+modulePath(sim2) <- appInfo$appmoddir
 
 ### update file paths for rasters
 oldPath <- "/home/emcintir/Documents/GitHub/" ## needs trailing slash!
