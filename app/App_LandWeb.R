@@ -1,5 +1,8 @@
-if (packageVersion("reproducible") < "0.2.0.9002") {
+if (packageVersion("reproducible") < "0.2.1") {
   install_github("PredictiveEcology/reproducible@development")
+}
+if (packageVersion("SpaDES.core") < "0.2.0") {
+  install_github("PredictiveEcology/SpaDES.core@development")
 }
 
 # source("R/locateGdal.R")
