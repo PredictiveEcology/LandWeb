@@ -4,7 +4,7 @@ library(dplyr)
 
 Modules <- tribble(
   ~type,  ~name, ~id, ~parameters,
-  #"shinymodule", "authGoogle", "auth_google", list("authFile = authFile", "appURL = appURL"),
+  #"shinymodule", "authGoogle", "auth_google", list("authFile = authFile", "appURL = appURL"), ## TODO: update; authFile not used
   "shinyModule", "spades_simInit", "sim_init", list(),
   "shinyModule", "spades_expt", "sim_expt", list(),
   "shinyModule", "timeSeriesofRasters", "timeSinceFire",
