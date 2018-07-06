@@ -69,7 +69,7 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
       shpSubStudyRegion <- spTransform(shpStudyRegionNWT, crs(shpStudyRegion))
       shpSubStudyRegion <- rgeos::gBuffer(shpSubStudyRegion, width = 0, byid = TRUE)
     } else if (any(subStudyRegionName %in% canadaAdminNamesAll)) {
-      canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
+      canadaMap <- Cache(getData, "GADM", country = "CAN", level = 1, path = "inputs",
                          cacheRepo = paths$cachePath, userTags = "stable")
       subStudyRegionName <- canadaAdminNames[canadaAdminNames %in% subStudyRegionName |
                                                names(canadaAdminNames) %in% subStudyRegionName]
