@@ -51,7 +51,6 @@ options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
 options(httr_oob_default = TRUE)
 
 appURL <- "http://landweb.ca"
-authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
 ##                however, in-app, the paths need to be set as reactive values for authentication!
@@ -63,7 +62,6 @@ paths <- list(
   outputPath = file.path("outputs", paste0(subStudyRegionNameCollapsed))
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
-
 
 if (any(c("achubaty") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
@@ -311,13 +309,17 @@ objList <- list(
   shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
   studyAreaName = subStudyRegionNameCollapsed,
   vegLeadingPercent = vegLeadingPercent,
-  labelColumn = labelColumn)
+  labelColumn = labelColumn
+)
 
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
               modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
               objList,# can't provide argument name "objects" here because same as Cache
               cacheId = cacheId$simInitAndSpades,
               paths = paths4sim$All)
+
+### update modulePath
+modulePath(sim2) <- appInfo$appmoddir
 
 ### update file paths for rasters
 oldPath <- "/home/emcintir/Documents/GitHub/" ## needs trailing slash!

@@ -2,9 +2,10 @@ appInfo <- list(
   name = "LandWeb",
   version = numeric_version("1.0.0"),
   appdir = file.path("/mnt/shared/"), ## TODO: change this on the landweb.ca machine
+  appmoddir = file.path("~/GitHub/m"), ## TODO: change this on the landweb.ca machine
   authors = c(
     person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
-    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = "aut")
+    person("Alex M", "Chubaty", email = "achubaty@friresearch.ca", role = "aut")
   ),
   copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
                     "Her Majesty the Queen in Right of Canada,",
@@ -12,8 +13,8 @@ appInfo <- list(
   support = list(
     model.email = "eliot.mcintire@canada.ca",
     model.name = "Eliot McIntire",
-    tech.email = "dwismer@friresearch.ca",
-    tech.name = "Dan Wismer"
+    tech.email = "achubaty@friresearch.ca",
+    tech.name = "Alex Chubaty"
   ),
 
   ### list of authorized users
