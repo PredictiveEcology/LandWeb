@@ -24,6 +24,14 @@ sudo dpkg-reconfigure unattended-upgrades
 sudo apt install htop
 ```
 
+### Install nodejs + mapshaper
+```bash
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+sudo npm install -g mapshaper
+```
+
 ### Install R
 
 ```bash
@@ -38,12 +46,10 @@ sudo apt update
 sudo apt -y install r-base
 sudo apt -y install r-base-dev
 
-## install GIS tool
+## install GIS tools
 sudo add-apt-repository ppa:ubuntugis/ppa
 sudo apt update
-
 ```
-
 Check installed R version:
 ```bash
 Rscript -e 'sessionInfo()'
@@ -175,6 +181,7 @@ pkgs <- c(
   "rgexf",
   "rJava",
   "rmarkdown",
+  "mapshaper",
   "RSQLite",
   "sf",
   "sp",
