@@ -49,8 +49,11 @@ sudo apt -y install r-base-dev
 ## install GIS tools
 sudo add-apt-repository ppa:ubuntugis/ppa
 sudo apt update
+
 ```
+
 Check installed R version:
+
 ```bash
 Rscript -e 'sessionInfo()'
 ```
