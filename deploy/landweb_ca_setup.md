@@ -4,9 +4,18 @@
 
 landweb.ca (104.37.196.228)
 
-## Ubuntu setup
+**Details:**
 
-Ubuntu 16.04 was pre-installed with user `ubuntu`.
+- *CPUs*: 4
+- *RAM:* 16 GB
+- *Storage:* 20GB (OS drive; SSD) + 20 GB (storage; SSD)
+- *Operating system:* Ubuntu 16.04 LTS (user `ubuntu`)
+
+**Contact:**
+
+Bryan L (<bryan@bigpixel.ca>).
+
+## Ubuntu setup
 
 Create a new (non-admin) user for use with Rstudio:
 
@@ -25,7 +34,10 @@ sudo apt install htop
 ```
 
 ### Install nodejs + mapshaper
+
 ```bash
+## the commands below work for Ubuntu 16.04+;
+## for Debian, also need https://github.com/nodejs/help/issues/1040#issuecomment-362970187
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
@@ -46,10 +58,9 @@ sudo apt update
 sudo apt -y install r-base
 sudo apt -y install r-base-dev
 
-## install GIS tools
+## add repo for GIS tools
 sudo add-apt-repository ppa:ubuntugis/ppa
 sudo apt update
-
 ```
 
 Check installed R version:
@@ -291,20 +302,31 @@ rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --de
 sudo nano /etc/shiny-server/shiny-server.conf
 ```
 
+Need to edit a few things in `/etc/shiny-server/shiny-server.conf`, as follows.
+
+Before the server block, add:
+
 ```
-## Need to edit a few things in the shiny-server.conf
+# Application timeouts
+app_idle_timeout 24000; # 6 hours
+app_init_timeout 1800;  # 30 mins
+```
+
+In the server block, edit accordingly:
+
+```
 server_name landweb.ca
 listen 80;
 
-app_idle_timeout 24000; # 6 hours
+app_dir /srv/shiny-server/LandWeb; ## use app_dir instead of site_dir
+
 google_analytics_id UA-119802371-1;
 ```
 
-```bash
-# once shiny-server is up and running:
-sudo rm -rf /srv/shiny-server/sample-apps
+Once shiny-server is up and running:
 
-# restart shiny server
+```bash
+sudo rm -rf /srv/shiny-server/sample-apps
 sudo systemctl restart shiny-server.service
 ```
 #### Rstudio server
