@@ -1,5 +1,6 @@
 function(input, output, session) {
   serverStartTime <<- Sys.time()
+
   session$userData$userLoggedIn <- reactiveVal(FALSE)
   session$userData$userAuthorized <- reactiveVal(FALSE)
 
@@ -48,6 +49,7 @@ function(input, output, session) {
                                    shpStudyRegionName = "LandWeb Study Area",
                                    defaultPolyName = defaultPolyName,
                                    colorPalette = timeSinceFirePalette,
+                                   mapTilesDir = "www/All/FULL/map-tiles",
                                    mapTitle = "Time since fire",
                                    mapLegend = paste0("Time since fire", br(), "(years)"),
                                    maxAge = maxAge, zoom = 5, nPolygons = 1,

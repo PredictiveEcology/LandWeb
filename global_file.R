@@ -1,3 +1,5 @@
+shiny::addResourcePath("tiles", "www/All/FULL/map-tiles")
+
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -18,6 +20,7 @@ moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
                    "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr",
                    "VGAM")
 
+# needed packages loaded, e.g., for icon
 reproducible::Require(unique(c(
   SpaDESPkgs,
   shinyPkgs,
@@ -29,7 +32,7 @@ reproducible::Require(unique(c(
 )))
 packageLoadEndTime <- Sys.time()
 
-## LandWeb app information -- needed packages loaded, e.g., for icon
+## LandWeb app information
 source("appInfo.R")
 
 # Options
@@ -63,10 +66,7 @@ paths <- list(
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
-if (any(c("achubaty") %in% Sys.info()["user"])) {
-  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
-}
-if (any(c("emcintir") %in% Sys.info()["user"])) {
+if (any(c("achubaty", "emcintir") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
 }
 
@@ -78,7 +78,6 @@ source(file.path("R", "functions.R"))
 # App - variables
 appStartTime <- st <- Sys.time()
 message("Started at ", appStartTime)
-rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
 
 # leaflet parameters
