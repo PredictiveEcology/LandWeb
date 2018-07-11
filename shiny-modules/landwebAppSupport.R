@@ -21,7 +21,10 @@ landwebAppSupport <- function(input, output, session, appInfo) {
           p("Downloads are only available to authorized (logged in) users. Please log in using your Google account."),
 
           h4("3. Can I run the model over my own spatial area instead of using the built-in reporting polygons?"),
-          p("Yes. Logged in users can upload their own shapefiles by selecting 'Upload' on the Time Since Fire maps page.")
+          p("Yes. Logged in users can upload their own shapefiles by selecting 'Upload' on the Time Since Fire maps page."),
+
+          h4("4. The left-side menu has disappeared. How do I get it back?"),
+          p("Click the ", icon("bars"), "button in the top menu bar to collapse/expand the left-side menu.")
         ),
 
         shinydashboard::box(
