@@ -181,7 +181,7 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
     } else {
       ## proprietary
       rbindlist(list(rctLeadingDTlist()[[rctChosenPolyName()]],
-                     rctLeadingDTlistCC()[[rctChosenPolyName()]]))
+                     rctLeadingDTlistCC()[[rctChosenPolyName()]][["Proprietary"]]))
     }
 
     dtFn <- function(dt, curPoly) {
