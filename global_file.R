@@ -46,13 +46,15 @@ options(spades.browserOnError = FALSE)
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/userinfo.email",
                                         "https://www.googleapis.com/auth/userinfo.profile"))
 
-## LandWeb.ca (live version)
-#options(googleAuthR.webapp.client_id = "680957910261-kmlslu6vu0fo9129oj1fckksapg94gja.apps.googleusercontent.com")
-#options(googleAuthR.webapp.client_secret = "Qe0TE327wRf9DYM-BEhDxe4a")
-
-## LandWeb.org (Alex's development version)
-options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
-options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
+if (Sys.info()["nodename"] == "landweb.ca") {
+  ## LandWeb.ca (live version)
+  options(googleAuthR.webapp.client_id = "680957910261-kmlslu6vu0fo9129oj1fckksapg94gja.apps.googleusercontent.com")
+  options(googleAuthR.webapp.client_secret = "Qe0TE327wRf9DYM-BEhDxe4a")
+} else {
+  ## LandWeb.org (Alex's development version)
+  options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
+  options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
+}
 options(httr_oob_default = TRUE)
 
 appURL <- "http://landweb.ca"
