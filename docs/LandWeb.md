@@ -96,7 +96,9 @@ Authorized (logged in) users will have access to additional reporting polygons, 
 
 #### Uploading a custom spatial polygon
 
-Use the "Upload" button to open a file selector that will allow you to upload a custom polygon from your computer.
+!["Time Since Fire Maps (Authorized Users Only)."](screenshots/main_map_proprietary.png)
+
+Use the "Upload" button to open a file selector that will allow you to upload a custom polygon from your computer (labelled B in the screenshot).
 The uploaded polygon can be either a `.zip` file containing the `.shp` and auxillary files, or the `.shp` (and auxilliary) file themselves.
 
 *NOTE: to select multiple files, hold down the `Ctrl` key during file selection.*
@@ -162,6 +164,13 @@ These data include:
 Model outputs are available to download for authorized app users, and are described below.
 
 ## Downloading outputs
+
+Authorized (logged in) users have the option to download model outputs.
+Click the "Download Options" button (labelled A in the screenshot) to view download options for 
+
+*NOTE: It make some time to produce the `.zip` file for download.*
+
+!["Time Since Fire Maps (Authorized Users Only)."](screenshots/main_map_proprietary.png)
 
 ### Currently Selected Spatial Area
 
