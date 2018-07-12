@@ -9,7 +9,7 @@ intersectListShps <- function(listShps, intersectShp) {
 
   outerOut <- lapply(listShps, function(shp) {
     message("  ", names(shp))
-    out <- SpaDES.tools::maskInputs(shp, intersectShp)
+    out <- reproducible::maskInputs(shp, intersectShp)
   })
 }
 
