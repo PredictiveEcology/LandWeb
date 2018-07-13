@@ -1,3 +1,6 @@
+# initBaseMaps
 
-Any other details that a user may need to know, like where to get more information,
-where to download data, etc.
+Loads, reprojects and crops all initial maps and shapefiles required to run LandWeb models.
+
+Please refer to `initBaseMAps.Rmd` for usage and other information.
+
