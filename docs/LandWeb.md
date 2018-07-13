@@ -55,7 +55,7 @@ Select pages from the menu on the left-side navigation menu.
 
 ## Time since fire maps
 
-This page shows four major components, highlight in the image and described below.
+This page shows four major components, highlighted in Fig. 1 and described below.
 
 !["Time Since Fire Maps."](screenshots/main_map.png)
 
@@ -92,13 +92,13 @@ Changing the polygon also updates the histograms displayed on the "Large Patches
 
 *NOTE: the map and histogram on this page may take a few moments to reload after changing polygons.*
 
-Authorized (logged in) users will have access to additional reporting polygons, and can upload their own using the polygon uploader.
+Authorized (logged in) users will have access to additional reporting polygons, and can upload their own using the polygon uploader (Fig. 2).
 
 #### Uploading a custom spatial polygon
 
 !["Time Since Fire Maps (Authorized Users Only)."](screenshots/main_map_proprietary.png)
 
-Use the "Upload" button to open a file selector that will allow you to upload a custom polygon from your computer (labelled B in the screenshot).
+Use the "Upload" button to open a file selector that will allow you to upload a custom polygon from your computer (labelled B in Fig. 2).
 The uploaded polygon can be either a `.zip` file containing the `.shp` and auxillary files, or the `.shp` (and auxilliary) file themselves.
 
 *NOTE: to select multiple files, hold down the `Ctrl` key during file selection.*
@@ -107,7 +107,7 @@ The uploaded polygon can be either a `.zip` file containing the `.shp` and auxil
 
 !["Large Patches Histograms"](screenshots/large_patches.png)
 
-These figures show the NRV of the probability distribution of patches that are larger than the area (in hectares) selected, for each given combination of Age Class, Leading Vegetation, and Polygon.
+These figures (see Fig. 3) show the NRV of the probability distribution of patches that are larger than the area (in hectares) selected, for each given combination of Age Class, Leading Vegetation, and Polygon.
 Use the tabs on this page to examine each combination of these variables.
 Age classes are as follows: Young (<40 yrs), Immature (40-80 yrs), Mature (80-120 yrs), Old (>120 yrs).
 
@@ -121,7 +121,7 @@ To change the patch size that defines these, enter a new value in the box on thi
 
 !["Vegetation Cover Histograms"](screenshots/veg_cover.png)
 
-These figures show the NRV of the proportion of forests for each age class, in each polygon, that are in each leading vegetation type.
+These figures (see Fig. 4) show the NRV of the proportion of forests for each age class, in each polygon, that are in each leading vegetation type.
 Use the tabs on this page to examine each combination of these variables.
 The proportions are proportions within age class: Young (<40 yrs), Immature (40-80 yrs), Mature (80-120 yrs), Old (>120 yrs).
 
@@ -166,11 +166,9 @@ Model outputs are available to download for authorized app users, and are descri
 ## Downloading outputs
 
 Authorized (logged in) users have the option to download model outputs.
-Click the "Download Options" button (labelled A in the screenshot) to view download options for 
+Click the "Download Options" button (labelled A in Fig. 2) to view download options for 
 
 *NOTE: It make some time to produce the `.zip` file for download.*
-
-!["Time Since Fire Maps (Authorized Users Only)."](screenshots/main_map_proprietary.png)
 
 ### Currently Selected Spatial Area
 
@@ -191,6 +189,8 @@ Click the "Download Options" button (labelled A in the screenshot) to view downl
 - Flammability maps (`.grd`)
 - Time Since Fire maps (`.tif`)
 - Vegetation type maps (`.grd`, `.tif`)
+
+\newpage
 
 ### Additional R Data Files (advanced users)
 
