@@ -1,0 +1,23 @@
+---
+title: "landWebProprietaryData"
+author: "Eliot McIntire and Alex M Chubaty"
+date: "18 May 2018"
+output:
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+# Overview
+
+Download and pre-process proprietary LandWeb data.
+
+Data only available to authorized Google users.
+
+# Links to other modules
+
+Intended for use with the LandWeb suite of models.

@@ -1,3 +1,7 @@
+# LandWebOutput
 
-Any other details that a user may need to know, like where to get more information,
-where to download data, etc.
+Summarize the output for the LandWeb natural range of variation simulations.
+Creates and saves seral stage maps, vegetation type maps, and patch maps during LandWeb simulations.
+
+Please refer to `LandWebOutput.Rmd` for usage and other information.
+
