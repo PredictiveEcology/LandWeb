@@ -14,7 +14,7 @@ appModDir <- switch(Sys.info()["nodename"],
 
 appInfo <- list(
   name = "LandWeb",
-  version = numeric_version("1.0.0"),
+  version = numeric_version("1.0.0.9000"),
   appdir = appDir,
   appmoddir = appModDir,
   authors = c(
