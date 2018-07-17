@@ -48,6 +48,7 @@ appInfo <- list(
     "mwfp.nrv@gmail.com",
     "Neal.McLoughlin@gov.ab.ca",
     "shanew.sadoway@gmail.com",
+    "sonya@fuseconsulting.ca",
     "westfrasertimber@gmail.com"
   )
 )
