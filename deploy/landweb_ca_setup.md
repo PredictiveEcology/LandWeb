@@ -6,9 +6,9 @@ landweb.ca (104.37.196.228)
 
 **Details:**
 
-- *CPUs*: 4
-- *RAM:* 16 GB
-- *Storage:* 20GB (OS drive; SSD) + 20 GB (storage; SSD)
+- *CPUs*: 6
+- *RAM:* 32 GB
+- *Storage:* 60GB (OS drive; SSD)
 - *Operating system:* Ubuntu 16.04 LTS (user `ubuntu`)
 
 **Contact:**
