@@ -4,9 +4,18 @@
 
 landweb.ca (104.37.196.228)
 
-## Ubuntu setup
+**Details:**
 
-Ubuntu 16.04 was pre-installed with user `ubuntu`.
+- *CPUs*: 6
+- *RAM:* 32 GB
+- *Storage:* 60GB (OS drive; SSD)
+- *Operating system:* Ubuntu 16.04 LTS (user `ubuntu`)
+
+**Contact:**
+
+Bryan L (<bryan@bigpixel.ca>).
+
+## Ubuntu setup
 
 Create a new (non-admin) user for use with Rstudio:
 
@@ -24,6 +33,17 @@ sudo dpkg-reconfigure unattended-upgrades
 sudo apt install htop
 ```
 
+### Install nodejs + mapshaper
+
+```bash
+## the commands below work for Ubuntu 16.04+;
+## for Debian, also need https://github.com/nodejs/help/issues/1040#issuecomment-362970187
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+sudo npm install -g mapshaper
+```
+
 ### Install R
 
 ```bash
@@ -38,13 +58,13 @@ sudo apt update
 sudo apt -y install r-base
 sudo apt -y install r-base-dev
 
-## install GIS tool
+## add repo for GIS tools
 sudo add-apt-repository ppa:ubuntugis/ppa
 sudo apt update
-
 ```
 
 Check installed R version:
+
 ```bash
 Rscript -e 'sessionInfo()'
 ```
@@ -175,6 +195,7 @@ pkgs <- c(
   "rgexf",
   "rJava",
   "rmarkdown",
+  "mapshaper",
   "RSQLite",
   "sf",
   "sp",
@@ -189,11 +210,6 @@ notInstalled <- vapply(pkgs, function(p) {
 }, logical(1))
 pkgs2install <- pkgs[notInstalled]
 install.packages(pkgs2install, dependencies = TRUE, lib = .Library.site[1], repos = "https://cran.rstudio.com/")
-
-## requires older version of shiny (see # 32) [packrat could help here!]
-if (packageVersion("shiny") > "1.0.5") {
-  install.packages("https://cran.r-project.org/src/contrib/Archive/shiny/shiny_1.0.5.tar.gz", repos = NULL)
-}
 
 devtools::install_github("PredictiveEcology/SpaDES.shiny@generalize-modules")
 ```
@@ -239,9 +255,64 @@ Host github.com
 	User git
 ```
 
-#### Repository setup
+#### App setup
+
+### Copy app files
+
+From GitHub:
 
 ```bash
+su achubaty
+git clone --recursive -j8 git@github.com:eliotmcintire/LandWeb.git /tmp/LandWeb
+cd /tmp/LandWeb
+git checkout development ## TODO: should be working from master branch once merged
+exit
+
+whoami # should now be user `ubuntu`
+cd /srv/shiny-server
+sudo mv /tmp/LandWeb /srv/shiny-server/
+
+cd /srv/shiny-server/LandWeb
+sudo cp global_file.R global.R
+sudo mkdir /srv/shiny-server/cache
+sudo mkdir /srv/shiny-server/outputs
+sudo mkdir /srv/shiny-server/www/All
+sudo mkdir /srv/shiny-server/www/Free
+sudo mkdir /srv/shiny-server/www/Proprietary
+```
+
+From 342:
+
+```bash
+##  cache/
+rsync -ruvzP --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/cache/FULL ubuntu@landweb.ca:/srv/shiny-server/LandWeb/cache/
+rsync -ruvzP --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/cache/FULL_All ubuntu@landweb.ca:/srv/shiny-server/LandWeb/cache/
+#rsync -ruvzP --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/cache/FULL_Proprietary ubuntu@landweb.ca:/srv/shiny-server/LandWeb/cache/
+
+## inputs/
+rsync -ruvzP --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/m landweb:/srv/shiny-server/LandWeb/
+
+##  outputs/
+rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/outputs/FULL ubuntu@landweb.ca:/srv/shiny-server/LandWeb/outputs/
+rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/outputs/FULL_All ubuntu@landweb.ca:/srv/shiny-server/LandWeb/outputs/
+#rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/outputs/FULL_Proprietary ubuntu@landweb.ca:/srv/shiny-server/LandWeb/outputs/
+
+##  www/
+rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/www/ ubuntu@landweb.ca:/srv/shiny-server/LandWeb/
+```
+
+Make sure permissions are correct:
+
+```bash
+sudo chown -R achubaty:achubaty /srv/shiny-server/LandWeb
+```
+
+#### Keep a working copy
+
+Allows development etc. in Rstudio.
+
+```bash
+su- achubaty
 cd ~/Documents/GitHub/
 
 # git clone git@github.com:PredictiveEcology/quickPlot.git
@@ -250,32 +321,16 @@ cd ~/Documents/GitHub/
 # git clone git@github.com:PredictiveEcology/SpaDES.core.git
 # git clone git@github.com:PredictiveEcology/SpaDES.tools.git
 
-git clone --recurse-submodules git@github.com:eliotmcintire/LandWeb.git
+git clone --recursive -j8 git@github.com:eliotmcintire/LandWeb.git
 git checkout development
-git submodule update --init --recursive
-```
+#git submodule update --init --recursive
 
-## Copy app data/outputs to new server
-
-```bash
-## rsync from 342 to landweb.ca
-rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/LandWeb/
-
-ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo chown -R shiny:shiny /srv/shiny-server/LandWeb/. && sudo chmod 775 -R /srv/shiny-server/LandWeb/.'
-
-ssh -t -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca 'sudo systemctl restart shiny-server.service'
-
-# or log onto remote server
-ssh -i ~/.ssh/id_rsa_landweb ubuntu@landweb.ca
-sudo mkdir /srv/shiny-server/LandWeb
-sudo chown -R shiny:shiny /srv/shiny-server/LandWeb
-sudo chmod 775 -R /srv/shiny-server/LandWeb
-sudo chmod g+s -R /srv/shiny-server/LandWeb
-```
-
-```bash
-## rsync 388 directly to /srv/shiny-server & ssh
-rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/ ubuntu@landweb.ca:/srv/shiny-server/LandWeb/
+cd ~/GitHub/LandWeb
+ln -s /srv/shiny-server/LandWeb/cache cache
+ln -s /srv/shiny-server/LandWeb/outputs outputs
+ln -s /srv/shiny-server/LandWeb/www/All www/All
+ln -s /srv/shiny-server/LandWeb/www/Free www/Free
+ln -s /srv/shiny-server/LandWeb/www/Proprietary www/Proprietary
 ```
 
 ### Additional config
@@ -286,22 +341,42 @@ rsync -ruv --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --de
 sudo nano /etc/shiny-server/shiny-server.conf
 ```
 
+Need to edit a few things in `/etc/shiny-server/shiny-server.conf`, as follows.
+
+Outside the server block:
+
 ```
-## Need to edit a few things in the shiny-server.conf
+run_as achubaty  ## instead of user `shiny`
+```
+
+In the server block, edit accordingly:
+
+```
 server_name landweb.ca
 listen 80;
-
-app_idle_timeout 24000; # 6 hours
-google_analytics_id UA-119802371-1;
 ```
+
+In the server's location block, add:
+
+```
+# Application timeouts
+app_idle_timeout 86400; # 24 hours
+app_init_timeout 1800;  # 30 mins
+
+# Google Analytics
+google_analytics_id UA-119802371-1;
+
+
+app_dir /srv/shiny-server/LandWeb; ## use app_dir instead of site_dir
+```
+
+Once shiny-server is up and running:
 
 ```bash
-# once shiny-server is up and running:
 sudo rm -rf /srv/shiny-server/sample-apps
-
-# restart shiny server
 sudo systemctl restart shiny-server.service
 ```
+
 #### Rstudio server
 
 ```bash
@@ -334,17 +409,4 @@ sudo apt install fail2ban
 # configure fail2ban
 sudo nano /etc/fail2ban/jail.conf
 sudo service fail2ban restart
-```
-
-### Copy app files
-
-```bash
-## rsync directly from 342
-rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/cache/* ubuntu@landweb.ca:/home/ubuntu/Documents/GitHub/LandWeb/cache/
-rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/outputs/* ubuntu@landweb.ca:/home/ubuntu/Documents/GitHub/LandWeb/outputs/
-rsync -ruvzP --exclude '.git' --exclude '.Rproj.user' --exclude '.checkpoint' --delete -e "ssh -i ~/.ssh/id_rsa_landweb" ~/Documents/GitHub/LandWeb/www ubuntu@landweb.ca:/home/ubuntu/Documents/GitHub/LandWeb/
-
-## create symlinks
-rm -r /home/achubaty/Documents/GitHub/LandWeb
-ln -s /srv/shiny-server/LandWeb/ /home/achubaty/Documents/GitHub/LandWeb
 ```

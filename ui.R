@@ -1,6 +1,8 @@
 library(shiny)
 library(shinydashboard)
 library(shinyBS)
+library(shinyjs)
+library(SpaDES.shiny)
 
 dashboardPage(
   skin = "green",

@@ -1,3 +1,7 @@
+shiny::addResourcePath("tiles", "www/All/FULL/map-tiles")
+
+source("params/LandWeb_parameters.R")
+
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -18,6 +22,7 @@ moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
                    "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr",
                    "VGAM")
 
+# needed packages loaded, e.g., for icon
 reproducible::Require(unique(c(
   SpaDESPkgs,
   shinyPkgs,
@@ -29,7 +34,7 @@ reproducible::Require(unique(c(
 )))
 packageLoadEndTime <- Sys.time()
 
-## LandWeb app information -- needed packages loaded, e.g., for icon
+## LandWeb app information
 source("appInfo.R")
 
 # Options
@@ -41,17 +46,18 @@ options(spades.browserOnError = FALSE)
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/userinfo.email",
                                         "https://www.googleapis.com/auth/userinfo.profile"))
 
-## LandWeb.ca (live version)
-#options(googleAuthR.webapp.client_id = "680957910261-kmlslu6vu0fo9129oj1fckksapg94gja.apps.googleusercontent.com")
-#options(googleAuthR.webapp.client_secret = "Qe0TE327wRf9DYM-BEhDxe4a")
-
-## LandWeb.org (Alex's development version)
-options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
-options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
+if (Sys.info()["nodename"] == "landweb.ca") {
+  ## LandWeb.ca (live version)
+  options(googleAuthR.webapp.client_id = "680957910261-kmlslu6vu0fo9129oj1fckksapg94gja.apps.googleusercontent.com")
+  options(googleAuthR.webapp.client_secret = "Qe0TE327wRf9DYM-BEhDxe4a")
+} else {
+  ## LandWeb.org (Alex's development version)
+  options(googleAuthR.webapp.client_id = "869088473060-a7o2bc7oit2vn11gj3ieh128eh8orb04.apps.googleusercontent.com")
+  options(googleAuthR.webapp.client_secret = "FR-4jL12j_ynAtsl-1Yk_cEL")
+}
 options(httr_oob_default = TRUE)
 
 appURL <- "http://landweb.ca"
-authFile <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
 
 ## paths -- NOTE: these are the 'default' paths for app setup;
 ##                however, in-app, the paths need to be set as reactive values for authentication!
@@ -64,11 +70,7 @@ paths <- list(
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
-
-if (any(c("achubaty") %in% Sys.info()["user"])) {
-  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
-}
-if (any(c("emcintir") %in% Sys.info()["user"])) {
+if (any(c("achubaty", "emcintir") %in% Sys.info()["user"])) {
   opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
 }
 
@@ -80,7 +82,6 @@ source(file.path("R", "functions.R"))
 # App - variables
 appStartTime <- st <- Sys.time()
 message("Started at ", appStartTime)
-rsyncToAWS <- FALSE
 useGdal2Tiles <- TRUE
 
 # leaflet parameters
@@ -139,7 +140,7 @@ studyRegionFilePath <- {
 
 studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyRegionCreate,
                           asPath(studyRegionFilePath),
-                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
+                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "landweb_ltfc_v6.shp")),
                           subStudyRegionName = subStudyRegionName,
                           cacheId = cacheId$loadStudyRegions,
                           crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)
@@ -311,13 +312,17 @@ objList <- list(
   shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
   studyAreaName = subStudyRegionNameCollapsed,
   vegLeadingPercent = vegLeadingPercent,
-  labelColumn = labelColumn)
+  labelColumn = labelColumn
+)
 
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
               modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
               objList,# can't provide argument name "objects" here because same as Cache
               cacheId = cacheId$simInitAndSpades,
               paths = paths4sim$All)
+
+### update modulePath
+modulePath(sim2) <- appInfo$appmoddir
 
 ### update file paths for rasters
 oldPath <- "/home/emcintir/Documents/GitHub/" ## needs trailing slash!

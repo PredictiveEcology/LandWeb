@@ -326,9 +326,8 @@ Init <- function(sim) {
       rp$crsSR
     })
   })
-
   # some of the args oare for largePatchesFn, some passed through to largePatchesInnerFn,
-  options(reproducible.useMemoise = FALSE)
+  #options(reproducible.useMemoise = FALSE)
   sim$lrgPatches <- Cache(largePatchesCalc,
                           byPoly = rp4LrgPatches,
                           tsfFile = getAllIfExists(sim$tsfs, ifNot = "Proprietary"),
@@ -350,7 +349,7 @@ Init <- function(sim) {
                             useParallelCluster = useParallelCluster,
                             .largePatchesCalc = .largePatchesCalc, # need to Cache the internals
                             omitArgs = "useParallelCluster")
-  options(reproducible.useMemoise = TRUE)
+  #options(reproducible.useMemoise = TRUE)
 
   message(paste("Finished largePatchesFn"))
 
@@ -373,6 +372,11 @@ Init <- function(sim) {
 
   # Write all Proprietary input shapefiles to disk
   sim$getAllIfExists <- getAllIfExists
+  message("shrinking objects to integer or factor")
+  lrgPatches <- simplifyColumns(list(lrgPatches = sim2$lrgPatches, lrgPatchesCC = sim2$lrgPatchesCC))
+  sim$lrgPatchesCC <- lrgPatches$lrgPatchesCC
+  sim$lrgPatches <- lrgPatches$lrgPatches
+  
   return(invisible(sim))
 }
 

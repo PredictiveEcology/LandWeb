@@ -1,4 +1,3 @@
-
 # Study area original shapefile
 loadShpAndMakeValid <- function(file) {
   shapefile(file) %>% gBuffer(byid = TRUE, width = 0)
@@ -19,18 +18,20 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
     shpSubStudyRegion[["fireReturnInterval"]] <- shpSubStudyRegion$LTHRC # Fire return interval
 
     shpStudyRegion <- Cache(loadAndBuffer, file.path(paths$inputPath, "RIA_StudyArea.shp"),
-                                cacheRepo = paths$cachePath, userTags = "stable")
+                            cacheRepo = paths$cachePath, userTags = "stable")
     shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
     shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
     shpStudyRegion <- shpSubStudyRegion
 
   } else {
-    # Dave Andison doesn't have .prj files -- this line will create one with NAD83 UTM11N downloading from spatialreference.org
+    ## Dave Andison doesn't have .prj files
+    ## this will create one with NAD83 UTM11N downloading from spatialreference.org
     createPrjFile(shpPath)
     shpStudyRegion <- loadShpAndMakeValid(file = shpPath)
 
     if (is.null(shpStudyRegion$fireReturnInterval)) {
-      # Dave Andison doesn't have .prj files -- this line will create one with NAD83 UTM11N downloading from spatialreference.org
+      ## Dave Andison doesn't have .prj files
+      ## this will create one with NAD83 UTM11N downloading from spatialreference.org
       createPrjFile(fireReturnIntervalMap)
       fireReturnInterval <- loadShpAndMakeValid(file = fireReturnIntervalMap)
     }
@@ -38,7 +39,8 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
       shpStudyRegion <- raster::intersect(shpStudyRegion, fireReturnInterval)
     }
     if (!isTRUE("LTHRC" %in% names(shpStudyRegion))) {
-      shpStudyRegion$LTHRC <- shpStudyRegion$LTHFC # Apparently, sometimes it is LTHFC, sometimes LTHRC # Get rid of LTHFC
+      # Apparently, sometimes it is LTHFC, sometimes LTHRC; get rid of LTHFC
+      shpStudyRegion$LTHRC <- shpStudyRegion$LTHFC
       shpStudyRegion$LTHFC <- NULL
       # The fires of Fire Return Interval 30 years are not correctly simulated by LandMine, so they are removed.
       shpStudyRegion$LTHRC[shpStudyRegion$LTHRC <= 30] <- NA
@@ -47,8 +49,9 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
     shpStudyRegion@data <- shpStudyRegion@data[, !(names(shpStudyRegion) %in% "ECODISTRIC")]
     shpStudyRegion <- spTransform(shpStudyRegion, crsStudyRegion)
     shpStudyRegion <- rgeos::gBuffer(shpStudyRegion, byid = TRUE, width = 0)
-    shpSubStudyRegion <- shpStudyRegionCreateFn(shpStudyRegion, subStudyRegionName = subStudyRegionName,
-                                              crsStudyRegion = crsStudyRegion)
+    shpSubStudyRegion <- shpStudyRegionCreateFn(shpStudyRegion,
+                                                subStudyRegionName = subStudyRegionName,
+                                                crsStudyRegion = crsStudyRegion)
   }
   list(shpSubStudyRegion = shpSubStudyRegion, shpStudyRegion = shpStudyRegion)
 }
@@ -69,14 +72,13 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
       shpSubStudyRegion <- spTransform(shpStudyRegionNWT, crs(shpStudyRegion))
       shpSubStudyRegion <- rgeos::gBuffer(shpSubStudyRegion, width = 0, byid = TRUE)
     } else if (any(subStudyRegionName %in% canadaAdminNamesAll)) {
-      canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
+      canadaMap <- Cache(getData, "GADM", country = "CAN", level = 1, path = "inputs",
                          cacheRepo = paths$cachePath, userTags = "stable")
       subStudyRegionName <- canadaAdminNames[canadaAdminNames %in% subStudyRegionName |
                                                names(canadaAdminNames) %in% subStudyRegionName]
       inputMapPolygon <- spTransform(canadaMap[canadaMap$NAME_1 %in% subStudyRegionName, ], crsStudyRegion)
       aa <- sf::st_intersection(sf::st_as_sf(shpStudyRegion), sf::st_as_sf(inputMapPolygon))
       shpSubStudyRegion <- as(aa, "Spatial")
-
     } else {
       set.seed(853839)#set.seed(5567913)
       if ("SMALL" %in% subStudyRegionName) {
@@ -98,8 +100,8 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
       meanY <- mean(c(minY, maxY))
 
       # Add random noise to polygon
-      xAdd <- -3e5#round(runif(1,-5e5, 1.5e6))
-      yAdd <- 5e5#round(runif(1, 1e5, 5e5)) - xAdd / 2
+      xAdd <- -3e5 #round(runif(1,-5e5, 1.5e6))
+      yAdd <- 5e5  #round(runif(1, 1e5, 5e5)) - xAdd / 2
       nPoints <- 20
       betaPar <- 0.6
       X <- c(jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxX - minX) + minX)),
