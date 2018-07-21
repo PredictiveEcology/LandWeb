@@ -5,7 +5,7 @@
 **Authors:**
 
 - Eliot McIntire (eliot.mcintire@canada.ca)
-- Alex M. Chubaty (alex.chubaty@canada.ca)
+- Alex M. Chubaty (achubaty@friresearch.ca)
 
 **Date:** May 16, 2018
 

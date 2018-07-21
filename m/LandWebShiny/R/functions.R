@@ -9,7 +9,7 @@ intersectListShps <- function(listShps, intersectShp) {
 
   outerOut <- lapply(listShps, function(shp) {
     message("  ", names(shp))
-    out <- SpaDES.tools::maskInputs(shp, intersectShp)
+    out <- reproducible::maskInputs(shp, intersectShp)
   })
 }
 
@@ -928,4 +928,26 @@ Map2 <- function(..., cl = NULL) {
     }
     do.call(clusterMap, append(list(cl = cl), argList))
   }
+}
+
+
+simplifyColumns <- function(df) {
+  if (is(df, "list")) {
+    df <- lapply(df, simplifyColumns)
+  } else {
+    for (i in colnames(df)) {
+      if (!is.integer(df[[i]])) {
+        if (!is.factor(df[[i]])) {
+          if (is.numeric(df[[i]])) {
+            if (all(df[[i]] %% 1 == 0)) {
+              df[[i]] <- as.integer(df[[i]])
+            }
+          } else if (is.character(df[[i]])) {
+            df[[i]] <- factor(df[[i]])
+          }
+        }
+      }
+    }
+  }
+  df
 }
