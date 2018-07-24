@@ -1,6 +1,7 @@
 appDir <- switch(Sys.info()["nodename"],
                  "kahless" = file.path("/mnt/"),
                  "landweb.ca" =  file.path("/srv/shiny-server/"),
+                 "landweb" =  file.path("/mnt/data/"),
                  "W-VIC-A105342" = file.path("/mnt/shared/"),
                  file.path("~/GitHub/")
 ) # needs trailing slash!
@@ -8,6 +9,7 @@ appDir <- switch(Sys.info()["nodename"],
 appModDir <- switch(Sys.info()["nodename"],
                     "kahless" = file.path("~/GitHub/m"),
                     "landweb.ca" = file.path(appDir, "m"),
+                    "landweb" = file.path(appDir, "m"),
                     "W-VIC-A105342" = file.path("~/GitHub/m"),
                     file.path("~/GitHub/m")
 ) # no trailing slash!
