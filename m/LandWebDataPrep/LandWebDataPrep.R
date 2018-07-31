@@ -2,7 +2,7 @@
 # Everything in this file gets sourced during simInit, and all functions and objects
 # are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
-  name = "landWebDataPrep",
+  name = "LandWebDataPrep",
   description = "A module that prepares data for LandWeb NRV project",
   keywords = c("Data Preparation"),
   authors = c(person(c("Yong", "Luo"), email = "yong.luo@canada.ca", role = c("aut", "cre")),
@@ -13,7 +13,7 @@ defineModule(sim, list(
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
-  documentation = list("README.txt", "landWebDataPrep.Rmd"),
+  documentation = list("README.txt", "LandWebDataPrep.Rmd"),
   reqdPkgs = list("data.table", "raster", "sp", "magrittr", "R.utils", "PredictiveEcology/SpaDES.tools@development"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
@@ -58,7 +58,7 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initialiazation
 
-doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.LandWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
@@ -67,8 +67,8 @@ doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- Init(sim)
 
     # schedule future event(s)
-    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "landWebDataPrep", "plot")
-    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "landWebDataPrep", "save")
+    sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "LandWebDataPrep", "plot")
+    sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "LandWebDataPrep", "save")
   } else if (eventType == "plot") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -76,7 +76,7 @@ doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    #sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "landWebDataPrep", "plot")
+    #sim <- scheduleEvent(sim, P(sim)$.plotInitialTime, "LandWebDataPrep", "plot")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == "save") {
@@ -89,7 +89,7 @@ doEvent.landWebDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, "landWebDataPrep", "save")
+    # sim <- scheduleEvent(sim, time(sim) + increment, "LandWebDataPrep", "save")
 
     # ! ----- STOP EDITING ----- ! #
   } else {

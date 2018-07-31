@@ -3,18 +3,18 @@
 # 1. Rename this file based on the content you are testing using
 #    `test-functionName.R` format so that your can directly call `moduleCoverage`
 #    to calculate module coverage information.
-#    `functionName` is a function's name in your module (e.g., `landWebProprietaryDataEvent1`).
-# 2. Copy this file to the tests folder (i.e., `C:/Eliot/GitHub/LandWeb/m/landWebProprietaryData/tests/testthat`).
+#    `functionName` is a function's name in your module (e.g., `LandWebProprietaryDataEvent1`).
+# 2. Copy this file to the tests folder (i.e., `~/GitHub/LandWeb/m/landWebProprietaryData/tests/testthat`).
 
 # 3. Modify the test description based on the content you are testing:
 test_that("test Event1 and Event2.", {
-  module <- list("landWebProprietaryData")
-  path <- list(modulePath = "C:/Eliot/GitHub/LandWeb/m",
+  module <- list("LandWebProprietaryData")
+  path <- list(modulePath = "~/GitHub/LandWeb/m",
                outputPath = file.path(tempdir(), "outputs"))
   parameters <- list(
     #.progress = list(type = "graphical", interval = 1),
     .globals = list(verbose = FALSE),
-    landWebProprietaryData = list(.saveInitialTime = NA)
+    LandWebProprietaryData = list(.saveInitialTime = NA)
   )
   times <- list(start = 0, end = 1)
 
@@ -55,8 +55,8 @@ test_that("test Event1 and Event2.", {
   #    Use this approach when using any function within the simList object
   #    (i.e., one version as a direct call, and one with `simList` object prepended).
 
-  if (exists("landWebProprietaryDataEvent1", envir = .GlobalEnv)) {
-    simOutput <- landWebProprietaryDataEvent1(mySim)
+  if (exists("LandWebProprietaryDataEvent1", envir = .GlobalEnv)) {
+    simOutput <- LandWebProprietaryDataEvent1(mySim)
   } else {
     simOutput <- myEvent1(mySim)
   }
@@ -66,8 +66,8 @@ test_that("test Event1 and Event2.", {
   expect_equal(simOutput$event1Test1, expectedOutputEvent1Test1) # or other expect function in testthat package.
   expect_equal(simOutput$event1Test2, as.numeric(999)) # or other expect function in testthat package.
 
-  if (exists("landWebProprietaryDataEvent2", envir = .GlobalEnv)) {
-    simOutput <- landWebProprietaryDataEvent2(mySim)
+  if (exists("LandWebProprietaryDataEvent2", envir = .GlobalEnv)) {
+    simOutput <- LandWebProprietaryDataEvent2(mySim)
   } else {
     simOutput <- myEvent2(mySim)
   }

@@ -3,17 +3,17 @@
 # to all modules. Functions can be used without sim$ as they are namespaced, like functions
 # in R packages. If exact location is required, functions will be: sim$<moduleName>$FunctionName
 defineModule(sim, list(
-  name = "landWebProprietaryData",
+  name = "LandWebProprietaryData",
   description = "Download and pre-process proprietary LandWeb data.",
   keywords = c("LandWeb"),
   authors = person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
   childModules = character(0),
-  version = list(SpaDES.core = "0.1.2", landWebProprietaryData = "0.0.1"),
+  version = list(SpaDES.core = "0.1.2", LandWebProprietaryData = "0.0.1"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
   citation = list("citation.bib"),
-  documentation = list("README.txt", "landWebProprietaryData.Rmd"),
+  documentation = list("README.txt", "LandWebProprietaryData.Rmd"),
   reqdPkgs = list("googledrive", "reproducible", "SpaDES.core", "SpaDES.tools"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
@@ -54,7 +54,7 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initialiazation
 
-doEvent.landWebProprietaryData = function(sim, eventTime, eventType) {
+doEvent.LandWebProprietaryData = function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {
