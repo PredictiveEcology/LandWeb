@@ -10,3 +10,6 @@
 [submodule "m/CanadaWide_FireSense"]
 	path = m/CanadaWide_FireSense
 	url = https://github.com/achubaty/CanadaWide_FireSense
+[submodule "m/Boreal_FireSenseDataPrep"]
+	path = m/Boreal_FireSenseDataPrep
+	url = git@github.com:achubaty/Boreal_FireSenseDataPrep.git
