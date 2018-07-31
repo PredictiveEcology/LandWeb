@@ -1,7 +1,16 @@
-# source("R/locateGdal.R") # Get and locate Gdal installation, likely only run once on a machine
-# source("R/updateSpaDES@developmentPkgs.R") # SpaDES.core, SpaDES.shiny, reproducible, quickPlot, webDatabases, SpaDES.tools
-# source("generateNewApp.R") # create a new app based on Appsilon's work
-# source("params/SK_parameters.R") # endTime, authenticationType, subStudyRegionName, etc.
-source("params/Development_Parameters.R") # endTime, authenticationType, subStudyRegionName, etc.
+if (!require("profvis", character.only = TRUE, quietly = TRUE)) {
+  install.packages("profvis")
+}
+
+#load_all("~/GitHub/PredictiveEcology/SpaDES.shiny")
+
+DEVMODE <- TRUE
+PROFVIS <- FALSE
+
+#source("params/Development_Parameters.R") # moved to global.R
 file.copy("global_file.R", "global.R", overwrite = TRUE)
-shiny::runApp(".", launch.browser = TRUE, port = 5921)
+if (isTRUE(PROFVIS)) {
+  profvis::profvis(shiny::runApp(".", launch.browser = TRUE, port = 5921))
+} else {
+  shiny::runApp(".", launch.browser = TRUE, port = 5921)
+}

@@ -1,6 +1,10 @@
 shiny::addResourcePath("tiles", "www/All/FULL/map-tiles")
 
-source("params/LandWeb_parameters.R")
+if (exists("DEVMODE") && isTRUE(DEVMODE)) {
+  source("params/Development_Parameters.R")
+} else {
+  source("params/LandWeb_parameters.R")
+}
 
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 packageLoadStartTime <- Sys.time()
