@@ -5,6 +5,7 @@ source("params/LandWeb_parameters.R")
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
+  "future", "promises",
   "PredictiveEcology/quickPlot@development",
   "PredictiveEcology/SpaDES.core@development",
   "PredictiveEcology/SpaDES.tools@development",
@@ -21,6 +22,8 @@ moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
                    "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible",
                    "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr",
                    "VGAM")
+
+future::plan("multiprocess")
 
 # needed packages loaded, e.g., for icon
 reproducible::Require(unique(c(
