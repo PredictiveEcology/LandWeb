@@ -101,7 +101,7 @@ Init <- function(sim) {
   # # ! ----- EDIT BELOW ----- ! #
 
   sim <- prepFireSenseInputs(sim)
-  
+
   # ! ----- STOP EDITING ----- ! #
 
   return(invisible(sim))
@@ -117,18 +117,18 @@ prepGrid <- function(sim, studyArea, cellsize)
       proj4string = studyArea@proj4string
     ),
     "SpatialPolygons",
-    userTags = c("stable", currentModule(sim)), 
+    userTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   )
-  
+
   isContained <- Cache(rgeos::gContains,
-                       studyArea, 
-                       gd, 
-                       byid = TRUE, 
-                       userTags = c("stable", currentModule(sim)), 
+                       studyArea,
+                       gd,
+                       byid = TRUE,
+                       userTags = c("stable", currentModule(sim)),
                        quick = .quickCheck
   )
-  
+
   gd <- gd[isContained,]
   gd <- st_as_sf(gd)
   gd$CELL_ID <- 1:nrow(gd)
@@ -139,109 +139,109 @@ prepFireSenseInputs <- function(sim)
 {
   # Make 10k grid (frequency and size analyses)
   template_10k_grid <- Cache(
-    prepGrid, 
+    prepGrid,
     sim,
     studyArea = sim$studyAreaNAD83,
     cellsize = 10000,
     userTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   )
-  
+
   message("  10k grid created")
-  
+
   # Make 250m grid (escape and spread analyses)
   template_250m_grid <- Cache(
-    prepGrid, 
-    sim, 
+    prepGrid,
+    sim,
     studyArea = sim$studyAreaNAD83,
     cellsize = 250,
     userTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   )
-  
+
   message("  250m grid created")
-  
+
   NFDB_10k_grid <- Cache(
     st_join, template_10k_grid, st_as_sf(sim$NFDB_point), left = TRUE,
     userTags = c("stable", currentModule(sim)), quick = .quickCheck
   )
 
   message("  NFDB_10k created")
-  
+
   rm(template_10k_grid)
-  
+
   NFDB_250m_grid <- Cache(
     st_join, template_250m_grid, st_as_sf(sim$NFDB_point), left = FALSE,
     userTags = c("stable", currentModule(sim)), quick = .quickCheck
   )
-  
+
   message("  NFDB_250m created")
-  
+
   rm(template_250m_grid)
-  
+
   extract_fun <- function(x, ...) sum(x, na.rm = TRUE) / length(x)
-  
+
   data_10k <- Cache(
-    raster::extract, 
-    sim$broadLeafPc, 
+    raster::extract,
+    sim$broadLeafPc,
     Cache(
       raster::extract,
-      sim$needleLeafPc, 
+      sim$needleLeafPc,
       (
         NFDB_10k_grid %>%
           group_by(CELL_ID) %>%
           summarise(n_fires = n())
       ),
-      fun = extract_fun, 
+      fun = extract_fun,
       sp = TRUE,
-      userTags = c("stable", currentModule(sim)), 
+      userTags = c("stable", currentModule(sim)),
       quick = .quickCheck
     ),
-    fun = extract_fun, 
+    fun = extract_fun,
     sp = TRUE,
-    userTags = c("stable", currentModule(sim)), 
+    userTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   ) %>% slot("data") %>%
     rename(broadLeafPc = !!names(sim$broadLeafPc), needleLeafPc = !!names(sim$needleLeafPc)) %>%
     mutate(otherPc = 100 - broadLeafPc - needleLeafPc) %>%
     right_join(NFDB_10k_grid, "CELL_ID")
-  
+
   message("  Extraction of veg data finished (10k)")
 
   data_250m <- Cache(
-    raster::extract, 
-    sim$broadLeafPc, 
+    raster::extract,
+    sim$broadLeafPc,
     Cache(
       raster::extract,
-      sim$needleLeafPc, 
+      sim$needleLeafPc,
       (
         NFDB_250m_grid %>%
           group_by(CELL_ID) %>%
           summarise(n_fires = n())
       ),
-      fun = extract_fun, 
+      fun = extract_fun,
       sp = TRUE,
-      userTags = c("stable", currentModule(sim)), 
+      userTags = c("stable", currentModule(sim)),
       quick = .quickCheck
     ),
     fun = extract_fun,
     sp = TRUE,
-    userTags = c("stable", currentModule(sim)), 
+    userTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   ) %>% slot("data") %>%
     rename(broadLeafPc = !!names(sim$broadLeafPc), needleLeafPc = !!names(sim$needleLeafPc)) %>%
     mutate(otherPc = 100 - broadLeafPc - needleLeafPc) %>%
     right_join(NFDB_250m_grid, "CELL_ID")
-  
+
   message("  Extraction of veg data finished (250m)")
-  
-  sim <- frequencyInputs(sim, data_10k) 
+
+  sim <- frequencyInputs(sim, data_10k)
   sim <- sizeInputs(sim, data_10k)
   sim <- escapeInputs(sim, data_250m)
   sim <- spreadInputs(sim)
-  
+
   rm(NFDB_point, studyArea, studyAreaNAD83, envir = envir(sim))
-  
+
   sim
 }
 
@@ -296,7 +296,7 @@ spreadInputs <- function(sim)
   #  sim$defaultColor <- 'red'
   # }
   # ! ----- EDIT BELOW ----- ! #
-  
+
   crs <- "+init=epsg:3978" # LCC NAD83 Canada wide
   sim$studyAreaNAD83 <- spTransform(sim$studyArea, CRS(crs))
 
@@ -304,28 +304,28 @@ spreadInputs <- function(sim)
   nfdbPointFilename <- "NFDB_point_20171106.shp"
   broadLeafFilename <- "NFI_MODIS250m_kNN_Species_Generic_BroadLeaf_Spp_v0.tif"
   needleLeafFilename <- "NFI_MODIS250m_kNN_Species_Generic_NeedleLeaf_Spp_v0.tif"
-  
+
   # Also extract
   nfdbPointAlsoExtract <- basename(paste0(tools::file_path_sans_ext(nfdbPointFilename), ".", c("dbf", "prj", "sbn", "sbx", "shx")))
-  
+
   # Fire data
   sim$NFDB_point <- Cache(
     prepInputs,
     targetFile = nfdbPointFilename,
-    archive = "NFDB_point.zip", 
+    archive = "NFDB_point.zip",
     alsoExtract = nfdbPointAlsoExtract,
     dataset = "NFDB_PT",
     modulePath = modulePath(sim),
     moduleName = currentModule(sim),
     studyArea = sim$studyAreaNAD83,
     fun = "shapefile",
-    postProcessedFilename = TRUE, 
+    filename2 = TRUE,
     cacheTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   )
-  
+
   sim$NFDB_point@coords <- sim$NFDB_point@coords[, 1:2] # Drop the z dimension
-  
+
   # KNN species %
   sim$broadLeafPc <- Cache(
     prepInputs,
@@ -335,11 +335,11 @@ spreadInputs <- function(sim)
     modulePath = modulePath(sim),
     moduleName = currentModule(sim),
     studyArea = sim$studyAreaNAD83,
-    postProcessedFilename = TRUE, 
+    filename2 = TRUE,
     cacheTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   )
-  
+
   sim$needleLeafPc <- Cache(
     prepInputs,
     targetFile = needleLeafFilename,
@@ -348,13 +348,13 @@ spreadInputs <- function(sim)
     modulePath = modulePath(sim),
     moduleName = currentModule(sim),
     studyArea = sim$studyAreaNAD83,
-    postProcessedFilename = TRUE, 
+    postProcessedFilename = TRUE,
     cacheTags = c("stable", currentModule(sim)),
     quick = .quickCheck
   )
 
   sim$otherPc <- setValues(raster(sim$broadLeafPc), 100) - sim$broadLeafPc - sim$needleLeafPc
-  
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }

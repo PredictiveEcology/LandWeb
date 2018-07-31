@@ -157,7 +157,7 @@ Save <- function(sim) {
                             rasterToMatch = NULL, # use the projection of this raster
                             method = "bilinear",
                             datatype = "INT2U",
-                            postProcessedFilename = TRUE,
+                            filename2 = TRUE,
                             userTags = c("stable", currentModule(sim)))
   }
 
@@ -170,7 +170,7 @@ Save <- function(sim) {
                          rasterToMatch = sim$biomassMap,
                          method = "bilinear",
                          datatype = "INT2U",
-                         postProcessedFilename = TRUE,
+                         filename2 = TRUE,
                          cacheRepo = cachePath(sim),
                          userTags = currentModule(sim))
     projection(sim$LCC2005) <- projection(sim$biomassMap)
