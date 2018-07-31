@@ -102,7 +102,7 @@ downloadOutputs <- function(input, output, session, appInfo,
           ccFile2 <- file.path(tmpDir, "rasters", basename(ccFile))
 
           raster::raster(ccFile) %>%
-            SpaDES.tools::postProcess(., postProcessedFilename = ccFile2, studyArea = currPoly)
+            SpaDES.tools::postProcess(., filename2 = ccFile2, studyArea = currPoly)
           fileList <- append(fileList, ccFile2)
           incProgress(1/n)
         }
@@ -161,7 +161,7 @@ downloadOutputs <- function(input, output, session, appInfo,
           tsfMapFiles2 <- file.path(tmpDir, "rasters",  basename(tsfMapFiles))
 
           tsfRasterList <- lapply(tsfMapFiles, raster::raster)
-          Map(x = tsfRasterList, postProcessedFilename = tsfMapFiles2,
+          Map(x = tsfRasterList, filename2 = tsfMapFiles2,
               MoreArgs = list(studyArea = currPoly), SpaDES.tools::postProcess)
           fileList <- append(fileList, tsfMapFiles2)
           incProgress(1/n)
@@ -175,7 +175,7 @@ downloadOutputs <- function(input, output, session, appInfo,
           vegTypeMapFiles2 <- file.path(tmpDir, "rasters",  basename(vegTypeMapFiles))
 
           vegRasterList <- lapply(vegTypeMapFiles, raster::raster)
-          Map(x = vegRasterList, postProcessedFilename = vegTypeMapFiles2,
+          Map(x = vegRasterList, filename2 = vegTypeMapFiles2,
               MoreArgs = list(studyArea = currPoly), SpaDES.tools::postProcess)
           fileList <- append(fileList, vegTypeMapFiles2)
           incProgress(1/n)

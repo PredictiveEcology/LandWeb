@@ -624,7 +624,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                    destinationPath = dPath, method = "ngb",
                    studyArea = shpStudyArea, omitArgs = "purge",
-                   postProcessedFilename = "CurrentCondition.tif", ...,
+                   filename2 = "CurrentCondition.tif", ...,
                    rasterToMatch = getAllIfExists(tsfRasters, "Proprietary")$crsSR[[1]]
     )
 
