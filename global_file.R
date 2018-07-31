@@ -183,8 +183,8 @@ times4sim <- emptyListAll
 times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
 
 modules4sim <- emptyListAll
-modules4sim$All <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-                        "landWebProprietaryData",
+modules4sim$All <- list("LandWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+                        "LandWebProprietaryData",
                         "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
 objects4sim <- emptyListAll
@@ -200,8 +200,8 @@ parameters4sim <- emptyListAll
 parameters4sim <- lapply(parameters4sim, function(x) {
   list(
     LandWebOutput = list(summaryInterval = summaryInterval),
-    landWebDataPrep = list(.useCache = eventCaching),
-    landWebProprietaryData = list(.useCache = eventCaching),
+    LandWebDataPrep = list(.useCache = eventCaching),
+    LandWebProprietaryData = list(.useCache = eventCaching),
     Boreal_LBMRDataPrep = list(.useCache = eventCaching),
     LandMine = list(biggestPossibleFireSizeHa = 5e5,
                     fireTimestep = fireTimestep,

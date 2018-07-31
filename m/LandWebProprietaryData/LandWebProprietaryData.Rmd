@@ -1,5 +1,5 @@
 ---
-title: "landWebProprietaryData"
+title: "LandWebProprietaryData"
 author: "Eliot McIntire and Alex M Chubaty"
 date: "18 May 2018"
 output:

@@ -1,5 +1,5 @@
 ---
-title: "landWebDataPrep"
+title: "LandWebDataPrep"
 author: "Yong Luo"
 date: "11 August 2016"
 output: pdf_document
@@ -8,8 +8,7 @@ output: pdf_document
 # Overview
 
 This module is higher level data preparation for fire modules and vegetation modules. 
-It creates inputs for initBaseMaps module, which is required for some fire modules and Boreal_LBMRDataPrep module which is used by LBMR (Landis Biomass Succession Module in R).
-
+It creates inputs for `initBaseMaps` module, which is required for some fire modules and `Boreal_LBMRDataPrep` module which is used by `LBMR` (Landis Biomass Succession Module in R).
 
 # Usage
 
@@ -44,7 +43,7 @@ paths <- if (Sys.info()[["user"]] == "achubaty") {
   )
 }
 
-f <- file.path(curDir, "landWebDataPrep", "data", "shpLandWEB.shp")
+f <- file.path(curDir, "LandWebDataPrep", "data", "shpLandWEB.shp")
 if (!file.exists(f)) {
   ## TO DO: need to download if doesn't exist
 }
@@ -52,7 +51,7 @@ shpStudyRegion <- Cache(shapefile, f, cacheRepo = paths$cachePath)
 shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
 shpStudyRegion@data <- shpStudyRegion@data[, !(names(shpStudyRegion) %in% "ECODISTRIC")]
 
-r <- file.path(curDir,"landWebDataPrep", "data",  "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
+r <- file.path(curDir,"LandWebDataPrep", "data",  "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
 if (!file.exists(r)) {
   ## TO DO: need to download if doesn't exist
 }
@@ -94,14 +93,14 @@ if (studyArea == "SMALL") {
   shpStudyRegion <- intersect(shpStudyRegionOrig, inputMapPolygon)
 }
 
-#modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull", "Boreal_LBMRDataPrep", "LBMR")
+#modules <- list("LandWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull", "Boreal_LBMRDataPrep", "LBMR")
 
-#modules <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull")
-#modules <- list("landWebDataPrep", "initBaseMaps", "LandMine")
+#modules <- list("LandWebDataPrep", "initBaseMaps", "fireDataPrep", "fireNull")
+#modules <- list("LandWebDataPrep", "initBaseMaps", "LandMine")
 
-modules <- list("landWebDataPrep", "initBaseMaps", "LandMine", "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+modules <- list("LandWebDataPrep", "initBaseMaps", "LandMine", "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
-fireModules <- list("landWebDataPrep", "initBaseMaps", "LandMine", "timeSinceFire", "LandWebOutput")
+fireModules <- list("LandWebDataPrep", "initBaseMaps", "LandMine", "timeSinceFire", "LandWebOutput")
 
 successionTimestep <- 2
 
