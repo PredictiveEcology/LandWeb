@@ -62,7 +62,9 @@ function(input, output, session) {
                                    ),
                                    rctStudyArea = rctStudyArea,
                                    omitPolys = c("AB Natural Sub Regions",
-                                                 "LandWeb Study Area")) ## TODO: remove this workaround
+                                                 "LandWeb Study Area"), ## TODO: remove this workaround
+                                   thinKeep = 0.01
+  )
 
   rctPolygonListUser <- reactive({
     do.call(polygonList, append(rctChosenPolyUser()$polygons, list(studyArea = rctStudyArea())))
