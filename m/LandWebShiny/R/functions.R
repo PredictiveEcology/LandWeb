@@ -779,8 +779,6 @@ studyAreaPolygonsFn <- function(shpLandWebSA = NULL, shpStudyArea = NULL, labelC
   polys
 }
 
-
-
 optimalClusterNum <- function(memRequiredMB = 5000, maxNumClusters = 1) {
   if (Sys.info()["sysname"] == "Linux") {
     detectedNumCores <- parallel::detectCores()
@@ -808,7 +806,6 @@ optimalClusterNum <- function(memRequiredMB = 5000, maxNumClusters = 1) {
   return(numClusters)
 }
 
-
 #' Create a parallel Fork cluster, if useful
 #'
 #' Given the size of a problem, it may not be useful to create a cluster.
@@ -822,8 +819,7 @@ optimalClusterNum <- function(memRequiredMB = 5000, maxNumClusters = 1) {
 #' @param ... Passed to \code{makeForkClusterRandom}.
 #'            Only relevant for \code{iseed}.
 makeOptimalCluster <- function(useParallel = FALSE, MBper = 5e3,
-                               maxNumClusters = parallel::detectCores(),
-                               ...) {
+                               maxNumClusters = parallel::detectCores(), ...) {
   if (useParallel && tolower(Sys.info()[["sysname"]]) != "windows") {
     numClus <- optimalClusterNum(MBper, maxNumClusters = maxNumClusters)
     if (numClus <= 1) {
@@ -835,6 +831,7 @@ makeOptimalCluster <- function(useParallel = FALSE, MBper = 5e3,
     NULL
   }
 }
+
 #' Fasterize with crop & spTransform first
 #'
 #' @param emptyRaster An empty raster with res, crs, extent all
@@ -848,26 +845,22 @@ fasterize2 <- function(emptyRaster, polygonToFasterize, field) {
   if (extent(polygonToFasterize) > extent(ras)) {
     polygonToFasterize <- Cache(crop, polygonToFasterize, ras)
   }
-  thePoly <-
-    spTransform(polygonToFasterize, CRSobj = crs(ras))
+  thePoly <- spTransform(polygonToFasterize, CRSobj = crs(ras))
   thePoly$polygonNum <- seq_along(thePoly)
   if (!is.factor(thePoly[[field]])) {
     thePoly[[field]] <- factor(thePoly[[field]])
   }
   aa2 <-
     fasterize::fasterize(sf::st_as_sf(thePoly), ras, field = field)
-  levels(aa2) <-
-    data.frame(ID = seq_len(nlevels(thePoly[[field]])),
-               Factor = levels(thePoly[[field]]))
-  # levels(aa2) <-
-  #   data.frame(ID = seq_along(thePoly), as.data.frame(thePoly))
+  levels(aa2) <- data.frame(ID = seq_len(nlevels(thePoly[[field]])),
+                            Factor = levels(thePoly[[field]]))
+  # levels(aa2) <- data.frame(ID = seq_along(thePoly), as.data.frame(thePoly))
   aa2
 }
 
-
 #' \code{makeForkCluster} with random seed set
 #'
-#' This will set different randon seeds on the clusters (not the default)
+#' This will set different random seeds on the clusters (not the default)
 #' with \code{makeForkCluster}. It also defaults to creating a logfile with
 #' message of where it is.
 #'
@@ -911,7 +904,6 @@ Map2 <- function(..., cl = NULL) {
       argList$f <- fun
     }
     do.call(Map, args = argList)
-
   } else {
     argList <- list(...)
     wrongFun1 <- "f" %in% names(argList)
@@ -929,7 +921,6 @@ Map2 <- function(..., cl = NULL) {
     do.call(clusterMap, append(list(cl = cl), argList))
   }
 }
-
 
 simplifyColumns <- function(df) {
   if (is(df, "list")) {
