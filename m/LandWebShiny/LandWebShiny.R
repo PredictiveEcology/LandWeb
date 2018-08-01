@@ -301,12 +301,12 @@ Init <- function(sim) {
       rpInner$crsSR
     })
   })
-  sim$leadingCC <- #Cache(calculateLeadingVegType, sim$reportingPolygons, #calculateLeadingVegType = calculateLeadingVegType,
-    Cache(leadingByStage, polysSR, #calculateLeadingVegType = calculateLeadingVegType,
-          tsf = sim$tsfsCC, vtm = vtmsCC, # cl = cl6,
-          ageClasses = ageClasses,
-          ageClassCutOffs = ageClassCutOffs,
-          cacheId = cacheId$leadingByStage)
+  sim$leadingCC <- Cache(leadingByStage,
+                         polysSR,
+                         tsf = sim$tsfsCC, vtm = vtmsCC, # cl = cl6,
+                         ageClasses = ageClasses,
+                         ageClassCutOffs = ageClassCutOffs,
+                         cacheId = cacheId$leadingByStage)
 
   # vegCoverLabels <- raster::levels(CurrentConditions$Proprietary$CCvtm)[[1]]
   # sim$leadingCC$Proprietary <- lapply(sim$leadingCC$Proprietary, function(poly) {
@@ -376,7 +376,7 @@ Init <- function(sim) {
   lrgPatches <- simplifyColumns(list(lrgPatches = sim2$lrgPatches, lrgPatchesCC = sim2$lrgPatchesCC))
   sim$lrgPatchesCC <- lrgPatches$lrgPatchesCC
   sim$lrgPatches <- lrgPatches$lrgPatches
-  
+
   return(invisible(sim))
 }
 
