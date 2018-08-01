@@ -43,7 +43,7 @@ modulePath <- Cache(
   cacheRepo = cachePath
 )
 if (nchar(modulePath) == 0) modulePath <- getPaths()$modulePath
-canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
+canadaMap <- Cache(getData, "GADM", country = "CAN", level = 1, path = "inputs",
                    cacheRepo = cachePath, digestPathContent = FALSE) 
 dev()
 clearPlot()

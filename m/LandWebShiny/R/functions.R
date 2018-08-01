@@ -235,7 +235,7 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
     polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ECODISTRIC
   }
 
-  polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1)
+  polys$provinces <- Cache(getData, "GADM", country = "CAN", level = 1, path = "inputs")
   polys$provinces[[labelColumn]] <- polys$provinces$NAME_1
 
   # Get all SilvaCom-generated datasets - they have a common structure

@@ -41,7 +41,7 @@ inputDir <- file.path(moduleDir, "inputs") %>% reproducible::checkPath(create = 
 outputDir <- file.path(moduleDir, "outputs")
 cacheDir <- file.path(outputDir, "cache")
 
-canadaMap <- Cache(getData, 'GADM', country = 'CAN', level = 1,
+canadaMap <- Cache(getData, "GADM", country = "CAN", level = 1, path = "inputs",
                    cacheRepo = cachePath, digestPathContent = FALSE) 
 dev()
 clearPlot()
