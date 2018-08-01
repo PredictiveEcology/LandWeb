@@ -55,6 +55,7 @@ function(input, output, session) {
                                    maxAge = maxAge, zoom = 5, nPolygons = 1,
                                    nRasters = length(rctTsf()),
                                    rasterStepSize = summaryInterval,
+                                   sliderTitle = "Sampled simulation years (does not correspond to calendar years)",
                                    uploadOpts = list(
                                      auth = authStatus(),
                                      path = "uploads",
