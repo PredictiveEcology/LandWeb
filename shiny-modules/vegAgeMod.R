@@ -134,7 +134,9 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
 
     callModule(histogram, id, histogramData, addAxisParams, verticalBar = verticalLineAtX,
                width = barWidth, file = pngFilePath,
-               xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
+               xlim = range(breaks), ylim = c(0, 1),
+               xlab = paste0("Proportion of ", .current[3], " ", .current[2], " in ", .current[1]),
+               ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
 }

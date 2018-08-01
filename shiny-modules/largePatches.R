@@ -21,7 +21,7 @@
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
 histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, nSimTimes, authStatus,
-                          uiSequence, outputPath, chosenPolyName, patchSize, rebuildHistPNGs) {
+                         uiSequence, outputPath, chosenPolyName, patchSize, rebuildHistPNGs) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {
       datatable()
@@ -109,11 +109,11 @@ histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, nSimTimes, 
       NULL
     }
 
-    # browser(expr = .current$ageClass=="Mature" && .current$polygonID == "Boreal Shield" &&
-    #              .current$vegCover == "Deciduous leading")
     callModule(histogram, id, histogramData, addAxisParams,
                verticalBar = verticalLineAtX, width = breaksInterval, file = pngFilePath,
-               xlim = xlim, ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
+               xlim = xlim, ylim = c(0, 1),
+               xlab = paste("Number of patches greater than", patchSize, "ha"),
+               ylab = "Proportion in NRV",
                col = "darkgrey", border = "grey", main = "", space = 0)
   })
 }
