@@ -149,6 +149,7 @@ Save <- function(sim) {
   if (!suppliedElsewhere("biomassMap")) {
     sim$biomassMap <- Cache(prepInputs,
                             targetFile = biomassMapFilename,
+                            url = extractURL("biomassMap", sim),
                             archive = asPath(file.path(dataPath, c("kNN-StructureBiomass.tar",
                                                                    "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip"))),
                             destinationPath = asPath(dataPath),
@@ -164,6 +165,7 @@ Save <- function(sim) {
   if (!suppliedElsewhere("LCC2005")) {
     sim$LCC2005 <- Cache(prepInputs,
                          targetFile = lcc2005Filename,
+                         url = extractURL("LCC2005", sim),
                          archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
                          destinationPath = asPath(dataPath),
                          studyArea = sim$shpStudySubRegion,
