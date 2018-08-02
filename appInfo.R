@@ -44,7 +44,7 @@ appInfo <- list(
     "fri.LandWeb@gmail.com",
     "gwhitm@gmail.com",
     "jamesn@albertanewsprint.com",
-    "John.Stadt@gov.ab.ca",
+    "jlstadt@gmail.com",
     "kathleen.groenewegen@gmail.com",
     "lisa_smithereen@yahoo.ca",
     "mwfp.nrv@gmail.com",
