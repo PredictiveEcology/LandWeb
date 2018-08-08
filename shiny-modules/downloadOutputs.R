@@ -43,7 +43,7 @@ downloadOutputs <- function(input, output, session, appInfo,
       checkboxInput(ns("dlVegAgeHists"), "Leading Vegetation Cover histograms (.png)", TRUE),
       checkboxInput(ns("dlVegAgeBoxplots"), "Leading Vegetation Cover boxplots (.png)", TRUE),
 
-      h5("Simulation Rasters (cropped to study region)"),
+      h4("Simulation Rasters (cropped to study region)"),
       h5("NOTE: geoprocessing of these outputs may take several minutes to complete!"),
       checkboxInput(ns("dlTimeSinceFireMaps"), "Time Since Fire maps (.tif)", FALSE),
       checkboxInput(ns("dlVegTypeMaps"), "Vegetation type maps (.grd, .tif)", FALSE),
