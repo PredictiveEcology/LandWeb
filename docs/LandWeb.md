@@ -1,8 +1,8 @@
 ---
-title: "LandWeb v1.0.0"
+title: "LandWeb v1.0.1"
 subtitle: Exploring Natural Range of Variation in the Western Boreal Forest
 author: "Alex M. Chubaty"
-date: "July 7, 2018"
+date: "August 7, 2018"
 output:
   pdf_document:
     toc: true
@@ -111,7 +111,7 @@ These figures (see Fig. 3) show the NRV of the probability distribution of patch
 Use the tabs on this page to examine each combination of these variables.
 Age classes are as follows: Young (<40 yrs), Immature (40-80 yrs), Mature (80-120 yrs), Old (>120 yrs).
 
-Authorized (logged in) users will see a red line added to these figures, which indicates the current stand conditions.
+Authorized (logged in) users will see a red line added to each of these figures, which indicates the current landscape conditions.
 
 To change the patch size that defines these, enter a new value in the box on this page.
 
@@ -119,7 +119,7 @@ To change the patch size that defines these, enter a new value in the box on thi
 
 ## Vegetation cover histograms
 
-!["Vegetation Cover Histograms"](screenshots/veg_cover.png)
+!["Vegetation Cover Histograms"](screenshots/veg_cover_histograms.png)
 
 These figures (see Fig. 4) show the NRV of the proportion of forests for each age class, in each polygon, that are in each leading vegetation type.
 Use the tabs on this page to examine each combination of these variables.
@@ -127,7 +127,23 @@ The proportions are proportions within age class: Young (<40 yrs), Immature (40-
 
 In any given replicate, the numbers below sum to 1.
 
+Authorized (logged in) users will see red lines added to the histograms, which indicate the current landscape conditions.
+
 *NOTE: the histograms on this page will take some time to load when selecting a different polygon from the "Time Since Fire Maps" page.*
+
+## Vegetation cover boxplots
+
+!["Vegetation Cover Boxplots"](screenshots/veg_cover_boxlots.png)
+
+These figures (see Fig. 5) show the NRV of the proportion of forests for each age class, in each polygon, that are in each leading vegetation type.
+Use the tabs on this page to examine each combination of these variables.
+The proportions are proportions within age class: Young (<40 yrs), Immature (40-80 yrs), Mature (80-120 yrs), Old (>120 yrs).
+
+In any given replicate, the numbers below sum to 1.
+
+Authorized (logged in) users will see red dots added to the boxplots, which indicate the current landscape conditions.
+
+*NOTE: the boxplots on this page will take some time to load when selecting a different polygon from the "Time Since Fire Maps" page.*
 
 ## Log in using your Google account
 
@@ -166,7 +182,7 @@ Model outputs are available to download for authorized app users, and are descri
 ## Downloading outputs
 
 Authorized (logged in) users have the option to download model outputs.
-Click the "Download Options" button (labelled A in Fig. 2) to view download options for 
+Click the "Download Options" button (labelled A in Fig. 2) to view download options.
 
 *NOTE: It make some time to produce the `.zip` file for download.*
 
@@ -199,7 +215,9 @@ Click the "Download Options" button (labelled A in Fig. 2) to view download opti
 The downloaded outputs are bundled into a zip file (*e.g.*, `LandWeb_v1.0.0_2018-04-13.zip`) with the following directory and file structure:
 
 ```
-LandWeb_v1.0.0_2018-04-30/
+LandWeb_v1.0.1_2018-08-08/
+ |_ boxplots/
+     |_ vegAgeMod/
  |_ histograms/
      |_ largePatches/
          |_ 500/                  ## currently selected patchSize

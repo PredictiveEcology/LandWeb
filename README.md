@@ -1,4 +1,4 @@
-## LandWeb v1.0.0
+## LandWeb v1.0.1
 
 ### Exploring Natural Range of Variation in the Western Boreal Forest
 
@@ -7,7 +7,7 @@
 - Eliot McIntire (eliot.mcintire@canada.ca)
 - Alex M. Chubaty (achubaty@friresearch.ca)
 
-**Date:** May 16, 2018
+**Date:** August 8, 2018
 
 #### Overview
 
@@ -69,6 +69,7 @@ Model outputs are available to download for authorized app users, and are descri
 
 - Leading Vegetation Cover Data (`.csv`)
 - Leading Vegetation Cover histograms (`.png`)
+- Leading Vegetation Cover boxplots (`.png`)
 
 ##### Simulation Rasters (cropped to study region)
 
@@ -83,7 +84,9 @@ Model outputs are available to download for authorized app users, and are descri
 The downloaded outputs are bundled into a zip file (*e.g.*, `LandWeb_v1.0.0_2018-04-13.zip`) with the following directory and file structure:
 
 ```
-LandWeb_v1.0.0_2018-04-30/
+LandWeb_v1.0.1_2018-08-08/
+ |_ boxplots/
+     |_ vegAgeMod/
  |_ histograms/
      |_ largePatches/
          |_ 500/                  ## currently selected patchSize
