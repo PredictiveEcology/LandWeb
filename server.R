@@ -35,43 +35,55 @@ function(input, output, session) {
   rctUserInfo <- callModule(authGoogle, "auth_google", appURL = appURL,
                             authUsers = appInfo$users, icon = NULL)
 
-  defaultPolyName <- "National Ecozones"  ## TODO: move to global.R ?
-
   authStatus <- reactive(isTruthy(session$userData$userAuthorized()))
   userEmail <- reactive({
     rctUserInfo()$emails[1, "value"] %>%
       gsub("/", "_", .) ## `/` is valid for email addresses but not filenames
   })
 
-  rctChosenPolyUser <-  callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
-                                   rctRasterList = rctRasterList,
-                                   rctUrlTemplate = rctUrlTemplate,
-                                   rctPolygonList = rctPolygonList,
-                                   shpStudyRegionName = "LandWeb Study Area",
-                                   defaultPolyName = defaultPolyName,
-                                   colorPalette = timeSinceFirePalette,
-                                   mapTilesDir = "www/All/FULL/map-tiles",
-                                   mapTitle = "Time since fire",
-                                   mapLegend = paste0("Time since fire", br(), "(years)"),
-                                   maxAge = maxAge, zoom = 5, nPolygons = 1,
-                                   nRasters = length(rctTsf()),
-                                   rasterStepSize = summaryInterval,
-                                   sliderTitle = "Sampled simulation years (does not correspond to calendar years)",
-                                   uploadOpts = list(
-                                     auth = authStatus(),
-                                     path = "uploads",
-                                     user = userEmail()
-                                   ),
-                                   rctStudyArea = rctStudyArea,
-                                   omitPolys = c("AB Natural Sub Regions",
-                                                 "LandWeb Study Area"), ## TODO: remove this workaround
-                                   thinKeep = 0.01
-  )
+  rctPolySubList <- reactive({
+    sublist <- lapply(rctPolygonList(), function(x) x$crsSR)
+    omitPolys <- c("AB Natural Sub Regions", "LandWeb Study Area") ## TODO: remove this workaround
+    lapply(omitPolys, function(x) sublist[[x]] <<- NULL)
+    sublist
+  })
 
+  defaultPolyName <- "National Ecozones"  ## TODO: move to global.R ?
+  rctUploadOptions <- reactive({
+    list(
+      auth = authStatus(),
+      path = "uploads",
+      user = userEmail()
+    )
+  })
+
+  rctChosenPolyUser <- callModule(polygonChooser, "polyDropdown", rctPolySubList,
+                                  defaultPolyName, uploadOpts = rctUploadOptions(),
+                                  studyArea = rctStudyArea())
   rctPolygonListUser <- reactive({
     do.call(polygonList, append(rctChosenPolyUser()$polygons, list(studyArea = rctStudyArea())))
   })
   rctChosenPolyName <- reactive(rctChosenPolyUser()$selected)
+
+  callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
+             rctRasterList = rctRasterList,
+             rctUrlTemplate = rctUrlTemplate,
+             rctPolygonList = rctPolygonList,
+             rctChosenPoly = rctChosenPolyUser,
+             shpStudyRegionName = "LandWeb Study Area",
+             defaultPolyName = defaultPolyName,
+             colorPalette = timeSinceFirePalette,
+             mapTilesDir = "www/All/FULL/map-tiles",
+             mapTitle = "Time since fire",
+             mapLegend = paste0("Time since fire", br(), "(years)"),
+             maxAge = maxAge, zoom = 5, nPolygons = 1,
+             nRasters = length(rctTsf()),
+             rasterStepSize = summaryInterval,
+             sliderTitle = "Sampled simulation years (does not correspond to calendar years)",
+             uploadOpts = rctUploadOptions(),
+             rctStudyArea = rctStudyArea,
+             thinKeep = 0.01
+  )
 
   rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
                                     rctPolygonList = rctPolygonListUser,
