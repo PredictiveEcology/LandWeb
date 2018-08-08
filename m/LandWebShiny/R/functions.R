@@ -714,15 +714,15 @@ MapWithVariableInputs <- function(f, ..., possibleList, MoreArgs) {
   do.call(Map, append(list(f = f, MoreArgs = MoreArgs), dots))
 }
 
-prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, polygonNames,
-                                   shinyLabel, studyArea) {
-  out <- Map(url = namedUrlsLabelColumnNames, layerName = names(namedUrlsLabelColumnNames),
+prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath,
+                                   polygonNames, shinyLabel, studyArea) {
+  out <- Map(url = namedUrlsLabelColumnNames,
+             layerName = names(namedUrlsLabelColumnNames),
              MoreArgs = list(destinationPath = destinationPath,
                              polygonNames = polygonNames,
                              shinyLabel = shinyLabel),
              function(url, layerName, destinationPath, polygonNames, shinyLabel) {
                if (layerName %in% polygonNames) {
-                 #dPath <- file.path(paths$inputPath, "Caribou")
                  target <- gsub(pattern = " ", replacement = "_", layerName)
                  targetZip <- paste0(target, ".zip")
                  targetFilename <-   file.path(destinationPath, paste0(target, ".shp"))
@@ -749,7 +749,6 @@ prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, p
 formalsNotInCurrentDots <- function(.f, ...) {
   names(list(...))[!(names(list(...)) %in% names(formals(.f)))]
 }
-
 
 studyAreaPolygonsFn <- function(shpLandWebSA = NULL, shpStudyArea = NULL, labelColumn) {
   wholeStudyAreaTxt <- "Whole Study Area"
