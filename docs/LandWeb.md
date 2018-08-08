@@ -133,7 +133,7 @@ Authorized (logged in) users will see red lines added to the histograms, which i
 
 ## Vegetation cover boxplots
 
-!["Vegetation Cover Boxplots"](screenshots/veg_cover_boxlots.png)
+!["Vegetation Cover Boxplots"](screenshots/veg_cover_boxplots.png)
 
 These figures (see Fig. 5) show the NRV of the proportion of forests for each age class, in each polygon, that are in each leading vegetation type.
 Use the tabs on this page to examine each combination of these variables.
