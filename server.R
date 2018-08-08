@@ -30,6 +30,7 @@ function(input, output, session) {
 
   unsuspendModule("largePatches")
   unsuspendModule("vegArea")
+  unsuspendModule("vegArea2")
 
   rctUserInfo <- callModule(authGoogle, "auth_google", appURL = appURL,
                             authUsers = appInfo$users, icon = NULL)
@@ -83,6 +84,7 @@ function(input, output, session) {
                                     FUN = largePatchesFn,
                                     nPatchesFun = countNumPatches)
 
+  # veg cover histograms
   rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
                            rctPolygonList = rctPolygonListUser,
                            rctChosenPolyName = rctChosenPolyName,
@@ -91,6 +93,16 @@ function(input, output, session) {
                            rctVtm = rctVtm,
                            outputPath = rctPaths4sim()$outputPath,
                            ageClasses = ageClasses)
+
+  # veg cover boxplots
+  rctVegData2 <- callModule(vegAgeMod2, "vegArea2",  ## TODO: write this with generator
+                            rctPolygonList = rctPolygonListUser,
+                            rctChosenPolyName = rctChosenPolyName,
+                            rctLeadingDTlist = rctLeadingDTlist,
+                            rctLeadingDTlistCC = rctLeadingDTlistCC,
+                            rctVtm = rctVtm,
+                            outputPath = rctPaths4sim()$outputPath,
+                            ageClasses = ageClasses)
 
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())

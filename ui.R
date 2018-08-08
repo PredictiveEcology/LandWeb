@@ -25,7 +25,8 @@ dashboardPage(
       h4(HTML("&nbsp;"), "NRV"),
       menuItem("Time Since Fire Maps", tabName = "timeSinceFire", icon = icon("map-o"), selected = TRUE),
       menuItem("Large Patches", tabName = "largePatches", icon = icon("bar-chart")),
-      menuItem("Vegetation Cover", tabName = "vegArea", icon = icon("bar-chart")),
+      menuItem("Vegetation Cover (histograms)", tabName = "vegArea", icon = icon("bar-chart")),
+      menuItem("Vegetation Cover (boxplots)", tabName = "vegArea2", icon = icon("area-chart")),
       br(),
       h4(HTML("&nbsp;"), "Model Details"),
       menuItem("Overview Diagrams", tabName = "simInfo", icon = icon("sitemap")),
@@ -48,8 +49,9 @@ dashboardPage(
       tabItem("appSupport", landwebAppSupportUI("appSupport")), ## TODO: add this to generator
 
       tabItem("timeSinceFire", timeSeriesofRastersUI("timeSinceFire")),
-      tabItem("largePatches", largePatchesUI("largePatches")),
-      tabItem("vegArea", vegAgeModUI("vegArea")), ## TODO: add this to generator
+      tabItem("largePatches", largePatchesUI("largePatches")),  ## TODO: add this to generator
+      tabItem("vegArea", vegAgeModUI("vegArea")),               ## TODO: add this to generator
+      tabItem("vegArea2", vegAgeMod2UI("vegArea2")),            ## TODO: add this to generator
 
       tabItem("simInfo", simInfoUI("simInfo")),
       tabItem("moduleInfo", moduleInfoUI("moduleInfo")),
