@@ -111,10 +111,13 @@ histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, nSimTimes, 
 
     callModule(histogram, id, histogramData, addAxisParams,
                verticalBar = verticalLineAtX, width = breaksInterval, fname = pngFilePath,
+               border = "grey",
+               col = "darkgrey",
+               main = paste(.current, collapse = " "),
+               space = 0,
                xlim = xlim, ylim = c(0, 1),
                xlab = paste("Number of patches greater than", patchSize, "ha"),
-               ylab = "Proportion in NRV",
-               col = "darkgrey", border = "grey", main = "", space = 0)
+               ylab = "Proportion in NRV")
   })
 }
 
