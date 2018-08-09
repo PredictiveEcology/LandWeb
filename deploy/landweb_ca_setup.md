@@ -103,9 +103,11 @@ sudo apt install -y \
     libcurl4-gnutls-dev \
     libgdal-dev \
     libgeos-dev \
+    libgit2-dev \
     libproj-dev \
     libprotobuf-dev \
     libprotoc-dev \
+    libssh2-1-dev \
     libssl-dev \
     libudunits2-dev \
     libv8-dev \
