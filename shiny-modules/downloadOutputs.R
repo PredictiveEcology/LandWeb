@@ -94,7 +94,13 @@ downloadOutputs <- function(input, output, session, appInfo,
         if (isTRUE(input$dlPolygon)) {
           polygonFile2 <- file.path(tmpDir, "polygons", paste0(rctChosenPolyName(), ".shp"))
           raster::shapefile(currPoly, filename = polygonFile2)
-          fileList <- append(fileList, polygonFile2)
+          polyFiles2 <- c(
+            polygonFile2,
+            extension(polygonFile2, ".dbf"),
+            extension(polygonFile2, ".prj"),
+            extension(polygonFile2, ".shx")
+          )
+          fileList <- append(fileList, polyFiles2)
           incProgress(1/n)
         }
 
@@ -216,19 +222,17 @@ downloadOutputs <- function(input, output, session, appInfo,
             file.path(dirname(fname), .prefix(basename(fname), filePrefix)) %>%
               gsub("/\\./", "/", .)
           })
-          mapply(file.copy, fileList, renamedFiles)
+          mapply(file.rename, fileList, renamedFiles)
           renamedFiles
         } else {
           fileList
         }
-        allTmpFiles <- append(fileList, fileListRenamed) %>% unique()
-        on.exit(lapply(allTmpFiles, unlink), add = TRUE)
+        on.exit(lapply(fileListRenamed, unlink), add = TRUE)
 
         ## README, TERMS, ETC.
         otherFiles <- c("README.md", "TERMS.pdf")
         otherFiles2 <- file.path(tmpDir, basename(otherFiles))
         file.copy(otherFiles, otherFiles2)
-        append(fileListRenamed, otherFiles2)
 
         ## create the zip file containing the selected files
         cwd <- getwd()
