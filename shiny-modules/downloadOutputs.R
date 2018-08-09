@@ -217,23 +217,27 @@ downloadOutputs <- function(input, output, session, appInfo,
               gsub("/\\./", "/", .)
           })
           mapply(file.copy, fileList, renamedFiles)
-          on.exit(lapply(fileListRenamed, unlink), add = TRUE)
           renamedFiles
         } else {
           fileList
         }
+        allTmpFiles <- append(fileList, fileListRenamed) %>% unique()
+        on.exit(lapply(allTmpFiles, unlink), add = TRUE)
 
         ## README, TERMS, ETC.
         otherFiles <- c("README.md", "TERMS.pdf")
         otherFiles2 <- file.path(tmpDir, basename(otherFiles))
         file.copy(otherFiles, otherFiles2)
+        append(fileListRenamed, otherFiles2)
 
         ## create the zip file containing the selected files
         cwd <- getwd()
         setwd(tmpDir); on.exit(setwd(cwd), add = TRUE)
         zip(file, files = list.files(tmpDir, recursive = TRUE))
+        ## TODO: if fileListRenamed not used here, why bother?
       })
     },
     contentType = "application/zip"
   )
 }
+
