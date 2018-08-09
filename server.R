@@ -44,6 +44,7 @@ function(input, output, session) {
   # TODO: update generator to handle these assignments
 
   callModule(landwebAppInfo, "appInfo", appInfo)
+  callModule(appNews, "appNews", "NEWS.md", "success")
   callModule(termsOfService, "appToS", "TERMS.md", "success")
   callModule(landwebAppSupport, "appSupport", appInfo)
 

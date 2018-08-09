@@ -18,6 +18,7 @@ dashboardPage(
       br(),
       h4(HTML("&nbsp;"), "App Information"),
       menuItem("About", tabName = "appInfo", icon = icon("info-circle")),
+      menuItem("News & Updates", tabName = "appNewsUpdates", icon = icon("rss-square")),
       menuItem("Privacy Policy",
                href = "https://friresearch.ca/content/friresearchca-privacy-policy",
                newtab = TRUE,
@@ -47,6 +48,7 @@ dashboardPage(
 
     tabItems(
       tabItem("appInfo", landwebAppInfoUI("appInfo")),          ## TODO: add this to generator
+      tabItem("appNewsUpdates", appNewsUI("appNews")),                 ## TODO: add this to generator
       #tabItem("appPrivacy", privacyStatementUI("appPrivacy")), ## TODO: add this to generator
       tabItem("appToS", termsOfServiceUI("appToS")),            ## TODO: add this to generator
       tabItem("appSupport", landwebAppSupportUI("appSupport")), ## TODO: add this to generator
