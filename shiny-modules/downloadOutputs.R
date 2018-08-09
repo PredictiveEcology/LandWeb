@@ -216,13 +216,12 @@ downloadOutputs <- function(input, output, session, appInfo,
             file.path(dirname(fname), .prefix(basename(fname), filePrefix)) %>%
               gsub("/\\./", "/", .)
           })
-          mapply(file.copy, fileList, renamedFiles)
+          mapply(file.rename, fileList, renamedFiles)
           renamedFiles
         } else {
           fileList
         }
-        allTmpFiles <- append(fileList, fileListRenamed) %>% unique()
-        on.exit(lapply(allTmpFiles, unlink), add = TRUE)
+        on.exit(lapply(fileListRenamed, unlink), add = TRUE)
 
         ## README, TERMS, ETC.
         otherFiles <- c("README.md", "TERMS.pdf")
