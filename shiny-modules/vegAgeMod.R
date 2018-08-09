@@ -17,7 +17,7 @@
 #' @importFrom purrr map
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
-#' @rdname
+#' @rdname vegHistServerFn
 vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
                             chosenPolyName, authStatus, rebuildHistPNGs, ...) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
@@ -66,58 +66,6 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
       NULL
     }
 
-    # if (FALSE) {
-    #   dtListShort <- split(.dtFull, by = uiSequence$category[-length(uiSequence$category)], flatten = FALSE)
-    #
-    #   # need to get a single set of breaks for all simultaneously visible histograms
-    #   dtInner <- dtListShort[[.current$ageClass]][[.current$polygonID]]
-    #
-    #   if (NROW(dtInner) > 0) {
-    #     dtOnlyCC <- dt[rep == "CurrentCondition"]
-    #     dtNoCC <- dt[rep != "CurrentCondition"]
-    #
-    #     out <- dtNoCC[, .N, by = c("vegCover", "rep")]$N
-    #     if (isTRUE(authStatus)) {
-    #       outCC <- max(0, dtOnlyCC[, .N, by = c("vegCover", "rep")]$N)
-    #       verticalLineAtX <- outCC
-    #     } else {
-    #       verticalLineAtX <- NULL
-    #       outCC <- numeric()
-    #     }
-    #     nClusters <- dtInner[, .N, by = c("vegCover", "rep")]$N
-    #     minNumBars <- 6
-    #     maxNumBars <- 30
-    #     rangeNClusters <- range(c(0, outCC, nClusters, minNumBars)) ## TODO: verify
-    #     attemptedNumBars <- max(minNumBars, min(maxNumBars, diff(rangeNClusters)))
-    #     breaksRaw <- seq(rangeNClusters[1], rangeNClusters[2], length.out = attemptedNumBars)
-    #     prettyBreaks <- pretty(breaksRaw, n = attemptedNumBars, min.n = min(attemptedNumBars, minNumBars))
-    #     dataForBreaks <- hist(nClusters, plot = FALSE, breaks = prettyBreaks)
-    #     breaksLabels <- dataForBreaks$breaks
-    #     breaksInterval <- diff(breaksLabels)[1]
-    #     dataForHistogram <- hist(out, plot = FALSE, breaks = prettyBreaks)
-    #     histogramData <- dataForHistogram$counts/sum(dataForHistogram$counts)
-    #
-    #     histogramData[is.na(histogramData)] <- 0 # NA means that there were no large patches in dt
-    #     # dataForHistogramCC <- hist(outCC, plot = FALSE, breaks = prettyBreaks)
-    #     # histogramDataCC <- dataForHistogramCC$counts/sum(dataForHistogramCC$counts)
-    #   } else {
-    #     if (isTRUE(authStatus)) { # need a default value for vertical line, in case there are no dtInner
-    #       verticalLineAtX <- 0
-    #     } else {
-    #       verticalLineAtX <- NULL
-    #     }
-    #     histogramData <- c(1,0,0,0,0,0,0)
-    #     breaksLabels = 0:6
-    #     breaksInterval <- 1
-    #   }
-    #   breaks <- breaksLabels - breaksInterval/2
-    #   barplotBreaks <- breaksLabels + breaksInterval/2
-    #   ticksAt <- barplotBreaks - min(breaksLabels)
-    #   xlim <- range(ticksAt) - breaksInterval/2
-    #   addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks - min(breaksLabels))
-    #   verticalLineAtX <- verticalLineAtX + breaksInterval/2 # The barplot xaxis is 1/2 a barwidth off
-    #
-    # }
     polyName <- chosenPolyName %>% gsub(" ", "_", .)
     pngDir <- file.path(outputPath, "histograms", polyName, "vegAgeMod") %>% checkPath(create = TRUE)
     pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
@@ -133,9 +81,14 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
     }
 
     callModule(histogram, id, histogramData, addAxisParams, verticalBar = verticalLineAtX,
-               width = barWidth, file = pngFilePath,
-               xlim = range(breaks), ylim = c(0, 1), xlab = "", ylab = "Proportion in NRV",
-               col = "darkgrey", border = "grey", main = "", space = 0)
+               width = barWidth, fname = pngFilePath,
+               border = "grey",
+               col = "darkgrey",
+               main = "", #paste(.current, collapse = " "),
+               space = 0,
+               xlim = range(breaks), ylim = c(0, 1),
+               xlab = paste0("Proportion of ", .current[3], " ", .current[2], " in ", .current[1]),
+               ylab = "Proportion in NRV")
   })
 }
 
@@ -166,10 +119,10 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
   output$vegDetails <- renderUI({
     column(width = 12,
            h4("These figures show the NRV of the proportion of forests for each age class,",
-              "in each polygon, that are in each leading vegetation type.",
-              "The proportions are proportions", em("within"), "age class: ",
-              "Young (<40 yrs), Immature (40-80 yrs), Mature (80-120 yrs), Old (>120 yrs).",
-              "In any given replicate, the numbers below sum to 1."))
+              "in each polygon, that are in each leading vegetation type."),
+           h4("The proportions are proportions", em("within"), "age class: ",
+              "Young (<40 yrs), Immature (40-80 yrs), Mature (80-120 yrs), Old (>120 yrs)."),
+           h4("In any given replicate, the numbers below sum to 1."))
   })
 
   rctVegData <- reactive({

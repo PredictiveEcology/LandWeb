@@ -1,6 +1,7 @@
 appDir <- switch(Sys.info()["nodename"],
                  "kahless" = file.path("/mnt/"),
                  "landweb.ca" =  file.path("/srv/shiny-server/"),
+                 "landweb" =  file.path("/mnt/data/"),
                  "W-VIC-A105342" = file.path("/mnt/shared/"),
                  file.path("~/GitHub/")
 ) # needs trailing slash!
@@ -8,13 +9,14 @@ appDir <- switch(Sys.info()["nodename"],
 appModDir <- switch(Sys.info()["nodename"],
                     "kahless" = file.path("~/GitHub/m"),
                     "landweb.ca" = file.path(appDir, "m"),
+                    "landweb" = file.path(appDir, "m"),
                     "W-VIC-A105342" = file.path("~/GitHub/m"),
                     file.path("~/GitHub/m")
 ) # no trailing slash!
 
 appInfo <- list(
   name = "LandWeb",
-  version = numeric_version("1.0.0"),
+  version = numeric_version("1.0.1"),
   appdir = appDir,
   appmoddir = appModDir,
   authors = c(
@@ -36,7 +38,7 @@ appInfo <- list(
     "alex.chubaty@gmail.com",
     "andison.d.w@gmail.com",
     "bob.christian@forcorp.com",
-    "Chris.Bater@gov.ab.ca",
+    "chris.bater@gov.ab.ca",
     "dmiwoodlands@gmail.com",
     "eliot.mcintire@gmail.com",
     "fri.LandWeb@gmail.com",
@@ -46,9 +48,9 @@ appInfo <- list(
     "kathleen.groenewegen@gmail.com",
     "lisa_smithereen@yahoo.ca",
     "mwfp.nrv@gmail.com",
-    "Neal.McLoughlin@gov.ab.ca",
+    "neal.mcLoughlin@gov.ab.ca",
     "shanew.sadoway@gmail.com",
     "sonya@fuseconsulting.ca",
     "westfrasertimber@gmail.com"
-  )
+  ) %>% tolower() # these should be all lowercase!
 )

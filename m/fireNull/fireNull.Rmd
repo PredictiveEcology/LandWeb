@@ -93,7 +93,7 @@ parameters <- list(
   initBaseMaps = list(),
   fireDataPrep = list()
 )
-modules <- list("initBaseMaps", "fireDataPrep", "fireNull", "timeSinceFire")#, #"landWebDataPrep", "LBMR")
+modules <- list("initBaseMaps", "fireDataPrep", "fireNull", "timeSinceFire")#, #"LandWebDataPrep", "LBMR")
 objects <- list(LCC05X = LCC05, shpStudySubRegion = shpStudyRegion)
 
 paths <- list(
@@ -165,7 +165,7 @@ As suggested above, this module was developed to be used with several other modu
 1. `initBaseMaps`;
 2. `fireDataPrep`;
 3. `timeSinceFire`;
-4. `landWebDataPrep`;
+4. `LandWebDataPrep`;
 5. `LBMR`.
 
 # References

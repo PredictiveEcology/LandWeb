@@ -1,10 +1,15 @@
 shiny::addResourcePath("tiles", "www/All/FULL/map-tiles")
 
-source("params/LandWeb_parameters.R")
+if (exists("DEVMODE") && isTRUE(DEVMODE)) {
+  source("params/Development_Parameters.R")
+} else {
+  source("params/LandWeb_parameters.R")
+}
 
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
+  "future", "promises",
   "PredictiveEcology/quickPlot@development",
   "PredictiveEcology/SpaDES.core@development",
   "PredictiveEcology/SpaDES.tools@development",
@@ -21,6 +26,8 @@ moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
                    "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible",
                    "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr",
                    "VGAM")
+
+future::plan("multiprocess")
 
 # needed packages loaded, e.g., for icon
 reproducible::Require(unique(c(
@@ -140,7 +147,7 @@ studyRegionFilePath <- {
 
 studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyRegionCreate,
                           asPath(studyRegionFilePath),
-                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "ltfcmap correct.shp")),
+                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "landweb_ltfc_v6.shp")),
                           subStudyRegionName = subStudyRegionName,
                           cacheId = cacheId$loadStudyRegions,
                           crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)
@@ -176,8 +183,8 @@ times4sim <- emptyListAll
 times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
 
 modules4sim <- emptyListAll
-modules4sim$All <- list("landWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
-                        "landWebProprietaryData",
+modules4sim$All <- list("LandWebDataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+                        "LandWebProprietaryData",
                         "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
 
 objects4sim <- emptyListAll
@@ -193,8 +200,8 @@ parameters4sim <- emptyListAll
 parameters4sim <- lapply(parameters4sim, function(x) {
   list(
     LandWebOutput = list(summaryInterval = summaryInterval),
-    landWebDataPrep = list(.useCache = eventCaching),
-    landWebProprietaryData = list(.useCache = eventCaching),
+    LandWebDataPrep = list(.useCache = eventCaching),
+    LandWebProprietaryData = list(.useCache = eventCaching),
     Boreal_LBMRDataPrep = list(.useCache = eventCaching),
     LandMine = list(biggestPossibleFireSizeHa = 5e5,
                     fireTimestep = fireTimestep,

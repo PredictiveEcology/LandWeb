@@ -235,7 +235,7 @@ createReportingPolygons <- function(polygonNames, shpLandWebSA, #shpStudyRegion,
     polys[[layerNamesIndex]]@data[[labelColumn]] <- polys[[layerNamesIndex]]$ECODISTRIC
   }
 
-  polys$provinces <- Cache(getData, 'GADM', country = 'CAN', level = 1)
+  polys$provinces <- Cache(getData, "GADM", country = "CAN", level = 1, path = "inputs")
   polys$provinces[[labelColumn]] <- polys$provinces$NAME_1
 
   # Get all SilvaCom-generated datasets - they have a common structure
@@ -319,10 +319,9 @@ reportingAndLeading <- function(createReportingPolygonsAllFn, leadingByStageFn, 
   reportingPolygon <- createReportingPolygonsAllFn(...)
 
   # remove study area
-  reportingPolysWOStudyArea <-
-    lapply(reportingPolygon, function(rp) {
-      rp <- rp[-which(names(rp) == "LandWeb Study Area")]
-    })
+  reportingPolysWOStudyArea <- lapply(reportingPolygon, function(rp) {
+    rp <- rp[-which(names(rp) == "LandWeb Study Area")]
+  })
   polysSR <- lapply(reportingPolysWOStudyArea, function(rp) {
     lapply(rp, function(rpInner) {
       rpInner$crsSR
@@ -339,10 +338,20 @@ reportingAndLeading <- function(createReportingPolygonsAllFn, leadingByStageFn, 
 
 #' Calculate proportion of landscape occupied by each vegetation class
 #'
-#' This function is recursive. If \code{polygonToSummarizeBy} is a SpatialPolygon,
-#' then the function will enter once, and convert this to a fasterized version, and
-#' pass that in to the function replacing \code{polygonToSummarizeBy}. It is
-#' also recursive of passed a vector of filenames for \code{tsf} and \code{vtm}.
+#' This function is recursive.
+#' If \code{polygonToSummarizeBy} is a \code{SpatialPolygon}, then the function
+#' will enter once, and convert this to a fasterized version, and pass that into
+#' the function replacing \code{polygonToSummarizeBy}.
+#' It is also recursive of passed a vector of filenames for \code{tsf} and \code{vtm}.
+#'
+#' @param tsf TODO
+#' @param vtm TODO
+#' @param polygonToSummarizeBy TODO
+#' @param ageClassCutOffs TODO
+#' @param ageClasses TODO
+#' @param objName
+#' @param ... TODO
+#'
 #' @return A data.table with proportion of the pixels in each vegetation class, for
 #'         each given age class within each polygon
 leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
@@ -411,36 +420,35 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
           if (length(tsf) > 1) {
             # recursive call to this same function, but one tsf and vtm at a time
             numClust <- optimalClusterNum(16000, maxNumClusters = length(tsf))
-            out <-
-              if (numClust > 1) {
-                cl <- makeForkCluster(numClust, type = "FORK")
-                on.exit(stopCluster(cl))
-                clusterMap(cl = cl,
-                           leadingByStage,
-                           tsf = tsf,
-                           vtm = vtm,
-                           objName = basename(tsf),
-                           MoreArgs = list(
-                             polygonToSummarizeBy = polygonToSummarizeBy,
-                             ageClassCutOffs = ageClassCutOffs,
-                             ageClasses = ageClasses,
-                             ...
-                           ),
-                           .scheduling = "dynamic")
-              } else {
-                Map(
-                  leadingByStage,
-                  tsf = tsf,
-                  vtm = vtm,
-                  objName = basename(tsf),
-                  MoreArgs = list(
-                    polygonToSummarizeBy = polygonToSummarizeBy,
-                    ageClassCutOffs = ageClassCutOffs,
-                    ageClasses = ageClasses,
-                    ...
-                  )
+            out <- if (numClust > 1) {
+              cl <- makeForkCluster(numClust, type = "FORK")
+              on.exit(stopCluster(cl), add = TRUE)
+              clusterMap(cl = cl,
+                         leadingByStage,
+                         tsf = tsf,
+                         vtm = vtm,
+                         objName = basename(tsf),
+                         MoreArgs = list(
+                           polygonToSummarizeBy = polygonToSummarizeBy,
+                           ageClassCutOffs = ageClassCutOffs,
+                           ageClasses = ageClasses,
+                           ...
+                         ),
+                         .scheduling = "dynamic")
+            } else {
+              Map(
+                leadingByStage,
+                tsf = tsf,
+                vtm = vtm,
+                objName = basename(tsf),
+                MoreArgs = list(
+                  polygonToSummarizeBy = polygonToSummarizeBy,
+                  ageClassCutOffs = ageClassCutOffs,
+                  ageClasses = ageClasses,
+                  ...
                 )
-              }
+              )
+            }
 
             names(out) <- basename(names(out))
             out <- rbindlist(out)
@@ -452,7 +460,6 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
               objName = basename(tsf)
             }
             message("        ", objName, ":  Calculating leading species by stage")
-
 
             # main function code
             if (tail(ageClassCutOffs, 1) != Inf)
@@ -474,58 +481,49 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
               )
             )
 
-            levels(rasTsf) <-
-              data.frame(ID = seq_along(ageClasses), Factor = ageClasses)
+            levels(rasTsf) <- data.frame(ID = seq_along(ageClasses), Factor = ageClasses)
 
             rasVeg <- raster(vtm[1])
             rasVeg[] <- rasVeg[] # 3 seconds
 
-            splitVal <-
-              paste0("_", 75757575, "_") # unlikely to occur for any other reason
+            splitVal <- paste0("_", 75757575, "_") # unlikely to occur for any other reason
 
             # Individual species
             nas3 <- is.na(rasVeg[]) | rasVeg[] == 0
             nas1 <- is.na(rasTsf[]) | rasTsf[] == 0
             nas <- nas3 | nas1
-            name1 <-
-              as.character(factorValues(rasTsf, rasTsf[][!nas])[, 1])
+            name1 <- as.character(factorValues(rasTsf, rasTsf[][!nas])[, 1])
             #as.character(raster::levels(rasTsf)[[1]]$Factor)[rasTsf[][!nas]]
-            name3 <-
-              as.character(factorValues(rasVeg, rasVeg[][!nas])[, 1])
+            name3 <- as.character(factorValues(rasVeg, rasVeg[][!nas])[, 1])
             #as.character(raster::levels(rasVeg)[[1]]$Factor)[rasVeg[][!nas]]
             ff <- paste(name1, name3, sep = splitVal) # 4 seconds
-
 
             ras <- raster(rasVeg)
             ffFactor <- factor(ff)
             ras[!nas] <- ffFactor # 2 seconds
 
-            eTable <-
-              data.frame(ID = seq_along(levels(ffFactor)),
-                         VALUE = levels(ffFactor))
-            types <-
-              strsplit(as.character(eTable$VALUE), split = splitVal)
+            eTable <- data.frame(ID = seq_along(levels(ffFactor)), VALUE = levels(ffFactor))
+            types <- strsplit(as.character(eTable$VALUE), split = splitVal)
             types <- do.call(rbind, types)
 
-            levels(ras) <-
-              data.frame(eTable, ageClass = types[, 1], vegCover = types[, 2])
+            levels(ras) <- data.frame(eTable, ageClass = types[, 1], vegCover = types[, 2])
 
             levs <- raster::levels(polygonToSummarizeBy)[[1]]
-            levs <-
-              factorValues(polygonToSummarizeBy, levs$ID) # this is same, if all values present, e.g., 1, 2, 3, 4, 5 ... but not if missing, 1, 2, 3, 5
-            facVals <-
-              factorValues(
-                polygonToSummarizeBy,
-                polygonToSummarizeBy[],
-                att = c("shinyLabel", "polygonNum")
-              )
 
-            bb <-
-              data.table(
-                zone = facVals$shinyLabel,
-                polygonID = facVals$polygonNum,
-                cell = seq_len(ncell(ras))
-              )
+            # this is same, if all values present: e.g., 1, 2, 3, 4, 5 ...,
+            # but not if missing: e.g., 1, 2, 3, 5
+            levs <- factorValues(polygonToSummarizeBy, levs$ID)
+            facVals <- factorValues(
+              polygonToSummarizeBy,
+              polygonToSummarizeBy[],
+              att = c("shinyLabel", "polygonNum") ## TODO: these don't exist in the raster; causes error
+            )
+
+            bb <- data.table(
+              zone = facVals$shinyLabel,
+              polygonID = facVals$polygonNum,
+              cell = seq_len(ncell(ras))
+            )
             #bb <- na.omit(bb)
 
             # add age and vegCover by reference
@@ -533,31 +531,27 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
             bb <- na.omit(bb)
 
             #set(bb, , "zone", polygonToSummarizeBy$shinyLabel[as.numeric(bb$polygonNum)])
-            tabulated <-
-              bb[, list(N1 = .N), by = c("zone", "polygonID", "ageClass", "vegCover")]
+            tabulated <- bb[, list(N1 = .N), by = c("zone", "polygonID", "ageClass", "vegCover")]
             tabulated[, proportion := round(N1 / sum(N1), 4), by = c("zone", "ageClass")]
 
-            allCombos <-
-              expand.grid(
-                ageClass = ageClasses,
-                stringsAsFactors = FALSE,
-                vegCover = raster::levels(rasVeg)[[1]]$Factor,
-                zone = levs$shinyLabel# factorValues(polygonToSummarizeBy, 1:5)$shinyLabel
-              )
-            allCombos$polygonID <-
-              match(allCombos$zone, levs$shinyLabel)
+            allCombos <- expand.grid(
+              ageClass = ageClasses,
+              stringsAsFactors = FALSE,
+              vegCover = raster::levels(rasVeg)[[1]]$Factor,
+              zone = levs$shinyLabel# factorValues(polygonToSummarizeBy, 1:5)$shinyLabel
+            )
+            allCombos$polygonID <- match(allCombos$zone, levs$shinyLabel)
             #allCombos$proportion <- 0
             data.table::setDT(allCombos)
 
             #allCombos[tabulated, on = c("zone", "vegCover", "ageClass")]
 
-            tabulated <-
-              merge(
-                tabulated,
-                allCombos,
-                by = c("zone", "vegCover", "ageClass", "polygonID"),
-                all.y = TRUE
-              )
+            tabulated <- merge(
+              tabulated,
+              allCombos,
+              by = c("zone", "vegCover", "ageClass", "polygonID"),
+              all.y = TRUE
+            )
             tabulated[is.na(proportion), proportion := 0]
             set(tabulated, , "N1", NULL)
             set(tabulated,
@@ -624,7 +618,7 @@ createCCfromVtmTsf <- function(CCspeciesNames, vtmRasters, dPath, loadCCSpeciesF
                    url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
                    destinationPath = dPath, method = "ngb",
                    studyArea = shpStudyArea, omitArgs = "purge",
-                   postProcessedFilename = "CurrentCondition.tif", ...,
+                   filename2 = "CurrentCondition.tif", ...,
                    rasterToMatch = getAllIfExists(tsfRasters, "Proprietary")$crsSR[[1]]
     )
 
@@ -720,15 +714,15 @@ MapWithVariableInputs <- function(f, ..., possibleList, MoreArgs) {
   do.call(Map, append(list(f = f, MoreArgs = MoreArgs), dots))
 }
 
-prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath, polygonNames,
-                                   shinyLabel, studyArea) {
-  out <- Map(url = namedUrlsLabelColumnNames, layerName = names(namedUrlsLabelColumnNames),
+prepInputsFromSilvacom <- function(namedUrlsLabelColumnNames, destinationPath,
+                                   polygonNames, shinyLabel, studyArea) {
+  out <- Map(url = namedUrlsLabelColumnNames,
+             layerName = names(namedUrlsLabelColumnNames),
              MoreArgs = list(destinationPath = destinationPath,
                              polygonNames = polygonNames,
                              shinyLabel = shinyLabel),
              function(url, layerName, destinationPath, polygonNames, shinyLabel) {
                if (layerName %in% polygonNames) {
-                 #dPath <- file.path(paths$inputPath, "Caribou")
                  target <- gsub(pattern = " ", replacement = "_", layerName)
                  targetZip <- paste0(target, ".zip")
                  targetFilename <-   file.path(destinationPath, paste0(target, ".shp"))
@@ -756,7 +750,6 @@ formalsNotInCurrentDots <- function(.f, ...) {
   names(list(...))[!(names(list(...)) %in% names(formals(.f)))]
 }
 
-
 studyAreaPolygonsFn <- function(shpLandWebSA = NULL, shpStudyArea = NULL, labelColumn) {
   wholeStudyAreaTxt <- "Whole Study Area"
   #shpLandWebSA$shinyLabel <- as.character(seq(NROW(shpLandWebSA)))
@@ -778,8 +771,6 @@ studyAreaPolygonsFn <- function(shpLandWebSA = NULL, shpStudyArea = NULL, labelC
   }
   polys
 }
-
-
 
 optimalClusterNum <- function(memRequiredMB = 5000, maxNumClusters = 1) {
   if (Sys.info()["sysname"] == "Linux") {
@@ -808,7 +799,6 @@ optimalClusterNum <- function(memRequiredMB = 5000, maxNumClusters = 1) {
   return(numClusters)
 }
 
-
 #' Create a parallel Fork cluster, if useful
 #'
 #' Given the size of a problem, it may not be useful to create a cluster.
@@ -822,8 +812,7 @@ optimalClusterNum <- function(memRequiredMB = 5000, maxNumClusters = 1) {
 #' @param ... Passed to \code{makeForkClusterRandom}.
 #'            Only relevant for \code{iseed}.
 makeOptimalCluster <- function(useParallel = FALSE, MBper = 5e3,
-                               maxNumClusters = parallel::detectCores(),
-                               ...) {
+                               maxNumClusters = parallel::detectCores(), ...) {
   if (useParallel && tolower(Sys.info()[["sysname"]]) != "windows") {
     numClus <- optimalClusterNum(MBper, maxNumClusters = maxNumClusters)
     if (numClus <= 1) {
@@ -835,6 +824,7 @@ makeOptimalCluster <- function(useParallel = FALSE, MBper = 5e3,
     NULL
   }
 }
+
 #' Fasterize with crop & spTransform first
 #'
 #' @param emptyRaster An empty raster with res, crs, extent all
@@ -848,26 +838,21 @@ fasterize2 <- function(emptyRaster, polygonToFasterize, field) {
   if (extent(polygonToFasterize) > extent(ras)) {
     polygonToFasterize <- Cache(crop, polygonToFasterize, ras)
   }
-  thePoly <-
-    spTransform(polygonToFasterize, CRSobj = crs(ras))
+  thePoly <- spTransform(polygonToFasterize, CRSobj = crs(ras))
   thePoly$polygonNum <- seq_along(thePoly)
   if (!is.factor(thePoly[[field]])) {
     thePoly[[field]] <- factor(thePoly[[field]])
   }
-  aa2 <-
-    fasterize::fasterize(sf::st_as_sf(thePoly), ras, field = field)
-  levels(aa2) <-
-    data.frame(ID = seq_len(nlevels(thePoly[[field]])),
-               Factor = levels(thePoly[[field]]))
-  # levels(aa2) <-
-  #   data.frame(ID = seq_along(thePoly), as.data.frame(thePoly))
+  aa2 <- fasterize::fasterize(sf::st_as_sf(thePoly), ras, field = field)
+  levels(aa2) <- data.frame(ID = seq_len(nlevels(thePoly[[field]])),
+                            Factor = levels(thePoly[[field]]))
+  # levels(aa2) <- data.frame(ID = seq_along(thePoly), as.data.frame(thePoly))
   aa2
 }
 
-
 #' \code{makeForkCluster} with random seed set
 #'
-#' This will set different randon seeds on the clusters (not the default)
+#' This will set different random seeds on the clusters (not the default)
 #' with \code{makeForkCluster}. It also defaults to creating a logfile with
 #' message of where it is.
 #'
@@ -911,7 +896,6 @@ Map2 <- function(..., cl = NULL) {
       argList$f <- fun
     }
     do.call(Map, args = argList)
-
   } else {
     argList <- list(...)
     wrongFun1 <- "f" %in% names(argList)
@@ -929,7 +913,6 @@ Map2 <- function(..., cl = NULL) {
     do.call(clusterMap, append(list(cl = cl), argList))
   }
 }
-
 
 simplifyColumns <- function(df) {
   if (is(df, "list")) {

@@ -1,4 +1,4 @@
-## LandWeb v1.0.0
+## LandWeb v1.0.1
 
 ### Exploring Natural Range of Variation in the Western Boreal Forest
 
@@ -7,7 +7,7 @@
 - Eliot McIntire (eliot.mcintire@canada.ca)
 - Alex M. Chubaty (achubaty@friresearch.ca)
 
-**Date:** May 16, 2018
+**Date:** August 8, 2018
 
 #### Overview
 
@@ -40,7 +40,7 @@ Select pages from the menu on the left navigation menu.
 - Land Cover Classification 2005 map: ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip;
 - LANDIS-II species traits: https://github.com/dcyr/LANDIS-II_IA_generalUseFiles;
 - LANDIS-II parameterization tables and data: https://github.com/LANDIS-II-Foundation/Extensions-Succession-Archive/master/biomass-succession-archive/trunk/tests/v6.0-2.0/;
-- Canada biomass, stand volume, and species data (from Beaudoin *et al., 2014): http://tree.pfc.forestry.ca;
+- Canada biomass, stand volume, and species data (from Beaudoin *et al.*, 2014): http://tree.pfc.forestry.ca;
 - National ecodistrict polygons: http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip;
 - National ecoregion polygons: http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip;
 - National ecozone polygons: http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip.
@@ -69,6 +69,7 @@ Model outputs are available to download for authorized app users, and are descri
 
 - Leading Vegetation Cover Data (`.csv`)
 - Leading Vegetation Cover histograms (`.png`)
+- Leading Vegetation Cover boxplots (`.png`)
 
 ##### Simulation Rasters (cropped to study region)
 
@@ -83,7 +84,9 @@ Model outputs are available to download for authorized app users, and are descri
 The downloaded outputs are bundled into a zip file (*e.g.*, `LandWeb_v1.0.0_2018-04-13.zip`) with the following directory and file structure:
 
 ```
-LandWeb_v1.0.0_2018-04-30/
+LandWeb_v1.0.1_2018-08-08/
+ |_ boxplots/
+     |_ vegAgeMod/
  |_ histograms/
      |_ largePatches/
          |_ 500/                  ## currently selected patchSize
