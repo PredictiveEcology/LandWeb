@@ -94,6 +94,10 @@ Changing the polygon also updates the histograms displayed on the "Large Patches
 
 Authorized (logged in) users will have access to additional reporting polygons, and can upload their own using the polygon uploader (Fig. 2).
 
+### 5. Notification menu
+
+Shows sytem notifications such as upcoming scheduled maintenance.
+
 #### Uploading a custom spatial polygon
 
 !["Time Since Fire Maps (Authorized Users Only)."](screenshots/main_map_proprietary.png)
