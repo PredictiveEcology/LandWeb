@@ -1,4 +1,4 @@
-if (packageVersion("reproducible") < "0.2.1") {
+if (packageVersion("reproducible") < "0.2.3") {
   install_github("PredictiveEcology/reproducible@development")
 }
 if (packageVersion("SpaDES.core") < "0.2.0") {
