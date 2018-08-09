@@ -10,7 +10,9 @@ PROFVIS <- FALSE
 #source("params/Development_Parameters.R") # moved to global.R
 file.copy("global_file.R", "global.R", overwrite = TRUE)
 if (isTRUE(PROFVIS)) {
-  profvis::profvis(shiny::runApp(".", launch.browser = TRUE, port = 5921))
+  profvis::profvis({
+    shiny::runApp(".", launch.browser = FALSE, port = 5921)
+  })
 } else {
   shiny::runApp(".", launch.browser = TRUE, port = 5921)
 }
