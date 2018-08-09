@@ -6,7 +6,10 @@ library(SpaDES.shiny)
 
 dashboardPage(
   skin = "green",
-  dashboardHeader(title = "LandWeb", titleWidth = 300),
+  dashboardHeader(
+    title = "LandWeb", titleWidth = 300,
+    dropdownMenuOutput("notifications")
+  ),
   dashboardSidebar(
     width = 300,
     sidebarMenu(
