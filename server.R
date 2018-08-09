@@ -26,7 +26,7 @@ function(input, output, session) {
     dropdownMenu(
       type = "notifications",
       notificationItem(
-        text = paste("App updated to v", appInfo$version),
+        text = paste0("App updated to v", appInfo$version),
         icon = icon("info-circle"),
         status = "info"
       ),
