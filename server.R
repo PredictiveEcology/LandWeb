@@ -21,6 +21,25 @@ function(input, output, session) {
     if (isTruthy(session$userData$userLoggedIn())) removeModal()
   })
 
+  ## notifications menu
+  output$notifications <- renderMenu({
+    dropdownMenu(
+      type = "notifications",
+      notificationItem(
+        text = paste("App updated to v", appInfo$version),
+        icon = icon("info-circle"),
+        status = "info"
+      ),
+      notificationItem(
+        #text = "Scheduled maintenance: Aug 16, 2018",
+        text = "No maintenence scheduled",
+        icon = icon("calendar"),
+        #status = "warning",
+        status = "success"
+      )
+    )
+  })
+
   ## module calls
   # TODO: update generator to handle these assignments
 
