@@ -15,9 +15,7 @@ if (Sys.info()["nodename"] == "W-VIC-A105388") {
   #cacheIdTsfRasters <- "cc0497d32c2828c81d0eab88d8a7de00"
   #cacheId4Experiment <- "bf6a8d8416c2975818f8074703ad9482"
   #cacheId$simInitAndExperiment <- "285d3cf6b5075e869e1e705900c02f6a" # 1500 yrs on 132.156.148.172
-}
-
-#if (Sys.info()["nodename"] == "W-VIC-A105342") {
+} else {
   cacheId$loadStudyRegions <- "a195b4a919b1dae9744fdc04306615d9"
   cacheId$simInitAndExperiment <- "285d3cf6b5075e869e1e705900c02f6a" # 1500 yrs on 132.156.148.172
   cacheId$tsfRasters <- "0d7bac03ab37e9bfb2ac190c323fbf43"
@@ -29,4 +27,4 @@ if (Sys.info()["nodename"] == "W-VIC-A105388") {
   cacheId$ReportingAndLeadingFn <- "5acd6042606dddd6c7e5137827ae685b"
   cacheId$leadingByStage <- "6d1230eb2c7623fd86718f11b48fc7aa"
   cacheId$simInitAndSpades <- "1c10e2cae09f13951f444ad67875b4de"
-#}
+}
