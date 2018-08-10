@@ -20,7 +20,6 @@ rsconnect/shinyapps.io/landweb/LandWebDemo.dcf
 .RData
 .Rhistory
 .Rproj.user
-*.Rproj
 
 ## R package management
 Packages*
