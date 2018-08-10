@@ -30,6 +30,7 @@ R-Portable/
 
 ## shiny app files
 global.R
+uploads/
 www/*
 !www/style.css
 !www/images/
