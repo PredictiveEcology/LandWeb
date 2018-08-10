@@ -5,7 +5,7 @@ if (exists("DEVMODE") && isTRUE(DEVMODE)) {
 }
 
 tilePath <- file.path("www", "All", subStudyRegionName, "map-tiles")
-if (!dir.exists(tilePath)) dir.create(tilePath)
+if (!dir.exists(tilePath)) dir.create(tilePath, recursive = TRUE)
 shiny::addResourcePath("tiles", tilePath)
 
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
