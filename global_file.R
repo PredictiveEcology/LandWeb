@@ -1,4 +1,6 @@
-shiny::addResourcePath("tiles", "www/All/FULL/map-tiles")
+tilePath <- file.path("www", "All", subStudyRegionName, "map-tiles")
+if (!dir.exists(tilePath)) dir.create(tilePath)
+shiny::addResourcePath("tiles", tilePath)
 
 if (exists("DEVMODE") && isTRUE(DEVMODE)) {
   source("params/Development_Parameters.R")
