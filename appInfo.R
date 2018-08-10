@@ -52,5 +52,6 @@ appInfo <- list(
     "shanew.sadoway@gmail.com",
     "sonya@fuseconsulting.ca",
     "westfrasertimber@gmail.com"
-  ) %>% tolower() # these should be all lowercase!
+  ) %>% tolower() # these should be all lowercase
+  ## (resolved in https://github.com/MarkEdmondson1234/googleID/issues/6)
 )
