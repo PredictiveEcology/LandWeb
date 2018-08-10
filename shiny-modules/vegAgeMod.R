@@ -126,7 +126,11 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
   })
 
   rctVegData <- reactive({
-    assertthat::assert_that(is.character(rctChosenPolyName()), is.list(rctLeadingDTlist()))
+    assertthat::assert_that(
+      is.character(rctChosenPolyName()),
+      is.list(rctLeadingDTlist()), is.list(rctLeadingDTlistCC()),
+      !is.null(rctLeadingDTlist()[[rctChosenPolyName()]])
+    )
 
     dt <- if (is.null(rctLeadingDTlistCC())) {
       ## free
@@ -155,7 +159,11 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
   })
 
   uiSequence <- reactive({
-    assertthat::assert_that(is.list(rctPolygonList()), is.character(rctChosenPolyName()), is.character(rctVtm()))
+    assertthat::assert_that(
+      is.list(rctPolygonList()),
+      is.character(rctChosenPolyName()),
+      is.character(rctVtm())
+    )
 
     #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]))
     polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]$shinyLabel
