@@ -99,7 +99,7 @@ vegAgeMod2 <- function(input, output, session, rctPolygonList,
   rctVegData <- reactive({
     assertthat::assert_that(
       is.character(rctChosenPolyName()),
-      is.list(rctLeadingDTlist()), is.list(rctLeadingDTlistCC()),
+      is.list(rctLeadingDTlist()),
       !is.null(rctLeadingDTlist()[[rctChosenPolyName()]])
     )
 
