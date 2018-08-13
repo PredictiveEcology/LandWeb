@@ -30,11 +30,11 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
       message("" , polyName, ": Calculating patch sizes")
       tries <- 0
       while(tries >= 0) {
-        cl <- makeOptimalCluster(useParallel = useParallelCluster, 
-                                 MBper = ncell(rasTmp)/4000, 
+        cl <- makeOptimalCluster(useParallel = useParallelCluster,
+                                 MBper = ncell(rasTmp)/4000,
                                  maxNumClusters = length(tsfFile))
         on.exit(try(parallel::stopCluster(cl), silent = TRUE))
-        out <- try(Cache(Map2, cl = cl, 
+        out <- try(Cache(Map2, cl = cl,
                    tsfFile = tsfFile, vtmFile = vtmFile,
                    id = id,
                    fun = largePatchesCalc,
@@ -61,34 +61,34 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
       message("Running gc for list of tsfs")
       gc()
       message("  End running gc for list of tsfs")
-    } else { # The single tsf/vtm 
+    } else { # The single tsf/vtm
       # once for each raster combo
       startTime <- Sys.time()
       message(" ", polyName,": ", basename(tsfFile), " -- calculating patch sizes")
-      out <- Cache(.largePatchesCalc, 
-                   tsfFile = tsfFile, vtmFile = vtmFile, 
-                   byPoly = byPoly, labelColumn = labelColumn, 
-                   id = id, ageClassCutOffs = ageClassCutOffs, 
+      out <- Cache(.largePatchesCalc,
+                   tsfFile = tsfFile, vtmFile = vtmFile,
+                   byPoly = byPoly, labelColumn = labelColumn,
+                   id = id, ageClassCutOffs = ageClassCutOffs,
                    ageClasses = ageClasses)
       endTime <- Sys.time()
       message("Running gc")
       gc()
       message("  End running gc")
-      message(" ", polyName,": ", basename(tsfFile), " -- patch size calculation took ", 
+      message(" ", polyName,": ", basename(tsfFile), " -- patch size calculation took ",
               format(endTime - startTime, digits = 2))
     }
   }
   return(out)
 }
 
-.largePatchesCalc <- function(tsfFile, vtmFile, byPoly, labelColumn, 
+.largePatchesCalc <- function(tsfFile, vtmFile, byPoly, labelColumn,
                               id, ageClassCutOffs, ageClasses) {
   timeSinceFireFilesRast <- Cache(rasterToMemory, tsfFile)
-  
+
   tsf <- reclassify(timeSinceFireFilesRast,
                     cbind(from = ageClassCutOffs-0.1, to = c(ageClassCutOffs[-1], Inf), seq_along(ageClasses)))
   levels(tsf) <- data.frame(ID = seq_along(ageClasses), Factor = ageClasses)
-  
+
   byPoly$tmp <- factor(byPoly[[labelColumn]])
   rasRepPoly <- Cache(
     fasterize2,
@@ -99,14 +99,14 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
   # rasRepPoly2 <- fasterize::fasterize(sf::st_as_sf(byPoly),
   #                                    raster = timeSinceFireFilesRast, field = "tmp")
   # levels(rasRepPoly2) <-
-  #   data.frame(ID = seq_len(nlevels(byPoly$tmp)), 
+  #   data.frame(ID = seq_len(nlevels(byPoly$tmp)),
   #              Factor = levels(byPoly$tmp))
-  
+
   # 3rd raster
-  rasVeg <- Cache(rasterToMemory, vtmFile)#, 
-  
+  rasVeg <- Cache(rasterToMemory, vtmFile)#,
+
   splitVal <- paste0("_", 75757575, "_") # unlikely to occur for any other reason
-  
+
   # Individual species
   nas3 <- is.na(rasRepPoly[])
   nas2 <- is.na(rasVeg[])
