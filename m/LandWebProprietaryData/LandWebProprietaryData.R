@@ -93,6 +93,7 @@ Init <- function(sim) {
     dPath <- dataPath(sim)
     message("  Loading CASFRI and Pickell et al. layers")
     Paul <- Cache(prepInputs,
+                  url = extractURL("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.zip"),
                   targetFile = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.dat"),
                   archive = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.zip"),
                   alsoExtract = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.hdr"),
@@ -109,6 +110,7 @@ Init <- function(sim) {
     CASFRIattrFile <- asPath(file.path(dPath, "Landweb_CASFRI_GIDs_attributes3.csv"))
     CASFRIheaderFile <- asPath(file.path(dPath,"Landweb_CASFRI_GIDs_README.txt"))
     CASFRIRas <- Cache(prepInputs,
+                       url = extractURL("CASFRI for Landweb.zip"),
                        targetFile = asPath("Landweb_CASFRI_GIDs.tif"),
                        archive = asPath("CASFRI for Landweb.zip"),
                        alsoExtract = c(CASFRITifFile, CASFRIattrFile, CASFRIheaderFile),
