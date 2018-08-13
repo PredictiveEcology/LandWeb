@@ -844,9 +844,12 @@ fasterize2 <- function(emptyRaster, polygonToFasterize, field) {
     thePoly[[field]] <- factor(thePoly[[field]])
   }
   aa2 <- fasterize::fasterize(sf::st_as_sf(thePoly), ras, field = field)
-  levels(aa2) <- data.frame(ID = seq_len(nlevels(thePoly[[field]])),
-                            Factor = levels(thePoly[[field]]))
-  # levels(aa2) <- data.frame(ID = seq_along(thePoly), as.data.frame(thePoly))
+  #levels(aa2) <- data.frame(ID = seq_len(nlevels(thePoly[[field]])),
+  #                          Factor = levels(thePoly[[field]]))
+  levels(aa2) <- data.frame(ID = seq_along(thePoly[[field]]),
+                         Factor = as.character(thePoly[[field]]),
+                         as.data.frame(thePoly))
+
   aa2
 }
 
