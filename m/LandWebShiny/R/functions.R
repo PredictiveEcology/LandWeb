@@ -352,8 +352,9 @@ reportingAndLeading <- function(createReportingPolygonsAllFn, leadingByStageFn, 
 #' @param objName
 #' @param ... TODO
 #'
-#' @return A data.table with proportion of the pixels in each vegetation class, for
-#'         each given age class within each polygon
+#' @return A \code{data.table} with proportion of the pixels in each vegetation class,
+#'         for each given age class within each polygon.
+#'
 leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
                            ageClassCutOffs,  ageClasses, objName = NULL, ...) {
   if (!is.null(tsf)) {
