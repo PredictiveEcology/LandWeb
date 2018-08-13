@@ -23,7 +23,6 @@ simInitAndExperiment <- function(times, params, modules, outputs, objects4sim,
   message("    current seed is: ", seed)
 
   mySimOuts <- emptyList
-  # parallel::clusterMap, cl = cl,
   if (!exists("cacheIds4Experiment")) cacheIds4Experiment <- Map(function(y) NULL, names(mySimOuts))
   mySimOuts <- Cache(Map, runExperiment, sim = mySims,
                      cacheId = cacheIds4Experiment,
