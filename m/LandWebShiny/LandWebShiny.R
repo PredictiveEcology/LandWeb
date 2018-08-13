@@ -373,7 +373,7 @@ Init <- function(sim) {
   # Write all Proprietary input shapefiles to disk
   sim$getAllIfExists <- getAllIfExists
   message("shrinking objects to integer or factor")
-  lrgPatches <- simplifyColumns(list(lrgPatches = sim2$lrgPatches, lrgPatchesCC = sim2$lrgPatchesCC))
+  lrgPatches <- simplifyColumns(list(lrgPatches = sim$lrgPatches, lrgPatchesCC = sim$lrgPatchesCC))
   sim$lrgPatchesCC <- lrgPatches$lrgPatchesCC
   sim$lrgPatches <- lrgPatches$lrgPatches
 
