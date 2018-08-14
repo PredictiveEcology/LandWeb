@@ -1,7 +1,7 @@
 if (exists("DEVMODE") && isTRUE(DEVMODE)) {
-  source("params/Development_Parameters.R")
+  source("params/Development_Parameters.R", local = TRUE)
 } else {
-  source("params/LandWeb_parameters.R")
+  source("params/LandWeb_parameters.R", local = TRUE)
 }
 
 tilePath <- file.path("www", "All", subStudyRegionName, "map-tiles")
