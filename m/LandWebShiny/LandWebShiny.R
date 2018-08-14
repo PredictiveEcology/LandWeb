@@ -193,7 +193,6 @@ Init <- function(sim) {
 
 
   ########################################################
-  # formerly in mapsForShiny.R
   # Reporting polygons
 
   ### CURRENT CONDITION ##################################
@@ -260,10 +259,17 @@ Init <- function(sim) {
       url = "https://drive.google.com/file/d/1PYLou8J1wcrme7Z2tx1wtA4GvaWnU1Jy/view?usp=sharing",
       labelColumnName = "Name")
   )
-  freeReportingPolygonNames <- c("Alberta Ecozones", "National Ecozones", "National Ecodistricts",
-                                 "Provincial Parks", "NWT Ecoregions", "National Parks",
-                                 "BC Bio Geoclimatic Zones", "AB Natural Sub Regions")
-  proprietaryReportingPolygonNames <- c("FMA Boundary Updated", "FMU Alberta 2015-11", "Boreal Caribou Ranges",
+  freeReportingPolygonNames <- c("Alberta Ecozones",
+                                 "National Ecozones",
+                                 "National Ecodistricts",
+                                 "Provincial Parks",
+                                 "NWT Ecoregions",
+                                 "National Parks",
+                                 "BC Bio Geoclimatic Zones",
+                                 "AB Natural Sub Regions")
+  proprietaryReportingPolygonNames <- c("FMA Boundary Updated",
+                                        "FMU Alberta 2015-11",
+                                        "Boreal Caribou Ranges",
                                         "Mountain Northern Caribou Ranges")
 
   # Do two steps together, making Cache a bit faster
