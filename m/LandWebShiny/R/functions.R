@@ -866,7 +866,7 @@ makeForkClusterRandom <- function(..., iseed = NULL) {
   require(parallel)
   dots <- list(...)
   if (!("outfile" %in% names(dots))) {
-    dots$outfile <- "~/.log.txt"
+    dots$outfile <- "outputs/.log.txt"
     file.remove(dots$outfile)
   }
   cl <- do.call(makeForkCluster, args = dots)

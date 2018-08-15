@@ -153,13 +153,21 @@ largePatchesUI <- function(id) {
   )
 }
 
-#' @param input              Shiny server input object.
-#' @param output             Shiny server output object.
-#' @param session            Shiny server session object.
-#' @param rctPolygonList     A list of polygons for to use while calculating large patches results.
-#' @param rctChosenPolyName  Name of the polygon to extract from polygonList.
-#' @param nSimTimes          How many simulation time stamps there are.
-#' @param outputPath         The path where outputs are stored.
+#' @param input                     Shiny server input object.
+#' @param output                    Shiny server output object.
+#' @param session                   Shiny server session object.
+#' @param rctPolygonList            A list of polygons for to use while calculating
+#'                                  large patches results.
+#' @param rctChosenPolyName         Name of the polygon to extract from polygonList.
+#' @param lrgPatches,lrgPatchesCC   \code{reactiveValues} object containing the
+#'                                  large patches \code{data.table}s.
+#' @param rctTsf                    #TODO: describe
+#' @param rctVtm                    #TODO: describe
+#' @param ageClasses                #TODO: describe
+#' @param FUN                       #TODO: describe
+#' @param nPatchesFun               #TODO: describe
+#' @param outputPath                The path where outputs are stored.
+#' @param rebuildHistPNGs           Logical indicating whether PNGs should be rebuilt.
 #'
 #' @return Shiny module server function.
 #'
@@ -168,12 +176,12 @@ largePatchesUI <- function(id) {
 #' @export
 #' @importFrom assertthat assert_that
 #' @importFrom data.table data.table is.data.table
-#' @importFrom shiny callModule reactive
+#' @importFrom shiny callModule reactive is.reactivevalues
 #' @importFrom SpaDES.shiny histogramUI
 #' @rdname largePatches
 largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive(NULL),
-                         rctLrgPatches, rctLrgPatchesCC, rctTsf, rctVtm,
-                         ageClasses, FUN, nPatchesFun, outputPath, rebuildHistPNGs) { # TODO: add docs above
+                         lrgPatches, lrgPatchesCC, rctTsf, rctVtm,
+                         ageClasses, FUN, nPatchesFun, outputPath, rebuildHistPNGs) {
 
   output$title <- renderUI({
     column(width = 12,
@@ -194,17 +202,19 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
   rctLargePatchesDataOrig <- reactive({
     assertthat::assert_that(
       is.character(rctChosenPolyName()),
-      is.list(rctLrgPatches()), is.list(rctLrgPatchesCC()),
-      !is.null(rctLrgPatches()[[rctChosenPolyName()]])
+      is.reactivevalues(lrgPatches),
+      is.reactivevalues(lrgPatchesCC)
+      #!is.null(lrgPatches[[rctChosenPolyName()]])
     )
+    req(lrgPatches[[rctChosenPolyName()]])
 
-    dt <- if (is.null(rctLrgPatchesCC()[[rctChosenPolyName()]])) {
+    dt <- if (is.null(lrgPatchesCC[[rctChosenPolyName()]])) {
       ## free
-      rctLrgPatches()[[rctChosenPolyName()]]
+      lrgPatches[[rctChosenPolyName()]]
     } else {
       ## proprietary
-      rbindlist(list(rctLrgPatches()[[rctChosenPolyName()]],
-                     rctLrgPatchesCC()[[rctChosenPolyName()]]))
+      rbindlist(list(lrgPatches[[rctChosenPolyName()]],
+                     lrgPatchesCC[[rctChosenPolyName()]]))
     }
 
     # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS

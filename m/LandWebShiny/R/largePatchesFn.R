@@ -31,7 +31,7 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
       tries <- 0
       while(tries >= 0) {
         cl <- makeOptimalCluster(useParallel = useParallelCluster,
-                                 MBper = ncell(rasTmp)/4000,
+                                 MBper = ncell(rasTmp) / 4000,
                                  maxNumClusters = length(tsfFile))
         on.exit(try(parallel::stopCluster(cl), silent = TRUE))
         out <- try(Cache(Map2, cl = cl,
@@ -119,12 +119,12 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
   ras <- raster(rasVeg)
   ffFactor <- factor(ff)
   ras[!nas] <- ffFactor # 2 seconds
-  
+
   areaAndPolyOut <- Cache(areaAndPolyValue, ras, length = Inf) # maybe lots of NAs on edge
   eTable <- data.frame(ID = seq_along(levels(ffFactor)), VALUE = levels(ffFactor))
   types <- strsplit(as.character(eTable$VALUE), split = splitVal)
   types <- do.call(rbind, types)
-  
+
   facPolygonID <- factor(types[areaAndPolyOut$polyID,3])
   outBySpecies <- data.table(polygonID = as.numeric(facPolygonID),
                              sizeInHa = areaAndPolyOut$sizeInHa,
@@ -132,17 +132,17 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
                              rep = id,
                              ageClass = types[areaAndPolyOut$polyID,1],
                              polygonName = as.character(facPolygonID))
-  
+
   # All species combined # remove name2
   ff <- paste(name1, name3, sep = splitVal)
   ff[grepl("NA", ff)] <- NA
   ras <- raster(rasVeg)
   ffFactor <- factor(ff)
   ras[!nas] <- ffFactor
-  
+
   rm(areaAndPolyOut)
   areaAndPolyOut2 <- Cache(areaAndPolyValue, ras, length = Inf) # maybe lots of NAs on edge
-  
+
   eTable <- data.frame(ID = seq_along(levels(ffFactor)), VALUE = levels(ffFactor))
   types <- strsplit(as.character(eTable$VALUE), split = splitVal)
   types <- do.call(rbind, types)
@@ -153,10 +153,9 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
                               rep = id,
                               ageClass = types[areaAndPolyOut2$polyID,1],
                               polygonName = as.character(facPolygonID))
-  
+
   out <- rbindlist(list(outBySpecies, outAllSpecies))
   out <- out[sizeInHa >= 100] # never will need patches smaller than 100 ha
-  
 }
 
 #' Polygonize with gdal
@@ -188,8 +187,8 @@ gdal_polygonizeR <- function(x, outshape = NULL, gdalformat = 'ESRI Shapefile',
   } else if (is.character(x)) {
     rastpath <- normalizePath(x)
   } else stop('x must be a file path (character string), or a Raster object.')
-  system2('python', args=(sprintf('"%1$s" "%2$s" -f "%3$s" "%4$s.shp"',
-                                  pypath, rastpath, gdalformat, outshape)))
+  system2('python', args = (sprintf('"%1$s" "%2$s" -f "%3$s" "%4$s.shp"',
+                                    pypath, rastpath, gdalformat, outshape)))
   if (isTRUE(readpoly)) {
     shp <- sf::read_sf(dsn = dirname(outshape), layer = basename(outshape))
     return(shp)
@@ -199,6 +198,6 @@ gdal_polygonizeR <- function(x, outshape = NULL, gdalformat = 'ESRI Shapefile',
 
 areaAndPolyValue <- function(ras) {
   polyIndivSpecies <- gdal_polygonizeR(ras) # 99 seconds with full ras
-  pArea <- as.numeric(sf::st_area(polyIndivSpecies)/1e4)
+  pArea <- as.numeric(sf::st_area(polyIndivSpecies) / 1e4)
   list(sizeInHa = pArea, polyID = polyIndivSpecies$DN)
 }

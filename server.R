@@ -105,33 +105,117 @@ function(input, output, session) {
              thinKeep = 0.01
   )
 
+  ## recalculate large patches for new polygons
+  lrgPatches <- reactiveValues()
+  lrgPatchesCC <- reactiveValues()
+  largePatchesFn <- sim2$LandWebShiny$largePatchesCalc
+  .largePatchesCalcFn <- sim2$LandWebShiny$.largePatchesCalc
+
+  observe({
+    lapply(names(sim2$lrgPatches[[rctAuthenticationType()]]), function(x) {
+      lrgPatches[[x]] <- sim2$lrgPatches[[rctAuthenticationType()]][[x]]
+    })
+
+    lapply(names(sim2$lrgPatchesCC[[rctAuthenticationType()]]), function(x) {
+      lrgPatchesCC[[x]] <- sim2$lrgPatchesCC[[rctAuthenticationType()]][[x]]
+    })
+
+    if (is.null(lrgPatches[[rctChosenPolyName()]])) {
+      newPoly <- rctPolygonListUser()[[rctChosenPolyName()]]$crsSR
+      lrgPatches[[rctChosenPolyName()]] <- Cache(
+        largePatchesFn,
+        byPoly = newPoly,
+        tsfFile = rctTsf(),
+        vtmFile = rctVtm(),
+        ageClasses = ageClasses,
+        ageClassCutOffs = ageClassCutOffs,
+        labelColumn = sim2$labelColumn, ## shinyLabel
+        useParallelCluster = useParallelCluster,
+        .largePatchesCalc = .largePatchesCalcFn # need to Cache the internals
+      )
+    }
+
+    if (authStatus() && is.null(lrgPatchesCC[[rctChosenPolyName()]])) {
+      newPoly <- rctPolygonListUser()[[rctChosenPolyName()]]$crsSR
+      lrgPatchesCC[[rctChosenPolyName()]] <- Cache(
+        largePatchesFn,
+        byPoly = newPoly,
+        tsfFile = rctTsf(),
+        vtmFile = rctVtm(),
+        ageClasses = ageClasses,
+        ageClassCutOffs = ageClassCutOffs,
+        labelColumn = sim2$labelColumn, ## shinyLabel
+        .largePatchesCalc = .largePatchesCalcFn, # need to Cache the internals
+        omitArgs = "useParallelCluster"
+      )
+    }
+  })
+
+  ## large patches histograms
   rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
                                     rctPolygonList = rctPolygonListUser,
                                     rctChosenPolyName = rctChosenPolyName,
-                                    rctLrgPatches = rctLrgPatches,
-                                    rctLrgPatchesCC = rctLrgPatchesCC,
+                                    lrgPatches = lrgPatches,
+                                    lrgPatchesCC = lrgPatchesCC,
                                     rctTsf = rctTsf, rctVtm = rctVtm,
                                     outputPath = rctPaths4sim()$outputPath,
                                     ageClasses = ageClasses,
                                     FUN = largePatchesFn,
                                     nPatchesFun = countNumPatches)
 
-  # veg cover histograms
+  ## recalculate leading vegetation classes for new polygons
+  leadingDTlist <- reactiveValues()
+  leadingDTlistCC <- reactiveValues()
+  leadingByStageFn <- sim2$LandWebShiny$leadingByStage
+
+  observe({
+    lapply(names(sim2$leading[[rctAuthenticationType()]]), function(x) {
+      leadingDTlist[[x]] <- sim2$leading[[rctAuthenticationType()]][[x]]
+    })
+
+    lapply(names(sim2$leadingCC[[rctAuthenticationType()]]), function(x) {
+      leadingDTlistCC[[x]] <- sim2$leadingCC[[rctAuthenticationType()]][[x]]
+    })
+
+    if (is.null(leadingDTlist[[rctChosenPolyName()]])) {
+      newPoly <- rctPolygonListUser()[[rctChosenPolyName()]]$crsSR
+      leadingDTlist[[rctChosenPolyName()]] <- Cache(leadingByStageFn,
+                                                    tsf = list(rctTsf()),
+                                                    vtm = list(rctVtm()),
+                                                    polygonToSummarizeBy = newPoly,
+                                                    ageClassCutOffs = ageClassCutOffs,
+                                                    ageClasses = ageClasses)
+    }
+
+    if (authStatus() && is.null(leadingDTlistCC[[rctChosenPolyName()]])) {
+      newPoly <- rctPolygonListUser()[[rctChosenPolyName()]]$crsSR
+      leadingDTlistCC[[rctChosenPolyName()]] <- Cache(leadingByStageFn,
+                                                      tsf = list(rctTsf()),
+                                                      vtm = list(rctVtm()),
+                                                      polygonToSummarizeBy = newPoly,
+                                                      ageClassCutOffs = ageClassCutOffs,
+                                                      ageClasses = ageClasses)
+    }
+  })
+
+  ## veg cover histograms
   rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
+                           rctAuthenticationType = rctAuthenticationType,
                            rctPolygonList = rctPolygonListUser,
                            rctChosenPolyName = rctChosenPolyName,
-                           rctLeadingDTlist = rctLeadingDTlist,
-                           rctLeadingDTlistCC = rctLeadingDTlistCC,
+                           leadingDTlist = leadingDTlist,
+                           leadingDTlistCC = leadingDTlistCC,
                            rctVtm = rctVtm,
                            outputPath = rctPaths4sim()$outputPath,
                            ageClasses = ageClasses)
 
-  # veg cover boxplots
+  ## veg cover boxplots
   rctVegData2 <- callModule(vegAgeMod2, "vegArea2",  ## TODO: write this with generator
+                            rctAuthenticationType = rctAuthenticationType,
                             rctPolygonList = rctPolygonListUser,
                             rctChosenPolyName = rctChosenPolyName,
-                            rctLeadingDTlist = rctLeadingDTlist,
-                            rctLeadingDTlistCC = rctLeadingDTlistCC,
+                            leadingDTlist = leadingDTlist,
+                            leadingDTlistCC = leadingDTlistCC,
                             rctVtm = rctVtm,
                             outputPath = rctPaths4sim()$outputPath,
                             ageClasses = ageClasses)
