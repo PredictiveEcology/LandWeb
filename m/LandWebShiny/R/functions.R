@@ -814,7 +814,7 @@ optimalClusterNum <- function(memRequiredMB = 5000, maxNumClusters = 1) {
 #'            Only relevant for \code{iseed}.
 makeOptimalCluster <- function(useParallel = FALSE, MBper = 5e3,
                                maxNumClusters = parallel::detectCores(), ...) {
-  if (useParallel && tolower(Sys.info()[["sysname"]]) != "windows") {
+  if (isTRUE(useParallel) && tolower(Sys.info()[["sysname"]]) != "windows") {
     numClus <- optimalClusterNum(MBper, maxNumClusters = maxNumClusters)
     if (numClus <= 1) {
       NULL
