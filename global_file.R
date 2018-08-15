@@ -43,9 +43,6 @@ reproducible::Require(unique(c(
 )))
 packageLoadEndTime <- Sys.time()
 
-checkPath(file.path("www/All/FULL/map-tiles"), create = TRUE)
-shiny::addResourcePath("tiles", "www/All/FULL/map-tiles")
-
 ## LandWeb app information
 source("appInfo.R")
 
