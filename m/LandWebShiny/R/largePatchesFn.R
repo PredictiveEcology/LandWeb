@@ -1,4 +1,4 @@
-#' A recursive function for calculating patch size, given tsf and vtm fil
+#' A recursive function for calculating patch size, given tsf and vtm files
 largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
                              ageClasses, ageClassCutOffs,
                              labelColumn, id = NULL, useParallelCluster = NULL,
