@@ -108,8 +108,15 @@ function(input, output, session) {
   ## recalculate large patches for new polygons
   lrgPatches <- reactiveValues()
   lrgPatchesCC <- reactiveValues()
-  largePatchesFn <- sim2$LandWebShiny$largePatchesCalc
-  .largePatchesCalcFn <- sim2$LandWebShiny$.largePatchesCalc
+  #largePatchesFn <- sim2$LandWebShiny$largePatchesCalc
+  #.largePatchesCalcFn <- sim2$LandWebShiny$.largePatchesCalc
+
+  ### workaround cache:
+  source("m/LandWebShiny/R/functions.R", local = TRUE)
+  source("m/LandWebShiny/R/largePatchesFn.R", local = TRUE)
+  largePatchesFn <- largePatchesCalc
+  .largePatchesCalcFn <- .largePatchesCalc
+  ###
 
   observe({
     lapply(names(sim2$lrgPatches[[rctAuthenticationType()]]), function(x) {
@@ -166,7 +173,8 @@ function(input, output, session) {
   ## recalculate leading vegetation classes for new polygons
   leadingDTlist <- reactiveValues()
   leadingDTlistCC <- reactiveValues()
-  leadingByStageFn <- sim2$LandWebShiny$leadingByStage
+  #leadingByStageFn <- sim2$LandWebShiny$leadingByStage
+  leadingByStageFn <- leadingByStage ## workaround cache (see above)
 
   observe({
     lapply(names(sim2$leading[[rctAuthenticationType()]]), function(x) {
