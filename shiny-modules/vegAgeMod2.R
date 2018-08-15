@@ -77,9 +77,9 @@ vegAgeMod2UI <- function(id) {
 }
 
 #'
-vegAgeMod2 <- function(input, output, session, rctPolygonList,
-                       rctChosenPolyName = reactive({NULL}), rctLeadingDTlist,
-                       rctLeadingDTlistCC, rctVtm, ageClasses, outputPath) {
+vegAgeMod2 <- function(input, output, session, rctAuthenticationType, rctPolygonList,
+                       rctChosenPolyName = reactive({NULL}), leadingDTlist,
+                       leadingDTlistCC, rctVtm, ageClasses, outputPath) {
 
   output$vegTitle <- renderUI({
     column(width = 12,
@@ -99,17 +99,18 @@ vegAgeMod2 <- function(input, output, session, rctPolygonList,
   rctVegData <- reactive({
     assertthat::assert_that(
       is.character(rctChosenPolyName()),
-      is.list(rctLeadingDTlist()),
-      !is.null(rctLeadingDTlist()[[rctChosenPolyName()]])
+      is.reactivevalues(leadingDTlist)
+      #!is.null(leadingDTlist[[rctChosenPolyName()]])
     )
+    req(leadingDTlist[[rctChosenPolyName()]])
 
-    dt <- if (is.null(rctLeadingDTlistCC())) {
+    dt <- if (rctAuthenticationType() == "Free") {
       ## free
-      rctLeadingDTlist()[[rctChosenPolyName()]]
-    } else {
+      leadingDTlist[[rctChosenPolyName()]]
+    } else if (rctAuthenticationType() == "Proprietary") {
       ## proprietary
-      rbindlist(list(rctLeadingDTlist()[[rctChosenPolyName()]],
-                     rctLeadingDTlistCC()[[rctChosenPolyName()]][["Proprietary"]]))
+      rbindlist(list(leadingDTlist[[rctChosenPolyName()]],
+                     leadingDTlistCC[[rctChosenPolyName()]][["Proprietary"]]))
     }
 
     dtFn <- function(dt, curPoly) {
@@ -185,7 +186,11 @@ boxPlot <- function(input, output, session, data, CCpnts, authStatus, fname, ...
   boxplot(proportion~as.factor(ageClass), data, ...)
 
   if (isTRUE(authStatus)) {
-    points(CCpnts, factor(ageClasses), col = "red", pch = 20, cex = 3)
+    if (length(CCpnts) == 4) {
+      points(CCpnts, factor(ageClasses), col = "red", pch = 20, cex = 3)
+    } else {
+      message(CCpnts)
+    }
   }
   if (!is.null(fname)) dev.off()
 }

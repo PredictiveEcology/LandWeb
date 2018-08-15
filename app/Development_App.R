@@ -9,7 +9,7 @@ PROFVIS <- FALSE
 
 #source("params/Development_Parameters.R") # moved to global.R
 file.copy("global_file.R", "global.R", overwrite = TRUE)
-if (isTRUE(PROFVIS)) {
+if (exists("PROFVIS") && isTRUE(PROFVIS)) {
   profvis::profvis({
     shiny::runApp()
   })

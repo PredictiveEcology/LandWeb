@@ -9,14 +9,6 @@ rctAuthenticationType <- reactive({
   }
 })
 
-rctLeadingDTlist <- reactive(sim2$leading[[rctAuthenticationType()]])
-
-rctLeadingDTlistCC <- reactive(sim2$leadingCC[[rctAuthenticationType()]])
-
-rctLrgPatches <- reactive(sim2$lrgPatches[[rctAuthenticationType()]])
-
-rctLrgPatchesCC <- reactive(sim2$lrgPatchesCC[[rctAuthenticationType()]])
-
 rctPaths4sim <- reactive(sim2$getAllIfExists(paths4sim, ifNot = rctAuthenticationType()))
 
 rctPolygonList <- reactive(sim2$reportingPolygons[[rctAuthenticationType()]])

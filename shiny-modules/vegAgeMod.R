@@ -107,8 +107,9 @@ vegAgeModUI <- function(id) {
 }
 
 #'
-vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive({NULL}),
-                      rctLeadingDTlist, rctLeadingDTlistCC, rctVtm, ageClasses, outputPath) {
+vegAgeMod <- function(input, output, session, rctAuthenticationType,
+                      rctPolygonList, rctChosenPolyName = reactive({NULL}),
+                      leadingDTlist, leadingDTlistCC, rctVtm, ageClasses, outputPath) {
 
   output$vegTitle <- renderUI({
     column(width = 12,
@@ -125,20 +126,24 @@ vegAgeMod <- function(input, output, session, rctPolygonList, rctChosenPolyName 
            h4("In any given replicate, the numbers below sum to 1."))
   })
 
+  ## recalculate large patches and veg cover when user-selected polygon changes
+  ## e.g., this has to be done when user uploads a polygon
+
   rctVegData <- reactive({
     assertthat::assert_that(
       is.character(rctChosenPolyName()),
-      is.list(rctLeadingDTlist()),
-      !is.null(rctLeadingDTlist()[[rctChosenPolyName()]])
+      is.reactivevalues(leadingDTlist)
+      #!is.null(leadingDTlist[[rctChosenPolyName()]])
     )
+    req(leadingDTlist[[rctChosenPolyName()]])
 
-    dt <- if (is.null(rctLeadingDTlistCC())) {
+    dt <- if (rctAuthenticationType() == "Free") {
       ## free
-      rctLeadingDTlist()[[rctChosenPolyName()]]
-    } else {
+      leadingDTlist[[rctChosenPolyName()]]
+    } else if (rctAuthenticationType() == "Proprietary") {
       ## proprietary
-      rbindlist(list(rctLeadingDTlist()[[rctChosenPolyName()]],
-                     rctLeadingDTlistCC()[[rctChosenPolyName()]][["Proprietary"]]))
+      rbindlist(list(leadingDTlist[[rctChosenPolyName()]],
+                     leadingDTlistCC[[rctChosenPolyName()]][["Proprietary"]]))
     }
 
     dtFn <- function(dt, curPoly) {
