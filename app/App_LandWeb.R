@@ -8,6 +8,8 @@ if (packageVersion("SpaDES.shiny") < "0.1.0.9011") {
   devtools::install_github("PredictiveEcology/SpaDES.shiny@generalize-modules")
 }
 
+useCache342 <- TRUE ## set this to FALSE to run model from scratch
+
 #source("params/LandWeb_parameters.R") # moved to global.R
 file.copy("global_file.R", "global.R", overwrite = TRUE)
 shiny::runApp(".", launch.browser = TRUE, port = 5921)
