@@ -206,7 +206,6 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
       is.reactivevalues(lrgPatchesCC)
       #!is.null(lrgPatches[[rctChosenPolyName()]])
     )
-    req(lrgPatches[[rctChosenPolyName()]])
 
     dt <- if (is.null(lrgPatchesCC[[rctChosenPolyName()]])) {
       ## free
