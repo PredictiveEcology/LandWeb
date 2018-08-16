@@ -115,46 +115,21 @@ function(input, output, session) {
   #largePatchesFn <- sim2$LandWebShiny$largePatchesCalc
   #.largePatchesCalcFn <- sim2$LandWebShiny$.largePatchesCalc
 
-  rctLrgPatchesUser <- reactive({
-    if (is.null(rctLrgPatches()[[rctChosenPolyName()]])) {
-      newPoly <- rctPolygonListUser()[[rctChosenPolyName()]]$crsSR
-      lrgPatchesUser <- Cache(
-        largePatchesFn,
-        byPoly = newPoly,
-        tsfFile = rctTsf(),
-        vtmFile = rctVtm(),
-        ageClasses = ageClasses,
-        ageClassCutOffs = ageClassCutOffs,
-        labelColumn = sim2$labelColumn, ## shinyLabel
-        useParallelCluster = useParallelCluster,
-        .largePatchesCalc = .largePatchesCalcFn # need to Cache the internals
-      )
+  rctLargePatches <- callModule(recalcLargePatches, "largePatches",
+                              rctLrgPatches = rctLrgPatches,
+                              rctChosenPolyName = rctChosenPolyName,
+                              rctPolygonList = rctChosenPolyUser,
+                              largePatchesFn = largePatchesFn,
+                              tsfFile = rctTsf(),
+                              vtmFile = rctVtm(),
+                              ageClasses = ageClasses,
+                              ageClassCutOffs = ageClassCutOffs,
+                              useParallelCluster = useParallelCluster,
+                              .largePatchesCalcFn = .largePatchesCalcFn,
+                              authStatus = authStatus)
 
-      append(rctLrgPatches(), lrgPatchesUser)
-    } else {
-      rctLrgPatches()
-    }
-  })
-
-  rctLrgPatchesUserCC <- reactive({
-    if (authStatus() && is.null(rctLrgPatchesCC()[[rctChosenPolyName()]])) {
-      newPoly <- rctPolygonListUser()[[rctChosenPolyName()]]$crsSR
-      lrgPatchesUserCC <- Cache(
-        largePatchesFn,
-        byPoly = newPoly,
-        tsfFile = rctTsf(),
-        vtmFile = rctVtm(),
-        ageClasses = ageClasses,
-        ageClassCutOffs = ageClassCutOffs,
-        labelColumn = sim2$labelColumn, ## shinyLabel
-        .largePatchesCalc = .largePatchesCalcFn # need to Cache the internals
-      )
-
-      updateList(rctLrgPatchesCC(), lrgPatchesUserCC)
-    } else {
-      rctLrgPatchesCC()
-    }
-  })
+  rctLrgPatchesUser <- reactive(rctLargePatches$largePatches())
+  rctLrgPatchesUserCC <- reactive(rctLargePatches$largePatchesCC())
 
   ## large patches histograms
   rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
@@ -171,37 +146,19 @@ function(input, output, session) {
   leadingByStageFn <- leadingByStage ## workaround cache (see above)
   #leadingByStageFn <- sim2$LandWebShiny$leadingByStage
 
-  rctLeadingDTlistUser <- reactive({
-    if (is.null(rctLeadingDTlist()[[rctChosenPolyName()]])) {
-      newPoly <- rctPolygonListUser()[[rctChosenPolyName()]]$crsSR
-      leadingDTlistUser <- Cache(leadingByStageFn,
-                                 tsf = list(rctTsf()),
-                                 vtm = list(rctVtm()),
-                                 polygonToSummarizeBy = newPoly,
-                                 ageClassCutOffs = ageClassCutOffs,
-                                 ageClasses = ageClasses)
+  rctLeading <- callModule(recalcLeading, "leading",
+                           rctLeadingDTlist = rctLeadingDTlist,
+                           rctChosenPolyName = rctChosenPolyName,
+                           rctPolygonList = rctPolygonListUser,
+                           leadingByStageFn = leadingByStageFn,
+                                     tsf = list(rctTsf()),
+                           vtm = list(rctVtm()),
+                           ageClasses = ageClasses,
+                           ageClassCutOffs = ageClassCutOffs,
+                           authStatus = authStatus)
 
-      updateList(rctLeadingDTlist(), leadingDTlistUser)
-    } else {
-      rctLeadingDTlist()
-    }
-  })
-
-  rctLeadingDTlistUserCC <- reactive({
-    if (authStatus() && is.null(rctLeadingDTlistCC()[[rctChosenPolyName()]])) {
-      newPoly <- rctPolygonListUser()[[rctChosenPolyName()]]$crsSR
-      leadingDTlistUserCC <- Cache(leadingByStageFn,
-                                   tsf = list(rctTsf()),
-                                   vtm = list(rctVtm()),
-                                   polygonToSummarizeBy = newPoly,
-                                   ageClassCutOffs = ageClassCutOffs,
-                                   ageClasses = ageClasses)
-
-      updateList(rctLeadingDTlistCC(), leadingDTlistUserCC)
-    } else {
-      rctLeadingDTlistCC()
-    }
-  })
+  rctLeadingDTlistUser <- reactive(rctLeading$leading())
+  rctLeadingDTlistUserCC <- reactive(rctLeading$leadingCC())
 
   ## veg cover histograms
   rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
