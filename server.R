@@ -188,7 +188,7 @@ function(input, output, session) {
   })
 
   rctLeadingDTlistUserCC <- reactive({
-    if (is.null(rctLeadingDTlistCC()[[rctChosenPolyName()]])) {
+    if (authStatus() && is.null(rctLeadingDTlistCC()[[rctChosenPolyName()]])) {
       newPoly <- rctPolygonListUser()[[rctChosenPolyName()]]$crsSR
       leadingDTlistUserCC <- Cache(leadingByStageFn,
                                    tsf = list(rctTsf()),
