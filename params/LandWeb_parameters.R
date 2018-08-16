@@ -1,3 +1,5 @@
+if (!exists("useCache342")) useCache342 <- TRUE
+
 numClusters <- 3
 source(file.path("R", "ThousandYrFreeProprietary.R"))
 subStudyRegionName <- "FULL"
