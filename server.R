@@ -167,8 +167,7 @@ function(input, output, session) {
                                     rctTsf = rctTsf, rctVtm = rctVtm,
                                     outputPath = rctPaths4sim()$outputPath,
                                     ageClasses = ageClasses,
-                                    FUN = largePatchesFn,
-                                    nPatchesFun = countNumPatches)
+                                    FUN = largePatchesFn)
 
   ## recalculate leading vegetation classes for new polygons
   leadingDTlist <- reactiveValues()
