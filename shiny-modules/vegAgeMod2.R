@@ -102,7 +102,6 @@ vegAgeMod2 <- function(input, output, session, rctAuthenticationType, rctPolygon
       is.reactivevalues(leadingDTlist)
       #!is.null(leadingDTlist[[rctChosenPolyName()]])
     )
-    req(leadingDTlist[[rctChosenPolyName()]])
 
     dt <- if (rctAuthenticationType() == "Free") {
       ## free
