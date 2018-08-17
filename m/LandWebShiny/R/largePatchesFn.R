@@ -61,8 +61,8 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
       message("Running gc for list of tsfs")
       gc()
       message("  End running gc for list of tsfs")
-    } else { # The single tsf/vtm
-      # once for each raster combo
+    } else {
+      # The single tsf/vtm; once for each raster combo
       startTime <- Sys.time()
       message(" ", polyName,": ", basename(tsfFile), " -- calculating patch sizes")
       out <- Cache(.largePatchesCalc,
@@ -86,7 +86,9 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
   timeSinceFireFilesRast <- Cache(rasterToMemory, tsfFile)
 
   tsf <- reclassify(timeSinceFireFilesRast,
-                    cbind(from = ageClassCutOffs-0.1, to = c(ageClassCutOffs[-1], Inf), seq_along(ageClasses)))
+                    cbind(from = ageClassCutOffs - 0.1,
+                          to = c(ageClassCutOffs[-1], Inf),
+                          seq_along(ageClasses)))
   levels(tsf) <- data.frame(ID = seq_along(ageClasses), Factor = ageClasses)
 
   byPoly$tmp <- factor(byPoly[[labelColumn]])
@@ -146,12 +148,12 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
   eTable <- data.frame(ID = seq_along(levels(ffFactor)), VALUE = levels(ffFactor))
   types <- strsplit(as.character(eTable$VALUE), split = splitVal)
   types <- do.call(rbind, types)
-  facPolygonID <- factor(types[areaAndPolyOut2$polyID,2])
+  facPolygonID <- factor(types[areaAndPolyOut2$polyID, 2])
   outAllSpecies <- data.table(polygonID = as.numeric(facPolygonID),
                               sizeInHa = areaAndPolyOut2$sizeInHa,
                               vegCover = "All species",
                               rep = id,
-                              ageClass = types[areaAndPolyOut2$polyID,1],
+                              ageClass = types[areaAndPolyOut2$polyID, 1],
                               polygonName = as.character(facPolygonID))
 
   out <- rbindlist(list(outBySpecies, outAllSpecies))

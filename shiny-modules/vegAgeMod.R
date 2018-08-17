@@ -61,7 +61,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
       } else  {
         dtOnlyCC$proportion
       }
-      verticalLine <- verticalLine + barWidth/2
+      verticalLine <- verticalLine + barWidth / 2
     } else {
       NULL
     }

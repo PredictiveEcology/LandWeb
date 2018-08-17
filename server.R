@@ -88,7 +88,7 @@ function(input, output, session) {
   callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
              rctRasterList = rctRasterList,
              rctUrlTemplate = rctUrlTemplate,
-             rctPolygonList = rctPolygonList,
+             rctPolygonList = rctPolygonListUser,
              rctChosenPoly = rctChosenPolyUser,
              shpStudyRegionName = "LandWeb Study Area",
              defaultPolyName = defaultPolyName,
@@ -116,17 +116,17 @@ function(input, output, session) {
   #.largePatchesCalcFn <- sim2$LandWebShiny$.largePatchesCalc
 
   rctLargePatches <- callModule(recalcLargePatches, "largePatches",
-                              rctLrgPatches = rctLrgPatches,
-                              rctChosenPolyName = rctChosenPolyName,
-                              rctPolygonList = rctChosenPolyUser,
-                              largePatchesFn = largePatchesFn,
-                              tsfFile = rctTsf(),
-                              vtmFile = rctVtm(),
-                              ageClasses = ageClasses,
-                              ageClassCutOffs = ageClassCutOffs,
-                              useParallelCluster = useParallelCluster,
-                              .largePatchesCalcFn = .largePatchesCalcFn,
-                              authStatus = authStatus)
+                                rctLrgPatches = rctLrgPatches,
+                                rctChosenPolyName = rctChosenPolyName,
+                                rctPolygonList = rctPolygonListUser,
+                                largePatchesFn = largePatchesFn,
+                                tsfFile = rctTsf(),
+                                vtmFile = rctVtm(),
+                                ageClasses = ageClasses,
+                                ageClassCutOffs = ageClassCutOffs,
+                                useParallelCluster = useParallelCluster,
+                                .largePatchesCalcFn = .largePatchesCalcFn,
+                                authStatus = authStatus)
 
   rctLrgPatchesUser <- reactive(rctLargePatches$largePatches())
   rctLrgPatchesUserCC <- reactive(rctLargePatches$largePatchesCC())
