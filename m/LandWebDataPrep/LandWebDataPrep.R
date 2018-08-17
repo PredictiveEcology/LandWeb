@@ -157,7 +157,7 @@ Save <- function(sim) {
                             studyArea = sim$shpStudySubRegion,
                             rasterToMatch = NULL, # use the projection of this raster
                             method = "bilinear",
-                            datatype = "INT2U",
+                            datatype = "INT2U", # force integer, b/c decimal values are silly (more precision than merited)
                             filename2 = TRUE,
                             userTags = c("stable", currentModule(sim)))
   }
