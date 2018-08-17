@@ -1,7 +1,7 @@
-recalcLargePatches <- function(input, output, session, rctLrgPatches, rctChosenPolyName,
-                               rctPolygonList, largePatchesFn, tsfFile, vtmFile,
-                               ageClasses, ageClassCutOffs, useParallelCluster,
-                               .largePatchesCalcFn, authStatus) {
+recalcLargePatches <- function(input, output, session, rctLrgPatches, rctLrgPatchesCC,
+                               rctChosenPolyName, rctPolygonList, largePatchesFn,
+                               tsfFile, vtmFile, ageClasses, ageClassCutOffs,
+                               useParallelCluster, .largePatchesCalcFn, authStatus) {
   lrgPtchs <- reactive({
     if (is.null(rctLrgPatches()[[rctChosenPolyName()]])) {
       newPoly <- rctPolygonList()[[rctChosenPolyName()]]$crsSR
@@ -17,14 +17,14 @@ recalcLargePatches <- function(input, output, session, rctLrgPatches, rctChosenP
         .largePatchesCalc = .largePatchesCalcFn # need to Cache the internals
       )
 
-      append(rctLrgPatches(), lrgPatchesUser)
+      append(rctLrgPatches(), lrgPatchesUser) ## TODO: test this
     } else {
       rctLrgPatches()
     }
   })
 
   lrgPtchsCC <- reactive({
-    if (authStatus() && is.null(rctLrgPatches()[[rctChosenPolyName()]])) {
+    if (authStatus() && is.null(rctLrgPatchesCC()[[rctChosenPolyName()]])) {
       newPoly <- rctPolygonList()[[rctChosenPolyName()]]$crsSR
       lrgPatchesUser <- Cache(
         largePatchesFn,
@@ -38,18 +38,18 @@ recalcLargePatches <- function(input, output, session, rctLrgPatches, rctChosenP
         .largePatchesCalc = .largePatchesCalcFn # need to Cache the internals
       )
 
-      append(rctLrgPatches(), lrgPatchesUser)
+      append(rctLrgPatchesCC(), lrgPatchesUser) ## TODO: test this
     } else {
-      rctLrgPatches()
+      rctLrgPatchesCC()
     }
   })
 
   return(list(largePatches = lrgPtchs, largePatchesCC = lrgPtchsCC))
 }
 
-recalcLeading <- function(input, output, session, rctLeadingDTlist, rctChosenPolyName,
-                          rctPolygonList, leadingByStageFn, tsf, vtm,
-                          ageClasses, ageClassCutOffs, authStatus) {
+recalcLeading <- function(input, output, session, rctLeadingDTlist, rctLeadingDTlistCC,
+                          rctChosenPolyName, rctPolygonList, leadingByStageFn,
+                          tsf, vtm, ageClasses, ageClassCutOffs, authStatus) {
   ldng <- reactive({
     if (is.null(rctLeadingDTlist()[[rctChosenPolyName()]])) {
       newPoly <- rctPolygonList()[[rctChosenPolyName()]]$crsSR
@@ -58,21 +58,21 @@ recalcLeading <- function(input, output, session, rctLeadingDTlist, rctChosenPol
                                  ageClassCutOffs = ageClassCutOffs,
                                  ageClasses = ageClasses)
 
-      updateList(rctLeadingDTlist(), leadingDTlistUser)
+      append(rctLeadingDTlist(), leadingDTlistUser) ## TODO: test this
     } else {
       rctLeadingDTlist()
     }
   })
 
   ldngCC <- reactive({
-    if (authStatus() && is.null(rctLeadingDTlist()[[rctChosenPolyName()]])) {
+    if (authStatus() && is.null(rctLeadingDTlistCC()[[rctChosenPolyName()]])) {
       newPoly <- rctPolygonList()[[rctChosenPolyName()]]$crsSR
-      leadingDTlistUser <- Cache(leadingByStageFn, tsf = tsf, vtm = vtm,
+      leadingDTlistUserCC <- Cache(leadingByStageFn, tsf = tsf, vtm = vtm,
                                  polygonToSummarizeBy = newPoly,
                                  ageClassCutOffs = ageClassCutOffs,
                                  ageClasses = ageClasses)
 
-      updateList(rctLeadingDTlist(), leadingDTlistUser)
+      append(rctLeadingDTlistCC(), leadingDTlistUserCC) ## TODO: test this
     } else {
       rctLeadingDTlist()
     }
