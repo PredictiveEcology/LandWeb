@@ -117,6 +117,7 @@ function(input, output, session) {
 
   rctLargePatches <- callModule(recalcLargePatches, "largePatches",
                                 rctLrgPatches = rctLrgPatches,
+                                rctLrgPatchesCC = rctLrgPatchesCC,
                                 rctChosenPolyName = rctChosenPolyName,
                                 rctPolygonList = rctPolygonListUser,
                                 largePatchesFn = largePatchesFn,
@@ -148,6 +149,7 @@ function(input, output, session) {
 
   rctLeading <- callModule(recalcLeading, "leading",
                            rctLeadingDTlist = rctLeadingDTlist,
+                           rctLeadingDTlistCC = rctLeadingDTlistCC,
                            rctChosenPolyName = rctChosenPolyName,
                            rctPolygonList = rctPolygonListUser,
                            leadingByStageFn = leadingByStageFn,
