@@ -78,8 +78,8 @@ vegAgeMod2UI <- function(id) {
 
 #'
 vegAgeMod2 <- function(input, output, session, rctAuthenticationType, rctPolygonList,
-                       rctChosenPolyName = reactive({NULL}), leadingDTlist,
-                       leadingDTlistCC, rctVtm, ageClasses, outputPath) {
+                       rctChosenPolyName = reactive({NULL}), rctLeadingDTlist,
+                       rctLeadingDTlistCC, rctVtm, ageClasses, outputPath) {
 
   output$vegTitle <- renderUI({
     column(width = 12,
@@ -99,18 +99,17 @@ vegAgeMod2 <- function(input, output, session, rctAuthenticationType, rctPolygon
   rctVegData <- reactive({
     assertthat::assert_that(
       is.character(rctChosenPolyName()),
-      is.reactivevalues(leadingDTlist)
-      #!is.null(leadingDTlist[[rctChosenPolyName()]])
+      is.list(rctLeadingDTlist())
+      #!is.null(rctLeadingDTlist()[[rctChosenPolyName()]])
     )
-    req(leadingDTlist[[rctChosenPolyName()]])
 
     dt <- if (rctAuthenticationType() == "Free") {
       ## free
-      leadingDTlist[[rctChosenPolyName()]]
+      rctLeadingDTlist()[[rctChosenPolyName()]]
     } else if (rctAuthenticationType() == "Proprietary") {
       ## proprietary
-      rbindlist(list(leadingDTlist[[rctChosenPolyName()]],
-                     leadingDTlistCC[[rctChosenPolyName()]][["Proprietary"]]))
+      rbindlist(list(rctLeadingDTlist()[[rctChosenPolyName()]],
+                     rctLeadingDTlistCC()[[rctChosenPolyName()]][["Proprietary"]]))
     }
 
     dtFn <- function(dt, curPoly) {
