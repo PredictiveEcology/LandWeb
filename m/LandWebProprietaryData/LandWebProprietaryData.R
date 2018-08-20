@@ -83,6 +83,7 @@ Init <- function(sim) {
     FALSE
   }
 
+  # TODO: This needs to work, even if offline, but already have files
   aaa <- testthat::capture_error({
     googledrive::drive_auth(use_oob = TRUE, verbose = TRUE, cache = .cacheVal)
     file_url <- "https://drive.google.com/file/d/1sJoZajgHtsrOTNOE3LL8MtnTASzY0mo7/view?usp=sharing"
