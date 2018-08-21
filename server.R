@@ -76,12 +76,16 @@ function(input, output, session) {
     )
   })
 
-  rctChosenPolyUser <- callModule(polygonChooser, "polyDropdown", rctPolySubList,
-                                  defaultPolyName, uploadOpts = rctUploadOptions(),
+  rctChosenPolyUser <- callModule(polygonChooser, "polyDropdown",
+                                  rctPolygonList = rctPolySubList,
+                                  selectedPoly = defaultPolyName,
+                                  uploadOpts = rctUploadOptions(),
                                   studyArea = rctStudyArea())
+
   rctPolygonListUser <- reactive({
     do.call(polygonList, append(rctChosenPolyUser()$polygons, list(studyArea = rctStudyArea())))
   })
+
   rctChosenPolyName <- reactive(rctChosenPolyUser()$selected)
 
   callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator

@@ -17,7 +17,7 @@ recalcLargePatches <- function(input, output, session, rctLrgPatches, rctLrgPatc
         .largePatchesCalc = .largePatchesCalcFn # need to Cache the internals
       )
 
-      append(rctLrgPatches(), lrgPatchesUser) ## TODO: test this
+      updateList(rctLrgPatches(), lrgPatchesUser)
     } else {
       rctLrgPatches()
     }
@@ -38,7 +38,7 @@ recalcLargePatches <- function(input, output, session, rctLrgPatches, rctLrgPatc
         .largePatchesCalc = .largePatchesCalcFn # need to Cache the internals
       )
 
-      append(rctLrgPatchesCC(), lrgPatchesUser) ## TODO: test this
+      updateList(rctLrgPatchesCC(), lrgPatchesUser) ## TODO: test this
     } else {
       rctLrgPatchesCC()
     }
@@ -58,7 +58,7 @@ recalcLeading <- function(input, output, session, rctLeadingDTlist, rctLeadingDT
                                  ageClassCutOffs = ageClassCutOffs,
                                  ageClasses = ageClasses)
 
-      append(rctLeadingDTlist(), leadingDTlistUser) ## TODO: test this
+      updateList(rctLeadingDTlist(), leadingDTlistUser) ## TODO: test this
     } else {
       rctLeadingDTlist()
     }
@@ -72,7 +72,7 @@ recalcLeading <- function(input, output, session, rctLeadingDTlist, rctLeadingDT
                                  ageClassCutOffs = ageClassCutOffs,
                                  ageClasses = ageClasses)
 
-      append(rctLeadingDTlistCC(), leadingDTlistUserCC) ## TODO: test this
+      updateList(rctLeadingDTlistCC(), leadingDTlistUserCC) ## TODO: test this
     } else {
       rctLeadingDTlist()
     }
