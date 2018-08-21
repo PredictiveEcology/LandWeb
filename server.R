@@ -63,7 +63,7 @@ function(input, output, session) {
 
   rctPolySubList <- reactive({
     sublist <- lapply(rctPolygonList(), function(x) x$crsSR)
-    omitPolys <- c("AB Natural Sub Regions", "LandWeb Study Area") ## TODO: remove this workaround
+    omitPolys <- c("AB Natural Sub Regions")#, "LandWeb Study Area") ## TODO: remove this workaround
     lapply(omitPolys, function(x) sublist[[x]] <<- NULL)
     sublist
   })
