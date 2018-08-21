@@ -155,6 +155,8 @@ studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyReg
                           crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)
 list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpSubStudyRegion
 
+defaultPolyName <- "National Ecozones"
+
 ## source additional shiny modules
 vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))
 

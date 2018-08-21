@@ -68,7 +68,6 @@ function(input, output, session) {
     sublist
   })
 
-  defaultPolyName <- "National Ecozones"  ## TODO: move to global.R ?
   rctUploadOptions <- reactive({
     list(
       auth = authStatus(),
