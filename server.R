@@ -96,7 +96,7 @@ function(input, output, session) {
              shpStudyRegionName = "LandWeb Study Area",
              defaultPolyName = defaultPolyName,
              colorPalette = timeSinceFirePalette,
-             mapTilesDir = "www/All/FULL/map-tiles",
+             mapTilesDir = tilePath,
              mapTitle = "Time since fire",
              mapLegend = paste0("Time since fire", br(), "(years)"),
              maxAge = maxAge, zoom = 5, nPolygons = 1,
