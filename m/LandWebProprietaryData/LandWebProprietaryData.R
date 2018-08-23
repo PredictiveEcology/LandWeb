@@ -54,7 +54,7 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initialiazation
 
-doEvent.LandWebProprietaryData = function(sim, eventTime, eventType) {
+doEvent.LandWebProprietaryData <- function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {

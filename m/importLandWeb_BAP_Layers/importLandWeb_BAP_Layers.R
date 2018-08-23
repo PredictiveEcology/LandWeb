@@ -36,7 +36,7 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initialiazation
 
-doEvent.importLandWeb_BAP_Layers = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.importLandWeb_BAP_Layers <- function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
@@ -166,7 +166,7 @@ importLandWeb_BAP_LayersEvent2 <- function(sim) {
   return(invisible(sim))
 }
 
-.inputObjects = function(sim) {
+.inputObjects <- function(sim) {
   # Any code written here will be run during the simInit for the purpose of creating
   # any objects required by this module and identified in the inputObjects element of defineModule.
   # This is useful if there is something required before simulation to produce the module
