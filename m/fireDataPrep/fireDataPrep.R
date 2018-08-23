@@ -78,7 +78,7 @@ defineModule(
 ## event types
 #   - type `init` is required for initialiazation
 
-doEvent.fireDataPrep = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.fireDataPrep <- function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
@@ -130,7 +130,7 @@ Init <- function(sim) {
 }
 
 
-.inputObjects = function(sim) {
+.inputObjects <- function(sim) {
   # if (is.null(sim$shpStudyRegion)) {
 
   #   sim$shpStudyRegion <- randomPolygon(matrix(c(-90, 60), ncol = 2), 5)

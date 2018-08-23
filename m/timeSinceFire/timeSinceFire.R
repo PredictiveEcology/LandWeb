@@ -41,7 +41,7 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initialiazation
 
-doEvent.timeSinceFire = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.timeSinceFire <- function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)

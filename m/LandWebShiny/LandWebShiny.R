@@ -57,7 +57,7 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initialiazation
 
-doEvent.LandWebShiny = function(sim, eventTime, eventType) {
+doEvent.LandWebShiny <- function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {

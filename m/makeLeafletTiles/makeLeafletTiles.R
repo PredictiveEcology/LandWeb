@@ -35,7 +35,7 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initialiazation
 
-doEvent.makeLeafletTiles = function(sim, eventTime, eventType) {
+doEvent.makeLeafletTiles <- function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {

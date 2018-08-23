@@ -33,7 +33,7 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initialiazation
 
-doEvent.initBaseMaps = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.initBaseMaps <- function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     sim <- Init(sim)
   } else {

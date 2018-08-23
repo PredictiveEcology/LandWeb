@@ -42,7 +42,7 @@ defineModule(sim, list(
   )
     ))
 
-doEvent.LandWebOutput = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.LandWebOutput <- function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     #sim <- Init(sim)
     sim <- scheduleEvent(sim, sim$summaryPeriod[1], "LandWebOutput", "allEvents",
@@ -114,7 +114,7 @@ AllEvents <- function(sim) {
 }
 
 
-.inputObjects = function(sim) {
+.inputObjects <- function(sim) {
   if (!suppliedElsewhere("summaryPeriod", sim))
     sim$summaryPeriod <- c(1000, 1500)
   if (!suppliedElsewhere("vegTypeMapGenerator", sim)) { # otherwise created in LandMine

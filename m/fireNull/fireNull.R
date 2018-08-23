@@ -38,7 +38,7 @@ defineModule(sim, list(
   )
 ))
 
-doEvent.fireNull = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.fireNull <- function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     # do stuff for this event
     sim <- sim$fireNullInit(sim)
