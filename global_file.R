@@ -122,7 +122,11 @@ ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
 
 # Time steps
 fireTimestep <- 1
-successionTimestep <- 10 # was 2
+if (isTRUE(DEVMODE)) {
+  successionTimestep <- 10 # was 2
+} else {
+  successionTimestep <- 10
+}
 
 # Import and build 2 polygons -- one for whole study area, one for demonstration area
 # "shpStudyRegion"     "shpStudyRegion"
