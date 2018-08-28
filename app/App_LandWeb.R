@@ -4,7 +4,7 @@ if (packageVersion("reproducible") < "0.2.3") {
 if (packageVersion("SpaDES.core") < "0.2.0") {
   devtools::install_github("PredictiveEcology/SpaDES.core@development")
 }
-if (packageVersion("SpaDES.shiny") < "0.1.0.9011") {
+if (packageVersion("SpaDES.shiny") < "0.1.0.9012") {
   devtools::install_github("PredictiveEcology/SpaDES.shiny@generalize-modules")
 }
 

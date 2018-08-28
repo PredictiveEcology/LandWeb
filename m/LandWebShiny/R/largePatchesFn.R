@@ -24,6 +24,7 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
         x[length(x)]
       }))
     }
+
     if (length(tsfFile) > 1) {
       rasTmp <- raster(unlist(tsfFile)[[1]])
       if (missing(polyName)) polyName <- "Unnamed Polygon"
@@ -59,7 +60,7 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
       }
       out <- rbindlist(out)
       message("Running gc for list of tsfs")
-      gc()
+      .gc()
       message("  End running gc for list of tsfs")
     } else {
       # The single tsf/vtm; once for each raster combo
@@ -72,7 +73,7 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
                    ageClasses = ageClasses)
       endTime <- Sys.time()
       message("Running gc")
-      gc()
+      .gc()
       message("  End running gc")
       message(" ", polyName,": ", basename(tsfFile), " -- patch size calculation took ",
               format(endTime - startTime, digits = 2))
@@ -105,7 +106,7 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
   #              Factor = levels(byPoly$tmp))
 
   # 3rd raster
-  rasVeg <- Cache(rasterToMemory, vtmFile)#,
+  rasVeg <- Cache(rasterToMemory, vtmFile)
 
   splitVal <- paste0("_", 75757575, "_") # unlikely to occur for any other reason
 
