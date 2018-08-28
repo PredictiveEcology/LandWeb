@@ -68,9 +68,9 @@ recalcLeading <- function(input, output, session, rctLeadingDTlist, rctLeadingDT
     if (authStatus() && is.null(rctLeadingDTlistCC()[[rctChosenPolyName()]])) {
       newPoly <- rctPolygonList()[[rctChosenPolyName()]]$crsSR
       leadingDTlistUserCC <- Cache(leadingByStageFn, tsf = tsf, vtm = vtm,
-                                 polygonToSummarizeBy = newPoly,
-                                 ageClassCutOffs = ageClassCutOffs,
-                                 ageClasses = ageClasses)
+                                   polygonToSummarizeBy = newPoly,
+                                   ageClassCutOffs = ageClassCutOffs,
+                                   ageClasses = ageClasses)
 
       updateList(rctLeadingDTlistCC(), leadingDTlistUserCC) ## TODO: test this
     } else {
