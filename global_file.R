@@ -122,7 +122,7 @@ ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
 
 # Time steps
 fireTimestep <- 1
-if (isTRUE(DEVMODE)) {
+if (exists("DEVMODE") && isTRUE(DEVMODE)) {
   successionTimestep <- 10 # was 2
 } else {
   successionTimestep <- 10
