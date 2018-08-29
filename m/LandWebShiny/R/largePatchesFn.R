@@ -32,7 +32,7 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
       tries <- 0
       while(tries >= 0) {
         cl <- makeOptimalCluster(useParallel = useParallelCluster,
-                                 MBper = ncell(rasTmp) / 4000,
+                                 MBper = ncell(rasTmp) / 4500,
                                  maxNumClusters = length(tsfFile))
         on.exit(try(parallel::stopCluster(cl), silent = TRUE))
         out <- try(Cache(Map2, cl = cl,
@@ -165,32 +165,36 @@ largePatchesCalc <- function(tsfFile, vtmFile, byPoly, polyName,
 #'
 #' Copied from https://johnbaumgartner.wordpress.com/2012/07/26/getting-rasters-into-shape-from-r/
 #'
-gdal_polygonizeR <- function(x, outshape = NULL, gdalformat = 'ESRI Shapefile',
+gdal_polygonizeR <- function(x, outshape = NULL, gdalformat = "ESRI Shapefile",
                              pypath = NULL, readpoly = TRUE, quiet = TRUE) {
   if (isTRUE(readpoly)) require(rgdal)
   if (is.null(pypath)) {
-    pypath <- Sys.which('gdal_polygonize.py')
+    pypath <- Sys.which("gdal_polygonize.py")
   }
   if (!file.exists(pypath)) stop("Can't find gdal_polygonize.py on your system.")
   owd <- getwd()
   on.exit(setwd(owd))
   setwd(dirname(pypath))
   if (!is.null(outshape)) {
-    outshape <- sub('\\.shp$', '', outshape)
-    f.exists <- file.exists(paste(outshape, c('shp', 'shx', 'dbf'), sep='.'))
+    outshape <- sub("\\.shp$", "", outshape)
+    f.exists <- file.exists(paste(outshape, c("shp", "shx", "dbf"), sep = "."))
     if (any(f.exists))
-      stop(sprintf('File already exists: %s',
-                   toString(paste(outshape, c('shp', 'shx', 'dbf'),
-                                  sep='.')[f.exists])), call.=FALSE)
-  } else outshape <- tempfile()
-  if (is(x, 'Raster')) {
+      stop(sprintf("File already exists: %s",
+                   toString(paste(outshape, c("shp", "shx", "dbf"),
+                                  sep = ".")[f.exists])), call. = FALSE)
+  } else {
+    outshape <- tempfile()
+  }
+  if (is(x, "Raster")) {
     require(raster)
-    writeRaster(x, {f <- tempfile(fileext='.tif')})
+    writeRaster(x, {f <- tempfile(fileext = ".tif")})
     rastpath <- normalizePath(f)
   } else if (is.character(x)) {
     rastpath <- normalizePath(x)
-  } else stop('x must be a file path (character string), or a Raster object.')
-  system2('python', args = (sprintf('"%1$s" "%2$s" -f "%3$s" "%4$s.shp"',
+  } else {
+    stop("x must be a file path (character string), or a Raster object.")
+  }
+  system2("python", args = (sprintf('"%1$s" "%2$s" -f "%3$s" "%4$s.shp"',
                                     pypath, rastpath, gdalformat, outshape)))
   if (isTRUE(readpoly)) {
     shp <- sf::read_sf(dsn = dirname(outshape), layer = basename(outshape))

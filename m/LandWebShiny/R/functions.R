@@ -420,7 +420,8 @@ leadingByStage <- function(tsf, vtm, polygonToSummarizeBy,
         } else {
           if (length(tsf) > 1) {
             # recursive call to this same function, but one tsf and vtm at a time
-            numClust <- optimalClusterNum(16000, maxNumClusters = length(tsf))
+            numClust <- optimalClusterNum(memRequiredMB = 16000,
+                                          maxNumClusters = length(tsf))
             out <- if (numClust > 1) {
               cl <- makeForkCluster(numClust, type = "FORK")
               on.exit(stopCluster(cl), add = TRUE)
