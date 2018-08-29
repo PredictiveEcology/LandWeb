@@ -193,7 +193,7 @@ times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
 modules4sim <- emptyListAll
 modules4sim$All <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
                         "LandWebProprietaryData",
-                        "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWebOutput")
+                        "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
 
 objects4sim <- emptyListAll
 objects4sim <- lapply(objects4sim, function(x)
@@ -207,7 +207,7 @@ objects4sim <- lapply(objects4sim, function(x)
 parameters4sim <- emptyListAll
 parameters4sim <- lapply(parameters4sim, function(x) {
   list(
-    LandWebOutput = list(summaryInterval = summaryInterval),
+    LandWeb_output = list(summaryInterval = summaryInterval),
     LandWeb_dataPrep = list(.useCache = eventCaching),
     LandWebProprietaryData = list(.useCache = eventCaching),
     Boreal_LBMRDataPrep = list(.useCache = eventCaching),
@@ -232,7 +232,7 @@ outputs4simFn <- function(objects4sim, parameters4sim, times4sim, objectNamesToS
                         expand.grid(
                           objectName = objectNamesToSave,#, "oldBigPatch"),
                           saveTime = seq(objects4sim$summaryPeriod[1], objects4sim$summaryPeriod[2],
-                                         by = parameters4sim$LandWebOutput$summaryInterval)),
+                                         by = parameters4sim$LandWeb_output$summaryInterval)),
                         fun = "writeRaster", package = "raster",
                         file = paste0(objectNamesToSave, c(".tif", ".grd")))
 
