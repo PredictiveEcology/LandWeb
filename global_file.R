@@ -311,7 +311,7 @@ if (exists("oldStyle")) {
 
 message("  Finished simInit and Experiment.")
 
-message("  Running LandWebShiny module")
+message("  Running LandWeb_shiny module")
 
 cacheIdEnv <- new.env(parent = environment()) # don't pass the environment with cacheId...
                                               # pass the child...
@@ -331,7 +331,7 @@ objList <- list(
 )
 
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
-              modules = list("LandWebShiny"), #notOlderThan = Sys.time(),
+              modules = list("LandWeb_shiny"), #notOlderThan = Sys.time(),
               objList,# can't provide argument name "objects" here because same as Cache
               cacheId = cacheId$simInitAndSpades,
               paths = paths4sim$All)

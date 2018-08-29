@@ -111,13 +111,13 @@ function(input, output, session) {
 
   ## recalculate large patches for new polygons
   ### workaround cache:
-  source("m/LandWebShiny/R/functions.R", local = TRUE)
-  source("m/LandWebShiny/R/largePatchesFn.R", local = TRUE)
+  source("m/LandWeb_shiny/R/functions.R", local = TRUE)
+  source("m/LandWeb_shiny/R/largePatchesFn.R", local = TRUE)
   largePatchesFn <- largePatchesCalc
   .largePatchesCalcFn <- .largePatchesCalc
   ###
-  #largePatchesFn <- sim2$LandWebShiny$largePatchesCalc
-  #.largePatchesCalcFn <- sim2$LandWebShiny$.largePatchesCalc
+  #largePatchesFn <- sim2$LandWeb_shiny$largePatchesCalc
+  #.largePatchesCalcFn <- sim2$LandWeb_shiny$.largePatchesCalc
 
   rctLargePatches <- callModule(recalcLargePatches, "largePatches",
                                 rctLrgPatches = rctLrgPatches,
@@ -149,7 +149,7 @@ function(input, output, session) {
 
   ## recalculate leading vegetation classes for new polygons
   leadingByStageFn <- leadingByStage ## workaround cache (see above)
-  #leadingByStageFn <- sim2$LandWebShiny$leadingByStage
+  #leadingByStageFn <- sim2$LandWeb_shiny$leadingByStage
 
   rctLeading <- callModule(recalcLeading, "leading",
                            rctLeadingDTlist = rctLeadingDTlist,
