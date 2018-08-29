@@ -19,3 +19,6 @@
 [submodule "m/LandWeb_output"]
 	path = m/LandWeb_output
 	url = https://github.com/fRI-Research/LandWeb_output
+[submodule "m/LandWeb_fireNull"]
+	path = m/LandWeb_fireNull
+	url = https://github.com/fRI-Research/LandWeb_fireNull
