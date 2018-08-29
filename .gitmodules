@@ -16,3 +16,6 @@
 [submodule "m/LandWeb_shiny"]
 	path = m/LandWeb_shiny
 	url = https://github.com/fRI-Research/LandWeb_shiny
+[submodule "m/LandWeb_output"]
+	path = m/LandWeb_output
+	url = https://github.com/fRI-Research/LandWeb_output
