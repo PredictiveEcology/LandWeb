@@ -9,7 +9,6 @@ PROFVIS <- FALSE
 
 useCache342 <- FALSE ## set this to FALSE to run model from scratch
 
-#source("params/Development_Parameters.R") # moved to global.R
 file.copy("global_file.R", "global.R", overwrite = TRUE)
 if (exists("PROFVIS") && isTRUE(PROFVIS)) {
   profvis::profvis({
