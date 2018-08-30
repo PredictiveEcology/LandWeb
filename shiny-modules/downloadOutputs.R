@@ -244,4 +244,3 @@ downloadOutputs <- function(input, output, session, appInfo,
     contentType = "application/zip"
   )
 }
-
