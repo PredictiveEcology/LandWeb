@@ -2,7 +2,6 @@ if (Sys.info()["sysname"] == "Linux" &&
     parallel::detectCores() > numClusters &&
     numClusters > 0) {
   useParallelCluster <- TRUE
-  #numClus <- min(8, parallel::detectCores() / 2)
   cl6 <- NULL
 } else {
   useParallelCluster <- FALSE
@@ -19,4 +18,3 @@ summaryPeriod <- c(700, endTime)
 
 # cacheId for 1000 years: 2e35699c4ade1b4bfa82e864558c7436, 7.3 days - on 342
 authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free" "Proprietary"
-# Spatial stuff -- determines the size of the area that will be "run" in the simulations

@@ -80,17 +80,18 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
       aa <- sf::st_intersection(sf::st_as_sf(shpStudyRegion), sf::st_as_sf(inputMapPolygon))
       shpSubStudyRegion <- as(aa, "Spatial")
     } else {
-      set.seed(853839)#set.seed(5567913)
-      if ("SMALL" %in% subStudyRegionName) {
-        areaKm2 <- 10000#700000#2000#600000#too big for laptop
-      } else if ("VERYSMALL" %in% subStudyRegionName) {
-        areaKm2 <- 3000 #700000#2000#600000#too big for laptop
+      #set.seed(5567913)
+      set.seed(853839)
+      if ("VERYSMALL" %in% subStudyRegionName) {
+        areaKm2 <- 3000
+      } else if ("SMALL" %in% subStudyRegionName) {
+        areaKm2 <- 10000
       } else if ("MEDIUM" %in% subStudyRegionName) {
-        areaKm2 <- 40000 #700000#2000#600000#too big for laptop
+        areaKm2 <- 40000
       } else if ("LARGE" %in% subStudyRegionName) {
-        areaKm2 <- 80000 #700000#2000#600000#too big for laptop
+        areaKm2 <- 80000
       } else if ("VERYLARGE" %in% subStudyRegionName) {
-        areaKm2 <- 180000 #700000#2000#600000#too big for laptop
+        areaKm2 <- 180000
       }
 
       minY <- 7678877 - 3.6e5
@@ -118,7 +119,6 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
       options("digits.secs" = 7)
       on.exit(options("digits.secs" = NULL))
       set.seed(as.numeric(format(Sys.time(), format = "%OS")))
-
     }
   } else {
     shpSubStudyRegion <- shpStudyRegion

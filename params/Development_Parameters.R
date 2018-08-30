@@ -1,5 +1,5 @@
 # Overall model times # start is default at 0
-endTime <- 3
+endTime <- 30
 summaryInterval <- 1
 summaryPeriod <- c(2, endTime)
 useParallelCluster <- FALSE
@@ -13,7 +13,3 @@ subStudyRegionName <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "M
                               #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
 
 cacheId <- list()
-#cacheId4Experiment <- "8f1e7eb53b7cb9311cfdf62403b74f46"
-#"13bdb0816f35f6f26905ca4ab5ce9763"
-#if (FALSE) {
-#}
