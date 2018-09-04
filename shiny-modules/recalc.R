@@ -4,6 +4,7 @@ recalcLargePatches <- function(input, output, session, rctLrgPatches, rctLrgPatc
                                useParallelCluster, .largePatchesCalcFn, authStatus) {
   lrgPtchs <- reactive({
     if (is.null(rctLrgPatches()[[rctChosenPolyName()]])) {
+      crayon::magenta(message("Recalculating large patches for uploaded polygon..."))
       newPoly <- rctPolygonList()[[rctChosenPolyName()]]$crsSR
       lrgPatchesUser <- Cache(
         largePatchesFn,
@@ -16,17 +17,18 @@ recalcLargePatches <- function(input, output, session, rctLrgPatches, rctLrgPatc
         useParallelCluster = useParallelCluster,
         .largePatchesCalc = .largePatchesCalcFn # need to Cache the internals
       )
-
-      updateList(rctLrgPatches(), lrgPatchesUser)
+      crayon::magenta(message("  done."))
+      lrgPatchesUser
     } else {
-      rctLrgPatches()
+      rctLrgPatches()[[rctChosenPolyName()]]
     }
   })
 
   lrgPtchsCC <- reactive({
     if (authStatus() && is.null(rctLrgPatchesCC()[[rctChosenPolyName()]])) {
+      crayon::magenta(message("Recalculating large patches CC for uploaded polygon..."))
       newPoly <- rctPolygonList()[[rctChosenPolyName()]]$crsSR
-      lrgPatchesUser <- Cache(
+      lrgPatchesUserCC <- Cache(
         largePatchesFn,
         byPoly = newPoly,
         tsfFile = tsfFile,
@@ -37,10 +39,10 @@ recalcLargePatches <- function(input, output, session, rctLrgPatches, rctLrgPatc
         useParallelCluster = useParallelCluster,
         .largePatchesCalc = .largePatchesCalcFn # need to Cache the internals
       )
-
-      updateList(rctLrgPatchesCC(), lrgPatchesUser) ## TODO: test this
+      crayon::magenta("  done.")
+      lrgPatchesUserCC
     } else {
-      rctLrgPatchesCC()
+      rctLrgPatchesCC()[[rctChosenPolyName()]]
     }
   })
 
@@ -52,29 +54,32 @@ recalcLeading <- function(input, output, session, rctLeadingDTlist, rctLeadingDT
                           tsf, vtm, ageClasses, ageClassCutOffs, authStatus) {
   ldng <- reactive({
     if (is.null(rctLeadingDTlist()[[rctChosenPolyName()]])) {
+      crayon::magenta(message("Recalculating leading veg type for uploaded polygon..."))
       newPoly <- rctPolygonList()[[rctChosenPolyName()]]$crsSR
       leadingDTlistUser <- Cache(leadingByStageFn, tsf = tsf, vtm = vtm,
                                  polygonToSummarizeBy = newPoly,
                                  ageClassCutOffs = ageClassCutOffs,
                                  ageClasses = ageClasses)
 
-      updateList(rctLeadingDTlist(), leadingDTlistUser) ## TODO: test this
+      leadingDTlistUser
+      crayon::magenta("  done.")
     } else {
-      rctLeadingDTlist()
+      rctLeadingDTlist()[[rctChosenPolyName()]]
     }
   })
 
   ldngCC <- reactive({
     if (authStatus() && is.null(rctLeadingDTlistCC()[[rctChosenPolyName()]])) {
+      crayon::magenta(message("Recalculating leading veg type CC for uploaded polygon..."))
       newPoly <- rctPolygonList()[[rctChosenPolyName()]]$crsSR
       leadingDTlistUserCC <- Cache(leadingByStageFn, tsf = tsf, vtm = vtm,
                                    polygonToSummarizeBy = newPoly,
                                    ageClassCutOffs = ageClassCutOffs,
                                    ageClasses = ageClasses)
-
-      updateList(rctLeadingDTlistCC(), leadingDTlistUserCC) ## TODO: test this
+      crayon::magenta("  done.")
+      leadingDTlistUserCC
     } else {
-      rctLeadingDTlist()
+      rctLeadingDTlistCC()[[rctChosenPolyName()]]
     }
   })
 
