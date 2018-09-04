@@ -83,11 +83,14 @@ function(input, output, session) {
                                   uploadOpts = rctUploadOptions(),
                                   studyArea = rctStudyArea())
 
-  rctPolygonListUser <- reactive({
-    do.call(polygonList, append(rctChosenPolyUser()$polygons, list(studyArea = rctStudyArea())))
-  })
-
   rctChosenPolyName <- reactive(rctChosenPolyUser()$selected)
+
+  rctPolygonListUser <- reactive({
+    ## polygonList containing ONLY the user's chosen polygon
+    allPolys <- rctChosenPolyUser()$polygons
+    userPoly <- rctChosenPolyName()
+    do.call(polygonList, append(allPolys[userPoly], list(studyArea = rctStudyArea())))
+  })
 
   callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
              rctRasterList = rctRasterList,
@@ -95,6 +98,7 @@ function(input, output, session) {
              rctPolygonList = rctPolygonListUser,
              rctChosenPoly = rctChosenPolyUser,
              shpStudyRegionName = "LandWeb Study Area",
+             shpStudyRegionLFLT = isolate(rctPolySubList()[["LandWeb Study Area"]][["crsLFLT"]]), ## won't change
              defaultPolyName = defaultPolyName,
              colorPalette = timeSinceFirePalette,
              mapTilesDir = tilePath,
