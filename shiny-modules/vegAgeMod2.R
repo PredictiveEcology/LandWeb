@@ -55,7 +55,7 @@ vegBoxplotServerFn <- function(datatable, id, .current, .dtFull, outputPath,
     callModule(boxPlot, id, data, CCpnts, authStatus, fname = pngFilePath,
                col = "limegreen",
                horizontal = TRUE,
-               main = paste(.current, collapse = " "),
+               main = paste(.current, collapse = " "), ## TODO: add total area to title (#59)
                xlab = "Proportion of of forest area",
                ylab = "Age class",
                ylim = c(0, 1))
