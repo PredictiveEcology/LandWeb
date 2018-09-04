@@ -1,9 +1,14 @@
 library(ggplot2)
 library(raster)
 
-outputDir <- "~/GitHub/LandWeb/outputs/SMALL_All"
+areaSize <- "MEDIUM"
+outputDir <- file.path("~/GitHub/LandWeb/outputs", paste0(areaSize, "_All"))
 vtmRasters <- list.files(outputDir, "^vegTypeMap.*[.]tif$", full.names = TRUE) %>%
   grep("LFLT", ., value = TRUE, invert = TRUE)
+
+## TODO: plot biomass not leading species; burn events confounded with changes in dominant species
+
+## TODO: also plot annual area burned
 
 rm(props)
 for (i in 1:length(vtmRasters)) {
