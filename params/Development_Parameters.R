@@ -1,6 +1,6 @@
 # Overall model times # start is default at 0
 endTime <- 50
-summaryInterval <- 1
+summaryInterval <- 10
 summaryPeriod <- c(2, endTime)
 useParallelCluster <- FALSE
 cl6 <- NULL
