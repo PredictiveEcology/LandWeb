@@ -207,23 +207,23 @@ objects4sim <- lapply(objects4sim, function(x)
 parameters4sim <- emptyListAll
 parameters4sim <- lapply(parameters4sim, function(x) {
   list(
-    LandWeb_output = list(summaryInterval = summaryInterval),
-    LandWeb_dataPrep = list(.useCache = eventCaching),
-    LandWebProprietaryData = list(.useCache = eventCaching),
     Boreal_LBMRDataPrep = list(.useCache = eventCaching),
+    fireDataPrep = list(.useCache = eventCaching),
+    initBaseMaps = list(.useCache = eventCaching),
     LandMine = list(biggestPossibleFireSizeHa = 5e5,
                     fireTimestep = fireTimestep,
                     burnInitialTime = fireTimestep,
                     .plotInitialTime = NA,
                     .useCache = eventCaching),
+    LandWeb_dataPrep = list(.useCache = eventCaching),
+    LandWeb_output = list(summaryInterval = summaryInterval),
+    LandWebProprietaryData = list(.useCache = eventCaching),
     LBMR = list(successionTimestep = successionTimestep,
                 .plotInitialTime = times4sim$start,
                 .saveInitialTime = NA,
                 .useCache = eventCaching),
-    initBaseMaps = list(.useCache = eventCaching),
     timeSinceFire = list(startTime = fireTimestep,
-                         .useCache = eventCaching),
-    fireDataPrep = list(.useCache = eventCaching)
+                         .useCache = eventCaching)
   )
 })
 
