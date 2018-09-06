@@ -98,7 +98,7 @@ function(input, output, session) {
              rctPolygonList = rctPolygonListUser,
              rctChosenPoly = rctChosenPolyUser,
              shpStudyRegionName = "LandWeb Study Area",
-             shpStudyRegionLFLT = isolate(rctPolySubList()[["LandWeb Study Area"]][["crsLFLT"]]), ## won't change
+             shpStudyRegionLFLT = isolate(rctPolygonList()[["LandWeb Study Area"]][["crsLFLT"]]), ## won't change
              defaultPolyName = defaultPolyName,
              colorPalette = timeSinceFirePalette,
              mapTilesDir = tilePath,
