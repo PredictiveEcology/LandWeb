@@ -209,13 +209,13 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
       #!is.null(rctLrgPatches()[[rctChosenPolyName()]])
     )
 
-    dt <- if (is.null(rctLrgPatchesCC()[[rctChosenPolyName()]])) {
+    dt <- if (is.null(rctLrgPatchesCC())) {
       ## free
-      rctLrgPatches()[[rctChosenPolyName()]]
+      rctLrgPatches()
     } else {
       ## proprietary
-      rbindlist(list(rctLrgPatches()[[rctChosenPolyName()]],
-                     rctLrgPatchesCC()[[rctChosenPolyName()]]))
+      rbindlist(list(rctLrgPatches(),
+                     rctLrgPatchesCC()))
     }
 
     # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
