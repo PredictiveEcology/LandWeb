@@ -6,7 +6,9 @@ defineModule(
     name = "fireDataPrep",
     description = "basic data preparation for LCC05 based fire models",
     keywords = c("LCC05"),
-    authors = c(person(c("Steve", "G"), "Cumming", email = "stevec@sbf.ulaval.ca", role = c("aut", "cre"))),
+    authors = c(
+      person(c("Steve", "G"), "Cumming", email = "stevec@sbf.ulaval.ca", role = c("aut", "cre"))
+    ),
     childModules = character(),
     version = numeric_version("1.2.1"),
     spatialExtent = raster::extent(rep(NA_real_, 4)),
@@ -16,61 +18,30 @@ defineModule(
     documentation = list("README.txt", "fireDataPrep.Rmd"),
     reqdPkgs = list("raster", "sp", "SpaDES.tools"),
     parameters = rbind(
-      #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
-      defineParameter(
-        ".plotInitialTime",
-        "numeric",
-        NA,
-        NA,
-        NA,
-        "This describes the simulation time at which the first plot event should occur"
-      ),
-      defineParameter(
-        ".plotInterval",
-        "numeric",
-        NA,
-        NA,
-        NA,
-        "This describes the simulation time at which the first plot event should occur"
-      ),
-      defineParameter(
-        ".saveInitialTime",
-        "numeric",
-        NA,
-        NA,
-        NA,
-        "This describes the simulation time at which the first save event should occur"
-      ),
-      defineParameter(
-        ".saveInterval",
-        "numeric",
-        NA,
-        NA,
-        NA,
-        "This describes the simulation time at which the first save event should occur"
-      ),
-      defineParameter(
-        ".useCache",
-        "logical",
-        FALSE,
-        NA,
-        NA,
-        "Whether the module should be cached for future calls. This is generally intended for data-type modules, where stochasticity and time are not relevant"
+      defineParameter(".plotInitialTime", "numeric", NA, NA, NA,
+        "simulation time at which the first plot event should occur"),
+      defineParameter(".plotInterval", "numeric", NA, NA, NA,
+        "simulation time at which the first plot event should occur"),
+      defineParameter(".saveInitialTime", "numeric", NA, NA, NA,
+        "simulation time at which the first save event should occur"),
+      defineParameter(".saveInterval", "numeric", NA, NA, NA,
+        "simulation time at which the first save event should occur"),
+      defineParameter(".useCache", "logical", FALSE, NA, NA,
+        paste("Whether the module should be cached for future calls.",
+              "This is generally intended for data-type modules, where stochasticity and time are not relevant.")
       )
     ),
-    inputObjects = data.frame(
-      objectName = c("LCC05", "shpStudyRegion", "rstStudyRegion"),
-      objectClass = c("RasterLayer", "SpatialPolygonsDataFrame", "RasterLayer"),
-      sourceURL = "",
-      other = NA_character_,
-      stringsAsFactors = FALSE
+    inputObjects = bind_rows(
+      expectsInput("LCC05", "RasterLayer",
+                   desc = "", sourceURL = NA), ## TODO: needs proper description
+      expectsInput("shpStudyRegion", "SpatialPolygonsDataFrame",
+                   desc = "", sourceURL = NA), ## TODO: needs proper description
+      expectsInput("rstStudyRegion", "RasterLayer",
+                   desc = "", sourceURL = NA) ## TODO: needs proper description
     ),
-    outputObjects = data.frame(
-      objectName = c("rstFlammable"),
-      #, "rstBurnProb"),
-      objectClass = c("RasterLayer"),
-      other = c("rstFlammable is 0 for flammable, 1 for non flammable", ""),
-      stringsAsFactors = FALSE
+    outputObjects = bind_rows(
+      createsOutput("rstFlammable", "RasterLayer",
+                    desc = "rstFlammable is 0 for flammable, 1 for non flammable") ## TODO: improve description
     )
   )
 )
