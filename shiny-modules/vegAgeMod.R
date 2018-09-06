@@ -138,11 +138,11 @@ vegAgeMod <- function(input, output, session, rctAuthenticationType,
 
     dt <- if (rctAuthenticationType() == "Free") {
       ## free
-      rctLeadingDTlist()[[rctChosenPolyName()]]
+      rctLeadingDTlist()
     } else if (rctAuthenticationType() == "Proprietary") {
       ## proprietary
-      rbindlist(list(rctLeadingDTlist()[[rctChosenPolyName()]],
-                     rctLeadingDTlistCC()[[rctChosenPolyName()]][["Proprietary"]]))
+      rbindlist(list(rctLeadingDTlist(),
+                     rctLeadingDTlistCC()[["Proprietary"]]))
     }
 
     dtFn <- function(dt, curPoly) {
@@ -159,7 +159,7 @@ vegAgeMod <- function(input, output, session, rctAuthenticationType,
       assertthat::assert_that(is.data.table(dt) || is.null(dt))
       dt
     }
-    dtFn(dt = dt, curPoly = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]])
+    dtFn(dt = dt, curPoly = rctPolygonList()[["crsSR"]])
   })
 
   uiSequence <- reactive({
@@ -170,7 +170,7 @@ vegAgeMod <- function(input, output, session, rctAuthenticationType,
     )
 
     #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]))
-    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]$shinyLabel
+    polygonIDs <- rctPolygonList()[["crsSR"]]$shinyLabel
 
     rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
     data.table::data.table(
