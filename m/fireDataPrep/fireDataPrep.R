@@ -83,14 +83,12 @@ Init <- function(sim) {
   #see mask argument for SpaDES::spread()
   flammableTable <- cbind(oldClass, newClass)
   #according to Yong, Canada Landcover 2005 is loaded as LCC05
-  browser()
   sim$rstFlammable <- ratify(reclassify(sim$LCC05, flammableTable, count = TRUE))
   sim$rstFlammable <- writeRaster(sim$rstFlammable,
                                   filename = file.path(outputPath(sim), "rstFlammable"),
                                   overwrite = TRUE)
 
-  setColors(sim$rstFlammable, n = 2) <-
-    colorRampPalette(c("blue", "red"))(2)
+  setColors(sim$rstFlammable, n = 2) <- colorRampPalette(c("blue", "red"))(2)
   sim$rstFlammable[is.na(sim$rstStudyRegion[])] <- NA
 
   # Much faster than call rasterize again
