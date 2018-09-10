@@ -191,10 +191,9 @@ times4sim <- emptyListAll
 times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
 
 modules4sim <- emptyListAll
-modules4sim$All <- list("Boreal_LBMRDataPrep", "fireDataPrep", "initBaseMaps",
-                        "LandMine",
-                        "LandWeb_dataPrep", "LandWeb_output", "LandWebProprietaryData",
-                        "LBMR", "timeSinceFire")
+modules4sim$All <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+                        "LandWebProprietaryData",
+                        "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
 
 objects4sim <- emptyListAll
 objects4sim <- lapply(objects4sim, function(x)
