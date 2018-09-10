@@ -5,7 +5,7 @@ simInitAndExperiment <- function(times, params, modules, outputs, objects4sim,
                 modules = modules,
                 outputs = outputs,
                 objects = objects4sim,
-                paths = paths, loadOrder = lapply(modules, unlist))
+                paths = paths)
 
   ##### PRE experiment
   debugCache <- "complete"
