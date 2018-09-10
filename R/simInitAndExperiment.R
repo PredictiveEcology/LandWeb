@@ -3,6 +3,7 @@ simInitAndExperiment <- function(times, params, modules, outputs, objects4sim,
                                   emptyList, cacheSpades = TRUE) {
   mySims <- Map(simInit, times = times, params = params,
                 modules = modules,
+                loadOrder = loadOrder,
                 outputs = outputs,
                 objects = objects4sim,
                 paths = paths)
