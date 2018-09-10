@@ -298,7 +298,8 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
                    outputs = outputs4sim,
                    cacheIds4Experiment = cacheId$runExperiment,
                    objects4sim = objects4sim, # study area -- cache will respect this
-                   paths = paths4sim, loadOrder = lapply(modules4sim, unlist),
+                   paths = paths4sim,
+                   #loadOrder = lapply(modules4sim, unlist),
                    emptyList = emptyListAll)
 
 if (exists("oldStyle")) {
