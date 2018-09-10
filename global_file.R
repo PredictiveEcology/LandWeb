@@ -191,7 +191,8 @@ times4sim <- emptyListAll
 times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
 
 modules4sim <- emptyListAll
-modules4sim$All <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep", "LandMine",
+modules4sim$All <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
+                        "LandMine",
                         "LandWebProprietaryData",
                         "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
 
@@ -299,7 +300,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4
                    cacheIds4Experiment = cacheId$runExperiment,
                    objects4sim = objects4sim, # study area -- cache will respect this
                    paths = paths4sim,
-                   #loadOrder = lapply(modules4sim, unlist),
+                   loadOrder = lapply(modules4sim, unlist),
                    emptyList = emptyListAll)
 
 if (exists("oldStyle")) {
