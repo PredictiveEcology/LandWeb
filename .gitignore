@@ -29,6 +29,7 @@ R-Portable/
 
 ## shiny app files
 global.R
+restart.txt
 uploads/
 www/*
 !www/style.css
