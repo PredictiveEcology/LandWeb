@@ -41,6 +41,7 @@ appInfo <- list(
     "chris.bater@gov.ab.ca",
     "dmiwoodlands@gmail.com",
     "eliot.mcintire@gmail.com",
+    "Forester575@gmail.com", # Paul Leblanc (LP))
     "fri.LandWeb@gmail.com",
     "gwhitm@gmail.com",
     "jamesn@albertanewsprint.com",
@@ -51,6 +52,7 @@ appInfo <- list(
     "neal.mcLoughlin@gov.ab.ca",
     "shanew.sadoway@gmail.com",
     "sonya@fuseconsulting.ca",
+    "Tyakielashek@gmail.com", # Todd Yakielashek (LP)
     "westfrasertimber@gmail.com"
   ) %>% tolower() # these should be all lowercase!
 )
