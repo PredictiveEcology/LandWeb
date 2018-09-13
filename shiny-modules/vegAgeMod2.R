@@ -126,7 +126,7 @@ vegAgeMod2 <- function(input, output, session, rctAuthenticationType, rctPolygon
       assertthat::assert_that(is.data.table(dt) || is.null(dt))
       dt
     }
-    dtFn(dt = dt, curPoly = rctPolygonList()[["crsSR"]])
+    dtFn(dt = dt, curPoly = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]])
   })
 
   uiSequence <- reactive({

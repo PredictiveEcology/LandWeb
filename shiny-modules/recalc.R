@@ -60,9 +60,8 @@ recalcLeading <- function(input, output, session, rctLeadingDTlist, rctLeadingDT
                                  polygonToSummarizeBy = newPoly,
                                  ageClassCutOffs = ageClassCutOffs,
                                  ageClasses = ageClasses)
-
-      leadingDTlistUser
       crayon::magenta("  done.")
+      leadingDTlistUser
     } else {
       rctLeadingDTlist()[[rctChosenPolyName()]]
     }
