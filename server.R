@@ -122,7 +122,7 @@ function(input, output, session) {
   ###
   #largePatchesFn <- sim2$LandWeb_shiny$largePatchesCalc
   #.largePatchesCalcFn <- sim2$LandWeb_shiny$.largePatchesCalc
-browser()
+
   rctLargePatches <- callModule(recalcLargePatches, "largePatches",
                                 rctLrgPatches = rctLrgPatches,
                                 rctLrgPatchesCC = rctLrgPatchesCC,
