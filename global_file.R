@@ -14,11 +14,10 @@ shiny::addResourcePath("tiles", tilePath)
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
-  "future", "promises",
   "PredictiveEcology/quickPlot@development",
   "PredictiveEcology/SpaDES.core@development",
   "PredictiveEcology/SpaDES.tools@development",
-  "PredictiveEcology/SpaDES.shiny@generalize-modules",
+  #"PredictiveEcology/SpaDES.shiny@generalize-modules", ## do this after running the model, before app
   "raster"
 )
 shinyPkgs <- c("leaflet", "leaflet.extras", "gdalUtils", "rgeos", "raster", "parallel",
@@ -29,15 +28,12 @@ moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
                    "PredictiveEcology/quickPlot@development",
                    "PredictiveEcology/SpaDES.tools@development",
                    "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible",
-                   "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr",
-                   "VGAM")
-
-future::plan("multiprocess")
+                   "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", "VGAM")
 
 # needed packages loaded, e.g., for icon
 reproducible::Require(unique(c(
   SpaDESPkgs,
-  shinyPkgs,
+  #shinyPkgs, ## do this after running the model, before app
   googleAuthPkgs,
   if (Sys.info()["sysname"] != "Windows") "Cairo",
   # `snow` required internally by `parallel` for Windows SOCK clusters
@@ -360,6 +356,13 @@ sim2@.envir$tsfRasters <- convertRasterPaths(sim2@.envir$tsfRasters,
 sim2@.envir$vtms   <- lapply(sim2@.envir$vtms, function(f) {
   gsub(pattern = oldPath, replacement = newPath, f)
 })
+
+
+################################################################################
+## do these last so it doesn't interfere with data.table parallelization
+reproducible::Require(c("future", "promises", shinyPkgs,
+                        "PredictiveEcology/SpaDES.shiny@generalize-modules"))
+future::plan("multiprocess")
 
 ################################################################################
 globalEndTime <- Sys.time()
