@@ -3,6 +3,8 @@ if (exists("DEVMODE") && isTRUE(DEVMODE)) {
 } else {
   if (DEVMODE == "DMI")
     source("params/DMI_parameters.R", local = TRUE)
+  else if (DEVMODE == "LP")
+    source("params/LP_parameters.R", local = TRUE)
   else
     source("params/LandWeb_parameters.R", local = TRUE)
 }
