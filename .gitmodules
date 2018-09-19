@@ -9,16 +9,16 @@
 	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git
 [submodule "m/CanadaWide_FireSense"]
 	path = m/CanadaWide_FireSense
-	url = https://github.com/achubaty/CanadaWide_FireSense
+	url = git@github.com:achubaty/CanadaWide_FireSense
 [submodule "m/LandWeb_dataPrep"]
 	path = m/LandWeb_dataPrep
-	url = https://github.com/fRI-Research/LandWeb_dataPrep
+	url = git@github.com:fRI-Research/LandWeb_dataPrep
 [submodule "m/LandWeb_shiny"]
 	path = m/LandWeb_shiny
-	url = https://github.com/fRI-Research/LandWeb_shiny
+	url = git@github.com:fRI-Research/LandWeb_shiny
 [submodule "m/LandWeb_output"]
 	path = m/LandWeb_output
-	url = https://github.com/fRI-Research/LandWeb_output
+	url = git@github.com:fRI-Research/LandWeb_output
 [submodule "m/LandWeb_fireNull"]
 	path = m/LandWeb_fireNull
-	url = https://github.com/fRI-Research/LandWeb_fireNull
+	url = git@github.com:fRI-Research/LandWeb_fireNull
