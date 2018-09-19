@@ -7,9 +7,6 @@
 [submodule "m/Boreal_LBMRDataPrep"]
 	path = m/Boreal_LBMRDataPrep
 	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git
-[submodule "m/CanadaWide_FireSense"]
-	path = m/CanadaWide_FireSense
-	url = git@github.com:achubaty/CanadaWide_FireSense
 [submodule "m/LandWeb_dataPrep"]
 	path = m/LandWeb_dataPrep
 	url = git@github.com:fRI-Research/LandWeb_dataPrep
