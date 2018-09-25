@@ -50,6 +50,11 @@ Init <- function(sim) {
   sim$shpStudyRegion <- Cache(spTransform, sim$shpStudySubRegion, CRSobj = simProjection)
 
   message("fastRasterize for rstStudyRegion")
+  if (isTRUE("LTHFC" %in% names(sim$shpStudyRegion))) {
+    # Apparently, sometimes it is LTHFC, sometimes LTHRC; get rid of LTHFC
+    sim$shpStudyRegion$LTHRC <- sim$shpStudyRegion$LTHFC
+    sim$shpStudyRegion$LTHFC <- NULL
+  }
   fieldName <- if ("LTHRC" %in% names(sim$shpStudyRegion)) "LTHRC" else names(sim$shpStudyRegion)[1]
   sim$rstStudyRegion <- fasterize(sf::st_as_sf(sim$shpStudyRegion),
                                   field = fieldName,

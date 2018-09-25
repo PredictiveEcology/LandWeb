@@ -163,7 +163,15 @@ studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyReg
                           crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)
 list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpSubStudyRegion
 
+## set default reporting polgyon for app
 defaultPolyName <- "National Ecozones"
+if (exists("DEVMODE")) {
+  if (DEVMODE == "DMI") {
+    defaultPolyName <- "DMI full"
+  } else if (DEVMODE == "LP") {
+    defaultPolyName <- "LP Mountain"
+  }
+}
 
 ## source additional shiny modules
 vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))

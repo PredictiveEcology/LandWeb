@@ -9,6 +9,7 @@ if (packageVersion("SpaDES.shiny") < "0.1.0.9013") {
 }
 
 DEVMODE <- "DMI"
+skipNonDMI <- TRUE
 
 #source("params/DMI_parameters.R") # moved to global.R
 file.copy("global_file.R", "global.R", overwrite = TRUE)
