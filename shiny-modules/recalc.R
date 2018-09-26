@@ -3,6 +3,8 @@ recalcLargePatches <- function(input, output, session, rctLrgPatches, rctLrgPatc
                                tsfFile, vtmFile, ageClasses, ageClassCutOffs,
                                useParallelCluster, .largePatchesCalcFn, authStatus) {
   lrgPtchs <- reactive({
+    #browser()
+
     if (is.null(rctLrgPatches()[[rctChosenPolyName()]])) {
       crayon::magenta(message("Recalculating large patches for uploaded polygon..."))
       newPoly <- rctPolygonList()[[rctChosenPolyName()]]$crsSR

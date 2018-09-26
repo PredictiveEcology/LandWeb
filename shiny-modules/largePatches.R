@@ -39,6 +39,7 @@ histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, nSimTimes, 
       dtNoCC <- dt[rep != "CurrentCondition"]
 
       out <- dtNoCC[, .N, by = c(current3Names, "rep")]$N # not hard coded
+
       if (isTRUE(authStatus)) {
         outCC <- max(0, dtOnlyCC[, .N, by = c(current3Names, "rep")]$N)
         verticalLineAtX <- outCC
@@ -108,6 +109,9 @@ histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, nSimTimes, 
     } else {
       NULL
     }
+    pngFilePath <- pngPath ## TODO: revert this
+    cat(paste0("\"", basename(pngPath), "\"", ",", verticalLineAtX*2 - breaksInterval, "\n"),
+        file = "outputs/DMI/largePatches.csv", append = TRUE) ## TODO: revert this
 
     callModule(histogram, id, histogramData, addAxisParams,
                verticalBar = verticalLineAtX, width = breaksInterval, fname = pngFilePath,
@@ -256,7 +260,7 @@ largePatches <- function(input, output, session, rctPolygonList, rctChosenPolyNa
     rctChosenPolyName()
     input$patchSize
   }, {
-    authStatus <- isTRUE(session$userData$userAuthorized())
+    authStatus <- TRUE #isTRUE(session$userData$userAuthorized()) ## TODO: undo this
     callModule(slicer, "largePatchSlicer", datatable = rctLargePatchesData,
                uiSequence = uiSequence(),
                serverFunction = histServerFn, ## calls histogram server module

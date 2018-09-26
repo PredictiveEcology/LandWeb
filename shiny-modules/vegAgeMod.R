@@ -79,6 +79,9 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
     } else {
       NULL
     }
+    pngFilePath <- pngPath ## TODO: revert this
+    cat(paste0("\"", basename(pngPath), "\"", ",", verticalLine*2 - barWidth, "\n"),
+        file = "outputs/DMI/leadingVegTypes.csv", append = TRUE) ## TODO: revert this
 
     callModule(histogram, id, histogramData, addAxisParams, verticalBar = verticalLineAtX,
                width = barWidth, fname = pngFilePath,
@@ -181,7 +184,7 @@ vegAgeMod <- function(input, output, session, rctAuthenticationType,
   })
 
   observeEvent(rctChosenPolyName(), {
-    authStatus <- isTRUE(session$userData$userAuthorized())
+    authStatus <- TRUE #isTRUE(session$userData$userAuthorized()) ## TODO: revert this
     callModule(slicer, "vegSlicer", datatable = rctVegData,
                uiSequence = uiSequence(),
                serverFunction = vegHistServerFn, ## calls histogram server module
