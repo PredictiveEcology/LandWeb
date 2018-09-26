@@ -51,7 +51,9 @@ vegBoxplotServerFn <- function(datatable, id, .current, .dtFull, outputPath,
     } else {
       NULL
     }
+    pngFilePath <- pngPath ## TODO: revert this
 
+    cat()
     callModule(boxPlot, id, data, CCpnts, authStatus, fname = pngFilePath,
                col = "limegreen",
                horizontal = TRUE,
@@ -148,7 +150,7 @@ vegAgeMod2 <- function(input, output, session, rctAuthenticationType, rctPolygon
   })
 
   observeEvent(rctChosenPolyName(), {
-    authStatus <- isTRUE(session$userData$userAuthorized())
+    authStatus <- TRUE #isTRUE(session$userData$userAuthorized()) ## TODO: revert this
     callModule(slicer2, "vegSlicer2", datatable = rctVegData,
                uiSequence = uiSequence(),
                serverFunction = vegBoxplotServerFn,

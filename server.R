@@ -55,6 +55,7 @@ function(input, output, session) {
   rctUserInfo <- callModule(authGoogle, "auth_google", appURL = appURL,
                             authUsers = appInfo$users, icon = NULL)
 
+  session$userData$userAuthorized(TRUE) ## TODO: remove this!
   authStatus <- reactive(isTruthy(session$userData$userAuthorized()))
   userEmail <- reactive({
     rctUserInfo()$emails[1, "value"] %>%

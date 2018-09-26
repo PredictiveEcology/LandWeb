@@ -167,7 +167,7 @@ list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpSubStudy
 defaultPolyName <- "National Ecozones"
 if (exists("DEVMODE")) {
   if (DEVMODE == "DMI") {
-    defaultPolyName <- "DMI full"
+    defaultPolyName <- "DMI Full"
   } else if (DEVMODE == "LP") {
     defaultPolyName <- "LP Mountain"
   }
