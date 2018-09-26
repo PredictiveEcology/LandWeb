@@ -172,6 +172,7 @@ if (exists("DEVMODE")) {
     defaultPolyName <- "LP Mountain"
   }
 }
+defaultPolyName <- "DMI Full" ## TODO: remove this override
 
 ## source additional shiny modules
 vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))
@@ -345,7 +346,7 @@ objList <- list(
 )
 
 sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
-              modules = list("LandWeb_shiny"), #notOlderThan = Sys.time(),
+              modules = list("LandWeb_shiny"), notOlderThan = Sys.time(),
               objList,# can't provide argument name "objects" here because same as Cache
               cacheId = cacheId$simInitAndSpades,
               paths = paths4sim$All)
