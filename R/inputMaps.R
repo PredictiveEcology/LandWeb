@@ -43,7 +43,7 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
       shpStudyRegion$LTHRC <- shpStudyRegion$LTHFC
       shpStudyRegion$LTHFC <- NULL
 
-      shpStudyRegion$LTHRC <- 2*shpStudyRegion$LTHRC ## TODO: remove this
+      #shpStudyRegion$LTHRC <- 2*shpStudyRegion$LTHRC ## TODO: remove this
 
       # The fires of Fire Return Interval 30 years are not correctly simulated by LandMine, so they are removed.
       shpStudyRegion$LTHRC[shpStudyRegion$LTHRC <= 30] <- NA
