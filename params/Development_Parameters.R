@@ -2,6 +2,7 @@
 endTime <- 1500
 summaryInterval <- 20
 summaryPeriod <- c(700, endTime)
+
 useParallelCluster <- TRUE
 cl6 <- NULL
 lapplyFn <- "lapply"
@@ -11,5 +12,7 @@ authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free"
 # Spatial stuff -- determines the size of the area that will be "run" in the simulations
 subStudyRegionName <- "SMALL"  #other options: "FULL", "EXTRALARGE", "LARGE", "MEDIUM", "NWT", "SMALL" , "RIA"
                               #other options: "BC", "AB", "SK", "MB" or combinations, please specify in West-East order
-runName <- ""
+#runName <- "doubleFRI"
+#runName <- "equalFireROS"
+runName <- "original"
 cacheId <- list()
