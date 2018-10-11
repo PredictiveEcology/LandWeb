@@ -240,13 +240,16 @@ parameters4sim <- lapply(parameters4sim, function(x) {
                          .useCache = eventCaching)
   )
 })
-
 outputs4simFn <- function(objects4sim, parameters4sim, times4sim, objectNamesToSave) {
   outputs <- data.frame(stringsAsFactors = FALSE,
                         expand.grid(
                           objectName = objectNamesToSave,#, "oldBigPatch"),
-                          saveTime = seq(objects4sim$summaryPeriod[1], objects4sim$summaryPeriod[2],
-                                         by = parameters4sim$LandWeb_output$summaryInterval)),
+                          saveTime = c(
+                            0,
+                            seq(objects4sim$summaryPeriod[1], objects4sim$summaryPeriod[2],
+                                by = parameters4sim$LandWeb_output$summaryInterval)
+                          )
+                        ),
                         fun = "writeRaster", package = "raster",
                         file = paste0(objectNamesToSave, c(".tif", ".grd")))
 
