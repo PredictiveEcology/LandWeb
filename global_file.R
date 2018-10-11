@@ -12,7 +12,7 @@ if (exists("DEVMODE")) {
   source("params/LandWeb_parameters.R", local = TRUE)
 }
 
-tilePath <- file.path("www", "All", subStudyRegionName, "map-tiles")
+tilePath <- file.path("www", "All", subStudyRegionName, runName, "map-tiles")
 if (!dir.exists(tilePath)) dir.create(tilePath, recursive = TRUE)
 shiny::addResourcePath("tiles", tilePath)
 
