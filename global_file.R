@@ -12,7 +12,7 @@ if (exists("DEVMODE")) {
   source("params/LandWeb_parameters.R", local = TRUE)
 }
 
-tilePath <- file.path("www", "All", subStudyRegionName, "map-tiles")
+tilePath <- file.path("www", "All", subStudyRegionName, runName, "map-tiles")
 if (!dir.exists(tilePath)) dir.create(tilePath, recursive = TRUE)
 shiny::addResourcePath("tiles", tilePath)
 
@@ -76,10 +76,10 @@ appURL <- "http://landweb.ca"
 ##                however, in-app, the paths need to be set as reactive values for authentication!
 subStudyRegionNameCollapsed <- paste(subStudyRegionName, collapse = "_")
 paths <- list(
-  cachePath = file.path("cache", paste0(subStudyRegionNameCollapsed)),
+  cachePath = file.path("cache", paste0(subStudyRegionNameCollapsed), runName),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
-  outputPath = file.path("outputs", paste0(subStudyRegionNameCollapsed))
+  outputPath = file.path("outputs", paste0(subStudyRegionNameCollapsed), runName)
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
@@ -172,7 +172,7 @@ if (exists("DEVMODE")) {
     defaultPolyName <- "LP Mountain"
   }
 }
-defaultPolyName <- "DMI Full" ## TODO: remove this override
+#defaultPolyName <- "DMI Full" ## TODO: remove this override
 
 ## source additional shiny modules
 vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))
@@ -240,13 +240,15 @@ parameters4sim <- lapply(parameters4sim, function(x) {
                          .useCache = eventCaching)
   )
 })
-
 outputs4simFn <- function(objects4sim, parameters4sim, times4sim, objectNamesToSave) {
   outputs <- data.frame(stringsAsFactors = FALSE,
                         expand.grid(
                           objectName = objectNamesToSave,#, "oldBigPatch"),
-                          saveTime = seq(objects4sim$summaryPeriod[1], objects4sim$summaryPeriod[2],
-                                         by = parameters4sim$LandWeb_output$summaryInterval)),
+                          saveTime = c(
+                            seq(objects4sim$summaryPeriod[1], objects4sim$summaryPeriod[2],
+                                by = parameters4sim$LandWeb_output$summaryInterval)
+                          )
+                        ),
                         fun = "writeRaster", package = "raster",
                         file = paste0(objectNamesToSave, c(".tif", ".grd")))
 
@@ -296,10 +298,10 @@ paths4sim <- emptyListAll
 paths4sim <- Map(cPath = cPaths, oPath = oPaths,
                  function(cPath, oPath) {
                    list(
-                     cachePath = cPath,
+                     cachePath = file.path(cPath, runName),
                      modulePath = "m",
                      inputPath = "inputs",
-                     outputPath = oPath
+                     outputPath = file.path(oPath, runName)
                    )
                  })
 
