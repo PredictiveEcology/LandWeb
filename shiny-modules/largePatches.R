@@ -110,8 +110,8 @@ histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, nSimTimes, 
       NULL
     }
     pngFilePath <- pngPath ## TODO: revert this
-    cat(paste0("\"", basename(pngPath), "\"", ",", verticalLineAtX*2 - breaksInterval, "\n"),
-        file = "outputs/DMI/largePatches.csv", append = TRUE) ## TODO: revert this
+    # cat(paste0("\"", basename(pngPath), "\"", ",", verticalLineAtX*2 - breaksInterval, "\n"),
+    #     file = "outputs/DMI/largePatches.csv", append = TRUE) ## TODO: revert this
 
     callModule(histogram, id, histogramData, addAxisParams,
                verticalBar = verticalLineAtX, width = breaksInterval, fname = pngFilePath,
