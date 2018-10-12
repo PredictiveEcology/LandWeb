@@ -245,7 +245,6 @@ outputs4simFn <- function(objects4sim, parameters4sim, times4sim, objectNamesToS
                         expand.grid(
                           objectName = objectNamesToSave,#, "oldBigPatch"),
                           saveTime = c(
-                            0,
                             seq(objects4sim$summaryPeriod[1], objects4sim$summaryPeriod[2],
                                 by = parameters4sim$LandWeb_output$summaryInterval)
                           )
