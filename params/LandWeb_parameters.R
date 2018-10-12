@@ -2,8 +2,9 @@ if (!exists("useCache342")) useCache342 <- TRUE
 
 numClusters <- 3
 source(file.path("R", "ThousandYrFreeProprietary.R"))
-subStudyRegionName <- "FULL"
 authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free" "Proprietary"
+subStudyRegionName <- "FULL"
+runName <- ""
 cacheId <- list()
 
 if (Sys.info()["nodename"] == "W-VIC-A105388") {
