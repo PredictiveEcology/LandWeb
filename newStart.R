@@ -25,18 +25,50 @@ moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
 # Load Study Area
 ##########################################################
 # Load Study Area
-ml <- appendMapList(layerName = "LandWeb Study Area",
-              sourceURL = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
-              columnNameForLabels = "Name", studyArea = TRUE
+library(raster)
+library(reproducible)
+devtools::load_all("~/GitHub/map")
+
+activeDir <- "~/GitHub/LandWeb/newStart"
+checkPath(activeDir, create = TRUE)
+targetCRS <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
+setwd(activeDir)
+ml <- mapAdd(layerName = "LandWeb Study Area",
+             targetCRS = targetCRS,
+             url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
+             columnNameForLabels = "Name", isStudyArea = TRUE, filename2 = NULL
 )
 
 # Make a random small study area
-sp2 <- SpaDES.tools::randomPolygon(studyArea(ml), 1e4)
-ml <- appendMapList(object = sp2, mapList = ml,
+seed <- 863
+set.seed(seed)
+sp2 <- SpaDES.tools::randomPolygon(studyArea(ml), 4e5)
+ml <- mapAdd(object = sp2, map = ml, filename2 = FALSE,
                     layerName = "Small Study Area",
-                    columnNameForLabels = "Name", studyArea = TRUE,
-                    filename1 = NULL, overwrite = TRUE
+                    columnNameForLabels = "Name", isStudyArea = TRUE,
+                    filename1 = NULL, administrative = TRUE
 )
+
+##########################################################
+# Load other maps
+##########################################################
+
+ml <- mapAdd(#map = ml,
+             destinationPath = "~/GitHub/LandWeb/inputs/DMI/",
+             targetCRS = targetCRS,
+             targetFile = "DMI_Full.shp", #studyArea = studyArea(ml, 1),
+             layerName = "DMI Full", overwrite = TRUE, isStudyArea = TRUE,
+             columnNameForLabels = "Name", administrative = TRUE)
+
+ml <- mapAdd(map = ml, layerName = "AB Natural Sub Regions", overwrite = TRUE,
+             url = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
+             columnNameForLabels = "Name", filename2 = NULL)
+
+ml <- mapAdd(url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
+       map = ml, leaflet = TRUE, #studyArea = studyArea(ml, 2),
+       #targetFile = "age1.tif", overwrite = TRUE,
+       filename2 = NULL,
+       layerName = "Age") # dots include things like method = "ngb" for projectRaster
 
 ################################
 # set some options
@@ -74,7 +106,7 @@ paths <- list(
   inputPath = "inputs",
   outputPath = "outputs"
 )
-do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
+do.call(setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
 ##########################################################
 # source auxiliary functions
@@ -195,41 +227,40 @@ spEcoReg <- readRDS(file.path(paths$inputPath, "SpEcoReg.rds"))
 crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
                             "+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
 
-##########################################################
-# Load other maps
-##########################################################
-ml <- appendMapList(mapList = ml,
-                    sourceURL = "https://drive.google.com/file/d/1Oz2vSor3oIKf2uGv3KRtLoLRWEfX5Mas/view?usp=sharing",
-                    layerName = "Mountain Northern Caribou Ranges",
-                    columnNameForLabels = "Name")
 
-ml <- appendMapList(mapList = ml, layerName = "Provincial Parks",
-  sourceURL = "https://drive.google.com/file/d/1GHgTI4JY-YhAXvWkgV20vugbvLNqEEGH/view?usp=sharing",
-       columnNameForLabels = "Name")
-ml <- appendMapList(mapList = ml, layerName = "NWT Ecoregions",
-  sourceURL = "https://drive.google.com/file/d/1iRAQfARkmS6-XVHFnTkB-iltzMNPAczC/view?usp=sharing",
-  columnNameForLabels = "Name")
-ml <- appendMapList(mapList = ml, layerName = "National Parks",
-  sourceURL = "https://drive.google.com/file/d/1B3VUU8PDn4NPveAyF76OBPY0vZkxScEt/view?usp=sharing",
-  columnNameForLabels = "Name")
-ml <- appendMapList(mapList = ml, layerName = "AB Natural Sub Regions",
-  sourceURL = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
-  columnNameForLabels = "Name")
+######################################################
+ml <- mapAdd(map = ml,
+             url = "https://drive.google.com/file/d/1Oz2vSor3oIKf2uGv3KRtLoLRWEfX5Mas/view?usp=sharing",
+             layerName = "Mountain Northern Caribou Ranges",
+             columnNameForLabels = "Name")
+
+ml <- mapAdd(map = ml, layerName = "Provincial Parks",
+             url = "https://drive.google.com/file/d/1GHgTI4JY-YhAXvWkgV20vugbvLNqEEGH/view?usp=sharing",
+             columnNameForLabels = "Name")
+ml <- mapAdd(map = ml, layerName = "NWT Ecoregions",
+             url = "https://drive.google.com/file/d/1iRAQfARkmS6-XVHFnTkB-iltzMNPAczC/view?usp=sharing",
+             columnNameForLabels = "Name")
+ml <- mapAdd(map = ml, layerName = "National Parks",
+             url = "https://drive.google.com/file/d/1B3VUU8PDn4NPveAyF76OBPY0vZkxScEt/view?usp=sharing",
+             columnNameForLabels = "Name")
+ml <- mapAdd(map = ml, layerName = "AB Natural Sub Regions",
+             url = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
+             columnNameForLabels = "Name")
 # "LP MASTERFILE June62012",
-#   sourceURL = "https://drive.google.com/file/d/1J38DKQQavjBV9F3z2gGzHNuNE0s2rmhh/view?usp=sharing",
+#   url = "https://drive.google.com/file/d/1J38DKQQavjBV9F3z2gGzHNuNE0s2rmhh/view?usp=sharing",
 #   columnNameForLabels = "Name"),
-ml <- appendMapList(mapList = ml, layerName = "BC Bio Geoclimatic Zones",
-  sourceURL = "https://drive.google.com/file/d/1VAwsax63l2akOM2j_O4Je9p0ZiYg8Hl-/view?usp=sharing",
-  columnNameForLabels = "ZONE_NAME")
-ml <- appendMapList(mapList = ml, layerName = "FMU Alberta 2015-11",
-  sourceURL = "https://drive.google.com/file/d/1JiCLcHh5fsBAy8yAx8NgtK7fxaZ4Tetl/view?usp=sharing",
-  columnNameForLabels = "FMU_NAME")
-ml <- appendMapList(mapList = ml, layerName = "FMA Boundary Updated",
-  sourceURL = "https://drive.google.com/file/d/1nTFOcrdMf1hIsxd_yNCSTr8RrYNHHwuc/view?usp=sharing",
-  columnNameForLabels = "Name")
-ml <- appendMapList(mapList = ml, layerName = "Boreal Caribou Ranges",
-  sourceURL = "https://drive.google.com/file/d/1PYLou8J1wcrme7Z2tx1wtA4GvaWnU1Jy/view?usp=sharing",
-  columnNameForLabels = "Name")
+ml <- mapAdd(map = ml, layerName = "BC Bio Geoclimatic Zones",
+             url = "https://drive.google.com/file/d/1VAwsax63l2akOM2j_O4Je9p0ZiYg8Hl-/view?usp=sharing",
+             columnNameForLabels = "ZONE_NAME")
+ml <- mapAdd(map = ml, layerName = "FMU Alberta 2015-11",
+             url = "https://drive.google.com/file/d/1JiCLcHh5fsBAy8yAx8NgtK7fxaZ4Tetl/view?usp=sharing",
+             columnNameForLabels = "FMU_NAME")
+ml <- mapAdd(map = ml, layerName = "FMA Boundary Updated",
+             url = "https://drive.google.com/file/d/1nTFOcrdMf1hIsxd_yNCSTr8RrYNHHwuc/view?usp=sharing",
+             columnNameForLabels = "Name")
+ml <- mapAdd(map = ml, layerName = "Boreal Caribou Ranges",
+             url = "https://drive.google.com/file/d/1PYLou8J1wcrme7Z2tx1wtA4GvaWnU1Jy/view?usp=sharing",
+             columnNameForLabels = "Name")
 
 
 ### RASTERS
@@ -237,6 +268,6 @@ ml <- appendMapList(mapList = ml, layerName = "Boreal Caribou Ranges",
 # Current Condition
 preProcess(url = "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing")
 
-ml <- appendMapList(mapList = ml, sourceURL = "https://drive.google.com/file/d/1Oz2vSor3oIKf2uGv3KRtLoLRWEfX5Mas/view?usp=sharing",
+ml <- mapAdd(map = ml, url = "https://drive.google.com/file/d/1Oz2vSor3oIKf2uGv3KRtLoLRWEfX5Mas/view?usp=sharing",
                     layerName = "Mountain Northern Caribou Ranges",
                     columnNameForLabels = "Name")

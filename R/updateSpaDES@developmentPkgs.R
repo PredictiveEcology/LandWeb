@@ -12,7 +12,7 @@ if (FALSE) {
 ## test download of private data from Google Drive
 if (FALSE) {
   dataDir <- file.path("~/GitHub/LandWeb/m/Boreal_LBMRDataPrep/data")
-  
+
   file.remove(c(
     list.files(dataDir, pattern = "SPP_1990_FILLED_100m_NAD83_LCC_BYTE_VEG", full.names = TRUE),
     list.files(dataDir, pattern = "CASFRI", full.names = TRUE)
