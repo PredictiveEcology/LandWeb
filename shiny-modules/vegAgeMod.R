@@ -80,8 +80,8 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
       NULL
     }
     pngFilePath <- pngPath ## TODO: revert this
-    cat(paste0("\"", basename(pngPath), "\"", ",", verticalLine*2 - barWidth, "\n"),
-        file = "outputs/DMI/leadingVegTypes.csv", append = TRUE) ## TODO: revert this
+    # cat(paste0("\"", basename(pngPath), "\"", ",", verticalLine*2 - barWidth, "\n"),
+    #     file = "outputs/DMI/leadingVegTypes.csv", append = TRUE) ## TODO: revert this
 
     callModule(histogram, id, histogramData, addAxisParams, verticalBar = verticalLineAtX,
                width = barWidth, fname = pngFilePath,
