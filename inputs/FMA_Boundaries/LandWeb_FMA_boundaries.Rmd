@@ -172,24 +172,24 @@ dmi_sr <- postProcess(firemap, studyArea = dmi.sr, useSAcrs = TRUE,
 ml.dmi <- mapAdd(dmi_sr, isStudyArea = TRUE, layerName = "DMI_SR", poly = TRUE,
                  analysisGroup2 = "DMI Study Area")
 
-## add replorting polygons -- why do they need to rewrite shapefiles??
+## add replorting polygons
 ml.dmi <- mapAdd(dmi.full, ml.dmi, layerName = "DMI Full", poly = TRUE,
-                 filename2 = file.path(inputsDir, "DMI", "tmp_full.shp"), overwrite = TRUE)
+                 filename2 = NULL, overwrite = TRUE)
 
 ml.dmi <- mapAdd(dmi.e, ml.dmi, layerName = "DMI East", poly = TRUE,
-                 filename2 = file.path(inputsDir, "DMI", "tmp_east.shp"), overwrite = TRUE)
+                 analysisGroupAdmin = "", filename2 = NULL, overwrite = TRUE)
 
 ml.dmi <- mapAdd(dmi.nw, ml.dmi, layerName = "DMI West North", poly = TRUE,
-                 filename2 = file.path(inputsDir, "DMI", "tmp_west_north.shp"), overwrite = TRUE)
+                 filename2 = NULL, overwrite = TRUE)
 
 ml.dmi <- mapAdd(dmi.sw, ml.dmi, layerName = "DMI West South", poly = TRUE,
-                 filename2 = file.path(inputsDir, "DMI", "tmp_west_south.shp"), overwrite = TRUE)
+                 filename2 = NULL, overwrite = TRUE)
 
 ml.dmi <- mapAdd(dmi.caribou, ml.dmi, layerName = "DMI Caribou", poly = TRUE,
-                 filename2 = file.path(inputsDir, "DMI", "tmp_caribou.shp"), overwrite = TRUE)
+                 filename2 = NULL, overwrite = TRUE)
 
 ml.dmi <- mapAdd(dmi.ansr, ml.dmi, layerName = "DMI ANSR", poly = TRUE,
-                 filename2 = file.path(inputsDir, "DMI", "tmp_ansr.shp"), overwrite = TRUE)
+                 filename2 = NULL, overwrite = TRUE)
 ```
 
 ### LP
