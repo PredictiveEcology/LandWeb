@@ -67,11 +67,7 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
   canadaAdminNamesAll <- c(names(canadaAdminNames), canadaAdminNames)
 
   if (!("FULL" %in% subStudyRegionName)) {
-    if ("DMI" %in% subStudyRegionName) {
-      shpSubStudyRegion <- shapefile("inputs/FMA_Boundaries/DMI/DMI_SR.shp")
-    } else if ("LP" %in% subStudyRegionName) {
-      shpSubStudyRegion <- shapefile("inputs/FMA_Boundaries/LP/LP_SR.shp")
-    } else if ("NWT" %in% subStudyRegionName) {
+    if ("NWT" %in% subStudyRegionName) {
       shpStudyRegionLFLT <- spTransform(shpStudyRegion, SpaDES.shiny::proj4stringLFLT)
       ext <- extent(shpStudyRegionLFLT)
       ext@ymin <- 60
