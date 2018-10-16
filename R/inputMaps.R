@@ -22,7 +22,6 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
     shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
     shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
     shpStudyRegion <- shpSubStudyRegion
-
   } else {
     ## Dave Andison doesn't have .prj files
     ## this will create one with NAD83 UTM11N downloading from spatialreference.org
@@ -46,8 +45,10 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
 
       #shpStudyRegion$LTHRC <- 2*shpStudyRegion$LTHRC ## TODO: remove this
 
-      # The fires of Fire Return Interval 30 years are not correctly simulated by LandMine, so they are removed.
+      # The fires of Fire Return Interval 30 years are not correctly simulated
+      # by LandMine, so they are removed.
       shpStudyRegion$LTHRC[shpStudyRegion$LTHRC <= 30] <- NA
+      stopifnot(length(na.omit(shpStudyRegion$LTHRC)) > 0)
     }
     shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
     shpStudyRegion@data <- shpStudyRegion@data[, !(names(shpStudyRegion) %in% "ECODISTRIC")]
