@@ -54,7 +54,7 @@ ml <- mapAdd(object = sp2, map = ml, filename2 = FALSE,
 ##########################################################
 
 ml <- mapAdd(#map = ml,
-             destinationPath = "~/GitHub/LandWeb/inputs/DMI/",
+             destinationPath = "~/GitHub/LandWeb/inputs/FMA_Boundaries/DMI/",
              targetCRS = targetCRS,
              targetFile = "DMI_Full.shp", #studyArea = studyArea(ml, 1),
              layerName = "DMI Full", overwrite = TRUE, isStudyArea = TRUE,
