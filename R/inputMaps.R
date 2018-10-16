@@ -38,6 +38,7 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
     if (!identical(extent(shpStudyRegion), extent(fireReturnInterval))) {
       shpStudyRegion <- raster::intersect(shpStudyRegion, fireReturnInterval)
     }
+    stopifnot(any(c("LTHFC", "LTHRC") %in% names(shpStudyRegion)))
     if (!isTRUE("LTHRC" %in% names(shpStudyRegion))) {
       # Apparently, sometimes it is LTHFC, sometimes LTHRC; get rid of LTHFC
       shpStudyRegion$LTHRC <- shpStudyRegion$LTHFC
