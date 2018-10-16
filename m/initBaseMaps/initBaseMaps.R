@@ -50,6 +50,7 @@ Init <- function(sim) {
   sim$shpStudyRegion <- Cache(spTransform, sim$shpStudySubRegion, CRSobj = simProjection)
 
   message("fastRasterize for rstStudyRegion")
+  stopifnot(any(c("LTHFC", "LTHRC") %in% names(sim$shpStudyRegion)))
   if (isTRUE("LTHFC" %in% names(sim$shpStudyRegion))) {
     # Apparently, sometimes it is LTHFC, sometimes LTHRC; get rid of LTHFC
     sim$shpStudyRegion$LTHRC <- sim$shpStudyRegion$LTHFC
