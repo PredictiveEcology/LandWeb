@@ -1,12 +1,6 @@
 if (exists("DEVMODE")) {
   if (isTRUE(DEVMODE)) {
     source("params/Development_Parameters.R", local = TRUE)
-  } else {
-    if (DEVMODE == "DMI") {
-      source("params/DMI_parameters.R", local = TRUE)
-    } else if (DEVMODE == "LP") {
-      source("params/LP_parameters.R", local = TRUE)
-    }
   }
 } else {
   source("params/LandWeb_parameters.R", local = TRUE)
@@ -157,7 +151,7 @@ studyRegionFilePath <- {
 
 studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyRegionCreate,
                           asPath(studyRegionFilePath),
-                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "landweb_ltfc_v6.shp")),
+                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "firemap", "landweb_ltfc_v6.shp")),
                           subStudyRegionName = subStudyRegionName,
                           cacheId = cacheId$loadStudyRegions,
                           crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)

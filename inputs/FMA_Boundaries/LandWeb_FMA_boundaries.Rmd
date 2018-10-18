@@ -1,0 +1,289 @@
+---
+title: "LandWeb FMA Boundaries"
+author: "Alex M. Chubaty"
+date: "October 15, 2018"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(autodep = TRUE, echo = TRUE)
+
+library(amc)
+library(magrittr)
+library(map)
+library(maptools)
+library(raster)
+library(RColorBrewer)
+library(raster)
+library(reproducible)
+library(rgeos)
+library(sp)
+
+## expected to run from base LandWeb (GitHub) directory
+inputsDir <- file.path("inputs")
+dataDir <- file.path(inputsDir, "FMA_Boundaries")
+
+can_adm1 <- file.path(inputsDir, "GADM_2.8_CAN_adm1.rds")
+if (file.exists(can_adm1)) {
+  can_provs <- readRDS(can_adm1)
+} else {
+  can_provs <- getData("GADM", country = "CAN", level = 1, path = dataDir)
+}
+west <- can_provs[can_provs$NAME_1 %in% c("Alberta", "British Columbia", "Saskatchewan"), ]
+```
+
+## FMA Boundaries
+
+### `FMA_Boundary_CustomProj`
+
+This is identical to `FMA_Boundary_Updated`, which is currently used in the app.
+
+```{r fma1}
+fshp1 <- file.path(dataDir, "FMA_Boundary_Updated/FMA_Boundary_Updated.shp")
+shp1 <- shapefile(fshp1)
+proj4string(shp1)
+plot(shp1, col = "lightgrey")
+```
+
+### `FMA_Boundary_Updated`
+
+This is the one used in the app, and available at <https://drive.google.com/file/d/1nTFOcrdMf1hIsxd_yNCSTr8RrYNHHwuc/view?usp=sharing>.
+It is downloaded and processed in `LandWeb_shiny` module.
+
+```{r fma2}
+fshp2 <- file.path(dataDir, "FMA_Boundary_CustomProj/FMA_Boundary_Updated.shp")
+shp2 <- shapefile(fshp2)
+proj4string(shp2)
+plot(shp2, col = "lightgrey")
+
+identical(shp1, shp2)
+```
+
+### `FMA_Boundary_Updated_12N`
+
+This is basically identical to the others but isn't using the custom projection (very small differences when comparing the reprojected version to the others).
+
+```{r fma3}
+fshp3 <- file.path(dataDir, "FMA_Boundary_Updated_12N/FMA_Boundary_Updated_12N.shp")
+shp3 <- shapefile(fshp3)
+proj4string(shp3)
+plot(shp3, col = "lightgrey")
+
+shp3_reproj <- spTransform(shp3, CRS(proj4string(shp2)))
+
+identical(shp2, shp3_reproj) ## FALSE
+all.equal(shp2, shp3_reproj)
+```
+
+## Custom polygons (extracted from FMA layer)
+
+```{r fire-return-intervals}
+## LandWeb study area polygons need LTHFC data
+fireDir <- file.path(inputsDir, "firemap")
+firemap <- shapefile(file.path(fireDir, "landweb_ltfc_v6.shp"))
+
+plt <-grDevices::colorRampPalette(brewer.pal(9, "OrRd"))
+cuts <- max(firemap$LTHFC) / 10 ## 10-year increments
+spplot(firemap, "LTHFC", col.regions = plt(cuts), cuts = cuts, col = "transparent")
+```
+
+### DMI
+
+```{r dmi_setup}
+dataDirDMI <- file.path(dataDir, "DMI")
+if (!dir.exists(dataDirDMI)) dir.create(dataDirDMI)
+```
+
+There are 3 parts to the DMI FMA: an East and two West areas (North and South).
+
+```{r dmi_full}
+dmi <- shp2[grepl("Daishowa-Marubeni International Ltd", shp2$Name), ]
+plot(dmi[, "Name"], main ="DMI full", col = "lightblue")
+
+dmi.full <- maptools::unionSpatialPolygons(dmi, rep(1, 2))
+shapefile(dmi.full, filename = file.path(dataDirDMI, "DMI_Full.shp"), overwrite = TRUE)
+```
+
+```{r dmi_east}
+dmi.e <- shp2[grepl("Daishowa-Marubeni International Ltd.*East", shp2$Name), ]
+plot(dmi.e, col = "purple", add = TRUE)
+shapefile(dmi.e, filename = file.path(dataDirDMI, "DMI_East.shp"), overwrite = TRUE)
+```
+
+```{r dmi_west}
+dmi.w <- shp2[grepl("Daishowa-Marubeni International Ltd.*West", shp2$Name), ]
+shapefile(dmi.w, filename = file.path(dataDirDMI, "DMI_West.shp"), overwrite = TRUE)
+
+dmi.nw <- disaggregate(dmi.w)[2, ]
+plot(dmi.nw, col = "lightgreen", add = TRUE)
+shapefile(dmi.nw, filename = file.path(dataDirDMI, "DMI_West_North.shp"), overwrite = TRUE)
+
+dmi.sw <- disaggregate(dmi.w)[1, ]
+plot(dmi.sw, col = "orange", add = TRUE)
+shapefile(dmi.sw, filename = file.path(dataDirDMI, "DMI_West_South.shp"), overwrite = TRUE)
+```
+
+```{r dmi_by_ANSR}
+ansr <- file.path("m", "LandWeb_shiny", "data", "AB_Natural_Sub_Regions.shp") %>% 
+  shapefile()
+dmi.ansr <- postProcess(ansr, studyArea = dmi, useSAcrs = TRUE,
+                        filename2 = file.path(dataDirDMI, "DMI_ANSR.shp"))
+plot(dmi.ansr)
+shapefile(dmi.ansr, filename = file.path(dataDirDMI, "DMI_ANSR.shp"), overwrite = TRUE)
+```
+
+```{r dmi_by_caribou}
+caribou <- file.path("m", "LandWeb_shiny", "data", "Boreal_Caribou_Ranges.shp") %>%
+  shapefile()
+dmi.caribou <- postProcess(caribou, studyArea = dmi, useSAcrs = TRUE,
+                           filename2 = file.path(dataDirDMI, "DMI_caribou.shp"))
+plot(dmi.caribou)
+```
+
+#### Test the shapefile processed by the app
+
+```{r dmi-processed, eval = FALSE}
+uploadDir <- file.path(file.path(gh_dir, "uploads/alex.chubaty@gmail.com")
+test <- shapefile(file.path(uploadDir, "2018-08-09-16h12m22_DMI_east.shp"))
+names(test)
+test$shinyLabel
+
+plot(test, col = "lightgrey")
+```
+
+#### Produce study area for DMI areas
+
+```{r dmi-study-area}
+dmi.full <- shapefile(file.path(dataDirDMI, "DMI_full.shp"))
+plot(dmi.full, col = "lightblue")
+
+dmi.sr <- amc::outerBuffer(dmi.full, 50000) ## 50 km buffer?
+plot(dmi.sr, add = TRUE)
+
+## study area map needs to have LTHFC data
+dmi_sr <- postProcess(firemap, studyArea = dmi.sr, useSAcrs = TRUE,
+                      filename2 = file.path(dataDirDMI, "DMI_SR.shp"))
+```
+
+```{r dmi-reporting-polygons}
+## create new map object containing the study area
+ml.dmi <- mapAdd(dmi_sr, isStudyArea = TRUE, layerName = "DMI_SR", poly = TRUE,
+                 analysisGroup2 = "DMI Study Area")
+
+## add replorting polygons
+ml.dmi <- mapAdd(dmi.full, ml.dmi, layerName = "DMI Full", poly = TRUE,
+                 filename2 = NULL, overwrite = TRUE)
+
+ml.dmi <- mapAdd(dmi.e, ml.dmi, layerName = "DMI East", poly = TRUE,
+                 analysisGroupAdmin = "", filename2 = NULL, overwrite = TRUE)
+
+ml.dmi <- mapAdd(dmi.nw, ml.dmi, layerName = "DMI West North", poly = TRUE,
+                 filename2 = NULL, overwrite = TRUE)
+
+ml.dmi <- mapAdd(dmi.sw, ml.dmi, layerName = "DMI West South", poly = TRUE,
+                 filename2 = NULL, overwrite = TRUE)
+
+ml.dmi <- mapAdd(dmi.caribou, ml.dmi, layerName = "DMI Caribou", poly = TRUE,
+                 filename2 = NULL, overwrite = TRUE)
+
+ml.dmi <- mapAdd(dmi.ansr, ml.dmi, layerName = "DMI ANSR", poly = TRUE,
+                 filename2 = NULL, overwrite = TRUE)
+```
+
+### LP
+
+```{r lp_setup}
+dataDirLP <- file.path(dataDir, "LP")
+if (!dir.exists(dataDirLP)) dir.create(dataDirLP)
+```
+
+There are 3 parts to the LP FMA: 2 in BC and one in MB.
+Only need to do MB one right now.
+
+```{r lp_full}
+lp <- shp2[grepl("Fort St\\. John|Dawson Creek|Mountain", shp2$Name), ]
+plot(lp[, "Name"], main = "lp full", col = "lightblue")
+
+shapefile(lp, filename = file.path(dataDirLP, "LP_full.shp"), overwrite = TRUE)
+```
+
+```{r lp_mb}
+lp_mb <- shp2[grepl("Mountain", shp2$Name), ]
+plot(lp_mb, col = "purple", add = TRUE)
+shapefile(lp_mb, filename = file.path(dataDirLP, "LP_MB.shp"), overwrite = TRUE)
+```
+
+#### Produce study area for LP area
+
+```{r lp-study-area}
+lp_full <- shapefile(file.path(dataDirLP, "LP_full.shp"))
+plot(lp_full, col = "lightblue")
+
+## only do MB section for now
+lp.mb.sr <- amc::outerBuffer(lp_mb, 50000)
+plot(lp.mb.sr, add = TRUE)
+
+lp_mb_sr <- postProcess(firemap, studyArea = lp.mb.sr, useSAcrs = TRUE,
+                        filename2 = file.path(dataDirLP, "LP_MB_SR.shp"))
+```
+
+### Tolko
+
+```{r tolko_setup}
+dataDirTolko <- file.path(dataDir, "Tolko")
+if (!dir.exists(dataDirTolko)) dir.create(dataDirTolko)
+```
+
+There are 3 parts to the Tolko FMA in AB and one in SK.
+
+```{r tolko_full}
+tolko <- shp2[grepl("Tolko|Meadow Lake OSB", shp2$Name), ]
+plot(spTransform(west, crs(tolko)), main = "Tolko full")
+plot(tolko[, "Name"], col = "lightblue", add = TRUE)
+
+colours <- c("purple", "orange", "blue", "limegreen", "magenta")
+for (i in 1:5) {
+  plot(tolko[i,], col = colours[i], add = TRUE)
+}
+
+tolko.full <- maptools::unionSpatialPolygons(tolko, rep(1, 5))
+shapefile(tolko.full, filename = file.path(dataDirTolko, "Tolko_Full.shp"), overwrite = TRUE)
+```
+
+```{r tolko_ab_north}
+tolko_ab_n <- tolko[4, ]
+plot(tolko_ab_n, add = TRUE, col = colours[4])
+
+tolko_ab_n.sr <- amc::outerBuffer(tolko_ab_n, 50000)
+plot(tolko_ab_n.sr, add = TRUE)
+```
+
+```{r tolko_ab_south}
+tolko_ab_s <- tolko[c(2, 3, 5), ]
+plot(tolko_ab_s, add = TRUE, col = colours[c(2, 3, 5)])
+
+tolko_ab_s.sr <- amc::outerBuffer(tolko_ab_s, 50000)
+plot(tolko_ab_s.sr, add = TRUE)
+```
+
+```{r tolko_sk}
+tolko_sk <- tolko[1, ]
+plot(tolko_sk, add = TRUE, col = colours[1])
+
+tolko_sk.sr <- amc::outerBuffer(tolko_sk, 50000)
+plot(tolko_sk.sr, add = TRUE)
+```
+
+### Tolko study areas
+
+```{r tolko-study-areas}
+## study area maps needs to have LTHFC data
+tolko_ab_n_sr <- postProcess(firemap, studyArea = tolko_ab_n.sr, useSAcrs = TRUE,
+                             filename2 = file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
+tolko_ab_s_sr <- postProcess(firemap, studyArea = tolko_ab_s.sr, useSAcrs = TRUE,
+                             filename2 = file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
+tolko_sk_sr <- postProcess(firemap, studyArea = tolko_sk.sr, useSAcrs = TRUE,
+                             filename2 = file.path(dataDirTolko, "Tolko_SK_SR.shp"))
+```

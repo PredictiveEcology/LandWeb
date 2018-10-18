@@ -22,7 +22,6 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
     shpStudyRegion[["LTHRC"]] <- fireReturnIntervalTemp # Fire return interval
     shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
     shpStudyRegion <- shpSubStudyRegion
-
   } else {
     ## Dave Andison doesn't have .prj files
     ## this will create one with NAD83 UTM11N downloading from spatialreference.org
@@ -38,6 +37,7 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
     if (!identical(extent(shpStudyRegion), extent(fireReturnInterval))) {
       shpStudyRegion <- raster::intersect(shpStudyRegion, fireReturnInterval)
     }
+    stopifnot(any(c("LTHFC", "LTHRC") %in% names(shpStudyRegion)))
     if (!isTRUE("LTHRC" %in% names(shpStudyRegion))) {
       # Apparently, sometimes it is LTHFC, sometimes LTHRC; get rid of LTHFC
       shpStudyRegion$LTHRC <- shpStudyRegion$LTHFC
@@ -45,8 +45,10 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
 
       #shpStudyRegion$LTHRC <- 2*shpStudyRegion$LTHRC ## TODO: remove this
 
-      # The fires of Fire Return Interval 30 years are not correctly simulated by LandMine, so they are removed.
+      # The fires of Fire Return Interval 30 years are not correctly simulated
+      # by LandMine, so they are removed.
       shpStudyRegion$LTHRC[shpStudyRegion$LTHRC <= 30] <- NA
+      stopifnot(length(na.omit(shpStudyRegion$LTHRC)) > 0)
     }
     shpStudyRegion$fireReturnInterval <- shpStudyRegion$LTHRC
     shpStudyRegion@data <- shpStudyRegion@data[, !(names(shpStudyRegion) %in% "ECODISTRIC")]
@@ -67,11 +69,7 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
   canadaAdminNamesAll <- c(names(canadaAdminNames), canadaAdminNames)
 
   if (!("FULL" %in% subStudyRegionName)) {
-    if ("DMI" %in% subStudyRegionName) {
-      shpSubStudyRegion <- shapefile("inputs/DMI/DMI_SR.shp")
-    } else if ("LP" %in% subStudyRegionName) {
-      shpSubStudyRegion <- shapefile("inputs/LP/LP_SR.shp")
-    } else if ("NWT" %in% subStudyRegionName) {
+    if ("NWT" %in% subStudyRegionName) {
       shpStudyRegionLFLT <- spTransform(shpStudyRegion, SpaDES.shiny::proj4stringLFLT)
       ext <- extent(shpStudyRegionLFLT)
       ext@ymin <- 60

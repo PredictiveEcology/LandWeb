@@ -217,11 +217,11 @@ ml2 <- mapAdd(map = ml, layerName = "AB Natural Sub Regions",
 ##########################################################
 
 ml <- mapAdd(map = ml,
-  destinationPath = "~/GitHub/LandWeb/inputs/DMI/",
-  targetCRS = targetCRS,
-  targetFile = "DMI_Full.shp", #studyArea = studyArea(ml, 1),
-  layerName = "DMI Full", overwrite = TRUE, isStudyArea = TRUE,
-  columnNameForLabels = "Name", analysisGroupAdministrative = TRUE)
+             destinationPath = "~/GitHub/LandWeb/inputs/FMA_Boundaries/DMI/",
+             targetCRS = targetCRS,
+             targetFile = "DMI_Full.shp", #studyArea = studyArea(ml, 1),
+             layerName = "DMI Full", overwrite = TRUE, isStudyArea = TRUE,
+             columnNameForLabels = "Name", administrative = TRUE)
 
 ml <- mapAdd(map = ml, layerName = "AB Natural Sub Regions", overwrite = TRUE,
              url = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
