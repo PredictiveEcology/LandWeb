@@ -6,6 +6,7 @@ packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
   "PredictiveEcology/quickPlot@development",
   "PredictiveEcology/SpaDES.core@development",
+  "PredictiveEcology/map@master",
   "PredictiveEcology/SpaDES.tools@development",
   #"PredictiveEcology/SpaDES.shiny@generalize-modules", ## do this after running the model, before app
   "raster"
@@ -20,55 +21,217 @@ moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
                    "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible",
                    "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", "VGAM")
 
+##########################################################
+# Paths
+##########################################################
+paths <- list(
+  cachePath = "cache",
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs",
+  outputPath = "outputs"
+)
+do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
+
 
 ##########################################################
 # Load Study Area
 ##########################################################
 # Load Study Area
 library(raster)
+library(SpaDES.core)
 library(reproducible)
-devtools::load_all("~/GitHub/map")
+library(map)
+#devtools::load_all("~/GitHub/map")
 
-activeDir <- "~/GitHub/LandWeb/newStart"
+activeDir <- "~/GitHub/LandWeb"
 checkPath(activeDir, create = TRUE)
 targetCRS <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
 setwd(activeDir)
+options(reproducible.destinationPath = Paths$inputs)
 ml <- mapAdd(layerName = "LandWeb Study Area",
-             targetCRS = targetCRS,
-             url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
-             columnNameForLabels = "Name", isStudyArea = TRUE, filename2 = NULL
+             targetCRS = targetCRS, overwrite = TRUE,
+             url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", # This is landweb_ltfc_v6.shp
+             columnNameForLabels = "Name", isStudyArea = FALSE, filename2 = NULL
 )
 
 # Make a random small study area
 seed <- 863
 set.seed(seed)
-sp2 <- SpaDES.tools::randomPolygon(studyArea(ml), 4e5)
+sp2 <- SpaDES.tools::randomPolygon(ml$`LandWeb Study Area`, 4e5)
 ml <- mapAdd(object = sp2, map = ml, filename2 = FALSE,
-                    layerName = "Small Study Area",
-                    columnNameForLabels = "Name", isStudyArea = TRUE,
-                    filename1 = NULL, administrative = TRUE
+             targetCRS = targetCRS,
+             layerName = "Small Study Area",
+             columnNameForLabels = "Name", isStudyArea = TRUE,
+             filename1 = NULL, analysisGroup1 = "Small Study Area"
 )
+# re-add the LandWeb polygon, but this time crop it to the Small Study Area
+ml <- mapAdd(layerName = "Small Study Area", map = ml,
+             #studyArea = studyArea(ml),
+             overwrite = TRUE, useSAcrs = TRUE,
+             url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
+             columnNameForLabels = "Name", isStudyArea = TRUE, filename2 = NULL
+)
+
+
+
+######
+#
+######
+endTime <- 3
+successionTimestep <- 10
+summaryPeriod <- c(2,3)
+summaryInterval <- 1
+## spades module variables
+eventCaching <- c(".inputObjects", "init")
+maxAge <- 400
+vegLeadingPercent <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
+# If all are below this, then it is a "mixed" stand
+ageClasses <- c("Young", "Immature", "Mature", "Old")
+ageClassCutOffs <- c(0, 40, 80, 120)
+fireTimestep <- 1
+
+times <- list(start = 0, end = endTime)
+modules <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
+                "LandMine",
+                "LandWebProprietaryData",
+                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
+objects <- list("shpStudyRegionFull" = ml$`LandWeb Study Area`,
+                "shpStudySubRegion" = studyArea(ml, 1),
+                "summaryPeriod" = summaryPeriod,
+                "useParallel" = 2,
+                "vegLeadingPercent" = vegLeadingPercent)
+parameters <- list(
+  Boreal_LBMRDataPrep = list(.useCache = eventCaching, .crsUsed = crs(studyArea(ml))),
+  fireDataPrep = list(.useCache = eventCaching),
+  initBaseMaps = list(.useCache = eventCaching),
+  LandMine = list(biggestPossibleFireSizeHa = 5e5,
+                  fireTimestep = fireTimestep,
+                  burnInitialTime = fireTimestep,
+                  .useCache = eventCaching),
+  LandWeb_dataPrep = list(.useCache = eventCaching),
+  LandWeb_output = list(summaryInterval = summaryInterval),
+  LandWebProprietaryData = list(.useCache = eventCaching),
+  LBMR = list(successionTimestep = successionTimestep,
+              .useCache = eventCaching),
+  timeSinceFire = list(startTime = fireTimestep,
+                       .useCache = eventCaching)
+)
+
+objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
+
+outputs <- data.frame(stringsAsFactors = FALSE,
+                      expand.grid(
+                        objectName = objectNamesToSave,#, "oldBigPatch"),
+                        saveTime = seq(objects$summaryPeriod[1], objects$summaryPeriod[2],
+                                       by = parameters$LandWeb_output$summaryInterval)),
+                      fun = "writeRaster", package = "raster",
+                      file = paste0(objectNamesToSave, c(".tif", ".grd")))
+
+outputs2 <- data.frame(stringsAsFactors = FALSE,
+                       expand.grid(objectName = c("simulationOutput"), saveTime = times$end),
+                       fun = "saveRDS",
+                       package = "base")
+
+outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
+                                list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
+                           times = NROW(outputs) / length(objectNamesToSave)))
+
+outputs3 <- data.frame(stringsAsFactors = FALSE,
+                       objectName = "rstFlammable",
+                       saveTime = times$end, fun = "writeRaster", package = "raster",
+                       arguments = I(list(list(overwrite = TRUE, progress = FALSE,
+                                               datatype = "INT2U", format = "raster"))))
+
+outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
+
+
+######## SimInit and Experiment
+seed <- sample(1e8, 1)
+set.seed(seed)
+print(seed)
+
+## Options
+opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE,
+                "reproducible.overwrite" = TRUE, "reproducible.useCache" = TRUE)
+
+######## SimInit and Experiment
+mySimOuts <- Cache(simInitAndExperiment, times = times,
+                     params = parameters,
+                     modules = modules,
+                     outputs = outputs,
+                     objects, # do not name this argument -- collides with
+                     paths = paths,
+                     loadOrder = unlist(modules),
+                     clearSimEnv = TRUE,
+                     replicates = 2
+)
+
+##########################################################
+# Current Condition
+##########################################################
+ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing"
+options(reproducible.destinationPath = Paths$inputPath)
+
+layerNames <- c("Pine", "Age", "Black Spruce", "Deciduous", "Fir", "LandType", "White Spruce")
+layerNamesFiles <- paste0(gsub(" ", "", layerNames), "1.tif")
+ml <- mapAdd(map = ml, url = ccURL, layerName = layerNames,
+             targetFile = layerNamesFiles, filename2 = NULL, #useCache = FALSE,
+             alsoExtract = "similar", overwrite = TRUE, leaflet = FALSE)
+
+##########################################################
+# Dynamic Raster Layers from Simulation
+##########################################################
+options(reproducible.inputPaths = NULL)
+allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
+allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
+layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
+layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
+layerName <- gsub(layerName, pattern = "^_", replacement = "")
+ag1 = gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2")
+destinationPath <- dirname(allouts)
+
+ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
+             destinationPath = destinationPath,
+             targetFile = allouts, filename2 = NULL,
+             overwrite = TRUE, leaflet = Paths$outputPath)
+
+################################################################
+################################################################
+################################################################
+###   WORKS UP TO HERE
+################################################################
+################################################################
+
+##########################################################
+# Reporting Polygons
+##########################################################
+ml2 <- mapAdd(map = ml, layerName = "AB Natural Sub Regions",
+             url = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
+             columnNameForLabels = "Name")
+
+
+
 
 ##########################################################
 # Load other maps
 ##########################################################
 
-ml <- mapAdd(#map = ml,
-             destinationPath = "~/GitHub/LandWeb/inputs/DMI/",
-             targetCRS = targetCRS,
-             targetFile = "DMI_Full.shp", #studyArea = studyArea(ml, 1),
-             layerName = "DMI Full", overwrite = TRUE, isStudyArea = TRUE,
-             columnNameForLabels = "Name", administrative = TRUE)
+ml <- mapAdd(map = ml,
+  destinationPath = "~/GitHub/LandWeb/inputs/DMI/",
+  targetCRS = targetCRS,
+  targetFile = "DMI_Full.shp", #studyArea = studyArea(ml, 1),
+  layerName = "DMI Full", overwrite = TRUE, isStudyArea = TRUE,
+  columnNameForLabels = "Name", analysisGroupAdministrative = TRUE)
 
 ml <- mapAdd(map = ml, layerName = "AB Natural Sub Regions", overwrite = TRUE,
              url = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
              columnNameForLabels = "Name", filename2 = NULL)
 
 ml <- mapAdd(url = "https://drive.google.com/open?id=1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1",
-       map = ml, leaflet = TRUE, #studyArea = studyArea(ml, 2),
-       #targetFile = "age1.tif", overwrite = TRUE,
-       filename2 = NULL,
-       layerName = "Age") # dots include things like method = "ngb" for projectRaster
+             map = ml, leaflet = TRUE, #studyArea = studyArea(ml, 2),
+             #targetFile = "age1.tif", overwrite = TRUE,
+             filename2 = NULL,
+             layerName = "Age") # dots include things like method = "ngb" for projectRaster
 
 ################################
 # set some options
@@ -77,8 +240,8 @@ source("appInfo.R")
 
 # Options
 originalOpts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE,
-                reproducible.verbose = FALSE, reproducible.useMemoise = TRUE,
-                spades.browserOnError = FALSE)
+                        reproducible.verbose = FALSE, reproducible.useMemoise = TRUE,
+                        spades.browserOnError = FALSE)
 
 # Google Authentication setup
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/userinfo.email",
@@ -120,78 +283,6 @@ vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("l
 message("Preparing polygon maps for reporting histograms")
 source(file.path("R", "colorPaletteForShiny.R"))
 labelColumn <- "shinyLabel"
-
-times <- list(start = 0, end = endTime)
-modules <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
-                        "LandMine",
-                        "LandWebProprietaryData",
-                        "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
-objects <- list("shpStudyRegionFull" = studyArea(ml, 1),
-                "shpStudySubRegion" = studyArea(ml, 2),
-                "summaryPeriod" = summaryPeriod,
-                "useParallel" = 2,
-                "vegLeadingPercent" = vegLeadingPercent)
-parameters <- list(
-  Boreal_LBMRDataPrep = list(.useCache = eventCaching),
-  fireDataPrep = list(.useCache = eventCaching),
-  initBaseMaps = list(.useCache = eventCaching),
-  LandMine = list(biggestPossibleFireSizeHa = 5e5,
-                  fireTimestep = fireTimestep,
-                  burnInitialTime = fireTimestep,
-                  .useCache = eventCaching),
-  LandWeb_dataPrep = list(.useCache = eventCaching),
-  LandWeb_output = list(summaryInterval = summaryInterval),
-  LandWebProprietaryData = list(.useCache = eventCaching),
-  LBMR = list(successionTimestep = successionTimestep,
-              .useCache = eventCaching),
-  timeSinceFire = list(startTime = fireTimestep,
-                       .useCache = eventCaching)
-)
-
-objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
-
-outputs4simFn <- function(objects, parameters, times, objectNamesToSave) {
-  outputs <- data.frame(stringsAsFactors = FALSE,
-                        expand.grid(
-                          objectName = objectNamesToSave,#, "oldBigPatch"),
-                          saveTime = seq(objects$summaryPeriod[1], objects$summaryPeriod[2],
-                                         by = parameters$LandWeb_output$summaryInterval)),
-                        fun = "writeRaster", package = "raster",
-                        file = paste0(objectNamesToSave, c(".tif", ".grd")))
-
-  outputs2 <- data.frame(stringsAsFactors = FALSE,
-                         expand.grid(objectName = c("simulationOutput"), saveTime = times$end),
-                         fun = "saveRDS",
-                         package = "base")
-
-  outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
-                                  list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
-                             times = NROW(outputs) / length(objectNamesToSave)))
-
-  outputs3 <- data.frame(stringsAsFactors = FALSE,
-                         objectName = "rstFlammable",
-                         saveTime = times$end, fun = "writeRaster", package = "raster",
-                         arguments = I(list(list(overwrite = TRUE, progress = FALSE,
-                                                 datatype = "INT2U", format = "raster"))))
-
-  as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
-}
-outputs <- outputs4simFn(objects, parameters, times, objects)
-
-seed <- sample(1e8, 1)
-
-######## SimInit and Experiment
-seed <- sample(1e8, 1)
-
-######## SimInit and Experiment
-mySimOuts <- Cache(simInitAndExperiment, times = times,
-                   params = parameters,
-                   modules = modules, #notOlderThan = Sys.time(),
-                   cacheId = cacheId$simInitAndExperiment,
-                   outputs = outputs,
-                   objects = objects, # study area -- cache will respect this
-                   paths = paths,
-                   loadOrder = lapply(modules, unlist))
 
 
 
@@ -269,5 +360,5 @@ ml <- mapAdd(map = ml, layerName = "Boreal Caribou Ranges",
 preProcess(url = "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing")
 
 ml <- mapAdd(map = ml, url = "https://drive.google.com/file/d/1Oz2vSor3oIKf2uGv3KRtLoLRWEfX5Mas/view?usp=sharing",
-                    layerName = "Mountain Northern Caribou Ranges",
-                    columnNameForLabels = "Name")
+             layerName = "Mountain Northern Caribou Ranges",
+             columnNameForLabels = "Name")
