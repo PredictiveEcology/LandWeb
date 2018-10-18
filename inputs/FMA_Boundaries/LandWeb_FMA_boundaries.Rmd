@@ -156,7 +156,7 @@ plot(test, col = "lightgrey")
 #### Produce study area for DMI areas
 
 ```{r dmi-study-area}
-dmi.full <- shapefile(file.path(dataDirDMI, "DMI_full.shp"))
+dmi.full <- shapefile(file.path(dataDirDMI, "DMI_Full.shp"))
 plot(dmi.full, col = "lightblue")
 
 dmi.sr <- amc::outerBuffer(dmi.full, 50000) ## 50 km buffer?
