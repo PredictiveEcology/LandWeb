@@ -2,7 +2,8 @@ devtools::install_github("PredictiveEcology/quickPlot", ref = "development", dep
 devtools::install_github("PredictiveEcology/reproducible", ref = "development", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/webDatabases", ref = "master", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development", dependencies = FALSE)
-devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development", dependencies = FALSE)
+devtools::install_github("PredictiveEcology/SpaDES.core", ref = "newSetClass", dependencies = FALSE)
+devtools::install_github("PredictiveEcology/map", ref = "master", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "generalize-modules", dependencies = FALSE)
 
 if (FALSE) {
