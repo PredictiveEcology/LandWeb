@@ -1,6 +1,7 @@
 if (exists("DEVMODE")) {
   if (isTRUE(DEVMODE)) {
-    source("params/Development_Parameters.R", local = TRUE)
+    paramFile <- file.path("params", paste0("Development_Parameters_", runName, ".R"))
+    source(paramFile, local = TRUE)
   }
 } else {
   source("params/LandWeb_parameters.R", local = TRUE)
@@ -45,9 +46,15 @@ packageLoadEndTime <- Sys.time()
 source("appInfo.R")
 
 # Options
-options(reproducible.verbose = FALSE)
-options(reproducible.useMemoise = TRUE)
-options(spades.browserOnError = FALSE)
+opts <- options(
+  "reproducible.overwrite" = TRUE,
+  "reproducible.quick" = FALSE,
+  "reproducible.useCache" = TRUE,
+  "reproducible.useMemoise" = TRUE,
+  "reproducible.verbose" = FALSE,
+  "spades.browserOnError" = FALSE,
+  "spades.moduleCodeChecks" = FALSE
+)
 
 # Google Authentication setup
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/userinfo.email",

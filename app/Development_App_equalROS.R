@@ -6,7 +6,7 @@ if (!require("profvis", character.only = TRUE, quietly = TRUE)) {
 
 DEVMODE <- TRUE
 PROFVIS <- FALSE
-runName <- "original"
+runName <- "equalROS"
 useCache342 <- FALSE ## set this to FALSE to run model from scratch
 
 file.copy("global_file.R", "global.R", overwrite = TRUE)
