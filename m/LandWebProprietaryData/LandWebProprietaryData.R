@@ -134,9 +134,12 @@ Init <- function(sim) {
     message("Make stack of species layers from Paul's layer")
     uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
     # "Abie_sp"  "Betu_pap" "Lari_lar" "Pice_gla" "Pice_mar" "Pinu_sp" "Popu_tre"
+    # Weird bug when useCache = "overwrite"
+    if (getOption("reproducible.useCache")=="overwrite") opt <- options(reproducible.useCache = TRUE)
     PaulSpStack <- Cache(makePaulStack, paths = lapply(paths(sim), basename),
                          PaulRaster = Paul, uniqueKeepSp, destinationPath = dPath,
                          userTags = "stable")
+    if (exists("opt", inherits = FALSE)) options(opt)
     crs(PaulSpStack) <- crs(sim$biomassMap) # bug in writeRaster
 
     message('Make stack from CASFRI data and headers')
