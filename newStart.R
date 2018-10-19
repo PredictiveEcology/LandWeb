@@ -40,6 +40,8 @@ tilePath <- file.path(runName, "tiles")
 
 
 ## Options
+# options(reproducible.inputPaths = NULL)
+options(reproducible.destinationPath = Paths$inputPath)
 opts <- options("spades.moduleCodeChecks" = FALSE,
                 "reproducible.quick" = FALSE,
                 "reproducible.overwrite" = TRUE,
@@ -48,7 +50,7 @@ opts <- options("spades.moduleCodeChecks" = FALSE,
                 "spades.useRequire" = FALSE, # Don't use Require... meaning assume all pkgs installed
                 map.tilePath = tilePath,
                 map.dataPath = Paths$inputPath, # not used yet
-                map.useParallel = FALSE, #!identical("windows", .Platform$OS.type),
+                map.useParallel = TRUE, #!identical("windows", .Platform$OS.type),
                 reproducible.destinationPath = Paths$inputs
 )
 
@@ -186,7 +188,6 @@ try(stopCluster(cl), silent = TRUE)
 # Current Condition
 ##########################################################
 ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing"
-options(reproducible.destinationPath = Paths$inputPath)
 
 layerNames <- c("Pine", "Age", "Black Spruce", "Deciduous", "Fir", "LandType", "White Spruce")
 layerNamesFiles <- paste0(gsub(" ", "", layerNames), "1.tif")
@@ -197,7 +198,6 @@ ml <- mapAdd(map = ml, url = ccURL, layerName = layerNames,
 ##########################################################
 # Dynamic Raster Layers from Simulation
 ##########################################################
-options(reproducible.inputPaths = NULL)
 allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
 layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
