@@ -36,22 +36,22 @@ paths <- list(
   outputPath = file.path("outputs", runName)
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
-tilePath <- file.path(runName, "tiles")
+tilePath <- file.path(Paths$outputPath, runName, "tiles")
 
 
 ## Options
 # options(reproducible.inputPaths = NULL)
-options(reproducible.destinationPath = Paths$inputPath)
-opts <- options("spades.moduleCodeChecks" = FALSE,
-                "reproducible.quick" = FALSE,
-                "reproducible.overwrite" = TRUE,
-                "map.overwrite" = TRUE,
-                "reproducible.useCache" = TRUE,
-                "spades.useRequire" = FALSE, # Don't use Require... meaning assume all pkgs installed
-                map.tilePath = tilePath,
-                map.dataPath = Paths$inputPath, # not used yet
-                map.useParallel = TRUE, #!identical("windows", .Platform$OS.type),
-                reproducible.destinationPath = Paths$inputs
+opts <- options(
+  "map.dataPath" = Paths$inputPath, # not used yet
+  "map.overwrite" = TRUE,
+  "map.tilePath" = tilePath,
+  "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
+  "reproducible.destinationPath" = Paths$inputPath,
+  "reproducible.overwrite" = TRUE,
+  "reproducible.quick" = FALSE,
+  "reproducible.useCache" = TRUE,
+  "spades.moduleCodeChecks" = FALSE,
+  "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
 
 ##########################################################
@@ -91,7 +91,7 @@ ml <- mapAdd(layerName = "Small Study Area", map = ml,
 rm(aaa)
 
 ######
-#
+# Dynamic Simulation
 ######
 endTime <- 3
 successionTimestep <- 10
@@ -167,20 +167,17 @@ set.seed(seed)
 print(seed)
 
 ######## SimInit and Experiment
-useParallel <- getOption("map.useParallel", !identical("windows", .Platform$OS.type))
-cl <- map:::makeOptimalCluster(useParallel = useParallel,
-                         MBper = 1e3,
-                         maxNumClusters = 10)
+cl <- map:::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10) ## TODO: change nCPU
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
-                     params = parameters,
-                     modules = modules,
-                     outputs = outputs,
-                     objects, # do not name this argument -- collides with
-                     paths = paths,
-                     loadOrder = unlist(modules),
-                     clearSimEnv = TRUE, .plotInitialTime = NA,
-                     replicates = 2
+                   params = parameters,
+                   modules = modules,
+                   outputs = outputs,
+                   objects, # do not name this argument -- collides with
+                   paths = paths,
+                   loadOrder = unlist(modules),
+                   clearSimEnv = TRUE, .plotInitialTime = NA,
+                   replicates = 2 ## TODO: change this
 )
 try(stopCluster(cl), silent = TRUE)
 
