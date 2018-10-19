@@ -39,6 +39,7 @@ www/images/*
 
 ## SpaDES-related files
 m/test/
+testing/*
 .checkpoint
 *ecodistricts.*
 *ecoregions.*
