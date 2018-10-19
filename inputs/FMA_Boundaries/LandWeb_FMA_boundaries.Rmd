@@ -84,7 +84,7 @@ all.equal(shp2, shp3_reproj)
 fireDir <- file.path(inputsDir, "firemap")
 firemap <- shapefile(file.path(fireDir, "landweb_ltfc_v6.shp"))
 
-plt <-grDevices::colorRampPalette(brewer.pal(9, "OrRd"))
+plt <- grDevices::colorRampPalette(brewer.pal(9, "OrRd"))
 cuts <- max(firemap$LTHFC) / 10 ## 10-year increments
 spplot(firemap, "LTHFC", col.regions = plt(cuts), cuts = cuts, col = "transparent")
 ```
@@ -172,19 +172,32 @@ dmi_sr <- postProcess(firemap, studyArea = dmi.sr, useSAcrs = TRUE,
 ml.dmi <- mapAdd(dmi_sr, isStudyArea = TRUE, layerName = "DMI_SR", poly = TRUE,
                  analysisGroup2 = "DMI Study Area")
 
-## add replorting polygons
+## add reporting polygons
 ml.dmi <- mapAdd(dmi.full, ml.dmi, layerName = "DMI Full", poly = TRUE,
+                 analysisGroupAdmin = "dmi",
                  filename2 = NULL, overwrite = TRUE)
 
 ml.dmi <- mapAdd(dmi.e, ml.dmi, layerName = "DMI East", poly = TRUE,
-                 analysisGroupAdmin = "", filename2 = NULL, overwrite = TRUE)
+                 analysisGroupAdmin = "dmi", filename2 = NULL, overwrite = TRUE)
 
 ml.dmi <- mapAdd(dmi.nw, ml.dmi, layerName = "DMI West North", poly = TRUE,
+                 analysisGroupAdmin = "dmi",
                  filename2 = NULL, overwrite = TRUE)
 
 ml.dmi <- mapAdd(dmi.sw, ml.dmi, layerName = "DMI West South", poly = TRUE,
+                 analysisGroupAdmin = "dmi",
                  filename2 = NULL, overwrite = TRUE)
 
+ml.dmi <- mapAdd(caribou, ml.dmi, layerName = "Caribou", poly = TRUE,
+                 analysisGroupEcol = "dmi",
+                 filename2 = NULL, overwrite = TRUE)
+
+ml.dmi <- mapAdd(ansr, ml.dmi, layerName = "Alberta Natural Subregions", poly = TRUE,
+                 analysisGroupEcol = "dmi",
+                 filename2 = NULL, overwrite = TRUE)
+
+
+##
 ml.dmi <- mapAdd(dmi.caribou, ml.dmi, layerName = "DMI Caribou", poly = TRUE,
                  filename2 = NULL, overwrite = TRUE)
 
