@@ -43,7 +43,11 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
       shpStudyRegion$LTHRC <- shpStudyRegion$LTHFC
       shpStudyRegion$LTHFC <- NULL
 
-      #shpStudyRegion$LTHRC <- 2*shpStudyRegion$LTHRC ## TODO: remove this
+      ## TODO: test longer (doubled) fire return intervals
+      if (get("runName", .GlobalEnv) == "doubleFRI") {
+        shpStudyRegion$LTHRC <- 2*shpStudyRegion$LTHRC
+      }
+      ## end TODO
 
       # The fires of Fire Return Interval 30 years are not correctly simulated
       # by LandMine, so they are removed.
