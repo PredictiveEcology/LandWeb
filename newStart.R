@@ -168,9 +168,6 @@ if (grepl("tolko_AB_N", runName)) {
   ml <- mapAdd(tolko_sk, ml, layerName = "Tolko SK", useSAcrs = TRUE, poly = TRUE,
                analysisGroupReportingPolygon = "Tolko SK",
                columnNameForLabels = "Name", filename2 = NULL)
-  ml <- mapAdd(tolko_sk.ansr, ml, layerName = "Tolko SK ANSR", useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "Tolko SK ANSR",
-               columnNameForLabels = "Name", filename2 = NULL)
   ml <- mapAdd(tolko_sk.caribou, ml, layerName = "Tolko SK Caribou", useSAcrs = TRUE, poly = TRUE,
                analysisGroupReportingPolygon = "Tolko SK Caribou",
                columnNameForLabels = "Name", filename2 = NULL)
