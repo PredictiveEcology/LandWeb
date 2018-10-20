@@ -227,6 +227,15 @@ ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
                      id = "1", labelColumn = "shinyLabel",
                      ageClassCutOffs = ageClassCutOffs)
 
+############################################################
+# Post hoc analyses -- specifically making the data.tables for histograms & boxplots
+############################################################
+# This analysisGroupReportingPolygon MUST be the same as one of ones already
+#   analysed.
+ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
+                            postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                            postHocAnalyses = "all")
+
 if (FALSE) {
   ################################################################
   ################################################################
