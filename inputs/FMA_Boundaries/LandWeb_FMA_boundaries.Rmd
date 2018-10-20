@@ -31,7 +31,7 @@ if (file.exists(can_adm1)) {
 } else {
   can_provs <- getData("GADM", country = "CAN", level = 1, path = dataDir)
 }
-west <- can_provs[can_provs$NAME_1 %in% c("Alberta", "British Columbia", "Saskatchewan"), ]
+west <- can_provs[can_provs$NAME_1 %in% c("Alberta", "Saskatchewan"), ]
 ```
 
 ## FMA Boundaries
@@ -131,7 +131,6 @@ ansr <- file.path("m", "LandWeb_shiny", "data", "AB_Natural_Sub_Regions.shp") %>
 dmi.ansr <- postProcess(ansr, studyArea = dmi, useSAcrs = TRUE,
                         filename2 = file.path(dataDirDMI, "DMI_ANSR.shp"))
 plot(dmi.ansr)
-shapefile(dmi.ansr, filename = file.path(dataDirDMI, "DMI_ANSR.shp"), overwrite = TRUE)
 ```
 
 ```{r dmi_by_caribou}
@@ -265,38 +264,78 @@ tolko.full <- maptools::unionSpatialPolygons(tolko, rep(1, 5))
 shapefile(tolko.full, filename = file.path(dataDirTolko, "Tolko_Full.shp"), overwrite = TRUE)
 ```
 
+#### Tolko Reporting ploygons
+
+```{r ecological_polygons}
+ansr <- file.path("m", "LandWeb_shiny", "data", "AB_Natural_Sub_Regions.shp") %>% 
+  shapefile()
+
+caribou <- file.path("m", "LandWeb_shiny", "data", "Boreal_Caribou_Ranges.shp") %>%
+  shapefile()
+```
+
 ```{r tolko_ab_north}
 tolko_ab_n <- tolko[4, ]
 plot(tolko_ab_n, add = TRUE, col = colours[4])
 
-tolko_ab_n.sr <- amc::outerBuffer(tolko_ab_n, 50000)
-plot(tolko_ab_n.sr, add = TRUE)
+tolko_ab_n.ansr <- postProcess(ansr, studyArea = tolko_ab_n, useSAcrs = TRUE,
+                               filename2 = file.path(dataDirTolko, "Tolko_AB_N_ANSR.shp"),
+                               overwrite = TRUE)
+plot(tolko_ab_n.ansr)
+
+tolko_ab_n.caribou <- postProcess(caribou, studyArea = tolko_ab_n, useSAcrs = TRUE,
+                                  filename2 = file.path(dataDirTolko, "Tolko_AB_N_caribou.shp"),
+                                  overwrite = TRUE)
+plot(tolko_ab_n.caribou)
 ```
 
 ```{r tolko_ab_south}
 tolko_ab_s <- tolko[c(2, 3, 5), ]
-plot(tolko_ab_s, add = TRUE, col = colours[c(2, 3, 5)])
+plot(tolko_ab_s, col = colours[c(2, 3, 5)])
 
-tolko_ab_s.sr <- amc::outerBuffer(tolko_ab_s, 50000)
-plot(tolko_ab_s.sr, add = TRUE)
+tolko_ab_s.ansr <- postProcess(ansr, studyArea = tolko_ab_s, useSAcrs = TRUE,
+                               filename2 = file.path(dataDirTolko, "Tolko_AB_S_ANSR.shp"),
+                                  overwrite = TRUE)
+plot(tolko_ab_s.ansr)
+
+tolko_ab_s.caribou <- postProcess(caribou, studyArea = tolko_ab_s, useSAcrs = TRUE,
+                                  filename2 = file.path(dataDirTolko, "Tolko_AB_S_caribou.shp"),
+                                  overwrite = TRUE)
+plot(tolko_ab_s.caribou)
 ```
 
 ```{r tolko_sk}
 tolko_sk <- tolko[1, ]
-plot(tolko_sk, add = TRUE, col = colours[1])
+plot(tolko_sk, col = colours[1])
+
+tolko_sk.caribou <- postProcess(caribou, studyArea = tolko_sk, useSAcrs = TRUE,
+                                filename2 = file.path(dataDirTolko, "Tolko_SK_caribou.shp"),
+                                overwrite = TRUE)
+plot(tolko_sk.caribou)
+```
+
+#### Tolko study areas
+
+```{r tolko-study-areas}
+plot(tolko[, "Name"], col = "lightblue", add = TRUE)
+
+tolko_ab_n.sr <- amc::outerBuffer(tolko_ab_n, 50000)
+plot(tolko_ab_n.sr, add = TRUE)
+
+tolko_ab_s.sr <- amc::outerBuffer(tolko_ab_s, 50000)
+plot(tolko_ab_s.sr, add = TRUE)
 
 tolko_sk.sr <- amc::outerBuffer(tolko_sk, 50000)
 plot(tolko_sk.sr, add = TRUE)
-```
 
-### Tolko study areas
-
-```{r tolko-study-areas}
 ## study area maps needs to have LTHFC data
 tolko_ab_n_sr <- postProcess(firemap, studyArea = tolko_ab_n.sr, useSAcrs = TRUE,
-                             filename2 = file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
+                             filename2 = file.path(dataDirTolko, "Tolko_AB_N_SR.shp"),
+                             overwrite = TRUE)
 tolko_ab_s_sr <- postProcess(firemap, studyArea = tolko_ab_s.sr, useSAcrs = TRUE,
-                             filename2 = file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
+                             filename2 = file.path(dataDirTolko, "Tolko_AB_S_SR.shp"),
+                             overwrite = TRUE)
 tolko_sk_sr <- postProcess(firemap, studyArea = tolko_sk.sr, useSAcrs = TRUE,
-                             filename2 = file.path(dataDirTolko, "Tolko_SK_SR.shp"))
+                             filename2 = file.path(dataDirTolko, "Tolko_SK_SR.shp"),
+                             overwrite = TRUE)
 ```
