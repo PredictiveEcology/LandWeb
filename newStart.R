@@ -36,22 +36,21 @@ paths <- list(
   outputPath = file.path("outputs", runName)
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
-tilePath <- file.path(runName, "tiles")
+tilePath <- file.path(Paths$outputPath, runName, "tiles")
 
 
 ## Options
 # options(reproducible.inputPaths = NULL)
-options(reproducible.destinationPath = Paths$inputPath)
 opts <- options("spades.moduleCodeChecks" = FALSE,
                 "reproducible.quick" = FALSE,
                 "reproducible.overwrite" = TRUE,
                 "map.overwrite" = TRUE,
                 "reproducible.useCache" = TRUE,
+                reproducible.destinationPath = Paths$inputPath,
                 "spades.useRequire" = FALSE, # Don't use Require... meaning assume all pkgs installed
                 map.tilePath = tilePath,
                 map.dataPath = Paths$inputPath, # not used yet
-                map.useParallel = TRUE, #!identical("windows", .Platform$OS.type),
-                reproducible.destinationPath = Paths$inputs
+                map.useParallel = FALSE #!identical("windows", .Platform$OS.type),
 )
 
 ##########################################################
