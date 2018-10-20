@@ -88,34 +88,88 @@ ml <- mapAdd(layerName = "Small Study Area", map = ml,
              columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
 )
 
-ml <- mapAdd(dmi_sr, ml, isStudyArea = TRUE, layerName = "DMI_SR",
-             useSAcrs = TRUE, poly = TRUE,
-             #analysisGroupReportingPolygon = "DMI Study Area",
-             columnNameForLabels = "NSN", filename2 = NULL)
+################################################################################
+## COMPANY-SPECIFIC STUDY AREAS
 
-ml <- mapAdd(dmi.full, ml, layerName = "DMI Full", useSAcrs = TRUE, poly = TRUE,
-             analysisGroupReportingPolygon = "DMI Full",
-             columnNameForLabels = "NSN", filename2 = NULL, overwrite = TRUE)
+dataDir <- file.path("inputs", "FMA_Boundaries")
 
-ml <- mapAdd(dmi.e, ml, layerName = "DMI East", useSAcrs = TRUE, poly = TRUE,
-             analysisGroupReportingPolygon = "DMI East",
-             filename2 = NULL, overwrite = TRUE)
+### ECOLOGICAL POLYGONS
+# Alberta Natural Subregions
+ansr <- file.path("m", "LandWeb_shiny", "data", "AB_Natural_Sub_Regions.shp") %>%
+  shapefile()
 
-ml <- mapAdd(dmi.nw, ml, layerName = "DMI West North", useSAcrs = TRUE, poly = TRUE,
-             analysisGroupReportingPolygon = "DMI West North",
-             filename2 = NULL, overwrite = TRUE)
+# Caribou
+caribou <- file.path("m", "LandWeb_shiny", "data", "Boreal_Caribou_Ranges.shp") %>%
+  shapefile()
 
-ml <- mapAdd(dmi.sw, ml, layerName = "DMI West South", useSAcrs = TRUE, poly = TRUE,
-             analysisGroupReportingPolygon = "DMI West South",
-             filename2 = NULL, overwrite = TRUE)
+### ADMINISTRATIVE POLYGONS
+# TOLKO
+dataDirTolko <- file.path(dataDir, "Tolko")
+if (runName == "tolko_AB_N") {
+  ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
+  tolko_ab_n_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
+  ml <- mapAdd(tolko_ab_n_sr, ml, isStudyArea = TRUE, layerName = "Tolko AB North SR",
+               useSAcrs = TRUE, poly = TRUE,
+               columnNameForLabels = "NSN", filename2 = NULL)
 
-ml <- mapAdd(dmi.caribou, ml, layerName = "DMI Caribou", useSAcrs = TRUE, poly = TRUE,
-             analysisGroupReportingPolygon = "DMI Caribou",
-             filename2 = NULL, overwrite = TRUE)
+  ## reportingPolygons
+  tolko_ab_n <- shapefile(file.path(dataDirTolko, "Tolko_AB_N.shp"))
+  tolko_ab_n.ansr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_ANSR.shp"))
+  tolko_ab_n.caribou <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_caribou.shp"))
 
-ml <- mapAdd(dmi.ansr, ml, layerName = "DMI ANSR", useSAcrs = TRUE, poly = TRUE,
-             analysisGroupReportingPolygon = "DMI ANSR",
-             filename2 = NULL, overwrite = TRUE)
+  ml <- mapAdd(tolko_ab_n, ml, layerName = "Tolko AB North", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "Tolko AB North",
+               columnNameForLabels = "Name", filename2 = NULL)
+  ml <- mapAdd(tolko_ab_n.ansr, ml, layerName = "Tolko AB North ANSR", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "Tolko AB North ANSR",
+               columnNameForLabels = "Name", filename2 = NULL)
+  ml <- mapAdd(tolko_ab_n.caribou, ml, layerName = "Tolko AB North Caribou", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "Tolko AB North Caribou",
+               columnNameForLabels = "Name", filename2 = NULL)
+} else if (runName == "tolko_AB_S") {
+  ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
+  tolko_ab_s_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
+  ml <- mapAdd(tolko_ab_s_sr, ml, isStudyArea = TRUE, layerName = "Tolko AB South SR",
+               useSAcrs = TRUE, poly = TRUE,
+               columnNameForLabels = "NSN", filename2 = NULL)
+
+  ## reportingPolygons
+  tolko_ab_s <- shapefile(file.path(dataDirTolko, "Tolko_AB_S.shp"))
+  tolko_ab_s.ansr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_ANSR.shp"))
+  tolko_ab_s.caribou <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_caribou.shp"))
+
+  ml <- mapAdd(tolko_ab_s, ml, layerName = "Tolko AB South", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "Tolko AB South",
+               columnNameForLabels = "Name", filename2 = NULL)
+  ml <- mapAdd(tolko_ab_s.ansr, ml, layerName = "Tolko AB South ANSR", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "Tolko AB South ANSR",
+               columnNameForLabels = "Name", filename2 = NULL)
+  ml <- mapAdd(tolko_ab_s.caribou, ml, layerName = "Tolko AB South Caribou", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "Tolko AB South Caribou",
+               columnNameForLabels = "Name", filename2 = NULL)
+} else if (runName == "tolko_SK") {
+  ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
+  tolko_sk_sr <- shapefile(file.path(dataDirTolko, "Tolko_SK_SR.shp"))
+  ml <- mapAdd(tolko_sk_sr, ml, isStudyArea = TRUE, layerName = "Tolko SK SR",
+               useSAcrs = TRUE, poly = TRUE,
+               columnNameForLabels = "NSN", filename2 = NULL)
+
+  ## reportingPolygons
+  tolko_sk <- shapefile(file.path(dataDirTolko, "Tolko_SK.shp"))
+  tolko_sk.ansr <- shapefile(file.path(dataDirTolko, "Tolko_SK_ANSR.shp"))
+  tolko_sk.caribou <- shapefile(file.path(dataDirTolko, "Tolko_SK_caribou.shp"))
+
+  ml <- mapAdd(tolko_sk, ml, layerName = "Tolko SK", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "Tolko SK",
+               columnNameForLabels = "Name", filename2 = NULL)
+  ml <- mapAdd(tolko_sk.ansr, ml, layerName = "Tolko SK ANSR", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "Tolko SK ANSR",
+               columnNameForLabels = "Name", filename2 = NULL)
+  ml <- mapAdd(tolko_sk.caribou, ml, layerName = "Tolko SK Caribou", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "Tolko SK Caribou",
+               columnNameForLabels = "Name", filename2 = NULL)
+}
+
 
 rm(aaa)
 
