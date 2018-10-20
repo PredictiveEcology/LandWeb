@@ -1,7 +1,13 @@
+activeDir <- "~/GitHub/LandWeb"
+setwd(activeDir)
+
 #runName <- "testing"
-runName <- "tolko_AB_N"
-#runName <- "tolko_AB_S"
-#runName <- "tolko_SK"
+runName <- "tolko_AB_N_doubleFRI"
+#runName <- "tolko_AB_S_doubleFRI"
+#runName <- "tolko_SK_doubleFRI"
+#runName <- "tolko_AB_N_equalROS"
+#runName <- "tolko_AB_S_equalROS"
+#runName <- "tolko_SK_equalROS"
 
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 
@@ -63,11 +69,9 @@ opts <- options(
 # Load Study Area
 ##########################################################
 
-activeDir <- "~/GitHub/LandWeb"
 checkPath(activeDir, create = TRUE)
 targetCRS <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95",
                        "+x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
-setwd(activeDir)
 
 studyRegionName <- "LandWeb Study Area"
 ml <- mapAdd(layerName = studyRegionName,
@@ -199,7 +203,7 @@ times <- list(start = 0, end = endTime)
 modules <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
                 "LandMine",
                 "LandWebProprietaryData",
-                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
+                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire")#, "LandWeb_output")
 scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
                     "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 
