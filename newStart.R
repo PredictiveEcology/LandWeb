@@ -163,7 +163,6 @@ if (grepl("tolko_AB_N", runName)) {
 
   ## reportingPolygons
   tolko_sk <- shapefile(file.path(dataDirTolko, "Tolko_SK.shp"))
-  tolko_sk.ansr <- shapefile(file.path(dataDirTolko, "Tolko_SK_ANSR.shp"))
   tolko_sk.caribou <- shapefile(file.path(dataDirTolko, "Tolko_SK_caribou.shp"))
 
   ml <- mapAdd(tolko_sk, ml, layerName = "Tolko SK", useSAcrs = TRUE, poly = TRUE,
