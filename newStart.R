@@ -1,4 +1,7 @@
-runName <- "testing"
+#runName <- "testing"
+runName <- "tolko_AB_N"
+#runName <- "tolko_AB_S"
+#runName <- "tolko_SK"
 
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 
