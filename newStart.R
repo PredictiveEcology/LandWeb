@@ -40,7 +40,6 @@ tilePath <- file.path(Paths$outputPath, runName, "tiles")
 
 
 ## Options
-# options(reproducible.inputPaths = NULL)
 opts <- options(
   "map.dataPath" = Paths$inputPath, # not used yet
   "map.overwrite" = TRUE,
@@ -71,7 +70,7 @@ ml <- mapAdd(layerName = "LandWeb Study Area",
 # Make a random small study area
 seed <- 863
 set.seed(seed)
-sp2 <- SpaDES.tools::randomPolygon(ml$`LandWeb Study Area`, 4e5)
+sp2 <- Cache(SpaDES.tools::randomPolygon, ml$`LandWeb Study Area`, 4e5)
 ml <- mapAdd(obj = sp2, map = ml, filename2 = FALSE,
              targetCRS = targetCRS,
              layerName = "Small Study Area",
@@ -91,7 +90,11 @@ ml <- mapAdd(layerName = "Small Study Area", map = ml,
 rm(aaa)
 
 ######
+<<<<<<< HEAD
+# Dynamic simulations
+=======
 # Dynamic Simulation
+>>>>>>> 8f54b18e41028cc319e138904eb2e082a19c6437
 ######
 endTime <- 3
 successionTimestep <- 10
@@ -167,7 +170,12 @@ set.seed(seed)
 print(seed)
 
 ######## SimInit and Experiment
+<<<<<<< HEAD
+cl <- map:::makeOptimalCluster(MBper = 1e3,
+                               maxNumClusters = 10)
+=======
 cl <- map:::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10) ## TODO: change nCPU
+>>>>>>> 8f54b18e41028cc319e138904eb2e082a19c6437
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    params = parameters,
@@ -223,6 +231,15 @@ ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
 ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
                      id = "1", labelColumn = "shinyLabel",
                      ageClassCutOffs = ageClassCutOffs)
+
+############################################################
+# Post hoc analyses -- specifically making the data.tables for histograms & boxplots
+############################################################
+# This analysisGroupReportingPolygon MUST be the same as one of ones already
+#   analysed.
+ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
+                            postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                            postHocAnalyses = "all")
 
 if (FALSE) {
   ################################################################
