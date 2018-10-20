@@ -70,7 +70,9 @@ targetCRS <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95",
 setwd(activeDir)
 
 if (runName == "testing") {
-  ml <- mapAdd(layerName = "LandWeb Study Area",
+  studyRegionName <- "LandWeb Study Area"
+
+  ml <- mapAdd(layerName = studyRegionName,
                targetCRS = targetCRS, overwrite = TRUE,
                url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", # This is landweb_ltfc_v6.shp
                columnNameForLabels = "NSN", isStudyArea = FALSE, filename2 = NULL
@@ -107,9 +109,11 @@ dataDir <- file.path("inputs", "FMA_Boundaries")
 # TOLKO
 dataDirTolko <- file.path(dataDir, "Tolko")
 if (runName == "tolko_AB_N") {
+  studyRegionName <- "Tolko AB North SR"
+
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_ab_n_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
-  ml <- mapAdd(tolko_ab_n_sr, isStudyArea = TRUE, layerName = "Tolko AB North SR",
+  ml <- mapAdd(tolko_ab_n_sr, isStudyArea = TRUE, layerName = studyRegionName,
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -128,9 +132,11 @@ if (runName == "tolko_AB_N") {
                analysisGroupReportingPolygon = "Tolko AB North Caribou",
                columnNameForLabels = "Name", filename2 = NULL)
 } else if (runName == "tolko_AB_S") {
+  studyRegionName <- "Tolko AB South SR"
+
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_ab_s_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
-  ml <- mapAdd(tolko_ab_s_sr, isStudyArea = TRUE, layerName = "Tolko AB South SR",
+  ml <- mapAdd(tolko_ab_s_sr, isStudyArea = TRUE, layerName = studyRegionName,
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -149,9 +155,10 @@ if (runName == "tolko_AB_N") {
                analysisGroupReportingPolygon = "Tolko AB South Caribou",
                columnNameForLabels = "Name", filename2 = NULL)
 } else if (runName == "tolko_SK") {
+  studyRegionName <- "Tolko SK SR"
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_sk_sr <- shapefile(file.path(dataDirTolko, "Tolko_SK_SR.shp"))
-  ml <- mapAdd(tolko_sk_sr, isStudyArea = TRUE, layerName = "Tolko SK SR",
+  ml <- mapAdd(tolko_sk_sr, isStudyArea = TRUE, layerName = studyRegionName,
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -190,7 +197,7 @@ modules <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
                 "LandMine",
                 "LandWebProprietaryData",
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
-objects <- list("shpStudyRegionFull" = ml$`LandWeb Study Area`,
+objects <- list("shpStudyRegionFull" = ml[[studyRegionName]],
                 "shpStudySubRegion" = studyArea(ml, 1),
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = 2,
@@ -246,7 +253,7 @@ set.seed(seed)
 print(seed)
 
 ######## SimInit and Experiment
-cl <- map:::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10) ## TODO: change nCPU
+cl <- map:::makeOptimalCluster(MBper = 1e3, maxNumClusters = 8) ## TODO: change nCPU
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    params = parameters,
