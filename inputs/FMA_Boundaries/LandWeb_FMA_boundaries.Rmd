@@ -277,6 +277,7 @@ caribou <- file.path("m", "LandWeb_shiny", "data", "Boreal_Caribou_Ranges.shp") 
 ```{r tolko_ab_north}
 tolko_ab_n <- tolko[4, ]
 plot(tolko_ab_n, add = TRUE, col = colours[4])
+shapefile(tolko_ab_n, filename = file.path(dataDirTolko, "Tolko_AB_N.shp"), overwrite = TRUE)
 
 tolko_ab_n.ansr <- postProcess(ansr, studyArea = tolko_ab_n, useSAcrs = TRUE,
                                filename2 = file.path(dataDirTolko, "Tolko_AB_N_ANSR.shp"),
@@ -292,6 +293,7 @@ plot(tolko_ab_n.caribou)
 ```{r tolko_ab_south}
 tolko_ab_s <- tolko[c(2, 3, 5), ]
 plot(tolko_ab_s, col = colours[c(2, 3, 5)])
+shapefile(tolko_ab_s, filename = file.path(dataDirTolko, "Tolko_AB_S.shp"), overwrite = TRUE)
 
 tolko_ab_s.ansr <- postProcess(ansr, studyArea = tolko_ab_s, useSAcrs = TRUE,
                                filename2 = file.path(dataDirTolko, "Tolko_AB_S_ANSR.shp"),
@@ -307,6 +309,9 @@ plot(tolko_ab_s.caribou)
 ```{r tolko_sk}
 tolko_sk <- tolko[1, ]
 plot(tolko_sk, col = colours[1])
+shapefile(tolko_sk, filename = file.path(dataDirTolko, "Tolko_SK.shp"), overwrite = TRUE)
+
+## NOTE: no ANSR in SK ;)
 
 tolko_sk.caribou <- postProcess(caribou, studyArea = tolko_sk, useSAcrs = TRUE,
                                 filename2 = file.path(dataDirTolko, "Tolko_SK_caribou.shp"),
