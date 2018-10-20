@@ -2,10 +2,10 @@ activeDir <- "~/GitHub/LandWeb"
 setwd(activeDir)
 
 #runName <- "testing"
-runName <- "tolko_AB_N_doubleFRI"
+runName <- "tolko_AB_N_doubleFRI" ## started
 #runName <- "tolko_AB_S_doubleFRI"
 #runName <- "tolko_SK_doubleFRI"
-#runName <- "tolko_AB_N_equalROS"
+#runName <- "tolko_AB_N_equalROS" ## started
 #runName <- "tolko_AB_S_equalROS"
 #runName <- "tolko_SK_equalROS"
 
@@ -42,7 +42,7 @@ moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
 # Paths
 ##########################################################
 paths <- list(
-  cachePath = "cache",
+  cachePath = file.path("cache", runName),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = file.path("outputs", runName)
@@ -305,6 +305,8 @@ outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3)
 seed <- sample(1e8, 1)
 set.seed(seed)
 print(seed)
+
+print(runName)
 
 ######## SimInit and Experiment
 cl <- map:::makeOptimalCluster(MBper = 1e3, maxNumClusters = 8) ## TODO: change nCPU
