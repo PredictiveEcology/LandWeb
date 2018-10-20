@@ -69,19 +69,18 @@ targetCRS <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95",
                        "+x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
 setwd(activeDir)
 
+studyRegionName <- "LandWeb Study Area"
+ml <- mapAdd(layerName = studyRegionName,
+             targetCRS = targetCRS, overwrite = TRUE,
+             url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", # This is landweb_ltfc_v6.shp
+             columnNameForLabels = "NSN", isStudyArea = FALSE, filename2 = NULL
+)
+
 if (grepl("testing", runName)) {
-  studyRegionName <- "LandWeb Study Area"
-
-  ml <- mapAdd(layerName = studyRegionName,
-               targetCRS = targetCRS, overwrite = TRUE,
-               url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", # This is landweb_ltfc_v6.shp
-               columnNameForLabels = "NSN", isStudyArea = FALSE, filename2 = NULL
-  )
-
   # Make a random small study area
   seed <- 863
   set.seed(seed)
-  sp2 <- Cache(SpaDES.tools::randomPolygon, ml$`LandWeb Study Area`, 4e5)
+  sp2 <- Cache(SpaDES.tools::randomPolygon, ml[[studyRegionName]], 4e5)
   ml <- mapAdd(obj = sp2, map = ml, filename2 = FALSE,
                targetCRS = targetCRS,
                layerName = "Small Study Area",
@@ -113,7 +112,7 @@ if (grepl("tolko_AB_N", runName)) {
 
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_ab_n_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
-  ml <- mapAdd(tolko_ab_n_sr, isStudyArea = TRUE, layerName = studyRegionName,
+  ml <- mapAdd(tolko_ab_n_sr, ml, isStudyArea = TRUE, layerName = studyRegionName,
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -208,7 +207,7 @@ modules <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
 scfmModules <- list("scfmLandcoverInit", "scfmIgnition","ageModule","scfmRegime",
                     "scfmEscape", "scfmSpread", "andisonDriver")
 
-objects <- list("shpStudyRegionFull" = ml[[studyRegionName]],
+objects <- list("shpStudyRegionFull" = ml[["LandWeb Study Area"]],
                 "shpStudySubRegion" = studyArea(ml, 1),
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = 2,
