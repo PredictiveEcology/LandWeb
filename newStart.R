@@ -91,7 +91,7 @@ ml <- mapAdd(layerName = "Small Study Area", map = ml,
 rm(aaa)
 
 ######
-#
+# Dynamic simulations
 ######
 endTime <- 3
 successionTimestep <- 10
