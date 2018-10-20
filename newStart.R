@@ -167,9 +167,7 @@ set.seed(seed)
 print(seed)
 
 ######## SimInit and Experiment
-useParallel <- getOption("map.useParallel", !identical("windows", .Platform$OS.type))
-cl <- map:::makeOptimalCluster(useParallel = useParallel,
-                         MBper = 1e3,
+cl <- map:::makeOptimalCluster(MBper = 1e3,
                                maxNumClusters = 10)
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
