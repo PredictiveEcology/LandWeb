@@ -1,4 +1,7 @@
-runName = "testing"
+runName <- "testing"
+
+source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
+
 ##########################################################
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 ##########################################################
@@ -59,48 +62,43 @@ opts <- options(
 
 activeDir <- "~/GitHub/LandWeb"
 checkPath(activeDir, create = TRUE)
-targetCRS <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
+targetCRS <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95",
+                       "+x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
 setwd(activeDir)
-ml <- mapAdd(layerName = "LandWeb Study Area",
-             targetCRS = targetCRS, overwrite = TRUE,
-             url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", # This is landweb_ltfc_v6.shp
-             columnNameForLabels = "NSN", isStudyArea = FALSE, filename2 = NULL
-)
 
-# Make a random small study area
-seed <- 863
-set.seed(seed)
-sp2 <- Cache(SpaDES.tools::randomPolygon, ml$`LandWeb Study Area`, 4e5)
-ml <- mapAdd(obj = sp2, map = ml, filename2 = FALSE,
-             targetCRS = targetCRS,
-             layerName = "Small Study Area",
-             columnNameForLabels = "Name", isStudyArea = TRUE,
-             filename1 = NULL, poly = TRUE,
-             analysisGroupReportingPolygon = "Small Study Area"
-)
-aaa <- 1
-# re-add the LandWeb polygon, but this time crop it to the Small Study Area
-ml <- mapAdd(layerName = "Small Study Area", map = ml,
-             #studyArea = studyArea(ml),
-             overwrite = TRUE, useSAcrs = TRUE, poly = TRUE,
-             analysisGroupReportingPolygon = "Small Study Area",
-             url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
-             columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
-)
+if (runName == "testing") {
+  ml <- mapAdd(layerName = "LandWeb Study Area",
+               targetCRS = targetCRS, overwrite = TRUE,
+               url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", # This is landweb_ltfc_v6.shp
+               columnNameForLabels = "NSN", isStudyArea = FALSE, filename2 = NULL
+  )
+
+  # Make a random small study area
+  seed <- 863
+  set.seed(seed)
+  sp2 <- Cache(SpaDES.tools::randomPolygon, ml$`LandWeb Study Area`, 4e5)
+  ml <- mapAdd(obj = sp2, map = ml, filename2 = FALSE,
+               targetCRS = targetCRS,
+               layerName = "Small Study Area",
+               columnNameForLabels = "Name", isStudyArea = TRUE,
+               filename1 = NULL, poly = TRUE,
+               analysisGroupReportingPolygon = "Small Study Area"
+  )
+  aaa <- 1
+  # re-add the LandWeb polygon, but this time crop it to the Small Study Area
+  ml <- mapAdd(layerName = "Small Study Area", map = ml,
+               #studyArea = studyArea(ml),
+               overwrite = TRUE, useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "Small Study Area",
+               url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
+               columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
+  )
+}
 
 ################################################################################
 ## COMPANY-SPECIFIC STUDY AREAS
 
 dataDir <- file.path("inputs", "FMA_Boundaries")
-
-### ECOLOGICAL POLYGONS
-# Alberta Natural Subregions
-ansr <- file.path("m", "LandWeb_shiny", "data", "AB_Natural_Sub_Regions.shp") %>%
-  shapefile()
-
-# Caribou
-caribou <- file.path("m", "LandWeb_shiny", "data", "Boreal_Caribou_Ranges.shp") %>%
-  shapefile()
 
 ### ADMINISTRATIVE POLYGONS
 # TOLKO
@@ -108,7 +106,7 @@ dataDirTolko <- file.path(dataDir, "Tolko")
 if (runName == "tolko_AB_N") {
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_ab_n_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
-  ml <- mapAdd(tolko_ab_n_sr, ml, isStudyArea = TRUE, layerName = "Tolko AB North SR",
+  ml <- mapAdd(tolko_ab_n_sr, isStudyArea = TRUE, layerName = "Tolko AB North SR",
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -129,7 +127,7 @@ if (runName == "tolko_AB_N") {
 } else if (runName == "tolko_AB_S") {
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_ab_s_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
-  ml <- mapAdd(tolko_ab_s_sr, ml, isStudyArea = TRUE, layerName = "Tolko AB South SR",
+  ml <- mapAdd(tolko_ab_s_sr, isStudyArea = TRUE, layerName = "Tolko AB South SR",
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -150,7 +148,7 @@ if (runName == "tolko_AB_N") {
 } else if (runName == "tolko_SK") {
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_sk_sr <- shapefile(file.path(dataDirTolko, "Tolko_SK_SR.shp"))
-  ml <- mapAdd(tolko_sk_sr, ml, isStudyArea = TRUE, layerName = "Tolko SK SR",
+  ml <- mapAdd(tolko_sk_sr, isStudyArea = TRUE, layerName = "Tolko SK SR",
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -169,17 +167,12 @@ if (runName == "tolko_AB_N") {
                analysisGroupReportingPolygon = "Tolko SK Caribou",
                columnNameForLabels = "Name", filename2 = NULL)
 }
-
-
 rm(aaa)
 
 ######
 # Dynamic Simulation
 ######
-endTime <- 3
-successionTimestep <- 10
-summaryPeriod <- c(2,3)
-summaryInterval <- 1
+
 ## spades module variables
 eventCaching <- c(".inputObjects", "init")
 maxAge <- 400
