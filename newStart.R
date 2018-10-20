@@ -71,7 +71,7 @@ ml <- mapAdd(layerName = "LandWeb Study Area",
 # Make a random small study area
 seed <- 863
 set.seed(seed)
-sp2 <- SpaDES.tools::randomPolygon(ml$`LandWeb Study Area`, 4e5)
+sp2 <- Cache(SpaDES.tools::randomPolygon, ml$`LandWeb Study Area`, 4e5)
 ml <- mapAdd(obj = sp2, map = ml, filename2 = FALSE,
              targetCRS = targetCRS,
              layerName = "Small Study Area",
@@ -170,7 +170,7 @@ print(seed)
 useParallel <- getOption("map.useParallel", !identical("windows", .Platform$OS.type))
 cl <- map:::makeOptimalCluster(useParallel = useParallel,
                          MBper = 1e3,
-                         maxNumClusters = 10)
+                               maxNumClusters = 10)
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                      params = parameters,
