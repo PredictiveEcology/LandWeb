@@ -48,8 +48,7 @@ paths <- list(
   outputPath = file.path("outputs", runName)
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
-tilePath <- file.path(Paths$outputPath, runName, "tiles")
-
+tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
 opts <- options(
