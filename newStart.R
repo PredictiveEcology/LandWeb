@@ -87,14 +87,40 @@ ml <- mapAdd(layerName = "Small Study Area", map = ml,
              url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
              columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
 )
+
+ml <- mapAdd(dmi_sr, ml, isStudyArea = TRUE, layerName = "DMI_SR",
+             useSAcrs = TRUE, poly = TRUE,
+             #analysisGroupReportingPolygon = "DMI Study Area",
+             columnNameForLabels = "NSN", filename2 = NULL)
+
+ml <- mapAdd(dmi.full, ml, layerName = "DMI Full", useSAcrs = TRUE, poly = TRUE,
+             analysisGroupReportingPolygon = "DMI Full",
+             columnNameForLabels = "NSN", filename2 = NULL, overwrite = TRUE)
+
+ml <- mapAdd(dmi.e, ml, layerName = "DMI East", useSAcrs = TRUE, poly = TRUE,
+             analysisGroupReportingPolygon = "DMI East",
+             filename2 = NULL, overwrite = TRUE)
+
+ml <- mapAdd(dmi.nw, ml, layerName = "DMI West North", useSAcrs = TRUE, poly = TRUE,
+             analysisGroupReportingPolygon = "DMI West North",
+             filename2 = NULL, overwrite = TRUE)
+
+ml <- mapAdd(dmi.sw, ml, layerName = "DMI West South", useSAcrs = TRUE, poly = TRUE,
+             analysisGroupReportingPolygon = "DMI West South",
+             filename2 = NULL, overwrite = TRUE)
+
+ml <- mapAdd(dmi.caribou, ml, layerName = "DMI Caribou", useSAcrs = TRUE, poly = TRUE,
+             analysisGroupReportingPolygon = "DMI Caribou",
+             filename2 = NULL, overwrite = TRUE)
+
+ml <- mapAdd(dmi.ansr, ml, layerName = "DMI ANSR", useSAcrs = TRUE, poly = TRUE,
+             analysisGroupReportingPolygon = "DMI ANSR",
+             filename2 = NULL, overwrite = TRUE)
+
 rm(aaa)
 
 ######
-<<<<<<< HEAD
-# Dynamic simulations
-=======
 # Dynamic Simulation
->>>>>>> 8f54b18e41028cc319e138904eb2e082a19c6437
 ######
 endTime <- 3
 successionTimestep <- 10
@@ -170,12 +196,7 @@ set.seed(seed)
 print(seed)
 
 ######## SimInit and Experiment
-<<<<<<< HEAD
-cl <- map:::makeOptimalCluster(MBper = 1e3,
-                               maxNumClusters = 10)
-=======
 cl <- map:::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10) ## TODO: change nCPU
->>>>>>> 8f54b18e41028cc319e138904eb2e082a19c6437
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    params = parameters,
