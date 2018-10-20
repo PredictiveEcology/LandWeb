@@ -193,16 +193,28 @@ ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
 fireTimestep <- 1
 
+## scfm stuff:
+mapDim <- 200
+defaultInterval <- NA
+defaultPlotInterval <- NA
+defaultInitialSaveTime <- NA
+
+
 times <- list(start = 0, end = endTime)
 modules <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
                 "LandMine",
                 "LandWebProprietaryData",
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
+scfmModules <- list("scfmLandcoverInit", "scfmIgnition","ageModule","scfmRegime",
+                    "scfmEscape", "scfmSpread", "andisonDriver")
+
 objects <- list("shpStudyRegionFull" = ml[[studyRegionName]],
                 "shpStudySubRegion" = studyArea(ml, 1),
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = 2,
                 "vegLeadingPercent" = vegLeadingPercent)
+scfmObjects <- list("mapDim" = mapDim)
+
 parameters <- list(
   Boreal_LBMRDataPrep = list(.useCache = eventCaching, .crsUsed = crs(studyArea(ml))),
   fireDataPrep = list(.useCache = eventCaching),
@@ -219,6 +231,48 @@ parameters <- list(
   timeSinceFire = list(startTime = fireTimestep,
                        .useCache = eventCaching)
 )
+scfmParams <- list(
+  #.progress = list(type = "text", interval = 1),
+  ageModule = list(
+    initialAge = 100,
+    maxAge = 200,
+    returnInterval = defaultInterval,
+    startTime = times$start,
+    .plotInitialTime = times$start,
+    .plotInterval = defaultPlotInterval,
+    .saveInitialTime = defaultInitialSaveTime,
+    .saveInterval = defaultInterval),
+  scfmIgnition = list(
+    pIgnition = 0.0001,
+    returnInterval = defaultInterval,
+    startTime = times$start,
+    .plotInitialTime = NA,
+    .plotInterval = defaultPlotInterval,
+    .saveInitialTime = defaultInitialSaveTime,
+    .saveInterval = defaultInterval),
+  scfmEscape = list(
+    p0 = 0.05,
+    returnInterval = defaultInterval,
+    startTime = times$start,
+    .plotInitialTime = NA,
+    .plotInterval = defaultPlotInterval,
+    .saveInitialTime = defaultInitialSaveTime,
+    .saveInterval = defaultInterval),
+  scfmSpread = list(
+    pSpread = 0.235,
+    returnInterval = defaultInterval,
+    startTime = times$start,
+    .plotInitialTime = times$start,
+    .plotInterval = defaultPlotInterval,
+    .saveInitialTime = defaultInitialSaveTime,
+    .saveInterval = defaultInterval)
+)
+
+if (grepl("scfm", runName)) {
+  modules <- append(modules[-which(modules == "LandMine")], scfmModules)
+  objects <- append(objects, scfmObjects)
+  parameters <- append(parameters, scfmParams)
+}
 
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 
@@ -264,7 +318,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    paths = paths,
                    loadOrder = unlist(modules),
                    clearSimEnv = TRUE, .plotInitialTime = NA,
-                   replicates = 2 ## TODO: change this
+                   replicates = 1 ## TODO: change this to 16
 )
 try(stopCluster(cl), silent = TRUE)
 
