@@ -135,7 +135,7 @@ if (grepl("tolko_AB_N", runName)) {
 
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_ab_s_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
-  ml <- mapAdd(tolko_ab_s_sr, isStudyArea = TRUE, layerName = studyRegionName,
+  ml <- mapAdd(tolko_ab_s_sr, ml, isStudyArea = TRUE, layerName = studyRegionName,
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -157,7 +157,7 @@ if (grepl("tolko_AB_N", runName)) {
   studyRegionName <- "Tolko SK SR"
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_sk_sr <- shapefile(file.path(dataDirTolko, "Tolko_SK_SR.shp"))
-  ml <- mapAdd(tolko_sk_sr, isStudyArea = TRUE, layerName = studyRegionName,
+  ml <- mapAdd(tolko_sk_sr, ml, isStudyArea = TRUE, layerName = studyRegionName,
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -340,7 +340,7 @@ allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
 layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
 layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
 layerName <- gsub(layerName, pattern = "^_", replacement = "")
-ag1 = gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2")
+ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2")
 destinationPath <- dirname(allouts)
 tsf <- gsub(".*vegTypeMap.*", NA, allouts)
 vtm <- gsub(".*TimeSinceFire.*", NA, allouts)
