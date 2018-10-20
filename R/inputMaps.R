@@ -44,7 +44,7 @@ loadStudyRegions <- function(shpPath, shpStudyRegionCreateFn,
       shpStudyRegion$LTHFC <- NULL
 
       ## TODO: test longer (doubled) fire return intervals
-      if (get("runName", .GlobalEnv) == "doubleFRI") {
+      if (grepl("doubleFRI", get("runName", .GlobalEnv))) {
         shpStudyRegion$LTHRC <- 2*shpStudyRegion$LTHRC
       }
       ## end TODO
