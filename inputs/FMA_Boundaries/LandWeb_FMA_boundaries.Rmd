@@ -100,7 +100,7 @@ There are 3 parts to the DMI FMA: an East and two West areas (North and South).
 
 ```{r dmi_full}
 dmi <- shp2[grepl("Daishowa-Marubeni International Ltd", shp2$Name), ]
-plot(dmi[, "Name"], main ="DMI full", col = "lightblue")
+plot(dmi[, "Name"], main = "DMI full", col = "lightblue")
 
 dmi.full <- maptools::unionSpatialPolygons(dmi, rep(1, 2))
 shapefile(dmi.full, filename = file.path(dataDirDMI, "DMI_Full.shp"), overwrite = TRUE)
@@ -188,11 +188,11 @@ ml.dmi <- mapAdd(dmi.sw, ml.dmi, layerName = "DMI West South", poly = TRUE,
                  analysisGroupAdmin = "dmi",
                  filename2 = NULL, overwrite = TRUE)
 
-ml.dmi <- mapAdd(caribou, ml.dmi, layerName = "Caribou", poly = TRUE,
+ml.dmi <- mapAdd(dmi.caribou, ml.dmi, layerName = "Caribou", poly = TRUE,
                  analysisGroupEcol = "dmi",
                  filename2 = NULL, overwrite = TRUE)
 
-ml.dmi <- mapAdd(ansr, ml.dmi, layerName = "Alberta Natural Subregions", poly = TRUE,
+ml.dmi <- mapAdd(dmi.ansr, ml.dmi, layerName = "Alberta Natural Subregions", poly = TRUE,
                  analysisGroupEcol = "dmi",
                  filename2 = NULL, overwrite = TRUE)
 

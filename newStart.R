@@ -65,7 +65,7 @@ setwd(activeDir)
 ml <- mapAdd(layerName = "LandWeb Study Area",
              targetCRS = targetCRS, overwrite = TRUE,
              url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", # This is landweb_ltfc_v6.shp
-             columnNameForLabels = "Name", isStudyArea = FALSE, filename2 = NULL
+             columnNameForLabels = "NSN", isStudyArea = FALSE, filename2 = NULL
 )
 
 # Make a random small study area
@@ -214,7 +214,7 @@ ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
 ######################################################################
 # Leading Veg Type By Age Class
 ######################################################################
-ml <- mapAddAnalysis(ml, functionName ="LeadingVegTypeByAgeClass",
+ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
                      ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
 
 # add an analysis -- this will trigger analyses because there are already objects in the map
