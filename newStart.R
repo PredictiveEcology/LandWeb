@@ -40,17 +40,17 @@ tilePath <- file.path(Paths$outputPath, runName, "tiles")
 
 
 ## Options
-# options(reproducible.inputPaths = NULL)
-opts <- options("spades.moduleCodeChecks" = FALSE,
-                "reproducible.quick" = FALSE,
-                "reproducible.overwrite" = TRUE,
-                "map.overwrite" = TRUE,
-                "reproducible.useCache" = TRUE,
-                reproducible.destinationPath = Paths$inputPath,
-                "spades.useRequire" = FALSE, # Don't use Require... meaning assume all pkgs installed
-                map.tilePath = tilePath,
-                map.dataPath = Paths$inputPath, # not used yet
-                map.useParallel = FALSE #!identical("windows", .Platform$OS.type),
+opts <- options(
+  "map.dataPath" = Paths$inputPath, # not used yet
+  "map.overwrite" = TRUE,
+  "map.tilePath" = tilePath,
+  "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
+  "reproducible.destinationPath" = Paths$inputPath,
+  "reproducible.overwrite" = TRUE,
+  "reproducible.quick" = FALSE,
+  "reproducible.useCache" = TRUE,
+  "spades.moduleCodeChecks" = FALSE,
+  "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
 
 ##########################################################
@@ -90,7 +90,11 @@ ml <- mapAdd(layerName = "Small Study Area", map = ml,
 rm(aaa)
 
 ######
+<<<<<<< HEAD
 # Dynamic simulations
+=======
+# Dynamic Simulation
+>>>>>>> 8f54b18e41028cc319e138904eb2e082a19c6437
 ######
 endTime <- 3
 successionTimestep <- 10
@@ -166,18 +170,22 @@ set.seed(seed)
 print(seed)
 
 ######## SimInit and Experiment
+<<<<<<< HEAD
 cl <- map:::makeOptimalCluster(MBper = 1e3,
                                maxNumClusters = 10)
+=======
+cl <- map:::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10) ## TODO: change nCPU
+>>>>>>> 8f54b18e41028cc319e138904eb2e082a19c6437
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
-                     params = parameters,
-                     modules = modules,
-                     outputs = outputs,
-                     objects, # do not name this argument -- collides with
-                     paths = paths,
-                     loadOrder = unlist(modules),
-                     clearSimEnv = TRUE, .plotInitialTime = NA,
-                     replicates = 2
+                   params = parameters,
+                   modules = modules,
+                   outputs = outputs,
+                   objects, # do not name this argument -- collides with
+                   paths = paths,
+                   loadOrder = unlist(modules),
+                   clearSimEnv = TRUE, .plotInitialTime = NA,
+                   replicates = 2 ## TODO: change this
 )
 try(stopCluster(cl), silent = TRUE)
 
