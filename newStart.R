@@ -57,6 +57,7 @@ opts <- options(
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = Paths$inputPath,
+  "reproducible.inputPaths" = "inputs",
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.useCache" = TRUE,
@@ -350,7 +351,7 @@ ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
              targetFile = asPath(allouts),
              destinationPath = asPath(destinationPath),
              filename2 = NULL, tsf = asPath(tsf), vtm = asPath(vtm),
-             overwrite = TRUE, leaflet = tilePath)
+             overwrite = TRUE, leaflet = asPath(tilePath))
 
 ######################################################################
 # Leading Veg Type By Age Class
