@@ -44,7 +44,6 @@ testing/*
 *ecodistricts.*
 *ecoregions.*
 *ecozones.*
-inputs/*
 inputs/allFMAs/
 inputs/Caribou/
 inputs/CurrentCondition/
