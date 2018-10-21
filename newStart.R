@@ -202,7 +202,7 @@ times <- list(start = 0, end = endTime)
 modules <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
                 "LandMine",
                 "LandWebProprietaryData",
-                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire")#, "LandWeb_output")
+                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
 scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
                     "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 
