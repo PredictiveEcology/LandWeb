@@ -3,3 +3,4 @@ endTime <- 1500
 successionTimestep <- 10
 summaryPeriod <- c(700, endTime)
 summaryInterval <- 20
+cacheId <- list()

@@ -73,61 +73,75 @@ shpStudyRegionCreate <- function(shpStudyRegion, subStudyRegionName, crsStudyReg
   canadaAdminNamesAll <- c(names(canadaAdminNames), canadaAdminNames)
 
   if (!("FULL" %in% subStudyRegionName)) {
-    if ("NWT" %in% subStudyRegionName) {
-      shpStudyRegionLFLT <- spTransform(shpStudyRegion, SpaDES.shiny::proj4stringLFLT)
-      ext <- extent(shpStudyRegionLFLT)
-      ext@ymin <- 60
-      shpStudyRegionNWT <- crop(shpStudyRegionLFLT, ext)
-      shpSubStudyRegion <- spTransform(shpStudyRegionNWT, crs(shpStudyRegion))
-      shpSubStudyRegion <- rgeos::gBuffer(shpSubStudyRegion, width = 0, byid = TRUE)
-    } else if (any(subStudyRegionName %in% canadaAdminNamesAll)) {
-      canadaMap <- Cache(getData, "GADM", country = "CAN", level = 1, path = "inputs",
-                         cacheRepo = paths$cachePath, userTags = "stable")
-      subStudyRegionName <- canadaAdminNames[canadaAdminNames %in% subStudyRegionName |
-                                               names(canadaAdminNames) %in% subStudyRegionName]
-      inputMapPolygon <- spTransform(canadaMap[canadaMap$NAME_1 %in% subStudyRegionName, ], crsStudyRegion)
-      aa <- sf::st_intersection(sf::st_as_sf(shpStudyRegion), sf::st_as_sf(inputMapPolygon))
-      shpSubStudyRegion <- as(aa, "Spatial")
-    } else {
-      #set.seed(5567913)
-      set.seed(853839)
-      if ("VERYSMALL" %in% subStudyRegionName) {
-        areaKm2 <- 3000
-      } else if ("SMALL" %in% subStudyRegionName) {
-        areaKm2 <- 10000
-      } else if ("MEDIUM" %in% subStudyRegionName) {
-        areaKm2 <- 40000
-      } else if ("LARGE" %in% subStudyRegionName) {
-        areaKm2 <- 80000
-      } else if ("VERYLARGE" %in% subStudyRegionName) {
-        areaKm2 <- 180000
+    # if ("NWT" %in% subStudyRegionName) {
+    #   shpStudyRegionLFLT <- spTransform(shpStudyRegion, SpaDES.shiny::proj4stringLFLT)
+    #   ext <- extent(shpStudyRegionLFLT)
+    #   ext@ymin <- 60
+    #   shpStudyRegionNWT <- crop(shpStudyRegionLFLT, ext)
+    #   shpSubStudyRegion <- spTransform(shpStudyRegionNWT, crs(shpStudyRegion))
+    #   shpSubStudyRegion <- rgeos::gBuffer(shpSubStudyRegion, width = 0, byid = TRUE)
+    # } else if (any(subStudyRegionName %in% canadaAdminNamesAll)) {
+    #   canadaMap <- Cache(getData, "GADM", country = "CAN", level = 1, path = "inputs",
+    #                      cacheRepo = paths$cachePath, userTags = "stable")
+    #   subStudyRegionName <- canadaAdminNames[canadaAdminNames %in% subStudyRegionName |
+    #                                            names(canadaAdminNames) %in% subStudyRegionName]
+    #   inputMapPolygon <- spTransform(canadaMap[canadaMap$NAME_1 %in% subStudyRegionName, ], crsStudyRegion)
+    #   aa <- sf::st_intersection(sf::st_as_sf(shpStudyRegion), sf::st_as_sf(inputMapPolygon))
+    #   shpSubStudyRegion <- as(aa, "Spatial")
+    # } else {
+    #   #set.seed(5567913)
+    #   set.seed(853839)
+    #   if ("VERYSMALL" %in% subStudyRegionName) {
+    #     areaKm2 <- 3000
+    #   } else if ("SMALL" %in% subStudyRegionName) {
+    #     areaKm2 <- 10000
+    #   } else if ("MEDIUM" %in% subStudyRegionName) {
+    #     areaKm2 <- 40000
+    #   } else if ("LARGE" %in% subStudyRegionName) {
+    #     areaKm2 <- 80000
+    #   } else if ("VERYLARGE" %in% subStudyRegionName) {
+    #     areaKm2 <- 180000
+    #   }
+    #
+    #   minY <- 7678877 - 3.6e5
+    #   minX <- -1002250.2
+    #   maxX <- minX + sqrt(areaKm2 * 1e6)
+    #   maxY <- minY + sqrt(areaKm2 * 1e6)
+    #   meanY <- mean(c(minY, maxY))
+    #
+    #   # Add random noise to polygon
+    #   xAdd <- -3e5 #round(runif(1,-5e5, 1.5e6))
+    #   yAdd <- 5e5  #round(runif(1, 1e5, 5e5)) - xAdd / 2
+    #   nPoints <- 20
+    #   betaPar <- 0.6
+    #   X <- c(jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxX - minX) + minX)),
+    #          jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxX - minX) + minX, decreasing = TRUE)))
+    #   Y <- c(jitter(sort(rbeta(nPoints / 2, betaPar, betaPar) * (maxY - meanY) + meanY)),
+    #          jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxY - minY) + minY, decreasing = TRUE)),
+    #          jitter(sort(rbeta(nPoints / 2, betaPar, betaPar) * (meanY - minY) + minY)))
+    #
+    #   Sr1 <- Polygon(cbind(X + xAdd, Y + yAdd))
+    #   Srs1 <- Polygons(list(Sr1), "s1")
+    #   inputMapPolygon <- SpatialPolygons(list(Srs1), 1L)
+    #   crs(inputMapPolygon) <- crsStudyRegion
+    #   shpSubStudyRegion <- raster::intersect(shpStudyRegion, inputMapPolygon)
+    #   options("digits.secs" = 7)
+    #   on.exit(options("digits.secs" = NULL))
+    #   set.seed(as.numeric(format(Sys.time(), format = "%OS")))
+    # }
+
+    ## Company-specific study areas
+    dataDir <- file.path("inputs", "FMA_Boundaries")
+    dataDirTolko <- file.path(dataDir, "Tolko")
+
+    if (subStudyRegionName == "TOLKO") {
+      if (grepl("tolko_AB_N", runName)) {
+        shpSubStudyRegion <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
+      } else if (grepl("tolko_AB_S", runName)) {
+        shpSubStudyRegion <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
+      } else if (grepl("tolko_SK", runName)) {
+        shpSubStudyRegion <- shapefile(file.path(dataDirTolko, "Tolko_SK_SR.shp"))
       }
-
-      minY <- 7678877 - 3.6e5
-      minX <- -1002250.2
-      maxX <- minX + sqrt(areaKm2 * 1e6)
-      maxY <- minY + sqrt(areaKm2 * 1e6)
-      meanY <- mean(c(minY, maxY))
-
-      # Add random noise to polygon
-      xAdd <- -3e5 #round(runif(1,-5e5, 1.5e6))
-      yAdd <- 5e5  #round(runif(1, 1e5, 5e5)) - xAdd / 2
-      nPoints <- 20
-      betaPar <- 0.6
-      X <- c(jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxX - minX) + minX)),
-             jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxX - minX) + minX, decreasing = TRUE)))
-      Y <- c(jitter(sort(rbeta(nPoints / 2, betaPar, betaPar) * (maxY - meanY) + meanY)),
-             jitter(sort(rbeta(nPoints, betaPar, betaPar) * (maxY - minY) + minY, decreasing = TRUE)),
-             jitter(sort(rbeta(nPoints / 2, betaPar, betaPar) * (meanY - minY) + minY)))
-
-      Sr1 <- Polygon(cbind(X + xAdd, Y + yAdd))
-      Srs1 <- Polygons(list(Sr1), "s1")
-      inputMapPolygon <- SpatialPolygons(list(Srs1), 1L)
-      crs(inputMapPolygon) <- crsStudyRegion
-      shpSubStudyRegion <- raster::intersect(shpStudyRegion, inputMapPolygon)
-      options("digits.secs" = 7)
-      on.exit(options("digits.secs" = NULL))
-      set.seed(as.numeric(format(Sys.time(), format = "%OS")))
     }
   } else {
     shpSubStudyRegion <- shpStudyRegion
