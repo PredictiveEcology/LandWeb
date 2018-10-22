@@ -97,14 +97,14 @@ Init <- function(sim) {
 
 
 .inputObjects <- function(sim) {
-  # if (is.null(sim$shpStudyRegion)) {
+  # if (!suppliedElsewhere(sim$shpStudyRegion)) {
 
   #   sim$shpStudyRegion <- randomPolygon(matrix(c(-90, 60), ncol = 2), 5)
   # }
-  # if (is.null(sim$LCC05)) {
+  # if (!suppliedElsewhere(sim$LCC05)) {
   #   sim$LCC05 <- raster(extent(sim$shpStudyRegion))
   # }
-  # if (is.null(sim$rstStudyRegion)) {
+  # if (!suppliedElsewhere(sim$rstStudyRegion)) {
   #   sim$rstStudyRegion <- rasterize(sim$shpStudyRegion, sim$LCC05)
   # }
 

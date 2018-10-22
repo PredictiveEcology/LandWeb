@@ -10,7 +10,7 @@ defineModule(sim, list(
   timeunit =  "year", #no relevence. An init module only.
   citation = list(""),
   documentation = list("README.txt", "initBaseMaps.Rmd"),
-  reqdPkgs = list("quickPlot", "raster", "sf", "sp", "SpaDES.tools"),
+  reqdPkgs = list("fasterize", "quickPlot", "raster", "sf", "sp", "SpaDES.tools"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description")),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -60,11 +60,6 @@ Init <- function(sim) {
   sim$rstStudyRegion <- fasterize(sf::st_as_sf(sim$shpStudyRegion),
                                   field = fieldName,
                                   crop(sim$LCC2005, extent(sim$shpStudyRegion)))
-  # sim$rstStudyRegion <- Cache(SpaDES.tools::fastRasterize,
-  #                             polygon = sim$shpStudyRegion,
-  #                             ras = crop(sim$LCC2005, extent(sim$shpStudyRegion)),
-  #                             field = fieldName, datatype = "INT2U",
-  #                             filename = "rstStudyRegion")
 
   cropMask <- function(ras, poly, mask) {
     out <- crop(ras,poly)
@@ -82,12 +77,11 @@ Init <- function(sim) {
 }
 
 .inputObjects <- function(sim) {
-
-  if (is.null(sim$LCC2005)) {
+  if (!suppliedElsewhere(sim$LCC2005)) {
     sim$LCC2005 <- raster(extent(0,10,0,10))
   }
 
-  if (is.null(sim$shpStudySubRegion )) {
+  if (!suppliedElsewhere(sim$shpStudySubRegion)) {
     sim$shpStudySubRegion <- randomPolygon(matrix(c(-90, 60), ncol = 2), 1)
   }
   return(invisible(sim))
