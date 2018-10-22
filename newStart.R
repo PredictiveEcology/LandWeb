@@ -2,9 +2,17 @@ activeDir <- "~/GitHub/LandWeb"
 setwd(activeDir)
 
 #runName <- "testing"
-runName <- "tolko_AB_N_doubleFRI"
+
+runName <- "tolko_AB_N"  ## original
+#runName <- "tolko_AB_S"  ## original
+#runName <- "tolko_SK"  ## original
+
+
+#runName <- "tolko_AB_N_doubleFRI"
 #runName <- "tolko_AB_S_doubleFRI"
 #runName <- "tolko_SK_doubleFRI"
+
+
 #runName <- "tolko_AB_N_equalROS"
 #runName <- "tolko_AB_S_equalROS"
 #runName <- "tolko_SK_equalROS"
