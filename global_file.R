@@ -47,13 +47,16 @@ source("appInfo.R")
 
 # Options
 opts <- options(
+  "map.dataPath" = Paths$inputPath, # not used yet
+  "map.overwrite" = TRUE,
+  "map.tilePath" = tilePath,
+  "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
+  "reproducible.destinationPath" = Paths$inputPath,
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.useCache" = TRUE,
-  "reproducible.useMemoise" = TRUE,
-  "reproducible.verbose" = FALSE,
-  "spades.browserOnError" = FALSE,
-  "spades.moduleCodeChecks" = FALSE
+  "spades.moduleCodeChecks" = FALSE,
+  "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
 
 # Google Authentication setup
@@ -83,10 +86,6 @@ paths <- list(
   outputPath = file.path("outputs", paste0(subStudyRegionNameCollapsed), runName)
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
-
-if (any(c("achubaty", "emcintir") %in% Sys.info()["user"])) {
-  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
-}
 
 ## get additonal helper functions used throughout this shiny app
 source(file.path("R", "functions.R"))
@@ -167,10 +166,12 @@ list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpSubStudy
 ## set default reporting polgyon for app
 defaultPolyName <- "National Ecozones"
 if (exists("DEVMODE")) {
-  if (DEVMODE == "DMI") {
-    defaultPolyName <- "DMI Full"
-  } else if (DEVMODE == "LP") {
-    defaultPolyName <- "LP Mountain"
+  if (grepl("tolko_AB_N", runName)) {
+    defaultPolyName <- "Tolko AB North"
+  } else if (grepl("tolko_AB_S", runName)) {
+    defaultPolyName <- "Tolko AB South"
+  }  else if (grepl("tolko_SK", runName)) {
+    defaultPolyName <- "Tolko SK"
   }
 }
 #defaultPolyName <- "DMI Full" ## TODO: remove this override

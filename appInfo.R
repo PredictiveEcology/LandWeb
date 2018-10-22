@@ -23,7 +23,7 @@ appInfo <- list(
     person("Eliot J B", "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
     person("Alex M", "Chubaty", email = "achubaty@friresearch.ca", role = "aut")
   ),
-  copyright = paste(icon("copyright"), format(Sys.time(), "%Y"),
+  copyright = paste(shiny::icon("copyright"), format(Sys.time(), "%Y"),
                     "Her Majesty the Queen in Right of Canada,",
                     "as represented by the Minister of Natural Resources Canada."),
   support = list(

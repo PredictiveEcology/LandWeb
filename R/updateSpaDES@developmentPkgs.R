@@ -19,4 +19,3 @@ if (FALSE) {
     list.files(dataDir, pattern = "CASFRI", full.names = TRUE)
   ))
 }
-
