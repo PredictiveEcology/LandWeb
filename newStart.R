@@ -309,7 +309,7 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map:::makeOptimalCluster(MBper = 1e3, maxNumClusters = 16) ## TODO: change nCPU
+cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 16)
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    params = parameters,
