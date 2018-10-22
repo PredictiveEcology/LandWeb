@@ -24,6 +24,7 @@ source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 ##########################################################
 library(raster)
 library(SpaDES.core)
+library(pemisc)
 library(map)
 #devtools::load_all("~/GitHub/map")
 
@@ -100,7 +101,6 @@ if (grepl("testing", runName)) {
                filename1 = NULL, poly = TRUE,
                analysisGroupReportingPolygon = "Small Study Area"
   )
-  aaa <- 1
   # re-add the LandWeb polygon, but this time crop it to the Small Study Area
   ml <- mapAdd(layerName = "Small Study Area", map = ml,
                #studyArea = studyArea(ml),
@@ -109,6 +109,7 @@ if (grepl("testing", runName)) {
                url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
                columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
   )
+  studyArea(ml) <- polygonClean(studyArea(ml), type = runName, minFRI = 40)
 }
 
 ################################################################################
