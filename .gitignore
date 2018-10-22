@@ -54,6 +54,10 @@ inputs/ecodistricts/National/
 inputs/ecozones/Alberta/
 inputs/ecozones/National/
 inputs/FMU_Alberta_2015-11/
+inputs/Beaudoin_2014_CJFR.pdf
+inputs/Data dictionary_TIFF.pdf
+inputs/NFI_MAP_V0_metadata.xls
+
 last.dump.rda
 mySimDigestSaved.rds
 mySimSaved.rds
