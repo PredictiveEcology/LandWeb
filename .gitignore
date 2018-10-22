@@ -1,6 +1,8 @@
 ## file types by extension
 *.cpg
 *.csv
+*.dbf
+*.ini
 *.log
 *.ovr
 *.rds
@@ -44,6 +46,7 @@ testing/*
 *ecodistricts.*
 *ecoregions.*
 *ecozones.*
+inputs/AB_Natural_Sub_Regions*
 inputs/allFMAs/
 inputs/Caribou/
 inputs/CurrentCondition/
