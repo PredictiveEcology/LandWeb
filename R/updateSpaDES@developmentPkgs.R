@@ -4,6 +4,7 @@ devtools::install_github("PredictiveEcology/reproducible", ref = "forMapObject",
 devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/SpaDES.core", ref = "newSetClass", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/map", ref = "master", dependencies = FALSE)
+devtools::install_github("PredictiveEcology/pemisc", ref = "master", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "development", dependencies = FALSE)
 
 if (FALSE) {
