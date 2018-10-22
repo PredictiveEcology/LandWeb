@@ -40,30 +40,12 @@ www/images/*
 !www/images/logos/
 
 ## SpaDES-related files
-m/test/
-testing/*
 .checkpoint
-*ecodistricts.*
-*ecoregions.*
-*ecozones.*
-inputs/AB_Natural_Sub_Regions*
-inputs/allFMAs/
-inputs/Caribou/
-inputs/CurrentCondition/
-inputs/ecodistricts/National/
-inputs/ecozones/Alberta/
-inputs/ecozones/National/
-inputs/FMU_Alberta_2015-11/
-inputs/Beaudoin_2014_CJFR.pdf
-inputs/Data dictionary_TIFF.pdf
-inputs/NFI_MAP_V0_metadata.xls
 
 last.dump.rda
 mySimDigestSaved.rds
 mySimSaved.rds
 outputs*
-FULL_*
-SMALL_*
 
 ## OAuth tokens
 .httr-oauth
@@ -73,3 +55,6 @@ SMALL_*
 Thumbs.db
 
 ## !! Module data should be gitignored in the respective module's data dir !!
+
+## !! inputs/ has its own .gignore file too !!
+
