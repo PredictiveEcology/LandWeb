@@ -309,7 +309,7 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 8,
+cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
                               outfile = file.path(Paths$outputPath, "_parallel.log"))
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
@@ -319,8 +319,10 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    objects, # do not name this argument -- collides with
                    paths = paths,
                    loadOrder = unlist(modules),
-                   clearSimEnv = TRUE, .plotInitialTime = NA,
-                   replicates = 16 ## TODO: change this to 16
+                   clearSimEnv = TRUE,
+                   .plotInitialTime = NA,
+                   cache = TRUE, ## this caches each simulation rep (with all data!)
+                   replicates = 12 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
 
