@@ -309,17 +309,17 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map:::makeOptimalCluster(MBper = 1e3, maxNumClusters = 8) ## TODO: change nCPU
+cl <- map:::makeOptimalCluster(MBper = 1e3, maxNumClusters = 16) ## TODO: change nCPU
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    params = parameters,
                    modules = modules,
-                   outputs = outputs,
+                   outputs = outputs, debug = 1,
                    objects, # do not name this argument -- collides with
                    paths = paths,
                    loadOrder = unlist(modules),
                    clearSimEnv = TRUE, .plotInitialTime = NA,
-                   replicates = 1 ## TODO: change this to 16
+                   replicates = 16 ## TODO: change this to 16
 )
 try(stopCluster(cl), silent = TRUE)
 
