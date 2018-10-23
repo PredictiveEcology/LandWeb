@@ -1,4 +1,4 @@
-minFRI <- 30
+minFRI <- 40
 activeDir <- "~/GitHub/LandWeb"
 setwd(activeDir)
 
@@ -17,6 +17,11 @@ runName <- "testing"
 #runName <- "tolko_AB_N_equalROS"
 #runName <- "tolko_AB_S_equalROS"
 #runName <- "tolko_SK_equalROS"
+
+
+#runName <- "tolko_AB_N_logROS"
+#runName <- "tolko_AB_S_logROS"
+#runName <- "tolko_SK_logROS"
 
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 
