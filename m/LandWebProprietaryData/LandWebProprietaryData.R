@@ -101,7 +101,7 @@ Init <- function(sim) {
                   destinationPath = asPath(dPath),
                   fun = "raster::raster",
                   studyArea = sim$shpStudyArea,
-                  rasterToMatch = sim$biomassMap,
+                  rasterToMatch = sim$rasterToMatch,
                   method = "bilinear",
                   datatype = "INT2U",
                   filename2 = TRUE,
@@ -118,7 +118,7 @@ Init <- function(sim) {
                        destinationPath = asPath(dPath),
                        fun = "raster::raster",
                        studyArea = sim$shpStudyArea,
-                       rasterToMatch = sim$biomassMap,
+                       rasterToMatch = sim$rasterToMatch,
                        method = "bilinear",
                        datatype = "INT2U",
                        filename2 = TRUE,
@@ -140,7 +140,7 @@ Init <- function(sim) {
                          PaulRaster = Paul, uniqueKeepSp, destinationPath = dPath,
                          userTags = "stable")
     if (exists("opt", inherits = FALSE)) options(opt)
-    crs(PaulSpStack) <- crs(sim$biomassMap) # bug in writeRaster
+    crs(PaulSpStack) <- crs(sim$rasterToMatch) # bug in writeRaster
 
     message('Make stack from CASFRI data and headers')
     CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI,
@@ -149,13 +149,13 @@ Init <- function(sim) {
     message("Overlay Paul and CASFRI stacks")
     outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack, userTags = "stable",
                       outputFilenameSuffix = "CASFRI_PAUL", destinationPath = dPath)#, notOlderThan = Sys.time())
-    crs(outStack) <- crs(sim$biomassMap) # bug in writeRaster
+    crs(outStack) <- crs(sim$rasterToMatch) # bug in writeRaster
 
     message("Overlay Paul_CASFRI with open data set stacks")
     specieslayers2 <- Cache(overlayStacks, outStack, sim$specieslayers,
                             outputFilenameSuffix = "CASFRI_PAUL_KNN",
                             destinationPath = dPath, userTags = "stable")
-    crs(specieslayers2) <- crs(sim$biomassMap)
+    crs(specieslayers2) <- crs(sim$rasterToMatch)
     sim$specieslayers <- specieslayers2
     message("Using LandWeb datasets from Paul Pickell and CASFRI")
   }
