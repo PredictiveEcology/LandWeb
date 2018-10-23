@@ -67,7 +67,6 @@ tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
 opts <- options(
-  "httr_oob_default" = TRUE,
   "map.dataPath" = Paths$inputPath, # not used yet
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
@@ -225,7 +224,7 @@ defaultInterval <- NA
 defaultPlotInterval <- NA
 defaultInitialSaveTime <- NA
 
-
+endTime <- 0
 times <- list(start = 0, end = endTime)
 modules <- list(#"LandWeb_dataPrep",
                 #"initBaseMaps", #"fireDataPrep",
@@ -341,23 +340,22 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-#cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
-#                              outfile = file.path(Paths$outputPath, "_parallel.log"))
+# cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
+#                               outfile = file.path(Paths$outputPath, "_parallel.log"))
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, #cl = cl,
                    params = parameters,
                    modules = modules,
-                   outputs = outputs, debug = 1,
+                   outputs = outputs, debug = paste("unname(current(sim)); is.null(sim$"),
                    objects, # do not name this argument -- collides with
                    paths = paths,
                    loadOrder = unlist(modules),
                    clearSimEnv = TRUE,
                    .plotInitialTime = NA,
                    cache = TRUE, ## this caches each simulation rep (with all data!)
-                   replicates = 12 ## TODO: can increase this later for additional runs
+                   replicates = 2 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
-
 if (FALSE) {
 
 ##########################################################
