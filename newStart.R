@@ -30,10 +30,9 @@ source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 ##########################################################
 library(raster)
 library(SpaDES.core)
-library(pemisc)
 library(map)
-devtools::load_all("~/GitHub/map")
-devtools::load_all("~/GitHub/pemisc")
+library(pemisc)
+#devtools::load_all("~/GitHub/map")
 
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -117,9 +116,6 @@ if (grepl("testing", runName)) {
                columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
   )
   # create rasterToMatch from LCC layer
-  LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
-  ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet = FALSE,
-               isRasterToMatch = TRUE)
 }
 
 ################################################################################
@@ -196,9 +192,18 @@ if (grepl("tolko_AB_N", runName)) {
                columnNameForLabels = "Name", filename2 = NULL)
 }
 
-# update the study area to have minimum fire return interval
+##############################################################
+# correct studyArea, make rasterToMatch, load LCC2005
+##############################################################
+LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
+ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet = FALSE,
+             isRasterToMatch = FALSE)
+
 studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = minFRI)
 
+ml <- mapAdd(rasterToMatch(ml$`Small Study Area`, rasterToMatch = ml$LCC2005),
+             layerName = "rasterToMatch",
+             map = ml, leaflet = FALSE, isRasterToMatch = TRUE)
 
 ######
 # Dynamic Simulation
@@ -231,8 +236,8 @@ modules <- list(#"LandWeb_dataPrep",
 scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
                     "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 
-objects <- list("shpStudyAreaLarge" = studyArea(ml, layer = 1),
-                "shpStudyArea" = studyArea(ml, layer = 2),
+objects <- list("shpStudyAreaLarge" = studyArea(ml, 1),
+                "shpStudyArea" = studyArea(ml, 2),
                 "rasterToMatch" = rasterToMatch(ml),
                 "LCC2005" = ml$LCC2005,
                 "summaryPeriod" = summaryPeriod,
@@ -335,8 +340,8 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
-                              outfile = file.path(Paths$outputPath, "_parallel.log"))
+#cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
+#                              outfile = file.path(Paths$outputPath, "_parallel.log"))
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, #cl = cl,
                    params = parameters,
@@ -351,6 +356,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, #cl = cl,
                    replicates = 12 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
+if (FALSE) {
 
 ##########################################################
 # Current Condition
@@ -404,7 +410,6 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "all")
 
-if (FALSE) {
   ################################################################
   ################################################################
   ################################################################
