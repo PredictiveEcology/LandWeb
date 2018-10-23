@@ -1,9 +1,10 @@
+minFRI <- 50
 activeDir <- "~/GitHub/LandWeb"
 setwd(activeDir)
 
-#runName <- "testing"
+runName <- "testing"
 
-runName <- "tolko_AB_N"  ## original
+#runName <- "tolko_AB_N"  ## original
 #runName <- "tolko_AB_S"  ## original
 #runName <- "tolko_SK"  ## original
 
@@ -109,7 +110,8 @@ if (grepl("testing", runName)) {
                url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
                columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
   )
-  studyArea(ml) <- polygonClean(studyArea(ml), type = runName, minFRI = 40)
+  LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
+  rstStudyArea <- rasterToMatch(LCC2005, studyArea(ml))
 }
 
 ################################################################################
@@ -186,7 +188,9 @@ if (grepl("tolko_AB_N", runName)) {
                columnNameForLabels = "Name", filename2 = NULL)
 }
 
-if (grepl("testing", runName)) rm(aaa)
+# update the study area to have minimum fire return interval
+studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = minFRI)
+
 
 ######
 # Dynamic Simulation
@@ -209,8 +213,9 @@ defaultInitialSaveTime <- NA
 
 
 times <- list(start = 0, end = endTime)
-modules <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
-                "LandMine",
+modules <- list(#"LandWeb_dataPrep",
+                #"initBaseMaps", #"fireDataPrep",
+                "LandWeb_LandMineDataPrep", "LandMine",
                 "LandWebProprietaryData",
                 "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
 scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
@@ -218,6 +223,7 @@ scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverIni
 
 objects <- list("shpStudyRegionFull" = ml[["LandWeb Study Area"]],
                 "shpStudySubRegion" = studyArea(ml, 1),
+                "rstStudyArea" = rstStudyArea,
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = 2,
                 "vegLeadingPercent" = vegLeadingPercent)
@@ -321,7 +327,7 @@ print(runName)
 cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
                               outfile = file.path(Paths$outputPath, "_parallel.log"))
 
-mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
+mySimOuts <- Cache(simInitAndExperiment, times = times, #cl = cl,
                    params = parameters,
                    modules = modules,
                    outputs = outputs, debug = 1,
