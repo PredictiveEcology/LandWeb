@@ -335,8 +335,8 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
-                              outfile = file.path(Paths$outputPath, "_parallel.log"))
+#cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
+#                              outfile = file.path(Paths$outputPath, "_parallel.log"))
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, #cl = cl,
                    params = parameters,
@@ -351,6 +351,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, #cl = cl,
                    replicates = 12 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
+if (FALSE) {
 
 ##########################################################
 # Current Condition
@@ -404,7 +405,6 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "all")
 
-if (FALSE) {
   ################################################################
   ################################################################
   ################################################################

@@ -32,7 +32,8 @@ doEvent.LandWeb_LandMineDataPrep = function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {
-      sim$rstFlammable <- defineFlammable(sim$LCC2005, nonFlammClasses = c(36, 37, 38, 39))
+      sim$rstFlammable <- defineFlammable(sim$LCC2005, nonFlammClasses = c(36, 37, 38, 39),
+                                          mask = sim$rasterToMatch)
     },
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
