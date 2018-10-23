@@ -1,3 +1,5 @@
+#git clone git@github.com:eliotmcintire/LandWeb --branch rewriteNoAll --recurse-submodules -j8
+
 devtools::install_github("PredictiveEcology/quickPlot", ref = "development", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/reproducible", ref = "forMapObject", dependencies = FALSE)
 #devtools::install_github("PredictiveEcology/webDatabases", ref = "master", dependencies = FALSE)
