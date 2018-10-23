@@ -88,7 +88,7 @@ studyRegionName <- "LandWeb Study Area"
 ml <- mapAdd(layerName = studyRegionName,
              targetCRS = targetCRS, overwrite = TRUE,
              url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", # This is landweb_ltfc_v6.shp
-             columnNameForLabels = "NSN", isStudyArea = FALSE, filename2 = NULL
+             columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
 )
 
 if (grepl("testing", runName)) {
@@ -220,13 +220,16 @@ modules <- list(#"LandWeb_dataPrep",
                 #"initBaseMaps", #"fireDataPrep",
                 "LandWeb_LandMineDataPrep", "LandMine",
                 "LandWebProprietaryData",
-                "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
+                "Boreal_LBMRDataPrep", "LBMR",
+                "timeSinceFire",
+                "LandWeb_output")
 scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
                     "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 
 objects <- list("shpStudyAreaLarge" = ml[["LandWeb Study Area"]],
                 "shpStudyArea" = studyArea(ml, 1),
-                "rasterToMathc" = rasterToMatch(ml, 1),
+                "rasterToMatch" = rasterToMatch(ml),
+                "LCC2005" = ml$LCC2005,
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = 2,
                 "vegLeadingPercent" = vegLeadingPercent)
