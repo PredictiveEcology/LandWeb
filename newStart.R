@@ -97,7 +97,7 @@ if (grepl("testing", runName)) {
   set.seed(seed)
   sp2 <- Cache(SpaDES.tools::randomPolygon, ml[[studyRegionName]], 4e5)
   ml <- mapAdd(obj = sp2, map = ml, filename2 = FALSE,
-               targetCRS = targetCRS,
+               #targetCRS = targetCRS,
                layerName = "Small Study Area",
                columnNameForLabels = "Name", isStudyArea = TRUE,
                filename1 = NULL, poly = TRUE,
@@ -226,8 +226,8 @@ modules <- list(#"LandWeb_dataPrep",
 scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
                     "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 
-objects <- list("shpStudyAreaLarge" = ml[["LandWeb Study Area"]],
-                "shpStudyArea" = studyArea(ml, 1),
+objects <- list("shpStudyAreaLarge" = studyArea(ml, layer = 1),
+                "shpStudyArea" = studyArea(ml, layer = 2),
                 "rasterToMatch" = rasterToMatch(ml),
                 "LCC2005" = ml$LCC2005,
                 "summaryPeriod" = summaryPeriod,
