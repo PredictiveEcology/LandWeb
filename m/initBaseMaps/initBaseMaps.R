@@ -21,7 +21,7 @@ defineModule(sim, list(
   ),
   inputObjects = bind_rows(
     expectsInput("LCC2005", "RasterLayer", "Land Cover Classification from 2005, NRCan product"),
-    expectsInput("shpStudySubRegion", "SpatialPolygonsDataFrame", "Study Area")
+    expectsInput("shpStudyArea", "SpatialPolygonsDataFrame", "Study Area")
   ),
   outputObjects = bind_rows(
     createsOutput("LCC05", "RasterLayer", "Land Cover Classification from 2005, NRCan product"),
@@ -47,7 +47,7 @@ doEvent.initBaseMaps <- function(sim, eventTime, eventType, debug = FALSE) {
 Init <- function(sim) {
   simProjection <- crs(sim$LCC2005)
   #reproject sim$shpStudyRegion to accord with LCC05
-  sim$shpStudyRegion <- Cache(spTransform, sim$shpStudySubRegion, CRSobj = simProjection)
+  sim$shpStudyRegion <- Cache(spTransform, sim$shpStudyArea, CRSobj = simProjection)
 
   message("fastRasterize for rstStudyRegion")
   stopifnot(any(c("LTHFC", "LTHRC") %in% names(sim$shpStudyRegion)))
@@ -81,8 +81,8 @@ Init <- function(sim) {
     sim$LCC2005 <- raster(extent(0,10,0,10))
   }
 
-  if (!suppliedElsewhere(sim$shpStudySubRegion)) {
-    sim$shpStudySubRegion <- randomPolygon(matrix(c(-90, 60), ncol = 2), 1)
+  if (!suppliedElsewhere(sim$shpStudyArea)) {
+    sim$shpStudyArea <- randomPolygon(matrix(c(-90, 60), ncol = 2), 1)
   }
   return(invisible(sim))
 }

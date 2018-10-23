@@ -32,7 +32,7 @@ defineModule(sim, list(
     expectsInput(objectName = "specieslayers", objectClass = "RasterStack",
                  desc = "biomass percentage raster layers by species in Canada species map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-Species.tar"),
-    expectsInput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame",
+    expectsInput(objectName = "shpStudyArea", objectClass = "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: Sub study area with fire return interval attribute",
                  sourceURL = ""),
     expectsInput(objectName = "shpStudyAreaLarge", objectClass = "SpatialPolygonsDataFrame",
@@ -100,7 +100,7 @@ Init <- function(sim) {
                   alsoExtract = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.hdr"),
                   destinationPath = asPath(dPath),
                   fun = "raster::raster",
-                  studyArea = sim$shpStudySubRegion,
+                  studyArea = sim$shpStudyArea,
                   rasterToMatch = sim$biomassMap,
                   method = "bilinear",
                   datatype = "INT2U",
@@ -117,7 +117,7 @@ Init <- function(sim) {
                        alsoExtract = c(CASFRITifFile, CASFRIattrFile, CASFRIheaderFile),
                        destinationPath = asPath(dPath),
                        fun = "raster::raster",
-                       studyArea = sim$shpStudySubRegion,
+                       studyArea = sim$shpStudyArea,
                        rasterToMatch = sim$biomassMap,
                        method = "bilinear",
                        datatype = "INT2U",
@@ -172,15 +172,15 @@ Init <- function(sim) {
                             archive = asPath(c("kNN-StructureBiomass.tar",
                                                "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip")),
                             destinationPath = asPath(dPath),
-                            studyArea = sim$shpStudySubRegion,
+                            studyArea = sim$shpStudyArea,
                             method = "bilinear",
                             datatype = "INT2U",
                             filename2 = TRUE,
                             userTags = c("stable", currentModule(sim)))
   }
 
-  if (!suppliedElsewhere("shpStudySubRegion")) {
-    stop("shpStudySubRegion is required. Please supply a polygon of the study area")
+  if (!suppliedElsewhere("shpStudyArea")) {
+    stop("shpStudyArea is required. Please supply a polygon of the study area")
   }
 
   return(invisible(sim))

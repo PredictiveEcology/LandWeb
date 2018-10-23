@@ -214,7 +214,7 @@ modules4sim$All <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
 objects4sim <- emptyListAll
 objects4sim <- lapply(objects4sim, function(x)
   list("shpStudyAreaLarge" = shpStudyRegion,
-       "shpStudySubRegion" = shpSubStudyRegion,
+       "shpStudyArea" = shpSubStudyRegion,
        "summaryPeriod" = summaryPeriod,
        "useParallel" = 2,
        "vegLeadingPercent" = vegLeadingPercent)

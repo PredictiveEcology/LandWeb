@@ -225,7 +225,7 @@ scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverIni
                     "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 
 objects <- list("shpStudyAreaLarge" = ml[["LandWeb Study Area"]],
-                "shpStudySubRegion" = studyArea(ml, 1),
+                "shpStudyArea" = studyArea(ml, 1),
                 "rasterToMathc" = rasterToMatch(ml, 1),
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = 2,
