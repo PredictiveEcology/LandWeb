@@ -110,8 +110,10 @@ if (grepl("testing", runName)) {
                url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
                columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
   )
+  # create rasterToMatch from LCC layer
   LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
-  rstStudyArea <- rasterToMatch(LCC2005, studyArea(ml))
+  ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet = FALSE,
+               isRasterToMatch = TRUE)
 }
 
 ################################################################################
@@ -223,7 +225,7 @@ scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverIni
 
 objects <- list("shpStudyRegionFull" = ml[["LandWeb Study Area"]],
                 "shpStudySubRegion" = studyArea(ml, 1),
-                "rstStudyArea" = rstStudyArea,
+                "rasterToMathc" = rasterToMatch(ml, 1),
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = 2,
                 "vegLeadingPercent" = vegLeadingPercent)
