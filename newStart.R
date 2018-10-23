@@ -67,6 +67,7 @@ tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
 opts <- options(
+  "httr_oob_default" = TRUE,
   "map.dataPath" = Paths$inputPath, # not used yet
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
@@ -356,6 +357,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, #cl = cl,
                    replicates = 12 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
+
 if (FALSE) {
 
 ##########################################################
