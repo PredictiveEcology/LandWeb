@@ -1,4 +1,4 @@
-minFRI <- 50
+minFRI <- 40
 activeDir <- "~/GitHub/LandWeb"
 setwd(activeDir)
 
