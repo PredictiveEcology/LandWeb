@@ -27,7 +27,8 @@ library(raster)
 library(SpaDES.core)
 library(pemisc)
 library(map)
-#devtools::load_all("~/GitHub/map")
+devtools::load_all("~/GitHub/map")
+devtools::load_all("~/GitHub/pemisc")
 
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -223,7 +224,7 @@ modules <- list(#"LandWeb_dataPrep",
 scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
                     "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 
-objects <- list("shpStudyRegionFull" = ml[["LandWeb Study Area"]],
+objects <- list("shpStudyAreaLarge" = ml[["LandWeb Study Area"]],
                 "shpStudySubRegion" = studyArea(ml, 1),
                 "rasterToMathc" = rasterToMatch(ml, 1),
                 "summaryPeriod" = summaryPeriod,

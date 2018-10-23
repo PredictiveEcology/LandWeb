@@ -48,23 +48,23 @@ canadaMap <- Cache(getData, "GADM", country = "CAN", level = 1, path = "inputs",
 dev()
 clearPlot()
 Plot(canadaMap, speedup = 5, visualSqueeze = 0.9) # 5 seemed optimal
-if (!exists("shpStudyRegionFull")) {
-  message("Since there is no object called 'shpStudyRegionFull' ",
+if (!exists("shpStudyAreaLarge")) {
+  message("Since there is no object called 'shpStudyAreaLarge' ",
           "please draw a study area with 10 points.")
   severalrandompoints <- Cache(clickCoordinates, 10, cacheRepo = cachePath)
   if (startsWith(attr(severalrandompoints, "tags"), "cache"))
-    message("Taking shpStudyRegionFull from Cache")
-  shpStudyRegionFull <- SpatialPolygons(list(
+    message("Taking shpStudyAreaLarge from Cache")
+  shpStudyAreaLarge <- SpatialPolygons(list(
     Polygons(list(Polygon(severalrandompoints$coords)), ID = 1)
   ), proj4string = crs(canadaMap))
 }
-Plot(shpStudyRegionFull, addTo = "canadaMap", col = "red")
+Plot(shpStudyAreaLarge, addTo = "canadaMap", col = "red")
 inputDir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), "outputs")
 times <- list(start = 0, end = 10)
 parameters <- list()
 modules <- list("initBaseMaps")
-objects <- list("shpStudyRegionFull" = shpStudyRegionFull,
+objects <- list("shpStudyAreaLarge" = shpStudyAreaLarge,
                 "useCache" = TRUE,
                 "successionTimestep" = 2)
 paths <- list(
