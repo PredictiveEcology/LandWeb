@@ -24,7 +24,7 @@ defineModule(sim, list(
     defineParameter(".useCache", "logical", FALSE, NA, NA, "This describes the simulation time at which the first save event should occur")
   ),
   inputObjects = data.frame(
-    objectName = c("rstFlammable", "rstStudyRegion", "rstCurrentBurn", "fireTimestep"),
+    objectName = c("rstFlammable", "rasterToMatch", "rstCurrentBurn", "fireTimestep"),
     objectClass = c("RasterLayer","RasterLayer", "RasterLayer", "numeric"),
     sourceURL = "",
     other = NA_character_,
@@ -97,8 +97,8 @@ Init <- function(sim) {
     sim$burnLoci <- which(sim$rstCurrentBurn[] == 1)
   }
   # Much faster than call rasterize again
-  sim$rstTimeSinceFire <- raster(sim$rstStudyRegion)
-  sim$rstTimeSinceFire[] <- sim$rstStudyRegion[]
+  sim$rstTimeSinceFire <- raster(sim$rasterToMatch)
+  sim$rstTimeSinceFire[] <- sim$rasterToMatch[]
   sim$rstTimeSinceFire[sim$rstFlammable[] == 1] <- NA #non-flammable areas are permanent.
   return(invisible(sim))
 }
