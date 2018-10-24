@@ -379,7 +379,7 @@ ml <- mapAdd(map = ml, url = ccURL, layerName = layerNames,
 allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
 #allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
-allouts <- grep("gri", allouts, value = TRUE, invert = TRUE)
+allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
 layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
 layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
 layerName <- gsub(layerName, pattern = "^_", replacement = "")
