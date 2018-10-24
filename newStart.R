@@ -201,8 +201,8 @@ ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet
 
 studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = minFRI)
 
-ml <- mapAdd(rasterToMatch(ml$`Small Study Area`, rasterToMatch = ml$LCC2005),
-             layerName = "rasterToMatch",
+ml <- mapAdd(rasterToMatch(studyArea(ml), rasterToMatch = ml$LCC2005),
+             layerName = "rasterToMatch", filename2 = NULL,
              map = ml, leaflet = FALSE, isRasterToMatch = TRUE)
 
 ######
@@ -224,11 +224,8 @@ defaultInterval <- NA
 defaultPlotInterval <- NA
 defaultInitialSaveTime <- NA
 
-endTime <- 0
 times <- list(start = 0, end = endTime)
-modules <- list(#"LandWeb_dataPrep",
-                #"initBaseMaps", #"fireDataPrep",
-                "LandWeb_LandMineDataPrep", "LandMine",
+modules <- list("LandWeb_LandMineDataPrep", "LandMine",
                 "LandWebProprietaryData",
                 "Boreal_LBMRDataPrep", "LBMR",
                 "timeSinceFire",
@@ -340,13 +337,14 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-# cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
-#                               outfile = file.path(Paths$outputPath, "_parallel.log"))
+cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 2,
+                              outfile = file.path(Paths$outputPath, "_parallel.log"))
 
-mySimOuts <- Cache(simInitAndExperiment, times = times, #cl = cl,
+mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    params = parameters,
                    modules = modules,
-                   outputs = outputs, debug = paste("unname(current(sim)); is.null(sim$"),
+                   outputs = outputs,
+                   debug = 1,
                    objects, # do not name this argument -- collides with
                    paths = paths,
                    loadOrder = unlist(modules),
