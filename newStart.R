@@ -71,8 +71,8 @@ opts <- options(
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
-  "reproducible.destinationPath" = Paths$inputPath,
-  "reproducible.inputPaths" = "inputs",
+  "reproducible.destinationPath" = normPath(Paths$inputPath),
+  "reproducible.inputPaths" = normPath(Paths$inputPath),
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.useCache" = TRUE,
@@ -350,11 +350,10 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    clearSimEnv = TRUE,
                    .plotInitialTime = NA,
                    cache = TRUE, ## this caches each simulation rep (with all data!)
-                   replicates = 12 ## TODO: can increase this later for additional runs
+                   replicates = 4 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
 
-if (FALSE) {
 
 ##########################################################
 # Current Condition
@@ -363,10 +362,12 @@ ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view
 
 layerNames <- c("Pine", "Age", "Black Spruce", "Deciduous", "Fir", "LandType", "White Spruce")
 layerNamesFiles <- paste0(gsub(" ", "", layerNames), "1.tif")
-ml <- mapAdd(map = ml, url = ccURL, layerName = layerNames,
+ml <- mapAdd(map = ml, url = ccURL, layerName = layerNames, CC = TRUE,
              targetFile = layerNamesFiles, filename2 = NULL, #useCache = FALSE,
              alsoExtract = "similar",  leaflet = FALSE)
-
+ccs <- ml@metadata[CC==TRUE & !(layerName %in% c("Age", "LandType")), ]
+CCs <- maps(ml, layerName = ccs$layerName)
+if (FALSE) {
 ##########################################################
 # Dynamic Raster Layers from Simulation
 ##########################################################
@@ -407,6 +408,10 @@ ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "all")
+
+ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
+                            postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                            postHocAnalyses = "rbindlistAG")
 
   ################################################################
   ################################################################
