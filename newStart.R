@@ -360,6 +360,8 @@ saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 
 if (FALSE) {
 
+ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
+
 ##########################################################
 # Current Condition
 ##########################################################
@@ -374,8 +376,10 @@ ml <- mapAdd(map = ml, url = ccURL, layerName = layerNames,
 ##########################################################
 # Dynamic Raster Layers from Simulation
 ##########################################################
-allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
+allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
+#allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
+allouts <- grep("gri", allouts, value = TRUE, invert = TRUE)
 layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
 layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
 layerName <- gsub(layerName, pattern = "^_", replacement = "")
