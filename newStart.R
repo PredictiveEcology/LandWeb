@@ -331,6 +331,7 @@ outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3)
 ######## SimInit and Experiment
 seed <- sample(1e8, 1)
 set.seed(seed)
+saveRDS(seed, file.path(Paths$outputPath, "seed.rds"))
 print(seed)
 
 print(runName)
@@ -350,10 +351,16 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    clearSimEnv = TRUE,
                    .plotInitialTime = NA,
                    cache = TRUE, ## this caches each simulation rep (with all data!)
-                   replicates = 4 ## TODO: can increase this later for additional runs
+                   replicates = 3 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
 
+saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
+
+if (FALSE) {
+
+ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
 
 ##########################################################
 # Current Condition
@@ -367,12 +374,14 @@ ml <- mapAdd(map = ml, url = ccURL, layerName = layerNames, CC = TRUE,
              alsoExtract = "similar",  leaflet = FALSE)
 ccs <- ml@metadata[CC==TRUE & !(layerName %in% c("Age", "LandType")), ]
 CCs <- maps(ml, layerName = ccs$layerName)
-if (FALSE) {
+
 ##########################################################
 # Dynamic Raster Layers from Simulation
 ##########################################################
-allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
+allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
+#allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
+allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
 layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
 layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
 layerName <- gsub(layerName, pattern = "^_", replacement = "")
