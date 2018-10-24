@@ -341,8 +341,8 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-#cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
-#                              outfile = file.path(Paths$outputPath, "_parallel.log"))
+cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
+                              outfile = file.path(Paths$outputPath, "_parallel.log"))
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, #cl = cl,
                    params = parameters,
