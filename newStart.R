@@ -250,7 +250,6 @@ parameters <- list(
                   fireTimestep = fireTimestep,
                   burnInitialTime = fireTimestep,
                   .useCache = eventCaching),
-  LandWeb_dataPrep = list(.useCache = eventCaching),
   LandWeb_output = list(summaryInterval = summaryInterval),
   LandWebProprietaryData = list(.useCache = eventCaching),
   LBMR = list(successionTimestep = successionTimestep,
