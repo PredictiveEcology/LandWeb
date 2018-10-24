@@ -354,8 +354,8 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
 )
 try(stopCluster(cl), silent = TRUE)
 
-
 saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 
 if (FALSE) {
 
