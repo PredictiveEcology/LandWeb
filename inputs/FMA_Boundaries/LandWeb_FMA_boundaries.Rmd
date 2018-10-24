@@ -297,7 +297,7 @@ shapefile(tolko_ab_s, filename = file.path(dataDirTolko, "Tolko_AB_S.shp"), over
 
 tolko_ab_s.ansr <- postProcess(ansr, studyArea = tolko_ab_s, useSAcrs = TRUE,
                                filename2 = file.path(dataDirTolko, "Tolko_AB_S_ANSR.shp"),
-                                  overwrite = TRUE)
+                               overwrite = TRUE)
 plot(tolko_ab_s.ansr)
 
 tolko_ab_s.caribou <- postProcess(caribou, studyArea = tolko_ab_s, useSAcrs = TRUE,
