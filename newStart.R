@@ -378,10 +378,11 @@ CCs <- maps(ml, layerName = ccs$layerName)
 ##########################################################
 # Dynamic Raster Layers from Simulation
 ##########################################################
-allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
+
 #allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
+allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
-allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
+allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE) ## TODO: need to rm the non-rep files too!!!
 layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
 layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
 layerName <- gsub(layerName, pattern = "^_", replacement = "")
