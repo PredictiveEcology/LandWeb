@@ -351,9 +351,10 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    clearSimEnv = TRUE,
                    .plotInitialTime = NA,
                    cache = TRUE, ## this caches each simulation rep (with all data!)
-                   replicates = 2 ## TODO: can increase this later for additional runs
+                   replicates = 12 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
+
 if (FALSE) {
 
 ##########################################################
