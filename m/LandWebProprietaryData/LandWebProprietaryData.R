@@ -26,6 +26,9 @@ defineModule(sim, list(
                     desc = "Used in reading csv file with fread. Will be passed to data.table::setDTthreads")
   ),
   inputObjects = bind_rows(
+    expectsInput("rasterToMatch", "RasterLayer",
+                 desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
+                 sourceURL = NA), # i guess this is study area and fire return interval
     expectsInput(objectName = "biomassMap", objectClass = "RasterLayer",
                  desc = "total biomass raster layer in study area, default is Canada national biomass map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar"),
