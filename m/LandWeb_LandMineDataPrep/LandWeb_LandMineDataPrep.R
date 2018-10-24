@@ -18,6 +18,9 @@ defineModule(sim, list(
   reqdPkgs = list("PredictiveEcology/pemisc"),
   parameters = rbind(),
   inputObjects = bind_rows(
+    expectsInput("rasterToMatch", "RasterLayer",
+                 desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
+                 sourceURL = NA), # i guess this is study area and fire return interval
     expectsInput("LCC2005", "RasterLayer",
                  desc = "2005 land classification map in study area, default is Canada national land classification in 2005",
                  sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip")
