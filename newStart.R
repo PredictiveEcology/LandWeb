@@ -8,17 +8,17 @@ runName <- "testing"
 #runName <- "tolko_AB_S"  ## original
 #runName <- "tolko_SK"  ## original
 
-
+## running locally
 #runName <- "tolko_AB_N_doubleFRI"
 #runName <- "tolko_AB_S_doubleFRI"
 #runName <- "tolko_SK_doubleFRI"
 
-
+## running locally
 #runName <- "tolko_AB_N_equalROS"
 #runName <- "tolko_AB_S_equalROS"
 #runName <- "tolko_SK_equalROS"
 
-
+## running on 388
 #runName <- "tolko_AB_N_logROS"
 #runName <- "tolko_AB_S_logROS"
 #runName <- "tolko_SK_logROS"
@@ -437,8 +437,6 @@ ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
                      id = "1", labelColumn = "shinyLabel",
                      ageClassCutOffs = ageClassCutOffs)
 options(map.useParallel = TRUE)
-
-#ml <- mapAddAnalysis(ml, functionName = "createCCdt", THINGY)
 
 ############################################################
 # Post hoc analyses -- specifically making the data.tables for histograms & boxplots
