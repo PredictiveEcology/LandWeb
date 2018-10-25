@@ -355,10 +355,10 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
 )
 try(stopCluster(cl), silent = TRUE)
 
-saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+if (FALSE) {
+  saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 
-if (FALSE) {
 
 ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
 
@@ -368,9 +368,9 @@ ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
 ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing"
 
 fname <- "Age1.tif"
-ml <- mapAdd(map = ml, url = ccURL, layerName = "Age", CC = TRUE,
-             tsf = file.path(Paths$inputPath, fname),
-             targetFile = fname, filename2 = NULL, #useCache = FALSE,
+ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
+             tsf = file.path(Paths$inputPath, fname), analysisGroup1 = "CC",
+             targetFile = fname, filename2 = file.path(Paths$inputPath, fname), useCache = FALSE,
              alsoExtract = "similar",  leaflet = FALSE)
 
 CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
@@ -388,10 +388,11 @@ CCvtm <- raster::which.max(CCstack)
 names(CClayerNames) <- CClayerNames
 CCspeciesNames <- c(CClayerNames, "Mixed" = "Mixed")
 levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
-CCvtm <- writeRaster(CCvtm, filename = file.path(Paths$outputPath, "currentConditionVTM"), overwrite = TRUE)
+CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
+#CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
 
-ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", CC = TRUE, filename2 = NULL, leaflet = FALSE)
-
+ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = CCvtmFilename, leaflet = FALSE,
+             analysisGroup1 = "CC", vtm = CCvtmFilename, useCache = FALSE)
 ##########################################################
 # Dynamic Raster Layers from Simulation
 ##########################################################
@@ -445,21 +446,16 @@ options(map.useParallel = TRUE)
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "all")
-
-dt <- ml@analysesData$rbindlistAG$LeadingVegTypeByAgeClass
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "rbindlistAG",
-                            dPath = file.path(Paths$outputPath, "boxplots"),
-                            dt = dt)
+                            dPath = file.path(Paths$outputPath, "boxplots"))
 
-}
 
 ################################################################
 ###   WORKS UP TO HERE
 ################################################################
 
-if (FALSE)
   ##########################################################
   # Reporting Polygons
   ##########################################################
