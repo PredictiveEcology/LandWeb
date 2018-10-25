@@ -10,7 +10,7 @@ runName <- "testing"
 
 
 #runName <- "tolko_AB_N_doubleFRI" ## done but no caribou, ansr
-#runName <- "tolko_AB_S_doubleFRI" # not run
+#runName <- "tolko_AB_S_doubleFRI" ## running
 #runName <- "tolko_SK_doubleFRI" ## DONE
 
 
