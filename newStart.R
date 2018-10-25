@@ -9,19 +9,19 @@ runName <- "testing"
 #runName <- "tolko_SK"  ## original
 
 ## running locally
-#runName <- "tolko_AB_N_doubleFRI"
-#runName <- "tolko_AB_S_doubleFRI"
-#runName <- "tolko_SK_doubleFRI"
+#runName <- "tolko_AB_N_doubleFRI" ## done but no caribou, ansr
+#runName <- "tolko_AB_S_doubleFRI" # not run
+#runName <- "tolko_SK_doubleFRI" ## DONE
 
 ## running locally
-#runName <- "tolko_AB_N_equalROS"
-#runName <- "tolko_AB_S_equalROS"
-#runName <- "tolko_SK_equalROS"
+#runName <- "tolko_AB_N_equalROS" ## DONE
+#runName <- "tolko_AB_S_equalROS" ## done but no caribou, ansr
+#runName <- "tolko_SK_equalROS" ## DONE
 
 ## running on 388
 #runName <- "tolko_AB_N_logROS"
-#runName <- "tolko_AB_S_logROS"
-#runName <- "tolko_SK_logROS"
+#runName <- "tolko_AB_S_logROS" ## done but no caribou, ansr
+#runName <- "tolko_SK_logROS" ## DONE
 
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 
@@ -31,8 +31,12 @@ source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 library(raster)
 library(SpaDES.core)
 library(map)
+# if (Sys.info()[["user"]] == "achubaty") {
+#   devtools::load_all("~/GitHub/PredictiveEcology/map")
+# } else if (Sys.info()[["user"]] == "emcintir") {
+#   devtools::load_all("~/GitHub/map")
+# }
 library(pemisc)
-#devtools::load_all("~/GitHub/map")
 
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -337,30 +341,31 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
-                              outfile = file.path(Paths$outputPath, "_parallel.log"))
-
-mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
-                   params = parameters,
-                   modules = modules,
-                   outputs = outputs,
-                   debug = 1,
-                   objects, # do not name this argument -- collides with
-                   paths = paths,
-                   loadOrder = unlist(modules),
-                   clearSimEnv = TRUE,
-                   .plotInitialTime = NA,
-                   cache = TRUE, ## this caches each simulation rep (with all data!)
-                   replicates = 3 ## TODO: can increase this later for additional runs
-)
-try(stopCluster(cl), silent = TRUE)
+# cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
+#                               outfile = file.path(Paths$outputPath, "_parallel.log"))
+#
+# mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
+#                    params = parameters,
+#                    modules = modules,
+#                    outputs = outputs,
+#                    debug = 1,
+#                    objects, # do not name this argument -- collides with
+#                    paths = paths,
+#                    loadOrder = unlist(modules),
+#                    clearSimEnv = TRUE,
+#                    .plotInitialTime = NA,
+#                    cache = TRUE, ## this caches each simulation rep (with all data!)
+#                    replicates = 3 ## TODO: can increase this later for additional runs
+# )
+# try(stopCluster(cl), silent = TRUE)
 
 if (FALSE) {
+
 saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
-saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
+#saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 
 
-ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
+#ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
 mySimOuts <- readRDS(file.path(Paths$outputPath, "mySimOuts.rds"))
 
 ##########################################################
@@ -376,9 +381,12 @@ ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
 
 CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
 CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
+
+options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
              targetFile = CClayerNamesFiles, filename2 = NULL, #useCache = FALSE,
              alsoExtract = "similar",  leaflet = FALSE)
+options(map.useParallel = TRUE)
 
 ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("Age", "LandType")), ]
 CCs <- maps(ml, layerName = ccs$layerName)
@@ -390,10 +398,12 @@ names(CClayerNames) <- CClayerNames
 CCspeciesNames <- c(CClayerNames, "Mixed" = "Mixed")
 levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
-#CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
 
 ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = CCvtmFilename, leaflet = FALSE,
              analysisGroup1 = "CC", vtm = CCvtmFilename, useCache = FALSE)
+if (!file.exists(CCvtmFilename)) {
+  CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
+}
 
 ##########################################################
 # Dynamic Raster Layers from Simulation
@@ -411,11 +421,13 @@ destinationPath <- dirname(allouts)
 tsf <- gsub(".*vegTypeMap.*", NA, allouts)
 vtm <- gsub(".*TimeSinceFire.*", NA, allouts)
 
+options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
              targetFile = asPath(allouts),
              destinationPath = asPath(destinationPath),
              filename2 = NULL, tsf = asPath(tsf), vtm = asPath(vtm),
              overwrite = TRUE, leaflet = asPath(tilePath))
+options(map.useParallel = TRUE)
 
 ######################################################################
 # Add reporting polygons
@@ -426,8 +438,10 @@ ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
 ######################################################################
 # Leading Veg Type By Age Class
 ######################################################################
+options(map.useParallel = FALSE)
 ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
                      ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
+options(map.useParallel = TRUE)
 
 # add an analysis -- this will trigger analyses because there are already objects in the map
 #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo (only 1 currently)
@@ -451,6 +465,8 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
                             postHocAnalyses = "rbindlistAG",
                             dPath = file.path(Paths$outputPath, "boxplots"))
 
+saveRDS(ml, file.path(Paths$outputPath, "ml_done.rds"))
+print(runName)
 
 ################################################################
 ###   WORKS UP TO HERE
