@@ -446,17 +446,20 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "all")
 
+dt <- ml@analysesData$rbindlistAG$LeadingVegTypeByAgeClass
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
-                            postHocAnalyses = "rbindlistAG")
+                            postHocAnalyses = "rbindlistAG",
+                            dPath = file.path(Paths$outputPath, "boxplots"),
+                            dt = dt)
 
-  ################################################################
-  ################################################################
-  ################################################################
-  ###   WORKS UP TO HERE
-  ################################################################
-  ################################################################
+}
 
+################################################################
+###   WORKS UP TO HERE
+################################################################
+
+if (FALSE)
   ##########################################################
   # Reporting Polygons
   ##########################################################
