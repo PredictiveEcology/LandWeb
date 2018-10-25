@@ -356,11 +356,12 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
 try(stopCluster(cl), silent = TRUE)
 
 if (FALSE) {
-  saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 
 
 ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
+mySimOuts <- readRDS(file.path(Paths$outputPath, "mySimOuts.rds"))
 
 ##########################################################
 # Current Condition
@@ -393,6 +394,7 @@ CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
 ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = CCvtmFilename, leaflet = FALSE,
              analysisGroup1 = "CC", vtm = CCvtmFilename, useCache = FALSE)
+
 ##########################################################
 # Dynamic Raster Layers from Simulation
 ##########################################################
