@@ -9,19 +9,19 @@ runName <- "testing"
 #runName <- "tolko_SK"  ## original
 
 
-#runName <- "tolko_AB_N_doubleFRI"
-#runName <- "tolko_AB_S_doubleFRI"
-#runName <- "tolko_SK_doubleFRI"
+#runName <- "tolko_AB_N_doubleFRI" ## done but no caribou, ansr
+#runName <- "tolko_AB_S_doubleFRI" # not run
+#runName <- "tolko_SK_doubleFRI" ## DONE
 
 
-#runName <- "tolko_AB_N_equalROS"
-#runName <- "tolko_AB_S_equalROS"
-#runName <- "tolko_SK_equalROS"
+#runName <- "tolko_AB_N_equalROS" ## DONE
+#runName <- "tolko_AB_S_equalROS" ## done but no caribou, ansr
+#runName <- "tolko_SK_equalROS" ## DONE
 
 
 #runName <- "tolko_AB_N_logROS"
-#runName <- "tolko_AB_S_logROS"
-#runName <- "tolko_SK_logROS"
+#runName <- "tolko_AB_S_logROS" ## done but no caribou, ansr
+#runName <- "tolko_SK_logROS" ## DONE
 
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 
@@ -31,8 +31,12 @@ source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 library(raster)
 library(SpaDES.core)
 library(map)
+# if (Sys.info()[["user"]] == "achubaty") {
+#   devtools::load_all("~/GitHub/PredictiveEcology/map")
+# } else if (Sys.info()[["user"]] == "emcintir") {
+#   devtools::load_all("~/GitHub/map")
+# }
 library(pemisc)
-#devtools::load_all("~/GitHub/map")
 
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -462,6 +466,7 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
                             dPath = file.path(Paths$outputPath, "boxplots"))
 
 saveRDS(ml, file.path(Paths$outputPath, "ml_done.rds"))
+print(runName)
 
 ################################################################
 ###   WORKS UP TO HERE
