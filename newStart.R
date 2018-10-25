@@ -367,20 +367,37 @@ ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
 ##########################################################
 ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing"
 
-layerNames <- c("Pine", "Age", "Black Spruce", "Deciduous", "Fir", "LandType", "White Spruce")
-layerNamesFiles <- paste0(gsub(" ", "", layerNames), "1.tif")
-ml <- mapAdd(map = ml, url = ccURL, layerName = layerNames, CC = TRUE,
-             targetFile = layerNamesFiles, filename2 = NULL, #useCache = FALSE,
+fname <- "Age1.tif"
+ml <- mapAdd(map = ml, url = ccURL, layerName = "Age", CC = TRUE,
+             tsf = file.path(Paths$inputPath, fname),
+             targetFile = fname, filename2 = NULL, #useCache = FALSE,
              alsoExtract = "similar",  leaflet = FALSE)
-ccs <- ml@metadata[CC==TRUE & !(layerName %in% c("Age", "LandType")), ]
+
+CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
+CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
+ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
+             targetFile = CClayerNamesFiles, filename2 = NULL, #useCache = FALSE,
+             alsoExtract = "similar",  leaflet = FALSE)
+
+ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("Age", "LandType")), ]
 CCs <- maps(ml, layerName = ccs$layerName)
+CCstack <- stack(CCs)
+sumVegPct <- sum(CCstack, na.rm = TRUE)
+CCstack$Mixed <- all(CCstack/sumVegPct < vegLeadingPercent) * 10
+CCvtm <- raster::which.max(CCstack)
+names(CClayerNames) <- CClayerNames
+CCspeciesNames <- c(CClayerNames, "Mixed" = "Mixed")
+levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
+CCvtm <- writeRaster(CCvtm, filename = file.path(Paths$outputPath, "currentConditionVTM"), overwrite = TRUE)
+
+ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", CC = TRUE, filename2 = NULL, leaflet = FALSE)
 
 ##########################################################
 # Dynamic Raster Layers from Simulation
 ##########################################################
 
-#allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
-allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
+allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
+#allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
 allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE) ## TODO: need to rm the non-rep files too!!!
 layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
@@ -398,6 +415,12 @@ ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
              overwrite = TRUE, leaflet = asPath(tilePath))
 
 ######################################################################
+# Add reporting polygons
+######################################################################
+
+## For Tolko runs, they are added above!
+
+######################################################################
 # Leading Veg Type By Age Class
 ######################################################################
 ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
@@ -406,9 +429,13 @@ ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
 # add an analysis -- this will trigger analyses because there are already objects in the map
 #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo (only 1 currently)
 #    so there is 1 raster group, 2 polygon groups, 2 analyses - Total 4, only 2 run now
+options(map.useParallel = FALSE)
 ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
                      id = "1", labelColumn = "shinyLabel",
                      ageClassCutOffs = ageClassCutOffs)
+options(map.useParallel = TRUE)
+
+#ml <- mapAddAnalysis(ml, functionName = "createCCdt", THINGY)
 
 ############################################################
 # Post hoc analyses -- specifically making the data.tables for histograms & boxplots
