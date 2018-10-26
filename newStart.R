@@ -441,6 +441,7 @@ options(map.useParallel = TRUE)
 ######################################################################
 options(map.useParallel = FALSE)
 ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
+                     #purgeAnalyses = "LeadingVegTypeByAgeClass",
                      ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
 options(map.useParallel = TRUE)
 
