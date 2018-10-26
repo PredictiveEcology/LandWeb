@@ -19,7 +19,7 @@ runName <- "testing"
 #runName <- "tolko_SK_equalROS" ## DONE
 
 ## running on 388
-#runName <- "tolko_AB_N_logROS"
+#runName <- "tolko_AB_N_logROS" ## done but had an error
 #runName <- "tolko_AB_S_logROS" ## done but no caribou, ansr
 #runName <- "tolko_SK_logROS" ## DONE
 
