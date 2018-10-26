@@ -9,6 +9,7 @@ runName <- "testing"
 #runName <- "tolko_SK"  ## original
 
 ## running locally
+# NOTE: these 'doubleFRI' runs never used double FRI so they are same as original!
 #runName <- "tolko_AB_N_doubleFRI" ## done but no caribou, ansr
 #runName <- "tolko_AB_S_doubleFRI" ## done, but fewer reps
 #runName <- "tolko_SK_doubleFRI" ## DONE
