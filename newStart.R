@@ -17,7 +17,7 @@ runName <- "testing"
 ## running locally
 #runName <- "tolko_AB_N_equalROS" ## DONE
 #runName <- "tolko_AB_S_equalROS" ## DONE
-runName <- "tolko_SK_equalROS" ## DONE
+#runName <- "tolko_SK_equalROS" ## DONE
 
 ## running on 388
 #runName <- "tolko_AB_N_logROS" ## DONE
@@ -372,10 +372,11 @@ saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 ##########################################################
 ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing"
 
-fname <- "Age1.tif"
+fname_age <- "Age1.tif"
 ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
-             tsf = file.path(Paths$inputPath, fname), analysisGroup1 = "CC",
-             targetFile = fname, filename2 = file.path(Paths$inputPath, fname), useCache = FALSE,
+             tsf = file.path(Paths$inputPath, fname_age), analysisGroup1 = "CC",
+             targetFile = fname_age, filename2 = file.path(Paths$inputPath, fname_age),
+             useCache = FALSE,
              alsoExtract = "similar",  leaflet = FALSE)
 
 CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
@@ -399,7 +400,9 @@ levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNa
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
 ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = CCvtmFilename, leaflet = FALSE,
-             analysisGroup1 = "CC", vtm = CCvtmFilename, useCache = FALSE)
+             analysisGroup1 = "CC",
+             tsf = file.path(Paths$inputPath, fname_age), vtm = CCvtmFilename,
+             useCache = FALSE)
 if (!file.exists(CCvtmFilename)) {
   CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
 }
