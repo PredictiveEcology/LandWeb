@@ -10,14 +10,14 @@ runName <- "testing"
 
 ## running locally
 # NOTE: these 'doubleFRI' runs never used double FRI so they are same as original!
-#runName <- "tolko_AB_N_doubleFRI" ## done but no caribou, ansr
-#runName <- "tolko_AB_S_doubleFRI" ## done, but fewer reps
+#runName <- "tolko_AB_N_doubleFRI" ## DONE
+#runName <- "tolko_AB_S_doubleFRI" ## DONE
 #runName <- "tolko_SK_doubleFRI" ## DONE
 
 ## running locally
 #runName <- "tolko_AB_N_equalROS" ## DONE
-#runName <- "tolko_AB_S_equalROS" ## done but no caribou, ansr
-#runName <- "tolko_SK_equalROS" ## DONE
+#runName <- "tolko_AB_S_equalROS" ## DONE
+runName <- "tolko_SK_equalROS" ## DONE
 
 ## running on 388
 #runName <- "tolko_AB_N_logROS" ## DONE
@@ -360,8 +360,6 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
 )
 try(stopCluster(cl), silent = TRUE)
 
-if (FALSE) {
-
 saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 
@@ -474,6 +472,7 @@ print(runName)
 ###   WORKS UP TO HERE
 ################################################################
 
+if (FALSE) {
   ##########################################################
   # Reporting Polygons
   ##########################################################
