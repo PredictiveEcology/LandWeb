@@ -31,7 +31,26 @@ if (file.exists(can_adm1)) {
 } else {
   can_provs <- getData("GADM", country = "CAN", level = 1, path = dataDir)
 }
-west <- can_provs[can_provs$NAME_1 %in% c("Alberta", "Saskatchewan"), ]
+west <- can_provs[can_provs$NAME_1 %in% c("British Columbia", "Alberta", "Saskatchewan"), ]
+manitoba <- can_provs[can_provs$NAME_1 %in% c("Manitoba"), ]
+```
+
+```{r fire-return-intervals}
+## LandWeb study area polygons need LTHFC data
+fireDir <- file.path(inputsDir, "firemap")
+firemap <- shapefile(file.path(fireDir, "landweb_ltfc_v6.shp"))
+
+plt <- grDevices::colorRampPalette(brewer.pal(9, "OrRd"))
+cuts <- max(firemap$LTHFC) / 10 ## 10-year increments
+spplot(firemap, "LTHFC", col.regions = plt(cuts), cuts = cuts, col = "transparent")
+```
+
+```{r ecological_polygons}
+ansr <- file.path("m", "LandWeb_shiny", "data", "AB_Natural_Sub_Regions.shp") %>% 
+  shapefile()
+
+caribou <- file.path("m", "LandWeb_shiny", "data", "Boreal_Caribou_Ranges.shp") %>%
+  shapefile()
 ```
 
 ## FMA Boundaries
@@ -78,16 +97,6 @@ all.equal(shp2, shp3_reproj)
 ```
 
 ## Custom polygons (extracted from FMA layer)
-
-```{r fire-return-intervals}
-## LandWeb study area polygons need LTHFC data
-fireDir <- file.path(inputsDir, "firemap")
-firemap <- shapefile(file.path(fireDir, "landweb_ltfc_v6.shp"))
-
-plt <- grDevices::colorRampPalette(brewer.pal(9, "OrRd"))
-cuts <- max(firemap$LTHFC) / 10 ## 10-year increments
-spplot(firemap, "LTHFC", col.regions = plt(cuts), cuts = cuts, col = "transparent")
-```
 
 ### DMI
 
@@ -212,11 +221,13 @@ if (!dir.exists(dataDirLP)) dir.create(dataDirLP)
 ```
 
 There are 3 parts to the LP FMA: 2 in BC and one in MB.
-Only need to do MB one right now.
+*Only need to do MB one right now.*
 
 ```{r lp_full}
 lp <- shp2[grepl("Fort St\\. John|Dawson Creek|Mountain", shp2$Name), ]
-plot(lp[, "Name"], main = "lp full", col = "lightblue")
+plot(lp[, "Name"], main = "LP full", col = "lightblue")
+plot(spTransform(west, crs(lp)), add = TRUE)
+plot(spTransform(manitoba, crs(lp)), add = TRUE)
 
 shapefile(lp, filename = file.path(dataDirLP, "LP_full.shp"), overwrite = TRUE)
 ```
@@ -225,6 +236,11 @@ shapefile(lp, filename = file.path(dataDirLP, "LP_full.shp"), overwrite = TRUE)
 lp_mb <- shp2[grepl("Mountain", shp2$Name), ]
 plot(lp_mb, col = "purple", add = TRUE)
 shapefile(lp_mb, filename = file.path(dataDirLP, "LP_MB.shp"), overwrite = TRUE)
+
+lp_mb.caribou <- postProcess(caribou, studyArea = lp_mb, useSAcrs = TRUE,
+                             filename2 = file.path(dataDirLP, "LP_MB_caribou.shp"),
+                             overwrite = TRUE)
+plot(lp_mb.caribou, col = "magenta", add = TRUE)
 ```
 
 #### Produce study area for LP area
@@ -233,12 +249,13 @@ shapefile(lp_mb, filename = file.path(dataDirLP, "LP_MB.shp"), overwrite = TRUE)
 lp_full <- shapefile(file.path(dataDirLP, "LP_full.shp"))
 plot(lp_full, col = "lightblue")
 
-## only do MB section for now
 lp.mb.sr <- amc::outerBuffer(lp_mb, 50000)
 plot(lp.mb.sr, add = TRUE)
 
 lp_mb_sr <- postProcess(firemap, studyArea = lp.mb.sr, useSAcrs = TRUE,
-                        filename2 = file.path(dataDirLP, "LP_MB_SR.shp"))
+                        filename2 = file.path(dataDirLP, "LP_MB_SR.shp"),
+                        overwrite = TRUE)
+plot(lp_mb_sr)
 ```
 
 ### Tolko
@@ -265,14 +282,6 @@ shapefile(tolko.full, filename = file.path(dataDirTolko, "Tolko_Full.shp"), over
 ```
 
 #### Tolko Reporting ploygons
-
-```{r ecological_polygons}
-ansr <- file.path("m", "LandWeb_shiny", "data", "AB_Natural_Sub_Regions.shp") %>% 
-  shapefile()
-
-caribou <- file.path("m", "LandWeb_shiny", "data", "Boreal_Caribou_Ranges.shp") %>%
-  shapefile()
-```
 
 ```{r tolko_ab_north}
 tolko_ab_n <- tolko[4, ]
@@ -341,6 +350,6 @@ tolko_ab_s_sr <- postProcess(firemap, studyArea = tolko_ab_s.sr, useSAcrs = TRUE
                              filename2 = file.path(dataDirTolko, "Tolko_AB_S_SR.shp"),
                              overwrite = TRUE)
 tolko_sk_sr <- postProcess(firemap, studyArea = tolko_sk.sr, useSAcrs = TRUE,
-                             filename2 = file.path(dataDirTolko, "Tolko_SK_SR.shp"),
-                             overwrite = TRUE)
+                           filename2 = file.path(dataDirTolko, "Tolko_SK_SR.shp"),
+                           overwrite = TRUE)
 ```

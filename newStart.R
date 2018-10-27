@@ -24,6 +24,10 @@ runName <- "testing"
 #runName <- "tolko_AB_S_logROS" ## DONE
 #runName <- "tolko_SK_logROS" ## DONE
 
+## running locally
+#runName <- "LP_MB" ## DONE
+#runName <- "LP_MB_logROS" ## DONE
+
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 
 ##########################################################
@@ -127,10 +131,11 @@ if (grepl("testing", runName)) {
 ## COMPANY-SPECIFIC STUDY AREAS
 
 dataDir <- file.path("inputs", "FMA_Boundaries")
+dataDirDMI <- file.path(dataDir, "DMI")
+dataDirLP <- file.path(dataDir, "LP")
+dataDirTolko <- file.path(dataDir, "Tolko")
 
 ### ADMINISTRATIVE POLYGONS
-# TOLKO
-dataDirTolko <- file.path(dataDir, "Tolko")
 if (grepl("tolko_AB_N", runName)) {
   studyRegionName <- "Tolko AB North SR"
 
@@ -194,6 +199,24 @@ if (grepl("tolko_AB_N", runName)) {
                columnNameForLabels = "Name", filename2 = NULL)
   ml <- mapAdd(tolko_sk.caribou, ml, layerName = "Tolko SK Caribou", useSAcrs = TRUE, poly = TRUE,
                analysisGroupReportingPolygon = "Tolko SK Caribou",
+               columnNameForLabels = "Name", filename2 = NULL)
+} else if (grepl("LP_MB", runName)) {
+  studyRegionName <- "LP MB SR"
+  ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
+  lp_mb_sr <- shapefile(file.path(dataDirLP, "LP_MB_SR.shp"))
+  ml <- mapAdd(lp_mb_sr, ml, isStudyArea = TRUE, layerName = studyRegionName,
+               useSAcrs = TRUE, poly = TRUE,
+               columnNameForLabels = "NSN", filename2 = NULL)
+
+  ## reportingPolygons
+  lp_mb <- shapefile(file.path(dataDirLP, "LP_MB.shp"))
+  lp_mb.caribou <- shapefile(file.path(dataDirLP, "LP_MB_caribou.shp"))
+
+  ml <- mapAdd(lp_mb, ml, layerName = "LP MB", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "LP MB",
+               columnNameForLabels = "Name", filename2 = NULL)
+  ml <- mapAdd(lp_mb.caribou, ml, layerName = "LP MB Caribou", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "LP MB Caribou",
                columnNameForLabels = "Name", filename2 = NULL)
 }
 
@@ -342,7 +365,7 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
+cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 12,
                               outfile = file.path(Paths$outputPath, "_parallel.log"))
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
