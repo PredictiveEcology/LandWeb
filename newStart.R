@@ -19,10 +19,15 @@ runName <- "testing"
 #runName <- "tolko_AB_S_equalROS" ## DONE
 #runName <- "tolko_SK_equalROS" ## DONE
 
-## running on 388
+## running on 388; results saved locally
 #runName <- "tolko_AB_N_logROS" ## DONE
 #runName <- "tolko_AB_S_logROS" ## DONE
 #runName <- "tolko_SK_logROS" ## DONE
+
+## running locally
+#runName <- "tolko_AB_N_logROS_new" ## DONE
+#runName <- "tolko_AB_S_logROS_new" ## DONE
+#runName <- "tolko_SK_logROS_new" ## DONE
 
 ## running locally
 #runName <- "LP_MB" ## DONE
@@ -370,7 +375,7 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 12,
+cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10,
                               outfile = file.path(Paths$outputPath, "_parallel.log"))
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
@@ -384,7 +389,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    clearSimEnv = TRUE,
                    .plotInitialTime = NA,
                    cache = TRUE, ## this caches each simulation rep (with all data!)
-                   replicates = 12 ## TODO: can increase this later for additional runs
+                   replicates = 10 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
 
