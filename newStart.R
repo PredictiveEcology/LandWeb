@@ -8,21 +8,27 @@ runName <- "testing"
 #runName <- "tolko_AB_S"  ## original
 #runName <- "tolko_SK"  ## original
 
+## running locally
+# NOTE: these 'doubleFRI' runs never used double FRI so they are same as original!
+#runName <- "tolko_AB_N_doubleFRI" ## DONE
+#runName <- "tolko_AB_S_doubleFRI" ## DONE
+#runName <- "tolko_SK_doubleFRI" ## DONE
 
-#runName <- "tolko_AB_N_doubleFRI"
-#runName <- "tolko_AB_S_doubleFRI"
-#runName <- "tolko_SK_doubleFRI"
+## running locally
+#runName <- "tolko_AB_N_equalROS" ## DONE
+#runName <- "tolko_AB_S_equalROS" ## DONE
+#runName <- "tolko_SK_equalROS" ## DONE
 
+## running on 388
+#runName <- "tolko_AB_N_logROS" ## DONE
+#runName <- "tolko_AB_S_logROS" ## DONE
+#runName <- "tolko_SK_logROS" ## DONE
 
-#runName <- "tolko_AB_N_equalROS"
-#runName <- "tolko_AB_S_equalROS"
-#runName <- "tolko_SK_equalROS"
+## running locally
+#runName <- "LP_MB" ## DONE
+#runName <- "LP_MB_logROS" ## DONE
 
-
-#runName <- "tolko_AB_N_logROS"
-#runName <- "tolko_AB_S_logROS"
-#runName <- "tolko_SK_logROS"
-
+print(runName)
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 
 ##########################################################
@@ -31,8 +37,12 @@ source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 library(raster)
 library(SpaDES.core)
 library(map)
+# if (Sys.info()[["user"]] == "achubaty") {
+#   devtools::load_all("~/GitHub/PredictiveEcology/map")
+# } else if (Sys.info()[["user"]] == "emcintir") {
+#   devtools::load_all("~/GitHub/map")
+# }
 library(pemisc)
-#devtools::load_all("~/GitHub/map")
 
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -122,10 +132,11 @@ if (grepl("testing", runName)) {
 ## COMPANY-SPECIFIC STUDY AREAS
 
 dataDir <- file.path("inputs", "FMA_Boundaries")
+dataDirDMI <- file.path(dataDir, "DMI")
+dataDirLP <- file.path(dataDir, "LP")
+dataDirTolko <- file.path(dataDir, "Tolko")
 
 ### ADMINISTRATIVE POLYGONS
-# TOLKO
-dataDirTolko <- file.path(dataDir, "Tolko")
 if (grepl("tolko_AB_N", runName)) {
   studyRegionName <- "Tolko AB North SR"
 
@@ -189,6 +200,24 @@ if (grepl("tolko_AB_N", runName)) {
                columnNameForLabels = "Name", filename2 = NULL)
   ml <- mapAdd(tolko_sk.caribou, ml, layerName = "Tolko SK Caribou", useSAcrs = TRUE, poly = TRUE,
                analysisGroupReportingPolygon = "Tolko SK Caribou",
+               columnNameForLabels = "Name", filename2 = NULL)
+} else if (grepl("LP_MB", runName)) {
+  studyRegionName <- "LP MB SR"
+  ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
+  lp_mb_sr <- shapefile(file.path(dataDirLP, "LP_MB_SR.shp"))
+  ml <- mapAdd(lp_mb_sr, ml, isStudyArea = TRUE, layerName = studyRegionName,
+               useSAcrs = TRUE, poly = TRUE,
+               columnNameForLabels = "NSN", filename2 = NULL)
+
+  ## reportingPolygons
+  lp_mb <- shapefile(file.path(dataDirLP, "LP_MB.shp"))
+  lp_mb.caribou <- shapefile(file.path(dataDirLP, "LP_MB_caribou.shp"))
+
+  ml <- mapAdd(lp_mb, ml, layerName = "LP MB", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "LP MB",
+               columnNameForLabels = "Name", filename2 = NULL)
+  ml <- mapAdd(lp_mb.caribou, ml, layerName = "LP MB Caribou", useSAcrs = TRUE, poly = TRUE,
+               analysisGroupReportingPolygon = "LP MB Caribou",
                columnNameForLabels = "Name", filename2 = NULL)
 }
 
@@ -329,15 +358,19 @@ outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3)
 
 
 ######## SimInit and Experiment
-seed <- sample(1e8, 1)
+if (file.exists(file.path(Paths$outputPath, "seed.rds"))) {
+  seed <- readRDS(file.path(Paths$outputPath, "seed.rds"))
+} else {
+  seed <- sample(1e8, 1)
+  saveRDS(seed, file.path(Paths$outputPath, "seed.rds"))
+}
 set.seed(seed)
-saveRDS(seed, file.path(Paths$outputPath, "seed.rds"))
 print(seed)
 
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 4,
+cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 12,
                               outfile = file.path(Paths$outputPath, "_parallel.log"))
 
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
@@ -351,33 +384,39 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    clearSimEnv = TRUE,
                    .plotInitialTime = NA,
                    cache = TRUE, ## this caches each simulation rep (with all data!)
-                   replicates = 3 ## TODO: can increase this later for additional runs
+                   replicates = 12 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
 
-if (FALSE) {
-  saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 
 
-ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
+#ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
+#ml <- readRDS(file.path(Paths$outputPath, "ml_done.rds"))
+#mySimOuts <- readRDS(file.path(Paths$outputPath, "mySimOuts.rds"))
 
 ##########################################################
 # Current Condition
 ##########################################################
 ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing"
 
-fname <- "Age1.tif"
+fname_age <- "Age1.tif"
 ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
-             tsf = file.path(Paths$inputPath, fname), analysisGroup1 = "CC",
-             targetFile = fname, filename2 = file.path(Paths$inputPath, fname), useCache = FALSE,
+             tsf = file.path(Paths$inputPath, fname_age), analysisGroup1 = "CC",
+             targetFile = fname_age, filename2 = file.path(Paths$inputPath, fname_age),
+             useCache = FALSE,
              alsoExtract = "similar",  leaflet = FALSE)
 
 CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
 CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
+
+options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
-             targetFile = CClayerNamesFiles, filename2 = NULL, #useCache = FALSE,
+             targetFile = CClayerNamesFiles, filename2 = NULL,
+             #useCache = "overwrite",
              alsoExtract = "similar",  leaflet = FALSE)
+options(map.useParallel = TRUE)
 
 ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("CC TSF", "LandType")), ]
 CCs <- maps(ml, layerName = ccs$layerName)
@@ -389,10 +428,15 @@ names(CClayerNames) <- CClayerNames
 CCspeciesNames <- c(CClayerNames, "Mixed" = "Mixed")
 levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
-#CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
 
 ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = CCvtmFilename, leaflet = FALSE,
-             analysisGroup1 = "CC", vtm = CCvtmFilename, useCache = FALSE)
+             analysisGroup1 = "CC",
+             tsf = file.path(Paths$inputPath, fname_age), vtm = CCvtmFilename,
+             useCache = FALSE)
+if (!file.exists(CCvtmFilename)) {
+  CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
+}
+
 ##########################################################
 # Dynamic Raster Layers from Simulation
 ##########################################################
@@ -409,11 +453,13 @@ destinationPath <- dirname(allouts)
 tsf <- gsub(".*vegTypeMap.*", NA, allouts)
 vtm <- gsub(".*TimeSinceFire.*", NA, allouts)
 
+options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
              targetFile = asPath(allouts),
              destinationPath = asPath(destinationPath),
              filename2 = NULL, tsf = asPath(tsf), vtm = asPath(vtm),
              overwrite = TRUE, leaflet = asPath(tilePath))
+options(map.useParallel = TRUE)
 
 ######################################################################
 # Add reporting polygons
@@ -424,8 +470,11 @@ ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
 ######################################################################
 # Leading Veg Type By Age Class
 ######################################################################
+options(map.useParallel = FALSE)
 ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
+                     #purgeAnalyses = "LeadingVegTypeByAgeClass",
                      ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
+options(map.useParallel = TRUE)
 
 # add an analysis -- this will trigger analyses because there are already objects in the map
 #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo (only 1 currently)
@@ -436,8 +485,6 @@ ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
                      ageClassCutOffs = ageClassCutOffs)
 options(map.useParallel = TRUE)
 
-#ml <- mapAddAnalysis(ml, functionName = "createCCdt", THINGY)
-
 ############################################################
 # Post hoc analyses -- specifically making the data.tables for histograms & boxplots
 ############################################################
@@ -445,17 +492,21 @@ options(map.useParallel = TRUE)
 #   analysed.
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                            #purgeAnalyses = "rbindlistAG",
                             postHocAnalyses = "all")
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "rbindlistAG",
                             dPath = file.path(Paths$outputPath, "boxplots"))
 
+saveRDS(ml, file.path(Paths$outputPath, "ml_done.rds"))
+print(runName)
 
 ################################################################
 ###   WORKS UP TO HERE
 ################################################################
 
+if (FALSE) {
   ##########################################################
   # Reporting Polygons
   ##########################################################
