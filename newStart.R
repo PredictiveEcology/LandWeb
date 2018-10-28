@@ -4,7 +4,7 @@ setwd(activeDir)
 
 #runName <- "testing"
 
-runName <- "tolko_AB_N"  ## original
+#runName <- "tolko_AB_N"  ## original
 #runName <- "tolko_AB_S"  ## original
 #runName <- "tolko_SK"  ## original
 
@@ -19,14 +19,23 @@ runName <- "tolko_AB_N"  ## original
 #runName <- "tolko_AB_S_equalROS" ## DONE
 #runName <- "tolko_SK_equalROS" ## DONE
 
-## running on 388
+## running on 388; results saved locally
 #runName <- "tolko_AB_N_logROS" ## DONE
 #runName <- "tolko_AB_S_logROS" ## DONE
 #runName <- "tolko_SK_logROS" ## DONE
 
 ## running locally
+#runName <- "tolko_AB_N_logROS_new" ## running
+#runName <- "tolko_AB_S_logROS_new" ## running
+#runName <- "tolko_SK_logROS_new" ## running
+
+## running locally
 #runName <- "LP_MB" ## DONE
 #runName <- "LP_MB_logROS" ## DONE
+
+## running by Eliot on 343 Oct 27, 2018 -- THese have Current Conditions as Initial Conditions,
+#       more variable fire num per year
+runName <- "tolko_AB_N_logROS_new" ## running
 
 print(runName)
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
@@ -425,9 +434,9 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-#cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 12,
-#                              outfile = file.path(Paths$outputPath, "_parallel.log"))
-cl <- NULL
+cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10,
+                              outfile = file.path(Paths$outputPath, "_parallel.log"))
+
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    params = parameters,
                    modules = modules,
@@ -439,7 +448,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    clearSimEnv = TRUE,
                    .plotInitialTime = NA,
                    cache = TRUE, ## this caches each simulation rep (with all data!)
-                   replicates = 12 ## TODO: can increase this later for additional runs
+                   replicates = 10 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
 
