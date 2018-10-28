@@ -379,7 +379,7 @@ ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
              targetFile = CClayerNamesFiles, filename2 = NULL, #useCache = FALSE,
              alsoExtract = "similar",  leaflet = FALSE)
 
-ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("Age", "LandType")), ]
+ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("CC TSF", "LandType")), ]
 CCs <- maps(ml, layerName = ccs$layerName)
 CCstack <- stack(CCs)
 sumVegPct <- sum(CCstack, na.rm = TRUE)
