@@ -25,9 +25,9 @@ runName <- "testing"
 #runName <- "tolko_SK_logROS" ## DONE
 
 ## running locally
-#runName <- "tolko_AB_N_logROS_new" ## DONE
-#runName <- "tolko_AB_S_logROS_new" ## DONE
-#runName <- "tolko_SK_logROS_new" ## DONE
+#runName <- "tolko_AB_N_logROS_new" ## running
+#runName <- "tolko_AB_S_logROS_new" ## running
+#runName <- "tolko_SK_logROS_new" ## running
 
 ## running locally
 #runName <- "LP_MB" ## DONE
