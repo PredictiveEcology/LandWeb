@@ -2,9 +2,9 @@ minFRI <- 40
 activeDir <- "~/GitHub/LandWeb"
 setwd(activeDir)
 
-runName <- "testing"
+#runName <- "testing"
 
-#runName <- "tolko_AB_N"  ## original
+runName <- "tolko_AB_N"  ## original
 #runName <- "tolko_AB_S"  ## original
 #runName <- "tolko_SK"  ## original
 
@@ -222,6 +222,17 @@ if (grepl("tolko_AB_N", runName)) {
 }
 
 ##############################################################
+## spades module variables
+##############################################################
+eventCaching <- c(".inputObjects", "init")
+maxAge <- 400
+vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
+# If all are below this, then it is a "mixed" stand
+ageClasses <- c("Young", "Immature", "Mature", "Old")
+ageClassCutOffs <- c(0, 40, 80, 120)
+fireTimestep <- 1
+
+##############################################################
 # correct studyArea, make rasterToMatch, load LCC2005
 ##############################################################
 LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
@@ -234,18 +245,61 @@ ml <- mapAdd(rasterToMatch(studyArea(ml), rasterToMatch = ml$LCC2005),
              layerName = "rasterToMatch", filename2 = NULL,
              map = ml, leaflet = FALSE, isRasterToMatch = TRUE)
 
-######
-# Dynamic Simulation
-######
+##########################################################
+# Current Condition
+##########################################################
+ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing"
 
-## spades module variables
-eventCaching <- c(".inputObjects", "init")
-maxAge <- 400
-vegLeadingPercent <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
-# If all are below this, then it is a "mixed" stand
-ageClasses <- c("Young", "Immature", "Mature", "Old")
-ageClassCutOffs <- c(0, 40, 80, 120)
-fireTimestep <- 1
+fname_age <- "Age1.tif"
+ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
+             tsf = file.path(Paths$inputPath, fname_age), analysisGroup1 = "CC",
+             targetFile = fname_age, filename2 = file.path(Paths$inputPath, fname_age),
+             useCache = TRUE,
+             alsoExtract = "similar",  leaflet = FALSE)
+
+CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
+CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
+
+options(map.useParallel = FALSE)
+ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
+             targetFile = CClayerNamesFiles, filename2 = NULL,
+             #useCache = "overwrite",
+             alsoExtract = "similar",  leaflet = FALSE)
+options(map.useParallel = TRUE)
+
+ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("CC TSF", "LandType")), ]
+CCs <- maps(ml, layerName = ccs$layerName)
+CCstack <- stack(CCs)
+CCstack[CCstack[]<0] <- 0
+CCstack[CCstack[]>10] <- 10
+CCstack <- CCstack*10
+
+CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
+
+# sumVegPct <- sum(CCstack, na.rm = TRUE)
+#
+# CCstack$Mixed <- all(CCstack/sumVegPct < vegLeadingProportion) * 20
+# CCvtm <- raster::which.max(CCstack)
+# names(CClayerNames) <- CClayerNames
+# CCspeciesNames <- c(CClayerNames, "Mixed" = "Mixed")
+# levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
+CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
+
+ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = CCvtmFilename, leaflet = FALSE,
+             analysisGroup1 = "CC",
+             tsf = file.path(Paths$inputPath, fname_age), vtm = CCvtmFilename,
+             useCache = TRUE)
+
+
+if (!file.exists(CCvtmFilename)) {
+  CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
+}
+
+
+######################################################
+# Dynamic Simulation
+######################################################
+
 
 ## scfm stuff:
 mapDim <- 200
@@ -255,7 +309,7 @@ defaultInitialSaveTime <- NA
 
 times <- list(start = 0, end = endTime)
 modules <- list("LandWeb_LandMineDataPrep", "LandMine",
-                "LandWebProprietaryData",
+                #"LandWebProprietaryData",
                 "Boreal_LBMRDataPrep", "LBMR",
                 "timeSinceFire",
                 "LandWeb_output")
@@ -266,9 +320,10 @@ objects <- list("shpStudyAreaLarge" = studyArea(ml, 1),
                 "shpStudyArea" = studyArea(ml, 2),
                 "rasterToMatch" = rasterToMatch(ml),
                 "LCC2005" = ml$LCC2005,
+                "specieslayers" = CCstack,
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = 2,
-                "vegLeadingPercent" = vegLeadingPercent)
+                "vegLeadingProportion" = vegLeadingProportion)
 scfmObjects <- list("mapDim" = mapDim)
 
 parameters <- list(
@@ -370,9 +425,9 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 12,
-                              outfile = file.path(Paths$outputPath, "_parallel.log"))
-
+#cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 12,
+#                              outfile = file.path(Paths$outputPath, "_parallel.log"))
+cl <- NULL
 mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    params = parameters,
                    modules = modules,
@@ -388,6 +443,8 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
 )
 try(stopCluster(cl), silent = TRUE)
 
+if (FALSE) {
+
 saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 
@@ -396,46 +453,6 @@ saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 #ml <- readRDS(file.path(Paths$outputPath, "ml_done.rds"))
 #mySimOuts <- readRDS(file.path(Paths$outputPath, "mySimOuts.rds"))
 
-##########################################################
-# Current Condition
-##########################################################
-ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing"
-
-fname_age <- "Age1.tif"
-ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
-             tsf = file.path(Paths$inputPath, fname_age), analysisGroup1 = "CC",
-             targetFile = fname_age, filename2 = file.path(Paths$inputPath, fname_age),
-             useCache = FALSE,
-             alsoExtract = "similar",  leaflet = FALSE)
-
-CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
-CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
-
-options(map.useParallel = FALSE)
-ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
-             targetFile = CClayerNamesFiles, filename2 = NULL,
-             #useCache = "overwrite",
-             alsoExtract = "similar",  leaflet = FALSE)
-options(map.useParallel = TRUE)
-
-ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("CC TSF", "LandType")), ]
-CCs <- maps(ml, layerName = ccs$layerName)
-CCstack <- stack(CCs)
-sumVegPct <- sum(CCstack, na.rm = TRUE)
-CCstack$Mixed <- all(CCstack/sumVegPct < vegLeadingPercent) * 10
-CCvtm <- raster::which.max(CCstack)
-names(CClayerNames) <- CClayerNames
-CCspeciesNames <- c(CClayerNames, "Mixed" = "Mixed")
-levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
-CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
-
-ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = CCvtmFilename, leaflet = FALSE,
-             analysisGroup1 = "CC",
-             tsf = file.path(Paths$inputPath, fname_age), vtm = CCvtmFilename,
-             useCache = FALSE)
-if (!file.exists(CCvtmFilename)) {
-  CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
-}
 
 ##########################################################
 # Dynamic Raster Layers from Simulation
@@ -506,7 +523,6 @@ print(runName)
 ###   WORKS UP TO HERE
 ################################################################
 
-if (FALSE) {
   ##########################################################
   # Reporting Polygons
   ##########################################################
@@ -611,7 +627,7 @@ if (FALSE) {
   successionTimestep <- 10 # was 2
 
   ## spades module variables -- creates
-  # eventCaching, maxAge, vegLeadingPercent
+  # eventCaching, maxAge, vegLeadingProportion
   # ageClasses, ageClassCutOffs, ageClas0s0Zones
   source("R/LandWeb user parameters.R")
   landisInputs <- readRDS(file.path(paths$inputPath, "landisInputs.rds"))
