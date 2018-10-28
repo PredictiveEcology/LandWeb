@@ -28,6 +28,7 @@ runName <- "testing"
 #runName <- "LP_MB" ## DONE
 #runName <- "LP_MB_logROS" ## DONE
 
+print(runName)
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 
 ##########################################################
@@ -357,9 +358,13 @@ outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3)
 
 
 ######## SimInit and Experiment
-seed <- sample(1e8, 1)
+if (file.exists(file.path(Paths$outputPath, "seed.rds"))) {
+  seed <- readRDS(file.path(Paths$outputPath, "seed.rds"))
+} else {
+  seed <- sample(1e8, 1)
+  saveRDS(seed, file.path(Paths$outputPath, "seed.rds"))
+}
 set.seed(seed)
-saveRDS(seed, file.path(Paths$outputPath, "seed.rds"))
 print(seed)
 
 print(runName)
@@ -388,6 +393,7 @@ saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 
 
 #ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
+#ml <- readRDS(file.path(Paths$outputPath, "ml_done.rds"))
 #mySimOuts <- readRDS(file.path(Paths$outputPath, "mySimOuts.rds"))
 
 ##########################################################
@@ -407,7 +413,8 @@ CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
 
 options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
-             targetFile = CClayerNamesFiles, filename2 = NULL, #useCache = FALSE,
+             targetFile = CClayerNamesFiles, filename2 = NULL,
+             #useCache = "overwrite",
              alsoExtract = "similar",  leaflet = FALSE)
 options(map.useParallel = TRUE)
 
@@ -485,6 +492,7 @@ options(map.useParallel = TRUE)
 #   analysed.
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                            #purgeAnalyses = "rbindlistAG",
                             postHocAnalyses = "all")
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
