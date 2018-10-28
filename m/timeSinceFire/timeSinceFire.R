@@ -96,9 +96,13 @@ Init <- function(sim) {
   if (is.null(sim$burnLoci)) {
     sim$burnLoci <- which(sim$rstCurrentBurn[] == 1)
   }
-  # Much faster than call rasterize again
-  sim$rstTimeSinceFire <- raster(sim$rasterToMatch)
-  sim$rstTimeSinceFire[] <- sim$rasterToMatch[]
-  sim$rstTimeSinceFire[sim$rstFlammable[] == 1] <- NA #non-flammable areas are permanent.
+
+  if (is.null(sim$rstTimeSinceFire)) {
+    # Much faster than call rasterize again
+    sim$rstTimeSinceFire <- raster(sim$rasterToMatch)
+    sim$rstTimeSinceFire[] <- factorValues(sim$rasterToMatch, sim$rasterToMatch[],
+                                           att = "fireReturnInterval")[[1]]
+    sim$rstTimeSinceFire[sim$rstFlammable[] == 0] <- NA #non-flammable areas are permanent.
+  }
   return(invisible(sim))
 }
