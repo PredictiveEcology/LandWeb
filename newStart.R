@@ -505,11 +505,11 @@ options(map.useParallel = TRUE)
 # add an analysis -- this will trigger analyses because there are already objects in the map
 #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo (only 1 currently)
 #    so there is 1 raster group, 2 polygon groups, 2 analyses - Total 4, only 2 run now
-options(map.useParallel = FALSE)
+#options(map.useParallel = FALSE)
 ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
                      id = "1", labelColumn = "shinyLabel",
                      ageClassCutOffs = ageClassCutOffs)
-options(map.useParallel = TRUE)
+#options(map.useParallel = TRUE)
 
 ############################################################
 # Post hoc analyses -- specifically making the data.tables for histograms & boxplots
