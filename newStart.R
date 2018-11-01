@@ -33,7 +33,7 @@ setwd(activeDir)
 #runName <- "LP_MB" ## DONE
 #runName <- "LP_MB_logROS" ## DONE
 
-## running by Eliot on 343 Oct 27, 2018 -- THese have Current Conditions as Initial Conditions,
+## running by Eliot on 343 Oct 27, 2018 -- These have Current Conditions as Initial Conditions,
 #       more variable fire num per year
 runName <- "tolko_AB_N_logROS_new" ## running
 
