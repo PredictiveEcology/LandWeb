@@ -58,3 +58,7 @@ Thumbs.db
 
 ## !! inputs/ has its own .gignore file too !!
 
+
+inputs/initial-communities\.txt
+
+inputs/initial-communities\.gis
