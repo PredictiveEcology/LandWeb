@@ -30,12 +30,17 @@ setwd(activeDir)
 #runName <- "tolko_SK_logROS_new" ## running
 
 ## running locally
+#runName <- "tolko_AB_N_noDispersal" ## running
+#runName <- "tolko_AB_S_noDispersal" ## running
+#runName <- "tolko_SK_noDispersal" ## running
+
+## running locally
 #runName <- "LP_MB" ## DONE
 #runName <- "LP_MB_logROS" ## DONE
 
 ## running by Eliot on 343 Oct 27, 2018 -- These have Current Conditions as Initial Conditions,
 #       more variable fire num per year
-runName <- "tolko_AB_N_logROS_new" ## running
+#runName <- "tolko_AB_N_logROS_new" ## running
 
 print(runName)
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
@@ -279,9 +284,9 @@ options(map.useParallel = TRUE)
 ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("CC TSF", "LandType")), ]
 CCs <- maps(ml, layerName = ccs$layerName)
 CCstack <- stack(CCs)
-CCstack[CCstack[]<0] <- 0
-CCstack[CCstack[]>10] <- 10
-CCstack <- CCstack*10
+CCstack[CCstack[] < 0] <- 0
+CCstack[CCstack[] > 10] <- 10
+CCstack <- CCstack * 10
 
 CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
 
@@ -308,7 +313,6 @@ if (!file.exists(CCvtmFilename)) {
 ######################################################
 # Dynamic Simulation
 ######################################################
-
 
 ## scfm stuff:
 mapDim <- 200
@@ -345,8 +349,11 @@ parameters <- list(
                   .useCache = eventCaching),
   LandWeb_output = list(summaryInterval = summaryInterval),
   LandWebProprietaryData = list(.useCache = eventCaching),
-  LBMR = list(successionTimestep = successionTimestep,
-              .useCache = eventCaching),
+  LBMR = list(
+    seedingAlgorithm = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
+    successionTimestep = successionTimestep,
+    .useCache = eventCaching
+  ),
   timeSinceFire = list(startTime = fireTimestep,
                        .useCache = eventCaching)
 )
@@ -448,7 +455,7 @@ mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                    clearSimEnv = TRUE,
                    .plotInitialTime = NA,
                    cache = TRUE, ## this caches each simulation rep (with all data!)
-                   replicates = 10 ## TODO: can increase this later for additional runs
+                   replicates = 3 ## TODO: can increase this later for additional runs
 )
 try(stopCluster(cl), silent = TRUE)
 
