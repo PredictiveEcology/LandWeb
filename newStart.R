@@ -333,10 +333,14 @@ modules <- list("LandWeb_LandMineDataPrep", "LandMine",
 scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
                     "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 
+
 objects <- list("shpStudyAreaLarge" = studyArea(ml, 1),
                 "shpStudyArea" = studyArea(ml, 2),
                 "rasterToMatch" = rasterToMatch(ml),
+                "fireReturnInterval" = ml$fireReturnInterval,
+                "rstLCC" = ml$LandType,
                 "LCC2005" = ml$LCC2005,
+                "rstTimeSinceFire" = ml$`CC TSF`,
                 "specieslayers" = CCstack,
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = 2,
