@@ -291,8 +291,8 @@ options(map.useParallel = TRUE)
 ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("CC TSF", "LandType")), ]
 CCs <- maps(ml, layerName = ccs$layerName)
 CCstack <- raster::stack(CCs)
-CCstack[CCstack[]<0] <- 0
-CCstack[CCstack[]>10] <- 10
+CCstack[CCstack[] < 0] <- 0
+CCstack[CCstack[] > 10] <- 10
 CCstack <- CCstack * 10
 
 CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
@@ -459,18 +459,17 @@ if (!useSpades) {
   mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
                      params = parameters,
                      modules = modules,
-                   outputs = outputs,
-                   debug = 1,
-                   objects, # do not name this argument -- collides with
-                   paths = paths,
-                   loadOrder = unlist(modules),
+                     outputs = outputs,
+                     debug = 1,
+                     objects, # do not name this argument -- collides with
+                     paths = paths,
+                     loadOrder = unlist(modules),
                      clearSimEnv = TRUE,
                      .plotInitialTime = NA,
                      cache = TRUE, ## this caches each simulation rep (with all data!)
                      replicates = 1 ## TODO: can increase this later for additional runs
   )
   try(stopCluster(cl), silent = TRUE)
-
 } else {
   quickPlot::dev()
   quickPlot::clearPlot()
@@ -485,12 +484,10 @@ if (!useSpades) {
   mySimOut <- spades(mySim, debug = 1)
 }
 
+saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
+
 if (FALSE) {
-
-  saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
-  saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
-
-
 #ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
 #ml <- readRDS(file.path(Paths$outputPath, "ml_done.rds"))
 #mySimOuts <- readRDS(file.path(Paths$outputPath, "mySimOuts.rds"))
