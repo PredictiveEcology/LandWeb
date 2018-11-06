@@ -1,5 +1,5 @@
 # Overall model times # start is default at 0
-endTime <- 10
+endTime <- 700
 successionTimestep <- 10
-summaryPeriod <- c(5, 10)
+summaryPeriod <- c(10, 100)
 summaryInterval <- 5
