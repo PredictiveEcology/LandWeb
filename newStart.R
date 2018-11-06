@@ -3,7 +3,7 @@ minFRI <- 40
 activeDir <- "~/GitHub/LandWeb"
 setwd(activeDir)
 
-#runName <- "testing"
+runName <- "testing"
 
 #runName <- "tolko_AB_N"  ## original
 #runName <- "tolko_AB_S"  ## original
@@ -31,10 +31,15 @@ setwd(activeDir)
 #runName <- "tolko_SK_logROS_new" ## running
 
 ## running locally
+#runName <- "tolko_AB_N_noDispersal" ## running
+#runName <- "tolko_AB_S_noDispersal" ## running
+#runName <- "tolko_SK_noDispersal" ## running
+
+## running locally
 #runName <- "LP_MB" ## DONE
 #runName <- "LP_MB_logROS" ## DONE
 
-## running by Eliot on 343 Oct 27, 2018 -- THese have Current Conditions as Initial Conditions,
+## running by Eliot on 343 Oct 27, 2018 -- These have Current Conditions as Initial Conditions,
 #       more variable fire num per year
 #runName <- "tolko_AB_N_logROS_new_Eliot" ## running
 
@@ -317,7 +322,6 @@ if (!file.exists(CCvtmFilename)) {
 # Dynamic Simulation
 ######################################################
 
-
 ## scfm stuff:
 mapDim <- 200
 defaultInterval <- NA
@@ -357,8 +361,11 @@ parameters <- list(
                   .useCache = eventCaching),
   LandWeb_output = list(summaryInterval = summaryInterval),
   LandWebProprietaryData = list(.useCache = eventCaching),
-  LBMR = list(successionTimestep = successionTimestep,
-              .useCache = eventCaching),
+  LBMR = list(
+    seedingAlgorithm = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
+    successionTimestep = successionTimestep,
+    .useCache = eventCaching
+  ),
   timeSinceFire = list(startTime = fireTimestep,
                        .useCache = eventCaching)
 )
@@ -462,6 +469,8 @@ if (!useSpades) {
                      cache = TRUE, ## this caches each simulation rep (with all data!)
                      replicates = 1 ## TODO: can increase this later for additional runs
   )
+  try(stopCluster(cl), silent = TRUE)
+
 } else {
   quickPlot::dev()
   quickPlot::clearPlot()
@@ -477,8 +486,6 @@ if (!useSpades) {
 }
 
 if (FALSE) {
-
-  try(stopCluster(cl), silent = TRUE)
 
   saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
   saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
