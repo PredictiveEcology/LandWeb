@@ -119,7 +119,7 @@ if (grepl("testing", runName)) {
   # Make a random small study area
   seed <- 863
   set.seed(seed)
-  sp2 <- Cache(SpaDES.tools::randomPolygon, ml[[studyRegionName]], 4e5)
+  sp2 <- Cache(SpaDES.tools::randomPolygon, ml[[studyRegionName]], 4e4) # was 4e5
   ml <- mapAdd(obj = sp2, map = ml, filename2 = FALSE,
                #targetCRS = targetCRS,
                layerName = "Small Study Area",
