@@ -1,3 +1,4 @@
+useSpades <- TRUE
 minFRI <- 40
 activeDir <- "~/GitHub/LandWeb"
 setwd(activeDir)
@@ -35,7 +36,7 @@ setwd(activeDir)
 
 ## running by Eliot on 343 Oct 27, 2018 -- THese have Current Conditions as Initial Conditions,
 #       more variable fire num per year
-runName <- "tolko_AB_N_logROS_new" ## running
+#runName <- "tolko_AB_N_logROS_new_Eliot" ## running
 
 print(runName)
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
@@ -441,28 +442,42 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10,
-                              outfile = file.path(Paths$outputPath, "_parallel.log"))
-
-mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
-                   params = parameters,
-                   modules = modules,
+if (!useSpades) {
+  cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10,
+                                outfile = file.path(Paths$outputPath, "_parallel.log"))
+  mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
+                     params = parameters,
+                     modules = modules,
                    outputs = outputs,
                    debug = 1,
                    objects, # do not name this argument -- collides with
                    paths = paths,
                    loadOrder = unlist(modules),
-                   clearSimEnv = TRUE,
-                   .plotInitialTime = NA,
-                   cache = TRUE, ## this caches each simulation rep (with all data!)
-                   replicates = 10 ## TODO: can increase this later for additional runs
-)
-try(stopCluster(cl), silent = TRUE)
+                     clearSimEnv = TRUE,
+                     .plotInitialTime = NA,
+                     cache = TRUE, ## this caches each simulation rep (with all data!)
+                     replicates = 1 ## TODO: can increase this later for additional runs
+  )
+} else {
+  quickPlot::dev()
+  quickPlot::clearPlot()
+  mySim <- simInit(times = times, #cl = cl,
+                   params = parameters,
+                   modules = modules,
+                   outputs = outputs,
+                   objects, # do not name this argument -- collides with Cache -- leave it unnamed
+                   paths = paths,
+                   loadOrder = unlist(modules)
+  )
+  mySimOut <- spades(mySim, debug = 1)
+}
 
 if (FALSE) {
 
-saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
-saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
+  try(stopCluster(cl), silent = TRUE)
+
+  saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+  saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 
 
 #ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
