@@ -1,3 +1,4 @@
+useSpades <- TRUE
 minFRI <- 40
 activeDir <- "~/GitHub/LandWeb"
 setwd(activeDir)
@@ -40,7 +41,7 @@ runName <- "testing"
 
 ## running by Eliot on 343 Oct 27, 2018 -- These have Current Conditions as Initial Conditions,
 #       more variable fire num per year
-#runName <- "tolko_AB_N_logROS_new" ## running
+#runName <- "tolko_AB_N_logROS_new_Eliot" ## running
 
 print(runName)
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
@@ -123,7 +124,7 @@ if (grepl("testing", runName)) {
   # Make a random small study area
   seed <- 863
   set.seed(seed)
-  sp2 <- Cache(SpaDES.tools::randomPolygon, ml[[studyRegionName]], 4e5)
+  sp2 <- Cache(SpaDES.tools::randomPolygon, ml[[studyRegionName]], 4e4) # was 4e5
   ml <- mapAdd(obj = sp2, map = ml, filename2 = FALSE,
                #targetCRS = targetCRS,
                layerName = "Small Study Area",
@@ -249,15 +250,6 @@ fireTimestep <- 1
 ##############################################################
 # correct studyArea, make rasterToMatch, load LCC2005
 ##############################################################
-LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
-ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet = FALSE,
-             isRasterToMatch = FALSE)
-
-studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = minFRI)
-
-ml <- mapAdd(rasterToMatch(studyArea(ml), rasterToMatch = ml$LCC2005),
-             layerName = "rasterToMatch", filename2 = NULL,
-             map = ml, leaflet = FALSE, isRasterToMatch = TRUE)
 
 ##########################################################
 # Current Condition
@@ -267,25 +259,40 @@ ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view
 fname_age <- "Age1.tif"
 ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
              tsf = file.path(Paths$inputPath, fname_age), analysisGroup1 = "CC",
-             targetFile = fname_age, filename2 = file.path(Paths$inputPath, fname_age),
-             useCache = TRUE,
-             alsoExtract = "similar",  leaflet = FALSE)
+             targetFile = fname_age, filename2 = NULL, #file.path(Paths$inputPath, fname_age),
+             useCache = TRUE, isRasterToMatch = TRUE,
+             alsoExtract = "similar", leaflet = FALSE)
 
-CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
+LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
+ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet = FALSE,
+             isRasterToMatch = TRUE, method = "ngb")
+
+studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = minFRI)
+
+ml <- mapAdd(rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml)),
+             layerName = "fireReturnInterval", filename2 = NULL,
+             map = ml, leaflet = FALSE)
+
+fireReturnInterval <- factorValues(ml$fireReturnInterval, ml$fireReturnInterval[], att = "fireReturnInterval")[[1]]
+ml$fireReturnInterval <- raster(ml$fireReturnInterval)
+ml$fireReturnInterval[] <- fireReturnInterval
+ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
+
+
+CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce", "LandType")
 CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
 
 options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
              targetFile = CClayerNamesFiles, filename2 = NULL,
-             #useCache = "overwrite",
-             alsoExtract = "similar",  leaflet = FALSE)
+             alsoExtract = "similar",  leaflet = FALSE, method = "ngb")
 options(map.useParallel = TRUE)
 
 ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("CC TSF", "LandType")), ]
 CCs <- maps(ml, layerName = ccs$layerName)
-CCstack <- stack(CCs)
-CCstack[CCstack[] < 0] <- 0
-CCstack[CCstack[] > 10] <- 10
+CCstack <- raster::stack(CCs)
+CCstack[CCstack[]<0] <- 0
+CCstack[CCstack[]>10] <- 10
 CCstack <- CCstack * 10
 
 CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
@@ -299,11 +306,12 @@ CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
 # levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
-ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = CCvtmFilename, leaflet = FALSE,
+ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL, #CCvtmFilename,
+             leaflet = FALSE, #isRasterToMatch = FALSE,
              analysisGroup1 = "CC",
-             tsf = file.path(Paths$inputPath, fname_age), vtm = CCvtmFilename,
+             #tsf = file.path(Paths$inputPath, fname_age),
+             vtm = CCvtmFilename,
              useCache = TRUE)
-
 
 if (!file.exists(CCvtmFilename)) {
   CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
@@ -329,10 +337,14 @@ modules <- list("LandWeb_LandMineDataPrep", "LandMine",
 scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
                     "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 
+
 objects <- list("shpStudyAreaLarge" = studyArea(ml, 1),
                 "shpStudyArea" = studyArea(ml, 2),
                 "rasterToMatch" = rasterToMatch(ml),
+                "fireReturnInterval" = ml$fireReturnInterval,
+                "rstLCC" = ml$LandType,
                 "LCC2005" = ml$LCC2005,
+                "rstTimeSinceFire" = ml$`CC TSF`,
                 "specieslayers" = CCstack,
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = 2,
@@ -441,28 +453,42 @@ print(seed)
 print(runName)
 
 ######## SimInit and Experiment
-cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10,
-                              outfile = file.path(Paths$outputPath, "_parallel.log"))
-
-mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
-                   params = parameters,
-                   modules = modules,
+if (!useSpades) {
+  cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10,
+                                outfile = file.path(Paths$outputPath, "_parallel.log"))
+  mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
+                     params = parameters,
+                     modules = modules,
                    outputs = outputs,
                    debug = 1,
                    objects, # do not name this argument -- collides with
                    paths = paths,
                    loadOrder = unlist(modules),
-                   clearSimEnv = TRUE,
-                   .plotInitialTime = NA,
-                   cache = TRUE, ## this caches each simulation rep (with all data!)
-                   replicates = 3 ## TODO: can increase this later for additional runs
-)
-try(stopCluster(cl), silent = TRUE)
+                     clearSimEnv = TRUE,
+                     .plotInitialTime = NA,
+                     cache = TRUE, ## this caches each simulation rep (with all data!)
+                     replicates = 1 ## TODO: can increase this later for additional runs
+  )
+  try(stopCluster(cl), silent = TRUE)
+
+} else {
+  quickPlot::dev()
+  quickPlot::clearPlot()
+  mySim <- simInit(times = times, #cl = cl,
+                   params = parameters,
+                   modules = modules,
+                   outputs = outputs,
+                   objects, # do not name this argument -- collides with Cache -- leave it unnamed
+                   paths = paths,
+                   loadOrder = unlist(modules)
+  )
+  mySimOut <- spades(mySim, debug = 1)
+}
 
 if (FALSE) {
 
-saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
-saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
+  saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+  saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 
 
 #ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
