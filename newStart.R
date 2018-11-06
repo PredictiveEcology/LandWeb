@@ -244,15 +244,6 @@ fireTimestep <- 1
 ##############################################################
 # correct studyArea, make rasterToMatch, load LCC2005
 ##############################################################
-LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
-ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet = FALSE,
-             isRasterToMatch = FALSE)
-
-studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = minFRI)
-
-ml <- mapAdd(rasterToMatch(studyArea(ml), rasterToMatch = ml$LCC2005),
-             layerName = "rasterToMatch", filename2 = NULL,
-             map = ml, leaflet = FALSE, isRasterToMatch = TRUE)
 
 ##########################################################
 # Current Condition
@@ -262,26 +253,41 @@ ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view
 fname_age <- "Age1.tif"
 ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
              tsf = file.path(Paths$inputPath, fname_age), analysisGroup1 = "CC",
-             targetFile = fname_age, filename2 = file.path(Paths$inputPath, fname_age),
-             useCache = TRUE,
-             alsoExtract = "similar",  leaflet = FALSE)
+             targetFile = fname_age, filename2 = NULL, #file.path(Paths$inputPath, fname_age),
+             useCache = TRUE, isRasterToMatch = TRUE,
+             alsoExtract = "similar", leaflet = FALSE)
 
-CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
+LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
+ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet = FALSE,
+             isRasterToMatch = TRUE, method = "ngb")
+
+studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = minFRI)
+
+ml <- mapAdd(rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml)),
+             layerName = "fireReturnInterval", filename2 = NULL,
+             map = ml, leaflet = FALSE)
+
+fireReturnInterval <- factorValues(ml$fireReturnInterval, ml$fireReturnInterval[], att = "fireReturnInterval")[[1]]
+ml$fireReturnInterval <- raster(ml$fireReturnInterval)
+ml$fireReturnInterval[] <- fireReturnInterval
+ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
+
+
+CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce", "LandType")
 CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
 
 options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
              targetFile = CClayerNamesFiles, filename2 = NULL,
-             #useCache = "overwrite",
-             alsoExtract = "similar",  leaflet = FALSE)
+             alsoExtract = "similar",  leaflet = FALSE, method = "ngb")
 options(map.useParallel = TRUE)
 
 ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("CC TSF", "LandType")), ]
 CCs <- maps(ml, layerName = ccs$layerName)
-CCstack <- stack(CCs)
+CCstack <- raster::stack(CCs)
 CCstack[CCstack[]<0] <- 0
 CCstack[CCstack[]>10] <- 10
-CCstack <- CCstack*10
+CCstack <- CCstack * 10
 
 CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
 
@@ -294,11 +300,12 @@ CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
 # levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
-ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = CCvtmFilename, leaflet = FALSE,
+ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL, #CCvtmFilename,
+             leaflet = FALSE, #isRasterToMatch = FALSE,
              analysisGroup1 = "CC",
-             tsf = file.path(Paths$inputPath, fname_age), vtm = CCvtmFilename,
+             #tsf = file.path(Paths$inputPath, fname_age),
+             vtm = CCvtmFilename,
              useCache = TRUE)
-
 
 if (!file.exists(CCvtmFilename)) {
   CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
