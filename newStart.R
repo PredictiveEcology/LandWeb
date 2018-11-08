@@ -279,7 +279,7 @@ ml$fireReturnInterval[] <- fireReturnInterval
 ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
 
 
-CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce", "LandType")
+CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
 CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
 
 options(map.useParallel = FALSE)
@@ -296,14 +296,6 @@ CCstack[CCstack[] > 10] <- 10
 CCstack <- CCstack * 10
 
 CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
-
-# sumVegPct <- sum(CCstack, na.rm = TRUE)
-#
-# CCstack$Mixed <- all(CCstack/sumVegPct < vegLeadingProportion) * 20
-# CCvtm <- raster::which.max(CCstack)
-# names(CClayerNames) <- CClayerNames
-# CCspeciesNames <- c(CClayerNames, "Mixed" = "Mixed")
-# levels(CCvtm) <- data.frame(ID = seq(CCspeciesNames), Factor = names(CCspeciesNames))
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
 ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL, #CCvtmFilename,
@@ -317,6 +309,15 @@ if (!file.exists(CCvtmFilename)) {
   CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
 }
 
+## flammability map shouldn't be masked using the age raster, so don't use the ml object!
+LandTypeFile <- file.path(Paths$inputPath, "LandType1.tif")
+#LandTypeFile <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
+rstFlammable <- prepInputs(LandTypeFile, studyArea = studyArea(ml), filename2 = NULL) %>%
+  defineFlammable(., nonFlammClasses = c(1, 2, 5), mask = NULL, filename2 = NULL)
+#  defineFlammable(., nonFlammClasses = c(36, 37, 38, 39), mask = NULL)
+
+
+saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 
 ######################################################
 # Dynamic Simulation
@@ -329,7 +330,8 @@ defaultPlotInterval <- NA
 defaultInitialSaveTime <- NA
 
 times <- list(start = 0, end = endTime)
-modules <- list("LandWeb_LandMineDataPrep", "LandMine",
+modules <- list(#"LandWeb_LandMineDataPrep",
+                "LandMine",
                 #"LandWebProprietaryData",
                 "Boreal_LBMRDataPrep", "LBMR",
                 "timeSinceFire",
@@ -342,7 +344,7 @@ objects <- list("shpStudyAreaLarge" = studyArea(ml, 1),
                 "shpStudyArea" = studyArea(ml, 2),
                 "rasterToMatch" = rasterToMatch(ml),
                 "fireReturnInterval" = ml$fireReturnInterval,
-                "rstLCC" = ml$LandType,
+                "rstFlammable" = rstFlammable,
                 "LCC2005" = ml$LCC2005,
                 "rstTimeSinceFire" = ml$`CC TSF`,
                 "specieslayers" = CCstack,
