@@ -14,7 +14,6 @@ if (FALSE) {
   load_all("~/GitHub/PredictiveEcology/map"); load_all("~/GitHub/PredictiveEcology/pemisc")
 }
 
-
 if (FALSE) {
   options(shiny.reactlog = TRUE)
 }
