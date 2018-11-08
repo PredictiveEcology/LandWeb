@@ -3,7 +3,19 @@ minFRI <- 40
 activeDir <- "~/GitHub/LandWeb"
 setwd(activeDir)
 
-runName <- "testing"
+eventCaching <- c(".inputObjects", "init")
+maxAge <- 400
+vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
+# If all are below this, then it is a "mixed" stand
+ageClasses <- c("Young", "Immature", "Mature", "Old")
+ageClassCutOffs <- c(0, 40, 80, 120)
+fireTimestep <- 1
+
+##############################################################
+## set run name
+##############################################################
+
+#runName <- "testing"
 
 #runName <- "tolko_AB_N"  ## original
 #runName <- "tolko_AB_S"  ## original
@@ -32,7 +44,7 @@ runName <- "testing"
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal" ## running
-#runName <- "tolko_AB_S_noDispersal" ## running
+runName <- "tolko_AB_S_noDispersal" ## running
 #runName <- "tolko_SK_noDispersal" ## running
 
 ## running locally
@@ -237,23 +249,8 @@ if (grepl("tolko_AB_N", runName)) {
                columnNameForLabels = "Name", filename2 = NULL)
 }
 
-##############################################################
-## spades module variables
-##############################################################
-eventCaching <- c(".inputObjects", "init")
-maxAge <- 400
-vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
-# If all are below this, then it is a "mixed" stand
-ageClasses <- c("Young", "Immature", "Mature", "Old")
-ageClassCutOffs <- c(0, 40, 80, 120)
-fireTimestep <- 1
-
-##############################################################
-# correct studyArea, make rasterToMatch, load LCC2005
-##############################################################
-
 ##########################################################
-# Current Condition
+# Current Conditions (Age Map)
 ##########################################################
 ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing"
 
@@ -264,14 +261,38 @@ ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
              useCache = TRUE, isRasterToMatch = TRUE,
              alsoExtract = "similar", leaflet = FALSE)
 
+##########################################################
+# LCC2005
+##########################################################
+
 LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
 ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet = FALSE,
-             isRasterToMatch = TRUE, method = "ngb")
+             isRasterToMatch = FALSE, method = "ngb")
+
+##########################################################
+# Clean up the study area
+##########################################################
 
 studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = minFRI)
 
-ml <- mapAdd(rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml)),
-             layerName = "fireReturnInterval", filename2 = NULL,
+##########################################################
+# Flammability and Fire Return Interval maps
+##########################################################
+
+## flammability map shouldn't be masked using the age raster, so don't use the ml object!
+LandTypeFile <- file.path(Paths$inputPath, "LandType1.tif")
+#LandTypeFile <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
+rstFlammable <- prepInputs(LandTypeFile, studyArea = studyArea(ml),
+                           rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
+  defineFlammable(., nonFlammClasses = c(1, 2, 5), mask = NULL, filename2 = NULL)
+#  defineFlammable(., nonFlammClasses = c(36, 37, 38, 39), mask = NULL, filename2 = NULL)
+
+## fireReturnInterval needs to be masked by rstFlammable
+rstFireReturnInterval <- rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml),
+                                       filename2 = NULL) %>%
+  crop(., rstFlammable) %>%
+  mask(., mask = rstFlammable, maskvalue = 0L)
+ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 = NULL,
              map = ml, leaflet = FALSE)
 
 fireReturnInterval <- factorValues(ml$fireReturnInterval, ml$fireReturnInterval[], att = "fireReturnInterval")[[1]]
@@ -279,17 +300,20 @@ ml$fireReturnInterval <- raster(ml$fireReturnInterval)
 ml$fireReturnInterval[] <- fireReturnInterval
 ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
 
+##########################################################
+# Current Conditions (Species Layers)
+##########################################################
 
 CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
 CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
 
 options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
-             targetFile = CClayerNamesFiles, filename2 = NULL,
+             targetFile = CClayerNamesFiles, filename2 = NULL, ## TODO: check this for file creation sadness
              alsoExtract = "similar",  leaflet = FALSE, method = "ngb")
 options(map.useParallel = TRUE)
 
-ccs <- ml@metadata[CC == TRUE & !(layerName %in% c("CC TSF", "LandType")), ]
+ccs <- ml@metadata[CC == TRUE & !(layerName == "CC TSF"), ]
 CCs <- maps(ml, layerName = ccs$layerName)
 CCstack <- raster::stack(CCs)
 CCstack[CCstack[] < 0] <- 0
@@ -299,7 +323,7 @@ CCstack <- CCstack * 10
 CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
-ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL, #CCvtmFilename,
+ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
              leaflet = FALSE, #isRasterToMatch = FALSE,
              analysisGroup1 = "CC",
              #tsf = file.path(Paths$inputPath, fname_age),
@@ -309,14 +333,6 @@ ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL, #CCvtmFile
 if (!file.exists(CCvtmFilename)) {
   CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
 }
-
-## flammability map shouldn't be masked using the age raster, so don't use the ml object!
-LandTypeFile <- file.path(Paths$inputPath, "LandType1.tif")
-#LandTypeFile <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
-rstFlammable <- prepInputs(LandTypeFile, studyArea = studyArea(ml), filename2 = NULL) %>%
-  defineFlammable(., nonFlammClasses = c(1, 2, 5), mask = NULL, filename2 = NULL)
-#  defineFlammable(., nonFlammClasses = c(36, 37, 38, 39), mask = NULL)
-
 
 saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 
