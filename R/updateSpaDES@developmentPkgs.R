@@ -10,6 +10,12 @@ devtools::install_github("PredictiveEcology/pemisc", ref = "master", dependencie
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "development", dependencies = FALSE)
 
 if (FALSE) {
+  detach("package:pemisc", unload = TRUE); detach("package:map", unload = TRUE);
+  load_all("~/GitHub/PredictiveEcology/map"); load_all("~/GitHub/PredictiveEcology/pemisc")
+}
+
+
+if (FALSE) {
   options(shiny.reactlog = TRUE)
 }
 

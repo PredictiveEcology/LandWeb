@@ -472,6 +472,8 @@ if (!useSpades) {
                      replicates = 1 ## TODO: can increase this later for additional runs
   )
   try(stopCluster(cl), silent = TRUE)
+
+  saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 } else {
   quickPlot::dev()
   quickPlot::clearPlot()
@@ -484,10 +486,9 @@ if (!useSpades) {
                    loadOrder = unlist(modules)
   )
   mySimOut <- spades(mySim, debug = 1)
-}
 
-saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
-saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
+  saveRDS(mySimOut, file.path(Paths$outputPath, "mySimOut.rds"))
+}
 
 if (FALSE) {
 #ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
