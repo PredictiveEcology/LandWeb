@@ -107,7 +107,7 @@ Init <- function(sim) {
     sim$rstTimeSinceFire <- sim$fireReturnInterval
     #sim$rstTimeSinceFire[] <- factorValues(sim$rasterToMatch, sim$rasterToMatch[],
     #                                       att = "fireReturnInterval")[[1]]
-    sim$rstTimeSinceFire[sim$rstFlammable[] == 0] <- NA #non-flammable areas are permanent.
+    sim$rstTimeSinceFire[sim$rstFlammable[] == 0L] <- NA #non-flammable areas are permanent.
   }
   return(invisible(sim))
 }
