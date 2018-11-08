@@ -1,10 +1,10 @@
 #git clone git@github.com:eliotmcintire/LandWeb --branch rewriteNoAll --recurse-submodules -j8
 
-devtools::install_github("PredictiveEcology/quickPlot", ref = "development", dependencies = FALSE)
-devtools::install_github("PredictiveEcology/reproducible", ref = "forMapObject", dependencies = FALSE)
+devtools::install_github("PredictiveEcology/quickPlot", ref = "master", dependencies = FALSE)
+devtools::install_github("PredictiveEcology/reproducible", ref = "development", dependencies = FALSE)
 #devtools::install_github("PredictiveEcology/webDatabases", ref = "master", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development", dependencies = FALSE)
-devtools::install_github("PredictiveEcology/SpaDES.core", ref = "newSetClass", dependencies = FALSE)
+devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/map", ref = "master", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/pemisc", ref = "master", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "development", dependencies = FALSE)
