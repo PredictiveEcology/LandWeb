@@ -288,14 +288,16 @@ rstFlammable <- prepInputs(LandTypeFile, studyArea = studyArea(ml),
 #  defineFlammable(., nonFlammClasses = c(36, 37, 38, 39), mask = NULL, filename2 = NULL)
 
 ## fireReturnInterval needs to be masked by rstFlammable
-rstFireReturnInterval <- rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml),
-                                       filename2 = NULL) %>%
-  crop(., rstFlammable) %>%
-  mask(., mask = rstFlammable, maskvalue = 0L)
+rstFireReturnInterval <- postProcess(rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml)),
+                                     maskvalue = 0,
+                                     filename2 = NULL)# %>%
+  #crop(., rstFlammable) %>%
+  #mask(., mask = rstFlammable, maskvalue = 0L)
 ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 = NULL,
-             map = ml, leaflet = FALSE)
+             map = ml, leaflet = FALSE, maskWithRTM = TRUE)
 
-fireReturnInterval <- factorValues(ml$fireReturnInterval, ml$fireReturnInterval[], att = "fireReturnInterval")[[1]]
+fireReturnInterval <- pemisc::factorValues2(ml$fireReturnInterval,
+                                            ml$fireReturnInterval[], att = "fireReturnInterval")
 ml$fireReturnInterval <- raster(ml$fireReturnInterval)
 ml$fireReturnInterval[] <- fireReturnInterval
 ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
@@ -347,12 +349,10 @@ defaultPlotInterval <- NA
 defaultInitialSaveTime <- NA
 
 times <- list(start = 0, end = endTime)
-modules <- list(#"LandWeb_LandMineDataPrep",
+modules <- list("LandWeb_output",
                 "LandMine",
-                #"LandWebProprietaryData",
                 "Boreal_LBMRDataPrep", "LBMR",
-                "timeSinceFire",
-                "LandWeb_output")
+                "timeSinceFire")
 scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
                     "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 
