@@ -282,18 +282,16 @@ studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = mi
 ## flammability map shouldn't be masked using the age raster, so don't use the ml object!
 LandTypeFile <- file.path(Paths$inputPath, "LandType1.tif")
 #LandTypeFile <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
-rstFlammable <- prepInputs(LandTypeFile, studyArea = studyArea(ml),
+rstFlammable <- Cache(prepInputs, LandTypeFile, studyArea = studyArea(ml),
                            url = ccURL, method = "ngb",
                            rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
   defineFlammable(., nonFlammClasses = c(1, 2, 5), mask = NULL, filename2 = NULL)
 #  defineFlammable(., nonFlammClasses = c(36, 37, 38, 39), mask = NULL, filename2 = NULL)
 
 ## fireReturnInterval needs to be masked by rstFlammable
-rstFireReturnInterval <- postProcess(rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml)),
-                                     maskvalue = 0,
-                                     filename2 = NULL)# %>%
-  #crop(., rstFlammable) %>%
-  #mask(., mask = rstFlammable, maskvalue = 0L)
+rtm <- rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml))
+rstFireReturnInterval <- Cache(postProcess, rtm, maskvalue = 0,
+                                     filename2 = NULL)
 ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 = NULL,
              map = ml, leaflet = FALSE, maskWithRTM = TRUE)
 
