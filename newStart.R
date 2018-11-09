@@ -296,10 +296,12 @@ rstFireReturnInterval <- postProcess(rasterToMatch(studyArea(ml), rasterToMatch 
 ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 = NULL,
              map = ml, leaflet = FALSE, maskWithRTM = TRUE)
 
+# factorValues2 -- removes NAs -- so need to account for this
 fireReturnInterval <- pemisc::factorValues2(ml$fireReturnInterval,
                                             ml$fireReturnInterval[], att = "fireReturnInterval")
-ml$fireReturnInterval <- raster(ml$fireReturnInterval)
-ml$fireReturnInterval[] <- fireReturnInterval
+theNAs <- !is.na(ml$fireReturnInterval[])
+ml$fireReturnInterval <- raster(ml$fireReturnInterval) # blank out values for new, non-factor version
+ml$fireReturnInterval[theNAs] <- fireReturnInterval
 ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
 
 ##########################################################
