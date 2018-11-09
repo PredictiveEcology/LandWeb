@@ -283,6 +283,7 @@ studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = mi
 LandTypeFile <- file.path(Paths$inputPath, "LandType1.tif")
 #LandTypeFile <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
 rstFlammable <- prepInputs(LandTypeFile, studyArea = studyArea(ml),
+                           url = ccURL,
                            rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
   defineFlammable(., nonFlammClasses = c(1, 2, 5), mask = NULL, filename2 = NULL)
 #  defineFlammable(., nonFlammClasses = c(36, 37, 38, 39), mask = NULL, filename2 = NULL)
