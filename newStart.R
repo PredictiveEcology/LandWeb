@@ -15,7 +15,7 @@ fireTimestep <- 1
 ## set run name
 ##############################################################
 
-#runName <- "testing"
+runName <- "testing"
 
 #runName <- "tolko_AB_N"  ## original
 #runName <- "tolko_AB_S"  ## original
@@ -44,7 +44,7 @@ fireTimestep <- 1
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal" ## running
-runName <- "tolko_AB_S_noDispersal" ## running
+#runName <- "tolko_AB_S_noDispersal" ## running
 #runName <- "tolko_SK_noDispersal" ## running
 
 ## running locally
@@ -295,7 +295,8 @@ ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 
              map = ml, leaflet = FALSE, maskWithRTM = TRUE)
 
 fireReturnInterval <- pemisc::factorValues2(ml$fireReturnInterval,
-                                            ml$fireReturnInterval[], att = "fireReturnInterval")
+                                            ml$fireReturnInterval[],
+                                            att = "fireReturnInterval")
 ml$fireReturnInterval <- raster(ml$fireReturnInterval) # blank out values for new, non-factor version
 ml$fireReturnInterval[] <- fireReturnInterval
 ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
@@ -351,9 +352,6 @@ modules <- list("LandWeb_output",
                 "LandMine",
                 "Boreal_LBMRDataPrep", "LBMR",
                 "timeSinceFire")
-scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
-                    "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
-
 
 objects <- list("shpStudyAreaLarge" = studyArea(ml, 1),
                 "shpStudyArea" = studyArea(ml, 2),
@@ -366,7 +364,6 @@ objects <- list("shpStudyAreaLarge" = studyArea(ml, 1),
                 "summaryPeriod" = summaryPeriod,
                 "useParallel" = 2,
                 "vegLeadingProportion" = vegLeadingProportion)
-scfmObjects <- list("mapDim" = mapDim)
 
 parameters <- list(
   Boreal_LBMRDataPrep = list(.useCache = eventCaching, .crsUsed = crs(studyArea(ml))),
@@ -386,44 +383,9 @@ parameters <- list(
   timeSinceFire = list(startTime = fireTimestep,
                        .useCache = eventCaching)
 )
-scfmParams <- list(
-  #.progress = list(type = "text", interval = 1),
-  ageModule = list(
-    initialAge = 100,
-    maxAge = 200,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime = times$start,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval),
-  scfmIgnition = list(
-    pIgnition = 0.0001,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime = NA,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval),
-  scfmEscape = list(
-    p0 = 0.05,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime = NA,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval),
-  scfmSpread = list(
-    pSpread = 0.235,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime = times$start,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval)
-)
 
 if (grepl("scfm", runName)) {
+  source(file.path("params", "scfm_params.R"))
   modules <- append(modules[-which(modules == "LandMine")], scfmModules)
   objects <- append(objects, scfmObjects)
   parameters <- append(parameters, scfmParams)
