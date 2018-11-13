@@ -288,10 +288,8 @@ rstFlammable <- prepInputs(LandTypeFile, studyArea = studyArea(ml),
 #  defineFlammable(., nonFlammClasses = c(36, 37, 38, 39), mask = NULL, filename2 = NULL)
 
 ## fireReturnInterval needs to be masked by rstFlammable
-rstFireReturnInterval <- rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml),
-                                       filename2 = NULL) %>%
-  crop(., rstFlammable) %>%
-  mask(., mask = rstFlammable, maskvalue = 0L)
+rstFireReturnInterval <- rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml)) %>%
+  postProcess(., rstFlammable, maskvalue = 0L, filename2 = NULL)
 ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 = NULL,
              map = ml, leaflet = FALSE)
 
@@ -590,9 +588,6 @@ print(runName)
   ml2 <- mapAdd(map = ml, layerName = "AB Natural Sub Regions",
                 url = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
                 columnNameForLabels = "Name")
-
-
-
 
   ##########################################################
   # Load other maps
