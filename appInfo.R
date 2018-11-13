@@ -14,6 +14,11 @@ appModDir <- switch(Sys.info()["nodename"],
                     file.path("~/GitHub/m")
 ) # no trailing slash!
 
+authorized_users <- read.csv("authorized_users.csv", stringsAsFactors = FALSE)
+user.emails <- authorized_users$email %>% tolower() ## these should be all lowercase
+                                                    ## (resolved in https://github.com/MarkEdmondson1234/googleID/issues/6)
+user.group <- authorized_users$company
+
 appInfo <- list(
   name = "LandWeb",
   version = numeric_version("1.0.1"),
@@ -34,26 +39,6 @@ appInfo <- list(
   ),
 
   ### list of authorized users
-  users = c(
-    "alex.chubaty@gmail.com",
-    "andison.d.w@gmail.com",
-    "bob.christian@forcorp.com",
-    "chris.bater@gov.ab.ca",
-    "dmiwoodlands@gmail.com",
-    "eliot.mcintire@gmail.com",
-    "Forester575@gmail.com", # Paul Leblanc (LP))
-    "fri.LandWeb@gmail.com",
-    "gwhitm@gmail.com",
-    "jamesn@albertanewsprint.com",
-    "jlstadt@gmail.com",
-    "kathleen.groenewegen@gmail.com",
-    "lisa_smithereen@yahoo.ca",
-    "mwfp.nrv@gmail.com",
-    "neal.mcLoughlin@gov.ab.ca",
-    "shanew.sadoway@gmail.com",
-    "sonya@fuseconsulting.ca",
-    "Tyakielashek@gmail.com", # Todd Yakielashek (LP)
-    "westfrasertimber@gmail.com"
-  ) %>% tolower() # these should be all lowercase
-  ## (resolved in https://github.com/MarkEdmondson1234/googleID/issues/6)
+  users = user.emails,
+  user.group = user.group
 )
