@@ -1,3 +1,5 @@
+quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
+
 useSpades <- TRUE
 minFRI <- 40
 activeDir <- "~/GitHub/LandWeb"
@@ -15,14 +17,13 @@ fireTimestep <- 1
 ## set run name
 ##############################################################
 
-#runName <- "testing"
+runName <- "testing"
 
 #runName <- "tolko_AB_N"  ## original
 #runName <- "tolko_AB_S"  ## original
 #runName <- "tolko_SK"  ## original
 
 ## running locally
-# NOTE: these 'doubleFRI' runs never used double FRI so they are same as original!
 #runName <- "tolko_AB_N_doubleFRI" ## DONE
 #runName <- "tolko_AB_S_doubleFRI" ## DONE
 #runName <- "tolko_SK_doubleFRI" ## DONE
@@ -32,20 +33,20 @@ fireTimestep <- 1
 #runName <- "tolko_AB_S_equalROS" ## DONE
 #runName <- "tolko_SK_equalROS" ## DONE
 
-## running on 388; results saved locally
+## running locally
 #runName <- "tolko_AB_N_logROS" ## DONE
 #runName <- "tolko_AB_S_logROS" ## DONE
 #runName <- "tolko_SK_logROS" ## DONE
 
 ## running locally
-#runName <- "tolko_AB_N_logROS_new" ## running
-#runName <- "tolko_AB_S_logROS_new" ## running
-#runName <- "tolko_SK_logROS_new" ## running
+#runName <- "tolko_AB_N_noDispersal" ## running
+#runName <- "tolko_AB_S_noDispersal" ## running
+#runName <- "tolko_SK_noDispersal" ## running
 
 ## running locally
-#runName <- "tolko_AB_N_noDispersal" ## running
-runName <- "tolko_AB_S_noDispersal" ## running
-#runName <- "tolko_SK_noDispersal" ## running
+#runName <- "tolko_AB_N_aspen80" ## running
+#runName <- "tolko_AB_S_aspen80" ## running
+#runName <- "tolko_SK_aspen80" ## running
 
 ## running locally
 #runName <- "LP_MB" ## DONE
@@ -290,13 +291,13 @@ rstFlammable <- Cache(prepInputs, LandTypeFile, studyArea = studyArea(ml),
 
 ## fireReturnInterval needs to be masked by rstFlammable
 rtm <- rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml))
-rstFireReturnInterval <- Cache(postProcess, rtm, maskvalue = 0,
-                                     filename2 = NULL)
+rstFireReturnInterval <- Cache(postProcess, rtm, maskvalue = 0L, filename2 = NULL)
 ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 = NULL,
              map = ml, leaflet = FALSE, maskWithRTM = TRUE)
 
 fireReturnInterval <- pemisc::factorValues2(ml$fireReturnInterval,
-                                            ml$fireReturnInterval[], att = "fireReturnInterval")
+                                            ml$fireReturnInterval[],
+                                            att = "fireReturnInterval")
 ml$fireReturnInterval <- raster(ml$fireReturnInterval) # blank out values for new, non-factor version
 ml$fireReturnInterval[] <- fireReturnInterval
 ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
@@ -352,79 +353,50 @@ modules <- list("LandWeb_output",
                 "LandMine",
                 "Boreal_LBMRDataPrep", "LBMR",
                 "timeSinceFire")
-scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
-                    "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 
-
-objects <- list("shpStudyAreaLarge" = studyArea(ml, 1),
-                "shpStudyArea" = studyArea(ml, 2),
-                "rasterToMatch" = rasterToMatch(ml),
-                "fireReturnInterval" = ml$fireReturnInterval,
-                "rstFlammable" = rstFlammable,
-                "LCC2005" = ml$LCC2005,
-                "rstTimeSinceFire" = ml$`CC TSF`,
-                "specieslayers" = CCstack,
-                "summaryPeriod" = summaryPeriod,
-                "useParallel" = 2,
-                "vegLeadingProportion" = vegLeadingProportion)
-scfmObjects <- list("mapDim" = mapDim)
+objects <- list(
+  "fireReturnInterval" = ml$fireReturnInterval,
+  "LCC2005" = ml$LCC2005,
+  "rasterToMatch" = rasterToMatch(ml),
+  "rstFlammable" = rstFlammable,
+  "rstTimeSinceFire" = ml$`CC TSF`,
+  "specieslayers" = CCstack,
+  "shpStudyArea" = studyArea(ml, 2),
+  "shpStudyAreaLarge" = studyArea(ml, 1),
+  "summaryPeriod" = summaryPeriod,
+  "useParallel" = 2,
+  "vegLeadingProportion" = vegLeadingProportion
+)
 
 parameters <- list(
-  Boreal_LBMRDataPrep = list(.useCache = eventCaching, .crsUsed = crs(studyArea(ml))),
-  fireDataPrep = list(.useCache = eventCaching),
-  initBaseMaps = list(.useCache = eventCaching),
-  LandMine = list(biggestPossibleFireSizeHa = 5e5,
-                  fireTimestep = fireTimestep,
-                  burnInitialTime = fireTimestep,
-                  .useCache = eventCaching),
-  LandWeb_output = list(summaryInterval = summaryInterval),
-  LandWebProprietaryData = list(.useCache = eventCaching),
-  LBMR = list(
-    seedingAlgorithm = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
-    successionTimestep = successionTimestep,
-    .useCache = eventCaching
+  Boreal_LBMRDataPrep = list(
+    ".crsUsed" = crs(studyArea(ml)),
+    "runName" = runName,
+    ".useCache" = eventCaching
   ),
-  timeSinceFire = list(startTime = fireTimestep,
-                       .useCache = eventCaching)
-)
-scfmParams <- list(
-  #.progress = list(type = "text", interval = 1),
-  ageModule = list(
-    initialAge = 100,
-    maxAge = 200,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime = times$start,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval),
-  scfmIgnition = list(
-    pIgnition = 0.0001,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime = NA,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval),
-  scfmEscape = list(
-    p0 = 0.05,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime = NA,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval),
-  scfmSpread = list(
-    pSpread = 0.235,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime = times$start,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval)
+  fireDataPrep = list(".useCache" = eventCaching),
+  initBaseMaps = list(".useCache" = eventCaching),
+  LandMine = list(
+    "biggestPossibleFireSizeHa" = 5e5,
+    "burnInitialTime" = fireTimestep,
+    "fireTimestep" = fireTimestep,
+    "runName" = runName,
+    ".useCache" = eventCaching
+  ),
+  LandWeb_output = list("summaryInterval" = summaryInterval),
+  LBMR = list(
+    "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
+    "successionTimestep" = successionTimestep,
+    ".useCache" = eventCaching
+  ),
+  timeSinceFire = list(
+    "startTime" = fireTimestep,
+    ".useCache" = eventCaching
+  )
 )
 
 if (grepl("scfm", runName)) {
+  source(file.path("params", "scfm_params.R"))
   modules <- append(modules[-which(modules == "LandMine")], scfmModules)
   objects <- append(objects, scfmObjects)
   parameters <- append(parameters, scfmParams)
@@ -589,9 +561,6 @@ print(runName)
   ml2 <- mapAdd(map = ml, layerName = "AB Natural Sub Regions",
                 url = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
                 columnNameForLabels = "Name")
-
-
-
 
   ##########################################################
   # Load other maps

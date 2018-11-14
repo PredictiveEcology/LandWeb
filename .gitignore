@@ -1,6 +1,7 @@
 ## file types by extension
 *.cpg
 *.csv
+!authorized_users.csv
 *.dbf
 *.ini
 *.log
