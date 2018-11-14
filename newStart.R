@@ -32,20 +32,20 @@ runName <- "testing"
 #runName <- "tolko_AB_S_equalROS" ## DONE
 #runName <- "tolko_SK_equalROS" ## DONE
 
-## running on 388; results saved locally
+## running locally
 #runName <- "tolko_AB_N_logROS" ## DONE
 #runName <- "tolko_AB_S_logROS" ## DONE
 #runName <- "tolko_SK_logROS" ## DONE
 
 ## running locally
-#runName <- "tolko_AB_N_logROS_new" ## running
-#runName <- "tolko_AB_S_logROS_new" ## running
-#runName <- "tolko_SK_logROS_new" ## running
-
-## running locally
 #runName <- "tolko_AB_N_noDispersal" ## running
 #runName <- "tolko_AB_S_noDispersal" ## running
 #runName <- "tolko_SK_noDispersal" ## running
+
+## running locally
+#runName <- "tolko_AB_N_aspen80" ## running
+#runName <- "tolko_AB_S_aspen80" ## running
+#runName <- "tolko_SK_aspen80" ## running
 
 ## running locally
 #runName <- "LP_MB" ## DONE
@@ -353,17 +353,20 @@ modules <- list("LandWeb_output",
                 "Boreal_LBMRDataPrep", "LBMR",
                 "timeSinceFire")
 
-objects <- list("shpStudyAreaLarge" = studyArea(ml, 1),
-                "shpStudyArea" = studyArea(ml, 2),
-                "rasterToMatch" = rasterToMatch(ml),
-                "fireReturnInterval" = ml$fireReturnInterval,
-                "rstFlammable" = rstFlammable,
-                "LCC2005" = ml$LCC2005,
-                "rstTimeSinceFire" = ml$`CC TSF`,
-                "specieslayers" = CCstack,
-                "summaryPeriod" = summaryPeriod,
-                "useParallel" = 2,
-                "vegLeadingProportion" = vegLeadingProportion)
+objects <- list(
+  "fireReturnInterval" = ml$fireReturnInterval,
+  "LCC2005" = ml$LCC2005,
+  "rasterToMatch" = rasterToMatch(ml),
+  "rstFlammable" = rstFlammable,
+  "rstTimeSinceFire" = ml$`CC TSF`,
+  "runName" = runName,
+  "specieslayers" = CCstack,
+  "shpStudyArea" = studyArea(ml, 2),
+  "shpStudyAreaLarge" = studyArea(ml, 1),
+  "summaryPeriod" = summaryPeriod,
+  "useParallel" = 2,
+  "vegLeadingProportion" = vegLeadingProportion
+)
 
 parameters <- list(
   Boreal_LBMRDataPrep = list(.useCache = eventCaching, .crsUsed = crs(studyArea(ml))),
