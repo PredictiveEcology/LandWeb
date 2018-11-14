@@ -46,7 +46,7 @@ runName <- "testing"
 ## running locally
 #runName <- "tolko_AB_N_aspen80" ## running
 #runName <- "tolko_AB_S_aspen80" ## running
-runName <- "tolko_SK_aspen80" ## running
+#runName <- "tolko_SK_aspen80" ## running
 
 ## running locally
 #runName <- "LP_MB" ## DONE
