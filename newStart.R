@@ -1,4 +1,4 @@
-dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
+quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
 useSpades <- TRUE
 minFRI <- 40
@@ -24,7 +24,6 @@ runName <- "testing"
 #runName <- "tolko_SK"  ## original
 
 ## running locally
-# NOTE: these 'doubleFRI' runs never used double FRI so they are same as original!
 #runName <- "tolko_AB_N_doubleFRI" ## DONE
 #runName <- "tolko_AB_S_doubleFRI" ## DONE
 #runName <- "tolko_SK_doubleFRI" ## DONE
