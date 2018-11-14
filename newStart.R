@@ -1,3 +1,5 @@
+dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
+
 useSpades <- TRUE
 minFRI <- 40
 activeDir <- "~/GitHub/LandWeb"
@@ -45,7 +47,7 @@ runName <- "testing"
 ## running locally
 #runName <- "tolko_AB_N_aspen80" ## running
 #runName <- "tolko_AB_S_aspen80" ## running
-#runName <- "tolko_SK_aspen80" ## running
+runName <- "tolko_SK_aspen80" ## running
 
 ## running locally
 #runName <- "LP_MB" ## DONE
@@ -359,7 +361,6 @@ objects <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "rstFlammable" = rstFlammable,
   "rstTimeSinceFire" = ml$`CC TSF`,
-  "runName" = runName,
   "specieslayers" = CCstack,
   "shpStudyArea" = studyArea(ml, 2),
   "shpStudyAreaLarge" = studyArea(ml, 1),
@@ -369,22 +370,30 @@ objects <- list(
 )
 
 parameters <- list(
-  Boreal_LBMRDataPrep = list(.useCache = eventCaching, .crsUsed = crs(studyArea(ml))),
-  fireDataPrep = list(.useCache = eventCaching),
-  initBaseMaps = list(.useCache = eventCaching),
-  LandMine = list(biggestPossibleFireSizeHa = 5e5,
-                  fireTimestep = fireTimestep,
-                  burnInitialTime = fireTimestep,
-                  .useCache = eventCaching),
-  LandWeb_output = list(summaryInterval = summaryInterval),
-  LandWebProprietaryData = list(.useCache = eventCaching),
-  LBMR = list(
-    seedingAlgorithm = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
-    successionTimestep = successionTimestep,
-    .useCache = eventCaching
+  Boreal_LBMRDataPrep = list(
+    ".crsUsed" = crs(studyArea(ml)),
+    "runName" = runName,
+    ".useCache" = eventCaching
   ),
-  timeSinceFire = list(startTime = fireTimestep,
-                       .useCache = eventCaching)
+  fireDataPrep = list(".useCache" = eventCaching),
+  initBaseMaps = list(".useCache" = eventCaching),
+  LandMine = list(
+    "biggestPossibleFireSizeHa" = 5e5,
+    "burnInitialTime" = fireTimestep,
+    "fireTimestep" = fireTimestep,
+    "runName" = runName,
+    ".useCache" = eventCaching
+  ),
+  LandWeb_output = list("summaryInterval" = summaryInterval),
+  LBMR = list(
+    "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
+    "successionTimestep" = successionTimestep,
+    ".useCache" = eventCaching
+  ),
+  timeSinceFire = list(
+    "startTime" = fireTimestep,
+    ".useCache" = eventCaching
+  )
 )
 
 if (grepl("scfm", runName)) {
