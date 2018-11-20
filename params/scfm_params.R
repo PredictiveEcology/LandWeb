@@ -1,3 +1,8 @@
+mapDim <- 200
+defaultInterval <- NA
+defaultPlotInterval <- NA
+defaultInitialSaveTime <- NA
+
 scfmModules <- list("andisonDriver_dataPrep", "andisonDriver", "scfmLandcoverInit",
                     "scfmIgnition", "ageModule", "scfmRegime", "scfmEscape", "scfmSpread")
 

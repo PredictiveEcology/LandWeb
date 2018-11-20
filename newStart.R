@@ -64,13 +64,22 @@ source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 ##########################################################
 library(raster)
 library(SpaDES.core)
+
+#try(detach("package:map", unload = TRUE))
+#try(detach("package:pemisc", unload = TRUE))
+
+library(pemisc)
+# if (Sys.info()[["user"]] == "achubaty") {
+#   devtools::load_all("~/GitHub/PredictiveEcology/pemisc")
+# } else if (Sys.info()[["user"]] == "emcintir") {
+#   devtools::load_all("~/GitHub/misc")
+# }
 library(map)
 # if (Sys.info()[["user"]] == "achubaty") {
 #   devtools::load_all("~/GitHub/PredictiveEcology/map")
 # } else if (Sys.info()[["user"]] == "emcintir") {
 #   devtools::load_all("~/GitHub/map")
 # }
-library(pemisc)
 
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -284,8 +293,8 @@ studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = mi
 LandTypeFile <- file.path(Paths$inputPath, "LandType1.tif")
 #LandTypeFile <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
 rstFlammable <- Cache(prepInputs, LandTypeFile, studyArea = studyArea(ml),
-                           url = ccURL, method = "ngb",
-                           rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
+                      url = ccURL, method = "ngb",
+                      rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
   defineFlammable(., nonFlammClasses = c(1, 2, 5), mask = NULL, filename2 = NULL)
 #  defineFlammable(., nonFlammClasses = c(36, 37, 38, 39), mask = NULL, filename2 = NULL)
 
@@ -298,6 +307,10 @@ ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 
 fireReturnInterval <- pemisc::factorValues2(ml$fireReturnInterval,
                                             ml$fireReturnInterval[],
                                             att = "fireReturnInterval")
+
+if (grepl("doubleFRI", runName))
+  fireReturnInterval <- 2 * fireReturnInterval
+
 ml$fireReturnInterval <- raster(ml$fireReturnInterval) # blank out values for new, non-factor version
 ml$fireReturnInterval[] <- fireReturnInterval
 ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
@@ -342,12 +355,6 @@ saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 # Dynamic Simulation
 ######################################################
 
-## scfm stuff:
-mapDim <- 200
-defaultInterval <- NA
-defaultPlotInterval <- NA
-defaultInitialSaveTime <- NA
-
 times <- list(start = 0, end = endTime)
 modules <- list("LandWeb_output",
                 "LandMine",
@@ -371,7 +378,6 @@ objects <- list(
 parameters <- list(
   Boreal_LBMRDataPrep = list(
     ".crsUsed" = crs(studyArea(ml)),
-    "runName" = runName,
     ".useCache" = eventCaching
   ),
   fireDataPrep = list(".useCache" = eventCaching),
@@ -380,7 +386,7 @@ parameters <- list(
     "biggestPossibleFireSizeHa" = 5e5,
     "burnInitialTime" = fireTimestep,
     "fireTimestep" = fireTimestep,
-    "runName" = runName,
+    "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
     ".useCache" = eventCaching
   ),
   LandWeb_output = list("summaryInterval" = summaryInterval),
