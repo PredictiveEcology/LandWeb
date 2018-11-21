@@ -184,6 +184,26 @@ Init <- function(sim) {
                             userTags = c("stable", currentModule(sim)))
   }
 
+  if (!suppliedElsewhere("speciesLayers", sim)) {
+    #opts <- options(reproducible.useCache = "overwrite")
+    speciesLayersList <- Cache(loadkNNSpeciesLayers, ## TODO: put loadkNNSpeciesLayers in pemisc
+                               dPath = asPath(dPath),
+                               rasterToMatch = sim$rasterToMatch,
+                               studyArea = sim$shpStudyAreaLarge,
+                               speciesList = sim$speciesList,
+                               # thresh = 10,
+                               url = extractURL("speciesLayers"),
+                               cachePath = cachePath(sim),
+                               userTags = c(cacheTags, "speciesLayers"))
+
+    #options(opts)
+    writeRaster(speciesLayersList$speciesLayers,
+                file.path(outputPath(sim), "speciesLayers.grd"),
+                overwrite = TRUE)
+    sim$speciesLayers <- speciesLayersList$speciesLayers
+    sim$speciesList <- speciesLayersList$speciesList
+  }
+
   if (!suppliedElsewhere("shpStudyArea")) {
     stop("shpStudyArea is required. Please supply a polygon of the study area")
   }

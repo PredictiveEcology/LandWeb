@@ -44,6 +44,11 @@ runName <- "testing"
 #runName <- "tolko_SK_noDispersal" ## running
 
 ## running locally
+#runName <- "tolko_AB_N_doubleDispersal" ## running
+#runName <- "tolko_AB_S_doubleDispersal" ## running
+#runName <- "tolko_SK_doubleDispersal" ## running
+
+## running locally
 #runName <- "tolko_AB_N_aspen80" ## running
 #runName <- "tolko_AB_S_aspen80" ## running
 #runName <- "tolko_SK_aspen80" ## running
@@ -335,6 +340,9 @@ CCstack[CCstack[] < 0] <- 0
 CCstack[CCstack[] > 10] <- 10
 CCstack <- CCstack * 10
 
+# TODO: simInit and spades call for landwebproprietarydata to get the sim$speciesLayers
+# TODO: overlayStacks(CCstack, simout$speciesLayers)
+
 CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
@@ -361,6 +369,13 @@ modules <- list("LandWeb_output",
                 "Boreal_LBMRDataPrep", "LBMR",
                 "timeSinceFire")
 
+speciesTable <- prepSpeciesTable(Paths$inputPath)
+speciesTable[LandisCode == "PICE.GLA", seeddistance_max := 2000] ## (see LandWeb#96)
+
+if (grepl("aspen80", runName)) {
+  speciesTable[LandisCode == "POPU.TRE", Longevity := 80] ## (see LandWeb#67)
+}
+
 objects <- list(
   "fireReturnInterval" = ml$fireReturnInterval,
   "LCC2005" = ml$LCC2005,
@@ -370,6 +385,7 @@ objects <- list(
   "specieslayers" = CCstack,
   "shpStudyArea" = studyArea(ml, 2),
   "shpStudyAreaLarge" = studyArea(ml, 1),
+  "speciesTable" = speciesTable,
   "summaryPeriod" = summaryPeriod,
   "useParallel" = 2,
   "vegLeadingProportion" = vegLeadingProportion
