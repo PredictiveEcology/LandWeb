@@ -341,8 +341,27 @@ CCstack[CCstack[] < 0] <- 0
 CCstack[CCstack[] > 10] <- 10
 CCstack <- CCstack * 10
 
-# TODO: simInit and spades call for landwebproprietarydata to get the sim$speciesLayers
-# TODO: overlayStacks(CCstack, simout$speciesLayers)
+## Get the sim$speciesLayers from LandWeb_proprietaryData
+
+objects1 <- list(
+  "rasterToMatch" = rasterToMatch(ml),
+  "specieslayers" = CCstack,
+  "shpStudyArea" = studyArea(ml, 2),
+  "shpStudyAreaLarge" = studyArea(ml, 1)
+)
+
+parameters1 <- list(
+  LandWeb_proprietaryData = list()
+)
+
+sim1 <- Cache(simInitAndSpades,
+              times = list(start = 0, end = 1),
+              params = parameters1,
+              modules = "LandWebProprietaryData",
+              objects1, # do not name this argument -- collides with Cache -- leave it unnamed
+              paths = paths,
+              debug = 1)
+#CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers) # TODO: use CCstack2 below, or rename to CCstack
 
 CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
@@ -431,7 +450,8 @@ outputs <- data.frame(stringsAsFactors = FALSE,
                       expand.grid(
                         objectName = objectNamesToSave,#, "oldBigPatch"),
                         saveTime = seq(objects$summaryPeriod[1], objects$summaryPeriod[2],
-                                       by = parameters$LandWeb_output$summaryInterval)),
+                                       by = parameters$LandWeb_output$summaryInterval)
+                      ),
                       fun = "writeRaster", package = "raster",
                       file = paste0(objectNamesToSave, c(".tif", ".grd")))
 
@@ -440,8 +460,10 @@ outputs2 <- data.frame(stringsAsFactors = FALSE,
                        fun = "saveRDS",
                        package = "base")
 
-outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
-                                list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
+outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE,
+                                     datatype = "INT2U", format = "GTiff"),
+                                list(overwrite = TRUE, progress = FALSE,
+                                     datatype = "INT1U", format = "raster")),
                            times = NROW(outputs) / length(objectNamesToSave)))
 
 outputs3 <- data.frame(stringsAsFactors = FALSE,
@@ -451,7 +473,6 @@ outputs3 <- data.frame(stringsAsFactors = FALSE,
                                                datatype = "INT2U", format = "raster"))))
 
 outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
-
 
 ######## SimInit and Experiment
 if (file.exists(file.path(Paths$outputPath, "seed.rds"))) {
@@ -469,7 +490,8 @@ print(runName)
 if (!useSpades) {
   cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10,
                                 outfile = file.path(Paths$outputPath, "_parallel.log"))
-  mySimOuts <- Cache(simInitAndExperiment, times = times, cl = cl,
+  mySimOuts <- Cache(simInitAndExperiment,
+                     times = times, cl = cl,
                      params = parameters,
                      modules = modules,
                      outputs = outputs,
