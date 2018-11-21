@@ -361,7 +361,7 @@ sim1 <- Cache(simInitAndSpades,
               objects1, # do not name this argument -- collides with Cache -- leave it unnamed
               paths = paths,
               debug = 1)
-#CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers) # TODO: use CCstack2 below, or rename to CCstack
+CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers) # TODO: use CCstack2 below, or rename to CCstack
 
 CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
