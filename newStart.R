@@ -350,9 +350,7 @@ objects1 <- list(
   "shpStudyAreaLarge" = studyArea(ml, 1)
 )
 
-parameters1 <- list(
-  LandWeb_proprietaryData = list()
-)
+parameters1 <- list()
 
 sim1 <- Cache(simInitAndSpades,
               times = list(start = 0, end = 1),
