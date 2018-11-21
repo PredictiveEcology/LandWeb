@@ -8,7 +8,8 @@ setwd(activeDir)
 eventCaching <- c(".inputObjects", "init")
 maxAge <- 400
 vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
-# If all are below this, then it is a "mixed" stand
+                            # If all are below this, then it is a "mixed" stand
+
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
 fireTimestep <- 1
@@ -369,7 +370,7 @@ modules <- list("LandWeb_output",
                 "Boreal_LBMRDataPrep", "LBMR",
                 "timeSinceFire")
 
-speciesTable <- prepSpeciesTable(Paths$inputPath)
+speciesTable <- getSpeciesTable(Paths$inputPath)
 speciesTable[LandisCode == "PICE.GLA", seeddistance_max := 2000] ## (see LandWeb#96)
 
 if (grepl("aspen80", runName)) {
