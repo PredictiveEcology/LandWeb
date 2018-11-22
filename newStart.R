@@ -359,9 +359,12 @@ sim1 <- Cache(simInitAndSpades,
               objects1, # do not name this argument -- collides with Cache -- leave it unnamed
               paths = paths,
               debug = 1)
-CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers) # TODO: use CCstack2 below, or rename to CCstack
 
-CCvtm <- Cache(pemisc::makeVegTypeMap, CCstack, vegLeadingProportion)
+speciesList1 <- c("Pinu_sp", "Pice_mar", "Popu_tre", "Abie_sp", "Pice_gla")
+CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, speciesList1,
+                          destinationPath = Paths$inputPath)
+
+CCvtm <- Cache(makeVegTypeMap, CCstack2, vegLeadingProportion)
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
 ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
@@ -400,7 +403,7 @@ objects <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "rstFlammable" = rstFlammable,
   "rstTimeSinceFire" = ml$`CC TSF`,
-  "specieslayers" = CCstack,
+  "specieslayers" = CCstack2,
   "shpStudyArea" = studyArea(ml, 2),
   "shpStudyAreaLarge" = studyArea(ml, 1),
   "speciesTable" = speciesTable,
