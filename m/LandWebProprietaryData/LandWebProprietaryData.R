@@ -155,7 +155,8 @@ Init <- function(sim) {
                            destinationPath = dPath, userTags = "stable")
 
     message("Overlay Paul and CASFRI stacks")
-    outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack, userTags = "stable",
+    outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack, NULL,
+                      userTags = "stable",
                       outputFilenameSuffix = "CASFRI_PAUL", destinationPath = dPath)#, notOlderThan = Sys.time())
     crs(outStack) <- crs(sim$rasterToMatch) # bug in writeRaster
 
