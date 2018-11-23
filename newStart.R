@@ -360,6 +360,7 @@ sim1 <- Cache(simInitAndSpades,
               paths = paths,
               debug = 1)
 
+sim1$speciesLayers <- crop(sim1$speciesLayers, studyArea(ml))
 speciesList1 <- c("Pinu_sp", "Pice_mar", "Popu_tre", "Abie_sp", "Pice_gla")
 CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, speciesList1,
                           destinationPath = Paths$inputPath)
