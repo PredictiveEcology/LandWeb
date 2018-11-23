@@ -54,7 +54,7 @@ defineModule(sim, list(
                  sourceURL = "https://drive.google.com/open?id=1M_L-7ovDpJLyY8dDOxG3xQTyzPx2HSg4")
   ),
   outputObjects = bind_rows(
-    createsOutput("specieslayers", "RasterStack",
+    createsOutput("speciesLayers", "RasterStack",
                  desc = "biomass percentage raster layers by species in Canada species map")
   )
 ))
@@ -161,11 +161,11 @@ Init <- function(sim) {
     crs(outStack) <- crs(sim$rasterToMatch) # bug in writeRaster
 
     message("Overlay Paul_CASFRI with open data set stacks")
-    specieslayers2 <- Cache(overlayStacks, outStack, sim$specieslayers,
+    speciesLayers2 <- Cache(overlayStacks, outStack, sim$speciesLayers,
                             outputFilenameSuffix = "CASFRI_PAUL_KNN",
                             destinationPath = dPath, userTags = "stable")
-    crs(specieslayers2) <- crs(sim$rasterToMatch)
-    sim$specieslayers <- specieslayers2
+    crs(speciesLayers2) <- crs(sim$rasterToMatch)
+    sim$speciesLayers <- speciesLayers2
     message("Using LandWeb datasets from Paul Pickell and CASFRI")
   }
 
