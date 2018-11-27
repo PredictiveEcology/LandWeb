@@ -360,7 +360,7 @@ sim1 <- Cache(simInitAndSpades,
               paths = paths,
               debug = 1)
 
-sim1$speciesLayers <- mask(sim1$speciesLayers, studyArea(ml))
+sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml))
 speciesList1 <- c("Pinu_sp", "Pice_mar", "Popu_tre", "Abie_sp", "Pice_gla")
 CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, speciesList1,
                           destinationPath = Paths$inputPath)
@@ -392,7 +392,7 @@ modules <- list("LandWeb_output",
                 "timeSinceFire")
 
 speciesTable <- getSpeciesTable(Paths$inputPath)
-speciesTable[LandisCode == "PICE.GLA", seeddistance_max := 2000] ## (see LandWeb#96)
+speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 2000] ## (see LandWeb#96)
 
 if (grepl("aspen80", runName)) {
   speciesTable[LandisCode == "POPU.TRE", Longevity := 80] ## (see LandWeb#67)
@@ -408,6 +408,7 @@ objects <- list(
   "shpStudyArea" = studyArea(ml, 2),
   "shpStudyAreaLarge" = studyArea(ml, 1),
   "speciesTable" = speciesTable,
+  "standAgeMap" = ml$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
   "summaryPeriod" = summaryPeriod,
   "useParallel" = 2,
   "vegLeadingProportion" = vegLeadingProportion
