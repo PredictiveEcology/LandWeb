@@ -37,8 +37,7 @@ manitoba <- can_provs[can_provs$NAME_1 %in% c("Manitoba"), ]
 
 ```{r fire-return-intervals}
 ## LandWeb study area polygons need LTHFC data
-fireDir <- file.path(inputsDir, "firemap")
-firemap <- shapefile(file.path(fireDir, "landweb_ltfc_v6.shp"))
+firemap <- shapefile(file.path(inputsDir, "landweb_ltfc_v6.shp"))
 
 plt <- grDevices::colorRampPalette(brewer.pal(9, "OrRd"))
 cuts <- max(firemap$LTHFC) / 10 ## 10-year increments
