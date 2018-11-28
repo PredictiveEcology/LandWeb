@@ -295,14 +295,24 @@ studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = mi
 # Flammability and Fire Return Interval maps
 ##########################################################
 
-## flammability map shouldn't be masked using the age raster, so don't use the ml object!
-LandTypeFile <- file.path(Paths$inputPath, "LandType1.tif")
-#LandTypeFile <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
-rstFlammable <- Cache(prepInputs, LandTypeFile, studyArea = studyArea(ml),
-                      url = ccURL, method = "ngb",
-                      rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
-  defineFlammable(., nonFlammClasses = c(1, 2, 5), mask = NULL, filename2 = NULL)
-#  defineFlammable(., nonFlammClasses = c(36, 37, 38, 39), mask = NULL, filename2 = NULL)
+## flammability map shouldn't be masked (no gaps!); NAs outside the buffered study area allowed.
+## use the LCC flammability map to fill in NA / nodata values
+LandTypeFileCC <- file.path(Paths$inputPath, "LandType1.tif")
+LandTypeCC <- Cache(prepInputs, LandTypeFileCC, studyArea = studyArea(ml),
+                    url = ccURL, method = "ngb",
+                    rasterToMatch = rasterToMatch(ml), filename2 = NULL)
+NA_ids <- which(is.na(LandTypeCC[]) | LandTypeCC[] == 5)
+rstFlammableCC <- defineFlammable(LandTypeCC, nonFlammClasses = c(1, 2, 4),
+                                  mask = NULL, filename2 = NULL)
+
+LandTypeFileLCC <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
+rstFlammableLCC <- Cache(prepInputs, LandTypeFileLCC, studyArea = studyArea(ml),
+                         url = ccURL, method = "ngb",
+                         rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
+  defineFlammable(., nonFlammClasses = c(36, 37, 38, 39), mask = NULL, filename2 = NULL)
+
+rstFlammable <- rstFlammableCC
+rstFlammable[NA_ids] <- rstFlammableLCC[NA_ids]
 
 ## fireReturnInterval needs to be masked by rstFlammable
 rtm <- rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml))
