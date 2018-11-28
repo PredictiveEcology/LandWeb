@@ -20,14 +20,15 @@ defineModule(sim, list(
   inputObjects = bind_rows(
     expectsInput("rasterToMatch", "RasterLayer",
                  desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
-                 sourceURL = NA), # i guess this is study area and fire return interval
+                 sourceURL = NA),
     expectsInput("rstLCC", "RasterLayer",
                  desc = "2005 land classification map in study area, default is Canada national land classification in 2005",
                  sourceURL = "ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip")
   ),
   outputObjects = bind_rows(
     createsOutput("rstFlammable", "RasterLayer",
-                  desc = "rstFlammable is 1 for flammable, 0 for non flammable. This is simply for masking out fire pixels that can't burn")
+                  desc = paste("rstFlammable is 1 for flammable, 0 for non flammable.",
+                               "This is simply for masking out fire pixels that can't burn."))
   )
 ))
 
