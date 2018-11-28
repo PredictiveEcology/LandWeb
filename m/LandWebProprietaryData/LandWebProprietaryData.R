@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandWebProprietaryData.Rmd"),
-  reqdPkgs = list("googledrive", "reproducible", "SpaDES.core", "SpaDES.tools",
+  reqdPkgs = list("data.table", "googledrive", "reproducible", "SpaDES.core", "SpaDES.tools",
                   "PredictiveEcology/pemisc"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
