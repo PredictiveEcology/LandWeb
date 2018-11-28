@@ -13,6 +13,3 @@
 [submodule "m/LandWeb_output"]
 	path = m/LandWeb_output
 	url = git@github.com:fRI-Research/LandWeb_output
-[submodule "m/LandWeb_fireNull"]
-	path = m/LandWeb_fireNull
-	url = git@github.com:fRI-Research/LandWeb_fireNull
