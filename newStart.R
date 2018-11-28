@@ -37,7 +37,7 @@ runName <- "testing"
 ## running locally
 #runName <- "tolko_AB_N_logROS" ## DONE
 #runName <- "tolko_AB_S_logROS" ## DONE
-#runName <- "tolko_SK_logROS" ## DONE
+runName <- "tolko_SK_logROS" ## DONE
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal" ## running
@@ -50,8 +50,8 @@ runName <- "testing"
 #runName <- "tolko_SK_doubleDispersal" ## running
 
 ## running locally
-#runName <- "tolko_AB_N_aspen80" ## running
-#runName <- "tolko_AB_S_aspen80" ## running
+#runName <- "tolko_AB_N_aspen80" ## not run
+#runName <- "tolko_AB_S_aspen80" ## not run
 #runName <- "tolko_SK_aspen80" ## running
 
 ## running locally
