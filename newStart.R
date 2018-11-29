@@ -396,9 +396,9 @@ saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 ######################################################
 
 times <- list(start = 0, end = endTime)
-modules <- list("LandWeb_output",
+modules <- list("Boreal_LBMRDataPrep", "LBMR",
                 "LandMine",
-                "Boreal_LBMRDataPrep", "LBMR",
+                "LandWeb_output",
                 "timeSinceFire")
 
 speciesTable <- getSpeciesTable(Paths$inputPath)
