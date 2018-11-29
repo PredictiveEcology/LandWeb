@@ -344,8 +344,15 @@ ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
              alsoExtract = "similar",  leaflet = FALSE, method = "ngb")
 options(map.useParallel = TRUE)
 
+NA_ids <- which(is.na(LandTypeCC[]) | LandTypeCC[] == 5)
+
 ccs <- ml@metadata[CC == TRUE & !(layerName == "CC TSF"), ]
 CCs <- maps(ml, layerName = ccs$layerName)
+CCs <- lapply(CCs, function(x) {
+  x[NA_ids] <- NA
+  amc::.gc()
+  x
+})
 CCstack <- raster::stack(CCs)
 CCstack[CCstack[] < 0] <- 0
 CCstack[CCstack[] > 10] <- 10
@@ -375,7 +382,14 @@ speciesList1 <- c("Pinu_sp", "Pice_mar", "Popu_tre", "Abie_sp", "Pice_gla")
 CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, speciesList1,
                           destinationPath = Paths$inputPath)
 
-CCvtm <- Cache(makeVegTypeMap, CCstack2, vegLeadingProportion)
+noVeg_ids <- which(LandTypeCC[] == 4)
+CCstack3 <- CCstack2
+for (i in 1:nlayers(CCstack2)) { ## lapply causes memory leak and system crash
+  CCstack3[[i]][noVeg_ids] <- NA
+  amc::.gc()
+}
+
+CCvtm <- Cache(makeVegTypeMap, CCstack3, vegLeadingProportion)
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
 ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
