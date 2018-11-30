@@ -87,6 +87,9 @@ library(map)
 #   devtools::load_all("~/GitHub/map")
 # }
 
+#devtools::install_github("achubaty/amc@development")
+library(amc)
+
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
   "PredictiveEcology/quickPlot@development",
@@ -273,7 +276,7 @@ ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view
 fname_age <- "Age1.tif"
 ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
              tsf = file.path(Paths$inputPath, fname_age), analysisGroup1 = "CC",
-             targetFile = fname_age, filename2 = NULL, #file.path(Paths$inputPath, fname_age),
+             targetFile = fname_age, filename2 = NULL,
              useCache = TRUE, isRasterToMatch = TRUE,
              alsoExtract = "similar", leaflet = FALSE)
 
@@ -372,7 +375,7 @@ parameters1 <- list()
 sim1 <- Cache(simInitAndSpades,
               times = list(start = 0, end = 1),
               params = parameters1,
-              modules = "BorealSpeciesData",
+              modules = "BiomassSpeciesData",
               objects1, # do not name this argument -- collides with Cache -- leave it unnamed
               paths = paths,
               debug = 1)
