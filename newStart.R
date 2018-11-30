@@ -428,7 +428,7 @@ objects <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "rstFlammable" = rstFlammable,
   "rstTimeSinceFire" = ml$`CC TSF`,
-  "specieslayers" = CCstack2,
+  "speciesLayers" = CCstack3,
   "shpStudyArea" = studyArea(ml, 2),
   "shpStudyAreaLarge" = studyArea(ml, 1),
   "speciesTable" = speciesTable,
