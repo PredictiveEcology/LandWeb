@@ -74,7 +74,7 @@ library(SpaDES.core)
 #try(detach("package:map", unload = TRUE))
 #try(detach("package:pemisc", unload = TRUE))
 
-library(pemisc)
+library(pemisc) ## TODO: use pemisc@development
 # if (Sys.info()[["user"]] == "achubaty") {
 #   devtools::load_all("~/GitHub/PredictiveEcology/pemisc")
 # } else if (Sys.info()[["user"]] == "emcintir") {
@@ -362,9 +362,9 @@ CCstack <- CCstack * 10
 
 objects1 <- list(
   "rasterToMatch" = rasterToMatch(ml),
-  "specieslayers" = CCstack,
-  "shpStudyArea" = studyArea(ml, 2),
-  "shpStudyAreaLarge" = studyArea(ml, 1)
+  "speciesLayers" = CCstack,
+  "studyArea" = studyArea(ml, 2),
+  "studyAreaLarge" = studyArea(ml, 1)
 )
 
 parameters1 <- list()
@@ -372,14 +372,14 @@ parameters1 <- list()
 sim1 <- Cache(simInitAndSpades,
               times = list(start = 0, end = 1),
               params = parameters1,
-              modules = "LandWebProprietaryData",
+              modules = "BorealSpeciesData",
               objects1, # do not name this argument -- collides with Cache -- leave it unnamed
               paths = paths,
               debug = 1)
 
 sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml))
 speciesList1 <- c("Pinu_sp", "Pice_mar", "Popu_tre", "Abie_sp", "Pice_gla")
-CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, speciesList1,
+CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, speciesList1, ## TODO: update for pemisc@development
                           destinationPath = Paths$inputPath)
 
 noVeg_ids <- which(LandTypeCC[] == 4)
@@ -428,7 +428,7 @@ objects <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "rstFlammable" = rstFlammable,
   "rstTimeSinceFire" = ml$`CC TSF`,
-  "speciesLayers" = CCstack3,
+  "speciesLayers" = CCstack3, ## TODO: also need sppNameVectors
   "shpStudyArea" = studyArea(ml, 2),
   "shpStudyAreaLarge" = studyArea(ml, 1),
   "speciesTable" = speciesTable,
