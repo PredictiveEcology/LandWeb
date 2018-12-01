@@ -432,8 +432,8 @@ objects <- list(
   "rstFlammable" = rstFlammable,
   "rstTimeSinceFire" = ml$`CC TSF`,
   "speciesLayers" = CCstack2, ## TODO: also need sppNameVectors
-  "shpStudyArea" = studyArea(ml, 2),
-  "shpStudyAreaLarge" = studyArea(ml, 1),
+  "studyArea" = studyArea(ml, 2),
+  "studyAreaLarge" = studyArea(ml, 1),
   "speciesTable" = speciesTable,
   "standAgeMap" = ml$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
   "summaryPeriod" = summaryPeriod,
