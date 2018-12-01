@@ -386,13 +386,13 @@ CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, #speciesList1, ## TODO: u
                           destinationPath = Paths$inputPath)
 
 noVeg_ids <- which(LandTypeCC[] == 4)
-CCstack3 <- CCstack2
-for (i in 1:nlayers(CCstack2)) { ## lapply causes memory leak and system crash
-  CCstack3[[i]][noVeg_ids] <- NA
-  amc::.gc()
-}
+#CCstack3 <- CCstack2
+#for (i in 1:nlayers(CCstack2)) { ## lapply causes memory leak and system crash
+CCstack2[noVeg_ids] <- NA # don't need to do one RasterLayer at a time, do whole stack at once
+#  amc::.gc()
+#}
 
-CCvtm <- Cache(makeVegTypeMap, CCstack3, vegLeadingProportion)
+CCvtm <- Cache(makeVegTypeMap, CCstack2, vegLeadingProportion)
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
 ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
@@ -431,7 +431,7 @@ objects <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "rstFlammable" = rstFlammable,
   "rstTimeSinceFire" = ml$`CC TSF`,
-  "speciesLayers" = CCstack3, ## TODO: also need sppNameVectors
+  "speciesLayers" = CCstack2, ## TODO: also need sppNameVectors
   "shpStudyArea" = studyArea(ml, 2),
   "shpStudyAreaLarge" = studyArea(ml, 1),
   "speciesTable" = speciesTable,
