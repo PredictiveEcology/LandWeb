@@ -382,7 +382,7 @@ sim1 <- Cache(simInitAndSpades,
 
 sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml))
 speciesList1 <- c("Pinu_sp", "Pice_mar", "Popu_tre", "Abie_sp", "Pice_gla")
-CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, speciesList1, ## TODO: update for pemisc@development
+CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, #speciesList1, ## TODO: update for pemisc@development
                           destinationPath = Paths$inputPath)
 
 noVeg_ids <- which(LandTypeCC[] == 4)
