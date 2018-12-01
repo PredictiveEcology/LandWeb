@@ -418,7 +418,7 @@ modules <- list("Boreal_LBMRDataPrep", "LBMR", "LandR_BiomassRegen", "LandR_Biom
                 "LandWeb_output",
                 "timeSinceFire")
 
-speciesTable <- getSpeciesTable(Paths$inputPath)
+speciesTable <- getSpeciesTable(dPath = Paths$inputPath)
 speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 2000] ## (see LandWeb#96)
 
 if (grepl("aspen80", runName)) {
