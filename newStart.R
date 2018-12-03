@@ -382,17 +382,17 @@ sim1 <- Cache(simInitAndSpades,
 
 sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml))
 speciesList1 <- c("Pinu_sp", "Pice_mar", "Popu_tre", "Abie_sp", "Pice_gla")
-CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, speciesList1, ## TODO: update for pemisc@development
+CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, #speciesList1, ## TODO: update for pemisc@development
                           destinationPath = Paths$inputPath)
 
 noVeg_ids <- which(LandTypeCC[] == 4)
-CCstack3 <- CCstack2
-for (i in 1:nlayers(CCstack2)) { ## lapply causes memory leak and system crash
-  CCstack3[[i]][noVeg_ids] <- NA
-  amc::.gc()
-}
+#CCstack3 <- CCstack2
+#for (i in 1:nlayers(CCstack2)) { ## lapply causes memory leak and system crash
+CCstack2[noVeg_ids] <- NA # don't need to do one RasterLayer at a time, do whole stack at once
+#  amc::.gc()
+#}
 
-CCvtm <- Cache(makeVegTypeMap, CCstack3, vegLeadingProportion)
+CCvtm <- Cache(makeVegTypeMap, CCstack2, vegLeadingProportion)
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
 ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
@@ -418,7 +418,7 @@ modules <- list("Boreal_LBMRDataPrep", "LBMR", "LandR_BiomassRegen", "LandR_Biom
                 "LandWeb_output",
                 "timeSinceFire")
 
-speciesTable <- getSpeciesTable(Paths$inputPath)
+speciesTable <- getSpeciesTable(dPath = Paths$inputPath)
 speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 2000] ## (see LandWeb#96)
 
 if (grepl("aspen80", runName)) {
@@ -431,9 +431,9 @@ objects <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "rstFlammable" = rstFlammable,
   "rstTimeSinceFire" = ml$`CC TSF`,
-  "speciesLayers" = CCstack3, ## TODO: also need sppNameVectors
-  "shpStudyArea" = studyArea(ml, 2),
-  "shpStudyAreaLarge" = studyArea(ml, 1),
+  "speciesLayers" = CCstack2, ## TODO: also need sppNameVectors
+  "studyArea" = studyArea(ml, 2),
+  "studyAreaLarge" = studyArea(ml, 1),
   "speciesTable" = speciesTable,
   "standAgeMap" = ml$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
   "summaryPeriod" = summaryPeriod,
