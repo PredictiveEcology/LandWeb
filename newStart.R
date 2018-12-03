@@ -351,8 +351,8 @@ NA_ids <- which(is.na(LandTypeCC[]) | LandTypeCC[] == 5)
 
 ccs <- ml@metadata[CC == TRUE & !(layerName == "CC TSF"), ]
 CCs <- maps(ml, layerName = ccs$layerName)
-CCs[NA_ids] <- NA
 CCstack <- raster::stack(CCs)
+CCstack[NA_ids] <- NA
 CCstack[CCstack[] < 0] <- 0
 CCstack[CCstack[] > 10] <- 10
 CCstack <- CCstack * 10
