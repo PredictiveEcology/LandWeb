@@ -213,8 +213,8 @@ modules4sim$All <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
 
 objects4sim <- emptyListAll
 objects4sim <- lapply(objects4sim, function(x)
-  list("shpStudyAreaLarge" = shpStudyRegion,
-       "shpStudyArea" = shpSubStudyRegion,
+  list("studyAreaLarge" = shpStudyRegion,
+       "studyArea" = shpSubStudyRegion,
        "summaryPeriod" = summaryPeriod,
        "useParallel" = 2,
        "vegLeadingProportion" = vegLeadingProportion)
@@ -343,7 +343,7 @@ objList <- list(
   cacheIdName = "cacheId",
   cacheIdEnv = cacheIdEnv,
   shpLandWebSA = shpStudyRegion,
-  shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
+  studyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
   studyAreaName = subStudyRegionNameCollapsed,
   vegLeadingProportion = vegLeadingProportion,
   labelColumn = labelColumn

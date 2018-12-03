@@ -39,10 +39,10 @@ defineModule(sim, list(
     expectsInput("rasterToMatch", "RasterLayer",
                  desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
                  sourceURL = NA), # i guess this is study area and fire return interval
-    expectsInput("shpStudyArea", "SpatialPolygonsDataFrame",
+    expectsInput("studyArea", "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: Sub study area with fire return interval attribute",
                  sourceURL = ""),
-    expectsInput("shpStudyAreaLarge", "SpatialPolygonsDataFrame",
+    expectsInput("studyAreaLarge", "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: Full study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
     expectsInput("speciesList", c("character", "matrix"),
@@ -108,7 +108,7 @@ Init <- function(sim) {
                   alsoExtract = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.hdr"),
                   destinationPath = asPath(dPath),
                   fun = "raster::raster",
-                  studyArea = sim$shpStudyArea,
+                  studyArea = sim$studyArea,
                   rasterToMatch = sim$rasterToMatch,
                   method = "bilinear",
                   datatype = "INT2U",
@@ -125,7 +125,7 @@ Init <- function(sim) {
                        alsoExtract = c(CASFRITifFile, CASFRIattrFile, CASFRIheaderFile),
                        destinationPath = asPath(dPath),
                        fun = "raster::raster",
-                       studyArea = sim$shpStudyArea,
+                       studyArea = sim$studyArea,
                        rasterToMatch = sim$rasterToMatch,
                        method = "bilinear",
                        datatype = "INT2U",
@@ -183,7 +183,7 @@ Init <- function(sim) {
                                                "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip")),
                             url = extractURL("biomassMap", sim),
                             destinationPath = dPath,
-                            studyArea = sim$shpStudyArea,
+                            studyArea = sim$studyArea,
                             useSAcrs = TRUE,
                             method = "bilinear",
                             datatype = "INT2U",
@@ -204,7 +204,7 @@ Init <- function(sim) {
     speciesLayersList <- Cache(loadkNNSpeciesLayers,
                                dPath = asPath(dPath),
                                rasterToMatch = sim$rasterToMatch,
-                               studyArea = sim$shpStudyAreaLarge,
+                               studyArea = sim$studyAreaLarge,
                                speciesList = sim$speciesList,
                                # thresh = 10,
                                url = extractURL("speciesLayers"),
@@ -219,8 +219,8 @@ Init <- function(sim) {
     sim$speciesList <- speciesLayersList$speciesList
   }
 
-  if (!suppliedElsewhere("shpStudyArea")) {
-    stop("shpStudyArea is required. Please supply a polygon of the study area")
+  if (!suppliedElsewhere("studyArea")) {
+    stop("studyArea is required. Please supply a polygon of the study area")
   }
 
   return(invisible(sim))

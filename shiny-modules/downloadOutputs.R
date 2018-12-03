@@ -106,7 +106,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
         ### Current condition
         if (isTRUE(input$dlCC)) {
-          ccFile <- file.path("cache", paste0(subStudyRegionName), "rasters", "CurrentCondition.tif")
+          ccFile <- file.path("cache", paste0(studyAreaName), "rasters", "CurrentCondition.tif")
           ccFile2 <- file.path(tmpDir, "rasters", basename(ccFile))
 
           raster::raster(ccFile) %>%
@@ -125,7 +125,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
         if (isTRUE(input$dlLargePatchesHists)) {
           histFilesLP <- list.files(
-            file.path("outputs", paste0(subStudyRegionName, "_All"),
+            file.path("outputs", paste0(studyAreaName, "_All"),
                       "histograms", gsub(" ", "_", rctChosenPolyName()),
                       "largePatches", rctLargePatches()$patchSize),
             recursive = TRUE, full.names = TRUE
@@ -148,7 +148,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
         if (isTRUE(input$dlVegAgeHists)) {
           histFilesVA <- list.files(
-            file.path("outputs", paste0(subStudyRegionName, "_All"),
+            file.path("outputs", paste0(studyAreaName, "_All"),
                       "histograms", gsub(" ", "_", rctChosenPolyName()),
                       "vegAgeMod"),
             recursive = TRUE, full.names = TRUE
@@ -162,7 +162,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
         if (isTRUE(input$dlVegAgeBoxplots)) {
           boxplotFilesVA <- list.files(
-            file.path("outputs", paste0(subStudyRegionName, "_All"),
+            file.path("outputs", paste0(studyAreaName, "_All"),
                       "boxplots", gsub(" ", "_", rctChosenPolyName()),
                       "vegAgeMod"),
             recursive = TRUE, full.names = TRUE
@@ -177,7 +177,7 @@ downloadOutputs <- function(input, output, session, appInfo,
         ### Simulation rasters
         if (isTRUE(input$dlTimeSinceFireMaps)) {
           tsfMapFiles <- list.files(
-            file.path("outputs", paste0(subStudyRegionName, "_All")),
+            file.path("outputs", paste0(studyAreaName, "_All")),
             recursive = TRUE, full.names = TRUE, pattern = "rstTimeSinceFire"
           )
           tsfMapFiles2 <- file.path(tmpDir, "rasters",  basename(tsfMapFiles))
@@ -191,7 +191,7 @@ downloadOutputs <- function(input, output, session, appInfo,
 
         if (isTRUE(input$dlVegTypeMaps)) {
           vegTypeMapFiles <- list.files(
-            file.path("outputs", paste0(subStudyRegionName, "_All")),
+            file.path("outputs", paste0(studyAreaName, "_All")),
             recursive = TRUE, full.names = TRUE, pattern = "vegTypeMap.+[0-9]\\.tif$"
           )
           vegTypeMapFiles2 <- file.path(tmpDir, "rasters",  basename(vegTypeMapFiles))
@@ -206,7 +206,7 @@ downloadOutputs <- function(input, output, session, appInfo,
         ### other simulation data files
         if (isTRUE(input$dlSimOutputs)) {
           simOutputFiles <- list.files(
-            file.path("outputs", paste0(subStudyRegionName, "_All")),
+            file.path("outputs", paste0(studyAreaName, "_All")),
             recursive = TRUE, full.names = TRUE, pattern = "[.]RData|[.]rds"
           )
           simOutputFiles2 <- file.path(tmpDir, basename(simOutputFiles))
