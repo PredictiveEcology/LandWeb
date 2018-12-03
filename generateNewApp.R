@@ -10,7 +10,7 @@ Modules <- tribble(
   "shinyModule", "timeSeriesofRasters", "timeSinceFire",
   list("rasterList = globalRasters()", # TODO: update this from server.R!!!
        "polygonList = polygons()",
-       "shpStudyAreaLarge",
+       "studyAreaLarge",
        "colorTable = colorTableFile",
        "palette = timeSinceFirePalette",
        "maxAge = maxAge",
