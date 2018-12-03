@@ -433,7 +433,7 @@ objects <- list(
 
 parameters <- list(
   Boreal_LBMRDataPrep = list(
-    ".crsUsed" = crs(studyArea(ml)),
+    ".crsUsed" = crs(studyArea(ml)), ## TODO: remove .crsUsed
     ".useCache" = eventCaching
   ),
   LandMine = list(
