@@ -529,7 +529,7 @@ if (!useSpades) {
 
   saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 } else {
-  quickPlot::dev()
+  quickPlot::dev(width = 18, height = 12)
   quickPlot::clearPlot()
   mySim <- simInit(times = times, #cl = cl,
                    params = parameters,
