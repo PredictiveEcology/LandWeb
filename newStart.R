@@ -144,8 +144,8 @@ checkPath(activeDir, create = TRUE)
 targetCRS <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95",
                        "+x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
 
-studyRegionName <- "LandWeb Study Area"
-ml <- mapAdd(layerName = studyRegionName,
+studyAreaName <- "LandWeb Study Area"
+ml <- mapAdd(layerName = studyAreaName,
              targetCRS = targetCRS, overwrite = TRUE,
              url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", # This is landweb_ltfc_v6.shp
              columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
@@ -156,7 +156,7 @@ if (grepl("testing", runName)) {
   seed <- 863
   ranSeed <- .Random.seed
   set.seed(seed)
-  sp2 <- Cache(SpaDES.tools::randomPolygon, ml[[studyRegionName]], 4e5) # was 4e5
+  sp2 <- Cache(SpaDES.tools::randomPolygon, ml[[studyAreaName]], 4e5) # was 4e5
   ml <- mapAdd(obj = sp2, map = ml, filename2 = FALSE,
                #targetCRS = targetCRS,
                layerName = "Small Study Area",
@@ -185,11 +185,11 @@ dataDirTolko <- file.path(dataDir, "Tolko")
 
 ### ADMINISTRATIVE POLYGONS
 if (grepl("tolko_AB_N", runName)) {
-  studyRegionName <- "Tolko AB North SR"
+  studyAreaName <- "Tolko AB North SR"
 
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_ab_n_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
-  ml <- mapAdd(tolko_ab_n_sr, ml, isStudyArea = TRUE, layerName = studyRegionName,
+  ml <- mapAdd(tolko_ab_n_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -208,11 +208,11 @@ if (grepl("tolko_AB_N", runName)) {
                analysisGroupReportingPolygon = "Tolko AB North Caribou",
                columnNameForLabels = "Name", filename2 = NULL)
 } else if (grepl("tolko_AB_S", runName)) {
-  studyRegionName <- "Tolko AB South SR"
+  studyAreaName <- "Tolko AB South SR"
 
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_ab_s_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
-  ml <- mapAdd(tolko_ab_s_sr, ml, isStudyArea = TRUE, layerName = studyRegionName,
+  ml <- mapAdd(tolko_ab_s_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -231,10 +231,10 @@ if (grepl("tolko_AB_N", runName)) {
                analysisGroupReportingPolygon = "Tolko AB South Caribou",
                columnNameForLabels = "Name", filename2 = NULL)
 } else if (grepl("tolko_SK", runName)) {
-  studyRegionName <- "Tolko SK SR"
+  studyAreaName <- "Tolko SK SR"
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   tolko_sk_sr <- shapefile(file.path(dataDirTolko, "Tolko_SK_SR.shp"))
-  ml <- mapAdd(tolko_sk_sr, ml, isStudyArea = TRUE, layerName = studyRegionName,
+  ml <- mapAdd(tolko_sk_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -249,10 +249,10 @@ if (grepl("tolko_AB_N", runName)) {
                analysisGroupReportingPolygon = "Tolko SK Caribou",
                columnNameForLabels = "Name", filename2 = NULL)
 } else if (grepl("LP_MB", runName)) {
-  studyRegionName <- "LP MB SR"
+  studyAreaName <- "LP MB SR"
   ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
   lp_mb_sr <- shapefile(file.path(dataDirLP, "LP_MB_SR.shp"))
-  ml <- mapAdd(lp_mb_sr, ml, isStudyArea = TRUE, layerName = studyRegionName,
+  ml <- mapAdd(lp_mb_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
                useSAcrs = TRUE, poly = TRUE,
                columnNameForLabels = "NSN", filename2 = NULL)
 
@@ -733,9 +733,9 @@ print(runName)
   spEcoReg <- readRDS(file.path(paths$inputPath, "SpEcoReg.rds"))
 
   # The CRS for the Study -- spTransform converts this first one to the second one, they are identical geographically
-  # crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
+  # crsStudyArea <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
   #                         "+datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
-  crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
+  crsStudyArea <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
                               "+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
 
 
