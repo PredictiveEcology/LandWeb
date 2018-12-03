@@ -377,7 +377,6 @@ sim1 <- Cache(simInitAndSpades,
               debug = 1)
 
 sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml))
-speciesList1 <- c("Pinu_sp", "Pice_mar", "Popu_tre", "Abie_sp", "Pice_gla")
 CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, destinationPath = Paths$inputPath)
 
 noVeg_ids <- which(LandTypeCC[] == 4)
@@ -409,7 +408,7 @@ modules <- list("Boreal_LBMRDataPrep", "LBMR", "LandR_BiomassRegen", "LandR_Biom
                 "LandWeb_output",
                 "timeSinceFire")
 
-speciesTable <- getSpeciesTable(dPath = Paths$inputPath)
+speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
 speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 2000] ## (see LandWeb#96)
 
 if (grepl("aspen80", runName)) {
