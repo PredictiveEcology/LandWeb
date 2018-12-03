@@ -436,8 +436,6 @@ parameters <- list(
     ".crsUsed" = crs(studyArea(ml)),
     ".useCache" = eventCaching
   ),
-  fireDataPrep = list(".useCache" = eventCaching),
-  initBaseMaps = list(".useCache" = eventCaching),
   LandMine = list(
     "biggestPossibleFireSizeHa" = 5e5,
     "burnInitialTime" = fireTimestep,
@@ -449,8 +447,15 @@ parameters <- list(
   LBMR = list(
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
     "successionTimestep" = successionTimestep,
-    ".useCache" = eventCaching
+    ".useCache" = eventCaching,
+    ".useParallel" = 8 ## TODO: need
   ),
+  LandR_BiomassGMOrig = list(
+    ".useParallel" = 8 ## TODO: need
+  ),
+  # LandR_BiomassRegen = list(
+  #
+  # ),
   timeSinceFire = list(
     "startTime" = fireTimestep,
     ".useCache" = eventCaching
