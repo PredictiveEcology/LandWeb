@@ -7,9 +7,6 @@
 [submodule "m/Boreal_LBMRDataPrep"]
 	path = m/Boreal_LBMRDataPrep
 	url = https://github.com/eliotmcintire/Boreal_LBMRDataPrep
-[submodule "m/LandWeb_shiny"]
-	path = m/LandWeb_shiny
-	url = git@github.com:fRI-Research/LandWeb_shiny
 [submodule "m/LandWeb_output"]
 	path = m/LandWeb_output
 	url = git@github.com:fRI-Research/LandWeb_output
