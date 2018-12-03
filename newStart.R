@@ -351,11 +351,7 @@ NA_ids <- which(is.na(LandTypeCC[]) | LandTypeCC[] == 5)
 
 ccs <- ml@metadata[CC == TRUE & !(layerName == "CC TSF"), ]
 CCs <- maps(ml, layerName = ccs$layerName)
-CCs <- lapply(CCs, function(x) {
-  x[NA_ids] <- NA
-  amc::.gc()
-  x
-})
+CCs[NA_ids] <- NA
 CCstack <- raster::stack(CCs)
 CCstack[CCstack[] < 0] <- 0
 CCstack[CCstack[] > 10] <- 10
@@ -382,15 +378,10 @@ sim1 <- Cache(simInitAndSpades,
 
 sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml))
 speciesList1 <- c("Pinu_sp", "Pice_mar", "Popu_tre", "Abie_sp", "Pice_gla")
-CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, #speciesList1, ## TODO: update for pemisc@development
-                          destinationPath = Paths$inputPath)
+CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, destinationPath = Paths$inputPath)
 
 noVeg_ids <- which(LandTypeCC[] == 4)
-#CCstack3 <- CCstack2
-#for (i in 1:nlayers(CCstack2)) { ## lapply causes memory leak and system crash
-CCstack2[noVeg_ids] <- NA # don't need to do one RasterLayer at a time, do whole stack at once
-#  amc::.gc()
-#}
+CCstack2[noVeg_ids] <- NA
 
 CCvtm <- Cache(makeVegTypeMap, CCstack2, vegLeadingProportion)
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
