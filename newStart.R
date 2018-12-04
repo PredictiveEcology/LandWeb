@@ -403,7 +403,7 @@ saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 ######################################################
 
 times <- list(start = 0, end = endTime)
-modules <- list("Boreal_LBMRDataPrep", "LBMR", "LandR_BiomassRegen", "LandR_BiomassGMOrig",
+modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LandR_BiomassRegen", "LBMR",
                 "LandMine",
                 "LandWeb_output",
                 "timeSinceFire")
