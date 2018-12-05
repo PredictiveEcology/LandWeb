@@ -9,6 +9,16 @@
 
 **Date:** August 8, 2018
 
+### Getting the code
+
+```bash
+## master branch
+git clone --recurse-submodules -j8 https://github.com/eliotmcintire/LandWeb
+
+## development branch
+git clone --single-branch -b development --recurse-submodules -j8 https://github.com/eliotmcintire/LandWeb
+```
+
 #### Overview
 
 The LandWeb model integrates two well-used models for forest stand succession and fire simulation, implemented in the `SpaDES` simulation platform (Chubaty & McIntire, 2018).
