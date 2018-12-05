@@ -16,3 +16,6 @@
 [submodule "m/LandR_BiomassRegen"]
 	path = m/LandR_BiomassRegen
 	url = git@github.com:CeresBarros/LandR_BiomassRegen.git
+[submodule "m/LandR_BiomassGMOrig"]
+	path = m/LandR_BiomassGMOrig
+	url = git@github.com:ianmseddy/LandR_BiomassGMOrig.git
