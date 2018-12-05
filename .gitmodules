@@ -16,3 +16,6 @@
 [submodule "m/BiomassSpeciesData"]
 	path = m/BiomassSpeciesData
 	url = https://github.com/CeresBarros/BiomassSpeciesData
+[submodule "m/LandR_BiomassRegen"]
+	path = m/LandR_BiomassRegen
+	url = git@github.com:CeresBarros/LandR_BiomassRegen.git
