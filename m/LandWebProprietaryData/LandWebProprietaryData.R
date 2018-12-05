@@ -14,7 +14,8 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandWebProprietaryData.Rmd"),
-  reqdPkgs = list("googledrive", "reproducible", "SpaDES.core", "SpaDES.tools"),
+  reqdPkgs = list("data.table", "googledrive", "reproducible", "SpaDES.core", "SpaDES.tools",
+                  "PredictiveEcology/pemisc"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -26,27 +27,34 @@ defineModule(sim, list(
                     desc = "Used in reading csv file with fread. Will be passed to data.table::setDTthreads")
   ),
   inputObjects = bind_rows(
-    expectsInput(objectName = "biomassMap", objectClass = "RasterLayer",
+    expectsInput("biomassMap", "RasterLayer",
                  desc = "total biomass raster layer in study area, default is Canada national biomass map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureBiomass.tar"),
-    expectsInput(objectName = "specieslayers", objectClass = "RasterStack",
+    expectsInput("CASFRI for Landweb.zip", "RasterStack",
+                 desc = "biomass percentage raster layers by species in Canada species map, created by Pickell et al., UBC, resolution 100m x 100m from LandSat and kNN based on CASFRI.",
+                 sourceURL = "https://drive.google.com/file/d/1y0ofr2H0c_IEMIpx19xf3_VTBheY0C9h/view?usp=sharing"),
+    expectsInput("speciesLayers", "RasterStack",
                  desc = "biomass percentage raster layers by species in Canada species map",
                  sourceURL = "http://tree.pfc.forestry.ca/kNN-Species.tar"),
-    expectsInput(objectName = "shpStudySubRegion", objectClass = "SpatialPolygonsDataFrame",
+    expectsInput("rasterToMatch", "RasterLayer",
+                 desc = "this raster contains two pieces of informaton: Full study area with fire return interval attribute",
+                 sourceURL = NA), # i guess this is study area and fire return interval
+    expectsInput("studyArea", "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: Sub study area with fire return interval attribute",
                  sourceURL = ""),
-    expectsInput(objectName = "shpStudyRegionFull", objectClass = "SpatialPolygonsDataFrame",
+    expectsInput("studyAreaLarge", "SpatialPolygonsDataFrame",
                  desc = "this shape file contains two informaton: Full study area with fire return interval attribute",
                  sourceURL = ""), # i guess this is study area and fire return interval
-    expectsInput(objectName = "SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.zip", objectClass = "RasterStack",
+    expectsInput("speciesList", c("character", "matrix"),
+                 desc = "vector or matrix of species to select, provided by the user or BiomassSpeciesData.
+                 If a matrix, should have two columns of raw and 'end' species names. Note that 'sp' is used instead of 'spp'",
+                 sourceURL = "http://tree.pfc.forestry.ca/kNN-StructureStandVolume.tar"),
+    expectsInput("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.zip", "RasterStack",
                  desc = "biomass percentage raster layers by species in Canada species map, created by Pickell et al., UBC, resolution 100m x 100m from LandSat and kNN based on CASFRI.",
-                 sourceURL = "https://drive.google.com/open?id=1M_L-7ovDpJLyY8dDOxG3xQTyzPx2HSg4"),
-    expectsInput(objectName = "CASFRI for Landweb.zip", objectClass = "RasterStack",
-                 desc = "biomass percentage raster layers by species in Canada species map, created by Pickell et al., UBC, resolution 100m x 100m from LandSat and kNN based on CASFRI.",
-                 sourceURL = "https://drive.google.com/file/d/1y0ofr2H0c_IEMIpx19xf3_VTBheY0C9h/view?usp=sharing")
+                 sourceURL = "https://drive.google.com/open?id=1M_L-7ovDpJLyY8dDOxG3xQTyzPx2HSg4")
   ),
   outputObjects = bind_rows(
-    createsOutput(objectName = "specieslayers", objectClass = "RasterStack",
+    createsOutput("speciesLayers", "RasterStack",
                  desc = "biomass percentage raster layers by species in Canada species map")
   )
 ))
@@ -100,8 +108,8 @@ Init <- function(sim) {
                   alsoExtract = asPath("SPP_1990_100m_NAD83_LCC_BYTE_VEG_NO_TIES_FILLED_FINAL.hdr"),
                   destinationPath = asPath(dPath),
                   fun = "raster::raster",
-                  studyArea = sim$shpStudySubRegion,
-                  rasterToMatch = sim$biomassMap,
+                  studyArea = sim$studyArea,
+                  rasterToMatch = sim$rasterToMatch,
                   method = "bilinear",
                   datatype = "INT2U",
                   filename2 = TRUE,
@@ -117,8 +125,8 @@ Init <- function(sim) {
                        alsoExtract = c(CASFRITifFile, CASFRIattrFile, CASFRIheaderFile),
                        destinationPath = asPath(dPath),
                        fun = "raster::raster",
-                       studyArea = sim$shpStudySubRegion,
-                       rasterToMatch = sim$biomassMap,
+                       studyArea = sim$studyArea,
+                       rasterToMatch = sim$rasterToMatch,
                        method = "bilinear",
                        datatype = "INT2U",
                        filename2 = TRUE,
@@ -134,26 +142,30 @@ Init <- function(sim) {
     message("Make stack of species layers from Paul's layer")
     uniqueKeepSp <- unique(loadedCASFRI$keepSpecies$spGroup)
     # "Abie_sp"  "Betu_pap" "Lari_lar" "Pice_gla" "Pice_mar" "Pinu_sp" "Popu_tre"
+    # Weird bug when useCache = "overwrite"
+    if (getOption("reproducible.useCache") == "overwrite") opt <- options(reproducible.useCache = TRUE)
     PaulSpStack <- Cache(makePaulStack, paths = lapply(paths(sim), basename),
                          PaulRaster = Paul, uniqueKeepSp, destinationPath = dPath,
                          userTags = "stable")
-    crs(PaulSpStack) <- crs(sim$biomassMap) # bug in writeRaster
+    if (exists("opt", inherits = FALSE)) options(opt)
+    crs(PaulSpStack) <- crs(sim$rasterToMatch) # bug in writeRaster
 
     message('Make stack from CASFRI data and headers')
     CASFRISpStack <- Cache(CASFRItoSpRasts, CASFRIRas, loadedCASFRI,
                            destinationPath = dPath, userTags = "stable")
 
     message("Overlay Paul and CASFRI stacks")
-    outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack, userTags = "stable",
+    outStack <- Cache(overlayStacks, CASFRISpStack, PaulSpStack, NULL,
+                      userTags = "stable",
                       outputFilenameSuffix = "CASFRI_PAUL", destinationPath = dPath)#, notOlderThan = Sys.time())
-    crs(outStack) <- crs(sim$biomassMap) # bug in writeRaster
+    crs(outStack) <- crs(sim$rasterToMatch) # bug in writeRaster
 
     message("Overlay Paul_CASFRI with open data set stacks")
-    specieslayers2 <- Cache(overlayStacks, outStack, sim$specieslayers,
+    speciesLayers2 <- Cache(overlayStacks, outStack, sim$speciesLayers,
                             outputFilenameSuffix = "CASFRI_PAUL_KNN",
                             destinationPath = dPath, userTags = "stable")
-    crs(specieslayers2) <- crs(sim$biomassMap)
-    sim$specieslayers <- specieslayers2
+    crs(speciesLayers2) <- crs(sim$rasterToMatch)
+    sim$speciesLayers <- speciesLayers2
     message("Using LandWeb datasets from Paul Pickell and CASFRI")
   }
 
@@ -161,6 +173,7 @@ Init <- function(sim) {
 }
 
 .inputObjects <- function(sim) {
+  cacheTags <- c(currentModule(sim), "function:.inputObjects", "function:spades")
   dPath <- dataPath(sim)
   if (!suppliedElsewhere("biomassMap", sim)) {
     biomassMapFilename <- file.path(dPath, "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.tif")
@@ -168,16 +181,46 @@ Init <- function(sim) {
                             targetFile = biomassMapFilename,
                             archive = asPath(c("kNN-StructureBiomass.tar",
                                                "NFI_MODIS250m_kNN_Structure_Biomass_TotalLiveAboveGround_v0.zip")),
-                            destinationPath = asPath(dPath),
-                            studyArea = sim$shpStudySubRegion,
+                            url = extractURL("biomassMap", sim),
+                            destinationPath = dPath,
+                            studyArea = sim$studyArea,
+                            useSAcrs = TRUE,
                             method = "bilinear",
                             datatype = "INT2U",
                             filename2 = TRUE,
-                            userTags = c("stable", currentModule(sim)))
+                            userTags = c(cacheTags, "stable"))
   }
 
-  if (!suppliedElsewhere("shpStudySubRegion")) {
-    stop("shpStudySubRegion is required. Please supply a polygon of the study area")
+  if (!suppliedElsewhere("speciesList", sim)) {
+    ## default to 6 species, one changing name, and two merged into one
+    sim$speciesList <- as.matrix(data.frame(
+      speciesNamesRaw = c("Abie_Las", "Pice_Gla", "Pice_Mar", "Pinu_Ban", "Pinu_Con", "Popu_Tre"),
+      speciesNamesEnd =  c("Abie_sp", "Pice_gla", "Pice_mar", "Pinu_sp", "Pinu_sp", "Popu_tre")
+    ))
+  }
+
+  if (!suppliedElsewhere("speciesLayers", sim)) {
+    #opts <- options(reproducible.useCache = "overwrite")
+    speciesLayersList <- Cache(loadkNNSpeciesLayers,
+                               dPath = asPath(dPath),
+                               rasterToMatch = sim$rasterToMatch,
+                               studyArea = sim$studyAreaLarge,
+                               speciesList = sim$speciesList,
+                               # thresh = 10,
+                               url = extractURL("speciesLayers"),
+                               cachePath = cachePath(sim),
+                               userTags = c(cacheTags, "speciesLayers"))
+    #options(opts)
+
+    writeRaster(speciesLayersList$speciesLayers,
+                file.path(outputPath(sim), "speciesLayers.grd"),
+                overwrite = TRUE)
+    sim$speciesLayers <- speciesLayersList$speciesLayers
+    sim$speciesList <- speciesLayersList$speciesList
+  }
+
+  if (!suppliedElsewhere("studyArea")) {
+    stop("studyArea is required. Please supply a polygon of the study area")
   }
 
   return(invisible(sim))

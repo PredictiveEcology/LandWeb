@@ -1,12 +1,7 @@
 if (exists("DEVMODE")) {
   if (isTRUE(DEVMODE)) {
-    source("params/Development_Parameters.R", local = TRUE)
-  } else {
-    if (DEVMODE == "DMI") {
-      source("params/DMI_parameters.R", local = TRUE)
-    } else if (DEVMODE == "LP") {
-      source("params/LP_parameters.R", local = TRUE)
-    }
+    paramFile <- file.path("params", paste0("Development_Parameters_", runName, ".R"))
+    source(paramFile, local = TRUE)
   }
 } else {
   source("params/LandWeb_parameters.R", local = TRUE)
@@ -51,9 +46,18 @@ packageLoadEndTime <- Sys.time()
 source("appInfo.R")
 
 # Options
-options(reproducible.verbose = FALSE)
-options(reproducible.useMemoise = TRUE)
-options(spades.browserOnError = FALSE)
+opts <- options(
+  "map.dataPath" = Paths$inputPath, # not used yet
+  "map.overwrite" = TRUE,
+  "map.tilePath" = tilePath,
+  "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
+  "reproducible.destinationPath" = Paths$inputPath,
+  "reproducible.overwrite" = TRUE,
+  "reproducible.quick" = FALSE,
+  "reproducible.useCache" = TRUE,
+  "spades.moduleCodeChecks" = FALSE,
+  "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
+)
 
 # Google Authentication setup
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/userinfo.email",
@@ -83,10 +87,6 @@ paths <- list(
 )
 do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
-if (any(c("achubaty", "emcintir") %in% Sys.info()["user"])) {
-  opts <- options("spades.moduleCodeChecks" = FALSE, "reproducible.quick" = FALSE)
-}
-
 ## get additonal helper functions used throughout this shiny app
 source(file.path("R", "functions.R"))
 
@@ -112,7 +112,7 @@ options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
 ## spades module variables
 eventCaching <- c(".inputObjects", "init")
 maxAge <- 400
-vegLeadingPercent <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
+vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
 # If all are below this, then it is a "mixed" stand
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
@@ -157,7 +157,7 @@ studyRegionFilePath <- {
 
 studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyRegionCreate,
                           asPath(studyRegionFilePath),
-                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "landweb_ltfc_v6.shp")),
+                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "firemap", "landweb_ltfc_v6.shp")),
                           subStudyRegionName = subStudyRegionName,
                           cacheId = cacheId$loadStudyRegions,
                           crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)
@@ -166,10 +166,12 @@ list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpSubStudy
 ## set default reporting polgyon for app
 defaultPolyName <- "National Ecozones"
 if (exists("DEVMODE")) {
-  if (DEVMODE == "DMI") {
-    defaultPolyName <- "DMI Full"
-  } else if (DEVMODE == "LP") {
-    defaultPolyName <- "LP Mountain"
+  if (grepl("tolko_AB_N", runName)) {
+    defaultPolyName <- "Tolko AB North"
+  } else if (grepl("tolko_AB_S", runName)) {
+    defaultPolyName <- "Tolko AB South"
+  }  else if (grepl("tolko_SK", runName)) {
+    defaultPolyName <- "Tolko SK"
   }
 }
 #defaultPolyName <- "DMI Full" ## TODO: remove this override
@@ -211,11 +213,11 @@ modules4sim$All <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
 
 objects4sim <- emptyListAll
 objects4sim <- lapply(objects4sim, function(x)
-  list("shpStudyRegionFull" = shpStudyRegion,
-       "shpStudySubRegion" = shpSubStudyRegion,
+  list("studyAreaLarge" = shpStudyRegion,
+       "studyArea" = shpSubStudyRegion,
        "summaryPeriod" = summaryPeriod,
        "useParallel" = 2,
-       "vegLeadingPercent" = vegLeadingPercent)
+       "vegLeadingProportion" = vegLeadingProportion)
 )
 
 parameters4sim <- emptyListAll
@@ -341,9 +343,9 @@ objList <- list(
   cacheIdName = "cacheId",
   cacheIdEnv = cacheIdEnv,
   shpLandWebSA = shpStudyRegion,
-  shpStudyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
+  studyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
   studyAreaName = subStudyRegionNameCollapsed,
-  vegLeadingPercent = vegLeadingPercent,
+  vegLeadingProportion = vegLeadingProportion,
   labelColumn = labelColumn
 )
 

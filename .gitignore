@@ -1,6 +1,9 @@
 ## file types by extension
 *.cpg
 *.csv
+!authorized_users.csv
+*.dbf
+*.ini
 *.log
 *.ovr
 *.rds
@@ -38,24 +41,12 @@ www/images/*
 !www/images/logos/
 
 ## SpaDES-related files
-m/test/
 .checkpoint
-*ecodistricts.*
-*ecoregions.*
-*ecozones.*
-inputs/allFMAs/
-inputs/Caribou/
-inputs/CurrentCondition/
-inputs/ecodistricts/National/
-inputs/ecozones/Alberta/
-inputs/ecozones/National/
-inputs/FMU_Alberta_2015-11/
+
 last.dump.rda
 mySimDigestSaved.rds
 mySimSaved.rds
 outputs*
-FULL_*
-SMALL_*
 
 ## OAuth tokens
 .httr-oauth
@@ -66,3 +57,9 @@ Thumbs.db
 
 ## !! Module data should be gitignored in the respective module's data dir !!
 
+## !! inputs/ has its own .gignore file too !!
+
+
+inputs/initial-communities\.txt
+
+inputs/initial-communities\.gis

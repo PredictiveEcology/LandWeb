@@ -3,7 +3,7 @@ if (!exists("useCache342")) useCache342 <- TRUE
 numClusters <- 3
 source(file.path("R", "ThousandYrFreeProprietary.R"))
 authenticationType <- list("Free", "Proprietary") # Can do one or both of "Free" "Proprietary"
-subStudyRegionName <- "FULL"
+studyRegionName <- "FULL"
 runName <- ""
 cacheId <- list()
 
@@ -20,7 +20,7 @@ if (Sys.info()["nodename"] == "W-VIC-A105388") {
   #cacheId$simInitAndExperiment <- "285d3cf6b5075e869e1e705900c02f6a" # 1500 yrs on 132.156.148.172
 } else {
   if (isTRUE(useCache342)) {
-    cacheId$loadStudyRegions <- "a195b4a919b1dae9744fdc04306615d9"
+    cacheId$loadStudyAreas <- "a195b4a919b1dae9744fdc04306615d9"
     cacheId$simInitAndExperiment <- "285d3cf6b5075e869e1e705900c02f6a" # 1500 yrs on 132.156.148.172
     cacheId$tsfRasters <- "0d7bac03ab37e9bfb2ac190c323fbf43"
     cacheId$tsfRasterTilePaths <- "d9bfadeabdb2abd4ca5867ebf8d77d85"
