@@ -10,9 +10,6 @@
 [submodule "m/LandWeb_output"]
 	path = m/LandWeb_output
 	url = git@github.com:fRI-Research/LandWeb_output
-[submodule "m/BiomassSpeciesData"]
-	path = m/BiomassSpeciesData
-	url = https://github.com/CeresBarros/BiomassSpeciesData
 [submodule "m/LandR_BiomassRegen"]
 	path = m/LandR_BiomassRegen
 	url = git@github.com:CeresBarros/LandR_BiomassRegen.git
