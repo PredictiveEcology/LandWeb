@@ -13,9 +13,6 @@
 [submodule "m/LandR_BiomassGMOrig"]
 	path = m/LandR_BiomassGMOrig
 	url = https://github.com/ianmseddy/LandR_BiomassGMOrig
-[submodule "m/LandR_BiomassRegen"]
-	path = m/LandR_BiomassRegen
-	url = https://github.com/CeresBarros/LandR_BiomassRegen
 [submodule "m/BiomassSpeciesData"]
 	path = m/BiomassSpeciesData
 	url = https://github.com/CeresBarros/BiomassSpeciesData
