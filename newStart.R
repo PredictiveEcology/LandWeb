@@ -75,13 +75,13 @@ library(SpaDES.core)
 #try(detach("package:pemisc", unload = TRUE))
 
 library(pemisc) ## TODO: use pemisc@development
-# if (Sys.info()[["user"]] == "achubaty") {
+# if (user("achubaty")) {
 #   devtools::load_all("~/GitHub/PredictiveEcology/pemisc")
 # } else if (Sys.info()[["user"]] == "emcintir") {
 #   devtools::load_all("~/GitHub/misc")
 # }
 library(map)
-# if (Sys.info()[["user"]] == "achubaty") {
+# if (user("achubaty")) {
 #   devtools::load_all("~/GitHub/PredictiveEcology/map")
 # } else if (Sys.info()[["user"]] == "emcintir") {
 #   devtools::load_all("~/GitHub/map")
@@ -128,7 +128,7 @@ opts <- options(
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
-  "reproducible.inputPaths" = "c:/data",
+  "reproducible.inputPaths" = if (user("achubaty")) file.path("~/data") else file.path("c:/data"),
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.useCache" = TRUE,
