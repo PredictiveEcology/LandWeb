@@ -128,7 +128,7 @@ opts <- options(
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
-  "reproducible.inputPaths" = normPath(Paths$inputPath),
+  "reproducible.inputPaths" = "c:/data",
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.useCache" = TRUE,
@@ -368,13 +368,7 @@ objects1 <- list(
 
 parameters1 <- list()
 
-sim1 <- Cache(simInitAndSpades,
-              times = list(start = 0, end = 1),
-              params = parameters1,
-              modules = "BiomassSpeciesData",
-              objects1, # do not name this argument -- collides with Cache -- leave it unnamed
-              paths = paths,
-              debug = 1)
+sim1 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = parameters1, modules = "BiomassSpeciesData",objects1, paths = paths,debug = 1)
 
 sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml))
 CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, destinationPath = Paths$inputPath)
