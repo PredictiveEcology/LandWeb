@@ -374,7 +374,6 @@ objects1 <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "speciesEquivalency" = sppEquivalencies_CA,
   "sppNameVector" = sppNameVector,
-  #"speciesLayers" = CCstack,
   "studyArea" = studyArea(ml, 2),
   "studyAreaLarge" = studyArea(ml, 1)
 )
