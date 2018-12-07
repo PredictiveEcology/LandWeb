@@ -68,6 +68,7 @@ source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 ##########################################################
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 ##########################################################
+library(data.table)
 library(raster)
 library(SpaDES.core)
 
@@ -128,7 +129,6 @@ opts <- options(
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
-  "reproducible.inputPaths" = if (user("achubaty")) normPath("~/data") else file.path("c:/data"),
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.useCache" = TRUE,
@@ -361,7 +361,7 @@ data(sppEquivalencies_CA, package = "pemisc")
 sppEquivalencies_CA[, LandWeb := c(Popu_tre = "Popu_sp")[LandR]]
 sppEquivalencies_CA[EN_generic_full == "Mixed", LandWeb := "Mixed"]
 # Make LandWeb same as LandR everywhere else
-sppEquivalencies_CA[is.na(LandWeb), LandWeb:=LandR]
+sppEquivalencies_CA[is.na(LandWeb), LandWeb := LandR]
 
 ## add default colors for species used in model
 defaultCols <- RColorBrewer::brewer.pal(6, "Accent")
@@ -370,18 +370,20 @@ LandWebNames <- c("Pice_mar", "Pice_gla", "Popu_sp", "Pinu_sp", "Abie_sp")
 LandWebNamesCols <- data.table(cols = defaultCols, LandWeb = c(LandWebNames, "Mixed"))
 sppEquivalencies_CA <- LandWebNamesCols[sppEquivalencies_CA, on = "LandWeb"]
 
-
 objects1 <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "speciesEquivalency" = sppEquivalencies_CA,
   "sppNameVector" = sppNameVector,
-  #"speciesLayers" = CCstack,
   "studyArea" = studyArea(ml, 2),
   "studyAreaLarge" = studyArea(ml, 1)
 )
 
-parameters1 <- list(BiomassSpeciesData = list(types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
-                                              speciesEquivalencyColumn = "LandWeb"))
+parameters1 <- list(
+  BiomassSpeciesData = list(
+    types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
+    speciesEquivalencyColumn = "LandWeb"
+  )
+)
 
 sim1 <- Cache(simInitAndSpades,
               times = list(start = 0, end = 1),
