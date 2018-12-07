@@ -100,15 +100,14 @@ SpaDESPkgs <- c(
   #"PredictiveEcology/SpaDES.shiny@generalize-modules", ## do this after running the model, before app
   "raster"
 )
-shinyPkgs <- c("leaflet", "leaflet.extras", "gdalUtils", "rgeos", "raster", "parallel",
-               "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders", "shinyWidgets")
+shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "rgeos",
+               "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
                    "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr",
-                   "PredictiveEcology/quickPlot@development",
-                   "PredictiveEcology/SpaDES.tools@development",
-                   "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible",
-                   "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", "VGAM")
+                   "pryr", "purrr", "quickPlot",
+                   "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible", "rgeos",
+                   "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", "VGAM")
 
 ##########################################################
 # Paths
@@ -355,7 +354,7 @@ ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
 
 ## Get the sim$speciesLayers from LandWeb_proprietaryData
 
-data(sppEquivalencies_CA, package = "pemisc")
+data("sppEquivalencies_CA", package = "pemisc")
 
 # Make LandWeb spp equivalencies -- rename Popu_tre to Popu_sp
 sppEquivalencies_CA[, LandWeb := c(Popu_tre = "Popu_sp")[LandR]]
@@ -393,14 +392,11 @@ sim1 <- Cache(simInitAndSpades,
               paths = paths,
               debug = 1)
 
-sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml))
+#sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml)) ## already masked by studyArea
 
-# Remove water (5) and non-veg (4) and no data (NA)
-NA_ids <- which(is.na(LandTypeCC[]) | LandTypeCC[] == 5 | LandTypeCC[] == 4)
-sim1$speciesLayers[NA_ids] <- NA
-
-#noVeg_ids <- which(LandTypeCC[] == 4)
-#sim1$speciesLayers[noVeg_ids] <- NA
+# Remove non-vegetated pixels (4)
+noVeg_ids <- which(LandTypeCC[] == 4)
+sim1$speciesLayers[noVeg_ids] <- NA
 
 CCvtm <- Cache(makeVegTypeMap, sim1$speciesLayers, vegLeadingProportion)
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
@@ -408,7 +404,6 @@ CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
              leaflet = FALSE, #isRasterToMatch = FALSE,
              analysisGroup1 = "CC",
-             #tsf = file.path(Paths$inputPath, fname_age),
              vtm = CCvtmFilename,
              useCache = TRUE)
 
@@ -441,11 +436,13 @@ objects <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "rstFlammable" = rstFlammable,
   "rstTimeSinceFire" = ml$`CC TSF`,
-  "speciesLayers" = sim1$speciesLayers, ## TODO: also need sppNameVectors
+  "speciesEquivalency" = sppEquivalencies_CA,
+  "speciesLayers" = sim1$speciesLayers,
+  "speciesTable" = speciesTable,
+  "sppNameVector" = sppNameVector,
+  "standAgeMap" = ml$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
   "studyArea" = studyArea(ml, 2),
   "studyAreaLarge" = studyArea(ml, 1),
-  "speciesTable" = speciesTable,
-  "standAgeMap" = ml$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
   "summaryPeriod" = summaryPeriod,
   "useParallel" = 2,
   "vegLeadingProportion" = vegLeadingProportion
@@ -453,7 +450,7 @@ objects <- list(
 
 parameters <- list(
   Boreal_LBMRDataPrep = list(
-    ".crsUsed" = crs(studyArea(ml)), ## TODO: remove .crsUsed
+    "speciesEquivalencyColumn" = "LandWeb",
     ".useCache" = eventCaching
   ),
   LandMine = list(
