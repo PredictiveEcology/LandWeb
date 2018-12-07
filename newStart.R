@@ -357,7 +357,7 @@ ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
 data("sppEquivalencies_CA", package = "pemisc")
 
 # Make LandWeb spp equivalencies -- rename Popu_tre to Popu_sp
-sppEquivalencies_CA[, LandWeb := c(Popu_tre = "Popu_sp")[LandR]]
+sppEquivalencies_CA[, LandWeb := c(Pinu_con = "Pinu_sp", Pinu_ban = "Pinu_sp", Popu_tre = "Popu_sp", Abie_bal = "Abie_sp")[LandR]]
 sppEquivalencies_CA[EN_generic_full == "Mixed", LandWeb := "Mixed"]
 # Make LandWeb same as LandR everywhere else
 sppEquivalencies_CA[is.na(LandWeb), LandWeb := LandR]
@@ -407,16 +407,16 @@ ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
              vtm = CCvtmFilename,
              useCache = TRUE)
 
-if (!file.exists(CCvtmFilename)) {
-  CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
-}
+  if (!file.exists(CCvtmFilename)) {
+    CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
+  }
 
-saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+  saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+
 
 ######################################################
 # Dynamic Simulation
 ######################################################
-
 times <- list(start = 0, end = endTime)
 modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LandR_BiomassRegen", "LBMR",
                 "LandMine",
@@ -552,15 +552,16 @@ if (!useSpades) {
 } else {
   quickPlot::dev(width = 18, height = 12)
   quickPlot::clearPlot()
-  mySim <- simInit(times = times, #cl = cl,
+  mySimOut <- simInitAndSpades(times = times, #cl = cl,
                    params = parameters,
                    modules = modules,
                    outputs = outputs,
                    objects, # do not name this argument -- collides with Cache -- leave it unnamed
                    paths = paths,
-                   loadOrder = unlist(modules)
+                   loadOrder = unlist(modules),
+                   debug = 1
   )
-  mySimOut <- spades(mySim, debug = 1)
+  #mySimOut <- spades(mySim, debug = 1)
 
   saveRDS(mySimOut, file.path(Paths$outputPath, "mySimOut.rds"))
 }
