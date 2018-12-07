@@ -359,11 +359,24 @@ ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
 
 data(sppEquivalencies_CA, package = "pemisc")
 
-sppEquivalencies_CA[, LandWeb := c(Popu_tre = "Popu_sp")[LandR]][is.na(LandWeb), LandWeb:=LandR]
+# Make LandWeb spp equivalencies -- rename Popu_tre to Popu_sp
+sppEquivalencies_CA[, LandWeb := c(Popu_tre = "Popu_sp")[LandR]]
+sppEquivalencies_CA[EN_generic_full == "Mixed", LandWeb := "Mixed"]
+# Make LandWeb same as LandR everywhere else
+sppEquivalencies_CA[is.na(LandWeb), LandWeb:=LandR]
+
+## add default colors for species used in model
+defaultCols <- RColorBrewer::brewer.pal(6, "Accent")
+sppNameVector <- c("Abie_sp", "Pice_gla", "Pice_mar", "Pinu_ban", "Pinu_con", "Popu_tre")
+LandWebNames <- c("Pice_mar", "Pice_gla", "Popu_sp", "Pinu_sp", "Abie_sp")
+LandWebNamesCols <- data.table(cols = defaultCols, LandWeb = c(LandWebNames, "Mixed"))
+sppEquivalencies_CA <- LandWebNamesCols[sppEquivalencies_CA, on = "LandWeb"]
+
 
 objects1 <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "speciesEquivalency" = sppEquivalencies_CA,
+  "sppNameVector" = sppNameVector,
   #"speciesLayers" = CCstack,
   "studyArea" = studyArea(ml, 2),
   "studyAreaLarge" = studyArea(ml, 1)
