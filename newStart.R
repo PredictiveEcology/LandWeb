@@ -68,6 +68,7 @@ source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 ##########################################################
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 ##########################################################
+library(data.table)
 library(raster)
 library(SpaDES.core)
 
