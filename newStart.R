@@ -338,45 +338,52 @@ ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
 # Current Conditions (Species Layers)
 ##########################################################
 
-CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
-CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
+# CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
+# CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
+#
+# options(map.useParallel = FALSE)
+# ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
+#              targetFile = CClayerNamesFiles, filename2 = NULL, ## TODO: check this for file creation sadness
+#              alsoExtract = "similar",  leaflet = FALSE, method = "ngb")
+#options(map.useParallel = TRUE)
 
-options(map.useParallel = FALSE)
-ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
-             targetFile = CClayerNamesFiles, filename2 = NULL, ## TODO: check this for file creation sadness
-             alsoExtract = "similar",  leaflet = FALSE, method = "ngb")
-options(map.useParallel = TRUE)
-
-NA_ids <- which(is.na(LandTypeCC[]) | LandTypeCC[] == 5)
-
-ccs <- ml@metadata[CC == TRUE & !(layerName == "CC TSF"), ]
-CCs <- maps(ml, layerName = ccs$layerName)
-CCstack <- raster::stack(CCs)
-CCstack[NA_ids] <- NA
-CCstack[CCstack[] < 0] <- 0
-CCstack[CCstack[] > 10] <- 10
-CCstack <- CCstack * 10
+# ccs <- ml@metadata[CC == TRUE & !(layerName == "CC TSF"), ]
+# CCs <- maps(ml, layerName = ccs$layerName)
+# CCstack <- raster::stack(CCs)
+# CCstack[NA_ids] <- NA
+# CCstack[CCstack[] < 0] <- 0
+# CCstack[CCstack[] > 10] <- 10
+# CCstack <- CCstack * 10
 
 ## Get the sim$speciesLayers from LandWeb_proprietaryData
 
+data(sppEquivalencies_CA, package = "pemisc")
+
+sppEquivalencies_CA[, LandWeb := c(Popu_tre = "Popu_sp")[LandR]][is.na(LandWeb), LandWeb:=LandR]
+
 objects1 <- list(
   "rasterToMatch" = rasterToMatch(ml),
-  "speciesLayers" = CCstack,
+  "speciesEquivalency" = sppEquivalencies_CA,
+  #"speciesLayers" = CCstack,
   "studyArea" = studyArea(ml, 2),
   "studyAreaLarge" = studyArea(ml, 1)
 )
 
-parameters1 <- list()
+parameters1 <- list(BiomassSpeciesData = list(types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
+                                              speciesEquivalencyColumn = "LandWeb"))
 
 sim1 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = parameters1, modules = "BiomassSpeciesData",objects1, paths = paths,debug = 1)
 
 sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml))
-CCstack2 <- overlayStacks(CCstack, sim1$speciesLayers, destinationPath = Paths$inputPath)
 
-noVeg_ids <- which(LandTypeCC[] == 4)
-CCstack2[noVeg_ids] <- NA
+# Remove water (5) and non-veg (4) and no data (NA)
+NA_ids <- which(is.na(LandTypeCC[]) | LandTypeCC[] == 5 | LandTypeCC[] == 4)
+sim1$speciesLayers[NA_ids] <- NA
 
-CCvtm <- Cache(makeVegTypeMap, CCstack2, vegLeadingProportion)
+#noVeg_ids <- which(LandTypeCC[] == 4)
+#sim1$speciesLayers[noVeg_ids] <- NA
+
+CCvtm <- Cache(makeVegTypeMap, sim1$speciesLayers, vegLeadingProportion)
 CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 
 ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
@@ -415,7 +422,7 @@ objects <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "rstFlammable" = rstFlammable,
   "rstTimeSinceFire" = ml$`CC TSF`,
-  "speciesLayers" = CCstack2, ## TODO: also need sppNameVectors
+  "speciesLayers" = sim1$speciesLayers, ## TODO: also need sppNameVectors
   "studyArea" = studyArea(ml, 2),
   "studyAreaLarge" = studyArea(ml, 1),
   "speciesTable" = speciesTable,
