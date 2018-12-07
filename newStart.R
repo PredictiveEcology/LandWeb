@@ -361,7 +361,7 @@ data(sppEquivalencies_CA, package = "pemisc")
 sppEquivalencies_CA[, LandWeb := c(Popu_tre = "Popu_sp")[LandR]]
 sppEquivalencies_CA[EN_generic_full == "Mixed", LandWeb := "Mixed"]
 # Make LandWeb same as LandR everywhere else
-sppEquivalencies_CA[is.na(LandWeb), LandWeb:=LandR]
+sppEquivalencies_CA[is.na(LandWeb), LandWeb := LandR]
 
 ## add default colors for species used in model
 defaultCols <- RColorBrewer::brewer.pal(6, "Accent")
@@ -369,7 +369,6 @@ sppNameVector <- c("Abie_sp", "Pice_gla", "Pice_mar", "Pinu_ban", "Pinu_con", "P
 LandWebNames <- c("Pice_mar", "Pice_gla", "Popu_sp", "Pinu_sp", "Abie_sp")
 LandWebNamesCols <- data.table(cols = defaultCols, LandWeb = c(LandWebNames, "Mixed"))
 sppEquivalencies_CA <- LandWebNamesCols[sppEquivalencies_CA, on = "LandWeb"]
-
 
 objects1 <- list(
   "rasterToMatch" = rasterToMatch(ml),
@@ -380,8 +379,12 @@ objects1 <- list(
   "studyAreaLarge" = studyArea(ml, 1)
 )
 
-parameters1 <- list(BiomassSpeciesData = list(types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
-                                              speciesEquivalencyColumn = "LandWeb"))
+parameters1 <- list(
+  BiomassSpeciesData = list(
+    types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
+    speciesEquivalencyColumn = "LandWeb"
+  )
+)
 
 sim1 <- Cache(simInitAndSpades,
               times = list(start = 0, end = 1),
