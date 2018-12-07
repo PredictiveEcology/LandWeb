@@ -1,16 +1,7 @@
-AB_Natural_Sub_Regions*
-allFMAs/
-Caribou/
-CurrentCondition/
-currentConditionVTM*
-ecodistricts/National/
-ecozones/Alberta/
-ecozones/National/
-FMU_Alberta_2015-11/
-Beaudoin_2014_CJFR.pdf
-Data dictionary_TIFF.pdf
-NFI_MAP_V0_metadata.xls
-eco*
-Landweb_CASFRI*
-SPP_1990*
-vegTypeMap*
+## ignore all data
+*
+
+## don't ignore
+!2016-12-1 15.26.20-LandWeb_Final_Report_Pickell_and_Coops.pdf
+!CHECKSUMS.txt
+!.gitignore
