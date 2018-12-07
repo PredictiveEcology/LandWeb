@@ -75,13 +75,13 @@ library(SpaDES.core)
 #try(detach("package:pemisc", unload = TRUE))
 
 library(pemisc) ## TODO: use pemisc@development
-# if (Sys.info()[["user"]] == "achubaty") {
+# if (user("achubaty")) {
 #   devtools::load_all("~/GitHub/PredictiveEcology/pemisc")
 # } else if (Sys.info()[["user"]] == "emcintir") {
 #   devtools::load_all("~/GitHub/misc")
 # }
 library(map)
-# if (Sys.info()[["user"]] == "achubaty") {
+# if (user("achubaty")) {
 #   devtools::load_all("~/GitHub/PredictiveEcology/map")
 # } else if (Sys.info()[["user"]] == "emcintir") {
 #   devtools::load_all("~/GitHub/map")
@@ -128,7 +128,7 @@ opts <- options(
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
-  "reproducible.inputPaths" = "c:/data",
+  "reproducible.inputPaths" = if (user("achubaty")) normPath("~/data") else file.path("c:/data"),
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.useCache" = TRUE,
@@ -283,7 +283,6 @@ ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
 ##########################################################
 # LCC2005
 ##########################################################
-
 LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
 ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet = FALSE,
              isRasterToMatch = FALSE, method = "ngb")
@@ -291,7 +290,6 @@ ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet
 ##########################################################
 # Clean up the study area
 ##########################################################
-
 studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = minFRI)
 
 ##########################################################
@@ -385,7 +383,13 @@ objects1 <- list(
 parameters1 <- list(BiomassSpeciesData = list(types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
                                               speciesEquivalencyColumn = "LandWeb"))
 
-sim1 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = parameters1, modules = "BiomassSpeciesData",objects1, paths = paths,debug = 1)
+sim1 <- Cache(simInitAndSpades,
+              times = list(start = 0, end = 1),
+              params = parameters1,
+              modules = "BiomassSpeciesData",
+              objects1,
+              paths = paths,
+              debug = 1)
 
 sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml))
 
