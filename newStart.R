@@ -397,7 +397,6 @@ sim1 <- Cache(simInitAndSpades,
 
 #sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml)) ## already masked by studyArea
 
-# Remove non-vegetated pixels (4)
 noVeg_ids <- which(LandTypeCC[] == 4)
 sim1$speciesLayers[noVeg_ids] <- NA
 
@@ -410,12 +409,11 @@ ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
              vtm = CCvtmFilename,
              useCache = TRUE)
 
-  if (!file.exists(CCvtmFilename)) {
-    CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
-  }
+if (!file.exists(CCvtmFilename)) {
+  CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
+}
 
-  saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
-
+saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 
 ######################################################
 # Dynamic Simulation
