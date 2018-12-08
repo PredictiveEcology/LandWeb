@@ -355,13 +355,16 @@ ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
 ## Get the sim$speciesLayers from LandWeb_proprietaryData
 
 data("sppEquivalencies_CA", package = "pemisc")
+sppEquivalencies_CA[grep("Pin", LandR), `:=`(EN_generic_short = "Pine", EN_generic_full = "Pine",
+                                             Leading = "Pine leading")]
+
 
 # Make LandWeb spp equivalencies -- rename Popu_tre to Popu_sp
 sppEquivalencies_CA[, LandWeb := c(Pice_mar = "Pice_mar", Pice_gla = "Pice_gla",
                                    Pinu_con = "Pinu_sp", Pinu_ban = "Pinu_sp",
                                    Popu_tre = "Popu_sp", Betu_pap = "Popu_sp",
                                    Abie_bal = "Abie_sp", Abie_las = "Abie_sp")[LandR]]
-sppEquivalencies_CA[EN_generic_full == "Mixed", LandWeb := "Mixed"]
+#sppEquivalencies_CA[EN_generic_full == "Mixed", LandWeb := "Mixed"]
 # Make LandWeb same as LandR everywhere else
 # sppEquivalencies_CA[is.na(LandWeb), LandWeb := ""]
 
