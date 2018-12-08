@@ -377,7 +377,7 @@ defaultCols <- RColorBrewer::brewer.pal(6, "Accent")
 
 objects1 <- list(
   "rasterToMatch" = rasterToMatch(ml),
-  "speciesEquivalency" = sppEquivalencies_CA,
+  "sppEquiv" = sppEquivalencies_CA,
   #"sppNameVector" = sppNameVector,
   "studyArea" = studyArea(ml, 2),
   "studyAreaLarge" = studyArea(ml, 1)
@@ -386,7 +386,7 @@ objects1 <- list(
 parameters1 <- list(
   BiomassSpeciesData = list(
     types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
-    speciesEquivalencyColumn = "LandWeb"
+    sppEquivCol = "LandWeb"
   )
 )
 
@@ -440,7 +440,7 @@ objects <- list(
   "rasterToMatch" = rasterToMatch(ml),
   "rstFlammable" = rstFlammable,
   "rstTimeSinceFire" = ml$`CC TSF`,
-  "speciesEquivalency" = sppEquivalencies_CA,
+  "sppEquiv" = sppEquivalencies_CA,
   "speciesLayers" = sim1$speciesLayers,
   "speciesTable" = speciesTable,
   "sppNameVector" = sppNameVector,
@@ -454,7 +454,7 @@ objects <- list(
 
 parameters <- list(
   Boreal_LBMRDataPrep = list(
-    "speciesEquivalencyColumn" = "LandWeb",
+    "sppEquivCol" = "LandWeb",
     ".useCache" = eventCaching
   ),
   LandMine = list(
