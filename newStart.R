@@ -364,16 +364,13 @@ sppEquivalencies_CA[, LandWeb := c(Pice_mar = "Pice_mar", Pice_gla = "Pice_gla",
                                    Pinu_con = "Pinu_sp", Pinu_ban = "Pinu_sp",
                                    Popu_tre = "Popu_sp", Betu_pap = "Popu_sp",
                                    Abie_bal = "Abie_sp", Abie_las = "Abie_sp")[LandR]]
-#sppEquivalencies_CA[EN_generic_full == "Mixed", LandWeb := "Mixed"]
-# Make LandWeb same as LandR everywhere else
-# sppEquivalencies_CA[is.na(LandWeb), LandWeb := ""]
+sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
 
 ## add default colors for species used in model
 defaultCols <- RColorBrewer::brewer.pal(6, "Accent")
-# sppNameVector <- unique(sppEquivalencies_CA[!is.na(LandWeb)]$LandWeb)# c("Abie_sp", "Pice_gla", "Pice_mar", "Pinu_ban", "Pinu_con", "Popu_tre")
-# LandWebNames <- c("Pice_mar", "Pice_gla", "Popu_sp", "Pinu_sp", "Abie_sp")
-# LandWebNamesCols <- data.table(cols = defaultCols, LandWeb = c(LandWebNames, "Mixed"))
-# sppEquivalencies_CA <- LandWebNamesCols[sppEquivalencies_CA, on = "LandWeb"]
+LandWebNamesCols <- data.table(cols = defaultCols,
+                               LandWeb = na.omit(unique(sppEquivalencies_CA$LandWeb)))
+sppEquivalencies_CA <- LandWebNamesCols[sppEquivalencies_CA, on = "LandWeb"]
 
 objects1 <- list(
   "rasterToMatch" = rasterToMatch(ml),
@@ -400,23 +397,24 @@ sim1 <- Cache(simInitAndSpades,
 
 #sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml)) ## already masked by studyArea
 
+message("Setting all speciesLayers to NA where LandType in ForestInventories is 4")
 noVeg_ids <- which(LandTypeCC[] == 4)
 sim1$speciesLayers[noVeg_ids] <- NA
 
-CCvtm <- Cache(makeVegTypeMap, sim1$speciesLayers, vegLeadingProportion)
-CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
-
-ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
-             leaflet = FALSE, #isRasterToMatch = FALSE,
-             analysisGroup1 = "CC",
-             vtm = CCvtmFilename,
-             useCache = TRUE)
-
-if (!file.exists(CCvtmFilename)) {
-  CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
-}
-
-saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+# CCvtm <- Cache(makeVegTypeMap, sim1$speciesLayers, vegLeadingProportion)
+# CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
+#
+# ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
+#              leaflet = FALSE, #isRasterToMatch = FALSE,
+#              analysisGroup1 = "CC",
+#              vtm = CCvtmFilename,
+#              useCache = TRUE)
+#
+# if (!file.exists(CCvtmFilename)) {
+#   CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
+# }
+#
+# saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 
 ######################################################
 # Dynamic Simulation
@@ -443,7 +441,7 @@ objects <- list(
   "sppEquiv" = sppEquivalencies_CA,
   "speciesLayers" = sim1$speciesLayers,
   "speciesTable" = speciesTable,
-  "sppNameVector" = sppNameVector,
+  #"sppNameVector" = sppNameVector,
   "standAgeMap" = ml$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
   "studyArea" = studyArea(ml, 2),
   "studyAreaLarge" = studyArea(ml, 1),
