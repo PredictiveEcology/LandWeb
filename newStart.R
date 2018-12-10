@@ -134,11 +134,14 @@ sppEquivalencies_CA[, LandWeb := c(Pice_mar = "Pice_mar", Pice_gla = "Pice_gla",
                                    Pinu_con = "Pinu_sp", Pinu_ban = "Pinu_sp",
                                    Popu_tre = "Popu_sp", Betu_pap = "Popu_sp",
                                    Abie_bal = "Abie_sp", Abie_las = "Abie_sp")[LandR]]
-sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
+
 sppEquivalencies_CA[LandWeb == "Abie_sp", EN_generic_full := "Fir"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
+
+sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
+sppEquivalencies_CA[Leading == "Pine leading", cols := "#386CB0"]
 
 #################################################
 ## add default colors for species used in model
