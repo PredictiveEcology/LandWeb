@@ -195,27 +195,11 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              paths = paths,
                              debug = 1)
 
-#################################################
-# Turn LandCover 4 into NA in the stack -- # TODO, this should be in BiomassSpeciesData, but it needs the
-#################################################
-# message("Setting all speciesLayers to NA where LandType in ForestInventories is 4")
-# noVeg_ids <- which(sim1$LandTypeCC[] == 4)
-# sim2$speciesLayers[noVeg_ids] <- NA
-
-# CCvtm <- Cache(makeVegTypeMap, sim2$speciesLayers, vegLeadingProportion)
-# CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
-#
-# ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
-#              leaflet = FALSE, #isRasterToMatch = FALSE,
-#              analysisGroup1 = "CC",
-#              vtm = CCvtmFilename,
-#              useCache = TRUE)
-#
-# if (!file.exists(CCvtmFilename)) {
-#   CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
-# }
-#
-# saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+## Turn LandCover 4 into NA in the stack
+## TODO: this should be in BiomassSpeciesData, but it needs LandTypeCC from preamble
+message("Setting all speciesLayers to NA where LandType in ForestInventories is 4")
+noVeg_ids <- which(simOutPreamble$LandTypeCC[] == 4)
+simOutSpeciesLayers$speciesLayers[noVeg_ids] <- NA
 
 ######################################################
 # Dynamic Simulation
