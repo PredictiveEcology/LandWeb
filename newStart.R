@@ -170,12 +170,12 @@ parameters1 <- list(
 )
 
 simOutPreamble <- Cache(simInitAndSpades,
-              times = list(start = 0, end = 1),
-              params = parameters1,
-              modules = c("LandWeb_preamble"),
-              objects1,
-              paths = paths,
-              debug = 1)
+                        times = list(start = 0, end = 1),
+                        params = parameters1,
+                        modules = c("LandWeb_preamble"),
+                        objects1,
+                        paths = paths,
+                        debug = 1)
 
 #################################################
 # Second spades call -- creates speciesLayers
@@ -198,12 +198,12 @@ parameters1 <- list(
 )
 
 simOutSpeciesLayers <- Cache(simInitAndSpades,
-              times = list(start = 0, end = 1),
-              params = parameters1,
-              modules = c("BiomassSpeciesData"),
-              objects1,
-              paths = paths,
-              debug = 1)
+                             times = list(start = 0, end = 1),
+                             params = parameters1,
+                             modules = c("BiomassSpeciesData"),
+                             objects1,
+                             paths = paths,
+                             debug = 1)
 
 #################################################
 # Turn LandCover 4 into NA in the stack -- # TODO, this should be in BiomassSpeciesData, but it needs the
