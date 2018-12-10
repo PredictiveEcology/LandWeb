@@ -13,6 +13,19 @@ if (FALSE) {
   options(shiny.reactlog = TRUE)
 }
 
+if (FALSE) {
+  try(detach("package:map", unload = TRUE))
+  try(detach("package:pemisc", unload = TRUE))
+
+  if (Sys.info()[["user"]] == "achubaty") {
+    devtools::load_all("~/GitHub/PredictiveEcology/pemisc")
+    devtools::load_all("~/GitHub/PredictiveEcology/map")
+  } else if (Sys.info()[["user"]] == "emcintir") {
+    devtools::load_all("~/GitHub/pemisc")
+    devtools::load_all("~/GitHub/map")
+  }
+}
+
 ## test download of private data from Google Drive
 if (FALSE) {
   dataDir <- file.path("~/GitHub/LandWeb/m/Boreal_LBMRDataPrep/data")
