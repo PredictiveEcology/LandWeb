@@ -4,12 +4,12 @@
 #    `test-functionName.R` format so that your can directly call `moduleCoverage`
 #    to calculate module coverage information.
 #    `functionName` is a function's name in your module (e.g., `LandWeb_preambleEvent1`).
-# 2. Copy this file to the tests folder (i.e., `C:/Eliot/GitHub/LandWeb/m/LandWeb_preamble/tests/testthat`).
+# 2. Copy this file to the tests folder (i.e., `~/GitHub/LandWeb/m/LandWeb_preamble/tests/testthat`).
 
 # 3. Modify the test description based on the content you are testing:
 test_that("test Event1 and Event2.", {
   module <- list("LandWeb_preamble")
-  path <- list(modulePath = "C:/Eliot/GitHub/LandWeb/m",
+  path <- list(modulePath = "~/GitHub/LandWeb/m",
                outputPath = file.path(tempdir(), "outputs"))
   parameters <- list(
     #.progress = list(type = "graphical", interval = 1),

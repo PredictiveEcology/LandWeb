@@ -1,13 +1,11 @@
-
-# Everything in this file gets sourced during simInit, and all functions and objects
-# are put into the simList. To use objects, use sim$xxx, and are thus globally available
-# to all modules. Functions can be used without sim$ as they are namespaced, like functions
-# in R packages. If exact location is required, functions will be: sim$<moduleName>$FunctionName
 defineModule(sim, list(
   name = "LandWeb_preamble",
-  description = NA, #"insert module description here",
-  keywords = NA, # c("insert key words here"),
-  authors = person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
+  description = "define FMA-specific study areas etc. for LandWeb",
+  keywords = c("LandWeb"),
+  authors = c(
+    person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
+    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = c("aut"))
+  ),
   childModules = character(0),
   version = list(SpaDES.core = "0.2.3.9006", LandWeb_preamble = "0.0.1"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
@@ -15,9 +13,12 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandWeb_preamble.Rmd"),
-  reqdPkgs = list("PredictiveEcology/map@development"),
+  reqdPkgs = list("PredictiveEcology/map@development",
+                  "PredictiveEcology/pemisc@development",
+                  "raster", "SpaDES.tools"),
   parameters = rbind(
     defineParameter("minFRI", "numeric", 40, 0, 200, "The value of fire return interval below which, pixels will be changed to NA, i.e., ignored"),
+    defineParameter("runName", "character", NA, NA, NA, "A description for run; this will form the basis of cache path and output path"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "This describes the simulation time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur"),
@@ -25,21 +26,18 @@ defineModule(sim, list(
     defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant")
   ),
   inputObjects = bind_rows(
-    expectsInput("activeDir", "character", "A path to the active directory", "", ...),
-    expectsInput("runName", "character", "A description for run; this will form the basis of cache path and output path", "", ...)
+    ## TODO: uses CC and fire return interval maps from URL in init
   ),
   outputObjects = bind_rows(
-    #createsOutput("objectName", "objectClass", "output object description", ...),
-    createsOutput("studyArea", "SpatialPolygonsDataFram", desc = NA),
-    createsOutput("studyAreaLarge", "SpatialPolygonsDataFram", desc = NA),
-    createsOutput("rasterToMatch", "RasterLayer", desc = NA),
-    createsOutput("fireReturnInterval", "RasterLayer", desc = NA),
     createsOutput("CC TSF", "RasterLayer", desc = NA),
-    createsOutput("LCC2005", "RasterLayer", desc = NA),
+    createsOutput("fireReturnInterval", "RasterLayer", desc = NA),
     createsOutput("LandTypeCC", "RasterLayer", desc = NA),
+    createsOutput("LCC2005", "RasterLayer", desc = NA),
+    createsOutput("nonVegPixels", "integer", desc = NA),
+    createsOutput("rasterToMatch", "RasterLayer", desc = NA),
     createsOutput("rstFlammable", "RasterLayer", desc = NA),
-    createsOutput("nonVegPixels", "integer", desc = NA)
-
+    createsOutput("studyArea", "SpatialPolygonsDataFram", desc = NA),
+    createsOutput("studyAreaLarge", "SpatialPolygonsDataFram", desc = NA)
   )
 ))
 
@@ -56,8 +54,6 @@ doEvent.LandWeb_preamble = function(sim, eventTime, eventType) {
 }
 
 Init <- function(sim) {
-
-  checkPath(activeDir, create = TRUE)
   targetCRS <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95",
                          "+x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
 
@@ -68,7 +64,7 @@ Init <- function(sim) {
                columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
   )
 
-  if (grepl("testing", runName)) {
+  if (grepl("testing", P(sim)$runName)) {
     # Make a random small study area
     seed <- 863
     ranSeed <- .Random.seed
@@ -101,7 +97,7 @@ Init <- function(sim) {
   dataDirTolko <- file.path(dataDir, "Tolko")
 
   ### ADMINISTRATIVE POLYGONS
-  if (grepl("tolko_AB_N", runName)) {
+  if (grepl("tolko_AB_N", P(sim)$runName)) {
     studyAreaName <- "Tolko AB North SR"
 
     ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
@@ -124,7 +120,7 @@ Init <- function(sim) {
     ml <- mapAdd(tolko_ab_n.caribou, ml, layerName = "Tolko AB North Caribou", useSAcrs = TRUE, poly = TRUE,
                  analysisGroupReportingPolygon = "Tolko AB North Caribou",
                  columnNameForLabels = "Name", filename2 = NULL)
-  } else if (grepl("tolko_AB_S", runName)) {
+  } else if (grepl("tolko_AB_S", P(sim)$runName)) {
     studyAreaName <- "Tolko AB South SR"
 
     ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
@@ -147,7 +143,7 @@ Init <- function(sim) {
     ml <- mapAdd(tolko_ab_s.caribou, ml, layerName = "Tolko AB South Caribou", useSAcrs = TRUE, poly = TRUE,
                  analysisGroupReportingPolygon = "Tolko AB South Caribou",
                  columnNameForLabels = "Name", filename2 = NULL)
-  } else if (grepl("tolko_SK", runName)) {
+  } else if (grepl("tolko_SK", P(sim)$runName)) {
     studyAreaName <- "Tolko SK SR"
     ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
     tolko_sk_sr <- shapefile(file.path(dataDirTolko, "Tolko_SK_SR.shp"))
@@ -165,7 +161,7 @@ Init <- function(sim) {
     ml <- mapAdd(tolko_sk.caribou, ml, layerName = "Tolko SK Caribou", useSAcrs = TRUE, poly = TRUE,
                  analysisGroupReportingPolygon = "Tolko SK Caribou",
                  columnNameForLabels = "Name", filename2 = NULL)
-  } else if (grepl("LP_MB", runName)) {
+  } else if (grepl("LP_MB", P(sim)$runName)) {
     studyAreaName <- "LP MB SR"
     ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
     lp_mb_sr <- shapefile(file.path(dataDirLP, "LP_MB_SR.shp"))
@@ -207,7 +203,7 @@ Init <- function(sim) {
   ##########################################################
   # Clean up the study area
   ##########################################################
-  studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = P(sim)$minFRI)
+  studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = P(sim)$runName, minFRI = P(sim)$minFRI)
 
   ##########################################################
   # Flammability and Fire Return Interval maps
@@ -242,7 +238,7 @@ Init <- function(sim) {
                                               ml$fireReturnInterval[],
                                               att = "fireReturnInterval")
 
-  if (grepl("doubleFRI", runName))
+  if (grepl("doubleFRI", P(sim)$runName))
     fireReturnInterval <- 2 * fireReturnInterval
 
   ml$fireReturnInterval <- raster(ml$fireReturnInterval) # blank out values for new, non-factor version
