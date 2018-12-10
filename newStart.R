@@ -135,225 +135,9 @@ opts <- options(
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
 
-##########################################################
-# Load Study Area
-##########################################################
-
-checkPath(activeDir, create = TRUE)
-targetCRS <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95",
-                       "+x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
-
-studyAreaName <- "LandWeb Study Area"
-ml <- mapAdd(layerName = studyAreaName,
-             targetCRS = targetCRS, overwrite = TRUE,
-             url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", # This is landweb_ltfc_v6.shp
-             columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
-)
-
-if (grepl("testing", runName)) {
-  # Make a random small study area
-  seed <- 863
-  ranSeed <- .Random.seed
-  set.seed(seed)
-  sp2 <- Cache(SpaDES.tools::randomPolygon, ml[[studyAreaName]], 4e5) # was 4e5
-  ml <- mapAdd(obj = sp2, map = ml, filename2 = FALSE,
-               #targetCRS = targetCRS,
-               layerName = "Small Study Area",
-               columnNameForLabels = "Name", isStudyArea = TRUE,
-               filename1 = NULL, poly = TRUE,
-               analysisGroupReportingPolygon = "Small Study Area"
-  )
-  # re-add the LandWeb polygon, but this time crop it to the Small Study Area
-  ml <- mapAdd(layerName = "Small Study Area", map = ml,
-               #studyArea = studyArea(ml),
-               overwrite = TRUE, useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "Small Study Area",
-               url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
-               columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
-  )
-  # create rasterToMatch from LCC layer
-}
-
-################################################################################
-## COMPANY-SPECIFIC STUDY AREAS
-
-dataDir <- file.path("inputs", "FMA_Boundaries")
-dataDirDMI <- file.path(dataDir, "DMI")
-dataDirLP <- file.path(dataDir, "LP")
-dataDirTolko <- file.path(dataDir, "Tolko")
-
-### ADMINISTRATIVE POLYGONS
-if (grepl("tolko_AB_N", runName)) {
-  studyAreaName <- "Tolko AB North SR"
-
-  ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-  tolko_ab_n_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
-  ml <- mapAdd(tolko_ab_n_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-               useSAcrs = TRUE, poly = TRUE,
-               columnNameForLabels = "NSN", filename2 = NULL)
-
-  ## reportingPolygons
-  tolko_ab_n <- shapefile(file.path(dataDirTolko, "Tolko_AB_N.shp"))
-  tolko_ab_n.ansr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_ANSR.shp"))
-  tolko_ab_n.caribou <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_caribou.shp"))
-
-  ml <- mapAdd(tolko_ab_n, ml, layerName = "Tolko AB North", useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "Tolko AB North",
-               columnNameForLabels = "Name", filename2 = NULL)
-  ml <- mapAdd(tolko_ab_n.ansr, ml, layerName = "Tolko AB North ANSR", useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "Tolko AB North ANSR",
-               columnNameForLabels = "Name", filename2 = NULL)
-  ml <- mapAdd(tolko_ab_n.caribou, ml, layerName = "Tolko AB North Caribou", useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "Tolko AB North Caribou",
-               columnNameForLabels = "Name", filename2 = NULL)
-} else if (grepl("tolko_AB_S", runName)) {
-  studyAreaName <- "Tolko AB South SR"
-
-  ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-  tolko_ab_s_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
-  ml <- mapAdd(tolko_ab_s_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-               useSAcrs = TRUE, poly = TRUE,
-               columnNameForLabels = "NSN", filename2 = NULL)
-
-  ## reportingPolygons
-  tolko_ab_s <- shapefile(file.path(dataDirTolko, "Tolko_AB_S.shp"))
-  tolko_ab_s.ansr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_ANSR.shp"))
-  tolko_ab_s.caribou <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_caribou.shp"))
-
-  ml <- mapAdd(tolko_ab_s, ml, layerName = "Tolko AB South", useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "Tolko AB South",
-               columnNameForLabels = "Name", filename2 = NULL)
-  ml <- mapAdd(tolko_ab_s.ansr, ml, layerName = "Tolko AB South ANSR", useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "Tolko AB South ANSR",
-               columnNameForLabels = "Name", filename2 = NULL)
-  ml <- mapAdd(tolko_ab_s.caribou, ml, layerName = "Tolko AB South Caribou", useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "Tolko AB South Caribou",
-               columnNameForLabels = "Name", filename2 = NULL)
-} else if (grepl("tolko_SK", runName)) {
-  studyAreaName <- "Tolko SK SR"
-  ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-  tolko_sk_sr <- shapefile(file.path(dataDirTolko, "Tolko_SK_SR.shp"))
-  ml <- mapAdd(tolko_sk_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-               useSAcrs = TRUE, poly = TRUE,
-               columnNameForLabels = "NSN", filename2 = NULL)
-
-  ## reportingPolygons
-  tolko_sk <- shapefile(file.path(dataDirTolko, "Tolko_SK.shp"))
-  tolko_sk.caribou <- shapefile(file.path(dataDirTolko, "Tolko_SK_caribou.shp"))
-
-  ml <- mapAdd(tolko_sk, ml, layerName = "Tolko SK", useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "Tolko SK",
-               columnNameForLabels = "Name", filename2 = NULL)
-  ml <- mapAdd(tolko_sk.caribou, ml, layerName = "Tolko SK Caribou", useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "Tolko SK Caribou",
-               columnNameForLabels = "Name", filename2 = NULL)
-} else if (grepl("LP_MB", runName)) {
-  studyAreaName <- "LP MB SR"
-  ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-  lp_mb_sr <- shapefile(file.path(dataDirLP, "LP_MB_SR.shp"))
-  ml <- mapAdd(lp_mb_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-               useSAcrs = TRUE, poly = TRUE,
-               columnNameForLabels = "NSN", filename2 = NULL)
-
-  ## reportingPolygons
-  lp_mb <- shapefile(file.path(dataDirLP, "LP_MB.shp"))
-  lp_mb.caribou <- shapefile(file.path(dataDirLP, "LP_MB_caribou.shp"))
-
-  ml <- mapAdd(lp_mb, ml, layerName = "LP MB", useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "LP MB",
-               columnNameForLabels = "Name", filename2 = NULL)
-  ml <- mapAdd(lp_mb.caribou, ml, layerName = "LP MB Caribou", useSAcrs = TRUE, poly = TRUE,
-               analysisGroupReportingPolygon = "LP MB Caribou",
-               columnNameForLabels = "Name", filename2 = NULL)
-}
-
-##########################################################
-# Current Conditions (Age Map)
-##########################################################
-ccURL <- "https://drive.google.com/file/d/1JnKeXrw0U9LmrZpixCDooIm62qiv4_G1/view?usp=sharing"
-
-fname_age <- "Age1.tif"
-ml <- mapAdd(map = ml, url = ccURL, layerName = "CC TSF", CC = TRUE,
-             tsf = file.path(Paths$inputPath, fname_age), analysisGroup1 = "CC",
-             targetFile = fname_age, filename2 = NULL,
-             useCache = TRUE, isRasterToMatch = TRUE,
-             alsoExtract = "similar", leaflet = FALSE)
-
-##########################################################
-# LCC2005
-##########################################################
-LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
-ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet = FALSE,
-             isRasterToMatch = FALSE, method = "ngb")
-
-##########################################################
-# Clean up the study area
-##########################################################
-studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = runName, minFRI = minFRI)
-
-##########################################################
-# Flammability and Fire Return Interval maps
-##########################################################
-
-## flammability map shouldn't be masked (no gaps!); NAs outside the buffered study area allowed.
-## use the LCC flammability map to fill in NA / nodata values
-LandTypeFileCC <- file.path(Paths$inputPath, "LandType1.tif")
-LandTypeCC <- Cache(prepInputs, LandTypeFileCC, studyArea = studyArea(ml),
-                    url = ccURL, method = "ngb",
-                    rasterToMatch = rasterToMatch(ml), filename2 = NULL)
-NA_ids <- which(is.na(LandTypeCC[]) | LandTypeCC[] == 5)
-rstFlammableCC <- defineFlammable(LandTypeCC, nonFlammClasses = c(1, 2, 4),
-                                  mask = NULL, filename2 = NULL)
-
-LandTypeFileLCC <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
-rstFlammableLCC <- Cache(prepInputs, LandTypeFileLCC, studyArea = studyArea(ml),
-                         url = ccURL, method = "ngb",
-                         rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
-  defineFlammable(., nonFlammClasses = c(36, 37, 38, 39), mask = NULL, filename2 = NULL)
-
-rstFlammable <- rstFlammableCC
-rstFlammable[NA_ids] <- rstFlammableLCC[NA_ids]
-
-## fireReturnInterval needs to be masked by rstFlammable
-rtm <- rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml))
-rstFireReturnInterval <- Cache(postProcess, rtm, maskvalue = 0L, filename2 = NULL)
-ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 = NULL,
-             map = ml, leaflet = FALSE, maskWithRTM = TRUE)
-
-fireReturnInterval <- pemisc::factorValues2(ml$fireReturnInterval,
-                                            ml$fireReturnInterval[],
-                                            att = "fireReturnInterval")
-
-if (grepl("doubleFRI", runName))
-  fireReturnInterval <- 2 * fireReturnInterval
-
-ml$fireReturnInterval <- raster(ml$fireReturnInterval) # blank out values for new, non-factor version
-ml$fireReturnInterval[] <- fireReturnInterval
-ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
-
-##########################################################
-# Current Conditions (Species Layers)
-##########################################################
-
-# CClayerNames <- c("Pine", "Black Spruce", "Deciduous", "Fir", "White Spruce")
-# CClayerNamesFiles <- paste0(gsub(" ", "", CClayerNames), "1.tif")
-#
-# options(map.useParallel = FALSE)
-# ml <- mapAdd(map = ml, url = ccURL, layerName = CClayerNames, CC = TRUE,
-#              targetFile = CClayerNamesFiles, filename2 = NULL, ## TODO: check this for file creation sadness
-#              alsoExtract = "similar",  leaflet = FALSE, method = "ngb")
-#options(map.useParallel = TRUE)
-
-# ccs <- ml@metadata[CC == TRUE & !(layerName == "CC TSF"), ]
-# CCs <- maps(ml, layerName = ccs$layerName)
-# CCstack <- raster::stack(CCs)
-# CCstack[NA_ids] <- NA
-# CCstack[CCstack[] < 0] <- 0
-# CCstack[CCstack[] > 10] <- 10
-# CCstack <- CCstack * 10
-
-## Get the sim$speciesLayers from LandWeb_proprietaryData
-
+#################################################
+# Set up sppEquiv
+#################################################
 data("sppEquivalencies_CA", package = "pemisc")
 sppEquivalencies_CA[grep("Pin", LandR), `:=`(EN_generic_short = "Pine", EN_generic_full = "Pine",
                                              Leading = "Pine leading")]
@@ -366,42 +150,69 @@ sppEquivalencies_CA[, LandWeb := c(Pice_mar = "Pice_mar", Pice_gla = "Pice_gla",
                                    Abie_bal = "Abie_sp", Abie_las = "Abie_sp")[LandR]]
 sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
 
+#################################################
 ## add default colors for species used in model
+#################################################
 defaultCols <- RColorBrewer::brewer.pal(6, "Accent")
 LandWebNamesCols <- data.table(cols = defaultCols,
                                LandWeb = na.omit(unique(sppEquivalencies_CA$LandWeb)))
 sppEquivalencies_CA <- LandWebNamesCols[sppEquivalencies_CA, on = "LandWeb"]
 
+#################################################
+# Set up spades call for preamble -- studyArea stuff goes there
+#################################################
 objects1 <- list(
-  "rasterToMatch" = rasterToMatch(ml),
+  "sppEquiv" = sppEquivalencies_CA
+)
+
+parameters1 <- list(
+  LandWeb_preamble = list("minFRI" = minFRI)
+)
+
+simOutPreamble <- Cache(simInitAndSpades,
+              times = list(start = 0, end = 1),
+              params = parameters1,
+              modules = c("LandWeb_preamble"),
+              objects1,
+              paths = paths,
+              debug = 1)
+
+#################################################
+# Second spades call -- creates speciesLayers
+#################################################
+
+objects1 <- list(
+  "rasterToMatch" = simOutPreamble$rasterToMatch,
   "sppEquiv" = sppEquivalencies_CA,
-  #"sppNameVector" = sppNameVector,
-  "studyArea" = studyArea(ml, 2),
-  "studyAreaLarge" = studyArea(ml, 1)
+  "studyArea" = simOutPreamble$studyArea,
+  "studyAreaLarge" = simOutPreamble$studyAreaLarge,
+  "nonVegPixels" = simOutPreamble$nonVegPixels
 )
 
 parameters1 <- list(
   BiomassSpeciesData = list(
     types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
-    sppEquivCol = "LandWeb"
+    sppEquivCol = "LandWeb",
+    omitNonVegPixels = TRUE
   )
 )
 
-sim1 <- Cache(simInitAndSpades,
+simOutSpeciesLayers <- Cache(simInitAndSpades,
               times = list(start = 0, end = 1),
               params = parameters1,
-              modules = "BiomassSpeciesData",
+              modules = c("BiomassSpeciesData"),
               objects1,
               paths = paths,
               debug = 1)
 
-#sim1$speciesLayers <- raster::mask(sim1$speciesLayers, studyArea(ml)) ## already masked by studyArea
+#################################################
+# Turn LandCover 4 into NA in the stack -- # TODO, this should be in BiomassSpeciesData, but it needs the
+#################################################
+# message("Setting all speciesLayers to NA where LandType in ForestInventories is 4")
+# noVeg_ids <- which(sim1$LandTypeCC[] == 4)
+# sim2$speciesLayers[noVeg_ids] <- NA
 
-message("Setting all speciesLayers to NA where LandType in ForestInventories is 4")
-noVeg_ids <- which(LandTypeCC[] == 4)
-sim1$speciesLayers[noVeg_ids] <- NA
-
-# CCvtm <- Cache(makeVegTypeMap, sim1$speciesLayers, vegLeadingProportion)
+# CCvtm <- Cache(makeVegTypeMap, sim2$speciesLayers, vegLeadingProportion)
 # CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
 #
 # ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
@@ -433,18 +244,18 @@ if (grepl("aspen80", runName)) {
 }
 
 objects <- list(
-  "fireReturnInterval" = ml$fireReturnInterval,
-  "LCC2005" = ml$LCC2005,
-  "rasterToMatch" = rasterToMatch(ml),
-  "rstFlammable" = rstFlammable,
-  "rstTimeSinceFire" = ml$`CC TSF`,
+  "fireReturnInterval" = simOutPreamble$fireReturnInterval,
+  "LCC2005" = simOutPreamble$LCC2005,
+  "rasterToMatch" = simOutPreamble$rasterToMatch,
+  "rstFlammable" = simOutPreamble$rstFlammable,
+  "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
   "sppEquiv" = sppEquivalencies_CA,
-  "speciesLayers" = sim1$speciesLayers,
+  "speciesLayers" = simOutSpeciesLayers$speciesLayers,
   "speciesTable" = speciesTable,
   #"sppNameVector" = sppNameVector,
-  "standAgeMap" = ml$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
-  "studyArea" = studyArea(ml, 2),
-  "studyAreaLarge" = studyArea(ml, 1),
+  "standAgeMap" = simOutPreamble$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
+  "studyArea" = simOutPreamble$studyArea,
+  "studyAreaLarge" = simOutPreamble$studyArea,
   "summaryPeriod" = summaryPeriod,
   "useParallel" = 2,
   "vegLeadingProportion" = vegLeadingProportion
