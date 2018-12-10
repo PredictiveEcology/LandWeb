@@ -1,3 +1,9 @@
+[submodule "m/Biomass_regeneration"]
+	path = m/Biomass_regeneration
+	url = git@github.com:CeresBarros/Biomass_regeneration.git
+[submodule "m/BiomassSpeciesData"]
+	path = m/BiomassSpeciesData
+	url = git@github.com:CeresBarros/BiomassSpeciesData
 [submodule "m/LandMine"]
 	path = m/LandMine
 	url = git@github.com:PredictiveEcology/LandMine.git
@@ -10,12 +16,6 @@
 [submodule "m/LandWeb_output"]
 	path = m/LandWeb_output
 	url = git@github.com:fRI-Research/LandWeb_output
-[submodule "m/LandR_BiomassRegen"]
-	path = m/LandR_BiomassRegen
-	url = git@github.com:CeresBarros/LandR_BiomassRegen.git
 [submodule "m/LandR_BiomassGMOrig"]
 	path = m/LandR_BiomassGMOrig
 	url = git@github.com:ianmseddy/LandR_BiomassGMOrig
-[submodule "m/BiomassSpeciesData"]
-	path = m/BiomassSpeciesData
-	url = git@github.com:CeresBarros/BiomassSpeciesData
