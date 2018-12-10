@@ -135,7 +135,10 @@ sppEquivalencies_CA[, LandWeb := c(Pice_mar = "Pice_mar", Pice_gla = "Pice_gla",
                                    Popu_tre = "Popu_sp", Betu_pap = "Popu_sp",
                                    Abie_bal = "Abie_sp", Abie_las = "Abie_sp")[LandR]]
 sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
-sppEquivalencies_CA[EN_generic_full == "Balsam Fir", EN_generic_full := "Fir"]
+sppEquivalencies_CA[LandWeb == "Abie_sp", EN_generic_full := "Fir"]
+sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
+sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
+sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
 
 #################################################
 ## add default colors for species used in model
@@ -181,9 +184,9 @@ objects2 <- list(
 
 parameters2 <- list(
   BiomassSpeciesData = list(
-    types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
-    sppEquivCol = "LandWeb",
-    omitNonVegPixels = TRUE
+    "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
+    "sppEquivCol" = "LandWeb",
+    "omitNonVegPixels" = TRUE
   )
 )
 
@@ -246,7 +249,10 @@ parameters <- list(
     "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
     ".useCache" = eventCaching
   ),
-  LandWeb_output = list("summaryInterval" = summaryInterval),
+  LandWeb_output = list(
+    "sppEquivCol" = "LandWeb",
+    "summaryInterval" = summaryInterval
+  ),
   LBMR = list(
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
     "successionTimestep" = successionTimestep,
