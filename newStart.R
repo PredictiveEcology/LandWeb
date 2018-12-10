@@ -3,7 +3,7 @@ quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 useSpades <- TRUE
 minFRI <- 40
 activeDir <- "~/GitHub/LandWeb"
-checkPath(activeDir, create = TRUE)
+reproducible::checkPath(activeDir, create = TRUE)
 setwd(activeDir)
 
 eventCaching <- c(".inputObjects", "init")
@@ -185,7 +185,7 @@ simOutPreamble <- Cache(simInitAndSpades,
 # Second spades call -- creates speciesLayers
 #################################################
 
-objects1 <- list(
+objects2 <- list(
   "rasterToMatch" = simOutPreamble$rasterToMatch,
   "sppEquiv" = sppEquivalencies_CA,
   "studyArea" = simOutPreamble$studyArea,
@@ -193,7 +193,7 @@ objects1 <- list(
   "nonVegPixels" = simOutPreamble$nonVegPixels
 )
 
-parameters1 <- list(
+parameters2 <- list(
   BiomassSpeciesData = list(
     types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
     sppEquivCol = "LandWeb",
@@ -203,9 +203,9 @@ parameters1 <- list(
 
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
-                             params = parameters1,
+                             params = parameters2,
                              modules = c("BiomassSpeciesData"),
-                             objects1,
+                             objects2,
                              paths = paths,
                              debug = 1)
 
@@ -256,7 +256,6 @@ objects <- list(
   "sppEquiv" = sppEquivalencies_CA,
   "speciesLayers" = simOutSpeciesLayers$speciesLayers,
   "speciesTable" = speciesTable,
-  #"sppNameVector" = sppNameVector,
   "standAgeMap" = simOutPreamble$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
   "studyArea" = simOutPreamble$studyArea,
   "studyAreaLarge" = simOutPreamble$studyArea,
