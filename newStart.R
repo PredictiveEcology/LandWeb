@@ -200,12 +200,6 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              paths = paths,
                              debug = 1)
 
-## Turn LandCover 4 into NA in the stack
-## TODO: this should be in BiomassSpeciesData, but it needs LandTypeCC from preamble
-message("Setting all speciesLayers to NA where LandType in ForestInventories is 4")
-noVeg_ids <- which(simOutPreamble$LandTypeCC[] == 4)
-simOutSpeciesLayers$speciesLayers[noVeg_ids] <- NA
-
 ######################################################
 # Dynamic Simulation
 ######################################################
