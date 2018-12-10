@@ -37,7 +37,8 @@ defineModule(sim, list(
     createsOutput("CC TSF", "RasterLayer", desc = NA),
     createsOutput("LCC2005", "RasterLayer", desc = NA),
     createsOutput("LandTypeCC", "RasterLayer", desc = NA),
-    createsOutput("rstFlammable", "RasterLayer", desc = NA)
+    createsOutput("rstFlammable", "RasterLayer", desc = NA),
+    createsOutput("nonVegPixels", "integer", desc = NA)
 
   )
 ))
@@ -255,6 +256,7 @@ Init <- function(sim) {
   sim$LCC2005 <- ml$LCC2005
   sim$`CC TSF` <- ml$`CC TSF`
   # list2env(mget(ls(ml), envir = ml@.xData), envir = envir(sim))
+  sim$nonVegPixels <- which(sim$LandTypeCC[] == 4)
 
   return(invisible(sim))
 }
