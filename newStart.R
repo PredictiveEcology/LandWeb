@@ -231,7 +231,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
 # Dynamic Simulation
 ######################################################
 times <- list(start = 0, end = endTime)
-modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LandR_BiomassRegen", "LBMR",
+modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "Biomass_regeneration", "LBMR",
                 "LandMine",
                 "LandWeb_output",
                 "timeSinceFire")
@@ -283,7 +283,7 @@ parameters <- list(
   LandR_BiomassGMOrig = list(
     ".useParallel" = 8 ## TODO: need
   ),
-  # LandR_BiomassRegen = list(
+  # Biomass_regeneration = list(
   #
   # ),
   timeSinceFire = list(
