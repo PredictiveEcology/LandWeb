@@ -72,22 +72,8 @@ source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 library(data.table)
 library(raster)
 library(SpaDES.core)
-
-#try(detach("package:map", unload = TRUE))
-#try(detach("package:pemisc", unload = TRUE))
-
-library(pemisc) ## TODO: use pemisc@development
-# if (user("achubaty")) {
-#   devtools::load_all("~/GitHub/PredictiveEcology/pemisc")
-# } else if (Sys.info()[["user"]] == "emcintir") {
-#   devtools::load_all("~/GitHub/misc")
-# }
+library(pemisc)
 library(map)
-# if (user("achubaty")) {
-#   devtools::load_all("~/GitHub/PredictiveEcology/map")
-# } else if (Sys.info()[["user"]] == "emcintir") {
-#   devtools::load_all("~/GitHub/map")
-# }
 
 #devtools::install_github("achubaty/amc@development")
 library(amc)
