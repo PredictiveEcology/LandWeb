@@ -127,7 +127,7 @@ opts <- options(
 #################################################
 data("sppEquivalencies_CA", package = "pemisc")
 sppEquivalencies_CA[grep("Pin", LandR), `:=`(EN_generic_short = "Pine", EN_generic_full = "Pine",
-                                             Leading = "Pine leading")]
+                                             Leading = "Pine leading", cols := "#386CB0")]
 
 # Make LandWeb spp equivalencies
 sppEquivalencies_CA[, LandWeb := c(Pice_mar = "Pice_mar", Pice_gla = "Pice_gla",
@@ -141,7 +141,6 @@ sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
 
 sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
-sppEquivalencies_CA[Leading == "Pine leading", cols := "#386CB0"]
 
 #################################################
 ## add default colors for species used in model
