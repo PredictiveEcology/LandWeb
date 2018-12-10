@@ -3,7 +3,7 @@
 	url = git@github.com:CeresBarros/Biomass_regeneration.git
 [submodule "m/BiomassSpeciesData"]
 	path = m/BiomassSpeciesData
-	url = git@github.com:CeresBarros/BiomassSpeciesData
+	url = git@github.com:eliotmcintire/BiomassSpeciesData
 [submodule "m/LandMine"]
 	path = m/LandMine
 	url = git@github.com:PredictiveEcology/LandMine.git
