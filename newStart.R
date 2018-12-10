@@ -127,7 +127,7 @@ opts <- options(
 #################################################
 data("sppEquivalencies_CA", package = "pemisc")
 sppEquivalencies_CA[grep("Pin", LandR), `:=`(EN_generic_short = "Pine", EN_generic_full = "Pine",
-                                             Leading = "Pine leading", cols := "#386CB0")]
+                                             Leading = "Pine leading", cols = "#386CB0")]
 
 # Make LandWeb spp equivalencies
 sppEquivalencies_CA[, LandWeb := c(Pice_mar = "Pice_mar", Pice_gla = "Pice_gla",
