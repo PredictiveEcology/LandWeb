@@ -3,6 +3,7 @@ quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 useSpades <- TRUE
 minFRI <- 40
 activeDir <- "~/GitHub/LandWeb"
+checkPath(activeDir, create = TRUE)
 setwd(activeDir)
 
 eventCaching <- c(".inputObjects", "init")
@@ -166,7 +167,10 @@ objects1 <- list(
 )
 
 parameters1 <- list(
-  LandWeb_preamble = list("minFRI" = minFRI)
+  LandWeb_preamble = list(
+    "minFRI" = minFRI,
+    "runName" = runName
+  )
 )
 
 simOutPreamble <- Cache(simInitAndSpades,
