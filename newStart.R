@@ -72,22 +72,8 @@ source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 library(data.table)
 library(raster)
 library(SpaDES.core)
-
-#try(detach("package:map", unload = TRUE))
-#try(detach("package:pemisc", unload = TRUE))
-
-library(pemisc) ## TODO: use pemisc@development
-# if (user("achubaty")) {
-#   devtools::load_all("~/GitHub/PredictiveEcology/pemisc")
-# } else if (Sys.info()[["user"]] == "emcintir") {
-#   devtools::load_all("~/GitHub/misc")
-# }
+library(pemisc)
 library(map)
-# if (user("achubaty")) {
-#   devtools::load_all("~/GitHub/PredictiveEcology/map")
-# } else if (Sys.info()[["user"]] == "emcintir") {
-#   devtools::load_all("~/GitHub/map")
-# }
 
 #devtools::install_github("achubaty/amc@development")
 library(amc)
@@ -141,14 +127,19 @@ opts <- options(
 #################################################
 data("sppEquivalencies_CA", package = "pemisc")
 sppEquivalencies_CA[grep("Pin", LandR), `:=`(EN_generic_short = "Pine", EN_generic_full = "Pine",
-                                             Leading = "Pine leading")]
+                                             Leading = "Pine leading", cols := "#386CB0")]
 
-
-# Make LandWeb spp equivalencies -- rename Popu_tre to Popu_sp
+# Make LandWeb spp equivalencies
 sppEquivalencies_CA[, LandWeb := c(Pice_mar = "Pice_mar", Pice_gla = "Pice_gla",
                                    Pinu_con = "Pinu_sp", Pinu_ban = "Pinu_sp",
                                    Popu_tre = "Popu_sp", Betu_pap = "Popu_sp",
                                    Abie_bal = "Abie_sp", Abie_las = "Abie_sp")[LandR]]
+
+sppEquivalencies_CA[LandWeb == "Abie_sp", EN_generic_full := "Fir"]
+sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
+sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
+sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
+
 sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
 
 #################################################
@@ -195,9 +186,9 @@ objects2 <- list(
 
 parameters2 <- list(
   BiomassSpeciesData = list(
-    types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
-    sppEquivCol = "LandWeb",
-    omitNonVegPixels = TRUE
+    "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
+    "sppEquivCol" = "LandWeb",
+    "omitNonVegPixels" = TRUE
   )
 )
 
@@ -209,27 +200,11 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              paths = paths,
                              debug = 1)
 
-#################################################
-# Turn LandCover 4 into NA in the stack -- # TODO, this should be in BiomassSpeciesData, but it needs the
-#################################################
-# message("Setting all speciesLayers to NA where LandType in ForestInventories is 4")
-# noVeg_ids <- which(sim1$LandTypeCC[] == 4)
-# sim2$speciesLayers[noVeg_ids] <- NA
-
-# CCvtm <- Cache(makeVegTypeMap, sim2$speciesLayers, vegLeadingProportion)
-# CCvtmFilename <- file.path(Paths$outputPath, "currentConditionVTM")
-#
-# ml <- mapAdd(map = ml, CCvtm, layerName = "CC VTM", filename2 = NULL,
-#              leaflet = FALSE, #isRasterToMatch = FALSE,
-#              analysisGroup1 = "CC",
-#              vtm = CCvtmFilename,
-#              useCache = TRUE)
-#
-# if (!file.exists(CCvtmFilename)) {
-#   CCvtm <- writeRaster(CCvtm, filename = CCvtmFilename, overwrite = TRUE)
-# }
-#
-# saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+## Turn LandCover 4 into NA in the stack
+## TODO: this should be in BiomassSpeciesData, but it needs LandTypeCC from preamble
+message("Setting all speciesLayers to NA where LandType in ForestInventories is 4")
+noVeg_ids <- which(simOutPreamble$LandTypeCC[] == 4)
+simOutSpeciesLayers$speciesLayers[noVeg_ids] <- NA
 
 ######################################################
 # Dynamic Simulation
@@ -276,7 +251,10 @@ parameters <- list(
     "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
     ".useCache" = eventCaching
   ),
-  LandWeb_output = list("summaryInterval" = summaryInterval),
+  LandWeb_output = list(
+    "sppEquivCol" = "LandWeb",
+    "summaryInterval" = summaryInterval
+  ),
   LBMR = list(
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
     "successionTimestep" = successionTimestep,
