@@ -154,7 +154,6 @@ sppColors <- sppColors(sppEquivalencies_CA, sppEquivCol, newVals = "Mixed", pale
 # Set up spades call for preamble -- studyArea stuff goes there
 #################################################
 objects1 <- list(
-  "sppColors" = sppColors,
   "sppEquiv" = sppEquivalencies_CA
 )
 
@@ -179,6 +178,7 @@ simOutPreamble <- Cache(simInitAndSpades,
 
 objects2 <- list(
   "rasterToMatch" = simOutPreamble$rasterToMatch,
+  "sppColors" = sppColors,
   "sppEquiv" = sppEquivalencies_CA,
   "studyArea" = simOutPreamble$studyArea,
   "studyAreaLarge" = simOutPreamble$studyAreaLarge,
