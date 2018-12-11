@@ -148,12 +148,11 @@ sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
 #################################################
 sppColors <- sppColors(sppEquivalencies_CA, sppEquivCol, newVals = "Mixed", palette = "Accent")
 
-
 #################################################
 # Set up spades call for preamble -- studyArea stuff goes there
 #################################################
 objects1 <- list(
-  "sppEquiv" = sppEquivalencies_CA
+  #"sppEquiv" = sppEquivalencies_CA
 )
 
 parameters1 <- list(
