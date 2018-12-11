@@ -225,6 +225,7 @@ objects <- list(
   "rasterToMatch" = simOutPreamble$rasterToMatch,
   "rstFlammable" = simOutPreamble$rstFlammable,
   "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
+  "sppColors" = sppColors,
   "sppEquiv" = sppEquivalencies_CA,
   "speciesLayers" = simOutSpeciesLayers$speciesLayers,
   "speciesTable" = speciesTable,
