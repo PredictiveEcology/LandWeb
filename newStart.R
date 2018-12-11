@@ -140,13 +140,13 @@ sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
 
-sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
+#sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
 
 #################################################
 ## add default colors for species used in model
 #################################################
 defaultCols <- RColorBrewer::brewer.pal(6, "Accent")
-LandWebNamesCols <- data.table(cols = defaultCols,
+LandWebNamesCols <- data.table(cols = defaultCols[1:5], # use defaultCols[6] for Mixed later
                                LandWeb = na.omit(unique(sppEquivalencies_CA$LandWeb)))
 sppEquivalencies_CA <- LandWebNamesCols[sppEquivalencies_CA, on = "LandWeb"]
 
