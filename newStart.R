@@ -128,8 +128,9 @@ opts <- options(
 # Set up sppEquiv
 #################################################
 data("sppEquivalencies_CA", package = "pemisc")
-sppEquivalencies_CA[grep("Pin", LandR), `:=`(EN_generic_short = "Pine", EN_generic_full = "Pine",
-                                             Leading = "Pine leading", cols = "#386CB0")]
+sppEquivalencies_CA[grep("Pin", LandR), `:=`(EN_generic_short = "Pine",
+                                             EN_generic_full = "Pine",
+                                             Leading = "Pine leading")]
 
 # Make LandWeb spp equivalencies
 sppEquivalencies_CA[, LandWeb := c(Pice_mar = "Pice_mar", Pice_gla = "Pice_gla",
@@ -141,8 +142,6 @@ sppEquivalencies_CA[LandWeb == "Abie_sp", EN_generic_full := "Fir"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
-
-# sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
 
 #################################################
 ## create color palette for species used in model
@@ -204,8 +203,6 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              objects2,
                              paths = paths,
                              debug = 1)
-
-sppEquivalencies_CA[Leading == "Mixed", cols := defaultCols[6]]
 
 ######################################################
 # Dynamic Simulation
