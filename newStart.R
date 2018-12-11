@@ -188,7 +188,8 @@ parameters2 <- list(
   BiomassSpeciesData = list(
     "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
     "sppEquivCol" = "LandWeb",
-    "omitNonVegPixels" = TRUE
+    "omitNonVegPixels" = TRUE,
+    ".plotInitialTime" = 0
   )
 )
 
@@ -231,8 +232,7 @@ objects <- list(
   "studyArea" = simOutPreamble$studyArea,
   "studyAreaLarge" = simOutPreamble$studyArea,
   "summaryPeriod" = summaryPeriod,
-  "useParallel" = 2,
-  "vegLeadingProportion" = vegLeadingProportion
+  "useParallel" = 2
 )
 
 parameters <- list(
@@ -249,7 +249,9 @@ parameters <- list(
   ),
   LandWeb_output = list(
     "sppEquivCol" = "LandWeb",
-    "summaryInterval" = summaryInterval
+    "summaryInterval" = summaryInterval,
+    "vegLeadingProportion" = vegLeadingProportion,
+    ".plotInitialTime" = 0
   ),
   LBMR = list(
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
