@@ -140,7 +140,7 @@ sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
 
-#sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
+sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
 
 #################################################
 ## add default colors for species used in model
@@ -199,6 +199,8 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              objects2,
                              paths = paths,
                              debug = 1)
+
+sppEquivalencies_CA[Leading == "Mixed", cols := defaultCols[6]]
 
 ######################################################
 # Dynamic Simulation
