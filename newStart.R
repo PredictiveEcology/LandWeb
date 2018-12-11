@@ -140,7 +140,7 @@ sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
 
-#sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
+sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
 
 #################################################
 ## add default colors for species used in model
@@ -188,9 +188,13 @@ parameters2 <- list(
   BiomassSpeciesData = list(
     "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
     "sppEquivCol" = "LandWeb",
-    "omitNonVegPixels" = TRUE
+    "omitNonVegPixels" = TRUE,
+    ".plotInitialTime" = 0
   )
 )
+
+quickPlot::dev(width = 18, height = 12)
+quickPlot::clearPlot()
 
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
@@ -199,6 +203,8 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              objects2,
                              paths = paths,
                              debug = 1)
+
+sppEquivalencies_CA[Leading == "Mixed", cols := defaultCols[6]]
 
 ######################################################
 # Dynamic Simulation
@@ -229,8 +235,7 @@ objects <- list(
   "studyArea" = simOutPreamble$studyArea,
   "studyAreaLarge" = simOutPreamble$studyArea,
   "summaryPeriod" = summaryPeriod,
-  "useParallel" = 2,
-  "vegLeadingProportion" = vegLeadingProportion
+  "useParallel" = 2
 )
 
 parameters <- list(
@@ -247,7 +252,9 @@ parameters <- list(
   ),
   LandWeb_output = list(
     "sppEquivCol" = "LandWeb",
-    "summaryInterval" = summaryInterval
+    "summaryInterval" = summaryInterval,
+    "vegLeadingProportion" = vegLeadingProportion,
+    ".plotInitialTime" = 0
   ),
   LBMR = list(
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
@@ -340,6 +347,7 @@ if (!useSpades) {
 } else {
   quickPlot::dev(width = 18, height = 12)
   quickPlot::clearPlot()
+
   mySimOut <- simInitAndSpades(times = times, #cl = cl,
                    params = parameters,
                    modules = modules,
