@@ -193,6 +193,9 @@ parameters2 <- list(
   )
 )
 
+quickPlot::dev(width = 18, height = 12)
+quickPlot::clearPlot()
+
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
                              params = parameters2,
@@ -344,6 +347,7 @@ if (!useSpades) {
 } else {
   quickPlot::dev(width = 18, height = 12)
   quickPlot::clearPlot()
+
   mySimOut <- simInitAndSpades(times = times, #cl = cl,
                    params = parameters,
                    modules = modules,
