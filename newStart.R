@@ -6,6 +6,8 @@ activeDir <- "~/GitHub/LandWeb"
 reproducible::checkPath(activeDir, create = TRUE)
 setwd(activeDir)
 
+sppEquivCol <- "LandWeb"
+
 eventCaching <- c(".inputObjects", "init")
 maxAge <- 400
 vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
@@ -140,20 +142,19 @@ sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
 
-sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
+# sppEquivalencies_CA[Leading == "Mixed", LandWeb := "Mixed"]
 
 #################################################
-## add default colors for species used in model
+## create color palette for species used in model
 #################################################
-defaultCols <- RColorBrewer::brewer.pal(6, "Accent")
-LandWebNamesCols <- data.table(cols = defaultCols[1:5], # use defaultCols[6] for Mixed later
-                               LandWeb = na.omit(unique(sppEquivalencies_CA$LandWeb)))
-sppEquivalencies_CA <- LandWebNamesCols[sppEquivalencies_CA, on = "LandWeb"]
+sppColors <- sppColors(sppEquivalencies_CA, sppEquivCol, newVals = "Mixed", palette = "Accent")
+
 
 #################################################
 # Set up spades call for preamble -- studyArea stuff goes there
 #################################################
 objects1 <- list(
+  "sppColors" = sppColors,
   "sppEquiv" = sppEquivalencies_CA
 )
 
@@ -187,7 +188,7 @@ objects2 <- list(
 parameters2 <- list(
   BiomassSpeciesData = list(
     "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
-    "sppEquivCol" = "LandWeb",
+    "sppEquivCol" = sppEquivCol,
     "omitNonVegPixels" = TRUE,
     ".plotInitialTime" = 0
   )
@@ -240,7 +241,7 @@ objects <- list(
 
 parameters <- list(
   Boreal_LBMRDataPrep = list(
-    "sppEquivCol" = "LandWeb",
+    "sppEquivCol" = sppEquivCol,
     ".useCache" = eventCaching
   ),
   LandMine = list(
@@ -251,7 +252,7 @@ parameters <- list(
     ".useCache" = eventCaching
   ),
   LandWeb_output = list(
-    "sppEquivCol" = "LandWeb",
+    "sppEquivCol" = sppEquivCol,
     "summaryInterval" = summaryInterval,
     "vegLeadingProportion" = vegLeadingProportion,
     ".plotInitialTime" = 0
