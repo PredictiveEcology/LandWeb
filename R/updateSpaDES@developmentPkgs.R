@@ -14,6 +14,9 @@ if (FALSE) {
 }
 
 if (FALSE) {
+  if (Sys.info()[["user"]] == "emcintir") {
+    try(detach("package:SpaDES.core", unload = TRUE))
+  }
   try(detach("package:map", unload = TRUE))
   try(detach("package:pemisc", unload = TRUE))
   try(detach("package:SpaDES.tools", unload = TRUE))
@@ -26,6 +29,7 @@ if (FALSE) {
     devtools::load_all("~/GitHub/SpaDES.tools")
     devtools::load_all("~/GitHub/pemisc")
     devtools::load_all("~/GitHub/map")
+    devtools::load_all("~/GitHub/SpaDES.core")
   }
 }
 
