@@ -235,10 +235,13 @@ Init <- function(sim) {
   sim$rstFlammable[NA_ids] <- rstFlammableLCC[NA_ids]
 
   ## fireReturnInterval needs to be masked by rstFlammable
-  rtm <- rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml))
-  rstFireReturnInterval <- Cache(postProcess, rtm, maskvalue = 0L, filename2 = NULL)
+  rstFireReturnInterval <- fasterize::fasterize(sf::st_as_sf(studyArea(ml)),
+                                                raster = rasterToMatch(ml),
+                              field = "fireReturnInterval")
+  #rtm <- rasterToMatch(studyArea(ml), rasterToMatch = rasterToMatch(ml))
+  #rstFireReturnInterval <- Cache(postProcess, rtm, maskvalue = 0L, filename2 = NULL)
   ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 = NULL,
-               map = ml, leaflet = FALSE, maskWithRTM = TRUE)
+               map = ml, leaflet = FALSE, maskWithRTM = FALSE)
 
   fireReturnInterval <- pemisc::factorValues2(ml$fireReturnInterval,
                                               ml$fireReturnInterval[],
