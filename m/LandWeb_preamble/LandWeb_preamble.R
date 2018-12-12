@@ -209,17 +209,23 @@ Init <- function(sim) {
   # Flammability and Fire Return Interval maps
   ##########################################################
 
-  ## flammability map shouldn't be masked (no gaps!); NAs outside the buffered study area allowed.
-  ## use the LCC flammability map to fill in NA / nodata values
+  ## flammability map shouldn't be masked (no gaps!);
+  #    NAs outside the buffered study & snow/rock/ice area
+  #    the only values we want NA
+  #    use the LCC flammability map to fill in NA / nodata values
   LandTypeFileCC <- file.path(Paths$inputPath, "LandType1.tif")
   sim$LandTypeCC <- Cache(prepInputs, LandTypeFileCC, studyArea = studyArea(ml),
                       url = ccURL, method = "ngb",
                       rasterToMatch = rasterToMatch(ml), filename2 = NULL)
+
+  # No data class is 5 -- these will be filled in by LCC2005 layer
   NA_ids <- which(is.na(sim$LandTypeCC[]) | sim$LandTypeCC[] == 5)
-  rstFlammableCC <- defineFlammable(sim$LandTypeCC, nonFlammClasses = c(1, 2, 4),
+  # Only class 4 is considered non-flammable
+  rstFlammableCC <- defineFlammable(sim$LandTypeCC, nonFlammClasses = 4,
                                     mask = NULL, filename2 = NULL)
 
   LandTypeFileLCC <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
+  # Only classes 36, 37, 38, 39 is considered non-flammable
   rstFlammableLCC <- Cache(prepInputs, LandTypeFileLCC, studyArea = studyArea(ml),
                            url = ccURL, method = "ngb",
                            rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
@@ -251,8 +257,13 @@ Init <- function(sim) {
   sim$fireReturnInterval <- ml$fireReturnInterval
   sim$LCC2005 <- ml$LCC2005
   sim$`CC TSF` <- ml$`CC TSF`
-  # list2env(mget(ls(ml), envir = ml@.xData), envir = envir(sim))
-  sim$nonVegPixels <- which(sim$LandTypeCC[] == 4)
+
+  # Setting NA values
+  # 3 is shrub, wetland, grassland -- no veg dynamics happen -- will burn in fire modules
+  # 4 is water, rock, ice
+  # 5 is no Data ... this is currently cropland -- will be treated as grassland for fires
+  sim$nonVegPixels <- which(sim$LandTypeCC[] %in% c(3,4,5))
+
 
   return(invisible(sim))
 }
