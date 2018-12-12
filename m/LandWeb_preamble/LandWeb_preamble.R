@@ -251,8 +251,13 @@ Init <- function(sim) {
   sim$fireReturnInterval <- ml$fireReturnInterval
   sim$LCC2005 <- ml$LCC2005
   sim$`CC TSF` <- ml$`CC TSF`
-  # list2env(mget(ls(ml), envir = ml@.xData), envir = envir(sim))
-  sim$nonVegPixels <- which(sim$LandTypeCC[] == 4)
+
+  # Setting NA values
+  # 3 is shrub, wetland, grassland -- no veg dynamics happen -- will burn in fire modules
+  # 4 is water, rock, ice
+  # 5 is no Data ... this is currently cropland -- will be treated as grassland for fires
+  sim$nonVegPixels <- which(sim$LandTypeCC[] %in% c(3,4,5))
+
 
   return(invisible(sim))
 }
