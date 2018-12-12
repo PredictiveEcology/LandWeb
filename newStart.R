@@ -256,6 +256,7 @@ parameters <- list(
   ),
   LBMR = list(
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
+    "sppEquivCol" = sppEquivCol,
     "successionTimestep" = successionTimestep,
     ".useCache" = eventCaching,
     ".useParallel" = 8 ## TODO: need
