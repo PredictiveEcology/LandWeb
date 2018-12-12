@@ -21,11 +21,16 @@ if (FALSE) {
   try(detach("package:pemisc", unload = TRUE))
   try(detach("package:SpaDES.tools", unload = TRUE))
 
+  if (Sys.info()[["user"]] == "emcintir") {
+    try(detach("package:reproducible", unload = TRUE))
+  }
+
   if (Sys.info()[["user"]] == "achubaty") {
     devtools::load_all("~/GitHub/PredictiveEcology/SpaDES.tools")
     devtools::load_all("~/GitHub/PredictiveEcology/pemisc")
     devtools::load_all("~/GitHub/PredictiveEcology/map")
   } else if (Sys.info()[["user"]] == "emcintir") {
+    devtools::load_all("~/GitHub/reproducible")
     devtools::load_all("~/GitHub/SpaDES.tools")
     devtools::load_all("~/GitHub/pemisc")
     devtools::load_all("~/GitHub/map")
