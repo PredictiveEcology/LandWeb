@@ -255,7 +255,8 @@ parameters <- list(
     "sppEquivCol" = sppEquivCol,
     "summaryInterval" = summaryInterval,
     "vegLeadingProportion" = vegLeadingProportion,
-    ".plotInitialTime" = 0
+    ".plotInitialTime" = 0,
+    ".plotInterval" = 1
   ),
   LBMR = list(
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
