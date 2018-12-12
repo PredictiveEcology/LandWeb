@@ -209,17 +209,23 @@ Init <- function(sim) {
   # Flammability and Fire Return Interval maps
   ##########################################################
 
-  ## flammability map shouldn't be masked (no gaps!); NAs outside the buffered study area allowed.
-  ## use the LCC flammability map to fill in NA / nodata values
+  ## flammability map shouldn't be masked (no gaps!);
+  #    NAs outside the buffered study & snow/rock/ice area
+  #    the only values we want NA
+  #    use the LCC flammability map to fill in NA / nodata values
   LandTypeFileCC <- file.path(Paths$inputPath, "LandType1.tif")
   sim$LandTypeCC <- Cache(prepInputs, LandTypeFileCC, studyArea = studyArea(ml),
                       url = ccURL, method = "ngb",
                       rasterToMatch = rasterToMatch(ml), filename2 = NULL)
+
+  # No data class is 5 -- these will be filled in by LCC2005 layer
   NA_ids <- which(is.na(sim$LandTypeCC[]) | sim$LandTypeCC[] == 5)
-  rstFlammableCC <- defineFlammable(sim$LandTypeCC, nonFlammClasses = c(1, 2, 4),
+  # Only class 4 is considered non-flammable
+  rstFlammableCC <- defineFlammable(sim$LandTypeCC, nonFlammClasses = 4,
                                     mask = NULL, filename2 = NULL)
 
   LandTypeFileLCC <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
+  # Only classes 36, 37, 38, 39 is considered non-flammable
   rstFlammableLCC <- Cache(prepInputs, LandTypeFileLCC, studyArea = studyArea(ml),
                            url = ccURL, method = "ngb",
                            rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
