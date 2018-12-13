@@ -291,6 +291,10 @@ Init <- function(sim) {
                     #       url = ccURL, method = "ngb",
                     #       rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
     defineFlammable(ml$LCC2005, nonFlammClasses = c(36, 37, 38, 39), mask = NULL, filename2 = NULL)
+  rstFlammableLCC <- Cache(prepInputs, LandTypeFileLCC, studyArea = studyArea(ml),
+                           url = ccURL, method = "ngb",
+                           rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
+    defineFlammable(., nonFlammClasses = 36:39, mask = NULL, filename2 = NULL)
 
   sim$rstFlammable <- rstFlammableCC
   sim$rstFlammable[noDataPixels] <- rstFlammableLCC[noDataPixels]
