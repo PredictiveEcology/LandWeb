@@ -183,7 +183,7 @@ Plot(simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch)
 #################################################
 
 objects2 <- list(
-  "nonVegPixels" = simOutPreamble$nonVegPixels,
+  "nonTreePixels" = simOutPreamble$nonTreePixels,
   "rasterToMatch" = simOutPreamble$rasterToMatch,
   "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
   "sppColors" = sppColors,
