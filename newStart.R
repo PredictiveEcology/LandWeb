@@ -173,6 +173,11 @@ simOutPreamble <- Cache(simInitAndSpades,
                         paths = paths,
                         debug = 1)
 
+quickPlot::dev(width = 18, height = 12)
+quickPlot::clearPlot()
+Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
+Plot(simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch)
+
 #################################################
 # Second spades call -- creates speciesLayers
 #################################################

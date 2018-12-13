@@ -35,10 +35,11 @@ defineModule(sim, list(
     createsOutput("LCC2005", "RasterLayer", desc = NA),
     createsOutput("nonVegPixels", "integer", desc = NA),
     createsOutput("rasterToMatch", "RasterLayer", desc = NA),
+    createsOutput("rasterToMatchReporting", "RasterLayer", desc = NA),
     createsOutput("rstFlammable", "RasterLayer", desc = NA),
-    createsOutput("studyArea", "SpatialPolygonsDataFram", desc = NA),
-    createsOutput("studyAreaLarge", "SpatialPolygonsDataFram", desc = NA),
-    createsOutput("rasterToMatchReporting", "SpatialPolygonsDataFram", desc = NA)
+    createsOutput("studyArea", "SpatialPolygonsDataFrame", desc = NA),
+    createsOutput("studyAreaLarge", "SpatialPolygonsDataFrame", desc = NA),
+    createsOutput("studyAreaReporting", "SpatialPolygonsDataFrame", desc = NA)
   )
 ))
 
@@ -271,8 +272,9 @@ Init <- function(sim) {
 
   sim$nonVegPixels <- which(nonVegPixels)
 
-  sim$studyArea <- studyArea(ml, 2)
+  sim$studyArea <- studyArea(ml, 3)
   sim$studyAreaLarge <- studyArea(ml, 1)
+  sim$studyAreaReporting <- studyArea(ml, 2)
   sim$rasterToMatch <- rasterToMatch(ml)
   sim$rasterToMatch[sim$nonVegPixels] <- NA
 
