@@ -243,7 +243,7 @@ objects <- list(
   "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
   "studyArea" = simOutPreamble$studyArea,
   "studyAreaLarge" = simOutPreamble$studyAreaLarge,
-  "studyAreastudyAreaReporting" = simOutPreamble$studyAreaReporting,
+  "studyAreaReporting" = simOutPreamble$studyAreaReporting,
   "summaryPeriod" = summaryPeriod,
   "useParallel" = 2
 )
