@@ -183,13 +183,14 @@ Plot(simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch)
 #################################################
 
 objects2 <- list(
+  "nonVegPixels" = simOutPreamble$nonVegPixels,
   "rasterToMatch" = simOutPreamble$rasterToMatch,
+  "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
   "sppColors" = sppColors,
   "sppEquiv" = sppEquivalencies_CA,
   "studyArea" = simOutPreamble$studyArea,
   "studyAreaLarge" = simOutPreamble$studyAreaLarge,
-  "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
-  "nonVegPixels" = simOutPreamble$nonVegPixels
+  "studyAreaReporting" = simOutPreamble$studyAreaReporting
 )
 
 parameters2 <- list(
