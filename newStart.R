@@ -1,7 +1,7 @@
 quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
 useSpades <- TRUE
-minFRI <- 0
+minFRI <- 30
 activeDir <- "~/GitHub/LandWeb"
 reproducible::checkPath(activeDir, create = TRUE)
 setwd(activeDir)
@@ -201,9 +201,9 @@ parameters2 <- list(
   )
 )
 
-quickPlot::dev(width = 18, height = 12)
-quickPlot::clearPlot()
-
+# quickPlot::dev(width = 18, height = 12)
+# quickPlot::clearPlot()
+#
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
                              params = parameters2,
@@ -355,8 +355,8 @@ if (!useSpades) {
 
   saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 } else {
-  quickPlot::dev(width = 18, height = 12)
-  quickPlot::clearPlot()
+  # quickPlot::dev(width = 18, height = 12)
+  # quickPlot::clearPlot()
 
   mySimOut <- simInitAndSpades(times = times, #cl = cl,
                    params = parameters,
