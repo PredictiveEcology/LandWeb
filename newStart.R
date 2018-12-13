@@ -173,8 +173,8 @@ simOutPreamble <- Cache(simInitAndSpades,
                         paths = paths,
                         debug = 1)
 
-quickPlot::dev(width = 18, height = 12)
-quickPlot::clearPlot()
+#quickPlot::dev(width = 18, height = 12)
+#quickPlot::clearPlot()
 Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
 Plot(simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch)
 
@@ -183,13 +183,14 @@ Plot(simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch)
 #################################################
 
 objects2 <- list(
+  "nonVegPixels" = simOutPreamble$nonVegPixels,
   "rasterToMatch" = simOutPreamble$rasterToMatch,
+  "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
   "sppColors" = sppColors,
   "sppEquiv" = sppEquivalencies_CA,
   "studyArea" = simOutPreamble$studyArea,
   "studyAreaLarge" = simOutPreamble$studyAreaLarge,
-  "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
-  "nonVegPixels" = simOutPreamble$nonVegPixels
+  "studyAreaReporting" = simOutPreamble$studyAreaReporting
 )
 
 parameters2 <- list(
