@@ -183,6 +183,7 @@ objects2 <- list(
   "sppEquiv" = sppEquivalencies_CA,
   "studyArea" = simOutPreamble$studyArea,
   "studyAreaLarge" = simOutPreamble$studyAreaLarge,
+  "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
   "nonVegPixels" = simOutPreamble$nonVegPixels
 )
 
@@ -233,8 +234,9 @@ objects <- list(
   "speciesLayers" = simOutSpeciesLayers$speciesLayers,
   "speciesTable" = speciesTable,
   "standAgeMap" = simOutPreamble$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
+  "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
   "studyArea" = simOutPreamble$studyArea,
-  "studyAreaLarge" = simOutPreamble$studyArea,
+  "studyAreaLarge" = simOutPreamble$studyAreaLarge,
   "summaryPeriod" = summaryPeriod,
   "useParallel" = 2
 )

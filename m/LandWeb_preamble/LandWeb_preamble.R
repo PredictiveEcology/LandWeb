@@ -37,7 +37,8 @@ defineModule(sim, list(
     createsOutput("rasterToMatch", "RasterLayer", desc = NA),
     createsOutput("rstFlammable", "RasterLayer", desc = NA),
     createsOutput("studyArea", "SpatialPolygonsDataFram", desc = NA),
-    createsOutput("studyAreaLarge", "SpatialPolygonsDataFram", desc = NA)
+    createsOutput("studyAreaLarge", "SpatialPolygonsDataFram", desc = NA),
+    createsOutput("rasterToMatchReporting", "SpatialPolygonsDataFram", desc = NA)
   )
 ))
 
@@ -100,19 +101,13 @@ Init <- function(sim) {
   if (grepl("tolko_AB_N", P(sim)$runName)) {
     studyAreaName <- "Tolko AB North SR"
 
-    ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-    tolko_ab_n_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
-    ml <- mapAdd(tolko_ab_n_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-                 useSAcrs = TRUE, poly = TRUE,
-                 columnNameForLabels = "NSN", filename2 = NULL)
-
     ## reportingPolygons
     tolko_ab_n <- shapefile(file.path(dataDirTolko, "Tolko_AB_N.shp"))
     tolko_ab_n.ansr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_ANSR.shp"))
     tolko_ab_n.caribou <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_caribou.shp"))
 
     ml <- mapAdd(tolko_ab_n, ml, layerName = "Tolko AB North", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "Tolko AB North",
+                 analysisGroupReportingPolygon = "Tolko AB North", isStudyArea = TRUE,
                  columnNameForLabels = "Name", filename2 = NULL)
     ml <- mapAdd(tolko_ab_n.ansr, ml, layerName = "Tolko AB North ANSR", useSAcrs = TRUE, poly = TRUE,
                  analysisGroupReportingPolygon = "Tolko AB North ANSR",
@@ -120,14 +115,14 @@ Init <- function(sim) {
     ml <- mapAdd(tolko_ab_n.caribou, ml, layerName = "Tolko AB North Caribou", useSAcrs = TRUE, poly = TRUE,
                  analysisGroupReportingPolygon = "Tolko AB North Caribou",
                  columnNameForLabels = "Name", filename2 = NULL)
-  } else if (grepl("tolko_AB_S", P(sim)$runName)) {
-    studyAreaName <- "Tolko AB South SR"
 
     ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-    tolko_ab_s_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
-    ml <- mapAdd(tolko_ab_s_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-                 useSAcrs = TRUE, poly = TRUE,
+    tolko_ab_n_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
+    ml <- mapAdd(tolko_ab_n_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
+                 useSAcrs = TRUE, poly = TRUE, studyArea = NULL, # don't crop/mask to studyArea(ml, 2)
                  columnNameForLabels = "NSN", filename2 = NULL)
+  } else if (grepl("tolko_AB_S", P(sim)$runName)) {
+    studyAreaName <- "Tolko AB South SR"
 
     ## reportingPolygons
     tolko_ab_s <- shapefile(file.path(dataDirTolko, "Tolko_AB_S.shp"))
@@ -135,7 +130,7 @@ Init <- function(sim) {
     tolko_ab_s.caribou <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_caribou.shp"))
 
     ml <- mapAdd(tolko_ab_s, ml, layerName = "Tolko AB South", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "Tolko AB South",
+                 analysisGroupReportingPolygon = "Tolko AB South", isStudyArea = TRUE,
                  columnNameForLabels = "Name", filename2 = NULL)
     ml <- mapAdd(tolko_ab_s.ansr, ml, layerName = "Tolko AB South ANSR", useSAcrs = TRUE, poly = TRUE,
                  analysisGroupReportingPolygon = "Tolko AB South ANSR",
@@ -143,42 +138,52 @@ Init <- function(sim) {
     ml <- mapAdd(tolko_ab_s.caribou, ml, layerName = "Tolko AB South Caribou", useSAcrs = TRUE, poly = TRUE,
                  analysisGroupReportingPolygon = "Tolko AB South Caribou",
                  columnNameForLabels = "Name", filename2 = NULL)
+
+    ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
+    tolko_ab_s_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
+    ml <- mapAdd(tolko_ab_s_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
+                 useSAcrs = TRUE, poly = TRUE, studyArea = NULL, # don't crop/mask to studyArea(ml, 2)
+                 columnNameForLabels = "NSN", filename2 = NULL)
   } else if (grepl("tolko_SK", P(sim)$runName)) {
     studyAreaName <- "Tolko SK SR"
-    ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-    tolko_sk_sr <- shapefile(file.path(dataDirTolko, "Tolko_SK_SR.shp"))
-    ml <- mapAdd(tolko_sk_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-                 useSAcrs = TRUE, poly = TRUE,
-                 columnNameForLabels = "NSN", filename2 = NULL)
 
     ## reportingPolygons
     tolko_sk <- shapefile(file.path(dataDirTolko, "Tolko_SK.shp"))
     tolko_sk.caribou <- shapefile(file.path(dataDirTolko, "Tolko_SK_caribou.shp"))
 
     ml <- mapAdd(tolko_sk, ml, layerName = "Tolko SK", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "Tolko SK",
+                 analysisGroupReportingPolygon = "Tolko SK", isStudyArea = TRUE,
                  columnNameForLabels = "Name", filename2 = NULL)
     ml <- mapAdd(tolko_sk.caribou, ml, layerName = "Tolko SK Caribou", useSAcrs = TRUE, poly = TRUE,
                  analysisGroupReportingPolygon = "Tolko SK Caribou",
                  columnNameForLabels = "Name", filename2 = NULL)
+
+    ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
+    tolko_sk_sr <- shapefile(file.path(dataDirTolko, "Tolko_SK_SR.shp"))
+    ml <- mapAdd(tolko_sk_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
+                 useSAcrs = TRUE, poly = TRUE, studyArea = NULL, # don't crop/mask to studyArea(ml, 2)
+                 columnNameForLabels = "NSN", filename2 = NULL)
+
   } else if (grepl("LP_MB", P(sim)$runName)) {
     studyAreaName <- "LP MB SR"
-    ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-    lp_mb_sr <- shapefile(file.path(dataDirLP, "LP_MB_SR.shp"))
-    ml <- mapAdd(lp_mb_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-                 useSAcrs = TRUE, poly = TRUE,
-                 columnNameForLabels = "NSN", filename2 = NULL)
 
     ## reportingPolygons
     lp_mb <- shapefile(file.path(dataDirLP, "LP_MB.shp"))
     lp_mb.caribou <- shapefile(file.path(dataDirLP, "LP_MB_caribou.shp"))
 
     ml <- mapAdd(lp_mb, ml, layerName = "LP MB", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "LP MB",
+                 analysisGroupReportingPolygon = "LP MB", isStudyArea = TRUE,
                  columnNameForLabels = "Name", filename2 = NULL)
     ml <- mapAdd(lp_mb.caribou, ml, layerName = "LP MB Caribou", useSAcrs = TRUE, poly = TRUE,
                  analysisGroupReportingPolygon = "LP MB Caribou",
                  columnNameForLabels = "Name", filename2 = NULL)
+
+    ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
+    lp_mb_sr <- shapefile(file.path(dataDirLP, "LP_MB_SR.shp"))
+    ml <- mapAdd(lp_mb_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
+                 useSAcrs = TRUE, poly = TRUE, studyArea = NULL, # don't crop/mask to studyArea(ml, 2)
+                 columnNameForLabels = "NSN", filename2 = NULL)
+
   }
 
   ##########################################################
@@ -243,30 +248,45 @@ Init <- function(sim) {
   ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 = NULL,
                map = ml, leaflet = FALSE, maskWithRTM = FALSE)
 
-  fireReturnInterval <- pemisc::factorValues2(ml$fireReturnInterval,
-                                              ml$fireReturnInterval[],
-                                              att = "fireReturnInterval")
+  #fireReturnInterval <- pemisc::factorValues2(ml$fireReturnInterval,
+  #                                            ml$fireReturnInterval[],
+  #                                            att = "fireReturnInterval")
 
   if (grepl("doubleFRI", P(sim)$runName))
     fireReturnInterval <- 2 * fireReturnInterval
 
-  ml$fireReturnInterval <- raster(ml$fireReturnInterval) # blank out values for new, non-factor version
-  ml$fireReturnInterval[] <- fireReturnInterval
+  #ml$fireReturnInterval <- raster(ml$fireReturnInterval) # blank out values for new, non-factor version
+  #ml$fireReturnInterval[] <- fireReturnInterval
   ml@metadata[layerName == "LCC2005", rasterToMatch := NA]
-
-  sim$studyArea <- studyArea(ml, 2)
-  sim$studyAreaLarge <- studyArea(ml, 1)
-  sim$rasterToMatch <- rasterToMatch(ml)
-  sim$fireReturnInterval <- ml$fireReturnInterval
-  sim$LCC2005 <- ml$LCC2005
-  sim$`CC TSF` <- ml$`CC TSF`
 
   # Setting NA values
   # 3 is shrub, wetland, grassland -- no veg dynamics happen -- will burn in fire modules
   # 4 is water, rock, ice
   # 5 is no Data ... this is currently cropland -- will be treated as grassland for fires
-  sim$nonVegPixels <- which(sim$LandTypeCC[] %in% c(3,4,5))
+  nonVegPixels <- sim$LandTypeCC[] %in% c(3,4)
 
+  NApixels <- is.na(sim$LandTypeCC[]) | sim$LandTypeCC[] == 5
+
+  nonVegPixels[NApixels] <- (sim$LCC2005[] %in% c(16:33, 36:39))[NApixels]
+
+  sim$nonVegPixels <- which(nonVegPixels)
+
+  sim$studyArea <- studyArea(ml, 2)
+  sim$studyAreaLarge <- studyArea(ml, 1)
+  sim$rasterToMatch <- rasterToMatch(ml)
+  sim$rasterToMatch[sim$nonVegPixels] <- NA
+
+  sim$fireReturnInterval <- ml$fireReturnInterval # no NAing here because this needs only
+
+  sim$LCC2005 <- ml$LCC2005
+  sim$LCC2005[sim$nonVegPixels] <- NA
+
+  sim$`CC TSF` <- ml$`CC TSF`
+  sim$`CC TSF`[sim$nonVegPixels] <- NA
+
+  sim$rasterToMatchReporting <- postProcess(rasterToMatch(ml),
+                                            studyArea = studyArea(ml, 2),
+                                            filename2 = NULL) # this is the small one
 
   return(invisible(sim))
 }
