@@ -173,8 +173,8 @@ simOutPreamble <- Cache(simInitAndSpades,
                         paths = paths,
                         debug = 1)
 
-quickPlot::dev(width = 18, height = 12)
-quickPlot::clearPlot()
+#quickPlot::dev(width = 18, height = 12)
+#quickPlot::clearPlot()
 Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
 Plot(simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch)
 
@@ -202,8 +202,8 @@ parameters2 <- list(
   )
 )
 
-quickPlot::dev(width = 18, height = 12)
-quickPlot::clearPlot()
+#quickPlot::dev(width = 18, height = 12)
+#quickPlot::clearPlot()
 
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
