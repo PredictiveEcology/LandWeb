@@ -265,6 +265,8 @@ Init <- function(sim) {
                        filename2 = NULL, overwrite = TRUE,
                        userTags = c("stable", currentModule(sim)))
   ml[[TSFLayerName]][noDataPixels] <- standAgeMap[noDataPixels]
+  ml[[TSFLayerName]][sim$nonTreePixels] <- NA
+
 
   ##########################################################
   # Clean up the study area
@@ -334,7 +336,6 @@ Init <- function(sim) {
   #LCC2005[sim$nonTreePixels] <- NA
 
   sim[[TSFLayerName]] <- ml[[TSFLayerName]]
-  #sim$`CC TSF`[sim$nonTreePixels] <- NA
 
   sim$rasterToMatchReporting <- postProcess(rasterToMatch(ml),
                                             studyArea = studyArea(ml, 2),
