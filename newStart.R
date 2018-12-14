@@ -257,6 +257,7 @@ parameters <- list(
     "biggestPossibleFireSizeHa" = 5e5,
     "burnInitialTime" = fireTimestep,
     "fireTimestep" = fireTimestep,
+    "minPropBurn" = 0.90,
     "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
     ".useCache" = eventCaching
   ),
