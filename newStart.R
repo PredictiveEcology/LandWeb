@@ -1,7 +1,7 @@
 quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
 useSpades <- TRUE
-minFRI <- 30
+minFRI <- 10
 activeDir <- "~/GitHub/LandWeb"
 reproducible::checkPath(activeDir, create = TRUE)
 setwd(activeDir)
