@@ -219,7 +219,8 @@ Init <- function(sim) {
   treeClassesLCC <- c(1:15, 34:35)
   treePixelsLCCTF <- ml$LCC2005[] %in% treeClassesLCC
 
-  noDataPixels <- is.na(sim$LandTypeCC[]) | sim$LandTypeCC[] == 5
+  LandTypeCCNA <- is.na(sim$LandTypeCC[])
+  noDataPixels <- LandTypeCCNA | sim$LandTypeCC[] == 5
   noDataPixelsLCC <- is.na(ml$LCC2005[]) | ml$LCC2005[] == 0
 
   treePixels <- which(treePixelsTF)
@@ -284,20 +285,20 @@ Init <- function(sim) {
   # Only class 4 is considered non-flammable
   rstFlammableCC <- defineFlammable(sim$LandTypeCC, nonFlammClasses = 4,
                                     mask = NULL, filename2 = NULL)
+  rstFlammableCC <- deratify(rstFlammableCC, complete = TRUE)
 
-  LandTypeFileLCC <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
+  #LandTypeFileLCC <- file.path(Paths$inputPath, "LCC2005_V1_4a.tif")
   # Only classes 36, 37, 38, 39 is considered non-flammable
-  rstFlammableLCC <- #Cache(prepInputs, LandTypeFileLCC, studyArea = studyArea(ml),
-                    #       url = ccURL, method = "ngb",
-                    #       rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
-    defineFlammable(ml$LCC2005, nonFlammClasses = c(36, 37, 38, 39), mask = NULL, filename2 = NULL)
-  rstFlammableLCC <- Cache(prepInputs, LandTypeFileLCC, studyArea = studyArea(ml),
-                           url = ccURL, method = "ngb",
-                           rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
-    defineFlammable(., nonFlammClasses = 36:39, mask = NULL, filename2 = NULL)
+  rstFlammableLCC <- defineFlammable(LCC2005, nonFlammClasses = 36:39, mask = NULL, filename2 = NULL)
+  rstFlammableLCC <- deratify(rstFlammableLCC, complete = TRUE)
+
+  #rstFlammableLCC <- Cache(prepInputs, LandTypeFileLCC, studyArea = studyArea(ml),
+  #                         url = ccURL, method = "ngb",
+  #                         rasterToMatch = rasterToMatch(ml), filename2 = NULL) %>%
+  #  defineFlammable(., nonFlammClasses = 36:39, mask = NULL, filename2 = NULL)
 
   sim$rstFlammable <- rstFlammableCC
-  sim$rstFlammable[noDataPixels] <- rstFlammableLCC[noDataPixels]
+  sim$rstFlammable[LandTypeCCNA] <- rstFlammableLCC[LandTypeCCNA]
 
   ## fireReturnInterval needs to be masked by rstFlammable
   rstFireReturnInterval <- fasterize::fasterize(sf::st_as_sf(studyArea(ml)),
