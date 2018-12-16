@@ -269,6 +269,7 @@ parameters <- list(
     ".plotInterval" = 1
   ),
   LBMR = list(
+    "overrideSpinup" = TRUE,
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = successionTimestep,
