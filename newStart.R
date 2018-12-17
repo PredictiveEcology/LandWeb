@@ -65,7 +65,7 @@ runName <- "tolko_SK_logROS" ## DONE
 #       more variable fire num per year
 #runName <- "tolko_AB_N_logROS_new_Eliot" ## running
 
-print(runName)
+message(crayon::red(runName))
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 
 ##########################################################
