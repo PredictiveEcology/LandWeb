@@ -23,7 +23,7 @@ fireTimestep <- 1
 
 runName <- "testing"
 
-#runName <- "tolko_AB_N"  ## original
+runName <- "tolko_AB_N"  ## original
 #runName <- "tolko_AB_S"  ## original
 #runName <- "tolko_SK"  ## original
 
@@ -40,7 +40,7 @@ runName <- "testing"
 ## running locally
 #runName <- "tolko_AB_N_logROS" ## DONE
 #runName <- "tolko_AB_S_logROS" ## DONE
-runName <- "tolko_SK_logROS" ## DONE
+#runName <- "tolko_SK_logROS" ## DONE
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal" ## running
