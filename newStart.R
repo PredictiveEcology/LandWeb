@@ -326,11 +326,12 @@ outputs3 <- data.frame(stringsAsFactors = FALSE,
 outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 
 ######## SimInit and Experiment
-if (file.exists(file.path(Paths$outputPath, "seed.rds"))) {
-  seed <- readRDS(file.path(Paths$outputPath, "seed.rds"))
+fseed <- file.path(Paths$outputPath, "seed.rds")
+if (file.exists(fseed)) {
+  seed <- readRDS(fseed)
 } else {
   seed <- sample(1e8, 1)
-  saveRDS(seed, file.path(Paths$outputPath, "seed.rds"))
+  saveRDS(seed, fseed)
 }
 set.seed(seed)
 print(seed)
