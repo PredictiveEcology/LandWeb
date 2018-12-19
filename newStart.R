@@ -252,6 +252,7 @@ objects <- list(
 parameters <- list(
   Boreal_LBMRDataPrep = list(
     "sppEquivCol" = sppEquivCol,
+    "minNumPixelsToEstMaxBiomass" = 50,
     ".useCache" = eventCaching
   ),
   LandMine = list(
