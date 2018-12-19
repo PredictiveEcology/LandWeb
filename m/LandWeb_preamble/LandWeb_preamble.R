@@ -316,7 +316,7 @@ Init <- function(sim) {
   #                                            att = "fireReturnInterval")
 
   if (grepl("doubleFRI", P(sim)$runName))
-    fireReturnInterval <- 2 * fireReturnInterval
+    ml$fireReturnInterval <- 2 * ml$fireReturnInterval
 
   #ml$fireReturnInterval <- raster(ml$fireReturnInterval) # blank out values for new, non-factor version
   #ml$fireReturnInterval[] <- fireReturnInterval

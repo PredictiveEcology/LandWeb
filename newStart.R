@@ -23,7 +23,7 @@ fireTimestep <- 1
 
 runName <- "testing"
 
-#runName <- "tolko_AB_N"  ## original
+runName <- "tolko_AB_N"  ## original
 #runName <- "tolko_AB_S"  ## original
 #runName <- "tolko_SK"  ## original
 
@@ -40,7 +40,7 @@ runName <- "testing"
 ## running locally
 #runName <- "tolko_AB_N_logROS" ## DONE
 #runName <- "tolko_AB_S_logROS" ## DONE
-runName <- "tolko_SK_logROS" ## DONE
+#runName <- "tolko_SK_logROS" ## DONE
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal" ## running
@@ -328,11 +328,12 @@ outputs3 <- data.frame(stringsAsFactors = FALSE,
 outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 
 ######## SimInit and Experiment
-if (file.exists(file.path(Paths$outputPath, "seed.rds"))) {
-  seed <- readRDS(file.path(Paths$outputPath, "seed.rds"))
+fseed <- file.path(Paths$outputPath, "seed.rds")
+if (file.exists(fseed)) {
+  seed <- readRDS(fseed)
 } else {
   seed <- sample(1e8, 1)
-  saveRDS(seed, file.path(Paths$outputPath, "seed.rds"))
+  saveRDS(seed, fseed)
 }
 set.seed(seed)
 print(seed)
