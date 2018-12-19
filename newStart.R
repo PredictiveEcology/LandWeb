@@ -118,6 +118,7 @@ opts <- options(
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
   "reproducible.overwrite" = TRUE,
+  "reproducible.useMemoise" = FALSE,
   "reproducible.quick" = FALSE,
   "reproducible.useCache" = TRUE,
   "spades.moduleCodeChecks" = FALSE,
@@ -251,6 +252,7 @@ objects <- list(
 parameters <- list(
   Boreal_LBMRDataPrep = list(
     "sppEquivCol" = sppEquivCol,
+    "minNumPixelsToEstMaxBiomass" = 50,
     ".useCache" = eventCaching
   ),
   LandMine = list(
