@@ -42,6 +42,5 @@ fmaANC <- function(ml, runName, dataDir, canProvs) {
                useSAcrs = TRUE, poly = TRUE, studyArea = NULL, # don't crop/mask to studyArea(ml, 2)
                columnNameForLabels = "NSN", filename2 = NULL)
 
-
   return(ml)
 }
