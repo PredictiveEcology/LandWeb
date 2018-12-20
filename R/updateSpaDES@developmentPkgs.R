@@ -5,7 +5,7 @@ devtools::install_github("PredictiveEcology/reproducible", ref = "development", 
 #devtools::install_github("PredictiveEcology/webDatabases", ref = "master", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development", dependencies = FALSE)
-devtools::install_github("PredictiveEcology/pemisc", ref = "development", dependencies = FALSE)
+devtools::install_github("PredictiveEcology/pemisc", ref = "development", dependencies = FALSE) # TODO: switch to LandR
 devtools::install_github("PredictiveEcology/map", ref = "master", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "development", dependencies = FALSE)
 
