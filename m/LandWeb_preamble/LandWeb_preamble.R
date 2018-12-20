@@ -4,7 +4,7 @@ defineModule(sim, list(
   keywords = c("LandWeb"),
   authors = c(
     person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
-    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = c("aut"))
+    person(c("Alex", "M."), "Chubaty", email = "achubaty@friresearch.ca", role = c("aut"))
   ),
   childModules = character(0),
   version = list(SpaDES.core = "0.2.3.9006", LandWeb_preamble = "0.0.1"),
