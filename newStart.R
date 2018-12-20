@@ -75,6 +75,7 @@ library(data.table)
 library(raster)
 library(SpaDES.core)
 library(pemisc)
+#library(LandR)
 library(map)
 
 #devtools::install_github("achubaty/amc@development")
@@ -93,8 +94,8 @@ shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "
                "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
-                   "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr",
-                   "pryr", "purrr", "quickPlot",
+                   "gdalUtils", "ggplot2", "grDevices", "grid",# "LandR",
+                   "magrittr", "pryr", "purrr", "quickPlot",
                    "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible", "rgeos",
                    "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", "VGAM")
 
@@ -128,7 +129,7 @@ opts <- options(
 #################################################
 # Set up sppEquiv
 #################################################
-data("sppEquivalencies_CA", package = "pemisc")
+data("sppEquivalencies_CA", package = "pemisc") ## TODO: sue LandR
 sppEquivalencies_CA[grep("Pin", LandR), `:=`(EN_generic_short = "Pine",
                                              EN_generic_full = "Pine",
                                              Leading = "Pine leading")]
