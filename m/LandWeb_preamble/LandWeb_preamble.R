@@ -13,9 +13,9 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandWeb_preamble.Rmd"),
-  reqdPkgs = list("PredictiveEcology/map@development",
-                  "PredictiveEcology/pemisc@development",
-                  "raster", "SpaDES.tools"),
+  reqdPkgs = list("achubaty/amc", "magrittr", "PredictiveEcology/map@development",
+                  "maptools", "PredictiveEcology/pemisc@development",
+                  "raster", "RColorBrewer", "reproducible", "rgeos", "sp", "SpaDES.tools"),
   parameters = rbind(
     defineParameter("minFRI", "numeric", 40, 0, 200, "The value of fire return interval below which, pixels will be changed to NA, i.e., ignored"),
     defineParameter("runName", "character", NA, NA, NA, "A description for run; this will form the basis of cache path and output path"),
@@ -27,9 +27,10 @@ defineModule(sim, list(
   ),
   inputObjects = bind_rows(
     ## TODO: uses CC and fire return interval maps from URL in init
+    expectsInput("canProvs", "SpatialPolygonsDataFrame", "Canadian provincial boundaries shapefile", NA)
   ),
   outputObjects = bind_rows(
-    createsOutput("CC TSF", "RasterLayer", desc = NA),
+    createsOutput("CC TSF", "RasterLayer", desc = NA), ## TODO: need descriptions for all outputs
     createsOutput("fireReturnInterval", "RasterLayer", desc = NA),
     createsOutput("LandTypeCC", "RasterLayer", desc = NA),
     createsOutput("LCC2005", "RasterLayer", desc = NA),
@@ -59,14 +60,48 @@ Init <- function(sim) {
   targetCRS <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95",
                          "+x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))
 
-  studyAreaName <- "LandWeb Study Area"
-  ml <- mapAdd(layerName = studyAreaName,
+  ## LandWeb study area -- LTHFC (aka "fire return interval") map
+  ml <- mapAdd(layerName = "LandWeb Study Area",
                targetCRS = targetCRS, overwrite = TRUE,
-               url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", # This is landweb_ltfc_v6.shp
-               columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
-  )
+               url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6", ## landweb_ltfc_v6.shp
+               columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL)
 
-  if (grepl("testing", P(sim)$runName)) {
+  ## Updated FMA boundaries
+  ml <- mapAdd(map = ml, layerName = "FMA Boundaries Updated",
+               useSAcrs = TRUE, poly = TRUE, overwrite = TRUE,
+               url = "https://drive.google.com/file/d/1nTFOcrdMf1hIsxd_yNCSTr8RrYNHHwuc/view?usp=sharing",
+               columnNameForLabels = "Name", isStudyArea = FALSE, filename2 = NULL)
+
+  ## Alberta Natural Subregions (ANSRs)
+  ml <- mapAdd(map = ml, layerName = "Alberta Natural Subregions",
+               useSAcrs = TRUE, poly = TRUE, overwrite = TRUE,
+               url = "https://drive.google.com/file/d/1mCEynahKnFkStJUJC8ho5ndRD41olz9F/view?usp=sharing",
+               columnNameForLabels = "Name", isStudyArea = FALSE, filename2 = NULL)
+
+  ## Boreal Caribou Ranges
+  ml <- mapAdd(map = ml, layerName = "Boreal Caribou Ranges",
+               useSAcrs = TRUE, poly = TRUE, overwrite = TRUE,
+               url = "https://drive.google.com/file/d/1PYLou8J1wcrme7Z2tx1wtA4GvaWnU1Jy/view?usp=sharing",
+               columnNameForLabels = "Name", isStudyArea = FALSE, filename2 = NULL)
+
+  ## Provincial Boundaries
+  ml <- mapAdd(sim$canProvs, map = ml, layerName = "Provincial Boundaries",
+               useSAcrs = TRUE, poly = TRUE, overwrite = TRUE,
+               columnNameForLabels = "Name", isStudyArea = FALSE, filename2 = NULL)
+
+  ################################################################################
+  ## COMPANY-SPECIFIC STUDY AREAS
+  dataDir <- file.path("inputs", "FMA_Boundaries")
+
+  if (grepl("ANC", P(sim)$runName)) {
+    ml <- fmaANC(ml, P(sim)$runName, dataDir, sim$canProvs)
+  } else if (grepl("DMI", P(sim)$runName)) {
+    ml <- fmaDMI(ml, P(sim)$runName, dataDir, sim$canProvs)
+  } else if (grepl("LP", P(sim)$runName)) {
+    ml <- fmaLP(ml, P(sim)$runName, dataDir, sim$canProvs)
+  } else if (grepl("tolko", P(sim)$runName)) {
+    ml <- fmaTolko(ml, P(sim)$runName, dataDir, sim$canProvs)
+  } else {
     # Make a random small study area
     seed <- 863
     ranSeed <- .Random.seed
@@ -87,104 +122,6 @@ Init <- function(sim) {
                  url = "https://drive.google.com/open?id=1JptU0R7qsHOEAEkxybx5MGg650KC98c6",
                  columnNameForLabels = "NSN", isStudyArea = TRUE, filename2 = NULL
     )
-    # create rasterToMatch from LCC layer
-  }
-
-  ################################################################################
-  ## COMPANY-SPECIFIC STUDY AREAS
-
-  dataDir <- file.path("inputs", "FMA_Boundaries")
-  dataDirDMI <- file.path(dataDir, "DMI")
-  dataDirLP <- file.path(dataDir, "LP")
-  dataDirTolko <- file.path(dataDir, "Tolko")
-
-  ### ADMINISTRATIVE POLYGONS
-  if (grepl("tolko_AB_N", P(sim)$runName)) {
-    studyAreaName <- "Tolko AB North SR"
-
-    ## reportingPolygons
-    tolko_ab_n <- shapefile(file.path(dataDirTolko, "Tolko_AB_N.shp"))
-    tolko_ab_n.ansr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_ANSR.shp"))
-    tolko_ab_n.caribou <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_caribou.shp"))
-
-    ml <- mapAdd(tolko_ab_n, ml, layerName = "Tolko AB North", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "Tolko AB North", isStudyArea = TRUE,
-                 columnNameForLabels = "Name", filename2 = NULL)
-    ml <- mapAdd(tolko_ab_n.ansr, ml, layerName = "Tolko AB North ANSR", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "Tolko AB North ANSR",
-                 columnNameForLabels = "Name", filename2 = NULL)
-    ml <- mapAdd(tolko_ab_n.caribou, ml, layerName = "Tolko AB North Caribou", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "Tolko AB North Caribou",
-                 columnNameForLabels = "Name", filename2 = NULL)
-
-    ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-    tolko_ab_n_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_N_SR.shp"))
-    ml <- mapAdd(tolko_ab_n_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-                 useSAcrs = TRUE, poly = TRUE, studyArea = NULL, # don't crop/mask to studyArea(ml, 2)
-                 columnNameForLabels = "NSN", filename2 = NULL)
-  } else if (grepl("tolko_AB_S", P(sim)$runName)) {
-    studyAreaName <- "Tolko AB South SR"
-
-    ## reportingPolygons
-    tolko_ab_s <- shapefile(file.path(dataDirTolko, "Tolko_AB_S.shp"))
-    tolko_ab_s.ansr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_ANSR.shp"))
-    tolko_ab_s.caribou <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_caribou.shp"))
-
-    ml <- mapAdd(tolko_ab_s, ml, layerName = "Tolko AB South", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "Tolko AB South", isStudyArea = TRUE,
-                 columnNameForLabels = "Name", filename2 = NULL)
-    ml <- mapAdd(tolko_ab_s.ansr, ml, layerName = "Tolko AB South ANSR", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "Tolko AB South ANSR",
-                 columnNameForLabels = "Name", filename2 = NULL)
-    ml <- mapAdd(tolko_ab_s.caribou, ml, layerName = "Tolko AB South Caribou", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "Tolko AB South Caribou",
-                 columnNameForLabels = "Name", filename2 = NULL)
-
-    ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-    tolko_ab_s_sr <- shapefile(file.path(dataDirTolko, "Tolko_AB_S_SR.shp"))
-    ml <- mapAdd(tolko_ab_s_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-                 useSAcrs = TRUE, poly = TRUE, studyArea = NULL, # don't crop/mask to studyArea(ml, 2)
-                 columnNameForLabels = "NSN", filename2 = NULL)
-  } else if (grepl("tolko_SK", P(sim)$runName)) {
-    studyAreaName <- "Tolko SK SR"
-
-    ## reportingPolygons
-    tolko_sk <- shapefile(file.path(dataDirTolko, "Tolko_SK.shp"))
-    tolko_sk.caribou <- shapefile(file.path(dataDirTolko, "Tolko_SK_caribou.shp"))
-
-    ml <- mapAdd(tolko_sk, ml, layerName = "Tolko SK", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "Tolko SK", isStudyArea = TRUE,
-                 columnNameForLabels = "Name", filename2 = NULL)
-    ml <- mapAdd(tolko_sk.caribou, ml, layerName = "Tolko SK Caribou", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "Tolko SK Caribou",
-                 columnNameForLabels = "Name", filename2 = NULL)
-
-    ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-    tolko_sk_sr <- shapefile(file.path(dataDirTolko, "Tolko_SK_SR.shp"))
-    ml <- mapAdd(tolko_sk_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-                 useSAcrs = TRUE, poly = TRUE, studyArea = NULL, # don't crop/mask to studyArea(ml, 2)
-                 columnNameForLabels = "NSN", filename2 = NULL)
-
-  } else if (grepl("LP_MB", P(sim)$runName)) {
-    studyAreaName <- "LP MB SR"
-
-    ## reportingPolygons
-    lp_mb <- shapefile(file.path(dataDirLP, "LP_MB.shp"))
-    lp_mb.caribou <- shapefile(file.path(dataDirLP, "LP_MB_caribou.shp"))
-
-    ml <- mapAdd(lp_mb, ml, layerName = "LP MB", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "LP MB", isStudyArea = TRUE,
-                 columnNameForLabels = "Name", filename2 = NULL)
-    ml <- mapAdd(lp_mb.caribou, ml, layerName = "LP MB Caribou", useSAcrs = TRUE, poly = TRUE,
-                 analysisGroupReportingPolygon = "LP MB Caribou",
-                 columnNameForLabels = "Name", filename2 = NULL)
-
-    ## studyArea shouldn't use analysisGroup because it's not a reportingPolygon
-    lp_mb_sr <- shapefile(file.path(dataDirLP, "LP_MB_SR.shp"))
-    ml <- mapAdd(lp_mb_sr, ml, isStudyArea = TRUE, layerName = studyAreaName,
-                 useSAcrs = TRUE, poly = TRUE, studyArea = NULL, # don't crop/mask to studyArea(ml, 2)
-                 columnNameForLabels = "NSN", filename2 = NULL)
-
   }
 
   ##########################################################
@@ -267,7 +204,6 @@ Init <- function(sim) {
   ml[[TSFLayerName]][noDataPixels] <- standAgeMap[noDataPixels]
   ml[[TSFLayerName]][sim$nonTreePixels] <- NA
 
-
   ##########################################################
   # Clean up the study area
   ##########################################################
@@ -344,3 +280,13 @@ Init <- function(sim) {
   return(invisible(sim))
 }
 
+.inputObjects <- function(sim) {
+  cacheTags <- c(currentModule(sim), "function:.inputObjects")
+  dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
+  message(currentModule(sim), ": using dataPath '", dPath, "'.")
+
+  if (!suppliedElsewhere("canProvs", sim))
+    sim$canProvs <- getData("GADM", country = "CAN", level = 1, path = dPath)
+
+  return(sim)
+}
