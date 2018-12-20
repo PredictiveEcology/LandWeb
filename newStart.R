@@ -173,7 +173,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         objects1,
                         paths = paths,
                         debug = 1)
-
+lapply(dev.list(), function(x) dev.off())
 quickPlot::dev(width = 18, height = 10)
 quickPlot::clearPlot()
 Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
