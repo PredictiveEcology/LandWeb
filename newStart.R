@@ -281,9 +281,10 @@ parameters <- list(
   LandR_BiomassGMOrig = list(
     ".useParallel" = 8 ## TODO: need
   ),
-  # Biomass_regeneration = list(
-  #
-  # ),
+  Biomass_regeneration = list(
+    "fireInitialTime" = fireTimestep,
+    "fireTimestep" = fireTimestep
+  ),
   timeSinceFire = list(
     "startTime" = fireTimestep,
     ".useCache" = eventCaching
