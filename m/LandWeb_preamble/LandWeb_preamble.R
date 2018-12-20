@@ -4,7 +4,7 @@ defineModule(sim, list(
   keywords = c("LandWeb"),
   authors = c(
     person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
-    person("Alex M", "Chubaty", email = "alex.chubaty@gmail.com", role = c("aut"))
+    person(c("Alex", "M."), "Chubaty", email = "achubaty@friresearch.ca", role = c("aut"))
   ),
   childModules = character(0),
   version = list(SpaDES.core = "0.2.3.9006", LandWeb_preamble = "0.0.1"),
@@ -13,9 +13,12 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandWeb_preamble.Rmd"),
-  reqdPkgs = list("achubaty/amc", "magrittr", "PredictiveEcology/map@development",
-                  "maptools", "PredictiveEcology/pemisc@development",
-                  "raster", "RColorBrewer", "reproducible", "rgeos", "sp", "SpaDES.tools"),
+  reqdPkgs = list("achubaty/amc", "fasterize", "magrittr", "maptools",
+                  #"PredictiveEcology/LandR@development",
+                  "PredictiveEcology/map@development",
+                  "PredictiveEcology/pemisc@development",
+                  "raster", "RColorBrewer", "reproducible", "rgeos",
+                  "sf", "sp", "SpaDES.tools"),
   parameters = rbind(
     defineParameter("minFRI", "numeric", 40, 0, 200, "The value of fire return interval below which, pixels will be changed to NA, i.e., ignored"),
     defineParameter("runName", "character", NA, NA, NA, "A description for run; this will form the basis of cache path and output path"),
@@ -127,7 +130,7 @@ Init <- function(sim) {
   ##########################################################
   # LCC2005
   ##########################################################
-  LCC2005 <- pemisc::prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
+  LCC2005 <- prepInputsLCC(studyArea = studyArea(ml), destinationPath = Paths$inputPath)
   ml <- mapAdd(LCC2005, layerName = "LCC2005", map = ml, filename2 = NULL, leaflet = FALSE,
                isRasterToMatch = TRUE, method = "ngb")
 
@@ -207,7 +210,7 @@ Init <- function(sim) {
   ##########################################################
   # Clean up the study area
   ##########################################################
-  studyArea(ml) <- pemisc::polygonClean(studyArea(ml), type = P(sim)$runName, minFRI = P(sim)$minFRI)
+  studyArea(ml) <- polygonClean(studyArea(ml), type = P(sim)$runName, minFRI = P(sim)$minFRI)
 
   ##########################################################
   # Flammability and Fire Return Interval maps
@@ -247,9 +250,9 @@ Init <- function(sim) {
   ml <- mapAdd(rstFireReturnInterval, layerName = "fireReturnInterval", filename2 = NULL,
                map = ml, leaflet = FALSE, maskWithRTM = FALSE)
 
-  #fireReturnInterval <- pemisc::factorValues2(ml$fireReturnInterval,
-  #                                            ml$fireReturnInterval[],
-  #                                            att = "fireReturnInterval")
+  #fireReturnInterval <- factorValues2(ml$fireReturnInterval,
+  #                                    ml$fireReturnInterval[],
+  #                                    att = "fireReturnInterval")
 
   if (grepl("doubleFRI", P(sim)$runName))
     ml$fireReturnInterval <- 2 * ml$fireReturnInterval
