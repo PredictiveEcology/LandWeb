@@ -281,7 +281,7 @@ parameters <- list(
     "overrideSpinup" = TRUE,
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
     "sppEquivCol" = sppEquivCol,
-    "successionTimestep" = 1,#successionTimestep,
+    "successionTimestep" = successionTimestep,
     ".useCache" = eventCaching[1],
     ".useParallel" = 8 ## TODO: need
   ),
