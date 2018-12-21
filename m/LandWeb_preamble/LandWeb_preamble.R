@@ -14,7 +14,7 @@ defineModule(sim, list(
   citation = list("citation.bib"),
   documentation = list("README.txt", "LandWeb_preamble.Rmd"),
   reqdPkgs = list("achubaty/amc", "fasterize", "magrittr", "maptools",
-                  #"PredictiveEcology/LandR@development",
+                  "PredictiveEcology/LandR@development",
                   "PredictiveEcology/map@development",
                   "PredictiveEcology/pemisc@development",
                   "raster", "RColorBrewer", "reproducible", "rgeos",
