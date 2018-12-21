@@ -16,8 +16,8 @@ if (FALSE) {
 
 if (FALSE) {
   try(detach("package:map", unload = TRUE))
-  try(detach("package:pemisc", unload = TRUE))
   try(detach("package:LandR", unload = TRUE))
+  try(detach("package:pemisc", unload = TRUE))
   try(detach("package:SpaDES.core", unload = TRUE))
   try(detach("package:SpaDES.tools", unload = TRUE))
   try(detach("package:reproducible", unload = TRUE))
