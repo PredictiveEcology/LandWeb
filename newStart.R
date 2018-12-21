@@ -131,7 +131,7 @@ opts <- options(
 #################################################
 # Set up sppEquiv
 #################################################
-data("sppEquivalencies_CA", package = "pemisc") ## TODO: sue LandR
+data("sppEquivalencies_CA", package = "LandR") ## TODO: sue LandR
 sppEquivalencies_CA[grep("Pin", LandR), `:=`(EN_generic_short = "Pine",
                                              EN_generic_full = "Pine",
                                              Leading = "Pine leading")]
