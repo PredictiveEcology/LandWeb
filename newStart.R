@@ -112,7 +112,9 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
+.plotInitialTime <- if (user("emcintir")) NA else 0
 opts <- options(
+  "LandR.assertions" = TRUE,
   "map.dataPath" = Paths$inputPath, # not used yet
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
@@ -174,11 +176,13 @@ simOutPreamble <- Cache(simInitAndSpades,
                         objects1,
                         paths = paths,
                         debug = 1)
-lapply(dev.list(), function(x) dev.off())
-quickPlot::dev(width = 18, height = 10)
-quickPlot::clearPlot()
-Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
-Plot(simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch)
+if (!is.na(.plotInitialTime)) {
+  lapply(dev.list(), function(x) dev.off())
+  quickPlot::dev(width = 18, height = 10)
+  quickPlot::clearPlot()
+  Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
+  Plot(simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch)
+}
 
 #################################################
 # Second spades call -- creates speciesLayers
@@ -204,8 +208,10 @@ parameters2 <- list(
   )
 )
 
-quickPlot::dev(width = 18, height = 12)
-quickPlot::clearPlot()
+if (!is.na(.plotInitialTime)) {
+  quickPlot::dev(width = 18, height = 12)
+  quickPlot::clearPlot()
+}
 #
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
@@ -275,8 +281,8 @@ parameters <- list(
     "overrideSpinup" = TRUE,
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
     "sppEquivCol" = sppEquivCol,
-    "successionTimestep" = successionTimestep,
-    ".useCache" = eventCaching,
+    "successionTimestep" = 1,#successionTimestep,
+    ".useCache" = eventCaching[1],
     ".useParallel" = 8 ## TODO: need
   ),
   LandR_BiomassGMOrig = list(
@@ -374,7 +380,8 @@ if (!useSpades) {
                    objects, # do not name this argument -- collides with Cache -- leave it unnamed
                    paths = paths,
                    loadOrder = unlist(modules),
-                   debug = 1
+                   debug = 1,
+                   .plotInitialTime = .plotInitialTime
   )
   #mySimOut <- spades(mySim, debug = 1)
 
