@@ -212,7 +212,7 @@ if (!is.na(.plotInitialTime)) {
   quickPlot::dev(width = 18, height = 12)
   quickPlot::clearPlot()
 }
-#
+
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
                              params = parameters2,
