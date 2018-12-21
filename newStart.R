@@ -75,8 +75,8 @@ library(data.table)
 library(raster)
 library(SpaDES.core)
 library(pemisc)
-#library(LandR)
 library(map)
+library(LandR)
 
 #devtools::install_github("achubaty/amc@development")
 library(amc)
@@ -212,7 +212,7 @@ if (!is.na(.plotInitialTime)) {
   quickPlot::dev(width = 18, height = 12)
   quickPlot::clearPlot()
 }
-#
+
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
                              params = parameters2,
