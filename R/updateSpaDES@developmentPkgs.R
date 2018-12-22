@@ -15,28 +15,24 @@ if (FALSE) {
 }
 
 if (FALSE) {
-  if (Sys.info()[["user"]] == "emcintir") {
-    try(detach("package:SpaDES.core", unload = TRUE))
-  }
   try(detach("package:map", unload = TRUE))
+  try(detach("package:LandR", unload = TRUE))
   try(detach("package:pemisc", unload = TRUE))
+  try(detach("package:SpaDES.core", unload = TRUE))
   try(detach("package:SpaDES.tools", unload = TRUE))
+  try(detach("package:reproducible", unload = TRUE))
 
-  if (Sys.info()[["user"]] == "emcintir") {
-    try(detach("package:reproducible", unload = TRUE))
-  }
+  ghPath <- "~/GitHub"
 
-  if (Sys.info()[["user"]] == "achubaty") {
-    devtools::load_all("~/GitHub/PredictiveEcology/SpaDES.tools")
-    devtools::load_all("~/GitHub/PredictiveEcology/pemisc")
-    devtools::load_all("~/GitHub/PredictiveEcology/map")
-  } else if (Sys.info()[["user"]] == "emcintir") {
-    devtools::load_all("~/GitHub/reproducible")
-    devtools::load_all("~/GitHub/SpaDES.tools")
-    devtools::load_all("~/GitHub/pemisc")
-    devtools::load_all("~/GitHub/map")
-    devtools::load_all("~/GitHub/SpaDES.core")
-  }
+  if (Sys.info()[["user"]] == "achubaty")
+    ghPath <- "~/GitHub/PredictiveEcology"
+
+  devtools::load_all(file.path(ghPath, "reproducible"))
+  devtools::load_all(file.path(ghPath, "pemisc"))
+  devtools::load_all(file.path(ghPath, "map"))
+  devtools::load_all(file.path(ghPath, "SpaDES.core"))
+  devtools::load_all(file.path(ghPath, "SpaDES.tools"))
+  devtools::load_all(file.path(ghPath, "LandR"))
 }
 
 ## test download of private data from Google Drive
