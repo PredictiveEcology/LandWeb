@@ -290,7 +290,8 @@ parameters <- list(
   ),
   Biomass_regeneration = list(
     "fireInitialTime" = fireTimestep,
-    "fireTimestep" = fireTimestep
+    "fireTimestep" = fireTimestep,
+    "successionTimestep" = successionTimestep
   ),
   timeSinceFire = list(
     "startTime" = fireTimestep,
