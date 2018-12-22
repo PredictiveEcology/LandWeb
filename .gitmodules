@@ -18,4 +18,4 @@
 	url = git@github.com:fRI-Research/LandWeb_output
 [submodule "m/LandR_BiomassGMOrig"]
 	path = m/LandR_BiomassGMOrig
-	url = git@github.com:ianmseddy/LandR_BiomassGMOrig
+	url = git@github.com:eliotmcintire/LandR_BiomassGMOrig
