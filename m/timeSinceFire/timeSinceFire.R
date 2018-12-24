@@ -56,7 +56,7 @@ doEvent.timeSinceFire <- function(sim, eventTime, eventType, debug = FALSE) {
   } else if (eventType == "age") {
     sim$burnLoci <- which(sim$rstCurrentBurn[] == 1)
     fireTimestep <- if (is.null(sim$fireTimestep)) P(sim)$returnInterval else sim$fireTimestep
-    sim$rstTimeSinceFire[] <- sim$rstTimeSinceFire[] + as.integer(fireTimestep) #preserves NAs
+    sim$rstTimeSinceFire[] <- as.integer(sim$rstTimeSinceFire[]) + as.integer(fireTimestep) #preserves NAs
     sim$rstTimeSinceFire[sim$burnLoci] <- 0L
     #schedule next age event
     sim <- scheduleEvent(sim, time(sim) + fireTimestep, "timeSinceFire", "age")
@@ -108,6 +108,7 @@ Init <- function(sim) {
     #sim$rstTimeSinceFire[] <- factorValues(sim$rasterToMatch, sim$rasterToMatch[],
     #                                       att = "fireReturnInterval")[[1]]
     sim$rstTimeSinceFire[sim$rstFlammable[] == 0L] <- NA #non-flammable areas are permanent.
+    sim$rstTimeSinceFire[] <- as.integer(sim$rstTimeSinceFire[])
   }
   return(invisible(sim))
 }
