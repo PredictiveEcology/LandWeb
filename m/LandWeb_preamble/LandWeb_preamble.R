@@ -183,6 +183,7 @@ Init <- function(sim) {
                targetFile = fname_age, filename2 = NULL,
                useCache = TRUE, isRasterToMatch = FALSE,
                alsoExtract = "similar", leaflet = FALSE)
+  ml[[TSFLayerName]][] <- as.integer(ml[[TSFLayerName]])
 
 
   ########################################################################
@@ -240,6 +241,7 @@ Init <- function(sim) {
 
   sim$rstFlammable <- rstFlammableCC
   sim$rstFlammable[LandTypeCCNA] <- rstFlammableLCC[LandTypeCCNA]
+  sim$rstFlammable[] <- as.integer(sim$rstFlammable[])
 
   ## fireReturnInterval needs to be masked by rstFlammable
   rstFireReturnInterval <- fasterize::fasterize(sf::st_as_sf(studyArea(ml)),
