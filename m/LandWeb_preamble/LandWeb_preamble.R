@@ -143,10 +143,9 @@ Init <- function(sim) {
                           url = ccURL, method = "ngb",
                           rasterToMatch = rasterToMatch(ml), filename2 = NULL)
 
-
-  ################
+  ##########################################################
   # Non Tree pixels
-  ##################
+  ##########################################################
   # Setting NA values
   # 3 is shrub, wetland, grassland -- no veg dynamics happen -- will burn in fire modules
   # 4 is water, rock, ice
@@ -183,8 +182,7 @@ Init <- function(sim) {
                targetFile = fname_age, filename2 = NULL,
                useCache = TRUE, isRasterToMatch = FALSE,
                alsoExtract = "similar", leaflet = FALSE)
-  ml[[TSFLayerName]][] <- as.integer(ml[[TSFLayerName]])
-
+  ml[[TSFLayerName]][] <- as.integer(ml[[TSFLayerName]][])
 
   ########################################################################
   # Age from KNN
