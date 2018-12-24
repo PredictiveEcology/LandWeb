@@ -10,6 +10,8 @@ devtools::install_github("PredictiveEcology/map", ref = "master", dependencies =
 devtools::install_github("PredictiveEcology/LandR", ref = "development", dependencies = FALSE)
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "development", dependencies = FALSE)
 
+devtools::install_github("achubaty/amc", ref = "master", dependencies = TRUE)
+
 if (FALSE) {
   options(shiny.reactlog = TRUE)
 }
