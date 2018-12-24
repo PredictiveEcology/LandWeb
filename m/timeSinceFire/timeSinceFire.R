@@ -6,7 +6,7 @@ defineModule(sim, list(
   keywords = c("fire", "LandWeb"),
   authors = c(person(c("Steve", "G"), "Cumming", email = "stevec@sbf.ulaval.ca", role = c("aut", "cre"))),
   childModules = character(),
-  version = numeric_version("1.2.1"),
+  version = list(SpaDES.core = "0.2.3.9009", numeric_version("1.2.1")),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
