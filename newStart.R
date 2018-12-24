@@ -282,7 +282,7 @@ parameters <- list(
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = successionTimestep,
-    ".useCache" = eventCaching[1],
+    ".useCache" = eventCaching[1], # seems slower to use Cache for both
     ".useParallel" = 8 ## TODO: need
   ),
   LandR_BiomassGMOrig = list(
