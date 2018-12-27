@@ -112,7 +112,7 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
-.plotInitialTime <- if (user("emcintir")) NA else 0
+.plotInitialTime <- 0 # (user("emcintir")) NA else 0
 opts <- options(
   "LandR.assertions" = TRUE,
   "map.dataPath" = Paths$inputPath, # not used yet
@@ -178,11 +178,14 @@ simOutPreamble <- Cache(simInitAndSpades,
                         debug = 1)
 
 if (!is.na(.plotInitialTime)) {
-  lapply(dev.list(), function(x) dev.off())
-  quickPlot::dev(width = 18, height = 10)
-  quickPlot::clearPlot()
+  lapply(dev.list(), function(x) {
+    try(quickPlot::clearPlot(force = TRUE))
+    try(dev.off())
+    })
+  quickPlot::dev(2, width = 18, height = 10)
   Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
-  Plot(simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch)
+  Plot(simOutPreamble$rasterToMatchReporting)
+  Plot(simOutPreamble$rasterToMatch) # some bug in quickPlot that makes these 2 not plot together
 }
 
 #################################################
@@ -205,13 +208,12 @@ parameters2 <- list(
     "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
     "sppEquivCol" = sppEquivCol,
     "omitNonVegPixels" = TRUE,
-    ".plotInitialTime" = 0
+    ".plotInitialTime" = .plotInitialTime
   )
 )
 
 if (!is.na(.plotInitialTime)) {
-  quickPlot::dev(width = 18, height = 12)
-  quickPlot::clearPlot()
+  quickPlot::dev(3, width = 18, height = 10)
 }
 
 simOutSpeciesLayers <- Cache(simInitAndSpades,
@@ -275,7 +277,7 @@ parameters <- list(
     "sppEquivCol" = sppEquivCol,
     "summaryInterval" = summaryInterval,
     "vegLeadingProportion" = vegLeadingProportion,
-    ".plotInitialTime" = 0,
+    ".plotInitialTime" = .plotInitialTime,
     ".plotInterval" = 1
   ),
   LBMR = list(
@@ -296,7 +298,7 @@ parameters <- list(
   ),
   timeSinceFire = list(
     "startTime" = fireTimestep,
-    ".useCache" = eventCaching
+    ".useCache" = eventCaching[1] # way faster without caching for "init"
   )
 )
 
@@ -372,8 +374,9 @@ if (!useSpades) {
 
   saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 } else {
-  # quickPlot::dev(width = 18, height = 12)
-  # quickPlot::clearPlot()
+  if (!is.na(.plotInitialTime)) {
+    quickPlot::dev(4, width = 18, height = 10)
+  }
 
   mySimOut <- simInitAndSpades(times = times, #cl = cl,
                    params = parameters,
