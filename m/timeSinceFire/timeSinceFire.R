@@ -6,7 +6,7 @@ defineModule(sim, list(
   keywords = c("fire", "LandWeb"),
   authors = c(person(c("Steve", "G"), "Cumming", email = "stevec@sbf.ulaval.ca", role = c("aut", "cre"))),
   childModules = character(),
-  version = numeric_version("1.2.1"),
+  version = list(SpaDES.core = "0.2.3.9009", numeric_version("1.2.1")),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
@@ -61,7 +61,9 @@ doEvent.timeSinceFire <- function(sim, eventTime, eventType, debug = FALSE) {
     #schedule next age event
     sim <- scheduleEvent(sim, time(sim) + fireTimestep, "timeSinceFire", "age")
   } else if (eventType == "plot") {
-    Plot(sim$rstTimeSinceFire)
+    rtsf <- sim$rstTimeSinceFire
+    plotFn(rtsf, title = "Time since fire (age)", new = TRUE)
+    #Plot(rtsf, title = "Time since fire (age)", new = TRUE)
     # e.g.,
     sim <- scheduleEvent(sim, time(sim) + P(sim)$.plotInterval, "timeSinceFire", "plot")
 
@@ -112,3 +114,8 @@ Init <- function(sim) {
   }
   return(invisible(sim))
 }
+
+plotFn <- function(rtsf, title = "Time since fire (age)", new = TRUE) {
+  Plot(rtsf, title = title, new = new)
+}
+
