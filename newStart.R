@@ -21,49 +21,45 @@ fireTimestep <- 1
 ## set run name
 ##############################################################
 
-runName <- "testing"
+#runName <- "testing"
 
-runName <- "tolko_AB_N"  ## original
-#runName <- "tolko_AB_S"  ## original
-#runName <- "tolko_SK"  ## original
-
-## running locally
-#runName <- "tolko_AB_N_doubleFRI" ## DONE
-#runName <- "tolko_AB_S_doubleFRI" ## DONE
-#runName <- "tolko_SK_doubleFRI" ## DONE
+#runName <- "tolko_AB_N"
+#runName <- "tolko_AB_S"
+#runName <- "tolko_SK"
 
 ## running locally
-#runName <- "tolko_AB_N_equalROS" ## DONE
-#runName <- "tolko_AB_S_equalROS" ## DONE
-#runName <- "tolko_SK_equalROS" ## DONE
+#runName <- "tolko_AB_N_doubleFRI"
+#runName <- "tolko_AB_S_doubleFRI"
+#runName <- "tolko_SK_doubleFRI"
 
 ## running locally
-#runName <- "tolko_AB_N_logROS" ## DONE
-#runName <- "tolko_AB_S_logROS" ## DONE
-#runName <- "tolko_SK_logROS" ## DONE
+#runName <- "tolko_AB_N_equalROS"
+#runName <- "tolko_AB_S_equalROS"
+#runName <- "tolko_SK_equalROS"
 
 ## running locally
-#runName <- "tolko_AB_N_noDispersal" ## running
-#runName <- "tolko_AB_S_noDispersal" ## running
-#runName <- "tolko_SK_noDispersal" ## running
+#runName <- "tolko_AB_N_logROS"
+#runName <- "tolko_AB_S_logROS"
+#runName <- "tolko_SK_logROS"
 
 ## running locally
-#runName <- "tolko_AB_N_doubleDispersal" ## running
-#runName <- "tolko_AB_S_doubleDispersal" ## running
-#runName <- "tolko_SK_doubleDispersal" ## running
+#runName <- "tolko_AB_N_noDispersal"
+#runName <- "tolko_AB_S_noDispersal"
+#runName <- "tolko_SK_noDispersal"
 
 ## running locally
-#runName <- "tolko_AB_N_aspen80" ## not run
-#runName <- "tolko_AB_S_aspen80" ## not run
-#runName <- "tolko_SK_aspen80" ## running
+#runName <- "tolko_AB_N_doubleDispersal"
+#runName <- "tolko_AB_S_doubleDispersal"
+#runName <- "tolko_SK_doubleDispersal"
+
+## running locally
+#runName <- "tolko_AB_N_aspen80"
+#runName <- "tolko_AB_S_aspen80"
+#runName <- "tolko_SK_aspen80"
 
 ## running locally
 #runName <- "LP_MB" ## DONE
 #runName <- "LP_MB_logROS" ## DONE
-
-## running by Eliot on 343 Oct 27, 2018 -- These have Current Conditions as Initial Conditions,
-#       more variable fire num per year
-#runName <- "tolko_AB_N_logROS_new_Eliot" ## running
 
 message(crayon::red(runName))
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
@@ -127,6 +123,8 @@ opts <- options(
   "spades.moduleCodeChecks" = FALSE,
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
+
+httr::set_config(httr::config(http_version = 0))
 
 #################################################
 # Set up sppEquiv
