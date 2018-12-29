@@ -23,6 +23,12 @@ fireTimestep <- 1
 
 #runName <- "testing"
 
+#runName <- "DMI"
+#runName <- "DMI_doubleFRI"
+#runName <- "DMI_equalROS"
+#runName <- "DMI_logROS"
+#runName <- "DMI_noDispersal"
+
 #runName <- "tolko_AB_N"
 #runName <- "tolko_AB_S"
 #runName <- "tolko_SK"
@@ -48,18 +54,17 @@ fireTimestep <- 1
 #runName <- "tolko_SK_noDispersal"
 
 ## running locally
-#runName <- "tolko_AB_N_doubleDispersal"
-#runName <- "tolko_AB_S_doubleDispersal"
-#runName <- "tolko_SK_doubleDispersal"
-
-## running locally
 #runName <- "tolko_AB_N_aspen80"
 #runName <- "tolko_AB_S_aspen80"
 #runName <- "tolko_SK_aspen80"
 
 ## running locally
-#runName <- "LP_MB" ## DONE
-#runName <- "LP_MB_logROS" ## DONE
+#runName <- "LP_MB"
+#runName <- "LP_MB_doubleFRI"
+#runName <- "LP_MB_equalROS"
+#runName <- "LP_MB_logROS"
+#runName <- "LP_MB_noDispersal"
+
 
 message(crayon::red(runName))
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
