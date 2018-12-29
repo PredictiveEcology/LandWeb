@@ -23,12 +23,21 @@ fireTimestep <- 1
 
 #runName <- "testing"
 
+## running locally
+#runName <- "ANC"
+#runName <- "ANC_doubleFRI"
+#runName <- "ANC_equalROS"
+#runName <- "ANC_logROS"
+#runName <- "ANC_noDispersal"
+
+## running locally
 #runName <- "DMI"
 #runName <- "DMI_doubleFRI"
 #runName <- "DMI_equalROS"
 #runName <- "DMI_logROS"
 #runName <- "DMI_noDispersal"
 
+## running locally
 #runName <- "tolko_AB_N"
 #runName <- "tolko_AB_S"
 #runName <- "tolko_SK"
