@@ -65,7 +65,6 @@ fireTimestep <- 1
 #runName <- "LP_MB_logROS"
 #runName <- "LP_MB_noDispersal"
 
-
 message(crayon::red(runName))
 source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
 
@@ -113,7 +112,7 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
-.plotInitialTime <- 0 # (user("emcintir")) NA else 0
+.plotInitialTime <- 0
 opts <- options(
   "LandR.assertions" = TRUE,
   "map.dataPath" = Paths$inputPath, # not used yet
@@ -184,7 +183,7 @@ if (!is.na(.plotInitialTime)) {
   lapply(dev.list(), function(x) {
     try(quickPlot::clearPlot(force = TRUE))
     try(dev.off())
-    })
+  })
   quickPlot::dev(2, width = 18, height = 10)
   Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
   Plot(simOutPreamble$rasterToMatchReporting)
