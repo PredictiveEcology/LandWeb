@@ -75,7 +75,16 @@ fireTimestep <- 1
 #runName <- "LP_MB_noDispersal"
 
 message(crayon::red(runName))
-source(file.path("params", paste0("Development_Parameters_", runName, ".R")))
+
+if (grepl("LandWeb", runName)) {
+  source(file.path("params", "LandWeb_parameters.R"))
+} else if (grepl("ANC|DMI|LP|TOLKO", toupper(runName))) {
+  source(file.path("params", "FMA_parameters.R"))
+} else if (grepl("testing", tolower(runName))) {
+  source(file.path("params", "testing_parameters.R"))
+} else {
+  stop("runName not associated with a parameter file. Please check the name and try again.")
+}
 
 ##########################################################
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
