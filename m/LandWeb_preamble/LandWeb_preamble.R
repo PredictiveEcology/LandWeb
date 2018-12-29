@@ -280,6 +280,16 @@ Init <- function(sim) {
                                             studyArea = studyArea(ml, 2),
                                             filename2 = NULL) # this is the small one
 
+  ## some assertions:
+  testObjs <- c("studyArea", "studyAreaLarge", "studyAreaReporting",
+                "rasterToMatch", "rasterToMatchReporting",
+                "fireReturnInterval", TSFLayerName)
+  lapply(testObjs, function(x) {
+    if (is.null(sim[[x]]))
+      stop("LandWeb_preamble: ", paste0("sim$", x, " returned NULL."), call. = FALSE)
+  })
+  ## end assertions
+
   return(invisible(sim))
 }
 
