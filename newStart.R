@@ -139,7 +139,8 @@ opts <- options(
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
   "reproducible.overwrite" = TRUE,
-  "reproducible.useMemoise" = FALSE,
+  "reproducible.useMemoise" = TRUE,
+  "reproducible.useNewDigestAlgorithm" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.quick" = FALSE,
   "reproducible.useCache" = TRUE,
   "spades.moduleCodeChecks" = FALSE,
@@ -282,7 +283,10 @@ objects <- list(
 parameters <- list(
   Boreal_LBMRDataPrep = list(
     "sppEquivCol" = sppEquivCol,
-    "minNumPixelsToEstMaxBiomass" = 50,
+    # next two are used when assigning pixelGroup membership; what resolution for
+    #   age and biomass
+    "pixelGroupAgeClass" = successionTimestep,
+    "pixelGroupBiomassClass" = 100,
     ".useCache" = eventCaching
   ),
   LandMine = list(
