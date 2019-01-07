@@ -305,7 +305,7 @@ parameters <- list(
     ".plotInterval" = 1
   ),
   LBMR = list(
-    "overrideSpinup" = TRUE,
+    "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = successionTimestep,
