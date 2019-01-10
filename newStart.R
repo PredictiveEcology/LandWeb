@@ -130,7 +130,7 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
-.plotInitialTime <- 0
+.plotInitialTime <- if (user("emcintir")) NA else 0
 opts <- options(
   "LandR.assertions" = TRUE,
   "map.dataPath" = Paths$inputPath, # not used yet
