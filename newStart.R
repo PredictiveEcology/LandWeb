@@ -260,8 +260,12 @@ modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LBMR",
 speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
 #speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 4000] ## (see LandWeb#96)
 speciesTable[LandisCode == "PICE.GLA", `:=`(SeedEffDist = 300, SeedMaxDist = 4000)] ## (see LandWeb#96)
-speciesTable[LandisCode == "PICE.MAR", `:=`(SeedEffDist = 250, SeedMaxDist = 600)] ## (see LandWeb#96)
-speciesTable[LandisCode == "PINU.BAN", `:=`(SeedEffDist = 300, SeedMaxDist = 500)] ## (see LandWeb#96)
+speciesTable[LandisCode == "PICE.MAR", `:=`(SeedEffDist = 250, SeedMaxDist = 4000)] ## (see LandWeb#96)
+speciesTable[LandisCode == "PINU.BAN", `:=`(SeedEffDist = 300, SeedMaxDist = 4000)] ## (see LandWeb#96)
+if (getOption("LandR.verbose") > 0) {
+  message("Adjusting species-level traits for LandWeb")
+}
+
 
 if (grepl("aspen80", runName)) {
   speciesTable[LandisCode == "POPU.TRE", Longevity := 80] ## (see LandWeb#67)
