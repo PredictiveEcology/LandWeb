@@ -139,6 +139,7 @@ opts <- options(
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
+  "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.overwrite" = TRUE,
   "reproducible.useMemoise" = TRUE,
