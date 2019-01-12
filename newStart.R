@@ -130,7 +130,7 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
-.plotInitialTime <- if (user("emcintir")) NA else 0
+.plotInitialTime <- if (user("emcintir")) 0 else 0
 opts <- options(
   "LandR.assertions" = if (user("emcintir")) TRUE else TRUE,
   "LandR.verbose" = if (user("emcintir")) 2 else 1,
@@ -259,6 +259,8 @@ modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LBMR",
 speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
 #speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 4000] ## (see LandWeb#96)
 speciesTable[LandisCode == "PICE.GLA", `:=`(SeedEffDist = 300, SeedMaxDist = 4000)] ## (see LandWeb#96)
+speciesTable[LandisCode == "PICE.MAR", `:=`(SeedEffDist = 250, SeedMaxDist = 600)] ## (see LandWeb#96)
+speciesTable[LandisCode == "PINU.BAN", `:=`(SeedEffDist = 300, SeedMaxDist = 500)] ## (see LandWeb#96)
 
 if (grepl("aspen80", runName)) {
   speciesTable[LandisCode == "POPU.TRE", Longevity := 80] ## (see LandWeb#67)
@@ -413,6 +415,7 @@ if (!useSpades) {
                    paths = paths,
                    loadOrder = unlist(modules),
                    debug = 1,
+                   #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
                    .plotInitialTime = .plotInitialTime
   )
   #mySimOut <- spades(mySim, debug = 1)
