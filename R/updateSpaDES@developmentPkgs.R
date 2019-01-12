@@ -1,18 +1,19 @@
 #git clone git@github.com:eliotmcintire/LandWeb --branch rewriteNoAll --recurse-submodules -j8
 
-#devtools::install_github("PredictiveEcology/quickPlot", ref = "development", dependencies = FALSE)
-devtools::install_github("PredictiveEcology/reproducible", ref = "development", dependencies = FALSE)
-#devtools::install_github("PredictiveEcology/webDatabases", ref = "master", dependencies = FALSE)
-devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development", dependencies = FALSE)
-devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development", dependencies = FALSE)
-devtools::install_github("PredictiveEcology/pemisc", ref = "development", dependencies = FALSE)
-devtools::install_github("PredictiveEcology/map", ref = "master", dependencies = FALSE)
-devtools::install_github("PredictiveEcology/LandR", ref = "development", dependencies = FALSE)
-devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "development", dependencies = FALSE)
+deps <- FALSE
+#devtools::install_github("PredictiveEcology/quickPlot", ref = "development", dependencies = deps)
+devtools::install_github("PredictiveEcology/reproducible", ref = "development", dependencies = deps)
+#devtools::install_github("PredictiveEcology/webDatabases", ref = "master", dependencies = deps)
+devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development", dependencies = deps)
+devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development", dependencies = deps)
+devtools::install_github("PredictiveEcology/pemisc", ref = "development", dependencies = deps)
+devtools::install_github("PredictiveEcology/map", ref = "master", dependencies = deps)
+devtools::install_github("PredictiveEcology/LandR", ref = "development", dependencies = deps)
+devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "development", dependencies = deps)
 
-devtools::install_github("rforge/mumin", subdir = "pkg", ref = "master", dependencies = FALSE)
+devtools::install_github("rforge/mumin", subdir = "pkg", ref = "master", dependencies = deps)
 
-devtools::install_github("achubaty/amc", ref = "master", dependencies = TRUE)
+devtools::install_github("achubaty/amc", ref = "master", dependencies = deps)
 
 if (FALSE) {
   options(shiny.reactlog = TRUE)
