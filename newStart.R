@@ -132,7 +132,8 @@ tilePath <- file.path(Paths$outputPath, "tiles")
 ## Options
 .plotInitialTime <- if (user("emcintir")) NA else 0
 opts <- options(
-  "LandR.assertions" = TRUE,
+  "LandR.assertions" = if (user("emcintir")) TRUE else TRUE,
+  "LandR.verbose" = if (user("emcintir")) 2 else 1,
   "map.dataPath" = Paths$inputPath, # not used yet
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
@@ -256,7 +257,8 @@ modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LBMR",
                 "timeSinceFire")
 
 speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
-speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 2000] ## (see LandWeb#96)
+#speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 4000] ## (see LandWeb#96)
+speciesTable[LandisCode == "PICE.GLA", `:=`(SeedEffDist = 300, SeedMaxDist = 4000)] ## (see LandWeb#96)
 
 if (grepl("aspen80", runName)) {
   speciesTable[LandisCode == "POPU.TRE", Longevity := 80] ## (see LandWeb#67)
