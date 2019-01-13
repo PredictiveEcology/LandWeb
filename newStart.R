@@ -262,7 +262,7 @@ speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
 speciesTable[LandisCode == "PICE.GLA", `:=`(SeedEffDist = 300, SeedMaxDist = 4000)]
 speciesTable[LandisCode == "PICE.MAR", `:=`(SeedEffDist = 250, SeedMaxDist = 4000)]
 speciesTable[LandisCode == "PINU.BAN", `:=`(SeedEffDist = 300, SeedMaxDist = 4000)]
-speciesTable[, `:=`(GrowthCurve = 1)]
+speciesTable[, `:=`(GrowthCurve = 0)]
 if (getOption("LandR.verbose") > 0) {
   message("Adjusting species-level traits for LandWeb")
 }
