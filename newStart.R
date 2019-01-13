@@ -258,7 +258,8 @@ modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LBMR",
                 "timeSinceFire")
 
 speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
-#speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 4000] ## (see LandWeb#96)
+# speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 4000] ## (see LandWeb#96)
+# speciesTable[LandisCode == "POPU.TRE", `:=`(SeedEffDist = 200, SeedMaxDist = 2000)]
 speciesTable[LandisCode == "PICE.GLA", `:=`(SeedEffDist = 300, SeedMaxDist = 4000)]
 speciesTable[LandisCode == "PICE.MAR", `:=`(SeedEffDist = 250, SeedMaxDist = 4000)]
 speciesTable[LandisCode == "PINU.BAN", `:=`(SeedEffDist = 300, SeedMaxDist = 4000)]
@@ -298,6 +299,7 @@ parameters <- list(
     #   age and biomass
     "pixelGroupAgeClass" = successionTimestep,
     "pixelGroupBiomassClass" = 100,
+    "PopuEstablishProbAdjFac" = 4,
     ".useCache" = eventCaching
   ),
   LandMine = list(
