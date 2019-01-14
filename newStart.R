@@ -439,6 +439,7 @@ if (isTRUE(usePOM)) {
                   summaryTable = mySim$summaryBySpecies1)
 
   options(opts2)
+  parallel::stopCluster(cl)
 }
 
 ######## SimInit and Experiment
