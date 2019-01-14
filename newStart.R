@@ -389,8 +389,10 @@ message(crayon::red(runName))
 if (isTRUE(usePOM)) {
   runName <- "tolko_SK_logROS"
 
-  objectiveFunction <-function(summaryTable) {
-    summaryTable <- summaryTable[, totalPixels := sum(counts), by = year]
+  objectiveFunction <-function(params, sim) {
+    mySimOut <- spades(sim, .plotInitialTime = NA)
+
+    summaryTable <- mySimOut$summaryBySpecies1[, totalPixels := sum(counts), by = year]
     summaryTable[, proportion := counts / totalPixels]
 
     initial <- summaryTable[year == 0, ]
@@ -433,11 +435,10 @@ if (isTRUE(usePOM)) {
                   "mortalityShapeDecid", "mortalityShapeNonDecid")
 
   cl <- parallel::makeCluster(10 * length(params4POM), type = "FORK")
-  mySimPOM <- POM(mySim,
-                  params = params4POM,
-                  objFn = objectiveFunction,
-                  cl = cl,
-                  summaryTable = mySim$summaryBySpecies1)
+  outPOM <- POM(mySim,
+                params = params4POM,
+                objFn = objectiveFunction,
+                cl = cl)
 
   options(opts2)
   parallel::stopCluster(cl)
