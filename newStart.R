@@ -55,7 +55,7 @@ fireTimestep <- 1
 ## running locally
 #runName <- "tolko_AB_N_logROS"
 #runName <- "tolko_AB_S_logROS"
-runName <- "tolko_SK_logROS"
+if (user("emcintir")) runName <- "tolko_SK_logROS"
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal"
@@ -145,7 +145,7 @@ opts <- options(
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.quick" = FALSE,
-  "reproducible.useCache" = TRUE,
+  "reproducible.useCache" = if (user("emcintir")) "devMode" else TRUE,
   "spades.moduleCodeChecks" = FALSE,
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
