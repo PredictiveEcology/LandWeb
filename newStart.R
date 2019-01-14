@@ -55,7 +55,7 @@ fireTimestep <- 1
 ## running locally
 #runName <- "tolko_AB_N_logROS"
 #runName <- "tolko_AB_S_logROS"
-#runName <- "tolko_SK_logROS"
+if (pemisc::user("emcintir")) runName <- "tolko_SK_logROS"
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal"
@@ -130,7 +130,7 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
-.plotInitialTime <- if (user("emcintir")) NA else 0
+.plotInitialTime <- if (user("emcintir")) 0 else 0
 opts <- options(
   "LandR.assertions" = if (user("emcintir")) TRUE else TRUE,
   "LandR.verbose" = if (user("emcintir")) 2 else 1,
@@ -139,12 +139,13 @@ opts <- options(
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
+  "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.overwrite" = TRUE,
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.quick" = FALSE,
-  "reproducible.useCache" = TRUE,
+  "reproducible.useCache" = if (user("emcintir")) "devMode" else TRUE,
   "spades.moduleCodeChecks" = FALSE,
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
@@ -257,9 +258,11 @@ modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LBMR",
                 "timeSinceFire")
 
 speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
-#speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 4000] ## (see LandWeb#96)
-speciesTable[LandisCode == "PICE.GLA", `:=`(SeedEffDist = 300, SeedMaxDist = 4000)] ## (see LandWeb#96)
+if (getOption("LandR.verbose") > 0) {
+  message("Adjusting species-level traits for LandWeb")
+}
 
+#  TODO -- put this into the sim$species
 if (grepl("aspen80", runName)) {
   speciesTable[LandisCode == "POPU.TRE", Longevity := 80] ## (see LandWeb#67)
 }
@@ -290,6 +293,8 @@ parameters <- list(
     #   age and biomass
     "pixelGroupAgeClass" = successionTimestep,
     "pixelGroupBiomassClass" = 100,
+    "establishProbAdjFacResprout" = 0.1,# multiply the establishProb by this
+    "establishProbAdjFacNonResprout" = 2, # multiply the establishProb by this
     ".useCache" = eventCaching
   ),
   LandMine = list(
@@ -413,6 +418,7 @@ if (!useSpades) {
                    paths = paths,
                    loadOrder = unlist(modules),
                    debug = 1,
+                   #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
                    .plotInitialTime = .plotInitialTime
   )
   #mySimOut <- spades(mySim, debug = 1)
