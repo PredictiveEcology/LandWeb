@@ -387,6 +387,7 @@ message(crayon::red(runName))
 
 ######## parameter estimation using POM (LandWeb#111)
 if (isTRUE(usePOM)) {
+  runName <- "tolko_SK_logROS"
 
   objectiveFunction <-function(summaryTable) {
     summaryTable <- summaryTable[, totalPixels := sum(counts), by = year]
@@ -431,10 +432,11 @@ if (isTRUE(usePOM)) {
                   "growthCurveDecid", "growthCurveNonDecid",
                   "mortalityShapeDecid", "mortalityShapeNonDecid")
 
-  cl <- parallel::makeCluster(10 * length(params4POM))
+  cl <- parallel::makeCluster(10 * length(params4POM), type = "FORK")
   mySimPOM <- POM(mySim,
                   params = params4POM,
                   objFn = objectiveFunction,
+                  optimControl = list(cluster = 3),
                   cl = cl,
                   summaryTable = mySim$summaryBySpecies1)
 
