@@ -268,6 +268,10 @@ if (grepl("aspen80", runName)) {
   speciesTable[LandisCode == "POPU.TRE", Longevity := 80] ## (see LandWeb#67)
 }
 
+if (grepl("noDispersal", runName)) {
+  speciesTable[, PostFireRegen := "none"]
+}
+
 objects <- list(
   "fireReturnInterval" = simOutPreamble$fireReturnInterval,
   "LCC2005" = simOutPreamble$LCC2005,
@@ -294,8 +298,8 @@ parameters <- list(
     #   age and biomass
     "pixelGroupAgeClass" = successionTimestep,
     "pixelGroupBiomassClass" = 100,
-    "establishProbAdjFacResprout" = 0.1,# multiply the establishProb by this
-    "establishProbAdjFacNonResprout" = 2, # multiply the establishProb by this
+    "establishProbAdjFacResprout" = if (grepl("noDispersal", runName)) 1e4 else 0.5,
+    "establishProbAdjFacNonResprout" = if (grepl("noDispersal", runName)) 1e4 else 2,
     ".useCache" = eventCaching
   ),
   LandMine = list(
