@@ -390,7 +390,16 @@ if (isTRUE(usePOM)) {
   runName <- "tolko_SK_logROS"
 
   objectiveFunction <-function(params, sim) {
-    mySimOut <- spades(sim, .plotInitialTime = NA)
+    sim2 <- Copy(sim)
+
+    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacResprout <- params[1]
+    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacNonResprout <- params[2]
+    params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[3]
+    params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[4]
+    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[5]
+    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[6]
+
+    mySimOut <- spades(sim2, .plotInitialTime = NA)
 
     summaryTable <- mySimOut$summaryBySpecies1[, totalPixels := sum(counts), by = year]
     summaryTable[, proportion := counts / totalPixels]
@@ -430,15 +439,34 @@ if (isTRUE(usePOM)) {
                    loadOrder = unlist(modules)
   )
 
-  params4POM <- c("establishProbAdjFacResprout", "establishProbAdjFacNonResprout",
-                  "growthCurveDecid", "growthCurveNonDecid",
-                  "mortalityShapeDecid", "mortalityShapeNonDecid")
+  params4POM <- data.frame(
+    name = c("establishProbAdjFacResprout", "establishProbAdjFacNonResprout",
+             "growthCurveDecid", "growthCurveNonDecid",
+             "mortalityShapeDecid", "mortalityShapeNonDecid"),
+    lower = c(0, 1, 0, 0, 12, 12),
+    upper = c(1, 2, 1, 1, 27, 27),
+    stringsAsFactors = FALSE
+  )
+  N <- 10 * nrow(params4POM) ## need 10 populations per parameter
 
   cl <- parallel::makeCluster(10 * length(params4POM), type = "FORK")
-  outPOM <- POM(mySim,
-                params = params4POM,
-                objFn = objectiveFunction,
-                cl = cl)
+  outPOM <- DEoptim::DEoptim(fn = objectiveFunction,
+                             sim = mySim,
+                             control = DEoptim::DEoptim.control(
+                               cluster = cl,
+                               initialpop = matrix(c(
+                                 runif(N, params4POM[1,]$lower, params4POM[1,]$upper),
+                                 runif(N, params4POM[2,]$lower, params4POM[2,]$upper),
+                                 runif(N, params4POM[3,]$lower, params4POM[3,]$upper),
+                                 runif(N, params4POM[4,]$lower, params4POM[4,]$upper),
+                                 runif(N, params4POM[5,]$lower, params4POM[5,]$upper),
+                                 runif(N, params4POM[6,]$lower, params4POM[6,]$upper)
+                               ), ncol = nrow(params4POM))#,
+                               #packages = c()
+                             ),
+                             lower = params4POM$lower,
+                             upper = params4POM$upper
+  )
 
   options(opts2)
   parallel::stopCluster(cl)
