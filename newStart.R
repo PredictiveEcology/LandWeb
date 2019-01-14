@@ -1,5 +1,6 @@
 quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
+usePOM <- FALSE
 useSpades <- TRUE
 minFRI <- 25
 activeDir <- "~/GitHub/LandWeb"
@@ -371,7 +372,7 @@ outputs3 <- data.frame(stringsAsFactors = FALSE,
 
 outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 
-######## SimInit and Experiment
+######## set seed for RNG
 fseed <- file.path(Paths$outputPath, "seed.rds")
 if (file.exists(fseed)) {
   seed <- readRDS(fseed)
@@ -382,7 +383,63 @@ if (file.exists(fseed)) {
 set.seed(seed)
 print(seed)
 
-print(runName)
+message(crayon::red(runName))
+
+######## parameter estimation using POM (LandWeb#111)
+if (isTRUE(usePOM)) {
+
+  objectiveFunction <-function(summaryTable) {
+    summaryTable <- summaryTable[, totalPixels := sum(counts), by = year]
+    summaryTable[, proportion := counts / totalPixels]
+
+    initial <- summaryTable[year == 0, ]
+    final <- summaryTable[year == end(sim), ]
+
+    species <- unique(initial$leadingType)
+
+    val <- 0
+    for (x in species) {
+      p_i <- initial[leadingType == x,]$proportion
+      p_f <- final[leadingType == x,]$proportion
+
+      # deal with missing species
+      if (identical(p_i, numeric(0))) p_i <- 0
+      if (identical(p_f, numeric(0))) p_f <- 0
+
+      val <<- val + (p_f - p_i)^2
+    }
+
+    return(val)
+  }
+
+  parametersPOM <- parameters
+  lapply(names(parametersPOM), function(x) {
+    parametersPOM[[x]]$.plotInitialTime <<- NA
+  })
+
+  opts2 <- options("LandR.assertions" = FALSE, "LandR.verbose" = 0)
+  mySim <- simInit(times = list(start = 0, end = 250),
+                   params = parametersPOM,
+                   modules = modules,
+                   outputs = outputs,
+                   objects, # do not name this argument -- collides with Cache -- leave it unnamed
+                   paths = paths,
+                   loadOrder = unlist(modules)
+  )
+
+  params4POM <- c("establishProbAdjFacResprout", "establishProbAdjFacNonResprout",
+                  "growthCurveDecid", "growthCurveNonDecid",
+                  "mortalityShapeDecid", "mortalityShapeNonDecid")
+
+  cl <- parallel::makeCluster(10 * length(params4POM))
+  mySimPOM <- POM(mySim,
+                  params = params4POM,
+                  objFn = objectiveFunction,
+                  cl = cl,
+                  summaryTable = mySim$summaryBySpecies1)
+
+  options(opts2)
+}
 
 ######## SimInit and Experiment
 if (!useSpades) {
@@ -411,15 +468,15 @@ if (!useSpades) {
   }
 
   mySimOut <- simInitAndSpades(times = times, #cl = cl,
-                   params = parameters,
-                   modules = modules,
-                   outputs = outputs,
-                   objects, # do not name this argument -- collides with Cache -- leave it unnamed
-                   paths = paths,
-                   loadOrder = unlist(modules),
-                   debug = 1,
-                   #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
-                   .plotInitialTime = .plotInitialTime
+                               params = parameters,
+                               modules = modules,
+                               outputs = outputs,
+                               objects, # do not name this argument -- collides with Cache -- leave it unnamed
+                               paths = paths,
+                               loadOrder = unlist(modules),
+                               debug = 1,
+                               #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
+                               .plotInitialTime = .plotInitialTime
   )
   #mySimOut <- spades(mySim, debug = 1)
 
