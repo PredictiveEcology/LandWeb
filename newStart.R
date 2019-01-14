@@ -145,7 +145,7 @@ opts <- options(
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.quick" = FALSE,
-  "reproducible.useCache" = if (user("emcintir")) "devMode" else TRUE,
+  "reproducible.useCache" = "devMode", # TRUE
   "spades.moduleCodeChecks" = FALSE,
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
