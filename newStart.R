@@ -436,7 +436,7 @@ if (isTRUE(usePOM)) {
   mySimPOM <- POM(mySim,
                   params = params4POM,
                   objFn = objectiveFunction,
-                  optimControl = list(cluster = 3),
+                  optimControl = list(parallelType = 3),
                   cl = cl,
                   summaryTable = mySim$summaryBySpecies1)
 
