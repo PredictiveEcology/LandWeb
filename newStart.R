@@ -1,5 +1,6 @@
 quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
+usePOM <- FALSE
 useSpades <- TRUE
 minFRI <- 25
 activeDir <- "~/GitHub/LandWeb"
@@ -55,7 +56,7 @@ fireTimestep <- 1
 ## running locally
 #runName <- "tolko_AB_N_logROS"
 #runName <- "tolko_AB_S_logROS"
-#runName <- "tolko_SK_logROS"
+if (pemisc::user("emcintir")) runName <- "tolko_SK_logROS"
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal"
@@ -111,9 +112,9 @@ SpaDESPkgs <- c(
 shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "rgeos",
                "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
-moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
-                   "gdalUtils", "ggplot2", "grDevices", "grid",# "LandR",
-                   "magrittr", "pryr", "purrr", "quickPlot",
+moduleRqdPkgs <- c("crayon", "data.table", "dplyr", "fasterize", "fpCompare",
+                   "gdalUtils", "ggplot2", "grDevices", "grid", "LandR",
+                   "magrittr", "pemisc", "pryr", "purrr", "quickPlot",
                    "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible", "rgeos",
                    "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", "VGAM")
 
@@ -143,9 +144,9 @@ opts <- options(
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.overwrite" = TRUE,
   "reproducible.useMemoise" = TRUE,
-  "reproducible.useNewDigestAlgorithm" = if (user("emcintir")) TRUE else FALSE,
+  "reproducible.useNewDigestAlgorithm" = TRUE,
   "reproducible.quick" = FALSE,
-  "reproducible.useCache" = TRUE,
+  "reproducible.useCache" = if (pemisc::user("emcintir")) "devMode" else TRUE,
   "spades.moduleCodeChecks" = FALSE,
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
@@ -258,13 +259,17 @@ modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LBMR",
                 "timeSinceFire")
 
 speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
-#speciesTable[LandisCode == "PICE.GLA", SeedMaxDist := 4000] ## (see LandWeb#96)
-speciesTable[LandisCode == "PICE.GLA", `:=`(SeedEffDist = 300, SeedMaxDist = 4000)] ## (see LandWeb#96)
-speciesTable[LandisCode == "PICE.MAR", `:=`(SeedEffDist = 250, SeedMaxDist = 600)] ## (see LandWeb#96)
-speciesTable[LandisCode == "PINU.BAN", `:=`(SeedEffDist = 300, SeedMaxDist = 500)] ## (see LandWeb#96)
+if (getOption("LandR.verbose") > 0) {
+  message("Adjusting species-level traits for LandWeb")
+}
 
+#  TODO -- put this into the sim$species
 if (grepl("aspen80", runName)) {
   speciesTable[LandisCode == "POPU.TRE", Longevity := 80] ## (see LandWeb#67)
+}
+
+if (grepl("noDispersal", runName)) {
+  speciesTable[, PostFireRegen := "none"]
 }
 
 objects <- list(
@@ -293,6 +298,8 @@ parameters <- list(
     #   age and biomass
     "pixelGroupAgeClass" = successionTimestep,
     "pixelGroupBiomassClass" = 100,
+    "establishProbAdjFacResprout" = if (grepl("noDispersal", runName)) 1e4 else 0.5,
+    "establishProbAdjFacNonResprout" = if (grepl("noDispersal", runName)) 1e4 else 2,
     ".useCache" = eventCaching
   ),
   LandMine = list(
@@ -369,7 +376,7 @@ outputs3 <- data.frame(stringsAsFactors = FALSE,
 
 outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 
-######## SimInit and Experiment
+######## set seed for RNG
 fseed <- file.path(Paths$outputPath, "seed.rds")
 if (file.exists(fseed)) {
   seed <- readRDS(fseed)
@@ -380,7 +387,114 @@ if (file.exists(fseed)) {
 set.seed(seed)
 print(seed)
 
-print(runName)
+message(crayon::red(runName))
+
+######## parameter estimation using POM (LandWeb#111)
+if (isTRUE(usePOM)) {
+  runName <- "tolko_SK_logROS"
+
+  testFn <- function(params, sim) {
+    sim2 <- reproducible::Copy(sim)
+
+    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacResprout <- params[1]
+    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacNonResprout <- params[2]
+    params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[3]
+    params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[4]
+    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[5]
+    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[6]
+
+    sum(params) - 25 ## sum of param lower bounds is 25
+  }
+
+  objectiveFunction <-function(params, sim) {
+    sim2 <- Copy(sim)
+
+    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacResprout <- params[1]
+    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacNonResprout <- params[2]
+    params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[3]
+    params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[4]
+    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[5]
+    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[6]
+
+    mySimOut <- spades(sim2, .plotInitialTime = NA)
+
+    summaryTable <- mySimOut$summaryBySpecies1[, totalPixels := sum(counts), by = year]
+    summaryTable[, proportion := counts / totalPixels]
+
+    initial <- summaryTable[year == 0, ]
+    final <- summaryTable[year == end(sim), ]
+
+    species <- unique(initial$leadingType)
+
+    val <- 0
+    for (x in species) {
+      p_i <- initial[leadingType == x,]$proportion
+      p_f <- final[leadingType == x,]$proportion
+
+      # deal with missing species
+      if (identical(p_i, numeric(0))) p_i <- 0
+      if (identical(p_f, numeric(0))) p_f <- 0
+
+      val <<- val + (p_f - p_i)^2
+    }
+
+    return(val)
+  }
+
+  parametersPOM <- parameters
+  lapply(names(parametersPOM), function(x) {
+    parametersPOM[[x]]$.plotInitialTime <<- NA
+  })
+
+  opts2 <- options("LandR.assertions" = FALSE, "LandR.verbose" = 0)
+  mySim <- simInit(times = list(start = 0, end = 250),
+                   params = parametersPOM,
+                   modules = modules,
+                   outputs = outputs,
+                   objects, # do not name this argument -- collides with Cache -- leave it unnamed
+                   paths = paths,
+                   loadOrder = unlist(modules)
+  )
+
+  params4POM <- data.frame(
+    name = c("establishProbAdjFacResprout", "establishProbAdjFacNonResprout",
+             "growthCurveDecid", "growthCurveNonDecid",
+             "mortalityShapeDecid", "mortalityShapeNonDecid"),
+    lower = c(0, 1, 0, 0, 12, 12),
+    upper = c(1, 2, 1, 1, 27, 27),
+    stringsAsFactors = FALSE
+  )
+  N <- 10 * nrow(params4POM) ## need 10 populations per parameter
+
+  packages4POM <- c("map", "quickPlot", "SpaDES.core", "SpaDES.tools",
+                    moduleRqdPkgs, googleAuthPkgs)
+
+  ## NOTE: bug in DEoptim prevents using our own cluster (ArdiaD/DEoptim#3)
+  #cl <- parallel::makeCluster(10 * length(params4POM), type = "FORK")
+  outPOM <- DEoptim::DEoptim(fn = objectiveFunction, #testFn,
+                             sim = mySim,
+                             control = DEoptim::DEoptim.control(
+                               #cluster = cl, ## see ArdiaD/DEoptim#3
+                               initialpop = matrix(c(
+                                 runif(N, params4POM[1,]$lower, params4POM[1,]$upper),
+                                 runif(N, params4POM[2,]$lower, params4POM[2,]$upper),
+                                 runif(N, params4POM[3,]$lower, params4POM[3,]$upper),
+                                 runif(N, params4POM[4,]$lower, params4POM[4,]$upper),
+                                 runif(N, params4POM[5,]$lower, params4POM[5,]$upper),
+                                 runif(N, params4POM[6,]$lower, params4POM[6,]$upper)
+                               ), ncol = nrow(params4POM)),
+                               packages = packages4POM,
+                               parallelType = 1,
+                               parVar = list("objectiveFunction", "mySim"),
+                               VTR = 0
+                             ),
+                             lower = params4POM$lower,
+                             upper = params4POM$upper
+  )
+
+  options(opts2)
+  #parallel::stopCluster(cl) ## see ArdiaD/DEoptim#3
+}
 
 ######## SimInit and Experiment
 if (!useSpades) {
@@ -409,15 +523,15 @@ if (!useSpades) {
   }
 
   mySimOut <- simInitAndSpades(times = times, #cl = cl,
-                   params = parameters,
-                   modules = modules,
-                   outputs = outputs,
-                   objects, # do not name this argument -- collides with Cache -- leave it unnamed
-                   paths = paths,
-                   loadOrder = unlist(modules),
-                   debug = 1,
-                   #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
-                   .plotInitialTime = .plotInitialTime
+                               params = parameters,
+                               modules = modules,
+                               outputs = outputs,
+                               objects, # do not name this argument -- collides with Cache -- leave it unnamed
+                               paths = paths,
+                               loadOrder = unlist(modules),
+                               debug = 1,
+                               #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
+                               .plotInitialTime = .plotInitialTime
   )
   #mySimOut <- spades(mySim, debug = 1)
 
