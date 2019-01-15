@@ -112,7 +112,7 @@ SpaDESPkgs <- c(
 shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "rgeos",
                "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
-moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
+moduleRqdPkgs <- c("crayon", "data.table", "dplyr", "fasterize", "fpCompare",
                    "gdalUtils", "ggplot2", "grDevices", "grid", "LandR",
                    "magrittr", "pemisc", "pryr", "purrr", "quickPlot",
                    "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible", "rgeos",
