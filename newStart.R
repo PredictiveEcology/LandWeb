@@ -146,7 +146,7 @@ opts <- options(
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
   "reproducible.quick" = FALSE,
-  "reproducible.useCache" = "devMode", # TRUE
+  "reproducible.useCache" = if (pemisc::user("emcintir")) "devMode" else TRUE,
   "spades.moduleCodeChecks" = FALSE,
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
