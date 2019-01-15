@@ -113,8 +113,8 @@ shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "
                "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
-                   "gdalUtils", "ggplot2", "grDevices", "grid",# "LandR",
-                   "magrittr", "pryr", "purrr", "quickPlot",
+                   "gdalUtils", "ggplot2", "grDevices", "grid", "LandR",
+                   "magrittr", "pemisc", "pryr", "purrr", "quickPlot",
                    "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible", "rgeos",
                    "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", "VGAM")
 
@@ -453,11 +453,13 @@ if (isTRUE(usePOM)) {
   )
   N <- 10 * nrow(params4POM) ## need 10 populations per parameter
 
-  cl <- parallel::makeCluster(10 * length(params4POM), type = "FORK")
+  packages4POM <- c("map", "quickPlot", "SpaDES.core", "SpaDES.tools", moduleRqdPkgs, googleAuthPkgs)
+
+  #cl <- parallel::makeCluster(10 * length(params4POM), type = "FORK")
   outPOM <- DEoptim::DEoptim(fn = objectiveFunction,
                              sim = mySim,
                              control = DEoptim::DEoptim.control(
-                               cluster = cl,
+                               #cluster = cl,
                                initialpop = matrix(c(
                                  runif(N, params4POM[1,]$lower, params4POM[1,]$upper),
                                  runif(N, params4POM[2,]$lower, params4POM[2,]$upper),
@@ -465,15 +467,18 @@ if (isTRUE(usePOM)) {
                                  runif(N, params4POM[4,]$lower, params4POM[4,]$upper),
                                  runif(N, params4POM[5,]$lower, params4POM[5,]$upper),
                                  runif(N, params4POM[6,]$lower, params4POM[6,]$upper)
-                               ), ncol = nrow(params4POM))#,
-                               #packages = c()
+                               ), ncol = nrow(params4POM)),
+                               packages = packages4POM,
+                               parallelType = 1,
+                               parVar = list("objectiveFunction"),
+                               VTR = 0
                              ),
                              lower = params4POM$lower,
                              upper = params4POM$upper
   )
 
   options(opts2)
-  parallel::stopCluster(cl)
+  #parallel::stopCluster(cl)
 }
 
 ######## SimInit and Experiment
