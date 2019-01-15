@@ -393,6 +393,19 @@ message(crayon::red(runName))
 if (isTRUE(usePOM)) {
   runName <- "tolko_SK_logROS"
 
+  testFn <- function(params, sim) {
+    sim2 <- reproducible::Copy(sim)
+
+    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacResprout <- params[1]
+    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacNonResprout <- params[2]
+    params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[3]
+    params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[4]
+    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[5]
+    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[6]
+
+    sum(params) - 25 ## sum of param lower bounds is 25
+  }
+
   objectiveFunction <-function(params, sim) {
     sim2 <- Copy(sim)
 
@@ -453,13 +466,15 @@ if (isTRUE(usePOM)) {
   )
   N <- 10 * nrow(params4POM) ## need 10 populations per parameter
 
-  packages4POM <- c("map", "quickPlot", "SpaDES.core", "SpaDES.tools", moduleRqdPkgs, googleAuthPkgs)
+  packages4POM <- c("map", "quickPlot", "SpaDES.core", "SpaDES.tools",
+                    moduleRqdPkgs, googleAuthPkgs)
 
+  ## NOTE: bug in DEoptim prevents using our own cluster (ArdiaD/DEoptim#3)
   #cl <- parallel::makeCluster(10 * length(params4POM), type = "FORK")
-  outPOM <- DEoptim::DEoptim(fn = objectiveFunction,
+  outPOM <- DEoptim::DEoptim(fn = objectiveFunction, #testFn,
                              sim = mySim,
                              control = DEoptim::DEoptim.control(
-                               #cluster = cl,
+                               #cluster = cl, ## see ArdiaD/DEoptim#3
                                initialpop = matrix(c(
                                  runif(N, params4POM[1,]$lower, params4POM[1,]$upper),
                                  runif(N, params4POM[2,]$lower, params4POM[2,]$upper),
@@ -478,7 +493,7 @@ if (isTRUE(usePOM)) {
   )
 
   options(opts2)
-  #parallel::stopCluster(cl)
+  #parallel::stopCluster(cl) ## see ArdiaD/DEoptim#3
 }
 
 ######## SimInit and Experiment
