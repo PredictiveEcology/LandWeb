@@ -470,7 +470,7 @@ if (isTRUE(usePOM)) {
                                ), ncol = nrow(params4POM)),
                                packages = packages4POM,
                                parallelType = 1,
-                               parVar = list("objectiveFunction"),
+                               parVar = list("objectiveFunction", "mySim"),
                                VTR = 0
                              ),
                              lower = params4POM$lower,
