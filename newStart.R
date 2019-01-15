@@ -144,7 +144,7 @@ opts <- options(
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.overwrite" = TRUE,
   "reproducible.useMemoise" = TRUE,
-  "reproducible.useNewDigestAlgorithm" = if (user("emcintir")) TRUE else FALSE,
+  "reproducible.useNewDigestAlgorithm" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.useCache" = "devMode", # TRUE
   "spades.moduleCodeChecks" = FALSE,
