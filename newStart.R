@@ -413,6 +413,8 @@ if (isTRUE(usePOM)) {
     params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[5]
     params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[6]
 
+    httr::set_config(httr::config(http_version = 0)) ## worakorund 'HTTP2 framing layer' error
+
     mySimOut <- spades(sim2, .plotInitialTime = NA)
 
     summaryTable <- mySimOut$summaryBySpecies1[, totalPixels := sum(counts), by = year]
