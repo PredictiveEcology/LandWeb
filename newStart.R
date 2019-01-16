@@ -64,6 +64,11 @@ if (pemisc::user("emcintir")) runName <- "tolko_SK_logROS"
 #runName <- "tolko_SK_noDispersal"
 
 ## running locally
+#runName <- "tolko_AB_N_aspenDispersal"
+#runName <- "tolko_AB_S_aspenDispersal"
+if (pemisc::user("achubaty")) runName <- "tolko_SK_aspenDispersal"
+
+## running locally
 #runName <- "tolko_AB_N_aspen80"
 #runName <- "tolko_AB_S_aspen80"
 #runName <- "tolko_SK_aspen80"
