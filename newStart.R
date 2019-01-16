@@ -403,7 +403,7 @@ if (isTRUE(usePOM)) {
     sum(params) - 25 ## sum of param lower bounds is 25
   }
 
-  objectiveFunction <-function(params, sim) {
+  objectiveFunction <- function(params, sim) {
     sim2 <- Copy(sim)
 
     params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacResprout <- params[1]
