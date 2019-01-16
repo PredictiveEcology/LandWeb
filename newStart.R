@@ -480,6 +480,7 @@ if (isTRUE(usePOM)) {
                                  runif(N, params4POM[5,]$lower, params4POM[5,]$upper),
                                  runif(N, params4POM[6,]$lower, params4POM[6,]$upper)
                                ), ncol = nrow(params4POM)),
+                               itermax = 30,
                                packages = packages4POM,
                                parallelType = 1,
                                parVar = list("objectiveFunction", "mySim"),
