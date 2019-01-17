@@ -7,7 +7,7 @@ devtools::install_github("PredictiveEcology/reproducible", ref = "development", 
 devtools::install_github("PredictiveEcology/SpaDES.tools", ref = "development", dependencies = deps)
 devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development", dependencies = deps)
 devtools::install_github("PredictiveEcology/pemisc", ref = "development", dependencies = deps)
-devtools::install_github("PredictiveEcology/map", ref = "master", dependencies = deps)
+devtools::install_github("PredictiveEcology/map", ref = "development", dependencies = deps)
 devtools::install_github("PredictiveEcology/LandR", ref = "development", dependencies = deps)
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "development", dependencies = deps)
 
