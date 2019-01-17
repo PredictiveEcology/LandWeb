@@ -2,6 +2,8 @@ quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
 usePOM <- FALSE
 useDEoptim <- FALSE
+useParallel <- if (isTRUE(usePOM)) 1 else 8
+
 useSpades <- TRUE
 minFRI <- 25
 activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
@@ -307,7 +309,8 @@ parameters <- list(
     "fireTimestep" = fireTimestep,
     "minPropBurn" = 0.90,
     "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
-    ".useCache" = eventCaching
+    ".useCache" = eventCaching,
+    ".useParallel" = useParallel
   ),
   LandWeb_output = list(
     "sppEquivCol" = sppEquivCol,
@@ -322,10 +325,10 @@ parameters <- list(
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = successionTimestep,
     ".useCache" = eventCaching[1], # seems slower to use Cache for both
-    ".useParallel" = 8 ## TODO: need
+    ".useParallel" = useParallel
   ),
   LandR_BiomassGMOrig = list(
-    ".useParallel" = 8 ## TODO: need
+    ".useParallel" = useParallel
   ),
   Biomass_regeneration = list(
     "fireInitialTime" = fireTimestep,
@@ -511,11 +514,14 @@ if (isTRUE(usePOM)) {
 
     cl <- parallel::makeCluster(3 * nrow(params4POM), type = "FORK")
 
-    parallel::clusterExport(cl, c("mySim", "objectiveFunction"))
+    #parallel::clusterExport(cl, c("testFn"))
+    parallel::clusterExport(cl, c("objectiveFunction"))
 
-    out <- parallel::parApply(cl = cl, X = tableOfRuns[1:3, ], MARGIN = 1, FUN = function(x) {
-      objectiveFunction(x[1:6], mySim)
-    })
+    #out <- apply(X = tableOfRuns[1:3, ], MARGIN = 1, FUN = function(x, sim) {
+    out <- parallel::parApply(cl = cl, X = tableOfRuns, MARGIN = 1, FUN = function(x, sim) {
+      #testFn(x[1:6], sim)
+      objectiveFunction(x[1:6], sim)
+    }, sim = mySim)
     tableOfRuns$objFnReturn <- unlist(out)
 
     parallel::stopCluster(cl)
