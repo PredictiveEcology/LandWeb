@@ -511,6 +511,8 @@ if (isTRUE(usePOM)) {
 
     cl <- parallel::makeCluster(3 * nrow(params4POM), type = "FORK")
 
+    parallel::clusterExport(cl, c("mySim", "objectiveFunction"))
+
     out <- parallel::parApply(cl = cl, X = tableOfRuns[1:3, ], MARGIN = 1, FUN = function(x) {
       objectiveFunction(x[1:6], mySim)
     })
