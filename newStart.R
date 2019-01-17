@@ -3,7 +3,7 @@ quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 usePOM <- FALSE
 useSpades <- TRUE
 minFRI <- 25
-activeDir <- "~/GitHub/LandWeb"
+activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
 reproducible::checkPath(activeDir, create = TRUE)
 setwd(activeDir)
 
@@ -66,7 +66,7 @@ if (pemisc::user("emcintir")) runName <- "tolko_SK_logROS"
 ## running locally
 #runName <- "tolko_AB_N_aspenDispersal"
 #runName <- "tolko_AB_S_aspenDispersal"
-if (pemisc::user("achubaty")) runName <- "tolko_SK_aspenDispersal"
+if (pemisc::user("achubaty") | pemisc::user("rstudio")) runName <- "tolko_SK_aspenDispersal"
 
 ## running locally
 #runName <- "tolko_AB_N_aspen80"
