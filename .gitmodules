@@ -1,15 +1,15 @@
 [submodule "m/Biomass_regeneration"]
 	path = m/Biomass_regeneration
-	url = git@github.com:CeresBarros/Biomass_regeneration.git
+	url = git@github.com:eliotmcintire/Biomass_regeneration
 [submodule "m/BiomassSpeciesData"]
 	path = m/BiomassSpeciesData
 	url = git@github.com:eliotmcintire/BiomassSpeciesData
 [submodule "m/LandMine"]
 	path = m/LandMine
-	url = git@github.com:PredictiveEcology/LandMine.git
+	url = git@github.com:PredictiveEcology/LandMine
 [submodule "m/LBMR"]
 	path = m/LBMR
-	url = git@github.com:eliotmcintire/LBMR.git
+	url = git@github.com:eliotmcintire/LBMR
 [submodule "m/Boreal_LBMRDataPrep"]
 	path = m/Boreal_LBMRDataPrep
 	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep
