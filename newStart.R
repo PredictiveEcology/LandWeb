@@ -57,10 +57,9 @@ fireTimestep <- 1
 #runName <- "tolko_SK_equalROS"
 
 ## running locally
-#runName <- "tolko_AB_N_logROS"
+if (pemisc::user("emcintir")) runName <- "tolko_AB_N_logROS"
 #runName <- "tolko_AB_S_logROS"
-if (pemisc::user("emcintir")) runName <- "tolko_SK_logROS"
-#if (pemisc::user("achubaty") | pemisc::user("rstudio")) runName <- "tolko_SK_logROS"
+# runName <- "tolko_SK_logROS"
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal"
