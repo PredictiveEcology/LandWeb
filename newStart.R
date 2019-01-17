@@ -1,6 +1,7 @@
 quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
 usePOM <- FALSE
+useDEoptim <- FALSE
 useSpades <- TRUE
 minFRI <- 25
 activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
@@ -459,41 +460,65 @@ if (isTRUE(usePOM)) {
     name = c("establishProbAdjFacResprout", "establishProbAdjFacNonResprout",
              "growthCurveDecid", "growthCurveNonDecid",
              "mortalityShapeDecid", "mortalityShapeNonDecid"),
-    lower = c(0, 1, 0, 0, 12, 12),
-    upper = c(1, 2, 1, 1, 27, 27),
+    lower = c(0, 1, 0, 0, 15, 15),
+    upper = c(1, 2, 1, 1, 25, 25),
     stringsAsFactors = FALSE
   )
-  N <- 10 * nrow(params4POM) ## need 10 populations per parameter
 
   packages4POM <- c("map", "quickPlot", "SpaDES.core", "SpaDES.tools",
                     moduleRqdPkgs, googleAuthPkgs)
 
-  ## NOTE: bug in DEoptim prevents using our own cluster (ArdiaD/DEoptim#3)
-  #cl <- parallel::makeCluster(10 * length(params4POM), type = "FORK")
-  outPOM <- DEoptim::DEoptim(fn = objectiveFunction, #testFn,
-                             sim = mySim,
-                             control = DEoptim::DEoptim.control(
-                               #cluster = cl, ## see ArdiaD/DEoptim#3
-                               initialpop = matrix(c(
-                                 runif(N, params4POM[1,]$lower, params4POM[1,]$upper),
-                                 runif(N, params4POM[2,]$lower, params4POM[2,]$upper),
-                                 runif(N, params4POM[3,]$lower, params4POM[3,]$upper),
-                                 runif(N, params4POM[4,]$lower, params4POM[4,]$upper),
-                                 runif(N, params4POM[5,]$lower, params4POM[5,]$upper),
-                                 runif(N, params4POM[6,]$lower, params4POM[6,]$upper)
-                               ), ncol = nrow(params4POM)),
-                               itermax = 30,
-                               packages = packages4POM,
-                               parallelType = 1,
-                               parVar = list("objectiveFunction", "mySim"),
-                               VTR = 0
-                             ),
-                             lower = params4POM$lower,
-                             upper = params4POM$upper
-  )
+  if (isTRUE(useDEoptim)) {
+    ## NOTE: bug in DEoptim prevents using our own cluster (ArdiaD/DEoptim#3)
+    #cl <- parallel::makeCluster(10 * length(params4POM), type = "FORK")
+
+    N <- 10 * nrow(params4POM) ## need 10 populations per parameter
+    outPOM <- DEoptim::DEoptim(fn = objectiveFunction, #testFn,
+                               sim = mySim,
+                               control = DEoptim::DEoptim.control(
+                                 #cluster = cl, ## see ArdiaD/DEoptim#3
+                                 initialpop = matrix(c(
+                                   runif(N, params4POM[1,]$lower, params4POM[1,]$upper),
+                                   runif(N, params4POM[2,]$lower, params4POM[2,]$upper),
+                                   runif(N, params4POM[3,]$lower, params4POM[3,]$upper),
+                                   runif(N, params4POM[4,]$lower, params4POM[4,]$upper),
+                                   runif(N, params4POM[5,]$lower, params4POM[5,]$upper),
+                                   runif(N, params4POM[6,]$lower, params4POM[6,]$upper)
+                                 ), ncol = nrow(params4POM)),
+                                 itermax = 30,
+                                 packages = packages4POM,
+                                 parallelType = 1,
+                                 parVar = list("objectiveFunction", "mySim"),
+                                 VTR = 0
+                               ),
+                               lower = params4POM$lower,
+                               upper = params4POM$upper
+    )
+    #parallel::stopCluster(cl) ## see ArdiaD/DEoptim#3
+  } else {
+    n <- 3 ## number of values per parameter to use
+
+    tableOfRuns <- expand.grid(
+      establishProbAdjFacResprout = seq(params4POM[1,]$lower, params4POM[1,]$upper, length.out = n),
+      establishProbAdjFacNonResprout = seq(params4POM[2,]$lower, params4POM[2,]$upper, length.out = n),
+      growthCurveDecid = seq(params4POM[3,]$lower, params4POM[3,]$upper, length.out = n),
+      growthCurveNonDecid = seq(params4POM[4,]$lower, params4POM[4,]$upper, length.out = n),
+      mortalityShapeDecid = seq(params4POM[5,]$lower, params4POM[5,]$upper, length.out = n),
+      mortalityShapeNonDecid = seq(params4POM[6,]$lower, params4POM[6,]$upper, length.out = n)
+    )
+    tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
+
+    cl <- parallel::makeCluster(10 * length(params4POM), type = "FORK")
+
+    out <- parallel::parApply(cl = cl, X = tableOfRuns[1:3, ], MARGIN = 1, FUN = function(x) {
+      objectiveFunction(x[1:6], mySim)
+    })
+    tableOfRuns$objFnReturn <- unlist(out)
+
+    parallel::stopCluster(cl)
+  }
 
   options(opts2)
-  #parallel::stopCluster(cl) ## see ArdiaD/DEoptim#3
 }
 
 ######## SimInit and Experiment
