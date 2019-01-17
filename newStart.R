@@ -448,6 +448,7 @@ if (isTRUE(usePOM)) {
   parametersPOM <- parameters
   lapply(names(parametersPOM), function(x) {
     parametersPOM[[x]]$.plotInitialTime <<- NA
+    parametersPOM[[x]]$.useParallel <- 1
   })
 
   opts2 <- options("LandR.assertions" = FALSE, "LandR.verbose" = 0)
