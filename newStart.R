@@ -1,8 +1,8 @@
 quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
-usePOM <- FALSE
+usePOM <- if (pemisc::user("achubaty")) TRUE else FALSE ## NOTE: TO and FROM indices must be defined
 useDEoptim <- FALSE
-useParallel <- if (isTRUE(usePOM)) 1 else 8
+useParallel <- if (isTRUE(usePOM)) 2 else 8
 
 useSpades <- TRUE
 minFRI <- 25
@@ -59,7 +59,7 @@ fireTimestep <- 1
 ## running locally
 if (pemisc::user("emcintir")) runName <- "tolko_AB_N_logROS"
 #runName <- "tolko_AB_S_logROS"
-# runName <- "tolko_SK_logROS"
+if (pemisc::user("achubaty")) runName <- "tolko_SK_logROS"
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal"
@@ -294,6 +294,7 @@ objects <- list(
 parameters <- list(
   Boreal_LBMRDataPrep = list(
     "sppEquivCol" = sppEquivCol,
+    "cloudFolderID" = "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj",
     # next two are used when assigning pixelGroup membership; what resolution for
     #   age and biomass
     "pixelGroupAgeClass" = successionTimestep,
@@ -448,7 +449,7 @@ if (isTRUE(usePOM)) {
   parametersPOM <- parameters
   lapply(names(parametersPOM), function(x) {
     parametersPOM[[x]]$.plotInitialTime <<- NA
-    parametersPOM[[x]]$.useParallel <- 1
+    parametersPOM[[x]]$.useParallel <<- 2
   })
 
   opts2 <- options("LandR.assertions" = FALSE, "LandR.verbose" = 0)
@@ -470,8 +471,8 @@ if (isTRUE(usePOM)) {
     stringsAsFactors = FALSE
   )
 
-  packages4POM <- c("map", "quickPlot", "SpaDES.core", "SpaDES.tools",
-                    moduleRqdPkgs, googleAuthPkgs)
+  packages4POM <- unique(c("lme4", "LandR", "map", "quickPlot", "reproducible",
+                           "SpaDES.core", "SpaDES.tools", moduleRqdPkgs, googleAuthPkgs))
 
   if (isTRUE(useDEoptim)) {
     ## NOTE: bug in DEoptim prevents using our own cluster (ArdiaD/DEoptim#3)
@@ -513,19 +514,25 @@ if (isTRUE(usePOM)) {
     )
     tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
 
-    cl <- parallel::makeCluster(3 * nrow(params4POM), type = "FORK")
+    #cl <- parallel::makeForkCluster(5 * nrow(params4POM))
+    #parallel::clusterExport(cl, list("objectiveFunction"))
 
-    #parallel::clusterExport(cl, c("testFn"))
-    parallel::clusterExport(cl, c("objectiveFunction"))
+    # out <- parallel::parLapplyLB(cl = cl,
+    #                              purrr::transpose(tableOfRuns),
+    #                              function(x, sim) {
+    #                                #testFn(unlist(x[1:6]), sim)
+    #                                objectiveFunction(unlist(x[1:6]), sim)
+    #                              }, sim = mySim)
 
-    #out <- apply(X = tableOfRuns[1:3, ], MARGIN = 1, FUN = function(x, sim) {
-    out <- parallel::parApply(cl = cl, X = tableOfRuns, MARGIN = 1, FUN = function(x, sim) {
-      #testFn(x[1:6], sim)
-      objectiveFunction(x[1:6], sim)
-    }, sim = mySim)
-    tableOfRuns$objFnReturn <- unlist(out)
+    ids <- seq(FROM, TO, by = 1)
+    out <- lapply(purrr::transpose(tableOfRuns[ids,]),
+                  function(x, sim) {
+                    #testFn(unlist(x[1:6]), sim)
+                    objectiveFunction(unlist(x[1:6]), sim)
+                  }, sim = mySim)
+    tableOfRuns$objFnReturn[ids] <- unlist(out)
 
-    parallel::stopCluster(cl)
+    #parallel::stopCluster(cl)
   }
 
   options(opts2)
@@ -555,6 +562,8 @@ if (!useSpades) {
 } else {
   if (!is.na(.plotInitialTime)) {
     quickPlot::dev(4, width = 18, height = 10)
+    grid::grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+    grid::grid.text(label = runName, x = 0.93, y = 0.03)
   }
 
   mySimOut <- simInitAndSpades(times = times, #cl = cl,
