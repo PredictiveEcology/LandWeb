@@ -548,8 +548,8 @@ if (!useSpades) {
 } else {
   if (!is.na(.plotInitialTime)) {
     quickPlot::dev(4, width = 18, height = 10)
-    grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-    grid.text(label = runName, x = 0.93, y = 0.03)
+    grid::grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+    grid::grid.text(label = runName, x = 0.93, y = 0.03)
   }
 
   mySimOut <- simInitAndSpades(times = times, #cl = cl,
