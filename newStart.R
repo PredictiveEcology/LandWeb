@@ -517,7 +517,8 @@ if (isTRUE(usePOM)) {
     cl <- parallel::makeForkCluster(5 * nrow(params4POM))
     parallel::clusterExport(cl, list("objectiveFunction"))
 
-    out <- parallel::parLapplyLB(cl = cl, X = purrr::transpose(tableOfRuns),
+    out <- parallel::parLapplyLB(cl = cl,
+                                 purrr::transpose(tableOfRuns),
                                  function(x, sim) {
                                    #testFn(unlist(x[1:6]), sim)
                                    objectiveFunction(unlist(x[1:6]), sim)
