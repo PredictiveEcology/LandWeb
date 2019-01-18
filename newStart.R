@@ -1,8 +1,8 @@
 quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
-usePOM <- FALSE
+usePOM <- if (pemisc::user("achubaty")) TRUE else FALSE ## NOTE: TO and FROM indices must be defined
 useDEoptim <- FALSE
-useParallel <- if (isTRUE(usePOM)) 1 else 8
+useParallel <- if (isTRUE(usePOM)) 2 else 8
 
 useSpades <- TRUE
 minFRI <- 25
@@ -59,7 +59,7 @@ fireTimestep <- 1
 ## running locally
 if (pemisc::user("emcintir")) runName <- "tolko_AB_N_logROS"
 #runName <- "tolko_AB_S_logROS"
-# runName <- "tolko_SK_logROS"
+if (pemisc::user("achubaty")) runName <- "tolko_SK_logROS"
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal"
@@ -514,18 +514,25 @@ if (isTRUE(usePOM)) {
     )
     tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
 
-    cl <- parallel::makeForkCluster(5 * nrow(params4POM))
-    parallel::clusterExport(cl, list("objectiveFunction"))
+    #cl <- parallel::makeForkCluster(5 * nrow(params4POM))
+    #parallel::clusterExport(cl, list("objectiveFunction"))
 
-    out <- parallel::parLapplyLB(cl = cl,
-                                 purrr::transpose(tableOfRuns),
-                                 function(x, sim) {
-                                   #testFn(unlist(x[1:6]), sim)
-                                   objectiveFunction(unlist(x[1:6]), sim)
-                                 }, sim = mySim)
-    tableOfRuns$objFnReturn <- unlist(out)
+    # out <- parallel::parLapplyLB(cl = cl,
+    #                              purrr::transpose(tableOfRuns),
+    #                              function(x, sim) {
+    #                                #testFn(unlist(x[1:6]), sim)
+    #                                objectiveFunction(unlist(x[1:6]), sim)
+    #                              }, sim = mySim)
 
-    parallel::stopCluster(cl)
+    ids <- seq(FROM, TO, by = 1)
+    out <- lapply(purrr::transpose(tableOfRuns[ids,]),
+                  function(x, sim) {
+                    #testFn(unlist(x[1:6]), sim)
+                    objectiveFunction(unlist(x[1:6]), sim)
+                  }, sim = mySim)
+    tableOfRuns$objFnReturn[ids] <- unlist(out)
+
+    #parallel::stopCluster(cl)
   }
 
   options(opts2)
