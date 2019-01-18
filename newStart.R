@@ -1,8 +1,8 @@
 quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
-usePOM <- FALSE
+usePOM <- if (pemisc::user("achubaty")) TRUE else FALSE ## NOTE: TO and FROM indices must be defined
 useDEoptim <- FALSE
-useParallel <- if (isTRUE(usePOM)) 1 else 8
+useParallel <- if (isTRUE(usePOM)) 2 else 8
 
 useSpades <- TRUE
 minFRI <- 25
@@ -59,7 +59,7 @@ fireTimestep <- 1
 ## running locally
 if (pemisc::user("emcintir")) runName <- "tolko_AB_N_logROS"
 #runName <- "tolko_AB_S_logROS"
-# runName <- "tolko_SK_logROS"
+if (pemisc::user("achubaty")) runName <- "tolko_SK_logROS"
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal"
@@ -450,7 +450,7 @@ if (isTRUE(usePOM)) {
   parametersPOM <- parameters
   lapply(names(parametersPOM), function(x) {
     parametersPOM[[x]]$.plotInitialTime <<- NA
-    parametersPOM[[x]]$.useParallel <- 1
+    parametersPOM[[x]]$.useParallel <<- 2
   })
 
   opts2 <- options("LandR.assertions" = FALSE, "LandR.verbose" = 0)
@@ -472,8 +472,8 @@ if (isTRUE(usePOM)) {
     stringsAsFactors = FALSE
   )
 
-  packages4POM <- c("map", "quickPlot", "SpaDES.core", "SpaDES.tools",
-                    moduleRqdPkgs, googleAuthPkgs)
+  packages4POM <- unique(c("lme4", "LandR", "map", "quickPlot", "reproducible",
+                           "SpaDES.core", "SpaDES.tools", moduleRqdPkgs, googleAuthPkgs))
 
   if (isTRUE(useDEoptim)) {
     ## NOTE: bug in DEoptim prevents using our own cluster (ArdiaD/DEoptim#3)
@@ -515,11 +515,25 @@ if (isTRUE(usePOM)) {
     )
     tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
 
-    out <- parallel::mclapply(X = purrr::transpose(tableOfRuns), FUN = function(x, sim, pkgs) {
-      #testFn(unlist(x[1:6]), sim)
-      objectiveFunction(unlist(x[1:6]), sim)
-    }, sim = mySim, pkgs = packages4POM, mc.cores = 3 * nrow(params4POM))
-    tableOfRuns$objFnReturn <- unlist(out)
+    #cl <- parallel::makeForkCluster(5 * nrow(params4POM))
+    #parallel::clusterExport(cl, list("objectiveFunction"))
+
+    # out <- parallel::parLapplyLB(cl = cl,
+    #                              purrr::transpose(tableOfRuns),
+    #                              function(x, sim) {
+    #                                #testFn(unlist(x[1:6]), sim)
+    #                                objectiveFunction(unlist(x[1:6]), sim)
+    #                              }, sim = mySim)
+
+    ids <- seq(FROM, TO, by = 1)
+    out <- lapply(purrr::transpose(tableOfRuns[ids,]),
+                  function(x, sim) {
+                    #testFn(unlist(x[1:6]), sim)
+                    objectiveFunction(unlist(x[1:6]), sim)
+                  }, sim = mySim)
+    tableOfRuns$objFnReturn[ids] <- unlist(out)
+
+    #parallel::stopCluster(cl)
   }
 
   options(opts2)
