@@ -514,19 +514,11 @@ if (isTRUE(usePOM)) {
     )
     tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
 
-    cl <- parallel::makeCluster(3 * nrow(params4POM), type = "FORK")
-
-    #parallel::clusterExport(cl, c("testFn"))
-    parallel::clusterExport(cl, c("objectiveFunction"))
-
-    #out <- apply(X = tableOfRuns[1:3, ], MARGIN = 1, FUN = function(x, sim) {
-    out <- parallel::parApply(cl = cl, X = tableOfRuns, MARGIN = 1, FUN = function(x, sim) {
-      #testFn(x[1:6], sim)
-      objectiveFunction(x[1:6], sim)
-    }, sim = mySim)
+    out <- parallel::mclapply(X = purrr::transpose(tableOfRuns), FUN = function(x, sim, pkgs) {
+      #testFn(unlist(x[1:6]), sim)
+      objectiveFunction(unlist(x[1:6]), sim)
+    }, sim = mySim, pkgs = packages4POM, mc.cores = 3 * nrow(params4POM))
     tableOfRuns$objFnReturn <- unlist(out)
-
-    parallel::stopCluster(cl)
   }
 
   options(opts2)
@@ -556,6 +548,8 @@ if (!useSpades) {
 } else {
   if (!is.na(.plotInitialTime)) {
     quickPlot::dev(4, width = 18, height = 10)
+    grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+    grid.text(label = runName, x = 0.93, y = 0.03)
   }
 
   mySimOut <- simInitAndSpades(times = times, #cl = cl,
