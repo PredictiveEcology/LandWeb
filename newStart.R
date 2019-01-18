@@ -240,8 +240,7 @@ parameters2 <- list(
   BiomassSpeciesData = list(
     "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
     "sppEquivCol" = sppEquivCol,
-    "omitNonVegPixels" = TRUE,
-    ".plotInitialTime" = .plotInitialTime
+    "omitNonVegPixels" = TRUE
   )
 )
 
@@ -317,7 +316,7 @@ parameters <- list(
     "sppEquivCol" = sppEquivCol,
     "summaryInterval" = summaryInterval,
     "vegLeadingProportion" = vegLeadingProportion,
-    ".plotInitialTime" = .plotInitialTime,
+    #".plotInitialTime" = .plotInitialTime,
     ".plotInterval" = 1
   ),
   LBMR = list(
