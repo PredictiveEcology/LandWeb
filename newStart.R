@@ -295,6 +295,7 @@ objects <- list(
 parameters <- list(
   Boreal_LBMRDataPrep = list(
     "sppEquivCol" = sppEquivCol,
+    "cloudFolderID" = "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj",
     # next two are used when assigning pixelGroup membership; what resolution for
     #   age and biomass
     "pixelGroupAgeClass" = successionTimestep,
