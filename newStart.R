@@ -449,7 +449,7 @@ if (isTRUE(usePOM)) {
   parametersPOM <- parameters
   lapply(names(parametersPOM), function(x) {
     parametersPOM[[x]]$.plotInitialTime <<- NA
-    parametersPOM[[x]]$.useParallel <- 1
+    parametersPOM[[x]]$.useParallel <<- 2
   })
 
   opts2 <- options("LandR.assertions" = FALSE, "LandR.verbose" = 0)
@@ -471,8 +471,8 @@ if (isTRUE(usePOM)) {
     stringsAsFactors = FALSE
   )
 
-  packages4POM <- c("map", "quickPlot", "SpaDES.core", "SpaDES.tools",
-                    moduleRqdPkgs, googleAuthPkgs)
+  packages4POM <- unique(c("lme4", "LandR", "map", "quickPlot", "reproducible",
+                           "SpaDES.core", "SpaDES.tools", moduleRqdPkgs, googleAuthPkgs))
 
   if (isTRUE(useDEoptim)) {
     ## NOTE: bug in DEoptim prevents using our own cluster (ArdiaD/DEoptim#3)
@@ -514,11 +514,17 @@ if (isTRUE(usePOM)) {
     )
     tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
 
-    out <- parallel::mclapply(X = purrr::transpose(tableOfRuns), FUN = function(x, sim, pkgs) {
-      #testFn(unlist(x[1:6]), sim)
-      objectiveFunction(unlist(x[1:6]), sim)
-    }, sim = mySim, pkgs = packages4POM, mc.cores = 3 * nrow(params4POM))
+    cl <- parallel::makeForkCluster(5 * nrow(params4POM))
+    parallel::clusterExport(cl, list("objectiveFunction"))
+
+    out <- parallel::parLapplyLB(cl = cl, X = purrr::transpose(tableOfRuns),
+                                 function(x, sim) {
+                                   #testFn(unlist(x[1:6]), sim)
+                                   objectiveFunction(unlist(x[1:6]), sim)
+                                 }, sim = mySim)
     tableOfRuns$objFnReturn <- unlist(out)
+
+    parallel::stopCluster(cl)
   }
 
   options(opts2)
