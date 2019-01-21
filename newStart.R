@@ -394,6 +394,7 @@ message(crayon::red(runName))
 
 ######## parameter estimation using POM (LandWeb#111)
 if (isTRUE(usePOM)) {
+  data.table::setDTthreads(useParallel)
   runName <- "tolko_SK_logROS"
 
   testFn <- function(params, sim) {
@@ -524,6 +525,7 @@ if (isTRUE(usePOM)) {
     #                                objectiveFunction(unlist(x[1:6]), sim)
     #                              }, sim = mySim)
 
+    #FROM = 1; TO = 1;
     ids <- seq(FROM, TO, by = 1)
     out <- lapply(purrr::transpose(tableOfRuns[ids,]),
                   function(x, sim) {
