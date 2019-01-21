@@ -4,6 +4,7 @@ usePOM <- if (pemisc::user("achubaty")) TRUE else FALSE ## NOTE: TO and FROM ind
 useDEoptim <- FALSE
 useParallel <- if (isTRUE(usePOM)) 2 else 8
 
+cloudCacheFolderID <- "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj"
 useSpades <- TRUE
 minFRI <- 25
 activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
@@ -294,7 +295,7 @@ objects <- list(
 parameters <- list(
   Boreal_LBMRDataPrep = list(
     "sppEquivCol" = sppEquivCol,
-    "cloudFolderID" = "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj",
+    "cloudFolderID" = cloudCacheFolderID,
     # next two are used when assigning pixelGroup membership; what resolution for
     #   age and biomass
     "pixelGroupAgeClass" = successionTimestep,
