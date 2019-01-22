@@ -203,13 +203,14 @@ parameters1 <- list(
   )
 )
 
-simOutPreamble <- Cache(simInitAndSpades,
+simOutPreamble <- cloudCache(simInitAndSpades,
                         times = list(start = 0, end = 1),
                         params = parameters1,
                         modules = c("LandWeb_preamble"),
-                        objects1,
+                        objects = objects1,
                         paths = paths,
-                        debug = 1)
+                        debug = 1,
+                        cloudFolderID = cloudCacheFolderID)
 
 if (!is.na(.plotInitialTime)) {
   lapply(dev.list(), function(x) {
@@ -249,7 +250,7 @@ if (!is.na(.plotInitialTime)) {
   quickPlot::dev(3, width = 18, height = 10)
 }
 
-simOutSpeciesLayers <- Cache(simInitAndSpades,
+simOutSpeciesLayers <- cloudCache(simInitAndSpades,
                              times = list(start = 0, end = 1),
                              params = parameters2,
                              modules = c("BiomassSpeciesData"),
@@ -257,7 +258,8 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              # make .plotInitialTime an argument, not a parameter -- Cache will see them as unchanged regardless of value
                              .plotInitialTime = .plotInitialTime,
                              paths = paths,
-                             debug = 1)
+                             debug = 1,
+                             cloudFolderID = cloudCacheFolderID)
 
 ######################################################
 # Dynamic Simulation
