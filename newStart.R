@@ -207,7 +207,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         times = list(start = 0, end = 1),
                         params = parameters1,
                         modules = c("LandWeb_preamble"),
-                        .objects = objects1,
+                        objects = objects1,
                         paths = paths,
                         debug = 1)
 
@@ -253,7 +253,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
                              params = parameters2,
                              modules = c("BiomassSpeciesData"),
-                             .objects = objects2,
+                             objects = objects2,
                              ## make .plotInitialTime an argument, not a parameter:
                              ##  - Cache will see them as unchanged regardless of value
                              .plotInitialTime = .plotInitialTime,
@@ -552,7 +552,7 @@ if (!useSpades) {
                      modules = modules,
                      outputs = outputs,
                      debug = 1,
-                     .objects = objects,
+                     objects = objects,
                      paths = paths,
                      loadOrder = unlist(modules),
                      clearSimEnv = TRUE,
