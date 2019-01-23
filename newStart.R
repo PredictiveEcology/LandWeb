@@ -149,9 +149,10 @@ opts <- options(
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
+  "reproducible.futurePlan" = if (.Platform$OS.type != "windows") "multiprocess",
   "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
-  "reproducible.futurePlan" = "multiprocess"
+  "reproducible.futurePlan" = if (user("emcintir")) "multiprocess",
   "reproducible.overwrite" = TRUE,
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
@@ -211,6 +212,7 @@ simOutPreamble <- cloudCache(simInitAndSpades,
                         objects = objects1,
                         paths = paths,
                         debug = 1,
+                        useCloud = TRUE, #!isFALSE(getOption("reproducible.futurePlan")),
                         cloudFolderID = cloudCacheFolderID)
 
 if (!is.na(.plotInitialTime)) {
