@@ -566,7 +566,7 @@ if (!useSpades) {
                      clearSimEnv = TRUE,
                      .plotInitialTime = NA,
                      cache = TRUE, ## this caches each simulation rep (with all data!)
-                     replicates = 1 ## TODO: can increase this later for additional runs
+                     replicates = 10 ## TODO: can increase this later for additional runs
   )
   try(stopCluster(cl), silent = TRUE)
 
