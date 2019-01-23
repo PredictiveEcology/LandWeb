@@ -552,8 +552,8 @@ if (isTRUE(usePOM)) {
 
 ######## SimInit and Experiment
 if (!useSpades) {
-  cl <- map::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10,
-                                outfile = file.path(Paths$outputPath, "_parallel.log"))
+  cl <- pemisc::makeOptimalCluster(MBper = 1e3, maxNumClusters = 10,
+                                   outfile = file.path(Paths$outputPath, "_parallel.log"))
   mySimOuts <- Cache(simInitAndExperiment,
                      times = times, cl = cl,
                      params = parameters,
