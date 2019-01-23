@@ -305,7 +305,7 @@ parameters <- list(
     "establishProbAdjFacResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 0.5,
     "establishProbAdjFacNonResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 2,
     "runName" = runName,
-    "useCloudCacheForStats" = if (user("achubaty")) FALSE else TRUE,
+    "useCloudCacheForStats" = TRUE,
     ".useCache" = eventCaching
   ),
   LandMine = list(
@@ -458,7 +458,7 @@ if (isTRUE(usePOM)) {
   })
 
   opts2 <- options("LandR.assertions" = FALSE, "LandR.verbose" = 0)
-  mySim <- simInit(times = list(start = 0, end = 10),
+  mySim <- simInit(times = list(start = 0, end = 250),
                    params = parametersPOM,
                    modules = modules,
                    outputs = outputs,
