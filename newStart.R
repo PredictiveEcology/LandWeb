@@ -305,6 +305,7 @@ parameters <- list(
     "establishProbAdjFacResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 0.5,
     "establishProbAdjFacNonResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 2,
     "runName" = runName,
+    "useCloudCacheForStats" = if (user("achubaty")) FALSE else TRUE,
     ".useCache" = eventCaching
   ),
   LandMine = list(
