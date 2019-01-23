@@ -143,7 +143,7 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
-.plotInitialTime <- if (user("emcintir")) NA else if (user("achubaty")) 0 else 0
+.plotInitialTime <- if (user("emcintir")) NA else if (user("achubaty")) NA else 0
 opts <- options(
   "future.globals.maxSize" = 1000*1024^2,
   "LandR.assertions" = if (user("emcintir")) TRUE else FALSE,
