@@ -37,8 +37,8 @@ runExperiment <- function(sim, nReps, objectsToHash = "", cacheSpades, cacheId =
   args <- list(experiment, sim, replicates = nReps,
                objects = objectsToHash,
                cache = cacheSpades, # cache each spades call
-               debug = "paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),
-                 paste(unname(current(sim)), collapse = ' '))",
+               debug = paste("paste(Sys.time(), format(Sys.time() - appStartTime, digits = 2),",
+                             "paste(unname(current(sim)), collapse = ' '))"),
                .plotInitialTime = NA, cacheId = cacheId,
                clearSimEnv = TRUE,
                omitArgs = c("debug", ".plotInitialTime"))

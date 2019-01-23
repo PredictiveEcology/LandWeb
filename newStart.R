@@ -140,7 +140,7 @@ do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to s
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
-.plotInitialTime <- if (user("emcintir")) NA else 0
+.plotInitialTime <- if (user("emcintir")) NA else if (user("achubaty")) NA else 0
 opts <- options(
   "LandR.assertions" = if (user("emcintir")) TRUE else TRUE,
   "LandR.verbose" = if (user("emcintir")) 2 else 1,
@@ -151,6 +151,7 @@ opts <- options(
   "reproducible.destinationPath" = normPath(Paths$inputPath),
   "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
+  "reproducible.futurePlan" = "multiprocess"
   "reproducible.overwrite" = TRUE,
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
@@ -254,8 +255,9 @@ simOutSpeciesLayers <- cloudCache(simInitAndSpades,
                              times = list(start = 0, end = 1),
                              params = parameters2,
                              modules = c("BiomassSpeciesData"),
-                             objects2,
-                             # make .plotInitialTime an argument, not a parameter -- Cache will see them as unchanged regardless of value
+                             objects = objects2,
+                             ## make .plotInitialTime an argument, not a parameter:
+                             ##  - Cache will see them as unchanged regardless of value
                              .plotInitialTime = .plotInitialTime,
                              paths = paths,
                              debug = 1,
@@ -305,6 +307,7 @@ parameters <- list(
     "establishProbAdjFacResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 0.5,
     "establishProbAdjFacNonResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 2,
     "runName" = runName,
+    "useCloudCacheForStats" = if (user("achubaty")) FALSE else TRUE,
     ".useCache" = eventCaching
   ),
   LandMine = list(
@@ -453,15 +456,15 @@ if (isTRUE(usePOM)) {
   parametersPOM <- parameters
   lapply(names(parametersPOM), function(x) {
     parametersPOM[[x]]$.plotInitialTime <<- NA
-    parametersPOM[[x]]$.useParallel <<- 2
+    parametersPOM[[x]]$.useParallel <<- useParallel
   })
 
   opts2 <- options("LandR.assertions" = FALSE, "LandR.verbose" = 0)
-  mySim <- simInit(times = list(start = 0, end = 250),
+  mySim <- simInit(times = list(start = 0, end = 10),
                    params = parametersPOM,
                    modules = modules,
                    outputs = outputs,
-                   objects, # do not name this argument -- collides with Cache -- leave it unnamed
+                   objects = objects,
                    paths = paths,
                    loadOrder = unlist(modules)
   )
@@ -553,7 +556,7 @@ if (!useSpades) {
                      modules = modules,
                      outputs = outputs,
                      debug = 1,
-                     objects, # do not name this argument -- collides with
+                     objects = objects,
                      paths = paths,
                      loadOrder = unlist(modules),
                      clearSimEnv = TRUE,
@@ -575,7 +578,7 @@ if (!useSpades) {
                                params = parameters,
                                modules = modules,
                                outputs = outputs,
-                               objects, # do not name this argument -- collides with Cache -- leave it unnamed
+                               objects = objects,
                                paths = paths,
                                loadOrder = unlist(modules),
                                debug = 1,
