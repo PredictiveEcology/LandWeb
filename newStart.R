@@ -151,6 +151,7 @@ opts <- options(
   "reproducible.destinationPath" = normPath(Paths$inputPath),
   "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
+  "reproducible.futurePlan" = "multiprocess"
   "reproducible.overwrite" = TRUE,
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
