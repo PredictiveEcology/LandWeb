@@ -142,7 +142,7 @@ tilePath <- file.path(Paths$outputPath, "tiles")
 ## Options
 .plotInitialTime <- if (user("emcintir")) NA else if (user("achubaty")) 0 else 0
 opts <- options(
-  "LandR.assertions" = if (user("emcintir")) TRUE else TRUE,
+  "LandR.assertions" = if (user("emcintir")) TRUE else FALSE,
   "LandR.verbose" = if (user("emcintir")) 2 else 1,
   "map.dataPath" = Paths$inputPath, # not used yet
   "map.overwrite" = TRUE,
