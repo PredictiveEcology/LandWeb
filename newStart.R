@@ -145,6 +145,7 @@ tilePath <- file.path(Paths$outputPath, "tiles")
 ## Options
 .plotInitialTime <- if (user("emcintir")) NA else if (user("achubaty")) 0 else 0
 opts <- options(
+  "future.globals.maxSize" = 1000*1024^2,
   "LandR.assertions" = if (user("emcintir")) TRUE else FALSE,
   "LandR.verbose" = if (user("emcintir")) 2 else 1,
   "map.dataPath" = Paths$inputPath, # not used yet
@@ -153,7 +154,7 @@ opts <- options(
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
-  "reproducible.futurePlan" = if (.Platform$OS.type != "windows") "multiprocess" else NULL,
+  "reproducible.futurePlan" = if (.Platform$OS.type != "windows") "multiprocess" else "multicore",
   "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
   "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,
