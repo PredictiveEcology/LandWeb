@@ -149,9 +149,10 @@ opts <- options(
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
+  "reproducible.futurePlan" = if (.Platform$OS.type != "windows") "multiprocess",
   "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
-  "reproducible.futurePlan" = "multiprocess"
+  "reproducible.futurePlan" = if (user("emcintir")) "multiprocess",
   "reproducible.overwrite" = TRUE,
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
@@ -204,13 +205,15 @@ parameters1 <- list(
   )
 )
 
-simOutPreamble <- Cache(simInitAndSpades,
+simOutPreamble <- cloudCache(simInitAndSpades,
                         times = list(start = 0, end = 1),
                         params = parameters1,
                         modules = c("LandWeb_preamble"),
                         objects = objects1,
                         paths = paths,
-                        debug = 1)
+                        debug = 1,
+                        useCloud = TRUE, #!isFALSE(getOption("reproducible.futurePlan")),
+                        cloudFolderID = cloudCacheFolderID)
 
 if (!is.na(.plotInitialTime)) {
   lapply(dev.list(), function(x) {
@@ -250,7 +253,7 @@ if (!is.na(.plotInitialTime)) {
   quickPlot::dev(3, width = 18, height = 10)
 }
 
-simOutSpeciesLayers <- Cache(simInitAndSpades,
+simOutSpeciesLayers <- cloudCache(simInitAndSpades,
                              times = list(start = 0, end = 1),
                              params = parameters2,
                              modules = c("BiomassSpeciesData"),
@@ -259,7 +262,8 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              ##  - Cache will see them as unchanged regardless of value
                              .plotInitialTime = .plotInitialTime,
                              paths = paths,
-                             debug = 1)
+                             debug = 1,
+                             cloudFolderID = cloudCacheFolderID)
 
 ######################################################
 # Dynamic Simulation
