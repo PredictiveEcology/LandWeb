@@ -5,7 +5,7 @@ useDEoptim <- FALSE
 useParallel <- if (isTRUE(usePOM)) 2 else 4
 
 cloudCacheFolderID <- "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj"
-useSpades <- if (pemisc::user("achubaty")) FALSE else TRUE
+useSpades <- if (pemisc::user("achubaty")) TRUE else TRUE
 minFRI <- 25
 activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
 reproducible::checkPath(activeDir, create = TRUE)
@@ -554,7 +554,7 @@ if (isTRUE(usePOM)) {
 ######## SimInit and Experiment
 if (!useSpades) {
   data.table::setDTthreads(useParallel) # 4
-  # cl <- pemisc::makeOptimalCluster(useParallel = TRUE, MBper = 5e3, maxNumClusters = 10,
+  # cl <- pemisc::makeOptimalCluster(useParallel = TRUE, MBper = 5e3, maxNumClusters = 8,
   #                                  outfile = file.path(Paths$outputPath, "_parallel.log"))
   cl <- NULL
   mySimOuts <- Cache(simInitAndExperiment,
@@ -569,7 +569,7 @@ if (!useSpades) {
                      clearSimEnv = TRUE,
                      .plotInitialTime = NA,
                      cache = TRUE, ## this caches each simulation rep (with all data!)
-                     replicates = 10 ## TODO: can increase this later for additional runs
+                     replicates = 8 ## TODO: can increase this later for additional runs
   )
   try(stopCluster(cl), silent = TRUE)
 
