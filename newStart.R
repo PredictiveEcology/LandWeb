@@ -152,10 +152,10 @@ opts <- options(
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.futurePlan" = if ((.Platform$OS.type != "windows") && user("emcintir")) "multiprocess",
   "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
+  "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
-  "reproducible.quick" = FALSE,
   "reproducible.useCache" = if (pemisc::user("emcintir")) "devMode" else TRUE,
   "spades.moduleCodeChecks" = FALSE,
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
