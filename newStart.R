@@ -30,6 +30,7 @@ fireTimestep <- 1
 
 ## running locally
 #runName <- "ANC"
+#runName <- "ANC_aspenDispersal_logROS"
 #runName <- "ANC_doubleFRI"
 #runName <- "ANC_equalROS"
 #runName <- "ANC_logROS"
@@ -37,9 +38,10 @@ fireTimestep <- 1
 
 ## running locally
 #runName <- "DMI"
+if (pemisc::user("achubaty")) runName <- "DMI_aspenDispersal_logROS"
 #runName <- "DMI_doubleFRI"
 #runName <- "DMI_equalROS"
-if (pemisc::user("achubaty")) runName <- "DMI_logROS"
+#runName <- "DMI_logROS"
 #runName <- "DMI_noDispersal"
 
 ## running locally
@@ -79,6 +81,7 @@ if (pemisc::user("emcintir")) runName <- "tolko_AB_N_logROS"
 
 ## running locally
 #runName <- "LP_MB"
+#runName <- "LP_MB_aspenDispersal_logROS"
 #runName <- "LP_MB_doubleFRI"
 #runName <- "LP_MB_equalROS"
 #runName <- "LP_MB_logROS"
