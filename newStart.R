@@ -154,7 +154,7 @@ opts <- options(
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.destinationPath" = normPath(Paths$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
-  "reproducible.futurePlan" = if (.Platform$OS.type != "windows") "multiprocess" else "multicore",
+  "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) "multiprocess" else FALSE,
   "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
   "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,
