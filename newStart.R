@@ -1,11 +1,11 @@
 quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
-usePOM <- if (pemisc::user("achubaty")) TRUE else FALSE ## NOTE: TO and FROM indices must be defined
+usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
 useDEoptim <- FALSE
 useParallel <- if (isTRUE(usePOM)) 2 else 8
 
 cloudCacheFolderID <- "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj"
-useSpades <- TRUE
+useSpades <- if (pemisc::user("achubaty")) FALSE else TRUE
 minFRI <- 25
 activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
 reproducible::checkPath(activeDir, create = TRUE)
@@ -39,7 +39,7 @@ fireTimestep <- 1
 #runName <- "DMI"
 #runName <- "DMI_doubleFRI"
 #runName <- "DMI_equalROS"
-#runName <- "DMI_logROS"
+if (pemisc::user("achubaty")) runName <- "DMI_logROS"
 #runName <- "DMI_noDispersal"
 
 ## running locally
@@ -60,7 +60,7 @@ fireTimestep <- 1
 ## running locally
 if (pemisc::user("emcintir")) runName <- "tolko_AB_N_logROS"
 #runName <- "tolko_AB_S_logROS"
-if (pemisc::user("achubaty")) runName <- "tolko_SK_logROS"
+#runName <- "tolko_SK_logROS"
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal"
@@ -206,14 +206,14 @@ parameters1 <- list(
 )
 
 simOutPreamble <- cloudCache(simInitAndSpades,
-                        times = list(start = 0, end = 1),
-                        params = parameters1,
-                        modules = c("LandWeb_preamble"),
-                        objects = objects1,
-                        paths = paths,
-                        debug = 1,
-                        useCloud = TRUE, #!isFALSE(getOption("reproducible.futurePlan")),
-                        cloudFolderID = cloudCacheFolderID)
+                             times = list(start = 0, end = 1),
+                             params = parameters1,
+                             modules = c("LandWeb_preamble"),
+                             objects = objects1,
+                             paths = paths,
+                             debug = 1,
+                             useCloud = TRUE, #!isFALSE(getOption("reproducible.futurePlan")),
+                             cloudFolderID = cloudCacheFolderID)
 
 if (!is.na(.plotInitialTime)) {
   lapply(dev.list(), function(x) {
