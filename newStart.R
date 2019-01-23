@@ -2,7 +2,7 @@ quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
 usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
 useDEoptim <- FALSE
-useParallel <- if (isTRUE(usePOM)) 2 else 8
+useParallel <- if (isTRUE(usePOM)) 2 else 4
 
 cloudCacheFolderID <- "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj"
 useSpades <- if (pemisc::user("achubaty")) FALSE else TRUE
@@ -553,8 +553,10 @@ if (isTRUE(usePOM)) {
 
 ######## SimInit and Experiment
 if (!useSpades) {
-  cl <- pemisc::makeOptimalCluster(useParallel = TRUE, MBper = 1e3, maxNumClusters = 10,
-                                   outfile = file.path(Paths$outputPath, "_parallel.log"))
+  data.table::setDTthreads(useParallel) # 4
+  # cl <- pemisc::makeOptimalCluster(useParallel = TRUE, MBper = 5e3, maxNumClusters = 10,
+  #                                  outfile = file.path(Paths$outputPath, "_parallel.log"))
+  cl <- NULL
   mySimOuts <- Cache(simInitAndExperiment,
                      times = times, cl = cl,
                      params = parameters,
