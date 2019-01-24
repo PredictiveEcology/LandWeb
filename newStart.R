@@ -3,9 +3,10 @@ quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
 useDEoptim <- FALSE
 useParallel <- if (isTRUE(usePOM)) 2 else 4
+useCloudCache <- FALSE # only for simInitAndSpades
 
 cloudCacheFolderID <- "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj"
-useSpades <- if (pemisc::user("achubaty")) TRUE else TRUE
+useSpades <- if (pemisc::user("emcintir")) FALSE else TRUE
 minFRI <- 25
 activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
 reproducible::checkPath(activeDir, create = TRUE)
@@ -60,9 +61,9 @@ if (pemisc::user("achubaty")) runName <- "DMI_aspenDispersal_logROS"
 #runName <- "tolko_SK_equalROS"
 
 ## running locally
-if (pemisc::user("emcintir")) runName <- "tolko_AB_N_logROS"
+# runName <- "tolko_AB_N_logROS"
 #runName <- "tolko_AB_S_logROS"
-#runName <- "tolko_SK_logROS"
+if (pemisc::user("emcintir")) runName <- "tolko_SK_logROS"
 
 ## running locally
 #runName <- "tolko_AB_N_noDispersal"
@@ -215,7 +216,7 @@ simOutPreamble <- cloudCache(simInitAndSpades,
                              objects = objects1,
                              paths = paths,
                              debug = 1,
-                             useCloud = TRUE, #!isFALSE(getOption("reproducible.futurePlan")),
+                             useCloud = useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
                              cloudFolderID = cloudCacheFolderID)
 
 if (!is.na(.plotInitialTime)) {
@@ -266,6 +267,7 @@ simOutSpeciesLayers <- cloudCache(simInitAndSpades,
                                   .plotInitialTime = .plotInitialTime,
                                   paths = paths,
                                   debug = 1,
+                                  useCloud = useCloudCache,
                                   cloudFolderID = cloudCacheFolderID)
 
 ######################################################
@@ -569,10 +571,9 @@ if (!useSpades) {
                      clearSimEnv = TRUE,
                      .plotInitialTime = NA,
                      cache = TRUE, ## this caches each simulation rep (with all data!)
-                     replicates = 8 ## TODO: can increase this later for additional runs
+                     replicates = 2 ## TODO: can increase this later for additional runs
   )
   try(stopCluster(cl), silent = TRUE)
-
   saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
 } else {
   if (!is.na(.plotInitialTime)) {
