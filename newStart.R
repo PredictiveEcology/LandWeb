@@ -598,10 +598,6 @@ if (!useSpades) {
 }
 
 if (FALSE) {
-#ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
-#ml <- readRDS(file.path(Paths$outputPath, "ml_done.rds"))
-#mySimOuts <- readRDS(file.path(Paths$outputPath, "mySimOuts.rds"))
-
 ##########################################################
 # Dynamic Raster Layers from Simulation
 ##########################################################
@@ -641,14 +637,17 @@ simOutSpeciesLayers2a <- cloudCache(simInitAndSpades,
                                     cloudFolderID = cloudCacheFolderID)
 
 vtmCC <- makeVegTypeMap(simOutSpeciesLayers2a$speciesLayers, vegLeadingProportion, mixed = TRUE)
-fname <- file.path(Paths$outputPath, "CurrentConditions.tif")
-writeRaster(vtmCC, fname)
+fname <- file.path(Paths$outputPath, "CurrentConditionVTM.tif")
+writeRaster(vtmCC, fname, overwrite = TRUE)
 
-ml <- mapAdd(map = ml, layerName = "CC", analysisGroup1 = "CC",
+fname2 <- file.path(Paths$outputPath, "CurrentConditionTSF.tif")
+writeRaster(ml$`CC TSF`, fname2, overwrite = TRUE)
+
+ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
              targetFile = asPath(fname),
              destinationPath = asPath(Paths$outputPath),
              filename2 = NULL,
-             tsf = asPath(file.path(Paths$inputPath, "Age1.tif")),
+             tsf = asPath(fname2),
              vtm = asPath(fname),
              CC = TRUE,
              overwrite = TRUE,
@@ -656,6 +655,7 @@ ml <- mapAdd(map = ml, layerName = "CC", analysisGroup1 = "CC",
              leaflet = asPath(tilePath))
 
 saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+#ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
 
 options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
