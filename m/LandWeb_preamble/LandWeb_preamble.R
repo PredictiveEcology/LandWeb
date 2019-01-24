@@ -37,6 +37,7 @@ defineModule(sim, list(
     createsOutput("fireReturnInterval", "RasterLayer", desc = NA),
     createsOutput("LandTypeCC", "RasterLayer", desc = NA),
     createsOutput("LCC2005", "RasterLayer", desc = NA),
+    createsOutput("ml", "map", desc = NA),
     createsOutput("nonTreePixels", "integer", desc = NA),
     createsOutput("rasterToMatch", "RasterLayer", desc = NA),
     createsOutput("rasterToMatchReporting", "RasterLayer", desc = NA),
@@ -279,6 +280,8 @@ Init <- function(sim) {
   sim$rasterToMatchReporting <- postProcess(rasterToMatch(ml),
                                             studyArea = studyArea(ml, 2),
                                             filename2 = NULL) # this is the small one
+
+  sim$ml <- ml
 
   ## some assertions:
   testObjs <- c("studyArea", "studyAreaLarge", "studyAreaReporting",

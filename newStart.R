@@ -618,6 +618,9 @@ destinationPath <- dirname(allouts)
 tsf <- gsub(".*vegTypeMap.*", NA, allouts)
 vtm <- gsub(".*TimeSinceFire.*", NA, allouts)
 
+ml <- simOutPreamble$ml
+saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+
 options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
              targetFile = asPath(allouts),
@@ -632,7 +635,7 @@ options(map.useParallel = TRUE)
 # Add reporting polygons
 ######################################################################
 
-## For Tolko runs, they are added above!
+## For FMA-specific runs, they are added above in `ml` object produced by LandWeb_preamble.
 
 ######################################################################
 # Leading Veg Type By Age Class
