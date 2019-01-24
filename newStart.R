@@ -615,8 +615,8 @@ layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
 layerName <- gsub(layerName, pattern = "^_", replacement = "")
 ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2")
 destinationPath <- dirname(allouts)
-tsf <- gsub(".*vegTypeMap.*", NA, allouts)
-vtm <- gsub(".*TimeSinceFire.*", NA, allouts)
+tsf <- gsub(".*vegTypeMap.*", NA, allouts) %>% na.omit()
+vtm <- gsub(".*TimeSinceFire.*", NA, allouts) %>% na.omit()
 
 ml <- simOutPreamble$ml
 saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
