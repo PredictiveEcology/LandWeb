@@ -650,6 +650,7 @@ ml <- mapAdd(map = ml, layerName = "CC", analysisGroup1 = "CC",
              filename2 = NULL,
              tsf = asPath(file.path(Paths$inputPath, "Age1.tif")),
              vtm = asPath(fname),
+             CC = TRUE,
              overwrite = TRUE,
              #useCache = "overwrite",
              leaflet = asPath(tilePath))
