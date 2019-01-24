@@ -616,8 +616,11 @@ layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
 layerName <- gsub(layerName, pattern = "^_", replacement = "")
 ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2")
 destinationPath <- dirname(allouts)
-tsf <- gsub(".*vegTypeMap.*", NA, allouts)
-vtm <- gsub(".*TimeSinceFire.*", NA, allouts)
+tsf <- gsub(".*vegTypeMap.*", NA, allouts) %>% na.omit()
+vtm <- gsub(".*TimeSinceFire.*", NA, allouts) %>% na.omit()
+
+ml <- simOutPreamble$ml
+saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 
 options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
@@ -633,7 +636,7 @@ options(map.useParallel = TRUE)
 # Add reporting polygons
 ######################################################################
 
-## For Tolko runs, they are added above!
+## For FMA-specific runs, they are added above in `ml` object produced by LandWeb_preamble.
 
 ######################################################################
 # Leading Veg Type By Age Class
@@ -650,8 +653,11 @@ options(map.useParallel = TRUE)
 options(map.useParallel = FALSE)
 ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
                      id = "1", labelColumn = "shinyLabel",
+                     #purgeAnalyses = "LargePatches",
                      ageClassCutOffs = ageClassCutOffs)
 options(map.useParallel = TRUE)
+
+saveRDS(ml, file.path(Paths$outputPath, "ml_partial.rds"))
 
 ############################################################
 # Post hoc analyses -- specifically making the data.tables for histograms & boxplots
