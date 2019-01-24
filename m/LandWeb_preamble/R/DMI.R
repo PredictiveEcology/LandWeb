@@ -37,15 +37,15 @@ fmaDMI <- function(ml, runName, dataDir, canProvs) {
                              filename2 = file.path(dataDirDMI, "DMI_caribou.shp"))
   #plot(dmi.caribou)
 
-  ml <- mapAdd(dmi, ml, layerName = "DMI AB Full", useSAcrs = TRUE, poly = TRUE,
+  ml <- mapAdd(dmi, ml, layerName = "DMI Full", useSAcrs = TRUE, poly = TRUE,
                analysisGroupReportingPolygon = "DMI Full", isStudyArea = TRUE,
                columnNameForLabels = "Name", filename2 = NULL)
 
-  ml <- mapAdd(dmi.ansr, ml, layerName = "DMI AB ANSR", useSAcrs = TRUE, poly = TRUE,
+  ml <- mapAdd(dmi.ansr, ml, layerName = "DMI ANSR", useSAcrs = TRUE, poly = TRUE,
                analysisGroupReportingPolygon = "DMI ANSR",
                columnNameForLabels = "Name", filename2 = NULL)
 
-  ml <- mapAdd(dmi.caribou, ml, layerName = "DMI AB Caribou", useSAcrs = TRUE, poly = TRUE,
+  ml <- mapAdd(dmi.caribou, ml, layerName = "DMI Caribou", useSAcrs = TRUE, poly = TRUE,
                analysisGroupReportingPolygon = "DMI Caribou",
                columnNameForLabels = "Name", filename2 = NULL)
 
