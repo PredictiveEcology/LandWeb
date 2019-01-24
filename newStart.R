@@ -652,8 +652,11 @@ options(map.useParallel = TRUE)
 options(map.useParallel = FALSE)
 ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
                      id = "1", labelColumn = "shinyLabel",
+                     #purgeAnalyses = "LargePatches",
                      ageClassCutOffs = ageClassCutOffs)
 options(map.useParallel = TRUE)
+
+saveRDS(ml, file.path(Paths$outputPath, "ml_partial.rds"))
 
 ############################################################
 # Post hoc analyses -- specifically making the data.tables for histograms & boxplots
