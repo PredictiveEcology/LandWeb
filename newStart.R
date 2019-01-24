@@ -620,6 +620,42 @@ tsf <- gsub(".*vegTypeMap.*", NA, allouts) %>% na.omit()
 vtm <- gsub(".*TimeSinceFire.*", NA, allouts) %>% na.omit()
 
 ml <- simOutPreamble$ml
+
+parameters2a <- list(
+  BiomassSpeciesData = list(
+    "types" = c("ForestInventory"),
+    "sppEquivCol" = sppEquivCol,
+    "omitNonVegPixels" = TRUE
+  )
+)
+
+simOutSpeciesLayers2a <- cloudCache(simInitAndSpades,
+                                    times = list(start = 0, end = 1),
+                                    params = parameters2a,
+                                    modules = c("BiomassSpeciesData"),
+                                    objects = objects2,
+                                    ## make .plotInitialTime an argument, not a parameter:
+                                    ##  - Cache will see them as unchanged regardless of value
+                                    .plotInitialTime = .plotInitialTime,
+                                    paths = paths,
+                                    debug = 1,
+                                    cloudFolderID = cloudCacheFolderID)
+
+vtmCC <- makeVegTypeMap(simOutSpeciesLayers2a$speciesLayers, vegLeadingProportion, mixed = TRUE)
+fname <- file.path(Paths$outputPath, "CurrentConditions.tif")
+writeRaster(vtmCC, fname)
+
+ml <- mapAdd(map = ml, layerName = "CC", analysisGroup1 = "CC",
+             targetFile = asPath(fname),
+             destinationPath = asPath(Paths$outputPath),
+             filename2 = NULL,
+             tsf = asPath(file.path(Paths$inputPath, "Age1.tif")),
+             vtm = asPath(fname),
+             CC = TRUE,
+             overwrite = TRUE,
+             #useCache = "overwrite",
+             leaflet = asPath(tilePath))
+
 saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
 
 options(map.useParallel = FALSE)
