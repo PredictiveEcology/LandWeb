@@ -20,7 +20,7 @@ fmaANC <- function(ml, runName, dataDir, canProvs) {
                                overwrite = TRUE)
   #plot(anc.caribou, col = "magenta", add = TRUE)
 
-  ml <- mapAdd(anc, ml, layerName = "ANC AB", useSAcrs = TRUE, poly = TRUE,
+  ml <- mapAdd(anc, ml, layerName = "ANC", useSAcrs = TRUE, poly = TRUE,
                analysisGroupReportingPolygon = "ANC", isStudyArea = TRUE,
                columnNameForLabels = "Name", filename2 = NULL)
   ml <- mapAdd(anc.ansr, ml, layerName = "ANC ANSR", useSAcrs = TRUE, poly = TRUE,
