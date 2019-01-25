@@ -707,6 +707,7 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "rbindlistAG",
+                            #purgeAnalyses = "runBoxPlotsVegCover",
                             dPath = file.path(Paths$outputPath, "boxplots"))
 
 saveRDS(ml, file.path(Paths$outputPath, "ml_done.rds"))
