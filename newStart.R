@@ -31,7 +31,7 @@ fireTimestep <- 1
 
 ## running locally
 #runName <- "ANC"
-#runName <- "ANC_aspenDispersal_logROS"
+#if (pemisc::user("achubaty")) runName <- "ANC_aspenDispersal_logROS"
 #runName <- "ANC_doubleFRI"
 #runName <- "ANC_equalROS"
 #runName <- "ANC_logROS"
@@ -39,11 +39,19 @@ fireTimestep <- 1
 
 ## running locally
 #runName <- "DMI"
-if (pemisc::user("achubaty")) runName <- "DMI_aspenDispersal_logROS"
+#runName <- "DMI_aspenDispersal_logROS"
 #runName <- "DMI_doubleFRI"
 #runName <- "DMI_equalROS"
 #runName <- "DMI_logROS"
 #runName <- "DMI_noDispersal"
+
+## running locally
+#runName <- "LP_MB"
+#runName <- "LP_MB_aspenDispersal_logROS"
+#runName <- "LP_MB_doubleFRI"
+#runName <- "LP_MB_equalROS"
+#runName <- "LP_MB_logROS"
+#runName <- "LP_MB_noDispersal"
 
 ## running locally
 #runName <- "tolko_AB_N"
@@ -79,14 +87,6 @@ if (pemisc::user("emcintir")) runName <- "tolko_SK_logROS"
 #runName <- "tolko_AB_N_aspen80"
 #runName <- "tolko_AB_S_aspen80"
 #runName <- "tolko_SK_aspen80"
-
-## running locally
-#runName <- "LP_MB"
-#runName <- "LP_MB_aspenDispersal_logROS"
-#runName <- "LP_MB_doubleFRI"
-#runName <- "LP_MB_equalROS"
-#runName <- "LP_MB_logROS"
-#runName <- "LP_MB_noDispersal"
 
 message(crayon::red(runName))
 
@@ -189,6 +189,8 @@ sppEquivalencies_CA[LandWeb == "Abie_sp", Leading := "Fir leading"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
+
+#sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(LandWeb),]
 
 #################################################
 ## create color palette for species used in model
@@ -408,7 +410,7 @@ message(crayon::red(runName))
 ######## parameter estimation using POM (LandWeb#111)
 if (isTRUE(usePOM)) {
   data.table::setDTthreads(useParallel)
-  runName <- "tolko_SK_logROS"
+  runName <- "tolko_SK_logROS_POM"
 
   testFn <- function(params, sim) {
     sim2 <- reproducible::Copy(sim)
@@ -528,26 +530,28 @@ if (isTRUE(usePOM)) {
     )
     tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
 
-    #cl <- parallel::makeForkCluster(5 * nrow(params4POM))
-    #parallel::clusterExport(cl, list("objectiveFunction"))
+    cl <- parallel::makeForkCluster(5 * nrow(params4POM))
+    parallel::clusterExport(cl, list("objectiveFunction"))
 
-    # out <- parallel::parLapplyLB(cl = cl,
-    #                              purrr::transpose(tableOfRuns),
-    #                              function(x, sim) {
-    #                                #testFn(unlist(x[1:6]), sim)
-    #                                objectiveFunction(unlist(x[1:6]), sim)
-    #                              }, sim = mySim)
+    out <- parallel::parLapplyLB(cl = cl,
+                                 purrr::transpose(tableOfRuns),
+                                 function(x, sim) {
+                                   #testFn(unlist(x[1:6]), sim)
+                                   objectiveFunction(unlist(x[1:6]), sim)
+                                 }, sim = mySim)
+    tableOfRuns$objFnReturn <- unlist(out)
 
-    #FROM = 1; TO = 1;
-    ids <- seq(FROM, TO, by = 1)
-    out <- lapply(purrr::transpose(tableOfRuns[ids,]),
-                  function(x, sim) {
-                    #testFn(unlist(x[1:6]), sim)
-                    objectiveFunction(unlist(x[1:6]), sim)
-                  }, sim = mySim)
-    tableOfRuns$objFnReturn[ids] <- unlist(out)
+    # FROM = 1; TO = 1;
+    # FROM = 1; TO = nrow(tableOfRuns);
+    # ids <- seq(FROM, TO, by = 1)
+    # out <- lapply(purrr::transpose(tableOfRuns[ids,]),
+    #               function(x, sim) {
+    #                 #testFn(unlist(x[1:6]), sim)
+    #                 objectiveFunction(unlist(x[1:6]), sim)
+    #               }, sim = mySim)
+    # tableOfRuns$objFnReturn[ids] <- unlist(out)
 
-    #parallel::stopCluster(cl)
+    parallel::stopCluster(cl)
   }
 
   options(opts2)

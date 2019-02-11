@@ -13,7 +13,7 @@ devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "development", 
 
 devtools::install_github("rforge/mumin", subdir = "pkg", ref = "master", dependencies = deps)
 
-devtools::install_github("achubaty/amc", ref = "master", dependencies = deps)
+devtools::install_github("achubaty/amc", ref = "development", dependencies = deps)
 
 if (FALSE) {
   options(shiny.reactlog = TRUE)
