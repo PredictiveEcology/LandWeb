@@ -104,6 +104,7 @@ if (grepl("LandWeb", runName)) {
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 ##########################################################
 library(data.table)
+library(magrittr)
 library(raster)
 library(SpaDES.core)
 library(pemisc)
@@ -190,7 +191,7 @@ sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
 
-#sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(LandWeb),]
+sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(LandWeb),]
 
 #################################################
 ## create color palette for species used in model
