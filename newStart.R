@@ -396,13 +396,7 @@ outputs3 <- data.frame(stringsAsFactors = FALSE,
 outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 
 ######## set seed for RNG
-fseed <- file.path(Paths$outputPath, "seed.rds")
-if (file.exists(fseed)) {
-  seed <- readRDS(fseed)
-} else {
-  seed <- sample(1e8, 1)
-  saveRDS(seed, fseed)
-}
+seed <- sample(1e8, 1)
 set.seed(seed)
 print(seed)
 
@@ -602,7 +596,7 @@ if (!useSpades) {
 
   saveRDS(mySimOut, file.path(Paths$outputPath, "mySimOut.rds"))
 }
-
+################################################################################
 if (FALSE) {
 ##########################################################
 # Dynamic Raster Layers from Simulation
