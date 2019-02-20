@@ -576,7 +576,8 @@ if (!useSpades) {
                      clearSimEnv = TRUE,
                      .plotInitialTime = NA,
                      cache = TRUE, ## this caches each simulation rep (with all data!)
-                     replicates = 2 ## TODO: can increase this later for additional runs
+                     replicates = 2, ## TODO: can increase this later for additional runs
+                     seed = seed
   )
   try(stopCluster(cl), silent = TRUE)
   saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
