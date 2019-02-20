@@ -1,6 +1,6 @@
 simInitAndExperiment <- function(times, params, modules, outputs, objects4sim,
-                                  paths, loadOrder, cacheIds4Experiment = NULL,
-                                  emptyList, cacheSpades = TRUE) {
+                                 paths, loadOrder, cacheIds4Experiment = NULL,
+                                 emptyList, cacheSpades = TRUE, seed) {
   mySims <- Map(simInit, times = times, params = params,
                 modules = modules,
                 loadOrder = loadOrder,
