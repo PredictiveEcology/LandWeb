@@ -27,7 +27,7 @@ fireTimestep <- 1
 ## set run name
 ##############################################################
 
-if (pemisc::user("achubaty")) runName <- "ANC_aspenDispersal_logROS"
+if (pemisc::user("achubaty")) runName <- "tolko_SK_aspenDispersal_logROS_test01"
 
 ## running locally
 #runName <- "ANC"
@@ -620,16 +620,6 @@ ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2")
 destinationPath <- dirname(allouts)
 tsf <- gsub(".*vegTypeMap.*", NA, allouts) %>% na.omit()
 vtm <- gsub(".*TimeSinceFire.*", NA, allouts) %>% na.omit()
-
-## TODO remove this workaround once replication issue fixed
-ids <- 1:6 ## only 3 values per run worked; use thes tss and vtms
-ag1 <- ag1[ids]
-allouts <- allouts[ids]
-destinationPath <- destinationPath[ids]
-layerName <- layerName[ids]
-tsf <- tsf[ids]
-vtm <- vtm[ids]
-## end workaround
 
 ml <- simOutPreamble$ml
 
