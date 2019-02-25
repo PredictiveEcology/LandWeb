@@ -1,14 +1,15 @@
 quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
-usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
-useDEoptim <- FALSE
-useParallel <- if (isTRUE(usePOM)) 2 else 4
-useCloudCache <- FALSE # only for simInitAndSpades
-
-cloudCacheFolderID <- "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj"
-useSpades <- if (pemisc::user("emcintir")) FALSE else TRUE
-minFRI <- 25
 activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
+cloudCacheFolderID <- "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj"
+minFRI <- 25
+postProcessOnly <- FALSE
+useCloudCache <- FALSE # only for simInitAndSpades
+useDEoptim <- FALSE
+usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
+useParallel <- if (isTRUE(usePOM)) 2 else 4
+useSpades <- if (pemisc::user("emcintir")) FALSE else TRUE
+
 reproducible::checkPath(activeDir, create = TRUE)
 setwd(activeDir)
 
@@ -105,6 +106,8 @@ if (grepl("LandWeb", runName)) {
 ##########################################################
 library(data.table)
 library(magrittr)
+library(parallel)
+
 library(raster)
 library(SpaDES.core)
 library(pemisc)
@@ -128,7 +131,7 @@ shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 moduleRqdPkgs <- c("crayon", "data.table", "dplyr", "fasterize", "fpCompare",
                    "gdalUtils", "ggplot2", "grDevices", "grid", "LandR",
-                   "magrittr", "pemisc", "pryr", "purrr", "quickPlot",
+                   "magrittr", "parallel", "pemisc", "pryr", "purrr", "quickPlot",
                    "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible", "rgeos",
                    "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", "VGAM")
 
@@ -276,453 +279,456 @@ simOutSpeciesLayers <- cloudCache(simInitAndSpades,
 ######################################################
 # Dynamic Simulation
 ######################################################
-times <- list(start = 0, end = endTime)
-modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LBMR",
-                "LandMine", "Biomass_regeneration",
-                "LandWeb_output",
-                "timeSinceFire")
+if (isFALSE(postProcessOnly)) {
+  times <- list(start = 0, end = endTime)
+  modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LBMR",
+                  "LandMine", "Biomass_regeneration",
+                  "LandWeb_output",
+                  "timeSinceFire")
 
-speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
-if (getOption("LandR.verbose") > 0) {
-  message("Adjusting species-level traits for LandWeb")
-}
-
-objects <- list(
-  "fireReturnInterval" = simOutPreamble$fireReturnInterval,
-  "LCC2005" = simOutPreamble$LCC2005,
-  "rasterToMatch" = simOutPreamble$rasterToMatch,
-  "rstFlammable" = simOutPreamble$rstFlammable,
-  "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
-  "sppColors" = sppColors,
-  "sppEquiv" = sppEquivalencies_CA,
-  "speciesLayers" = simOutSpeciesLayers$speciesLayers,
-  "speciesTable" = speciesTable,
-  "standAgeMap" = simOutPreamble$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
-  "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
-  "studyArea" = simOutPreamble$studyArea,
-  "studyAreaLarge" = simOutPreamble$studyAreaLarge,
-  "studyAreaReporting" = simOutPreamble$studyAreaReporting,
-  "summaryPeriod" = summaryPeriod,
-  "useParallel" = 2
-)
-
-parameters <- list(
-  Boreal_LBMRDataPrep = list(
-    "sppEquivCol" = sppEquivCol,
-    "cloudFolderID" = cloudCacheFolderID,
-    # next two are used when assigning pixelGroup membership; what resolution for
-    #   age and biomass
-    "pixelGroupAgeClass" = successionTimestep,
-    "pixelGroupBiomassClass" = 100,
-    "establishProbAdjFacResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 0.5,
-    "establishProbAdjFacNonResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 2,
-    "runName" = runName,
-    "useCloudCacheForStats" = TRUE,
-    ".useCache" = eventCaching
-  ),
-  LandMine = list(
-    "biggestPossibleFireSizeHa" = 5e5,
-    "burnInitialTime" = fireTimestep,
-    "fireTimestep" = fireTimestep,
-    "minPropBurn" = 0.90,
-    "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
-    ".useCache" = eventCaching,
-    ".useParallel" = useParallel
-  ),
-  LandWeb_output = list(
-    "sppEquivCol" = sppEquivCol,
-    "summaryInterval" = summaryInterval,
-    "vegLeadingProportion" = vegLeadingProportion,
-    #".plotInitialTime" = .plotInitialTime,
-    ".plotInterval" = 1
-  ),
-  LBMR = list(
-    "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
-    "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
-    "sppEquivCol" = sppEquivCol,
-    "successionTimestep" = successionTimestep,
-    ".useCache" = eventCaching[1], # seems slower to use Cache for both
-    ".useParallel" = useParallel
-  ),
-  LandR_BiomassGMOrig = list(
-    ".useParallel" = useParallel
-  ),
-  Biomass_regeneration = list(
-    "fireInitialTime" = fireTimestep,
-    "fireTimestep" = fireTimestep,
-    "successionTimestep" = successionTimestep
-  ),
-  timeSinceFire = list(
-    "startTime" = fireTimestep,
-    ".useCache" = eventCaching[1] # way faster without caching for "init"
-  )
-)
-
-if (grepl("scfm", runName)) {
-  source(file.path("params", "scfm_params.R"))
-  modules <- append(modules[-which(modules == "LandMine")], scfmModules)
-  objects <- append(objects, scfmObjects)
-  parameters <- append(parameters, scfmParams)
-}
-
-objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
-
-outputs <- data.frame(stringsAsFactors = FALSE,
-                      expand.grid(
-                        objectName = objectNamesToSave,#, "oldBigPatch"),
-                        saveTime = seq(objects$summaryPeriod[1], objects$summaryPeriod[2],
-                                       by = parameters$LandWeb_output$summaryInterval)
-                      ),
-                      fun = "writeRaster", package = "raster",
-                      file = paste0(objectNamesToSave, c(".tif", ".grd")))
-
-outputs2 <- data.frame(stringsAsFactors = FALSE,
-                       expand.grid(objectName = c("simulationOutput"), saveTime = times$end),
-                       fun = "saveRDS",
-                       package = "base")
-
-outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE,
-                                     datatype = "INT2U", format = "GTiff"),
-                                list(overwrite = TRUE, progress = FALSE,
-                                     datatype = "INT1U", format = "raster")),
-                           times = NROW(outputs) / length(objectNamesToSave)))
-
-outputs3 <- data.frame(stringsAsFactors = FALSE,
-                       objectName = "rstFlammable",
-                       saveTime = times$end, fun = "writeRaster", package = "raster",
-                       arguments = I(list(list(overwrite = TRUE, progress = FALSE,
-                                               datatype = "INT2U", format = "raster"))))
-
-outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
-
-######## set seed for RNG
-fseed <- file.path(Paths$outputPath, "seed.rds")
-if (file.exists(fseed)) {
-  seed <- readRDS(fseed)
-} else {
-  seed <- sample(1e8, 1)
-  saveRDS(seed, fseed)
-}
-set.seed(seed)
-print(seed)
-
-message(crayon::red(runName))
-
-######## parameter estimation using POM (LandWeb#111)
-if (isTRUE(usePOM)) {
-  data.table::setDTthreads(useParallel)
-  runName <- "tolko_SK_logROS_POM"
-
-  testFn <- function(params, sim) {
-    sim2 <- reproducible::Copy(sim)
-
-    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacResprout <- params[1]
-    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacNonResprout <- params[2]
-    params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[3]
-    params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[4]
-    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[5]
-    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[6]
-
-    sum(params) - 25 ## sum of param lower bounds is 25
+  speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
+  if (getOption("LandR.verbose") > 0) {
+    message("Adjusting species-level traits for LandWeb")
   }
 
-  objectiveFunction <- function(params, sim) {
-    sim2 <- Copy(sim)
+  objects <- list(
+    "fireReturnInterval" = simOutPreamble$fireReturnInterval,
+    "LCC2005" = simOutPreamble$LCC2005,
+    "rasterToMatch" = simOutPreamble$rasterToMatch,
+    "rstFlammable" = simOutPreamble$rstFlammable,
+    "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
+    "sppColors" = sppColors,
+    "sppEquiv" = sppEquivalencies_CA,
+    "speciesLayers" = simOutSpeciesLayers$speciesLayers,
+    "speciesTable" = speciesTable,
+    "standAgeMap" = simOutPreamble$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
+    "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
+    "studyArea" = simOutPreamble$studyArea,
+    "studyAreaLarge" = simOutPreamble$studyAreaLarge,
+    "studyAreaReporting" = simOutPreamble$studyAreaReporting,
+    "summaryPeriod" = summaryPeriod,
+    "useParallel" = 2
+  )
 
-    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacResprout <- params[1]
-    params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacNonResprout <- params[2]
-    params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[3]
-    params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[4]
-    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[5]
-    params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[6]
+  parameters <- list(
+    Boreal_LBMRDataPrep = list(
+      "sppEquivCol" = sppEquivCol,
+      "cloudFolderID" = cloudCacheFolderID,
+      # next two are used when assigning pixelGroup membership; what resolution for
+      #   age and biomass
+      "pixelGroupAgeClass" = successionTimestep,
+      "pixelGroupBiomassClass" = 100,
+      "establishProbAdjFacResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 0.5,
+      "establishProbAdjFacNonResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 2,
+      "runName" = runName,
+      "useCloudCacheForStats" = TRUE,
+      ".useCache" = eventCaching
+    ),
+    LandMine = list(
+      "biggestPossibleFireSizeHa" = 5e5,
+      "burnInitialTime" = fireTimestep,
+      "fireTimestep" = fireTimestep,
+      "minPropBurn" = 0.90,
+      "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
+      ".useCache" = eventCaching,
+      ".useParallel" = useParallel
+    ),
+    LandWeb_output = list(
+      "sppEquivCol" = sppEquivCol,
+      "summaryInterval" = summaryInterval,
+      "vegLeadingProportion" = vegLeadingProportion,
+      #".plotInitialTime" = .plotInitialTime,
+      ".plotInterval" = 1
+    ),
+    LBMR = list(
+      "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
+      "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
+      "sppEquivCol" = sppEquivCol,
+      "successionTimestep" = successionTimestep,
+      ".useCache" = eventCaching[1], # seems slower to use Cache for both
+      ".useParallel" = useParallel
+    ),
+    LandR_BiomassGMOrig = list(
+      ".useParallel" = useParallel
+    ),
+    Biomass_regeneration = list(
+      "fireInitialTime" = fireTimestep,
+      "fireTimestep" = fireTimestep,
+      "successionTimestep" = successionTimestep
+    ),
+    timeSinceFire = list(
+      "startTime" = fireTimestep,
+      ".useCache" = eventCaching[1] # way faster without caching for "init"
+    )
+  )
 
-    httr::set_config(httr::config(http_version = 0)) ## worakorund 'HTTP2 framing layer' error
+  if (grepl("scfm", runName)) {
+    source(file.path("params", "scfm_params.R"))
+    modules <- append(modules[-which(modules == "LandMine")], scfmModules)
+    objects <- append(objects, scfmObjects)
+    parameters <- append(parameters, scfmParams)
+  }
 
-    mySimOut <- spades(sim2, .plotInitialTime = NA)
+  objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 
-    summaryTable <- mySimOut$summaryBySpecies1[, totalPixels := sum(counts), by = year]
-    summaryTable[, proportion := counts / totalPixels]
+  outputs <- data.frame(stringsAsFactors = FALSE,
+                        expand.grid(
+                          objectName = objectNamesToSave,#, "oldBigPatch"),
+                          saveTime = seq(objects$summaryPeriod[1], objects$summaryPeriod[2],
+                                         by = parameters$LandWeb_output$summaryInterval)
+                        ),
+                        fun = "writeRaster", package = "raster",
+                        file = paste0(objectNamesToSave, c(".tif", ".grd")))
 
-    initial <- summaryTable[year == 0, ]
-    final <- summaryTable[year == end(sim), ]
+  outputs2 <- data.frame(stringsAsFactors = FALSE,
+                         expand.grid(objectName = c("simulationOutput"), saveTime = times$end),
+                         fun = "saveRDS",
+                         package = "base")
 
-    species <- unique(initial$leadingType)
+  outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE,
+                                       datatype = "INT2U", format = "GTiff"),
+                                  list(overwrite = TRUE, progress = FALSE,
+                                       datatype = "INT1U", format = "raster")),
+                             times = NROW(outputs) / length(objectNamesToSave)))
 
-    val <- 0
-    for (x in species) {
-      p_i <- initial[leadingType == x,]$proportion
-      p_f <- final[leadingType == x,]$proportion
+  outputs3 <- data.frame(stringsAsFactors = FALSE,
+                         objectName = "rstFlammable",
+                         saveTime = times$end, fun = "writeRaster", package = "raster",
+                         arguments = I(list(list(overwrite = TRUE, progress = FALSE,
+                                                 datatype = "INT2U", format = "raster"))))
 
-      # deal with missing species
-      if (identical(p_i, numeric(0))) p_i <- 0
-      if (identical(p_f, numeric(0))) p_f <- 0
+  outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
 
-      val <<- val + (p_f - p_i)^2
+  ######## set seed for RNG
+  fseed <- file.path(Paths$outputPath, "seed.rds")
+  if (file.exists(fseed)) {
+    seed <- readRDS(fseed)
+  } else {
+    seed <- sample(1e8, 1)
+    saveRDS(seed, fseed)
+  }
+  set.seed(seed)
+  print(seed)
+
+  message(crayon::red(runName))
+
+  ######## parameter estimation using POM (LandWeb#111)
+  if (isTRUE(usePOM)) {
+    data.table::setDTthreads(useParallel)
+    runName <- "tolko_SK_logROS_POM"
+
+    testFn <- function(params, sim) {
+      sim2 <- reproducible::Copy(sim)
+
+      params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacResprout <- params[1]
+      params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacNonResprout <- params[2]
+      params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[3]
+      params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[4]
+      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[5]
+      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[6]
+
+      sum(params) - 25 ## sum of param lower bounds is 25
     }
 
-    return(val)
-  }
+    objectiveFunction <- function(params, sim) {
+      sim2 <- Copy(sim)
 
-  parametersPOM <- parameters
-  lapply(names(parametersPOM), function(x) {
-    parametersPOM[[x]]$.plotInitialTime <<- NA
-    parametersPOM[[x]]$.useParallel <<- useParallel
-  })
+      params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacResprout <- params[1]
+      params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacNonResprout <- params[2]
+      params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[3]
+      params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[4]
+      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[5]
+      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[6]
 
-  opts2 <- options("LandR.assertions" = FALSE, "LandR.verbose" = 0)
-  mySim <- simInit(times = list(start = 0, end = 250),
-                   params = parametersPOM,
-                   modules = modules,
-                   outputs = outputs,
-                   objects = objects,
-                   paths = paths,
-                   loadOrder = unlist(modules)
-  )
+      httr::set_config(httr::config(http_version = 0)) ## worakorund 'HTTP2 framing layer' error
 
-  params4POM <- data.frame(
-    name = c("establishProbAdjFacResprout", "establishProbAdjFacNonResprout",
-             "growthCurveDecid", "growthCurveNonDecid",
-             "mortalityShapeDecid", "mortalityShapeNonDecid"),
-    lower = c(0, 1, 0, 0, 15, 15),
-    upper = c(1, 2, 1, 1, 25, 25),
-    stringsAsFactors = FALSE
-  )
+      mySimOut <- spades(sim2, .plotInitialTime = NA)
 
-  packages4POM <- unique(c("lme4", "LandR", "map", "quickPlot", "reproducible",
-                           "SpaDES.core", "SpaDES.tools", moduleRqdPkgs, googleAuthPkgs))
+      summaryTable <- mySimOut$summaryBySpecies1[, totalPixels := sum(counts), by = year]
+      summaryTable[, proportion := counts / totalPixels]
 
-  if (isTRUE(useDEoptim)) {
-    ## NOTE: bug in DEoptim prevents using our own cluster (ArdiaD/DEoptim#3)
-    N <- 10 * nrow(params4POM) ## need 10 populations per parameter
-    #cl <- parallel::makeCluster(N, type = "FORK")
+      initial <- summaryTable[year == 0, ]
+      final <- summaryTable[year == end(sim), ]
 
-    outPOM <- DEoptim::DEoptim(fn = objectiveFunction, #testFn,
-                               sim = mySim,
-                               control = DEoptim::DEoptim.control(
-                                 #cluster = cl, ## see ArdiaD/DEoptim#3
-                                 initialpop = matrix(c(
-                                   runif(N, params4POM[1,]$lower, params4POM[1,]$upper),
-                                   runif(N, params4POM[2,]$lower, params4POM[2,]$upper),
-                                   runif(N, params4POM[3,]$lower, params4POM[3,]$upper),
-                                   runif(N, params4POM[4,]$lower, params4POM[4,]$upper),
-                                   runif(N, params4POM[5,]$lower, params4POM[5,]$upper),
-                                   runif(N, params4POM[6,]$lower, params4POM[6,]$upper)
-                                 ), ncol = nrow(params4POM)),
-                                 itermax = 30,
-                                 packages = packages4POM,
-                                 parallelType = 1,
-                                 parVar = list("objectiveFunction", "mySim"),
-                                 VTR = 0
-                               ),
-                               lower = params4POM$lower,
-                               upper = params4POM$upper
-    )
-    #parallel::stopCluster(cl) ## see ArdiaD/DEoptim#3
-  } else {
-    n <- 3 ## number of values per parameter to use
+      species <- unique(initial$leadingType)
 
-    tableOfRuns <- expand.grid(
-      establishProbAdjFacResprout = seq(params4POM[1,]$lower, params4POM[1,]$upper, length.out = n),
-      establishProbAdjFacNonResprout = seq(params4POM[2,]$lower, params4POM[2,]$upper, length.out = n),
-      growthCurveDecid = seq(params4POM[3,]$lower, params4POM[3,]$upper, length.out = n),
-      growthCurveNonDecid = seq(params4POM[4,]$lower, params4POM[4,]$upper, length.out = n),
-      mortalityShapeDecid = seq(params4POM[5,]$lower, params4POM[5,]$upper, length.out = n),
-      mortalityShapeNonDecid = seq(params4POM[6,]$lower, params4POM[6,]$upper, length.out = n)
-    )
-    tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
+      val <- 0
+      for (x in species) {
+        p_i <- initial[leadingType == x,]$proportion
+        p_f <- final[leadingType == x,]$proportion
 
-    cl <- parallel::makeForkCluster(5 * nrow(params4POM))
-    parallel::clusterExport(cl, list("objectiveFunction"))
+        # deal with missing species
+        if (identical(p_i, numeric(0))) p_i <- 0
+        if (identical(p_f, numeric(0))) p_f <- 0
 
-    out <- parallel::parLapplyLB(cl = cl,
-                                 purrr::transpose(tableOfRuns),
-                                 function(x, sim) {
-                                   #testFn(unlist(x[1:6]), sim)
-                                   objectiveFunction(unlist(x[1:6]), sim)
-                                 }, sim = mySim)
-    tableOfRuns$objFnReturn <- unlist(out)
+        val <<- val + (p_f - p_i)^2
+      }
 
-    # FROM = 1; TO = 1;
-    # FROM = 1; TO = nrow(tableOfRuns);
-    # ids <- seq(FROM, TO, by = 1)
-    # out <- lapply(purrr::transpose(tableOfRuns[ids,]),
-    #               function(x, sim) {
-    #                 #testFn(unlist(x[1:6]), sim)
-    #                 objectiveFunction(unlist(x[1:6]), sim)
-    #               }, sim = mySim)
-    # tableOfRuns$objFnReturn[ids] <- unlist(out)
+      return(val)
+    }
 
-    parallel::stopCluster(cl)
-  }
+    parametersPOM <- parameters
+    lapply(names(parametersPOM), function(x) {
+      parametersPOM[[x]]$.plotInitialTime <<- NA
+      parametersPOM[[x]]$.useParallel <<- useParallel
+    })
 
-  options(opts2)
-}
-
-######## SimInit and Experiment
-if (!useSpades) {
-  data.table::setDTthreads(useParallel) # 4
-  # cl <- pemisc::makeOptimalCluster(useParallel = TRUE, MBper = 5e3, maxNumClusters = 8,
-  #                                  outfile = file.path(Paths$outputPath, "_parallel.log"))
-  cl <- NULL
-  mySimOuts <- Cache(simInitAndExperiment,
-                     times = times, cl = cl,
-                     params = parameters,
+    opts2 <- options("LandR.assertions" = FALSE, "LandR.verbose" = 0)
+    mySim <- simInit(times = list(start = 0, end = 250),
+                     params = parametersPOM,
                      modules = modules,
                      outputs = outputs,
-                     debug = 1,
                      objects = objects,
                      paths = paths,
-                     loadOrder = unlist(modules),
-                     clearSimEnv = TRUE,
-                     .plotInitialTime = NA,
-                     cache = TRUE, ## this caches each simulation rep (with all data!)
-                     replicates = 2, ## TODO: can increase this later for additional runs
-                     seed = seed
-  )
-  try(stopCluster(cl), silent = TRUE)
-  saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
-} else {
-  if (!is.na(.plotInitialTime)) {
-    quickPlot::dev(4, width = 18, height = 10)
-    grid::grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-    grid::grid.text(label = runName, x = 0.93, y = 0.03)
+                     loadOrder = unlist(modules)
+    )
+
+    params4POM <- data.frame(
+      name = c("establishProbAdjFacResprout", "establishProbAdjFacNonResprout",
+               "growthCurveDecid", "growthCurveNonDecid",
+               "mortalityShapeDecid", "mortalityShapeNonDecid"),
+      lower = c(0, 1, 0, 0, 15, 15),
+      upper = c(1, 2, 1, 1, 25, 25),
+      stringsAsFactors = FALSE
+    )
+
+    packages4POM <- unique(c("lme4", "LandR", "map", "quickPlot", "reproducible",
+                             "SpaDES.core", "SpaDES.tools", moduleRqdPkgs, googleAuthPkgs))
+
+    if (isTRUE(useDEoptim)) {
+      ## NOTE: bug in DEoptim prevents using our own cluster (ArdiaD/DEoptim#3)
+      N <- 10 * nrow(params4POM) ## need 10 populations per parameter
+      #cl <- parallel::makeCluster(N, type = "FORK")
+
+      outPOM <- DEoptim::DEoptim(fn = objectiveFunction, #testFn,
+                                 sim = mySim,
+                                 control = DEoptim::DEoptim.control(
+                                   #cluster = cl, ## see ArdiaD/DEoptim#3
+                                   initialpop = matrix(c(
+                                     runif(N, params4POM[1,]$lower, params4POM[1,]$upper),
+                                     runif(N, params4POM[2,]$lower, params4POM[2,]$upper),
+                                     runif(N, params4POM[3,]$lower, params4POM[3,]$upper),
+                                     runif(N, params4POM[4,]$lower, params4POM[4,]$upper),
+                                     runif(N, params4POM[5,]$lower, params4POM[5,]$upper),
+                                     runif(N, params4POM[6,]$lower, params4POM[6,]$upper)
+                                   ), ncol = nrow(params4POM)),
+                                   itermax = 30,
+                                   packages = packages4POM,
+                                   parallelType = 1,
+                                   parVar = list("objectiveFunction", "mySim"),
+                                   VTR = 0
+                                 ),
+                                 lower = params4POM$lower,
+                                 upper = params4POM$upper
+      )
+      #parallel::stopCluster(cl) ## see ArdiaD/DEoptim#3
+    } else {
+      n <- 3 ## number of values per parameter to use
+
+      tableOfRuns <- expand.grid(
+        establishProbAdjFacResprout = seq(params4POM[1,]$lower, params4POM[1,]$upper, length.out = n),
+        establishProbAdjFacNonResprout = seq(params4POM[2,]$lower, params4POM[2,]$upper, length.out = n),
+        growthCurveDecid = seq(params4POM[3,]$lower, params4POM[3,]$upper, length.out = n),
+        growthCurveNonDecid = seq(params4POM[4,]$lower, params4POM[4,]$upper, length.out = n),
+        mortalityShapeDecid = seq(params4POM[5,]$lower, params4POM[5,]$upper, length.out = n),
+        mortalityShapeNonDecid = seq(params4POM[6,]$lower, params4POM[6,]$upper, length.out = n)
+      )
+      tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
+
+      cl <- parallel::makeForkCluster(5 * nrow(params4POM))
+      parallel::clusterExport(cl, list("objectiveFunction"))
+
+      out <- parallel::parLapplyLB(cl = cl,
+                                   purrr::transpose(tableOfRuns),
+                                   function(x, sim) {
+                                     #testFn(unlist(x[1:6]), sim)
+                                     objectiveFunction(unlist(x[1:6]), sim)
+                                   }, sim = mySim)
+      tableOfRuns$objFnReturn <- unlist(out)
+
+      # FROM = 1; TO = 1;
+      # FROM = 1; TO = nrow(tableOfRuns);
+      # ids <- seq(FROM, TO, by = 1)
+      # out <- lapply(purrr::transpose(tableOfRuns[ids,]),
+      #               function(x, sim) {
+      #                 #testFn(unlist(x[1:6]), sim)
+      #                 objectiveFunction(unlist(x[1:6]), sim)
+      #               }, sim = mySim)
+      # tableOfRuns$objFnReturn[ids] <- unlist(out)
+
+      parallel::stopCluster(cl)
+    }
+
+    options(opts2)
   }
 
-  mySimOut <- simInitAndSpades(times = times, #cl = cl,
-                               params = parameters,
-                               modules = modules,
-                               outputs = outputs,
-                               objects = objects,
-                               paths = paths,
-                               loadOrder = unlist(modules),
-                               debug = 1,
-                               #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
-                               .plotInitialTime = .plotInitialTime
-  )
-  #mySimOut <- spades(mySim, debug = 1)
+  ######## SimInit and Experiment
+  if (!useSpades) {
+    data.table::setDTthreads(useParallel) # 4
+    # cl <- pemisc::makeOptimalCluster(useParallel = TRUE, MBper = 5e3, maxNumClusters = 12,
+    #                                  outfile = file.path(Paths$outputPath, "_parallel.log"))
+    cl <- NULL
+    #cl <- makeForkCluster(12); clusterSetRNGStream(cl, iseed = NULL)
+    mySimOuts <- Cache(simInitAndExperiment,
+                       times = times, cl = cl,
+                       params = parameters,
+                       modules = modules,
+                       outputs = outputs,
+                       debug = 1,
+                       objects = objects,
+                       paths = paths,
+                       loadOrder = unlist(modules),
+                       clearSimEnv = TRUE,
+                       .plotInitialTime = NA,
+                       cache = TRUE, ## this caches each simulation rep (with all data!)
+                       replicates = 12, ## TODO: can increase this later for additional runs
+                       seed = seed
+    )
+    try(parallel::stopCluster(cl), silent = TRUE)
+    saveRDS(mySimOuts, file.path(Paths$outputPath, "mySimOuts.rds"))
+  } else {
+    if (!is.na(.plotInitialTime)) {
+      quickPlot::dev(4, width = 18, height = 10)
+      grid::grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+      grid::grid.text(label = runName, x = 0.93, y = 0.03)
+    }
 
-  saveRDS(mySimOut, file.path(Paths$outputPath, "mySimOut.rds"))
+    mySimOut <- simInitAndSpades(times = times, #cl = cl,
+                                 params = parameters,
+                                 modules = modules,
+                                 outputs = outputs,
+                                 objects = objects,
+                                 paths = paths,
+                                 loadOrder = unlist(modules),
+                                 debug = 1,
+                                 #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
+                                 .plotInitialTime = .plotInitialTime
+    )
+    #mySimOut <- spades(mySim, debug = 1)
+
+    saveRDS(mySimOut, file.path(Paths$outputPath, "mySimOut.rds"))
+  }
+} else {
+  ##########################################################
+  # Simulation Post-processing
+  ##########################################################
+
+  allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
+  #allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
+  allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
+  allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE) ## TODO: need to rm the non-rep files too!!!
+  layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
+  layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
+  layerName <- gsub(layerName, pattern = "^_", replacement = "")
+  ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2")
+  destinationPath <- dirname(allouts)
+  tsf <- gsub(".*vegTypeMap.*", NA, allouts) %>% na.omit()
+  vtm <- gsub(".*TimeSinceFire.*", NA, allouts) %>% na.omit()
+
+  ml <- simOutPreamble$ml
+
+  parameters2a <- list(
+    BiomassSpeciesData = list(
+      "types" = c("ForestInventory"),
+      "sppEquivCol" = sppEquivCol,
+      "omitNonVegPixels" = TRUE
+    )
+  )
+
+  simOutSpeciesLayers2a <- cloudCache(simInitAndSpades,
+                                      times = list(start = 0, end = 1),
+                                      params = parameters2a,
+                                      modules = c("BiomassSpeciesData"),
+                                      objects = objects2,
+                                      ## make .plotInitialTime an argument, not a parameter:
+                                      ##  - Cache will see them as unchanged regardless of value
+                                      .plotInitialTime = .plotInitialTime,
+                                      paths = paths,
+                                      debug = 1,
+                                      cloudFolderID = cloudCacheFolderID)
+
+  vtmCC <- makeVegTypeMap(simOutSpeciesLayers2a$speciesLayers, vegLeadingProportion, mixed = TRUE)
+  fname <- file.path(Paths$outputPath, "CurrentConditionVTM.tif")
+  writeRaster(vtmCC, fname, overwrite = TRUE)
+
+  fname2 <- file.path(Paths$outputPath, "CurrentConditionTSF.tif")
+  writeRaster(ml$`CC TSF`, fname2, overwrite = TRUE)
+
+  ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
+               targetFile = asPath(fname),
+               destinationPath = asPath(Paths$outputPath),
+               filename2 = NULL,
+               tsf = asPath(fname2),
+               vtm = asPath(fname),
+               CC = TRUE,
+               overwrite = TRUE,
+               #useCache = "overwrite",
+               leaflet = asPath(tilePath))
+
+  saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+  #ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
+
+  options(map.useParallel = FALSE)
+  ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
+               targetFile = asPath(allouts),
+               destinationPath = asPath(destinationPath),
+               filename2 = NULL, tsf = asPath(tsf), vtm = asPath(vtm),
+               overwrite = TRUE,
+               #useCache = "overwrite",
+               leaflet = asPath(tilePath))
+  options(map.useParallel = TRUE)
+
+  ######################################################################
+  # Add reporting polygons
+  ######################################################################
+
+  ## For FMA-specific runs, they are added above in `ml` object produced by LandWeb_preamble.
+
+  ######################################################################
+  # Leading Veg Type By Age Class
+  ######################################################################
+  options(map.useParallel = FALSE)
+  ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
+                       #purgeAnalyses = "LeadingVegTypeByAgeClass",
+                       ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
+  options(map.useParallel = TRUE)
+
+  # add an analysis -- this will trigger analyses because there are already objects in the map
+  #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo (only 1 currently)
+  #    so there is 1 raster group, 2 polygon groups, 2 analyses - Total 4, only 2 run now
+  options(map.useParallel = FALSE)
+  ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
+                       id = "1", labelColumn = "shinyLabel",
+                       #purgeAnalyses = "LargePatches",
+                       ageClassCutOffs = ageClassCutOffs)
+  options(map.useParallel = TRUE)
+
+  saveRDS(ml, file.path(Paths$outputPath, "ml_partial.rds"))
+
+  ############################################################
+  # Post hoc analyses -- specifically making the data.tables for histograms & boxplots
+  ############################################################
+  # This analysisGroupReportingPolygon MUST be the same as one of ones already
+  #   analysed.
+  ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
+                              postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                              #purgeAnalyses = "rbindlistAG",
+                              postHocAnalyses = "all")
+  ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
+                              postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                              postHocAnalyses = "rbindlistAG",
+                              #purgeAnalyses = "runBoxPlotsVegCover",
+                              dPath = file.path(Paths$outputPath, "boxplots"))
+
+  saveRDS(ml, file.path(Paths$outputPath, "ml_done.rds"))
+  print(runName)
 }
-
-if (FALSE) {
-##########################################################
-# Dynamic Raster Layers from Simulation
-##########################################################
-
-allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
-#allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
-allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
-allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE) ## TODO: need to rm the non-rep files too!!!
-layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
-layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
-layerName <- gsub(layerName, pattern = "^_", replacement = "")
-ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2")
-destinationPath <- dirname(allouts)
-tsf <- gsub(".*vegTypeMap.*", NA, allouts) %>% na.omit()
-vtm <- gsub(".*TimeSinceFire.*", NA, allouts) %>% na.omit()
-
-ml <- simOutPreamble$ml
-
-parameters2a <- list(
-  BiomassSpeciesData = list(
-    "types" = c("ForestInventory"),
-    "sppEquivCol" = sppEquivCol,
-    "omitNonVegPixels" = TRUE
-  )
-)
-
-simOutSpeciesLayers2a <- cloudCache(simInitAndSpades,
-                                    times = list(start = 0, end = 1),
-                                    params = parameters2a,
-                                    modules = c("BiomassSpeciesData"),
-                                    objects = objects2,
-                                    ## make .plotInitialTime an argument, not a parameter:
-                                    ##  - Cache will see them as unchanged regardless of value
-                                    .plotInitialTime = .plotInitialTime,
-                                    paths = paths,
-                                    debug = 1,
-                                    cloudFolderID = cloudCacheFolderID)
-
-vtmCC <- makeVegTypeMap(simOutSpeciesLayers2a$speciesLayers, vegLeadingProportion, mixed = TRUE)
-fname <- file.path(Paths$outputPath, "CurrentConditionVTM.tif")
-writeRaster(vtmCC, fname, overwrite = TRUE)
-
-fname2 <- file.path(Paths$outputPath, "CurrentConditionTSF.tif")
-writeRaster(ml$`CC TSF`, fname2, overwrite = TRUE)
-
-ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
-             targetFile = asPath(fname),
-             destinationPath = asPath(Paths$outputPath),
-             filename2 = NULL,
-             tsf = asPath(fname2),
-             vtm = asPath(fname),
-             CC = TRUE,
-             overwrite = TRUE,
-             #useCache = "overwrite",
-             leaflet = asPath(tilePath))
-
-saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
-#ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
-
-options(map.useParallel = FALSE)
-ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
-             targetFile = asPath(allouts),
-             destinationPath = asPath(destinationPath),
-             filename2 = NULL, tsf = asPath(tsf), vtm = asPath(vtm),
-             overwrite = TRUE,
-             #useCache = "overwrite",
-             leaflet = asPath(tilePath))
-options(map.useParallel = TRUE)
-
-######################################################################
-# Add reporting polygons
-######################################################################
-
-## For FMA-specific runs, they are added above in `ml` object produced by LandWeb_preamble.
-
-######################################################################
-# Leading Veg Type By Age Class
-######################################################################
-options(map.useParallel = FALSE)
-ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
-                     #purgeAnalyses = "LeadingVegTypeByAgeClass",
-                     ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
-options(map.useParallel = TRUE)
-
-# add an analysis -- this will trigger analyses because there are already objects in the map
-#    This will trigger 2 more analyses ... largePatches on each raster x polygon combo (only 1 currently)
-#    so there is 1 raster group, 2 polygon groups, 2 analyses - Total 4, only 2 run now
-options(map.useParallel = FALSE)
-ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
-                     id = "1", labelColumn = "shinyLabel",
-                     #purgeAnalyses = "LargePatches",
-                     ageClassCutOffs = ageClassCutOffs)
-options(map.useParallel = TRUE)
-
-saveRDS(ml, file.path(Paths$outputPath, "ml_partial.rds"))
-
-############################################################
-# Post hoc analyses -- specifically making the data.tables for histograms & boxplots
-############################################################
-# This analysisGroupReportingPolygon MUST be the same as one of ones already
-#   analysed.
-ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
-                            postHocAnalysisGroups = "analysisGroupReportingPolygon",
-                            #purgeAnalyses = "rbindlistAG",
-                            postHocAnalyses = "all")
-ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
-                            postHocAnalysisGroups = "analysisGroupReportingPolygon",
-                            postHocAnalyses = "rbindlistAG",
-                            #purgeAnalyses = "runBoxPlotsVegCover",
-                            dPath = file.path(Paths$outputPath, "boxplots"))
-
-saveRDS(ml, file.path(Paths$outputPath, "ml_done.rds"))
-print(runName)
 
 ################################################################
 ###   WORKS UP TO HERE
 ################################################################
 
+if (FALSE) {
   ##########################################################
   # Reporting Polygons
   ##########################################################
