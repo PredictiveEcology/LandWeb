@@ -1,28 +1,26 @@
 quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
 
 activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
+ageClasses <- c("Young", "Immature", "Mature", "Old")
+ageClassCutOffs <- c(0, 40, 80, 120)
 cloudCacheFolderID <- "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj"
+eventCaching <- c(".inputObjects", "init")
+fireTimestep <- 1
+maxAge <- 400
 minFRI <- 25
 postProcessOnly <- FALSE
+sppEquivCol <- "LandWeb"
 useCloudCache <- FALSE # only for simInitAndSpades
 useDEoptim <- FALSE
 usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
 useParallel <- if (isTRUE(usePOM)) 2 else 4
 useSpades <- if (pemisc::user("emcintir")) FALSE else TRUE
-
-reproducible::checkPath(activeDir, create = TRUE)
-setwd(activeDir)
-
-sppEquivCol <- "LandWeb"
-
-eventCaching <- c(".inputObjects", "init")
-maxAge <- 400
 vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
                             # If all are below this, then it is a "mixed" stand
 
-ageClasses <- c("Young", "Immature", "Mature", "Old")
-ageClassCutOffs <- c(0, 40, 80, 120)
-fireTimestep <- 1
+################################################################################
+reproducible::checkPath(activeDir, create = TRUE)
+setwd(activeDir)
 
 ##############################################################
 ## set run name
