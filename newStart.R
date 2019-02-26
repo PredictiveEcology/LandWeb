@@ -677,14 +677,29 @@ if (isFALSE(postProcessOnly)) {
   options(map.useParallel = TRUE)
 
   ######################################################################
-  # Add reporting polygons
+  # create vtm and tsf stacks for animation
   ######################################################################
 
-  ## For FMA-specific runs, they are added above in `ml` object produced by LandWeb_preamble.
+  tsfStack <- raster::stack(tsf)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
+  gifName <- file.path(normPath(Paths$outputPath), "animation_tsf.gif")
+  animation::saveGIF(ani.height = 800, ani.width = 800, interval = 0.5,
+                     movie.name = gifName, expr = {
+                       for (i in seq(numLayers(tsfStack)))
+                         plot(mask(tsfStack[[i]], studyArea(ml, 2)))
+  })
+
+  vtmStack <- raster::stack(vtm)# %>% writeRaster(file.path(Paths$outputPath, "stack_vtm.tif"))
+  gifName <- file.path(normPath(Paths$outputPath), "animation_vtm.gif")
+  animation::saveGIF(ani.height = 800, ani.width = 800, interval = 0.5,
+                     movie.name = gifName, expr = {
+                       for (i in seq(numLayers(vtmStack)))
+                         plot(mask(vtmStack[[i]], studyArea(ml, 2))) # TODO: this animation isn't great!
+  })
 
   ######################################################################
   # Leading Veg Type By Age Class
   ######################################################################
+
   options(map.useParallel = FALSE)
   ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
                        #purgeAnalyses = "LeadingVegTypeByAgeClass",
