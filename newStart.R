@@ -147,6 +147,13 @@ tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
 .plotInitialTime <- if (user("emcintir")) NA else if (user("achubaty")) NA else 0
+
+maxMemory <- 5e+9
+scratchDir <- file.path("/tmp/scratch/LandWeb")
+
+rasterOptions(default = TRUE)
+options(rasterMaxMemory = maxMemory, rasterTmpDir = scratchDir)
+
 opts <- options(
   "future.globals.maxSize" = 1000*1024^2,
   "LandR.assertions" = if (user("emcintir")) TRUE else FALSE,
