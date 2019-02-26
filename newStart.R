@@ -410,6 +410,7 @@ if (isFALSE(postProcessOnly)) {
     seed <- readRDS(fseed)
   } else {
     seed <- sample(1e8, 1)
+    write(seed, file = extension(fseed, "txt"))
     saveRDS(seed, fseed)
   }
   set.seed(seed)
