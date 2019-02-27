@@ -172,6 +172,7 @@ opts <- options(
   "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
   "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,
+  "reproducible.showSimilar" = TRUE,
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
   "reproducible.useCache" = if (pemisc::user("emcintir")) "devMode" else TRUE,
