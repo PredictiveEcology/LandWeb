@@ -173,6 +173,7 @@ opts <- options(
   "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,
   "reproducible.showSimilar" = TRUE,
+  "reproducible.useCloud" = TRUE,
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
   "reproducible.useCache" = if (pemisc::user("emcintir")) "devMode" else TRUE,
