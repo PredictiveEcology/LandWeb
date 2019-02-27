@@ -340,6 +340,7 @@ if (isFALSE(postProcessOnly)) {
       "fireTimestep" = fireTimestep,
       "minPropBurn" = 0.90,
       "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
+      "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
       ".useCache" = eventCaching,
       ".useParallel" = useParallel
     ),
@@ -411,15 +412,17 @@ if (isFALSE(postProcessOnly)) {
 
   ######## set seed for RNG
   fseed <- file.path(Paths$outputPath, "seed.rds")
+  fseed2 <- extension(fseed, "txt")
   if (file.exists(fseed)) {
     seed <- readRDS(fseed)
   } else {
-    seed <- sample(1e8, 1)
-    write(seed, file = extension(fseed, "txt"))
+    seed <- sample(1e4, 1)
     saveRDS(seed, fseed)
   }
-  set.seed(seed)
   print(seed)
+  cat(paste("Setting seed in newStart.R:", seed), file = fseed2, sep = "\n")
+  set.seed(seed)
+  writeRNGInfo(fseed2, append = TRUE)
 
   message(crayon::red(runName))
 
