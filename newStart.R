@@ -97,10 +97,10 @@ if (grepl("LandWeb", runName)) {
   source(file.path("params", "LandWeb_parameters.R"))
 } else if (grepl("ANC|DMI|LP|TOLKO", toupper(runName))) {
   source(file.path("params", "FMA_parameters.R"))
-} else if (grepl("testing", tolower(runName))) {
+}
+
+if (grepl("test", tolower(runName))) {
   source(file.path("params", "testing_parameters.R"))
-} else {
-  stop("runName not associated with a parameter file. Please check the name and try again.")
 }
 
 ##########################################################
