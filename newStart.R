@@ -140,7 +140,7 @@ moduleRqdPkgs <- c("crayon", "data.table", "dplyr", "fasterize", "fpCompare",
 ##########################################################
 # Paths
 ##########################################################
-paths <- list(
+paths <- list( ## TODO: use same cachePath for all data-prep steps before dynamic simulation
   cachePath = file.path("cache", runName),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
