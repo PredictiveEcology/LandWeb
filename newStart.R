@@ -140,13 +140,13 @@ moduleRqdPkgs <- c("crayon", "data.table", "dplyr", "fasterize", "fpCompare",
 ##########################################################
 # Paths
 ##########################################################
-paths <- list( ## TODO: use same cachePath for all data-prep steps before dynamic simulation
-  cachePath = file.path("cache", runName),
+paths1 <- list( ## use same cachePath for all data-prep steps before dynamic simulation
+  cachePath = file.path("cache", "dataPrepGIS"),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = file.path("outputs", runName)
 )
-do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
+do.call(SpaDES.core::setPaths, paths1) # Set them here so that we don't have to specify at each call to Cache
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
@@ -231,7 +231,7 @@ simOutPreamble <- cloudCache(simInitAndSpades,
                              params = parameters1,
                              modules = c("LandWeb_preamble"),
                              objects = objects1,
-                             paths = paths,
+                             paths = paths1,
                              debug = 1,
                              useCloud = useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
                              cloudFolderID = cloudCacheFolderID)
@@ -282,7 +282,7 @@ simOutSpeciesLayers <- cloudCache(simInitAndSpades,
                                   ## make .plotInitialTime an argument, not a parameter:
                                   ##  - Cache will see them as unchanged regardless of value
                                   .plotInitialTime = .plotInitialTime,
-                                  paths = paths,
+                                  paths = paths1,
                                   debug = 1,
                                   useCloud = useCloudCache,
                                   cloudFolderID = cloudCacheFolderID)
@@ -292,6 +292,15 @@ simOutSpeciesLayers <- cloudCache(simInitAndSpades,
 ######################################################
 
 if (isFALSE(postProcessOnly)) {
+  paths2 <- list( ## NOTE: use separate cachePath for each dynamic simulation
+    cachePath = file.path("cache", runName),
+    modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+    inputPath = "inputs",
+    outputPath = file.path("outputs", runName)
+  )
+  do.call(SpaDES.core::setPaths, paths2) # Set them here so that we don't have to specify at each call to Cache
+  tilePath <- file.path(Paths$outputPath, "tiles")
+
   times <- list(start = 0, end = endTime)
   modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LBMR",
                   "LandMine", "Biomass_regeneration",
@@ -495,7 +504,7 @@ if (isFALSE(postProcessOnly)) {
                      modules = modules,
                      outputs = outputs,
                      objects = objects,
-                     paths = paths,
+                     paths = paths2,
                      loadOrder = unlist(modules)
     )
 
@@ -592,7 +601,7 @@ if (isFALSE(postProcessOnly)) {
                        outputs = outputs,
                        debug = 1,
                        objects = objects,
-                       paths = paths,
+                       paths = paths2,
                        loadOrder = unlist(modules),
                        clearSimEnv = TRUE,
                        .plotInitialTime = NA,
@@ -614,7 +623,7 @@ if (isFALSE(postProcessOnly)) {
                                  modules = modules,
                                  outputs = outputs,
                                  objects = objects,
-                                 paths = paths,
+                                 paths = paths2,
                                  loadOrder = unlist(modules),
                                  debug = 1,
                                  #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
@@ -659,7 +668,7 @@ if (isFALSE(postProcessOnly)) {
                                       ## make .plotInitialTime an argument, not a parameter:
                                       ##  - Cache will see them as unchanged regardless of value
                                       .plotInitialTime = .plotInitialTime,
-                                      paths = paths,
+                                      paths = paths2,
                                       debug = 1,
                                       cloudFolderID = cloudCacheFolderID)
 
