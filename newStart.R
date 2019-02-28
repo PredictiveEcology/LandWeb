@@ -140,7 +140,8 @@ moduleRqdPkgs <- c("crayon", "data.table", "dplyr", "fasterize", "fpCompare",
 ##########################################################
 # Paths
 ##########################################################
-paths1 <- list( ## use same cachePath for all data-prep steps before dynamic simulation
+paths1 <- list(
+  ## use same cachePath for all data-prep steps before dynamic simulation
   cachePath = file.path("cache", "dataPrepGIS"),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
@@ -292,7 +293,8 @@ simOutSpeciesLayers <- cloudCache(simInitAndSpades,
 ######################################################
 
 if (isFALSE(postProcessOnly)) {
-  paths2 <- list( ## NOTE: use separate cachePath for each dynamic simulation
+  paths2 <- list(
+    ## NOTE: use separate cachePath for each dynamic simulation
     cachePath = file.path("cache", runName),
     modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
     inputPath = "inputs",
