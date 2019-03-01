@@ -291,18 +291,17 @@ simOutSpeciesLayers <- cloudCache(simInitAndSpades,
 ######################################################
 # Dynamic Simulation
 ######################################################
+paths2 <- list(
+  ## NOTE: use separate cachePath for each dynamic simulation
+  cachePath = file.path("cache", runName),
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs",
+  outputPath = file.path("outputs", runName)
+)
+do.call(SpaDES.core::setPaths, paths2) # Set them here so that we don't have to specify at each call to Cache
+tilePath <- file.path(Paths$outputPath, "tiles")
 
 if (isFALSE(postProcessOnly)) {
-  paths2 <- list(
-    ## NOTE: use separate cachePath for each dynamic simulation
-    cachePath = file.path("cache", runName),
-    modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-    inputPath = "inputs",
-    outputPath = file.path("outputs", runName)
-  )
-  do.call(SpaDES.core::setPaths, paths2) # Set them here so that we don't have to specify at each call to Cache
-  tilePath <- file.path(Paths$outputPath, "tiles")
-
   times <- list(start = 0, end = endTime)
   modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LBMR",
                   "LandMine", "Biomass_regeneration",
