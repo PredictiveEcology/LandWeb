@@ -761,6 +761,12 @@ if (isFALSE(postProcessOnly)) {
                               postHocAnalyses = "rbindlistAG",
                               #purgeAnalyses = "runBoxPlotsVegCover",
                               dPath = file.path(Paths$outputPath, "boxplots"))
+## RESUME HERE
+  ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsLargePatches",
+                              postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                              postHocAnalyses = "rbindlistAG",
+                              #purgeAnalyses = "runBoxPlotsVegCover",
+                              dPath = file.path(Paths$outputPath, "boxplots"))
 
   saveRDS(ml, file.path(Paths$outputPath, "ml_done.rds"))
   print(runName)
