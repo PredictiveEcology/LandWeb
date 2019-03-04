@@ -30,7 +30,8 @@ setwd(activeDir)
 if (isTRUE(batchMode)) {
   stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set in batch_mode.R
 } else {
-  if (pemisc::user("achubaty")) runName <- "tolko_SK_aspenDispersal_logROS_test01"
+  if (pemisc::user("achubaty") || pemisc::user("emcintir"))
+    runName <- "tolko_SK_aspenDispersal_logROS_test01"
 
   ## running locally
   #runName <- "ANC"
@@ -174,7 +175,7 @@ opts <- options(
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.showSimilar" = TRUE,
-  "reproducible.useCache" = if (pemisc::user("emcintir")) "devMode" else TRUE,
+  "reproducible.useCache" = if (pemisc::user("emcintir")) TRUE else TRUE,
   "reproducible.useCloud" = TRUE,
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
