@@ -276,7 +276,7 @@ if (!is.na(.plotInitialTime)) {
   quickPlot::dev(3, width = 18, height = 10)
 }
 
-simOutSpeciesLayers <- cloudCache(simInitAndSpades,
+simOutSpeciesLayers <- Cache(simInitAndSpades,
                                   times = list(start = 0, end = 1),
                                   params = parameters2,
                                   modules = c("BiomassSpeciesData"),
@@ -285,9 +285,10 @@ simOutSpeciesLayers <- cloudCache(simInitAndSpades,
                                   ##  - Cache will see them as unchanged regardless of value
                                   .plotInitialTime = .plotInitialTime,
                                   paths = paths1,
-                                  debug = 1,
-                                  useCloud = useCloudCache,
-                                  cloudFolderID = cloudCacheFolderID)
+                                  debug = 1#,
+                                  #useCloud = useCloudCache,
+                                  #cloudFolderID = cloudCacheFolderID
+                             )
 
 ######################################################
 # Dynamic Simulation
