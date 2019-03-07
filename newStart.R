@@ -266,9 +266,10 @@ objects2 <- list(
 
 parameters2 <- list(
   BiomassSpeciesData = list(
+    "omitNonVegPixels" = TRUE,
     "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
     "sppEquivCol" = sppEquivCol,
-    "omitNonVegPixels" = TRUE
+    ".useCache" = FALSE
   )
 )
 
@@ -658,13 +659,14 @@ if (isFALSE(postProcessOnly)) {
 
   parameters2a <- list(
     BiomassSpeciesData = list(
+      "omitNonVegPixels" = TRUE,
       "types" = c("ForestInventory"),
       "sppEquivCol" = sppEquivCol,
-      "omitNonVegPixels" = TRUE
+      ".useCache" = FALSE
     )
   )
 
-  simOutSpeciesLayers2a <- cloudCache(simInitAndSpades,
+  simOutSpeciesLayers2a <- Cache(simInitAndSpades, ## TODO: don't use cloudCache til it's fixed
                                       times = list(start = 0, end = 1),
                                       params = parameters2a,
                                       modules = c("BiomassSpeciesData"),
