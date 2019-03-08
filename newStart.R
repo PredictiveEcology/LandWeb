@@ -528,7 +528,7 @@ if (isFALSE(postProcessOnly)) {
     if (isTRUE(useDEoptim)) {
       ## NOTE: bug in DEoptim prevents using our own cluster (ArdiaD/DEoptim#3)
       N <- 10 * nrow(params4POM) ## need 10 populations per parameter
-      #cl <- parallel::makeCluster(N, type = "FORK")
+      #cl <- parallel::makeCluster(N, type = "SOCK") ## forking doesn't work with data.table
 
       outPOM <- DEoptim::DEoptim(fn = objectiveFunction, #testFn,
                                  sim = mySim,
@@ -565,7 +565,7 @@ if (isFALSE(postProcessOnly)) {
       )
       tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
 
-      cl <- parallel::makeForkCluster(5 * nrow(params4POM))
+      cl <- parallel::makePSOCKcluster(5 * nrow(params4POM)) ## forking doesn't work with data.table
       parallel::clusterExport(cl, list("objectiveFunction"))
 
       out <- parallel::parLapplyLB(cl = cl,
