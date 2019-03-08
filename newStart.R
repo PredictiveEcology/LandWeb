@@ -623,6 +623,8 @@ if (isFALSE(postProcessOnly)) {
       grid::grid.text(label = runName, x = 0.93, y = 0.03)
     }
 
+    data.table::setDTthreads(useParallel) # 4
+
     mySimOut <- simInitAndSpades(times = times, #cl = cl,
                                  params = parameters,
                                  modules = modules,
