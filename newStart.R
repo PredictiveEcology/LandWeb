@@ -75,7 +75,7 @@ if (isTRUE(batchMode)) {
   ## running locally
   # runName <- "tolko_AB_N_logROS"
   #runName <- "tolko_AB_S_logROS"
-  if (pemisc::user("emcintir")) runName <- "tolko_SK_logROS"
+  #if (pemisc::user("emcintir")) runName <- "tolko_SK_logROS"
 
   ## running locally
   #runName <- "tolko_AB_N_noDispersal"
