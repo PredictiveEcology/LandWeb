@@ -1,4 +1,4 @@
-quickPlot::dev.useRSGD(useRSGD = FALSE) ## TODO: temporary for Alex's testing
+quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
 
 activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
 ageClasses <- c("Young", "Immature", "Mature", "Old")
