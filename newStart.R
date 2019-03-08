@@ -115,6 +115,7 @@ library(raster)
 library(SpaDES.core)
 library(pemisc)
 library(map)
+#load_all("~/GitHub/PredictiveEcology/map")
 library(LandR)
 
 #devtools::install_github("achubaty/amc@development")
@@ -528,7 +529,7 @@ if (isFALSE(postProcessOnly)) {
     if (isTRUE(useDEoptim)) {
       ## NOTE: bug in DEoptim prevents using our own cluster (ArdiaD/DEoptim#3)
       N <- 10 * nrow(params4POM) ## need 10 populations per parameter
-      #cl <- parallel::makeCluster(N, type = "FORK")
+      #cl <- parallel::makeCluster(N, type = "SOCK") ## forking doesn't work with data.table
 
       outPOM <- DEoptim::DEoptim(fn = objectiveFunction, #testFn,
                                  sim = mySim,
@@ -565,7 +566,7 @@ if (isFALSE(postProcessOnly)) {
       )
       tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
 
-      cl <- parallel::makeForkCluster(5 * nrow(params4POM))
+      cl <- parallel::makePSOCKcluster(5 * nrow(params4POM)) ## forking doesn't work with data.table
       parallel::clusterExport(cl, list("objectiveFunction"))
 
       out <- parallel::parLapplyLB(cl = cl,
@@ -622,6 +623,8 @@ if (isFALSE(postProcessOnly)) {
       grid::grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
       grid::grid.text(label = runName, x = 0.93, y = 0.03)
     }
+
+    data.table::setDTthreads(useParallel) # 4
 
     mySimOut <- simInitAndSpades(times = times, #cl = cl,
                                  params = parameters,
@@ -766,7 +769,7 @@ if (isFALSE(postProcessOnly)) {
                               #purgeAnalyses = "runBoxPlotsVegCover",
                               dPath = file.path(Paths$outputPath, "boxplots"))
 ## RESUME HERE
-  ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsLargePatches",
+  ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
                               postHocAnalysisGroups = "analysisGroupReportingPolygon",
                               postHocAnalyses = "rbindlistAG",
                               #purgeAnalyses = "runBoxPlotsVegCover",
