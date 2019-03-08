@@ -115,6 +115,7 @@ library(raster)
 library(SpaDES.core)
 library(pemisc)
 library(map)
+#load_all("~/GitHub/PredictiveEcology/map")
 library(LandR)
 
 #devtools::install_github("achubaty/amc@development")
@@ -768,7 +769,7 @@ if (isFALSE(postProcessOnly)) {
                               #purgeAnalyses = "runBoxPlotsVegCover",
                               dPath = file.path(Paths$outputPath, "boxplots"))
 ## RESUME HERE
-  ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsLargePatches",
+  ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
                               postHocAnalysisGroups = "analysisGroupReportingPolygon",
                               postHocAnalyses = "rbindlistAG",
                               #purgeAnalyses = "runBoxPlotsVegCover",
