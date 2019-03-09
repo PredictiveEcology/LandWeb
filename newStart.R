@@ -669,7 +669,7 @@ if (isFALSE(postProcessOnly)) {
     )
   )
 
-  simOutSpeciesLayers2a <- Cache(simInitAndSpades, ## TODO: don't use cloudCache til it's fixed
+  simOutSpeciesLayers2a <- cloudCache(simInitAndSpades,
                                       times = list(start = 0, end = 1),
                                       params = parameters2a,
                                       modules = c("BiomassSpeciesData"),
