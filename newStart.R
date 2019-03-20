@@ -753,7 +753,8 @@ if (isFALSE(postProcessOnly)) {
   ml <- mapAddAnalysis(ml, functionName = "LargePatches",
                        id = "1", labelColumn = "shinyLabel",
                        #purgeAnalyses = "LargePatches",
-                       ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
+                       ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                       sppEquivCol = sppEquivCol, sppEquiv = sppEquivalencies_CA)
   options(map.useParallel = mapParallel)
 
   saveRDS(ml, file.path(Paths$outputPath, "ml_partial.rds"))
@@ -772,7 +773,6 @@ if (isFALSE(postProcessOnly)) {
                               postHocAnalyses = "rbindlistAG",
                               #purgeAnalyses = "runBoxPlotsVegCover",
                               dPath = file.path(Paths$outputPath, "boxplots")) ## TODO: add ageClasses as arg
-## RESUME HERE
   ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
                               postHocAnalysisGroups = "analysisGroupReportingPolygon",
                               postHocAnalyses = "rbindlistAG",
