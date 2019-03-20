@@ -9,6 +9,7 @@ devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development", d
 devtools::install_github("PredictiveEcology/pemisc", ref = "development", dependencies = deps)
 devtools::install_github("PredictiveEcology/map", ref = "development", dependencies = deps)
 devtools::install_github("PredictiveEcology/LandR", ref = "development", dependencies = deps)
+devtools::install_github("PredictiveEcology/LandWebUtils", ref = "development", dependencies = deps)
 devtools::install_github("PredictiveEcology/SpaDES.shiny", ref = "development", dependencies = deps)
 
 devtools::install_github("rforge/mumin", subdir = "pkg", ref = "master", dependencies = deps)

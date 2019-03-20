@@ -118,6 +118,7 @@ library(pemisc)
 library(map)
 #load_all("~/GitHub/PredictiveEcology/map")
 library(LandR)
+library(LandWebUtils)
 
 #devtools::install_github("achubaty/amc@development")
 library(amc)
@@ -126,8 +127,10 @@ packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
   "PredictiveEcology/quickPlot@development",
   "PredictiveEcology/SpaDES.core@development",
-  "PredictiveEcology/map@master",
   "PredictiveEcology/SpaDES.tools@development",
+  "PredictiveEcology/map@development",
+  "PredictiveEcology/LandR@development",
+  "PredictiveEcology/LandWebUtils@development",
   #"PredictiveEcology/SpaDES.shiny@generalize-modules", ## do this after running the model, before app
   "raster"
 )
