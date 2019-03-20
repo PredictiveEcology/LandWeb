@@ -7,6 +7,7 @@ batchMode <- TRUE ## NOTE: runName must be defined
 cloudCacheFolderID <- "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj"
 eventCaching <- c(".inputObjects", "init")
 fireTimestep <- 1
+mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
 maxAge <- 400
 minFRI <- 25
 postProcessOnly <- FALSE
@@ -168,7 +169,7 @@ opts <- options(
   "map.dataPath" = Paths$inputPath, # not used yet
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
-  "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
+  "map.useParallel" = mapParallel,
   "reproducible.destinationPath" = normPath(Paths$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) "multiprocess" else FALSE,
@@ -646,8 +647,8 @@ if (isFALSE(postProcessOnly)) {
   # Simulation Post-processing
   ##########################################################
 
-  allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
-  #allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
+  #allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
+  allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
   allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
   allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE) ## TODO: need to rm the non-rep files too!!!
   layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
@@ -710,7 +711,7 @@ if (isFALSE(postProcessOnly)) {
                overwrite = TRUE,
                #useCache = "overwrite",
                leaflet = asPath(tilePath))
-  options(map.useParallel = TRUE)
+  options(map.useParallel = mapParallel)
 
   ######################################################################
   # create vtm and tsf stacks for animation
@@ -740,17 +741,17 @@ if (isFALSE(postProcessOnly)) {
   ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
                        #purgeAnalyses = "LeadingVegTypeByAgeClass",
                        ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
-  options(map.useParallel = TRUE)
+  options(map.useParallel = mapParallel)
 
   # add an analysis -- this will trigger analyses because there are already objects in the map
-  #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo (only 1 currently)
+  #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo
   #    so there is 1 raster group, 2 polygon groups, 2 analyses - Total 4, only 2 run now
   options(map.useParallel = FALSE)
-  ml <- mapAddAnalysis(ml, functionName = "LargePatches", ageClasses = ageClasses,
+  ml <- mapAddAnalysis(ml, functionName = "LargePatches",
                        id = "1", labelColumn = "shinyLabel",
                        #purgeAnalyses = "LargePatches",
-                       ageClassCutOffs = ageClassCutOffs)
-  options(map.useParallel = TRUE)
+                       ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
+  options(map.useParallel = mapParallel)
 
   saveRDS(ml, file.path(Paths$outputPath, "ml_partial.rds"))
 
@@ -767,13 +768,13 @@ if (isFALSE(postProcessOnly)) {
                               postHocAnalysisGroups = "analysisGroupReportingPolygon",
                               postHocAnalyses = "rbindlistAG",
                               #purgeAnalyses = "runBoxPlotsVegCover",
-                              dPath = file.path(Paths$outputPath, "boxplots"))
+                              dPath = file.path(Paths$outputPath, "boxplots")) ## TODO: add ageClasses as arg
 ## RESUME HERE
   ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
                               postHocAnalysisGroups = "analysisGroupReportingPolygon",
                               postHocAnalyses = "rbindlistAG",
-                              #purgeAnalyses = "runBoxPlotsVegCover",
-                              dPath = file.path(Paths$outputPath, "boxplots"))
+                              purgeAnalyses = "runHistsLargePatches",
+                              dPath = file.path(Paths$outputPath, "boxplots"))  ## TODO: add ageClasses as arg
 
   saveRDS(ml, file.path(Paths$outputPath, "ml_done.rds"))
   print(runName)
