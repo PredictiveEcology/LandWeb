@@ -754,7 +754,7 @@ if (isFALSE(postProcessOnly)) {
                        id = "1", labelColumn = "shinyLabel",
                        #purgeAnalyses = "LargePatches",
                        ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                       sppEquivCol = sppEquivCol, sppEquiv = sppEquivalencies_CA)
+                       sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
   options(map.useParallel = mapParallel)
 
   saveRDS(ml, file.path(Paths$outputPath, "ml_partial.rds"))
