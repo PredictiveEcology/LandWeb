@@ -727,6 +727,7 @@ if (isFALSE(postProcessOnly)) {
                        for (i in seq(numLayers(tsfStack)))
                          plot(mask(tsfStack[[i]], studyArea(ml, 2)))
   })
+  rm(tsfStack)
 
   vtmStack <- raster::stack(vtm)# %>% writeRaster(file.path(Paths$outputPath, "stack_vtm.tif"))
   gifName <- file.path(normPath(Paths$outputPath), "animation_vtm.gif")
@@ -735,6 +736,7 @@ if (isFALSE(postProcessOnly)) {
                        for (i in seq(numLayers(vtmStack)))
                          plot(mask(vtmStack[[i]], studyArea(ml, 2))) # TODO: this animation isn't great!
   })
+  rm(vtmStack)
 
   ######################################################################
   # Leading Veg Type By Age Class
@@ -773,7 +775,6 @@ if (isFALSE(postProcessOnly)) {
                               postHocAnalyses = "rbindlistAG",
                               #purgeAnalyses = "runBoxPlotsVegCover",
                               dPath = file.path(Paths$outputPath, "boxplots"))
-## RESUME HERE
   ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
                               postHocAnalysisGroups = "analysisGroupReportingPolygon",
                               postHocAnalyses = "rbindlistAG",
