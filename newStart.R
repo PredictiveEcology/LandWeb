@@ -139,7 +139,7 @@ shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 moduleRqdPkgs <- c("crayon", "data.table", "dplyr", "fasterize", "fpCompare",
                    "gdalUtils", "ggplot2", "grDevices", "grid", "LandR",
-                   "magrittr", "parallel", "pemisc", "pryr", "purrr", "quickPlot",
+                   "magrittr", "map", "parallel", "pemisc", "pryr", "purrr", "quickPlot",
                    "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible", "rgeos",
                    "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", "VGAM")
 
@@ -772,12 +772,13 @@ if (isFALSE(postProcessOnly)) {
                               postHocAnalysisGroups = "analysisGroupReportingPolygon",
                               postHocAnalyses = "rbindlistAG",
                               #purgeAnalyses = "runBoxPlotsVegCover",
-                              dPath = file.path(Paths$outputPath, "boxplots")) ## TODO: add ageClasses as arg
+                              dPath = file.path(Paths$outputPath, "boxplots"))
+## RESUME HERE
   ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
                               postHocAnalysisGroups = "analysisGroupReportingPolygon",
                               postHocAnalyses = "rbindlistAG",
-                              purgeAnalyses = "runHistsLargePatches",
-                              dPath = file.path(Paths$outputPath, "boxplots"))  ## TODO: add ageClasses as arg
+                              #purgeAnalyses = "runBoxPlotsVegCover",
+                              dPath = file.path(Paths$outputPath, "boxplots"))
 
   saveRDS(ml, file.path(Paths$outputPath, "ml_done.rds"))
   print(runName)
