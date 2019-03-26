@@ -92,11 +92,14 @@ if (isTRUE(batchMode)) {
   #runName <- "tolko_AB_N_aspen80"
   #runName <- "tolko_AB_S_aspen80"
   #runName <- "tolko_SK_aspen80"
+
+  ## running locally
+  #runName <- "LandWeb_aspenDispersal_logROS"
 }
 message(crayon::red(runName))
 
 if (grepl("LandWeb", runName)) {
-  source(file.path("params", "LandWeb_parameters.R"))
+  source(file.path("params", "LandWeb_parameters.R")) ## same as FMA_parameters; i.e., no cache ids
 } else if (grepl("ANC|DMI|LP|TOLKO", toupper(runName))) {
   source(file.path("params", "FMA_parameters.R"))
 }
@@ -116,7 +119,6 @@ library(raster)
 library(SpaDES.core)
 library(pemisc)
 library(map)
-#load_all("~/GitHub/PredictiveEcology/map")
 library(LandR)
 library(LandWebUtils)
 
