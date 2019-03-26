@@ -111,7 +111,7 @@ landwebAppInfo <- function(input, output, session, appInfo, readmeFile = "README
                     img(src = "images/logos/Tolko.jpg", align = "left", width = 165)
                   ),
 
-                  # Vanderwall Contractors (1971) Ltd.
+                  # Vanderwell Contractors (1971) Ltd.
                   a(href = "https://fgrow.friresearch.ca/partner/vanderwell-contractors-1971-ltd",
                     img(src = "images/logos/Vanderwell.jpg", align = "left", width = 165) ###
                   ),
