@@ -120,7 +120,7 @@ library(SpaDES.core)
 library(pemisc)
 library(map)
 library(LandR)
-library(LandWebUtils)
+library(LandWebUtils) ## load_all("~/GitHub/PredictiveEcology/LandWebUtils")
 
 #devtools::install_github("achubaty/amc@development")
 library(amc)
