@@ -1,32 +1,32 @@
 [submodule "m/Biomass_regeneration"]
 	path = m/Biomass_regeneration
 	url = git@github.com:eliotmcintire/Biomass_regeneration
-	branch = development
+	branch = LandWeb
 [submodule "m/BiomassSpeciesData"]
 	path = m/BiomassSpeciesData
 	url = git@github.com:eliotmcintire/BiomassSpeciesData
-	branch = development
+	branch = LandWeb
 [submodule "m/LandMine"]
 	path = m/LandMine
 	url = git@github.com:PredictiveEcology/LandMine
-	branch = development
+	branch = LandWeb
 [submodule "m/LBMR"]
 	path = m/LBMR
 	url = git@github.com:eliotmcintire/LBMR
-	branch = development
+	branch = LandWeb
 [submodule "m/Boreal_LBMRDataPrep"]
 	path = m/Boreal_LBMRDataPrep
 	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep
+	branch = LandWeb
+[submodule "m/LandR_BiomassGMOrig"]
+	path = m/LandR_BiomassGMOrig
+	url = git@github.com:eliotmcintire/LandR_BiomassGMOrig
+	branch = LandWeb
+[submodule "m/LandWeb_preamble"]
+	path = m/LandWeb_preamble
+	url = git@github.com:fRI-Research/LandWeb_preamble
 	branch = development
 [submodule "m/LandWeb_output"]
 	path = m/LandWeb_output
 	url = git@github.com:fRI-Research/LandWeb_output
-	branch = development
-[submodule "m/LandR_BiomassGMOrig"]
-	path = m/LandR_BiomassGMOrig
-	url = git@github.com:eliotmcintire/LandR_BiomassGMOrig
-	branch = development
-[submodule "m/LandWeb_preamble"]
-	path = m/LandWeb_preamble
-	url = git@github.com:fRI-Research/LandWeb_preamble
 	branch = development
