@@ -164,7 +164,7 @@ tilePath <- file.path(Paths$outputPath, "tiles")
 ## Options
 .plotInitialTime <- if (user("emcintir")) NA else if (user("achubaty")) NA else 0
 
-maxMemory <- 5e+9
+maxMemory <- if (grepl("LandWeb", runName)) 5e+12 else 5e+9
 scratchDir <- file.path("/tmp/scratch/LandWeb")
 
 rasterOptions(default = TRUE)
