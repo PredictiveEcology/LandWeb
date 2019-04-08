@@ -187,6 +187,7 @@ opts <- options(
   "reproducible.showSimilar" = TRUE,
   "reproducible.useCache" = if (pemisc::user("emcintir")) TRUE else TRUE,
   "reproducible.useCloud" = TRUE,
+  "reproducible.useGDAL" = FALSE, ## NOTE: gdal is faster, but mixing gdal with raster causes inconsistencies
   "reproducible.useMemoise" = TRUE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
   "spades.moduleCodeChecks" = FALSE,
@@ -288,18 +289,15 @@ if (!is.na(.plotInitialTime)) {
 }
 
 simOutSpeciesLayers <- Cache(simInitAndSpades,
-                                  times = list(start = 0, end = 1),
-                                  params = parameters2,
-                                  modules = c("BiomassSpeciesData"),
-                                  objects = objects2,
-                                  ## make .plotInitialTime an argument, not a parameter:
-                                  ##  - Cache will see them as unchanged regardless of value
-                                  .plotInitialTime = .plotInitialTime,
-                                  paths = paths1,
-                                  debug = 1#,
-                                  #useCloud = useCloudCache,
-                                  #cloudFolderID = cloudCacheFolderID
-                             )
+                             times = list(start = 0, end = 1),
+                             params = parameters2,
+                             modules = c("BiomassSpeciesData"),
+                             objects = objects2,
+                             ## make .plotInitialTime an argument, not a parameter:
+                             ##  - Cache will see them as unchanged regardless of value
+                             .plotInitialTime = .plotInitialTime,
+                             paths = paths1,
+                             debug = 1)
 
 ######################################################
 # Dynamic Simulation
