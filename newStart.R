@@ -123,7 +123,6 @@ library(SpaDES.core)
 library(pemisc)
 library(map)
 library(LandR)
-library(LandWebUtils) ## load_all("~/GitHub/PredictiveEcology/LandWebUtils")
 
 #devtools::install_github("achubaty/amc@development")
 library(amc)
@@ -438,12 +437,12 @@ if (isFALSE(postProcessOnly)) {
   ######## set seed for RNG
   fseed <- file.path(Paths$outputPath, "seed.rds")
   fseed2 <- extension(fseed, "txt")
-  if (file.exists(fseed)) {
-    seed <- readRDS(fseed)
-  } else {
+  #if (file.exists(fseed)) {
+  #  seed <- readRDS(fseed)
+  #} else {
     seed <- sample(1e4, 1)
     saveRDS(seed, fseed)
-  }
+  #}
   print(seed)
   cat(paste("Setting seed in newStart.R:", seed), file = fseed2, sep = "\n")
   set.seed(seed)
@@ -653,6 +652,8 @@ if (isFALSE(postProcessOnly)) {
   ##########################################################
   # Simulation Post-processing
   ##########################################################
+
+  library(LandWebUtils) ## load_all("~/GitHub/PredictiveEcology/LandWebUtils")
 
   #allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
   allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
