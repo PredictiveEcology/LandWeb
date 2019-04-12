@@ -124,7 +124,6 @@ library(pemisc)
 library(map)
 library(LandR)
 
-#devtools::install_github("PredictiveEcology/LandWebUtils@development")
 #devtools::install_github("achubaty/amc@development")
 library(amc)
 
@@ -655,6 +654,7 @@ if (isFALSE(postProcessOnly)) {
   # Simulation Post-processing
   ##########################################################
 
+  #devtools::install_github("PredictiveEcology/LandWebUtils@development")
   library(LandWebUtils) ## load_all("~/GitHub/PredictiveEcology/LandWebUtils")
 
   #allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
