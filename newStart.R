@@ -125,6 +125,7 @@ library(map)
 library(LandR)
 library(LandWebUtils) ## load_all("~/GitHub/PredictiveEcology/LandWebUtils")
 
+#devtools::install_github("PredictiveEcology/LandWebUtils@development")
 #devtools::install_github("achubaty/amc@development")
 library(amc)
 
