@@ -324,11 +324,10 @@ if (isFALSE(postProcessOnly)) {
   if (getOption("LandR.verbose") > 0) {
     message("Adjusting species-level traits for LandWeb")
   }
-  "rstLCC" = simOutPreamble$LCC,
 
   objects <- list(
     "fireReturnInterval" = simOutPreamble$fireReturnInterval,
-    "LCC2005" = simOutPreamble$LCC2005,
+    "rstLCC" = simOutPreamble$LCC,
     "rasterToMatch" = simOutPreamble$rasterToMatch,
     "rstFlammable" = simOutPreamble$rstFlammable,
     "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
