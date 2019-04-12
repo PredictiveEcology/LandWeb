@@ -124,6 +124,7 @@ library(pemisc)
 library(map)
 library(LandR)
 
+#devtools::install_github("PredictiveEcology/LandWebUtils@development")
 #devtools::install_github("achubaty/amc@development")
 library(amc)
 
@@ -180,7 +181,7 @@ opts <- options(
   "reproducible.destinationPath" = normPath(Paths$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) "multiprocess" else FALSE,
-  "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
+  "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/Eliot/data") else NULL,
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.showSimilar" = TRUE,
@@ -188,6 +189,7 @@ opts <- options(
   "reproducible.useCloud" = TRUE,
   "reproducible.useGDAL" = FALSE, ## NOTE: gdal is faster, but mixing gdal with raster causes inconsistencies
   "reproducible.useMemoise" = TRUE,
+  "reproducible.useGDAL" = FALSE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
   "spades.moduleCodeChecks" = FALSE,
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
@@ -325,7 +327,7 @@ if (isFALSE(postProcessOnly)) {
 
   objects <- list(
     "fireReturnInterval" = simOutPreamble$fireReturnInterval,
-    "LCC2005" = simOutPreamble$LCC2005,
+    "rstLCC" = simOutPreamble$LCC,
     "rasterToMatch" = simOutPreamble$rasterToMatch,
     "rstFlammable" = simOutPreamble$rstFlammable,
     "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
