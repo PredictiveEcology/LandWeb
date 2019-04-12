@@ -181,7 +181,7 @@ opts <- options(
   "reproducible.destinationPath" = normPath(Paths$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) "multiprocess" else FALSE,
-  "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
+  "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/Eliot/data") else NULL,
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.showSimilar" = TRUE,
@@ -189,6 +189,7 @@ opts <- options(
   "reproducible.useCloud" = TRUE,
   "reproducible.useGDAL" = FALSE, ## NOTE: gdal is faster, but mixing gdal with raster causes inconsistencies
   "reproducible.useMemoise" = TRUE,
+  "reproducible.useGDAL" = FALSE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
   "spades.moduleCodeChecks" = FALSE,
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
@@ -323,6 +324,7 @@ if (isFALSE(postProcessOnly)) {
   if (getOption("LandR.verbose") > 0) {
     message("Adjusting species-level traits for LandWeb")
   }
+  "rstLCC" = simOutPreamble$LCC,
 
   objects <- list(
     "fireReturnInterval" = simOutPreamble$fireReturnInterval,
