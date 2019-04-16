@@ -339,7 +339,7 @@ if (isFALSE(postProcessOnly)) {
     "studyArea" = simOutPreamble$studyArea,
     "studyAreaLarge" = simOutPreamble$studyAreaLarge,
     "studyAreaReporting" = simOutPreamble$studyAreaReporting,
-    "summaryPeriod" = summaryPeriod,
+    "summaryPeriod" = summaryPeriod, ## defined in params file
     "useParallel" = 2
   )
 
@@ -406,12 +406,13 @@ if (isFALSE(postProcessOnly)) {
   }
 
   objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
+  analysesOutputsTimes <- seq(objects$summaryPeriod[1], objects$summaryPeriod[2],
+                              by = parameters$LandWeb_output$summaryInterval)
 
   outputs <- data.frame(stringsAsFactors = FALSE,
                         expand.grid(
-                          objectName = objectNamesToSave,#, "oldBigPatch"),
-                          saveTime = seq(objects$summaryPeriod[1], objects$summaryPeriod[2],
-                                         by = parameters$LandWeb_output$summaryInterval)
+                          objectName = objectNamesToSave,
+                          saveTime = c(timeSeriesTimes, analysesOutputsTimes)
                         ),
                         fun = "writeRaster", package = "raster",
                         file = paste0(objectNamesToSave, c(".tif", ".grd")))
@@ -664,10 +665,13 @@ if (isFALSE(postProcessOnly)) {
   layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
   layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
   layerName <- gsub(layerName, pattern = "^_", replacement = "")
-  ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2")
+  ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2") %>%
+    grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
   destinationPath <- dirname(allouts)
-  tsf <- gsub(".*vegTypeMap.*", NA, allouts) %>% na.omit()
-  vtm <- gsub(".*TimeSinceFire.*", NA, allouts) %>% na.omit()
+  tsf <- gsub(".*vegTypeMap.*", NA, allouts) %>%
+    grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
+  vtm <- gsub(".*TimeSinceFire.*", NA, allouts) %>%
+    grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
 
   ml <- simOutPreamble$ml
 
@@ -710,9 +714,6 @@ if (isFALSE(postProcessOnly)) {
                #useCache = "overwrite",
                leaflet = asPath(tilePath))
 
-  saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
-  #ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
-
   options(map.useParallel = FALSE)
   ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
                targetFile = asPath(allouts),
@@ -723,27 +724,38 @@ if (isFALSE(postProcessOnly)) {
                leaflet = asPath(tilePath))
   options(map.useParallel = mapParallel)
 
+  saveRDS(ml, file.path(Paths$outputPath, "ml.rds"))
+  #ml <- readRDS(file.path(Paths$outputPath, "ml.rds"))
+
   ######################################################################
   # create vtm and tsf stacks for animation
   ######################################################################
 
-  tsfStack <- raster::stack(tsf)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
+  tsfTimeSeries <- gsub(".*vegTypeMap.*", NA, allouts) %>%
+    grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
+  vtmTimeSeries <- gsub(".*TimeSinceFire.*", NA, allouts) %>%
+    grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
+
+  tsfStack <- raster::stack(tsfTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
   gifName <- file.path(normPath(Paths$outputPath), "animation_tsf.gif")
-  animation::saveGIF(ani.height = 800, ani.width = 800, interval = 0.5,
+  animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
                      movie.name = gifName, expr = {
-                       for (i in seq(numLayers(tsfStack)))
-                         plot(mask(tsfStack[[i]], studyArea(ml, 2)))
+                       brks <- c(0, 1, 40, 80, 120, 1000)
+                       cols <- RColorBrewer::brewer.pal(5, "RdYlGn")
+                       for (i in seq(numLayers(tsfStack))) {
+                         plot(mask(tsfStack[[i]], studyArea(ml, 2)), breaks = brks, col = cols)
+                       }
   })
   rm(tsfStack)
 
-  vtmStack <- raster::stack(vtm)# %>% writeRaster(file.path(Paths$outputPath, "stack_vtm.tif"))
-  gifName <- file.path(normPath(Paths$outputPath), "animation_vtm.gif")
-  animation::saveGIF(ani.height = 800, ani.width = 800, interval = 0.5,
-                     movie.name = gifName, expr = {
-                       for (i in seq(numLayers(vtmStack)))
-                         plot(mask(vtmStack[[i]], studyArea(ml, 2))) # TODO: this animation isn't great!
-  })
-  rm(vtmStack)
+  #vtmStack <- raster::stack(vtmTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_vtm.tif"))
+  #gifName <- file.path(normPath(Paths$outputPath), "animation_vtm.gif")
+  #animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
+  #                   movie.name = gifName, expr = {
+  #                     for (i in seq(numLayers(vtmStack)))
+  #                       plot(mask(vtmStack[[i]], studyArea(ml, 2))) # TODO: this animation isn't great!
+  #})
+  #rm(vtmStack)
 
   ######################################################################
   # Leading Veg Type By Age Class
