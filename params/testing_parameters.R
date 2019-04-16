@@ -3,3 +3,4 @@ endTime <- 10
 successionTimestep <- 10
 summaryPeriod <- c(0, endTime)
 summaryInterval <- 5
+timeSeriesTimes <- 4:5

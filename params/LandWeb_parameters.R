@@ -3,3 +3,4 @@ endTime <- 1000
 successionTimestep <- 10
 summaryPeriod <- c(700, endTime)
 summaryInterval <- 100
+timeSeriesTimes <- 450:500
