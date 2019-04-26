@@ -347,15 +347,13 @@ if (isFALSE(postProcessOnly)) {
     Boreal_LBMRDataPrep = list(
       "sppEquivCol" = sppEquivCol,
       "cloudFolderID" = cloudCacheFolderID,
-      "convertUnwantedLCCClasses" = 34:36,
-      "establishProbAdjFacResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 0.5,
-      "establishProbAdjFacNonResprout" = if (grepl("noDispersal|aspenDispersal", runName)) 1e4 else 2,
+      "LCCClassesToReplaceNN" = 34:36,
       # next two are used when assigning pixelGroup membership; what resolution for
       #   age and biomass
       "pixelGroupAgeClass" = successionTimestep,
       "pixelGroupBiomassClass" = 100,
       "runName" = runName,
-      "subsetDataBiomassModel" = 50,
+      "subsetDataBiomassModel" = NULL, ## TODO: test with `NULL` and `50`
       "useCloudCacheForStats" = TRUE,
       ".useCache" = eventCaching
     ),
