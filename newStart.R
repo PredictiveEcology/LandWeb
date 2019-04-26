@@ -346,7 +346,8 @@ if (isFALSE(postProcessOnly)) {
 
   parameters <- list(
     Boreal_LBMRDataPrep = list(
-      "sppEquivCol" = sppEquivCol,
+      "biomassModel" = quote(RcppArmadillo::fastLm(formula = B ~ logAge * speciesCode * ecoregionGroup +
+                                                     cover * speciesCode * ecoregionGroup)), ## ~35% faster than the default
       "cloudFolderID" = cloudCacheFolderID,
       "LCCClassesToReplaceNN" = 34:36,
       # next two are used when assigning pixelGroup membership; what resolution for
@@ -354,6 +355,7 @@ if (isFALSE(postProcessOnly)) {
       "pixelGroupAgeClass" = successionTimestep,
       "pixelGroupBiomassClass" = 100,
       "runName" = runName,
+      "sppEquivCol" = sppEquivCol,
       "subsetDataBiomassModel" = NULL, ## TODO: test with `NULL` and `50`
       "useCloudCacheForStats" = TRUE,
       ".useCache" = eventCaching
