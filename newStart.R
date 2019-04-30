@@ -356,7 +356,7 @@ if (isFALSE(postProcessOnly)) {
       "pixelGroupBiomassClass" = 100,
       "runName" = runName,
       "sppEquivCol" = sppEquivCol,
-      "subsetDataAgeModel" = 50, ## TODO: test with `NULL` and `50`
+      "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
       "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
       "useCloudCacheForStats" = TRUE,
       ".useCache" = eventCaching
