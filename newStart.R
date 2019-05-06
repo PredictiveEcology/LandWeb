@@ -346,12 +346,13 @@ if (isFALSE(postProcessOnly)) {
   parameters <- list(
     Boreal_LBMRDataPrep = list(
       ## fastLM is ~35% faster than the default lmer but needs 820GB RAM !!
+      ## also, fastLM cannot deal with rank-deficient models
       #"biomassModel" = quote(RcppArmadillo::fastLm(formula = B ~ logAge * speciesCode * ecoregionGroup +
       #                                               cover * speciesCode * ecoregionGroup)),
       "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode +
                                           cover * speciesCode +
                                           (logAge + cover + speciesCode | ecoregionGroup))),
-      "cloudFolderID" = cloudCacheFolderID,
+      "cloudFolderID" = NA, #cloudCacheFolderID,
       "LCCClassesToReplaceNN" = 34:36,
       # next two are used when assigning pixelGroup membership; what resolution for
       #   age and biomass
@@ -361,7 +362,7 @@ if (isFALSE(postProcessOnly)) {
       "sppEquivCol" = sppEquivCol,
       "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
       "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
-      "useCloudCacheForStats" = TRUE,
+      "useCloudCacheForStats" = FALSE, #TRUE,
       ".useCache" = eventCaching
     ),
     LandMine = list(
