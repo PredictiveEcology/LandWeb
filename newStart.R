@@ -223,7 +223,7 @@ sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(LandWeb),]
 #################################################
 ## create color palette for species used in model
 #################################################
-sppColors <- sppColors(sppEquivalencies_CA, sppEquivCol, newVals = "Mixed", palette = "Accent")
+sppColorVect <- sppColors(sppEquivalencies_CA, sppEquivCol, newVals = "Mixed", palette = "Accent")
 
 #################################################
 # Set up spades call for preamble -- studyArea stuff goes there
@@ -268,8 +268,7 @@ objects2 <- list(
   "nonTreePixels" = simOutPreamble$nonTreePixels,
   "rasterToMatch" = simOutPreamble$rasterToMatch,
   "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
-  "sppColors" = sppColors, ## TODO: remove this line; superceded by sppColorVect
-  "sppColorVect" = sppColors,
+  "sppColorVect" = sppColorVect,
   "sppEquiv" = sppEquivalencies_CA,
   "studyArea" = simOutPreamble$studyArea,
   "studyAreaLarge" = simOutPreamble$studyAreaLarge,
@@ -331,8 +330,7 @@ if (isFALSE(postProcessOnly)) {
     "rasterToMatch" = simOutPreamble$rasterToMatch,
     "rstFlammable" = simOutPreamble$rstFlammable,
     "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
-    "sppColors" = sppColors, ## TODO: remove this line; superceded by sppColorVect
-    "sppColorVect" = sppColors,
+    "sppColorVect" = sppColorVect,
     "sppEquiv" = sppEquivalencies_CA,
     "speciesLayers" = simOutSpeciesLayers$speciesLayers,
     "speciesTable" = speciesTable,
