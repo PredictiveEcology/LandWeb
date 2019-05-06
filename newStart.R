@@ -347,8 +347,12 @@ if (isFALSE(postProcessOnly)) {
 
   parameters <- list(
     Boreal_LBMRDataPrep = list(
-      "biomassModel" = quote(RcppArmadillo::fastLm(formula = B ~ logAge * speciesCode * ecoregionGroup +
-                                                     cover * speciesCode * ecoregionGroup)), ## ~35% faster than the default
+      ## fastLM is ~35% faster than the default lmer but needs 820GB RAM !!
+      #"biomassModel" = quote(RcppArmadillo::fastLm(formula = B ~ logAge * speciesCode * ecoregionGroup +
+      #                                               cover * speciesCode * ecoregionGroup)),
+      "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode +
+                                          cover * speciesCode +
+                                          (logAge + cover + speciesCode | ecoregionGroup))),
       "cloudFolderID" = cloudCacheFolderID,
       "LCCClassesToReplaceNN" = 34:36,
       # next two are used when assigning pixelGroup membership; what resolution for
