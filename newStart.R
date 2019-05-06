@@ -268,7 +268,8 @@ objects2 <- list(
   "nonTreePixels" = simOutPreamble$nonTreePixels,
   "rasterToMatch" = simOutPreamble$rasterToMatch,
   "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
-  "sppColors" = sppColors,
+  "sppColors" = sppColors, ## TODO: remove this line; superceded by sppColorVect
+  "sppColorVect" = sppColors,
   "sppEquiv" = sppEquivalencies_CA,
   "studyArea" = simOutPreamble$studyArea,
   "studyAreaLarge" = simOutPreamble$studyAreaLarge,
@@ -330,7 +331,7 @@ if (isFALSE(postProcessOnly)) {
     "rasterToMatch" = simOutPreamble$rasterToMatch,
     "rstFlammable" = simOutPreamble$rstFlammable,
     "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
-    "sppColors" = sppColors,
+    "sppColors" = sppColors, ## TODO: remove this line; superceded by sppColorVect
     "sppColorVect" = sppColors,
     "sppEquiv" = sppEquivalencies_CA,
     "speciesLayers" = simOutSpeciesLayers$speciesLayers,
