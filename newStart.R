@@ -3,7 +3,7 @@ quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporar
 activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
-batchMode <- TRUE ## NOTE: runName must be defined
+batchMode <- if (pemisc::user("achubaty")) TRUE else FALSE ## NOTE: runName must be defined
 cloudCacheFolderID <- "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj"
 eventCaching <- c(".inputObjects", "init")
 fireTimestep <- 1
@@ -16,7 +16,7 @@ useCloudCache <- FALSE # only for simInitAndSpades
 useDEoptim <- FALSE
 usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
 useParallel <- if (isTRUE(usePOM)) 2 else 4
-useSpades <- if (pemisc::user("emcintir")) FALSE else TRUE
+useSpades <- if (pemisc::user("emcintir")) TRUE else TRUE
 vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
                             # If all are below this, then it is a "mixed" stand
 
@@ -28,7 +28,7 @@ setwd(activeDir)
 ## set run name
 ##############################################################
 
-if (pemisc::user("achubaty"))
+if (pemisc::user("achubaty") || pemisc::user("emcintir"))
   runName <- "LandWeb_aspenDispersal_logROS"
 
 if (isTRUE(batchMode)) {
@@ -171,16 +171,16 @@ options(rasterMaxMemory = maxMemory, rasterTmpDir = scratchDir)
 
 opts <- options(
   "future.globals.maxSize" = 1000*1024^2,
-  "LandR.assertions" = if (user("emcintir")) TRUE else FALSE,
-  "LandR.verbose" = if (user("emcintir")) 2 else 1,
+  "LandR.assertions" = if (user("emcintir")) FALSE else FALSE,
+  "LandR.verbose" = if (user("emcintir")) 1 else 1,
   "map.dataPath" = Paths$inputPath, # not used yet
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
   "map.useParallel" = mapParallel,
   "reproducible.destinationPath" = normPath(Paths$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
-  "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) "multiprocess" else FALSE,
-  "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/Eliot/data") else NULL,
+  "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) FALSE else FALSE,
+  "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.showSimilar" = TRUE,
