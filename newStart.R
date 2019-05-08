@@ -255,6 +255,9 @@ if (!is.na(.plotInitialTime)) {
     try(dev.off())
   })
   quickPlot::dev(2, width = 18, height = 10)
+  grid::grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+  grid::grid.text(label = runName, x = 0.93, y = 0.03)
+
   Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
   Plot(simOutPreamble$rasterToMatchReporting)
   Plot(simOutPreamble$rasterToMatch) # some bug in quickPlot that makes these 2 not plot together
@@ -284,10 +287,6 @@ parameters2 <- list(
   )
 )
 
-if (!is.na(.plotInitialTime)) {
-  quickPlot::dev(3, width = 18, height = 10)
-}
-
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
                              params = parameters2,
@@ -298,6 +297,18 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              .plotInitialTime = .plotInitialTime,
                              paths = paths1,
                              debug = 1)
+
+if (!is.na(.plotInitialTime)) {
+  lapply(dev.list(), function(x) {
+    try(quickPlot::clearPlot(force = TRUE))
+    try(dev.off())
+  })
+  quickPlot::dev(3, width = 18, height = 10)
+  grid::grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+  grid::grid.text(label = runName, x = 0.93, y = 0.03)
+
+  Plot(simOutSpeciesLayers$speciesLayers)
+}
 
 ######################################################
 # Dynamic Simulation
@@ -363,6 +374,7 @@ if (isFALSE(postProcessOnly)) {
       "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
       "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
       "useCloudCacheForStats" = FALSE, #TRUE,
+      ".plotInitialTime" = .plotInitialTime,
       ".useCache" = eventCaching
     ),
     LandMine = list(
