@@ -255,8 +255,8 @@ if (!is.na(.plotInitialTime)) {
     try(dev.off())
   })
   quickPlot::dev(2, width = 18, height = 10)
-  grid::grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-  grid::grid.text(label = runName, x = 0.93, y = 0.03)
+  grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+  grid::grid.text(label = runName, x = 0.90, y = 0.03)
 
   Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
   Plot(simOutPreamble$rasterToMatchReporting)
@@ -304,8 +304,8 @@ if (!is.na(.plotInitialTime)) {
     try(dev.off())
   })
   quickPlot::dev(3, width = 18, height = 10)
-  grid::grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-  grid::grid.text(label = runName, x = 0.93, y = 0.03)
+  grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+  grid::grid.text(label = runName, x = 0.90, y = 0.03)
 
   Plot(simOutSpeciesLayers$speciesLayers)
 }
@@ -647,8 +647,8 @@ if (isFALSE(postProcessOnly)) {
   } else {
     if (!is.na(.plotInitialTime)) {
       quickPlot::dev(4, width = 18, height = 10)
-      grid::grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-      grid::grid.text(label = runName, x = 0.93, y = 0.03)
+      grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+      grid::grid.text(label = runName, x = 0.90, y = 0.03)
     }
 
     data.table::setDTthreads(useParallel) # 4
