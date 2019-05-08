@@ -305,7 +305,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              ## make .plotInitialTime an argument, not a parameter:
                              ##  - Cache will see them as unchanged regardless of value
                              .plotInitialTime = .plotInitialTime,
-                             paths = paths1,
+                             paths = paths2,
                              debug = 1)
 
 if (!is.na(.plotInitialTime)) {
