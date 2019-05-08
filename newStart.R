@@ -152,7 +152,7 @@ moduleRqdPkgs <- c("crayon", "data.table", "dplyr", "fasterize", "fpCompare",
 ##########################################################
 paths1 <- list(
   ## use same cachePath for all data-prep steps before dynamic simulation
-  cachePath = file.path("cache", "dataPrepGIS"),
+  cachePath = file.path("cache", "dataPrepGIS", "preamble"),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = file.path("outputs", runName)
@@ -267,6 +267,16 @@ if (!is.na(.plotInitialTime)) {
 # Second spades call -- creates speciesLayers
 #################################################
 
+paths2 <- list(
+  ## use same cachePath for all data-prep steps before dynamic simulation
+  cachePath = file.path("cache", "dataPrepGIS", "speciesLayers"),
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs",
+  outputPath = file.path("outputs", runName)
+)
+do.call(SpaDES.core::setPaths, paths2)
+tilePath <- file.path(Paths$outputPath, "tiles")
+
 objects2 <- list(
   "nonTreePixels" = simOutPreamble$nonTreePixels,
   "rasterToMatch" = simOutPreamble$rasterToMatch,
@@ -313,14 +323,14 @@ if (!is.na(.plotInitialTime)) {
 ######################################################
 # Dynamic Simulation
 ######################################################
-paths2 <- list(
+paths3 <- list(
   ## NOTE: use separate cachePath for each dynamic simulation
   cachePath = file.path("cache", runName),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = file.path("outputs", runName)
 )
-do.call(SpaDES.core::setPaths, paths2) # Set them here so that we don't have to specify at each call to Cache
+do.call(SpaDES.core::setPaths, paths3) # Set them here so that we don't have to specify at each call to Cache
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 if (isFALSE(postProcessOnly)) {
@@ -537,7 +547,7 @@ if (isFALSE(postProcessOnly)) {
                      modules = modules,
                      outputs = outputs,
                      objects = objects,
-                     paths = paths2,
+                     paths = paths3,
                      loadOrder = unlist(modules)
     )
 
@@ -634,7 +644,7 @@ if (isFALSE(postProcessOnly)) {
                        outputs = outputs,
                        debug = 1,
                        objects = objects,
-                       paths = paths2,
+                       paths = paths3,
                        loadOrder = unlist(modules),
                        clearSimEnv = TRUE,
                        .plotInitialTime = NA,
@@ -658,7 +668,7 @@ if (isFALSE(postProcessOnly)) {
                                  modules = modules,
                                  outputs = outputs,
                                  objects = objects,
-                                 paths = paths2,
+                                 paths = paths3,
                                  loadOrder = unlist(modules),
                                  debug = 1,
                                  #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
