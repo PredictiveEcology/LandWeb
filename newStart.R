@@ -297,6 +297,18 @@ parameters2 <- list(
   )
 )
 
+if (pemisc::user("achubaty")) {
+  exts <- c(".tif", ".tif.vat.dbf", ".tif.vat.cpg", ".tif.ovr", ".tif.aux.xml", ".tfw")
+  forInvFiles <- vapply(c("BlackSpruce1", "Deciduous1", "Fir1", "Pine1", "WhiteSpruce1"),
+                        function(f) {
+                          paste0(f, exts)
+                          }, character(length(exts))) %>%
+    c() %>%
+    file.path("inputs", .)
+  vapply(forInvFiles, function(f) if (file.exists(f)) file.remove(f) else FALSE, logical(1))
+
+  unlink(paths2$cachePath, recursive = TRUE)
+}
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
                              params = parameters2,
