@@ -11,6 +11,7 @@ mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
 maxAge <- 400
 minFRI <- 25
 postProcessOnly <- FALSE
+rerunSpeciesLayers <- FALSE ## TODO: use this as workaround for speciesLayers cache problems
 sppEquivCol <- "LandWeb"
 useCloudCache <- FALSE # only for simInitAndSpades
 useDEoptim <- FALSE
@@ -309,16 +310,22 @@ if (pemisc::user("achubaty")) {
 
   unlink(paths2$cachePath, recursive = TRUE)
 }
-simOutSpeciesLayers <- Cache(simInitAndSpades,
-                             times = list(start = 0, end = 1),
-                             params = parameters2,
-                             modules = c("BiomassSpeciesData"),
-                             objects = objects2,
-                             ## make .plotInitialTime an argument, not a parameter:
-                             ##  - Cache will see them as unchanged regardless of value
-                             .plotInitialTime = .plotInitialTime,
-                             paths = paths2,
-                             debug = 1)
+
+if (isTRUE(rerunSpeciesLayers)) {
+  simOutSpeciesLayers <- Cache(simInitAndSpades,
+                               times = list(start = 0, end = 1),
+                               params = parameters2,
+                               modules = c("BiomassSpeciesData"),
+                               objects = objects2,
+                               ## make .plotInitialTime an argument, not a parameter:
+                               ##  - Cache will see them as unchanged regardless of value
+                               .plotInitialTime = .plotInitialTime,
+                               paths = paths2,
+                               debug = 1)
+  saveRDS(simOutSpeciesLayers, file.path(Paths$inputPath, "simOutSpeciesLayers.rds"), version = 3)
+} else {
+  simOutSpeciesLayers <- readRDS(file.path(Paths$inputPath, "simOutSpeciesLayers.rds"))
+}
 
 if (!is.na(.plotInitialTime)) {
   lapply(dev.list(), function(x) {
