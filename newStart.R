@@ -11,6 +11,7 @@ mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
 maxAge <- 400
 minFRI <- 25
 postProcessOnly <- FALSE
+rerunSpeciesLayers <- FALSE ## TODO: use this as workaround for speciesLayers cache problems
 sppEquivCol <- "LandWeb"
 useCloudCache <- FALSE # only for simInitAndSpades
 useDEoptim <- FALSE
@@ -28,7 +29,7 @@ setwd(activeDir)
 ## set run name
 ##############################################################
 
-if (pemisc::user("achubaty") || pemisc::user("emcintir"))
+if (pemisc::user("emcintir"))
   runName <- "LandWeb_aspenDispersal_logROS"
 
 if (isTRUE(batchMode)) {
@@ -152,7 +153,7 @@ moduleRqdPkgs <- c("crayon", "data.table", "dplyr", "fasterize", "fpCompare",
 ##########################################################
 paths1 <- list(
   ## use same cachePath for all data-prep steps before dynamic simulation
-  cachePath = file.path("cache", "dataPrepGIS"),
+  cachePath = file.path("cache", "dataPrepGIS", "preamble"),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = file.path("outputs", runName)
@@ -255,6 +256,9 @@ if (!is.na(.plotInitialTime)) {
     try(dev.off())
   })
   quickPlot::dev(2, width = 18, height = 10)
+  grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+  grid::grid.text(label = runName, x = 0.90, y = 0.03)
+
   Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
   Plot(simOutPreamble$rasterToMatchReporting)
   Plot(simOutPreamble$rasterToMatch) # some bug in quickPlot that makes these 2 not plot together
@@ -263,6 +267,16 @@ if (!is.na(.plotInitialTime)) {
 #################################################
 # Second spades call -- creates speciesLayers
 #################################################
+
+paths2 <- list(
+  ## use same cachePath for all data-prep steps before dynamic simulation
+  cachePath = file.path("cache", "dataPrepGIS", "speciesLayers"),
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs",
+  outputPath = file.path("outputs", runName)
+)
+do.call(SpaDES.core::setPaths, paths2)
+tilePath <- file.path(Paths$outputPath, "tiles")
 
 objects2 <- list(
   "nonTreePixels" = simOutPreamble$nonTreePixels,
@@ -284,32 +298,58 @@ parameters2 <- list(
   )
 )
 
-if (!is.na(.plotInitialTime)) {
-  quickPlot::dev(3, width = 18, height = 10)
+if (pemisc::user("achubaty")) {
+  exts <- c(".tif", ".tif.vat.dbf", ".tif.vat.cpg", ".tif.ovr", ".tif.aux.xml", ".tfw")
+  forInvFiles <- vapply(c("BlackSpruce1", "Deciduous1", "Fir1", "Pine1", "WhiteSpruce1"),
+                        function(f) {
+                          paste0(f, exts)
+                          }, character(length(exts))) %>%
+    c() %>%
+    file.path("inputs", .)
+  vapply(forInvFiles, function(f) if (file.exists(f)) file.remove(f) else FALSE, logical(1))
+
+  unlink(paths2$cachePath, recursive = TRUE)
 }
 
-simOutSpeciesLayers <- Cache(simInitAndSpades,
-                             times = list(start = 0, end = 1),
-                             params = parameters2,
-                             modules = c("BiomassSpeciesData"),
-                             objects = objects2,
-                             ## make .plotInitialTime an argument, not a parameter:
-                             ##  - Cache will see them as unchanged regardless of value
-                             .plotInitialTime = .plotInitialTime,
-                             paths = paths1,
-                             debug = 1)
+if (isTRUE(rerunSpeciesLayers)) {
+  simOutSpeciesLayers <- Cache(simInitAndSpades,
+                               times = list(start = 0, end = 1),
+                               params = parameters2,
+                               modules = c("BiomassSpeciesData"),
+                               objects = objects2,
+                               ## make .plotInitialTime an argument, not a parameter:
+                               ##  - Cache will see them as unchanged regardless of value
+                               .plotInitialTime = .plotInitialTime,
+                               paths = paths2,
+                               debug = 1)
+  saveRDS(simOutSpeciesLayers, file.path(Paths$inputPath, "simOutSpeciesLayers.rds"), version = 3)
+} else {
+  simOutSpeciesLayers <- readRDS(file.path(Paths$inputPath, "simOutSpeciesLayers.rds"))
+}
+
+if (!is.na(.plotInitialTime)) {
+  lapply(dev.list(), function(x) {
+    try(quickPlot::clearPlot(force = TRUE))
+    try(dev.off())
+  })
+  quickPlot::dev(3, width = 18, height = 10)
+  grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+  grid::grid.text(label = runName, x = 0.90, y = 0.03)
+
+  Plot(simOutSpeciesLayers$speciesLayers)
+}
 
 ######################################################
 # Dynamic Simulation
 ######################################################
-paths2 <- list(
+paths3 <- list(
   ## NOTE: use separate cachePath for each dynamic simulation
   cachePath = file.path("cache", runName),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = file.path("outputs", runName)
 )
-do.call(SpaDES.core::setPaths, paths2) # Set them here so that we don't have to specify at each call to Cache
+do.call(SpaDES.core::setPaths, paths3) # Set them here so that we don't have to specify at each call to Cache
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 if (isFALSE(postProcessOnly)) {
@@ -363,6 +403,7 @@ if (isFALSE(postProcessOnly)) {
       "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
       "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
       "useCloudCacheForStats" = FALSE, #TRUE,
+      ".plotInitialTime" = .plotInitialTime,
       ".useCache" = eventCaching
     ),
     LandMine = list(
@@ -525,7 +566,7 @@ if (isFALSE(postProcessOnly)) {
                      modules = modules,
                      outputs = outputs,
                      objects = objects,
-                     paths = paths2,
+                     paths = paths3,
                      loadOrder = unlist(modules)
     )
 
@@ -622,7 +663,7 @@ if (isFALSE(postProcessOnly)) {
                        outputs = outputs,
                        debug = 1,
                        objects = objects,
-                       paths = paths2,
+                       paths = paths3,
                        loadOrder = unlist(modules),
                        clearSimEnv = TRUE,
                        .plotInitialTime = NA,
@@ -635,8 +676,8 @@ if (isFALSE(postProcessOnly)) {
   } else {
     if (!is.na(.plotInitialTime)) {
       quickPlot::dev(4, width = 18, height = 10)
-      grid::grid.rect(0.93, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-      grid::grid.text(label = runName, x = 0.93, y = 0.03)
+      grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+      grid::grid.text(label = runName, x = 0.90, y = 0.03)
     }
 
     data.table::setDTthreads(useParallel) # 4
@@ -646,7 +687,7 @@ if (isFALSE(postProcessOnly)) {
                                  modules = modules,
                                  outputs = outputs,
                                  objects = objects,
-                                 paths = paths2,
+                                 paths = paths3,
                                  loadOrder = unlist(modules),
                                  debug = 1,
                                  #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
