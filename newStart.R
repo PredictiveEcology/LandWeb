@@ -16,7 +16,7 @@ sppEquivCol <- "LandWeb"
 useCloudCache <- FALSE # only for simInitAndSpades
 useDEoptim <- FALSE
 usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
-useParallel <- if (isTRUE(usePOM)) 2 else 4
+useParallel <- if (isTRUE(usePOM)) 2 else 8
 useSpades <- if (pemisc::user("emcintir")) FALSE else TRUE
 vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
                             # If all are below this, then it is a "mixed" stand
