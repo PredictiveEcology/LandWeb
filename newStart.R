@@ -305,8 +305,11 @@ if (pemisc::user("achubaty")) {
                           paste0(f, exts)
                           }, character(length(exts))) %>%
     c() %>%
-    file.path("inputs", .)
+    file.path(paths2$inputPath, .)
   vapply(forInvFiles, function(f) if (file.exists(f)) file.remove(f) else FALSE, logical(1))
+
+  f <- file.path(paths2$inputPath, "CurrentCondition.zip")
+  if (file.exists(f)) file.remove(f)
 
   unlink(paths2$cachePath, recursive = TRUE)
 }
