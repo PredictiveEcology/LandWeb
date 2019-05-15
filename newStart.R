@@ -298,23 +298,22 @@ parameters2 <- list(
   )
 )
 
-if (pemisc::user("achubaty")) {
-  exts <- c(".tif", ".tif.vat.dbf", ".tif.vat.cpg", ".tif.ovr", ".tif.aux.xml", ".tfw")
-  forInvFiles <- vapply(c("BlackSpruce1", "Deciduous1", "Fir1", "Pine1", "WhiteSpruce1"),
-                        function(f) {
-                          paste0(f, exts)
-                          }, character(length(exts))) %>%
-    c() %>%
-    file.path(paths2$inputPath, .)
-  vapply(forInvFiles, function(f) if (file.exists(f)) file.remove(f) else FALSE, logical(1))
-
-  f <- file.path(paths2$inputPath, "CurrentCondition.zip")
-  if (file.exists(f)) file.remove(f)
-
-  unlink(paths2$cachePath, recursive = TRUE)
-}
-
 if (isTRUE(rerunSpeciesLayers)) {
+  ## delete existing species layers data and cache
+  if (pemisc::user("achubaty")) {
+    exts <- c(".tif", ".tif.vat.dbf", ".tif.vat.cpg", ".tif.ovr", ".tif.aux.xml", ".tfw")
+    forInvFiles <- vapply(c("BlackSpruce1", "Deciduous1", "Fir1", "Pine1", "WhiteSpruce1"),
+                          function(f) {
+                            paste0(f, exts)
+                          }, character(length(exts))) %>%
+      c(., "CurrentCondition.zip", paste0(c("Abie_sp", "Pice_gla", "Pice_mar", "Pinu_sp", "Popu_sp"), "_overlay.tif")) %>%
+      file.path(paths2$inputPath, .)
+    vapply(forInvFiles, function(f) if (file.exists(f)) file.remove(f) else FALSE, logical(1))
+
+    unlink(paths2$cachePath, recursive = TRUE)
+  }
+
+  ## (re)create species layers
   simOutSpeciesLayers <- Cache(simInitAndSpades,
                                times = list(start = 0, end = 1),
                                params = parameters2,
