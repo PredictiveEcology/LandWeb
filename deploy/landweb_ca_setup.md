@@ -51,9 +51,8 @@ sudo npm install -g mapshaper
 sudo apt update
 #sudo apt -y install nginx  ## why do we need this??
 
-sudo sh -c 'echo "deb https://cran.rstudio.com/bin/linux/ubuntu xenial/" >> /etc/apt/sources.list.d/cran.list'
-gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9
-gpg -a --export E084DAB9 | sudo apt-key add -
+sudo sh -c 'echo "deb https://cran.rstudio.com/bin/linux/ubuntu bionic-cran35/" >> /etc/apt/sources.list.d/cran.list'
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
 sudo apt update
 sudo apt -y install r-base
 sudo apt -y install r-base-dev
@@ -72,6 +71,7 @@ Rscript -e 'sessionInfo()'
 ### Install shiny-server
 
 ```bash
+## TODO: update this
 sudo apt -y install gdebi-core
 sudo su - -c "R -e \"install.packages('shiny', repos = 'http://cran.rstudio.com/')\""
 wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.7.907-amd64.deb
@@ -86,14 +86,14 @@ sudo adduser ubuntu shiny
 ```bash
 # Rstudio
 sudo apt -y install gdebi-core
-wget https://download2.rstudio.org/rstudio-server-1.1.447-amd64.deb
-sudo gdebi rstudio-server-1.1.447-amd64.deb
+wget https://download2.rstudio.org/server/trusty/amd64/rstudio-server-1.2.1335-amd64.deb
+sudo gdebi rstudio-server-1.2.1335-amd64.deb
 ```
 
 ### Install additional R package dependencies
 
 ```bash
-sudo apt build-dep r-cran-rjava
+sudo apt build-dep -y r-cran-rjava r-cran-tkrplot
 sudo R CMD javareconf
 
 sudo apt install -y \
@@ -104,6 +104,7 @@ sudo apt install -y \
     libgdal-dev \
     libgeos-dev \
     libgit2-dev \
+    libgmp-dev \
     libproj-dev \
     libprotobuf-dev \
     libprotoc-dev \
@@ -117,12 +118,11 @@ sudo apt install -y \
     pandoc-citeproc \
     protobuf-compiler \
     python-gdal \
-    python3-gdal \
-    r-cran-tkrplot
+    python3-gdal
 
-sudo add-apt-repository -y ppa:opencpu/jq
-sudo apt update
-sudo apt install libjq-dev
+#sudo add-apt-repository -y ppa:opencpu/jq ## no longer needed in bionic?
+#sudo apt update
+#sudo apt install -y libjq-dev
 
 # Make /usr/lib/R/site-library owned by user
 sudo chown -R ubuntu:ubuntu /usr/local/lib/R/site-library
@@ -138,7 +138,7 @@ Cache package compilation to speed up future package updates/reinstallations:
 See http://dirk.eddelbuettel.com/blog/2017/11/27/#011_faster_package_installation_one.
 
 ```bash
-sudo apt install ccache
+sudo apt install -y ccache
 
 mkdir -p ~/.ccache
 mkdir -p ~/.R
@@ -196,8 +196,8 @@ pkgs <- c(
   "rgeos",
   "rgexf",
   "rJava",
+  "rmapshaper",
   "rmarkdown",
-  "mapshaper",
   "RSQLite",
   "sf",
   "sp",
@@ -213,7 +213,13 @@ notInstalled <- vapply(pkgs, function(p) {
 pkgs2install <- pkgs[notInstalled]
 install.packages(pkgs2install, dependencies = TRUE, lib = .Library.site[1], repos = "https://cran.rstudio.com/")
 
-devtools::install_github("PredictiveEcology/SpaDES.shiny@generalize-modules")
+deps <- TRUE
+devtools::install_github("PredictiveEcology/SpaDES.core", ref = "development", dependencies = deps)
+devtools::install_github("PredictiveEcology/pemisc", ref = "development", dependencies = deps)
+devtools::install_github("PredictiveEcology/map", ref = "development", dependencies = deps)
+devtools::install_github("PredictiveEcology/LandR", ref = "development", dependencies = deps)
+devtools::install_github("PredictiveEcology/LandWebUtils", ref = "development", dependencies = deps)
+devtools::install_github("achubaty/amc", ref = "development", dependencies = deps)
 ```
 
 ### GitHub config
