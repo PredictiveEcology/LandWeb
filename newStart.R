@@ -356,7 +356,8 @@ tilePath <- file.path(Paths$outputPath, "tiles")
 
 if (isFALSE(postProcessOnly)) {
   times <- list(start = 0, end = endTime)
-  modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig", "LBMR",
+  modules <- list("Boreal_LBMRDataPrep", #"LandR_BiomassGMOrig",
+                  "LBMR",
                   "LandMine", "Biomass_regeneration",
                   "LandWeb_output",
                   "timeSinceFire")
@@ -433,9 +434,9 @@ if (isFALSE(postProcessOnly)) {
       ".useCache" = eventCaching[1], # seems slower to use Cache for both
       ".useParallel" = useParallel
     ),
-    LandR_BiomassGMOrig = list(
-      ".useParallel" = useParallel
-    ),
+    # LandR_BiomassGMOrig = list(
+    #   ".useParallel" = useParallel
+    # ),
     Biomass_regeneration = list(
       "fireInitialTime" = fireTimestep,
       "fireTimestep" = fireTimestep,
