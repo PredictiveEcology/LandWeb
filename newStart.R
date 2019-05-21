@@ -417,7 +417,8 @@ if (isFALSE(postProcessOnly)) {
       "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
       "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
       ".useCache" = eventCaching,
-      ".useParallel" = useParallel
+      "maxRetriesPerID" = 4,
+      ".useParallel" = FALSE#useParallel
     ),
     LandWeb_output = list(
       "sppEquivCol" = sppEquivCol,
