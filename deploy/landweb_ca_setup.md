@@ -105,6 +105,7 @@ sudo apt install -y \
     libgeos-dev \
     libgit2-dev \
     libgmp-dev \
+    libmagick++-dev \
     libproj-dev \
     libprotobuf-dev \
     libprotoc-dev \
@@ -171,6 +172,7 @@ hash_dir = false
 
 ```r
 pkgs <- c(
+  "animation",
   "BH",
   "bit",
   "broom",
@@ -271,9 +273,7 @@ From GitHub:
 
 ```bash
 su achubaty
-git clone --recursive -j8 git@github.com:eliotmcintire/LandWeb.git /tmp/LandWeb
-cd /tmp/LandWeb
-git checkout development ## TODO: should be working from master branch once merged
+git clone --single-branch --branch development --recursive -j8 git@github.com:eliotmcintire/LandWeb.git
 exit
 
 whoami # should now be user `ubuntu`

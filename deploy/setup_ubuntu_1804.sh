@@ -34,6 +34,7 @@ sudo apt-get install -y \
     libgdal-dev \
     libgeos-dev \
     libgit2-dev \
+    libmagick++-dev \
     libproj-dev \
     libprotobuf-dev \
     libprotoc-dev \
