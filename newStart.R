@@ -413,11 +413,11 @@ if (isFALSE(postProcessOnly)) {
       "biggestPossibleFireSizeHa" = 5e5,
       "burnInitialTime" = fireTimestep,
       "fireTimestep" = fireTimestep,
+      "maxRetriesPerID" = 4,
       "minPropBurn" = 0.90,
       "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
       "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
       ".useCache" = eventCaching,
-      "maxRetriesPerID" = 4,
       ".useParallel" = FALSE#useParallel
     ),
     LandWeb_output = list(
