@@ -18,9 +18,14 @@ sudo apt-get -y install r-base-dev
 sudo add-apt-repository ppa:ubuntugis/ppa
 sudo apt-get update
 
+## mapshaper
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+sudo apt-get install -y nodejs
+sudo npm install -g mapshaper
+
 # Rstudio
 sudo apt-get -y install gdebi-core
-wget https://download2.rstudio.org/server/trusty/amd64/rstudio-server-1.2.1335-amd64.deb
+wget https://download2.rstudio.org/server/bionic/amd64/rstudio-server-1.2.1335-amd64.deb
 sudo gdebi rstudio-server-1.2.1335-amd64.deb
 
 sudo apt build-dep -y r-cran-rjava r-cran-tkrplot
