@@ -38,7 +38,7 @@ sudo apt install htop
 ```bash
 ## the commands below work for Ubuntu 16.04+;
 ## for Debian, also need https://github.com/nodejs/help/issues/1040#issuecomment-362970187
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 sudo npm install -g mapshaper
