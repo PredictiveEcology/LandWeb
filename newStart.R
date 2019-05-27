@@ -16,7 +16,7 @@ sppEquivCol <- "LandWeb"
 useCloudCache <- FALSE # only for simInitAndSpades
 useDEoptim <- FALSE
 usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
-useParallel <- if (isTRUE(usePOM)) 2 else 4
+useParallel <- 2 ## values > 2 use WAY too much RAM for very little speed increase (too much overhead!)
 useSpades <- if (pemisc::user("emcintir")) TRUE else TRUE
 vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
                             # If all are below this, then it is a "mixed" stand
@@ -34,8 +34,6 @@ if (pemisc::user("emcintir"))
 
 if (isTRUE(batchMode)) {
   stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set in batch_mode.R
-  rep <- as.integer(substr(runName, nchar(runName) - 1, nchar(runName)))
-  useParallel <- if (!is.na(rep) && (rep %% 2 == 0)) 4 else 8
 } else {
   if (pemisc::user("achubaty") || pemisc::user("emcintir"))
     runName <- "tolko_SK_aspenDispersal_logROS_test01"
