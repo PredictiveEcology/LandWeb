@@ -34,7 +34,7 @@ if (pemisc::user("emcintir"))
 
 if (isTRUE(batchMode)) {
   stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set in batch_mode.R
-  rep <- as.integer(substr(runName, nchar(runName) - 2, nchar(runName)))
+  rep <- as.integer(substr(runName, nchar(runName) - 1, nchar(runName)))
   useParallel <- if (!is.na(rep) && (rep %% 2 == 0)) 4 else 8
 } else {
   if (pemisc::user("achubaty") || pemisc::user("emcintir"))
