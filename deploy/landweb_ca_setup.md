@@ -86,7 +86,7 @@ sudo adduser ubuntu shiny
 ```bash
 # Rstudio
 sudo apt -y install gdebi-core
-wget https://download2.rstudio.org/server/trusty/amd64/rstudio-server-1.2.1335-amd64.deb
+wget https://download2.rstudio.org/server/bionic/amd64/rstudio-server-1.2.1335-amd64.deb
 sudo gdebi rstudio-server-1.2.1335-amd64.deb
 ```
 
