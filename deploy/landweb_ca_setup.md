@@ -30,7 +30,7 @@ sudo adduser achubaty
 sudo apt install unattended-upgrades
 sudo dpkg-reconfigure unattended-upgrades
 
-sudo apt install htop
+sudo apt install htop sysstat
 ```
 
 ### Install nodejs + mapshaper
