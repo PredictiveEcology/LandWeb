@@ -16,7 +16,7 @@ sppEquivCol <- "LandWeb"
 useCloudCache <- FALSE # only for simInitAndSpades
 useDEoptim <- FALSE
 usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
-useParallel <- if (isTRUE(usePOM)) 2 else 4
+useParallel <- 2 ## values > 2 use WAY too much RAM for very little speed increase (too much overhead!)
 useSpades <- if (pemisc::user("emcintir")) TRUE else TRUE
 vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
                             # If all are below this, then it is a "mixed" stand
@@ -34,8 +34,6 @@ if (pemisc::user("emcintir"))
 
 if (isTRUE(batchMode)) {
   stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set in batch_mode.R
-  rep <- as.integer(substr(runName, nchar(runName) - 2, nchar(runName)))
-  useParallel <- if (!is.na(rep) && (rep %% 2 == 0)) 4 else 8
 } else {
   if (pemisc::user("achubaty") || pemisc::user("emcintir"))
     runName <- "tolko_SK_aspenDispersal_logROS_test01"
@@ -190,7 +188,7 @@ opts <- options(
   "reproducible.useCache" = if (pemisc::user("emcintir")) TRUE else TRUE,
   "reproducible.useCloud" = TRUE,
   "reproducible.useGDAL" = FALSE, ## NOTE: gdal is faster, but mixing gdal with raster causes inconsistencies
-  "reproducible.useMemoise" = TRUE,
+  "reproducible.useMemoise" = ifelse(isTRUE(batchMode), FALSE, TRUE),
   "reproducible.useGDAL" = FALSE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
   "spades.moduleCodeChecks" = FALSE,
@@ -420,7 +418,7 @@ if (isFALSE(postProcessOnly)) {
       "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
       "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
       ".useCache" = eventCaching,
-      ".useParallel" = FALSE#useParallel
+      ".useParallel" = max(2, useParallel)
     ),
     LandWeb_output = list(
       "sppEquivCol" = sppEquivCol,
@@ -434,6 +432,7 @@ if (isFALSE(postProcessOnly)) {
       "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
       "sppEquivCol" = sppEquivCol,
       "successionTimestep" = successionTimestep,
+      ".plotInitialTime" = .plotInitialTime,
       ".useCache" = eventCaching[1], # seems slower to use Cache for both
       ".useParallel" = useParallel
     ),
