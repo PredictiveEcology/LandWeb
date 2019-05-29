@@ -1,8 +1,8 @@
 #!/bin/bash
-sudo apt-get install unattended-upgrades
+sudo apt-get install unattended-upgrades xvfb xauth xfonts-base
 sudo dpkg-reconfigure unattended-upgrades
 
-sudo apt-get install htop
+sudo apt-get install htop sysstat
 
 # Install R
 sudo apt-get update
