@@ -188,7 +188,7 @@ opts <- options(
   "reproducible.useCache" = if (pemisc::user("emcintir")) TRUE else TRUE,
   "reproducible.useCloud" = TRUE,
   "reproducible.useGDAL" = FALSE, ## NOTE: gdal is faster, but mixing gdal with raster causes inconsistencies
-  "reproducible.useMemoise" = TRUE,
+  "reproducible.useMemoise" = ifelse(isTRUE(batchMode), FALSE, TRUE),
   "reproducible.useGDAL" = FALSE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
   "spades.moduleCodeChecks" = FALSE,
@@ -418,7 +418,7 @@ if (isFALSE(postProcessOnly)) {
       "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
       "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
       ".useCache" = eventCaching,
-      ".useParallel" = FALSE#useParallel
+      ".useParallel" = max(2, useParallel)
     ),
     LandWeb_output = list(
       "sppEquivCol" = sppEquivCol,
