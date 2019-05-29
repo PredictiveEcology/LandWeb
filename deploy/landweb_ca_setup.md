@@ -93,7 +93,10 @@ sudo gdebi rstudio-server-1.2.1335-amd64.deb
 ### Install additional R package dependencies
 
 ```bash
-sudo apt build-dep -y r-cran-rjava r-cran-tkrplot
+sudo apt build-dep -y r-cran-rjava r-cran-tkrplot # This might return the following error: `E: You must put some 'source' URIs in your sources.list`
+# If so, just try the following two lines:
+# sudo sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
+# sudo apt-get update
 sudo R CMD javareconf
 
 sudo apt install -y \
