@@ -354,6 +354,27 @@ paths3 <- list(
 do.call(SpaDES.core::setPaths, paths3) # Set them here so that we don't have to specify at each call to Cache
 tilePath <- file.path(Paths$outputPath, "tiles")
 
+LandMineROStable <- rbindlist(list(
+  list("mature", "decid", 9L),
+  list("immature_young", "decid", 6L),
+  list("immature_young", "mixed", 12L),
+  list("mature", "mixed", 17L),
+  list("immature", "pine", 14L),
+  list("mature", "pine", 21L),
+  list("young", "pine", 22L),
+  list("immature_young", "softwood", 18L),
+  list("mature", "softwood", 27L),
+  list("immature_young", "spruce", 20L),
+  list("mature", "spruce", 30L)
+))
+setnames(LandMineROStable, old = 1:3, new = c("age", "leading", "ros"))
+
+if (grepl("equalROS", runName)) {
+  LandMineROStable$ros <- 1L
+} else if (grepl("logROS", runName)) {
+  LandMineROStable$ros <- log(LandMineROStable$ros)
+}
+
 if (isFALSE(postProcessOnly)) {
   times <- list(start = 0, end = endTime)
   modules <- list("Boreal_LBMRDataPrep", #"LandR_BiomassGMOrig",
@@ -371,6 +392,8 @@ if (isFALSE(postProcessOnly)) {
     "fireReturnInterval" = simOutPreamble$fireReturnInterval,
     "rstLCC" = simOutPreamble$LCC,
     "rasterToMatch" = simOutPreamble$rasterToMatch,
+    "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
+    "ROSTable" = LandMineROStable,
     "rstFlammable" = simOutPreamble$rstFlammable,
     "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
     "sppColorVect" = sppColorVect,
@@ -378,7 +401,6 @@ if (isFALSE(postProcessOnly)) {
     "speciesLayers" = simOutSpeciesLayers$speciesLayers,
     "speciesTable" = speciesTable,
     "standAgeMap" = simOutPreamble$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
-    "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
     "studyArea" = simOutPreamble$studyArea,
     "studyAreaLarge" = simOutPreamble$studyAreaLarge,
     "studyAreaReporting" = simOutPreamble$studyAreaReporting,
@@ -415,7 +437,6 @@ if (isFALSE(postProcessOnly)) {
       "fireTimestep" = fireTimestep,
       "maxRetriesPerID" = 4,
       "minPropBurn" = 0.90,
-      "ROStype" = if (grepl("equalROS", runName)) "equal" else if (grepl("logROS", runName)) "log" else "original",
       "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
       ".useCache" = eventCaching,
       ".useParallel" = max(2, useParallel)
