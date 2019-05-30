@@ -437,6 +437,7 @@ if (isFALSE(postProcessOnly)) {
       "fireTimestep" = fireTimestep,
       "maxRetriesPerID" = 4,
       "minPropBurn" = 0.90,
+      "sppEquivCol" = sppEquivCol,
       "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
       ".useCache" = eventCaching,
       ".useParallel" = max(2, useParallel)
