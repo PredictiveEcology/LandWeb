@@ -513,12 +513,12 @@ if (isFALSE(postProcessOnly)) {
   ######## set seed for RNG
   fseed <- file.path(Paths$outputPath, "seed.rds")
   fseed2 <- extension(fseed, "txt")
-  #if (file.exists(fseed)) {
-  #  seed <- readRDS(fseed)
-  #} else {
+  if (file.exists(fseed)) {
+    seed <- readRDS(fseed)
+  } else {
     seed <- sample(1e4, 1)
     saveRDS(seed, fseed)
-  #}
+  }
   print(seed)
   cat(paste("Setting seed in newStart.R:", seed), file = fseed2, sep = "\n")
   set.seed(seed)
