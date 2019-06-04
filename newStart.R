@@ -162,7 +162,8 @@ do.call(SpaDES.core::setPaths, paths1) # Set them here so that we don't have to 
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
-.plotInitialTime <- if (user("emcintir")) NA else if (user("achubaty")) NA else 0
+rep <- as.integer(substr(runName, nchar(runName) - 1, nchar(runName)))
+.plotInitialTime <- if (user("emcintir")) NA else if (user("achubaty") && rep == 1) 0 else NA
 
 maxMemory <- if (grepl("LandWeb", runName)) 5e+12 else 5e+9
 scratchDir <- file.path("/tmp/scratch/LandWeb")
