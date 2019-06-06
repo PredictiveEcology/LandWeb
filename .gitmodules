@@ -18,10 +18,6 @@
 	path = m/Boreal_LBMRDataPrep
 	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep
 	branch = LandWeb
-[submodule "m/LandR_BiomassGMOrig"]
-	path = m/LandR_BiomassGMOrig
-	url = git@github.com:eliotmcintire/LandR_BiomassGMOrig
-	branch = LandWeb
 [submodule "m/LandWeb_preamble"]
 	path = m/LandWeb_preamble
 	url = git@github.com:fRI-Research/LandWeb_preamble
