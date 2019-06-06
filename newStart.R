@@ -123,7 +123,7 @@ library(raster)
 library(SpaDES.core)
 library(pemisc)
 library(map)
-library(LandR) # load_all("~/GitHub/PredictiveEcology/LandR")
+library(LandR) #load_all("~/GitHub/PredictiveEcology/LandR")
 
 #devtools::install_github("achubaty/amc@development")
 library(amc)
