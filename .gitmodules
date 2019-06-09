@@ -13,7 +13,7 @@
 [submodule "m/LBMR"]
 	path = m/LBMR
 	url = git@github.com:eliotmcintire/LBMR
-	branch = LandWeb
+	branch = development
 [submodule "m/Boreal_LBMRDataPrep"]
 	path = m/Boreal_LBMRDataPrep
 	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep
