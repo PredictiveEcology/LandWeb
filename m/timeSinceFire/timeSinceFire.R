@@ -27,13 +27,17 @@ defineModule(sim, list(
     objectName = c("rstFlammable", "fireReturnInterval", "rstCurrentBurn", "fireTimestep"),
     objectClass = c("RasterLayer","RasterLayer", "RasterLayer", "numeric"),
     sourceURL = "",
-    other = NA_character_,
+    desc = c("A binary Raster, where 1 means 'can burn' ",
+             "A Raster where the pixels represent the fire return interval, in years",
+             "A binary Raster, where 1 means that there was a fire in the current year in that pixel",
+             "The time between burn events, in years. Only tested with this equal to 1"),
     stringsAsFactors = FALSE
   ),
   outputObjects = data.frame(
     objectName = c("rstTimeSinceFire", "burnLoci"),
     objectClass = c("RasterLayer", "numeric"),
-    other = NA_character_,
+    desc = c("A Raster where the pixels represent the number of years since last burn",
+             "A integer vector of cell indices where burns occurred in the latest year. It is derived from rstCurrentBurn"),
     stringsAsFactors = FALSE
   )
 ))
