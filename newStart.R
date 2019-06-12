@@ -535,12 +535,10 @@ if (isFALSE(postProcessOnly)) {
     testFn <- function(params, sim) {
       sim2 <- reproducible::Copy(sim)
 
-      params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacResprout <- params[1]
-      params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacNonResprout <- params[2]
-      params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[3]
-      params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[4]
-      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[5]
-      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[6]
+      params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[1]
+      params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[2]
+      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[3]
+      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[4]
 
       sum(params) - 25 ## sum of param lower bounds is 25
     }
@@ -548,12 +546,10 @@ if (isFALSE(postProcessOnly)) {
     objectiveFunction <- function(params, sim) {
       sim2 <- Copy(sim)
 
-      params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacResprout <- params[1]
-      params(sim2)$Boreal_LBMRDataPrep$establishProbAdjFacNonResprout <- params[2]
-      params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[3]
-      params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[4]
-      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[5]
-      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[6]
+      params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[1]
+      params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[2]
+      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[3]
+      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[4]
 
       httr::set_config(httr::config(http_version = 0)) ## worakorund 'HTTP2 framing layer' error
 
@@ -599,11 +595,10 @@ if (isFALSE(postProcessOnly)) {
     )
 
     params4POM <- data.frame(
-      name = c("establishProbAdjFacResprout", "establishProbAdjFacNonResprout",
-               "growthCurveDecid", "growthCurveNonDecid",
+      name = c("growthCurveDecid", "growthCurveNonDecid",
                "mortalityShapeDecid", "mortalityShapeNonDecid"),
-      lower = c(0, 1, 0, 0, 15, 15),
-      upper = c(1, 2, 1, 1, 25, 25),
+      lower = c(0, 0, 15, 15),
+      upper = c(1, 1, 25, 25),
       stringsAsFactors = FALSE
     )
 
