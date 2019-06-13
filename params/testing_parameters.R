@@ -1,6 +1,6 @@
 # Overall model times # start is default at 0
-endTime <- 10
+endTime <- 300
 successionTimestep <- 10
-summaryPeriod <- c(0, endTime)
-summaryInterval <- 5
-timeSeriesTimes <- 4:5
+summaryPeriod <- c(250, endTime)
+summaryInterval <- 10
+timeSeriesTimes <- 150:160

@@ -29,8 +29,11 @@ setwd(activeDir)
 ## set run name
 ##############################################################
 
-if (pemisc::user("emcintir"))
+if (pemisc::user("emcintir")) {
   runName <- "LandWeb_aspenDispersal_logROS"
+} else {
+  runName <- "tolko_SK_aspenDispersal_logROS_test01"
+}
 
 if (isTRUE(batchMode)) {
   stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set in batch_mode.R
@@ -163,7 +166,7 @@ tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
 rep <- as.integer(substr(runName, nchar(runName) - 1, nchar(runName)))
-.plotInitialTime <- if (user("emcintir")) NA else if (user("achubaty") && rep == 1) 0 else NA
+.plotInitialTime <- if (is.na(rep)) NA else if (user("emcintir")) NA else if (user("achubaty") && rep == 1) 0 else NA
 
 maxMemory <- if (grepl("LandWeb", runName)) 5e+12 else 5e+9
 scratchDir <- file.path("/tmp/scratch/LandWeb")
@@ -193,6 +196,7 @@ opts <- options(
   "reproducible.useGDAL" = FALSE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
   "spades.moduleCodeChecks" = FALSE,
+  "spades.recoveryMode" = FALSE,
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
 
@@ -704,6 +708,7 @@ if (isFALSE(postProcessOnly)) {
     }
 
     data.table::setDTthreads(useParallel) # 4
+    options("spades.recoveryMode" = TRUE)
 
     mySimOut <- simInitAndSpades(times = times, #cl = cl,
                                  params = parameters,
