@@ -29,11 +29,9 @@ setwd(activeDir)
 ## set run name
 ##############################################################
 
-if (pemisc::user("emcintir")) {
+if (pemisc::user("emcintir"))
   runName <- "LandWeb_aspenDispersal_logROS"
-} else {
-  runName <- "tolko_SK_aspenDispersal_logROS_test01"
-}
+
 
 if (isTRUE(batchMode)) {
   stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set in batch_mode.R
