@@ -301,6 +301,7 @@ parameters2 <- list(
   )
 )
 
+sppLayersFile <- file.path(Paths$inputPath, paste0("simOutSpeciesLayers_", substr(runName, 1, 8), ".rds"))
 if (isTRUE(rerunSpeciesLayers)) {
   ## delete existing species layers data and cache
   if (pemisc::user("achubaty")) {
@@ -327,9 +328,9 @@ if (isTRUE(rerunSpeciesLayers)) {
                                .plotInitialTime = .plotInitialTime,
                                paths = paths2,
                                debug = 1)
-  saveRDS(simOutSpeciesLayers, file.path(Paths$inputPath, "simOutSpeciesLayers.rds"), version = 3)
+  saveRDS(simOutSpeciesLayers, sppLayersFile, version = 3)
 } else {
-  simOutSpeciesLayers <- readRDS(file.path(Paths$inputPath, "simOutSpeciesLayers.rds"))
+  simOutSpeciesLayers <- readRDS(sppLayersFile)
 }
 
 if (!is.na(.plotInitialTime)) {
