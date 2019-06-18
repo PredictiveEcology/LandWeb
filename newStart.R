@@ -430,7 +430,7 @@ if (isFALSE(postProcessOnly)) {
       "sppEquivCol" = sppEquivCol,
       "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
       "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
-      "speciesUpdateFunction" = quote(LandWebUtils::updateSpeciesTable),
+      "speciesUpdateFunction" = list(quote(LandWebUtils::updateSpeciesTable)),
       "useCloudCacheForStats" = FALSE, #TRUE,
       ".plotInitialTime" = .plotInitialTime,
       ".useCache" = eventCaching
