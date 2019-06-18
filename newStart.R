@@ -243,15 +243,15 @@ parameters1 <- list(
   )
 )
 
-simOutPreamble <- cloudCache(simInitAndSpades,
-                             times = list(start = 0, end = 1),
-                             params = parameters1,
-                             modules = c("LandWeb_preamble"),
-                             objects = objects1,
-                             paths = paths1,
-                             debug = 1,
-                             useCloud = useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
-                             cloudFolderID = cloudCacheFolderID)
+simOutPreamble <- Cache(simInitAndSpades,
+                        times = list(start = 0, end = 1),
+                        params = parameters1,
+                        modules = c("LandWeb_preamble"),
+                        objects = objects1,
+                        paths = paths1,
+                        debug = 1,
+                        useCloud = useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
+                        cloudFolderID = cloudCacheFolderID)
 
 if (!is.na(.plotInitialTime)) {
   lapply(dev.list(), function(x) {
@@ -418,8 +418,7 @@ if (isFALSE(postProcessOnly)) {
       ## also, fastLM cannot deal with rank-deficient models
       #"biomassModel" = quote(RcppArmadillo::fastLm(formula = B ~ logAge * speciesCode * ecoregionGroup +
       #                                               cover * speciesCode * ecoregionGroup)),
-      "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode +
-                                          cover * speciesCode +
+      "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
                                           (logAge + cover + speciesCode | ecoregionGroup))),
       "cloudFolderID" = NA, #cloudCacheFolderID,
       "LCCClassesToReplaceNN" = 34:36,
@@ -431,6 +430,7 @@ if (isFALSE(postProcessOnly)) {
       "sppEquivCol" = sppEquivCol,
       "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
       "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
+      "speciesUpdateFunction" = quote(LandWebUtils::updateSpeciesTable),
       "useCloudCacheForStats" = FALSE, #TRUE,
       ".plotInitialTime" = .plotInitialTime,
       ".useCache" = eventCaching
@@ -758,17 +758,18 @@ if (isFALSE(postProcessOnly)) {
     )
   )
 
-  simOutSpeciesLayers2a <- cloudCache(simInitAndSpades,
-                                      times = list(start = 0, end = 1),
-                                      params = parameters2a,
-                                      modules = c("BiomassSpeciesData"),
-                                      objects = objects2,
-                                      ## make .plotInitialTime an argument, not a parameter:
-                                      ##  - Cache will see them as unchanged regardless of value
-                                      .plotInitialTime = .plotInitialTime,
-                                      paths = paths2,
-                                      debug = 1,
-                                      cloudFolderID = cloudCacheFolderID)
+  simOutSpeciesLayers2a <- Cache(simInitAndSpades,
+                                 times = list(start = 0, end = 1),
+                                 params = parameters2a,
+                                 modules = c("BiomassSpeciesData"),
+                                 objects = objects2,
+                                 ## make .plotInitialTime an argument, not a parameter:
+                                 ##  - Cache will see them as unchanged regardless of value
+                                 .plotInitialTime = .plotInitialTime,
+                                 paths = paths2,
+                                 debug = 1,
+                                 useCloud = FALSE,
+                                 cloudFolderID = cloudCacheFolderID)
 
   vtmCC <- makeVegTypeMap(simOutSpeciesLayers2a$speciesLayers, vegLeadingProportion, mixed = TRUE)
   fname <- file.path(Paths$outputPath, "CurrentConditionVTM.tif")
