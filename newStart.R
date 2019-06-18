@@ -708,7 +708,7 @@ if (isFALSE(postProcessOnly)) {
 
     data.table::setDTthreads(useParallel) # 4
     options("spades.recoveryMode" = TRUE)
-
+    .starttime <- Sys.time()
     mySimOut <- simInitAndSpades(times = times, #cl = cl,
                                  params = parameters,
                                  modules = modules,
