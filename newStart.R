@@ -37,7 +37,7 @@ if (isTRUE(batchMode)) {
   stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set in batch_mode.R
 } else {
   if (pemisc::user("achubaty") || pemisc::user("emcintir"))
-    runName <- "tolko_SK_aspenDispersal_logROS_test01"
+    runName <- "tolko_SK_test01"
 
   ## running locally
   #runName <- "ANC"
@@ -164,7 +164,7 @@ tilePath <- file.path(Paths$outputPath, "tiles")
 
 ## Options
 rep <- as.integer(substr(runName, nchar(runName) - 1, nchar(runName)))
-.plotInitialTime <- if (is.na(rep)) NA else if (user("emcintir")) NA else if (user("achubaty") && rep == 1) 0 else NA
+.plotInitialTime <- if (is.na(rep)) NA else if (user("emcintir")) 0 else if (user("achubaty") && rep == 1) 0 else NA
 
 maxMemory <- if (grepl("LandWeb", runName)) 5e+12 else 5e+9
 scratchDir <- file.path("/tmp/scratch/LandWeb")
@@ -417,6 +417,8 @@ if (isFALSE(postProcessOnly)) {
     "useParallel" = 2
   )
 
+  if (pemisc::user("emcintir"))
+    runName <- "tolko_SK_test01_highDispersal"
   parameters <- list(
     Boreal_LBMRDataPrep = list(
       ## fastLM is ~35% faster than the default lmer but needs 820GB RAM !!
@@ -435,8 +437,9 @@ if (isFALSE(postProcessOnly)) {
       "sppEquivCol" = sppEquivCol,
       "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
       "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
-      "speciesUpdateFunction" = list(LandWebUtils::updateSpeciesTable),
-      "useCloudCacheForStats" = FALSE, #TRUE,
+      "speciesUpdateFunction" = list(quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
+                                     quote(LandWebUtils::updateSpeciesTable(sim$species, P(sim)$runName))),
+      "useCloudCacheForStats" = useCloudCache, #TRUE,
       ".plotInitialTime" = .plotInitialTime,
       ".useCache" = eventCaching
     ),
