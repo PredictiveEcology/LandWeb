@@ -250,6 +250,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         objects = objects1,
                         paths = paths1,
                         debug = 1,
+                        omitArgs = c("debug", "paths"),
                         useCloud = useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
                         cloudFolderID = cloudCacheFolderID)
 
@@ -323,15 +324,19 @@ if (isTRUE(rerunSpeciesLayers)) {
                                params = parameters2,
                                modules = c("BiomassSpeciesData"),
                                objects = objects2,
+                               omitArgs = c("debug", "paths", ".plotInitialTime"),
+                               useCloud = useCloudCache,
+                               cloudFolderID = cloudCacheFolderID,
                                ## make .plotInitialTime an argument, not a parameter:
                                ##  - Cache will see them as unchanged regardless of value
                                .plotInitialTime = .plotInitialTime,
                                paths = paths2,
                                debug = 1)
-  saveRDS(simOutSpeciesLayers, sppLayersFile, version = 3)
-} else {
-  simOutSpeciesLayers <- readRDS(sppLayersFile)
-}
+
+#  saveRDS(simOutSpeciesLayers, sppLayersFile, version = 3)
+#} else {
+ # simOutSpeciesLayers <- readRDS(sppLayersFile)
+#}
 
 if (!is.na(.plotInitialTime)) {
   lapply(dev.list(), function(x) {
@@ -420,7 +425,7 @@ if (isFALSE(postProcessOnly)) {
       #                                               cover * speciesCode * ecoregionGroup)),
       "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
                                           (logAge + cover + speciesCode | ecoregionGroup))),
-      "cloudFolderID" = NA, #cloudCacheFolderID,
+      "cloudFolderID" = cloudCacheFolderID,
       "LCCClassesToReplaceNN" = 34:36,
       # next two are used when assigning pixelGroup membership; what resolution for
       #   age and biomass
@@ -709,22 +714,26 @@ if (isFALSE(postProcessOnly)) {
     data.table::setDTthreads(useParallel) # 4
     options("spades.recoveryMode" = TRUE)
     .starttime <- Sys.time()
-    mySimOut <- simInitAndSpades(times = times, #cl = cl,
-                                 params = parameters,
-                                 modules = modules,
-                                 outputs = outputs,
-                                 objects = objects,
-                                 paths = paths3,
-                                 loadOrder = unlist(modules),
-                                 debug = 1,
-                                 #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
-                                 .plotInitialTime = .plotInitialTime
+    mySimOut <- Cache(simInitAndSpades, times = times, #cl = cl,
+                      params = parameters,
+                      modules = modules,
+                      outputs = outputs,
+                      objects = objects,
+                      paths = paths3,
+                      loadOrder = unlist(modules),
+                      debug = 1,
+                      useCloud = useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
+                      cloudFolderID = cloudCacheFolderID,
+                      omitArgs = c("debug", "paths", ".plotInitialTime"),
+                      #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(sim$cohortData[pixelGroup %in% sim$pixelGroupMap[418136]])))',
+                      .plotInitialTime = .plotInitialTime
     )
+
     #mySimOut <- spades(mySim, debug = 1)
 
     saveRDS(mySimOut, file.path(Paths$outputPath, "mySimOut.rds"))
-  }
-} else {
+#  }
+#} else {
   ##########################################################
   # Simulation Post-processing
   ##########################################################
