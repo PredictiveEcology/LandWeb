@@ -740,8 +740,8 @@ if (isFALSE(postProcessOnly)) {
     #mySimOut <- spades(mySim, debug = 1)
 
     saveRDS(mySimOut, file.path(Paths$outputPath, "mySimOut.rds"))
-#  }
-#} else {
+  }
+} else {
   ##########################################################
   # Simulation Post-processing
   ##########################################################
