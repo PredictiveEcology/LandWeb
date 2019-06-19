@@ -5,7 +5,7 @@
 [submodule "m/BiomassSpeciesData"]
 	path = m/BiomassSpeciesData
 	url = git@github.com:eliotmcintire/BiomassSpeciesData
-	branch = LandWeb
+	branch = development
 [submodule "m/LandMine"]
 	path = m/LandMine
 	url = git@github.com:PredictiveEcology/LandMine
