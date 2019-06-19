@@ -437,8 +437,10 @@ if (isFALSE(postProcessOnly)) {
       "sppEquivCol" = sppEquivCol,
       "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
       "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
-      "speciesUpdateFunction" = list(quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
-                                     quote(LandWebUtils::updateSpeciesTable(sim$species, P(sim)$runName))),
+      "speciesUpdateFunction" = list(
+        quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
+        quote(LandWebUtils::updateSpeciesTable(sim$species, P(sim)$runName))
+      ),
       "useCloudCacheForStats" = useCloudCache, #TRUE,
       ".plotInitialTime" = .plotInitialTime,
       ".useCache" = eventCaching
