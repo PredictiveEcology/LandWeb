@@ -336,10 +336,10 @@ if (isTRUE(rerunSpeciesLayers)) {
                                paths = paths2,
                                debug = 1)
 
-#  saveRDS(simOutSpeciesLayers, sppLayersFile, version = 3)
-#} else {
- # simOutSpeciesLayers <- readRDS(sppLayersFile)
-#}
+  saveRDS(simOutSpeciesLayers, sppLayersFile, version = 3)
+} else {
+  simOutSpeciesLayers <- readRDS(sppLayersFile)
+}
 
 if (!is.na(.plotInitialTime)) {
   lapply(dev.list(), function(x) {
