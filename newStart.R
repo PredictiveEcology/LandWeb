@@ -175,7 +175,7 @@ options(rasterMaxMemory = maxMemory, rasterTmpDir = scratchDir)
 
 opts <- options(
   "future.globals.maxSize" = 1000*1024^2,
-  "LandR.assertions" = if (user("emcintir")) FALSE else FALSE,
+  "LandR.assertions" = if (user("emcintir")) FALSE else TRUE,
   "LandR.verbose" = if (user("emcintir")) 1 else 1,
   "map.dataPath" = Paths$inputPath, # not used yet
   "map.overwrite" = TRUE,
