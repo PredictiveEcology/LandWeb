@@ -36,8 +36,10 @@ if (pemisc::user("emcintir"))
 if (isTRUE(batchMode)) {
   stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set in batch_mode.R
 } else {
-  if (pemisc::user("achubaty") || pemisc::user("emcintir"))
+  if (pemisc::user("achubaty") || pemisc::user("emcintir")) {
+    #runName <- "tolko_SK_aspenDispersal_logROS_test01"
     runName <- "tolko_SK_test01"
+  }
 
   ## running locally
   #runName <- "ANC"
