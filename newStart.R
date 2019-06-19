@@ -11,7 +11,7 @@ mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
 maxAge <- 400
 minFRI <- 25
 postProcessOnly <- FALSE
-rerunSpeciesLayers <- FALSE ## TODO: use this as workaround for speciesLayers cache problems
+rerunSpeciesLayers <- if (pemisc::user("emcintir")) TRUE else FALSE ## TODO: use this as workaround for speciesLayers cache problems
 sppEquivCol <- "LandWeb"
 useCloudCache <- FALSE # only for simInitAndSpades
 useDEoptim <- FALSE
