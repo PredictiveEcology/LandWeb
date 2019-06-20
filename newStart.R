@@ -38,7 +38,7 @@ if (isTRUE(batchMode)) {
 } else {
   if (pemisc::user("achubaty") || pemisc::user("emcintir")) {
     #runName <- "tolko_SK_aspenDispersal_logROS_test01"
-    runName <- "tolko_SK_test01"
+    runName <- "tolko_SK_highDispersal_test01"
   }
 
   ## running locally
