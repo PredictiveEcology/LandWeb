@@ -1,7 +1,7 @@
 [submodule "m/Biomass_regeneration"]
 	path = m/Biomass_regeneration
 	url = git@github.com:eliotmcintire/Biomass_regeneration
-	branch = LandWeb
+	branch = development
 [submodule "m/BiomassSpeciesData"]
 	path = m/BiomassSpeciesData
 	url = git@github.com:eliotmcintire/BiomassSpeciesData
