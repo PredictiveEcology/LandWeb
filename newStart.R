@@ -779,13 +779,14 @@ if (isFALSE(postProcessOnly)) {
                                  params = parameters2a,
                                  modules = c("BiomassSpeciesData"),
                                  objects = objects2,
+                                 omitArgs = c("debug", "paths", ".plotInitialTime"),
+                                 useCloud = useCloudCache,
+                                 cloudFolderID = cloudCacheFolderID,
                                  ## make .plotInitialTime an argument, not a parameter:
                                  ##  - Cache will see them as unchanged regardless of value
                                  .plotInitialTime = .plotInitialTime,
                                  paths = paths2,
-                                 debug = 1,
-                                 useCloud = FALSE,
-                                 cloudFolderID = cloudCacheFolderID)
+                                 debug = 1)
 
   vtmCC <- makeVegTypeMap(simOutSpeciesLayers2a$speciesLayers, vegLeadingProportion, mixed = TRUE)
   fname <- file.path(Paths$outputPath, "CurrentConditionVTM.tif")
