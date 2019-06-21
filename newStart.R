@@ -32,7 +32,6 @@ setwd(activeDir)
 if (pemisc::user("emcintir"))
   runName <- "LandWeb_aspenDispersal_logROS"
 
-
 if (isTRUE(batchMode)) {
   stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set in batch_mode.R
 } else {
