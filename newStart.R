@@ -765,10 +765,20 @@ if (isFALSE(postProcessOnly)) {
 
   ml <- simOutPreamble$ml
 
+  paths2a <- list(
+    ## use same cachePath for all data-prep steps before dynamic simulation
+    cachePath = file.path("cache", "dataPrepGIS", "speciesLayers2a"),
+    modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+    inputPath = "inputs",
+    outputPath = file.path("outputs", runName)
+  )
+  do.call(SpaDES.core::setPaths, paths2)
+  tilePath <- file.path(Paths$outputPath, "tiles")
+
   parameters2a <- list(
     BiomassSpeciesData = list(
       "omitNonVegPixels" = TRUE,
-      "types" = c("ForestInventory"),
+      "types" = c("ForestInventory"), ## why not all 4? c("KNN", "CASFRI", "Pickell", "ForestInventory")
       "sppEquivCol" = sppEquivCol,
       ".useCache" = FALSE
     )
@@ -785,7 +795,7 @@ if (isFALSE(postProcessOnly)) {
                                  ## make .plotInitialTime an argument, not a parameter:
                                  ##  - Cache will see them as unchanged regardless of value
                                  .plotInitialTime = .plotInitialTime,
-                                 paths = paths2,
+                                 paths = paths2a,
                                  debug = 1)
 
   vtmCC <- makeVegTypeMap(simOutSpeciesLayers2a$speciesLayers, vegLeadingProportion, mixed = TRUE)
