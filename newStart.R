@@ -765,6 +765,15 @@ if (isFALSE(postProcessOnly)) {
 
   ml <- simOutPreamble$ml
 
+  if (!is(ml@metadata$leaflet, "Path"))
+    ml@metadata$leaflet <- asPath(as.character(ml@metadata$leaflet))
+
+  if (!is(ml@metadata$targetFile, "Path"))
+    ml@metadata$targetFile <- asPath(as.character(ml@metadata$targetFile))
+
+  if (!is(ml@metadata$tsf, "Path"))
+    ml@metadata$tsf <- asPath(as.character(ml@metadata$tsf))
+
   paths2a <- list(
     ## use same cachePath for all data-prep steps before dynamic simulation
     cachePath = file.path("cache", "dataPrepGIS", "speciesLayers2a"),
