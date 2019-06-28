@@ -6,6 +6,7 @@ ageClassCutOffs <- c(0, 40, 80, 120)
 batchMode <- if (pemisc::user("achubaty")) TRUE else FALSE ## NOTE: runName must be defined
 cloudCacheFolderID <- "/folders/1ry2ukXeVwj5CKEmBW1SZVS_W8d-KtmIj"
 eventCaching <- c(".inputObjects", "init")
+dispersalTimestep <- 5 # should match successionTimestep = 10
 fireTimestep <- 1
 mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
 maxAge <- 400
@@ -13,6 +14,7 @@ minFRI <- 25
 postProcessOnly <- FALSE
 rerunSpeciesLayers <- if (pemisc::user("emcintir")) TRUE else FALSE ## TODO: use this as workaround for speciesLayers cache problems
 sppEquivCol <- "LandWeb"
+successionTimestep <- 10
 useCloudCache <- if (pemisc::user("emcintir")) TRUE else FALSE # only for simInitAndSpades
 useDEoptim <- FALSE
 usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
@@ -466,6 +468,7 @@ if (isFALSE(postProcessOnly)) {
       ".plotInterval" = 1
     ),
     LBMR = list(
+      "dispersalTimestep" = dispersalTimestep,
       "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
       "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
       "sppEquivCol" = sppEquivCol,
@@ -1017,8 +1020,9 @@ if (FALSE) {
   # simInit
   ########################################
   # Time steps
+  dispersalTimestep <- 10 # should match successionTimestep = 10
   fireTimestep <- 1
-  successionTimestep <- 10 # was 2
+  successionTimestep <- 10
 
   ## spades module variables -- creates
   # eventCaching, maxAge, vegLeadingProportion
