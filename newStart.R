@@ -126,7 +126,7 @@ library(parallel)
 library(raster)
 library(SpaDES.core)
 library(pemisc)
-library(map)
+library(map) #load_all("~/GitHub/PredictiveEcology/map")
 library(LandR) #load_all("~/GitHub/PredictiveEcology/LandR")
 library(LandWebUtils) #load_all("~/GitHub/PredictiveEcology/LandWebUtils")
 
@@ -423,6 +423,7 @@ if (isFALSE(postProcessOnly)) {
 
   if (pemisc::user("emcintir"))
     runName <- "tolko_SK_test01_highDispersal"
+
   parameters <- list(
     Boreal_LBMRDataPrep = list(
       ## fastLM is ~35% faster than the default lmer but needs 820GB RAM !!
