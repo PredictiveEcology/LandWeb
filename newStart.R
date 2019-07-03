@@ -120,6 +120,7 @@ if (grepl("test", tolower(runName))) {
 ##########################################################
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 ##########################################################
+library(plyr); library(dplyr) ## ensure these are loaded in this order
 library(data.table)
 library(magrittr)
 library(parallel)
