@@ -398,8 +398,29 @@ if (isFALSE(postProcessOnly)) {
                   "timeSinceFire")
 
   speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
-  if (getOption("LandR.verbose") > 0) {
-    message("Adjusting species-level traits for LandWeb")
+  speciesParams <- if (grepl("aspenDispersal", runName)) {
+    ## seed dispersal (see LandWeb#96, LandWeb#112)
+    list(
+      seeddistance_eff = list(Abie_sp = 0, Pice_gla = 0, Pice_mar = 0,
+                              Pinu_ban = 0, Pinu_con = 0, Pinu_sp = 0, Popu_sp = 100),
+      seeddistance_max = list(Abie_sp = 125, Pice_gla = 125, Pice_mar = 125,
+                              Pinu_ban = 125, Pinu_con = 125, Pinu_sp = 125, Popu_sp = 235)
+    )
+  } else if (grepl("highDispersal", runName)) {
+    list(
+      seeddistance_eff = list(Abie_sp = 250, Pice_gla = 100, Pice_mar = 80,
+                              Pinu_ban = 300, Pinu_con = 300, Pinu_sp = 300, Popu_sp = 200),
+      seeddistance_max = list(Abie_sp = 1250, Pice_gla = 1250, Pice_mar = 3000,
+                              Pinu_ban = 3000, Pinu_con = 3000, Pinu_sp = 3000, Popu_sp = 5000)
+    )
+  } else {
+    ## defaults
+    list(
+      seeddistance_eff = list(Abie_sp = 25, Pice_gla = 100, Pice_mar = 80,
+                              Pinu_ban = 30, Pinu_con = 30, Pinu_sp = 30, Popu_sp = 200),
+      seeddistance_max = list(Abie_sp = 160, Pice_gla = 303, Pice_mar = 200,
+                              Pinu_ban = 100, Pinu_con = 100, Pinu_sp = 100, Popu_sp = 5000)
+    )
   }
 
   objects <- list(
@@ -413,6 +434,7 @@ if (isFALSE(postProcessOnly)) {
     "sppColorVect" = sppColorVect,
     "sppEquiv" = sppEquivalencies_CA,
     "speciesLayers" = simOutSpeciesLayers$speciesLayers,
+    "speciesParams" = speciesParams,
     "speciesTable" = speciesTable,
     "standAgeMap" = simOutPreamble$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
     "studyArea" = simOutPreamble$studyArea,
@@ -445,7 +467,7 @@ if (isFALSE(postProcessOnly)) {
       "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
       "speciesUpdateFunction" = list(
         quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
-        quote(LandWebUtils::updateSpeciesTable(sim$species, P(sim)$runName))
+        quote(LandWebUtils::updateSpeciesTable(sim$species, P(sim)$runName, sim$speciesParams))
       ),
       "useCloudCacheForStats" = useCloudCache, #TRUE,
       ".plotInitialTime" = .plotInitialTime,
@@ -549,26 +571,23 @@ if (isFALSE(postProcessOnly)) {
   ######## parameter estimation using POM (LandWeb#111)
   if (isTRUE(usePOM)) {
     data.table::setDTthreads(useParallel)
-    runName <- "tolko_SK_logROS_POM"
+    runName <- "tolko_SK_highDispersal_logROS_POM"
 
     testFn <- function(params, sim) {
       sim2 <- reproducible::Copy(sim)
 
-      params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[1]
-      params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[2]
-      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[3]
-      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[4]
+      params(sim2)$speciesParams$seeddistance_eff <- params[1]
+      params(sim2)$speciesParams$seeddistance_max <- params[2]
 
-      sum(params) - 25 ## sum of param lower bounds is 25
+      out <- lapply(params, function(x) sum(sapply(x, "sum")))
+      return(out$seeddistance_max - out$seeddistance_eff)
     }
 
     objectiveFunction <- function(params, sim) {
       sim2 <- Copy(sim)
 
-      params(sim2)$Boreal_LBMRDataPrep$growthCurveDecid <- params[1]
-      params(sim2)$Boreal_LBMRDataPrep$growthCurveNonDecid <- params[2]
-      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeDecid <- params[3]
-      params(sim2)$Boreal_LBMRDataPrep$mortalityShapeNonDecid <- params[4]
+      params(sim2)$speciesParams$seeddistance_eff <- params[1]
+      params(sim2)$speciesParams$seeddistance_max <- params[2]
 
       httr::set_config(httr::config(http_version = 0)) ## worakorund 'HTTP2 framing layer' error
 
@@ -722,7 +741,7 @@ if (isFALSE(postProcessOnly)) {
       grid::grid.text(label = runName, x = 0.90, y = 0.03)
     }
 
-    data.table::setDTthreads(useParallel) # 4
+    data.table::setDTthreads(useParallel)
     options("spades.recoveryMode" = TRUE)
     .starttime <- Sys.time()
     mySimOut <- Cache(simInitAndSpades, times = times, #cl = cl,
