@@ -14,7 +14,7 @@ postProcessOnly <- FALSE
 rerunSpeciesLayers <- if (pemisc::user("emcintir")) TRUE else FALSE ## TODO: use this as workaround for speciesLayers cache problems
 sppEquivCol <- "LandWeb"
 successionTimestep <- 10
-useCloudCache <- if (pemisc::user("emcintir")) TRUE else FALSE # only for simInitAndSpades
+useCloudCache <- if (pemisc::user("emcintir")) TRUE else TRUE # only for simInitAndSpades
 useDEoptim <- FALSE
 usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
 useParallel <- 2 ## values > 2 use WAY too much RAM for very little speed increase (too much overhead!)
