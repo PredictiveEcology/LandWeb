@@ -577,8 +577,21 @@ if (isFALSE(postProcessOnly)) {
     testFn <- function(params, sim) {
       sim2 <- reproducible::Copy(sim)
 
-      params(sim2)$speciesParams$seeddistance_eff <- params[1]
-      params(sim2)$speciesParams$seeddistance_max <- params[2]
+      params(sim2)$speciesParams$seeddistance_eff$Abie_sp <- params[1]
+      params(sim2)$speciesParams$seeddistance_eff$Pice_gla <- params[2]
+      params(sim2)$speciesParams$seeddistance_eff$Pice_mar <- params[3]
+      params(sim2)$speciesParams$seeddistance_eff$Pinu_ban <- params[4]
+      params(sim2)$speciesParams$seeddistance_eff$Pinu_con <- params[4]
+      params(sim2)$speciesParams$seeddistance_eff$Pinu_sp <- params[4]
+      params(sim2)$speciesParams$seeddistance_eff$Popu_sp <- params[5]
+
+      params(sim2)$speciesParams$seeddistance_max$Abie_sp <- params[6]
+      params(sim2)$speciesParams$seeddistance_max$Pice_gla <- params[7]
+      params(sim2)$speciesParams$seeddistance_max$Pice_mar <- params[8]
+      params(sim2)$speciesParams$seeddistance_max$Pinu_ban <- params[9]
+      params(sim2)$speciesParams$seeddistance_max$Pinu_con <- params[9]
+      params(sim2)$speciesParams$seeddistance_max$Pinu_sp <- params[9]
+      params(sim2)$speciesParams$seeddistance_max$Popu_sp <- params[10]
 
       out <- lapply(params, function(x) sum(sapply(x, "sum")))
       return(out$seeddistance_max - out$seeddistance_eff)
@@ -587,8 +600,21 @@ if (isFALSE(postProcessOnly)) {
     objectiveFunction <- function(params, sim) {
       sim2 <- Copy(sim)
 
-      params(sim2)$speciesParams$seeddistance_eff <- params[1]
-      params(sim2)$speciesParams$seeddistance_max <- params[2]
+      params(sim2)$speciesParams$seeddistance_eff$Abie_sp <- params[1]
+      params(sim2)$speciesParams$seeddistance_eff$Pice_gla <- params[2]
+      params(sim2)$speciesParams$seeddistance_eff$Pice_mar <- params[3]
+      params(sim2)$speciesParams$seeddistance_eff$Pinu_ban <- params[4]
+      params(sim2)$speciesParams$seeddistance_eff$Pinu_con <- params[4]
+      params(sim2)$speciesParams$seeddistance_eff$Pinu_sp <- params[4]
+      params(sim2)$speciesParams$seeddistance_eff$Popu_sp <- params[5]
+
+      params(sim2)$speciesParams$seeddistance_max$Abie_sp <- params[6]
+      params(sim2)$speciesParams$seeddistance_max$Pice_gla <- params[7]
+      params(sim2)$speciesParams$seeddistance_max$Pice_mar <- params[8]
+      params(sim2)$speciesParams$seeddistance_max$Pinu_ban <- params[9]
+      params(sim2)$speciesParams$seeddistance_max$Pinu_con <- params[9]
+      params(sim2)$speciesParams$seeddistance_max$Pinu_sp <- params[9]
+      params(sim2)$speciesParams$seeddistance_max$Popu_sp <- params[10]
 
       httr::set_config(httr::config(http_version = 0)) ## worakorund 'HTTP2 framing layer' error
 
@@ -634,10 +660,12 @@ if (isFALSE(postProcessOnly)) {
     )
 
     params4POM <- data.frame(
-      name = c("growthCurveDecid", "growthCurveNonDecid",
-               "mortalityShapeDecid", "mortalityShapeNonDecid"),
-      lower = c(0, 0, 15, 15),
-      upper = c(1, 1, 25, 25),
+      name = c("seeddistance_eff_Abie_sp", "seeddistance_eff_Pice_gla", "seeddistance_eff_Pice_mar",
+               "seeddistance_eff_Pinu_sp", "seeddistance_eff_Popu_sp",
+               "seeddistance_max_Abie_sp", "seeddistance_max_Pice_gla", "seeddistance_max_Pice_mar",
+               "seeddistance_max_Pinu_sp", "seeddistance_max_Popu_sp"),
+      lower = c(200, 100,  80, 300, 200, 1000, 1250, 3000, 3000, 5000),
+      upper = c(300, 300, 300, 500, 300, 1500, 3000, 5000, 5000, 5000),
       stringsAsFactors = FALSE
     )
 
@@ -675,23 +703,34 @@ if (isFALSE(postProcessOnly)) {
       n <- 3 ## number of values per parameter to use
 
       tableOfRuns <- expand.grid(
-        establishProbAdjFacResprout = seq(params4POM[1,]$lower, params4POM[1,]$upper, length.out = n),
-        establishProbAdjFacNonResprout = seq(params4POM[2,]$lower, params4POM[2,]$upper, length.out = n),
-        growthCurveDecid = seq(params4POM[3,]$lower, params4POM[3,]$upper, length.out = n),
-        growthCurveNonDecid = seq(params4POM[4,]$lower, params4POM[4,]$upper, length.out = n),
-        mortalityShapeDecid = seq(params4POM[5,]$lower, params4POM[5,]$upper, length.out = n),
-        mortalityShapeNonDecid = seq(params4POM[6,]$lower, params4POM[6,]$upper, length.out = n)
+        seeddistance_eff_Abie_sp = seq(params4POM[1,]$lower, params4POM[1,]$upper, length.out = n),
+        seeddistance_eff_Pice_gla = seq(params4POM[2,]$lower, params4POM[2,]$upper, length.out = n),
+        seeddistance_eff_Pice_mar = seq(params4POM[3,]$lower, params4POM[3,]$upper, length.out = n),
+        seeddistance_eff_Pinu_sp = seq(params4POM[4,]$lower, params4POM[4,]$upper, length.out = n),
+        seeddistance_eff_Popu_sp = seq(params4POM[5,]$lower, params4POM[5,]$upper, length.out = n),
+
+        seeddistance_max_Abie_sp = seq(params4POM[6,]$lower, params4POM[6,]$upper, length.out = n),
+        seeddistance_max_Pice_gla = seq(params4POM[7,]$lower, params4POM[7,]$upper, length.out = n),
+        seeddistance_max_Pice_mar = seq(params4POM[8,]$lower, params4POM[8,]$upper, length.out = n),
+        seeddistance_max_Pinu_sp = seq(params4POM[9,]$lower, params4POM[9,]$upper, length.out = n),
+        seeddistance_max_Popu_sp = seq(params4POM[10,]$lower, params4POM[10,]$upper, length.out = n)
       )
       tableOfRuns$objFnReturn <- rep(NA_real_, NROW(tableOfRuns))
 
-      cl <- parallel::makePSOCKcluster(5 * nrow(params4POM)) ## forking doesn't work with data.table
-      parallel::clusterExport(cl, list("objectiveFunction"))
+      cl <- parallel::makePSOCKcluster(2 * nrow(params4POM)) ## forking doesn't work with data.table
+      parallel::clusterExport(cl, list("objectiveFunction", "googleAuthPkgs", "moduleRqdPkgs"))
+      parallel::clusterEvalQ(cl, {
+        library(plyr)
+        library(dplyr)
+        library(reproducible)
+        Require(c("SpaDES.core", "pemisc", "map", "LandR", "LandWebUtils", googleAuthPkgs, moduleRqdPkgs))
+      })
 
       out <- parallel::parLapplyLB(cl = cl,
                                    purrr::transpose(tableOfRuns),
                                    function(x, sim) {
                                      #testFn(unlist(x[1:6]), sim)
-                                     objectiveFunction(unlist(x[1:6]), sim)
+                                     objectiveFunction(unlist(x[1:10]), sim)
                                    }, sim = mySim)
       tableOfRuns$objFnReturn <- unlist(out)
 
