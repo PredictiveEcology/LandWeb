@@ -138,9 +138,11 @@ library(amc)
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
   "PredictiveEcology/quickPlot@development",
+  "PredictiveEcology/reproducible@development",
   "PredictiveEcology/SpaDES.core@development",
   "PredictiveEcology/SpaDES.tools@development",
   "PredictiveEcology/map@development",
+  "PredictiveEcology/pemisc@development",
   "PredictiveEcology/LandR@development",
   "PredictiveEcology/LandWebUtils@development",
   #"PredictiveEcology/SpaDES.shiny@generalize-modules", ## do this after running the model, before app
