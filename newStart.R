@@ -40,7 +40,7 @@ if (isTRUE(batchMode)) {
 } else {
   if (pemisc::user("achubaty") || pemisc::user("emcintir")) {
     #runName <- "tolko_SK_aspenDispersal_logROS_test01"
-    runName <- "tolko_SK_highDispersal_test01"
+    runName <- "tolko_SK_highDispersal_logROS_test01"
   }
 
   ## running locally
@@ -120,7 +120,7 @@ if (grepl("test", tolower(runName))) {
 ##########################################################
 # Packages for global.R -- don't need to load packages for modules -- happens automatically
 ##########################################################
-library(plyr); library(dplyr) ## ensure these are loaded in this order
+library(plyr); library(dplyr) ## ensure plyr loaded before dplyr or there will be problemas
 library(data.table)
 library(magrittr)
 library(parallel)
@@ -392,6 +392,7 @@ if (grepl("equalROS", runName)) {
   LandMineROStable$ros <- log(LandMineROStable$ros)
 }
 
+####################################################################################################
 if (isFALSE(postProcessOnly)) {
   times <- list(start = 0, end = endTime)
   modules <- list("Boreal_LBMRDataPrep", #"LandR_BiomassGMOrig",
@@ -574,7 +575,7 @@ if (isFALSE(postProcessOnly)) {
   ######## parameter estimation using POM (LandWeb#111)
   if (isTRUE(usePOM)) {
     data.table::setDTthreads(useParallel)
-    runName <- "tolko_SK_highDispersal_logROS_POM"
+    #runName <- "tolko_SK_highDispersal_logROS__test_POM"
 
     testFn <- function(params, sim) {
       sim2 <- reproducible::Copy(sim)
@@ -702,16 +703,16 @@ if (isFALSE(postProcessOnly)) {
       )
       #parallel::stopCluster(cl) ## see ArdiaD/DEoptim#3
     } else {
-      n <- 3 ## number of values per parameter to use
+      n <- 2 ## number of values per parameter to use
 
       tableOfRuns <- expand.grid(
-        seeddistance_eff_Abie_sp = seq(params4POM[1,]$lower, params4POM[1,]$upper, length.out = n),
+        seeddistance_eff_Abie_sp = seq(params4POM[1,]$lower, params4POM[1,]$upper, length.out = 1), ## TODO
         seeddistance_eff_Pice_gla = seq(params4POM[2,]$lower, params4POM[2,]$upper, length.out = n),
         seeddistance_eff_Pice_mar = seq(params4POM[3,]$lower, params4POM[3,]$upper, length.out = n),
         seeddistance_eff_Pinu_sp = seq(params4POM[4,]$lower, params4POM[4,]$upper, length.out = n),
         seeddistance_eff_Popu_sp = seq(params4POM[5,]$lower, params4POM[5,]$upper, length.out = n),
 
-        seeddistance_max_Abie_sp = seq(params4POM[6,]$lower, params4POM[6,]$upper, length.out = n),
+        seeddistance_max_Abie_sp = seq(params4POM[6,]$lower, params4POM[6,]$upper, length.out = 1), ## TODO
         seeddistance_max_Pice_gla = seq(params4POM[7,]$lower, params4POM[7,]$upper, length.out = n),
         seeddistance_max_Pice_mar = seq(params4POM[8,]$lower, params4POM[8,]$upper, length.out = n),
         seeddistance_max_Pinu_sp = seq(params4POM[9,]$lower, params4POM[9,]$upper, length.out = n),
