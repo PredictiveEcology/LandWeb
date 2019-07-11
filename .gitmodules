@@ -28,5 +28,5 @@
 	branch = development
 [submodule "m/timeSinceFire"]
 	path = m/timeSinceFire
-	url = https://github.com/fRI-Research/timeSinceFire
+	url = git@github.com:fRI-Research/timeSinceFire
 	branch = development
