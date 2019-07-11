@@ -41,6 +41,7 @@ if (isTRUE(batchMode)) {
   if (pemisc::user("achubaty") || pemisc::user("emcintir")) {
     #runName <- "tolko_SK_aspenDispersal_logROS_test01"
     runName <- "tolko_SK_highDispersal_logROS_test01"
+    #runName <- "tolko_SK_highDispersal_test01"
   }
 
   ## running locally
@@ -129,8 +130,10 @@ library(raster)
 library(SpaDES.core)
 library(pemisc)
 library(map) #load_all("~/GitHub/PredictiveEcology/map")
-library(LandR) #load_all("~/GitHub/PredictiveEcology/LandR")
-library(LandWebUtils) #load_all("~/GitHub/PredictiveEcology/LandWebUtils")
+#library(LandR)
+load_all("~/GitHub/PredictiveEcology/LandR")
+#library(LandWebUtils)
+load_all("~/GitHub/PredictiveEcology/LandWebUtils")
 
 #devtools::install_github("achubaty/amc@development")
 library(amc)
@@ -795,7 +798,7 @@ if (isFALSE(postProcessOnly)) {
                       paths = paths3,
                       loadOrder = unlist(modules),
                       debug = 1,
-                      useCloud = useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
+                      useCloud = FALSE, #useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
                       cloudFolderID = cloudCacheFolderID,
                       omitArgs = c("debug", "paths", ".plotInitialTime"),
                       #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(names(sim$cohortData))))',
