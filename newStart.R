@@ -177,7 +177,11 @@ rep <- as.integer(substr(runName, nchar(runName) - 1, nchar(runName)))
 .plotInitialTime <- if (is.na(rep)) NA else if (user("emcintir")) 0 else if (user("achubaty") && rep == 1) 0 else NA
 
 maxMemory <- if (grepl("LandWeb", runName)) 5e+12 else 5e+9
-scratchDir <- file.path("/tmp/scratch/LandWeb")
+scratchDir <- if (dir.exists("~/scratch/LandWeb")) {
+  file.path("~/scratch/LandWeb") ## for compute canada nodes
+} else {
+  file.path("/tmp/scratch/LandWeb")
+}
 
 rasterOptions(default = TRUE)
 options(rasterMaxMemory = maxMemory, rasterTmpDir = scratchDir)
