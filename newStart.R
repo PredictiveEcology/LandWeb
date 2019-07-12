@@ -118,13 +118,13 @@ if (isTRUE(batchMode)) {
 message(crayon::red(runName))
 
 if (grepl("LandWeb", runName)) {
-  source(file.path("params", "LandWeb_parameters.R")) ## same as FMA_parameters; i.e., no cache ids
+  source(file.path(activeDir, "params", "LandWeb_parameters.R")) ## same as FMA_parameters; i.e., no cache ids
 } else if (grepl("ANC|DMI|LP|TOLKO", toupper(runName))) {
-  source(file.path("params", "FMA_parameters.R"))
+  source(file.path(activeDir, "params", "FMA_parameters.R"))
 }
 
 if (grepl("test", tolower(runName))) {
-  source(file.path("params", "testing_parameters.R"))
+  source(file.path(activeDir, "params", "testing_parameters.R"))
 }
 
 ##########################################################
@@ -533,7 +533,7 @@ if (isFALSE(postProcessOnly)) {
   )
 
   if (grepl("scfm", runName)) {
-    source(file.path("params", "scfm_params.R"))
+    source(file.path(activeDir, "params", "scfm_params.R"))
     modules <- append(modules[-which(modules == "LandMine")], scfmModules)
     objects <- append(objects, scfmObjects)
     parameters <- append(parameters, scfmParams)
