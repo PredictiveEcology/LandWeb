@@ -1,5 +1,6 @@
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
 
+gitLocalPath <- if (pemisc::user("achubaty")) "~/GitHub/PredictiveEcology" else "~/GitHub"
 activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
@@ -129,11 +130,11 @@ library(parallel)
 library(raster)
 library(SpaDES.core)
 library(pemisc)
-library(map) #load_all("~/GitHub/PredictiveEcology/map")
+library(map) #load_all(file.path(gitLocalPath, "map"))
 #library(LandR)
-load_all("~/GitHub/PredictiveEcology/LandR")
+devtools::load_all(file.path(gitLocalPath, "LandR"))
 #library(LandWebUtils)
-load_all("~/GitHub/PredictiveEcology/LandWebUtils")
+devtools::load_all(file.path(gitLocalPath, "LandWebUtils"))
 
 #devtools::install_github("achubaty/amc@development")
 library(amc)
@@ -815,7 +816,7 @@ if (isFALSE(postProcessOnly)) {
   ##########################################################
 
   #devtools::install_github("PredictiveEcology/LandWebUtils@development")
-  library(LandWebUtils) ## load_all("~/GitHub/PredictiveEcology/LandWebUtils")
+  library(LandWebUtils) ## load_all(file.path(gitLocalPath, "LandWebUtils"))
 
   #allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
   allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
