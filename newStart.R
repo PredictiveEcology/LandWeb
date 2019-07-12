@@ -8,7 +8,7 @@ activeDir <- if (dir.exists(computeCanadaScratch)) {
 } else if (pemisc::user("rstudio")) {
   file.path("~/LandWeb")
 } else {
-  fiel.path("~/GitHub/LandWeb")
+  file.path("~/GitHub/LandWeb")
 }
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
