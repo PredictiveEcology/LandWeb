@@ -4,7 +4,7 @@ computeCanadaScratch <- file.path("~/scratch/LandWeb")
 
 gitLocalPath <- if (pemisc::user("achubaty")) "~/GitHub/PredictiveEcology" else "~/GitHub"
 activeDir <- if (dir.exists(computeCanadaScratch)) {
-  computeCanadaScratch
+  file.path("~/LandWeb")
 } else if (pemisc::user("rstudio")) {
   file.path("~/LandWeb")
 } else {
