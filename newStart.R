@@ -1,7 +1,15 @@
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
 
+computeCanadaScratch <- file.path("~/scratch/LandWeb")
+
 gitLocalPath <- if (pemisc::user("achubaty")) "~/GitHub/PredictiveEcology" else "~/GitHub"
-activeDir <- if (pemisc::user("rstudio")) "~/LandWeb" else "~/GitHub/LandWeb"
+activeDir <- if (dir.exists(computeCanadaScratch)) {
+  computeCanadaScratch
+} else if (pemisc::user("rstudio")) {
+  file.path("~/LandWeb")
+} else {
+  fiel.path("~/GitHub/LandWeb")
+}
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
 batchMode <- if (pemisc::user("achubaty")) TRUE else FALSE ## NOTE: runName must be defined
@@ -177,8 +185,8 @@ rep <- as.integer(substr(runName, nchar(runName) - 1, nchar(runName)))
 .plotInitialTime <- if (is.na(rep)) NA else if (user("emcintir")) 0 else if (user("achubaty") && rep == 1) 0 else NA
 
 maxMemory <- if (grepl("LandWeb", runName)) 5e+12 else 5e+9
-scratchDir <- if (dir.exists("~/scratch/LandWeb")) {
-  file.path("~/scratch/LandWeb") ## for compute canada nodes
+scratchDir <- if (dir.exists(computeCanadaScratch)) {
+  computeCanadaScratch
 } else {
   file.path("/tmp/scratch/LandWeb")
 }
