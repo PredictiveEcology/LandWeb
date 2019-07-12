@@ -51,6 +51,7 @@ outputs*
 ## OAuth tokens
 .httr-oauth
 .httr-oauth-SUSPENDED
+landweb*.json
 
 ## misc OS files
 Thumbs.db
