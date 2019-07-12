@@ -877,7 +877,8 @@ if (isFALSE(postProcessOnly)) {
                                  paths = paths2a,
                                  debug = 1)
 
-  vtmCC <- makeVegTypeMap(simOutSpeciesLayers2a$speciesLayers, vegLeadingProportion, mixed = TRUE)
+  vtmCC <- vegTypeMapGenerator(simOutSpeciesLayers$speciesLayers, vegLeadingProportion, mixedType = 2,
+                          sppEquiv = sppEquivalencies_CA, sppEquivCol = "LandWeb", colors = sppColorVect)
   fname <- file.path(Paths$outputPath, "CurrentConditionVTM.tif")
   writeRaster(vtmCC, fname, overwrite = TRUE)
 
