@@ -221,6 +221,8 @@ opts <- options(
 )
 
 httr::set_config(httr::config(http_version = 0))
+if (dir.exists(computeCanadaScratch))
+  googledrive::drive_auth(service_token = file.path(activeDir, "landweb-82e0f9f29fbc.json"))
 
 #################################################
 # Set up sppEquiv
