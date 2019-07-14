@@ -27,7 +27,7 @@ successionTimestep <- 10
 useCloudCache <- if (pemisc::user("emcintir")) TRUE else TRUE # only for simInitAndSpades
 useDEoptim <- FALSE
 usePOM <- if (pemisc::user("achubaty")) FALSE else FALSE ## NOTE: TO and FROM indices must be defined
-useParallel <- 2 ## values > 2 use WAY too much RAM for very little speed increase (too much overhead!)
+useParallel <- 3 ## values > 2 use WAY too much RAM for very little speed increase (too much overhead!)
 useSpades <- if (pemisc::user("emcintir")) TRUE else TRUE
 vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
                             # If all are below this, then it is a "mixed" stand
