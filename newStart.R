@@ -1,3 +1,4 @@
+stTime <- Sys.time()
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
 
 computeCanadaScratch <- file.path("~/scratch/LandWeb")
@@ -49,7 +50,7 @@ if (isTRUE(batchMode)) {
 } else {
   if (pemisc::user("achubaty") || pemisc::user("emcintir")) {
     #runName <- "tolko_SK_aspenDispersal_logROS_test01"
-    runName <- "tolko_SK_highDispersal_logROS_test01"
+    #runName <- "tolko_SK_highDispersal_logROS_test01"
     #runName <- "tolko_SK_highDispersal_test01"
   }
 
@@ -196,7 +197,7 @@ options(rasterMaxMemory = maxMemory, rasterTmpDir = scratchDir)
 
 opts <- options(
   "future.globals.maxSize" = 1000*1024^2,
-  "LandR.assertions" = if (user("emcintir")) TRUE else TRUE,
+  "LandR.assertions" = if (user("emcintir")) FALSE else FALSE,
   "LandR.verbose" = if (user("emcintir")) 1 else 1,
   "map.dataPath" = Paths$inputPath, # not used yet
   "map.overwrite" = TRUE,
@@ -212,7 +213,7 @@ opts <- options(
   "reproducible.useCache" = if (pemisc::user("emcintir")) TRUE else TRUE,
   "reproducible.useCloud" = TRUE,
   "reproducible.useGDAL" = FALSE, ## NOTE: gdal is faster, but mixing gdal with raster causes inconsistencies
-  "reproducible.useMemoise" = ifelse(isTRUE(batchMode), FALSE, TRUE),
+  "reproducible.useMemoise" = ifelse(isTRUE(batchMode), FALSE, if (pemisc::user("emcintir")) FALSE else TRUE),
   "reproducible.useGDAL" = FALSE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
   "spades.moduleCodeChecks" = FALSE,
@@ -325,7 +326,6 @@ parameters2 <- list(
     ".useCache" = FALSE
   )
 )
-
 sppLayersFile <- file.path(Paths$inputPath, paste0("simOutSpeciesLayers_", substr(runName, 1, 8), ".rds"))
 if (isTRUE(rerunSpeciesLayers)) {
   ## delete existing species layers data and cache
@@ -431,7 +431,7 @@ if (isFALSE(postProcessOnly)) {
       seeddistance_eff = list(Abie_sp = 250, Pice_gla = 100, Pice_mar = 160,
                               Pinu_ban = 300, Pinu_con = 300, Pinu_sp = 300, Popu_sp = 500),
       seeddistance_max = list(Abie_sp = 1250, Pice_gla = 1250, Pice_mar = 1250,
-                              Pinu_ban = 3000, Pinu_con = 3000, Pinu_sp = 3000, Popu_sp = 5000)
+                              Pinu_ban = 3000, Pinu_con = 3000, Pinu_sp = 3000, Popu_sp = 3000)
     )
   } else {
     ## defaults
@@ -439,7 +439,7 @@ if (isFALSE(postProcessOnly)) {
       seeddistance_eff = list(Abie_sp = 25, Pice_gla = 100, Pice_mar = 80,
                               Pinu_ban = 30, Pinu_con = 30, Pinu_sp = 30, Popu_sp = 200),
       seeddistance_max = list(Abie_sp = 160, Pice_gla = 303, Pice_mar = 200,
-                              Pinu_ban = 100, Pinu_con = 100, Pinu_sp = 100, Popu_sp = 5000)
+                              Pinu_ban = 100, Pinu_con = 100, Pinu_sp = 100, Popu_sp = 3000)
     )
   }
 
@@ -464,6 +464,7 @@ if (isFALSE(postProcessOnly)) {
     "useParallel" = 2
   )
 
+  rm(simOutPreamble)
   if (pemisc::user("emcintir"))
     runName <- "tolko_SK_test01_highDispersal"
 
@@ -479,8 +480,8 @@ if (isFALSE(postProcessOnly)) {
       "LCCClassesToReplaceNN" = 34:36,
       # next two are used when assigning pixelGroup membership; what resolution for
       #   age and biomass
-      "pixelGroupAgeClass" = successionTimestep,
-      "pixelGroupBiomassClass" = 100,
+      "pixelGroupAgeClass" = successionTimestep * 2, # can be coarse because initial conditions are irrelevant
+      "pixelGroupBiomassClass" = 1000, # can be coarse because initial conditions are irrelevant
       "runName" = runName,
       "sppEquivCol" = sppEquivCol,
       "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
