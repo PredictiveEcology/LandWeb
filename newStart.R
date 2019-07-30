@@ -517,6 +517,7 @@ if (isFALSE(postProcessOnly)) {
       "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
       "sppEquivCol" = sppEquivCol,
       "successionTimestep" = successionTimestep,
+      ".maxMemory" = 20, ## GB
       ".plotInitialTime" = .plotInitialTime,
       ".useCache" = eventCaching[1], # seems slower to use Cache for both
       ".useParallel" = useParallel
