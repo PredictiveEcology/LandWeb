@@ -120,7 +120,7 @@ message(crayon::red(runName))
 
 if (grepl("LandWeb", runName)) {
   source(file.path(activeDir, "params", "LandWeb_parameters.R")) ## same as FMA_parameters; i.e., no cache ids
-} else if (grepl("ANC|DMI|LP|TOLKO", toupper(runName))) {
+} else if (grepl("ANC|DMI|LP|MANNING|TOLKO", toupper(runName))) {
   source(file.path(activeDir, "params", "FMA_parameters.R"))
 }
 
