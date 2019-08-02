@@ -428,7 +428,7 @@ if (isFALSE(postProcessOnly)) {
     )
   } else if (grepl("highDispersal", runName)) {
     list(
-      seeddistance_eff = list(Abie_sp = 250, Pice_gla = 100, Pice_mar = 160,
+      seeddistance_eff = list(Abie_sp = 250, Pice_gla = 100, Pice_mar = 320,
                               Pinu_ban = 300, Pinu_con = 300, Pinu_sp = 300, Popu_sp = 500),
       seeddistance_max = list(Abie_sp = 1250, Pice_gla = 1250, Pice_mar = 1250,
                               Pinu_ban = 3000, Pinu_con = 3000, Pinu_sp = 3000, Popu_sp = 3000)
@@ -439,7 +439,7 @@ if (isFALSE(postProcessOnly)) {
       seeddistance_eff = list(Abie_sp = 25, Pice_gla = 100, Pice_mar = 80,
                               Pinu_ban = 30, Pinu_con = 30, Pinu_sp = 30, Popu_sp = 200),
       seeddistance_max = list(Abie_sp = 160, Pice_gla = 303, Pice_mar = 200,
-                              Pinu_ban = 100, Pinu_con = 100, Pinu_sp = 100, Popu_sp = 3000)
+                              Pinu_ban = 100, Pinu_con = 100, Pinu_sp = 100, Popu_sp = 2000)
     )
   }
 
