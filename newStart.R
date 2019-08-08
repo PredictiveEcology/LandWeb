@@ -1,4 +1,5 @@
-stTime <- Sys.time()
+.starttime <- Sys.time()
+
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
 
 computeCanadaScratch <- file.path("~/scratch/LandWeb")
@@ -247,7 +248,7 @@ sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
 sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
 
-sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(LandWeb),]
+sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(LandWeb), ]
 
 #################################################
 ## create color palette for species used in model
@@ -409,171 +410,171 @@ if (grepl("equalROS", runName)) {
 }
 
 ####################################################################################################
+times <- list(start = 0, end = endTime)
+modules <- list("Boreal_LBMRDataPrep", #"LandR_BiomassGMOrig",
+                "LBMR",
+                "LandMine", "Biomass_regeneration",
+                "LandWeb_output",
+                "timeSinceFire")
+
+speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
+speciesParams <- if (grepl("aspenDispersal", runName)) {
+  ## seed dispersal (see LandWeb#96, LandWeb#112)
+  list(
+    seeddistance_eff = list(Abie_sp = 0, Pice_gla = 0, Pice_mar = 0,
+                            Pinu_ban = 0, Pinu_con = 0, Pinu_sp = 0, Popu_sp = 100),
+    seeddistance_max = list(Abie_sp = 125, Pice_gla = 125, Pice_mar = 125,
+                            Pinu_ban = 125, Pinu_con = 125, Pinu_sp = 125, Popu_sp = 235)
+  )
+} else if (grepl("highDispersal", runName)) {
+  list(
+    seeddistance_eff = list(Abie_sp = 250, Pice_gla = 100, Pice_mar = 320,
+                            Pinu_ban = 300, Pinu_con = 300, Pinu_sp = 300, Popu_sp = 500),
+    seeddistance_max = list(Abie_sp = 1250, Pice_gla = 1250, Pice_mar = 1250,
+                            Pinu_ban = 3000, Pinu_con = 3000, Pinu_sp = 3000, Popu_sp = 3000)
+  )
+} else {
+  ## defaults
+  list(
+    seeddistance_eff = list(Abie_sp = 25, Pice_gla = 100, Pice_mar = 80,
+                            Pinu_ban = 30, Pinu_con = 30, Pinu_sp = 30, Popu_sp = 200),
+    seeddistance_max = list(Abie_sp = 160, Pice_gla = 303, Pice_mar = 200,
+                            Pinu_ban = 100, Pinu_con = 100, Pinu_sp = 100, Popu_sp = 2000)
+  )
+}
+
+objects <- list(
+  "fireReturnInterval" = simOutPreamble$fireReturnInterval,
+  "rstLCC" = simOutPreamble$LCC,
+  "rasterToMatch" = simOutPreamble$rasterToMatch,
+  "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
+  "ROSTable" = LandMineROStable,
+  "rstFlammable" = simOutPreamble$rstFlammable,
+  "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
+  "sppColorVect" = sppColorVect,
+  "sppEquiv" = sppEquivalencies_CA,
+  "speciesLayers" = simOutSpeciesLayers$speciesLayers,
+  "speciesParams" = speciesParams,
+  "speciesTable" = speciesTable,
+  "standAgeMap" = simOutPreamble$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
+  "studyArea" = simOutPreamble$studyArea,
+  "studyAreaLarge" = simOutPreamble$studyAreaLarge,
+  "studyAreaReporting" = simOutPreamble$studyAreaReporting,
+  "summaryPeriod" = summaryPeriod, ## defined in params file
+  "useParallel" = 2
+)
+
+rm(simOutPreamble)
+if (pemisc::user("emcintir"))
+  runName <- "tolko_SK_test01_highDispersal"
+
+parameters <- list(
+  Boreal_LBMRDataPrep = list(
+    ## fastLM is ~35% faster than the default lmer but needs 820GB RAM !!
+    ## also, fastLM cannot deal with rank-deficient models
+    #"biomassModel" = quote(RcppArmadillo::fastLm(formula = B ~ logAge * speciesCode * ecoregionGroup +
+    #                                               cover * speciesCode * ecoregionGroup)),
+    "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
+                                        (logAge + cover + speciesCode | ecoregionGroup))),
+    "cloudFolderID" = cloudCacheFolderID,
+    "LCCClassesToReplaceNN" = 34:36,
+    # next two are used when assigning pixelGroup membership; what resolution for
+    #   age and biomass
+    "pixelGroupAgeClass" = successionTimestep * 2, # can be coarse because initial conditions are irrelevant
+    "pixelGroupBiomassClass" = 1000, # can be coarse because initial conditions are irrelevant
+    "runName" = runName,
+    "sppEquivCol" = sppEquivCol,
+    "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
+    "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
+    "speciesUpdateFunction" = list(
+      quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
+      quote(LandWebUtils::updateSpeciesTable(sim$species, P(sim)$runName, sim$speciesParams))
+    ),
+    "useCloudCacheForStats" = useCloudCache, #TRUE,
+    ".plotInitialTime" = .plotInitialTime,
+    ".useCache" = eventCaching
+  ),
+  LandMine = list(
+    "biggestPossibleFireSizeHa" = 5e5,
+    "burnInitialTime" = fireTimestep,
+    "fireTimestep" = fireTimestep,
+    "maxRetriesPerID" = 4,
+    "minPropBurn" = 0.90,
+    "sppEquivCol" = sppEquivCol,
+    "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
+    ".useCache" = eventCaching,
+    ".useParallel" = max(2, useParallel)
+  ),
+  LandWeb_output = list(
+    "sppEquivCol" = sppEquivCol,
+    "summaryInterval" = summaryInterval,
+    "vegLeadingProportion" = vegLeadingProportion,
+    #".plotInitialTime" = .plotInitialTime,
+    ".plotInterval" = 1
+  ),
+  LBMR = list(
+    "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
+    "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
+    "sppEquivCol" = sppEquivCol,
+    "successionTimestep" = successionTimestep,
+    ".maxMemory" = 20, ## GB
+    ".plotInitialTime" = .plotInitialTime,
+    ".useCache" = eventCaching[1], # seems slower to use Cache for both
+    ".useParallel" = useParallel
+  ),
+  # LandR_BiomassGMOrig = list(
+  #   ".useParallel" = useParallel
+  # ),
+  Biomass_regeneration = list(
+    "fireInitialTime" = fireTimestep,
+    "fireTimestep" = fireTimestep,
+    "successionTimestep" = successionTimestep
+  ),
+  timeSinceFire = list(
+    "startTime" = fireTimestep,
+    ".useCache" = eventCaching[1] # way faster without caching for "init"
+  )
+)
+
+if (grepl("scfm", runName)) {
+  source(file.path(activeDir, "params", "scfm_params.R"))
+  modules <- append(modules[-which(modules == "LandMine")], scfmModules)
+  objects <- append(objects, scfmObjects)
+  parameters <- append(parameters, scfmParams)
+}
+
+objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
+analysesOutputsTimes <- seq(objects$summaryPeriod[1], objects$summaryPeriod[2],
+                            by = parameters$LandWeb_output$summaryInterval)
+
+outputs <- data.frame(stringsAsFactors = FALSE,
+                      expand.grid(
+                        objectName = objectNamesToSave,
+                        saveTime = c(timeSeriesTimes, analysesOutputsTimes)
+                      ),
+                      fun = "writeRaster", package = "raster",
+                      file = paste0(objectNamesToSave, c(".tif", ".grd")))
+
+outputs2 <- data.frame(stringsAsFactors = FALSE,
+                       expand.grid(objectName = c("simulationOutput"), saveTime = times$end),
+                       fun = "saveRDS",
+                       package = "base")
+
+outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE,
+                                     datatype = "INT2U", format = "GTiff"),
+                                list(overwrite = TRUE, progress = FALSE,
+                                     datatype = "INT1U", format = "raster")),
+                           times = NROW(outputs) / length(objectNamesToSave)))
+
+outputs3 <- data.frame(stringsAsFactors = FALSE,
+                       objectName = "rstFlammable",
+                       saveTime = times$end, fun = "writeRaster", package = "raster",
+                       arguments = I(list(list(overwrite = TRUE, progress = FALSE,
+                                               datatype = "INT2U", format = "raster"))))
+
+outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
+
 if (isFALSE(postProcessOnly)) {
-  times <- list(start = 0, end = endTime)
-  modules <- list("Boreal_LBMRDataPrep", #"LandR_BiomassGMOrig",
-                  "LBMR",
-                  "LandMine", "Biomass_regeneration",
-                  "LandWeb_output",
-                  "timeSinceFire")
-
-  speciesTable <- getSpeciesTable(dPath = Paths$inputPath) ## uses default URL
-  speciesParams <- if (grepl("aspenDispersal", runName)) {
-    ## seed dispersal (see LandWeb#96, LandWeb#112)
-    list(
-      seeddistance_eff = list(Abie_sp = 0, Pice_gla = 0, Pice_mar = 0,
-                              Pinu_ban = 0, Pinu_con = 0, Pinu_sp = 0, Popu_sp = 100),
-      seeddistance_max = list(Abie_sp = 125, Pice_gla = 125, Pice_mar = 125,
-                              Pinu_ban = 125, Pinu_con = 125, Pinu_sp = 125, Popu_sp = 235)
-    )
-  } else if (grepl("highDispersal", runName)) {
-    list(
-      seeddistance_eff = list(Abie_sp = 250, Pice_gla = 100, Pice_mar = 320,
-                              Pinu_ban = 300, Pinu_con = 300, Pinu_sp = 300, Popu_sp = 500),
-      seeddistance_max = list(Abie_sp = 1250, Pice_gla = 1250, Pice_mar = 1250,
-                              Pinu_ban = 3000, Pinu_con = 3000, Pinu_sp = 3000, Popu_sp = 3000)
-    )
-  } else {
-    ## defaults
-    list(
-      seeddistance_eff = list(Abie_sp = 25, Pice_gla = 100, Pice_mar = 80,
-                              Pinu_ban = 30, Pinu_con = 30, Pinu_sp = 30, Popu_sp = 200),
-      seeddistance_max = list(Abie_sp = 160, Pice_gla = 303, Pice_mar = 200,
-                              Pinu_ban = 100, Pinu_con = 100, Pinu_sp = 100, Popu_sp = 2000)
-    )
-  }
-
-  objects <- list(
-    "fireReturnInterval" = simOutPreamble$fireReturnInterval,
-    "rstLCC" = simOutPreamble$LCC,
-    "rasterToMatch" = simOutPreamble$rasterToMatch,
-    "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
-    "ROSTable" = LandMineROStable,
-    "rstFlammable" = simOutPreamble$rstFlammable,
-    "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
-    "sppColorVect" = sppColorVect,
-    "sppEquiv" = sppEquivalencies_CA,
-    "speciesLayers" = simOutSpeciesLayers$speciesLayers,
-    "speciesParams" = speciesParams,
-    "speciesTable" = speciesTable,
-    "standAgeMap" = simOutPreamble$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
-    "studyArea" = simOutPreamble$studyArea,
-    "studyAreaLarge" = simOutPreamble$studyAreaLarge,
-    "studyAreaReporting" = simOutPreamble$studyAreaReporting,
-    "summaryPeriod" = summaryPeriod, ## defined in params file
-    "useParallel" = 2
-  )
-
-  rm(simOutPreamble)
-  if (pemisc::user("emcintir"))
-    runName <- "tolko_SK_test01_highDispersal"
-
-  parameters <- list(
-    Boreal_LBMRDataPrep = list(
-      ## fastLM is ~35% faster than the default lmer but needs 820GB RAM !!
-      ## also, fastLM cannot deal with rank-deficient models
-      #"biomassModel" = quote(RcppArmadillo::fastLm(formula = B ~ logAge * speciesCode * ecoregionGroup +
-      #                                               cover * speciesCode * ecoregionGroup)),
-      "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
-                                          (logAge + cover + speciesCode | ecoregionGroup))),
-      "cloudFolderID" = cloudCacheFolderID,
-      "LCCClassesToReplaceNN" = 34:36,
-      # next two are used when assigning pixelGroup membership; what resolution for
-      #   age and biomass
-      "pixelGroupAgeClass" = successionTimestep * 2, # can be coarse because initial conditions are irrelevant
-      "pixelGroupBiomassClass" = 1000, # can be coarse because initial conditions are irrelevant
-      "runName" = runName,
-      "sppEquivCol" = sppEquivCol,
-      "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
-      "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
-      "speciesUpdateFunction" = list(
-        quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
-        quote(LandWebUtils::updateSpeciesTable(sim$species, P(sim)$runName, sim$speciesParams))
-      ),
-      "useCloudCacheForStats" = useCloudCache, #TRUE,
-      ".plotInitialTime" = .plotInitialTime,
-      ".useCache" = eventCaching
-    ),
-    LandMine = list(
-      "biggestPossibleFireSizeHa" = 5e5,
-      "burnInitialTime" = fireTimestep,
-      "fireTimestep" = fireTimestep,
-      "maxRetriesPerID" = 4,
-      "minPropBurn" = 0.90,
-      "sppEquivCol" = sppEquivCol,
-      "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
-      ".useCache" = eventCaching,
-      ".useParallel" = max(2, useParallel)
-    ),
-    LandWeb_output = list(
-      "sppEquivCol" = sppEquivCol,
-      "summaryInterval" = summaryInterval,
-      "vegLeadingProportion" = vegLeadingProportion,
-      #".plotInitialTime" = .plotInitialTime,
-      ".plotInterval" = 1
-    ),
-    LBMR = list(
-      "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
-      "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
-      "sppEquivCol" = sppEquivCol,
-      "successionTimestep" = successionTimestep,
-      ".maxMemory" = 20, ## GB
-      ".plotInitialTime" = .plotInitialTime,
-      ".useCache" = eventCaching[1], # seems slower to use Cache for both
-      ".useParallel" = useParallel
-    ),
-    # LandR_BiomassGMOrig = list(
-    #   ".useParallel" = useParallel
-    # ),
-    Biomass_regeneration = list(
-      "fireInitialTime" = fireTimestep,
-      "fireTimestep" = fireTimestep,
-      "successionTimestep" = successionTimestep
-    ),
-    timeSinceFire = list(
-      "startTime" = fireTimestep,
-      ".useCache" = eventCaching[1] # way faster without caching for "init"
-    )
-  )
-
-  if (grepl("scfm", runName)) {
-    source(file.path(activeDir, "params", "scfm_params.R"))
-    modules <- append(modules[-which(modules == "LandMine")], scfmModules)
-    objects <- append(objects, scfmObjects)
-    parameters <- append(parameters, scfmParams)
-  }
-
-  objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
-  analysesOutputsTimes <- seq(objects$summaryPeriod[1], objects$summaryPeriod[2],
-                              by = parameters$LandWeb_output$summaryInterval)
-
-  outputs <- data.frame(stringsAsFactors = FALSE,
-                        expand.grid(
-                          objectName = objectNamesToSave,
-                          saveTime = c(timeSeriesTimes, analysesOutputsTimes)
-                        ),
-                        fun = "writeRaster", package = "raster",
-                        file = paste0(objectNamesToSave, c(".tif", ".grd")))
-
-  outputs2 <- data.frame(stringsAsFactors = FALSE,
-                         expand.grid(objectName = c("simulationOutput"), saveTime = times$end),
-                         fun = "saveRDS",
-                         package = "base")
-
-  outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE,
-                                       datatype = "INT2U", format = "GTiff"),
-                                  list(overwrite = TRUE, progress = FALSE,
-                                       datatype = "INT1U", format = "raster")),
-                             times = NROW(outputs) / length(objectNamesToSave)))
-
-  outputs3 <- data.frame(stringsAsFactors = FALSE,
-                         objectName = "rstFlammable",
-                         saveTime = times$end, fun = "writeRaster", package = "raster",
-                         arguments = I(list(list(overwrite = TRUE, progress = FALSE,
-                                                 datatype = "INT2U", format = "raster"))))
-
-  outputs <- as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
-
   ######## set seed for RNG
   fseed <- file.path(Paths$outputPath, "seed.rds")
   fseed2 <- extension(fseed, "txt")
@@ -829,13 +830,12 @@ if (isFALSE(postProcessOnly)) {
   # Simulation Post-processing
   ##########################################################
 
-  #devtools::install_github("PredictiveEcology/LandWebUtils@development")
-  library(LandWebUtils) ## load_all(file.path(gitLocalPath, "LandWebUtils"))
-
   #allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
   allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
   allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
-  allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE) ## TODO: need to rm the non-rep files too!!!
+  allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
+  allouts <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = 4)), collapse = "|"),
+                  allouts, value = TRUE, invert = TRUE)
   layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
   layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
   layerName <- gsub(layerName, pattern = "^_", replacement = "")
@@ -892,7 +892,7 @@ if (isFALSE(postProcessOnly)) {
                                  debug = 1)
 
   vtmCC <- vegTypeMapGenerator(simOutSpeciesLayers$speciesLayers, vegLeadingProportion, mixedType = 2,
-                          sppEquiv = sppEquivalencies_CA, sppEquivCol = "LandWeb", colors = sppColorVect)
+                               sppEquiv = sppEquivalencies_CA, sppEquivCol = "LandWeb", colors = sppColorVect)
   fname <- file.path(Paths$outputPath, "CurrentConditionVTM.tif")
   writeRaster(vtmCC, fname, overwrite = TRUE)
 
