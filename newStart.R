@@ -858,6 +858,7 @@ if (isFALSE(postProcessOnly)) {
   if (!is(ml@metadata$tsf, "Path"))
     ml@metadata$tsf <- asPath(as.character(ml@metadata$tsf))
 
+  ###################
   paths2a <- list(
     ## use same cachePath for all data-prep steps before dynamic simulation
     cachePath = file.path("cache", "dataPrepGIS", "speciesLayers2a"),
@@ -865,7 +866,7 @@ if (isFALSE(postProcessOnly)) {
     inputPath = "inputs",
     outputPath = file.path("outputs", runName)
   )
-  do.call(SpaDES.core::setPaths, paths2)
+  do.call(SpaDES.core::setPaths, paths2a)
   tilePath <- file.path(Paths$outputPath, "tiles")
 
   parameters2a <- list(
@@ -890,6 +891,17 @@ if (isFALSE(postProcessOnly)) {
                                  .plotInitialTime = .plotInitialTime,
                                  paths = paths2a,
                                  debug = 1)
+
+  ###################
+  paths4 <- list(
+    ## use same cachePath for all data-prep steps before dynamic simulation
+    cachePath = file.path("cache", "postprocessing"),
+    modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+    inputPath = "inputs",
+    outputPath = file.path("outputs", runName)
+  )
+  do.call(SpaDES.core::setPaths, paths4)
+  tilePath <- file.path(Paths$outputPath, "tiles")
 
   vtmCC <- vegTypeMapGenerator(simOutSpeciesLayers$speciesLayers, vegLeadingProportion, mixedType = 2,
                                sppEquiv = sppEquivalencies_CA, sppEquivCol = "LandWeb", colors = sppColorVect)
@@ -959,7 +971,7 @@ if (isFALSE(postProcessOnly)) {
 
   options(map.useParallel = FALSE)
   ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
-                       #purgeAnalyses = "LeadingVegTypeByAgeClass",
+                       purgeAnalyses = "LeadingVegTypeByAgeClass",
                        ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
   options(map.useParallel = mapParallel)
 
