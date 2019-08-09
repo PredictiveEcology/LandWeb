@@ -834,17 +834,17 @@ if (isFALSE(postProcessOnly)) {
   allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
   allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
   allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
-  allouts <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = 4)), collapse = "|"),
-                  allouts, value = TRUE, invert = TRUE)
-  layerName <- gsub(allouts, pattern = paste0(".*", Paths$outputPath), replacement = "")
+  allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = 4)), collapse = "|"),
+                   allouts, value = TRUE, invert = TRUE)
+  layerName <- gsub(allouts2, pattern = paste0(".*", Paths$outputPath), replacement = "")
   layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
   layerName <- gsub(layerName, pattern = "^_", replacement = "")
   ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2") %>%
     grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
-  destinationPath <- dirname(allouts)
-  tsf <- gsub(".*vegTypeMap.*", NA, allouts) %>%
+  destinationPath <- dirname(allouts2)
+  tsf <- gsub(".*vegTypeMap.*", NA, allouts2) %>%
     grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
-  vtm <- gsub(".*TimeSinceFire.*", NA, allouts) %>%
+  vtm <- gsub(".*TimeSinceFire.*", NA, allouts2) %>%
     grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
 
   ml <- simOutPreamble$ml
@@ -912,11 +912,11 @@ if (isFALSE(postProcessOnly)) {
 
   options(map.useParallel = FALSE)
   ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
-               targetFile = asPath(allouts),
+               targetFile = asPath(allouts2),
                destinationPath = asPath(destinationPath),
                filename2 = NULL, tsf = asPath(tsf), vtm = asPath(vtm),
                overwrite = TRUE,
-               #useCache = "overwrite",
+               useCache = "overwrite",
                leaflet = asPath(tilePath))
   options(map.useParallel = mapParallel)
 
