@@ -464,7 +464,9 @@ objects <- list(
   "useParallel" = 2
 )
 
-rm(simOutPreamble)
+if (isFALSE(postProcessOnly))
+  rm(simOutPreamble)
+
 if (pemisc::user("emcintir"))
   runName <- "tolko_SK_test01_highDispersal"
 
@@ -971,8 +973,9 @@ if (isFALSE(postProcessOnly)) {
 
   options(map.useParallel = FALSE)
   ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
-                       purgeAnalyses = "LeadingVegTypeByAgeClass",
-                       ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs)
+                       #purgeAnalyses = "LeadingVegTypeByAgeClass",
+                       ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                       sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
   options(map.useParallel = mapParallel)
 
   # add an analysis -- this will trigger analyses because there are already objects in the map
@@ -987,12 +990,12 @@ if (isFALSE(postProcessOnly)) {
   options(map.useParallel = mapParallel)
 
   saveRDS(ml, file.path(Paths$outputPath, "ml_partial.rds"))
+  #ml <- readRDS(file.path(Paths$outputPath, "ml_partial.rds"))
 
   ############################################################
   # Post hoc analyses -- specifically making the data.tables for histograms & boxplots
   ############################################################
-  # This analysisGroupReportingPolygon MUST be the same as one of ones already
-  #   analysed.
+  # This analysisGroupReportingPolygon MUST be the same as one of ones already analysed.
   ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                               postHocAnalysisGroups = "analysisGroupReportingPolygon",
                               #purgeAnalyses = "rbindlistAG",
