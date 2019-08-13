@@ -29,4 +29,3 @@ I am currently taking a closer look at the simulations and code to verify these 
 **NOTE:** There appears to be a bias towards deciduous species in some of the results.
 This may be due to the interaction between the LandMine fire model and the LANDIS Biomass-Succession models: deciduous species burn less than conifers but regenerate more quickly.
 I am currently taking a closer look at the simulations and code to verify these results.
-
