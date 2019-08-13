@@ -17,6 +17,9 @@
 cache/
 cache
 
+## profiling files
+profiles/
+
 ## R and Rstudio files
 rsconnect/shinyapps.io/landweb/LandWebDemo.dcf
 .Rapp.history

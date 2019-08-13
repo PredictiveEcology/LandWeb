@@ -46,6 +46,10 @@ if (pemisc::user("emcintir")) {
   runName <- "LandWeb_highDispersal_logROS"
 }
 
+if (FALSE) {
+  runName <- "tolko_SK_highDispersal_logROS_prof"
+}
+
 if (isTRUE(batchMode)) {
   stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set in batch_mode.R
 } else {
@@ -123,6 +127,10 @@ if (grepl("LandWeb", runName)) {
   source(file.path(activeDir, "params", "LandWeb_parameters.R")) ## same as FMA_parameters; i.e., no cache ids
 } else if (grepl("ANC|DMI|LP|MANNING|TOLKO", toupper(runName))) {
   source(file.path(activeDir, "params", "FMA_parameters.R"))
+}
+
+if (grepl("prof", tolower(runName))) {
+  source(file.path(activeDir, "params", "profiling_parameters.R"))
 }
 
 if (grepl("test", tolower(runName))) {
@@ -808,24 +816,45 @@ if (isFALSE(postProcessOnly)) {
     data.table::setDTthreads(useParallel)
     options("spades.recoveryMode" = TRUE)
     .starttime <- Sys.time()
-    mySimOut <- Cache(simInitAndSpades, times = times, #cl = cl,
-                      params = parameters,
-                      modules = modules,
-                      outputs = outputs,
-                      objects = objects,
-                      paths = paths3,
-                      loadOrder = unlist(modules),
-                      debug = 1,
-                      useCloud = FALSE, #useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
-                      cloudFolderID = cloudCacheFolderID,
-                      omitArgs = c("debug", "paths", ".plotInitialTime"),
-                      #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(names(sim$cohortData))))',
-                      .plotInitialTime = .plotInitialTime
-    )
 
-    #mySimOut <- spades(mySim, debug = 1)
+    if (grepl("prof", tolower(runName))) {
+      library(profvis)
+      profvis({
+        mySimOut <- Cache(simInitAndSpades, times = times, #cl = cl,
+                          params = parameters,
+                          modules = modules,
+                          outputs = outputs,
+                          objects = objects,
+                          paths = paths3,
+                          loadOrder = unlist(modules),
+                          debug = 1,
+                          useCloud = FALSE, #useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
+                          cloudFolderID = cloudCacheFolderID,
+                          omitArgs = c("debug", "paths", ".plotInitialTime"),
+                          #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(names(sim$cohortData))))',
+                          .plotInitialTime = .plotInitialTime
+        )
+      })
+    } else {
+      mySimOut <- Cache(simInitAndSpades, times = times, #cl = cl,
+                        params = parameters,
+                        modules = modules,
+                        outputs = outputs,
+                        objects = objects,
+                        paths = paths3,
+                        loadOrder = unlist(modules),
+                        debug = 1,
+                        useCloud = FALSE, #useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
+                        cloudFolderID = cloudCacheFolderID,
+                        omitArgs = c("debug", "paths", ".plotInitialTime"),
+                        #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(names(sim$cohortData))))',
+                        .plotInitialTime = .plotInitialTime
+      )
 
-    saveRDS(mySimOut, file.path(Paths$outputPath, "mySimOut.rds"))
+      #mySimOut <- spades(mySim, debug = 1)
+
+      saveRDS(mySimOut, file.path(Paths$outputPath, "mySimOut.rds"))
+    }
   }
 } else {
   ##########################################################
