@@ -23,6 +23,7 @@ maxAge <- 400
 minFRI <- 25
 postProcessOnly <- FALSE
 rerunSpeciesLayers <- if (pemisc::user("emcintir")) TRUE else FALSE ## TODO: use this as workaround for speciesLayers cache problems
+restartInterval <- 100
 sppEquivCol <- "LandWeb"
 successionTimestep <- 10
 useCloudCache <- if (pemisc::user("emcintir")) TRUE else TRUE # only for simInitAndSpades
@@ -836,6 +837,9 @@ if (isFALSE(postProcessOnly)) {
         )
       })
     } else {
+      if (grepl("LandWeb", runName))
+        times$end <- restartInterval
+
       mySimOut <- Cache(simInitAndSpades, times = times, #cl = cl,
                         params = parameters,
                         modules = modules,
@@ -850,10 +854,15 @@ if (isFALSE(postProcessOnly)) {
                         #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(names(sim$cohortData))))',
                         .plotInitialTime = .plotInitialTime
       )
-
-      #mySimOut <- spades(mySim, debug = 1)
-
       saveRDS(mySimOut, file.path(Paths$outputPath, "mySimOut.rds"))
+
+      if (grepl("LandWeb", runName)) {
+        nRestarts <- ceiling(endTime / restartInterval)
+        restartIteration <- 2
+
+        ## restarts R but keep attached packages and .GlobalEnv intact
+        rstudioapi::restartSession("source('resume_sim.R')")
+      }
     }
   }
 } else {
