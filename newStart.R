@@ -206,6 +206,7 @@ rasterOptions(default = TRUE)
 options(rasterMaxMemory = maxMemory, rasterTmpDir = scratchDir)
 
 opts <- options(
+  "fftempdir" = scratchDir,
   "future.globals.maxSize" = 1000*1024^2,
   "LandR.assertions" = if (user("emcintir")) FALSE else FALSE,
   "LandR.verbose" = if (user("emcintir")) 1 else 1,
