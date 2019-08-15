@@ -858,7 +858,7 @@ if (isFALSE(postProcessOnly)) {
 
       if (grepl("LandWeb", runName)) {
         nRestarts <- ceiling(endTime / restartInterval)
-        restartIteration <- 2
+        restartIteration <- 1
 
         ## restarts R but keep attached packages and .GlobalEnv intact
         rstudioapi::restartSession("source('resume_sim.R')")
