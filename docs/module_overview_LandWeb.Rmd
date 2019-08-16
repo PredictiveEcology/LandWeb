@@ -1,0 +1,247 @@
+---
+title: "LandWeb Module Overview"
+author: "Alex M. Chubaty"
+date: "15/08/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(magrittr)
+library(SpaDES.core)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## LandWeb module details
+
+```{r modules, echo=FALSE, message=FALSE, warning=FALSE}
+modulePath <- file.path("../m")
+m <- basename(dir(modulePath))
+
+## get module metadata
+md1 <- moduleMetadata(module = m[1], path = modulePath) %>% suppressWarnings() ## Biomass_regeneration
+md2 <- moduleMetadata(module = m[2], path = modulePath) %>% suppressWarnings() ## BiomassSpeciesData
+md3 <- moduleMetadata(module = m[3], path = modulePath) %>% suppressWarnings() ## Boreal_LBMRDataPrep
+md4 <- moduleMetadata(module = m[4], path = modulePath) %>% suppressWarnings() ## LandMine
+md5 <- moduleMetadata(module = m[5], path = modulePath) %>% suppressWarnings() ## LandWeb_output
+md6 <- moduleMetadata(module = m[6], path = modulePath) %>% suppressWarnings() ## LandWeb_preamble
+md7 <- moduleMetadata(module = m[7], path = modulePath) %>% suppressWarnings() ## LBMR
+md8 <- moduleMetadata(module = m[8], path = modulePath) %>% suppressWarnings() ## timeSinceFire
+```
+
+### `r m[1]`
+
+#### Required packages
+
+```{r packages1, echo=FALSE}
+packages(modules = m[1], paths = modulePath)
+```
+
+#### Parameters
+
+```{r params1, echo=FALSE}
+kable(md1$parameters)
+```
+
+#### Input objects
+
+```{r inputs1, echo=FALSE}
+kable(md1$inputObjects)
+```
+
+#### Output objects
+
+```{r outputs1, echo=FALSE}
+kable(md1$outputObjects)
+```
+
+### `r m[2]`
+
+#### Required packages
+
+```{r packages2, echo=FALSE}
+packages(modules = m[2], paths = modulePath)
+```
+
+#### Parameters
+
+```{r params2, echo=FALSE}
+kable(md2$parameters)
+```
+
+#### Input objects
+
+```{r inputs2, echo=FALSE}
+kable(md2$inputObjects)
+```
+
+#### Output objects
+
+```{r outputs2, echo=FALSE}
+kable(md2$outputObjects)
+```
+
+### `r m[3]`
+
+#### Required packages
+
+```{r packages3, echo=FALSE}
+packages(modules = m[3], paths = modulePath)
+```
+
+#### Parameters
+
+```{r params3, echo=FALSE}
+kable(md3$parameters)
+```
+
+#### Input objects
+
+```{r inputs3, echo=FALSE}
+kable(md3$inputObjects)
+```
+
+#### Output objects
+
+```{r outputs3, echo=FALSE}
+kable(md3$outputObjects)
+```
+
+### `r m[4]`
+
+#### Required packages
+
+```{r packages4, echo=FALSE}
+packages(modules = m[4], paths = modulePath)
+```
+
+#### Parameters
+
+```{r params4, echo=FALSE}
+kable(md4$parameters)
+```
+
+#### Input objects
+
+```{r inputs4, echo=FALSE}
+kable(md4$inputObjects)
+```
+
+#### Output objects
+
+```{r outputs4, echo=FALSE}
+kable(md4$outputObjects)
+```
+
+### `r m[5]`
+
+#### Required packages
+
+```{r packages5, echo=FALSE}
+packages(modules = m[5], paths = modulePath)
+```
+
+#### Parameters
+
+```{r params5, echo=FALSE}
+kable(md5$parameters)
+```
+
+#### Input objects
+
+```{r inputs5, echo=FALSE}
+kable(md5$inputObjects)
+```
+
+#### Output objects
+
+```{r outputs5, echo=FALSE}
+kable(md5$outputObjects)
+```
+
+### `r m[6]`
+
+#### Required packages
+
+```{r packages6, echo=FALSE}
+packages(modules = m[6], paths = modulePath)
+```
+
+#### Parameters
+
+```{r params6, echo=FALSE}
+kable(md6$parameters)
+```
+
+#### Input objects
+
+```{r inputs6, echo=FALSE}
+kable(md6$inputObjects)
+```
+
+#### Output objects
+
+```{r outputs6, echo=FALSE}
+kable(md6$outputObjects)
+```
+
+### `r m[7]`
+
+#### Required packages
+
+```{r packages7, echo=FALSE}
+packages(modules = m[7], paths = modulePath)
+```
+
+#### Parameters
+
+```{r params7, echo=FALSE}
+kable(md7$parameters)
+```
+
+#### Input objects
+
+```{r inputs7, echo=FALSE}
+kable(md7$inputObjects)
+```
+
+#### Output objects
+
+```{r outputs7, echo=FALSE}
+kable(md7$outputObjects)
+```
+
+### `r m[8]`
+
+#### Required packages
+
+```{r packages8, echo=FALSE}
+packages(modules = m[8], paths = modulePath)
+```
+
+#### Parameters
+
+```{r params8, echo=FALSE}
+kable(md8$parameters)
+```
+
+#### Input objects
+
+```{r inputs8, echo=FALSE}
+kable(md8$inputObjects)
+```
+
+#### Output objects
+
+```{r outputs8, echo=FALSE}
+kable(md8$outputObjects)
+```
+
+## LandWeb module integration
+
+![](LandWeb_module_diagram.png)
+
+![](LandWeb_object_diagram.png)
