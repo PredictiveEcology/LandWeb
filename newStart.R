@@ -203,8 +203,6 @@ scratchDir <- if (dir.exists(computeCanadaScratch)) {
 }
 
 rasterOptions(default = TRUE)
-options(rasterMaxMemory = maxMemory, rasterTmpDir = scratchDir)
-
 opts <- options(
   "fftempdir" = scratchDir,
   "future.globals.maxSize" = 1000*1024^2,
@@ -214,6 +212,8 @@ opts <- options(
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
   "map.useParallel" = mapParallel,
+  "rasterMaxMemory" = maxMemory,
+  "rasterTmpDir" = scratchDir,
   "reproducible.destinationPath" = normPath(Paths$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) FALSE else FALSE,
