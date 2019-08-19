@@ -1,0 +1,179 @@
+################################################################################
+## Simulation post-processing (largePatches & leading)
+################################################################################
+
+#allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
+allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
+allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
+allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
+allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = 4)), collapse = "|"),
+               allouts, value = TRUE, invert = TRUE)
+layerName <- gsub(allouts2, pattern = paste0(".*", Paths$outputPath), replacement = "")
+layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
+layerName <- gsub(layerName, pattern = "^_", replacement = "")
+ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2") %>%
+grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
+destinationPath <- dirname(allouts2)
+tsf <- gsub(".*vegTypeMap.*", NA, allouts2) %>%
+grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
+vtm <- gsub(".*TimeSinceFire.*", NA, allouts2) %>%
+grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
+
+ml <- simOutPreamble$ml
+
+if (!is(ml@metadata$leaflet, "Path"))
+ml@metadata$leaflet <- asPath(as.character(ml@metadata$leaflet))
+
+if (!is(ml@metadata$targetFile, "Path"))
+ml@metadata$targetFile <- asPath(as.character(ml@metadata$targetFile))
+
+if (!is(ml@metadata$tsf, "Path"))
+ml@metadata$tsf <- asPath(as.character(ml@metadata$tsf))
+
+## species layers for post-processing
+paths2a <- list(
+cachePath = file.path("cache", "dataPrepGIS", "speciesLayers2a"),
+modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+inputPath = "inputs",
+outputPath = file.path("outputs", runName)
+)
+do.call(SpaDES.core::setPaths, paths2a)
+
+parameters2a <- list(
+BiomassSpeciesData = list(
+  "omitNonVegPixels" = TRUE,
+  "types" = c("ForestInventory"), ## why not all 4? c("KNN", "CASFRI", "Pickell", "ForestInventory")
+  "sppEquivCol" = sppEquivCol,
+  ".useCache" = FALSE
+)
+)
+
+simOutSpeciesLayers2a <- Cache(simInitAndSpades,
+                               times = list(start = 0, end = 1),
+                               params = parameters2a,
+                               modules = c("BiomassSpeciesData"),
+                               objects = objects2,
+                               omitArgs = c("debug", "paths", ".plotInitialTime"),
+                               useCloud = useCloudCache,
+                               cloudFolderID = cloudCacheFolderID,
+                               ## make .plotInitialTime an argument, not a parameter:
+                               ##  - Cache will see them as unchanged regardless of value
+                               .plotInitialTime = .plotInitialTime,
+                               paths = paths2a,
+                               debug = 1)
+
+################################################################################
+## create vtm and tsf stacks for animation
+################################################################################
+
+tsfTimeSeries <- gsub(".*vegTypeMap.*", NA, allouts) %>%
+grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
+vtmTimeSeries <- gsub(".*TimeSinceFire.*", NA, allouts) %>%
+grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
+
+tsfStack <- raster::stack(tsfTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
+gifName <- file.path(normPath(Paths$outputPath), "animation_tsf.gif")
+animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
+                   movie.name = gifName, expr = {
+                     brks <- c(0, 1, 40, 80, 120, 1000)
+                     cols <- RColorBrewer::brewer.pal(5, "RdYlGn")
+                     for (i in seq(numLayers(tsfStack))) {
+                       plot(mask(tsfStack[[i]], studyArea(ml, 2)), breaks = brks, col = cols)
+                     }
+})
+rm(tsfStack)
+
+#vtmStack <- raster::stack(vtmTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_vtm.tif"))
+#gifName <- file.path(normPath(Paths$outputPath), "animation_vtm.gif")
+#animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
+#                   movie.name = gifName, expr = {
+#                     for (i in seq(numLayers(vtmStack)))
+#                       plot(mask(vtmStack[[i]], studyArea(ml, 2))) # TODO: this animation isn't great!
+#})
+#rm(vtmStack)
+
+################################################################################
+## begin post-processing
+################################################################################
+
+paths4 <- list(
+    cachePath = file.path("cache", "postprocessing"),
+    modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+    inputPath = "inputs",
+    outputPath = file.path("outputs", runName)
+)
+do.call(SpaDES.core::setPaths, paths4)
+tilePath <- file.path(Paths$outputPath, "tiles")
+
+vtmCC <- vegTypeMapGenerator(simOutSpeciesLayers$speciesLayers, vegLeadingProportion, mixedType = 2,
+                             sppEquiv = sppEquivalencies_CA, sppEquivCol = "LandWeb", colors = sppColorVect)
+fname <- file.path(Paths$outputPath, "CurrentConditionVTM.tif")
+writeRaster(vtmCC, fname, overwrite = TRUE)
+
+fname2 <- file.path(Paths$outputPath, "CurrentConditionTSF.tif")
+writeRaster(ml$`CC TSF`, fname2, overwrite = TRUE)
+
+ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
+             targetFile = asPath(fname),
+             destinationPath = asPath(Paths$outputPath),
+             filename2 = NULL,
+             tsf = asPath(fname2),
+             vtm = asPath(fname),
+             CC = TRUE,
+             overwrite = TRUE,
+             #useCache = "overwrite",
+             leaflet = asPath(tilePath))
+
+options(map.useParallel = FALSE)
+ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
+             targetFile = asPath(allouts2),
+             destinationPath = asPath(destinationPath),
+             filename2 = NULL, tsf = asPath(tsf), vtm = asPath(vtm),
+             overwrite = TRUE,
+             useCache = "overwrite",
+             leaflet = asPath(tilePath))
+options(map.useParallel = mapParallel)
+
+saveRDS(ml, simFile("ml", Paths$outputPath))
+#ml <- readRDS(simFile("ml", Paths$outputPath))
+
+options(map.useParallel = FALSE)
+ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
+                     #purgeAnalyses = "LeadingVegTypeByAgeClass",
+                     ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                     sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
+options(map.useParallel = mapParallel)
+
+# add an analysis -- this will trigger analyses because there are already objects in the map
+#    This will trigger 2 more analyses ... largePatches on each raster x polygon combo
+#    so there is 1 raster group, 2 polygon groups, 2 analyses - Total 4, only 2 run now
+options(map.useParallel = FALSE)
+ml <- mapAddAnalysis(ml, functionName = "LargePatches",
+                     id = "1", labelColumn = "shinyLabel",
+                     #purgeAnalyses = "LargePatches",
+                     ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
+                     sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
+options(map.useParallel = mapParallel)
+
+saveRDS(ml, simFile("ml_partial", Paths$outputPath))
+#ml <- readRDS(simFile("ml_partial", Paths$outputPath))
+
+## this analysisGroupReportingPolygon MUST be the same as one of ones already analysed
+ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
+                            postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                            #purgeAnalyses = "rbindlistAG",
+                            postHocAnalyses = "all")
+ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
+                            postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                            postHocAnalyses = "rbindlistAG",
+                            #purgeAnalyses = "runBoxPlotsVegCover",
+                            dPath = file.path(Paths$outputPath, "boxplots"))
+ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
+                            postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                            postHocAnalyses = "rbindlistAG",
+                            #purgeAnalyses = "runBoxPlotsVegCover",
+                            dPath = file.path(Paths$outputPath, "boxplots"))
+
+saveRDS(ml, simFile("ml_done", Paths$outputPath))
+print(runName)
+
