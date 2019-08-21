@@ -18,13 +18,13 @@ opts <- options(
   "future.globals.maxSize" = 1000*1024^2,
   "LandR.assertions" = if (user("emcintir")) FALSE else FALSE,
   "LandR.verbose" = if (user("emcintir")) 1 else 1,
-  "map.dataPath" = Paths$inputPath, # not used yet
+  "map.dataPath" = normPath(paths1$inputPath), # not used yet
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
   "map.useParallel" = mapParallel,
   "rasterMaxMemory" = maxMemory,
   "rasterTmpDir" = scratchDir,
-  "reproducible.destinationPath" = normPath(Paths$inputPath),
+  "reproducible.destinationPath" = normPath(paths1$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) FALSE else FALSE,
   "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
