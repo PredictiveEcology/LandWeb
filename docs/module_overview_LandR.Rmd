@@ -141,15 +141,16 @@ kable(md7$outputObjects)
 ## LandR module integration
 
 ```{r, eval=FALSE}
-modules_landr <- c("BiomassSpeciesData", modules[c(1, 2, 4)])
+modules_landr <- c("BiomassSpeciesData", modules3[c(1, 2, 4)])
 
-mySim_landr <- Cache(simInit, times = times,
-                     params = parameters,
+mySim_landr <- Cache(simInit,
+                     times = times,
+                     params = parameters3,
                      modules = modules_landr,
-                     outputs = outputs,
-                     objects = objects,
+                     outputs = outputs3,
+                     objects = objects3,
                      paths = paths3,
-                     loadOrder = unlist(modules),
+                     loadOrder = unlist(modules_landr),
                      useCloud = FALSE,
                      cloudFolderID = cloudCacheFolderID,
                      omitArgs = c("debug", "paths", ".plotInitialTime")
