@@ -45,5 +45,6 @@ if (restartIteration == 0) {
   mySimOut <- spades(mySimOut)
 }
 
-message("Saving simulation to: ", simFile)
-saveRDS(mySimOut, simFile("mySimOut", Paths$outputPath, end(mySimOut)))
+fsim <- simFile("mySimOut", Paths$outputPath, end(mySimOut))
+message("Saving simulation to: ", fsim)
+saveRDS(mySimOut, fsim)
