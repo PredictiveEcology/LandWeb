@@ -14,3 +14,4 @@ until [ -f "mySimOut_1000.rds" ]
 do
 echo ${RCMDS} | r
 done
+
