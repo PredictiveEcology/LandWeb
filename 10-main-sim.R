@@ -36,9 +36,9 @@ if (restartIteration == 0) {
                     .plotInitialTime = .plotInitialTime
   )
 } else {
-  Require(packages(mySimOut))
-
   mySimOut <- readRDS(simFile("mySimOut", Paths$outputPath, restartIteration * restartInterval))
+
+  Require(packages(mySimOut))
 
   end(mySimOut) <- min((restartIteration + 1) * restartInterval, endTime)
 
