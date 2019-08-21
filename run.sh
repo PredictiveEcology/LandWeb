@@ -1,5 +1,8 @@
 #!/bin/bash
 
+## USAGE: ./run.sh <rep>
+## provide a numeric <rep> as the first and only argument to this script
+
 RUN=$1
 
 RCMD1="runName <- paste0('LandWeb_highDispersal_logROS_rep', SpaDES.core::paddedFloatToChar(${RUN}, padL = 2));"
