@@ -35,7 +35,7 @@ shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "
                "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 
-moduleRqdPkgs <- lapply(basename(dir(Paths$modulePath)), function(m) {
+moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
   packages(modules = m, paths = Paths$modulePath)
 }) %>%
   unlist() %>%
