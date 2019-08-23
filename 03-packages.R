@@ -48,10 +48,10 @@ fromGitHub <- names(which(pemisc::isGitHubPkg(moduleRqdPkgs)))
 
 if (any(!(fromCRAN %in% installed.packages()[, "Package"]))) {
   pkgIds <- which(!(fromCRAN %in% installed.packages()[, "Package"]))
-  vapply(fromCRAN[ids], install.packages, NULL)
+  install.packages(fromCRAN[pkgIds])
 }
 
 if (any(!(pemisc::ghPkgName(fromGitHub) %in% installed.packages()[, "Package"]))) {
   pkgIds <- which(!(pemisc::ghPkgName(fromGitHub) %in% installed.packages()[, "Package"]))
-  vapply(fromGitHub[ids], devtools::install_github, NULL)
+  lapply(fromGitHub[pkgIds], devtools::install_github)
 }
