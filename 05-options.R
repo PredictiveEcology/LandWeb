@@ -3,7 +3,15 @@
 ################################################################################
 
 rep <- as.integer(substr(runName, nchar(runName) - 1, nchar(runName)))
-.plotInitialTime <- if (is.na(rep)) NA else if (user("emcintir")) 0 else if (user("achubaty") && rep == 1) 0 else NA
+.plotInitialTime <- if (is.na(rep)) {
+  NA
+} else if (user("emcintir")) {
+  0
+} else if (user("achubaty") && rep == 1) {
+  0
+} else {
+  NA
+}
 
 maxMemory <- if (grepl("LandWeb", runName)) 5e+12 else 5e+9
 scratchDir <- if (dir.exists(computeCanadaScratch)) {
