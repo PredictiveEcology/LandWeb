@@ -5,7 +5,7 @@
 modules_landweb <- c("LandWeb_preamble", "BiomassSpeciesData", modules3)
 
 fsim <- simFile("mySim_landweb", "docs", 0)
-mySim_landweb <- if (file.exists(fsim)) {
+mySim_landweb <- if (!file.exists(fsim)) {
   Cache(simInit,
         times = times3,
         params = parameters3,
