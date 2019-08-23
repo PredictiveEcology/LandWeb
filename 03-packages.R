@@ -35,29 +35,6 @@ shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "
                "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 
-isGHpkg <- Vectorize(function(x) {
-  if (length(strsplit(x, "/")[[1]]) == 1) FALSE else TRUE
-})
-
-ghPkgName <- Vectorize(function(x) {
-  y <- strsplit(x, "/")[[1]]
-
-  if (length(y) == 1) {
-    repo <- NULL
-    pkg <- y
-    branch <- NULL
-  } else {
-    z <- strsplit(y[2], "@")[[1]]
-
-    repo <- y[1]
-    pkg <- z[1]
-    branch <- z[2]
-    if (is.na(branch)) branch <- "master"
-  }
-
-  return(pkg)
-})
-
 moduleRqdPkgs <- lapply(basename(dir(Paths$modulePath)), function(m) {
   packages(modules = m, paths = Paths$modulePath)
 }) %>%
@@ -66,15 +43,15 @@ moduleRqdPkgs <- lapply(basename(dir(Paths$modulePath)), function(m) {
   unique() %>%
   sort()
 
-fromCRAN <- names(which(!isGHpkg(moduleRqdPkgs)))
-fromGitHub <- names(which(isGHpkg(moduleRqdPkgs)))
+fromCRAN <- names(which(!pemisc::isGitHubPkg(moduleRqdPkgs)))
+fromGitHub <- names(which(pemisc::isGitHubPkg(moduleRqdPkgs)))
 
 if (any(!(fromCRAN %in% installed.packages()[, "Package"]))) {
   pkgIds <- which(!(fromCRAN %in% installed.packages()[, "Package"]))
   vapply(fromCRAN[ids], install.packages, NULL)
 }
 
-if (any(!(ghPkgName(fromGitHub) %in% installed.packages()[, "Package"]))) {
-  pkgIds <- which(!(ghPkgName(fromGitHub) %in% installed.packages()[, "Package"]))
+if (any(!(pemisc::ghPkgName(fromGitHub) %in% installed.packages()[, "Package"]))) {
+  pkgIds <- which(!(pemisc::ghPkgName(fromGitHub) %in% installed.packages()[, "Package"]))
   vapply(fromGitHub[ids], devtools::install_github, NULL)
 }
