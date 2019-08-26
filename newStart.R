@@ -3,7 +3,11 @@ source("02-runName.R")
 
 if (grepl("LandWeb", runName)) {
   source(file.path(activeDir, "params", "LandWeb_parameters.R")) ## same as FMA_parameters; i.e., no cache ids
-} else if (grepl("ANC|DMI|LP|MANNING|TOLKO", toupper(runName))) {
+} else if (grepl(
+  paste(
+    "ANC", "BLUERIDGE", "DMI", "EDSON", "LP", "MANNING", "MILLARWESTERN", "MISTIK", "MPR",
+    "FMANWT", "SUNDRE", "TOLKO", "VANDERWELL", "WESTFRASER", "WEYCO", sep = "|"
+  ), toupper(runName))) {
   source(file.path(activeDir, "params", "FMA_parameters.R"))
 }
 
