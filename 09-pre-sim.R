@@ -84,7 +84,7 @@ parameters3 <- list(
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = successionTimestep,
-    ".maxMemory" = 20, ## GB
+    ".maxMemory" = if (format(pemisc::availableMemory(), units = "GiB") > 130) 20 else 10, ## GB
     ".plotInitialTime" = .plotInitialTime,
     ".useCache" = eventCaching[1], # seems slower to use Cache for both
     ".useParallel" = useParallel
