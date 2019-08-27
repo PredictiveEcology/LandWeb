@@ -36,17 +36,15 @@ if (restartIteration == 0) {
                     .plotInitialTime = .plotInitialTime
   )
 } else {
-  library(SpaDES.core)
-
   mySimOut <- readRDS(simFile("mySimOut", Paths$outputPath, restartIteration * restartInterval))
 
   Require(packages(mySimOut))
 
-  end(mySimOut) <- min((restartIteration + 1) * restartInterval, endTime)
+  SpaDES.core::end(mySimOut) <- min((restartIteration + 1) * restartInterval, endTime)
 
   mySimOut <- spades(mySimOut)
 }
 
-fsim <- simFile("mySimOut", Paths$outputPath, end(mySimOut))
+fsim <- simFile("mySimOut", Paths$outputPath, SpaDES.core::end(mySimOut))
 message("Saving simulation to: ", fsim)
 saveRDS(mySimOut, fsim)
