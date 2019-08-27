@@ -28,6 +28,9 @@ source("07-preamble.R")
 source("08-speciesLayers.R")
 source("09-pre-sim.R")
 
+if (isFALSE(postProcessOnly))
+  rm(simOutPreamble)
+
 message(crayon::red(runName))
 
 if (isFALSE(postProcessOnly)) {

@@ -78,4 +78,3 @@ if (!is.na(.plotInitialTime)) {
 
   Plot(simOutSpeciesLayers$speciesLayers)
 }
-

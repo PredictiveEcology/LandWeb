@@ -32,9 +32,6 @@ objects3 <- list(
   "useParallel" = 2
 )
 
-if (isFALSE(postProcessOnly))
-  rm(simOutPreamble)
-
 parameters3 <- list(
   Boreal_LBMRDataPrep = list(
     ## fastLM is ~35% faster than the default lmer but needs 820GB RAM !!
@@ -146,13 +143,12 @@ outputs3 <- as.data.frame(data.table::rbindlist(list(outputs3a, outputs3b, outpu
 fseed <- file.path(Paths$outputPath, "seed.rds")
 fseed2 <- extension(fseed, "txt")
 if (file.exists(fseed)) {
-seed <- readRDS(fseed)
+  seed <- readRDS(fseed)
 } else {
-seed <- sample(1e4, 1)
-saveRDS(seed, fseed)
+  seed <- sample(1e4, 1)
+  saveRDS(seed, fseed)
 }
-print(seed)
+print(paste("random seed:", seed))
 cat(paste("Setting seed in newStart.R:", seed), file = fseed2, sep = "\n")
 set.seed(seed)
 writeRNGInfo(fseed2, append = TRUE)
-

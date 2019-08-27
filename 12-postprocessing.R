@@ -7,17 +7,17 @@ allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
 allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
 allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = 4)), collapse = "|"),
-               allouts, value = TRUE, invert = TRUE)
+                 allouts, value = TRUE, invert = TRUE)
 layerName <- gsub(allouts2, pattern = paste0(".*", Paths$outputPath), replacement = "")
 layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
 layerName <- gsub(layerName, pattern = "^_", replacement = "")
 ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2") %>%
-grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
+  grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
 destinationPath <- dirname(allouts2)
 tsf <- gsub(".*vegTypeMap.*", NA, allouts2) %>%
-grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
+  grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
 vtm <- gsub(".*TimeSinceFire.*", NA, allouts2) %>%
-grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
+  grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
 
 ml <- simOutPreamble$ml
 
