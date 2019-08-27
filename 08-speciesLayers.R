@@ -57,7 +57,14 @@ if (isTRUE(rerunSpeciesLayers)) {
 
   saveRDS(simOutSpeciesLayers, sppLayersFile, version = 3)
 } else {
+  dl <- downloadFile(url = "https://drive.google.com/file/d/1oSUfp9HTx1eu4zq5ylWtXirZaoPas_9c/view?usp=sharing",
+                     targetFile = basename(sppLayersFile),
+                     destinationPath = dirname(sppLayersFile),
+                     neededFiles = basename(sppLayersFile),
+                     archive = NULL,
+                     checkSums = Checksums(dirname(sppLayersFile), write = TRUE), needChecksums = 0)
   simOutSpeciesLayers <- readRDS(sppLayersFile)
+  rm(dl)
 }
 
 if (!is.na(.plotInitialTime)) {
