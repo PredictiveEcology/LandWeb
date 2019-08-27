@@ -37,4 +37,3 @@ if (!is.na(.plotInitialTime)) {
   Plot(simOutPreamble$rasterToMatchReporting)
   Plot(simOutPreamble$rasterToMatch) # some bug in quickPlot that makes these 2 not plot together
 }
-

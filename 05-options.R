@@ -57,4 +57,3 @@ if (dir.exists(computeCanadaScratch)) {
   else
     googledrive::drive_auth(path = file.path(activeDir, "landweb-82e0f9f29fbc.json"))
 }
-

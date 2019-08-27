@@ -83,4 +83,3 @@ if (isTRUE(batchMode)) {
   #runName <- "LandWeb_aspenDispersal_logROS"
 }
 message(crayon::red(runName))
-

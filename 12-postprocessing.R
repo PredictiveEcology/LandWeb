@@ -22,30 +22,30 @@ vtm <- gsub(".*TimeSinceFire.*", NA, allouts2) %>%
 ml <- simOutPreamble$ml
 
 if (!is(ml@metadata$leaflet, "Path"))
-ml@metadata$leaflet <- asPath(as.character(ml@metadata$leaflet))
+  ml@metadata$leaflet <- asPath(as.character(ml@metadata$leaflet))
 
 if (!is(ml@metadata$targetFile, "Path"))
-ml@metadata$targetFile <- asPath(as.character(ml@metadata$targetFile))
+  ml@metadata$targetFile <- asPath(as.character(ml@metadata$targetFile))
 
 if (!is(ml@metadata$tsf, "Path"))
-ml@metadata$tsf <- asPath(as.character(ml@metadata$tsf))
+  ml@metadata$tsf <- asPath(as.character(ml@metadata$tsf))
 
 ## species layers for post-processing
 paths2a <- list(
-cachePath = file.path("cache", "dataPrepGIS", "speciesLayers2a"),
-modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-inputPath = "inputs",
-outputPath = file.path("outputs", runName)
+  cachePath = file.path("cache", "dataPrepGIS", "speciesLayers2a"),
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs",
+  outputPath = file.path("outputs", runName)
 )
 do.call(SpaDES.core::setPaths, paths2a)
 
 parameters2a <- list(
-BiomassSpeciesData = list(
-  "omitNonVegPixels" = TRUE,
-  "types" = c("ForestInventory"), ## why not all 4? c("KNN", "CASFRI", "Pickell", "ForestInventory")
-  "sppEquivCol" = sppEquivCol,
-  ".useCache" = FALSE
-)
+  BiomassSpeciesData = list(
+    "omitNonVegPixels" = TRUE,
+    "types" = c("ForestInventory"), ## why not all 4? c("KNN", "CASFRI", "Pickell", "ForestInventory")
+    "sppEquivCol" = sppEquivCol,
+    ".useCache" = FALSE
+  )
 )
 
 simOutSpeciesLayers2a <- Cache(simInitAndSpades,
@@ -67,9 +67,9 @@ simOutSpeciesLayers2a <- Cache(simInitAndSpades,
 ################################################################################
 
 tsfTimeSeries <- gsub(".*vegTypeMap.*", NA, allouts) %>%
-grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
+  grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
 vtmTimeSeries <- gsub(".*TimeSinceFire.*", NA, allouts) %>%
-grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
+  grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
 
 tsfStack <- raster::stack(tsfTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
 gifName <- file.path(normPath(Paths$outputPath), "animation_tsf.gif")

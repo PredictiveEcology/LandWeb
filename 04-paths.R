@@ -31,4 +31,3 @@ paths3 <- list(
 
 ## tile path (same for all)
 tilePath <- file.path(paths1$outputPath, "tiles")
-
