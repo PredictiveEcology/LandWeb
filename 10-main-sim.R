@@ -36,6 +36,8 @@ if (restartIteration == 0) {
                     .plotInitialTime = .plotInitialTime
   )
 } else {
+  library(SpaDES.core)
+
   mySimOut <- readRDS(simFile("mySimOut", Paths$outputPath, restartIteration * restartInterval))
 
   Require(packages(mySimOut))
