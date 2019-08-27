@@ -26,7 +26,7 @@ mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
 maxAge <- 400
 minFRI <- 25
 postProcessOnly <- FALSE
-rerunSpeciesLayers <- TRUE #if (pemisc::user("emcintir")) TRUE else FALSE ## TODO: use this as workaround for speciesLayers cache problems
+rerunSpeciesLayers <- if (grepl("LandWeb", runName)) FALSE else TRUE
 restartInterval <- 100
 sppEquivCol <- "LandWeb"
 successionTimestep <- 10
@@ -41,4 +41,3 @@ vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one
 ################################################################################
 reproducible::checkPath(activeDir, create = TRUE)
 setwd(activeDir)
-
