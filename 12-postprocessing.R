@@ -2,6 +2,8 @@
 ## Simulation post-processing (largePatches & leading)
 ################################################################################
 
+stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
+
 #allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
 allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
@@ -168,12 +170,16 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
                             postHocAnalyses = "rbindlistAG",
                             #purgeAnalyses = "runBoxPlotsVegCover",
                             dPath = file.path(Paths$outputPath, "boxplots"))
+ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsVegCover",
+                            postHocAnalysisGroups = "analysisGroupReportingPolygon",
+                            postHocAnalyses = "rbindlistAG",
+                            #purgeAnalyses = "runHistsVegCover",
+                            dPath = file.path(Paths$outputPath, "hists"))
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "rbindlistAG",
-                            #purgeAnalyses = "runBoxPlotsVegCover",
-                            dPath = file.path(Paths$outputPath, "boxplots"))
+                            #purgeAnalyses = "runHistsLargePatches",
+                            dPath = file.path(Paths$outputPath, "hists"))
 
 saveRDS(ml, simFile("ml_done", Paths$outputPath))
 print(runName)
-
