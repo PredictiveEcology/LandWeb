@@ -11,6 +11,10 @@
 
 ### Getting the code
 
+All modules are written in R and all model code was developed collaboratively using GitHub (<https://github.com>), with each module contained in it’s own (currently private) git repository (see below).
+Code that is shared among modules was bundled into R packages, and hosted in open git repositories.
+All package code is automatically and regularly tested using cross-platform continuous integration frameworks to ensure the code is reliable and free of errors.
+
 ```bash
 ## master branch
 git clone --recurse-submodules -j8 https://github.com/eliotmcintire/LandWeb
@@ -18,6 +22,26 @@ git clone --recurse-submodules -j8 https://github.com/eliotmcintire/LandWeb
 ## development branch
 git clone --single-branch -b development --recurse-submodules -j8 https://github.com/eliotmcintire/LandWeb
 ```
+
+**NOTE:** you will need access to each of the module repositories:
+
+_Modules_
+
+- [eliotmcintire/BiomassSpeciesData](https://github.com/eliotmcintire/BiomassSpeciesData)
+- [eliotmcintire/Biomass_regeneration](https://github.com/eliotmcintire/Biomass_regeneration)
+- [PredictiveEcology/LandMine](https://github.com/PredictiveEcology/LandMine)
+- [eliotmcintire/LandR_Biomass_regeneration](https://github.com/eliotmcintire/LandR_Biomass_regeneration)
+- [fRI-Research/LandWeb_output](https://github.com/fRI-Research/LandWeb_output)
+- [fRI-Research/LandWeb_preamble](https://github.com/fRI-Research/LandWeb_preamble)
+- [eliotmcintire/LBMR](https://github.com/eliotmcintire/LBMR)
+- [fRI-Research/timeSinceFire](https://github.com/fRI-Research/timeSinceFire)
+
+_Packages_
+
+- [PredictiveEcology/LandR](https://github.com/PredictiveEcology/LandR)
+- [PredictiveEcology/LandWebUtils](https://github.com/PredictiveEcology/LandWebUtils)
+- [PredictiveEcology/map](https://github.com/PredictiveEcology/map)
+- [PredictiveEcology/pemisc](https://github.com/PredictiveEcology/pemisc)
 
 #### Overview
 
