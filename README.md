@@ -23,7 +23,7 @@ git clone --recurse-submodules -j8 https://github.com/eliotmcintire/LandWeb
 git clone --single-branch -b development --recurse-submodules -j8 https://github.com/eliotmcintire/LandWeb
 ```
 
-**NOTE:** you will need access to each of the module repositories:
+**NOTE:** you will need access to each of the following repositories:
 
 _Modules_
 
