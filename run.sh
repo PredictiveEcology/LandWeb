@@ -10,7 +10,8 @@ RCMD2="source('newStart.R')"
 
 RCMDS="${RCMD1} ${RCMD2}"
 
-until [ -f "mySimOut_1000.rds" ]
+for i in {1..10}
 do
-echo ${RCMDS} | r
+    echo ${RCMDS} | r
 done
+
