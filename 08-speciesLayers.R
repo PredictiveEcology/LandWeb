@@ -55,7 +55,7 @@ if (isTRUE(rerunSpeciesLayers)) {
                                paths = paths2,
                                debug = 1)
 
-  saveRDS(simOutSpeciesLayers, sppLayersFile, version = 3)
+  saveRDS(Copy(simOutSpeciesLayers), sppLayersFile, version = 3)
 } else {
   dl <- downloadFile(url = "https://drive.google.com/file/d/1oSUfp9HTx1eu4zq5ylWtXirZaoPas_9c/view?usp=sharing",
                      targetFile = basename(sppLayersFile),

@@ -16,7 +16,7 @@ mySim_landweb <- if (!file.exists(fsim)) {
         loadOrder = unlist(modules_landweb),
         omitArgs = c("debug", "paths", ".plotInitialTime")
   )
-  saveRDS(mySim_landweb, fsim)
+  saveRDS(Copy(mySim_landweb), fsim)
 } else {
   readRDS(fsim)
 }
