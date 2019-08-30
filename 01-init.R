@@ -16,8 +16,8 @@ activeDir <- if (dir.exists(computeCanadaScratch)) {
 } else {
   file.path("~/GitHub/LandWeb")
 }
-ageClasses <- c("Young", "Immature", "Mature", "Old")
-ageClassCutOffs <- c(0, 40, 80, 120)
+ageClasses <- c("Young", "Immature", "Mature", "Old") ## LandWebUtils:::.ageClasses
+ageClassCutOffs <- c(0, 40, 80, 120)                  ## LandWebUtils:::.ageClassCutOffs
 batchMode <- if (pemisc::user("achubaty")) TRUE else FALSE ## NOTE: runName must be defined
 cloudCacheFolderID <- "/folders/1b2h5hJlarNMkxdUyJLO5pPUwrQV8m626"
 eventCaching <- c(".inputObjects", "init")
