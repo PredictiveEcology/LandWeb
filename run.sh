@@ -3,15 +3,21 @@
 ## USAGE: ./run.sh <rep>
 ## provide a numeric <rep> as the first and only argument to this script
 
-RUN=$1
+printf -v RUN "%02g" $1 ## assign to RUN, padding with extra zeros as needed
 
-RCMD1="runName <- paste0('LandWeb_highDispersal_logROS_rep', SpaDES.core::paddedFloatToChar(${RUN}, padL = 2));"
-RCMD2="source('newStart.R')"
+OUTDIR="outputs/LandWeb_highDispersal_logROS"
+RUNNAME="LandWeb_highDispersal_logROS_rep${RUN}"
+RCMD="runName <- '${RUNNAME}'; source('newStart.R')"
 
-RCMDS="${RCMD1} ${RCMD2}"
+if [ ! -d ${OUTDIR} ]; then
+  mkdir -p ${OUTDIR}
+fi
 
 for i in {1..10}
 do
-    echo ${RCMDS} | r
+  echo ${RCMD} | r
 done
 
+if [ -f "outputs/${RUNNAME}/mySimOut_1000.rds" ]; then
+  mv "outputs/${RUNNAME}" "${OUTDIR}/rep${RUN}"
+fi
