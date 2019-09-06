@@ -41,7 +41,7 @@ if (isFALSE(postProcessOnly)) {
     source("10a-POM.R") ## TODO: may not work out-of-the-box; untested!!
   }
 } else {
-  mySimOut <- readRDS(simFile("mySimOut", Paths$outputPath, 1000))
+  #mySimOut <- readRDS(simFile("mySimOut", Paths$outputPath, 1000))
   source("12-postprocessing.R")
 }
 

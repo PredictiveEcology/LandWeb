@@ -23,6 +23,8 @@ vtm <- gsub(".*TimeSinceFire.*", NA, allouts2) %>%
 
 ml <- simOutPreamble$ml
 
+rm(simOutPreamble)
+
 if (!is(ml@metadata$leaflet, "Path"))
   ml@metadata$leaflet <- asPath(as.character(ml@metadata$leaflet))
 
