@@ -56,4 +56,6 @@ if (dir.exists(computeCanadaScratch)) {
     googledrive::drive_auth(service_token = file.path(activeDir, "landweb-82e0f9f29fbc.json"))
   else
     googledrive::drive_auth(path = file.path(activeDir, "landweb-82e0f9f29fbc.json"))
+} else {
+  googledrive::drive_deauth()
 }
