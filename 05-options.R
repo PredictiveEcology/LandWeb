@@ -51,12 +51,15 @@ opts <- options(
 )
 
 httr::set_config(httr::config(http_version = 0))
-if (dir.exists(computeCanadaScratch)) {
-  if (utils::packageVersion("googledrive") < "1.0.0")
-    googledrive::drive_auth(service_token = file.path(activeDir, "landweb-82e0f9f29fbc.json"))
-  else
-    googledrive::drive_auth(path = file.path(activeDir, "landweb-82e0f9f29fbc.json"))
+
+token <- if (dir.exists(computeCanadaScratch)) {
+  file.path(activeDir, "landweb-82e0f9f29fbc.json")
+} else if (Sys.info()['nodename'] == "landweb") {
+  file.path(activeDir, "landweb-e3147f3110bf.json")
+}
+stopifnot(file.exists(token))
+if (utils::packageVersion("googledrive") < "1.0.0") {
+  googledrive::drive_auth(service_token = token)
 } else {
-  if (utils::packageVersion("googledrive") >= "1.0.0")
-    googledrive::drive_deauth()
+  googledrive::drive_auth(path = token)
 }
