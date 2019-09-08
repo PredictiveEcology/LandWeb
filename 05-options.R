@@ -63,3 +63,8 @@ if (utils::packageVersion("googledrive") < "1.0.0") {
 } else {
   googledrive::drive_auth(path = token)
 }
+
+## TEMPORARY WORKAROUND?
+if (pemisc::user("achubaty")) {
+  googledrive::drive_auth(email = "alex.chubaty@gmail.com")
+}
