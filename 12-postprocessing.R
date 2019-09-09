@@ -8,7 +8,7 @@ stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
 allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
-allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = 4)), collapse = "|"),
+allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = 3)), collapse = "|"),
                  allouts, value = TRUE, invert = TRUE)
 layerName <- gsub(allouts2, pattern = paste0(".*", Paths$outputPath), replacement = "")
 layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
@@ -162,6 +162,11 @@ options(map.useParallel = mapParallel)
 saveRDS(ml, simFile("ml_partial", Paths$outputPath))
 #ml <- readRDS(simFile("ml_partial", Paths$outputPath))
 
+histDirOld <- file.path(Paths$outputPath, "hists") %>% normPath(.)
+histDirNew <- file.path(Paths$outputPath, "histograms") %>% normPath(.)
+if (dir.exists(histDirOld))
+  file.rename(from = histDirOld, to = histDirNew)
+
 ## this analysisGroupReportingPolygon MUST be the same as one of ones already analysed
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
@@ -176,12 +181,12 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsVegCover",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "rbindlistAG",
                             #purgeAnalyses = "runHistsVegCover",
-                            dPath = file.path(Paths$outputPath, "hists"))
+                            dPath = file.path(Paths$outputPath, "histograms"))
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "rbindlistAG",
                             #purgeAnalyses = "runHistsLargePatches",
-                            dPath = file.path(Paths$outputPath, "hists"))
+                            dPath = file.path(Paths$outputPath, "histograms"))
 
 saveRDS(ml, simFile("ml_done", Paths$outputPath))
 print(runName)
