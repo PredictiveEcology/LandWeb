@@ -50,23 +50,26 @@ opts <- options(
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
 
+library(googledrive)
+
 httr::set_config(httr::config(http_version = 0))
 
 token <- if (dir.exists(computeCanadaScratch)) {
   file.path(activeDir, "landweb-82e0f9f29fbc.json")
 } else if (Sys.info()['nodename'] == "landweb") {
   file.path(activeDir, "landweb-e3147f3110bf.json")
-}
+} %>%
+  normPath(.)
 stopifnot(file.exists(token))
-if (utils::packageVersion("googledrive") < "1.0.0") {
-  googledrive::drive_auth(service_token = token)
-} else {
-  googledrive::drive_auth(path = token)
-}
 
-## TEMPORARY WORKAROUND?
-if (!interactive()) {
-  if (pemisc::user("achubaty")) {
-    googledrive::drive_auth(email = "alex.chubaty@gmail.com")
+if (pemisc::user("achubaty")) {
+  if (utils::packageVersion("googledrive") < "1.0.0") {
+    #drive_auth(service_token = token)
+    drive_auth(email = "alex.chubaty@gmail.com")
+  } else {
+    #drive_auth(path = token)
+    drive_auth(email = "alex.chubaty@gmail.com")
   }
+} else {
+  drive_auth()
 }
