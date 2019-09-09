@@ -27,7 +27,7 @@ parameters2 <- list(
 sppLayersFile <- file.path(Paths$inputPath, paste0("simOutSpeciesLayers_", substr(runName, 1, 8), ".rds"))
 if (isTRUE(rerunSpeciesLayers)) {
   ## delete existing species layers data and cache
-  if (pemisc::user("achubaty")) {
+  if (pemisc::user("achubaty") && isTRUE(deleteSpeciesLayers)) {
     exts <- c(".tif", ".tif.vat.dbf", ".tif.vat.cpg", ".tif.ovr", ".tif.aux.xml", ".tfw")
     forInvFiles <- vapply(c("BlackSpruce1", "Deciduous1", "Fir1", "Pine1", "WhiteSpruce1"),
                           function(f) {

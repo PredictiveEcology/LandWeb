@@ -20,6 +20,7 @@ ageClasses <- c("Young", "Immature", "Mature", "Old") ## LandWebUtils:::.ageClas
 ageClassCutOffs <- c(0, 40, 80, 120)                  ## LandWebUtils:::.ageClassCutOffs
 batchMode <- if (pemisc::user("achubaty")) TRUE else FALSE ## NOTE: runName must be defined
 cloudCacheFolderID <- "/folders/1b2h5hJlarNMkxdUyJLO5pPUwrQV8m626"
+deleteSpeciesLayers <- FALSE
 eventCaching <- c(".inputObjects", "init")
 fireTimestep <- 1
 mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
