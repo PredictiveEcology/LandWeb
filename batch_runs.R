@@ -17,6 +17,8 @@
 
 1 -> rep; Sys.sleep(rep); runName <- paste0("Manning_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
 
+2 -> rep; Sys.sleep(rep); runName <- paste0("LP_BC_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
+
 2 -> rep; Sys.sleep(rep); runName <- paste0("Mistik_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
 
 2 -> rep; Sys.sleep(rep); runName <- paste0("MillarWestern_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
