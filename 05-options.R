@@ -74,4 +74,4 @@ if (pemisc::user("achubaty")) {
   drive_auth()
 }
 
-message(drive_user()$emailAddress)
+message(crayon::green(drive_user()$emailAddress))
