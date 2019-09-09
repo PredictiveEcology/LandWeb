@@ -73,3 +73,5 @@ if (pemisc::user("achubaty")) {
 } else {
   drive_auth()
 }
+
+message(drive_user()$emailAddress)
