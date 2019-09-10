@@ -13,9 +13,9 @@
 
 #####
 
-1 -> rep; Sys.sleep(rep); runName <- paste0("tolko_SK_highDispersal_logROS_test_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
+2 -> rep; Sys.sleep(rep); runName <- paste0("tolko_SK_highDispersal_logROS_test_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
 
-1 -> rep; Sys.sleep(rep); runName <- paste0("Manning_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
+2 -> rep; Sys.sleep(rep); runName <- paste0("Manning_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
 
 2 -> rep; Sys.sleep(rep); runName <- paste0("LP_BC_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
 
@@ -30,6 +30,10 @@
 2 -> rep; Sys.sleep(rep); runName <- paste0("Edson_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
 
 2 -> rep; Sys.sleep(rep); runName <- paste0("BlueRidge_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
+
+2 -> rep; Sys.sleep(rep); runName <- paste0("WestFraser_N_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
+
+2 -> rep; Sys.sleep(rep); runName <- paste0("WestFraser_S_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("newStart.R")
 
 #####
 
