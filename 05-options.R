@@ -74,8 +74,10 @@ if (pemisc::user("achubaty")) {
     #drive_auth(path = token)
     drive_auth(email = "alex.chubaty@gmail.com")
   }
+} else if (pemisc::user("emcintir")) {
+  drive_auth(email = "eliotmcintire@gmail.com")
 } else {
-  drive_auth()
+  drive_auth(use_oob = quickPlot::isRstudioServer())
 }
 
 message(crayon::green(drive_user()$emailAddress))
