@@ -64,7 +64,7 @@ token <- if (dir.exists(computeCanadaScratch)) {
   normPath(.)
 
 if (is.na(token) || file.exists(token))
-  message(crayon::red("no Google ervice token found"))
+  message(crayon::red("no Google service token found"))
 
 if (pemisc::user("achubaty")) {
   if (utils::packageVersion("googledrive") < "1.0.0") {
