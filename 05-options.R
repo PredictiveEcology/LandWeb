@@ -59,11 +59,11 @@ token <- if (dir.exists(computeCanadaScratch)) {
 } else if (Sys.info()['nodename'] == "landweb") {
   file.path(activeDir, "landweb-e3147f3110bf.json")
 } else {
-  NULL
+  NA_character_
 } %>%
   normPath(.)
 
-if (is.null(token) || file.exists(token))
+if (is.na(token) || file.exists(token))
   message(crayon::red("no Google ervice token found"))
 
 if (pemisc::user("achubaty")) {
