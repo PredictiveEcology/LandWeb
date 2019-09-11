@@ -80,4 +80,4 @@ if (pemisc::user("achubaty")) {
   drive_auth(use_oob = quickPlot::isRstudioServer())
 }
 
-message(crayon::green(drive_user()$emailAddress))
+message(crayon::silver("Authenticating as: "), crayon::green(drive_user()$emailAddress))
