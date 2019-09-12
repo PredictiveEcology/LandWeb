@@ -18,16 +18,16 @@ objects3 <- list(
   "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
   "ROSTable" = LandMineROStable,
   "rstFlammable" = simOutPreamble$rstFlammable,
-  "rstTimeSinceFire" = simOutPreamble$`CC TSF`,
+  "rstTimeSinceFire" = simOutPreamble[["CC TSF"]],
   "sppColorVect" = sppColorVect,
   "sppEquiv" = sppEquivalencies_CA,
-  "speciesLayers" = simOutSpeciesLayers$speciesLayers,
+  "speciesLayers" = simOutSpeciesLayers[["speciesLayers"]],
   "speciesParams" = speciesParams,
   "speciesTable" = speciesTable,
-  "standAgeMap" = simOutPreamble$`CC TSF`, ## same as rstTimeSinceFire; TODO: use synonym?
-  "studyArea" = simOutPreamble$studyArea,
-  "studyAreaLarge" = simOutPreamble$studyAreaLarge,
-  "studyAreaReporting" = simOutPreamble$studyAreaReporting,
+  "standAgeMap" = simOutPreamble[["CC TSF"]], ## same as rstTimeSinceFire; TODO: use synonym?
+  "studyArea" = simOutPreamble[["studyArea"]],
+  "studyAreaLarge" = simOutPreamble[["studyAreaLarge"]],
+  "studyAreaReporting" = simOutPreamble[["studyAreaReporting"]],
   "summaryPeriod" = summaryPeriod, ## defined in params file
   "useParallel" = 2
 )
