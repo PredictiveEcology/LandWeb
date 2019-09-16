@@ -128,6 +128,9 @@ ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
              #useCache = "overwrite",
              leaflet = asPath(tilePath))
 
+# ml[["EdsonFP ANSR"]][["Name"]] <- ml[["EdsonFP ANSR"]][["Name.1"]]             # TODO: why is this necessary?
+# ml[["EdsonFP ANSR"]][["shinyLabel"]] <- ml[["EdsonFP ANSR"]][["shinyLabel.1"]] # TODO: why is this necessary?
+
 options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
              targetFile = asPath(allouts2),
