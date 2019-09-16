@@ -10,6 +10,8 @@ allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
 allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
 allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = 3)), collapse = "|"),
                  allouts, value = TRUE, invert = TRUE)
+stopifnot(length(allouts2) == 120) ## i.e., 60 reps worth of tsf and vtm maps
+
 layerName <- gsub(allouts2, pattern = paste0(".*", Paths$outputPath), replacement = "")
 layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
 layerName <- gsub(layerName, pattern = "^_", replacement = "")
@@ -25,14 +27,14 @@ ml <- simOutPreamble$ml
 
 rm(simOutPreamble)
 
-if (!is(ml@metadata$leaflet, "Path"))
-  ml@metadata$leaflet <- asPath(as.character(ml@metadata$leaflet))
+if (!is(ml@metadata[["leaflet"]], "Path"))
+  ml@metadata[["leaflet"]] <- asPath(as.character(ml@metadata[["leaflet"]]))
 
-if (!is(ml@metadata$targetFile, "Path"))
-  ml@metadata$targetFile <- asPath(as.character(ml@metadata$targetFile))
+if (!is(ml@metadata[["targetFile"]], "Path"))
+  ml@metadata[["targetFile"]] <- asPath(as.character(ml@metadata[["targetFile"]]))
 
-if (!is(ml@metadata$tsf, "Path"))
-  ml@metadata$tsf <- asPath(as.character(ml@metadata$tsf))
+if (!is(ml@metadata[["tsf"]], "Path"))
+  ml@metadata[["tsf"]] <- asPath(as.character(ml@metadata[["tsf"]]))
 
 ## species layers for post-processing
 paths2a <- list(
@@ -128,8 +130,24 @@ ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
              #useCache = "overwrite",
              leaflet = asPath(tilePath))
 
-# ml[["EdsonFP ANSR"]][["Name"]] <- ml[["EdsonFP ANSR"]][["Name.1"]]             # TODO: why is this necessary?
-# ml[["EdsonFP ANSR"]][["shinyLabel"]] <- ml[["EdsonFP ANSR"]][["shinyLabel.1"]] # TODO: why is this necessary?
+## WORKAROUND for some funny business with col names. TODO: track down source.
+if (any(grepl("ANSR", names(ml)))) {
+  id <- which(grepl("ANSR", names(ml)))
+  ml[[names(ml)[id]]][["Name"]] <- ml[[names(ml)[id]]][["Name.1"]]
+  ml[[names(ml)[id]]][["Name.1"]] <- ml[[names(ml)[id]]][["Name.2"]] <- NULL
+
+  ml[[names(ml)[id]]][["shinyLabel"]] <- ml[[names(ml)[id]]][["shinyLabel.1"]]
+  ml[[names(ml)[id]]][["shinyLabel.1"]] <- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
+}
+
+if (any(grepl("Caribou$", names(ml)))) { ## be sure not to include "LandWeb Caribou Ranges" polygon
+  id <- which(grepl("Caribou$", names(ml)))
+  ml[[names(ml)[id]]][["Name"]] <- ml[[names(ml)[id]]][["Name.1"]]
+  ml[[names(ml)[id]]][["Name.1"]] <- ml[[names(ml)[id]]][["Name.2"]] <- NULL
+
+  ml[[names(ml)[id]]][["shinyLabel"]] <- ml[[names(ml)[id]]][["shinyLabel.1"]]
+  ml[[names(ml)[id]]][["shinyLabel.1"]] <- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
+}
 
 options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
