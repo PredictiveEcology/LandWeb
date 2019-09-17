@@ -77,26 +77,30 @@ tsfTimeSeries <- gsub(".*vegTypeMap.*", NA, allouts) %>%
 vtmTimeSeries <- gsub(".*TimeSinceFire.*", NA, allouts) %>%
   grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
 
-tsfStack <- raster::stack(tsfTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
-gifName <- file.path(normPath(Paths$outputPath), "animation_tsf.gif")
-animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
-                   movie.name = gifName, expr = {
-                     brks <- c(0, 1, 40, 80, 120, 1000)
-                     cols <- RColorBrewer::brewer.pal(5, "RdYlGn")
-                     for (i in seq(numLayers(tsfStack))) {
-                       plot(mask(tsfStack[[i]], studyArea(ml, 2)), breaks = brks, col = cols)
-                     }
-})
-rm(tsfStack)
+if (length(tsfTimeSeries)) {
+  tsfStack <- raster::stack(tsfTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
+  gifName <- file.path(normPath(Paths$outputPath), "animation_tsf.gif")
+  animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
+                     movie.name = gifName, expr = {
+                       brks <- c(0, 1, 40, 80, 120, 1000)
+                       cols <- RColorBrewer::brewer.pal(5, "RdYlGn")
+                       for (i in seq(numLayers(tsfStack))) {
+                         plot(mask(tsfStack[[i]], studyArea(ml, 2)), breaks = brks, col = cols)
+                       }
+  })
+  rm(tsfStack)
+}
 
-#vtmStack <- raster::stack(vtmTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_vtm.tif"))
-#gifName <- file.path(normPath(Paths$outputPath), "animation_vtm.gif")
-#animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
-#                   movie.name = gifName, expr = {
-#                     for (i in seq(numLayers(vtmStack)))
-#                       plot(mask(vtmStack[[i]], studyArea(ml, 2))) # TODO: this animation isn't great!
-#})
-#rm(vtmStack)
+#if (length(vtmTimeSeries)) {
+#  vtmStack <- raster::stack(vtmTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_vtm.tif"))
+#  gifName <- file.path(normPath(Paths$outputPath), "animation_vtm.gif")
+#  animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
+#                     movie.name = gifName, expr = {
+#                       for (i in seq(numLayers(vtmStack)))
+#                         plot(mask(vtmStack[[i]], studyArea(ml, 2))) # TODO: this animation isn't great!
+#  })
+#  rm(vtmStack)
+#}
 
 ################################################################################
 ## begin post-processing
