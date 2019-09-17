@@ -91,6 +91,8 @@ writeRaster(vtmCC, fname, overwrite = TRUE)
 fname2 <- file.path(Paths$outputPath, "CurrentConditionTSF.tif")
 writeRaster(ml[["CC TSF"]], fname2, overwrite = TRUE)
 
+rm(simOutSpeciesLayers)
+
 ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
              targetFile = asPath(fname),
              destinationPath = asPath(Paths$outputPath),
