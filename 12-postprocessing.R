@@ -129,7 +129,7 @@ ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
              overwrite = TRUE,
              useCache = "overwrite",
              leaflet = FALSE) # asPath(tilePath)
-options(map.useParallel = mapParallel)
+#options(map.useParallel = mapParallel)
 
 saveRDS(ml, simFile("ml", Paths$outputPath))
 #ml <- readRDS(simFile("ml", Paths$outputPath))
@@ -139,7 +139,7 @@ ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
                      #purgeAnalyses = "LeadingVegTypeByAgeClass",
                      ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
                      sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
-options(map.useParallel = mapParallel)
+#options(map.useParallel = mapParallel)
 
 # add an analysis -- this will trigger analyses because there are already objects in the map
 #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo
@@ -150,7 +150,7 @@ ml <- mapAddAnalysis(ml, functionName = "LargePatches",
                      #purgeAnalyses = "LargePatches",
                      ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
                      sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
-options(map.useParallel = mapParallel)
+#options(map.useParallel = mapParallel)
 
 saveRDS(ml, simFile("ml_partial", Paths$outputPath))
 #ml <- readRDS(simFile("ml_partial", Paths$outputPath))
@@ -160,6 +160,7 @@ histDirNew <- file.path(Paths$outputPath, "histograms") %>% normPath(.)
 if (dir.exists(histDirOld))
   file.rename(from = histDirOld, to = histDirNew)
 
+options(map.useParallel = FALSE)
 ## this analysisGroupReportingPolygon MUST be the same as one of ones already analysed
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
