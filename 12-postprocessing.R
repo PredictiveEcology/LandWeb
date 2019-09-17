@@ -36,38 +36,6 @@ if (!is(ml@metadata[["targetFile"]], "Path"))
 if (!is(ml@metadata[["tsf"]], "Path"))
   ml@metadata[["tsf"]] <- asPath(as.character(ml@metadata[["tsf"]]))
 
-## species layers for post-processing
-paths2a <- list(
-  cachePath = file.path("cache", "dataPrepGIS", "speciesLayers2a"),
-  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-  inputPath = "inputs",
-  outputPath = file.path("outputs", runName)
-)
-do.call(SpaDES.core::setPaths, paths2a)
-
-parameters2a <- list(
-  BiomassSpeciesData = list(
-    "omitNonVegPixels" = TRUE,
-    "types" = c("ForestInventory"), ## why not all 4? c("KNN", "CASFRI", "Pickell", "ForestInventory")
-    "sppEquivCol" = sppEquivCol,
-    ".useCache" = FALSE
-  )
-)
-
-simOutSpeciesLayers2a <- Cache(simInitAndSpades,
-                               times = list(start = 0, end = 1),
-                               params = parameters2a,
-                               modules = c("BiomassSpeciesData"),
-                               objects = objects2,
-                               omitArgs = c("debug", "paths", ".plotInitialTime"),
-                               useCloud = useCloudCache,
-                               cloudFolderID = cloudCacheFolderID,
-                               ## make .plotInitialTime an argument, not a parameter:
-                               ##  - Cache will see them as unchanged regardless of value
-                               .plotInitialTime = .plotInitialTime,
-                               paths = paths2a,
-                               debug = 1)
-
 ################################################################################
 ## create vtm and tsf stacks for animation
 ################################################################################
