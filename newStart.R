@@ -9,7 +9,7 @@ if (grepl("LandWeb", runName)) {
     "FMANWT", "SUNDRE", "TOLKO", "VANDERWELL", "WESTFRASER", "WEYCO", sep = "|"
   ), toupper(runName))) {
   source(file.path(activeDir, "params", "FMA_parameters.R"))
-} else if (grepl(paste("PROVAB", "PROVBC", "PROVNWT", "PROVSK", sep = "|"), toupper(runName))) {
+} else if (grepl(paste("PROVAB", "PROVNWT", "PROVSK", sep = "|"), toupper(runName))) {
   source(file.path(activeDir, "params", "FMA_parameters.R"))
 } else {
   stop(crayon::red("Parameters file not read for runName", runName))
