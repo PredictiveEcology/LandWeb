@@ -2,6 +2,10 @@
 ## Simulation post-processing (largePatches & leading)
 ################################################################################
 
+library(future)
+options("future.availableCores.custom" = function() { min(getOption("Ncpus"), 4) })
+future::plan("multiprocess")
+
 stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 
 #allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
@@ -48,13 +52,15 @@ vtmTimeSeries <- gsub(".*TimeSinceFire.*", NA, allouts) %>%
 if (length(tsfTimeSeries)) {
   tsfStack <- raster::stack(tsfTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
   gifName <- file.path(normPath(Paths$outputPath), "animation_tsf.gif")
-  animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
-                     movie.name = gifName, expr = {
-                       brks <- c(0, 1, 40, 80, 120, 1000)
-                       cols <- RColorBrewer::brewer.pal(5, "RdYlGn")
-                       for (i in seq(numLayers(tsfStack))) {
-                         plot(mask(tsfStack[[i]], studyArea(ml, 2)), breaks = brks, col = cols)
-                       }
+  future({
+    animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
+                       movie.name = gifName, expr = {
+                         brks <- c(0, 1, 40, 80, 120, 1000)
+                         cols <- RColorBrewer::brewer.pal(5, "RdYlGn")
+                         for (i in seq(numLayers(tsfStack))) {
+                           plot(mask(tsfStack[[i]], studyArea(ml, 2)), breaks = brks, col = cols)
+                         }
+    })
   })
   rm(tsfStack)
 }
