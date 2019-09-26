@@ -52,7 +52,18 @@ if (restartIteration == 0) {
 
   SpaDES.core::end(mySimOut) <- min((restartIteration + 1) * restartInterval, endTime)
 
-  mySimOut <- spades(mySimOut)
+  mySimOut <- tryCatch({
+    spades(mySimOut)
+  }, error = function(e) {
+    if (requireNamespace("slackr") & file.exists("~/.slackr")) {
+      slackr::slackr_setup()
+      slackr::text_slackr(
+        paste0("Simulation `", runName, "` ERRORED on host `", Sys.info()[["nodename"]], "`."),
+        channel = "#landweb", preformatted = FALSE
+      )
+      slackr::text_slackr(e$message, channel = "#landweb", preformatted = TRUE)
+    }
+  })
 }
 
 fsim <- simFile("mySimOut", Paths$outputPath, SpaDES.core::end(mySimOut))
