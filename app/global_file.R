@@ -91,14 +91,6 @@ crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +
 studyRegionFilename <- "landweb_ltfc_v6.shp" ## TODO: verify this
 studyRegionFilePath <- file.path(appDir, paths$inputPath, studyRegionFilename)
 
-studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyRegionCreate,
-                          asPath(studyRegionFilePath),
-                          fireReturnIntervalMap = asPath(file.path(appDir, paths$inputPath, "firemap", "landweb_ltfc_v6.shp")),
-                          subStudyRegionName = subStudyRegionName,
-                          cacheId = cacheId$loadStudyRegions,
-                          crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)
-list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpSubStudyRegion
-
 ## set default reporting polygon for app
 defaultPolyName <- "LandWeb" ## ml[["LandWeb"]]
 
