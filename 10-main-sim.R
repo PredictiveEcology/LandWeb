@@ -40,9 +40,9 @@ if (restartIteration == 0) {
       slackr::slackr_setup()
       slackr::text_slackr(
         paste0("Simulation `", runName, "` ERRORED on host `", Sys.info()[["nodename"]], "`."),
-        channel = "#landweb", preformatted = FALSE
+        channel = "@alex.chubaty", preformatted = FALSE
       )
-      slackr::text_slackr(e$message, channel = "#landweb", preformatted = TRUE)
+      slackr::text_slackr(e$message, channel = "@alex.chubaty", preformatted = TRUE)
     }
   })
 } else {
@@ -59,9 +59,9 @@ if (restartIteration == 0) {
       slackr::slackr_setup()
       slackr::text_slackr(
         paste0("Simulation `", runName, "` ERRORED on host `", Sys.info()[["nodename"]], "`."),
-        channel = "#landweb", preformatted = FALSE
+        channel = "@alex.chubaty", preformatted = FALSE
       )
-      slackr::text_slackr(e$message, channel = "#landweb", preformatted = TRUE)
+      slackr::text_slackr(e$message, channel = "@alex.chubaty", preformatted = TRUE)
     }
   })
 }
@@ -74,6 +74,6 @@ if (restartIteration == (endTime / restartInterval)) {
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     slackr::slackr_setup()
     slackr::text_slackr(paste0("Simulation `", runName, "` completed on host `", Sys.info()[["nodename"]], "`."),
-                        channel = "#landweb", preformatted = FALSE)
+                        channel = "@alex.chubaty", preformatted = FALSE)
   }
 }
