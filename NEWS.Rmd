@@ -1,4 +1,36 @@
+---
+title: "LandWeb"
+author:
+  - "Alex M. Chubaty"
+  - "Eliot J. B. McIntire"
+date: "20 September 2019"
+output: md_document
+editor_options: 
+  chunk_output_type: console
+---
+
 **Known issues:** https://github.com/eliotmcintire/LandWeb/issues (private repository)
+
+--------------------------------------------------------------------------------
+
+### LandWeb v2.0.0
+
+**Input data**
+
+- reworked data preparation steps and fixed many data errors
+- implemented and fit various statistical models to impute missing and inconsistent data
+- shdaoeshda
+
+**Model improvements**
+
+- reparameterized the model to emulate a state-transition model to ensure burned pixels regenerate
+- several bug fixes and performance enhancments
+
+**App changes**
+
+- reworked app to use pre-generated results only instead of computing on-the-fly; as a result, only selected results per FMA are available in-app.
+- several other performance enhancements.
+- removed shapefile uploads, as custom areas require rerunning various analyses, which were slowing down the app server and blocking other users from interacting with the app.
 
 --------------------------------------------------------------------------------
 
@@ -28,4 +60,4 @@ I am currently taking a closer look at the simulations and code to verify these 
 
 **NOTE:** There appears to be a bias towards deciduous species in some of the results.
 This may be due to the interaction between the LandMine fire model and the LANDIS Biomass-Succession models: deciduous species burn less than conifers but regenerate more quickly.
-I am currently taking a closer look at the simulations and code to verify these results.
+We are currently taking a closer look at the simulations and code to verify these results.
