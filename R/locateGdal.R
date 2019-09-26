@@ -1,4 +1,3 @@
-
 library(gdalUtils)
 commonLinuxGdalPath <- "/usr/bin"
 commonWindowsGdalPath <- "C:/OSGEO4~1/bin/"
@@ -15,4 +14,3 @@ if (dir.exists(commonLinuxGdalPath)) {
 if (is.null(getOption("gdalUtils_gdalPath"))) {
   gdal_setInstallation(rescan = TRUE)
 }
-

@@ -1,4 +1,4 @@
-## LandWeb v1.0.1
+## LandWeb v2.0.0
 
 ### Exploring Natural Range of Variation in the Western Boreal Forest
 
@@ -45,18 +45,17 @@ _Packages_
 
 #### Overview
 
-The LandWeb model integrates two well-used models for forest stand succession and fire simulation, implemented in the `SpaDES` simulation platform (Chubaty & McIntire, 2018).
+The LandWeb model integrates two well-used models for forest stand succession and fire simulation, implemented in the `SpaDES` simulation platform (Chubaty & McIntire, 2019).
 Vegetation dynamics are modeled using an implementation of the LANDIS-II Biomass Succession model (Scheller & Mladenoff, 2004; Scheller *et al.*, 2007).
 Fire dynamics are modeled using an implementation of LandMine (Andison, 1996).
 
 Simulations were run for the entire LandWeb study area, which spans most of the western Canadian boreal forest.
-Input data were derived from several publically available remote-sensed datasets (Beaudoin *et al.*, 2014), as well as proprietary data complied by Pickell *et al.*.
+Input data were derived from several publically available remote-sensed datasets (Beaudoin *et al.*, 2014), as well as proprietary data complied by Pickell *et al.* (2016).
 
 Simulation outputs consist of maps showing the time since fire as well as histogram summaries of 1) number of large patches (i.e., patches above the number of hectars specified by the user) contained within the selected spatial area; and 2) the vegetation cover within the selected spatial area.
 Histograms are provided for each spatial area by polygon, age class, and species.
 Authorized users can additionally overlay current stand conditions onto these histograms.
-Simulation outputs are summarized for several publically available reporting polygons (including national ecozones, and ecodistricts) as well as several proprietary spatial areas (authorized users only).
-Authorized users can additonally upload their own erporting polygons on which to summarize model results.
+Simulation outputs are summarized for several forestry management areas/units.
 
 #### Using the model and app
 
@@ -83,7 +82,7 @@ Select pages from the menu on the left navigation menu.
 
 Stored in an access-controlled Google Drive location.
 
-- biomass by species maps created by Pickell et al. (UBC) resolution 100m x 100m from LandSat and kNN based on CASFRI;
+- biomass by species maps created by Pickell et al. (2016) resolution 100m x 100m from LandSat and kNN based on CASFRI;
 - reporting polygons used to summarize model results in the app.
 
 #### Model outputs
@@ -115,25 +114,26 @@ Model outputs are available to download for authorized app users, and are descri
 
 - Simulation data files (`.RData`, `.rds`)
 
-The downloaded outputs are bundled into a zip file (*e.g.*, `LandWeb_v1.0.0_2018-04-13.zip`) with the following directory and file structure:
+The downloaded outputs are bundled into a zip file (*e.g.*, `LandWeb_v2.0.0_2019-09-23.zip`) with the following directory and file structure:
 
 ```
-LandWeb_v1.0.1_2018-08-08/
+LandWeb_v2.0.0_2019-09-23/
  |_ boxplots/
-     |_ vegAgeMod/
+     |_ leading_*.csv
  |_ histograms/
      |_ largePatches/
-         |_ 500/                  ## currently selected patchSize
-     |_ vegAgeMod/
+         |_ 100/
+         |_ 500/
+         |_ 1000/
+         |_ 5000/
+     |_ leading/
+     |_ largePatches_*.csv
  |_ polygons/
  |_ rasters/
      |_ rstTimeSinceFire_*.tif
      |_ vegTypeMap_*.tif*
- |_ experiment.RData
- |_ largePatches.csv
  |_ README.md
  |_ simulationOutput_*.rds
- |_ vegArea.csv
 ```
 
 #### References
@@ -142,6 +142,8 @@ Beaudoin, et al. (2014). Mapping attributes of Canada’s forests at moderate re
 
 Chubaty, A. M. & McIntire, E. J. B. (2018) `SpaDES`: Develop and Run Spatially Explicit Discrete Event Simulation Models. R package version 2.0.1.
 https://CRAN.R-project.org/package=SpaDES
+
+Pickell, P. D., & Coops, N. C. (2016) Development of historical forest attribute layers using Landsat time series and kNN imputation for the western Canadian boreal forest. Technical Report, 27 pp.
 
 Scheller, R. M., & Mladenoff, D. J. (2004). A forest growth and biomass module for a landscape simulation model, LANDIS: Design, validation, and application. Ecological Modelling, 180, 211–229. http://doi.org/10.1016/j.ecolmodel.2004.01.022
 

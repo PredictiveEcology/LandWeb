@@ -1,63 +1,17 @@
-if (exists("DEVMODE")) {
-  if (isTRUE(DEVMODE)) {
-    paramFile <- file.path("params", paste0("Development_Parameters_", runName, ".R"))
-    source(paramFile, local = TRUE)
-  }
-} else {
-  source("params/LandWeb_parameters.R", local = TRUE)
-}
-
-tilePath <- file.path("www", "All", subStudyRegionName, runName, "map-tiles")
-if (!dir.exists(tilePath)) dir.create(tilePath, recursive = TRUE)
-shiny::addResourcePath("tiles", tilePath)
-
-# Packages for global.R -- don't need to load packages for modules -- happens automatically
-packageLoadStartTime <- Sys.time()
-SpaDESPkgs <- c(
-  "PredictiveEcology/quickPlot@development",
-  "PredictiveEcology/SpaDES.core@development",
-  "PredictiveEcology/SpaDES.tools@development",
-  #"PredictiveEcology/SpaDES.shiny@generalize-modules", ## do this after running the model, before app
-  "raster"
-)
-shinyPkgs <- c("leaflet", "leaflet.extras", "gdalUtils", "rgeos", "raster", "parallel",
-               "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders", "shinyWidgets")
+#install_github("PredictiveEcology/SpaDES.shiny@development")
+#setwd("~/GitHub/LandWeb/app")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
-moduleRqdPkgs <- c("data.table", "dplyr", "fasterize", "fpCompare",
-                   "gdalUtils", "ggplot2", "grDevices", "grid", "magrittr",
-                   "PredictiveEcology/quickPlot@development",
-                   "PredictiveEcology/SpaDES.tools@development",
-                   "purrr", "R.utils", "raster", "RColorBrewer", "Rcpp", "reproducible",
-                   "rgeos", "scales", "sp", "SpaDES.core", "SpaDES.tools", "tidyr", "VGAM")
+otherPkgs <- c("future", "magrittr", "promises", "reproducible")
+spatialPkgs <- c("gdalUtils", "map", "parallel", "rgeos", "raster", "sp")
+shinyPkgs <- c("leaflet", "leaflet.extras",
+               "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders", "shinyWidgets")
 
-# needed packages loaded, e.g., for icon
-reproducible::Require(unique(c(
-  SpaDESPkgs,
-  #shinyPkgs, ## do this after running the model, before app
-  googleAuthPkgs,
-  if (Sys.info()["sysname"] != "Windows") "Cairo",
-  # `snow` required internally by `parallel` for Windows SOCK clusters
-  if (Sys.info()["sysname"] == "Windows") "snow",
-  moduleRqdPkgs
-)))
-packageLoadEndTime <- Sys.time()
+reproducible::Require(c(googleAuthPkgs, otherPkgs, shinyPkgs, spatialPkgs,
+                        "PredictiveEcology/SpaDES.shiny@generalize-modules"))
+future::plan("multiprocess")
 
 ## LandWeb app information
 source("appInfo.R")
-
-# Options
-opts <- options(
-  "map.dataPath" = Paths$inputPath, # not used yet
-  "map.overwrite" = TRUE,
-  "map.tilePath" = tilePath,
-  "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
-  "reproducible.destinationPath" = Paths$inputPath,
-  "reproducible.overwrite" = TRUE,
-  "reproducible.quick" = FALSE,
-  "reproducible.useCache" = TRUE,
-  "spades.moduleCodeChecks" = FALSE,
-  "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
-)
 
 # Google Authentication setup
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/userinfo.email",
@@ -74,28 +28,21 @@ if (Sys.info()["nodename"] == "landweb.ca") {
 }
 options(httr_oob_default = TRUE)
 
-appURL <- "http://landweb.ca"
-
-## paths -- NOTE: these are the 'default' paths for app setup;
-##                however, in-app, the paths need to be set as reactive values for authentication!
-subStudyRegionNameCollapsed <- paste(subStudyRegionName, collapse = "_")
 paths <- list(
-  cachePath = file.path("cache", paste0(subStudyRegionNameCollapsed), runName),
+  cachePath = file.path("cache", "LandWeb_App"),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
-  outputPath = file.path("outputs", paste0(subStudyRegionNameCollapsed), runName)
+  outputPath = "outputs"
 )
-do.call(SpaDES.core::setPaths, paths) # Set them here so that we don't have to specify at each call to Cache
 
 ## get additonal helper functions used throughout this shiny app
-source(file.path("R", "functions.R"))
+source(file.path("R", "helpers.R"))
 
 # This is for rerunning apps -- Will not do anything if not on one of named computers
 
 # App - variables
 appStartTime <- st <- Sys.time()
 message("Started at ", appStartTime)
-useGdal2Tiles <- TRUE
 
 # leaflet parameters
 leafletZoomInit <- 5
@@ -110,10 +57,8 @@ options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
 #options(spinner.color="blue")
 
 ## spades module variables
-eventCaching <- c(".inputObjects", "init")
 maxAge <- 400
-vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
-# If all are below this, then it is a "mixed" stand
+vegLeadingProportion <- 0.8
 ageClasses <- c("Young", "Immature", "Mature", "Old")
 ageClassCutOffs <- c(0, 40, 80, 120)
 ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
@@ -126,19 +71,16 @@ ageClassZones <- lapply(seq_along(ageClassCutOffs), function(x) {
 
 # Time steps
 fireTimestep <- 1
-if (exists("DEVMODE") && isTRUE(DEVMODE)) {
-  successionTimestep <- 10 # was 2
-} else {
-  successionTimestep <- 10
-}
+successionTimestep <- 10
 
-# Import and build 2 polygons -- one for whole study area, one for demonstration area
-# "shpStudyRegion"     "shpStudyRegion"
-source(file.path("R", "inputMaps.R")) # source some functions
+## map object with study areas and reporting polygons
+runName <- "LandWeb_highDispersal_logROS"  ## TODO: don't use runName?
+ml <- readRDS(file.path(appDir, paths$outputPath, runName, "ml_preamble.rds")) ## TODO: don't use runName?
 
 # These are used in inputTables.R for filling the tables of parameters in
-landisInputs <- readRDS(file.path(paths$inputPath, "landisInputs.rds"))
-spEcoReg <- readRDS(file.path(paths$inputPath, "SpEcoReg.rds"))
+landisInputs <- readRDS(file.path(appDir, paths$inputPath, "landisInputs.rds")) ## TODO: remove
+speciesTraits <- readRDS(file.path(appDir, paths$inputPath, "speciesTraitsTable.rds")) ## TODO: use this instead of landisTraits
+spEcoReg <- readRDS(file.path(appDir, paths$inputPath, "SpEcoReg.rds"))
 
 # The CRS for the Study -- spTransform converts this first one to the second one, they are identical geographically
 # crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
@@ -146,244 +88,38 @@ spEcoReg <- readRDS(file.path(paths$inputPath, "SpEcoReg.rds"))
 crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
                             "+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"))
 
-studyRegionFilePath <- {
-  studyRegionFilename <- if ("RIA" %in% subStudyRegionName) {
-    "RIA_SE_ResourceDistricts_Clip.shp"
-  } else {
-    "studyarea-correct.shp"
-  }
-  file.path(paths$inputPath, studyRegionFilename)
-}
+studyRegionFilename <- "landweb_ltfc_v6.shp" ## TODO: verify this
+studyRegionFilePath <- file.path(appDir, paths$inputPath, studyRegionFilename)
 
 studyRegionsShps <- Cache(loadStudyRegions, shpStudyRegionCreateFn = shpStudyRegionCreate,
                           asPath(studyRegionFilePath),
-                          fireReturnIntervalMap = asPath(file.path(paths$inputPath, "firemap", "landweb_ltfc_v6.shp")),
+                          fireReturnIntervalMap = asPath(file.path(appDir, paths$inputPath, "firemap", "landweb_ltfc_v6.shp")),
                           subStudyRegionName = subStudyRegionName,
                           cacheId = cacheId$loadStudyRegions,
                           crsStudyRegion = crsStudyRegion, cacheRepo = paths$cachePath)
 list2env(studyRegionsShps, envir = environment()) # shpStudyRegion & shpSubStudyRegion
 
-## set default reporting polgyon for app
-defaultPolyName <- "National Ecozones"
-if (exists("DEVMODE")) {
-  if (grepl("tolko_AB_N", runName)) {
-    defaultPolyName <- "Tolko AB North"
-  } else if (grepl("tolko_AB_S", runName)) {
-    defaultPolyName <- "Tolko AB South"
-  }  else if (grepl("tolko_SK", runName)) {
-    defaultPolyName <- "Tolko SK"
-  }
-}
-#defaultPolyName <- "DMI Full" ## TODO: remove this override
+## set default reporting polygon for app
+defaultPolyName <- "LandWeb" ## ml[["LandWeb"]]
+
+FMA_names <- sort(unique(ml[["FMA Boundaries Updated"]][["Name"]]))
 
 ## source additional shiny modules
 vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))
 
-# This needs simInit call to be run already
-# a few map details for shiny app
+## a few map details for shiny app
 message("Preparing polygon maps for reporting histograms")
 source(file.path("R", "colorPaletteForShiny.R"))
 labelColumn <- "shinyLabel"
 
-#############################
+####################################################################################################
 
-##### SERVER FILE.R
-names(authenticationType) <- authenticationType
-authenticationTypePossibilities <- c("Free", "Proprietary", "All")
-if (!all(authenticationType %in% authenticationTypePossibilities)) {
-  stop("authenticationType must be one or both of ", authenticationTypePossibilities)
-}
-emptyList <- Map(function(y) y, authenticationTypePossibilities) # creates named list
-emptyListAll <- emptyList["All"] # creates named list
-emptyListFree <- emptyList["Free"] # creates named list
-emptyListFreeProprietary <- emptyList[c("Free", "Proprietary")] # creates named list
+## TODO: create table to map users to their company's FMAs only?
+## TODO: create table to map selected polygon to the correct output dir
 
-experimentReps <- emptyListAll
-experimentReps <- lapply(experimentReps, function(x) 1)
-
-# simInit objects
-times4sim <- emptyListAll
-times4sim <- lapply(times4sim, function(x) list(start = 0, end = endTime))
-
-modules4sim <- emptyListAll
-modules4sim$All <- list("LandWeb_dataPrep", "initBaseMaps", "fireDataPrep",
-                        "LandMine",
-                        "LandWebProprietaryData",
-                        "Boreal_LBMRDataPrep", "LBMR", "timeSinceFire", "LandWeb_output")
-
-objects4sim <- emptyListAll
-objects4sim <- lapply(objects4sim, function(x)
-  list("studyAreaLarge" = shpStudyRegion,
-       "studyArea" = shpSubStudyRegion,
-       "summaryPeriod" = summaryPeriod,
-       "useParallel" = 2,
-       "vegLeadingProportion" = vegLeadingProportion)
-)
-
-parameters4sim <- emptyListAll
-parameters4sim <- lapply(parameters4sim, function(x) {
-  list(
-    Boreal_LBMRDataPrep = list(.useCache = eventCaching),
-    fireDataPrep = list(.useCache = eventCaching),
-    initBaseMaps = list(.useCache = eventCaching),
-    LandMine = list(biggestPossibleFireSizeHa = 5e5,
-                    fireTimestep = fireTimestep,
-                    burnInitialTime = fireTimestep,
-                    .plotInitialTime = NA,
-                    .useCache = eventCaching),
-    LandWeb_dataPrep = list(.useCache = eventCaching),
-    LandWeb_output = list(summaryInterval = summaryInterval),
-    LandWebProprietaryData = list(.useCache = eventCaching),
-    LBMR = list(successionTimestep = successionTimestep,
-                .plotInitialTime = times4sim$start,
-                .saveInitialTime = NA,
-                .useCache = eventCaching),
-    timeSinceFire = list(startTime = fireTimestep,
-                         .useCache = eventCaching)
-  )
-})
-outputs4simFn <- function(objects4sim, parameters4sim, times4sim, objectNamesToSave) {
-  outputs <- data.frame(stringsAsFactors = FALSE,
-                        expand.grid(
-                          objectName = objectNamesToSave,#, "oldBigPatch"),
-                          saveTime = c(
-                            seq(objects4sim$summaryPeriod[1], objects4sim$summaryPeriod[2],
-                                by = parameters4sim$LandWeb_output$summaryInterval)
-                          )
-                        ),
-                        fun = "writeRaster", package = "raster",
-                        file = paste0(objectNamesToSave, c(".tif", ".grd")))
-
-  outputs2 <- data.frame(stringsAsFactors = FALSE,
-                         expand.grid(objectName = c("simulationOutput"), saveTime = times4sim$end),
-                         fun = "saveRDS",
-                         package = "base")
-
-  outputs$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
-                                  list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")),
-                             times = NROW(outputs) / length(objectNamesToSave)))
-
-  outputs3 <- data.frame(stringsAsFactors = FALSE,
-                         objectName = "rstFlammable",
-                         saveTime = times4sim$end, fun = "writeRaster", package = "raster",
-                         arguments = I(list(list(overwrite = TRUE, progress = FALSE,
-                                                 datatype = "INT2U", format = "raster"))))
-
-  as.data.frame(data.table::rbindlist(list(outputs, outputs2, outputs3), fill = TRUE))
-}
-
-objectNamesToSave <- emptyListAll
-objectNamesToSave <- lapply(objectNamesToSave, function(x) {
-  c("rstTimeSinceFire", "vegTypeMap")
-})
-
-outputs4sim <- Map(objects4sim = objects4sim,
-                   parameters4sim = parameters4sim,
-                   times4sim = times4sim,
-                   objectNamesToSave = objectNamesToSave,
-                   outputs4simFn)
-
-## paths for sim
-pathFn <- function(pathType, basename, suffix) {
-  file.path(pathType, paste0(basename, "_", suffix))
-}
-
-cPaths <- emptyListAll
-cPaths <- Map(pathFn, suffix = names(cPaths),
-              MoreArgs = list(basename = subStudyRegionName, pathType = "cache"))
-
-oPaths <- emptyListAll
-oPaths <- Map(pathFn, suffix = names(oPaths),
-              MoreArgs = list(basename = subStudyRegionName, pathType = "outputs"))
-
-paths4sim <- emptyListAll
-paths4sim <- Map(cPath = cPaths, oPath = oPaths,
-                 function(cPath, oPath) {
-                   list(
-                     cachePath = file.path(cPath, runName),
-                     modulePath = "m",
-                     inputPath = "inputs",
-                     outputPath = file.path(oPath, runName)
-                   )
-                 })
-
-seed <- sample(1e8, 1)
-
-######## SimInit and Experiment
-mySimOuts <- Cache(simInitAndExperiment, times = times4sim, params = parameters4sim,
-                   modules = modules4sim, #notOlderThan = Sys.time(),
-                   cacheId = cacheId$simInitAndExperiment,
-                   outputs = outputs4sim,
-                   cacheIds4Experiment = cacheId$runExperiment,
-                   objects4sim = objects4sim, # study area -- cache will respect this
-                   paths = paths4sim,
-                   loadOrder = lapply(modules4sim, unlist),
-                   emptyList = emptyListAll)
-
-if (exists("oldStyle")) {
-  if (oldStyle) {
-    tmp <- mySimOuts[[2]]
-    mySimOuts <- list()
-    mySimOuts$All <- tmp
-  }
-}
-
-message("  Finished simInit and Experiment.")
-
-message("  Running LandWeb_shiny module")
-
-cacheIdEnv <- new.env(parent = environment()) # don't pass the environment with cacheId...
-                                              # pass the child...
-                                              # will get it due to inheritance,
-                                              # but don't want to cache it
-objList <- list(
-  outputs = lapply(mySimOuts, function(auth) lapply(auth, outputs)),
-  outputPaths = lapply(mySimOuts, function(auth) lapply(auth, outputPath)),
-  paths = paths4sim$All,
-  cacheIdName = "cacheId",
-  cacheIdEnv = cacheIdEnv,
-  shpLandWebSA = shpStudyRegion,
-  studyArea = shpSubStudyRegion, # the subRegion for spades call is now the actual studyArea
-  studyAreaName = subStudyRegionNameCollapsed,
-  vegLeadingProportion = vegLeadingProportion,
-  labelColumn = labelColumn
-)
-
-sim2 <- Cache(simInitAndSpades, times = list(start = 0, end = 1), params = list(),
-              modules = list("LandWeb_shiny"), notOlderThan = Sys.time(),
-              objList,# can't provide argument name "objects" here because same as Cache
-              cacheId = cacheId$simInitAndSpades,
-              paths = paths4sim$All)
-
-### update modulePath
-modulePath(sim2) <- appInfo$appmoddir
-
-### update file paths for rasters
+### update file paths for rasters ## TODO: is this needed?
 oldPath <- "/home/emcintir/Documents/GitHub/" ## needs trailing slash!
 newPath <- appInfo$appdir
-
-sim2@.envir$tsfs <- lapply(sim2@.envir$tsfs, function(f) {
-  gsub(pattern = oldPath, replacement = newPath, f)
-})
-
-## requires reproducible >= 0.2.0.9000
-sim2@.envir$tsfRasters <- convertRasterPaths(sim2@.envir$tsfRasters,
-                                             pattern = oldPath,
-                                             replacement = newPath)
-
-sim2@.envir$vtms   <- lapply(sim2@.envir$vtms, function(f) {
-  gsub(pattern = oldPath, replacement = newPath, f)
-})
-
-
-################################################################################
-## do these last so it doesn't interfere with data.table parallelization
-reproducible::Require(c("future", "promises", shinyPkgs,
-                        "PredictiveEcology/SpaDES.shiny@generalize-modules"))
-future::plan("multiprocess")
-
-################################################################################
-globalEndTime <- Sys.time()
 
 onStop(function() {
   appStopTime <<- Sys.time()

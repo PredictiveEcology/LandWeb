@@ -1,18 +1,16 @@
 appDir <- switch(Sys.info()["nodename"],
-                 "kahless" = file.path("/mnt/"),
                  "landweb.ca" =  file.path("/srv/shiny-server/"),
-                 "landweb" =  file.path("/mnt/data/"),
-                 "W-VIC-A105342" = file.path("/mnt/shared/"),
-                 file.path("~/GitHub/")
+                 "landweb" =  file.path("~/GitHub/LandWeb"),  ## TODO: update hostname
+                 file.path("~/GitHub/LandWeb")
 ) # needs trailing slash!
 
 appModDir <- switch(Sys.info()["nodename"],
-                    "kahless" = file.path("~/GitHub/m"),
                     "landweb.ca" = file.path(appDir, "m"),
-                    "landweb" = file.path(appDir, "m"),
-                    "W-VIC-A105342" = file.path("~/GitHub/m"),
-                    file.path("~/GitHub/m")
+                    "landweb" = file.path(appDir, "m"),  ## TODO: update hostname
+                    file.path(appDir, "m")
 ) # no trailing slash!
+
+appURL <- "http://landweb.ca"
 
 authorized_users <- read.csv("authorized_users.csv", stringsAsFactors = FALSE)
 user.emails <- authorized_users$email %>% tolower() ## these should be all lowercase
@@ -34,8 +32,8 @@ appInfo <- list(
   support = list(
     model.email = "eliot.mcintire@canada.ca",  ## TODO: update support info
     model.name = "Eliot McIntire",             ## TODO: update support info
-    tech.email = "achubaty@friresearch.ca",
-    tech.name = "Alex Chubaty"
+    tech.email = "achubaty@friresearch.ca",    ## TODO: update support info
+    tech.name = "Alex Chubaty"                 ## TODO: update support info
   ),
 
   ### list of authorized users

@@ -48,18 +48,18 @@ dashboardPage(
 
     tabItems(
       tabItem("appInfo", landwebAppInfoUI("appInfo")),          ## TODO: add this to generator
-      tabItem("appNewsUpdates", appNewsUI("appNews")),                 ## TODO: add this to generator
+      tabItem("appNewsUpdates", appNewsUI("appNews")),          ## TODO: add this to generator
       #tabItem("appPrivacy", privacyStatementUI("appPrivacy")), ## TODO: add this to generator
       tabItem("appToS", termsOfServiceUI("appToS")),            ## TODO: add this to generator
       tabItem("appSupport", landwebAppSupportUI("appSupport")), ## TODO: add this to generator
 
       tabItem("timeSinceFire", fluidRow(
-        timeSeriesofRastersUI("timeSinceFire"),
+        #timeSeriesofRastersUI("timeSinceFire"),
         box(width = 8, solidHeader = TRUE, collapsible = TRUE, polygonChooserUI("polyDropdown"))
       )),
-      tabItem("largePatches", largePatchesUI("largePatches")),  ## TODO: add this to generator
-      tabItem("vegArea", vegAgeModUI("vegArea")),               ## TODO: add this to generator
-      tabItem("vegArea2", vegAgeMod2UI("vegArea2")),            ## TODO: add this to generator
+      #tabItem("largePatches", largePatchesUI("largePatches")),  ## TODO: add this to generator
+      #tabItem("vegArea", vegAgeModUI("vegArea")),               ## TODO: add this to generator
+      #tabItem("vegArea2", vegAgeMod2UI("vegArea2")),            ## TODO: add this to generator
 
       tabItem("simInfo", simInfoUI("simInfo")),
       tabItem("moduleInfo", moduleInfoUI("moduleInfo")),

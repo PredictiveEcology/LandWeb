@@ -5,7 +5,7 @@ function(input, output, session) {
   session$userData$userAuthorized <- reactiveVal(FALSE)
 
   ## run additonal server code from server_file.R
-  if (file.exists("server_file.R")) source("server_file.R", local = TRUE)
+  #if (file.exists("server_file.R")) source("server_file.R", local = TRUE) ## TODO: not needed
 
   ## show the user the ToS when they start the app, but not after logging in
   observe({
@@ -48,9 +48,9 @@ function(input, output, session) {
   callModule(termsOfService, "appToS", "TERMS.md", "success")
   callModule(landwebAppSupport, "appSupport", appInfo)
 
-  unsuspendModule("largePatches")
-  unsuspendModule("vegArea")
-  unsuspendModule("vegArea2")
+  #unsuspendModule("largePatches")
+  #unsuspendModule("vegArea")
+  #unsuspendModule("vegArea2")
 
   rctUserInfo <- callModule(authGoogle, "auth_google", appURL = appURL,
                             authUsers = appInfo$users, icon = NULL)
@@ -93,105 +93,94 @@ function(input, output, session) {
     do.call(polygonList, append(allPolys[userPoly], list(studyArea = rctStudyArea())))
   })
 
-  callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
-             rctRasterList = rctRasterList,
-             rctUrlTemplate = rctUrlTemplate,
-             rctPolygonList = rctPolygonListUser,
-             rctChosenPoly = rctChosenPolyUser,
-             shpStudyRegionName = "LandWeb Study Area",
-             shpStudyRegionLFLT = isolate(rctPolygonList()[["LandWeb Study Area"]][["crsLFLT"]]), ## won't change
-             defaultPolyName = defaultPolyName,
-             colorPalette = timeSinceFirePalette,
-             mapTilesDir = tilePath,
-             mapTitle = "Time since fire",
-             mapLegend = paste0("Time since fire", br(), "(years)"),
-             maxAge = maxAge, zoom = 5, nPolygons = 1,
-             nRasters = length(rctTsf()),
-             rasterStepSize = summaryInterval,
-             sliderTitle = "Sampled simulation years (does not correspond to calendar years)",
-             uploadOpts = rctUploadOptions(),
-             rctStudyArea = rctStudyArea,
-             thinKeep = 0.01
-  )
+  # callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
+  #            rctRasterList = rctRasterList,
+  #            rctUrlTemplate = rctUrlTemplate,
+  #            rctPolygonList = rctPolygonListUser,
+  #            rctChosenPoly = rctChosenPolyUser,
+  #            shpStudyRegionName = "LandWeb Study Area",
+  #            shpStudyRegionLFLT = isolate(rctPolygonList()[["LandWeb Study Area"]][["crsLFLT"]]), ## won't change
+  #            defaultPolyName = defaultPolyName,
+  #            colorPalette = timeSinceFirePalette,
+  #            mapTilesDir = tilePath,
+  #            mapTitle = "Time since fire",
+  #            mapLegend = paste0("Time since fire", br(), "(years)"),
+  #            maxAge = maxAge, zoom = 5, nPolygons = 1,
+  #            nRasters = length(rctTsf()),
+  #            rasterStepSize = summaryInterval,
+  #            sliderTitle = "Sampled simulation years (does not correspond to calendar years)",
+  #            uploadOpts = rctUploadOptions(),
+  #            rctStudyArea = rctStudyArea,
+  #            thinKeep = 0.01
+  # )
 
-  ## recalculate large patches for new polygons
-  ### workaround cache:
-  source("m/LandWeb_shiny/R/functions.R", local = TRUE)
-  source("m/LandWeb_shiny/R/largePatchesFn.R", local = TRUE)
-  largePatchesFn <- largePatchesCalc
-  .largePatchesCalcFn <- .largePatchesCalc
-  ###
-  #largePatchesFn <- sim2$LandWeb_shiny$largePatchesCalc
-  #.largePatchesCalcFn <- sim2$LandWeb_shiny$.largePatchesCalc
-
-  rctLargePatches <- callModule(recalcLargePatches, "largePatches",
-                                rctLrgPatches = rctLrgPatches,
-                                rctLrgPatchesCC = rctLrgPatchesCC,
-                                rctChosenPolyName = rctChosenPolyName,
-                                rctPolygonList = rctPolygonListUser,
-                                largePatchesFn = largePatchesFn,
-                                tsfFile = rctTsf(),
-                                vtmFile = rctVtm(),
-                                ageClasses = ageClasses,
-                                ageClassCutOffs = ageClassCutOffs,
-                                useParallelCluster = useParallelCluster,
-                                .largePatchesCalcFn = .largePatchesCalcFn,
-                                authStatus = authStatus)
-
-  rctLrgPatchesUser <- reactive(rctLargePatches$largePatches())
-  rctLrgPatchesUserCC <- reactive(rctLargePatches$largePatchesCC())
-
-  ## large patches histograms
-  rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
-                                    rctPolygonList = rctPolygonListUser,
-                                    rctChosenPolyName = rctChosenPolyName,
-                                    rctLrgPatches = rctLrgPatchesUser,
-                                    rctLrgPatchesCC = rctLrgPatchesUserCC,
-                                    rctTsf = rctTsf, rctVtm = rctVtm,
-                                    outputPath = rctPaths4sim()$outputPath,
-                                    ageClasses = ageClasses,
-                                    FUN = largePatchesFn)
-
-  ## recalculate leading vegetation classes for new polygons
-  leadingByStageFn <- leadingByStage ## workaround cache (see above)
-  #leadingByStageFn <- sim2$LandWeb_shiny$leadingByStage
-
-  rctLeading <- callModule(recalcLeading, "leading",
-                           rctLeadingDTlist = rctLeadingDTlist,
-                           rctLeadingDTlistCC = rctLeadingDTlistCC,
-                           rctChosenPolyName = rctChosenPolyName,
-                           rctPolygonList = rctPolygonListUser,
-                           leadingByStageFn = leadingByStageFn,
-                                     tsf = list(rctTsf()),
-                           vtm = list(rctVtm()),
-                           ageClasses = ageClasses,
-                           ageClassCutOffs = ageClassCutOffs,
-                           authStatus = authStatus)
-
-  rctLeadingDTlistUser <- reactive(rctLeading$leading())
-  rctLeadingDTlistUserCC <- reactive(rctLeading$leadingCC())
-
-  ## veg cover histograms
-  rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
-                           rctAuthenticationType = rctAuthenticationType,
-                           rctPolygonList = rctPolygonListUser,
-                           rctChosenPolyName = rctChosenPolyName,
-                           rctLeadingDTlist = rctLeadingDTlistUser,
-                           rctLeadingDTlistCC = rctLeadingDTlistUserCC,
-                           rctVtm = rctVtm,
-                           outputPath = rctPaths4sim()$outputPath,
-                           ageClasses = ageClasses)
-
-  ## veg cover boxplots
-  rctVegData2 <- callModule(vegAgeMod2, "vegArea2",  ## TODO: write this with generator
-                            rctAuthenticationType = rctAuthenticationType,
-                            rctPolygonList = rctPolygonListUser,
-                            rctChosenPolyName = rctChosenPolyName,
-                            rctLeadingDTlist = rctLeadingDTlistUser,
-                            rctLeadingDTlistCC = rctLeadingDTlistUserCC,
-                            rctVtm = rctVtm,
-                            outputPath = rctPaths4sim()$outputPath,
-                            ageClasses = ageClasses)
+  # rctLargePatches <- callModule(recalcLargePatches, "largePatches",
+  #                               rctLrgPatches = rctLrgPatches,
+  #                               rctLrgPatchesCC = rctLrgPatchesCC,
+  #                               rctChosenPolyName = rctChosenPolyName,
+  #                               rctPolygonList = rctPolygonListUser,
+  #                               largePatchesFn = largePatchesFn,
+  #                               tsfFile = rctTsf(),
+  #                               vtmFile = rctVtm(),
+  #                               ageClasses = ageClasses,
+  #                               ageClassCutOffs = ageClassCutOffs,
+  #                               useParallelCluster = useParallelCluster,
+  #                               .largePatchesCalcFn = .largePatchesCalcFn,
+  #                               authStatus = authStatus)
+  #
+  # rctLrgPatchesUser <- reactive(rctLargePatches$largePatches())
+  # rctLrgPatchesUserCC <- reactive(rctLargePatches$largePatchesCC())
+  #
+  # ## large patches histograms
+  # rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
+  #                                   rctPolygonList = rctPolygonListUser,
+  #                                   rctChosenPolyName = rctChosenPolyName,
+  #                                   rctLrgPatches = rctLrgPatchesUser,
+  #                                   rctLrgPatchesCC = rctLrgPatchesUserCC,
+  #                                   rctTsf = rctTsf, rctVtm = rctVtm,
+  #                                   outputPath = rctPaths4sim()$outputPath,
+  #                                   ageClasses = ageClasses,
+  #                                   FUN = largePatchesFn)
+  #
+  # ## recalculate leading vegetation classes for new polygons
+  # leadingByStageFn <- leadingByStage ## workaround cache (see above)
+  #
+  # rctLeading <- callModule(recalcLeading, "leading",
+  #                          rctLeadingDTlist = rctLeadingDTlist,
+  #                          rctLeadingDTlistCC = rctLeadingDTlistCC,
+  #                          rctChosenPolyName = rctChosenPolyName,
+  #                          rctPolygonList = rctPolygonListUser,
+  #                          leadingByStageFn = leadingByStageFn,
+  #                                    tsf = list(rctTsf()),
+  #                          vtm = list(rctVtm()),
+  #                          ageClasses = ageClasses,
+  #                          ageClassCutOffs = ageClassCutOffs,
+  #                          authStatus = authStatus)
+  #
+  # rctLeadingDTlistUser <- reactive(rctLeading$leading())
+  # rctLeadingDTlistUserCC <- reactive(rctLeading$leadingCC())
+  #
+  # ## veg cover histograms
+  # rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
+  #                          rctAuthenticationType = rctAuthenticationType,
+  #                          rctPolygonList = rctPolygonListUser,
+  #                          rctChosenPolyName = rctChosenPolyName,
+  #                          rctLeadingDTlist = rctLeadingDTlistUser,
+  #                          rctLeadingDTlistCC = rctLeadingDTlistUserCC,
+  #                          rctVtm = rctVtm,
+  #                          outputPath = rctPaths4sim()$outputPath,
+  #                          ageClasses = ageClasses)
+  #
+  # ## veg cover boxplots
+  # rctVegData2 <- callModule(vegAgeMod2, "vegArea2",  ## TODO: write this with generator
+  #                           rctAuthenticationType = rctAuthenticationType,
+  #                           rctPolygonList = rctPolygonListUser,
+  #                           rctChosenPolyName = rctChosenPolyName,
+  #                           rctLeadingDTlist = rctLeadingDTlistUser,
+  #                           rctLeadingDTlistCC = rctLeadingDTlistUserCC,
+  #                           rctVtm = rctVtm,
+  #                           outputPath = rctPaths4sim()$outputPath,
+  #                           ageClasses = ageClasses)
 
   callModule(simInfo, "simInfo", rctSim())
   callModule(moduleInfo, "moduleInfo", rctSim())
