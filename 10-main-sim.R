@@ -21,20 +21,30 @@ restartIteration <- list.files(Paths$outputPath, pattern = "mySimOut_") %>%
 
 if (restartIteration == 0) {
   times3$end <- restartInterval
-  mySimOut <- Cache(simInitAndSpades, times = times3, #cl = cl,
-                    params = parameters3,
-                    modules = modules3,
-                    outputs = outputs3,
-                    objects = objects3,
-                    paths = paths3,
-                    loadOrder = unlist(modules3),
-                    debug = 1,
-                    useCloud = FALSE, #useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
-                    cloudFolderID = cloudCacheFolderID,
-                    omitArgs = c("debug", "paths", ".plotInitialTime"),
-                    #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(names(sim$cohortData))))',
-                    .plotInitialTime = .plotInitialTime
-  )
+  mySimOut <- tryCatch({
+    Cache(simInitAndSpades, times = times3, #cl = cl,
+          params = parameters3,
+          modules = modules3,
+          outputs = outputs3,
+          objects = objects3,
+          paths = paths3,
+          loadOrder = unlist(modules3),
+          debug = 1,
+          useCloud = FALSE,
+          cloudFolderID = cloudCacheFolderID,
+          omitArgs = c("debug", "paths", ".plotInitialTime"),
+          .plotInitialTime = .plotInitialTime
+    )
+  }, error = function(e) {
+    if (requireNamespace("slackr") & file.exists("~/.slackr")) {
+      slackr::slackr_setup()
+      slackr::text_slackr(
+        paste0("Simulation `", runName, "` ERRORED on host `", Sys.info()[["nodename"]], "`."),
+        channel = "#landweb", preformatted = FALSE
+      )
+      slackr::text_slackr(e$message, channel = "#landweb", preformatted = TRUE)
+    }
+  })
 } else {
   mySimOut <- readRDS(simFile("mySimOut", Paths$outputPath, restartIteration * restartInterval))
 
@@ -52,6 +62,7 @@ saveRDS(Copy(mySimOut), fsim) ## TODO: use `saveSimList(mySimOut, fsim)`
 if (restartIteration == (endTime / restartInterval)) {
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     slackr::slackr_setup()
-    slackr::text_slackr(paste("Simulation", runName, "completed."), channel = "#landweb")
+    slackr::text_slackr(paste0("Simulation `", runName, "` completed on host `", Sys.info()[["nodename"]], "`."),
+                        channel = "#landweb", preformatted = FALSE)
   }
 }
