@@ -35,8 +35,6 @@ if (restartIteration == 0) {
                     #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(names(sim$cohortData))))',
                     .plotInitialTime = .plotInitialTime
   )
-} else if (restartIteration == (endTime / restartInterval)) {
-  stop("simulation previously completed")
 } else {
   mySimOut <- readRDS(simFile("mySimOut", Paths$outputPath, restartIteration * restartInterval))
 
@@ -50,3 +48,10 @@ if (restartIteration == 0) {
 fsim <- simFile("mySimOut", Paths$outputPath, SpaDES.core::end(mySimOut))
 message("Saving simulation to: ", fsim)
 saveRDS(Copy(mySimOut), fsim) ## TODO: use `saveSimList(mySimOut, fsim)`
+
+if (restartIteration == (endTime / restartInterval)) {
+  if (requireNamespace("slackr") & file.exists("~/.slackr")) {
+    slackr::slackr_setup()
+    slackr::text_slackr(paste("Simulation", runName, "completed."), channel = "#landweb")
+  }
+}
