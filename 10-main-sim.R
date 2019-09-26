@@ -35,6 +35,8 @@ if (restartIteration == 0) {
                     #debug = 'message(paste(unname(current(sim)), collapse = " "), try(print(names(sim$cohortData))))',
                     .plotInitialTime = .plotInitialTime
   )
+} else if (restartIteration == (endTime / restartInterval)) {
+  stop("simulation previously completed")
 } else {
   mySimOut <- readRDS(simFile("mySimOut", Paths$outputPath, restartIteration * restartInterval))
 
