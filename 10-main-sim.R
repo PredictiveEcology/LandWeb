@@ -42,6 +42,7 @@ if (restartIteration == 0) {
         channel = "@alex.chubaty", preformatted = FALSE
       )
       slackr::text_slackr(e$message, channel = "@alex.chubaty", preformatted = TRUE)
+      return(e)
     }
   })
 } else {
@@ -61,6 +62,7 @@ if (restartIteration == 0) {
         channel = "@alex.chubaty", preformatted = FALSE
       )
       slackr::text_slackr(e$message, channel = "@alex.chubaty", preformatted = TRUE)
+      return(e)
     }
   })
 }
