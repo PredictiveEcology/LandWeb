@@ -1,5 +1,7 @@
 #install_github("PredictiveEcology/SpaDES.shiny@development")
 #setwd("~/GitHub/LandWeb/app")
+
+packageLoadStartTime <<- Sys.time()
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 otherPkgs <- c("future", "magrittr", "promises", "reproducible")
 spatialPkgs <- c("gdalUtils", "map", "parallel", "rgeos", "raster", "sp")
@@ -8,12 +10,13 @@ shinyPkgs <- c("leaflet", "leaflet.extras",
 
 reproducible::Require(c(googleAuthPkgs, otherPkgs, shinyPkgs, spatialPkgs,
                         "PredictiveEcology/SpaDES.shiny@generalize-modules"))
-future::plan("multiprocess")
+packageLoadEndTime <<- Sys.time()
 
 ## LandWeb app information
 source("appInfo.R")
 
-# Google Authentication setup
+## package options and Google setup
+future::plan("multiprocess")
 options(googleAuthR.scopes.selected = c("https://www.googleapis.com/auth/userinfo.email",
                                         "https://www.googleapis.com/auth/userinfo.profile"))
 
@@ -78,9 +81,9 @@ runName <- "LandWeb_highDispersal_logROS"  ## TODO: don't use runName?
 ml <- readRDS(file.path(appDir, paths$outputPath, runName, "ml_preamble.rds")) ## TODO: don't use runName?
 
 # These are used in inputTables.R for filling the tables of parameters in
-landisInputs <- readRDS(file.path(appDir, paths$inputPath, "landisInputs.rds")) ## TODO: remove
+#landisInputs <- readRDS(file.path(appDir, paths$inputPath, "landisInputs.rds")) ## TODO: remove
 speciesTraits <- readRDS(file.path(appDir, paths$inputPath, "speciesTraitsTable.rds")) ## TODO: use this instead of landisTraits
-spEcoReg <- readRDS(file.path(appDir, paths$inputPath, "SpEcoReg.rds"))
+spEcoReg <- readRDS(file.path(appDir, paths$inputPath, "SpEcoReg.rds")) ## TODO: use updated values
 
 # The CRS for the Study -- spTransform converts this first one to the second one, they are identical geographically
 # crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0",
@@ -90,9 +93,6 @@ crsStudyRegion <- CRS(paste("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +
 
 studyRegionFilename <- "landweb_ltfc_v6.shp" ## TODO: verify this
 studyRegionFilePath <- file.path(appDir, paths$inputPath, studyRegionFilename)
-
-## set default reporting polygon for app
-defaultPolyName <- "LandWeb" ## ml[["LandWeb"]]
 
 FMA_names <- sort(unique(ml[["FMA Boundaries Updated"]][["Name"]]))
 
@@ -106,12 +106,7 @@ labelColumn <- "shinyLabel"
 
 ####################################################################################################
 
-## TODO: create table to map users to their company's FMAs only?
-## TODO: create table to map selected polygon to the correct output dir
-
-### update file paths for rasters ## TODO: is this needed?
-oldPath <- "/home/emcintir/Documents/GitHub/" ## needs trailing slash!
-newPath <- appInfo$appdir
+globalEndTime <<- Sys.time()
 
 onStop(function() {
   appStopTime <<- Sys.time()

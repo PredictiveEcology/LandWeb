@@ -2,12 +2,13 @@ inputTablesUI <- function(id) {
   ns <- NS(id)
   tagList(
     fluidRow(
-      h3("Currently, these inputs are not changeable by specific regions"),
+      h3("Currently, these inputs are not changeable by specific regions."),
+      p("These species trait values have been customized for LandWeb based on the LANDIS-II defaults."),
       box(
-        width = 10,
+        width = 12,
         solidHeader = TRUE,
         status = "success",
-        title = "Species Inputs",
+        title = "LandWeb Species Inputs",
         dataTableOutput(ns("speciesInputs"))
       )
     ),
@@ -16,7 +17,7 @@ inputTablesUI <- function(id) {
         width = 12,
         solidHeader = TRUE,
         status = "success",
-        title = "Geographically Varying Species Inputs. These are means (and SE) across all map regions",
+        title = "Geographically varying species inputs. These are means (and SE) across all map regions.",
         dataTableOutput(ns("speciesEcoregionInputs"))
       )
     )
@@ -25,10 +26,11 @@ inputTablesUI <- function(id) {
 
 inputTables <- function(input, output, session) {
   output$speciesInputs <- renderDataTable({
-    landisInputs # global object
+    #landisInputs ## defined in global.R
+    speciesTraits ## defined in global.R
   })
 
   output$speciesEcoregionInputs <- renderDataTable({
-    spEcoReg # global object
+    spEcoReg ## defined in global.R
   })
 }

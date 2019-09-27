@@ -4,10 +4,13 @@ function(input, output, session) {
   session$userData$userLoggedIn <- reactiveVal(FALSE)
   session$userData$userAuthorized <- reactiveVal(FALSE)
 
-  ## run additonal server code from server_file.R
-  #if (file.exists("server_file.R")) source("server_file.R", local = TRUE) ## TODO: not needed
-  polygonList <- lapply(names(ml), function(i) ml[[i]]) %>% set_names(names(ml))
+  polygonList <- lapply(FMA_names, function(i) ml[["FMA Boundaries Updated"]]["Name" == i]) %>%
+    set_names(FMA_names)
   rctPolygonList <- reactive(polygonList)
+
+  rctSim <- reactive({
+    readRDS(file.path(appDir, "docs", "mySim_landweb_0000.rds")) ## TODO: check this path is OK in app
+  })
 
   ## show the user the ToS when they start the app, but not after logging in
   observe({
@@ -28,16 +31,19 @@ function(input, output, session) {
     dropdownMenu(
       type = "notifications",
       notificationItem(
-        text = paste0("App updated to v", appInfo$version),
+        text = paste0("App updated to v", appInfo$version, "."),
         icon = icon("info-circle"),
         status = "info"
       ),
       notificationItem(
-        #text = "Scheduled maintenance: Aug 16, 2018",
-        text = "No maintenence scheduled",
+        text = "No maintenence scheduled.",
         icon = icon("calendar"),
-        #status = "warning",
         status = "success"
+      ),
+      notificationItem(
+        text = "NOTE: this app is no longer maintained.",
+        icon = icon("calendar"),
+        status = "warning"
       )
     )
   })
@@ -45,7 +51,7 @@ function(input, output, session) {
   ## module calls
   # TODO: update generator to handle these assignments
 
-  callModule(landwebAppInfo, "appInfo", appInfo)
+  callModule(landwebAppInfo, "appInfo", appInfo, readmeFile = "../README.md")
   callModule(appNews, "appNews", "../NEWS.md", "success")
   callModule(termsOfService, "appToS", "TERMS.md", "success")
   callModule(landwebAppSupport, "appSupport", appInfo)
@@ -65,11 +71,7 @@ function(input, output, session) {
   })
 
   rctPolySubList <- reactive({
-    sublist <- lapply(rctPolygonList(), function(x) x$crsSR)
-    omitPolys <- c("AB Natural Sub Regions",
-                   "FMU Alberta 2015-11") ## TODO: remove this workaround
-    lapply(omitPolys, function(x) sublist[[x]] <<- NULL)
-    sublist
+    rctPolygonList() ## TODO: limit each user to seeing only their own FMAs
   })
 
   rctUploadOptions <- reactive({
@@ -80,9 +82,13 @@ function(input, output, session) {
     )
   })
 
+  defaultPolyName <- reactive({
+    FMA_names[sample(seq_along(FMA_names), 1)] ## TODO: currently random; could be user-specific
+  })
+
   rctChosenPolyUser <- callModule(polygonChooser, "polyDropdown",
                                   rctPolygonList = rctPolySubList,
-                                  selectedPoly = defaultPolyName,
+                                  selectedPoly = defaultPolyName(),
                                   uploadOpts = rctUploadOptions(),
                                   studyArea = rctStudyArea())
 
@@ -116,23 +122,6 @@ function(input, output, session) {
   #            thinKeep = 0.01
   # )
 
-  # rctLargePatches <- callModule(recalcLargePatches, "largePatches",
-  #                               rctLrgPatches = rctLrgPatches,
-  #                               rctLrgPatchesCC = rctLrgPatchesCC,
-  #                               rctChosenPolyName = rctChosenPolyName,
-  #                               rctPolygonList = rctPolygonListUser,
-  #                               largePatchesFn = largePatchesFn,
-  #                               tsfFile = rctTsf(),
-  #                               vtmFile = rctVtm(),
-  #                               ageClasses = ageClasses,
-  #                               ageClassCutOffs = ageClassCutOffs,
-  #                               useParallelCluster = useParallelCluster,
-  #                               .largePatchesCalcFn = .largePatchesCalcFn,
-  #                               authStatus = authStatus)
-  #
-  # rctLrgPatchesUser <- reactive(rctLargePatches$largePatches())
-  # rctLrgPatchesUserCC <- reactive(rctLargePatches$largePatchesCC())
-  #
   # ## large patches histograms
   # rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
   #                                   rctPolygonList = rctPolygonListUser,
@@ -143,24 +132,6 @@ function(input, output, session) {
   #                                   outputPath = rctPaths4sim()$outputPath,
   #                                   ageClasses = ageClasses,
   #                                   FUN = largePatchesFn)
-  #
-  # ## recalculate leading vegetation classes for new polygons
-  # leadingByStageFn <- leadingByStage ## workaround cache (see above)
-  #
-  # rctLeading <- callModule(recalcLeading, "leading",
-  #                          rctLeadingDTlist = rctLeadingDTlist,
-  #                          rctLeadingDTlistCC = rctLeadingDTlistCC,
-  #                          rctChosenPolyName = rctChosenPolyName,
-  #                          rctPolygonList = rctPolygonListUser,
-  #                          leadingByStageFn = leadingByStageFn,
-  #                                    tsf = list(rctTsf()),
-  #                          vtm = list(rctVtm()),
-  #                          ageClasses = ageClasses,
-  #                          ageClassCutOffs = ageClassCutOffs,
-  #                          authStatus = authStatus)
-  #
-  # rctLeadingDTlistUser <- reactive(rctLeading$leading())
-  # rctLeadingDTlistUserCC <- reactive(rctLeading$leadingCC())
   #
   # ## veg cover histograms
   # rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
@@ -184,9 +155,9 @@ function(input, output, session) {
   #                           outputPath = rctPaths4sim()$outputPath,
   #                           ageClasses = ageClasses)
 
-  callModule(simInfo, "simInfo", rctSim())
+  callModule(simInfo, "simInfo", rctSim(), elements = c("modules", "objects")) ## no events
   callModule(moduleInfo, "moduleInfo", rctSim())
-  callModule(inputTables, "inputTables")
+  callModule(inputTables, "inputTables") ## TODO: use updated tables
 
   callModule(downloadOutputs, "downloadOutputs", ## TODO: write this with generator
              appInfo = appInfo, ## defined in global.R
@@ -196,6 +167,7 @@ function(input, output, session) {
              rctChosenPolyName = rctChosenPolyName)
 
   ## footers (see ?copyrightFooter)
-  callModule(copyrightFooter, "copyright", "Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada.")
+  callModule(copyrightFooter, "copyright", paste("Her Majesty the Queen in Right of Canada,",
+                                                 "as represented by the Minister of Natural Resources Canada."))
   callModule(sidebarFooter, "sidebar", character(0))
 }

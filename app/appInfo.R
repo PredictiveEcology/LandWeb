@@ -19,7 +19,7 @@ user.group <- authorized_users$company
 
 appInfo <- list(
   name = "LandWeb",
-  version = numeric_version("1.0.1"),
+  version = numeric_version("2.0.0"),
   appdir = appDir,
   appmoddir = appModDir,
   authors = c(
