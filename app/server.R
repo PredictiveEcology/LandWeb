@@ -6,6 +6,8 @@ function(input, output, session) {
 
   ## run additonal server code from server_file.R
   #if (file.exists("server_file.R")) source("server_file.R", local = TRUE) ## TODO: not needed
+  polygonList <- lapply(names(ml), function(i) ml[[i]]) %>% set_names(names(ml))
+  rctPolygonList <- reactive(polygonList)
 
   ## show the user the ToS when they start the app, but not after logging in
   observe({
@@ -44,7 +46,7 @@ function(input, output, session) {
   # TODO: update generator to handle these assignments
 
   callModule(landwebAppInfo, "appInfo", appInfo)
-  callModule(appNews, "appNews", "NEWS.md", "success")
+  callModule(appNews, "appNews", "../NEWS.md", "success")
   callModule(termsOfService, "appToS", "TERMS.md", "success")
   callModule(landwebAppSupport, "appSupport", appInfo)
 
