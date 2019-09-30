@@ -47,6 +47,7 @@ if (isTRUE(rerunSpeciesLayers)) {
                                modules = c("BiomassSpeciesData"),
                                objects = objects2,
                                omitArgs = c("debug", "paths", ".plotInitialTime"),
+                               #useCache = "overwrite", ## TODO: remove this workaround
                                useCloud = useCloudCache,
                                cloudFolderID = cloudCacheFolderID,
                                ## make .plotInitialTime an argument, not a parameter:
