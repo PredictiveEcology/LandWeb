@@ -1,3 +1,5 @@
+stop("this is deprecated code that requires substantial updates")
+
 library(SpaDES.shiny)
 library(dplyr)
 #load_all("~/GitHub/SpaDES.shiny")

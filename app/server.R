@@ -4,9 +4,10 @@ function(input, output, session) {
   session$userData$userLoggedIn <- reactiveVal(FALSE)
   session$userData$userAuthorized <- reactiveVal(FALSE)
 
-  polygonList <- lapply(FMA_names, function(i) ml[["FMA Boundaries Updated"]]["Name" == i]) %>%
-    set_names(FMA_names)
   rctPolygonList <- reactive(polygonList)
+  rctStudyArea <- reactive({
+    ml[["LandWeb Study Area"]] %>% spTransform(., CRS("+init=epsg:4326"))
+  })
 
   rctSim <- reactive({
     readRDS(file.path(appDir, "docs", "mySim_landweb_0000.rds")) ## TODO: check this path is OK in app
@@ -39,11 +40,6 @@ function(input, output, session) {
         text = "No maintenence scheduled.",
         icon = icon("calendar"),
         status = "success"
-      ),
-      notificationItem(
-        text = "NOTE: this app is no longer maintained.",
-        icon = icon("calendar"),
-        status = "warning"
       )
     )
   })
@@ -93,34 +89,31 @@ function(input, output, session) {
                                   studyArea = rctStudyArea())
 
   rctChosenPolyName <- reactive(rctChosenPolyUser()$selected)
-
-  rctPolygonListUser <- reactive({
-    ## polygonList containing ONLY the user's chosen polygon
-    allPolys <- rctChosenPolyUser()$polygons
-    userPoly <- rctChosenPolyName()
-    do.call(polygonList, append(allPolys[userPoly], list(studyArea = rctStudyArea())))
+  rctPolySubType <- reactive({
+    switch(input$polySubType,
+           "Alberta Natural Sub-Regions" = "ANSR",
+           "Caribou Ranges" = "Caribou",
+           "None" = "None")
   })
 
-  # callModule(timeSeriesofRasters, "timeSinceFire",  ## TODO: write this with generator
-  #            rctRasterList = rctRasterList,
-  #            rctUrlTemplate = rctUrlTemplate,
-  #            rctPolygonList = rctPolygonListUser,
-  #            rctChosenPoly = rctChosenPolyUser,
-  #            shpStudyRegionName = "LandWeb Study Area",
-  #            shpStudyRegionLFLT = isolate(rctPolygonList()[["LandWeb Study Area"]][["crsLFLT"]]), ## won't change
-  #            defaultPolyName = defaultPolyName,
-  #            colorPalette = timeSinceFirePalette,
-  #            mapTilesDir = tilePath,
-  #            mapTitle = "Time since fire",
-  #            mapLegend = paste0("Time since fire", br(), "(years)"),
-  #            maxAge = maxAge, zoom = 5, nPolygons = 1,
-  #            nRasters = length(rctTsf()),
-  #            rasterStepSize = summaryInterval,
-  #            sliderTitle = "Sampled simulation years (does not correspond to calendar years)",
-  #            uploadOpts = rctUploadOptions(),
-  #            rctStudyArea = rctStudyArea,
-  #            thinKeep = 0.01
-  # )
+  rctLeadingDT <- reactive({
+    if (rctPolySubType() == "ANSR") {
+      leadingDT.ANSR[zone == rctChosenPolyName(), ]
+    } else if (rctPolySubType() == "Caribou") {
+      leadingDT.Caribou[zone == rctChosenPolyName(), ]
+    } else {
+      leadingDT[zone == rctChosenPolyName(), ]
+    }
+  })
+
+  callModule(landwebMap, "mainMap",
+             rctStudyArea = rctStudyArea,
+             polygonList = polygonList,
+             rctChosenPolyName = rctChosenPolyName)
+  callModule(rasterAnimation, "movie",
+             appDir = appDir,
+             animationsInfo = animationsInfo,
+             rctChosenPolyName = rctChosenPolyName)
 
   # ## large patches histograms
   # rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
@@ -143,14 +136,12 @@ function(input, output, session) {
   #                          rctVtm = rctVtm,
   #                          outputPath = rctPaths4sim()$outputPath,
   #                          ageClasses = ageClasses)
-  #
-  # ## veg cover boxplots
+
+  ## veg cover boxplots
   # rctVegData2 <- callModule(vegAgeMod2, "vegArea2",  ## TODO: write this with generator
-  #                           rctAuthenticationType = rctAuthenticationType,
   #                           rctPolygonList = rctPolygonListUser,
   #                           rctChosenPolyName = rctChosenPolyName,
-  #                           rctLeadingDTlist = rctLeadingDTlistUser,
-  #                           rctLeadingDTlistCC = rctLeadingDTlistUserCC,
+  #                           rctDT = rctleadingDT(),
   #                           rctVtm = rctVtm,
   #                           outputPath = rctPaths4sim()$outputPath,
   #                           ageClasses = ageClasses)

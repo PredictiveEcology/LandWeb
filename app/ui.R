@@ -27,7 +27,7 @@ dashboardPage(
       menuItem("Support", tabName = "appSupport", icon = icon("question-circle")),
       br(),
       h4(HTML("&nbsp;"), "NRV"),
-      menuItem("Time Since Fire Maps", tabName = "timeSinceFire", icon = icon("map-o"), selected = TRUE),
+      menuItem("Maps", tabName = "timeSinceFire", icon = icon("map-o"), selected = TRUE),
       menuItem("Large Patches", tabName = "largePatches", icon = icon("bar-chart")),
       menuItem("Vegetation Cover (histograms)", tabName = "vegArea", icon = icon("bar-chart")),
       menuItem("Vegetation Cover (boxplots)", tabName = "vegArea2", icon = icon("area-chart")),
@@ -54,8 +54,16 @@ dashboardPage(
       tabItem("appSupport", landwebAppSupportUI("appSupport")), ## TODO: add this to generator
 
       tabItem("timeSinceFire", fluidRow(
-        #timeSeriesofRastersUI("timeSinceFire"),
-        box(width = 8, solidHeader = TRUE, collapsible = TRUE, polygonChooserUI("polyDropdown"))
+        box(width = 12, solidHeader = TRUE, collapsible = TRUE,
+            column(width = 8, landwebMapUI("mainMap")),
+            column(width = 4, rasterAnimationUI("movie"))
+        ),
+        box(width = 6, solidHeader = TRUE, collapsible = TRUE,
+            polygonChooserUI("polyDropdown"),
+            radioButtons("polySubType", "View results by:",
+                         choices = c("Alberta Natural Sub-Regions", "Caribou Ranges", "None"),
+                         selected = "None", inline = TRUE)
+        )
       )),
       #tabItem("largePatches", largePatchesUI("largePatches")),  ## TODO: add this to generator
       #tabItem("vegArea", vegAgeModUI("vegArea")),               ## TODO: add this to generator

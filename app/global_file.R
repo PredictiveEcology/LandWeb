@@ -3,7 +3,7 @@
 
 packageLoadStartTime <<- Sys.time()
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
-otherPkgs <- c("future", "magrittr", "promises", "reproducible")
+otherPkgs <- c("data.table", "future", "magrittr", "promises", "reproducible")
 spatialPkgs <- c("gdalUtils", "map", "parallel", "rgeos", "raster", "sp")
 shinyPkgs <- c("leaflet", "leaflet.extras",
                "shiny", "shinydashboard", "shinyBS", "shinyjs", "shinycssloaders", "shinyWidgets")
@@ -51,13 +51,13 @@ message("Started at ", appStartTime)
 leafletZoomInit <- 5
 
 # Some shinycssloaders options
-options("spinner.type" = 5)
+options(spinner.color = "#00a65a",  ## same green as dashboard header
+        spinner.type = 5)
 
 # This will search for gdal utilities. If it finds nothing, and you are on Windows,
 #   you should install the GDAL that comes with QGIS -- use OSGeo4W Network Installer 64 bit
 #   may be still here: http://www.qgis.org/en/site/forusers/download.html
 options(gdalUtils_gdalPath = Cache(gdalSet, cacheRepo = paths$cachePath))
-#options(spinner.color="blue")
 
 ## spades module variables
 maxAge <- 400
@@ -80,9 +80,34 @@ successionTimestep <- 10
 runName <- "LandWeb_highDispersal_logROS"  ## TODO: don't use runName?
 ml <- readRDS(file.path(appDir, paths$outputPath, runName, "ml_preamble.rds")) ## TODO: don't use runName?
 
+## large patches data
+csvFilesLargePatchesHists <- list.files(file.path(appDir, "outputs"), pattern = "largePatches.*[.]csv",
+                                        full.names = TRUE, recursive = TRUE)
+csvFilesLargePatchesHists.ANSR <- grep("ANSR", csvFilesLargePatchesHists, value = TRUE)
+csvFilesLargePatchesHists.Caribou <- grep("Caribou", csvFilesLargePatchesHists, value = TRUE) %>%
+  grep(pattern = "Caribou_Joined", x = ., invert = TRUE, value = TRUE)
+csvFilesLargePatchesHists <- grep("ANSR|Caribou", csvFilesLargePatchesHists, invert = TRUE, value = TRUE)
+## TODO: split for each size (100, 500, 1000, 5000)
+
+## leading veg cover data
+csvFilesLeadingHists <- list.files(file.path(appDir, "outputs"), pattern = "leading.*[.]csv",
+                                   full.names = TRUE, recursive = TRUE) %>%
+  grep(pattern = "leading_boxplots", x = ., invert = TRUE, value = TRUE)
+csvFilesLeadingHists.ANSR <- grep("ANSR", csvFilesLeadingHists, value = TRUE)
+csvFilesLeadingHists.Caribou <- grep("Caribou", csvFilesLeadingHists, value = TRUE) %>%
+  grep(pattern = "Caribou_Joined", x = ., invert = TRUE, value = TRUE)
+csvFilesLeadingHists <- grep("ANSR|Caribou", csvFilesLeadingHists, invert = TRUE, value = TRUE)
+
+leadingDT <- lapply(csvFilesLeadingHists, read.csv, header = TRUE) %>% rbindlist()
+set(leadingDT, NULL, "X", NULL)
+leadingDT.ANSR <- lapply(csvFilesLeadingHists.ANSR, read.csv, header = TRUE) %>% rbindlist()
+set(leadingDT.ANSR, NULL, "X", NULL)
+leadingDT.Caribou <- lapply(csvFilesLeadingHists.Caribou, read.csv, header = TRUE) %>% rbindlist()
+set(leadingDT.Caribou, NULL, "X", NULL)
+
 # These are used in inputTables.R for filling the tables of parameters in
 #landisInputs <- readRDS(file.path(appDir, paths$inputPath, "landisInputs.rds")) ## TODO: remove
-speciesTraits <- readRDS(file.path(appDir, paths$inputPath, "speciesTraitsTable.rds")) ## TODO: use this instead of landisTraits
+speciesTraits <- readRDS(file.path(appDir, paths$inputPath, "speciesTraitsTable.rds")) ## use this instead of landisTraits
 spEcoReg <- readRDS(file.path(appDir, paths$inputPath, "SpEcoReg.rds")) ## TODO: use updated values
 
 # The CRS for the Study -- spTransform converts this first one to the second one, they are identical geographically
@@ -95,6 +120,26 @@ studyRegionFilename <- "landweb_ltfc_v6.shp" ## TODO: verify this
 studyRegionFilePath <- file.path(appDir, paths$inputPath, studyRegionFilename)
 
 FMA_names <- sort(unique(ml[["FMA Boundaries Updated"]][["Name"]]))
+animationsInfo <- read.csv("animations.csv", stringsAsFactors = FALSE)
+
+if (FALSE) {
+  ## run once to place animation files in www/rasters directory with random file names
+  ids <- which(!is.na(animationsInfo[["FILE"]]))
+  animationsInfo[["NEWFILE"]][ids] <- paste0(SpaDES.core::rndstr(n = length(ids), len = 12), ".gif")
+  rasterDir <- file.path(appDir, "app", "www", "rasters")
+  dir.create(rasterDir)
+  fromFiles <- file.path(appDir, "outputs", animationsInfo[["DIR"]][ids], animationsInfo[["FILE"]][ids])
+  toFiles <- file.path(rasterDir, animationsInfo[["NEWFILE"]][ids])
+  file.exists(fromFiles)
+  file.copy(from = fromFiles, to = toFiles)
+  write.csv(animationsInfo, "animations.csv")
+}
+
+polygonList <- lapply(FMA_names, function(p) {
+  id <- which(ml[["FMA Boundaries Updated"]][["Name"]] == p)
+  ml[["FMA Boundaries Updated"]][id, ]
+}) %>%
+  set_names(FMA_names)
 
 ## source additional shiny modules
 vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))
