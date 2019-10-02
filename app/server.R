@@ -67,7 +67,8 @@ function(input, output, session) {
   })
 
   rctPolySubList <- reactive({
-    rctPolygonList() ## TODO: limit each user to seeing only their own FMAs
+    ## TODO: limit each user to seeing only their own FMAs
+    rctPolygonList()
   })
 
   rctUploadOptions <- reactive({
@@ -79,7 +80,8 @@ function(input, output, session) {
   })
 
   defaultPolyName <- reactive({
-    FMA_names[sample(seq_along(FMA_names), 1)] ## TODO: currently random; could be user-specific
+    ids <- which(!is.na(animationsInfo[["FILE"]]))
+    animationsInfo[["FMA"]][sample(ids, 1)] ## TODO: currently random; could be user-specific
   })
 
   rctChosenPolyUser <- callModule(polygonChooser, "polyDropdown",
@@ -93,17 +95,7 @@ function(input, output, session) {
     switch(input$polySubType,
            "Alberta Natural Sub-Regions" = "ANSR",
            "Caribou Ranges" = "Caribou",
-           "None" = "None")
-  })
-
-  rctLeadingDT <- reactive({
-    if (rctPolySubType() == "ANSR") {
-      leadingDT.ANSR[zone == rctChosenPolyName(), ]
-    } else if (rctPolySubType() == "Caribou") {
-      leadingDT.Caribou[zone == rctChosenPolyName(), ]
-    } else {
-      leadingDT[zone == rctChosenPolyName(), ]
-    }
+           "FMA" = "None")
   })
 
   callModule(landwebMap, "mainMap",
@@ -115,31 +107,50 @@ function(input, output, session) {
              animationsInfo = animationsInfo,
              rctChosenPolyName = rctChosenPolyName)
 
-  # ## large patches histograms
-  # rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
-  #                                   rctPolygonList = rctPolygonListUser,
-  #                                   rctChosenPolyName = rctChosenPolyName,
-  #                                   rctLrgPatches = rctLrgPatchesUser,
-  #                                   rctLrgPatchesCC = rctLrgPatchesUserCC,
-  #                                   rctTsf = rctTsf, rctVtm = rctVtm,
-  #                                   outputPath = rctPaths4sim()$outputPath,
-  #                                   ageClasses = ageClasses,
-  #                                   FUN = largePatchesFn)
-  #
-  # ## veg cover histograms
+  rctLrgPatchesDT <- reactive({
+    if (rctPolySubType() == "ANSR") {
+      ids <- which(grepl(rctChosenPolyName(), largePatchesDT.ANSR[["polygonName"]], fixed = TRUE))
+      largePatchesDT.ANSR[ids, ]
+    } else if (rctPolySubType() == "Caribou") {
+      ids <- which(grepl(rctChosenPolyName(), largePatchesDT.Caribou[["polygonName"]], fixed = TRUE))
+      largePatchesDT.Caribou[ids, ]
+    } else {
+      ids <- which(grepl(rctChosenPolyName(), largePatchesDT[["polygonName"]], fixed = TRUE))
+      largePatchesDT[ids, ]
+    }
+  })
+
+  ## large patches histograms
+  rctLargePatchesData <- callModule(largePatches, "largePatches",  ## TODO: write this with generator
+                                    rctPolygonList = rctPolygonList,
+                                    rctChosenPolyName = rctChosenPolyName,
+                                    rctLrgPatches = rctLrgPatchesDT,
+                                    ageClasses = ageClasses,
+                                    FUN = largePatchesFn)
+
+  rctLeadingDT <- reactive({
+    if (rctPolySubType() == "ANSR") {
+      ids <- which(grepl(rctChosenPolyName(), leadingDT.ANSR[["zone"]], fixed = TRUE))
+      leadingDT.ANSR[ids, ]
+    } else if (rctPolySubType() == "Caribou") {
+      ids <- which(grepl(rctChosenPolyName(), leadingDT.Caribou[["zone"]], fixed = TRUE))
+      leadingDT.Caribou[ids, ]
+    } else {
+      ids <- which(grepl(rctChosenPolyName(), leadingDT[["zone"]], fixed = TRUE))
+      leadingDT[ids, ]
+    }
+  })
+
+  ## veg cover histograms
   # rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
-  #                          rctAuthenticationType = rctAuthenticationType,
-  #                          rctPolygonList = rctPolygonListUser,
+  #                          rctPolygonList = rctPolygonList,
   #                          rctChosenPolyName = rctChosenPolyName,
-  #                          rctLeadingDTlist = rctLeadingDTlistUser,
-  #                          rctLeadingDTlistCC = rctLeadingDTlistUserCC,
-  #                          rctVtm = rctVtm,
-  #                          outputPath = rctPaths4sim()$outputPath,
+  #                          rctLeading = rctLeadingDT,
   #                          ageClasses = ageClasses)
 
   ## veg cover boxplots
   # rctVegData2 <- callModule(vegAgeMod2, "vegArea2",  ## TODO: write this with generator
-  #                           rctPolygonList = rctPolygonListUser,
+  #                           rctPolygonList = rctPolygonList,
   #                           rctChosenPolyName = rctChosenPolyName,
   #                           rctDT = rctleadingDT(),
   #                           rctVtm = rctVtm,
@@ -154,7 +165,7 @@ function(input, output, session) {
              appInfo = appInfo, ## defined in global.R
              rctLargePatches = rctLargePatchesData,
              rctVegData = rctVegData,
-             rctPolygonList = rctPolygonListUser,
+             rctPolygonList = rctPolygonList,
              rctChosenPolyName = rctChosenPolyName)
 
   ## footers (see ?copyrightFooter)

@@ -87,7 +87,55 @@ csvFilesLargePatchesHists.ANSR <- grep("ANSR", csvFilesLargePatchesHists, value 
 csvFilesLargePatchesHists.Caribou <- grep("Caribou", csvFilesLargePatchesHists, value = TRUE) %>%
   grep(pattern = "Caribou_Joined", x = ., invert = TRUE, value = TRUE)
 csvFilesLargePatchesHists <- grep("ANSR|Caribou", csvFilesLargePatchesHists, invert = TRUE, value = TRUE)
-## TODO: split for each size (100, 500, 1000, 5000)
+
+largePatchesDT <- lapply(csvFilesLargePatchesHists, function(f) {
+  df <- read.csv(f, header = TRUE)
+  df$size <- basename(f) %>%
+    strsplit(., "_") %>%
+    `[[`(., 1) %>%
+    grep("[.]csv", ., value = TRUE) %>%
+    strsplit(., ".csv") %>%
+    `[[`(., 1)
+  df
+}) %>% rbindlist()
+set(largePatchesDT, NULL, "X", NULL)
+largePatchesDT.ANSR <- lapply(csvFilesLargePatchesHists.ANSR, function(f) {
+  df <- read.csv(f, header = TRUE)
+  df$size <- basename(f) %>%
+    strsplit(., "_") %>%
+    `[[`(., 1) %>%
+    grep("[.]csv", ., value = TRUE) %>%
+    strsplit(., ".csv") %>%
+    `[[`(., 1)
+  df
+}) %>% rbindlist()
+set(largePatchesDT.ANSR, NULL, "X", NULL)
+largePatchesDT.Caribou <- lapply(csvFilesLargePatchesHists.Caribou, function(f) {
+  df <- read.csv(f, header = TRUE)
+  df$size <- basename(f) %>%
+    strsplit(., "_") %>%
+    `[[`(., 1) %>%
+    grep("[.]csv", ., value = TRUE) %>%
+    strsplit(., ".csv") %>%
+    `[[`(., 1)
+  df
+}) %>% rbindlist()
+set(largePatchesDT.Caribou, NULL, "X", NULL)
+
+largePatchesDT[vegCover == "Bl spruce", vegCover := "Bl Spruce"]
+largePatchesDT[vegCover == "Wh spruce", vegCover := "Wh Spruce"]
+largePatchesDT[vegCover == "All species", vegCover := "All Species"]
+largePatchesDT[, vegCover := as.character(vegCover)]
+
+largePatchesDT.ANSR[vegCover == "Bl spruce", vegCover := "Bl Spruce"]
+largePatchesDT.ANSR[vegCover == "Wh spruce", vegCover := "Wh Spruce"]
+largePatchesDT.ANSR[vegCover == "All species", vegCover := "All Species"]
+largePatchesDT.ANSR[, vegCover := as.character(vegCover)]
+
+largePatchesDT.Caribou[vegCover == "Bl spruce", vegCover := "Bl Spruce"]
+largePatchesDT.Caribou[vegCover == "Wh spruce", vegCover := "Wh Spruce"]
+largePatchesDT.Caribou[vegCover == "All species", vegCover := "All Species"]
+largePatchesDT.Caribou[, vegCover := as.character(vegCover)]
 
 ## leading veg cover data
 csvFilesLeadingHists <- list.files(file.path(appDir, "outputs"), pattern = "leading.*[.]csv",
@@ -104,6 +152,30 @@ leadingDT.ANSR <- lapply(csvFilesLeadingHists.ANSR, read.csv, header = TRUE) %>%
 set(leadingDT.ANSR, NULL, "X", NULL)
 leadingDT.Caribou <- lapply(csvFilesLeadingHists.Caribou, read.csv, header = TRUE) %>% rbindlist()
 set(leadingDT.Caribou, NULL, "X", NULL)
+
+leadingDT[vegCover == "Abie_sp", vegCover := "Fir"]
+leadingDT[vegCover == "Pice_gla", vegCover := "Wh Spruce"]
+leadingDT[vegCover == "Pice_mar", vegCover := "Bl Spruce"]
+leadingDT[vegCover == "Pinu_sp", vegCover := "Pine"]
+leadingDT[vegCover == "Popu_sp", vegCover := "Decid"]
+leadingDT[vegCover == "All species", vegCover := "All Species"]
+leadingDT[, vegCover := as.character(vegCover)]
+
+leadingDT.ANSR[vegCover == "Abie_sp", vegCover := "Fir"]
+leadingDT.ANSR[vegCover == "Pice_gla", vegCover := "Wh Spruce"]
+leadingDT.ANSR[vegCover == "Pice_mar", vegCover := "Bl Spruce"]
+leadingDT.ANSR[vegCover == "Pinu_sp", vegCover := "Pine"]
+leadingDT.ANSR[vegCover == "Popu_sp", vegCover := "Decid"]
+leadingDT.ANSR[vegCover == "All species", vegCover := "All Species"]
+leadingDT.ANSR[, vegCover := as.character(vegCover)]
+
+leadingDT.Caribou[vegCover == "Abie_sp", vegCover := "Fir"]
+leadingDT.Caribou[vegCover == "Pice_gla", vegCover := "Wh Spruce"]
+leadingDT.Caribou[vegCover == "Pice_mar", vegCover := "Bl Spruce"]
+leadingDT.Caribou[vegCover == "Pinu_sp", vegCover := "Pine"]
+leadingDT.Caribou[vegCover == "Popu_sp", vegCover := "Decid"]
+leadingDT.Caribou[vegCover == "All species", vegCover := "All Species"]
+leadingDT.Caribou[, vegCover := as.character(vegCover)]
 
 # These are used in inputTables.R for filling the tables of parameters in
 #landisInputs <- readRDS(file.path(appDir, paths$inputPath, "landisInputs.rds")) ## TODO: remove
@@ -135,11 +207,13 @@ if (FALSE) {
   write.csv(animationsInfo, "animations.csv")
 }
 
-polygonList <- lapply(FMA_names, function(p) {
+ids <- which(!is.na(animationsInfo[["FILE"]]))
+polygonsToUse <- animationsInfo[["FMA"]][ids] ## TODO: currently only offer polygons with sim outputs
+polygonList <- lapply(polygonsToUse, function(p) {
   id <- which(ml[["FMA Boundaries Updated"]][["Name"]] == p)
   ml[["FMA Boundaries Updated"]][id, ]
 }) %>%
-  set_names(FMA_names)
+  set_names(polygonsToUse)
 
 ## source additional shiny modules
 vapply(list.files("shiny-modules", "[.]R", full.names = TRUE), source, vector("list", 2))

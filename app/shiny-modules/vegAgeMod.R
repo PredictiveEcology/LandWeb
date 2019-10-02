@@ -18,8 +18,7 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname vegHistServerFn
-vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
-                            chosenPolyName, authStatus, rebuildHistPNGs, ...) {
+vegHistServerFn <- function(datatable, id, .current, .dtFull, chosenPolyName, authStatus, ...) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     vegDT <- if (is.reactive(datatable)) {
       datatable()
@@ -31,7 +30,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
       msg = "vegHistServerFn: `datatable` is not a data.table"
     )
 
-    propVeg <- vegDT$proportion
+    propVeg <- vegDT[["proportion"]]
 
     breaksLabels <- (0:11) / 10
     breaks <- breaksLabels - 0.05
@@ -67,24 +66,9 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, outputPath,
     }
 
     polyName <- chosenPolyName %>% gsub(" ", "_", .)
-    pngDir <- file.path(outputPath, "histograms", polyName, "vegAgeMod") %>% checkPath(create = TRUE)
-    pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
-    pngPath <- file.path(pngDir, pngFile)
-    pngFilePath <- if (isTRUE(rebuildHistPNGs)) {
-      if (file.exists(pngPath)) {
-        NULL
-      } else {
-        pngPath
-      }
-    } else {
-      NULL
-    }
-    pngFilePath <- pngPath ## TODO: revert this
-    # cat(paste0("\"", basename(pngPath), "\"", ",", verticalLine*2 - barWidth, "\n"),
-    #     file = "outputs/DMI/leadingVegTypes.csv", append = TRUE) ## TODO: revert this
 
     callModule(histogram, id, histogramData, addAxisParams, verticalBar = verticalLineAtX,
-               width = barWidth, fname = pngFilePath,
+               width = barWidth, fname = NULL,
                border = "grey",
                col = "darkgrey",
                main = "", #paste(.current, collapse = " "),
@@ -110,9 +94,8 @@ vegAgeModUI <- function(id) {
 }
 
 #'
-vegAgeMod <- function(input, output, session, rctAuthenticationType,
-                      rctPolygonList, rctChosenPolyName = reactive({NULL}),
-                      rctLeadingDTlist, rctLeadingDTlistCC, rctVtm, ageClasses, outputPath) {
+vegAgeMod <- function(input, output, session,rctPolygonList, rctChosenPolyName = reactive({NULL}),
+                      rctLeading, ageClasses) {
 
   output$vegTitle <- renderUI({
     column(width = 12,

@@ -55,17 +55,18 @@ dashboardPage(
 
       tabItem("timeSinceFire", fluidRow(
         box(width = 12, solidHeader = TRUE, collapsible = TRUE,
-            column(width = 8, landwebMapUI("mainMap")),
-            column(width = 4, rasterAnimationUI("movie"))
+            column(width = 6, landwebMapUI("mainMap")),
+            column(width = 6, rasterAnimationUI("movie"))
         ),
         box(width = 6, solidHeader = TRUE, collapsible = TRUE,
             polygonChooserUI("polyDropdown"),
             radioButtons("polySubType", "View results by:",
-                         choices = c("Alberta Natural Sub-Regions", "Caribou Ranges", "None"),
-                         selected = "None", inline = TRUE)
+                         #choices = c("Alberta Natural Sub-Regions", "Caribou Ranges", "FMA"), ## TODO: enable
+                         choices = c("FMA"),
+                         selected = "FMA", inline = TRUE)
         )
       )),
-      #tabItem("largePatches", largePatchesUI("largePatches")),  ## TODO: add this to generator
+      tabItem("largePatches", largePatchesUI("largePatches")),  ## TODO: add this to generator
       #tabItem("vegArea", vegAgeModUI("vegArea")),               ## TODO: add this to generator
       #tabItem("vegArea2", vegAgeMod2UI("vegArea2")),            ## TODO: add this to generator
 

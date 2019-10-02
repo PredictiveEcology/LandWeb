@@ -1,7 +1,7 @@
 landwebMapUI <- function(id) {
   ns <- NS(id)
 
-  leafletOutput(ns("map"), width = "100%", height = "800px") %>%
+  leafletOutput(ns("map"), width = "100%", height = "600px") %>%
     shinycssloaders::withSpinner()
 }
 
