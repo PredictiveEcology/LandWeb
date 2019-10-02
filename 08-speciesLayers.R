@@ -10,7 +10,7 @@ objects2 <- list(
   "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
   "sppColorVect" = sppColorVect,
   "sppEquiv" = sppEquivalencies_CA,
-  "studyArea" = simOutPreamble$studyArea,
+  "studyArea" = simOutPreamble$studyArea, ## TODO: no longer an input in Ceres' updated module
   "studyAreaLarge" = simOutPreamble$studyAreaLarge,
   "studyAreaReporting" = simOutPreamble$studyAreaReporting
 )
