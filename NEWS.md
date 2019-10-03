@@ -8,9 +8,9 @@
 
 **Input data**
 
+-   reworked data preparation steps and fixed many data errors
 -   implemented and fit various statistical models to impute missing and
     inconsistent data
--   shdaoeshda
 
 **Model improvements**
 
@@ -18,12 +18,15 @@
     ensure burned pixels regenerate
 -   several bug fixes and performance enhancments
 
-**App enhancments**
+**App changes**
 
--   improved app load times by lading static plot images instead of
-    dynamically generating them
--   fixed issues with shapefile upload
--   several other performance enhancements
+-   reworked app to use pre-generated results only instead of computing
+    on-the-fly; as a result, only selected results per FMA are available
+    in-app.
+-   several other performance enhancements.
+-   removed shapefile uploads, as custom areas require rerunning various
+    analyses, which were slowing down the app server and blocking other
+    users from interacting with the app.
 
 ------------------------------------------------------------------------
 
@@ -62,6 +65,6 @@ results.
 **NOTE:** There appears to be a bias towards deciduous species in some
 of the results. This may be due to the interaction between the LandMine
 fire model and the LANDIS Biomass-Succession models: deciduous species
-burn less than conifers but regenerate more quickly. I am currently
+burn less than conifers but regenerate more quickly. We are currently
 taking a closer look at the simulations and code to verify these
 results.

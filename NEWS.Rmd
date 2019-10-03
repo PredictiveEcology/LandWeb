@@ -19,7 +19,6 @@ editor_options:
 
 - reworked data preparation steps and fixed many data errors
 - implemented and fit various statistical models to impute missing and inconsistent data
-- shdaoeshda
 
 **Model improvements**
 
