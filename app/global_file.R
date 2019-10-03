@@ -40,6 +40,16 @@ paths <- list(
   outputPath = "outputs"
 )
 
+simObjFile <- file.path(appDir, "docs", "mySim_landweb_0000.rds")
+if (!file.exists(simObjFile)) {
+  library(googledrive)
+  drive_auth(use_oob = TRUE)
+  drive_download(as_id("https://drive.google.com/file/d/1nL7KM33BSWh2n5P7SEEiAnpOzhb_xu81/view?usp=sharing"),
+                 simObjFile)
+}
+
+mySim_landweb_0000 <- readRDS(simObjFile)
+
 ## get additonal helper functions used throughout this shiny app
 source(file.path("R", "helpers.R"))
 

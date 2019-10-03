@@ -10,7 +10,7 @@ function(input, output, session) {
   })
 
   rctSim <- reactive({
-    readRDS(file.path(appDir, "docs", "mySim_landweb_0000.rds")) ## TODO: check this path is OK in app
+    mySim_landweb_0000
   })
 
   ## show the user the ToS when they start the app, but not after logging in
