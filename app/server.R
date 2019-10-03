@@ -142,11 +142,11 @@ function(input, output, session) {
   })
 
   ## veg cover histograms
-  # rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
-  #                          rctPolygonList = rctPolygonList,
-  #                          rctChosenPolyName = rctChosenPolyName,
-  #                          rctLeading = rctLeadingDT,
-  #                          ageClasses = ageClasses)
+  rctVegData <- callModule(vegAgeMod, "vegArea",  ## TODO: write this with generator
+                           rctPolygonList = rctPolygonList,
+                           rctChosenPolyName = rctChosenPolyName,
+                           rctLeading = rctLeadingDT,
+                           ageClasses = ageClasses)
 
   ## veg cover boxplots
   rctVegData2 <- callModule(vegAgeMod2, "vegArea2",  ## TODO: write this with generator

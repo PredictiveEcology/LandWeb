@@ -126,7 +126,7 @@ vegAgeMod <- function(input, output, session,rctPolygonList, rctChosenPolyName =
 
       ## TODO: make this work with ANSR and caribou polygons!
       ## these polys are not in the rctPolygonList, so need to get them from `ml` somehow
-browser()
+
       set(dt, NULL, "polygonID", polygonID[match(dt[["zone"]], polygonName)])
 
       haveNumericPolyId <- dt[["polygonID"]] %in% polygonID
@@ -155,7 +155,6 @@ browser()
 
   observeEvent(rctChosenPolyName(), {
     authStatus <- isTRUE(session$userData$userAuthorized())
-    authStatus <- TRUE ## TODO: revert this
     callModule(slicer, "vegSlicer", datatable = rctVegData,
                uiSequence = uiSequence(),
                serverFunction = vegHistServerFn, ## calls histogram server module

@@ -7,7 +7,7 @@
 - Eliot McIntire (eliot.mcintire@canada.ca)
 - Alex M. Chubaty (achubaty@friresearch.ca)
 
-**Date:** August 8, 2018
+**Date:** September 30, 2018
 
 ### Getting the code
 

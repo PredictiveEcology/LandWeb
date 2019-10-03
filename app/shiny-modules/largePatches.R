@@ -7,8 +7,6 @@
 #'
 #' @param chosenValues      ... See \code{\link[SpaDES.shiny]{getSubtable}}.
 #'
-#' @param nSimTimes         Number of simulation times.
-#'
 #' @return
 #'
 #' @author Mateusz Wyszynski
@@ -20,7 +18,7 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname
-histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, nSimTimes, authStatus,
+histServerFn <- function(datatable, id, .current, .dtFull, .dtInner, authStatus,
                          uiSequence, chosenPolyName, patchSize) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     dt <- if (is.reactive(datatable)) {

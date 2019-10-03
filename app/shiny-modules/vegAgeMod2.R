@@ -28,7 +28,7 @@ vegBoxplotServerFn <- function(datatable, id, .current, .dtFull, chosenPolyName,
       is.data.table(vegDT),
       msg = "vegHistServerFn: `datatable` is not a data.table"
     )
-browser()
+
     data <- .dtFull[vegCover == .current$vegCover][polygonID == .current$polygonID]
 
     ids <- match(data[["ageClass"]], ageClasses) %>% unique()

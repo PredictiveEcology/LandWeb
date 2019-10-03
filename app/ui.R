@@ -67,7 +67,7 @@ dashboardPage(
         )
       )),
       tabItem("largePatches", largePatchesUI("largePatches")),  ## TODO: add this to generator
-      #tabItem("vegArea", vegAgeModUI("vegArea")),               ## TODO: add this to generator
+      tabItem("vegArea", vegAgeModUI("vegArea")),               ## TODO: add this to generator
       tabItem("vegArea2", vegAgeMod2UI("vegArea2")),            ## TODO: add this to generator
 
       tabItem("simInfo", simInfoUI("simInfo")),

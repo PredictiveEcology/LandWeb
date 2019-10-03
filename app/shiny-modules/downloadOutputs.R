@@ -31,7 +31,7 @@ downloadOutputs <- function(input, output, session, appInfo,
       checkboxInput(ns("dlPolygon"), "Currently selected reporting polygon (.shp)", TRUE),
       ###
       h4("Current Condition:"),
-      checkboxInput(ns("dlCC"), "Map of current condition (.tif)", TRUE),
+      checkboxInput(ns("dlCC"), "Maps of current condition (.tif)", TRUE),
       ###
       h4("Outputs:"),
       h5("Large Patches Data for study region"),
@@ -46,7 +46,7 @@ downloadOutputs <- function(input, output, session, appInfo,
       h4("Simulation Rasters (cropped to study region)"),
       h5("NOTE: geoprocessing of these outputs may take 20-30 minutes to complete!"),
       checkboxInput(ns("dlTimeSinceFireMaps"), "Time Since Fire maps (.tif)", FALSE),
-      checkboxInput(ns("dlVegTypeMaps"), "Vegetation type maps (.grd, .tif)", FALSE),
+      #checkboxInput(ns("dlVegTypeMaps"), "Vegetation type maps (.grd, .tif)", FALSE), ## TODO: restore
       ###
       h4("Additional R Data Files"), ## all of these should be false by default
       checkboxInput(ns("dlSimOutputs"), "Simulation data files (.RData, .rds)", FALSE),
@@ -78,17 +78,20 @@ downloadOutputs <- function(input, output, session, appInfo,
       dlSteps <- c(input$dlPolygon, input$dlCC,
                    input$dlLargePatchesData, input$dlLargePatchesHists,
                    input$dlVegData, input$dlVegAgeHists, input$dlVegAgeBoxplots,
-                   input$dlTimeSinceFireMaps, input$dlVegTypeMaps,
+                   #input$dlTimeSinceFireMaps, input$dlVegTypeMaps, ## TODO: restore these
                    input$dlSimOutputs)
 
       ## number of steps for the progress bar
       ## NOTE: progress bar only incremented for dlSteps that are true
       n <- length(which(dlSteps == TRUE))
 
+      outDirID <- which(animationsInfo[["FMA"]] == rctChosenPolyName())
+      simOutDir <- file.path(appDir, "outputs", animationsInfo[["DIR"]][outDirID]) %>% normalizePath()
+
       withProgress(message = 'Preparing download...', value = 0, {
         fileList <- list()
 
-        currPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
+        currPoly <- rctPolygonList()[[rctChosenPolyName()]]
 
         ### "inputs"
         if (isTRUE(input$dlPolygon)) {
@@ -106,32 +109,35 @@ downloadOutputs <- function(input, output, session, appInfo,
 
         ### Current condition
         if (isTRUE(input$dlCC)) {
-          ccFile <- file.path("cache", paste0(studyAreaName), "rasters", "CurrentCondition.tif")
-          ccFile2 <- file.path(tmpDir, "rasters", basename(ccFile))
+          #ccFile <- file.path("cache", paste0(studyAreaName), "rasters", "CurrentCondition.tif")
+          ccFiles <- file.path(simOutDir, c("CurrentConditionTSF.tif", "CurrentConditionVTM.tif"))
+          ccFiles2 <- file.path(tmpDir, "rasters", basename(ccFiles))
+          assertthat::assert_that(all(file.exists(ccFiles)))
 
-          raster::raster(ccFile) %>%
-            reproducible::postProcess(., filename2 = ccFile2, studyArea = currPoly)
-          fileList <- append(fileList, ccFile2)
+          #raster::raster(ccFiles[1]) %>%
+          #  reproducible::postProcess(., filename2 = ccFiles2[1], studyArea = currPoly)
+          #raster::raster(ccFiles[2]) %>%
+          #  reproducible::postProcess(., filename2 = ccFiles2[2], studyArea = currPoly)
+          file.copy(ccFiles, ccFiles2)
+          fileList <- append(fileList, ccFiles2)
           incProgress(1/n)
         }
 
         ### Large Patches Data
         if (isTRUE(input$dlLargePatchesData)) {
           largePatchesDataFile2 <- file.path(tmpDir, "largePatches.csv")
-          write.csv(rctLargePatches()$data, largePatchesDataFile2)
+          write.csv(rctLargePatches()[["data"]], largePatchesDataFile2)
           fileList <- append(fileList, largePatchesDataFile2)
           incProgress(1/n)
         }
 
         if (isTRUE(input$dlLargePatchesHists)) {
-          histFilesLP <- list.files(
-            file.path("outputs", paste0(studyAreaName, "_All"),
-                      "histograms", gsub(" ", "_", rctChosenPolyName()),
-                      "largePatches", rctLargePatches()$patchSize),
-            recursive = TRUE, full.names = TRUE
-          )
-          histFilesLP2 <- file.path(tmpDir, "histograms", "largePatches",
-                                    rctLargePatches()$patchSize, basename(histFilesLP))
+          histPathLP <- file.path(simOutDir, "histograms", "largePatches")
+          assertthat::assert_that(dir.exists(histPathLP))
+          histFilesLP <- list.files(histPathLP, recursive = TRUE, full.names = TRUE)
+          histFilesLP2 <- gsub(pattern = simOutDir,
+                               replacement = file.path(tmpDir),
+                               x = histFilesLP, fixed = TRUE)
           unique(dirname(histFilesLP2)) %>% reproducible::checkPath(., create = TRUE)
           file.copy(histFilesLP, histFilesLP2)
           fileList <- append(fileList, histFilesLP2)
@@ -140,35 +146,33 @@ downloadOutputs <- function(input, output, session, appInfo,
 
         ### Veg Class Data
         if (isTRUE(input$dlVegData)) {
-          vegDataFile2 <- file.path(tmpDir, "vegArea.csv")
+          vegDataFile2 <- file.path(tmpDir, "leading.csv")
           write.csv(rctVegData(), vegDataFile2)
           fileList <- append(fileList, vegDataFile2)
           incProgress(1/n)
         }
 
         if (isTRUE(input$dlVegAgeHists)) {
-          histFilesVA <- list.files(
-            file.path("outputs", paste0(studyAreaName, "_All"),
-                      "histograms", gsub(" ", "_", rctChosenPolyName()),
-                      "vegAgeMod"),
-            recursive = TRUE, full.names = TRUE
-          )
-          histFilesVA2 <- file.path(tmpDir, "histograms", "vegAgeMod", basename(histFilesVA))
-          dir.create(unique(dirname(histFilesVA2)))
+          histPathVA <- file.path(simOutDir, "histograms", "leading")
+          assertthat::assert_that(dir.exists(histPathVA))
+          histFilesVA <- list.files(histPathVA, recursive = TRUE, full.names = TRUE)
+          histFilesVA2 <- gsub(pattern = simOutDir,
+                               replacement = file.path(tmpDir),
+                               x = histFilesVA, fixed = TRUE)
+          unique(dirname(histFilesVA2)) %>% reproducible::checkPath(., create = TRUE)
           file.copy(histFilesVA, histFilesVA2)
           fileList <- append(fileList, histFilesVA2)
           incProgress(1/n)
         }
 
         if (isTRUE(input$dlVegAgeBoxplots)) {
-          boxplotFilesVA <- list.files(
-            file.path("outputs", paste0(studyAreaName, "_All"),
-                      "boxplots", gsub(" ", "_", rctChosenPolyName()),
-                      "vegAgeMod"),
-            recursive = TRUE, full.names = TRUE
-          )
-          boxplotFilesVA2 <- file.path(tmpDir, "boxplots", "vegAgeMod", basename(boxplotFilesVA))
-          dir.create(unique(dirname(boxplotFilesVA2)))
+          boxplotPathVA <- file.path(simOutDir, "boxplots")
+          assertthat::assert_that(dir.exists(boxplotPathVA))
+          boxplotFilesVA <- list.files(boxplotPathVA, recursive = TRUE, full.names = TRUE)
+          boxplotFilesVA2 <- gsub(pattern = simOutDir,
+                                  replacement = file.path(tmpDir),
+                                  x = boxplotFilesVA, fixed = TRUE)
+          unique(dirname(boxplotFilesVA2)) %>% reproducible::checkPath(., create = TRUE)
           file.copy(boxplotFilesVA, boxplotFilesVA2)
           fileList <- append(fileList, boxplotFilesVA2)
           incProgress(1/n)
@@ -176,40 +180,44 @@ downloadOutputs <- function(input, output, session, appInfo,
 
         ### Simulation rasters
         if (isTRUE(input$dlTimeSinceFireMaps)) {
-          tsfMapFiles <- list.files(
-            file.path("outputs", paste0(studyAreaName, "_All")),
-            recursive = TRUE, full.names = TRUE, pattern = "rstTimeSinceFire"
-          )
-          tsfMapFiles2 <- file.path(tmpDir, "rasters",  basename(tsfMapFiles))
+          tsfMapFiles <- list.files(simOutDir, recursive = TRUE, full.names = TRUE,
+                                    pattern = "rstTimeSinceFire")
+          tsfMapFiles2 <- gsub(pattern = simOutDir,
+                               replacement = file.path(tmpDir),
+                               x = tsfMapFiles, fixed = TRUE)
 
-          tsfRasterList <- lapply(tsfMapFiles, raster::raster)
-          Map(x = tsfRasterList, filename2 = tsfMapFiles2,
-              MoreArgs = list(studyArea = currPoly), reproducible::postProcess)
+          #tsfRasterList <- lapply(tsfMapFiles, raster::raster)
+          #Map(x = tsfRasterList, filename2 = tsfMapFiles2,
+          #    MoreArgs = list(studyArea = currPoly), reproducible::postProcess)
+          unique(dirname(tsfMapFiles2)) %>% reproducible::checkPath(., create = TRUE)
+          file.copy(tsfMapFiles, tsfMapFiles2)
           fileList <- append(fileList, tsfMapFiles2)
           incProgress(1/n)
         }
 
-        if (isTRUE(input$dlVegTypeMaps)) {
-          vegTypeMapFiles <- list.files(
-            file.path("outputs", paste0(studyAreaName, "_All")),
-            recursive = TRUE, full.names = TRUE, pattern = "vegTypeMap.+[0-9]\\.tif$"
-          )
-          vegTypeMapFiles2 <- file.path(tmpDir, "rasters",  basename(vegTypeMapFiles))
+        if (isTRUE(input$dlVegTypeMaps)) { ## TODO: disabled for now b/c they are grd files not tifs
+          vegTypeMapFiles <- list.files(simOutDir, recursive = TRUE, full.names = TRUE,
+                                        pattern = "vegTypeMap.+[0-9]\\.tif$")
+          vegTypeMapFiles2 <- gsub(pattern = simOutDir,
+                                   replacement = file.path(tmpDir),
+                                   x = vegTypeMapFiles, fixed = TRUE)
 
-          vegRasterList <- lapply(vegTypeMapFiles, raster::raster)
-          Map(x = vegRasterList, filename2 = vegTypeMapFiles2,
-              MoreArgs = list(studyArea = currPoly), reproducible::postProcess)
+          #vegRasterList <- lapply(vegTypeMapFiles, raster::raster)
+          #Map(x = vegRasterList, filename2 = vegTypeMapFiles2,
+          #    MoreArgs = list(studyArea = currPoly), reproducible::postProcess)
+          unique(dirname(vegTypeMapFiles2)) %>% reproducible::checkPath(., create = TRUE)
+          file.copy(vegTypeMapFiles, vegTypeMapFiles2)
           fileList <- append(fileList, vegTypeMapFiles2)
           incProgress(1/n)
         }
 
         ### other simulation data files
         if (isTRUE(input$dlSimOutputs)) {
-          simOutputFiles <- list.files(
-            file.path("outputs", paste0(studyAreaName, "_All")),
-            recursive = TRUE, full.names = TRUE, pattern = "[.]RData|[.]rds"
-          )
-          simOutputFiles2 <- file.path(tmpDir, basename(simOutputFiles))
+          simOutputFiles <- list.files(simOutDir, recursive = TRUE, full.names = TRUE,
+                                       pattern = "[.]RData|[.]rds")
+          simOutputFiles2 <- gsub(pattern = simOutDir,
+                                  replacement = file.path(tmpDir),
+                                  x = simOutputFiles, fixed = TRUE)
           file.copy(simOutputFiles, simOutputFiles2)
           fileList <- append(fileList, simOutputFiles2)
           incProgress(1/n)
@@ -230,7 +238,7 @@ downloadOutputs <- function(input, output, session, appInfo,
         on.exit(lapply(fileListRenamed, unlink), add = TRUE)
 
         ## README, TERMS, ETC.
-        otherFiles <- c("README.md", "TERMS.pdf")
+        otherFiles <- file.path(appDir, c("README.md", "app/TERMS.pdf")) %>% normalizePath()
         otherFiles2 <- file.path(tmpDir, basename(otherFiles))
         file.copy(otherFiles, otherFiles2)
 
@@ -238,7 +246,6 @@ downloadOutputs <- function(input, output, session, appInfo,
         cwd <- getwd()
         setwd(tmpDir); on.exit(setwd(cwd), add = TRUE)
         zip(file, files = list.files(tmpDir, recursive = TRUE))
-        ## TODO: if fileListRenamed not used here, why bother?
       })
     },
     contentType = "application/zip"

@@ -1,6 +1,8 @@
 #install_github("PredictiveEcology/SpaDES.shiny@development")
 #setwd("~/GitHub/LandWeb/app")
 
+stopifnot(packageVersion("SpaDES.shiny") >= "0.2.0")
+
 packageLoadStartTime <<- Sys.time()
 googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
 otherPkgs <- c("data.table", "future", "magrittr", "promises", "reproducible")
