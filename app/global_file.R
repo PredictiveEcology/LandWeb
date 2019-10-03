@@ -218,7 +218,7 @@ if (FALSE) {
   write.csv(animationsInfo, "animations.csv")
 }
 
-ids <- which(!is.na(animationsInfo[["FILE"]]))
+ids <- which(!is.na(animationsInfo[["DIR"]]))
 polygonsToUse <- animationsInfo[["FMA"]][ids] ## TODO: currently only offer polygons with sim outputs
 polygonList <- lapply(polygonsToUse, function(p) {
   id <- which(ml[["FMA Boundaries Updated"]][["Name"]] == p)
