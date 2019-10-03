@@ -73,7 +73,7 @@ function(input, output, session) {
 
   rctUploadOptions <- reactive({
     list(
-      auth = authStatus(),
+      auth = FALSE, #authStatus(), # TODO: re-enable uploads
       path = "uploads",
       user = userEmail()
     )
