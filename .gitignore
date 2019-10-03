@@ -2,6 +2,7 @@
 *.cpg
 *.csv
 !authorized_users.csv
+!animations.csv
 *.dbf
 *.ini
 *.log
