@@ -1,5 +1,5 @@
 appDir <- switch(Sys.info()["nodename"],
-                 "landweb.ca" =  file.path("/srv/shiny-server/"),
+                 "landweb.ca" =  file.path("/srv/shiny-server/LandWeb"),
                  "landweb" =  file.path("~/GitHub/LandWeb"),  ## TODO: update hostname
                  file.path("~/GitHub/LandWeb")
 ) # needs trailing slash!
