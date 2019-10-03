@@ -47,7 +47,6 @@ if (!file.exists(simObjFile)) {
   drive_download(as_id("https://drive.google.com/file/d/1nL7KM33BSWh2n5P7SEEiAnpOzhb_xu81/view?usp=sharing"),
                  simObjFile)
 }
-
 mySim_landweb_0000 <- readRDS(simObjFile)
 
 ## get additonal helper functions used throughout this shiny app
