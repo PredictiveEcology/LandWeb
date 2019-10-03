@@ -17,8 +17,7 @@
 #' @importFrom shiny callModule reactive
 #' @importFrom SpaDES.shiny getSubtable histogram
 #' @rdname vegBoxplotServerFn
-vegBoxplotServerFn <- function(datatable, id, .current, .dtFull, outputPath,
-                               chosenPolyName, authStatus, rebuildHistPNGs, ...) {
+vegBoxplotServerFn <- function(datatable, id, .current, .dtFull, chosenPolyName, authStatus, ...) {
   observeEvent(datatable, label = paste(.current, collapse = "-"), {
     vegDT <- if (is.reactive(datatable)) {
       datatable()
@@ -29,35 +28,19 @@ vegBoxplotServerFn <- function(datatable, id, .current, .dtFull, outputPath,
       is.data.table(vegDT),
       msg = "vegHistServerFn: `datatable` is not a data.table"
     )
-
+browser()
     data <- .dtFull[vegCover == .current$vegCover][polygonID == .current$polygonID]
-    dataCC <- data[grepl("CurrentCondition", label)]
-    data <- data[!grepl("CurrentCondition", label)]
 
-    ids <- match(dataCC$ageClass, ageClasses) %>% unique()
-    CCpnts <- dataCC$proportion[ids]
-    data$ageClass <- factor(data$ageClass, ageClasses)
+    ids <- match(data[["ageClass"]], ageClasses) %>% unique()
+    CCpnts <- data[["proportionCC"]][ids]
+    data[["ageClass"]] <- factor(data[["ageClass"]], ageClasses)
 
     polyName <- chosenPolyName %>% gsub(" ", "_", .)
-    pngDir <- file.path(outputPath, "boxplots", polyName, "vegAgeMod") %>% checkPath(create = TRUE)
-    pngFile <- paste0(paste(.current, collapse = "-"), ".png") %>% gsub(" ", "_", .)
-    pngPath <- file.path(pngDir, pngFile)
-    pngFilePath <- if (isTRUE(rebuildHistPNGs)) {
-      if (file.exists(pngPath)) {
-        NULL
-      } else {
-        pngPath
-      }
-    } else {
-      NULL
-    }
-    pngFilePath <- pngPath ## TODO: revert this
 
-    cat()
-    callModule(boxPlot, id, data, CCpnts, authStatus, fname = pngFilePath,
+    callModule(boxPlot, id, data, CCpnts, authStatus, fname = NULL,
                col = "limegreen",
                horizontal = TRUE,
-               main = paste(.current, collapse = " "), ## TODO: add total area to title (#59)
+               main = "", #paste(.current, collapse = " "),
                xlab = "Proportion of of forest area",
                ylab = "Age class",
                ylim = c(0, 1))
@@ -79,9 +62,8 @@ vegAgeMod2UI <- function(id) {
 }
 
 #'
-vegAgeMod2 <- function(input, output, session, rctAuthenticationType, rctPolygonList,
-                       rctChosenPolyName = reactive({NULL}), rctLeadingDTlist,
-                       rctLeadingDTlistCC, rctVtm, ageClasses, outputPath) {
+vegAgeMod2 <- function(input, output, session, rctPolygonList, rctChosenPolyName = reactive({NULL}),
+                       rctLeading, ageClasses) {
 
   output$vegTitle <- renderUI({
     column(width = 12,
@@ -101,73 +83,62 @@ vegAgeMod2 <- function(input, output, session, rctAuthenticationType, rctPolygon
   rctVegData <- reactive({
     assertthat::assert_that(
       is.character(rctChosenPolyName()),
-      is.list(rctLeadingDTlist())
-      #!is.null(rctLeadingDTlist())
+      is.list(rctLeading())
     )
 
-    dt <- if (rctAuthenticationType() == "Free") {
-      ## free
-      rctLeadingDTlist()
-    } else if (rctAuthenticationType() == "Proprietary") {
-      ## proprietary
-      rbindlist(list(rctLeadingDTlist(),
-                     rctLeadingDTlistCC()[["Proprietary"]]))
-    }
+    dt <- rctLeading()
 
     dtFn <- function(dt, curPoly) {
       # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
       #curPoly <- rctPolygonList()[["crsSR"]]
       polygonID <- as.character(seq_along(curPoly))
-      polygonName <- curPoly$shinyLabel
+      polygonName <- curPoly[["shinyLabel"]]
 
-      dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
+      ## TODO: make this work with ANSR and caribou polygons!
+      ## these polys are not in the rctPolygonList, so need to get them from `ml` somehow
 
-      haveNumericPolyId <- dt$polygonID %in% polygonID
-      dt$polygonID[haveNumericPolyId] <- polygonName[match(dt$polygonID[haveNumericPolyId], polygonID)]
+      set(dt, NULL, "polygonID", polygonID[match(dt[["zone"]], polygonName)])
+
+      haveNumericPolyId <- dt[["polygonID"]] %in% polygonID
+      dt[["polygonID"]][haveNumericPolyId] <- polygonName[match(dt[["polygonID"]][haveNumericPolyId], polygonID)]
 
       assertthat::assert_that(is.data.table(dt) || is.null(dt))
-      dt
+      dt[haveNumericPolyId, ] ## TODO: adjust this so things are prefiltered correctly earlier on
     }
-    dtFn(dt = dt, curPoly = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]])
+    dtFn(dt = dt, curPoly = rctPolygonList()[[rctChosenPolyName()]])
   })
 
   uiSequence <- reactive({
     assertthat::assert_that(
       is.list(rctPolygonList()),
-      is.character(rctChosenPolyName()),
-      is.character(rctVtm())
+      is.character(rctChosenPolyName())
     )
 
-    #polygonIDs <- as.character(seq_along(rctPolygonList()[["crsSR"]]))
-    polygonIDs <- rctPolygonList()[["crsSR"]]$shinyLabel
-
-    rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
+    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["shinyLabel"]]
+    species <- unique(rctLeading()[["vegCover"]])
     data.table::data.table(
       category = c("polygonID", "vegCover"),
       uiType = c("tab", "box"),
-      possibleValues = list(polygonIDs, levels(rasVtmTmp)[[1]][, 2])
+      possibleValues = list(polygonIDs, species)
     )
   })
 
   observeEvent(rctChosenPolyName(), {
-    authStatus <- TRUE #isTRUE(session$userData$userAuthorized()) ## TODO: revert this
+    authStatus <- isTRUE(session$userData$userAuthorized())
+    #authStatus <- TRUE  ## TODO: revert this
     callModule(slicer2, "vegSlicer2", datatable = rctVegData,
                uiSequence = uiSequence(),
                serverFunction = vegBoxplotServerFn,
                uiFunction = function(id) {
                  boxPlotUI(id, height = 500)
                },
-               outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
-               authStatus = authStatus,
-               rebuildHistPNGs = authStatus
+               authStatus = authStatus
     )
   })
 
   return(rctVegData)
 }
-
-#===============================================================================
 
 boxPlotUI <- function(id, ...) {
   ns <- NS(id)

@@ -52,9 +52,9 @@ function(input, output, session) {
   callModule(termsOfService, "appToS", "TERMS.md", "success")
   callModule(landwebAppSupport, "appSupport", appInfo)
 
-  #unsuspendModule("largePatches")
-  #unsuspendModule("vegArea")
-  #unsuspendModule("vegArea2")
+  unsuspendModule("largePatches")
+  unsuspendModule("vegArea")
+  unsuspendModule("vegArea2")
 
   rctUserInfo <- callModule(authGoogle, "auth_google", appURL = appURL,
                             authUsers = appInfo$users, icon = NULL)
@@ -149,13 +149,11 @@ function(input, output, session) {
   #                          ageClasses = ageClasses)
 
   ## veg cover boxplots
-  # rctVegData2 <- callModule(vegAgeMod2, "vegArea2",  ## TODO: write this with generator
-  #                           rctPolygonList = rctPolygonList,
-  #                           rctChosenPolyName = rctChosenPolyName,
-  #                           rctDT = rctleadingDT(),
-  #                           rctVtm = rctVtm,
-  #                           outputPath = rctPaths4sim()$outputPath,
-  #                           ageClasses = ageClasses)
+  rctVegData2 <- callModule(vegAgeMod2, "vegArea2",  ## TODO: write this with generator
+                            rctPolygonList = rctPolygonList,
+                            rctChosenPolyName = rctChosenPolyName,
+                            rctLeading = rctLeadingDT,
+                            ageClasses = ageClasses)
 
   callModule(simInfo, "simInfo", rctSim(), elements = c("modules", "objects")) ## no events
   callModule(moduleInfo, "moduleInfo", rctSim())

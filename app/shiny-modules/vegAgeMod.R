@@ -38,11 +38,7 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, chosenPolyName, au
 
     addAxisParams <- list(side = 1, labels = breaksLabels, at = barplotBreaks)
 
-    dtOnlyCC <- vegDT[grepl("CurrentCondition", label)]
-    dtNoCC <- vegDT[!grepl("CurrentCondition", label)]
-
-    vegHist <- hist(dtNoCC$proportion, breaks = breaks, plot = FALSE)
-    #vegHistCC <- hist(dtOnlyCC$proportion, breaks = breaks, plot = FALSE)
+    vegHist <- hist(vegDT[["proportion"]], breaks = breaks, plot = FALSE)
 
     histogramData <- if (sum(vegHist$counts) == 0) {
       vegHist$counts
@@ -55,10 +51,10 @@ vegHistServerFn <- function(datatable, id, .current, .dtFull, chosenPolyName, au
 
     verticalLineAtX <- if (isTRUE(authStatus)) {
       #browser(expr = .current$polygonID != "Taiga Shield")
-      verticalLine <- if (length(dtOnlyCC$proportion) == 0) {
+      verticalLine <- if (length(vegDT[["proportionCC"]]) == 0) {
         0
       } else  {
-        dtOnlyCC$proportion
+        vegDT[["proportionCC"]]
       }
       verticalLine <- verticalLine + barWidth / 2
     } else {
@@ -118,66 +114,56 @@ vegAgeMod <- function(input, output, session,rctPolygonList, rctChosenPolyName =
   rctVegData <- reactive({
     assertthat::assert_that(
       is.character(rctChosenPolyName()),
-      is.list(rctLeadingDTlist())
-      #!is.null(rctLeadingDTlist()[[rctChosenPolyName()]])
+      is.data.table(rctLeading())
     )
 
-    dt <- if (rctAuthenticationType() == "Free") {
-      ## free
-      rctLeadingDTlist()
-    } else if (rctAuthenticationType() == "Proprietary") {
-      ## proprietary
-      rbindlist(list(rctLeadingDTlist(),
-                     rctLeadingDTlistCC()[["Proprietary"]]))
-    }
+    dt <- rctLeading()
 
     dtFn <- function(dt, curPoly) {
       # WORK AROUND TO PUT THE CORRECT LABELS ON THE POLYGON TABS
-      #curPoly <- rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]
       polygonID <- as.character(seq_along(curPoly))
-      polygonName <- curPoly$shinyLabel
+      polygonName <- curPoly[["shinyLabel"]]
 
-      dt$polygonID <- polygonName[match(dt$polygonID, polygonID)]
+      ## TODO: make this work with ANSR and caribou polygons!
+      ## these polys are not in the rctPolygonList, so need to get them from `ml` somehow
+browser()
+      set(dt, NULL, "polygonID", polygonID[match(dt[["zone"]], polygonName)])
 
-      haveNumericPolyId <- dt$polygonID %in% polygonID
-      dt$polygonID[haveNumericPolyId] <- polygonName[match(dt$polygonID[haveNumericPolyId], polygonID)]
+      haveNumericPolyId <- dt[["polygonID"]] %in% polygonID
+      dt[["polygonID"]][haveNumericPolyId] <- polygonName[match(dt[["polygonID"]][haveNumericPolyId], polygonID)]
 
       assertthat::assert_that(is.data.table(dt) || is.null(dt))
-      dt
+      dt[haveNumericPolyId, ] ## TODO: adjust this so things are prefiltered correctly earlier on
     }
-    dtFn(dt = dt, curPoly = rctPolygonList()[[rctChosenPolyName()]][["crsSR"]])
+    dtFn(dt = dt, curPoly = rctPolygonList()[[rctChosenPolyName()]])
   })
 
   uiSequence <- reactive({
     assertthat::assert_that(
       is.list(rctPolygonList()),
-      is.character(rctChosenPolyName()),
-      is.character(rctVtm())
+      is.character(rctChosenPolyName())
     )
 
-    #polygonIDs <- as.character(seq_along(rctPolygonList()[[rctChosenPolyName()]][["crsSR"]]))
-    polygonIDs <- rctPolygonList()[["crsSR"]]$shinyLabel
-
-    rasVtmTmp <- raster(rctVtm()[1]) # to extract factors
+    polygonIDs <- rctPolygonList()[[rctChosenPolyName()]][["shinyLabel"]]
+    species <- unique(rctLeading()[["vegCover"]])
     data.table::data.table(
       category = c("polygonID", "vegCover", "ageClass"),
       uiType = c("tab", "tab", "box"),
-      possibleValues = list(polygonIDs, levels(rasVtmTmp)[[1]][, 2], ageClasses)
+      possibleValues = list(polygonIDs, species, ageClasses)
     )
   })
 
   observeEvent(rctChosenPolyName(), {
-    authStatus <- TRUE #isTRUE(session$userData$userAuthorized()) ## TODO: revert this
+    authStatus <- isTRUE(session$userData$userAuthorized())
+    authStatus <- TRUE ## TODO: revert this
     callModule(slicer, "vegSlicer", datatable = rctVegData,
                uiSequence = uiSequence(),
                serverFunction = vegHistServerFn, ## calls histogram server module
                uiFunction = function(id) {
                  histogramUI(id, height = 300)
                },
-               outputPath = outputPath,
                chosenPolyName = rctChosenPolyName(),
-               authStatus = authStatus,
-               rebuildHistPNGs = authStatus
+               authStatus = authStatus
     )
   })
 
