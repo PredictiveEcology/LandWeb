@@ -48,8 +48,6 @@ www/images/*
 .checkpoint
 
 last.dump.rda
-mySimDigestSaved.rds
-mySimSaved.rds
 outputs*
 
 ## OAuth tokens

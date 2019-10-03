@@ -6,3 +6,4 @@
 !.gitignore
 !caribou_ranges.R
 !CHECKSUMS.txt
+!speciesTraitsTable.rds
