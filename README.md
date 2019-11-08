@@ -43,6 +43,17 @@ _Packages_
 - [PredictiveEcology/map](https://github.com/PredictiveEcology/map)
 - [PredictiveEcology/pemisc](https://github.com/PredictiveEcology/pemisc)
 
+### Prerequisites
+
+The code is mostly self-sufficient: additional packages than those below are needed, but will be installed automatically.
+See `03-packages.R` to see which additional packages will be used.
+
+```r
+pkgs <- c("data.table", "devtools", "dplyr", "magrittr", "plyr", "raster", "reproducible")
+
+install.packages(pkgs)
+```
+
 #### Overview
 
 The LandWeb model integrates two well-used models for forest stand succession and fire simulation, implemented in the `SpaDES` simulation platform (Chubaty & McIntire, 2019).
