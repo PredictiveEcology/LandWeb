@@ -5,13 +5,13 @@
 **Authors:**
 
 - Eliot McIntire (eliot.mcintire@canada.ca)
-- Alex M. Chubaty (achubaty@friresearch.ca)
+- Alex M. Chubaty (achubaty@for-cast.ca)
 
-**Date:** September 30, 2018
+**Date:** November 8, 2019
 
 ### Getting the code
 
-All modules are written in R and all model code was developed collaboratively using GitHub (<https://github.com>), with each module contained in it’s own (currently private) git repository (see below).
+All modules are written in R and all model code was developed collaboratively using GitHub (<https://github.com>), with each module contained in it's own (currently private) git repository (see below).
 Code that is shared among modules was bundled into R packages, and hosted in open git repositories.
 All package code is automatically and regularly tested using cross-platform continuous integration frameworks to ensure the code is reliable and free of errors.
 
@@ -140,7 +140,7 @@ LandWeb_v2.0.0_2019-09-23/
 
 Beaudoin, et al. (2014). Mapping attributes of Canada’s forests at moderate resolution through kNN and MODIS imagery. Canadian Journal of Forest Research, 44, 521–532. http://doi.org/10.1139/cjfr-2013-0401. Data available from http://tree.nfis.org/.
 
-Chubaty, A. M. & McIntire, E. J. B. (2018) `SpaDES`: Develop and Run Spatially Explicit Discrete Event Simulation Models. R package version 2.0.1.
+Chubaty, A. M. & McIntire, E. J. B. (2019) `SpaDES`: Develop and Run Spatially Explicit Discrete Event Simulation Models. R package version 2.0.4.
 https://CRAN.R-project.org/package=SpaDES
 
 Pickell, P. D., & Coops, N. C. (2016) Development of historical forest attribute layers using Landsat time series and kNN imputation for the western Canadian boreal forest. Technical Report, 27 pp.
