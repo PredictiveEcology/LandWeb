@@ -151,7 +151,7 @@ ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
              destinationPath = asPath(destinationPath),
              filename2 = NULL, tsf = asPath(tsf), vtm = asPath(vtm),
              overwrite = TRUE,
-             useCache = "overwrite",
+             #useCache = "overwrite",
              leaflet = FALSE) # asPath(tilePath)
 #options(map.useParallel = mapParallel)
 
