@@ -63,7 +63,7 @@ Fire dynamics are modeled using an implementation of LandMine (Andison, 1996).
 Simulations were run for the entire LandWeb study area, which spans most of the western Canadian boreal forest.
 Input data were derived from several publically available remote-sensed datasets (Beaudoin *et al.*, 2014), as well as proprietary data complied by Pickell *et al.* (2016).
 
-Simulation outputs consist of maps showing the time since fire as well as histogram summaries of 1) number of large patches (i.e., patches above the number of hectars specified by the user) contained within the selected spatial area; and 2) the vegetation cover within the selected spatial area.
+Simulation outputs consist of maps showing the time since fire as well as histogram summaries of 1) number of large patches (i.e., patches above the number of hectares specified by the user) contained within the selected spatial area; and 2) the vegetation cover within the selected spatial area.
 Histograms are provided for each spatial area by polygon, age class, and species.
 Authorized users can additionally overlay current stand conditions onto these histograms.
 Simulation outputs are summarized for several forestry management areas/units.
