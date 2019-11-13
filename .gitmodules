@@ -30,3 +30,6 @@
 	path = m/timeSinceFire
 	url = git@github.com:fRI-Research/timeSinceFire
 	branch = development
+[submodule "app"]
+	path = app
+	url = https://github.com/fRI-Research/LandWeb_app
