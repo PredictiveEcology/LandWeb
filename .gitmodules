@@ -1,3 +1,9 @@
+[submodule "app"]
+	path = app
+	url = https://github.com/fRI-Research/LandWeb_app
+[submodule "deploy"]
+	path = deploy
+	url = https://github.com/fRI-Research/LandWeb_deploy.git
 [submodule "m/Biomass_regeneration"]
 	path = m/Biomass_regeneration
 	url = git@github.com:eliotmcintire/Biomass_regeneration
@@ -30,9 +36,4 @@
 	path = m/timeSinceFire
 	url = git@github.com:fRI-Research/timeSinceFire
 	branch = development
-[submodule "app"]
-	path = app
-	url = https://github.com/fRI-Research/LandWeb_app
-[submodule "LandWeb_deploy"]
-	path = deploy
-	url = https://github.com/fRI-Research/LandWeb_deploy.git
+
