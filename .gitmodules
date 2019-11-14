@@ -33,3 +33,6 @@
 [submodule "app"]
 	path = app
 	url = https://github.com/fRI-Research/LandWeb_app
+[submodule "LandWeb_deploy"]
+	path = LandWeb_deploy
+	url = https://github.com/fRI-Research/LandWeb_deploy.git
