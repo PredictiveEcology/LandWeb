@@ -4,25 +4,25 @@
 [submodule "deploy"]
 	path = deploy
 	url = https://github.com/fRI-Research/LandWeb_deploy.git
+[submodule "m/Biomass_boreal_dataPrep"]
+	path = m/Biomass_boreal_dataPrep
+	url = git@github.com:PredictiveEcology/Biomass_boreal_dataPrep
+	branch = LandWeb
+[submodule "m/Biomass_core"]
+	path = m/Biomass_core
+	url = git@github.com:PredictiveEcology/Biomass_core
+	branch = LandWeb
 [submodule "m/Biomass_regeneration"]
 	path = m/Biomass_regeneration
-	url = git@github.com:eliotmcintire/Biomass_regeneration
+	url = git@github.com:PredictiveEcology/Biomass_regeneration
 	branch = LandWeb
-[submodule "m/BiomassSpeciesData"]
-	path = m/BiomassSpeciesData
-	url = git@github.com:eliotmcintire/BiomassSpeciesData
+[submodule "m/Biomass_speciesData"]
+	path = m/Biomass_speciesData
+	url = git@github.com:PredictiveEcology/Biomass_speciesData
 	branch = LandWeb
 [submodule "m/LandMine"]
 	path = m/LandMine
 	url = git@github.com:PredictiveEcology/LandMine
-	branch = LandWeb
-[submodule "m/LBMR"]
-	path = m/LBMR
-	url = git@github.com:eliotmcintire/LBMR
-	branch = LandWeb
-[submodule "m/Boreal_LBMRDataPrep"]
-	path = m/Boreal_LBMRDataPrep
-	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep
 	branch = LandWeb
 [submodule "m/LandWeb_preamble"]
 	path = m/LandWeb_preamble
