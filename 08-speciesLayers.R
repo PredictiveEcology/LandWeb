@@ -16,7 +16,7 @@ objects2 <- list(
 )
 
 parameters2 <- list(
-  BiomassSpeciesData = list(
+  Biomass_speciesData = list(
     "omitNonVegPixels" = TRUE,
     "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
     "sppEquivCol" = sppEquivCol,
@@ -44,7 +44,7 @@ if (isTRUE(rerunSpeciesLayers)) {
   simOutSpeciesLayers <- Cache(simInitAndSpades,
                                times = list(start = 0, end = 1),
                                params = parameters2,
-                               modules = c("BiomassSpeciesData"),
+                               modules = c("Biomass_speciesData"),
                                objects = objects2,
                                omitArgs = c("debug", "paths", ".plotInitialTime"),
                                #useCache = "overwrite", ## TODO: remove this workaround

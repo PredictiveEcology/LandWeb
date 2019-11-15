@@ -5,8 +5,8 @@
 do.call(SpaDES.core::setPaths, paths3) # Set them here so that we don't have to specify at each call to Cache
 
 times3 <- list(start = 0, end = endTime)
-modules3 <- list("Boreal_LBMRDataPrep", #"LandR_BiomassGMOrig",
-                 "LBMR",
+modules3 <- list("Biomass_boreal_dataPrep", #"LandR_BiomassGMOrig",
+                 "Biomass_core",
                  "LandMine", "Biomass_regeneration",
                  "LandWeb_output",
                  "timeSinceFire")
@@ -33,7 +33,7 @@ objects3 <- list(
 )
 
 parameters3 <- list(
-  Boreal_LBMRDataPrep = list(
+  Biomass_boreal_dataPrep = list(
     ## fastLM is ~35% faster than the default lmer but needs 820GB RAM !!
     ## also, fastLM cannot deal with rank-deficient models
     #"biomassModel" = quote(RcppArmadillo::fastLm(formula = B ~ logAge * speciesCode * ecoregionGroup +
@@ -76,7 +76,7 @@ parameters3 <- list(
     #".plotInitialTime" = .plotInitialTime,
     ".plotInterval" = 1
   ),
-  LBMR = list(
+  Biomass_core = list(
     "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
     "sppEquivCol" = sppEquivCol,

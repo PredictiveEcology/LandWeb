@@ -2,7 +2,7 @@
 ## post-simulation object creation (for documentation)
 ################################################################################
 
-modules_landweb <- c("LandWeb_preamble", "BiomassSpeciesData", modules3)
+modules_landweb <- c("LandWeb_preamble", "Biomass_speciesData", modules3)
 
 fsim <- simFile("mySim_landweb", "docs", 0)
 mySim_landweb <- if (!file.exists(fsim)) {
