@@ -27,7 +27,7 @@ git clone --single-branch -b development --recurse-submodules -j8 https://github
 
 _Modules_
 
-- [PredictiveEcology/Biomass_boreal_dataPrep](https://github.com/PredictiveEcology/Biomass_boreal_dataPrep)
+- [PredictiveEcology/Biomass_borealDataPrep](https://github.com/PredictiveEcology/Biomass_borealDataPrep)
 - [PredictiveEcology/Biomass_core](https://github.com/PredictiveEcology/Biomass_core)
 - [PredictiveEcology/Biomass_speciesData](https://github.com/PredictiveEcology/Biomass_speciesData)
 - [PredictiveEcology/Biomass_regeneration](https://github.com/PredictiveEcology/Biomass_regeneration)

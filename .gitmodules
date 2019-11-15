@@ -4,9 +4,9 @@
 [submodule "deploy"]
 	path = deploy
 	url = https://github.com/fRI-Research/LandWeb_deploy.git
-[submodule "m/Biomass_boreal_dataPrep"]
-	path = m/Biomass_boreal_dataPrep
-	url = git@github.com:PredictiveEcology/Biomass_boreal_dataPrep
+[submodule "m/Biomass_borealDataPrep"]
+	path = m/Biomass_borealDataPrep
+	url = git@github.com:PredictiveEcology/Biomass_borealDataPrep
 	branch = LandWeb
 [submodule "m/Biomass_core"]
 	path = m/Biomass_core
@@ -36,4 +36,3 @@
 	path = m/timeSinceFire
 	url = git@github.com:fRI-Research/timeSinceFire
 	branch = development
-
