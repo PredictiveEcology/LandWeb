@@ -17,23 +17,25 @@ All package code is automatically and regularly tested using cross-platform cont
 
 ```bash
 ## master branch
-git clone --recurse-submodules -j8 https://github.com/eliotmcintire/LandWeb
+git clone --recurse-submodules -j8 https://github.com/PredictiveEcology/LandWeb
 
 ## development branch
-git clone --single-branch -b development --recurse-submodules -j8 https://github.com/eliotmcintire/LandWeb
+git clone --single-branch -b development --recurse-submodules -j8 https://github.com/PredictiveEcology/LandWeb
 ```
 
 **NOTE:** you will need access to each of the following repositories:
 
 _Modules_
 
-- [eliotmcintire/BiomassSpeciesData](https://github.com/eliotmcintire/BiomassSpeciesData)
-- [eliotmcintire/Biomass_regeneration](https://github.com/eliotmcintire/Biomass_regeneration)
+- [PredictiveEcology/Biomass_boreal_dataPrep](https://github.com/PredictiveEcology/Biomass_boreal_dataPrep)
+- [PredictiveEcology/Biomass_core](https://github.com/PredictiveEcology/Biomass_core)
+- [PredictiveEcology/Biomass_speciesData](https://github.com/PredictiveEcology/Biomass_speciesData)
+- [PredictiveEcology/Biomass_regeneration](https://github.com/PredictiveEcology/Biomass_regeneration)
 - [PredictiveEcology/LandMine](https://github.com/PredictiveEcology/LandMine)
-- [eliotmcintire/LandR_Biomass_regeneration](https://github.com/eliotmcintire/LandR_Biomass_regeneration)
+- [fRI-Research/LandWeb_app](https://github.com/fRI-Research/LandWeb_app)
+- [fRI-Research/LandWeb_deploy](https://github.com/fRI-Research/LandWeb_deploy)
 - [fRI-Research/LandWeb_output](https://github.com/fRI-Research/LandWeb_output)
 - [fRI-Research/LandWeb_preamble](https://github.com/fRI-Research/LandWeb_preamble)
-- [eliotmcintire/LBMR](https://github.com/eliotmcintire/LBMR)
 - [fRI-Research/timeSinceFire](https://github.com/fRI-Research/timeSinceFire)
 
 _Packages_
