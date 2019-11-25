@@ -18,6 +18,7 @@ objects2 <- list(
 parameters2 <- list(
   Biomass_speciesData = list(
     "omitNonVegPixels" = TRUE,
+    ".plotInitialTime" = .plotInitialTime,
     "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
     "sppEquivCol" = sppEquivCol,
     ".useCache" = FALSE

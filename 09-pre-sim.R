@@ -86,9 +86,6 @@ parameters3 <- list(
     ".useCache" = eventCaching[1], # seems slower to use Cache for both
     ".useParallel" = useParallel
   ),
-  # LandR_BiomassGMOrig = list(
-  #   ".useParallel" = useParallel
-  # ),
   Biomass_regeneration = list(
     "fireInitialTime" = fireTimestep,
     "fireTimestep" = fireTimestep,
