@@ -17,7 +17,10 @@ maxMemory <- if (grepl("LandWeb", runName)) 5e+12 else 5e+9
 scratchDir <- if (dir.exists(computeCanadaScratch)) {
   computeCanadaScratch
 } else {
-  file.path("/tmp/scratch/LandWeb")
+  if (user("achubaty"))
+    file.path("/mnt/scratch/LandWeb")
+  else
+    file.path("/tmp/scratch/LandWeb")
 }
 
 rasterOptions(default = TRUE)
