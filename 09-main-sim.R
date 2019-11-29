@@ -40,7 +40,7 @@ if (restartIteration == 0) {
       slackr::text_slackr(
         paste0("ERROR in simulation `", runName, "` on host `", Sys.info()[["nodename"]], "`.\n",
                "```\n", e$message, "\n```"),
-        channel = "@alex.chubaty", preformatted = FALSE
+        channel = config::get("slackchannel"), preformatted = FALSE
       )
       stop(e$message)
     }
@@ -60,7 +60,7 @@ if (restartIteration == 0) {
       slackr::text_slackr(
         paste0("ERROR in simulation `", runName, "` on host `", Sys.info()[["nodename"]], "`.\n",
                "```\n", e$message, "\n```"),
-        channel = "@alex.chubaty", preformatted = FALSE
+        channel = config::get("slackchannel"), preformatted = FALSE
       )
       stop(e$message)
     }
@@ -75,6 +75,6 @@ if (restartIteration == (endTime / restartInterval)) {
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     slackr::slackr_setup()
     slackr::text_slackr(paste0("Simulation `", runName, "` completed on host `", Sys.info()[["nodename"]], "`."),
-                        channel = "@alex.chubaty", preformatted = FALSE)
+                        channel = config::get("slackchannel"), preformatted = FALSE)
   }
 }

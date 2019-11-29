@@ -7,11 +7,11 @@
 - Eliot McIntire (eliot.mcintire@canada.ca)
 - Alex M. Chubaty (achubaty@for-cast.ca)
 
-**Date:** November 8, 2019
+**Date:** November 29, 2019
 
 ### Getting the code
 
-All modules are written in R and all model code was developed collaboratively using GitHub (<https://github.com>), with each module contained in it's own (currently private) git repository (see below).
+All modules are written in R and all model code was developed collaboratively using GitHub (<https://github.com>), with each module contained in it's own git repository (see below).
 Code that is shared among modules was bundled into R packages, and hosted in open git repositories.
 All package code is automatically and regularly tested using cross-platform continuous integration frameworks to ensure the code is reliable and free of errors.
 
@@ -51,7 +51,8 @@ The code is mostly self-sufficient: additional packages than those below are nee
 See `03-packages.R` to see which additional packages will be used.
 
 ```r
-pkgs <- c("data.table", "devtools", "dplyr", "magrittr", "plyr", "raster", "reproducible")
+pkgs <- c("config", data.table", "devtools", "dplyr",
+          "magrittr", "plyr", "raster", "reproducible", "slackr")
 
 install.packages(pkgs)
 ```

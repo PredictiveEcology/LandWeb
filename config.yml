@@ -1,0 +1,76 @@
+default:
+  batchmode: false
+  cloud:
+    cachedir: "/folders/1b2h5hJlarNMkxdUyJLO5pPUwrQV8m626"
+    googleuser: ""
+    usecloud: false
+  gitpkgpath: "~/GitHub"
+  paths:
+    activedir: "~/GitHub/LandWeb"
+    scratchdir: "/tmp/scratch/LandWeb"
+  plot: true
+  postprocess: false
+  rep: 1
+  studyarea: "random"
+  scenariodisp: "highDispersal"
+  scenariofire: "logROS"
+
+profile:
+  params:
+    endtime: !expr 20
+    successiontimestep: !expr 10
+    summaryperiod: !expr c(10, 20)
+    summaryinterval: !expr 10
+    timeseriestimes: !expr 10
+  plot: false
+  rep: 1
+  studyarea: "Tolko_SK"
+  scenariodisp: "highDispersal"
+  scenariofire: "logROS"
+
+test:
+  params:
+    endtime: !expr 300
+    successiontimestep: !expr 10
+    summaryperiod: !expr c(250, 300)
+    summaryinterval: !expr 10
+    timeseriestimes: !expr 201:210
+  plot: true
+  rep: 1
+  studyarea: "Tolko_SK"
+  scenariodisp: "highDispersal"
+  scenariofire: "logROS"
+
+production:
+  batchmode: true ## if true, don't specify rep, studyarea, scenario*
+  cloud:
+    usecloud: false
+  params:
+    endtime: !expr 1000
+    successiontimestep: !expr 10
+    summaryperiod: !expr c(700, 1000)
+    summaryinterval: !expr 100
+    timeseriestimes: !expr 601:650
+  plot: false
+  #rep: 1
+  #studyarea: "LandWeb"
+  #scenariodisp: "highDispersal"
+  #scenariofire: "logROS"
+
+alex:
+  inherits: production
+  cloud:
+    googleuser: "alex.chubaty@gmail.com"
+    usecloud: false
+  gitpkgpath: "~/GitHub/PredictiveEcology"
+  paths:
+    scratchdir: "/mnt/scratch/LandWeb"
+  slackchannel: "@alex.chubaty"
+
+eliot:
+  inherits: production
+  cloud:
+    googleuser: "eliotmcintire@gmail.com"
+    usecloud: true
+  gitpkgpath: "~/GitHub"
+  slackchannel: "@eliotmcintire"
