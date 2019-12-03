@@ -10,11 +10,16 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(autodep = TRUE, echo = TRUE)
 
+library(ggplot2)
+library(sf)
 library(sp)
 library(raster)
-```
 
-## FMA Boundaries
+dataDir <- fiel.path("inputs", "FMA_Boundaries")
+```
+# FMA Boundaries
+
+## FMA Boundaries Data
 
 ### `FMA_Boundary_CustomProj`
 
@@ -56,3 +61,47 @@ shp3_reproj <- spTransform(shp3, CRS(proj4string(shp2)))
 identical(shp2, shp3_reproj) ## FALSE
 all.equal(shp2, shp3_reproj)
 ```
+
+## FMA Map
+
+```{r fma-map, echo = FALSE}
+sf2 <- st_read(fshp2)
+centroids_sf2 <- cbind(st_centroid(sf2), st_coordinates(st_centroid(sf2$geometry)))
+
+ggplot(data = sf2) +
+  geom_sf(mapping = aes(fill = as.factor(OBJECTID_1 %% 10))) +
+  scale_fill_brewer(type = "div", palette = "Spectral") +
+  geom_text(data = centroids_sf2, mapping = aes(x = X, y = Y, label = OBJECTID_1)) + 
+  labs(title = "FMA boundaries within the LandWeb study area") + 
+  xlab("Longitude") +
+  ylab("Latitude") + 
+  guides(fill = FALSE) +
+  theme_bw()
+```
+
+
+```{r fma-table, echo = FALSE}
+knitr::kable(data.frame(ID = sf2$OBJECTID_1, Name = sf2$Name))
+```
+
+
+# FMU Boundaries (AB)
+
+## FMU Boundaries Data + Map
+
+```{r fmu}
+fshp_fmu <- file.path("inputs", "FMU/FMU.shp")
+sf_fmu <- st_read(fshp_fmu)
+centroids_fmu <- cbind(st_centroid(sf_fmu), st_coordinates(st_centroid(sf_fmu$geometry)))
+
+ggplot(data = sf_fmu) +
+  geom_sf(mapping = aes(fill = as.factor(OBJECTID %% 10))) +
+  scale_fill_brewer(type = "div", palette = "Spectral") +
+  geom_text(data = centroids_fmu, mapping = aes(x = X, y = Y, label = OBJECTID)) + 
+  labs(title = "Alberta FMU boundaries") + 
+  xlab("Longitude") +
+  ylab("Latitude") + 
+  guides(fill = FALSE) +
+  theme_bw()
+```
+
