@@ -13,7 +13,7 @@ simInitAndExperiment <- function(times, params, modules, outputs, objects4sim,
 
   objectsToHash <- emptyList
   objectsToHash <- Map(mySim = mySims, function(mySim) {
-                       grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
+    grep("useParallel", ls(mySim@.envir, all.names = TRUE), value = TRUE, invert = TRUE)
   })
 
   #########################################
