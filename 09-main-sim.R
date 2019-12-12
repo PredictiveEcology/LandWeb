@@ -79,3 +79,5 @@ if (restartIteration == (endTime / restartInterval)) {
                         channel = config::get("slackchannel"), preformatted = FALSE)
   }
 }
+
+unlink(tempdir())
