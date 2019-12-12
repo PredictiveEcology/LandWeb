@@ -208,3 +208,5 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
 
 saveRDS(ml, simFile("ml_done", Paths$outputPath))
 print(runName)
+
+unlink(tempdir(), recursive = TRUE)
