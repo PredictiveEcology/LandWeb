@@ -58,6 +58,21 @@ parameters3 <- list(
     ".plotInitialTime" = .plotInitialTime,
     ".useCache" = eventCaching
   ),
+  Biomass_core = list(
+    "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
+    "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
+    "sppEquivCol" = sppEquivCol,
+    "successionTimestep" = successionTimestep,
+    ".maxMemory" = if (format(pemisc::availableMemory(), units = "GiB") > 130) 5 else 2, ## GB
+    ".plotInitialTime" = .plotInitialTime,
+    ".useCache" = eventCaching[1], # seems slower to use Cache for both
+    ".useParallel" = useParallel
+  ),
+  Biomass_regeneration = list(
+    "fireInitialTime" = fireTimestep,
+    "fireTimestep" = fireTimestep,
+    "successionTimestep" = successionTimestep
+  ),
   LandMine = list(
     "biggestPossibleFireSizeHa" = 5e5,
     "burnInitialTime" = fireTimestep,
@@ -75,21 +90,6 @@ parameters3 <- list(
     "vegLeadingProportion" = vegLeadingProportion,
     #".plotInitialTime" = .plotInitialTime,
     ".plotInterval" = 1
-  ),
-  Biomass_core = list(
-    "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
-    "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
-    "sppEquivCol" = sppEquivCol,
-    "successionTimestep" = successionTimestep,
-    ".maxMemory" = if (format(pemisc::availableMemory(), units = "GiB") > 130) 5 else 2, ## GB
-    ".plotInitialTime" = .plotInitialTime,
-    ".useCache" = eventCaching[1], # seems slower to use Cache for both
-    ".useParallel" = useParallel
-  ),
-  Biomass_regeneration = list(
-    "fireInitialTime" = fireTimestep,
-    "fireTimestep" = fireTimestep,
-    "successionTimestep" = successionTimestep
   ),
   timeSinceFire = list(
     "startTime" = fireTimestep,
