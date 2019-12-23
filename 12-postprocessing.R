@@ -35,6 +35,25 @@ tsf <- gsub(".*vegTypeMap.*", NA, allouts2) %>%
 vtm <- gsub(".*TimeSinceFire.*", NA, allouts2) %>%
   grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
 
+if (FALSE) {
+  ### manually identify any corrupted tsf/vtm files
+  res1 <- lapply(tsf, function(x) {
+    message("Loading: ", x)
+    tmp <- tryCatch(raster(x), error = function(e) FALSE)
+    extent(tmp)
+  }) %>%
+    unlist() %>%
+    unique()
+
+  res2 <- lapply(vtm, function(x) {
+    message("Loading: ", x)
+    tmp <- tryCatch(raster(x), error = function(e) FALSE)
+    extent(tmp)
+  }) %>%
+    unlist() %>%
+    unique()
+}
+
 ml <- simOutPreamble$ml
 
 rm(simOutPreamble)
