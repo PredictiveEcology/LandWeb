@@ -46,7 +46,6 @@ parameters3 <- list(
     #   age and biomass
     "pixelGroupAgeClass" = successionTimestep * 2, # can be coarse because initial conditions are irrelevant
     "pixelGroupBiomassClass" = 1000, # can be coarse because initial conditions are irrelevant
-    "runName" = runName,
     "sppEquivCol" = sppEquivCol,
     "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
     "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
