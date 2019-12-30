@@ -5,6 +5,7 @@ default:
     googleuser: ""
     usecloud: false
   gitpkgpath: "~/GitHub"
+  mapresfact: 1
   paths:
     activedir: "~/GitHub/LandWeb"
     scratchdir: "/tmp/scratch/LandWeb"

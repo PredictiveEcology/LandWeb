@@ -8,6 +8,7 @@ objects1 <- list()
 
 parameters1 <- list(
   LandWeb_preamble = list(
+    "mapResFact" = config::get("mapresfact"),
     "minFRI" = minFRI,
     "runName" = runName
   )

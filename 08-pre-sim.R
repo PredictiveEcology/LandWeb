@@ -11,13 +11,16 @@ modules3 <- list("Biomass_borealDataPrep", #"LandR_BiomassGMOrig",
                  "LandWeb_output",
                  "timeSinceFire")
 
+## check pixel resolution
+#stopifnot(unique(res(simOutSpeciesLayers[["speciesLayers"]])) %==% 250 / config::get("mapresfact"))
+
 objects3 <- list(
-  "fireReturnInterval" = simOutPreamble$fireReturnInterval,
-  "rstLCC" = simOutPreamble$LCC,
-  "rasterToMatch" = simOutPreamble$rasterToMatch,
-  "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
+  "fireReturnInterval" = simOutPreamble[["fireReturnInterval"]],
+  "rstLCC" = simOutPreamble[["LCC"]],
+  "rasterToMatch" = simOutPreamble[["rasterToMatch"]],
+  "rasterToMatchReporting" = simOutPreamble[["rasterToMatchReporting"]],
   "ROSTable" = LandMineROStable,
-  "rstFlammable" = simOutPreamble$rstFlammable,
+  "rstFlammable" = simOutPreamble[["rstFlammable"]],
   "rstTimeSinceFire" = simOutPreamble[["CC TSF"]],
   "sppColorVect" = sppColorVect,
   "sppEquiv" = sppEquivalencies_CA,
