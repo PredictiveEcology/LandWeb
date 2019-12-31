@@ -11,7 +11,7 @@ if (!is.na(.plotInitialTime)) {
 data.table::setDTthreads(useParallel)
 options("spades.recoveryMode" = TRUE)
 
-saveRDS(NULL, simFile("mySimOut", Paths$outputPath, 0))
+qs::qsave(NULL, simFile("mySimOut", Paths$outputPath, 0, "qs"))
 nRestarts <- ceiling(endTime / restartInterval)
 restartIteration <- list.files(Paths$outputPath, pattern = "mySimOut_") %>%
   substr(., 10, 13) %>%
@@ -47,7 +47,16 @@ if (restartIteration == 0) {
     }
   })
 } else {
-  mySimOut <- readRDS(simFile("mySimOut", Paths$outputPath, restartIteration * restartInterval))
+  frds <- simFile("mySimOut", Paths$outputPath, restartIteration * restartInterval, "rds")
+  fqs <- raster::extension(frds, "qs")
+
+  if (file.exists(fqs)) {
+    mySimOut <- qs::qread(fqs, nthreads = 4)
+  } else if (file.exists(frds)) {
+    mySimOut <- readRDS(frds)
+  } else {
+    stop("suitable simulation save file not found.")
+  }
 
   Require(packages(mySimOut))
 
@@ -68,9 +77,9 @@ if (restartIteration == 0) {
   })
 }
 
-fsim <- simFile("mySimOut", Paths$outputPath, SpaDES.core::end(mySimOut))
+fsim <- simFile("mySimOut", Paths$outputPath, SpaDES.core::end(mySimOut), "qs")
 message("Saving simulation to: ", fsim)
-saveRDS(Copy(mySimOut), fsim) ## TODO: use `saveSimList(mySimOut, fsim)`
+qs::qsave(Copy(mySimOut), fsim, nthreads = 4)
 
 if (restartIteration == (endTime / restartInterval)) {
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {

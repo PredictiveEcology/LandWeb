@@ -7,6 +7,7 @@ library(plyr); library(dplyr) ## ensure plyr loaded before dplyr or there will b
 library(data.table)
 library(magrittr)
 library(parallel)
+library(qs)
 
 library(raster)
 library(SpaDES.core)
