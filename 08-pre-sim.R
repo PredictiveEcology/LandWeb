@@ -5,9 +5,10 @@
 do.call(SpaDES.core::setPaths, paths3) # Set them here so that we don't have to specify at each call to Cache
 
 times3 <- list(start = 0, end = endTime)
-modules3 <- list("Biomass_borealDataPrep", #"LandR_BiomassGMOrig",
+modules3 <- list("Biomass_borealDataPrep",
                  "Biomass_core",
-                 "LandMine", "Biomass_regeneration",
+                 "LandMine",
+                 "Biomass_regeneration",
                  "LandWeb_output",
                  "timeSinceFire")
 
@@ -36,6 +37,7 @@ objects3 <- list(
 )
 
 parameters3 <- list(
+  .restartR = list(.restartRInterval = restartInterval),
   Biomass_borealDataPrep = list(
     ## fastLM is ~35% faster than the default lmer but needs 820GB RAM !!
     ## also, fastLM cannot deal with rank-deficient models

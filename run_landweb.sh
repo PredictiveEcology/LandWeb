@@ -1,13 +1,12 @@
 #!/bin/bash
 
-## USAGE: ./run_fma.sh <rep> <fma>
+## USAGE: ./run_landweb.sh <rep>
 ## provide a numeric <rep> as the first and only argument to this script
 
 printf -v RUN "%02g" $1 ## assign to RUN, padding with extra zeros as needed
-FMA=$2
 
-OUTDIR="outputs/${FMA}_highDispersal_logROS"
-RUNNAME="${FMA}_highDispersal_logROS_rep${RUN}"
+OUTDIR="outputs/LandWeb_highDispersal_logROS"
+RUNNAME="LandWeb_highDispersal_logROS_rep${RUN}"
 RCMD="runName <- '${RUNNAME}'; source('newStart.R')"
 
 if [ ! -d ${OUTDIR} ]; then
@@ -15,8 +14,8 @@ if [ ! -d ${OUTDIR} ]; then
 fi
 
 echo ${RCMD} | r
+done
 
 if [ -f "outputs/${RUNNAME}/mySimOut_1000.rds" ]; then
   mv "outputs/${RUNNAME}" "${OUTDIR}/rep${RUN}"
 fi
-

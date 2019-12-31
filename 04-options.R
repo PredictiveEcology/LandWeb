@@ -35,6 +35,7 @@ opts <- options(
   "reproducible.useNewDigestAlgorithm" = TRUE,
   "spades.moduleCodeChecks" = FALSE,
   "spades.recoveryMode" = FALSE,
+  "spades.restartR.restartDir" = paths3$outputPath,
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
 
