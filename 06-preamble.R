@@ -25,7 +25,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         useCloud = useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
                         cloudFolderID = cloudCacheFolderID)
 
-saveRDS(simOutPreamble$ml, file.path(Paths$outputPath, "ml_preamble.rds"))
+saveRDS(simOutPreamble$ml, file.path(Paths$outputPath, "ml_preamble.rds")) ## TODO: use `qs::qsave()`
 
 if (!is.na(.plotInitialTime)) {
   lapply(dev.list(), function(x) {
