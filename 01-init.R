@@ -18,6 +18,7 @@ eventCaching <- c(".inputObjects", "init")
 fireTimestep <- 1
 gitPkgPath <- config::get("gitpkgpath")
 mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
+mapResFact <- config::get("mapresfact")
 maxAge <- 400
 minFRI <- 25
 postProcessOnly <- config::get("postprocess")

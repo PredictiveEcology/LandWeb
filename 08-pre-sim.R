@@ -13,7 +13,7 @@ modules3 <- list("Biomass_borealDataPrep",
                  "timeSinceFire")
 
 ## check pixel resolution
-#stopifnot(unique(res(simOutSpeciesLayers[["speciesLayers"]])) %==% 250 / config::get("mapresfact"))
+#stopifnot(unique(res(simOutSpeciesLayers[["speciesLayers"]])) %==% 250 / mapResFact)
 
 objects3 <- list(
   "fireReturnInterval" = simOutPreamble[["fireReturnInterval"]],
