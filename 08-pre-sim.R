@@ -37,7 +37,7 @@ objects3 <- list(
 )
 
 parameters3 <- list(
-  .restartR = list(.restartRInterval = restartInterval),
+  .restartR = if (isTRUE(useRestartR)) list(.restartRInterval = restartInterval) else NULL,
   Biomass_borealDataPrep = list(
     ## fastLM is ~35% faster than the default lmer but needs 820GB RAM !!
     ## also, fastLM cannot deal with rank-deficient models

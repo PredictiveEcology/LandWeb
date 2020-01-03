@@ -15,6 +15,7 @@ default:
   studyarea: "random"
   scenariodisp: "highDispersal"
   scenariofire: "logROS"
+  restartr: false
 
 profile:
   params:

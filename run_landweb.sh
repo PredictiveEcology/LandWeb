@@ -13,9 +13,11 @@ if [ ! -d ${OUTDIR} ]; then
   mkdir -p ${OUTDIR}
 fi
 
-echo ${RCMD} | r
-done
+#for i in {1..10}
+#do
+  echo ${RCMD} | r
+#done
 
-if [ -f "outputs/${RUNNAME}/mySimOut_1000.rds" ]; then
+if [ -f "outputs/${RUNNAME}/rstTimeSinceFire_year1000.tif" ]; then
   mv "outputs/${RUNNAME}" "${OUTDIR}/rep${RUN}"
 fi
