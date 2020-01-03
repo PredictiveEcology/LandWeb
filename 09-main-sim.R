@@ -109,7 +109,7 @@ fsim <- simFile("mySimOut", Paths$outputPath, SpaDES.core::end(mySimOut), "qs")
 message("Saving simulation to: ", fsim)
 saveSimList(sim = mySimOut, filename = fsim)
 
-# if (restartIteration == (endTime / restartInterval)) {
+if (restartIteration == (endTime / restartInterval)) {
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     slackr::slackr_setup()
     slackr::text_slackr(
@@ -117,6 +117,6 @@ saveSimList(sim = mySimOut, filename = fsim)
       channel = config::get("slackchannel"), preformatted = FALSE
     )
   }
-# }
+}
 
 unlink(tempdir())
