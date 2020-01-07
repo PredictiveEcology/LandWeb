@@ -28,6 +28,7 @@ uploads/
 rsconnect/shinyapps.io/landweb/LandWebDemo.dcf
 .Rapp.history
 .RData
+.Renviron
 .Rhistory
 .Rproj.user
 
