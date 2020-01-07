@@ -2,6 +2,15 @@
 ## Options
 ################################################################################
 
+## cache database connection (requires reproducbile >= 1.0.0)
+cacheDBconn <- if (config::get("cachedb") == "sqlite") {
+  DBI::dbConnect(drv = RSQLite::SQLite())
+} else if (config::get("cachedb") == "postgresql") {
+  DBI::dbConnect(drv = RPostgres::Postgres())
+} else {
+  stop("Unsupported cache database type '", config::get("cachedb"), "'")
+}
+
 rep <- config::get("rep")
 .plotInitialTime <- if (isTRUE(config::get("plot"))) 0 else NA
 
@@ -20,6 +29,7 @@ opts <- options(
   "map.useParallel" = mapParallel,
   "rasterMaxMemory" = maxMemory,
   "rasterTmpDir" = scratchDir,
+  "reproducible.conn" = cacheDBconn,
   "reproducible.destinationPath" = normPath(paths1$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) FALSE else FALSE,

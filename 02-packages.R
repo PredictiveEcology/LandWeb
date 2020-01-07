@@ -3,6 +3,7 @@
 ## don't need to load packages for modules; done automatically, but ensure they are installed
 ####################################################################################################
 
+library(DBI)
 library(plyr); library(dplyr) ## ensure plyr loaded before dplyr or there will be problemas
 library(data.table)
 library(magrittr)
