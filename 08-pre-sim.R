@@ -49,6 +49,7 @@ parameters3 <- list(
     "LCCClassesToReplaceNN" = 34:36,
     # next two are used when assigning pixelGroup membership; what resolution for
     #   age and biomass
+    "runName" = runName,
     "pixelGroupAgeClass" = successionTimestep * 2, # can be coarse because initial conditions are irrelevant
     "pixelGroupBiomassClass" = 1000, # can be coarse because initial conditions are irrelevant
     "sppEquivCol" = sppEquivCol,

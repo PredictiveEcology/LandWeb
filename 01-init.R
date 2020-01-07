@@ -4,6 +4,8 @@
 
 .starttime <- Sys.time()
 
+readRenviron(".Renviron")
+
 library(config)
 
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
