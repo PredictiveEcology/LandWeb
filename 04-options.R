@@ -4,14 +4,14 @@
 
 ## cache database connection (requires reproducbile >= 1.0.0)
 cacheDBconn <- if (config::get("cachedb") == "sqlite") {
-  DBI::dbConnect(drv = RSQLite::SQLite(),
+  DBI::dbConnect(drv = RSQLite::SQLite())
+} else if (config::get("cachedb") == "postgresql") {
+  DBI::dbConnect(drv = RPostgres::Postgres(),
                  host = Sys.getenv("PGHOST"),
                  port = Sys.getenv("PGPORT"),
                  dbname = Sys.getenv("PGDATABASE"),
                  user = Sys.getenv("PGUSER"),
                  password = Sys.getenv("PGPASSWORD"))
-} else if (config::get("cachedb") == "postgresql") {
-  DBI::dbConnect(drv = RPostgres::Postgres())
 } else {
   stop("Unsupported cache database type '", config::get("cachedb"), "'")
 }
@@ -39,6 +39,7 @@ opts <- options(
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) FALSE else FALSE,
   "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
+  "reproducible.nThreads" = 2,
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
   "reproducible.showSimilar" = TRUE,
