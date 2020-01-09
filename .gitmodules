@@ -6,33 +6,33 @@
 	url = https://github.com/fRI-Research/LandWeb_deploy.git
 [submodule "m/Biomass_borealDataPrep"]
 	path = m/Biomass_borealDataPrep
-	url = git@github.com:PredictiveEcology/Biomass_borealDataPrep
+	url = https://github.com/PredictiveEcology/Biomass_borealDataPrep
 	branch = LandWeb
 [submodule "m/Biomass_core"]
 	path = m/Biomass_core
-	url = git@github.com:PredictiveEcology/Biomass_core
+	url = https://github.com/PredictiveEcology/Biomass_core
 	branch = LandWeb
 [submodule "m/Biomass_regeneration"]
 	path = m/Biomass_regeneration
-	url = git@github.com:PredictiveEcology/Biomass_regeneration
+	url = https://github.com/PredictiveEcology/Biomass_regeneration
 	branch = LandWeb
 [submodule "m/Biomass_speciesData"]
 	path = m/Biomass_speciesData
-	url = git@github.com:PredictiveEcology/Biomass_speciesData
+	url = https://github.com/PredictiveEcology/Biomass_speciesData
 	branch = LandWeb
 [submodule "m/LandMine"]
 	path = m/LandMine
-	url = git@github.com:PredictiveEcology/LandMine
+	url = https://github.com/PredictiveEcology/LandMine
 	branch = LandWeb
 [submodule "m/LandWeb_preamble"]
 	path = m/LandWeb_preamble
-	url = git@github.com:fRI-Research/LandWeb_preamble
+	url = https://github.com/fRI-Research/LandWeb_preamble
 	branch = development
 [submodule "m/LandWeb_output"]
 	path = m/LandWeb_output
-	url = git@github.com:fRI-Research/LandWeb_output
+	url = https://github.com/fRI-Research/LandWeb_output
 	branch = development
 [submodule "m/timeSinceFire"]
 	path = m/timeSinceFire
-	url = git@github.com:fRI-Research/timeSinceFire
+	url = https://github.com/fRI-Research/timeSinceFire
 	branch = development
