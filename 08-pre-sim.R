@@ -19,6 +19,7 @@ objects3 <- list(
   "fireReturnInterval" = simOutPreamble[["fireReturnInterval"]],
   "rstLCC" = simOutPreamble[["LCC"]],
   "rasterToMatch" = simOutPreamble[["rasterToMatch"]],
+  "rasterToMatchLarge" = simOutPreamble[["rasterToMatchLarge"]],
   "rasterToMatchReporting" = simOutPreamble[["rasterToMatchReporting"]],
   "ROSTable" = LandMineROStable,
   "rstFlammable" = simOutPreamble[["rstFlammable"]],
