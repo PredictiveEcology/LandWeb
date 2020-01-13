@@ -34,6 +34,7 @@ opts <- options(
   "map.useParallel" = mapParallel,
   "rasterMaxMemory" = maxMemory,
   "rasterTmpDir" = scratchDir,
+  "reproducible.cacheSaveFormat" = "qs", ## can be "qs" or "rds"
   "reproducible.conn" = cacheDBconn,
   "reproducible.destinationPath" = normPath(paths1$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
@@ -68,7 +69,7 @@ token <- if (Sys.info()['nodename'] == "landweb") {
   normPath(.)
 
 if (is.na(token) || !file.exists(token))
-  message(crayon::red("no Google service token found"))
+  message(crayon::red("No Google service token found; autheticating with user token..."))
 
 drive_auth(email = config::get("cloud")[["googleuser"]])
 #drive_auth(use_oob = quickPlot::isRstudioServer())
