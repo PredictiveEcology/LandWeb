@@ -69,7 +69,7 @@ token <- if (Sys.info()['nodename'] == "landweb") {
   normPath(.)
 
 if (is.na(token) || !file.exists(token))
-  message(crayon::red("No Google service token found; autheticating with user token..."))
+  message(crayon::red("No Google service token found; authenticating with user token..."))
 
 drive_auth(email = config::get("cloud")[["googleuser"]])
 #drive_auth(use_oob = quickPlot::isRstudioServer())
