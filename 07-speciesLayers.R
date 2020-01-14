@@ -5,14 +5,13 @@
 do.call(SpaDES.core::setPaths, paths2)
 
 objects2 <- list(
-  "nonTreePixels" = simOutPreamble$nonTreePixels,
-  "rasterToMatch" = simOutPreamble$rasterToMatch,
-  "rasterToMatchReporting" = simOutPreamble$rasterToMatchReporting,
+  "nonTreePixels" = simOutPreamble[["nonTreePixels"]],
+  "rasterToMatchLarge" = simOutPreamble[["rasterToMatchLarge"]],
   "sppColorVect" = sppColorVect,
   "sppEquiv" = sppEquivalencies_CA,
-  "studyArea" = simOutPreamble$studyArea, ## TODO: no longer an input in Ceres' updated module
-  "studyAreaLarge" = simOutPreamble$studyAreaLarge,
-  "studyAreaReporting" = simOutPreamble$studyAreaReporting
+  "studyArea" = simOutPreamble[["studyArea"]], ## TODO: no longer an input in Ceres' updated module
+  "studyAreaLarge" = simOutPreamble[["studyAreaLarge"]],
+  "studyAreaReporting" = simOutPreamble[["studyAreaReporting"]]
 )
 
 parameters2 <- list(
