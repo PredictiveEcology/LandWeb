@@ -61,7 +61,7 @@ library(googledrive)
 
 httr::set_config(httr::config(http_version = 0))
 
-token <- if (Sys.info()['nodename'] == "landweb") {
+token <- if (Sys.info()['nodename'] == "forcast01") {
   file.path(activeDir, "landweb-e3147f3110bf.json")
 } else {
   NA_character_
