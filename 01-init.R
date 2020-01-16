@@ -4,7 +4,7 @@
 
 .starttime <- Sys.time()
 
-readRenviron(".Renviron")
+if (file.exists(".Renviron")) readRenviron(".Renviron")
 
 library(config)
 
