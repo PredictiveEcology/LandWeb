@@ -14,8 +14,8 @@ default:
   postprocess: false
   rep: 1
   studyarea: "random"
-  scenariodisp: "highDispersal"
-  scenariofire: "logROS"
+  scenariodisp: "" # "aspenDispersal", "highDispersal", "noDispersal", or "" for default
+  scenariofire: "" # "equalROS", "logROS", or "" for default
   restartr: false
 
 profile:
@@ -28,8 +28,8 @@ profile:
   plot: false
   rep: 1
   studyarea: "Tolko_SK"
-  scenariodisp: "highDispersal"
-  scenariofire: "logROS"
+  scenariodisp: ""
+  scenariofire: ""
 
 test:
   params:
@@ -39,10 +39,6 @@ test:
     summaryinterval: !expr 10
     timeseriestimes: !expr 201:210
   plot: true
-  rep: 1
-  studyarea: "Tolko_SK"
-  scenariodisp: "highDispersal"
-  scenariofire: "logROS"
 
 production:
   batchmode: true ## if true, don't specify rep, studyarea, scenario*
