@@ -26,16 +26,17 @@ source("04-options.R")
 source("05-sim-objects.R")
 source("06-preamble.R")
 source("07-speciesLayers.R")
-source("08-pre-sim.R")
+source("08-borealDataPrep.R")
+source("09-pre-sim.R")
 
 message(crayon::red(runName))
 
 if (isFALSE(postProcessOnly)) {
   if (isFALSE(usePOM)) {
-    source("09-main-sim.R")
+    source("10-main-sim.R")
     #source("11-post-sim.R")
   } else {
-    source("10-POM.R") ## TODO: may not work out-of-the-box; untested!!
+    source("10a-POM.R") ## TODO: may not work out-of-the-box; untested!!
   }
 } else {
   #mySimOut <- readRDS(simFile("mySimOut", Paths$outputPath, 1000))

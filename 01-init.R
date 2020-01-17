@@ -24,6 +24,7 @@ mapResFact <- config::get("mapresfact")
 maxAge <- 400
 minFRI <- 25
 postProcessOnly <- config::get("postprocess")
+rerunDataPrep <- FALSE
 rerunSpeciesLayers <- if (grepl("LandWeb", runName)) FALSE else TRUE
 restartInterval <- 100
 sppEquivCol <- "LandWeb"

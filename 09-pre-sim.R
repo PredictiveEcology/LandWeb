@@ -5,8 +5,7 @@
 do.call(SpaDES.core::setPaths, paths3) # Set them here so that we don't have to specify at each call to Cache
 
 times3 <- list(start = 0, end = endTime)
-modules3 <- list("Biomass_borealDataPrep",
-                 "Biomass_core",
+modules3 <- list("Biomass_core",
                  "LandMine",
                  "Biomass_regeneration",
                  "LandWeb_output",
@@ -16,7 +15,15 @@ modules3 <- list("Biomass_borealDataPrep",
 #stopifnot(unique(res(simOutSpeciesLayers[["speciesLayers"]])) %==% 250 / mapResFact)
 
 objects3 <- list(
+  "biomassMap" = simOutDataPrep[["biomassMap"]],
+  "cohortData" = simOutDataPrep[["cohortData"]],
+  "ecoDistrict" = simOutDataPrep[["ecoDistrict"]],
+  "ecoregion" = simOutDataPrep[["ecoregion"]],
+  "ecoregionMap" = simOutDataPrep[["ecoregionMap"]],
   "fireReturnInterval" = simOutPreamble[["fireReturnInterval"]],
+  "minRelativeB" = simOutDataPrep[["minRelativeB"]],
+  "pixelGroupMap" = simOutDataPrep[["pixelGroupMap"]],
+  "rawBiomassMap" = simOutDataPrep[["rawBiomassMap"]],
   "rstLCC" = simOutPreamble[["LCC"]],
   "rasterToMatch" = simOutPreamble[["rasterToMatch"]],
   "rasterToMatchLarge" = simOutPreamble[["rasterToMatchLarge"]],
@@ -24,46 +31,24 @@ objects3 <- list(
   "ROSTable" = LandMineROStable,
   "rstFlammable" = simOutPreamble[["rstFlammable"]],
   "rstTimeSinceFire" = simOutPreamble[["CC TSF"]],
-  "sppColorVect" = sppColorVect,
-  "sppEquiv" = sppEquivalencies_CA,
+  "species" = simOutDataPrep[["species"]],
+  "speciesEcoregion" = simOutDataPrep[["speciesEcoregion"]],
   "speciesLayers" = simOutSpeciesLayers[["speciesLayers"]],
   "speciesParams" = speciesParams,
   "speciesTable" = speciesTable,
+  "sppColorVect" = sppColorVect,
+  "sppEquiv" = sppEquivalencies_CA,
   "standAgeMap" = simOutPreamble[["CC TSF"]], ## same as rstTimeSinceFire; TODO: use synonym?
   "studyArea" = simOutPreamble[["studyArea"]],
   "studyAreaLarge" = simOutPreamble[["studyAreaLarge"]],
   "studyAreaReporting" = simOutPreamble[["studyAreaReporting"]],
+  "sufficientLight" = simOutDataPrep[["sufficientLight"]],
   "summaryPeriod" = summaryPeriod, ## defined in params file
   "useParallel" = 2
 )
 
 parameters3 <- list(
   .restartR = if (isTRUE(useRestartR)) list(.restartRInterval = restartInterval) else NULL,
-  Biomass_borealDataPrep = list(
-    ## fastLM is ~35% faster than the default lmer but needs 820GB RAM !!
-    ## also, fastLM cannot deal with rank-deficient models
-    #"biomassModel" = quote(RcppArmadillo::fastLm(formula = B ~ logAge * speciesCode * ecoregionGroup +
-    #                                               cover * speciesCode * ecoregionGroup)),
-    "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
-                                        (logAge + cover + speciesCode | ecoregionGroup))),
-    "cloudFolderID" = cloudCacheFolderID,
-    "LCCClassesToReplaceNN" = 34:36,
-    # next two are used when assigning pixelGroup membership; what resolution for
-    #   age and biomass
-    "runName" = runName,
-    "pixelGroupAgeClass" = successionTimestep * 2, # can be coarse because initial conditions are irrelevant
-    "pixelGroupBiomassClass" = 1000, # can be coarse because initial conditions are irrelevant
-    "sppEquivCol" = sppEquivCol,
-    "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
-    "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
-    "speciesUpdateFunction" = list(
-      quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
-      quote(LandWebUtils::updateSpeciesTable(sim$species, P(sim)$runName, sim$speciesParams))
-    ),
-    "useCloudCacheForStats" = useCloudCache, #TRUE,
-    ".plotInitialTime" = .plotInitialTime,
-    ".useCache" = eventCaching
-  ),
   Biomass_core = list(
     "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",

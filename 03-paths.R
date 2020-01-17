@@ -20,6 +20,15 @@ paths2 <- list(
   outputPath = file.path("outputs", runName)
 )
 
+## boreal data prep
+paths2a <- list(
+  ## use same cachePath for all data-prep steps before dynamic simulation
+  cachePath = file.path("cache", "dataPrepGIS", "borealDataPrep"),
+  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
+  inputPath = "inputs",
+  outputPath = file.path("outputs", runName)
+)
+
 ## main simulation
 paths3 <- list(
   ## NOTE: use separate cachePath for each dynamic simulation
