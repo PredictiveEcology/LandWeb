@@ -37,6 +37,7 @@ if (!is.na(.plotInitialTime)) {
   grid::grid.text(label = runName, x = 0.90, y = 0.03)
 
   Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
-  Plot(simOutPreamble$rasterToMatchReporting)
-  Plot(simOutPreamble$rasterToMatch) # some bug in quickPlot that makes these 2 not plot together
+  Plot(simOutPreamble$rasterToMatchReporting) #bug in quickPlot that makes these not plot together
+  Plot(simOutPreamble$rasterToMatch)
+  Plot(simOutPreamble$rasterToMatchLarge)
 }
