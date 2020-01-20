@@ -68,7 +68,7 @@ if (isTRUE(rerunDataPrep)) {
 
   saveRDS(Copy(simOutDataPrep), dataPrepFile, version = 3)
 } else {
-  dl <- downloadFile(url = "https://drive.google.com/file/d/1oSUfp9HTx1eu4zq5ylWtXirZaoPas_9c/view?usp=sharing", ## TODO: update url
+  dl <- downloadFile(url = "", ## TODO: update url
                      targetFile = basename(dataPrepFile),
                      destinationPath = dirname(dataPrepFile),
                      neededFiles = basename(dataPrepFile),
