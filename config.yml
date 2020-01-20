@@ -69,10 +69,15 @@ alex:
   slackchannel: "@alex.chubaty"
 
 eliot:
-  inherits: production
+  inherits: test
+  batchmode: false ## if true, don't specify rep, studyarea, scenario*
   cachedb: "sqlite"
   cloud:
     googleuser: "eliotmcintire@gmail.com"
-    usecloud: true
+    usecloud: false
   gitpkgpath: "~/GitHub"
   slackchannel: "@eliotmcintire"
+  rep: 1
+  # studyarea: "LandWeb"
+  # scenariodisp: "highDispersal"
+  # scenariofire: "logROS"
