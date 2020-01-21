@@ -68,12 +68,15 @@ if (isTRUE(rerunDataPrep)) {
 
   saveRDS(Copy(simOutDataPrep), dataPrepFile, version = 3)
 } else {
-  dl <- downloadFile(url = "https://drive.google.com/file/d/1nL7KM33BSWh2n5P7SEEiAnpOzhb_xu81/view?usp=sharing",
-                     targetFile = basename(dataPrepFile),
-                     destinationPath = dirname(dataPrepFile),
-                     neededFiles = basename(dataPrepFile),
-                     archive = NULL,
-                     checkSums = Checksums(dirname(dataPrepFile), write = TRUE), needChecksums = 0)
+  if (runName == "random___res250_test") {
+    dl <- downloadFile(url = "https://drive.google.com/file/d/1nL7KM33BSWh2n5P7SEEiAnpOzhb_xu81/view?usp=sharing",
+                       targetFile = basename(dataPrepFile),
+                       destinationPath = dirname(dataPrepFile),
+                       neededFiles = basename(dataPrepFile),
+                       archive = NULL,
+                       checkSums = Checksums(dirname(dataPrepFile), write = TRUE), needChecksums = 0)
+  }
+  stopifnot(file.exists(dataPrepFile))
   simOutDataPrep <- readRDS(dataPrepFile)
   rm(dl)
 }
