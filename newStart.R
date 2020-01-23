@@ -12,7 +12,7 @@ if (isFALSE(config::get("batchmode"))) {
     "_", config::get("scenariofire"),
     "_res", 250 / config::get("mapresfact"),
     if (isTRUE(config::is_active("test"))) "_test" else "",
-    if (isTRUE(config::get("postprocess"))) "" else sprintf("rep%02g", config::get("_rep"))
+    if (isTRUE(config::get("postprocess"))) "" else sprintf("_rep%02g", config::get("rep"))
   )
 }
 stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set: e.g., see batch_runs.R
