@@ -6,8 +6,8 @@
 printf -v RUN "%02g" $1 ## assign to RUN, padding with extra zeros as needed
 FMU=$2
 
-OUTDIR="outputs/FMU_${FMU}_logROS"
-RUNNAME="FMU_${FMU}_logROS_rep${RUN}"
+OUTDIR="outputs/FMU_${FMU}"
+RUNNAME="FMU_${FMU}_rep${RUN}"
 RCMD="runName <- '${RUNNAME}'; source('newStart.R')"
 
 if [ ! -d ${OUTDIR} ]; then
