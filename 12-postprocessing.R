@@ -2,6 +2,8 @@
 ## Simulation post-processing (largePatches & leading)
 ################################################################################
 
+analysesOutputsTimes <- seq(summaryPeriod[1], summaryPeriod[2], by = summaryInterval)
+
 library(future)
 options("future.availableCores.custom" = function() { min(getOption("Ncpus"), 4) })
 future::plan("multiprocess")

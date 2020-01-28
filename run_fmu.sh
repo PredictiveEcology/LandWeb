@@ -1,17 +1,17 @@
 #!/bin/bash
 
-## USAGE: ./run_fmu.sh <rep> <fma>
-## provide a numeric <rep> as the first and only argument to this script
+## USAGE: ./run_fmu.sh <fmu> <res> <rep>
 
-printf -v RUN "%02g" $1 ## assign to RUN, padding with extra zeros as needed
-FMU=$2
+FMU=$1
+RES=$2
+printf -v RUN "%02g" $3 ## assign to RUN, padding with extra zeros as needed
 
-OUTDIR="outputs/FMU_${FMU}"
-RUNNAME="FMU_${FMU}_rep${RUN}"
+OUTDIR="outputs/FMU_${FMU}_res${RES}"
+RUNNAME="FMU_${FMU}_res${RES}_rep${RUN}"
 RCMD="runName <- '${RUNNAME}'; source('newStart.R')"
 
-if [ ! -d ${OUTDIR} ]; then
-  mkdir -p ${OUTDIR}
+if [ ! -d ${OUTDIR}/res${RES} ]; then
+  mkdir -p ${OUTDIR}/res${RES}
 fi
 
 for i in {1..10}
@@ -20,6 +20,5 @@ do
 done
 
 if [ -f "outputs/${RUNNAME}/rstTimeSinceFire_year1000.tif" ]; then
-  mv "outputs/${RUNNAME}" "${OUTDIR}/rep${RUN}"
+  mv "outputs/${RUNNAME}" "${OUTDIR}/res${RES}/rep${RUN}"
 fi
-
