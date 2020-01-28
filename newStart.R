@@ -26,12 +26,13 @@ source("04-options.R")
 source("05-sim-objects.R")
 source("06-preamble.R")
 source("07-speciesLayers.R")
-source("08-borealDataPrep.R")
-source("09-pre-sim.R")
 
 message(crayon::red(runName))
 
 if (isFALSE(postProcessOnly)) {
+  source("08-borealDataPrep.R")
+  source("09-pre-sim.R")
+
   if (isFALSE(usePOM)) {
     source("10-main-sim.R")
     #source("11-post-sim.R")
