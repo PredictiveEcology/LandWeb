@@ -17,6 +17,7 @@ getMapResFact <- function(runName) {
   if (res %in% c(50, 125, 250)) {
     250 / res
   } else {
+    warning("res should be one of 250, 125, or 50. using value specified by config.yml.")
     config::get("mapresfact")
   }
 }
