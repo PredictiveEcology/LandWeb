@@ -7,8 +7,19 @@
 if (file.exists(".Renviron")) readRenviron(".Renviron")
 
 library(config)
+library(magrittr)
 
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
+
+getMapResFact <- function(runName) {
+  res <- strsplit(runName, "_")[[1]] %>% grep("res", ., value = TRUE) %>% substr(., 4, 6) %>% as.integer(.)
+
+  if (res %in% c(50, 125, 250)) {
+    250 / res
+  } else {
+    config::get("mapresfact")
+  }
+}
 
 activeDir <- config::get("paths")[["activedir"]]
 ageClasses <- c("Young", "Immature", "Mature", "Old") ## LandWebUtils:::.ageClasses
@@ -20,7 +31,7 @@ eventCaching <- c(".inputObjects", "init")
 fireTimestep <- 1
 gitPkgPath <- config::get("gitpkgpath")
 mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
-mapResFact <- config::get("mapresfact")
+mapResFact <- getMapResFact(runName)
 maxAge <- 400
 minFRI <- 25
 postProcessOnly <- config::get("postprocess")

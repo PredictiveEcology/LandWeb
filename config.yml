@@ -41,9 +41,10 @@ test:
   plot: true
 
 production:
-  batchmode: true ## if true, don't specify rep, studyarea, scenario*
+  batchmode: true ## if true, don't specify mapresfact, rep, studyarea, scenario*
   cloud:
     usecloud: false
+  #mapresfact: 1
   params:
     endtime: !expr 1000
     successiontimestep: !expr 10
