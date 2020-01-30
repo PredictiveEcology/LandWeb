@@ -5,6 +5,7 @@ default:
     cachedir: "/folders/1b2h5hJlarNMkxdUyJLO5pPUwrQV8m626"
     googleuser: ""
     usecloud: false
+  frimultiple: 1
   gitpkgpath: "~/GitHub"
   mapresfact: 1
   paths:

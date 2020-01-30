@@ -8,6 +8,7 @@ objects1 <- list()
 
 parameters1 <- list(
   LandWeb_preamble = list(
+    "friMultiple" = friMultiple,
     "mapResFact" = mapResFact,
     "minFRI" = minFRI,
     "runName" = runName

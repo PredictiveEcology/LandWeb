@@ -30,6 +30,7 @@ deleteSpeciesLayers <- FALSE
 endTime <- config::get("params")[["endtime"]]
 eventCaching <- c(".inputObjects", "init")
 fireTimestep <- 1
+friMultiple <- config::get("frimultiple")
 gitPkgPath <- config::get("gitpkgpath")
 mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
 mapResFact <- getMapResFact(runName)
