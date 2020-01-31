@@ -10,6 +10,7 @@ if (isFALSE(config::get("batchmode"))) {
     config::get("studyarea"),
     "_", config::get("scenariodisp"),
     "_", config::get("scenariofire"),
+    "_fri", config::get("frimultiple"),
     "_res", 250 / config::get("mapresfact"),
     if (isTRUE(config::is_active("test"))) "_test" else "",
     if (isTRUE(config::get("postprocess"))) "" else sprintf("_rep%02g", config::get("rep"))
