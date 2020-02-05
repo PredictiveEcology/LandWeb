@@ -23,6 +23,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         paths = paths1,
                         debug = 1,
                         omitArgs = c("debug", "paths"),
+                        #useCache = "overwrite", ## TODO: remove this workaround
                         useCloud = useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
                         cloudFolderID = cloudCacheFolderID)
 
