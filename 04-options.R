@@ -35,7 +35,7 @@ opts <- options(
   "map.useParallel" = mapParallel,
   "rasterMaxMemory" = maxMemory,
   "rasterTmpDir" = scratchDir,
-  "reproducible.cacheSaveFormat" = "qs", ## can be "qs" or "rds"
+  "reproducible.cacheSaveFormat" = "rds", ## can be "qs" or "rds"
   "reproducible.conn" = cacheDBconn,
   "reproducible.destinationPath" = normPath(paths1$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
