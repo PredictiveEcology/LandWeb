@@ -12,7 +12,12 @@ library(magrittr)
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
 
 getMapResFact <- function(runName) {
-  res <- strsplit(runName, "_")[[1]] %>% grep("res", ., value = TRUE) %>% substr(., 4, 6) %>% as.integer(.)
+  res <- strsplit(runName, "_")[[1]] %>%
+    grep("res", ., value = TRUE) %>%
+    substr(., 4, 6) %>%
+    as.integer(.)
+
+  if (identical(res, integer(0))) res <- 250 ## use 250 when not specified, e.g. for old runs
 
   if (res %in% c(50, 125, 250)) {
     250 / res
