@@ -10,13 +10,12 @@ objects2a <- list(
   "rasterToMatch" = simOutPreamble[["rasterToMatch"]],
   "rasterToMatchLarge" = simOutPreamble[["rasterToMatchLarge"]],
   "rstFlammable" = simOutPreamble[["rstFlammable"]],
-  "rstTimeSinceFire" = simOutPreamble[["CC TSF"]],
   "speciesLayers" = simOutSpeciesLayers[["speciesLayers"]],
   "speciesParams" = speciesParams,
   "speciesTable" = speciesTable,
   "sppColorVect" = sppColorVect,
   "sppEquiv" = sppEquivalencies_CA,
-  "standAgeMap" = simOutPreamble[["CC TSF"]], ## same as rstTimeSinceFire; TODO: use synonym?
+  "standAgeMap" = simOutPreamble[["CC TSF"]],
   "studyArea" = simOutPreamble[["studyArea"]],
   "studyAreaLarge" = simOutPreamble[["studyAreaLarge"]]
 )
