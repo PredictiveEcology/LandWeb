@@ -30,7 +30,7 @@ objects3 <- list(
   "rasterToMatchReporting" = simOutPreamble[["rasterToMatchReporting"]],
   "ROSTable" = LandMineROStable,
   "rstFlammable" = simOutPreamble[["rstFlammable"]],
-  "rstTimeSinceFire" = simOutPreamble[["CC TSF"]],
+  "rstTimeSinceFire" = crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]),
   "species" = simOutDataPrep[["species"]],
   "speciesEcoregion" = simOutDataPrep[["speciesEcoregion"]],
   "speciesLayers" = simOutSpeciesLayers[["speciesLayers"]],
