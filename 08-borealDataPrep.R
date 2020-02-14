@@ -9,7 +9,6 @@ objects2a <- list(
   "rstLCC" = simOutPreamble[["LCC"]],
   "rasterToMatch" = simOutPreamble[["rasterToMatch"]],
   "rasterToMatchLarge" = simOutPreamble[["rasterToMatchLarge"]],
-  "rstFlammable" = simOutPreamble[["rstFlammable"]],
   "speciesLayers" = simOutSpeciesLayers[["speciesLayers"]],
   "speciesParams" = speciesParams,
   "speciesTable" = speciesTable,
