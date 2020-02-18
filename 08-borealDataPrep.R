@@ -31,8 +31,8 @@ parameters2a <- list(
     # next two are used when assigning pixelGroup membership; what resolution for
     #   age and biomass
     "runName" = runName,
-    "pixelGroupAgeClass" = successionTimestep * 2, # can be coarse because initial conditions are irrelevant
-    "pixelGroupBiomassClass" = 1000, # can be coarse because initial conditions are irrelevant
+    "pixelGroupAgeClass" = successionTimestep * 2,  ## can be coarse because initial conditions are irrelevant
+    "pixelGroupBiomassClass" = 1000 / mapResFact^2, ## can be coarse because initial conditions are irrelevant
     "sppEquivCol" = sppEquivCol,
     "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
     "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
