@@ -119,7 +119,8 @@ do.call(SpaDES.core::setPaths, paths4)
 tilePath <- file.path(Paths$outputPath, "tiles")
 
 vtmCC <- vegTypeMapGenerator(simOutSpeciesLayers$speciesLayers, vegLeadingProportion, mixedType = 2,
-                             sppEquiv = sppEquivalencies_CA, sppEquivCol = "LandWeb", colors = sppColorVect)
+                             sppEquiv = sppEquivalencies_CA, sppEquivCol = "LandWeb", colors = sppColorVect,
+                             doAssertion = FALSE)
 fname <- file.path(Paths$outputPath, "CurrentConditionVTM.tif")
 writeRaster(vtmCC, fname, overwrite = TRUE)
 
