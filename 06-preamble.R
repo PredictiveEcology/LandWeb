@@ -8,6 +8,8 @@ objects1 <- list()
 
 parameters1 <- list(
   LandWeb_preamble = list(
+    "bufferDist" = 25000,        ## 25 km buffer
+    "bufferDistLarge" = 50000,   ## 50 km buffer
     "friMultiple" = friMultiple,
     "mapResFact" = mapResFact,
     "minFRI" = minFRI,

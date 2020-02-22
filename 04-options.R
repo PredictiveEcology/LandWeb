@@ -35,6 +35,7 @@ opts <- options(
   "map.useParallel" = mapParallel,
   "rasterMaxMemory" = maxMemory,
   "rasterTmpDir" = scratchDir,
+  "reproducible.cachePath" = file.path(scratchDir, "cache"),
   "reproducible.cacheSaveFormat" = "rds", ## can be "qs" or "rds"
   "reproducible.conn" = cacheDBconn,
   "reproducible.destinationPath" = normPath(paths1$inputPath),
