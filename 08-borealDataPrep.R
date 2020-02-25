@@ -26,7 +26,8 @@ parameters2a <- list(
     #"biomassModel" = quote(RcppArmadillo::fastLm(formula = B ~ logAge * speciesCode * ecoregionGroup +
     #                                               cover * speciesCode * ecoregionGroup)),
     "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
-                                        (logAge + cover + speciesCode | ecoregionGroup))),
+                                        (1 | ecoregionGroup))),
+    "ecoregionLayerField" = "ECODISTRIC", #"ECOREGION"
     "LCCClassesToReplaceNN" = 34:36,
     # next two are used when assigning pixelGroup membership; what resolution for
     #   age and biomass
@@ -35,7 +36,7 @@ parameters2a <- list(
     "pixelGroupBiomassClass" = 1000 / mapResFact^2, ## can be coarse because initial conditions are irrelevant
     "sppEquivCol" = sppEquivCol,
     "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
-    "subsetDataBiomassModel" = 50, ## TODO: test with `NULL` and `50`
+    "subsetDataBiomassModel" = 100, ## TODO: test with `NULL` and `50`
     "speciesUpdateFunction" = list(
       quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
       quote(LandWebUtils::updateSpeciesTable(sim$species, P(sim)$runName, sim$speciesParams))
