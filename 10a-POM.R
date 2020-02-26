@@ -48,7 +48,7 @@ objectiveFunction <- function(params, sim) {
   params(sim2)$speciesParams$seeddistance_max$Pinu_sp <- params[9]
   params(sim2)$speciesParams$seeddistance_max$Popu_sp <- params[10]
 
-  httr::set_config(httr::config(http_version = 0)) ## worakorund 'HTTP2 framing layer' error
+  httr::set_config(httr::config(http_version = 0)) ## workaround 'HTTP2 framing layer' error
 
   mySimOut <- spades(sim2, .plotInitialTime = NA)
 
