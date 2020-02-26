@@ -7,11 +7,11 @@
 - Eliot McIntire (eliot.mcintire@canada.ca)
 - Alex M. Chubaty (achubaty@for-cast.ca)
 
-**Date:** November 29, 2019
+**Date:** February 26, 2020
 
 ### Getting the code
 
-All modules are written in R and all model code was developed collaboratively using GitHub (<https://github.com>), with each module contained in it's own git repository (see below).
+All modules are written in R and all model code was developed collaboratively using GitHub (<https://github.com>), with each module contained in its own git repository (see below).
 Code that is shared among modules was bundled into R packages, and hosted in open git repositories.
 All package code is automatically and regularly tested using cross-platform continuous integration frameworks to ensure the code is reliable and free of errors.
 
@@ -51,11 +51,35 @@ The code is mostly self-sufficient: additional packages than those below are nee
 See `03-packages.R` to see which additional packages will be used.
 
 ```r
-pkgs <- c("config", data.table", "devtools", "dplyr",
-          "magrittr", "plyr", "raster", "reproducible", "slackr")
+pkgs <- c("config", "data.table", "devtools", "dplyr", "magrittr", "maptools",
+          "plyr", "pryr", "qs", "raster", "reproducible")
 
 install.packages(pkgs)
 ```
+
+Next, verify your installation of package development tools by running:
+
+```{r has_devel}
+devtools::has_devel()
+```
+
+If the above line is successful, install the following packages from GitHub:
+
+```{r github-pkgs}
+devtools::install_github("PredictiveEcology/reproducible@development")
+devtools::install_github("PredictiveEcology/SpaDES.core@qs")
+
+devtools::install_github("PredictiveEcology/map@development")
+devtools::install_github("PredictiveEcology/pemisc@development")
+
+devtools::install_github("PredictiveEcology/LandR@development")
+devtools::install_github("PredictiveEcology/LandWebUtils@development")
+
+devtools::install_github("achubaty/amc@development")
+devtools::install_github("s-u/fastshp")
+```
+
+**NOTE:** After downloading the model code and on first run of the model, additional packages and model data will be downloaded.
 
 #### Overview
 
@@ -85,12 +109,12 @@ Select pages from the menu on the left navigation menu.
 **Public data sources:**
 
 - Land Cover Classification 2005 map: ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip;
-- LANDIS-II species traits: https://github.com/dcyr/LANDIS-II_IA_generalUseFiles;
-- LANDIS-II parameterization tables and data: https://github.com/LANDIS-II-Foundation/Extensions-Succession-Archive/master/biomass-succession-archive/trunk/tests/v6.0-2.0/;
-- Canada biomass, stand volume, and species data (from Beaudoin *et al.*, 2014): http://tree.pfc.forestry.ca;
-- National ecodistrict polygons: http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip;
-- National ecoregion polygons: http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip;
-- National ecozone polygons: http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip.
+- LANDIS-II species traits: <https://github.com/dcyr/LANDIS-II_IA_generalUseFiles>;
+- LANDIS-II parameterization tables and data: <https://github.com/LANDIS-II-Foundation/Extensions-Succession-Archive/master/biomass-succession-archive/trunk/tests/v6.0-2.0/>;
+- Canada biomass, stand volume, and species data (from Beaudoin *et al.*, 2014): <http://tree.pfc.forestry.ca>;
+- National ecodistrict polygons: <http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip>;
+- National ecoregion polygons: <http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip>;
+- National ecozone polygons: <http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip>.
 
 **Proprietary data:** 
 
@@ -154,11 +178,11 @@ LandWeb_v2.0.0_2019-09-23/
 
 Beaudoin, et al. (2014). Mapping attributes of Canada’s forests at moderate resolution through kNN and MODIS imagery. Canadian Journal of Forest Research, 44, 521–532. http://doi.org/10.1139/cjfr-2013-0401. Data available from http://tree.nfis.org/.
 
-Chubaty, A. M. & McIntire, E. J. B. (2019) `SpaDES`: Develop and Run Spatially Explicit Discrete Event Simulation Models. R package version 2.0.4.
-https://CRAN.R-project.org/package=SpaDES
+Chubaty, A. M. & McIntire, E. J. B. (2019) `SpaDES`: Develop and Run Spatially Explicit Discrete Event Simulation Models. R package version 2.0.4. <https://CRAN.R-project.org/package=SpaDES>
 
 Pickell, P. D., & Coops, N. C. (2016) Development of historical forest attribute layers using Landsat time series and kNN imputation for the western Canadian boreal forest. Technical Report, 27 pp.
 
-Scheller, R. M., & Mladenoff, D. J. (2004). A forest growth and biomass module for a landscape simulation model, LANDIS: Design, validation, and application. Ecological Modelling, 180, 211–229. http://doi.org/10.1016/j.ecolmodel.2004.01.022
+Scheller, R. M., & Mladenoff, D. J. (2004). A forest growth and biomass module for a landscape simulation model, LANDIS: Design, validation, and application. Ecological Modelling, 180, 211–229. <https://doi.org/10.1016/j.ecolmodel.2004.01.022>
 
-Scheller, R. M., Domingo, J. B., Sturtevant, B. R., Williams, J. S., Rudy, A., Gustafson, E. J., & Mladenoff, D. J. (2007). Design, development, and application of LANDIS-II, a spatial landscape simulation model with flexible temporal and spatial resolution. Ecological Modelling, 201, 409–419. http://doi.org/10.1016/j.ecolmodel.2006.10.009
+Scheller, R. M., Domingo, J. B., Sturtevant, B. R., Williams, J. S., Rudy, A., Gustafson, E. J., & Mladenoff, D. J. (2007). Design, development, and application of LANDIS-II, a spatial landscape simulation model with flexible temporal and spatial resolution. Ecological Modelling, 201, 409–419. <https://doi.org/10.1016/j.ecolmodel.2006.10.009>
+
