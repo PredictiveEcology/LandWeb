@@ -119,4 +119,4 @@ if (restartIteration == (endTime / restartInterval)) {
   }
 }
 
-unlink(tempdir())
+unlink(tempdir(), recursive = TRUE)
