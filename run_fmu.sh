@@ -13,7 +13,7 @@ OUTDIR3="${OUTDIR2}/rep${RUN}"
 RUNNAME="FMU_${FMU}_fri${FRI}_res${RES}_rep${RUN}"
 RCMD="runName <- '${RUNNAME}'; source('newStart.R')"
 
-if [ ! -d ${OUTDIR2}} ]; then
+if [ ! -d ${OUTDIR2} ]; then
   mkdir -p ${OUTDIR2}
 fi
 
