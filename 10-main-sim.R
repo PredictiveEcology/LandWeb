@@ -65,7 +65,7 @@ if (isFALSE(useRestartR)) {
   })
 }
 
-warnings(file = file.path(Paths$outputPath, "warnings.txt"))
+cat(capture.output(warnings()), file = file.path(Paths$outputPath, "warnings.txt"))
 
 fsim <- simFile("mySimOut", Paths$outputPath, SpaDES.core::end(mySimOut), "qs")
 message("Saving simulation to: ", fsim)
