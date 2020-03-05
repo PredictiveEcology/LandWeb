@@ -23,13 +23,13 @@ modulePath <- file.path("../m")
 m <- basename(dir(modulePath))
 
 ## get module metadata
-md1 <- moduleMetadata(module = m[1], path = modulePath) %>% suppressWarnings() ## Biomass_regeneration
-md2 <- moduleMetadata(module = m[2], path = modulePath) %>% suppressWarnings() ## BiomassSpeciesData
-md3 <- moduleMetadata(module = m[3], path = modulePath) %>% suppressWarnings() ## Boreal_LBMRDataPrep
-md4 <- moduleMetadata(module = m[4], path = modulePath) %>% suppressWarnings() ## LandMine
-md5 <- moduleMetadata(module = m[5], path = modulePath) %>% suppressWarnings() ## LandWeb_output
-md6 <- moduleMetadata(module = m[6], path = modulePath) %>% suppressWarnings() ## LandWeb_preamble
-md7 <- moduleMetadata(module = m[7], path = modulePath) %>% suppressWarnings() ## LBMR
+md1 <- moduleMetadata(module = m[1], path = modulePath) %>% suppressWarnings() ## Biomass_borealDataPrep
+md2 <- moduleMetadata(module = m[2], path = modulePath) %>% suppressWarnings() ## Biomass_core
+md3 <- moduleMetadata(module = m[3], path = modulePath) %>% suppressWarnings() ## Biomass_regeneration
+md4 <- moduleMetadata(module = m[4], path = modulePath) %>% suppressWarnings() ## Biomass_speciesData
+md5 <- moduleMetadata(module = m[5], path = modulePath) %>% suppressWarnings() ## LandMine
+md6 <- moduleMetadata(module = m[6], path = modulePath) %>% suppressWarnings() ## LandWeb_output
+md7 <- moduleMetadata(module = m[7], path = modulePath) %>% suppressWarnings() ## LandWeb_preamble
 md8 <- moduleMetadata(module = m[8], path = modulePath) %>% suppressWarnings() ## timeSinceFire
 ```
 
@@ -249,7 +249,8 @@ library(LandWebUtils)
 
 fsim <- simFile("mySim_landweb", "docs", 0)
 mySim_landweb <- if (!file.exists(fsim)) {
-  modules_landweb <- c("LandWeb_preamble", "BiomassSpeciesData", modules3)
+  modules_landweb <- c("LandWeb_preamble", "Biomass_speciesData", "Biomass_core", "LandMine",
+                       "Biomass_regeneration", "LandWeb_output",  "timeSinceFire")
   Cache(simInit,
         times = times3,
         params = parameters3,
@@ -260,9 +261,9 @@ mySim_landweb <- if (!file.exists(fsim)) {
         loadOrder = unlist(modules_landweb),
         omitArgs = c("debug", "paths", ".plotInitialTime")
   )
-  saveRDS(mySim_landweb, fsim)
+  saveSimList(mySim_landweb, fsim)
 } else {
-  readRDS(fsim)
+  loadSimList(fsim)
 }
 
 png(file.path("docs", "LandWeb_module_diagram.png"), height = 1800, width = 3200)
@@ -271,11 +272,11 @@ dev.off()
 
 ## currently not working: see https://github.com/rich-iannone/DiagrammeR/issues/207
 ## workaround is to use Rstudio's manual export ability :S
-objectDiagram(mySim_landweb, height = 2500, width = 1250) # %>%
-#   DiagrammeRsvg::export_svg() %>%
-#   charToRaw() %>%
-#   rsvg::rsvg() %>%
-#   png::writePNG(file.path("docs", "LandWeb_object_diagram.png"))
+objectDiagram(mySim_landweb, height = 2500, width = 1250) #%>%
+#  DiagrammeRsvg::export_svg() %>%
+#  charToRaw() %>%
+#  rsvg::rsvg() %>%
+#  png::writePNG(file.path("docs", "LandWeb_object_diagram.png"))
 ```
 
 ![](LandWeb_module_diagram.png)
