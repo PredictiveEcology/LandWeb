@@ -72,7 +72,7 @@ devtools::install_github("PredictiveEcology/SpaDES.core@qs")
 devtools::install_github("PredictiveEcology/map@development")
 devtools::install_github("PredictiveEcology/pemisc@development")
 
-devtools::install_github("PredictiveEcology/LandR@development")
+devtools::install_github("PredictiveEcology/LandR@LandWeb")
 devtools::install_github("PredictiveEcology/LandWebUtils@development")
 
 devtools::install_github("achubaty/amc@development")
