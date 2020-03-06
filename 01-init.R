@@ -11,6 +11,17 @@ library(magrittr)
 
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
 
+getFRImultiple <- function(runName) {
+  frim <- strsplit(runName, "_")[[1]] %>%
+    grep("fri", ., value = TRUE) %>%
+    substr(., 4, 6) %>%
+    as.numeric(.)
+
+  if (identical(frim, integer(0))) frim <- 1 ## use 1 when not specified, e.g. for old runs
+
+  frim
+}
+
 getMapResFact <- function(runName) {
   res <- strsplit(runName, "_")[[1]] %>%
     grep("res", ., value = TRUE) %>%
@@ -35,7 +46,7 @@ deleteSpeciesLayers <- FALSE
 endTime <- config::get("params")[["endtime"]]
 eventCaching <- c(".inputObjects", "init")
 fireTimestep <- 1
-friMultiple <- config::get("frimultiple")
+friMultiple <- getFRImultiple(runName)
 gitPkgPath <- config::get("gitpkgpath")
 mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
 mapResFact <- getMapResFact(runName)
