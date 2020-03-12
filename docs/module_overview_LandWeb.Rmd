@@ -1,7 +1,7 @@
 ---
 title: "LandWeb Module Overview"
 author: "Alex M. Chubaty"
-date: "15/08/2019"
+date: "12/03/2020"
 output:
   html_document: default
 editor_options:
@@ -247,7 +247,7 @@ kable(md8$outputObjects)
 library(SpaDES.core)
 library(LandWebUtils)
 
-fsim <- simFile("mySim_landweb", "docs", 0)
+fsim <- simFile("mySim_landweb", "docs", 0, ext = "qs")
 mySim_landweb <- if (!file.exists(fsim)) {
   modules_landweb <- c("LandWeb_preamble", "Biomass_speciesData", "Biomass_core", "LandMine",
                        "Biomass_regeneration", "LandWeb_output",  "timeSinceFire")

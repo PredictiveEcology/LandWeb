@@ -25,8 +25,12 @@ parameters2a <- list(
     ## also, fastLM cannot deal with rank-deficient models
     #"biomassModel" = quote(RcppArmadillo::fastLm(formula = B ~ logAge * speciesCode * ecoregionGroup +
     #                                               cover * speciesCode * ecoregionGroup)),
-    "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
-                                        (1 | ecoregionGroup))),
+    "biomassModel" = if (grepl("FMU", runName)) {
+      quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode + (1 | ecoregionGroup)))
+    } else {
+      quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
+                         (logAge + cover + speciesCode | ecoregionGroup)))
+    },
     "ecoregionLayerField" = "ECODISTRIC", #"ECOREGION"
     "LCCClassesToReplaceNN" = 34:36,
     # next two are used when assigning pixelGroup membership; what resolution for
