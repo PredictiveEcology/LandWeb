@@ -67,7 +67,7 @@ If the above line is successful, install the following packages from GitHub:
 
 ```{r github-pkgs}
 devtools::install_github("PredictiveEcology/reproducible@development")
-devtools::install_github("PredictiveEcology/SpaDES.core@qs")
+devtools::install_github("PredictiveEcology/SpaDES.core@development")
 
 devtools::install_github("PredictiveEcology/map@development")
 devtools::install_github("PredictiveEcology/pemisc@development")

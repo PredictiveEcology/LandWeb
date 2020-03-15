@@ -28,7 +28,7 @@ SpaDESPkgs <- c(
   "PredictiveEcology/SpaDES.tools@development",
   "PredictiveEcology/map@development",
   "PredictiveEcology/pemisc@development",
-  "PredictiveEcology/LandR@development",
+  "PredictiveEcology/LandR@LandWeb",
   "PredictiveEcology/LandWebUtils@development",
   #"PredictiveEcology/SpaDES.shiny@generalize-modules", ## do this after running the model, before app
   "raster"
