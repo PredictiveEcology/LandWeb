@@ -231,4 +231,12 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
 saveRDS(ml, simFile("ml_done", Paths$outputPath))
 print(runName)
 
+if (requireNamespace("slackr") & file.exists("~/.slackr")) {
+  slackr::slackr_setup()
+  slackr::text_slackr(
+    paste0("Post-processing for `", runName, "` completed on host `", Sys.info()[["nodename"]], "`."),
+    channel = config::get("slackchannel"), preformatted = FALSE
+  )
+}
+
 unlink(tempdir(), recursive = TRUE)
