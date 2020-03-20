@@ -17,7 +17,7 @@ getFRImultiple <- function(runName) {
     substr(., 4, 6) %>%
     as.numeric(.)
 
-  if (identical(frim, integer(0))) frim <- 1 ## use 1 when not specified, e.g. for old runs
+  if (identical(frim, numeric(0))) frim <- 1 ## use 1 when not specified, e.g. for old runs
 
   frim
 }
