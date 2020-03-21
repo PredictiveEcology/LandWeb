@@ -72,11 +72,12 @@ alex:
 
 eliot:
   inherits: test
-  batchmode: false ## if true, don't specify rep, studyarea, scenario*
+  batchmode: true ## if true, don't specify rep, studyarea, scenario*
   cachedb: "sqlite"
   cloud:
     googleuser: "eliotmcintire@gmail.com"
     usecloud: false
+  plot: false
   gitpkgpath: "~/GitHub"
   slackchannel: "@eliotmcintire"
   rep: 1
