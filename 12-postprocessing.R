@@ -73,37 +73,39 @@ if (!is(ml@metadata[["tsf"]], "Path"))
 ## create vtm and tsf stacks for animation
 ################################################################################
 
-tsfTimeSeries <- gsub(".*vegTypeMap.*", NA, allouts) %>%
-  grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
-vtmTimeSeries <- gsub(".*TimeSinceFire.*", NA, allouts) %>%
-  grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
+if (FALSE) {
+  tsfTimeSeries <- gsub(".*vegTypeMap.*", NA, allouts) %>%
+    grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
+  vtmTimeSeries <- gsub(".*TimeSinceFire.*", NA, allouts) %>%
+    grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
 
-if (length(tsfTimeSeries)) {
-  tsfStack <- raster::stack(tsfTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
-  gifName <- file.path(normPath(Paths$outputPath), "animation_tsf.gif")
-  future({
-    animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
-                       movie.name = gifName, expr = {
-                         brks <- c(0, 1, 40, 80, 120, 1000)
-                         cols <- RColorBrewer::brewer.pal(5, "RdYlGn")
-                         for (i in seq(numLayers(tsfStack))) {
-                           plot(mask(tsfStack[[i]], studyArea(ml, 2)), breaks = brks, col = cols)
-                         }
+  if (length(tsfTimeSeries)) {
+    tsfStack <- raster::stack(tsfTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
+    gifName <- file.path(normPath(Paths$outputPath), "animation_tsf.gif")
+    future({
+      animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
+                         movie.name = gifName, expr = {
+                           brks <- c(0, 1, 40, 80, 120, 1000)
+                           cols <- RColorBrewer::brewer.pal(5, "RdYlGn")
+                           for (i in seq(numLayers(tsfStack))) {
+                             plot(mask(tsfStack[[i]], studyArea(ml, 2)), breaks = brks, col = cols)
+                           }
+      })
     })
-  })
-  rm(tsfStack)
-}
+    rm(tsfStack)
+  }
 
-#if (length(vtmTimeSeries)) {
-#  vtmStack <- raster::stack(vtmTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_vtm.tif"))
-#  gifName <- file.path(normPath(Paths$outputPath), "animation_vtm.gif")
-#  animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
-#                     movie.name = gifName, expr = {
-#                       for (i in seq(numLayers(vtmStack)))
-#                         plot(mask(vtmStack[[i]], studyArea(ml, 2))) # TODO: this animation isn't great!
-#  })
-#  rm(vtmStack)
-#}
+  #if (length(vtmTimeSeries)) {
+  #  vtmStack <- raster::stack(vtmTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_vtm.tif"))
+  #  gifName <- file.path(normPath(Paths$outputPath), "animation_vtm.gif")
+  #  animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
+  #                     movie.name = gifName, expr = {
+  #                       for (i in seq(numLayers(vtmStack)))
+  #                         plot(mask(vtmStack[[i]], studyArea(ml, 2))) # TODO: this animation isn't great!
+  #  })
+  #  rm(vtmStack)
+  #}
+}
 
 ################################################################################
 ## begin post-processing
@@ -154,17 +156,19 @@ if (any(grepl("ANSR", names(ml)))) {
   }
 }
 
-if (any(grepl("Caribou$", names(ml)))) { ## be sure not to include "LandWeb Caribou Ranges" polygon
-  id <- which(grepl("Caribou$", names(ml)))
-  if (is.null(ml[[names(ml)[id]]][["Name"]])) {
-    ml[[names(ml)[id]]][["Name"]] <- ml[[names(ml)[id]]][["Name.1"]]
-    ml[[names(ml)[id]]][["Name.1"]] <- ml[[names(ml)[id]]][["Name.2"]] <- NULL
-  }
+if (any(grepl("Caribou$|Caribou Joined", names(ml)))) { ## be sure not to include "LandWeb Caribou Ranges" polygon
+  ids <- which(grepl("Caribou$|Caribou Joined", names(ml)))
+  lapply(ids, function(id) {
+    if (is.null(ml[[names(ml)[id]]][["Name"]])) {
+      ml[[names(ml)[id]]][["Name"]] <<- ml[[names(ml)[id]]][["Name.1"]]
+      ml[[names(ml)[id]]][["Name.1"]] <<- ml[[names(ml)[id]]][["Name.2"]] <- NULL
+    }
 
-  if (is.null(ml[[names(ml)[id]]][["shinyLabel"]])) {
-    ml[[names(ml)[id]]][["shinyLabel"]] <- ml[[names(ml)[id]]][["shinyLabel.1"]]
-    ml[[names(ml)[id]]][["shinyLabel.1"]] <- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
-  }
+    if (is.null(ml[[names(ml)[id]]][["shinyLabel"]])) {
+      ml[[names(ml)[id]]][["shinyLabel"]] <<- ml[[names(ml)[id]]][["shinyLabel.1"]]
+      ml[[names(ml)[id]]][["shinyLabel.1"]] <<- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
+    }
+  })
 }
 
 options(map.useParallel = FALSE)
