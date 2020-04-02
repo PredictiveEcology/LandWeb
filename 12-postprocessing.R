@@ -243,4 +243,4 @@ if (requireNamespace("slackr") & file.exists("~/.slackr")) {
   )
 }
 
-unlink(tempdir(), recursive = TRUE)
+#unlink(tempdir(), recursive = TRUE)
