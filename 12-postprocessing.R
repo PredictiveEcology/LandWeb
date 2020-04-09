@@ -233,7 +233,7 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
                             dPath = file.path(Paths$outputPath, "histograms"))
 
 saveRDS(ml, simFile("ml_done", Paths$outputPath))
-print(runName)
+message(crayon::red(runName))
 
 if (requireNamespace("slackr") & file.exists("~/.slackr")) {
   slackr::slackr_setup()

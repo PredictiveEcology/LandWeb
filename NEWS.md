@@ -1,8 +1,14 @@
 **Known issues:**
-<a href="https://github.com/eliotmcintire/LandWeb/issues" class="uri">https://github.com/eliotmcintire/LandWeb/issues</a>
-(private repository)
+<a href="https://github.com/PredictiveEcology/LandWeb/issues" class="uri">https://github.com/PredictiveEcology/LandWeb/issues</a>
 
 ------------------------------------------------------------------------
+
+### LandWeb v2.0.1
+
+**App changes**
+
+-   fixed issue with downloading model outputs.
+-   minor performance enhancements.
 
 ### LandWeb v2.0.0
 
@@ -16,7 +22,7 @@
 
 -   reparameterized the model to emulate a state-transition model to
     ensure burned pixels regenerate
--   several bug fixes and performance enhancments
+-   several bug fixes and performance enhancements
 
 **App changes**
 
