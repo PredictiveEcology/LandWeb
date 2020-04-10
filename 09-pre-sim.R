@@ -5,11 +5,11 @@
 do.call(SpaDES.core::setPaths, paths3) # Set them here so that we don't have to specify at each call to Cache
 
 times3 <- list(start = 0, end = endTime)
-modules3 <- list("Biomass_core",
-                 "LandMine",
-                 "Biomass_regeneration",
-                 "LandWeb_output",
-                 "timeSinceFire")
+modules3 <- if (isTRUE(succession)) {
+  list("Biomass_core", "LandMine", "Biomass_regeneration", "LandWeb_output", "timeSinceFire")
+} else {
+  list("LandMine", "LandWeb_output", "timeSinceFire")
+}
 
 ## check pixel resolution
 #stopifnot(unique(res(simOutSpeciesLayers[["speciesLayers"]])) %==% 250 / mapResFact)
