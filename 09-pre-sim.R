@@ -70,6 +70,13 @@ parameters3 <- list(
     "fireTimestep" = fireTimestep,
     "maxRetriesPerID" = 4,
     "minPropBurn" = 0.90,
+    "ROSother" = if (grepl("equalROS", runName)) {
+      1L
+    } else if (grepl("logROS", runName)) {
+      log(30L)
+    } else {
+      30L
+    },
     "sppEquivCol" = sppEquivCol,
     "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
     ".useCache" = eventCaching,
