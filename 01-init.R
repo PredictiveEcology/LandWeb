@@ -42,6 +42,7 @@ activeDir <- config::get("paths")[["activedir"]]
 ageClasses <- c("Young", "Immature", "Mature", "Old") ## LandWebUtils:::.ageClasses
 ageClassCutOffs <- c(0, 40, 80, 120)                  ## LandWebUtils:::.ageClassCutOffs
 cloudCacheFolderID <- config::get("cloud")[["cachedir"]]
+delayStart <- config::get("delaystart")
 deleteSpeciesLayers <- FALSE
 endTime <- config::get("params")[["endtime"]]
 eventCaching <- c(".inputObjects", "init")

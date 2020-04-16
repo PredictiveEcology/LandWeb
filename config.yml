@@ -5,6 +5,7 @@ default:
     cachedir: "/folders/1b2h5hJlarNMkxdUyJLO5pPUwrQV8m626"
     googleuser: ""
     usecloud: false
+  delaystart: 0
   frimultiple: 1
   gitpkgpath: "~/GitHub"
   mapresfact: 1
@@ -45,6 +46,7 @@ production:
   batchmode: true ## if true, don't specify mapresfact, rep, studyarea, scenario*
   cloud:
     usecloud: false
+  delaystart: !expr runif(1, 5*60, 10*60) # 5-10 minute delay to stagger starts
   #mapresfact: 1
   params:
     endtime: !expr 1000

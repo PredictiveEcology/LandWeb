@@ -25,6 +25,12 @@ source("02-packages.R")
 source("03-paths.R")
 source("04-options.R")
 source("05-sim-objects.R")
+
+if (delayStart > 0) {
+  message(crayon::green("\nStaggered job start: delaying by", as.integer(delayStart/60), "minutes."))
+  Sys.sleep(delayStart)
+}
+
 source("06-preamble.R")
 source("07-speciesLayers.R")
 
