@@ -58,7 +58,7 @@ rerunDataPrep <- FALSE
 rerunSpeciesLayers <- if (grepl("LandWeb", runName)) FALSE else TRUE
 restartInterval <- 100
 sppEquivCol <- "LandWeb"
-succession <- !grepl(runName, "nosuccession")
+succession <- !grepl("nosuccession", runName)
 successionTimestep <- config::get("params")[["successiontimestep"]]
 summaryPeriod <- config::get("params")[["summaryperiod"]]
 summaryInterval <- config::get("params")[["summaryinterval"]]
