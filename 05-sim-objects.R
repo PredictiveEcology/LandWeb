@@ -74,5 +74,8 @@ speciesParams <- if (grepl("aspenDispersal", runName)) {
 
 if (grepl("SprayLake", runName)) {
   message(crayon::red("Fir shade tolerance lowered below default (3). Using value 2."))
-  speciesParams <- append(speciesParams, list(shadetolerance = list(Abie_sp = 2)))
+  message(crayon::red("Spruce shade tolerance raised above default (2, 3). Using values 3, 4."))
+  speciesParams <- append(speciesParams, list(
+    shadetolerance = list(Abie_sp = 2, Pice_gla = 3, Pice_mar = 4))
+  )
 }
