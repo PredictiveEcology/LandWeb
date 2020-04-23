@@ -39,8 +39,8 @@ parameters2a <- list(
     "pixelGroupAgeClass" = successionTimestep * 2,  ## can be coarse because initial conditions are irrelevant
     "pixelGroupBiomassClass" = 1000 / mapResFact^2, ## can be coarse because initial conditions are irrelevant
     "sppEquivCol" = sppEquivCol,
-    "subsetDataAgeModel" = 100, ## TODO: test with `NULL` and `50`
-    "subsetDataBiomassModel" = 100, ## TODO: test with `NULL` and `50`
+    "subsetDataAgeModel" = 100,
+    "subsetDataBiomassModel" = 100,
     "speciesUpdateFunction" = list(
       quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
       quote(LandWebUtils::updateSpeciesTable(sim$species, P(sim)$runName, sim$speciesParams))
