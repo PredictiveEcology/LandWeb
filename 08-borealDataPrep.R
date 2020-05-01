@@ -47,6 +47,7 @@ parameters2a <- list(
     ),
     "useCloudCacheForStats" = useCloudCache, #TRUE,
     ".plotInitialTime" = .plotInitialTime,
+    ".studyAreaName" = studyAreaName,
     ".useCache" = eventCaching
   )
 )

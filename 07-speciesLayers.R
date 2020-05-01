@@ -16,14 +16,15 @@ objects2 <- list(
 parameters2 <- list(
   Biomass_speciesData = list(
     "omitNonVegPixels" = TRUE,
-    ".plotInitialTime" = .plotInitialTime,
-    "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
     "sppEquivCol" = sppEquivCol,
+    "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
+    ".plotInitialTime" = .plotInitialTime,
+    ".studyAreaName" = studyAreaName,
     ".useCache" = FALSE
   )
 )
 
-sppLayersFile <- file.path(Paths$inputPath, paste0("simOutSpeciesLayers_", substr(runName, 1, 8), ".rds"))
+sppLayersFile <- file.path(Paths$inputPath, paste0("simOutSpeciesLayers_", studyAreaName, ".rds"))
 if (isTRUE(rerunSpeciesLayers)) {
   ## delete existing species layers data and cache
   if (pemisc::user("achubaty") && isTRUE(deleteSpeciesLayers)) {
