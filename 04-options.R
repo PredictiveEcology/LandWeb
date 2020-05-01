@@ -41,7 +41,7 @@ opts <- options(
   "reproducible.destinationPath" = normPath(paths1$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) FALSE else FALSE,
-  "reproducible.inputPaths" = if (user("emcintir")) path.expand("~/data") else NULL,
+  "reproducible.inputPaths" = if (user("emcintir")) normPath("~/data") else NULL,
   "reproducible.nThreads" = 2,
   "reproducible.overwrite" = TRUE,
   "reproducible.quick" = FALSE,
