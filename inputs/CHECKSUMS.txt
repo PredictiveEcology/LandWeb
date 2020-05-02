@@ -108,3 +108,4 @@
 "Age1.tif.vat.dbf" "e6108ddbb7876409" "7958" "xxhash64"
 "Age1.tif.vat.dbf.xml" "7300048f73530907" "482" "xxhash64"
 "NFI_MODIS250m_2001_kNN_Structure_Stand_Age_v1.tif" "b1450f888ed6723d" "260719869" "xxhash64"
+"NFI_MODIS250m_2001_kNN_Structure_Biomass_TotalLiveAboveGround_v1.tif" "295106f5686a923b" "309928216" "xxhash64"
