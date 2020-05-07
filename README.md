@@ -20,7 +20,11 @@ All package code is automatically and regularly tested using cross-platform cont
 git clone --recurse-submodules -j8 https://github.com/PredictiveEcology/LandWeb
 
 ## development branch
-git clone --single-branch -b development --recurse-submodules -j8 https://github.com/PredictiveEcology/LandWeb
+git clone --single-branch -b development \
+  --recurse-submodules="." \
+  --recurse-submodules=":(exclude)app" \
+  --recurse-submodules=":(exclude)deploy" \
+  -j8 https://github.com/PredictiveEcology/LandWeb
 ```
 
 **NOTE:** you will need access to each of the following repositories:
