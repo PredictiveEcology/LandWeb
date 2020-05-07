@@ -43,7 +43,7 @@ parameters2a <- list(
     "subsetDataBiomassModel" = 100,
     "speciesUpdateFunction" = list(
       quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
-      quote(LandWebUtils::updateSpeciesTable(sim$species, P(sim)$runName, sim$speciesParams))
+      quote(LandR::updateSpeciesTable(sim$species, sim$speciesParams))
     ),
     "useCloudCacheForStats" = useCloudCache, #TRUE,
     ".plotInitialTime" = .plotInitialTime,
