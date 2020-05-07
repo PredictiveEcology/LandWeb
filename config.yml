@@ -46,7 +46,7 @@ production:
   batchmode: true ## if true, don't specify mapresfact, rep, studyarea, scenario*
   cloud:
     usecloud: false
-  delaystart: !expr runif(1, 5*60, 10*60) # 5-10 minute delay to stagger starts
+  delaystart: !expr runif(1, 5*60, 15*60) # 5-15 minute delay to stagger starts
   #mapresfact: 1
   params:
     endtime: !expr 1000
