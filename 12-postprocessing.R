@@ -22,6 +22,7 @@ if (grepl("Manning", runName)) {
   padL <- 3
   ## timeSeriesTimes stays at default (601:650)
 }
+padL <- 4 ## TODO: confirm this is always true now
 allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = padL)), collapse = "|"),
                  allouts, value = TRUE, invert = TRUE)
 stopifnot(length(allouts2) == 120) ## i.e., 60 reps worth of tsf and vtm maps
