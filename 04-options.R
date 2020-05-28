@@ -51,6 +51,7 @@ opts <- options(
   "reproducible.useGDAL" = FALSE, ## NOTE: gdal is faster, but mixing gdal with raster causes inconsistencies
   "reproducible.useMemoise" = FALSE,
   "reproducible.useNewDigestAlgorithm" = TRUE,
+  "reproducible.useRequire" = FALSE,
   "spades.moduleCodeChecks" = FALSE,
   "spades.nThreads" = 4,
   "spades.recoveryMode" = FALSE,
