@@ -24,7 +24,7 @@ parameters2 <- list(
   )
 )
 
-sppLayersFile <- file.path(Paths$inputPath, paste0("simOutSpeciesLayers_", studyAreaName, ".rds"))
+sppLayersFile <- file.path(Paths$inputPath, paste0("simOutSpeciesLayers_", studyAreaName, ".qs"))
 if (isTRUE(rerunSpeciesLayers)) {
   ## delete existing species layers data and cache
   if (pemisc::user("achubaty") && isTRUE(deleteSpeciesLayers)) {
@@ -56,15 +56,15 @@ if (isTRUE(rerunSpeciesLayers)) {
                                paths = paths2,
                                debug = 1)
 
-  saveRDS(Copy(simOutSpeciesLayers), sppLayersFile, version = 3)
+  saveSimList(Copy(simOutSpeciesLayers), sppLayersFile)
 } else {
-  dl <- downloadFile(url = "https://drive.google.com/file/d/1oSUfp9HTx1eu4zq5ylWtXirZaoPas_9c/view?usp=sharing",
+  dl <- downloadFile(url = "https://drive.google.com/file/d/19vJ8neNoi97nXHLFgTQp-lLepQ80CE7m/view?usp=sharing",
                      targetFile = basename(sppLayersFile),
                      destinationPath = dirname(sppLayersFile),
                      neededFiles = basename(sppLayersFile),
                      archive = NULL,
                      checkSums = Checksums(dirname(sppLayersFile), write = TRUE), needChecksums = 0)
-  simOutSpeciesLayers <- readRDS(sppLayersFile)
+  simOutSpeciesLayers <- loadSimList(sppLayersFile)
   rm(dl)
 }
 
