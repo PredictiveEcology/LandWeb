@@ -23,15 +23,15 @@ allFireSizes <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
 
   fireSizes <- NULL
   lapply(reps, function(rep) {
-    simFile <- file.path(outputDir, area, rep, "/mySimOut_1000.rds")
+    simFile <- file.path(outputDir, area, rep, "mySimOut_1000.rds")
 
     if (!file.exists(simFile))
-      simFile <- file.path(outputDir, area, rep, "/mySimOut_year1000.rds") ## try alt/older name
+      simFile <- file.path(outputDir, area, rep, "mySimOut_year1000.rds") ## try alt/older name
 
     if (file.exists(simFile)) {
-      message("Loading file", simFile, "...")
+      message("Loading file ", simFile, "...")
       mySimOut <- readRDS(simFile)
-      message("... loaded file", simFile, ".")
+      message("... loaded file ", simFile, ".")
 
       ## fire sizes
       if (!is.null(mySimOut$fireSizes)) {
