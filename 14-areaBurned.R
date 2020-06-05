@@ -24,7 +24,7 @@ parallel::clusterEvalQ(cl, {
   setDTthreads(2)
 })
 
-burnMaps <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
+burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
   reps <- list.dirs(file.path(outputDir, area), recursive = FALSE, full.names = FALSE) %>%
     grep("boxplots|histograms|tiles", ., invert = TRUE, value = TRUE)
 
@@ -56,6 +56,7 @@ burnMaps <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
   toRm <- which(is.na(mySimOut$rstFlammable[]) | mySimOut$rstFlammable[] == 0) ## non-flammable
   cumulBurns[toRm] <- NA
   mySimOut$rstFlammable[toRm] <- NA
+  mySimOut$fireReturnInterval[toRM] <- NA
   friDT <- data.table(pixelID = 1:ncell(mySimOut$fireReturnInterval),
                       expArea = mySimOut$rstFlammable[],
                       expFRI = mySimOut$fireReturnInterval[],
@@ -74,5 +75,4 @@ burnMaps <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
 
 parallel::stopCluster(cl)
 
-allFireSizes[, simArea := cleanAreaName(simArea)]
-fwrite(allFireSizes, file.path(outputDir, "allFireSizes.csv"))
+fwrite(burnDT, file.path(outputDir, "areaBurned.csv"))
