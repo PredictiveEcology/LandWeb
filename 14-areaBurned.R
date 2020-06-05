@@ -20,6 +20,7 @@ cl <- parallel::makeForkCluster(nnodes = nodes)
 parallel::clusterExport(cl, c("outputDir"))
 parallel::clusterEvalQ(cl, {
   library(data.table)
+  library(raster)
   setDTthreads(2)
 })
 
@@ -50,19 +51,23 @@ burnMaps <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
   f <- file.path(outputDir, area, reps[1], "mySimOut_1000.rds")
   mySimOut <- readRDS(f)
 
-  compareRaster(cumulBurns, mySimOut$fireReturnInterval, res = TRUE, orig = TRUE)
+  compareRaster(cumulBurns, mySimOut$fireReturnInterval, mySimOut$rstFlammable, res = TRUE, orig = TRUE)
 
+  toRm <- which(is.na(mySimOut$rstFlammable[]) | mySimOut$rstFlammable[] == 0) ## non-flammable
+  cumulBurns[toRm] <- NA
+  mySimOut$rstFlammable[toRm] <- NA
   friDT <- data.table(pixelID = 1:ncell(mySimOut$fireReturnInterval),
-                      expArea = 1,
+                      expArea = mySimOut$rstFlammable[],
                       expFRI = mySimOut$fireReturnInterval[],
                       nBurns = cumulBurns[]) %>%
-    na.omit(., cols = "expFRI")
-  areaDT <- friDT[, lapply(.SD, sum), by = expFRI, .SDcols = "expArea"]
-  sumDT <- friDT[, lapply(.SD, sum), by = expFRI, .SDcols = "nBurns"]
+    na.omit(., cols = c("nBurns"))
+  areaDT <- friDT[, lapply(.SD, sum, na.rm = TRUE), by = expFRI, .SDcols = "expArea"]
+  sumDT <- friDT[, lapply(.SD, sum, na.rm = TRUE), by = expFRI, .SDcols = "nBurns"]
   friDT2 <- merge(areaDT, sumDT)
   friDT2[, simFRI := nYears * expArea / nBurns]
+  friDT2[, propFRI := simFRI / expFRI]
   friDT2[, simArea := cleanAreaName(area)]
-  setcolorder(friDT2, c("simArea", "expFRI", "expArea", "nBurns", "simFRI"))
+  setcolorder(friDT2, c("simArea", "expFRI", "expArea", "nBurns", "simFRI", "propFRI"))
   friDT2
 }) %>%
   rbindlist()
