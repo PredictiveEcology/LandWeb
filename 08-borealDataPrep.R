@@ -31,7 +31,7 @@ parameters2a <- list(
       quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
                          (logAge + cover + speciesCode | ecoregionGroup)))
     },
-    "ecoregionLayerField" = "ECODISTRIC", #"ECOREGION"
+    "ecoregionLayerField" = "ECOREGION", # "ECODISTRIC"
     "forestedLCCClasses" = c(1:15, 20, 32, 34:36),
     "LCCClassesToReplaceNN" = 34:36,
     # next two are used when assigning pixelGroup membership; what resolution for
