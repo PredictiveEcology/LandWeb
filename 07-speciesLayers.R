@@ -33,11 +33,9 @@ if (isTRUE(rerunSpeciesLayers)) {
                           function(f) {
                             paste0(f, exts)
                           }, character(length(exts))) %>%
-      c(., "CurrentCondition.zip", paste0(c("Abie_sp", "Pice_gla", "Pice_mar", "Pinu_sp", "Popu_sp"), "_overlay.tif")) %>%
+      c(., "CurrentCondition.zip") %>%
       file.path(paths2$inputPath, .)
     vapply(forInvFiles, function(f) if (file.exists(f)) file.remove(f) else FALSE, logical(1))
-
-    unlink(paths2$cachePath, recursive = TRUE)
   }
 
   ## (re)create species layers

@@ -61,7 +61,7 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
                       expArea = mySimOut$rstFlammable[],
                       expFRI = mySimOut$fireReturnInterval[],
                       nBurns = cumulBurns[]) %>%
-    na.omit(., cols = c("nBurns"))
+    na.omit(., cols = "expFRI")
   areaDT <- friDT[, lapply(.SD, sum, na.rm = TRUE), by = expFRI, .SDcols = "expArea"]
   sumDT <- friDT[, lapply(.SD, sum, na.rm = TRUE), by = expFRI, .SDcols = "nBurns"]
   friDT2 <- merge(areaDT, sumDT)
