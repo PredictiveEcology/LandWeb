@@ -53,7 +53,7 @@ parameters2a <- list(
   )
 )
 
-dataPrepFile <- file.path(Paths$inputPath, paste0("simOutDataPrep_", substr(runName, 1, 8), ".rds"))
+dataPrepFile <- file.path(Paths$inputPath, paste0("simOutDataPrep_", substr(runName, 1, 8), ".qs"))
 if (isTRUE(rerunDataPrep) || !file.exists("dataPrepFile")) {
   ## (re)run boreal data prep
   simOutDataPrep <- Cache(simInitAndSpades,
@@ -71,10 +71,10 @@ if (isTRUE(rerunDataPrep) || !file.exists("dataPrepFile")) {
                           paths = paths2a,
                           debug = 1)
 
-  # saveRDS(Copy(simOutDataPrep), dataPrepFile, version = 3)
+  # saveSimList(simOutDataPrep, dataPrepFile)
 } else {
   if (runName == "random___res250_test") {
-    dl <- downloadFile(url = "https://drive.google.com/file/d/1nL7KM33BSWh2n5P7SEEiAnpOzhb_xu81/view?usp=sharing",
+    dl <- downloadFile(url = "", # TODO: upload this .qs file and get url
                        targetFile = basename(dataPrepFile),
                        destinationPath = dirname(dataPrepFile),
                        neededFiles = basename(dataPrepFile),
@@ -82,6 +82,6 @@ if (isTRUE(rerunDataPrep) || !file.exists("dataPrepFile")) {
                        checkSums = Checksums(dirname(dataPrepFile), write = TRUE), needChecksums = 0)
   }
   stopifnot(file.exists(dataPrepFile))
-  simOutDataPrep <- readRDS(dataPrepFile)
+  simOutDataPrep <- loadSimList(dataPrepFile)
   rm(dl)
 }
