@@ -54,7 +54,7 @@ parameters2a <- list(
 )
 
 dataPrepFile <- file.path(Paths$inputPath, paste0("simOutDataPrep_", substr(runName, 1, 8), ".qs"))
-if (isTRUE(rerunDataPrep) || !file.exists("dataPrepFile")) {
+if (isTRUE(rerunDataPrep) || !file.exists(dataPrepFile)) {
   ## (re)run boreal data prep
   simOutDataPrep <- Cache(simInitAndSpades,
                           times = list(start = 0, end = 1),
@@ -62,7 +62,7 @@ if (isTRUE(rerunDataPrep) || !file.exists("dataPrepFile")) {
                           modules = c("Biomass_borealDataPrep"),
                           objects = objects2a,
                           omitArgs = c("debug", "paths", ".plotInitialTime"),
-                          #useCache = "overwrite", ## TODO: remove this workaround
+                          useCache = "overwrite", ## NOTE: if rerunning, don't want cached version
                           useCloud = useCloudCache,
                           cloudFolderID = cloudCacheFolderID,
                           ## make .plotInitialTime an argument, not a parameter:
@@ -71,7 +71,7 @@ if (isTRUE(rerunDataPrep) || !file.exists("dataPrepFile")) {
                           paths = paths2a,
                           debug = 1)
 
-  # saveSimList(simOutDataPrep, dataPrepFile)
+  saveSimList(simOutDataPrep, dataPrepFile)
 } else {
   if (runName == "random___res250_test") {
     dl <- downloadFile(url = "", # TODO: upload this .qs file and get url
