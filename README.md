@@ -189,4 +189,3 @@ Pickell, P. D., & Coops, N. C. (2016) Development of historical forest attribute
 Scheller, R. M., & Mladenoff, D. J. (2004). A forest growth and biomass module for a landscape simulation model, LANDIS: Design, validation, and application. Ecological Modelling, 180, 211–229. <https://doi.org/10.1016/j.ecolmodel.2004.01.022>
 
 Scheller, R. M., Domingo, J. B., Sturtevant, B. R., Williams, J. S., Rudy, A., Gustafson, E. J., & Mladenoff, D. J. (2007). Design, development, and application of LANDIS-II, a spatial landscape simulation model with flexible temporal and spatial resolution. Ecological Modelling, 201, 409–419. <https://doi.org/10.1016/j.ecolmodel.2006.10.009>
-
