@@ -2,6 +2,7 @@ library(data.table)
 library(magrittr)
 library(raster)
 library(SpaDES.core)
+library(LandWebUtils)
 library(ggplot2)
 library(patchwork)
 
@@ -50,12 +51,6 @@ allFireSizes <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
 
 parallel::stopCluster(cl)
 
-cleanAreaName <- Vectorize(function(area) {
-  strsplit(area, "_")[[1]] %>%
-    grep("Dispersal|ROS", ., invert = TRUE, value = TRUE) %>%
-    paste(., collapse = "_")
-})
-
 allFireSizes[, simArea := cleanAreaName(simArea)]
 fwrite(allFireSizes, file.path(outputDir, "allFireSizes.csv"))
 
@@ -92,4 +87,3 @@ lapply(simAreas, function(area) {
 
 subsample <- 1:10000
 kSamples::ad.test(allFireSizes[simArea == area, ]$simSize[subsample], allFireSizes[simArea == area, ]$expSize[subsample])
-

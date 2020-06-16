@@ -2,18 +2,13 @@ library(data.table)
 library(magrittr)
 library(raster)
 library(SpaDES.core)
+library(LandWebUtils)
 library(ggplot2)
 library(patchwork)
 
-outputDir <- "~/GitHub/LandWeb/outputs"
+outputDir <- "outputs"
 simAreas <- list.dirs(outputDir, recursive = FALSE, full.names = FALSE) %>%
   grep("E14|L11|LandWeb|SprayLake", ., invert = TRUE, value = TRUE) ## omit some runs
-
-cleanAreaName <- Vectorize(function(area) {
-  strsplit(area, "_")[[1]] %>%
-    grep("Dispersal|ROS", ., invert = TRUE, value = TRUE) %>%
-    paste(., collapse = "_")
-})
 
 nodes <- min(getOption("Ncpus", parallel::detectCores() / 2), length(simAreas))
 cl <- parallel::makeForkCluster(nnodes = nodes)
