@@ -32,7 +32,7 @@ if (delayStart > 0) {
 }
 
 source("06-preamble.R")
-source("07-speciesLayers.R")
+source("07-speciesLayers.R") ## use PredictiveEcology/LandR@ssl-no-verify to run this
 
 message(crayon::red(runName))
 
