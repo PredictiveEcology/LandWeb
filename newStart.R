@@ -1,4 +1,4 @@
-switch(pemisc::user(),
+switch(peutils::user(),
        "achubaty" = Sys.setenv(R_CONFIG_ACTIVE = "alex"),
        "emcintir" = Sys.setenv(R_CONFIG_ACTIVE = "eliot"),
        Sys.setenv(R_CONFIG_ACTIVE = "test")
