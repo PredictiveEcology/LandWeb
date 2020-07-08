@@ -83,5 +83,5 @@ if (isTRUE(rerunDataPrep) || !file.exists(dataPrepFile)) {
   }
   stopifnot(file.exists(dataPrepFile))
   simOutDataPrep <- loadSimList(dataPrepFile)
-  rm(dl)
+  if (exists("dl")) rm(dl)
 }
