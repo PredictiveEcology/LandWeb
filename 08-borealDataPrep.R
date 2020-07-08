@@ -74,7 +74,7 @@ if (isTRUE(rerunDataPrep) || !file.exists(dataPrepFile)) {
   saveSimList(simOutDataPrep, dataPrepFile)
 } else {
   if (runName == "random___res250_test") {
-    dl <- downloadFile(url = "", # TODO: upload this .qs file and get url
+    dl <- downloadFile(url = "https://drive.google.com/file/d/1KzYpZa3n64popHZzjSw3-ZLwwq4XehTK/view?usp=sharing",
                        targetFile = basename(dataPrepFile),
                        destinationPath = dirname(dataPrepFile),
                        neededFiles = basename(dataPrepFile),
