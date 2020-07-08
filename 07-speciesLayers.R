@@ -25,7 +25,7 @@ parameters2 <- list(
 )
 
 sppLayersFile <- file.path(Paths$inputPath, paste0("simOutSpeciesLayers_", studyAreaName, ".qs"))
-if (isTRUE(rerunSpeciesLayers)) {
+if (isTRUE(rerunSpeciesLayers) || isFALSE(grepl("LandWeb", runName))) {
   ## delete existing species layers data and cache
   if (pemisc::user("achubaty") && isTRUE(deleteSpeciesLayers)) {
     exts <- c(".tif", ".tif.vat.dbf", ".tif.vat.cpg", ".tif.ovr", ".tif.aux.xml", ".tfw")
@@ -56,7 +56,8 @@ if (isTRUE(rerunSpeciesLayers)) {
 
   saveSimList(Copy(simOutSpeciesLayers), sppLayersFile)
 } else {
-  dl <- downloadFile(url = "https://drive.google.com/file/d/1I8o81pJKvwFEBnpaV8q6jBvJgQ4L4-qY/view?usp=sharing",
+  ## LandWeb study area file
+  dl <- downloadFile(url = "https://drive.google.com/file/d/19vJ8neNoi97nXHLFgTQp-lLepQ80CE7m/view?usp=sharing",
                      targetFile = basename(sppLayersFile),
                      destinationPath = dirname(sppLayersFile),
                      neededFiles = basename(sppLayersFile),
