@@ -70,6 +70,7 @@ devtools::has_devel()
 If the above line is successful, install the following packages from GitHub:
 
 ```{r github-pkgs}
+devtools::install_github("PredictiveEcology/Require@development")
 devtools::install_github("PredictiveEcology/reproducible@development")
 devtools::install_github("PredictiveEcology/SpaDES.core@development")
 
