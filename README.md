@@ -52,11 +52,11 @@ _Packages_
 ### Prerequisites
 
 The code is mostly self-sufficient: additional packages than those below are needed, but will be installed automatically.
-See `03-packages.R` to see which additional packages will be used.
+See `02-packages.R` to see which additional packages will be used.
 
 ```r
-pkgs <- c("config", "data.table", "devtools", "dplyr", "magrittr", "maptools",
-          "plyr", "pryr", "qs", "raster", "reproducible")
+pkgs <- c("config", "data.table", "devtools", "dplyr", "logging",
+          "magrittr", "maptools", "plyr", "pryr", "qs", "raster")
 
 install.packages(pkgs)
 ```
@@ -80,7 +80,6 @@ devtools::install_github("PredictiveEcology/pemisc@development")
 devtools::install_github("PredictiveEcology/LandR@LandWeb")
 devtools::install_github("PredictiveEcology/LandWebUtils@development")
 
-devtools::install_github("achubaty/amc@development")
 devtools::install_github("s-u/fastshp")
 ```
 
