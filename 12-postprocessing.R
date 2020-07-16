@@ -119,7 +119,11 @@ paths4 <- list(
     outputPath = file.path("outputs", runName)
 )
 do.call(SpaDES.core::setPaths, paths4)
-tilePath <- file.path(Paths$outputPath, "tiles")
+
+tilePath <- asPath(file.path(Paths$outputPath, "tiles"))
+
+if (isTRUE(osVersion == "Ubuntu 20.04 LTS"))
+  tiler::tiler_options(python = Sys.which("python3"))
 
 vtmCC <- vegTypeMapGenerator(simOutSpeciesLayers$speciesLayers, vegLeadingProportion, mixedType = 2,
                              sppEquiv = sppEquivalencies_CA, sppEquivCol = "LandWeb", colors = sppColorVect,
@@ -141,7 +145,7 @@ ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
              CC = TRUE,
              overwrite = TRUE,
              #useCache = "overwrite",
-             leaflet = asPath(tilePath))
+             leaflet = tilePath)
 
 ## WORKAROUND for some funny business with col names. TODO: track down source.
 if (any(grepl("ANSR", names(ml)))) {
@@ -179,7 +183,7 @@ ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
              filename2 = NULL, tsf = asPath(tsf), vtm = asPath(vtm),
              overwrite = TRUE,
              #useCache = "overwrite",
-             leaflet = FALSE) # asPath(tilePath)
+             leaflet = FALSE) # tilePath
 #options(map.useParallel = mapParallel)
 
 saveRDS(ml, simFile("ml", Paths$outputPath))
