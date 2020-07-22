@@ -11,6 +11,7 @@ default:
   mapresfact: 1
   paths:
     activedir: "~/GitHub/LandWeb"
+    cachedir: "cache"
     scratchdir: "/tmp/scratch/LandWeb"
   plot: true
   postprocess: false
@@ -86,3 +87,15 @@ eliot:
   # studyarea: "LandWeb"
   # scenariodisp: "highDispersal"
   # scenariofire: "logROS"
+
+docker:
+  inherits: production
+  cachedb: "sqlite"
+  cloud:
+    googleuser: "alex.chubaty@gmail.com"
+    #googleuser: "achubaty@for-cast.ca"
+    usecloud: false
+  paths:
+    cachedir: "cache_sqlite"
+    scratchdir: "/tmp/scratch/LandWeb"
+  slackchannel: "@alex.chubaty"
