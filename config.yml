@@ -70,7 +70,7 @@ alex:
     usecloud: false
   gitpkgpath: "~/GitHub/PredictiveEcology"
   paths:
-    scratchdir: "/mnt/scratch/LandWeb"
+    scratchdir: !expr if (Sys.info()[["nodename"]] == "forcast03") "/tmp/scratch/LandWeb" else "/mnt/scratch/LandWeb"
   slackchannel: "@alex.chubaty"
 
 eliot:
