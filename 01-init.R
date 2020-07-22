@@ -41,6 +41,7 @@ getMapResFact <- function(runName) {
 activeDir <- config::get("paths")[["activedir"]]
 ageClasses <- c("Young", "Immature", "Mature", "Old") ## LandWebUtils:::.ageClasses
 ageClassCutOffs <- c(0, 40, 80, 120)                  ## LandWebUtils:::.ageClassCutOffs
+cacheDir <- config::get("paths")[["cachedir"]]
 cloudCacheFolderID <- config::get("cloud")[["cachedir"]]
 delayStart <- config::get("delaystart")
 deleteSpeciesLayers <- FALSE
@@ -57,6 +58,7 @@ postProcessOnly <- config::get("postprocess")
 rerunDataPrep <- FALSE
 rerunSpeciesLayers <- if (grepl("LandWeb", runName)) FALSE else TRUE
 restartInterval <- 100
+scratchDir <- config::get("paths")[["scratchdir"]]
 sppEquivCol <- "LandWeb"
 studyAreaName <- if (grepl("FMU", runName)) {
   paste(strsplit(runName, "_")[[1]][1:2], collapse = "_")

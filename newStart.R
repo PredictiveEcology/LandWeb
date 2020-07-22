@@ -1,6 +1,7 @@
 switch(peutils::user(),
        "achubaty" = Sys.setenv(R_CONFIG_ACTIVE = "alex"),
        "emcintir" = Sys.setenv(R_CONFIG_ACTIVE = "eliot"),
+       "rstudio" = Sys.setenv(R_CONFIG_ACTIVE = "docker"), ## i.e., using LandWeb docker container
        Sys.setenv(R_CONFIG_ACTIVE = "test")
 )
 # Sys.getenv("R_CONFIG_ACTIVE") ## verify

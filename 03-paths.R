@@ -5,7 +5,7 @@
 ## preamble
 paths1 <- list(
   ## use same cachePath for all data-prep steps before dynamic simulation
-  cachePath = file.path("cache", "dataPrepGIS", "preamble"),
+  cachePath = file.path(cacheDir, "dataPrepGIS", "preamble"),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = file.path("outputs", runName)
@@ -14,7 +14,7 @@ paths1 <- list(
 ## species layers
 paths2 <- list(
   ## use same cachePath for all data-prep steps before dynamic simulation
-  cachePath = file.path("cache", "dataPrepGIS", "speciesLayers"),
+  cachePath = file.path(cacheDir, "dataPrepGIS", "speciesLayers"),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = file.path("outputs", runName)
@@ -23,7 +23,7 @@ paths2 <- list(
 ## boreal data prep
 paths2a <- list(
   ## use same cachePath for all data-prep steps before dynamic simulation
-  cachePath = file.path("cache", "dataPrepGIS", "borealDataPrep"),
+  cachePath = file.path(cacheDir, "dataPrepGIS", "borealDataPrep"),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = file.path("outputs", runName)
@@ -32,7 +32,7 @@ paths2a <- list(
 ## main simulation
 paths3 <- list(
   ## NOTE: use separate cachePath for each dynamic simulation
-  cachePath = file.path("cache", runName),
+  cachePath = file.path(cacheDir, runName),
   modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
   inputPath = "inputs",
   outputPath = file.path("outputs", runName)

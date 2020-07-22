@@ -21,7 +21,6 @@ rep <- config::get("rep")
 .plotInitialTime <- if (isTRUE(config::get("plot"))) 0 else NA
 
 maxMemory <- if (grepl("LandWeb", runName)) 5e+12 else 5e+9
-scratchDir <- config::get("paths")[["scratchdir"]]
 
 rasterOptions(default = TRUE)
 opts <- options(
