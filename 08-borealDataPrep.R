@@ -54,34 +54,19 @@ parameters2a <- list(
 )
 
 dataPrepFile <- file.path(Paths$inputPath, paste0("simOutDataPrep_", substr(runName, 1, 8), ".qs"))
-if (isTRUE(rerunDataPrep) || !file.exists(dataPrepFile)) {
-  ## (re)run boreal data prep
-  simOutDataPrep <- Cache(simInitAndSpades,
-                          times = list(start = 0, end = 1),
-                          params = parameters2a,
-                          modules = c("Biomass_borealDataPrep"),
-                          objects = objects2a,
-                          omitArgs = c("debug", "paths", ".plotInitialTime"),
-                          useCache = "overwrite", ## NOTE: if rerunning, don't want cached version
-                          useCloud = useCloudCache,
-                          cloudFolderID = cloudCacheFolderID,
-                          ## make .plotInitialTime an argument, not a parameter:
-                          ##  - Cache will see them as unchanged regardless of value
-                          .plotInitialTime = .plotInitialTime,
-                          paths = paths2a,
-                          debug = 1)
-
-  saveSimList(simOutDataPrep, dataPrepFile)
-} else {
-  if (runName == "random___res250_test") {
-    dl <- downloadFile(url = "https://drive.google.com/file/d/1KzYpZa3n64popHZzjSw3-ZLwwq4XehTK/view?usp=sharing",
-                       targetFile = basename(dataPrepFile),
-                       destinationPath = dirname(dataPrepFile),
-                       neededFiles = basename(dataPrepFile),
-                       archive = NULL,
-                       checkSums = Checksums(dirname(dataPrepFile), write = TRUE), needChecksums = 0)
-  }
-  stopifnot(file.exists(dataPrepFile))
-  simOutDataPrep <- loadSimList(dataPrepFile)
-  if (exists("dl")) rm(dl)
-}
+## (re)run boreal data prep
+simOutDataPrep <- Cache(simInitAndSpades,
+                        times = list(start = 0, end = 1),
+                        params = parameters2a,
+                        modules = c("Biomass_borealDataPrep"),
+                        objects = objects2a,
+                        omitArgs = c("debug", "paths", ".plotInitialTime"),
+                        useCache = if (isTRUE(rerunDataPrep)) "overwrite" else TRUE,
+                        useCloud = useCloudCache,
+                        cloudFolderID = cloudCacheFolderID,
+                        ## make .plotInitialTime an argument, not a parameter:
+                        ##  - Cache will see them as unchanged regardless of value
+                        .plotInitialTime = .plotInitialTime,
+                        paths = paths2a,
+                        debug = 1)
+saveSimList(simOutDataPrep, dataPrepFile) ## TODO: fix issue loading simList
