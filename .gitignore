@@ -17,6 +17,7 @@
 ## cache files
 cache/
 cache
+cache_sqlite
 
 ## profiling files
 profiles/

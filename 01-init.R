@@ -55,7 +55,7 @@ mapResFact <- getMapResFact(runName)
 maxAge <- 400
 minFRI <- 25
 postProcessOnly <- config::get("postprocess")
-rerunDataPrep <- FALSE
+rerunDataPrep <- if (grepl("LandWeb", runName)) FALSE else TRUE
 rerunSpeciesLayers <- if (grepl("LandWeb", runName)) FALSE else TRUE
 restartInterval <- 100
 scratchDir <- config::get("paths")[["scratchdir"]]
