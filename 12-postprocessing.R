@@ -122,7 +122,7 @@ do.call(SpaDES.core::setPaths, paths4)
 
 tilePath <- asPath(file.path(Paths$outputPath, "tiles"))
 
-if (isTRUE(osVersion == "Ubuntu 20.04 LTS"))
+if (isTRUE(grepl("Ubuntu 20.04", osVersion)))
   tiler::tiler_options(python = Sys.which("python3"))
 
 vtmCC <- vegTypeMapGenerator(simOutSpeciesLayers$speciesLayers, vegLeadingProportion, mixedType = 2,
