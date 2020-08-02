@@ -187,7 +187,7 @@ ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
 #options(map.useParallel = mapParallel)
 
 saveRDS(ml, simFile("ml", Paths$outputPath))
-#ml <- readRDS(simFile("ml", Paths$outputPath))
+#ml <- readRDS(simFile("ml", Paths$outputPath)) ## TODO: use loadSimList throughout
 
 options(map.useParallel = FALSE)
 ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",

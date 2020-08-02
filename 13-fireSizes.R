@@ -51,6 +51,7 @@ allFireSizes <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
 
 parallel::stopCluster(cl)
 
+setDTthreads(8)
 allFireSizes[, simArea := cleanAreaName(simArea)]
 fwrite(allFireSizes, file.path(outputDir, "allFireSizes.csv"))
 
