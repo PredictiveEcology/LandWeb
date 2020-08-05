@@ -28,7 +28,7 @@ source("04-options.R")
 source("05-sim-objects.R")
 
 if (delayStart > 0) {
-  message(crayon::green("\nStaggered job start: delaying by", as.integer(delayStart/60), "minutes."))
+  message(crayon::green("\nStaggered job start: delaying by", as.integer(delayStart*60), "minutes."))
   Sys.sleep(delayStart)
 }
 
