@@ -2,7 +2,7 @@ default:
   batchmode: false
   cachedb: "sqlite"
   cloud:
-    cachedir: "/folders/1b2h5hJlarNMkxdUyJLO5pPUwrQV8m626"
+    cachedir: "LandWeb_cloudCache"
     googleuser: ""
     usecloud: false
   delaystart: 0
@@ -46,7 +46,7 @@ test:
 production:
   batchmode: true ## if true, don't specify mapresfact, rep, studyarea, scenario*
   cloud:
-    usecloud: false
+    usecloud: true
   delaystart: !expr sample.int((5*60):(15*60), 1) # 5-15 minute delay to stagger starts
   #mapresfact: 1
   params:
@@ -65,9 +65,8 @@ alex:
   inherits: production
   cachedb: "postgresql"
   cloud:
-    googleuser: "alex.chubaty@gmail.com"
-    #googleuser: "achubaty@for-cast.ca"
-    usecloud: false
+    googleuser: "achubaty@for-cast.ca"
+    usecloud: true
   gitpkgpath: "~/GitHub/PredictiveEcology"
   paths:
     scratchdir: !expr if (Sys.info()[["nodename"]] == "forcast03") "/tmp/scratch/LandWeb" else "/mnt/scratch/LandWeb"
