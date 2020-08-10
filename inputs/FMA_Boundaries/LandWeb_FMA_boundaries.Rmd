@@ -34,7 +34,7 @@ plot(shp1, col = "lightgrey")
 
 ### `FMA_Boundary_Updated`
 
-This is the one used in the app, and available at <https://drive.google.com/file/d/1nTFOcrdMf1hIsxd_yNCSTr8RrYNHHwuc/view?usp=sharing>.
+This is the one used in the app, and available at <https://drive.google.com/file/d/1nTFOcrdMf1hIsxd_yNCSTr8RrYNHHwuc>.
 It is downloaded and processed in `LandWeb_shiny` module.
 
 ```{r fma2}

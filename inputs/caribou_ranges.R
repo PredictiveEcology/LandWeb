@@ -7,7 +7,7 @@ library(stringr)
 
 ml <- mapAdd(layerName = "Boreal Caribou Ranges",
              useSAcrs = TRUE, poly = TRUE, overwrite = TRUE,
-             url = "https://drive.google.com/file/d/1PYLou8J1wcrme7Z2tx1wtA4GvaWnU1Jy/view?usp=sharing",
+             url = "https://drive.google.com/file/d/1PYLou8J1wcrme7Z2tx1wtA4GvaWnU1Jy",
              columnNameForLabels = "Name", isStudyArea = FALSE, filename2 = NULL)
 prj <- proj4string(ml[["Boreal Caribou Ranges"]])
 
