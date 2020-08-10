@@ -2,7 +2,7 @@ default:
   batchmode: false
   cachedb: "sqlite"
   cloud:
-    cachedir: "folders/1bBq8xOyiyNL6VmlBw9oFh8WauG0bAEYq"
+    cachedir: "/folders/1b2h5hJlarNMkxdUyJLO5pPUwrQV8m626"
     googleuser: ""
     usecloud: false
   delaystart: 0
