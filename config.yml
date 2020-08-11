@@ -66,7 +66,7 @@ alex:
   cachedb: "postgresql"
   cloud:
     googleuser: "achubaty@for-cast.ca"
-    usecloud: true
+    usecloud: false
   gitpkgpath: "~/GitHub/PredictiveEcology"
   paths:
     scratchdir: !expr if (Sys.info()[["nodename"]] == "forcast03") "/tmp/scratch/LandWeb" else "/mnt/scratch/LandWeb"
