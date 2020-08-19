@@ -74,8 +74,8 @@ devtools::install_github("PredictiveEcology/Require@development")
 devtools::install_github("PredictiveEcology/reproducible@development")
 devtools::install_github("PredictiveEcology/SpaDES.core@development")
 
-devtools::install_github("PredictiveEcology/map@development")
 devtools::install_github("PredictiveEcology/pemisc@development")
+devtools::install_github("PredictiveEcology/map@development")
 
 devtools::install_github("PredictiveEcology/LandR@LandWeb")
 devtools::install_github("PredictiveEcology/LandWebUtils@development")
