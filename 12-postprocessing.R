@@ -4,9 +4,11 @@
 
 analysesOutputsTimes <- seq(summaryPeriod[1], summaryPeriod[2], by = summaryInterval)
 
-library(future)
-options("future.availableCores.custom" = function() { min(getOption("Ncpus"), 4) })
-future::plan("multiprocess")
+if (FALSE) { ## futures don't work properly in Rstudio
+  library(future)
+  options("future.availableCores.custom" = function() { min(getOption("Ncpus"), 4) })
+  future::plan("multiprocess")
+}
 
 stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 
