@@ -149,7 +149,7 @@ ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
              #useCache = "overwrite",
              leaflet = tilePath)
 
-## WORKAROUND for some funny business with col names. TODO: track down source.
+## TODO: WORKAROUND for some funny business with col names.
 if (any(grepl("ANSR", names(ml)))) {
   id <- which(grepl("ANSR", names(ml)))
   if (is.null(ml[[names(ml)[id]]][["Name"]])) {
@@ -176,6 +176,45 @@ if (any(grepl("Caribou$|Caribou Joined", names(ml)))) { ## be sure not to includ
       ml[[names(ml)[id]]][["shinyLabel.1"]] <<- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
     }
   })
+}
+
+if (any(grepl("LUF", names(ml)))) {
+  id <- which(grepl("LUF", names(ml)))
+  if (is.null(ml[[names(ml)[id]]][["Name"]])) {
+    ml[[names(ml)[id]]][["Name"]] <- ml[[names(ml)[id]]][["Name.1"]]
+    ml[[names(ml)[id]]][["Name.1"]] <- ml[[names(ml)[id]]][["Name.2"]] <- NULL
+  }
+
+  if (is.null(ml[[names(ml)[id]]][["shinyLabel"]])) {
+    ml[[names(ml)[id]]][["shinyLabel"]] <- ml[[names(ml)[id]]][["shinyLabel.1"]]
+    ml[[names(ml)[id]]][["shinyLabel.1"]] <- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
+  }
+}
+
+if (any(grepl("FMU", names(ml)))) {
+  id <- which(grepl("FMU", names(ml)))
+  if (is.null(ml[[names(ml)[id]]][["Name"]])) {
+    ml[[names(ml)[id]]][["Name"]] <- ml[[names(ml)[id]]][["Name.1"]]
+    ml[[names(ml)[id]]][["Name.1"]] <- ml[[names(ml)[id]]][["Name.2"]] <- NULL
+  }
+
+  if (is.null(ml[[names(ml)[id]]][["shinyLabel"]])) {
+    ml[[names(ml)[id]]][["shinyLabel"]] <- ml[[names(ml)[id]]][["shinyLabel.1"]]
+    ml[[names(ml)[id]]][["shinyLabel.1"]] <- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
+  }
+}
+
+if (any(grepl("SUBR", names(ml)))) {
+  id <- which(grepl("SUBR", names(ml)))
+  if (is.null(ml[[names(ml)[id]]][["Name"]])) {
+    ml[[names(ml)[id]]][["Name"]] <- ml[[names(ml)[id]]][["Name.1"]]
+    ml[[names(ml)[id]]][["Name.1"]] <- ml[[names(ml)[id]]][["Name.2"]] <- NULL
+  }
+
+  if (is.null(ml[[names(ml)[id]]][["shinyLabel"]])) {
+    ml[[names(ml)[id]]][["shinyLabel"]] <- ml[[names(ml)[id]]][["shinyLabel.1"]]
+    ml[[names(ml)[id]]][["shinyLabel.1"]] <- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
+  }
 }
 
 options(map.useParallel = FALSE)
