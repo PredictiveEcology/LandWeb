@@ -13,16 +13,16 @@ if (FALSE) { ## futures don't work properly in Rstudio
 stopifnot(packageVersion("map") >= "0.0.2")
 stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 
-#allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
-allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
-allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
-allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
-
 padL <- ifelse(grepl("prov", runName), 3, 4) ## TODO: confirm this is always true now
 
 if (grepl("Manning", runName)) {
   timeSeriesTimes <- 450:500
 }
+
+#allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
+allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
+allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
+allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
 allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = padL)), collapse = "|"),
                  allouts, value = TRUE, invert = TRUE)
 stopifnot(length(allouts2) == 120) ## i.e., 60 reps worth of tsf and vtm maps
