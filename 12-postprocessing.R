@@ -22,7 +22,7 @@ padL <- 4 ## TODO: confirm this is always true now
 if (grepl("Manning", runName)) {
   timeSeriesTimes <- 450:500
 }
-if (grepl("provAB", runName)) {
+if (grepl("prov", runName)) {
   padL <- 3
 }
 allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = padL)), collapse = "|"),
