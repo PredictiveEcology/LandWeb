@@ -221,7 +221,6 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             #purgeAnalyses = "rbindlistAG",
                             postHocAnalyses = "all")
-debug(runBoxPlotsVegCover) ## TODO: fix `map` to use alist
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "rbindlistAG",
