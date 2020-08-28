@@ -18,12 +18,10 @@ allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
 allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
 
-padL <- 4 ## TODO: confirm this is always true now
+padL <- ifelse(grepl("prov", runName), 3, 4) ## TODO: confirm this is always true now
+
 if (grepl("Manning", runName)) {
   timeSeriesTimes <- 450:500
-}
-if (grepl("prov", runName)) {
-  padL <- 3
 }
 allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = padL)), collapse = "|"),
                  allouts, value = TRUE, invert = TRUE)
