@@ -10,21 +10,21 @@ if (FALSE) { ## futures don't work properly in Rstudio
   future::plan("multiprocess")
 }
 
+stopifnot(packageVersion("map") >= "0.0.2")
 stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 
 #allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
 allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
 allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
-## TEMPOROARY bypass for previous Manning runs
-if (grepl("Manning", runName)) {
-  padL <- 4
-  timeSeriesTimes <- 450:500
-} else {
-  padL <- 3
-  ## timeSeriesTimes stays at default (601:650)
-}
+
 padL <- 4 ## TODO: confirm this is always true now
+if (grepl("Manning", runName)) {
+  timeSeriesTimes <- 450:500
+}
+if (grepl("provAB", runName)) {
+  padL <- 3
+}
 allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = padL)), collapse = "|"),
                  allouts, value = TRUE, invert = TRUE)
 stopifnot(length(allouts2) == 120) ## i.e., 60 reps worth of tsf and vtm maps
@@ -223,11 +223,12 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             #purgeAnalyses = "rbindlistAG",
                             postHocAnalyses = "all")
+debug(runBoxPlotsVegCover) ## TODO: fix `map` to use alist
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "rbindlistAG",
                             #purgeAnalyses = "runBoxPlotsVegCover",
-                            dPath = file.path(Paths$outputPath, "boxplots"))
+                            dPath = file.path(Paths$outputPath, "boxplots")) ## TODO: Error in grepl("CC", group) : object 'group' not found
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsVegCover",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "rbindlistAG",
