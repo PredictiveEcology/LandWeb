@@ -225,7 +225,7 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runBoxPlotsVegCover",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "rbindlistAG",
                             #purgeAnalyses = "runBoxPlotsVegCover",
-                            dPath = file.path(Paths$outputPath, "boxplots")) ## TODO: Error in grepl("CC", group) : object 'group' not found
+                            dPath = file.path(Paths$outputPath, "boxplots"))
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsVegCover",
                             postHocAnalysisGroups = "analysisGroupReportingPolygon",
                             postHocAnalyses = "rbindlistAG",
