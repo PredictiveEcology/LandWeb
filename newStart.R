@@ -4,7 +4,7 @@ switch(peutils::user(),
        "rstudio" = Sys.setenv(R_CONFIG_ACTIVE = "docker"), ## i.e., using LandWeb docker container
        Sys.setenv(R_CONFIG_ACTIVE = "test")
 )
-# Sys.getenv("R_CONFIG_ACTIVE") ## verify
+#Sys.getenv("R_CONFIG_ACTIVE") ## verify
 
 if (isFALSE(config::get("batchmode"))) {
   runName <- paste0(
