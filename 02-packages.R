@@ -3,6 +3,9 @@
 ## don't need to load packages for modules; done automatically, but ensure they are installed
 ####################################################################################################
 
+# install.packages("rgdal", repos="http://R-Forge.R-project.org")
+stopifnot(packageVersion("rgdal") >= package_version("1.5-17")) ## need development version
+
 library(DBI)
 library(plyr); library(dplyr) ## ensure plyr loaded before dplyr or there will be problemas
 library(data.table)
