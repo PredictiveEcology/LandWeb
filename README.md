@@ -1,4 +1,4 @@
-## LandWeb v2.0.0
+## LandWeb v2.1.0
 
 ### Exploring Natural Range of Variation in the Western Boreal Forest
 
