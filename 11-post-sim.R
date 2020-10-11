@@ -15,10 +15,10 @@ mySim_landweb <- if (!file.exists(fsim)) {
         paths = paths3,
         loadOrder = unlist(modules_landweb),
         omitArgs = c("debug", "paths", ".plotInitialTime")
-  )
-  saveRDS(Copy(mySim_landweb), fsim)
+  ) ## TODO: spurious error re: params needs to be a list of lists (it is!)
+  saveSimList(Copy(mySim_landweb), fsim)
 } else {
-  readRDS(fsim)
+  loadSimList(fsim)
 }
 
 png(file.path("docs", "LandWeb_module_diagram.png"), height = 800, width = 800)
