@@ -7,12 +7,15 @@
 *.ini
 *.log
 *.ovr
+*.qs
 *.rds
 *.tar
 *.tfw
 *.tif
 *.xml
 *.zip
+
+docs/\.~lock\.LandWeb_module_diagram\.odp#
 
 ## cache files
 cache/
@@ -55,5 +58,3 @@ Thumbs.db
 
 ## !! Module data should be gitignored in the respective module's data dir !!
 ## !! inputs/ has its own .gitignore file too !!
-
-docs/\.~lock\.LandWeb_module_diagram\.odp#
