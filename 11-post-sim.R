@@ -4,7 +4,7 @@
 
 modules_landweb <- c("LandWeb_preamble", "Biomass_speciesData", modules3)
 
-fsim <- simFile("mySim_landweb", "docs", 0)
+fsim <- simFile("mySim_landweb", "docs", 0, ext = "qs")
 if (!file.exists(fsim)) {
   parameters3$.restartR <- NULL ## TODO: necessary to avoid error about params not being a list ???
   mySim_landweb <- Cache(simInit,
