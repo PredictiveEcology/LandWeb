@@ -5,20 +5,21 @@
 modules_landweb <- c("LandWeb_preamble", "Biomass_speciesData", modules3)
 
 fsim <- simFile("mySim_landweb", "docs", 0)
-mySim_landweb <- if (!file.exists(fsim)) {
-  Cache(simInit,
-        times = times3,
-        params = parameters3,
-        modules = modules_landweb,
-        outputs = outputs3,
-        objects = objects3,
-        paths = paths3,
-        loadOrder = unlist(modules_landweb),
-        omitArgs = c("debug", "paths", ".plotInitialTime")
+if (!file.exists(fsim)) {
+  parameters3$.restartR <- NULL ## TODO: necessary to avoid error about params not being a list ???
+  mySim_landweb <- Cache(simInit,
+                         times = times3,
+                         params = parameters3,
+                         modules = modules_landweb,
+                         outputs = outputs3,
+                         objects = objects3,
+                         paths = paths3,
+                         loadOrder = unlist(modules_landweb),
+                         omitArgs = c("debug", "paths", ".plotInitialTime")
   )
-  saveRDS(Copy(mySim_landweb), fsim)
+  saveSimList(Copy(mySim_landweb), fsim)
 } else {
-  readRDS(fsim)
+  mySim_landweb <- loadSimList(fsim)
 }
 
 png(file.path("docs", "LandWeb_module_diagram.png"), height = 800, width = 800)
