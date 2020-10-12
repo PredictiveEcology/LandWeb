@@ -144,6 +144,6 @@ if (file.exists(fseed)) {
   saveRDS(seed, fseed)
 }
 print(paste("random seed:", seed))
-cat(paste("Setting seed in newStart.R:", seed), file = fseed2, sep = "\n")
+cat(paste("Setting seed in 09-pre-sim.R:", seed), file = fseed2, sep = "\n")
 set.seed(seed)
 writeRNGInfo(fseed2, append = TRUE)

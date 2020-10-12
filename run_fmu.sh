@@ -11,7 +11,7 @@ OUTDIR1="outputs/FMU_${FMU}_fri${FRI}_res${RES}"
 OUTDIR2="outputs/FMU_${FMU}/fri${FRI}/res${RES}"
 OUTDIR3="${OUTDIR2}/rep${RUN}"
 RUNNAME="FMU_${FMU}_fri${FRI}_res${RES}_rep${RUN}"
-RCMD="runName <- '${RUNNAME}'; source('newStart.R')"
+RCMD="runName <- '${RUNNAME}'; source('00-global.R')"
 
 if [ ! -d ${OUTDIR2} ]; then
   mkdir -p ${OUTDIR2}

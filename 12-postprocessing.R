@@ -10,7 +10,7 @@ if (FALSE) { ## futures don't work properly in Rstudio
   future::plan("multiprocess")
 }
 
-stopifnot(packageVersion("map") >= "0.0.2")
+stopifnot(packageVersion("map") >= "0.0.3")
 stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 
 padL <- ifelse(grepl("prov", runName), 3, 4) ## TODO: confirm this is always true now
@@ -81,15 +81,16 @@ if (FALSE) {
     grep(paste(timeSeriesTimes, collapse = "|"), ., value = TRUE)
 
   if (length(tsfTimeSeries)) {
-    tsfStack <- raster::stack(tsfTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
+    sA <- studyArea(ml, 2)
     gifName <- file.path(normPath(Paths$outputPath), "animation_tsf.gif")
     future({
+      tsfStack <- raster::stack(tsfTimeSeries)# %>% writeRaster(file.path(Paths$outputPath, "stack_tsf.tif"))
       animation::saveGIF(ani.height = 1200, ani.width = 1200, interval = 1.0,
                          movie.name = gifName, expr = {
                            brks <- c(0, 1, 40, 80, 120, 1000)
                            cols <- RColorBrewer::brewer.pal(5, "RdYlGn")
                            for (i in seq(numLayers(tsfStack))) {
-                             plot(mask(tsfStack[[i]], studyArea(ml, 2)), breaks = brks, col = cols)
+                             plot(mask(tsfStack[[i]], sA), breaks = brks, col = cols)
                            }
       })
     })
@@ -190,6 +191,7 @@ saveRDS(ml, simFile("ml", Paths$outputPath))
 #ml <- readRDS(simFile("ml", Paths$outputPath)) ## TODO: use loadSimList throughout
 
 options(map.useParallel = FALSE)
+#if (grepl("LandWeb", runName)) options(map.maxNumCores = parallel::detectCores() / 8)
 ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
                      #purgeAnalyses = "LeadingVegTypeByAgeClass",
                      ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
@@ -200,6 +202,7 @@ ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
 #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo
 #    so there is 1 raster group, 2 polygon groups, 2 analyses - Total 4, only 2 run now
 options(map.useParallel = FALSE)
+#if (grepl("LandWeb", runName)) options(map.maxNumCores = parallel::detectCores() / 8)
 ml <- mapAddAnalysis(ml, functionName = "LargePatches",
                      id = "1", labelColumn = "shinyLabel",
                      #purgeAnalyses = "LargePatches",
@@ -238,6 +241,7 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
                             dPath = file.path(Paths$outputPath, "histograms"))
 
 saveRDS(ml, simFile("ml_done", Paths$outputPath))
+#ml <- readRDS(simFile("ml_done", Paths$outputPath))
 message(crayon::red(runName))
 
 if (requireNamespace("slackr") & file.exists("~/.slackr")) {
