@@ -6,6 +6,7 @@ modules_landweb <- c("LandWeb_preamble", "Biomass_speciesData", modules3)
 
 fsim <- simFile("mySim_landweb", "docs", 0)
 mySim_landweb <- if (!file.exists(fsim)) {
+  parameters3$.restartR <- NULL ## TODO: necessary to avoid error about params not being a list ???
   Cache(simInit,
         times = times3,
         params = parameters3,
@@ -15,7 +16,7 @@ mySim_landweb <- if (!file.exists(fsim)) {
         paths = paths3,
         loadOrder = unlist(modules_landweb),
         omitArgs = c("debug", "paths", ".plotInitialTime")
-  ) ## TODO: spurious error re: params needs to be a list of lists (it is!)
+  )
   saveSimList(Copy(mySim_landweb), fsim)
 } else {
   loadSimList(fsim)
