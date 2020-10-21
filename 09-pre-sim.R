@@ -44,7 +44,7 @@ objects3 <- list(
   "studyAreaReporting" = simOutPreamble[["studyAreaReporting"]],
   "sufficientLight" = simOutDataPrep[["sufficientLight"]],
   "summaryPeriod" = summaryPeriod, ## defined in params file
-  "useParallel" = 2
+  "useParallel" = useParallel
 )
 
 parameters3 <- list(
