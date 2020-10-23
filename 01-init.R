@@ -49,6 +49,7 @@ endTime <- config::get("params")[["endtime"]]
 eventCaching <- c(".inputObjects", "init")
 fireTimestep <- 1
 friMultiple <- getFRImultiple(runName)
+forestedLCCClasses <- if (grepl("no2032", runName)) c(1:15, 34:36) else c(1:15, 20, 32, 34:36)
 gitPkgPath <- config::get("gitpkgpath")
 mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
 mapResFact <- getMapResFact(runName)

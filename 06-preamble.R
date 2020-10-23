@@ -13,7 +13,8 @@ parameters1 <- list(
     "friMultiple" = friMultiple,
     "mapResFact" = mapResFact,
     "minFRI" = minFRI,
-    "runName" = runName
+    "runName" = runName,
+    "treeClassesLCC" = forestedLCCClasses
   )
 )
 

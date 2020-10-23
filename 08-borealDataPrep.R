@@ -32,7 +32,7 @@ parameters2a <- list(
                          (logAge + cover + speciesCode | ecoregionGroup)))
     },
     "ecoregionLayerField" = "ECOREGION", # "ECODISTRIC"
-    "forestedLCCClasses" = c(1:15, 20, 32, 34:36),
+    "forestedLCCClasses" = forestedLCCClasses,
     "LCCClassesToReplaceNN" = 34:36,
     # next two are used when assigning pixelGroup membership; what resolution for
     #   age and biomass
