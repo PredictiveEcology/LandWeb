@@ -51,7 +51,7 @@ The code is mostly self-sufficient: additional packages than those below are nee
 See `03-packages.R` to see which additional packages will be used.
 
 ```r
-pkgs <- c("data.table", "devtools", "dplyr", "magrittr", "plyr", "raster", "reproducible")
+pkgs <- c("assertthat", "data.table", "devtools", "dplyr", "magrittr", "plyr", "raster", "reproducible")
 
 install.packages(pkgs)
 ```
