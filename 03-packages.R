@@ -15,6 +15,8 @@ library(map) #load_all(file.path(gitLocalPath, "map"))
 library(LandR) #devtools::load_all(file.path(gitLocalPath, "LandR"))
 library(LandWebUtils) #devtools::load_all(file.path(gitLocalPath, "LandWebUtils"))
 
+library(assertthat)
+
 #devtools::install_github("achubaty/amc@development")
 library(amc)
 
