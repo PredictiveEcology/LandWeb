@@ -13,7 +13,12 @@ if (FALSE) { ## futures don't work properly in Rstudio
 stopifnot(packageVersion("map") >= "0.0.3")
 stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 
-padL <- ifelse(grepl("prov", runName), 3, 4) ## TODO: confirm this is always true now
+padL <- if (landwebVersion == 2 && ## version set in default config
+            grepl("BlueRidge|Edson|LP_BC|MillarWestern|Mistik|prov|Sundre|Vanderwell|WestFraser|Weyco", runName)) {
+  3
+} else {
+  4
+} ## TODO: confirm this is always true now
 
 if (grepl("Manning", runName)) {
   timeSeriesTimes <- 450:500
@@ -137,6 +142,7 @@ writeRaster(ml[["CC TSF"]], fname2, overwrite = TRUE)
 
 rm(simOutSpeciesLayers)
 
+options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
              targetFile = asPath(fname),
              destinationPath = asPath(Paths$outputPath),

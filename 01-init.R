@@ -51,6 +51,7 @@ fireTimestep <- 1
 friMultiple <- getFRImultiple(runName)
 forestedLCCClasses <- if (grepl("no2032", runName)) c(1:15, 34:36) else c(1:15, 20, 32, 34:36)
 gitPkgPath <- config::get("gitpkgpath")
+landwebVersion <- config::get("version")
 mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
 mapResFact <- getMapResFact(runName)
 maxAge <- 400

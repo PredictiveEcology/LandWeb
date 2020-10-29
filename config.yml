@@ -20,6 +20,7 @@ default:
   scenariodisp: "" # "aspenDispersal", "highDispersal", "noDispersal", or "" for default
   scenariofire: "" # "equalROS", "logROS", or "" for default
   restartr: false
+  version: 2
 
 profile:
   params:
