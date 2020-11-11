@@ -67,7 +67,7 @@ studyAreaName <- if (grepl("FMU", runName)) {
 } else {
   strsplit(runName, "_")[[1]][1]
 }
-succession <- !grepl("nosuccession", runName)
+succession <- !grepl("noSuccession", runName)
 successionTimestep <- config::get("params")[["successiontimestep"]]
 summaryPeriod <- config::get("params")[["summaryperiod"]]
 summaryInterval <- config::get("params")[["summaryinterval"]]
