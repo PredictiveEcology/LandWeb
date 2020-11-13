@@ -2,27 +2,22 @@
 ## post-simulation object creation (for documentation)
 ################################################################################
 
-modules_landweb <- c("LandWeb_preamble", "Biomass_speciesData", modules3)
+modules_landweb <- c("LandWeb_preamble", "Biomass_speciesData", "Biomass_borealDataPrep", modules3)
+
+mm <- unique(unlist(lapply(modules_landweb, function(m) {
+  moduleMetadata(module = m, path = "m")$inputObjects$objectName
+})))
+names(mm) <- mm
+
+oo <- lapply(mm, function(x) NULL)
+mySim_landweb <- simInit(objects = oo, modules = modules_landweb, paths = paths3)
 
 fsim <- simFile("mySim_landweb", "docs", 0, ext = "qs")
-if (!file.exists(fsim)) {
-  parameters3$.restartR <- NULL ## TODO: necessary to avoid error about params not being a list ???
-  mySim_landweb <- Cache(simInit,
-                         times = times3,
-                         params = parameters3,
-                         modules = modules_landweb,
-                         outputs = outputs3,
-                         objects = objects3,
-                         paths = paths3,
-                         loadOrder = unlist(modules_landweb),
-                         omitArgs = c("debug", "paths", ".plotInitialTime")
-  )
-  saveSimList(Copy(mySim_landweb), fsim)
-} else {
-  mySim_landweb <- loadSimList(fsim)
-}
+saveSimList(Copy(mySim_landweb), fsim)
 
-png(file.path("docs", "LandWeb_module_diagram.png"), height = 800, width = 800)
+#mySim_landweb <- loadSimList(fsim)
+
+png(file.path("docs", "LandWeb_module_diagram.png"), height = 1000, width = 1000)
   moduleDiagram(mySim_landweb)
 dev.off()
 
