@@ -14,7 +14,7 @@ stopifnot(packageVersion("map") >= "0.0.3")
 stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 
 padL <- if (landwebVersion == 2 && ## version set in default config
-            grepl("BlueRidge|Edson|LP_BC|MillarWestern|Mistik|prov|Sundre|Vanderwell|WestFraser|WeyCo", runName)) {
+            grepl("BlueRidge|Edson|FMANWT_|LP_BC|MillarWestern|Mistik|prov|Sundre|Vanderwell|WestFraser|WeyCo", runName)) {
   3
 } else {
   4
