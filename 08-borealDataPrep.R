@@ -29,7 +29,7 @@ parameters2a <- list(
       quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode + (1 | ecoregionGroup)))
     } else {
       quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
-                         (logAge + cover + speciesCode | ecoregionGroup)))
+                         (logAge + cover | ecoregionGroup)))
     },
     "ecoregionLayerField" = "ECOREGION", # "ECODISTRIC"
     "forestedLCCClasses" = forestedLCCClasses,
