@@ -12,6 +12,7 @@ objects2a <- list(
   "speciesLayers" = simOutSpeciesLayers[["speciesLayers"]],
   "speciesParams" = speciesParams,
   "speciesTable" = speciesTable,
+  "speciesTableAreas" = c("BSW", "BP", "MC"), ## TODO: should we remove BP? MC?
   "sppColorVect" = sppColorVect,
   "sppEquiv" = sppEquivalencies_CA,
   "standAgeMap" = simOutPreamble[["CC TSF"]],
