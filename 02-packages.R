@@ -49,8 +49,12 @@ moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
   unique() %>%
   sort()
 
-fromCRAN <- names(which(!pemisc::isGitHubPkg(moduleRqdPkgs)))
-fromGitHub <- names(which(pemisc::isGitHubPkg(moduleRqdPkgs)))
+fromCRAN <- names(which(!pemisc::isGitHubPkg(moduleRqdPkgs))) %>%
+  sapply(., function(x) strsplit(x, " ")[[1]][[1]]) %>%
+  unname(.)
+fromGitHub <- names(which(pemisc::isGitHubPkg(moduleRqdPkgs))) %>%
+  sapply(., function(x) strsplit(x, " ")[[1]][[1]]) %>%
+  unname(.)
 
 if (any(!(fromCRAN %in% installed.packages()[, "Package"]))) {
   pkgIds <- which(!(fromCRAN %in% installed.packages()[, "Package"]))
