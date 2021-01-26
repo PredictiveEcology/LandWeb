@@ -18,6 +18,7 @@
 docs/\.~lock\.LandWeb_module_diagram\.odp#
 
 ## cache files
+.channel_cache
 cache/
 cache
 cache_sqlite
