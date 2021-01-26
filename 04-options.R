@@ -43,6 +43,7 @@ opts <- options(
   "reproducible.inputPaths" = if (user("emcintir")) normPath("~/data") else NULL,
   "reproducible.nThreads" = 2,
   "reproducible.overwrite" = TRUE,
+  "reproducible.polygonShortcut" = FALSE, ## TODO: work with Eliot to debug why this is needed
   "reproducible.quick" = FALSE,
   "reproducible.showSimilar" = TRUE,
   "reproducible.useCache" = if (peutils::user("emcintir")) TRUE else TRUE,
