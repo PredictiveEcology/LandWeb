@@ -15,6 +15,7 @@ library(parallel)
 library(qs)
 
 library(raster)
+library(reproducible)
 library(SpaDES.core)
 library(pemisc)
 library(map) #load_all(file.path(gitPkgPath, "map"))
