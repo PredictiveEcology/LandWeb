@@ -6,8 +6,8 @@
 
 if (file.exists(".Renviron")) readRenviron(".Renviron")
 
-library(config)
-library(magrittr)
+Require("config")
+Require("magrittr")
 
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
 
