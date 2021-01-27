@@ -42,6 +42,7 @@ SpaDESPkgs <- c(
 shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "reactlog", "rgeos",
                "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "MarkEdmondson1234/googleID")
+otherPkgs <- c("animation", "logging", "slackr")
 
 moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
   packages(modules = m, paths = paths1$modulePath)
@@ -51,7 +52,7 @@ moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
   unique() %>%
   sort()
 
-allPkgs <- unique(c(SpaDESPkgs, shinyPkgs, googleAuthPkgs, moduleRqdPkgs))
+allPkgs <- unique(c(SpaDESPkgs, shinyPkgs, googleAuthPkgs, otherPkgs, moduleRqdPkgs))
 
 fromCRAN <- names(which(!pemisc::isGitHubPkg(allPkgs))) %>%
   sapply(., function(x) strsplit(x, " ")[[1]][[1]]) %>%
