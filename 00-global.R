@@ -1,3 +1,9 @@
+if (!dir.exists("packages")) {
+  dir.create("packages")
+}
+.libPaths("packages")
+.libPaths() ## confirm location of packages
+
 switch(peutils::user(),
        "achubaty" = Sys.setenv(R_CONFIG_ACTIVE = "alex"),
        "emcintir" = Sys.setenv(R_CONFIG_ACTIVE = "eliot"),

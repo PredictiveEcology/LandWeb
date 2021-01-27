@@ -55,10 +55,11 @@ The code is mostly self-sufficient: additional packages than those below are nee
 See `02-packages.R` to see which additional packages will be used.
 
 ```r
-pkgs <- c("config", "data.table", "devtools", "dplyr", "logging",
+pkgs <- c("config", "crayon", "data.table", "devtools", "dplyr", "logging",
           "magrittr", "maptools", "plyr", "pryr", "qs", "raster")
 
-install.packages(pkgs)
+dir.create("packages")
+install.packages(pkgs, lib = "packages")
 ```
 
 Next, verify your installation of package development tools by running:
