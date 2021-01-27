@@ -26,6 +26,7 @@ library(amc)
 
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
+  "PredictiveEcology/Require@development",
   "PredictiveEcology/quickPlot@development",
   "PredictiveEcology/reproducible@development",
   "PredictiveEcology/SpaDES.core@development",
@@ -39,29 +40,28 @@ SpaDESPkgs <- c(
 )
 shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "reactlog", "rgeos",
                "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
-googleAuthPkgs <- c("googleAuthR", "googledrive", "googleID")
+googleAuthPkgs <- c("googleAuthR", "googledrive", "MarkEdmondson1234/googleID")
 
 moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
-  packages(modules = m, paths = "m")
+  packages(modules = m, paths = paths1$modulePath)
 }) %>%
   unlist() %>%
   unname() %>%
   unique() %>%
   sort()
 
-fromCRAN <- names(which(!pemisc::isGitHubPkg(moduleRqdPkgs))) %>%
-  sapply(., function(x) strsplit(x, " ")[[1]][[1]]) %>%
-  unname(.)
-fromGitHub <- names(which(pemisc::isGitHubPkg(moduleRqdPkgs))) %>%
-  sapply(., function(x) strsplit(x, " ")[[1]][[1]]) %>%
-  unname(.)
+allPkgs <- unique(c(SpaDESPkgs, shinyPkgs, googleAuthPkgs, moduleRqdPkgs))
 
-if (any(!(fromCRAN %in% installed.packages()[, "Package"]))) {
-  pkgIds <- which(!(fromCRAN %in% installed.packages()[, "Package"]))
-  install.packages(fromCRAN[pkgIds])
-}
+fromCRAN <- names(which(!pemisc::isGitHubPkg(allPkgs))) %>%
+  sapply(., function(x) strsplit(x, " ")[[1]][[1]]) %>%
+  unname() %>%
+  unique()
 
-if (any(!(pemisc::ghPkgName(fromGitHub) %in% installed.packages()[, "Package"]))) {
-  pkgIds <- which(!(pemisc::ghPkgName(fromGitHub) %in% installed.packages()[, "Package"]))
-  lapply(fromGitHub[pkgIds], devtools::install_github)
-}
+fromGitHub <- names(which(pemisc::isGitHubPkg(allPkgs))) %>%
+  sapply(., function(x) strsplit(x, " ")[[1]][[1]]) %>%
+  unname() %>%
+  gsub(pattern = "LandR@development", replacement = "LandR@LandWeb", x = .) %>%
+  unique()
+
+Require(fromCRAN)
+Require(fromGitHub)

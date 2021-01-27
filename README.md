@@ -56,10 +56,17 @@ See `02-packages.R` to see which additional packages will be used.
 
 ```r
 pkgs <- c("config", "crayon", "data.table", "devtools", "dplyr", "logging",
-          "magrittr", "maptools", "plyr", "pryr", "qs", "raster")
+          "magrittr", "maptools", "plyr", "pryr", "qs", "raster", "Require")
 
-dir.create("packages")
-install.packages(pkgs, lib = "packages")
+pkgDir <- file.path("packages", version$platform, paste0(version$major, ".",
+                                                         strsplit(version$minor, "[.]")[[1]][1]))
+
+if (!dir.exists(pkgDir)) {
+  dir.create(pkgDir, recursive = TRUE)
+}
+
+.libPaths(pkgDir)
+install.packages(pkgs)
 ```
 
 Next, verify your installation of package development tools by running:
@@ -69,10 +76,6 @@ devtools::has_devel()
 ```
 
 If the above line is successful, install the following packages from R-Forge and GitHub:
-
-```{r rforge-pkgs}
-install.packages("rgdal", repos = "http://R-Forge.R-project.org") # need v1.5-17 or higher
-```
 
 ```{r github-pkgs}
 devtools::install_github("PredictiveEcology/Require@development")

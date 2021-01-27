@@ -1,9 +1,3 @@
-if (!dir.exists("packages")) {
-  dir.create("packages")
-}
-.libPaths("packages")
-.libPaths() ## confirm location of packages
-
 switch(peutils::user(),
        "achubaty" = Sys.setenv(R_CONFIG_ACTIVE = "alex"),
        "emcintir" = Sys.setenv(R_CONFIG_ACTIVE = "eliot"),
@@ -28,8 +22,8 @@ stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set: e.g.
 message(crayon::red(runName))
 
 source("01-init.R")
-source("02-packages.R")
-source("03-paths.R")
+source("02-paths.R")
+source("03-packages.R")
 source("04-options.R")
 source("05-sim-objects.R")
 
