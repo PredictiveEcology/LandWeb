@@ -5,7 +5,6 @@
 ## cache database connection (requires reproducbile >= 1.0.0)
 cacheDBconn <- if (config::get("cachedb") == "sqlite") {
   Require("RSQLite")
-  #DBI::dbConnect(drv = RSQLite::SQLite())
   NULL ## should default to sqlite
 } else if (config::get("cachedb") == "postgresql") {
   Require("RPostgres")
@@ -61,7 +60,7 @@ opts <- options(
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
 
-library(googledrive)
+Require(c("googledrive", "httr"))
 
 httr::set_config(httr::config(http_version = 0))
 
