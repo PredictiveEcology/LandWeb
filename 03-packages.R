@@ -6,24 +6,24 @@
 # install.packages("rgdal", repos="http://R-Forge.R-project.org")
 stopifnot(packageVersion("rgdal") >= package_version("1.5-17")) ## need development version
 
-library(assertthat)
-library(DBI)
-library(plyr); library(dplyr) ## ensure plyr loaded before dplyr or there will be problemas
-library(data.table)
-library(magrittr)
-library(parallel)
-library(qs)
+Require(assertthat)
+Require(DBI)
+Require(plyr); Require(dplyr) ## ensure plyr loaded before dplyr or there will be problemas
+Require(data.table)
+Require(magrittr)
+Require(parallel)
+Require(qs)
 
-library(raster)
-library(reproducible)
-library(SpaDES.core)
-library(pemisc)
-library(map) #load_all(file.path(gitPkgPath, "map"))
-library(LandR) #devtools::load_all(file.path(gitPkgPath, "LandR"))
-library(LandWebUtils) #devtools::load_all(file.path(gitPkgPath, "LandWebUtils"))
+Require(raster)
+Require(reproducible)
+Require(SpaDES.core)
+Require(pemisc)
+Require(map) #load_all(file.path(gitPkgPath, "map"))
+Require(LandR) #devtools::load_all(file.path(gitPkgPath, "LandR"))
+Require(LandWebUtils) #devtools::load_all(file.path(gitPkgPath, "LandWebUtils"))
 
 #devtools::install_github("achubaty/amc@development")
-library(amc)
+Require(amc)
 
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
