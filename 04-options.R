@@ -51,7 +51,7 @@ opts <- options(
   "reproducible.useCloud" = TRUE,
   "reproducible.useGDAL" = FALSE, ## NOTE: gdal is faster, but mixing gdal with raster causes inconsistencies
   "reproducible.useMemoise" = FALSE,
-  "reproducible.useNewDigestAlgorithm" = TRUE,
+  "reproducible.useNewDigestAlgorithm" = 2, ## this should solve most/all file-backed raster issues
   "reproducible.useRequire" = FALSE,
   "spades.moduleCodeChecks" = FALSE,
   "spades.nThreads" = 4,
