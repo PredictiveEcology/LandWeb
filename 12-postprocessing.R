@@ -156,16 +156,18 @@ ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
 
 ## TODO: WORKAROUND for some funny business with col names.
 if (any(grepl("ANSR", names(ml)))) {
-  id <- which(grepl("ANSR", names(ml)))
-  if (is.null(ml[[names(ml)[id]]][["Name"]])) {
-    ml[[names(ml)[id]]][["Name"]] <- ml[[names(ml)[id]]][["Name.1"]]
-    ml[[names(ml)[id]]][["Name.1"]] <- ml[[names(ml)[id]]][["Name.2"]] <- NULL
-  }
+  ids <- which(grepl("ANSR", names(ml)))
+  lapply(ids, function(id) {
+    if (is.null(ml[[names(ml)[id]]][["Name"]])) {
+      ml[[names(ml)[id]]][["Name"]] <- ml[[names(ml)[id]]][["Name.1"]]
+      ml[[names(ml)[id]]][["Name.1"]] <- ml[[names(ml)[id]]][["Name.2"]] <- NULL
+    }
 
-  if (is.null(ml[[names(ml)[id]]][["shinyLabel"]])) {
-    ml[[names(ml)[id]]][["shinyLabel"]] <- ml[[names(ml)[id]]][["shinyLabel.1"]]
-    ml[[names(ml)[id]]][["shinyLabel.1"]] <- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
-  }
+    if (is.null(ml[[names(ml)[id]]][["shinyLabel"]])) {
+      ml[[names(ml)[id]]][["shinyLabel"]] <- ml[[names(ml)[id]]][["shinyLabel.1"]]
+      ml[[names(ml)[id]]][["shinyLabel.1"]] <- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
+    }
+  })
 }
 
 if (any(grepl("Caribou$|Caribou Joined", names(ml)))) { ## be sure not to include "LandWeb Caribou Ranges" polygon
