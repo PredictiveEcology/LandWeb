@@ -170,6 +170,51 @@ if (any(grepl("ANSR", names(ml)))) {
   })
 }
 
+if (any(grepl("BGCZ", names(ml)))) {
+  ids <- which(grepl("BGCZ", names(ml)))
+  lapply(ids, function(id) {
+    if (is.null(ml[[names(ml)[id]]][["Name"]])) {
+      ml[[names(ml)[id]]][["Name"]] <- ml[[names(ml)[id]]][["Name.1"]]
+      ml[[names(ml)[id]]][["Name.1"]] <- ml[[names(ml)[id]]][["Name.2"]] <- NULL
+    }
+
+    if (is.null(ml[[names(ml)[id]]][["shinyLabel"]])) {
+      ml[[names(ml)[id]]][["shinyLabel"]] <- ml[[names(ml)[id]]][["shinyLabel.1"]]
+      ml[[names(ml)[id]]][["shinyLabel.1"]] <- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
+    }
+  })
+}
+
+if (any(grepl("NWTER", names(ml)))) {
+  ids <- which(grepl("NWTER", names(ml)))
+  lapply(ids, function(id) {
+    if (is.null(ml[[names(ml)[id]]][["Name"]])) {
+      ml[[names(ml)[id]]][["Name"]] <- ml[[names(ml)[id]]][["Name.1"]]
+      ml[[names(ml)[id]]][["Name.1"]] <- ml[[names(ml)[id]]][["Name.2"]] <- NULL
+    }
+
+    if (is.null(ml[[names(ml)[id]]][["shinyLabel"]])) {
+      ml[[names(ml)[id]]][["shinyLabel"]] <- ml[[names(ml)[id]]][["shinyLabel.1"]]
+      ml[[names(ml)[id]]][["shinyLabel.1"]] <- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
+    }
+  })
+}
+
+if (any(grepl("NATLER", names(ml)))) {
+  ids <- which(grepl("NATLER", names(ml)))
+  lapply(ids, function(id) {
+    if (is.null(ml[[names(ml)[id]]][["Name"]])) {
+      ml[[names(ml)[id]]][["Name"]] <- ml[[names(ml)[id]]][["Name.1"]]
+      ml[[names(ml)[id]]][["Name.1"]] <- ml[[names(ml)[id]]][["Name.2"]] <- NULL
+    }
+
+    if (is.null(ml[[names(ml)[id]]][["shinyLabel"]])) {
+      ml[[names(ml)[id]]][["shinyLabel"]] <- ml[[names(ml)[id]]][["shinyLabel.1"]]
+      ml[[names(ml)[id]]][["shinyLabel.1"]] <- ml[[names(ml)[id]]][["shinyLabel.2"]] <- NULL
+    }
+  })
+}
+
 if (any(grepl("Caribou$|Caribou Joined", names(ml)))) { ## be sure not to include "LandWeb Caribou Ranges" polygon
   ids <- which(grepl("Caribou$|Caribou Joined", names(ml)))
   lapply(ids, function(id) {
