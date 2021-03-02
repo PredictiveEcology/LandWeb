@@ -146,7 +146,7 @@ options(map.useParallel = FALSE)
 ml <- mapAdd(map = ml, layerName = "CC VTM", analysisGroup1 = "CC",
              targetFile = asPath(fname),
              destinationPath = asPath(Paths$outputPath),
-             filename2 = NULL,
+             filename2 = asPath("CurrentConditionVTM_temp.grd"), ## TODO: remove this workaround
              tsf = asPath(fname2),
              vtm = asPath(fname),
              CC = TRUE,
