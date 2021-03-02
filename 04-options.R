@@ -53,6 +53,7 @@ opts <- options(
   "reproducible.useMemoise" = FALSE,
   "reproducible.useNewDigestAlgorithm" = 2, ## this should solve most/all file-backed raster issues
   "reproducible.useRequire" = FALSE,
+  "spades.messagingNumCharsModule" = 36,
   "spades.moduleCodeChecks" = FALSE,
   "spades.nThreads" = 4,
   "spades.recoveryMode" = FALSE,
