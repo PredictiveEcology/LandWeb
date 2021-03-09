@@ -13,17 +13,7 @@ Require("data.table")
 Require("magrittr")
 Require("parallel")
 Require("qs")
-
 Require("raster")
-Require("reproducible")
-Require("SpaDES.core")
-Require("pemisc")
-Require("map") #load_all(file.path(gitPkgPath, "map"))
-Require("LandR") #devtools::load_all(file.path(gitPkgPath, "LandR"))
-Require("LandWebUtils") #devtools::load_all(file.path(gitPkgPath, "LandWebUtils"))
-
-#devtools::install_github("achubaty/amc@development")
-Require("amc")
 
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -34,10 +24,10 @@ SpaDESPkgs <- c(
   "PredictiveEcology/SpaDES.tools@development",
   "PredictiveEcology/map@development",
   "PredictiveEcology/pemisc@development",
+  "PredictiveEcology/map@development",
   "PredictiveEcology/LandR@LandWeb",
   "PredictiveEcology/LandWebUtils@development",
-  #"PredictiveEcology/SpaDES.shiny@generalize-modules", ## do this after running the model, before app
-  "raster"
+  "achubaty/amc@development"
 )
 shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "reactlog", "rgeos",
                "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
@@ -45,7 +35,7 @@ googleAuthPkgs <- c("googleAuthR", "googledrive", "MarkEdmondson1234/googleID")
 otherPkgs <- c("animation", "logging", "slackr", "jimhester/archive")
 
 moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
-  packages(modules = m, paths = paths1$modulePath)
+  SpaDES.core::packages(modules = m, paths = paths1$modulePath)
 }) %>%
   unlist() %>%
   unname() %>%
