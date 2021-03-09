@@ -1,4 +1,43 @@
-#####
+---
+title: "LandWeb batch runs"
+author: "Alex M. Chubaty"
+date: "09/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## LandWeb v3
+
+Running v3 of the model:
+
+```
+screen -d -m ./run_landweb3.sh 1
+screen -d -m ./run_landweb3.sh 2
+screen -d -m ./run_landweb3.sh 3
+screen -d -m ./run_landweb3.sh 4
+screen -d -m ./run_landweb3.sh 5
+screen -d -m ./run_landweb3.sh 6
+screen -d -m ./run_landweb3.sh 7
+screen -d -m ./run_landweb3.sh 8
+screen -d -m ./run_landweb3.sh 9
+screen -d -m ./run_landweb3.sh 10
+screen -d -m ./run_landweb3.sh 11
+screen -d -m ./run_landweb3.sh 12
+screen -d -m ./run_landweb3.sh 13
+screen -d -m ./run_landweb3.sh 14
+screen -d -m ./run_landweb3.sh 15
+
+rsync -avzP ~/GitHub/LandWeb/outputs/LandWeb_v3 /mnt/landweb/outputs/
+```
+
+## LandWeb v2
+
+Previously, running in an R session:
+
+```r
 1 -> rep; Sys.sleep(600*rep); runName <- paste0("DMI_aspenDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("00-global.R"); Q()
 
 1 -> rep; Sys.sleep(20*3600 + 600*rep); runName <- paste0("tolko_AB_N_aspenDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("00-global.R"); Q()
@@ -48,3 +87,4 @@
 #####
 
 1 -> rep; Sys.sleep(rep); runName <- paste0("LandWeb_highDispersal_logROS_rep", SpaDES.core::paddedFloatToChar(rep, padL = 2)); source("00-global.R")
+```
