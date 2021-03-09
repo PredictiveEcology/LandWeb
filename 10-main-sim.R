@@ -29,7 +29,7 @@ if (isFALSE(useRestartR)) {
   }, error = function(e) {
     if (requireNamespace("slackr") & file.exists("~/.slackr")) {
       slackr::slackr_setup()
-      slackr::text_slackr(
+      slackr::slackr_msg(
         paste0("ERROR in simulation `", runName, "` on host `", Sys.info()[["nodename"]], "`.\n",
                "```\n", e$message, "\n```"),
         channel = config::get("slackchannel"), preformatted = FALSE
@@ -55,7 +55,7 @@ if (isFALSE(useRestartR)) {
   }, error = function(e) {
     if (requireNamespace("slackr") & file.exists("~/.slackr")) {
       slackr::slackr_setup()
-      slackr::text_slackr(
+      slackr::slackr_msg(
         paste0("ERROR in simulation `", runName, "` on host `", Sys.info()[["nodename"]], "`.\n",
                "```\n", e$message, "\n```"),
         channel = config::get("slackchannel"), preformatted = FALSE
@@ -73,7 +73,7 @@ saveSimList(sim = mySimOut, filename = fsim)
 
 if (requireNamespace("slackr") & file.exists("~/.slackr")) {
   slackr::slackr_setup()
-  slackr::text_slackr(
+  slackr::slackr_msg(
     paste0("Simulation `", runName, "` completed on host `", Sys.info()[["nodename"]], "`."),
     channel = config::get("slackchannel"), preformatted = FALSE
   )

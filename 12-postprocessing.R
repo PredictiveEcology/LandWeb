@@ -302,7 +302,7 @@ message(crayon::red(runName))
 
 if (requireNamespace("slackr") & file.exists("~/.slackr")) {
   slackr::slackr_setup()
-  slackr::text_slackr(
+  slackr::slackr_msg(
     paste0("Post-processing for `", runName, "` completed on host `", Sys.info()[["nodename"]], "`."),
     channel = config::get("slackchannel"), preformatted = FALSE
   )
