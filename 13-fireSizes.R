@@ -1,10 +1,12 @@
-library(data.table)
-library(magrittr)
-library(raster)
-library(SpaDES.core)
-library(LandWebUtils)
-library(ggplot2)
-library(patchwork)
+library("Require")
+Require("data.table")
+Require("magrittr")
+Require("raster")
+Require("SpaDES.core")
+Require("LandWebUtils")
+Require("ggplot2")
+Require("patchwork")
+Require("kSamples")
 
 outputDir <- "~/GitHub/LandWeb/outputs"
 simAreas <- list.dirs(outputDir, recursive = FALSE, full.names = FALSE) %>%
@@ -14,7 +16,8 @@ nodes <- min(getOption("Ncpus", parallel::detectCores() / 2), length(simAreas))
 cl <- parallel::makeForkCluster(nnodes = nodes)
 parallel::clusterExport(cl, c("outputDir"))
 parallel::clusterEvalQ(cl, {
-  library(data.table)
+  library("Require")
+  Require("data.table")
   setDTthreads(2)
 })
 

@@ -1,4 +1,4 @@
-library(gdalUtils)
+Require("gdalUtils")
 commonLinuxGdalPath <- "/usr/bin"
 commonWindowsGdalPath <- "C:/OSGEO4~1/bin/"
 if (dir.exists(commonLinuxGdalPath)) {
