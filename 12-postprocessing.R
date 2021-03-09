@@ -295,6 +295,9 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
 
 saveRDS(ml, simFile("ml_done", Paths$outputPath))
 #ml <- readRDS(simFile("ml_done", Paths$outputPath))
+
+#source("R/upload.R") ## TODO: not working correctly yet
+
 message(crayon::red(runName))
 
 if (requireNamespace("slackr") & file.exists("~/.slackr")) {

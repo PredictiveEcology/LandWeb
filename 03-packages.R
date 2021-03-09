@@ -42,7 +42,7 @@ SpaDESPkgs <- c(
 shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "reactlog", "rgeos",
                "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
 googleAuthPkgs <- c("googleAuthR", "googledrive", "MarkEdmondson1234/googleID")
-otherPkgs <- c("animation", "logging", "slackr")
+otherPkgs <- c("animation", "logging", "slackr", "jimhester/archive")
 
 moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
   packages(modules = m, paths = paths1$modulePath)
