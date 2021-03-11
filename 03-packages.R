@@ -20,7 +20,7 @@ SpaDESPkgs <- c(
   "PredictiveEcology/Require@development",
   "PredictiveEcology/quickPlot@development",
   "PredictiveEcology/reproducible@development",
-  "PredictiveEcology/SpaDES.core@development",
+  "PredictiveEcology/SpaDES.core@development (>= 1.0.6.9018)",
   "PredictiveEcology/SpaDES.tools@development",
   "PredictiveEcology/map@development",
   "PredictiveEcology/pemisc@development",
