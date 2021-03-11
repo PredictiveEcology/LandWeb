@@ -1,4 +1,17 @@
+## ensure `.libPaths(pkgDir)` is set and used when e.g., .Rprofile doesn't get run,
+##   as is the case when using `r` to run scripts
+if (!exists("pkgDir")) {
+  pkgDir <- file.path("packages", version$platform, paste0(version$major, ".",
+                                                           strsplit(version$minor, "[.]")[[1]][1]))
+
+  if (!dir.exists(pkgDir)) {
+    dir.create(pkgDir, recursive = TRUE)
+  }
+  .libPaths(pkgDir)
+}
+
 library(Require)
+
 switch(peutils::user(),
        "achubaty" = Sys.setenv(R_CONFIG_ACTIVE = "alex"),
        "emcintir" = Sys.setenv(R_CONFIG_ACTIVE = "eliot"),
@@ -49,7 +62,7 @@ if (isFALSE(postProcessOnly)) {
     source("10a-POM.R") ## TODO: may not work out-of-the-box; untested!!
   }
 } else {
-  #mySimOut <- readRDS(simFile("mySimOut", Paths$outputPath, 1000))
+  #mySimOut <- loadSimList(simFile("mySimOut", Paths$outputPath, 1000))
   source("12-postprocessing.R")
 }
 
