@@ -71,6 +71,10 @@ fsim <- simFile("mySimOut", Paths$outputPath, SpaDES.core::end(mySimOut), "qs")
 message("Saving simulation to: ", fsim)
 saveSimList(sim = mySimOut, filename = fsim)
 
+elapsed <- elapsedTime(mySimOut)
+data.table::fwrite(elapsed, "elapsedTime.csv")
+qs::qsave(elapsed, "elapsedTime.qs")
+
 if (requireNamespace("slackr") & file.exists("~/.slackr")) {
   slackr::slackr_setup()
   slackr::slackr_msg(
