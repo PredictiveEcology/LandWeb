@@ -70,4 +70,4 @@ simOutDataPrep <- Cache(simInitAndSpades,
                         .plotInitialTime = .plotInitialTime,
                         paths = paths2a,
                         debug = 1)
-saveSimList(simOutDataPrep, dataPrepFile) ## TODO: fix issue loading simList
+saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)

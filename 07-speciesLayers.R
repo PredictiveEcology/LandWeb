@@ -53,7 +53,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              .plotInitialTime = .plotInitialTime,
                              paths = paths2,
                              debug = 1)
-saveSimList(Copy(simOutSpeciesLayers), sppLayersFile) ## TODO: fix issue loading simList
+saveSimList(Copy(simOutSpeciesLayers), sppLayersFile, fileBackend = 2)
 
 if (!is.na(.plotInitialTime)) {
   lapply(dev.list(), function(x) {

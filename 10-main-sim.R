@@ -69,7 +69,7 @@ cat(capture.output(warnings()), file = file.path(Paths$outputPath, "warnings.txt
 
 fsim <- simFile("mySimOut", Paths$outputPath, SpaDES.core::end(mySimOut), "qs")
 message("Saving simulation to: ", fsim)
-saveSimList(sim = mySimOut, filename = fsim)
+saveSimList(sim = mySimOut, filename = fsim, fileBackend = 2)
 
 elapsed <- elapsedTime(mySimOut)
 data.table::fwrite(elapsed, "elapsedTime.csv")

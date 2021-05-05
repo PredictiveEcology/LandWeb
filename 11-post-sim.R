@@ -13,7 +13,7 @@ oo <- lapply(mm, function(x) NULL)
 mySim_landweb <- simInit(objects = oo, modules = modules_landweb, paths = paths3)
 
 fsim <- simFile("mySim_landweb", "docs", 0, ext = "qs")
-saveSimList(Copy(mySim_landweb), fsim)
+saveSimList(Copy(mySim_landweb), fsim, fileBackend = 2)
 
 #mySim_landweb <- loadSimList(fsim)
 
