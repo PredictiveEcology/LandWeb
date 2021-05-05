@@ -241,7 +241,7 @@ ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
 #options(map.useParallel = mapParallel)
 
 saveRDS(ml, simFile("ml", Paths$outputPath))
-#ml <- readRDS(simFile("ml", Paths$outputPath)) ## TODO: use loadSimList throughout
+#ml <- readRDS(simFile("ml", Paths$outputPath))
 
 options(map.useParallel = FALSE)
 #if (grepl("LandWeb", runName)) options(map.maxNumCores = parallel::detectCores() / 8)
@@ -250,6 +250,9 @@ ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
                      ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
                      sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
 #options(map.useParallel = mapParallel)
+
+saveRDS(ml, simFile("ml_leading", Paths$outputPath))
+#ml <- readRDS(simFile("ml_leading", Paths$outputPath))
 
 # add an analysis -- this will trigger analyses because there are already objects in the map
 #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo
@@ -263,8 +266,8 @@ ml <- mapAddAnalysis(ml, functionName = "LargePatches",
                      sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
 #options(map.useParallel = mapParallel)
 
-saveRDS(ml, simFile("ml_partial", Paths$outputPath))
-#ml <- readRDS(simFile("ml_partial", Paths$outputPath))
+saveRDS(ml, simFile("ml_large", Paths$outputPath))
+#ml <- readRDS(simFile("ml_large", Paths$outputPath))
 
 histDirOld <- file.path(Paths$outputPath, "hists") %>% normPath(.)
 histDirNew <- file.path(Paths$outputPath, "histograms") %>% normPath(.)
