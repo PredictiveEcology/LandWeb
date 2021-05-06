@@ -26,7 +26,7 @@ SpaDESPkgs <- c(
   "PredictiveEcology/pemisc@development",
   "PredictiveEcology/map@development",
   "PredictiveEcology/LandR@LandWeb",
-  "PredictiveEcology/LandWebUtils@development",
+  "PredictiveEcology/LandWebUtils@development (>= 0.1.4)",
   "achubaty/amc@development"
 )
 shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "reactlog", "rgeos",

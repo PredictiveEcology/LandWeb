@@ -274,6 +274,12 @@ histDirNew <- file.path(Paths$outputPath, "histograms") %>% normPath(.)
 if (dir.exists(histDirOld))
   file.rename(from = histDirOld, to = histDirNew)
 
+## 'archive' previous largePatches results following bugfix (2021-05-05)
+histDirArchived <- paste0("histograms_archived_", format(Sys.Date(), "%Y-%m-%d"))
+histDirArchived <- file.path(Paths$outputPath, histDirArchived) %>% normPath(.)
+if (!dir.exists(histDirArchived))
+  file.rename(from = histDirNew, to = histDirArchived)
+
 options(map.useParallel = FALSE)
 ## this analysisGroupReportingPolygon MUST be the same as one of ones already analysed
 ml <- mapAddPostHocAnalysis(map = ml, functionName = "rbindlistAG",
