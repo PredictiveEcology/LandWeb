@@ -6,14 +6,8 @@
 # install.packages("rgdal", repos="http://R-Forge.R-project.org")
 stopifnot(packageVersion("rgdal") >= package_version("1.5-17")) ## need development version
 
-Require("assertthat")
-Require("DBI")
-Require("plyr"); Require("dplyr") ## ensure plyr loaded before dplyr or there will be problemas
-Require("data.table")
-Require("magrittr")
-Require("parallel")
-Require("qs")
-Require("raster")
+Require(c("plyr", "dplyr")) ## ensure plyr loaded before dplyr or there will be problemas
+Require(c("assertthat", "data.table", "DBI", "magrittr", "parallel", "qs", "raster"))
 
 packageLoadStartTime <- Sys.time()
 SpaDESPkgs <- c(
@@ -22,6 +16,7 @@ SpaDESPkgs <- c(
   "PredictiveEcology/reproducible@development",
   "PredictiveEcology/SpaDES.core@development (>= 1.0.6.9018)",
   "PredictiveEcology/SpaDES.tools@development",
+  "PredictiveEcology/SpaDES.project@development",
   "PredictiveEcology/map@development",
   "PredictiveEcology/pemisc@development",
   "PredictiveEcology/map@development",
