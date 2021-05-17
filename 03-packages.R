@@ -20,7 +20,7 @@ SpaDESPkgs <- c(
   "PredictiveEcology/map@development",
   "PredictiveEcology/pemisc@development",
   "PredictiveEcology/map@development",
-  "PredictiveEcology/LandR@LandWeb",
+  "PredictiveEcology/LandR@LandWeb (>= 1.0.2)",
   "PredictiveEcology/LandWebUtils@development (>= 0.1.4)",
   "achubaty/amc@development"
 )
