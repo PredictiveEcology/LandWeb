@@ -23,7 +23,7 @@ sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
 
 sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(LandWeb), ]
 
-sppColorVect <- sppColors(sppEquivalencies_CA, sppEquivCol, newVals = "Mixed", palette = "Accent")
+sppColorVect <- LandR::sppColors(sppEquivalencies_CA, sppEquivCol, newVals = "Mixed", palette = "Accent")
 
 LandMineROStable <- rbindlist(list(
   list("mature", "decid", 9L),
