@@ -24,6 +24,3 @@ if (!dir.exists(pkgDir)) {
   dir.create(pkgDir, recursive = TRUE)
 }
 .libPaths(pkgDir)
-
-library(Require)
-

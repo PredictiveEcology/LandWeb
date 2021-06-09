@@ -10,7 +10,10 @@ if (!exists("pkgDir")) {
   .libPaths(pkgDir)
 }
 
-library(Require)
+if (!require(Require, quietly = TRUE)) {
+  install.packages("Require")
+  library("Require")
+}
 
 switch(Sys.info()[["user"]],
        "achubaty" = Sys.setenv(R_CONFIG_ACTIVE = "alex"),
