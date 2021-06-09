@@ -46,7 +46,7 @@ if (grepl("equalROS", runName)) {
   LandMineROStable$ros <- log(LandMineROStable$ros)
 }
 
-speciesTable <- getSpeciesTable(dPath = paths1$inputPath) ## uses default URL
+speciesTable <- LandR::getSpeciesTable(dPath = paths1$inputPath) ## uses default URL
 speciesParams <- list(
   growthcurve = list(Abie_sp = 0, Pice_gla = 1, Pice_mar = 1, Pinu_sp = 0, Popu_sp = 0),
   mortalityshape = list(Abie_sp = 15L, Pice_gla = 15L, Pice_mar = 15L, Pinu_sp = 15L, Popu_sp = 25L),
