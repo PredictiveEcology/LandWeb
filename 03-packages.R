@@ -32,6 +32,13 @@ otherPkgs <- c("animation", "logging", "slackr", "jimhester/archive")
 allPkgs <- unique(c(SpaDESPkgs, shinyPkgs, googleAuthPkgs, otherPkgs))
 Require(allPkgs)
 
+## reinstall spatial packages from source
+if (FALSE) {
+  install.packages(c("rgdal", "rgeos", "sf", "sp", "raster", "terra"),
+                   repos = "https://cran.rstudio.com", dependencies = TRUE)
+  rgeos::rgeos_extSoftVersion()
+}
+
 moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
   SpaDES.core::packages(modules = m, paths = paths1$modulePath)
 }) %>%
