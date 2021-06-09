@@ -30,13 +30,13 @@ googleAuthPkgs <- c("googleAuthR", "googledrive", "MarkEdmondson1234/googleID")
 otherPkgs <- c("animation", "logging", "slackr", "jimhester/archive")
 
 allPkgs <- unique(c(SpaDESPkgs, shinyPkgs, googleAuthPkgs, otherPkgs))
-Require(allPkgs)
+Require(allPkgs, require = FALSE)
 
 ## reinstall spatial packages from source
 if (FALSE) {
   install.packages(c("rgdal", "rgeos", "sf", "sp", "raster", "terra"),
                    repos = "https://cran.rstudio.com")
-  rgeos::rgeos_extSoftVersion() ## want
+  rgeos::rgeos_extSoftVersion() ## want GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1
 }
 
 moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
@@ -46,4 +46,4 @@ moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
   unname() %>%
   unique() %>%
   sort()
-Require(moduleRqdPkgs)
+Require(moduleRqdPkgs, require = FALSE)
