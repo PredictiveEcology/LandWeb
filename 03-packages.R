@@ -29,6 +29,9 @@ shinyPkgs <- c("gdalUtils", "leaflet", "leaflet.extras", "parallel", "raster", "
 googleAuthPkgs <- c("googleAuthR", "googledrive", "MarkEdmondson1234/googleID")
 otherPkgs <- c("animation", "logging", "slackr", "jimhester/archive")
 
+allPkgs <- unique(c(SpaDESPkgs, shinyPkgs, googleAuthPkgs, otherPkgs))
+Require(allPkgs)
+
 moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
   SpaDES.core::packages(modules = m, paths = paths1$modulePath)
 }) %>%
@@ -36,19 +39,4 @@ moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
   unname() %>%
   unique() %>%
   sort()
-
-allPkgs <- unique(c(SpaDESPkgs, shinyPkgs, googleAuthPkgs, otherPkgs, moduleRqdPkgs))
-
-fromCRAN <- names(which(!pemisc::isGitHubPkg(allPkgs))) %>%
-  sapply(., function(x) strsplit(x, " ")[[1]][[1]]) %>%
-  unname() %>%
-  unique()
-
-fromGitHub <- names(which(pemisc::isGitHubPkg(allPkgs))) %>%
-  sapply(., function(x) strsplit(x, " ")[[1]][[1]]) %>%
-  unname() %>%
-  gsub(pattern = "LandR@development", replacement = "LandR@LandWeb", x = .) %>%
-  unique()
-
-Require(fromCRAN)
-Require(fromGitHub)
+Require(moduleRqdPkgs)
