@@ -35,8 +35,8 @@ Require(allPkgs)
 ## reinstall spatial packages from source
 if (FALSE) {
   install.packages(c("rgdal", "rgeos", "sf", "sp", "raster", "terra"),
-                   repos = "https://cran.rstudio.com", dependencies = TRUE)
-  rgeos::rgeos_extSoftVersion()
+                   repos = "https://cran.rstudio.com")
+  rgeos::rgeos_extSoftVersion() ## want
 }
 
 moduleRqdPkgs <- lapply(basename(dir("m")), function(m) {
