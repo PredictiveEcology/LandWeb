@@ -40,8 +40,8 @@ opts <- options(
   "reproducible.conn" = cacheDBconn,
   "reproducible.destinationPath" = normPath(paths1$inputPath),
   #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
-  "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && user("emcintir")) FALSE else FALSE,
-  "reproducible.inputPaths" = if (user("emcintir")) normPath("~/data") else NULL,
+  "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && peutils::user("emcintir")) FALSE else FALSE,
+  "reproducible.inputPaths" = if (peutils::user("emcintir")) normPath("~/data") else NULL,
   "reproducible.nThreads" = 2,
   "reproducible.overwrite" = TRUE,
   "reproducible.polygonShortcut" = FALSE, ## TODO: work with Eliot to debug why this is needed
