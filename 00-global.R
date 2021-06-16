@@ -14,6 +14,7 @@ if (!require(Require, quietly = TRUE)) {
   install.packages("Require")
   library("Require")
 }
+Require(c("config", "crayon"), require = FALSE)
 
 switch(Sys.info()[["user"]],
        "achubaty" = Sys.setenv(R_CONFIG_ACTIVE = "alex"),
