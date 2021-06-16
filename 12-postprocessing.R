@@ -5,7 +5,7 @@
 analysesOutputsTimes <- seq(summaryPeriod[1], summaryPeriod[2], by = summaryInterval)
 
 if (FALSE) { ## futures don't work properly in Rstudio
-  library(future)
+  Require("future")
   options("future.availableCores.custom" = function() { min(getOption("Ncpus"), 4) })
   future::plan("multiprocess")
 }
