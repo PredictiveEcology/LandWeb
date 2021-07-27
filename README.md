@@ -7,7 +7,7 @@
 - Eliot McIntire (eliot.mcintire@canada.ca)
 - Alex M. Chubaty (achubaty@for-cast.ca)
 
-**Date:** February 26, 2020
+**Date:** July 27, 2021
 
 ### Getting the code
 
@@ -51,44 +51,15 @@ _Packages_
 
 ### Prerequisites
 
-The code is mostly self-sufficient: additional packages than those below are needed, but will be installed automatically.
-See `02-packages.R` to see which additional packages will be used.
-
-```r
-pkgs <- c("config", "crayon", "data.table", "devtools", "dplyr", "logging",
-          "magrittr", "maptools", "plyr", "pryr", "qs", "raster", "Require")
-
-pkgDir <- file.path("packages", version$platform, paste0(version$major, ".",
-                                                         strsplit(version$minor, "[.]")[[1]][1]))
-
-if (!dir.exists(pkgDir)) {
-  dir.create(pkgDir, recursive = TRUE)
-}
-
-.libPaths(pkgDir)
-install.packages(pkgs)
-```
-
-Next, verify your installation of package development tools by running:
+First, verify your installation of package development tools by running:
 
 ```{r has_devel}
+install.packages('devtools')
 devtools::has_devel()
 ```
 
-If the above line is successful, install the following packages from R-Forge and GitHub:
-
-```{r github-pkgs}
-devtools::install_github("PredictiveEcology/Require@development")
-devtools::install_github("PredictiveEcology/reproducible@development")
-devtools::install_github("PredictiveEcology/SpaDES.core@development", dependencies = TRUE)
-devtools::install_github("PredictiveEcology/pemisc@development")
-devtools::install_github("PredictiveEcology/map@development")
-devtools::install_github("PredictiveEcology/LandR@LandWeb")
-devtools::install_github("PredictiveEcology/LandWebUtils@development")
-devtools::install_github("s-u/fastshp")
-```
-
-**NOTE:** After downloading the model code and on first run of the model, additional packages and model data will be downloaded.
+The code is mostly self-sufficient: additional packages than those below are needed, but will be installed automatically.
+See `03-packages.R` to see which additional packages will be used.
 
 #### Overview
 

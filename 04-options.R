@@ -23,7 +23,7 @@ rep <- config::get("rep")
 
 maxMemory <- if (grepl("LandWeb", runName)) 5e+12 else 5e+9
 
-rasterOptions(default = TRUE)
+raster::rasterOptions(default = TRUE)
 opts <- options(
   "fftempdir" = scratchDir,
   "future.globals.maxSize" = 1000*1024^2,
@@ -65,7 +65,7 @@ Require(c("googledrive", "httr"))
 
 httr::set_config(httr::config(http_version = 0))
 
-token <- if (Sys.info()['nodename'] == "forcast01") {
+token <- if (Sys.info()["nodename"] == "forcast01") {
   file.path(activeDir, "landweb-e3147f3110bf.json")
 } else {
   NA_character_
