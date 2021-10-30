@@ -7,7 +7,7 @@ packageLoadStartTime <- Sys.time()
 
 Require(c("plyr", "dplyr")) ## ensure plyr loaded before dplyr or there will be problems
 Require(c("animation", "archive", "assertthat", "devtools", "DBI", "s-u/fastshp",
-          "logging", "parallel", "qs", "slackr", ), require = FALSE)
+          "logging", "parallel", "qs", "slackr"), require = FALSE)
 
 shinyPkgs <- c("leaflet", "leaflet.extras", "parallel", "raster", "reactlog", "rgeos",
                "shiny", "shinyBS", "shinycssloaders", "shinydashboard", "shinyjs", "shinyWidgets")
@@ -22,6 +22,5 @@ if (FALSE) {
   installSpatialPackages()
 }
 
-installSpaDES()
+#installSpaDES()
 makeSureAllPackagesInstalled(modulePath = paths1[["modulePath"]])
-
