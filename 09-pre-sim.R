@@ -95,13 +95,6 @@ parameters3 <- list(
   )
 )
 
-if (grepl("scfm", runName)) {
-  source(file.path(activeDir, "params", "scfm_params.R"))
-  modules3 <- append(modules3[-which(modules3 == "LandMine")], scfmModules)
-  objects3 <- append(objects3, scfmObjects)
-  parameters3 <- append(parameters3, scfmParams)
-}
-
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 analysesOutputsTimes <- seq(objects3$summaryPeriod[1], objects3$summaryPeriod[2],
                             by = parameters3$LandWeb_output$summaryInterval)

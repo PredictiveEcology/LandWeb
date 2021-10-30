@@ -39,7 +39,6 @@ opts <- options(
   "reproducible.cacheSaveFormat" = "rds", ## can be "qs" or "rds"
   "reproducible.conn" = cacheDBconn,
   "reproducible.destinationPath" = normPath(paths1$inputPath),
-  #"reproducible.devMode" = if (user("emcintir")) TRUE else FALSE,
   "reproducible.futurePlan" = if (.Platform$OS.type != "windows" && peutils::user("emcintir")) FALSE else FALSE,
   "reproducible.inputPaths" = if (peutils::user("emcintir")) normPath("~/data") else NULL,
   "reproducible.nThreads" = 2,

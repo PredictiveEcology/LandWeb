@@ -72,8 +72,8 @@ message("Saving simulation to: ", fsim)
 saveSimList(sim = mySimOut, filename = fsim, fileBackend = 2)
 
 elapsed <- elapsedTime(mySimOut)
-data.table::fwrite(elapsed, "elapsedTime.csv")
-qs::qsave(elapsed, "elapsedTime.qs")
+data.table::fwrite(elapsed, file.path(Paths$outputPath, "elapsedTime.csv"))
+qs::qsave(elapsed, file.path(Paths$outputPath, "elapsedTime.qs"))
 
 SpaDES.project::notify_slack(runName, config::get("slackchannel"))
 

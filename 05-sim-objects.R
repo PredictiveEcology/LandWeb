@@ -25,7 +25,7 @@ sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(LandWeb), ]
 
 sppColorVect <- LandR::sppColors(sppEquivalencies_CA, sppEquivCol, newVals = "Mixed", palette = "Accent")
 
-LandMineROStable <- rbindlist(list(
+LandMineROStable <- data.table::rbindlist(list(
   list("mature", "decid", 9L),
   list("immature_young", "decid", 6L),
   list("immature_young", "mixed", 12L),
@@ -38,7 +38,7 @@ LandMineROStable <- rbindlist(list(
   list("immature_young", "spruce", 20L),
   list("mature", "spruce", 30L)
 ))
-setnames(LandMineROStable, old = 1:3, new = c("age", "leading", "ros"))
+data.table::setnames(LandMineROStable, old = 1:3, new = c("age", "leading", "ros"))
 
 if (grepl("equalROS", runName)) {
   LandMineROStable$ros <- 1L

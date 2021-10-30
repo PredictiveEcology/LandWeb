@@ -12,31 +12,17 @@ paths1 <- list(
 )
 
 ## species layers
-paths2 <- list(
-  ## use same cachePath for all data-prep steps before dynamic simulation
-  cachePath = file.path(cacheDir, "dataPrepGIS", "speciesLayers"),
-  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-  inputPath = "inputs",
-  outputPath = file.path("outputs", runName)
-)
+paths2 <- paths1
+paths2[["cachePath"]] <- file.path(cacheDir, "dataPrepGIS", "speciesLayers")
 
 ## boreal data prep
-paths2a <- list(
-  ## use same cachePath for all data-prep steps before dynamic simulation
-  cachePath = file.path(cacheDir, "dataPrepGIS", "borealDataPrep"),
-  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-  inputPath = "inputs",
-  outputPath = file.path("outputs", runName)
-)
+paths2a <- paths2
+paths2a[["cachePath"]] <- file.path(cacheDir, "dataPrepGIS", "borealDataPrep")
 
 ## main simulation
-paths3 <- list(
-  ## NOTE: use separate cachePath for each dynamic simulation
-  cachePath = file.path(cacheDir, runName),
-  modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-  inputPath = "inputs",
-  outputPath = file.path("outputs", runName)
-)
+paths3 <- paths1
+paths3[["cachePath"]] <- file.path(cacheDir, runName)
 
 ## tile path (same for all)
-tilePath <- file.path(paths1$outputPath, "tiles")
+scratchDir <- checkPath(scratchDir, create = TRUE) ## from config.yml
+tilePath <- file.path(paths1[["outputPath"]], "tiles")
