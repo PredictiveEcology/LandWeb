@@ -5,6 +5,8 @@
 
 packageLoadStartTime <- Sys.time()
 
+Require("PredictiveEcology/SpaDES.install")
+
 Require(c("plyr", "dplyr")) ## ensure plyr loaded before dplyr or there will be problems
 Require(c("animation", "archive", "assertthat", "devtools", "DBI", "s-u/fastshp",
           "logging", "parallel", "qs", "slackr"), require = FALSE)
@@ -15,8 +17,6 @@ googleAuthPkgs <- c("googleAuthR", "googledrive", "MarkEdmondson1234/googleID")
 
 allPkgs <- unique(c(shinyPkgs, googleAuthPkgs))
 Require(allPkgs, require = FALSE)
-
-Require("PredictiveEcology/SpaDES.install")
 
 if (FALSE) {
   installSpatialPackages()
