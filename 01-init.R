@@ -61,6 +61,7 @@ postProcessOnly <- config::get("postprocess")
 rerunDataPrep <- if (grepl("LandWeb", runName)) FALSE else TRUE
 rerunSpeciesLayers <- if (grepl("LandWeb", runName)) FALSE else TRUE
 restartInterval <- 100
+rep <- config::get("rep")
 scratchDir <- config::get("paths")[["scratchdir"]]
 sppEquivCol <- "LandWeb"
 studyAreaName <- if (grepl("FMU", runName)) {
@@ -81,4 +82,5 @@ useRestartR <- config::get("restartr")
 useSpades <- if (Sys.info()[["user"]] == "emcintir") TRUE else TRUE
 vegLeadingProportion <- 0.8 # indicates what proportion the stand must be in one species group for it to be leading.
                             # If all are below this, then it is a "mixed" stand
+.plotInitialTime <- if (isTRUE(config::get("plot"))) 0 else NA
 

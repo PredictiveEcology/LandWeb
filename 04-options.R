@@ -18,9 +18,6 @@ cacheDBconn <- if (config::get("cachedb") == "sqlite") {
   stop("Unsupported cache database type '", config::get("cachedb"), "'")
 }
 
-rep <- config::get("rep")
-.plotInitialTime <- if (isTRUE(config::get("plot"))) 0 else NA
-
 maxMemory <- if (grepl("LandWeb", runName)) 5e+12 else 5e+9
 
 raster::rasterOptions(default = TRUE)
