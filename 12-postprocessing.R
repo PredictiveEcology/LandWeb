@@ -2,6 +2,8 @@
 ## Simulation post-processing (largePatches & leading)
 ################################################################################
 
+Require("LandWebUtils")
+
 analysesOutputsTimes <- seq(summaryPeriod[1], summaryPeriod[2], by = summaryInterval)
 
 if (FALSE) { ## futures don't work properly in Rstudio
@@ -10,6 +12,7 @@ if (FALSE) { ## futures don't work properly in Rstudio
   future::plan("multiprocess")
 }
 
+stopifnot(packageVersion("reproducible") >= "1.2.8.9001")
 stopifnot(packageVersion("map") >= "0.0.3")
 stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 
