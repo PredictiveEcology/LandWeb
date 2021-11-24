@@ -280,7 +280,7 @@ if (dir.exists(histDirOld))
 ## 'archive' previous largePatches results following bugfix (2021-05-05)
 histDirArchived <- paste0("histograms_archived_", format(Sys.Date(), "%Y-%m-%d"))
 histDirArchived <- file.path(Paths$outputPath, histDirArchived) %>% normPath(.)
-if (!dir.exists(histDirArchived))
+if (dir.exists(histDirNew) && !dir.exists(histDirArchived))
   file.rename(from = histDirNew, to = histDirArchived)
 
 options(map.useParallel = FALSE)
