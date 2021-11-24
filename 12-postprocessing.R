@@ -2,8 +2,6 @@
 ## Simulation post-processing (largePatches & leading)
 ################################################################################
 
-Require("LandWebUtils")
-
 analysesOutputsTimes <- seq(summaryPeriod[1], summaryPeriod[2], by = summaryInterval)
 
 if (FALSE) { ## futures don't work properly in Rstudio
@@ -15,6 +13,8 @@ if (FALSE) { ## futures don't work properly in Rstudio
 stopifnot(packageVersion("reproducible") >= "1.2.8.9001")
 stopifnot(packageVersion("map") >= "0.0.3")
 stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
+
+Require(c("LandWebUtils", "map"))
 
 padL <- if (landwebVersion == 2 && ## version set in default config
             grepl("BlueRidge|Edson|FMANWT_|LP_BC|MillarWestern|Mistik|prov|Sundre|Vanderwell|WestFraser|WeyCo", runName)) {
@@ -243,8 +243,15 @@ ml <- mapAdd(map = ml, layerName = layerName, analysisGroup1 = ag1,
              leaflet = FALSE) # tilePath
 #options(map.useParallel = mapParallel)
 
-saveRDS(ml, simFile("ml", Paths$outputPath))
-#ml <- readRDS(simFile("ml", Paths$outputPath))
+fml <- list(
+  simFile("ml", Paths$outputPath, ext = "qs"),
+  simFile("ml_leading", Paths$outputPath, ext = "qs"),
+  simFile("ml_large", Paths$outputPath, ext = "qs"),
+  simFile("ml_done", Paths$outputPath, ext = "qs")
+)
+
+qs::qsave(ml, fml[[1]])
+#ml <- qs::qload(fml[[1]])
 
 options(map.useParallel = FALSE)
 #if (grepl("LandWeb", runName)) options(map.maxNumCores = parallel::detectCores() / 8)
@@ -254,8 +261,8 @@ ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
                      sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
 #options(map.useParallel = mapParallel)
 
-saveRDS(ml, simFile("ml_leading", Paths$outputPath))
-#ml <- readRDS(simFile("ml_leading", Paths$outputPath))
+qs::qsave(ml, fml[[2]])
+#ml <- qs::qload(fml[[2]])
 
 # add an analysis -- this will trigger analyses because there are already objects in the map
 #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo
@@ -269,8 +276,8 @@ ml <- mapAddAnalysis(ml, functionName = "LargePatches",
                      sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
 #options(map.useParallel = mapParallel)
 
-saveRDS(ml, simFile("ml_large", Paths$outputPath))
-#ml <- readRDS(simFile("ml_large", Paths$outputPath))
+qs::qsave(ml, fml[[3]])
+#ml <- qs::qload(fml[[3]])
 
 histDirOld <- file.path(Paths$outputPath, "hists") %>% normPath(.)
 histDirNew <- file.path(Paths$outputPath, "histograms") %>% normPath(.)
@@ -305,8 +312,8 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
                             #purgeAnalyses = "runHistsLargePatches",
                             dPath = file.path(Paths$outputPath, "histograms"))
 
-saveRDS(ml, simFile("ml_done", Paths$outputPath))
-#ml <- readRDS(simFile("ml_done", Paths$outputPath))
+qs::qsave(ml, fml[[4]])
+#ml <- qs::qload(fml[[4]])
 
 #source("R/upload.R") ## TODO: not working correctly yet
 
