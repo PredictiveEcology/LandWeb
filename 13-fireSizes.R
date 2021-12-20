@@ -56,12 +56,17 @@ parallel::stopCluster(cl)
 
 setDTthreads(8)
 allFireSizes[, simArea := cleanAreaName(simArea)]
-fwrite(allFireSizes, file.path(outputDir, "allFireSizes.csv"))
+
+fAllFireSizes <- file.path(outputDir, "allFireSizes.csv")
+fwrite(allFireSizes, fAllFireSizes)
+
+googledrive::drive_update(file = googledrive::as_id("1lJtPJ4IfzUsMqcEeYCDXvX2MbrtqAySK"),
+                          media = fAllFireSizes)
 
 # Plot fire size distributions ----------------------------------------------------------------
 
 if (!exists(allFireSizes))
-  allFireSizes <- fread(file.path(outputDir, "allFireSizes.csv"))
+  allFireSizes <- fread(fAllFireSizes)
 
 lapply(simAreas, function(area) {
   expSizes <- log(allFireSizes[simArea == cleanAreaName(area) & expSize > 0, ]$expSize)

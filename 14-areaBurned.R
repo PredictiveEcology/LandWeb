@@ -72,4 +72,9 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
 
 parallel::stopCluster(cl)
 
-fwrite(burnDT, file.path(outputDir, "areaBurned.csv"))
+fAreaBurned <- file.path(outputDir, "areaBurned.csv")
+
+fwrite(burnDT, fAreaBurned)
+
+googledrive::drive_update(file = googledrive::as_id("1zJrgTwNfaNsb6agaqxn5G8VYTc7KZKWy"),
+                          media = fAreaBurned)
