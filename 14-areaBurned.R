@@ -9,7 +9,7 @@ Require("patchwork")
 
 outputDir <- "outputs"
 simAreas <- list.dirs(outputDir, recursive = FALSE, full.names = FALSE) %>%
-  grep("E14|L11|LandWeb|SprayLake", ., invert = TRUE, value = TRUE) ## omit some runs
+  grep("E14|L11|LandWeb|prov|SprayLake", ., invert = TRUE, value = TRUE) ## omit some runs
 
 nodes <- min(getOption("Ncpus", parallel::detectCores() / 2), length(simAreas))
 cl <- parallel::makeForkCluster(nnodes = nodes)
