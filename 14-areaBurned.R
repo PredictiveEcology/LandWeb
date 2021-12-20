@@ -9,7 +9,7 @@ Require("patchwork")
 
 outputDir <- "outputs"
 simAreas <- list.dirs(outputDir, recursive = FALSE, full.names = FALSE) %>%
-  grep("E14|L11|LandWeb|prov|SprayLake", ., invert = TRUE, value = TRUE) ## omit some runs
+  grep("E14|L11|LandWeb|prov|SprayLake|v3", ., invert = TRUE, value = TRUE) ## omit some runs
 
 nodes <- min(getOption("Ncpus", parallel::detectCores() / 2), length(simAreas))
 cl <- parallel::makeForkCluster(nnodes = nodes)
@@ -28,14 +28,18 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
   burns <- lapply(reps, function(rep) {
     simFiles <- file.path(outputDir, area, rep, paste0("mySimOut_", seq(100, 1000, 100), ".rds"))
     simFiles <- simFiles[which(file.exists(simFiles))]
+    if (length(simFiles) == 0) {
+      simFiles <- file.path(outputDir, area, rep, paste0("mySimOut_", seq(100, 1000, 100), ".qs"))
+      simFiles <- simFiles[which(file.exists(simFiles))]
+    }
 
     ## burn maps from each interval
     burnMaps <- lapply(simFiles, function(f) {
-        message("Loading file ", f, "...")
-        mySimOut <- readRDS(f)
-        message("... loaded file ", f, ".")
+      message("Loading file ", f, "...")
+      mySimOut <- SpaDES.core::loadSimList(f)
+      message("... loaded file ", f, ".")
 
-        mySimOut$rstCurrentBurn
+      mySimOut$rstCurrentBurn
     }) %>%
       raster::stack()
   }) %>%
