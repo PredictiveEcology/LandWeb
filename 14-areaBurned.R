@@ -36,7 +36,11 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
     ## burn maps from each interval
     burnMaps <- lapply(simFiles, function(f) {
       message("Loading file ", f, "...")
-      mySimOut <- SpaDES.core::loadSimList(f)
+      if (identical(raster::extension(f), ".qs")) {
+        mySimOut <- SpaDES.core::loadSimList(f)
+      } else if (identical(raster::extension(f), ".rds")) {
+        mySimOut <- readRDS(f)
+      }
       message("... loaded file ", f, ".")
 
       mySimOut$rstCurrentBurn
@@ -50,7 +54,12 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
 
   ## calculate FRI for each FRI polygon within the study area
   f <- file.path(outputDir, area, reps[1], "mySimOut_1000.rds")
-  mySimOut <- readRDS(f)
+  if (file.exists(f)) {
+    mySimOut <- readRDS(f)
+  } else {
+    extension(f) <- ".qs"
+    mySimOut <- SpaDES.core::loadSimList(f)
+  }
 
   compareRaster(cumulBurns, mySimOut$fireReturnInterval, mySimOut$rstFlammable, res = TRUE, orig = TRUE)
 
