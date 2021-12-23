@@ -64,9 +64,11 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
   compareRaster(cumulBurns, mySimOut$fireReturnInterval, mySimOut$rstFlammable, res = TRUE, orig = TRUE)
 
   toRm <- which(is.na(mySimOut$rstFlammable[]) | mySimOut$rstFlammable[] == 0) ## non-flammable
-  cumulBurns[toRm] <- NA
-  mySimOut$rstFlammable[toRm] <- NA
-  mySimOut$fireReturnInterval[toRM] <- NA
+  if (length(toRM) > 0) {
+    cumulBurns[toRm] <- NA
+    mySimOut$rstFlammable[toRm] <- NA
+    mySimOut$fireReturnInterval[toRM] <- NA
+  }
   friDT <- data.table(pixelID = 1:ncell(mySimOut$fireReturnInterval),
                       expArea = mySimOut$rstFlammable[],
                       expFRI = mySimOut$fireReturnInterval[],
