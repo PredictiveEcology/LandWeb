@@ -21,6 +21,7 @@ parallel::clusterEvalQ(cl, {
   setDTthreads(2)
 })
 
+#burnDT <- lapply(simAreas, function(area) {
 burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
   reps <- list.dirs(file.path(outputDir, area), recursive = FALSE, full.names = FALSE) %>%
     grep("boxplots|histograms|tiles", ., invert = TRUE, value = TRUE)
@@ -67,7 +68,7 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
   if (length(toRM) > 0) {
     cumulBurns[toRm] <- NA
     mySimOut$rstFlammable[toRm] <- NA
-    mySimOut$fireReturnInterval[toRM] <- NA
+    mySimOut$fireReturnInterval[toRm] <- NA
   }
   friDT <- data.table(pixelID = 1:ncell(mySimOut$fireReturnInterval),
                       expArea = mySimOut$rstFlammable[],
