@@ -65,7 +65,7 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
   compareRaster(cumulBurns, mySimOut$fireReturnInterval, mySimOut$rstFlammable, res = TRUE, orig = TRUE)
 
   toRm <- which(is.na(mySimOut$rstFlammable[]) | mySimOut$rstFlammable[] == 0) ## non-flammable
-  if (length(toRM) > 0) {
+  if (length(toRm) > 0) {
     cumulBurns[toRm] <- NA
     mySimOut$rstFlammable[toRm] <- NA
     mySimOut$fireReturnInterval[toRm] <- NA
