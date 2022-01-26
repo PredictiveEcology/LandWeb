@@ -57,10 +57,6 @@ production:
     summaryinterval: !expr 100
     timeseriestimes: !expr 601:650
   plot: false
-  #rep: 1
-  #studyarea: "LandWeb"
-  #scenariodisp: "highDispersal"
-  #scenariofire: "logROS"
 
 alex:
   inherits: production

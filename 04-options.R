@@ -43,7 +43,7 @@ opts <- options(
   "reproducible.polygonShortcut" = FALSE, ## TODO: work with Eliot to debug why this is needed
   "reproducible.quick" = FALSE,
   "reproducible.showSimilar" = TRUE,
-  "reproducible.useCache" = if (peutils::user("emcintir")) TRUE else TRUE,
+  "reproducible.useCache" = TRUE,
   "reproducible.useCloud" = TRUE,
   "reproducible.useGDAL" = FALSE, ## NOTE: gdal is faster, but mixing gdal with raster causes inconsistencies
   "reproducible.useMemoise" = FALSE,
