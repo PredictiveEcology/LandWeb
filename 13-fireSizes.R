@@ -10,7 +10,7 @@ Require("kSamples")
 
 outputDir <- "~/GitHub/LandWeb/outputs"
 simAreas <- list.dirs(outputDir, recursive = FALSE, full.names = FALSE) %>%
-  grep("E14|L11|LandWeb|SprayLake", ., invert = TRUE, value = TRUE) ## omit some runs
+  grep("E14|L11|LandWeb|prov|SprayLake|v3", ., invert = TRUE, value = TRUE) ## omit some runs
 
 nodes <- min(getOption("Ncpus", parallel::detectCores() / 2), length(simAreas))
 cl <- parallel::makeForkCluster(nnodes = nodes)
@@ -56,12 +56,17 @@ parallel::stopCluster(cl)
 
 setDTthreads(8)
 allFireSizes[, simArea := cleanAreaName(simArea)]
-fwrite(allFireSizes, file.path(outputDir, "allFireSizes.csv"))
+
+fAllFireSizes <- file.path(outputDir, "allFireSizes.csv")
+fwrite(allFireSizes, fAllFireSizes)
+
+googledrive::drive_update(file = googledrive::as_id("1lJtPJ4IfzUsMqcEeYCDXvX2MbrtqAySK"),
+                          media = fAllFireSizes)
 
 # Plot fire size distributions ----------------------------------------------------------------
 
 if (!exists(allFireSizes))
-  allFireSizes <- fread(file.path(outputDir, "allFireSizes.csv"))
+  allFireSizes <- fread(fAllFireSizes)
 
 lapply(simAreas, function(area) {
   expSizes <- log(allFireSizes[simArea == cleanAreaName(area) & expSize > 0, ]$expSize)

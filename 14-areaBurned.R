@@ -9,7 +9,7 @@ Require("patchwork")
 
 outputDir <- "outputs"
 simAreas <- list.dirs(outputDir, recursive = FALSE, full.names = FALSE) %>%
-  grep("E14|L11|LandWeb|SprayLake", ., invert = TRUE, value = TRUE) ## omit some runs
+  grep("E14|L11|LandWeb|prov|SprayLake|v3", ., invert = TRUE, value = TRUE) ## omit some runs
 
 nodes <- min(getOption("Ncpus", parallel::detectCores() / 2), length(simAreas))
 cl <- parallel::makeForkCluster(nnodes = nodes)
@@ -21,6 +21,7 @@ parallel::clusterEvalQ(cl, {
   setDTthreads(2)
 })
 
+#burnDT <- lapply(simAreas, function(area) {
 burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
   reps <- list.dirs(file.path(outputDir, area), recursive = FALSE, full.names = FALSE) %>%
     grep("boxplots|histograms|tiles", ., invert = TRUE, value = TRUE)
@@ -28,14 +29,22 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
   burns <- lapply(reps, function(rep) {
     simFiles <- file.path(outputDir, area, rep, paste0("mySimOut_", seq(100, 1000, 100), ".rds"))
     simFiles <- simFiles[which(file.exists(simFiles))]
+    if (length(simFiles) == 0) {
+      simFiles <- file.path(outputDir, area, rep, paste0("mySimOut_", seq(100, 1000, 100), ".qs"))
+      simFiles <- simFiles[which(file.exists(simFiles))]
+    }
 
     ## burn maps from each interval
     burnMaps <- lapply(simFiles, function(f) {
-        message("Loading file ", f, "...")
+      message("Loading file ", f, "...")
+      if (identical(raster::extension(f), ".qs")) {
+        mySimOut <- SpaDES.core::loadSimList(f)
+      } else if (identical(raster::extension(f), ".rds")) {
         mySimOut <- readRDS(f)
-        message("... loaded file ", f, ".")
+      }
+      message("... loaded file ", f, ".")
 
-        mySimOut$rstCurrentBurn
+      mySimOut$rstCurrentBurn
     }) %>%
       raster::stack()
   }) %>%
@@ -46,14 +55,21 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
 
   ## calculate FRI for each FRI polygon within the study area
   f <- file.path(outputDir, area, reps[1], "mySimOut_1000.rds")
-  mySimOut <- readRDS(f)
+  if (file.exists(f)) {
+    mySimOut <- readRDS(f)
+  } else {
+    extension(f) <- ".qs"
+    mySimOut <- SpaDES.core::loadSimList(f)
+  }
 
   compareRaster(cumulBurns, mySimOut$fireReturnInterval, mySimOut$rstFlammable, res = TRUE, orig = TRUE)
 
   toRm <- which(is.na(mySimOut$rstFlammable[]) | mySimOut$rstFlammable[] == 0) ## non-flammable
-  cumulBurns[toRm] <- NA
-  mySimOut$rstFlammable[toRm] <- NA
-  mySimOut$fireReturnInterval[toRM] <- NA
+  if (length(toRm) > 0) {
+    cumulBurns[toRm] <- NA
+    mySimOut$rstFlammable[toRm] <- NA
+    mySimOut$fireReturnInterval[toRm] <- NA
+  }
   friDT <- data.table(pixelID = 1:ncell(mySimOut$fireReturnInterval),
                       expArea = mySimOut$rstFlammable[],
                       expFRI = mySimOut$fireReturnInterval[],
@@ -72,4 +88,9 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
 
 parallel::stopCluster(cl)
 
-fwrite(burnDT, file.path(outputDir, "areaBurned.csv"))
+fAreaBurned <- file.path(outputDir, "areaBurned.csv")
+
+fwrite(burnDT, fAreaBurned)
+
+googledrive::drive_update(file = googledrive::as_id("1zJrgTwNfaNsb6agaqxn5G8VYTc7KZKWy"),
+                          media = fAreaBurned)
