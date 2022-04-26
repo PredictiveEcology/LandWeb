@@ -6,6 +6,7 @@ default:
     googleuser: ""
     usecloud: false
   delaystart: 0
+  fireretries: 4
   frimultiple: 1
   gitpkgpath: "~/GitHub"
   mapresfact: 1

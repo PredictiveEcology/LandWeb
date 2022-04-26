@@ -56,6 +56,7 @@ landwebVersion <- config::get("version")
 mapParallel <- TRUE #getOption("Ncpus", parallel::detectCores() / 2)
 mapResFact <- getMapResFact(runName)
 maxAge <- 400
+maxFireRetries <- config::get("fireretries")
 minFRI <- 25
 postProcessOnly <- config::get("postprocess")
 rerunDataPrep <- if (grepl("LandWeb", runName)) FALSE else TRUE
