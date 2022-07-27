@@ -1,3 +1,5 @@
+if (file.exists(".Renviron")) readRenviron(".Renviron")
+
 switch(Sys.info()[["user"]],
        "achubaty" = Sys.setenv(R_CONFIG_ACTIVE = "alex"),
        "emcintir" = Sys.setenv(R_CONFIG_ACTIVE = "eliot"),
