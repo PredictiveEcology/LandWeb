@@ -48,6 +48,7 @@ R-Portable/
 .checkpoint
 
 last.dump.rda
+inputs*
 outputs*
 
 ## OAuth tokens

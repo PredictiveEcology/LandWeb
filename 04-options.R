@@ -49,6 +49,7 @@ opts <- options(
   "reproducible.useMemoise" = FALSE,
   "reproducible.useNewDigestAlgorithm" = 2, ## this should solve most/all file-backed raster issues
   "reproducible.useRequire" = FALSE,
+  #"reproducible.useTerra" = TRUE, ## TODO: update + test with terra
   "spades.messagingNumCharsModule" = 36,
   "spades.moduleCodeChecks" = FALSE,
   "spades.nThreads" = 4,
@@ -57,20 +58,17 @@ opts <- options(
   "spades.useRequire" = FALSE # Don't use Require... meaning assume all pkgs installed
 )
 
-Require(c("googledrive", "httr"))
-
 httr::set_config(httr::config(http_version = 0))
 
-token <- if (Sys.info()["nodename"] == "forcast01") {
-  file.path(activeDir, "landweb-e3147f3110bf.json")
+token <- Require::normPath(list.files(".", "landweb-.*[.]json")[1])
+haveToken <- all(isTRUE(length(token) == 1), !is.na(token))
+
+if (haveToken) {
+  drive_auth(path = token)
 } else {
-  NA_character_
-} %>%
-  normPath(.)
+  message(crayon::red("No Google service account token found. Trying user authentication..."))
 
-if (is.na(token) || !file.exists(token))
-  message(crayon::red("No Google service token found; authenticating with user token..."))
-
-drive_auth(email = config::get("cloud")[["googleuser"]], use_oob = quickPlot::isRstudioServer())
+  drive_auth(email = config::get("cloud")[["googleuser"]], use_oob = quickPlot::isRstudioServer())
+}
 
 message(crayon::silver("Authenticating as: "), crayon::green(drive_user()$emailAddress))

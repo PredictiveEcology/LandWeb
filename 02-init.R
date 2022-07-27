@@ -6,10 +6,6 @@
 
 if (file.exists(".Renviron")) readRenviron(".Renviron")
 
-Require(c("config", "magrittr",
-          "PredictiveEcology/quickPlot@development",
-          "PredictiveEcology/reproducible@development"))
-
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
 
 getFRImultiple <- function(runName) {

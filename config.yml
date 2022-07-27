@@ -12,7 +12,7 @@ default:
   paths:
     activedir: "~/GitHub/LandWeb"
     cachedir: "cache"
-    scratchdir: "/tmp/scratch/LandWeb"
+    scratchdir: !expr file.path(dirname(tempdir()), "scratch", "LandWeb")
   plot: true
   postprocess: false
   rep: 1

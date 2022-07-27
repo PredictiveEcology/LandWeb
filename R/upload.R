@@ -1,4 +1,4 @@
-Require::Require("jimhester/archive")
+Require::Require("archive")
 Require::Require("googledrive")
 
 outputPath <- normalizePath(file.path("outputs", runName))

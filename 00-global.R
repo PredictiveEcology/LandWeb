@@ -1,21 +1,3 @@
-## ensure `.libPaths(pkgDir)` is set and used when e.g., .Rprofile doesn't get run,
-##   as is the case when using `r` to run scripts
-if (!exists("pkgDir")) {
-  pkgDir <- file.path("packages", version$platform, paste0(version$major, ".",
-                                                           strsplit(version$minor, "[.]")[[1]][1]))
-
-  if (!dir.exists(pkgDir)) {
-    dir.create(pkgDir, recursive = TRUE)
-  }
-  .libPaths(pkgDir)
-}
-
-if (!require(Require, quietly = TRUE)) {
-  install.packages("Require")
-  library("Require")
-}
-Require(c("config", "crayon"), require = FALSE)
-
 switch(Sys.info()[["user"]],
        "achubaty" = Sys.setenv(R_CONFIG_ACTIVE = "alex"),
        "emcintir" = Sys.setenv(R_CONFIG_ACTIVE = "eliot"),
@@ -39,9 +21,9 @@ stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set: e.g.
 
 message(crayon::red(runName))
 
-source("01-init.R")
-source("02-paths.R")
-source("03-packages.R")
+source("01-packages.R")
+source("02-init.R")
+source("03-paths.R")
 source("04-options.R")
 source("05-sim-objects.R")
 
