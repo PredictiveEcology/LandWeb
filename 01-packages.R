@@ -26,8 +26,8 @@ packageLoadStartTime <- Sys.time()
 ## NOTE: always load packages LAST, after installation above;
 ##       ensure plyr loaded before dplyr or there will be problems
 Require(c("data.table", "plyr", "pryr",
-          "PredictiveEcology/LandR@development (>= 1.0.7.9003)", ## TODO: workaround weird raster/sf method problem
-          "PredictiveEcology/SpaDES.core@development (>= 1.0.10.9002)",
+          "PredictiveEcology/LandR@development (>= 1.0.7.9003)",
+          "PredictiveEcology/SpaDES.core@development (>= 1.1.0)",
           "archive", "googledrive", "httr", "magrittr", "slackr"), upgrade = FALSE)
 
 makeSureAllPackagesInstalled(modulePath = "modules")
