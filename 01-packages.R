@@ -30,4 +30,4 @@ Require(c("data.table", "plyr", "pryr",
           "PredictiveEcology/SpaDES.core@development (>= 1.1.0)",
           "archive", "googledrive", "httr", "magrittr", "slackr"), upgrade = FALSE)
 
-makeSureAllPackagesInstalled(modulePath = "modules")
+makeSureAllPackagesInstalled(modulePath = "m")
