@@ -49,7 +49,7 @@ opts <- options(
   "reproducible.useMemoise" = FALSE,
   "reproducible.useNewDigestAlgorithm" = 2, ## this should solve most/all file-backed raster issues
   "reproducible.useRequire" = FALSE,
-  #"reproducible.useTerra" = TRUE, ## TODO: update + test with terra
+  "reproducible.useTerra" = FALSE, ## TODO: update + test with terra
   "spades.messagingNumCharsModule" = 36,
   "spades.moduleCodeChecks" = FALSE,
   "spades.nThreads" = 4,
