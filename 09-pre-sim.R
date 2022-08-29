@@ -34,8 +34,8 @@ objects3 <- list(
   "species" = simOutDataPrep[["species"]],
   "speciesEcoregion" = simOutDataPrep[["speciesEcoregion"]],
   "speciesLayers" = simOutSpeciesLayers[["speciesLayers"]],
-  "speciesParams" = speciesParams,
-  "speciesTable" = speciesTable,
+  "speciesParams" = simOutDataPrep[["speciesParams"]],
+  "speciesTable" = simOutDataPrep[["speciesTable"]],
   "sppColorVect" = sppColorVect,
   "sppEquiv" = sppEquivalencies_CA,
   "standAgeMap" = simOutPreamble[["CC TSF"]], ## same as rstTimeSinceFire; TODO: use synonym?
