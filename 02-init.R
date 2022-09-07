@@ -4,8 +4,6 @@
 
 .starttime <- Sys.time()
 
-if (file.exists(".Renviron")) readRenviron(".Renviron")
-
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer()) ## TODO: temporary for Alex's testing
 
 getFRImultiple <- function(runName) {
