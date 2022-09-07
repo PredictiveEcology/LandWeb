@@ -68,6 +68,7 @@ parameters3 <- list(
     "biggestPossibleFireSizeHa" = 5e5,
     "burnInitialTime" = fireTimestep,
     "fireTimestep" = fireTimestep,
+    "maxReburns" = maxFireReburns,
     "maxRetriesPerID" = maxFireRetries,
     "minPropBurn" = 0.90,
     "ROSother" = if (grepl("equalROS", runName)) {
