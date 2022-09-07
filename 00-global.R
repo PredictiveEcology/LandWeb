@@ -1,5 +1,20 @@
 if (file.exists(".Renviron")) readRenviron(".Renviron")
 
+if (Sys.info()["sysname"] == "Linux" && grepl("Ubuntu", utils::osVersion)) {
+  .os.version <- system("lsb_release -cs", intern = TRUE)
+  .user.agent <- paste0(
+    "R/", getRversion(), " R (",
+    paste(getRversion(), R.version["platform"], R.version["arch"], R.version["os"]),
+    ")"
+  )
+  options(repos = c(CRAN = paste0("https://packagemanager.rstudio.com/all/__linux__/",
+                                  .os.version, "/latest")))
+  options(HTTPUserAgent = .user.agent)
+}
+
+options(Ncpus = min(parallel::detectCores() / 2, 120))
+options("repos" = c(CRAN = "https://cran.rstudio.com"))
+
 source("01-packages.R")
 
 switch(Sys.info()[["user"]],
