@@ -16,7 +16,7 @@ stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 
 Require(c("LandWebUtils", "map"))
 
-padL <- if (landwebVersion == 2 && ## version set in default config
+padL <- if (config$version == 2 && ## version set in default config
             grepl("BlueRidge|Edson|FMANWT_|LP_BC|MillarWestern|Mistik|prov|Sundre|Vanderwell|WestFraser|WeyCo", runName)) {
   3
 } else {
@@ -135,7 +135,7 @@ if (isTRUE(grepl("Ubuntu 20.04", osVersion)))
   tiler::tiler_options(python = Sys.which("python3"))
 
 vtmCC <- vegTypeMapGenerator(simOutSpeciesLayers$speciesLayers, vegLeadingProportion, mixedType = 2,
-                             sppEquiv = sppEquivalencies_CA, sppEquivCol = "LandWeb", colors = sppColorVect,
+                             sppEquiv = sppEquiv, sppEquivCol = "LandWeb", colors = sppColorVect,
                              doAssertion = FALSE)
 fname <- file.path(Paths$outputPath, "CurrentConditionVTM.tif")
 writeRaster(vtmCC, fname, overwrite = TRUE)
@@ -258,7 +258,7 @@ options(map.useParallel = FALSE)
 ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
                      #purgeAnalyses = "LeadingVegTypeByAgeClass",
                      ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                     sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
+                     sppEquivCol = "EN_generic_short", sppEquiv = sppEquiv)
 #options(map.useParallel = mapParallel)
 
 qs::qsave(ml, fml[[2]])
@@ -273,7 +273,7 @@ ml <- mapAddAnalysis(ml, functionName = "LargePatches",
                      id = "1", labelColumn = "shinyLabel",
                      #purgeAnalyses = "LargePatches",
                      ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
-                     sppEquivCol = "EN_generic_short", sppEquiv = sppEquivalencies_CA)
+                     sppEquivCol = "EN_generic_short", sppEquiv = sppEquiv)
 #options(map.useParallel = mapParallel)
 
 qs::qsave(ml, fml[[3]])

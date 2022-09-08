@@ -5,16 +5,16 @@
 do.call(SpaDES.core::setPaths, paths2a)
 
 objects2a <- list(
-  "cloudFolderID" = cloudCacheFolderID,
+  "cloudFolderID" = config$cloud$cacheDir,
   "rstLCC" = simOutPreamble[["LCC"]],
   "rasterToMatch" = simOutPreamble[["rasterToMatch"]],
   "rasterToMatchLarge" = simOutPreamble[["rasterToMatchLarge"]],
   "speciesLayers" = simOutSpeciesLayers[["speciesLayers"]],
-  "speciesParams" = speciesParams,
-  "speciesTable" = speciesTable,
+  "speciesParams" = simOutPreamble[["speciesParams"]],
+  "speciesTable" = simOutPreamble[["speciesTable"]],
   "speciesTableAreas" = c("BSW", "BP", "MC"), ## TODO: should we remove BP? MC?
-  "sppColorVect" = sppColorVect,
-  "sppEquiv" = sppEquivalencies_CA,
+  "sppColorVect" = simOutPreamble[["sppColorVect"]],
+  "sppEquiv" = simOutPreamble[["sppEquiv"]],
   "standAgeMap" = simOutPreamble[["CC TSF"]],
   "studyArea" = simOutPreamble[["studyArea"]],
   "studyAreaLarge" = simOutPreamble[["studyAreaLarge"]]
@@ -40,14 +40,14 @@ parameters2a <- list(
     "runName" = runName,
     "pixelGroupAgeClass" = successionTimestep * 2,  ## can be coarse because initial conditions are irrelevant
     "pixelGroupBiomassClass" = 1000 / mapResFact^2, ## can be coarse because initial conditions are irrelevant
-    "sppEquivCol" = sppEquivCol,
+    "sppEquivCol" = simOutPreamble[["sppEquivCol"]],
     "subsetDataAgeModel" = 100,
     "subsetDataBiomassModel" = 100,
     "speciesUpdateFunction" = list(
       quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
       quote(LandR::updateSpeciesTable(sim$species, sim$speciesParams))
     ),
-    "useCloudCacheForStats" = useCloudCache, #TRUE,
+    "config$cloud$useCloudForStats" = config$cloud$useCloud, #TRUE,
     ".plotInitialTime" = .plotInitialTime,
     ".studyAreaName" = studyAreaName,
     ".useCache" = eventCaching
@@ -63,8 +63,8 @@ simOutDataPrep <- Cache(simInitAndSpades,
                         objects = objects2a,
                         omitArgs = c("debug", "paths", ".plotInitialTime"),
                         useCache = if (isTRUE(rerunDataPrep)) "overwrite" else TRUE,
-                        useCloud = useCloudCache,
-                        cloudFolderID = cloudCacheFolderID,
+                        useCloud = config$cloud$useCloud,
+                        cloudFolderID = config$cloud$cacheDir,
                         ## make .plotInitialTime an argument, not a parameter:
                         ##  - Cache will see them as unchanged regardless of value
                         .plotInitialTime = .plotInitialTime,

@@ -23,7 +23,7 @@ if (isFALSE(useRestartR)) {
                       debug = list(file = list(file = file.path(Paths$outputPath, "sim.log"),
                                                append = TRUE), debug = 1),
                       useCloud = FALSE,
-                      cloudFolderID = cloudCacheFolderID,
+                      cloudFolderID = config$cloud$cacheDir,
                       omitArgs = c("debug", "paths", ".plotInitialTime"),
                       .plotInitialTime = .plotInitialTime)
   }, error = function(e) {
@@ -49,7 +49,7 @@ if (isFALSE(useRestartR)) {
                       debug = list(file = list(file = file.path(Paths$outputPath, "sim.log"),
                                                append = TRUE), debug = 1),
                       useCloud = FALSE,
-                      cloudFolderID = cloudCacheFolderID,
+                      cloudFolderID = config$cloud$cacheDir,
                       omitArgs = c("debug", "paths", ".plotInitialTime"),
                       .plotInitialTime = .plotInitialTime)
   }, error = function(e) {

@@ -5,22 +5,22 @@
 do.call(SpaDES.core::setPaths, paths2)
 
 objects2 <- list(
-  "nonTreePixels" = simOutPreamble[["nonTreePixels"]],
-  "rasterToMatchLarge" = simOutPreamble[["rasterToMatchLarge"]],
-  "sppColorVect" = sppColorVect,
-  "sppEquiv" = sppEquivalencies_CA,
-  "studyAreaLarge" = simOutPreamble[["studyAreaLarge"]],
-  "studyAreaReporting" = simOutPreamble[["studyAreaReporting"]]
+  #nonTreePixels = simOutPreamble[["nonTreePixels"]], ## TODO: confirm no longer required
+  rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
+  sppColorVect = simOutPreamble[["sppColorVect"]],
+  sppEquiv = simOutPreamble[["sppEquiv"]],
+  studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
+  studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
 )
 
 parameters2 <- list(
   Biomass_speciesData = list(
-    "omitNonVegPixels" = TRUE,
-    "sppEquivCol" = sppEquivCol,
-    "types" = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
-    ".plotInitialTime" = .plotInitialTime,
-    ".studyAreaName" = studyAreaName,
-    ".useCache" = FALSE
+    omitNonVegPixels = TRUE,
+    sppEquivCol = simOutPreamble[["sppEquivCol"]],
+    types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
+    .plotInitialTime = .plotInitialTime,
+    .studyAreaName = studyAreaName,
+    .useCache = FALSE
   )
 )
 
@@ -46,8 +46,8 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              objects = objects2,
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
                              useCache = if (isTRUE(rerunSpeciesLayers)) "overwrite" else TRUE,
-                             useCloud = useCloudCache,
-                             cloudFolderID = cloudCacheFolderID,
+                             useCloud = config$cloud$useCloud,
+                             cloudFolderID = config$cloud$cacheDir,
                              ## make .plotInitialTime an argument, not a parameter:
                              ##  - Cache will see them as unchanged regardless of value
                              .plotInitialTime = .plotInitialTime,

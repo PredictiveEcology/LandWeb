@@ -1,22 +1,17 @@
-################################################################################
-## Preamble (creates study areas, etc.)
-################################################################################
-
-Require("SpaDES.core")
-
-do.call(SpaDES.core::setPaths, paths1) # Set them here so that we don't have to specify at each call to Cache
+# Preamble (create study areas, etc.) ---------------------------------------------------------
+do.call(SpaDES.core::setPaths, paths$paths1) # Set them here so that we don't have to specify at each call to Cache
 
 objects1 <- list()
 
 parameters1 <- list(
   LandWeb_preamble = list(
-    "bufferDist" = 25000,        ## 25 km buffer
-    "bufferDistLarge" = 50000,   ## 50 km buffer
-    "friMultiple" = friMultiple,
-    "mapResFact" = mapResFact,
-    "minFRI" = minFRI,
-    "runName" = runName,
-    "treeClassesLCC" = forestedLCCClasses
+    bufferDist = 20000,        ## 20 km buffer
+    bufferDistLarge = 50000,   ## 50 km buffer
+    friMultiple = config$params$friMultiple,
+    mapResFact = config$runInfo$mapResFact,
+    minFRI = config$params$minFRI,
+    runName = config$runInfo$runName,
+    treeClassesLCC = config$params$forestedLCCClasses
   )
 )
 
@@ -25,16 +20,15 @@ simOutPreamble <- Cache(simInitAndSpades,
                         params = parameters1,
                         modules = c("LandWeb_preamble"),
                         objects = objects1,
-                        paths = paths1,
+                        paths = paths$paths1,
                         debug = 1,
                         omitArgs = c("debug", "paths"),
-                        #useCache = "overwrite", ## TODO: remove this workaround
-                        useCloud = useCloudCache, #!isFALSE(getOption("reproducible.futurePlan")),
-                        cloudFolderID = cloudCacheFolderID)
+                        useCloud = config$cloud$useCloud,
+                        cloudFolderID = config$cloud$cacheDir)
 
 saveRDS(simOutPreamble$ml, file.path(Paths$outputPath, "ml_preamble.rds")) ## TODO: use `qs::qsave()`
 
-if (!is.na(.plotInitialTime)) {
+if ("screen" %in% config$params$.plots) {
   lapply(dev.list(), function(x) {
     try(quickPlot::clearPlot(force = TRUE))
     try(dev.off())

@@ -15,36 +15,36 @@ modules3 <- if (isTRUE(succession)) {
 #stopifnot(unique(res(simOutSpeciesLayers[["speciesLayers"]])) %==% 250 / mapResFact)
 
 objects3 <- list(
-  "biomassMap" = simOutDataPrep[["biomassMap"]],
-  "cohortData" = simOutDataPrep[["cohortData"]],
-  "ecoDistrict" = simOutDataPrep[["ecoDistrict"]],
-  "ecoregion" = simOutDataPrep[["ecoregion"]],
-  "ecoregionMap" = simOutDataPrep[["ecoregionMap"]],
-  "fireReturnInterval" = simOutPreamble[["fireReturnInterval"]],
-  "minRelativeB" = simOutDataPrep[["minRelativeB"]],
-  "pixelGroupMap" = simOutDataPrep[["pixelGroupMap"]],
-  "rawBiomassMap" = simOutDataPrep[["rawBiomassMap"]],
-  "rstLCC" = simOutPreamble[["LCC"]],
-  "rasterToMatch" = simOutPreamble[["rasterToMatch"]],
-  "rasterToMatchLarge" = simOutPreamble[["rasterToMatchLarge"]],
-  "rasterToMatchReporting" = simOutPreamble[["rasterToMatchReporting"]],
-  "ROSTable" = LandMineROStable,
-  "rstFlammable" = simOutPreamble[["rstFlammable"]],
-  "rstTimeSinceFire" = crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]),
-  "species" = simOutDataPrep[["species"]],
-  "speciesEcoregion" = simOutDataPrep[["speciesEcoregion"]],
-  "speciesLayers" = simOutSpeciesLayers[["speciesLayers"]],
-  "speciesParams" = simOutDataPrep[["speciesParams"]],
-  "speciesTable" = simOutDataPrep[["speciesTable"]],
-  "sppColorVect" = sppColorVect,
-  "sppEquiv" = sppEquivalencies_CA,
-  "standAgeMap" = simOutPreamble[["CC TSF"]], ## same as rstTimeSinceFire; TODO: use synonym?
-  "studyArea" = simOutPreamble[["studyArea"]],
-  "studyAreaLarge" = simOutPreamble[["studyAreaLarge"]],
-  "studyAreaReporting" = simOutPreamble[["studyAreaReporting"]],
-  "sufficientLight" = simOutDataPrep[["sufficientLight"]],
-  "summaryPeriod" = summaryPeriod, ## defined in params file
-  "useParallel" = useParallel
+  biomassMap = simOutDataPrep[["biomassMap"]],
+  cohortData = simOutDataPrep[["cohortData"]],
+  ecoDistrict = simOutDataPrep[["ecoDistrict"]],
+  ecoregion = simOutDataPrep[["ecoregion"]],
+  ecoregionMap = simOutDataPrep[["ecoregionMap"]],
+  fireReturnInterval = simOutPreamble[["fireReturnInterval"]],
+  minRelativeB = simOutDataPrep[["minRelativeB"]],
+  pixelGroupMap = simOutDataPrep[["pixelGroupMap"]],
+  rawBiomassMap = simOutDataPrep[["rawBiomassMap"]],
+  rstLCC = simOutPreamble[["LCC"]],
+  rasterToMatch = simOutPreamble[["rasterToMatch"]],
+  rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
+  rasterToMatchReporting = simOutPreamble[["rasterToMatchReporting"]],
+  ROSTable = simOutPreamble[["LandMineROStable"]],
+  rstFlammable = simOutPreamble[["rstFlammable"]],
+  rstTimeSinceFire = crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]),
+  species = simOutDataPrep[["species"]],
+  speciesEcoregion = simOutDataPrep[["speciesEcoregion"]],
+  speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
+  speciesParams = simOutDataPrep[["speciesParams"]],
+  speciesTable = simOutDataPrep[["speciesTable"]],
+  sppColorVect = simOutPreamble[["sppColorVect"]],
+  sppEquiv = simOutPreamble[["sppEquiv"]],
+  standAgeMap = simOutPreamble[["CC TSF"]], ## same as rstTimeSinceFire; TODO: use synonym?
+  studyArea = simOutPreamble[["studyArea"]],
+  studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
+  studyAreaReporting = simOutPreamble[["studyAreaReporting"]],
+  sufficientLight = simOutDataPrep[["sufficientLight"]],
+  summaryPeriod = summaryPeriod, ## defined in params file
+  useParallel = useParallel
 )
 
 parameters3 <- list(
@@ -52,7 +52,7 @@ parameters3 <- list(
   Biomass_core = list(
     "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
     "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
-    "sppEquivCol" = sppEquivCol,
+    "sppEquivCol" = simOutPreamble[["sppEquivCol"]],
     "successionTimestep" = successionTimestep,
     ".maxMemory" = if (format(pemisc::availableMemory(), units = "GiB") > 130) 5 else 2, ## GB
     ".plotInitialTime" = .plotInitialTime,
@@ -78,13 +78,13 @@ parameters3 <- list(
     } else {
       30L
     },
-    "sppEquivCol" = sppEquivCol,
+    "sppEquivCol" = simOutPreamble[["sppEquivCol"]],
     "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
     ".useCache" = eventCaching,
     ".useParallel" = max(2, useParallel)
   ),
   LandWeb_output = list(
-    "sppEquivCol" = sppEquivCol,
+    "sppEquivCol" = simOutPreamble[["sppEquivCol"]],
     "summaryInterval" = summaryInterval,
     "vegLeadingProportion" = vegLeadingProportion,
     #".plotInitialTime" = .plotInitialTime,
