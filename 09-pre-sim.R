@@ -81,7 +81,7 @@ parameters3 <- list(
     "sppEquivCol" = simOutPreamble[["sppEquivCol"]],
     "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
     ".useCache" = eventCaching,
-    ".useParallel" = max(2, useParallel)
+    ".useParallel" = max(2, useParallel) ## doesn't benefit from more DT threads
   ),
   LandWeb_output = list(
     "sppEquivCol" = simOutPreamble[["sppEquivCol"]],
