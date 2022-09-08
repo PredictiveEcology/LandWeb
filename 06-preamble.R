@@ -28,7 +28,7 @@ simOutPreamble <- Cache(simInitAndSpades,
 
 saveRDS(simOutPreamble$ml, file.path(Paths$outputPath, "ml_preamble.rds")) ## TODO: use `qs::qsave()`
 
-if ("screen" %in% config$params$.plots) {
+if ("screen" %in% config.get(config, c("params", ".plots"))) {
   lapply(dev.list(), function(x) {
     try(quickPlot::clearPlot(force = TRUE))
     try(dev.off())
@@ -38,7 +38,7 @@ if ("screen" %in% config$params$.plots) {
   grid::grid.text(label = runName, x = 0.90, y = 0.03)
 
   Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
-  Plot(simOutPreamble$rasterToMatchReporting) #bug in quickPlot that makes these not plot together
+  Plot(simOutPreamble$rasterToMatchReporting) ## TODO: bug in quickPlot prevents plotting these together
   Plot(simOutPreamble$rasterToMatch)
   Plot(simOutPreamble$rasterToMatchLarge)
 }
