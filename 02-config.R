@@ -47,6 +47,7 @@ getMapResFact <- function(runName) {
   }
 }
 
+
 # project config ------------------------------------------------------------------------------
 config.default = list(
   batchMode = FALSE,
@@ -290,3 +291,31 @@ config <- Require::modifyList2(
     )
   )
 )
+
+
+# validate config -----------------------------------------------------------------------------
+
+## TODO: generalize and put these in a package somewhere
+
+config.isNULL <- rapply(config, is.null, how = "unlist")
+
+stopifnot(
+  all(config.isNULL %in% FALSE),
+  identical(length(unique(names(config.isNULL))), length(unique(tolower(names(config.isNULL)))))
+)
+
+## NB: only use accessor to retrieve values (to guard against partial matching and NULL values)
+config.get <- function(config, name) {
+  val <- switch(length(name),
+                `1` = config[[name[1]]],
+                `2` = config[[name[1]]][[name[2]]],
+                `3` = config[[name[1]]][[name[2]]][[name[3]]],
+                `4` = config[[name[1]]][[name[2]]][[name[3]]][[name[4]]],
+                `5` = config[[name[1]]][[name[2]]][[name[3]]][[name[4]]][[name[5]]])
+
+  stopifnot(!is.null(val))
+
+  return(val)
+}
+
+## USAGE: config.get(config, c("params", "ageClasses"))

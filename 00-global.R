@@ -100,19 +100,19 @@ paths4spades <- function(paths) {
 }
 
 paths <- list(
-  paths1 = paths4spades(config$paths),  ## preamble
-  paths2 = paths4spades(config$paths),  ## species layers
-  paths2a = paths4spades(config$paths), ## boreal data prep
-  paths3 = paths4spades(config$paths)   ## main simulation
+  paths1 = paths4spades(config.get(config, "paths")),  ## preamble
+  paths2 = paths4spades(config.get(config, "paths")),  ## species layers
+  paths2a = paths4spades(config.get(config, "paths")), ## boreal data prep
+  paths3 = paths4spades(config.get(config, "paths"))   ## main simulation
 )
 
-paths$paths2[["cachePath"]] <- file.path(config$paths$cachePath, "dataPrepGIS", "speciesLayers")
-paths$paths2a[["cachePath"]] <- file.path(config$paths$cachePath, "dataPrepGIS", "borealDataPrep")
-paths$paths3[["cachePath"]] <- file.path(config$paths$cachePath, config$runInfo$runName)
+paths$paths2[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), "dataPrepGIS", "speciesLayers")
+paths$paths2a[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), "dataPrepGIS", "borealDataPrep")
+paths$paths3[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), config$runInfo$runName)
 
 # set package options -------------------------------------------------------------------------
 raster::rasterOptions(default = TRUE)
-opts <- options(config$options)
+opts <- options(config.get(config, "options"))
 httr::set_config(httr::config(http_version = 0))
 
 ## TODO: move these helper functions to package SpaDES.project
@@ -133,9 +133,9 @@ if (hasToken("landweb")) {
 
 message(crayon::silver("Authenticating as: "), crayon::green(drive_user()$emailAddress))
 
-if (config$delayStart > 0) {
-  message(crayon::green("\nStaggered job start: delaying by", as.integer(config$delayStart), "minutes."))
-  Sys.sleep(config$delayStart*60)
+if (config.get(config, "delayStart") > 0) {
+  message(crayon::green("\nStaggered job start: delaying by", as.integer(config.get(config, "delayStart")), "minutes."))
+  Sys.sleep(config.get(config, "delayStart")*60)
 }
 
 # run pre-sim data prep modules ---------------------------------------------------------------

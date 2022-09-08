@@ -7,11 +7,11 @@ parameters1 <- list(
   LandWeb_preamble = list(
     bufferDist = 20000,        ## 20 km buffer
     bufferDistLarge = 50000,   ## 50 km buffer
-    friMultiple = config$params$friMultiple,
-    mapResFact = config$runInfo$mapResFact,
-    minFRI = config$params$minFRI,
-    runName = config$runInfo$runName,
-    treeClassesLCC = config$params$forestedLCCClasses
+    friMultiple = config.get(config, c("runInfo", "friMultiple")),
+    mapResFact = config.get(config, c("runInfo", "mapResFact")),
+    minFRI = config.get(config, c("params", "minFRI")),
+    runName = config.get(config, c("runInfo", "runName")),
+    treeClassesLCC = config.get(config, c("params", "forestedLCCClasses"))
   )
 )
 
@@ -23,8 +23,8 @@ simOutPreamble <- Cache(simInitAndSpades,
                         paths = paths$paths1,
                         debug = 1,
                         omitArgs = c("debug", "paths"),
-                        useCloud = config$cloud$useCloud,
-                        cloudFolderID = config$cloud$cacheDir)
+                        useCloud = config.get(config, c("cloud", "useCloud")),
+                        cloudFolderID = config.get(config, c("cloud", "cacheDir")))
 
 saveRDS(simOutPreamble$ml, file.path(Paths$outputPath, "ml_preamble.rds")) ## TODO: use `qs::qsave()`
 
