@@ -35,7 +35,7 @@ if ("screen" %in% config.get(config, c("params", ".plots"))) {
   })
   quickPlot::dev(2, width = 18, height = 10)
   grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-  grid::grid.text(label = runName, x = 0.90, y = 0.03)
+  grid::grid.text(label = config.get(config, c("runInfo", "runName")), x = 0.90, y = 0.03)
 
   Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
   Plot(simOutPreamble$rasterToMatchReporting) ## TODO: bug in quickPlot prevents plotting these together

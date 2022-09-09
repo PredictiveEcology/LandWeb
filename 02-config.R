@@ -96,14 +96,15 @@ config.default = list(
     maxFireReburns = 4,
     maxFireRetries = 10,
     minFRI = 25,
-    successionTimeStep = 10,
+    successionTimetep = 10,
     summaryPeriod = c(700, 1000),
     summaryInterval = 100,
     timeSeriesTimes = 601:650,
     vegLeadingProportion = 0.8, # indicates what proportion the stand must be in one species group for it to be leading.
                                 # If all are below this, then it is a "mixed" stand
     .plotInitialTime = 0,
-    .plots = c("object", "png", "raw", "screen")
+    .plots = c("object", "png", "raw", "screen"),
+    .sslVerify = 0L ## TODO: temporary to workaround NFI server SSL problems
   ),
   paths = list(
     cachePath = "cache",
@@ -144,7 +145,7 @@ config.profile <- Require::modifyList2(
   config.default, list(
     params = list(
       endTime = 20,
-      successionTimeStep = 10,
+      successionTimestep = 10,
       summaryPeriod = c(10, 20),
       summaryInterval = 10,
       timeSeriesTimes = 10,
@@ -163,7 +164,7 @@ config.testing <- Require::modifyList2(
   config.default, list(
     params = list(
       endTime = 300,
-      successionTimeStep = 10,
+      successionTimestep = 10,
       summaryPeriod = c(250, 300),
       summaryInterval = 10,
       timeSeriesTimes = 201:210
@@ -181,7 +182,7 @@ config.production <- Require::modifyList2(
     delayStart = sample(5L:15L, 1), # 5-15 minute delay to stagger starts
     params = list(
       endTime = 1000,
-      successionTimeStep = 10,
+      successionTimestep = 10,
       summaryPeriod = c(700, 1000),
       summaryInterval = 100,
       timeSeriesTimes = 601:650,
@@ -272,13 +273,13 @@ if (isTRUE(config$batchMode)) {
 config <- Require::modifyList2(
   config, list(
     params = list(
-      forestedLCCClasses = ifelse(grepl("no2032", config$runInfo$runName), c(1:15, 34:36), config$params$forestedLCCClasses)
+      forestedLCCClasses = if (grepl("no2032", config$runInfo$runName)) c(1:15, 34:36) else config$params$forestedLCCClasses
     ),
     paths = list(
       tilePath = file.path(config$paths$outputPath, config$runInfo$runName, "tiles")
     ),
-    rerunDataPrep = ifelse(grepl("LandWeb", config$runInfo$runName), FALSE, config$rerunDataPrep),
-    rerunSpeciesLayers = ifelse(grepl("LandWeb", config$runInfo$runName), FALSE, config$rerunSpeciesLayers),
+    rerunDataPrep = if (grepl("LandWeb", config$runInfo$runName)) FALSE else config$rerunDataPrep,
+    rerunSpeciesLayers = if (grepl("LandWeb", config$runInfo$runName)) FALSE else config$rerunSpeciesLayers,
     runInfo = list(
       friMultiple = getFRImultiple(config$runInfo$runName),
       mapResFact = getMapResFact(config$runInfo$runName),
@@ -318,4 +319,6 @@ config.get <- function(config, name) {
   return(val)
 }
 
-## USAGE: config.get(config, c("params", "ageClasses"))
+## USAGE:
+## config.get(config, c("params", "ageClasses"))
+## config.get(config, c("params", "forestedLCCClasses"))

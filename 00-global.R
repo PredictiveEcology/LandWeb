@@ -36,10 +36,11 @@ if (!require("remotes", quietly = TRUE)) {
   install.packages("remotes")
 }
 
+Require.version <- "PredictiveEcology/Require@archivedPkg" ## testing
 if (!"Require" %in% rownames(installed.packages())) {
-  remotes::install_github("PredictiveEcology/Require@development")
+  remotes::install_github(Require.version)
 } else if (packageVersion("Require") < "0.1.0.9000") {
-  remotes::install_github("PredictiveEcology/Require@development")
+  remotes::install_github(Require.version)
 }
 library(Require)
 
@@ -144,13 +145,13 @@ if (config.get(config, "delayStart") > 0) {
 source("06-preamble.R")
 source("07-speciesLayers.R")
 
-message(crayon::red(runName))
+message(crayon::red(config.get(config, c("runInfo", "runName"))))
 
-if (isFALSE(config$postProcessOnly)) {
+if (isFALSE(config.get(config, "postProcessOnly"))) {
   source("08-borealDataPrep.R")
   source("09-pre-sim.R")
 
-  if (isFALSE(config$POM$usePOM)) {
+  if (isFALSE(config.get(config, c("POM", "usePOM")))) {
     source("10-main-sim.R")
     #source("11-post-sim.R")
   } else {

@@ -2,7 +2,19 @@
 ## species layers
 ################################################################################
 
-do.call(SpaDES.core::setPaths, paths2)
+do.call(SpaDES.core::setPaths, paths$paths2)
+
+parameters2 <- list(
+  Biomass_speciesData = list(
+    omitNonVegPixels = TRUE,
+    sppEquivCol = simOutPreamble[["sppEquivCol"]],
+    types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
+    .plots = config.get(config, c("params", ".plots")),
+    .sslVerify = config.get(config, c("params", ".sslVerify")),
+    .studyAreaName = config.get(config, c("runInfo", "studyAreaName")),
+    .useCache = FALSE
+  )
+)
 
 objects2 <- list(
   #nonTreePixels = simOutPreamble[["nonTreePixels"]], ## TODO: confirm no longer required
@@ -13,21 +25,12 @@ objects2 <- list(
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
 )
 
-parameters2 <- list(
-  Biomass_speciesData = list(
-    omitNonVegPixels = TRUE,
-    sppEquivCol = simOutPreamble[["sppEquivCol"]],
-    types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
-    .plotInitialTime = .plotInitialTime,
-    .studyAreaName = studyAreaName,
-    .useCache = FALSE
-  )
-)
-
-sppLayersFile <- file.path(Paths$inputPath, paste0("simOutSpeciesLayers_", studyAreaName, ".qs"))
-if (isTRUE(rerunSpeciesLayers)) {
+sppLayersFile <- file.path(Paths$inputPath, paste0(
+  "simOutSpeciesLayers_", config.get(config, c("runInfo", "studyAreaName")), ".qs"
+))
+if (isTRUE(config.get(config, "rerunSpeciesLayers"))) {
   ## delete existing species layers data
-  if (peutils::user("achubaty") && isTRUE(deleteSpeciesLayers)) {
+  if (peutils::user("achubaty") && isTRUE(config.get(config, "deleteSpeciesLayers"))) {
     exts <- c(".tif", ".tif.vat.dbf", ".tif.vat.cpg", ".tif.ovr", ".tif.aux.xml", ".tfw")
     forInvFiles <- vapply(c("BlackSpruce1", "Deciduous1", "Fir1", "Pine1", "WhiteSpruce1"),
                           function(f) {
@@ -45,24 +48,23 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              modules = c("Biomass_speciesData"),
                              objects = objects2,
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
-                             useCache = if (isTRUE(rerunSpeciesLayers)) "overwrite" else TRUE,
+                             useCache = if (isTRUE(config.get(config, "rerunSpeciesLayers"))) "overwrite" else TRUE,
                              useCloud = config$cloud$useCloud,
                              cloudFolderID = config$cloud$cacheDir,
                              ## make .plotInitialTime an argument, not a parameter:
                              ##  - Cache will see them as unchanged regardless of value
-                             .plotInitialTime = .plotInitialTime,
-                             paths = paths2,
+                             paths = paths$paths2,
                              debug = 1)
 saveSimList(Copy(simOutSpeciesLayers), sppLayersFile, fileBackend = 2)
 
-if (!is.na(.plotInitialTime)) {
+if ("screen" %in% config.get(config, c("params", ".plots"))) {
   lapply(dev.list(), function(x) {
     try(quickPlot::clearPlot(force = TRUE))
     try(dev.off())
   })
   quickPlot::dev(3, width = 18, height = 10)
   grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-  grid::grid.text(label = runName, x = 0.90, y = 0.03)
+  grid::grid.text(label = config.get(config, c("runInfo", "runName")), x = 0.90, y = 0.03)
 
   Plot(simOutSpeciesLayers$speciesLayers)
 }

@@ -2,7 +2,7 @@
 ## main simulation
 ################################################################################
 
-do.call(SpaDES.core::setPaths, paths3) # Set them here so that we don't have to specify at each call to Cache
+do.call(SpaDES.core::setPaths, paths$paths3)
 
 times3 <- list(start = 0, end = endTime)
 modules3 <- if (isTRUE(succession)) {
@@ -14,50 +14,18 @@ modules3 <- if (isTRUE(succession)) {
 ## check pixel resolution
 #stopifnot(unique(res(simOutSpeciesLayers[["speciesLayers"]])) %==% 250 / mapResFact)
 
-objects3 <- list(
-  biomassMap = simOutDataPrep[["biomassMap"]],
-  cohortData = simOutDataPrep[["cohortData"]],
-  ecoDistrict = simOutDataPrep[["ecoDistrict"]],
-  ecoregion = simOutDataPrep[["ecoregion"]],
-  ecoregionMap = simOutDataPrep[["ecoregionMap"]],
-  fireReturnInterval = simOutPreamble[["fireReturnInterval"]],
-  minRelativeB = simOutDataPrep[["minRelativeB"]],
-  pixelGroupMap = simOutDataPrep[["pixelGroupMap"]],
-  rawBiomassMap = simOutDataPrep[["rawBiomassMap"]],
-  rstLCC = simOutPreamble[["LCC"]],
-  rasterToMatch = simOutPreamble[["rasterToMatch"]],
-  rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
-  rasterToMatchReporting = simOutPreamble[["rasterToMatchReporting"]],
-  ROSTable = simOutPreamble[["LandMineROStable"]],
-  rstFlammable = simOutPreamble[["rstFlammable"]],
-  rstTimeSinceFire = crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]),
-  species = simOutDataPrep[["species"]],
-  speciesEcoregion = simOutDataPrep[["speciesEcoregion"]],
-  speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
-  speciesParams = simOutDataPrep[["speciesParams"]],
-  speciesTable = simOutDataPrep[["speciesTable"]],
-  sppColorVect = simOutPreamble[["sppColorVect"]],
-  sppEquiv = simOutPreamble[["sppEquiv"]],
-  standAgeMap = simOutPreamble[["CC TSF"]], ## same as rstTimeSinceFire; TODO: use synonym?
-  studyArea = simOutPreamble[["studyArea"]],
-  studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
-  studyAreaReporting = simOutPreamble[["studyAreaReporting"]],
-  sufficientLight = simOutDataPrep[["sufficientLight"]],
-  summaryPeriod = summaryPeriod, ## defined in params file
-  useParallel = useParallel
-)
-
 parameters3 <- list(
   .restartR = if (isTRUE(useRestartR)) list(.restartRInterval = restartInterval) else NULL,
   Biomass_core = list(
-    "initialBiomassSource" = "cohortData", # can be 'biomassMap' or "spinup" too
-    "seedingAlgorithm" = if (grepl("noDispersal", runName)) "noDispersal" else "wardDispersal",
-    "sppEquivCol" = simOutPreamble[["sppEquivCol"]],
-    "successionTimestep" = successionTimestep,
-    ".maxMemory" = if (format(pemisc::availableMemory(), units = "GiB") > 130) 5 else 2, ## GB
-    ".plotInitialTime" = .plotInitialTime,
-    ".useCache" = eventCaching[1], # seems slower to use Cache for both
-    ".useParallel" = useParallel
+    initialBiomassSource = "cohortData", # can be 'biomassMap' or "spinup" too
+    seedingAlgorithm = if (grepl("noDispersal", config.get(config, c("runInfo", "runName")))) "noDispersal" else "wardDispersal",
+    sppEquivCol = simOutPreamble[["sppEquivCol"]],
+    successionTimestep = config.get(config, c("params", "successionTimestep")),
+    .maxMemory = if (format(pemisc::availableMemory(), units = "GiB") > 130) 5 else 2, ## GB
+    .plots = config.get(config, c("params", ".plots")),
+    sslVerify = config.get(config, c("params", ".sslVerify")),
+    .useCache = config.get(config, c("params", "eventCaching"))[1], # seems slower to use Cache for both
+    .useParallel = config.get(config, c("useParallel"))
   ),
   Biomass_regeneration = list(
     "fireInitialTime" = fireTimestep,
@@ -94,6 +62,39 @@ parameters3 <- list(
     "startTime" = fireTimestep,
     ".useCache" = eventCaching[1] # way faster without caching for "init"
   )
+)
+
+objects3 <- list(
+  biomassMap = simOutDataPrep[["biomassMap"]],
+  cohortData = simOutDataPrep[["cohortData"]],
+  ecoDistrict = simOutDataPrep[["ecoDistrict"]],
+  ecoregion = simOutDataPrep[["ecoregion"]],
+  ecoregionMap = simOutDataPrep[["ecoregionMap"]],
+  fireReturnInterval = simOutPreamble[["fireReturnInterval"]],
+  minRelativeB = simOutDataPrep[["minRelativeB"]],
+  pixelGroupMap = simOutDataPrep[["pixelGroupMap"]],
+  rawBiomassMap = simOutDataPrep[["rawBiomassMap"]],
+  rstLCC = simOutPreamble[["LCC"]],
+  rasterToMatch = simOutPreamble[["rasterToMatch"]],
+  rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
+  rasterToMatchReporting = simOutPreamble[["rasterToMatchReporting"]],
+  ROSTable = simOutPreamble[["LandMineROStable"]],
+  rstFlammable = simOutPreamble[["rstFlammable"]],
+  rstTimeSinceFire = crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]),
+  species = simOutDataPrep[["species"]],
+  speciesEcoregion = simOutDataPrep[["speciesEcoregion"]],
+  speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
+  speciesParams = simOutDataPrep[["speciesParams"]],
+  speciesTable = simOutDataPrep[["speciesTable"]],
+  sppColorVect = simOutPreamble[["sppColorVect"]],
+  sppEquiv = simOutPreamble[["sppEquiv"]],
+  standAgeMap = simOutPreamble[["CC TSF"]], ## same as rstTimeSinceFire; TODO: use synonym?
+  studyArea = simOutPreamble[["studyArea"]],
+  studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
+  studyAreaReporting = simOutPreamble[["studyAreaReporting"]],
+  sufficientLight = simOutDataPrep[["sufficientLight"]],
+  summaryPeriod = summaryPeriod, ## defined in params file
+  useParallel = useParallel
 )
 
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
