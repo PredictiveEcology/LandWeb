@@ -1,7 +1,5 @@
 if (file.exists(".Renviron")) readRenviron(".Renviron")
 
-runName = 'provMB_highDispersal_rep01'
-
 .nodename <- Sys.info()[["nodename"]]
 .starttime <- Sys.time()
 .user <- Sys.info()[["user"]]
@@ -76,9 +74,9 @@ Require(c("data.table", "plyr", "pryr",
           "archive", "googledrive", "httr", "magrittr", "slackr"), upgrade = FALSE, standAlone = TRUE)
 
 # configure project ---------------------------------------------------------------------------
+stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set
 source("02-config.R")
 
-stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set
 message(crayon::red(runName))
 
 # define simulation paths ---------------------------------------------------------------------
