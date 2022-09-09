@@ -20,6 +20,7 @@ Require(c("animation", "archive", "assertthat", "config", "crayon", "devtools", 
           "s-u/fastshp",
           "lhs", "logging", "parallel", "qs", "RCurl", "RPostgres", "scales", "slackr", "XML"),
         require = FALSE)
+makeSureAllPackagesInstalled(modulePath = "m")
 
 packageLoadStartTime <- Sys.time()
 
@@ -29,5 +30,3 @@ Require(c("data.table", "plyr", "pryr",
           "PredictiveEcology/LandR@development (>= 1.0.7.9003)",
           "PredictiveEcology/SpaDES.core@development (>= 1.1.0)",
           "archive", "googledrive", "httr", "magrittr", "slackr"), upgrade = FALSE)
-
-makeSureAllPackagesInstalled(modulePath = "m")
