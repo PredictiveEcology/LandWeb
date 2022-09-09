@@ -31,7 +31,7 @@ tryCatch({
     slackr::slackr_msg(
       paste0("ERROR in simulation `", config.get(config, c("runInfo", "runName")), "` on host `", .nodename, "`.\n",
              "```\n", e$message, "\n```"),
-      channel = config::get("slackchannel"), preformatted = FALSE
+      channel = config.get(config, "slackChannel"), preformatted = FALSE
     )
     stop(e$message)
   }
