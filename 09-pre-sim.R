@@ -47,6 +47,7 @@ parameters3 <- list(
     },
     sppEquivCol = simOutPreamble[["sppEquivCol"]],
     useSeed = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
+    .plots = config.get(config, c("params", ".plots")),
     .useCache = config.get(config, c("params", "eventCaching")),
     .useParallel = max(2, config.get(config, "useParallel")) ## doesn't benefit from more DT threads
   ),
@@ -54,8 +55,7 @@ parameters3 <- list(
     sppEquivCol = simOutPreamble[["sppEquivCol"]],
     summaryInterval = config.get(config, c("params", "summaryInterval")),
     vegLeadingProportion = config.get(config, c("params", "vegLeadingProportion")),
-    # .plotInitialTime = config.get(config, c("params", ".plotInitialTime")),
-    .plotInterval = 1
+    .plots = config.get(config, c("params", ".plots"))
   ),
   timeSinceFire = list(
     startTime = config.get(config, c("params", "fireTimestep")),
