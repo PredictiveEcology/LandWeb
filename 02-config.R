@@ -82,7 +82,6 @@ config.default = list(
     spades.moduleCodeChecks = FALSE,
     spades.qsThreads = 4,
     spades.recoveryMode = FALSE,
-    spades.restartR.restartDir = "outputs",
     spades.useRequire = FALSE # Don't use Require... meaning assume all pkgs installed
   ),
   params = list(
@@ -123,9 +122,6 @@ config.default = list(
   postProcessOnly = FALSE,
   rerunDataPrep = TRUE,
   rerunSpeciesLayers = TRUE,
-  restartR = list(
-    interval = NA ## 100 (NA to disable)
-  ),
   runInfo = list(
     friMultiple = 1,
     mapResFact = 1,
@@ -273,7 +269,9 @@ if (isTRUE(config$batchMode)) {
 config <- Require::modifyList2(
   config, list(
     params = list(
-      forestedLCCClasses = if (grepl("no2032", config$runInfo$runName)) c(1:15, 34:36) else config$params$forestedLCCClasses
+      forestedLCCClasses = if (grepl("no2032", config$runInfo$runName)) c(1:15, 34:36) else config$params$forestedLCCClasses,
+      analysesOutputsTimes = seq(config$params$summaryPeriod[1], config$params$summaryPeriod[2],
+                                 by = config$params$summaryInterval)
     ),
     paths = list(
       tilePath = file.path(config$paths$outputPath, config$runInfo$runName, "tiles")
@@ -292,7 +290,6 @@ config <- Require::modifyList2(
     )
   )
 )
-
 
 # validate config -----------------------------------------------------------------------------
 

@@ -2,8 +2,6 @@
 ## Simulation post-processing (largePatches & leading)
 ################################################################################
 
-analysesOutputsTimes <- seq(summaryPeriod[1], summaryPeriod[2], by = summaryInterval)
-
 if (FALSE) { ## futures don't work properly in Rstudio
   Require("future")
   options("future.availableCores.custom" = function() { min(getOption("Ncpus"), 4) })
@@ -17,21 +15,23 @@ stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 Require(c("LandWebUtils", "map"))
 
 padL <- if (config$version == 2 && ## version set in default config
-            grepl("BlueRidge|Edson|FMANWT_|LP_BC|MillarWestern|Mistik|prov|Sundre|Vanderwell|WestFraser|WeyCo", runName)) {
-  3
+            grepl(paste("BlueRidge", "Edson", "FMANWT_", "LP_BC", "MillarWestern", "Mistik",
+                        "prov", "Sundre", "Vanderwell", "WestFraser", "WeyCo", sep = "|"),
+            config.get(config, c("runInfo", "runName")))) {
+  if (grepl("provMB", config.get(config, c("runInfo", "runName")))) 4 else 3
 } else {
   4
 } ## TODO: confirm this is always true now
 
-if (grepl("Manning", runName)) {
-  timeSeriesTimes <- 450:500
+if (grepl("Manning", config.get(config, c("runInfo", "runName")))) {
+  config$params$timeSeriesTimes <- 450:500
 }
 
 #allouts <- unlist(lapply(mySimOuts, function(sim) outputs(sim)$file))
 allouts <- dir(Paths$outputPath, full.names = TRUE, recursive = TRUE)
 allouts <- grep("vegType|TimeSince", allouts, value = TRUE)
 allouts <- grep("gri|png|txt|xml", allouts, value = TRUE, invert = TRUE)
-allouts2 <- grep(paste(paste0("year", paddedFloatToChar(timeSeriesTimes, padL = padL)), collapse = "|"),
+allouts2 <- grep(paste(paste0("year", paddedFloatToChar(config.get(config, c("params", "timeSeriesTimes")), padL = padL)), collapse = "|"),
                  allouts, value = TRUE, invert = TRUE)
 stopifnot(length(allouts2) == 120) ## i.e., 60 reps worth of tsf and vtm maps
 
@@ -39,12 +39,12 @@ layerName <- gsub(allouts2, pattern = paste0(".*", Paths$outputPath), replacemen
 layerName <- gsub(layerName, pattern = "[/\\]", replacement = "_")
 layerName <- gsub(layerName, pattern = "^_", replacement = "")
 ag1 <- gsub(layerName, pattern = "(.*)_.*_(.*)\\..*", replacement = "\\1_\\2") %>%
-  grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
+  grep(paste(config.get(config, c("params", "analysesOutputsTimes")), collapse = "|"), ., value = TRUE)
 destinationPath <- dirname(allouts2)
 tsf <- gsub(".*vegTypeMap.*", NA, allouts2) %>%
-  grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
+  grep(paste(config.get(config, c("params", "analysesOutputsTimes")), collapse = "|"), ., value = TRUE)
 vtm <- gsub(".*TimeSinceFire.*", NA, allouts2) %>%
-  grep(paste(analysesOutputsTimes, collapse = "|"), ., value = TRUE)
+  grep(paste(config.get(config, c("params", "analysesOutputsTimes")), collapse = "|"), ., value = TRUE)
 
 if (FALSE) {
   ### manually identify any corrupted tsf/vtm files
@@ -125,7 +125,7 @@ paths4 <- list(
     cachePath = file.path("cache", "postprocessing"),
     modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
     inputPath = "inputs",
-    outputPath = file.path("outputs", runName)
+    outputPath = file.path("outputs", config.get(config, c("runInfo", "runName")))
 )
 do.call(SpaDES.core::setPaths, paths4)
 
@@ -254,7 +254,7 @@ qs::qsave(ml, fml[[1]])
 #ml <- qs::qload(fml[[1]])
 
 options(map.useParallel = FALSE)
-#if (grepl("LandWeb", runName)) options(map.maxNumCores = parallel::detectCores() / 8)
+#if (grepl("LandWeb", config.get(config, c("runInfo", "runName")))) options(map.maxNumCores = parallel::detectCores() / 8)
 ml <- mapAddAnalysis(ml, functionName = "LeadingVegTypeByAgeClass",
                      #purgeAnalyses = "LeadingVegTypeByAgeClass",
                      ageClasses = ageClasses, ageClassCutOffs = ageClassCutOffs,
@@ -268,7 +268,7 @@ qs::qsave(ml, fml[[2]])
 #    This will trigger 2 more analyses ... largePatches on each raster x polygon combo
 #    so there is 1 raster group, 2 polygon groups, 2 analyses - Total 4, only 2 run now
 options(map.useParallel = FALSE)
-#if (grepl("LandWeb", runName)) options(map.maxNumCores = parallel::detectCores() / 8)
+#if (grepl("LandWeb", config.get(config, c("runInfo", "runName")))) options(map.maxNumCores = parallel::detectCores() / 8)
 ml <- mapAddAnalysis(ml, functionName = "LargePatches",
                      id = "1", labelColumn = "shinyLabel",
                      #purgeAnalyses = "LargePatches",
@@ -317,12 +317,12 @@ qs::qsave(ml, fml[[4]])
 
 #source("R/upload.R") ## TODO: not working correctly yet
 
-message(crayon::red(runName))
+message(crayon::red(config.get(config, c("runInfo", "runName"))))
 
 if (requireNamespace("slackr") & file.exists("~/.slackr")) {
   slackr::slackr_setup()
   slackr::slackr_msg(
-    paste0("Post-processing for `", runName, "` completed on host `", Sys.info()[["nodename"]], "`."),
+    paste0("Post-processing for `", config.get(config, c("runInfo", "runName")), "` completed on host `", Sys.info()[["nodename"]], "`."),
     channel = config::get("slackchannel"), preformatted = FALSE
   )
 }

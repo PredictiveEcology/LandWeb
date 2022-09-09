@@ -4,18 +4,17 @@
 
 do.call(SpaDES.core::setPaths, paths$paths3)
 
-times3 <- list(start = 0, end = endTime)
-modules3 <- if (isTRUE(succession)) {
+times3 <- list(start = 0, end = config.get(config, c("params", "endTime")))
+modules3 <- if (isTRUE(config.get(config, c("runInfo", "succession")))) {
   list("Biomass_core", "LandMine", "Biomass_regeneration", "LandWeb_output", "timeSinceFire")
 } else {
   list("LandMine", "LandWeb_output", "timeSinceFire")
 }
 
 ## check pixel resolution
-#stopifnot(unique(res(simOutSpeciesLayers[["speciesLayers"]])) %==% 250 / mapResFact)
+# stopifnot(unique(res(simOutSpeciesLayers[["speciesLayers"]])) %==% 250 / config.get(config, c("runInfo", "mapResFact")))
 
 parameters3 <- list(
-  .restartR = if (isTRUE(useRestartR)) list(.restartRInterval = restartInterval) else NULL,
   Biomass_core = list(
     initialBiomassSource = "cohortData", # can be 'biomassMap' or "spinup" too
     seedingAlgorithm = if (grepl("noDispersal", config.get(config, c("runInfo", "runName")))) "noDispersal" else "wardDispersal",
@@ -23,44 +22,44 @@ parameters3 <- list(
     successionTimestep = config.get(config, c("params", "successionTimestep")),
     .maxMemory = if (format(pemisc::availableMemory(), units = "GiB") > 130) 5 else 2, ## GB
     .plots = config.get(config, c("params", ".plots")),
-    sslVerify = config.get(config, c("params", ".sslVerify")),
+    .sslVerify = config.get(config, c("params", ".sslVerify")),
     .useCache = config.get(config, c("params", "eventCaching"))[1], # seems slower to use Cache for both
     .useParallel = config.get(config, c("useParallel"))
   ),
   Biomass_regeneration = list(
-    "fireInitialTime" = fireTimestep,
-    "fireTimestep" = fireTimestep,
-    "successionTimestep" = successionTimestep
+    fireInitialTime = config.get(config, c("params", "fireTimestep")),
+    fireTimestep = config.get(config, c("params", "fireTimestep")),
+    successionTimestep = config.get(config, c("params", "successionTimestep"))
   ),
   LandMine = list(
-    "biggestPossibleFireSizeHa" = 5e5,
-    "burnInitialTime" = fireTimestep,
-    "fireTimestep" = fireTimestep,
-    "maxReburns" = maxFireReburns,
-    "maxRetriesPerID" = maxFireRetries,
-    "minPropBurn" = 0.90,
-    "ROSother" = if (grepl("equalROS", runName)) {
+    biggestPossibleFireSizeHa = 5e5,
+    burnInitialTime = config.get(config, c("params", "fireTimestep")),
+    fireTimestep = config.get(config, c("params", "fireTimestep")),
+    maxReburns = config.get(config, c("params", "fireTimestep")),
+    maxRetriesPerID = config.get(config, c("params", "maxFireRetries")),
+    minPropBurn = 0.90,
+    ROSother = if (grepl("equalROS", config.get(config, c("runInfo", "runName")))) {
       1L
-    } else if (grepl("logROS", runName)) {
+    } else if (grepl("logROS", config.get(config, c("runInfo", "runName")))) {
       log(30L)
     } else {
       30L
     },
-    "sppEquivCol" = simOutPreamble[["sppEquivCol"]],
-    "useSeed" = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
-    ".useCache" = eventCaching,
-    ".useParallel" = max(2, useParallel) ## doesn't benefit from more DT threads
+    sppEquivCol = simOutPreamble[["sppEquivCol"]],
+    useSeed = NULL, ## NULL to avoid setting a seed, which makes all simulation identical!
+    .useCache = config.get(config, c("params", "eventCaching")),
+    .useParallel = max(2, config.get(config, "useParallel")) ## doesn't benefit from more DT threads
   ),
   LandWeb_output = list(
-    "sppEquivCol" = simOutPreamble[["sppEquivCol"]],
-    "summaryInterval" = summaryInterval,
-    "vegLeadingProportion" = vegLeadingProportion,
-    #".plotInitialTime" = .plotInitialTime,
-    ".plotInterval" = 1
+    sppEquivCol = simOutPreamble[["sppEquivCol"]],
+    summaryInterval = config.get(config, c("params", "summaryInterval")),
+    vegLeadingProportion = config.get(config, c("params", "vegLeadingProportion")),
+    # .plotInitialTime = config.get(config, c("params", ".plotInitialTime")),
+    .plotInterval = 1
   ),
   timeSinceFire = list(
-    "startTime" = fireTimestep,
-    ".useCache" = eventCaching[1] # way faster without caching for "init"
+    startTime = config.get(config, c("params", "fireTimestep")),
+    .useCache = config.get(config, c("params", "eventCaching"))[1] ## faster without caching for "init"
   )
 )
 
@@ -93,18 +92,16 @@ objects3 <- list(
   studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]],
   sufficientLight = simOutDataPrep[["sufficientLight"]],
-  summaryPeriod = summaryPeriod, ## defined in params file
-  useParallel = useParallel
+  summaryPeriod = config.get(config, c("params", "summaryPeriod")),
+  useParallel = config.get(config, "useParallel")
 )
 
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
-analysesOutputsTimes <- seq(objects3$summaryPeriod[1], objects3$summaryPeriod[2],
-                            by = parameters3$LandWeb_output$summaryInterval)
-
 outputs3a <- data.frame(stringsAsFactors = FALSE,
                         expand.grid(
                           objectName = objectNamesToSave,
-                          saveTime = c(timeSeriesTimes, analysesOutputsTimes)
+                          saveTime = c(config.get(config, c("params", "timeSeriesTimes")),
+                                       config.get(config, c("params", "analysesOutputsTimes")))
                         ),
                         fun = "writeRaster", package = "raster",
                         file = paste0(objectNamesToSave, c(".tif", ".grd")))
