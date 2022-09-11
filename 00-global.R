@@ -42,6 +42,8 @@ if (!"Require" %in% rownames(installed.packages())) {
 }
 library(Require)
 
+options(Require.usepak = TRUE)
+
 .spatialPkgs <- c("lwgeom", "rgdal", "rgeos", "sf", "sp", "raster", "terra")
 
 Require("PredictiveEcology/SpaDES.install@development (>= 0.0.9.9002)")
