@@ -18,6 +18,7 @@ if (FALSE) {
 
 Require(c("animation", "archive", "assertthat", "config", "crayon", "devtools", "DBI",
           "s-u/fastshp",
+          "PredictiveEcology/LandWebUtils@development",
           "lhs", "logging", "parallel", "qs", "RCurl", "RPostgres", "scales", "slackr", "XML"),
         require = FALSE)
 makeSureAllPackagesInstalled(modulePath = "m")

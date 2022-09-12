@@ -2,23 +2,22 @@
 ## Simulation post-processing (largePatches & leading)
 ################################################################################
 
+do.call(SpaDES.core::setPaths, paths4)
+
 analysesOutputsTimes <- seq(summaryPeriod[1], summaryPeriod[2], by = summaryInterval)
 
-if (FALSE) { ## futures don't work properly in Rstudio
+if (isFALSE(isRstudio())) { ## futures don't work properly in Rstudio
   Require("future")
   options("future.availableCores.custom" = function() { min(getOption("Ncpus"), 4) })
   future::plan("multiprocess")
 }
 
-stopifnot(packageVersion("reproducible") >= "1.2.8.9001")
-stopifnot(packageVersion("map") >= "0.0.3")
-stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
-
 Require(c("LandWebUtils", "map"))
 
 padL <- if (landwebVersion == 2 && ## version set in default config
-            grepl("BlueRidge|Edson|FMANWT_|LP_BC|MillarWestern|Mistik|prov|Sundre|Vanderwell|WestFraser|WeyCo", runName)) {
-  3
+            grepl(paste("BlueRidge", "Edson", "FMANWT_", "LP_BC", "MillarWestern", "Mistik",
+                        "prov", "Sundre", "Vanderwell", "WestFraser", "WeyCo", sep = "|"), runName)) {
+  if (grepl("provMB", runName)) 4 else 3
 } else {
   4
 } ## TODO: confirm this is always true now
@@ -121,15 +120,6 @@ if (FALSE) {
 ## begin post-processing
 ################################################################################
 
-paths4 <- list(
-    cachePath = file.path("cache", "postprocessing"),
-    modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-    inputPath = "inputs",
-    outputPath = file.path("outputs", runName)
-)
-do.call(SpaDES.core::setPaths, paths4)
-
-tilePath <- asPath(file.path(Paths$outputPath, "tiles"))
 
 if (isTRUE(grepl("Ubuntu 20.04", osVersion)))
   tiler::tiler_options(python = Sys.which("python3"))
@@ -315,6 +305,7 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
 qs::qsave(ml, fml[[4]])
 #ml <- qs::qload(fml[[4]])
 
+## TODO: archive and upload
 #source("R/upload.R") ## TODO: not working correctly yet
 
 message(crayon::red(runName))
@@ -326,5 +317,3 @@ if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     channel = config::get("slackchannel"), preformatted = FALSE
   )
 }
-
-#unlink(tempdir(), recursive = TRUE)

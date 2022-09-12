@@ -75,6 +75,7 @@ elapsed <- elapsedTime(mySimOut)
 data.table::fwrite(elapsed, file.path(Paths$outputPath, "elapsedTime.csv"))
 qs::qsave(elapsed, file.path(Paths$outputPath, "elapsedTime.qs"))
 
-SpaDES.project::notify_slack(runName, config::get("slackchannel"))
+moveTo <- file.path(paths4$outputPath, grep("rep", strsplit(basename(paths3$outputPath), "_")[[1]], value = TRUE))
+file.move(paths3$outputPath, moveTo)
 
-#unlink(tempdir(), recursive = TRUE)
+SpaDES.project::notify_slack(runName, config::get("slackchannel"))

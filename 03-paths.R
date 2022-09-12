@@ -23,6 +23,11 @@ paths2a[["cachePath"]] <- file.path(cacheDir, "dataPrepGIS", "borealDataPrep")
 paths3 <- paths1
 paths3[["cachePath"]] <- file.path(cacheDir, runName)
 
+## post-processing
+paths4 <- paths1
+paths4[["cachePath"]] <- file.path(cacheDir, "postprocessing")
+paths4[["outputPath"]] <- checkPath(file.path("outputs", runNamePostProcess), create = TRUE)
+
 ## tile path (same for all)
 scratchDir <- checkPath(scratchDir, create = TRUE) ## from config.yml
-tilePath <- file.path(paths1[["outputPath"]], "tiles")
+tilePath <- asPath(file.path(paths4[["outputPath"]], "tiles"))

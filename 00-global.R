@@ -38,6 +38,10 @@ if (isFALSE(config::get("batchmode"))) {
 }
 stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set: e.g., see batch_runs.R
 
+runNamePostProcess <- strsplit(runName, "_")[[1]] %>%
+  grep("rep", ., value = TRUE, invert = TRUE) %>%
+  paste(., collapse = "_")
+
 message(crayon::red(runName))
 
 source("02-init.R")
