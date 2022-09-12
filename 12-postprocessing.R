@@ -2,15 +2,13 @@
 ## Simulation post-processing (largePatches & leading)
 ################################################################################
 
-if (FALSE) { ## futures don't work properly in Rstudio
+do.call(setPaths, paths$paths4)
+
+if (isFALSE(isRstudio())) { ## futures don't work properly in Rstudio
   Require("future")
   options("future.availableCores.custom" = function() { min(getOption("Ncpus"), 4) })
   future::plan("multiprocess")
 }
-
-stopifnot(packageVersion("reproducible") >= "1.2.8.9001")
-stopifnot(packageVersion("map") >= "0.0.3")
-stopifnot(packageVersion("LandWebUtils") >= "0.0.2")
 
 Require(c("LandWebUtils", "map"))
 
@@ -120,16 +118,6 @@ if (FALSE) {
 ################################################################################
 ## begin post-processing
 ################################################################################
-
-paths4 <- list(
-    cachePath = file.path("cache", "postprocessing"),
-    modulePath = "m", # short name because shinyapps.io can't handle longer than 100 characters
-    inputPath = "inputs",
-    outputPath = file.path("outputs", config.get(config, c("runInfo", "runName")))
-)
-do.call(SpaDES.core::setPaths, paths4)
-
-tilePath <- asPath(file.path(Paths$outputPath, "tiles"))
 
 if (isTRUE(grepl("Ubuntu 20.04", osVersion)))
   tiler::tiler_options(python = Sys.which("python3"))
@@ -315,6 +303,7 @@ ml <- mapAddPostHocAnalysis(map = ml, functionName = "runHistsLargePatches",
 qs::qsave(ml, fml[[4]])
 #ml <- qs::qload(fml[[4]])
 
+## TODO: archive and upload
 #source("R/upload.R") ## TODO: not working correctly yet
 
 message(crayon::red(config.get(config, c("runInfo", "runName"))))
@@ -326,5 +315,3 @@ if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     channel = config::get("slackchannel"), preformatted = FALSE
   )
 }
-
-#unlink(tempdir(), recursive = TRUE)

@@ -61,7 +61,9 @@ if (FALSE) {
 }
 
 modulePkgs <- makeSureAllPackagesInstalled(modulePath = "m", doInstalls = FALSE)
-otherPkgs <- c("animation", "archive", "assertthat", "config", "crayon", "devtools", "DBI", "s-u/fastshp",
+otherPkgs <- c("animation", "archive", "assertthat", "config", "crayon", "devtools", "DBI",
+               "s-u/fastshp",
+               "PredictiveEcology/LandWebUtils@development",
                "lhs", "logging", "parallel", "qs", "RCurl", "RPostgres", "scales", "slackr", "XML")
 
 Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, upgrade = FALSE, standAlone = TRUE)
@@ -79,7 +81,12 @@ Require(c("data.table", "plyr", "pryr",
 stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set
 source("02-config.R")
 
-message(crayon::red(runName))
+message(
+  "Run information:\n",
+  lapply(names(config$runInfo), function(x) {
+    #paste(paste0("  ", x, ":\t"), config$runInfo[[x]], "\n")
+  })
+)
 
 # define simulation paths ---------------------------------------------------------------------
 stopifnot(identical(checkPath(config$paths$projectPath), getwd()))
@@ -88,7 +95,7 @@ config$paths <- Require::modifyList2(
   config$paths,
   list(
     outputPath = file.path(config$paths$outputPath, runName),
-    tilePath = file.path("outputs", runName, "tiles")
+    tilePath = asPath(file.path("outputs", config.get(config, c("runInfo", "runNamePostProcess")), "tiles"))
   )
 )
 
@@ -106,12 +113,15 @@ paths <- list(
   paths1 = paths4spades(config.get(config, "paths")),  ## preamble
   paths2 = paths4spades(config.get(config, "paths")),  ## species layers
   paths2a = paths4spades(config.get(config, "paths")), ## boreal data prep
-  paths3 = paths4spades(config.get(config, "paths"))   ## main simulation
+  paths3 = paths4spades(config.get(config, "paths")),   ## main simulation
+  paths4 = paths4spades(config.get(config, "paths"))   ## post-processing
 )
 
 paths$paths2[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), "dataPrepGIS", "speciesLayers")
 paths$paths2a[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), "dataPrepGIS", "borealDataPrep")
-paths$paths3[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), config$runInfo$runName)
+paths$paths3[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), config.get(config, c("runInfo", "runName")))
+paths$paths4[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), "postprocessing")
+paths$paths4[["outputPath"]] <- checkPath(file.path("outputs", config.get(config, c("runInfo", "runNamePostProcess"))), create = TRUE)
 
 # set package options -------------------------------------------------------------------------
 raster::rasterOptions(default = TRUE)

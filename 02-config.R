@@ -266,6 +266,11 @@ if (isTRUE(config$batchMode)) {
   )
 }
 
+config$runInfo$runNamePostProcess <- strsplit(runName, "_")[[1]] %>%
+  grep("rep", ., value = TRUE, invert = TRUE) %>%
+  paste(., collapse = "_")
+rm(runName)
+
 config <- Require::modifyList2(
   config, list(
     params = list(
