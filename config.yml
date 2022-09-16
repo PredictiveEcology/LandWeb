@@ -7,7 +7,7 @@ default:
     usecloud: false
   delaystart: 0
   firejumps: 4
-  firereburns: 10
+  firereburns: 20
   frimultiple: 1
   gitpkgpath: "~/GitHub"
   mapresfact: 1
