@@ -77,7 +77,7 @@ Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, up
 ## NOTE: always load packages LAST, after installation above;
 ##       ensure plyr loaded before dplyr or there will be problems
 Require(c("data.table", "plyr", "pryr",
-          "PredictiveEcology/LandR@development (>= 1.0.7.9003)",
+          "PredictiveEcology/LandR@development (>= 1.1.0.9001)",
           "PredictiveEcology/SpaDES.core@development (>= 1.1.0.9000)",
           "archive", "googledrive", "httr", "magrittr", "slackr"), upgrade = FALSE, standAlone = TRUE)
 

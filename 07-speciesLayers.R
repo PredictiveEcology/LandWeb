@@ -8,7 +8,11 @@ parameters2 <- list(
   Biomass_speciesData = list(
     omitNonVegPixels = TRUE,
     sppEquivCol = simOutPreamble[["sppEquivCol"]],
-    types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
+    types = if (grepl("provMB", config.get(config, c("runInfo", "runName")))) {
+      c("KNN", "CASFRI", "Pickell", "MBFRI")
+    } else {
+      c("KNN", "CASFRI", "Pickell", "ForestInventory")
+    },
     .plots = config.get(config, c("params", ".plots")),
     .sslVerify = config.get(config, c("params", ".sslVerify")),
     .studyAreaName = config.get(config, c("runInfo", "studyAreaName")),
@@ -28,27 +32,14 @@ objects2 <- list(
 sppLayersFile <- file.path(Paths$inputPath, paste0(
   "simOutSpeciesLayers_", config.get(config, c("runInfo", "studyAreaName")), ".qs"
 ))
-if (isTRUE(config.get(config, "rerunSpeciesLayers"))) {
-  ## delete existing species layers data
-  if (peutils::user("achubaty") && isTRUE(config.get(config, "deleteSpeciesLayers"))) {
-    exts <- c(".tif", ".tif.vat.dbf", ".tif.vat.cpg", ".tif.ovr", ".tif.aux.xml", ".tfw")
-    forInvFiles <- vapply(c("BlackSpruce1", "Deciduous1", "Fir1", "Pine1", "WhiteSpruce1"),
-                          function(f) {
-                            paste0(f, exts)
-                          }, character(length(exts))) %>%
-      c(., "CurrentCondition.zip") %>%
-      file.path(paths2$inputPath, .)
-    vapply(forInvFiles, function(f) if (file.exists(f)) file.remove(f) else FALSE, logical(1))
-  }
-}
-## (re)create species layers
+
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
                              params = parameters2,
                              modules = c("Biomass_speciesData"),
                              objects = objects2,
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
-                             useCache = if (isTRUE(config.get(config, "rerunSpeciesLayers"))) "overwrite" else TRUE,
+                             useCache = TRUE,
                              useCloud = config$cloud$useCloud,
                              cloudFolderID = config$cloud$cacheDir,
                              ## make .plotInitialTime an argument, not a parameter:

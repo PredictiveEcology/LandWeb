@@ -122,7 +122,6 @@ config.default = list(
   ),
   postProcessOnly = FALSE,
   rerunDataPrep = TRUE,
-  rerunSpeciesLayers = TRUE,
   runInfo = list(
     friMultiple = 1,
     mapResFact = 1,
@@ -283,7 +282,6 @@ config <- Require::modifyList2(
       tilePath = file.path(config$paths$outputPath, config$runInfo$runName, "tiles")
     ),
     rerunDataPrep = if (grepl("LandWeb", config$runInfo$runName)) FALSE else config$rerunDataPrep,
-    rerunSpeciesLayers = if (grepl("LandWeb", config$runInfo$runName)) FALSE else config$rerunSpeciesLayers,
     runInfo = list(
       friMultiple = getFRImultiple(config$runInfo$runName),
       mapResFact = getMapResFact(config$runInfo$runName),
