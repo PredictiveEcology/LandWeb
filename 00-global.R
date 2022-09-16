@@ -4,7 +4,12 @@ if (file.exists(".Renviron")) readRenviron(".Renviron")
 .starttime <- Sys.time()
 .user <- Sys.info()[["user"]]
 
-options(Ncpus = min(parallel::detectCores() / 2, 120))
+options(
+  Ncpus = min(parallel::detectCores() / 2, 120),
+  repos = c(CRAN = "https://cran.rstudio.com"),
+  Require.RPackageCache = "default", ## will use default package cache directory: `RequirePkgCacheDir()`
+  Require.usepak = FALSE ## pkg deps too complicated for pak
+)
 
 # install and load packages -------------------------------------------------------------------
 
@@ -37,19 +42,18 @@ if (!require("remotes", quietly = TRUE)) {
 Require.version <- "PredictiveEcology/Require@archivedPkg" ## testing
 if (!"Require" %in% rownames(installed.packages())) {
   remotes::install_github(Require.version)
-} else if (packageVersion("Require") < "0.1.0.9000") {
+} else if (packageVersion("Require") < "0.1.1.9017") {
   remotes::install_github(Require.version)
 }
 library(Require)
 
-options(Require.usepak = TRUE)
-
 .spatialPkgs <- c("lwgeom", "rgdal", "rgeos", "sf", "sp", "raster", "terra")
 
-Require("PredictiveEcology/SpaDES.install@development (>= 0.0.9.9002)")
+## TODO: SpaDES.install will be defunct -- use SpaDES.project
+Require("PredictiveEcology/SpaDES.install@development (>= 0.0.9.9002)", upgrade = FALSE, standAlone = TRUE)
 
 setLinuxBinaryRepo()
-installSpaDES(dontUpdate = .spatialPkgs)
+#installSpaDES(dontUpdate = .spatialPkgs)
 
 if (FALSE) {
   installSpatialPackages() # repos = "https://cran.r-project.org"
@@ -66,7 +70,7 @@ otherPkgs <- c("animation", "archive", "assertthat", "config", "crayon", "devtoo
                "PredictiveEcology/LandWebUtils@development",
                "lhs", "logging", "parallel", "qs", "RCurl", "RPostgres", "scales", "slackr", "XML")
 
-Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, upgrade = FALSE, standAlone = TRUE)
+Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, upgrade = FALSE)
 
 .packageLoadStartTime <- Sys.time()
 
@@ -81,20 +85,23 @@ Require(c("data.table", "plyr", "pryr",
 stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set
 source("02-config.R")
 
+# print run info ------------------------------------------------------------------------------
+
 message(
-  "Run information:\n",
-  lapply(names(config$runInfo), function(x) {
-    #paste(paste0("  ", x, ":\t"), config$runInfo[[x]], "\n")
-  })
+  config.get(config, c("runInfo", "runName"))
+  #"Run information:\n",
+  #lapply(names(config$runInfo), function(x) {
+  #  paste(paste0("  ", x, ":\t"), config$runInfo[[x]], "\n")
+  #})
 )
 
 # define simulation paths ---------------------------------------------------------------------
-stopifnot(identical(checkPath(config$paths$projectPath), getwd()))
+stopifnot(identical(checkPath(config.get(config, c("paths", "projectPath"))), getwd()))
 
 config$paths <- Require::modifyList2(
   config$paths,
   list(
-    outputPath = file.path(config$paths$outputPath, runName),
+    outputPath = file.path(config.get(config, c("paths", "outputPath")), config.get(config, c("runInfo", "runName"))),
     tilePath = asPath(file.path("outputs", config.get(config, c("runInfo", "runNamePostProcess")), "tiles"))
   )
 )

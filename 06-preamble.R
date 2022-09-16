@@ -11,7 +11,8 @@ parameters1 <- list(
     mapResFact = config.get(config, c("runInfo", "mapResFact")),
     minFRI = config.get(config, c("params", "minFRI")),
     runName = config.get(config, c("runInfo", "runName")),
-    treeClassesLCC = config.get(config, c("params", "forestedLCCClasses"))
+    treeClassesLCC = config.get(config, c("params", "forestedLCCClasses")),
+    .sslVerify = 0L ## TODO: temporary to deal with NFI server SSL issues
   )
 )
 
@@ -37,8 +38,6 @@ if ("screen" %in% config.get(config, c("params", ".plots"))) {
   grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
   grid::grid.text(label = config.get(config, c("runInfo", "runName")), x = 0.90, y = 0.03)
 
-  Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge)
-  Plot(simOutPreamble$rasterToMatchReporting) ## TODO: bug in quickPlot prevents plotting these together
-  Plot(simOutPreamble$rasterToMatch)
-  Plot(simOutPreamble$rasterToMatchLarge)
+  Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge,
+       simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch, simOutPreamble$rasterToMatchLarge)
 }
