@@ -27,15 +27,15 @@ parameters3 <- list(
     .useParallel = config.get(config, c("useParallel"))
   ),
   Biomass_regeneration = list(
-    fireInitialTime = config.get(config, c("params", "fireTimestep")),
+    fireInitialTime = config.get(config, c("params", "fireTimestep")), ## 1L
     fireTimestep = config.get(config, c("params", "fireTimestep")),
     successionTimestep = config.get(config, c("params", "successionTimestep"))
   ),
   LandMine = list(
     biggestPossibleFireSizeHa = 5e5,
-    burnInitialTime = config.get(config, c("params", "fireTimestep")),
+    burnInitialTime = config.get(config, c("params", "fireTimestep")), ## 1L
     fireTimestep = config.get(config, c("params", "fireTimestep")),
-    maxReburns = config.get(config, c("params", "fireTimestep")),
+    maxReburns = config.get(config, c("params", "maxFireReburns")),
     maxRetriesPerID = config.get(config, c("params", "maxFireRetries")),
     minPropBurn = 0.90,
     ROSother = if (grepl("equalROS", config.get(config, c("runInfo", "runName")))) {
