@@ -1,8 +1,12 @@
-if (file.exists(".Renviron")) readRenviron(".Renviron")
+# project basics ------------------------------------------------------------------------------
+
+if (file.exists(".Renviron")) readRenviron(".Renviron") ## GITHUB_PAT and database credentials
 
 .nodename <- Sys.info()[["nodename"]]
 .starttime <- Sys.time()
 .user <- Sys.info()[["user"]]
+
+prjDir <- "~/GitHub/LandWeb"
 
 options(
   Ncpus = min(parallel::detectCores() / 2, 120),
@@ -13,7 +17,7 @@ options(
 
 # install and load packages -------------------------------------------------------------------
 
-## TODO: move helper function to SpaDES.project or SpaDES.install
+## TODO: move helper function to SpaDES.project or Require
 setProjPkgDir <- function(lib.loc = "packages") {
   pkgDir <- Sys.getenv("PRJ_PKG_DIR")
   if (!nzchar(pkgDir)) {
@@ -26,34 +30,34 @@ setProjPkgDir <- function(lib.loc = "packages") {
   )
 
   if (!dir.exists(pkgDir)) {
-    dir.create(pkgDir, recursive = TRUE)
+    suppressWarnings(dir.create(pkgDir, recursive = TRUE))
   }
 
   .libPaths(pkgDir)
   message("Using libPaths:\n", paste(.libPaths(), collapse = "\n"))
+
+  pkgDir
 }
 
-setProjPkgDir("packages")
+pkgDir <- setProjPkgDir("packages")
 
-if (!require("remotes", quietly = TRUE)) {
+if (!"remotes" %in% rownames(installed.packages())) {
   install.packages("remotes")
 }
 
-Require.version <- "PredictiveEcology/Require@archivedPkg" ## testing
-if (!"Require" %in% rownames(installed.packages())) {
-  remotes::install_github(Require.version)
-} else if (packageVersion("Require") < "0.1.1.9017") {
+Require.version <- "PredictiveEcology/Require@archivedPkg" ## TODO: use development once merged
+if (!"Require" %in% rownames(installed.packages(lib.loc = pkgDir)) ||
+    packageVersion("Require") < "0.1.1.9017") {
   remotes::install_github(Require.version)
 }
 library(Require)
 
-.spatialPkgs <- c("lwgeom", "rgdal", "rgeos", "sf", "sp", "raster", "terra")
-
-## TODO: SpaDES.install will be defunct -- use SpaDES.project
-Require("PredictiveEcology/SpaDES.install@development (>= 0.0.9.9002)", upgrade = FALSE, standAlone = TRUE)
-
 setLinuxBinaryRepo()
-#installSpaDES(dontUpdate = .spatialPkgs)
+
+Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use development once merged
+          "PredictiveEcology/SpaDES.core@development (>= 1.1.0.9000)",
+          "PredictiveEcology/LandR@development (>= 1.1.0.9001)"),
+        upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
   installSpatialPackages() # repos = "https://cran.r-project.org"
@@ -64,7 +68,7 @@ if (FALSE) {
   sf::sf_extSoftVersion() ## want at least GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1
 }
 
-modulePkgs <- makeSureAllPackagesInstalled(modulePath = "m", doInstalls = FALSE)
+modulePkgs <- packagesInModules(modulePath = file.path(prjDir, "m"), doInstalls = FALSE)
 otherPkgs <- c("animation", "archive", "assertthat", "config", "crayon", "devtools", "DBI",
                "s-u/fastshp",
                "PredictiveEcology/LandWebUtils@development",
@@ -76,9 +80,7 @@ Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, up
 
 ## NOTE: always load packages LAST, after installation above;
 ##       ensure plyr loaded before dplyr or there will be problems
-Require(c("data.table", "plyr", "pryr",
-          "PredictiveEcology/LandR@development (>= 1.1.0.9001)",
-          "PredictiveEcology/SpaDES.core@development (>= 1.1.0.9000)",
+Require(c("data.table", "plyr", "pryr", "SpaDES.core",
           "archive", "googledrive", "httr", "magrittr", "slackr"), upgrade = FALSE, standAlone = TRUE)
 
 # configure project ---------------------------------------------------------------------------
