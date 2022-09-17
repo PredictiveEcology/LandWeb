@@ -1,5 +1,9 @@
 source("01-packages-libPath.R")
 
+if (!"remotes" %in% rownames(installed.packages())) {
+  install.packages("remotes")
+}
+
 Require.version <- "PredictiveEcology/Require@archivedPkg" ## testing
 if (!"Require" %in% rownames(installed.packages())) {
   remotes::install_github(Require.version)
