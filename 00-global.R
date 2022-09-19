@@ -52,11 +52,8 @@ if (!"Require" %in% rownames(installed.packages(lib.loc = pkgDir)) ||
 }
 library(Require, lib.loc = pkgDir)
 
-setLinuxBinaryRepo()
-
-Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.core@development (>= 1.1.0.9000)",
-          "PredictiveEcology/LandR@development (>= 1.1.0.9001)"),
+# setLinuxBinaryRepo()
+Require("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use development once merged
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
