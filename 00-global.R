@@ -41,8 +41,8 @@ setProjPkgDir <- function(lib.loc = "packages") {
 
 pkgDir <- setProjPkgDir("packages")
 
-if (!"remotes" %in% rownames(installed.packages())) {
-  install.packages("remotes")
+if (!"remotes" %in% rownames(installed.packages(lib.loc = pkgDir))) {
+  install.packages("remotes", lib = pkg)
 }
 
 Require.version <- "PredictiveEcology/Require@development"
