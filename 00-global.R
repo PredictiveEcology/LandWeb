@@ -33,7 +33,8 @@ if (!"Require" %in% rownames(installed.packages(lib.loc = .libPaths()[1])) ||
 }
 library(Require)
 
-# setLinuxBinaryRepo()
+setLinuxBinaryRepo()
+
 Require("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use development once merged
         upgrade = FALSE, standAlone = TRUE)
 
@@ -56,8 +57,6 @@ otherPkgs <- c("animation", "archive", "assertthat", "config", "crayon", "devtoo
                "scales", "slackr", "XML")
 
 Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, upgrade = FALSE)
-
-.packageLoadStartTime <- Sys.time()
 
 ## NOTE: always load packages LAST, after installation above;
 ##       ensure plyr loaded before dplyr or there will be problems
