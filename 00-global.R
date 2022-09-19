@@ -47,10 +47,10 @@ if (!"remotes" %in% rownames(installed.packages())) {
 
 Require.version <- "PredictiveEcology/Require@development"
 if (!"Require" %in% rownames(installed.packages(lib.loc = pkgDir)) ||
-    packageVersion("Require") < "0.1.1.9017") {
+    packageVersion("Require", lib.loc = pkgDir) < "0.1.1.9017") {
   remotes::install_github(Require.version)
 }
-library(Require)
+library(Require, lib.loc = pkgDir)
 
 setLinuxBinaryRepo()
 
