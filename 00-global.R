@@ -17,40 +17,21 @@ options(
 
 # install and load packages -------------------------------------------------------------------
 
-## TODO: move helper function to SpaDES.project or Require
-setProjPkgDir <- function(lib.loc = "packages") {
-  pkgDir <- Sys.getenv("PRJ_PKG_DIR")
-  if (!nzchar(pkgDir)) {
-    pkgDir <- lib.loc ## default: use subdir within project directory
-  }
-  pkgDir <- normalizePath(
-    file.path(pkgDir, version$platform, paste0(version$major, ".", strsplit(version$minor, "[.]")[[1]][1])),
-    winslash = "/",
-    mustWork = FALSE
-  )
+pkgDir <- file.path("packages", version$platform, substr(getRversion(), 1, 3))
+dir.create(pkgDir, recursive = TRUE, showWarnings = FALSE)
+.libPaths(pkgDir, include.site = FALSE)
+message("Using libPaths:\n", paste(.libPaths(), collapse = "\n"))
 
-  if (!dir.exists(pkgDir)) {
-    suppressWarnings(dir.create(pkgDir, recursive = TRUE))
-  }
-
-  .libPaths(pkgDir)
-  message("Using libPaths:\n", paste(.libPaths(), collapse = "\n"))
-
-  pkgDir
-}
-
-pkgDir <- setProjPkgDir("packages")
-
-if (!"remotes" %in% rownames(installed.packages(lib.loc = pkgDir))) {
-  install.packages("remotes", lib = pkgDir)
+if (!"remotes" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
+  install.packages("remotes")
 }
 
 Require.version <- "PredictiveEcology/Require@development"
-if (!"Require" %in% rownames(installed.packages(lib.loc = pkgDir)) ||
-    packageVersion("Require", lib.loc = pkgDir) < "0.1.1.9017") {
+if (!"Require" %in% rownames(installed.packages(lib.loc = .libPaths()[1])) ||
+    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.1.9017") {
   remotes::install_github(Require.version)
 }
-library(Require, lib.loc = pkgDir)
+library(Require)
 
 # setLinuxBinaryRepo()
 Require("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use development once merged
