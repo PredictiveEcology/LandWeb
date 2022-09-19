@@ -68,7 +68,7 @@ if (FALSE) {
   sf::sf_extSoftVersion() ## want at least GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1
 }
 
-modulePkgs <- packagesInModules(modulePath = file.path(prjDir, "m"), doInstalls = FALSE)
+modulePkgs <- unname(unlist(packagesInModules(modulePath = file.path(prjDir, "m"))))
 otherPkgs <- c("animation", "archive", "assertthat", "config", "crayon", "devtools", "DBI",
                "s-u/fastshp",
                "PredictiveEcology/LandWebUtils@development",
