@@ -39,7 +39,7 @@ if (!require("remotes", quietly = TRUE)) {
   install.packages("remotes")
 }
 
-Require.version <- "PredictiveEcology/Require@archivedPkg" ## testing
+Require.version <- "PredictiveEcology/Require@development"
 if (!"Require" %in% rownames(installed.packages())) {
   remotes::install_github(Require.version)
 } else if (packageVersion("Require") < "0.1.1.9017") {
