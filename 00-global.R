@@ -60,7 +60,7 @@ Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
-  installSpatialPackages() # repos = "https://cran.r-project.org"
+  .spatialPkgs <- c("raster", "sf", "sp", "terra", "rgdal", "s2", "units", "lwgeom")
   # install.packages("pak")
   # pak::pkg_install(.spatialPkgs)
   # install.packages(.spatialPkgs, repos = "https://cran.r-project.org")
@@ -71,8 +71,11 @@ if (FALSE) {
 modulePkgs <- unname(unlist(packagesInModules(modulePath = file.path(prjDir, "m"))))
 otherPkgs <- c("animation", "archive", "assertthat", "config", "crayon", "devtools", "DBI",
                "s-u/fastshp",
+               "PredictiveEcology/LandR@development (>= 1.1.0.9001)",
                "PredictiveEcology/LandWebUtils@development",
-               "lhs", "logging", "parallel", "qs", "RCurl", "RPostgres", "scales", "slackr", "XML")
+               "lhs", "logging", "parallel", "qs", "RCurl", "RPostgres",
+               "PredictiveEcology/SpaDES.core@development (>= 1.1.0.9000)",
+               "scales", "slackr", "XML")
 
 Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, upgrade = FALSE)
 
