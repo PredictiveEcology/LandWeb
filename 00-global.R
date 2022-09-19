@@ -28,7 +28,7 @@ if (!"remotes" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
 
 Require.version <- "PredictiveEcology/Require@development"
 if (!"Require" %in% rownames(installed.packages(lib.loc = .libPaths()[1])) ||
-    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.1.9017") {
+    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.2") {
   remotes::install_github(Require.version)
 }
 library(Require)
