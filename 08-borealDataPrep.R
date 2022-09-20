@@ -71,4 +71,5 @@ simOutDataPrep <- Cache(simInitAndSpades,
                         .plots = config.get(config, c("params", ".plots")),
                         paths = paths$paths2a,
                         debug = 1)
+simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)

@@ -26,7 +26,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         omitArgs = c("debug", "paths"),
                         useCloud = config.get(config, c("cloud", "useCloud")),
                         cloudFolderID = config.get(config, c("cloud", "cacheDir")))
-
+simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveRDS(simOutPreamble$ml, file.path(Paths$outputPath, "ml_preamble.rds")) ## TODO: use `qs::qsave()`
 
 if ("screen" %in% config.get(config, c("params", ".plots"))) {

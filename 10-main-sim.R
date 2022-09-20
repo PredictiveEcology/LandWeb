@@ -25,6 +25,7 @@ tryCatch({
                     useCloud = FALSE,
                     cloudFolderID = config.get(config, c("cloud", "cacheDir")),
                     omitArgs = c("debug", "paths"))
+  mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 }, error = function(e) {
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     slackr::slackr_setup()

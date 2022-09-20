@@ -46,6 +46,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              ##  - Cache will see them as unchanged regardless of value
                              paths = paths$paths2,
                              debug = 1)
+simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveSimList(Copy(simOutSpeciesLayers), sppLayersFile, fileBackend = 2)
 
 if ("screen" %in% config.get(config, c("params", ".plots"))) {
