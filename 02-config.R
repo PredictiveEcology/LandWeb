@@ -176,7 +176,7 @@ config.default = list(
   test = FALSE,
   useParallel = 2, ## values > 2 use WAY too much RAM for very little speed increase (too much overhead)
   useSpades = TRUE,
-  version = 2
+  version = 2 ## v2 uses veg parameter forcings; v3 doesn't (i.e., default LandR Biomass)
 )
 
 config.profile <- Require::modifyList2(
