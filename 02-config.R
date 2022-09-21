@@ -53,6 +53,17 @@ getMapResFact <- function(runName) {
   }
 }
 
+getOutputPath <- function(runName) {
+  file.path("outputs", getRunNamePostProcess(runName),
+            if (is.na(getRep(runName))) "" else sprintf("rep%02d", getRep(runName)))
+}
+
+getRunNamePostProcess <- function(runName) {
+  strsplit(runName, "_")[[1]] %>%
+    grep("rep", ., value = TRUE, invert = TRUE) %>%
+    paste(., collapse = "_")
+}
+
 getRep <- function(runName) {
   rep <- as.integer(gsub("rep", "", grep("rep", strsplit(runName, "_")[[1]], value = TRUE)))
   rep <- if (length(rep) > 0) rep else NA_integer_
@@ -301,9 +312,7 @@ if (isTRUE(config$batchMode)) {
   )
 }
 
-config$runInfo$runNamePostProcess <- strsplit(runName, "_")[[1]] %>%
-  grep("rep", ., value = TRUE, invert = TRUE) %>%
-  paste(., collapse = "_")
+config$runInfo$runNamePostProcess <- getRunNamePostProcess(runName)
 rm(runName)
 
 config <- Require::modifyList2(
@@ -314,8 +323,7 @@ config <- Require::modifyList2(
                                  by = config$params$summaryInterval)
     ),
     paths = list(
-      outputPath = file.path(config$paths$outputPath, config$runInfo$runNamePostProcess,
-                             sprintf("rep%02d", getRep(config$runInfo$runName))),
+      outputPath = getOutputPath(config$runInfo$runName),
       tilePath = asPath(file.path("outputs", config$runInfo$runNamePostProcess, "tiles"))
     ),
     rerunDataPrep = if (grepl("LandWeb", config$runInfo$runName)) FALSE else config$rerunDataPrep,
@@ -331,7 +339,6 @@ config <- Require::modifyList2(
     version = getVersion(config$runInfo$runName)
   )
 )
-
 
 # validate config -----------------------------------------------------------------------------
 
