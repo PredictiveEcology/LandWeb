@@ -12,7 +12,7 @@ if (isFALSE(isRstudio())) { ## futures don't work properly in Rstudio
 
 Require(c("LandWebUtils", "map"))
 
-padL <- if (config$version == 2 && ## version set in default config
+padL <- if (config.get(config, "version") == 2 && ## version set in default config
             grepl(paste("BlueRidge", "Edson", "FMANWT_", "LP_BC", "MillarWestern", "Mistik",
                         "prov", "Sundre", "Vanderwell", "WestFraser", "WeyCo", sep = "|"),
             config.get(config, c("runInfo", "runName")))) {

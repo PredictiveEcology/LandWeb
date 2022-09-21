@@ -18,6 +18,12 @@ dbConnCache <- function(type = "sql") {
   return(conn)
 }
 
+getDispersal <- function(runName) {
+  disp <- grep("Dispersal", strsplit(runName, "_")[[1]], value = TRUE)
+  disp <- if (length(disp) > 0) disp else ""
+  return(disp)
+}
+
 getFRImultiple <- function(runName) {
   stopifnot(!is.null(runName), is.character(runName))
   frim <- strsplit(runName, "_")[[1]] %>%
@@ -47,6 +53,31 @@ getMapResFact <- function(runName) {
   }
 }
 
+getRep <- function(runName) {
+  rep <- as.integer(gsub("rep", "", grep("rep", strsplit(runName, "_")[[1]], value = TRUE)))
+  rep <- if (length(rep) > 0) rep else NA_integer_
+  return(rep)
+}
+
+getROS <- function(runName) {
+  ros <- grep("ROS", strsplit(runName, "_")[[1]], value = TRUE)
+  ros <- if (length(ros) > 0) ros else ""
+  return(ros)
+}
+
+getStudyAreaName <- function(runName) {
+  if (grepl("FMU", runName)) {
+    paste(strsplit(runName, "_")[[1]][1:2], collapse = "_")
+  } else {
+    strsplit(runName, "_")[[1]][1]
+  }
+}
+
+getVersion <- function(runName) {
+  v <- grep("^v[0-9]$", strsplit(runName, "_")[[1]], value = TRUE)
+  v <- if (length(v) > 0) as.integer(substr(v, 2, nchar(v))) else 2L
+  return(v)
+}
 
 # project config ------------------------------------------------------------------------------
 config.default = list(
@@ -252,6 +283,10 @@ if (identical(.user, "rstudio")) {
 }
 
 ## update config based on user config values
+if (is.na(getRep(runName))) {
+  config$postProcessOnly <- TRUE
+}
+
 if (isTRUE(config$batchMode)) {
   config$runInfo$runName <- runName
 } else  {
@@ -279,21 +314,24 @@ config <- Require::modifyList2(
                                  by = config$params$summaryInterval)
     ),
     paths = list(
-      tilePath = file.path(config$paths$outputPath, config$runInfo$runName, "tiles")
+      outputPath = file.path(config$paths$outputPath, config$runInfo$runNamePostProcess,
+                             sprintf("rep%02d", getRep(config$runInfo$runName))),
+      tilePath = asPath(file.path("outputs", config$runInfo$runNamePostProcess, "tiles"))
     ),
     rerunDataPrep = if (grepl("LandWeb", config$runInfo$runName)) FALSE else config$rerunDataPrep,
     runInfo = list(
       friMultiple = getFRImultiple(config$runInfo$runName),
       mapResFact = getMapResFact(config$runInfo$runName),
-      studyAreaName = if (grepl("FMU", config$runInfo$runName)) {
-        paste(strsplit(config$runInfo$runName, "_")[[1]][1:2], collapse = "_")
-      } else {
-        strsplit(config$runInfo$runName, "_")[[1]][1]
-      },
+      rep = getRep(config$runInfo$runName),
+      scenarioDisp = getDispersal(config$runInfo$runName),
+      scenarioFire = getROS(config$runInfo$runName),
+      studyAreaName = getStudyAreaName(config$runInfo$runName),
       succession = !grepl("noSuccession", config$runInfo$runName)
-    )
+    ),
+    version = getVersion(config$runInfo$runName)
   )
 )
+
 
 # validate config -----------------------------------------------------------------------------
 

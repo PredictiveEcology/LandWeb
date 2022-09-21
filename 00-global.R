@@ -80,15 +80,7 @@ message(
 # define simulation paths ---------------------------------------------------------------------
 stopifnot(identical(checkPath(config.get(config, c("paths", "projectPath"))), getwd()))
 
-config$paths <- Require::modifyList2(
-  config$paths,
-  list(
-    outputPath = file.path(config.get(config, c("paths", "outputPath")), config.get(config, c("runInfo", "runName"))),
-    tilePath = asPath(file.path("outputs", config.get(config, c("runInfo", "runNamePostProcess")), "tiles"))
-  )
-)
-
-config$paths <- lapply(config$paths, function(p) {
+config$paths <- lapply(config.get(config, "paths"), function(p) {
   if (!is.null(p)) checkPath(p, create = TRUE) else NULL
 })
 
@@ -149,17 +141,13 @@ message(crayon::red(config.get(config, c("runInfo", "runName"))))
 if (isFALSE(config.get(config, "postProcessOnly"))) {
   source("08-borealDataPrep.R")
   source("09-pre-sim.R")
-
-  if (isFALSE(config.get(config, c("POM", "usePOM")))) {
-    source("10-main-sim.R")
-    #source("11-post-sim.R")
-  } else {
-    source("10a-POM.R") ## TODO: may not work out-of-the-box; untested!!
-  }
+  source("10-main-sim.R")
 } else {
   #mySimOut <- loadSimList(simFile("mySimOut", Paths$outputPath, 1000))
   source("12-postprocessing.R")
 }
+
+SpaDES.project::reproducibilityReceipt()
 
 #source("11-post-sim.R")
 

@@ -14,7 +14,3 @@ if [ ! -d ${OUTDIR} ]; then
 fi
 
 echo ${RCMD} | r
-
-if [ -f "outputs/${RUNNAME}/rstTimeSinceFire_year1000.tif" ]; then
-  mv "outputs/${RUNNAME}" "${OUTDIR}/rep${RUN}"
-fi
