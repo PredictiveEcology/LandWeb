@@ -18,7 +18,3 @@ if [ ! -d ${OUTDIR2} ]; then
 fi
 
 echo ${RCMD} | r
-
-if [ -f "outputs/${RUNNAME}/rstTimeSinceFire_year1000.tif" ]; then
-  mv "outputs/${RUNNAME}" "${OUTDIR3}"
-fi
