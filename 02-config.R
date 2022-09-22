@@ -121,6 +121,7 @@ config.default = list(
     reproducible.useGDAL = FALSE, ## NOTE: gdal is faster, but mixing gdal with raster causes inconsistencies
     reproducible.useTerra = FALSE, ## TODO: update + test with terra
     Require.RPackageCache = "default", ## will use default package cache directory: `RequirePkgCacheDir()`
+    spades.memoryUseInterval = 10, ## track memory use every 10 seconds
     spades.messagingNumCharsModule = 36,
     spades.moduleCodeChecks = FALSE,
     spades.qsThreads = 4,
