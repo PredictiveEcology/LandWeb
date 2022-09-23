@@ -38,3 +38,6 @@
 	path = m/timeSinceFire
 	url = https://github.com/fRI-Research/timeSinceFire
 	branch = development
+[submodule "m/LandWeb_summary"]
+	path = m/LandWeb_summary
+	url = https://github.com/PredictiveEcology/LandWeb_summary
