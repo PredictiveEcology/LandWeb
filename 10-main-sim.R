@@ -14,15 +14,15 @@ options(spades.recoveryMode = TRUE)
 tryCatch({
   mySimOut <- Cache(simInitAndSpades,
                     times = times3, #cl = cl,
-                    params = parameters3,
-                    modules = modules3,
+                    params = config$params,
+                    modules = config$modules$main,
                     outputs = outputs3,
                     objects = objects3,
                     paths = paths$paths3,
-                    loadOrder = unlist(modules3),
-                    debug = list(file = list(file = file.path(paths$paths3$outputPath, "sim.log"),
+                    loadOrder = unlist(config$modules$main),
+                    debug = list(file = list(file = file.path(config$paths$paths3$outputPath, "sim.log"),
                                              append = TRUE), debug = 1),
-                    useCloud = FALSE,
+                    useCloud = FALSE, ## TODO param useCloud??
                     cloudFolderID = config.get(config, c("cloud", "cacheDir")),
                     omitArgs = c("debug", "paths"))
   mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
@@ -44,8 +44,12 @@ fsim <- simFile("mySimOut", paths$paths3$outputPath, SpaDES.core::end(mySimOut),
 message("Saving simulation to: ", fsim)
 saveSimList(sim = mySimOut, filename = fsim, fileBackend = 2)
 
+# save simulation stats -----------------------------------------------------------------------
+
 elapsed <- elapsedTime(mySimOut)
 data.table::fwrite(elapsed, file.path(paths$paths3$outputPath, "elapsedTime.csv"))
 qs::qsave(elapsed, file.path(paths$paths3$outputPath, "elapsedTime.qs"))
+
+# end-of-sim notifications --------------------------------------------------------------------
 
 SpaDES.project::notify_slack(config.get(config, c("runInfo", "runName")), config.get(config, c("slackChannel")))

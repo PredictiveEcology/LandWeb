@@ -91,15 +91,19 @@ getVersion <- function(runName) {
 }
 
 # project config ------------------------------------------------------------------------------
-config.default = list(
-  batchMode = FALSE,
-  cloud = list(
-    cacheDir = "LandWeb_cloudCache",
-    googleUser = "",
-    useCloud = FALSE
+config.landweb.default = list(
+  args = list(
+    cloud = list(
+      cacheDir = "LandWeb_cloudCache",
+      googleUser = "",
+      useCloud = FALSE
+    ),
+    delayStart = 0,
+    endTime = 1000,
+    notifications = list(
+      slackChannel = ""
+    )
   ),
-  delayStart = 0,
-  deleteSpeciesLayers = FALSE,
   options = list(
     fftempdir = file.path(dirname(tempdir()), "scratch", "LandWeb", "ff"),
     future.globals.maxSize = 1000*1024^2,
@@ -108,7 +112,7 @@ config.default = list(
     map.dataPath = "inputs", # not used yet
     map.overwrite = TRUE,
     map.tilePath = file.path("outputs", "tiles"),
-    map.useParallel = TRUE,
+    map.useParallel = FALSE, ## TODO: parallel processing in map needs to be fixed!
     rasterMaxMemory = 5e+9,
     rasterTmpDir = file.path(dirname(tempdir()), "scratch", "raster"),
     reproducible.cacheSaveFormat = "rds", ## can be "qs" or "rds"
@@ -129,170 +133,326 @@ config.default = list(
     spades.useRequire = FALSE # Don't use Require... meaning assume all pkgs installed
   ),
   params = list(
-    ageClasses = c("Young", "Immature", "Mature", "Old"), ## LandWebUtils:::.ageClasses
-    ageClassCutOffs = c(0, 40, 80, 120), ## LandWebUtils:::.ageClassCutOffs
-    endTime = 1000,
-    eventCaching = c(".inputObjects", "init"),
-    fireTimestep = 1,
-    forestedLCCClasses = c(1:15, 20, 32, 34:36),
-    maxAge = 400,
-    maxFireReburns = 20L,
-    maxFireRetries = 4L,
-    minFRI = 25,
-    successionTimetep = 10,
-    summaryPeriod = c(700, 1000),
-    summaryInterval = 100,
-    timeSeriesTimes = 601:650,
-    vegLeadingProportion = 0.8, # indicates what proportion the stand must be in one species group for it to be leading.
-                                # If all are below this, then it is a "mixed" stand
-    .plotInitialTime = 0,
-    .plots = c("object", "png", "raw", "screen"),
-    .sslVerify = 0L ## TODO: temporary to workaround NFI server SSL problems
+    .globals = list(
+      fireTimestep = 1L,
+      sppEquivCol = "LandWeb",
+      successionTimestep = 10,
+      vegLeadingProportion = 0.8,
+      .plotInitialTime = 0,
+      .plots = c("object", "png", "raw", "screen"),
+      .sslVerify = 0L, ## TODO: temporary to deal with NFI server SSL issues
+      .studyAreaName = "random",
+      .useCache = c(".inputObjects", "init"),
+      .useParallel = 2 ## doesn't benefit from more DT threads
+    ),
+    Biomass_borealDataPrep = list(
+      biomassModel = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
+                           (logAge + cover | ecoregionGroup))),
+      ecoregionLayerField = "ECOREGION", # "ECODISTRIC"
+      forestedLCCClasses = c(1:15, 20, 32, 34:36), ## should match preamble's treeClassesLCC
+      LCCClassesToReplaceNN = 34:36,
+      # next two are used when assigning pixelGroup membership; what resolution for
+      #   age and biomass
+      pixelGroupAgeClass = 2 * 10,  ## twice the successionTimestep; can be coarse because initial conditions are irrelevant
+      pixelGroupBiomassClass = 1000, ## 1000 / mapResFact^2; can be coarse because initial conditions are irrelevant
+      subsetDataAgeModel = 100,
+      subsetDataBiomassModel = 100,
+      speciesUpdateFunction = list(
+        quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
+        quote(LandR::updateSpeciesTable(sim$species, sim$speciesParams))
+      ),
+      useCloudForStats = TRUE
+    ),
+    Biomass_core = list(
+      initialBiomassSource = "cohortData",
+      seedingAlgorithm = "wardDispersal",
+      .maxMemory = if (format(pemisc::availableMemory(), units = "GiB") > 130) 5 else 2 ## GB
+    ),
+    Biomass_regeneration = list(
+      ## use module defaults (unless specified in .globals)
+    ),
+    Biomass_speciesData = list(
+      omitNonVegPixels = TRUE,
+      types = c("KNN", "CASFRI", "Pickell", "ForestInventory")
+    ),
+    LandMine = list(
+      biggestPossibleFireSizeHa = 5e5,
+      burnInitialTime = 1L,
+      maxReburns = 20L,
+      maxRetriesPerID = 4L,
+      minPropBurn = 0.90,
+      ROSother = 30L,
+      useSeed = NULL ## NULL to avoid setting a seed, which makes all simulation identical!
+    ),
+    LandWeb_output = list(
+      summaryInterval = 100
+    ),
+    LandWeb_preamble = list(
+      bufferDist = 20000,        ## 20 km buffer
+      bufferDistLarge = 50000,   ## 50 km buffer
+      dispersalType = "default",
+      friMultiple = 1L,
+      mapResFact = 1L,
+      minFRI = 25L,
+      ROStype = "default",
+      treeClassesLCC = c(1:15, 20, 32, 34:36) ## should match B_bDP's forestedLCCClasses
+    ),
+    LandWeb_summary = list(
+      ageClasses = c("Young", "Immature", "Mature", "Old"), ## LandWebUtils:::.ageClasses
+      ageClassCutOffs = c(0, 40, 80, 120),                  ## LandWebUtils:::.ageClassCutOffs
+      ageClassMaxAge = 400L, ## was `maxAge` previously
+      reps = 1L:15L, ## TODO: used elsewhere to setup runs (expt table)?
+      simOutputPath = paths$postProcessingPath, ## TODO:
+      summaryPeriod = c(700, 1000), ## TODO: this as also used in 09-pre-sim.R
+      summaryInterval = 100,
+      timeSeriesTimes = 601:650,
+      upload = FALSE
+    ),
+    timeSinceFire = list(
+      startTime = 1L,
+      .useCache = c(".inputObjects") ## faster without caching for "init"
+    )
   ),
   paths = list(
     cachePath = "cache",
     inputPath = "inputs",
-    inputPaths = NULL,
+    inputPaths = NULL, ## aka dataCachePath
     modulePath = "m",
     outputPath = "outputs",
     projectPath = "~/GitHub/LandWeb",
     scratchPath = file.path(dirname(tempdir()), "scratch", "LandWeb"),
     tilePath = file.path("outputs", "tiles")
-  ),
-  POM = list(
-    useDEoptim = FALSE,
-    usePOM = FALSE ## NOTE: TO and FROM indices must be defined
-  ),
-  postProcessOnly = FALSE,
-  rerunDataPrep = TRUE,
-  runInfo = list(
-    friMultiple = 1,
-    mapResFact = 1,
-    rep = 1,
-    scenarioDisp = "", # "aspenDispersal", "highDispersal", "noDispersal", or "" for default
-    scenarioFire = "", # "equalROS", "logROS", or "" for default,
-    studyAreaName = "random",
-    succession = TRUE
-  ),
-  test = FALSE,
-  useParallel = 2, ## values > 2 use WAY too much RAM for very little speed increase (too much overhead)
-  useSpades = TRUE,
-  version = 2 ## v2 uses veg parameter forcings; v3 doesn't (i.e., default LandR Biomass)
+  )
 )
 
-config.profile <- Require::modifyList2(
-  config.default, list(
-    params = list(
-      endTime = 20,
-      successionTimestep = 10,
-      summaryPeriod = c(10, 20),
-      summaryInterval = 10,
-      timeSeriesTimes = 10,
-      .plotInitialTime = 0
-    ),
-    runInfo = list(
-      rep = 1,
-      studyarea = "Tolko_SK",
-      scenarioDisp = "",
-      scenarioFire = ""
+## additional configs to apply ---------------------------------------------------------------------
+
+config.landweb.profile <- list(
+  args = list(
+    endTime = 20,
+    successionTimestep = 10,
+    summaryPeriod = c(10, 20),
+    summaryInterval = 10,
+    timeSeriesTimes = 10
+  ),
+  params = list(
+    .globals = list(
+      .plotInitialTime = 0,
+      .studyAreaName = "Tolko_SK"
     )
   )
 )
 
-config.testing <- Require::modifyList2(
-  config.default, list(
-    params = list(
-      endTime = 300,
-      successionTimestep = 10,
-      summaryPeriod = c(250, 300),
-      summaryInterval = 10,
-      timeSeriesTimes = 201:210
-    ),
-    test = TRUE
+config.landweb.testing <- list(
+  args = list(
+    endTime = 300,
+    successionTimestep = 10,
+    summaryPeriod = c(250, 300),
+    summaryInterval = 10,
+    timeSeriesTimes = 201:210
   )
 )
 
-config.production <- Require::modifyList2(
-  config.default, list(
-    batchMode = TRUE, ## if TRUE, don't specify mapResFact, rep, studyarea, scenario*
+config.landweb.production <- list(
+  args = list(
     cloud = list(
       useCloud = TRUE
     ),
     delayStart = sample(5L:15L, 1), # 5-15 minute delay to stagger starts
-    params = list(
-      endTime = 1000,
-      successionTimestep = 10,
-      summaryPeriod = c(700, 1000),
-      summaryInterval = 100,
-      timeSeriesTimes = 601:650,
+    endTime = 1000,
+    successionTimestep = 10,
+    summaryPeriod = c(700, 1000),
+    summaryInterval = 100,
+    timeSeriesTimes = 601:650
+  ),
+  params = list(
+    .globals = list(
       .plots = c("object", "png", "raw") ## don't plot to screen
     )
   )
 )
 
-if (identical(.user, "achubaty")) {
-  config <- Require::modifyList2(
-    config.production, list(
-      cloud = list(
-        googleUser = "achubaty@for-cast.ca",
-        useCloud = FALSE
-      ),
-      options = list(
-        reproducible.conn = dbConnCache("postgresql")
-      ),
-      paths = list(
-        scratchPath = switch(.nodename,
-                            "larix.for-cast.ca" = "/tmp/scratch/LandWeb",
-                            "/mnt/scratch/LandWeb")
-      ),
-      slackChannel = "@alex.chubaty",
-      version = 2 # 3
+config.landweb.studyarea.fmu <- list(
+  params = list(
+    Biomass_borealDataPrep = list(
+      biomassModel = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode + (1 | ecoregionGroup)))
     )
   )
-}
+)
 
-if (identical(.user, "eliot")) {
-  config <- Require::modifyList2(
-    config.testing, list(
-      batchMode = TRUE, ## if TRUE, don't specify rep, studyarea, scenario*
-      cloud = list(
-        googleUser = "eliotmcintire@gmail.com",
-        useCloud = FALSE
-      ),
-      params = list(
-        .plotInitialTime = NA
-      ),
-      paths = list(
-        gitpkgpath = "~/GitHub",
-        inputPaths = "~/data"
-      ),
-      slackChannel = "@eliotmcintire",
-      runInfo = list(
-        # studyarea = "LandWeb",
-        # scenarioDisp = "highDispersal",
-        # scenarioFire = "logROS"
-        run = 1,
-      ),
-      useSpades = TRUE
+## TODO: need separate config per study area
+
+config.landweb.studyarea.provMB <- list(
+  params = list(
+    Biomass_specieData - list(
+      types = c("KNN", "CASFRI", "Pickell", "MBFRI")
+    ),
+    LandWeb_summary = list(
+      uploadTo = "" ## TODO: use google-ids.csv to define these per WBI?
     )
   )
-}
+)
 
-## docker user
-if (identical(.user, "rstudio")) {
-  config <- Require::modifyList2(
-    config.production, list(
-      cloud = list(
-        googleUser = "achubaty@for-cast.ca",
-        useCloud = FALSE
-      ),
-      paths = list(
-        cachedir = "cache_sqlite"
-      ),
+config.landweb.nosuccession <- list(
+  modules = list(
+    main = list("LandMine", "LandWeb_output", "timeSinceFire")
+  )
+)
+
+config.landweb.postprocess <- list(
+  modules = list(
+    dataPrep = list(), ## don't run dataPrep
+    main = list(), ## don't run main
+    postprocess = list("LandWeb_summaries")
+  ),
+  paths = list()
+)
+
+config.landweb.dispersal.none <- list(
+  params = list(
+    Biomass_core = c(
+      seedingAlgorithm = "noDispersal"
+    ),
+    LandWeb_preamble = list(
+      dispersalType = "none"
+    )
+  )
+)
+
+config.landweb.dispersal.aspen <- list(
+  params = list(
+    LandWeb_preamble = list(
+      dispersalType = "aspen"
+    )
+  )
+)
+
+config.landweb.dispersal.high <- list(
+  params = list(
+    LandWeb_preamble = list(
+      dispersalType = "high"
+    )
+  )
+)
+
+config.landweb.ros.equal <- list(
+  params = list(
+    LandMine = list(
+      ROSother = 1L
+    ),
+    LandWeb_preamble = list(
+      ROStype = "equal"
+    )
+  )
+)
+
+config.landweb.ros.log <- list(
+  params = list(
+    LandMine = list(
+      ROSother = log(30L)
+    ),
+    LandWeb_preamble = list(
+      ROStype = "log"
+    )
+  )
+)
+
+config.landweb.resprout.forced <- list(
+  params = list(
+    LandWeb_preamble = list(
+      forceResprout = TRUE
+    )
+  )
+)
+
+config.landweb.frimultiple <- list(
+  params = list(
+    Biomass_borealDataPrep = list(
+      pixelGroupBiomassClass = 1000 / (mapResFact^2), ## 1000 / mapResFact^2; can be coarse because initial conditions are irrelevant
+    )
+  )
+)
+
+config.landweb.pixelsize <- list(
+  params = list(
+    Biomass_borealDataPrep = list(
+      pixelGroupBiomassClass = 1000 / (mapResFact^2), ## 1000 / mapResFact^2; can be coarse because initial conditions are irrelevant
+    )
+  )
+)
+
+config.landweb.user.achubaty <- list(
+  args = list(
+    cloud = list(
+      googleUser = "achubaty@for-cast.ca",
+      useCloud = FALSE
+    ),
+    notifications = list(
       slackChannel = "@alex.chubaty"
     )
+  ),
+  options = list(
+    reproducible.conn = dbConnCache("postgresql")
+  ),
+  params = list(
+    LandWeb_summary = list(
+      upload = TRUE, ## `uploadTo` specified per study area
+    )
+  ),
+  paths = list(
+    scratchPath = switch(.nodename,
+                        "larix.for-cast.ca" = "/tmp/scratch/LandWeb",
+                        "/mnt/scratch/LandWeb")
   )
-}
+)
+
+config.landweb.user.emcintir <- list(
+  args = list(
+    cloud = list(
+      googleUser = "eliotmcintire@gmail.com",
+      useCloud = FALSE
+    ),
+    notifications = list(
+      slackChannel = "@eliotmcintire"
+    )
+  ),
+  params = list(
+    .plotInitialTime = NA
+  ),
+  paths = list(
+    inputPaths = "~/data" ## aka dataCachePath
+  )
+)
+
+## for docker
+config.landweb.user.rstudio <- list(
+  args = list(
+    cloud = list(
+      googleUser = "", ## TODO
+      useCloud = FALSE
+    ),
+    notifications = list(
+      slackChannel = "" ## TODO
+    )
+  ),
+  paths = list(
+    cachePath = "cache_sqlite"
+  )
+)
+
+################
+# update config based on context
+config <- updateConfig(config, context = c("production",
+                                           user = .user,
+                                           machine = .nodename,
+                                           studyAreaName = "provMB",
+                                           postProcess = "no",
+                                           dispersalType = "aspen",
+                                           forceResprout = TRUE,
+                                           ROStype = "log",
+                                           friMultiple = 1L,
+                                           pixelSize = 250)) ## TODO: include run/rep
+####################
 
 ## update config based on user config values
 if (is.na(getRep(runName))) {
@@ -318,26 +478,14 @@ rm(runName)
 
 config <- Require::modifyList2(
   config, list(
-    params = list(
-      forestedLCCClasses = if (grepl("no2032", config$runInfo$runName)) c(1:15, 34:36) else config$params$forestedLCCClasses,
+    args = list(
       analysesOutputsTimes = seq(config$params$summaryPeriod[1], config$params$summaryPeriod[2],
                                  by = config$params$summaryInterval)
     ),
     paths = list(
       outputPath = getOutputPath(config$runInfo$runName),
       tilePath = asPath(file.path("outputs", config$runInfo$runNamePostProcess, "tiles"))
-    ),
-    rerunDataPrep = if (grepl("LandWeb", config$runInfo$runName)) FALSE else config$rerunDataPrep,
-    runInfo = list(
-      friMultiple = getFRImultiple(config$runInfo$runName),
-      mapResFact = getMapResFact(config$runInfo$runName),
-      rep = getRep(config$runInfo$runName),
-      scenarioDisp = getDispersal(config$runInfo$runName),
-      scenarioFire = getROS(config$runInfo$runName),
-      studyAreaName = getStudyAreaName(config$runInfo$runName),
-      succession = !grepl("noSuccession", config$runInfo$runName)
-    ),
-    version = getVersion(config$runInfo$runName)
+    )
   )
 )
 
@@ -345,11 +493,11 @@ config <- Require::modifyList2(
 
 ## TODO: generalize and put these in a package somewhere
 
-config.isNULL <- rapply(config, is.null, how = "unlist")
+nullConfigVals <- rapply(config, is.null, how = "unlist")
 
 stopifnot(
-  all(config.isNULL %in% FALSE),
-  identical(length(unique(names(config.isNULL))), length(unique(tolower(names(config.isNULL)))))
+  all(nullConfigVals %in% FALSE),
+  identical(length(unique(names(nullConfigVals))), length(unique(tolower(names(nullConfigVals)))))
 )
 
 ## NB: only use accessor to retrieve values (to guard against partial matching and NULL values)
