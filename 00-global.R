@@ -39,7 +39,6 @@ Require("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use d
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
-  .spatialPkgs <- c("raster", "sf", "sp", "terra", "rgdal", "s2", "units", "lwgeom")
   # install.packages("pak")
   # pak::pkg_install(.spatialPkgs)
   # install.packages(.spatialPkgs, repos = "https://cran.r-project.org")
@@ -132,11 +131,98 @@ if (config.get(config, "delayStart") > 0) {
   Sys.sleep(config.get(config, "delayStart")*60)
 }
 
-# run pre-sim data prep modules ---------------------------------------------------------------
-source("06-preamble.R")
-source("07-speciesLayers.R")
+
+# Preamble (create study areas, etc.) ---------------------------------------------------------
+
+do.call(SpaDES.core::setPaths, paths$paths1) # Set them here so that we don't have to specify at each call to Cache
+
+objects1 <- list()
+
+parameters1 <- list(
+  LandWeb_preamble = config.get(config, c("params", "LandWeb_preamble"))
+)
+
+preambleFile <- file.path(Paths$inputPath, paste0(
+  "simOutPreamble_", config.get(config, c("runInfo", "studyAreaName")), ".qs"
+))
+
+simOutPreamble <- Cache(simInitAndSpades,
+                        times = list(start = 0, end = 1),
+                        params = parameters1,
+                        modules = c("LandWeb_preamble"),
+                        objects = objects1,
+                        paths = paths$paths1,
+                        debug = 1,
+                        omitArgs = c("debug", "paths"),
+                        useCloud = config.get(config, c("cloud", "useCloud")),
+                        cloudFolderID = config.get(config, c("cloud", "cacheDir")))
+simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+saveRDS(simOutPreamble$ml, file.path(Paths$outputPath, "ml_preamble.rds")) ## TODO: use `qs::qsave()`
+saveSimList(Copy(simOutPreamble), preambleFile, fileBackend = 2)
+
+## TODO: move to preamble module
+if ("screen" %in% config.get(config, c("params", ".plots"))) {
+  lapply(dev.list(), function(x) {
+    try(quickPlot::clearPlot(force = TRUE))
+    try(dev.off())
+  })
+  quickPlot::dev(2, width = 18, height = 10)
+  grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+  grid::grid.text(label = config.get(config, c("runInfo", "runName")), x = 0.90, y = 0.03)
+
+  Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge,
+       simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch, simOutPreamble$rasterToMatchLarge)
+}
+
+# Species layers ------------------------------------------------------------------------------
+
+
+do.call(SpaDES.core::setPaths, paths$paths2)
+
+objects2 <- list(
+  #nonTreePixels = simOutPreamble[["nonTreePixels"]], ## TODO: confirm no longer required
+  rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
+  sppColorVect = simOutPreamble[["sppColorVect"]],
+  sppEquiv = simOutPreamble[["sppEquiv"]],
+  studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
+  studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
+)
+
+sppLayersFile <- file.path(Paths$inputPath, paste0(
+  "simOutSpeciesLayers_", config.get(config, c("runInfo", "studyAreaName")), ".qs"
+))
+
+simOutSpeciesLayers <- Cache(simInitAndSpades,
+                             times = list(start = 0, end = 1),
+                             params = config$params,
+                             modules = c("Biomass_speciesData"),
+                             objects = objects2,
+                             omitArgs = c("debug", "paths", ".plotInitialTime"),
+                             useCache = TRUE,
+                             useCloud = config$cloud$useCloud,
+                             cloudFolderID = config$cloud$cacheDir,
+                             ## make .plotInitialTime an argument, not a parameter:
+                             ##  - Cache will see them as unchanged regardless of value
+                             paths = paths$paths2,
+                             debug = 1)
+simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+saveSimList(Copy(simOutSpeciesLayers), sppLayersFile, fileBackend = 2)
+
+if ("screen" %in% config.get(config, c("params", ".plots"))) {
+  lapply(dev.list(), function(x) {
+    try(quickPlot::clearPlot(force = TRUE))
+    try(dev.off())
+  })
+  quickPlot::dev(3, width = 18, height = 10)
+  grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
+  grid::grid.text(label = config.get(config, c("runInfo", "runName")), x = 0.90, y = 0.03)
+
+  Plot(simOutSpeciesLayers$speciesLayers)
+}
 
 message(crayon::red(config.get(config, c("runInfo", "runName"))))
+
+# Boreal data prep + main sim -----------------------------------------------------------------
 
 if (isFALSE(config.get(config, "postProcessOnly"))) {
   source("08-borealDataPrep.R")
