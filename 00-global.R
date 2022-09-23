@@ -150,7 +150,3 @@ if (isFALSE(config.get(config, "postProcessOnly"))) {
 SpaDES.project::reproducibilityReceipt()
 
 #source("11-post-sim.R")
-
-if (FALSE) {
-  source("13-old.R")
-}
