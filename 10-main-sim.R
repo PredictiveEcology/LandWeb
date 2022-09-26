@@ -38,7 +38,7 @@ tryCatch({
   }
 })
 
-cat(capture.output(warnings()), file = file.path(paths$paths3$outputPath, "warnings.txt"))
+cat(capture.output(warnings()), file = file.path(paths$paths3$outputPath, "warnings.txt"), sep = "\n")
 
 fsim <- simFile("mySimOut", paths$paths3$outputPath, SpaDES.core::end(mySimOut), "qs")
 message("Saving simulation to: ", fsim)
