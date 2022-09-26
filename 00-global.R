@@ -60,7 +60,8 @@ Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, up
 ## NOTE: always load packages LAST, after installation above;
 ##       ensure plyr loaded before dplyr or there will be problems
 Require(c("data.table", "plyr", "pryr", "SpaDES.core",
-          "archive", "googledrive", "httr", "magrittr", "slackr"), upgrade = FALSE, standAlone = TRUE)
+          "archive", "future", "future.callr", "googledrive", "httr", "magrittr", "slackr"),
+        upgrade = FALSE, standAlone = TRUE)
 
 # configure project ---------------------------------------------------------------------------
 stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set

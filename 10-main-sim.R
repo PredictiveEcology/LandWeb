@@ -50,6 +50,10 @@ elapsed <- elapsedTime(mySimOut)
 data.table::fwrite(elapsed, file.path(paths$paths3$outputPath, "elapsedTime.csv"))
 qs::qsave(elapsed, file.path(paths$paths3$outputPath, "elapsedTime.qs"))
 
+memory <- memoryUse(mySimOut, max = TRUE)
+data.table::fwrite(memory, file.path(paths$paths3$outputPath, "memoryUsed.csv"))
+qs::qsave(memory, file.path(paths$paths3$outputPath, "memoryUsed.qs"))
+
 # end-of-sim notifications --------------------------------------------------------------------
 
 SpaDES.project::notify_slack(config.get(config, c("runInfo", "runName")), config.get(config, c("slackChannel")))
