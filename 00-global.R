@@ -270,7 +270,6 @@ if (context$mode != "postprocess") {
   simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
   saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)
 
-  source("09-pre-sim.R")
   source("10-main-sim.R")
 } else {
   #mySimOut <- loadSimList(simFile("mySimOut", Paths$outputPath, 1000))
