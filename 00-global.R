@@ -37,7 +37,7 @@ library(Require)
 
 setLinuxBinaryRepo()
 
-Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use development once merged
+Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9000)", ## TODO: use development once merged
           "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9003)"),
         upgrade = FALSE, standAlone = TRUE)
 
@@ -50,7 +50,7 @@ if (FALSE) {
 }
 
 modulePkgs <- unname(unlist(packagesInModules(modulePath = file.path(prjDir, "m"))))
-otherPkgs <- c("animation", "archive", "assertthat", "config", "crayon", "devtools", "DBI",
+otherPkgs <- c("animation", "archive", "assertthat", "config", "crayon", "details", "DBI",
                "s-u/fastshp",
                "PredictiveEcology/LandR@development (>= 1.1.0.9001)",
                "PredictiveEcology/LandWebUtils@development",
@@ -278,6 +278,12 @@ if (context$mode != "postprocess") {
   source("12-postprocessing.R")
 }
 
-SpaDES.project::reproducibilityReceipt()
+relOutputPath <- SpaDES.config:::.getRelativePath(paths$outputPath, prjDir)
+rrFile <- file.path(relOutputPath, "INFO.md")
+cat(
+  SpaDES.config::printRunInfo(context),
+  SpaDES.project::reproducibilityReceipt(),
+  file = rrFile, sep = "\n"
+)
 
 #source("11-post-sim.R")
