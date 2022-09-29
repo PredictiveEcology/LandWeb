@@ -41,12 +41,17 @@ objects3 <- list(
   summaryPeriod = config.get(config, c("params", "summaryPeriod"))
 )
 
+## TODO
+analysesOutputsTimes <- seq(config$params$summaryPeriod[1], config$params$summaryPeriod[2],
+                            by = config$params$summaryInterval)
+
+
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 outputs3a <- data.frame(stringsAsFactors = FALSE,
                         expand.grid(
                           objectName = objectNamesToSave,
                           saveTime = c(config.get(config, c("params", "timeSeriesTimes")),
-                                       config.get(config, c("params", "analysesOutputsTimes")))
+                                       analysesOutputsTimes)
                         ),
                         fun = "writeRaster", package = "raster",
                         file = paste0(objectNamesToSave, c(".tif", ".grd")))

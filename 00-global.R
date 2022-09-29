@@ -2,6 +2,7 @@
 
 if (file.exists(".Renviron")) readRenviron(".Renviron") ## GITHUB_PAT and database credentials
 
+.mode <- "development"  # "development", "postprocess", "production", "profile"
 .nodename <- Sys.info()[["nodename"]]
 .starttime <- Sys.time()
 .user <- Sys.info()[["user"]]
@@ -28,14 +29,15 @@ if (!"remotes" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
 
 Require.version <- "PredictiveEcology/Require@development"
 if (!"Require" %in% rownames(installed.packages(lib.loc = .libPaths()[1])) ||
-    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.2") {
+    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.3") {
   remotes::install_github(Require.version)
 }
 library(Require)
 
 setLinuxBinaryRepo()
 
-Require("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use development once merged
+Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use development once merged
+          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9000)"),
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
@@ -51,7 +53,7 @@ otherPkgs <- c("animation", "archive", "assertthat", "config", "crayon", "devtoo
                "s-u/fastshp",
                "PredictiveEcology/LandR@development (>= 1.1.0.9001)",
                "PredictiveEcology/LandWebUtils@development",
-               "lhs", "logging", "parallel", "qs", "RCurl", "RPostgres",
+               "lhs", "logging", "parallel", "qs", "quickPlot", "RCurl", "RPostgres",
                "PredictiveEcology/SpaDES.core@development (>= 1.1.0.9000)",
                "scales", "slackr", "XML")
 
@@ -64,112 +66,125 @@ Require(c("data.table", "plyr", "pryr", "SpaDES.core",
         upgrade = FALSE, standAlone = TRUE)
 
 # configure project ---------------------------------------------------------------------------
-stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set
-source("02-config.R")
+
+config <- SpaDES.config::landwebConfig$new()$update(
+  paths = list(
+    projectPath = prjDir
+  )
+)$validate() ## TODO: wrap in a helper e.g. SpaDES.config::useConfig(type = "LandWeb")
+
+if (FALSE) { ## TODO: implement exptTbl stuff
+  fExptTbl <- file.path(prjDir, "experimentTable.csv")
+  if (!file.exists(fExptTbl)) {
+    exptTbl <- expand.grid(
+      .studyAreaName = c("ANC", "AlPac", "BlueRidge", "DMI", "Edson", "FMANWT",
+                         "LandWeb", "LP_BC", "LP_MB",
+                         "Manning", "MillarWestern", "Mistik", "SprayLake", "Sundre", "Tolko", ## TODO: check e.g. Tolko_SK etc.
+                         "Vanderwell", "WeyCo", "WestFraser",
+                         "provAB", "provMB", "provNWT", "provSK"),
+      delayStart = TRUE,
+      dispersalType = c("default"),
+      endTime = 1000,
+      forceResprout = c(FALSE),
+      friMultiple = c(1L),
+      pixelSize = 250,
+      rep = c(1L:15L, NA_integer_), ## NA for postprocessing runs
+      ROStype = c("default"),
+      succession = c(TRUE)
+    )
+    exptTbl$postProcessOnly <- FALSE
+
+    ## postprocessing runs -----------
+    exptTbl[is.na(exptTbl$rep), ]$postProcessOnly <- TRUE
+    exptTbl[is.na(exptTbl$rep), ]$delayStart <- FALSE
+
+    ## scheduling --------------------
+    exptTbl$._targetMachine <- NA
+    exptTbl[exptTbl$.studyAreaName %in% c("LandWeb", "provMB"), ]$._targetMachine <- "pseudotsuga.for-cast.ca"
+
+    exptTbl$._targetMemory <- NA
+
+    ## status and tracking -----------
+    ## TODO: populate these from completed sims for MB
+    exptTbl$._status <- NA ## "queued", "started", "completed", "error"
+    exptTbl$._runtime <- NA
+    exptTbl$._memory <- NA
+
+    write.csv(exptTbl, fExptTbl)
+  } else {
+    ## TODO: local csv; google sheet; database
+    #exptTbl <- getExperimentTable(fExptTbl)
+    exptTable <- read.csv(fExptTbl)
+  }
+}
+
+context <- SpaDES.config::useContext("LandWeb", mode = .mode, studyAreaName = "provMB", version = 3)
+#context <- SpaDES.config::updateContext(context, exptTbl) ## TODO: use context to filter row in the exptTbl
+config <- SpaDES.config::updateLandWebConfig(config, context = context)
+
+## TODO: apply user and machine context settings here
+source("02-user-config.R")
+config$update(
+  args = config.landweb.user$args,
+  #modules = config.landweb.user$modules, ## no modules should differ among users/machines
+  options = config.landweb.user$options,
+  params = config.landweb.user$params,
+  paths = config.landweb.user$paths
+)$validate() ## TODO: wrap in a helper e.g. SpaDES.config::userConfig(config, config.user)
 
 # print run info ------------------------------------------------------------------------------
+SpaDES.config::printRunInfo(context)
+config$paths
 
-message(
-  config.get(config, c("runInfo", "runName"))
-  #"Run information:\n",
-  #lapply(names(config$runInfo), function(x) {
-  #  paste(paste0("  ", x, ":\t"), config$runInfo[[x]], "\n")
-  #})
-)
+# project paths -------------------------------------------------------------------------------
+stopifnot(identical(checkPath(config$paths$projectPath), getwd()))
+paths <- SpaDES.config::paths4spades(config$paths)
 
-# define simulation paths ---------------------------------------------------------------------
-stopifnot(identical(checkPath(config.get(config, c("paths", "projectPath"))), getwd()))
+# project options -----------------------------------------------------------------------------
+opts <- SpaDES.config::setProjectOptions(config)
 
-config$paths <- lapply(config.get(config, "paths"), function(p) {
-  if (!is.null(p)) checkPath(p, create = TRUE) else NULL
-})
+quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer())
 
-## extract only the subset accepted by SpaDES.core::setPaths()
-paths4spades <- function(paths) {
-  want <- grep("Path", names(formals(SpaDES.core::setPaths)), value = TRUE)
-  paths[which(names(paths) %in% want)]
-}
+SpaDES.config::authGoogle(tryToken = "landweb", tryEmail = config$args$cloud$googleUser)
 
-paths <- list(
-  paths1 = paths4spades(config.get(config, "paths")),  ## preamble
-  paths2 = paths4spades(config.get(config, "paths")),  ## species layers
-  paths2a = paths4spades(config.get(config, "paths")), ## boreal data prep
-  paths3 = paths4spades(config.get(config, "paths")),   ## main simulation
-  paths4 = paths4spades(config.get(config, "paths"))   ## post-processing
-)
+# begin simulations ---------------------------------------------------------------------------
 
-paths$paths2[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), "dataPrepGIS", "speciesLayers")
-paths$paths2a[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), "dataPrepGIS", "borealDataPrep")
-paths$paths3[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), config.get(config, c("runInfo", "runName")))
-paths$paths4[["cachePath"]] <- file.path(config.get(config, c("paths", "cachePath")), "postprocessing")
-paths$paths4[["outputPath"]] <- checkPath(file.path("outputs", config.get(config, c("runInfo", "runNamePostProcess"))), create = TRUE)
-
-# set package options -------------------------------------------------------------------------
-raster::rasterOptions(default = TRUE)
-opts <- options(config.get(config, "options"))
-httr::set_config(httr::config(http_version = 0))
-
-## TODO: move these helper functions to package SpaDES.project
-findToken <- function(name) {
-  Require::normPath(list.files(".", paste0(name, "-.*[.]json")[1]))
-}
-hasToken <- function(name) {
-  token <- findToken(name)
-  all(isTRUE(length(token) == 1), !is.na(token))
-}
-
-if (hasToken("landweb")) {
-  drive_auth(path = findToken("landweb"))
-} else {
-  message(crayon::red("No Google service account token found. Trying user authentication..."))
-  drive_auth(email = config$cloud$googleuser, use_oob = quickPlot::isRstudioServer())
-}
-
-message(crayon::silver("Authenticating as: "), crayon::green(drive_user()$emailAddress))
-
-if (config.get(config, "delayStart") > 0) {
-  message(crayon::green("\nStaggered job start: delaying by", as.integer(config.get(config, "delayStart")), "minutes."))
-  Sys.sleep(config.get(config, "delayStart")*60)
-}
-
-
-# Preamble (create study areas, etc.) ---------------------------------------------------------
-
-do.call(SpaDES.core::setPaths, paths$paths1) # Set them here so that we don't have to specify at each call to Cache
+do.call(SpaDES.core::setPaths, paths)
 
 objects1 <- list()
 
 parameters1 <- list(
-  LandWeb_preamble = config.get(config, c("params", "LandWeb_preamble"))
+  .globals = config$params$.globals,
+  LandWeb_preamble = config$params$LandWeb_preamble
 )
 
 preambleFile <- file.path(Paths$inputPath, paste0(
-  "simOutPreamble_", config.get(config, c("runInfo", "studyAreaName")), ".qs"
+  "simOutPreamble_", context$studyAreaName, ".qs"
 ))
 
 simOutPreamble <- Cache(simInitAndSpades,
                         times = list(start = 0, end = 1),
                         params = parameters1,
-                        modules = c("LandWeb_preamble"),
+                        modules = c("LandWeb_preamble"), ## TODO: use config$modules
                         objects = objects1,
-                        paths = paths$paths1,
+                        paths = paths,
                         debug = 1,
                         omitArgs = c("debug", "paths"),
-                        useCloud = config.get(config, c("cloud", "useCloud")),
-                        cloudFolderID = config.get(config, c("cloud", "cacheDir")))
+                        useCloud = config$args$cloud$useCloud,
+                        cloudFolderID = config$args$cloud$cacheDir)
 simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveRDS(simOutPreamble$ml, file.path(Paths$outputPath, "ml_preamble.rds")) ## TODO: use `qs::qsave()`
 saveSimList(Copy(simOutPreamble), preambleFile, fileBackend = 2)
 
 ## TODO: move to preamble module
-if ("screen" %in% config.get(config, c("params", ".plots"))) {
+if ("screen" %in% config$params$.globals$.plots) {
   lapply(dev.list(), function(x) {
     try(quickPlot::clearPlot(force = TRUE))
     try(dev.off())
   })
   quickPlot::dev(2, width = 18, height = 10)
   grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-  grid::grid.text(label = config.get(config, c("runInfo", "runName")), x = 0.90, y = 0.03)
+  grid::grid.text(label = config$params$.globals$.studyAreaName, x = 0.90, y = 0.03)
 
   Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge,
        simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch, simOutPreamble$rasterToMatchLarge)
@@ -177,6 +192,7 @@ if ("screen" %in% config.get(config, c("params", ".plots"))) {
 
 # Species layers ------------------------------------------------------------------------------
 
+## TODO: RESUME (HERE)
 
 do.call(SpaDES.core::setPaths, paths$paths2)
 

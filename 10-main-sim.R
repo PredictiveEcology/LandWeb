@@ -23,7 +23,7 @@ tryCatch({
                     debug = list(file = list(file = file.path(config$paths$paths3$outputPath, "sim.log"),
                                              append = TRUE), debug = 1),
                     useCloud = FALSE, ## TODO param useCloud??
-                    cloudFolderID = config.get(config, c("cloud", "cacheDir")),
+                    cloudFolderID = config$args$cloud$cacheDir,
                     omitArgs = c("debug", "paths"))
   mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 }, error = function(e) {

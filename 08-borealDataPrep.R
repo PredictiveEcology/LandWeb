@@ -5,7 +5,7 @@
 do.call(SpaDES.core::setPaths, paths$paths2a)
 
 objects2a <- list(
-  cloudFolderID = config.get(config, c("cloud", "cacheDir")),
+  cloudFolderID = config$args$cloud$cacheDir,
   rstLCC = simOutPreamble[["LCC"]],
   rasterToMatch = simOutPreamble[["rasterToMatch"]],
   rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
