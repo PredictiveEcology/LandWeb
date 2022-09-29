@@ -164,7 +164,7 @@ preambleFile <- file.path(Paths$inputPath, paste0(
 
 simOutPreamble <- Cache(simInitAndSpades,
                         times = list(start = 0, end = 1),
-                        params = parameters1,
+                        params = parameters1, ## TODO: use config$params
                         modules = c("LandWeb_preamble"), ## TODO: use config$modules
                         objects = objects1,
                         paths = paths,
@@ -194,7 +194,10 @@ if ("screen" %in% config$params$.globals$.plots) {
 
 ## TODO: RESUME (HERE)
 
-do.call(SpaDES.core::setPaths, paths$paths2)
+parameters2 <- list(
+  .globals = config$params$.globals,
+  Biomass_speciesData = config$params$Biomass_speciesData
+)
 
 objects2 <- list(
   #nonTreePixels = simOutPreamble[["nonTreePixels"]], ## TODO: confirm no longer required
@@ -206,21 +209,21 @@ objects2 <- list(
 )
 
 sppLayersFile <- file.path(Paths$inputPath, paste0(
-  "simOutSpeciesLayers_", config.get(config, c("runInfo", "studyAreaName")), ".qs"
+  "simOutSpeciesLayers_", context$studyAreaName, ".qs"
 ))
 
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
-                             params = config$params,
-                             modules = c("Biomass_speciesData"),
+                             params = parameters2, ## TODO: use config$params
+                             modules = c("Biomass_speciesData"),  ## TODO: use config$modules
                              objects = objects2,
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
                              useCache = TRUE,
-                             useCloud = config$cloud$useCloud,
-                             cloudFolderID = config$cloud$cacheDir,
+                             useCloud = config$args$cloud$useCloud,
+                             cloudFolderID = config$args$cloud$cacheDir,
                              ## make .plotInitialTime an argument, not a parameter:
                              ##  - Cache will see them as unchanged regardless of value
-                             paths = paths$paths2,
+                             paths = paths,
                              debug = 1)
 simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveSimList(Copy(simOutSpeciesLayers), sppLayersFile, fileBackend = 2)
