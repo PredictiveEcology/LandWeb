@@ -229,12 +229,47 @@ if ("screen" %in% config$params$.globals$.plots) {
   Plot(simOutSpeciesLayers$speciesLayers)
 }
 
-message(crayon::red(config.get(config, c("runInfo", "runName"))))
-
 # Boreal data prep + main sim -----------------------------------------------------------------
 
-if (isFALSE(config.get(config, "postProcessOnly"))) {
-  source("08-borealDataPrep.R")
+if (context$mode != "postprocess") {
+  parameters2a <- list(
+    .globals = config$params$.globals,
+    Biomass_borealDataPrep = config$params$Biomass_borealDataPrep
+  )
+
+  objects2a <- list(
+    cloudFolderID = config$args$cloud$cacheDir,
+    rstLCC = simOutPreamble[["LCC"]],
+    rasterToMatch = simOutPreamble[["rasterToMatch"]],
+    rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
+    speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
+    speciesParams = simOutPreamble[["speciesParams"]],
+    speciesTable = simOutPreamble[["speciesTable"]],
+    speciesTableAreas = c("BSW", "BP", "MC"), ## TODO: should we remove BP? MC?
+    sppColorVect = simOutPreamble[["sppColorVect"]],
+    sppEquiv = simOutPreamble[["sppEquiv"]],
+    standAgeMap = simOutPreamble[["CC TSF"]],
+    studyArea = simOutPreamble[["studyArea"]],
+    studyAreaLarge = simOutPreamble[["studyAreaLarge"]]
+  )
+
+  ## TODO: confirm filename ok w/ diff parameterizations (e.g. v2 vs v3)
+  dataPrepFile <- file.path(Paths$inputPath, paste0("simOutDataPrep_", context$studyAreaName, ".qs"))
+  simOutDataPrep <- Cache(simInitAndSpades,
+                          times = list(start = 0, end = 1),
+                          params = parameters2a, ## TODO: use config$params
+                          modules = c("Biomass_borealDataPrep"), ## TODO: use config$modules
+                          objects = objects2a,
+                          omitArgs = c("debug", "paths", ".plotInitialTime"),
+                          useCache = TRUE, ## TODO: use param useCache??
+                          useCloud = config$args$cloud$useCloud,
+                          cloudFolderID = config$args$cloud$cacheDir,
+                          .plots = config$params$.globals$.plots,
+                          paths = paths,
+                          debug = 1)
+  simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+  saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)
+
   source("09-pre-sim.R")
   source("10-main-sim.R")
 } else {
