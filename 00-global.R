@@ -171,26 +171,13 @@ simOutPreamble <- Cache(simInitAndSpades,
                         objects = objects1,
                         paths = paths,
                         debug = 1,
-                        omitArgs = c("debug", "paths"),
+                        omitArgs = c("debug", "paths", ".plotInitialTime"),
+                        useCache = TRUE,
                         useCloud = config$args$cloud$useCloud,
                         cloudFolderID = config$args$cloud$cacheDir)
 simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveRDS(simOutPreamble$ml, file.path(Paths$outputPath, "ml_preamble.rds")) ## TODO: use `qs::qsave()`
 saveSimList(Copy(simOutPreamble), preambleFile, fileBackend = 2)
-
-## TODO: move to preamble module
-if ("screen" %in% config$params$.globals$.plots) {
-  lapply(dev.list(), function(x) {
-    try(quickPlot::clearPlot(force = TRUE))
-    try(dev.off())
-  })
-  quickPlot::dev(2, width = 18, height = 10)
-  grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-  grid::grid.text(label = config$params$.globals$.studyAreaName, x = 0.90, y = 0.03)
-
-  Plot(simOutPreamble$studyAreaReporting, simOutPreamble$studyArea, simOutPreamble$studyAreaLarge,
-       simOutPreamble$rasterToMatchReporting, simOutPreamble$rasterToMatch, simOutPreamble$rasterToMatchLarge)
-}
 
 # Species layers ------------------------------------------------------------------------------
 
