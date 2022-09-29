@@ -2,8 +2,6 @@
 ## main simulation
 ################################################################################
 
-.runName <- paste(strsplit(SpaDES.config:::.getRelativePath(paths$outputPath, prjDir), "/")[[1]][-1], collapse = "_")
-
 times3 <- list(start = 0, end = config$args$endTime)
 
 modules3 <- if (isTRUE(context$succession)) {
@@ -132,7 +130,7 @@ tryCatch({
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     slackr::slackr_setup()
     slackr::slackr_msg(
-      paste0("ERROR in simulation `", .runName, "` on host `", .nodename, "`.\n",
+      paste0("ERROR in simulation `", context$runName, "` on host `", .nodename, "`.\n",
              "```\n", e$message, "\n```"),
       channel = config$args$notifications$slackChannel, preformatted = FALSE
     )
@@ -158,4 +156,4 @@ qs::qsave(memory, file.path(paths$outputPath, "memoryUsed.qs"))
 
 # end-of-sim notifications --------------------------------------------------------------------
 
-SpaDES.project::notify_slack(.runName, config$args$notifications$slackChannel)
+SpaDES.project::notify_slack(context$runName, config$args$notifications$slackChannel)

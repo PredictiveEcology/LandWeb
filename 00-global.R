@@ -38,7 +38,7 @@ library(Require)
 setLinuxBinaryRepo()
 
 Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9002)"),
+          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9003)"),
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
@@ -132,6 +132,8 @@ config$update(
   params = config.landweb.user$params,
   paths = config.landweb.user$paths
 )$validate() ## TODO: wrap in a helper e.g. SpaDES.config::userConfig(config, config.user)
+
+context <- SpaDES.config::updateLandWebContext(context, config)
 
 # print run info ------------------------------------------------------------------------------
 SpaDES.config::printRunInfo(context)
