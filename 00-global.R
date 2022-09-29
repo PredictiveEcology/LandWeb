@@ -5,6 +5,7 @@ if (file.exists(".Renviron")) readRenviron(".Renviron") ## GITHUB_PAT and databa
 .mode <- "development"  # "development", "postprocess", "production", "profile"
 .nodename <- Sys.info()[["nodename"]]
 .starttime <- Sys.time()
+.studyAreaName <- "provMB"
 .user <- Sys.info()[["user"]]
 
 prjDir <- "~/GitHub/LandWeb"
@@ -37,7 +38,7 @@ library(Require)
 setLinuxBinaryRepo()
 
 Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9000)"),
+          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9002)"),
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
@@ -118,7 +119,7 @@ if (FALSE) { ## TODO: implement exptTbl stuff
   }
 }
 
-context <- SpaDES.config::useContext("LandWeb", mode = .mode, studyAreaName = "provMB", version = 3)
+context <- SpaDES.config::useContext("LandWeb", mode = .mode, studyAreaName = .studyAreaName, version = 3)
 #context <- SpaDES.config::updateContext(context, exptTbl) ## TODO: use context to filter row in the exptTbl
 config <- SpaDES.config::updateLandWebConfig(config, context = context)
 
@@ -134,6 +135,7 @@ config$update(
 
 # print run info ------------------------------------------------------------------------------
 SpaDES.config::printRunInfo(context)
+config$modules
 config$paths
 
 # project paths -------------------------------------------------------------------------------
