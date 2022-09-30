@@ -35,6 +35,17 @@ if (!"Require" %in% rownames(installed.packages(lib.loc = .libPaths()[1])) ||
 }
 library(Require)
 
+## temporarily until new Rcpp release on CRAN in early 2023
+RcppVersionCRAN <- package_version(data.table::as.data.table(available.packages())[Package == "Rcpp", Version])
+RcppVersionNeeded <- package_version("1.0.9.3")
+if (RcppVersionCRAN < RcppVersionNeeded) {
+  repos <- getOption("repos")
+  options(repos = c(RCPP = "https://rcppcore.github.io/drat", repos))
+  Require(paste0("Rcpp (>= ", RcppVersionNeeded, ")"))
+  options(repos = repos)
+}
+##
+
 setLinuxBinaryRepo()
 
 Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9000)", ## TODO: use development once merged
