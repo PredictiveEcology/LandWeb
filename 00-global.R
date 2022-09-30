@@ -41,7 +41,7 @@ RcppVersionNeeded <- package_version("1.0.9.3")
 if (RcppVersionCRAN < RcppVersionNeeded) {
   repos <- getOption("repos")
   options(repos = c(RCPP = "https://rcppcore.github.io/drat", repos))
-  Require(paste0("Rcpp (>= ", RcppVersionNeeded, ")"))
+  Require(paste0("Rcpp (>= ", RcppVersionNeeded, ")"), require = FALSE)
   options(repos = repos)
 }
 ##
