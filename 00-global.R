@@ -53,7 +53,7 @@ if (RcppVersionCRAN < RcppVersionNeeded) {
 setLinuxBinaryRepo()
 
 Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9000)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9009)"),
+          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9012)"),
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
@@ -129,11 +129,10 @@ if (FALSE) {
   }
 }
 
-## TODO: use below to supersede all the rest
 config <- SpaDES.config::useConfig(projectName = "LandWeb", projectPath = prjDir,
                                    mode = .mode, rep = .rep, studyAreaName = .studyAreaName, version = .version)
 
-## TODO: apply user and machine context settings here
+## apply user and machine context settings here
 source("02-user-config.R")
 config$args <- config.landweb.user$args
 #config$modules <- config.landweb.user$modules ## no modules should differ among users/machines
@@ -168,7 +167,7 @@ parameters1 <- list(
   LandWeb_preamble = config$params$LandWeb_preamble
 )
 
-preambleFile <- file.path(Paths$inputPath, paste0(
+preambleFile <- file.path(Paths$outputPath, paste0(
   "simOutPreamble_", config$context$studyAreaName, ".qs"
 ))
 
@@ -205,7 +204,7 @@ objects2 <- list(
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
 )
 
-sppLayersFile <- file.path(Paths$inputPath, paste0(
+sppLayersFile <- file.path(Paths$outputPath, paste0(
   "simOutSpeciesLayers_", config$context$studyAreaName, ".qs"
 ))
 
@@ -237,9 +236,8 @@ if ("screen" %in% config$params$.globals$.plots) {
   Plot(simOutSpeciesLayers$speciesLayers)
 }
 
-# Boreal data prep + main sim -----------------------------------------------------------------
-
 if (config$context$mode != "postprocess") {
+  # Boreal data prep + main sim -----------------------------------------------------------------
   parameters2a <- list(
     .globals = config$params$.globals,
     Biomass_borealDataPrep = config$params$Biomass_borealDataPrep
@@ -261,8 +259,7 @@ if (config$context$mode != "postprocess") {
     studyAreaLarge = simOutPreamble[["studyAreaLarge"]]
   )
 
-  ## TODO: confirm filename ok w/ diff parameterizations (e.g. v2 vs v3)
-  dataPrepFile <- file.path(Paths$inputPath, paste0("simOutDataPrep_", config$context$studyAreaName, ".qs"))
+  dataPrepFile <- file.path(Paths$outputPath, paste0("simOutDataPrep_", config$context$studyAreaName, ".qs"))
   simOutDataPrep <- Cache(simInitAndSpades,
                           times = list(start = 0, end = 1),
                           params = parameters2a, ## TODO: use config$params
@@ -280,8 +277,85 @@ if (config$context$mode != "postprocess") {
 
   source("10-main-sim.R")
 } else {
-  #mySimOut <- loadSimList(simFile("mySimOut", Paths$outputPath, 1000))
-  source("12-postprocessing.R")
+  ## postprocessing --------------------------------------------------------------------------------
+  if (grepl("Manning", config$context$runName)) {
+    config$params$timeSeriesTimes <- 450:500
+  }
+
+  times4 <- list(start = 0, end = 1)
+
+  modules4 <- list("LandWeb_summary")
+
+  parameters4 <- list(
+    .globals = config$params[[".globals"]],
+    LandWeb_summary = config$params[["LandWeb_summary"]]
+  )
+
+  objects4 <- list(
+    ml = simOutPreamble[["ml"]],
+    speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
+    sppColorVect = simOutPreamble[["sppColorVect"]],
+    sppEquiv = simOutPreamble[["sppEquiv"]]
+  )
+
+  outputs4 <- NULL
+
+  tryCatch({
+    simOutSummaries <- Cache(simInitAndSpades,
+                             times = times4, #cl = cl,
+                             params = parameters4, ## TODO: use config$params
+                             modules = modules4, ## TODO: use config$modules
+                             #outputs = outputs4,
+                             objects = objects4,
+                             paths = paths,
+                             loadOrder = unlist(modules4), ## TODO: use config$modules
+                             debug = list(file = list(file = file.path(paths$outputPath, "summaries.log"),
+                                                      append = TRUE), debug = 1),
+                             useCloud = FALSE, ## TODO param useCloud??
+                             cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+                             omitArgs = c("debug", "paths"))
+    simOutSummaries@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+  }, error = function(e) {
+    if (requireNamespace("slackr") & file.exists("~/.slackr")) {
+      slackr::slackr_setup()
+      slackr::slackr_msg(
+        paste0("ERROR in post-processing `", config$context[["runName"]],
+               "` on host `", config$context[["machine"]], "`.\n",
+               "```\n", e$message, "\n```"),
+        channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
+      )
+      stop(e$message)
+    }
+  })
+
+  cat(capture.output(warnings()), file = file.path(paths$outputPath, "warnings.txt"), sep = "\n")
+
+  fsim <- simFile("simOutSummaries", paths$outputPath, SpaDES.core::end(simOutSummaries), "qs")
+  message("Saving simulation to: ", fsim)
+  saveSimList(sim = simOutSummaries, filename = fsim, fileBackend = 2)
+
+  # save simulation stats -----------------------------------------------------------------------
+
+  elapsed <- elapsedTime(simOutSummaries)
+  data.table::fwrite(elapsed, file.path(paths$outputPath, "elapsedTime_summaries.csv"))
+  qs::qsave(elapsed, file.path(paths$outputPath, "elapsedTime_summaries.qs"))
+
+  memory <- memoryUse(simOutSummaries, max = TRUE)
+  data.table::fwrite(memory, file.path(paths$outputPath, "memoryUsed_summaries.csv"))
+  qs::qsave(memory, file.path(paths$outputPath, "memoryUsed_summaries.qs"))
+
+  # archive and upload --------------------------------------------------------------------------
+  #source("R/upload.R") ## TODO: not working correctly yet
+
+  # end-of-sim notifications --------------------------------------------------------------------
+
+  if (requireNamespace("slackr") & file.exists("~/.slackr")) {
+    slackr::slackr_setup()
+    slackr::slackr_msg(
+      paste0("Post-processing for `", context$runName, "` completed on host `", Sys.info()[["nodename"]], "`."),
+      channel = config::get("slackchannel"), preformatted = FALSE
+    )
+  }
 }
 
 relOutputPath <- SpaDES.config:::.getRelativePath(paths$outputPath, prjDir)

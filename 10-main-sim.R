@@ -51,7 +51,7 @@ objects3 <- list(
   studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]],
   sufficientLight = simOutDataPrep[["sufficientLight"]],
-  summaryPeriod = config$params$LandWeb_summary$summaryPeriod
+  summaryPeriod = config$params[[".globals"]][["summaryPeriod"]]
 )
 
 ## TODO: find better way of doing this (i.e., define once so not repetaed here and in summary module)
@@ -109,7 +109,7 @@ if ("screen" %in% config$params$.globals$.plots) {
   grid::grid.text(label = context$studyAreaName, x = 0.90, y = 0.03)
 }
 
-data.table::setDTthreads(config$params$.globals$.useParallel)
+data.table::setDTthreads(config$params[[".globals"]][[".useParallel"]])
 
 tryCatch({
   mySimOut <- Cache(simInitAndSpades,
