@@ -2,11 +2,15 @@
 
 if (file.exists(".Renviron")) readRenviron(".Renviron") ## GITHUB_PAT and database credentials
 
-.mode <- "development"  # "development", "postprocess", "production", "profile"
+#####
+.mode <- "postprocess"  # "development", "postprocess", "production", "profile"
 .nodename <- Sys.info()[["nodename"]]
+.rep <- if (.mode == "postprocess") NA_integer_ else 1L
 .starttime <- Sys.time()
 .studyAreaName <- "provMB"
 .user <- Sys.info()[["user"]]
+.version <- 3
+#####
 
 prjDir <- "~/GitHub/LandWeb"
 
@@ -49,7 +53,7 @@ if (RcppVersionCRAN < RcppVersionNeeded) {
 setLinuxBinaryRepo()
 
 Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9000)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9003)"),
+          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9009)"),
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
@@ -79,13 +83,8 @@ Require(c("data.table", "plyr", "pryr", "SpaDES.core",
 
 # configure project ---------------------------------------------------------------------------
 
-config <- SpaDES.config::landwebConfig$new()$update(
-  paths = list(
-    projectPath = prjDir
-  )
-)$validate() ## TODO: wrap in a helper e.g. SpaDES.config::useConfig(type = "LandWeb")
-
-if (FALSE) { ## TODO: implement exptTbl stuff
+## TODO: implement exptTbl stuff to pass values to config
+if (FALSE) {
   fExptTbl <- file.path(prjDir, "experimentTable.csv")
   if (!file.exists(fExptTbl)) {
     exptTbl <- expand.grid(
@@ -130,24 +129,20 @@ if (FALSE) { ## TODO: implement exptTbl stuff
   }
 }
 
-context <- SpaDES.config::useContext("LandWeb", mode = .mode, studyAreaName = .studyAreaName, version = 3)
-#context <- SpaDES.config::updateContext(context, exptTbl) ## TODO: use context to filter row in the exptTbl
-config <- SpaDES.config::updateLandWebConfig(config, context = context)
+## TODO: use below to supersede all the rest
+config <- SpaDES.config::useConfig(projectName = "LandWeb", projectPath = prjDir,
+                                   mode = .mode, rep = .rep, studyAreaName = .studyAreaName, version = .version)
 
 ## TODO: apply user and machine context settings here
 source("02-user-config.R")
-config$update(
-  args = config.landweb.user$args,
-  #modules = config.landweb.user$modules, ## no modules should differ among users/machines
-  options = config.landweb.user$options,
-  params = config.landweb.user$params,
-  paths = config.landweb.user$paths
-)$validate() ## TODO: wrap in a helper e.g. SpaDES.config::userConfig(config, config.user)
-
-context <- SpaDES.config::updateLandWebContext(context, config)
+config$args <- config.landweb.user$args
+#config$modules <- config.landweb.user$modules ## no modules should differ among users/machines
+config$options <- config.landweb.user$options
+config$params <- config.landweb.user$params
+config$paths <- config.landweb.user$paths
 
 # print run info ------------------------------------------------------------------------------
-SpaDES.config::printRunInfo(context)
+SpaDES.config::printRunInfo(config$context)
 config$modules
 config$paths
 
@@ -174,7 +169,7 @@ parameters1 <- list(
 )
 
 preambleFile <- file.path(Paths$inputPath, paste0(
-  "simOutPreamble_", context$studyAreaName, ".qs"
+  "simOutPreamble_", config$context$studyAreaName, ".qs"
 ))
 
 simOutPreamble <- Cache(simInitAndSpades,
@@ -211,7 +206,7 @@ objects2 <- list(
 )
 
 sppLayersFile <- file.path(Paths$inputPath, paste0(
-  "simOutSpeciesLayers_", context$studyAreaName, ".qs"
+  "simOutSpeciesLayers_", config$context$studyAreaName, ".qs"
 ))
 
 simOutSpeciesLayers <- Cache(simInitAndSpades,
@@ -237,14 +232,14 @@ if ("screen" %in% config$params$.globals$.plots) {
   })
   quickPlot::dev(3, width = 18, height = 10)
   grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-  grid::grid.text(label = context$studyAreaName, x = 0.90, y = 0.03)
+  grid::grid.text(label = config$context$studyAreaName, x = 0.90, y = 0.03)
 
   Plot(simOutSpeciesLayers$speciesLayers)
 }
 
 # Boreal data prep + main sim -----------------------------------------------------------------
 
-if (context$mode != "postprocess") {
+if (config$context$mode != "postprocess") {
   parameters2a <- list(
     .globals = config$params$.globals,
     Biomass_borealDataPrep = config$params$Biomass_borealDataPrep
@@ -267,7 +262,7 @@ if (context$mode != "postprocess") {
   )
 
   ## TODO: confirm filename ok w/ diff parameterizations (e.g. v2 vs v3)
-  dataPrepFile <- file.path(Paths$inputPath, paste0("simOutDataPrep_", context$studyAreaName, ".qs"))
+  dataPrepFile <- file.path(Paths$inputPath, paste0("simOutDataPrep_", config$context$studyAreaName, ".qs"))
   simOutDataPrep <- Cache(simInitAndSpades,
                           times = list(start = 0, end = 1),
                           params = parameters2a, ## TODO: use config$params
@@ -291,10 +286,7 @@ if (context$mode != "postprocess") {
 
 relOutputPath <- SpaDES.config:::.getRelativePath(paths$outputPath, prjDir)
 rrFile <- file.path(relOutputPath, "INFO.md")
-cat(
-  SpaDES.config::printRunInfo(context),
-  SpaDES.project::reproducibilityReceipt(),
-  file = rrFile, sep = "\n"
-)
+cat(SpaDES.config::printRunInfo(config$context), file = rrFile, sep = "")
+cat(SpaDES.project::reproducibilityReceipt(), file = rrFile, sep = "\n", append = TRUE)
 
 #source("11-post-sim.R")
