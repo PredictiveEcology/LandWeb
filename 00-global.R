@@ -9,7 +9,12 @@ if (file.exists(".Renviron")) readRenviron(".Renviron") ## GITHUB_PAT and databa
 .starttime <- Sys.time()
 .studyAreaName <- "provMB"
 .user <- Sys.info()[["user"]]
-.version <- 3
+.version <- 2 ## 3
+
+if (.version == 2) {
+  .dispersalType <- "high"
+  .ROStype <- "default"
+}
 #####
 
 prjDir <- "~/GitHub/LandWeb"
@@ -34,26 +39,26 @@ if (!"remotes" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
 
 Require.version <- "PredictiveEcology/Require@development"
 if (!"Require" %in% rownames(installed.packages(lib.loc = .libPaths()[1])) ||
-    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.3") {
+    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.3.9000") {
   remotes::install_github(Require.version)
 }
 library(Require)
 
-## temporarily until new Rcpp release on CRAN in early 2023
+## temporarily until new Rcpp release on CRAN in early 2023 ----------------------------------------
 RcppVersionCRAN <- package_version(data.table::as.data.table(available.packages())[Package == "Rcpp", Version])
+RcppVersionInstalled <- package_version(packageVersion("Rcpp", lib.loc = .libPaths()[1]))
 RcppVersionNeeded <- package_version("1.0.9.3")
-if (RcppVersionCRAN < RcppVersionNeeded) {
-  repos <- getOption("repos")
-  options(repos = c(RCPP = "https://rcppcore.github.io/drat", repos))
-  Require(paste0("Rcpp (>= ", RcppVersionNeeded, ")"), require = FALSE)
-  options(repos = repos)
+if (RcppVersionInstalled < RcppVersionNeeded) {
+  options("Require.otherPkgs" = setdiff(getOption("Require.otherPkgs"), "Rcpp")) ## remove Rcpp from "forced source"
+  Require(paste0("Rcpp (>= ", RcppVersionNeeded, ")"),  repos = "https://rcppcore.github.io/drat",
+          require = FALSE, verbose = 1)
 }
 ##
 
 setLinuxBinaryRepo()
 
 Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9000)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9012)"),
+          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9014)"),
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
@@ -132,6 +137,14 @@ if (FALSE) {
 config <- SpaDES.config::useConfig(projectName = "LandWeb", projectPath = prjDir,
                                    mode = .mode, rep = .rep, studyAreaName = .studyAreaName, version = .version)
 
+if (.version == 2) {
+  config$context$dispersalType <- .dispersalType
+  config$context$ROStype <- .ROStype
+
+  config$update()
+  config$validate()
+}
+
 ## apply user and machine context settings here
 source("02-user-config.R")
 config$args <- config.landweb.user$args
@@ -143,10 +156,10 @@ config$paths <- config.landweb.user$paths
 # print run info ------------------------------------------------------------------------------
 SpaDES.config::printRunInfo(config$context)
 config$modules
-config$paths
 
 # project paths -------------------------------------------------------------------------------
-stopifnot(identical(checkPath(config$paths$projectPath), getwd()))
+config$paths
+stopifnot(identical(checkPath(config$paths[["projectPath"]]), getwd()))
 paths <- SpaDES.config::paths4spades(config$paths)
 
 # project options -----------------------------------------------------------------------------
@@ -180,15 +193,13 @@ simOutPreamble <- Cache(simInitAndSpades,
                         debug = 1,
                         omitArgs = c("debug", "paths", ".plotInitialTime"),
                         useCache = TRUE,
-                        useCloud = config$args$cloud$useCloud,
-                        cloudFolderID = config$args$cloud$cacheDir)
+                        useCloud = config$args[["cloud"]][["useCloud"]],
+                        cloudFolderID = config$args[["cloud"]][["cacheDir"]])
 simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
-saveRDS(simOutPreamble$ml, file.path(Paths$outputPath, "ml_preamble.rds")) ## TODO: use `qs::qsave()`
+saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
 saveSimList(Copy(simOutPreamble), preambleFile, fileBackend = 2)
 
 # Species layers ------------------------------------------------------------------------------
-
-## TODO: RESUME (HERE)
 
 parameters2 <- list(
   .globals = config$params$.globals,
@@ -282,8 +293,6 @@ if (config$context$mode != "postprocess") {
     config$params$timeSeriesTimes <- 450:500
   }
 
-  times4 <- list(start = 0, end = 1)
-
   modules4 <- list("LandWeb_summary")
 
   parameters4 <- list(
@@ -302,14 +311,15 @@ if (config$context$mode != "postprocess") {
 
   tryCatch({
     simOutSummaries <- Cache(simInitAndSpades,
-                             times = times4, #cl = cl,
+                             times = list(start = 0, end = 1),
                              params = parameters4, ## TODO: use config$params
                              modules = modules4, ## TODO: use config$modules
                              #outputs = outputs4,
                              objects = objects4,
                              paths = paths,
                              loadOrder = unlist(modules4), ## TODO: use config$modules
-                             debug = list(file = list(file = file.path(paths$outputPath, "summaries.log"),
+                             #cl = cl, ## TODO: get parallel processing working !!!
+                             debug = list(file = list(file = file.path(config$paths[["logPath"]], "summaries.log"),
                                                       append = TRUE), debug = 1),
                              useCloud = FALSE, ## TODO param useCloud??
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],

@@ -15,6 +15,7 @@ config.landweb.user <- switch(
       )
     ),
     options = list(
+      reproducible.cacheSaveFormat = "qs",
       reproducible.conn = SpaDES.config::dbConnCache("postgresql")
     ),
     params = list(
