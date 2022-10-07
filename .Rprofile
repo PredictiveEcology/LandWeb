@@ -1,6 +1,6 @@
 ## use empty .Rprofile to prevent loading of user's .Rprofile
 local({
-  message("initializing LandWeb project...")
+  message("initializing LandWeb project...\n")
 
   ## TODO: trying force Rstudio to behave...
   local({
@@ -10,5 +10,5 @@ local({
     message("Using libPaths:\n", paste(.libPaths(), collapse = "\n"))
   })
 
-  message("...done")
+  message("\n...done")
 })

@@ -58,7 +58,7 @@ if (RcppVersionInstalled < RcppVersionNeeded) {
 setLinuxBinaryRepo()
 
 Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9000)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9014)"),
+          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9015)"),
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
@@ -289,11 +289,17 @@ if (config$context$mode != "postprocess") {
   source("10-main-sim.R")
 } else {
   ## postprocessing --------------------------------------------------------------------------------
-  if (grepl("Manning", config$context$runName)) {
+  if (grepl("Manning", config$context[["runName"]])) {
     config$params$timeSeriesTimes <- 450:500
   }
 
   modules4 <- list("LandWeb_summary")
+
+  config$params[[".globals"]][[".useParallel"]] <- getOption("map.maxNumCores")
+  config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.maxNumCores")
+
+  ## TODO: tempararily disable tile creation until parallel issues resolved in `tiler` pkg
+  options(map.tilePath = NULL)
 
   parameters4 <- list(
     .globals = config$params[[".globals"]],
