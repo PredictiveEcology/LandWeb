@@ -147,8 +147,8 @@ config <- SpaDES.config::useConfig(projectName = "LandWeb", projectPath = prjDir
                                    mode = .mode, rep = .rep, studyAreaName = .studyAreaName, version = .version)
 
 if (.version == 2) {
-  config$context$dispersalType <- .dispersalType
-  config$context$ROStype <- .ROStype
+  config$context[["dispersalType"]] <- .dispersalType
+  config$context[["ROStype"]] <- .ROStype
 
   config$update()
   config$validate()
@@ -176,7 +176,7 @@ opts <- SpaDES.config::setProjectOptions(config)
 
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer())
 
-SpaDES.config::authGoogle(tryToken = "landweb", tryEmail = config$args$cloud$googleUser)
+SpaDES.config::authGoogle(tryToken = "landweb", tryEmail = config$args[["cloud"]][["googleUser"]])
 
 # begin simulations ---------------------------------------------------------------------------
 
@@ -185,12 +185,12 @@ do.call(SpaDES.core::setPaths, paths)
 objects1 <- list()
 
 parameters1 <- list(
-  .globals = config$params$.globals,
-  LandWeb_preamble = config$params$LandWeb_preamble
+  .globals = config$params[[".globals"]],
+  LandWeb_preamble = config$params[["LandWeb_preamble"]]
 )
 
-preambleFile <- file.path(Paths$outputPath, paste0(
-  "simOutPreamble_", config$context$studyAreaName, ".qs"
+preambleFile <- file.path(paths$outputPath, paste0(
+  "simOutPreamble_", config$context[["studyAreaName"]], ".qs"
 ))
 
 simOutPreamble <- Cache(simInitAndSpades,
@@ -211,8 +211,8 @@ saveSimList(Copy(simOutPreamble), preambleFile, fileBackend = 2)
 # Species layers ------------------------------------------------------------------------------
 
 parameters2 <- list(
-  .globals = config$params$.globals,
-  Biomass_speciesData = config$params$Biomass_speciesData
+  .globals = config$params[[".globals"]],
+  Biomass_speciesData = config$params[["Biomass_speciesData"]]
 )
 
 objects2 <- list(
@@ -224,8 +224,8 @@ objects2 <- list(
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
 )
 
-sppLayersFile <- file.path(Paths$outputPath, paste0(
-  "simOutSpeciesLayers_", config$context$studyAreaName, ".qs"
+sppLayersFile <- file.path(paths[["outputPath"]], paste0(
+  "simOutSpeciesLayers_", config$context[["studyAreaName"]], ".qs"
 ))
 
 simOutSpeciesLayers <- Cache(simInitAndSpades,
@@ -235,8 +235,8 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              objects = objects2,
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
                              useCache = TRUE,
-                             useCloud = config$args$cloud$useCloud,
-                             cloudFolderID = config$args$cloud$cacheDir,
+                             useCloud = config$args[["cloud"]][["useCloud"]],
+                             cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                              ## make .plotInitialTime an argument, not a parameter:
                              ##  - Cache will see them as unchanged regardless of value
                              paths = paths,
@@ -244,27 +244,27 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
 simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveSimList(Copy(simOutSpeciesLayers), sppLayersFile, fileBackend = 2)
 
-if ("screen" %in% config$params$.globals$.plots) {
+if ("screen" %in% config$params[[".globals"]][[".plots"]]) {
   lapply(dev.list(), function(x) {
     try(quickPlot::clearPlot(force = TRUE))
     try(dev.off())
   })
   quickPlot::dev(3, width = 18, height = 10)
   grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-  grid::grid.text(label = config$context$studyAreaName, x = 0.90, y = 0.03)
+  grid::grid.text(label = config$context[["studyAreaName"]], x = 0.90, y = 0.03)
 
   Plot(simOutSpeciesLayers$speciesLayers)
 }
 
-if (config$context$mode != "postprocess") {
+if (config$context[["mode"]] != "postprocess") {
   # Boreal data prep + main sim -----------------------------------------------------------------
   parameters2a <- list(
-    .globals = config$params$.globals,
-    Biomass_borealDataPrep = config$params$Biomass_borealDataPrep
+    .globals = config$params[[".globals"]],
+    Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]]
   )
 
   objects2a <- list(
-    cloudFolderID = config$args$cloud$cacheDir,
+    cloudFolderID = config$args[["cloud"]][["cacheDir"]],
     rstLCC = simOutPreamble[["LCC"]],
     rasterToMatch = simOutPreamble[["rasterToMatch"]],
     rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
@@ -279,7 +279,7 @@ if (config$context$mode != "postprocess") {
     studyAreaLarge = simOutPreamble[["studyAreaLarge"]]
   )
 
-  dataPrepFile <- file.path(Paths$outputPath, paste0("simOutDataPrep_", config$context$studyAreaName, ".qs"))
+  dataPrepFile <- file.path(paths[["outputPath"]], paste0("simOutDataPrep_", config$context[["studyAreaName"]], ".qs"))
   simOutDataPrep <- Cache(simInitAndSpades,
                           times = list(start = 0, end = 1),
                           params = parameters2a, ## TODO: use config$params
@@ -287,9 +287,9 @@ if (config$context$mode != "postprocess") {
                           objects = objects2a,
                           omitArgs = c("debug", "paths", ".plotInitialTime"),
                           useCache = TRUE, ## TODO: use param useCache??
-                          useCloud = config$args$cloud$useCloud,
-                          cloudFolderID = config$args$cloud$cacheDir,
-                          .plots = config$params$.globals$.plots,
+                          useCloud = config$args[["cloud"]][["useCloud"]],
+                          cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+                          .plots = config$params[[".globals"]][[".plots"]],
                           paths = paths,
                           debug = 1)
   simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
@@ -299,16 +299,15 @@ if (config$context$mode != "postprocess") {
 } else {
   ## postprocessing --------------------------------------------------------------------------------
   if (grepl("Manning", config$context[["runName"]])) {
-    config$params$timeSeriesTimes <- 450:500
+    config$params[["timeSeriesTimes"]] <- 450:500
   }
 
   modules4 <- list("LandWeb_summary")
 
-  config$params[[".globals"]][[".useParallel"]] <- getOption("map.maxNumCores")
-  config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.maxNumCores")
-
-  ## TODO: tempararily disable tile creation until parallel issues resolved in `tiler` pkg
-  options(map.tilePath = NULL)
+  ## NOTE: previous .useParallel value is too low for this module
+  config$params[[".globals"]][[".useParallel"]] <- getOption("map.useParallel")
+  config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.useParallel")
+  # getOption("map.maxNumCores")
 
   parameters4 <- list(
     .globals = config$params[[".globals"]],
@@ -378,12 +377,12 @@ if (config$context$mode != "postprocess") {
     slackr::slackr_setup()
     slackr::slackr_msg(
       paste0("Post-processing for `", context$runName, "` completed on host `", Sys.info()[["nodename"]], "`."),
-      channel = config::get("slackchannel"), preformatted = FALSE
+      channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
     )
   }
 }
 
-relOutputPath <- SpaDES.config:::.getRelativePath(paths$outputPath, prjDir)
+relOutputPath <- SpaDES.config:::.getRelativePath(paths[["outputPath"]], prjDir)
 rrFile <- file.path(relOutputPath, "INFO.md")
 cat(SpaDES.config::printRunInfo(config$context), file = rrFile, sep = "")
 cat(SpaDES.project::reproducibilityReceipt(), file = rrFile, sep = "\n", append = TRUE)
