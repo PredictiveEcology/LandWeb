@@ -1,6 +1,7 @@
 # project basics ------------------------------------------------------------------------------
 
-if (file.exists(".Renviron")) readRenviron(".Renviron") ## GITHUB_PAT and database credentials
+if (file.exists("~/.Renviron")) readRenviron("~/.Renviron") ## GITHUB_PAT
+if (file.exists("LandWeb.Renviron")) readRenviron("LandWeb.Renviron") ## database credentials
 
 #####
 .mode <- "postprocess"  # "development", "postprocess", "production", "profile"
