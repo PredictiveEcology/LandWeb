@@ -20,6 +20,8 @@ if (.version == 2) {
 
 prjDir <- "~/GitHub/LandWeb"
 
+stopifnot(identical(normalizePath(prjDir), getwd()))
+
 options(
   Ncpus = min(parallel::detectCores() / 2, 120),
   repos = c(CRAN = "https://cran.rstudio.com"),
@@ -29,7 +31,7 @@ options(
 
 # install and load packages -------------------------------------------------------------------
 
-pkgDir <- file.path("packages", version$platform, substr(getRversion(), 1, 3))
+pkgDir <- file.path(prjDir, "packages", version$platform, substr(getRversion(), 1, 3))
 dir.create(pkgDir, recursive = TRUE, showWarnings = FALSE)
 .libPaths(pkgDir, include.site = FALSE)
 message("Using libPaths:\n", paste(.libPaths(), collapse = "\n"))
@@ -40,17 +42,23 @@ if (!"remotes" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
 
 Require.version <- "PredictiveEcology/Require@development"
 if (!"Require" %in% rownames(installed.packages(lib.loc = .libPaths()[1])) ||
-    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.3.9000") {
+    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.6") {
   remotes::install_github(Require.version)
 }
+
 library(Require)
 
 ## temporarily until new Rcpp release on CRAN in early 2023 ----------------------------------------
-RcppVersionCRAN <- package_version(data.table::as.data.table(available.packages())[Package == "Rcpp", Version])
-RcppVersionInstalled <- package_version(packageVersion("Rcpp", lib.loc = .libPaths()[1]))
+options("Require.otherPkgs" = setdiff(getOption("Require.otherPkgs"), "Rcpp")) ## remove Rcpp from "forced source"
 RcppVersionNeeded <- package_version("1.0.9.3")
-if (RcppVersionInstalled < RcppVersionNeeded) {
-  options("Require.otherPkgs" = setdiff(getOption("Require.otherPkgs"), "Rcpp")) ## remove Rcpp from "forced source"
+
+RcppVersionAvail <- if (!"Rcpp" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
+  package_version(data.table::as.data.table(available.packages())[Package == "Rcpp", Version])
+} else {
+  package_version(packageVersion("Rcpp", lib.loc = .libPaths()[1]))
+}
+
+if (RcppVersionAvail < RcppVersionNeeded) {
   Require(paste0("Rcpp (>= ", RcppVersionNeeded, ")"),  repos = "https://rcppcore.github.io/drat",
           require = FALSE, verbose = 1)
 }
@@ -58,8 +66,8 @@ if (RcppVersionInstalled < RcppVersionNeeded) {
 
 setLinuxBinaryRepo()
 
-Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9000)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9015)"),
+Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
+          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9016)"),
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
