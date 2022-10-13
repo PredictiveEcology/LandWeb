@@ -79,20 +79,13 @@ if (FALSE) {
 }
 
 modulePkgs <- unname(unlist(packagesInModules(modulePath = file.path(prjDir, "m"))))
-otherPkgs <- c("animation", "archive", "assertthat", "config", "crayon", "details", "DBI",
-               "s-u/fastshp",
-               "PredictiveEcology/LandR@development (>= 1.1.0.9001)",
-               "PredictiveEcology/LandWebUtils@development",
-               "lhs", "logging", "parallel", "qs", "quickPlot", "RCurl", "RPostgres",
-               "PredictiveEcology/SpaDES.core@development (>= 1.1.0.9000)",
-               "scales", "slackr", "XML")
+otherPkgs <- c("archive", "details", "DBI", "s-u/fastshp", "logging", "RPostgres", "slackr")
 
 Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, upgrade = FALSE)
 
 ## NOTE: always load packages LAST, after installation above;
 ##       ensure plyr loaded before dplyr or there will be problems
-Require(c("data.table", "plyr", "pryr", "SpaDES.core",
-          "archive", "future", "future.callr", "googledrive", "httr", "magrittr", "slackr"),
+Require(c("data.table", "plyr", "pryr", "SpaDES.core", "googledrive", "httr", "magrittr", "slackr"),
         upgrade = FALSE, standAlone = TRUE)
 
 # configure project ---------------------------------------------------------------------------
@@ -201,7 +194,6 @@ simOutPreamble <- Cache(simInitAndSpades,
                         paths = paths,
                         debug = 1,
                         omitArgs = c("debug", "paths", ".plotInitialTime"),
-                        useCache = TRUE,
                         useCloud = config$args[["cloud"]][["useCloud"]],
                         cloudFolderID = config$args[["cloud"]][["cacheDir"]])
 simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
@@ -234,11 +226,8 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              modules = c("Biomass_speciesData"),  ## TODO: use config$modules
                              objects = objects2,
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
-                             useCache = TRUE,
                              useCloud = config$args[["cloud"]][["useCloud"]],
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                             ## make .plotInitialTime an argument, not a parameter:
-                             ##  - Cache will see them as unchanged regardless of value
                              paths = paths,
                              debug = 1)
 simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
@@ -286,7 +275,6 @@ if (config$context[["mode"]] != "postprocess") {
                           modules = c("Biomass_borealDataPrep"), ## TODO: use config$modules
                           objects = objects2a,
                           omitArgs = c("debug", "paths", ".plotInitialTime"),
-                          useCache = TRUE, ## TODO: use param useCache??
                           useCloud = config$args[["cloud"]][["useCloud"]],
                           cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                           .plots = config$params[[".globals"]][[".plots"]],
@@ -303,6 +291,10 @@ if (config$context[["mode"]] != "postprocess") {
   }
 
   modules4 <- list("LandWeb_summary")
+
+  ## don't cache the init event!
+  config$params[[".globals"]][[".useCache"]] <- c(".inputObjects", "animation", "postprocess")
+  config$params[["LandWeb_summary"]][[".useCache"]] <- c(".inputObjects", "animation", "postprocess")
 
   ## NOTE: previous .useParallel value is too low for this module
   config$params[[".globals"]][[".useParallel"]] <- getOption("map.useParallel")
