@@ -344,9 +344,9 @@ if (config$context[["mode"]] != "postprocess") {
     }
   })
 
-  cat(capture.output(warnings()), file = file.path(paths$outputPath, "warnings.txt"), sep = "\n")
+  cat(capture.output(warnings()), file = file.path(paths$outputPath, "warnings_postprocess.txt"), sep = "\n")
 
-  fsim <- simFile("simOutSummaries", paths$outputPath, SpaDES.core::end(simOutSummaries), "qs")
+  fsim <- simFile("simOutSummaries", paths$outputPath, NULL, "qs")
   message("Saving simulation to: ", fsim)
   saveSimList(sim = simOutSummaries, filename = fsim, fileBackend = 2)
 
