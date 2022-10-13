@@ -368,7 +368,7 @@ if (config$context[["mode"]] != "postprocess") {
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     slackr::slackr_setup()
     slackr::slackr_msg(
-      paste0("Post-processing for `", context$runName, "` completed on host `", Sys.info()[["nodename"]], "`."),
+      paste0("Post-processing for `", config$context[["runName"]], "` completed on host `", Sys.info()[["nodename"]], "`."),
       channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
     )
   }
