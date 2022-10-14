@@ -26,6 +26,7 @@ config.landweb.user <- switch(
     paths = list(
       scratchPath = switch(.nodename,
                            `larix.for-cast.ca` = "/tmp/scratch/LandWeb",
+                           `pinus.for-cast.ca` = "/mnt/scratch/achubaty/LandWeb",
                           "/mnt/scratch/LandWeb")
     )
   ),
