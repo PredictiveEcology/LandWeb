@@ -260,7 +260,6 @@ if (config$context[["mode"]] != "postprocess") {
     speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
     speciesParams = simOutPreamble[["speciesParams"]],
     speciesTable = simOutPreamble[["speciesTable"]],
-    speciesTableAreas = c("BSW", "BP", "MC"), ## TODO: should we remove BP? MC?
     sppColorVect = simOutPreamble[["sppColorVect"]],
     sppEquiv = simOutPreamble[["sppEquiv"]],
     standAgeMap = simOutPreamble[["CC TSF"]],

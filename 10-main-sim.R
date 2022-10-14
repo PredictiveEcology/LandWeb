@@ -2,7 +2,7 @@
 ## main simulation
 ################################################################################
 
-times3 <- list(start = 0, end = config$args$endTime)
+times3 <- list(start = 0, end = config$args[["endTime"]])
 
 modules3 <- if (isTRUE(context$succession)) {
   list("Biomass_core", "LandMine", "Biomass_regeneration", "LandWeb_output", "timeSinceFire")
@@ -20,7 +20,7 @@ parameters3 <- list(
 )
 
 ## check pixel resolution
-# stopifnot(unique(res(simOutSpeciesLayers[["speciesLayers"]])) %==% 250 / config.get(config, c("runInfo", "mapResFact")))
+# stopifnot(unique(res(simOutSpeciesLayers[["speciesLayers"]])) %==% config$params[["LandWeb_preamble"]][["pixelSize"]])
 
 objects3 <- list(
   biomassMap = simOutDataPrep[["biomassMap"]],
@@ -32,39 +32,40 @@ objects3 <- list(
   minRelativeB = simOutDataPrep[["minRelativeB"]],
   pixelGroupMap = simOutDataPrep[["pixelGroupMap"]],
   rawBiomassMap = simOutDataPrep[["rawBiomassMap"]],
-  rstLCC = simOutPreamble[["LCC"]],
-  rasterToMatch = simOutPreamble[["rasterToMatch"]],
-  rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
-  rasterToMatchReporting = simOutPreamble[["rasterToMatchReporting"]],
+  rstLCC = simOutPreamble[["LCC"]], ## TODO: use simOutDataPrep[["rstLCC"]]
+  rasterToMatch = simOutPreamble[["rasterToMatch"]], ## TODO: use simOutDataPrep[["rasterToMatch"]]
+  rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]], ## TODO: use simOutDataPrep[["rasterToMatchLarge"]]
+  rasterToMatchReporting = simOutPreamble[["rasterToMatchReporting"]], ## TODO: use simOutDataPrep[["rasterToMatchReporting"]]
   ROSTable = simOutPreamble[["LandMineROStable"]],
   rstFlammable = simOutPreamble[["rstFlammable"]],
   rstTimeSinceFire = crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]),
   species = simOutDataPrep[["species"]],
   speciesEcoregion = simOutDataPrep[["speciesEcoregion"]],
-  speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
+  speciesLayers = simOutSpeciesLayers[["speciesLayers"]], ## TODO: use simOutDataPrep[["speciesLayers"]] ??
   speciesParams = simOutDataPrep[["speciesParams"]],
   speciesTable = simOutDataPrep[["speciesTable"]],
-  sppColorVect = simOutPreamble[["sppColorVect"]],
-  sppEquiv = simOutPreamble[["sppEquiv"]],
-  standAgeMap = simOutPreamble[["CC TSF"]], ## same as rstTimeSinceFire; TODO: use synonym?
-  studyArea = simOutPreamble[["studyArea"]],
-  studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
-  studyAreaReporting = simOutPreamble[["studyAreaReporting"]],
+  sppColorVect = simOutPreamble[["sppColorVect"]], ## TODO: use simOutDataPrep[["sppColorVect"]]
+  sppEquiv = simOutPreamble[["sppEquiv"]], ## TODO: use simOutDataPrep[["sppEquiv"]]
+  standAgeMap = simOutPreamble[["CC TSF"]],
+  studyArea = simOutPreamble[["studyArea"]], ## TODO: use simOutDataPrep[["studyArea"]]
+  studyAreaLarge = simOutPreamble[["studyAreaLarge"]], ## TODO: use simOutDataPrep[["studyAreaLarge"]]
+  studyAreaReporting = simOutPreamble[["studyAreaReporting"]],  ## TODO: use simOutDataPrep[["studyAreaReporting"]]
   sufficientLight = simOutDataPrep[["sufficientLight"]],
   summaryPeriod = config$params[[".globals"]][["summaryPeriod"]]
 )
 
 ## TODO: find better way of doing this (i.e., define once so not repetaed here and in summary module)
-analysesOutputsTimes <- seq(config$params$LandWeb_summary$summaryPeriod[1],
-                            config$params$LandWeb_summary$summaryPeriod[2],
-                            by = config$params$LandWeb_summary$summaryInterval)
+analysesOutputsTimes <- seq(config$params[["LandWeb_summary"]][["summaryPeriod"]][1],
+                            config$params[["LandWeb_summary"]][["summaryPeriod"]][2],
+                            by = config$params[["LandWeb_summary"]][["summaryInterval"]])
 
 
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
+
 outputs3a <- data.frame(stringsAsFactors = FALSE,
                         expand.grid(
                           objectName = objectNamesToSave,
-                          saveTime = c(config$args$timeSeriesTimes, analysesOutputsTimes)
+                          saveTime = c(config$args[["timeSeriesTimes"]], analysesOutputsTimes)
                         ),
                         fun = "writeRaster", package = "raster",
                         file = paste0(objectNamesToSave, c(".tif", ".grd")))
@@ -103,17 +104,17 @@ cat(paste("Setting seed in 10-main-sim.R:", seed), file = fseed2, sep = "\n")
 set.seed(seed)
 writeRNGInfo(fseed2, append = TRUE)
 
-if ("screen" %in% config$params$.globals$.plots) {
+if ("screen" %in% config$params[[".globals"]][[".plots"]]) {
   quickPlot::dev(4, width = 18, height = 10)
   grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-  grid::grid.text(label = context$studyAreaName, x = 0.90, y = 0.03)
+  grid::grid.text(label = config$context[["studyAreaName"]], x = 0.90, y = 0.03)
 }
 
 data.table::setDTthreads(config$params[[".globals"]][[".useParallel"]])
 
 tryCatch({
   mySimOut <- Cache(simInitAndSpades,
-                    times = times3, #cl = cl,
+                    times = times3,
                     params = parameters3, ## TODO: use config$params
                     modules = modules3, ## TODO: use config$modules
                     outputs = outputs3,
@@ -123,37 +124,40 @@ tryCatch({
                     debug = list(file = list(file = file.path(config$paths[["logPath"]], "sim.log"),
                                              append = TRUE), debug = 1),
                     useCloud = FALSE, ## TODO param useCloud??
-                    cloudFolderID = config$args$cloud$cacheDir,
+                    cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                     omitArgs = c("debug", "paths"))
   mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 }, error = function(e) {
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     slackr::slackr_setup()
     slackr::slackr_msg(
-      paste0("ERROR in simulation `", context$runName, "` on host `", .nodename, "`.\n",
+      paste0("ERROR in simulation `", config$context[["runName"]], "` on host `", .nodename, "`.\n",
              "```\n", e$message, "\n```"),
-      channel = config$args$notifications$slackChannel, preformatted = FALSE
+      channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
     )
+
+    capture.output(traceback(), file = file.path(paths[["outputPath"]], "traceback_mainSim.txt"), split = TRUE)
+
     stop(e$message)
   }
 })
 
-cat(capture.output(warnings()), file = file.path(paths$outputPath, "warnings.txt"), sep = "\n")
+capture.output(warnings(), file = file.path(paths[["outputPath"]], "warnings.txt"), split = TRUE)
 
-fsim <- simFile("mySimOut", paths$outputPath, SpaDES.core::end(mySimOut), "qs")
+fsim <- simFile("mySimOut", paths[["outputPath"]], SpaDES.core::end(mySimOut), "qs")
 message("Saving simulation to: ", fsim)
 saveSimList(sim = mySimOut, filename = fsim, fileBackend = 2)
 
 # save simulation stats -----------------------------------------------------------------------
 
 elapsed <- elapsedTime(mySimOut)
-data.table::fwrite(elapsed, file.path(paths$outputPath, "elapsedTime.csv"))
-qs::qsave(elapsed, file.path(paths$outputPath, "elapsedTime.qs"))
+data.table::fwrite(elapsed, file.path(paths[["outputPath"]], "elapsedTime.csv"))
+qs::qsave(elapsed, file.path(paths[["outputPath"]], "elapsedTime.qs"))
 
 memory <- memoryUse(mySimOut, max = TRUE)
-data.table::fwrite(memory, file.path(paths$outputPath, "memoryUsed.csv"))
-qs::qsave(memory, file.path(paths$outputPath, "memoryUsed.qs"))
+data.table::fwrite(memory, file.path(paths[["outputPath"]], "memoryUsed.csv"))
+qs::qsave(memory, file.path(paths[["outputPath"]], "memoryUsed.qs"))
 
 # end-of-sim notifications --------------------------------------------------------------------
 
-SpaDES.project::notify_slack(context$runName, config$args$notifications$slackChannel)
+SpaDES.project::notify_slack(config$context[["runName"]], config$args[["notifications"]][["slackChannel"]])
