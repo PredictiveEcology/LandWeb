@@ -54,11 +54,8 @@ objects3 <- list(
   summaryPeriod = config$params[[".globals"]][["summaryPeriod"]]
 )
 
-## TODO: find better way of doing this (i.e., define once so not repetaed here and in summary module)
-analysesOutputsTimes <- seq(config$params[["LandWeb_summary"]][["summaryPeriod"]][1],
-                            config$params[["LandWeb_summary"]][["summaryPeriod"]][2],
-                            by = config$params[["LandWeb_summary"]][["summaryInterval"]])
-
+analysesOutputsTimes <- analysesOutputsTimes(config$params[[".global"]][["summaryPeriod"]],
+                                             config$params[[".global"]][["summaryInterval"]])
 
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 
