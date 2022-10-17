@@ -85,7 +85,8 @@ Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, up
 
 ## NOTE: always load packages LAST, after installation above;
 ##       ensure plyr loaded before dplyr or there will be problems
-Require(c("data.table", "plyr", "pryr", "SpaDES.core", "googledrive", "httr", "magrittr", "slackr"),
+Require(c("data.table", "plyr", "pryr", "SpaDES.core",
+          "googledrive", "httr", "magrittr", "sessioninfo", "slackr"),
         upgrade = FALSE, standAlone = TRUE)
 
 # configure project ---------------------------------------------------------------------------
@@ -198,7 +199,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         cloudFolderID = config$args[["cloud"]][["cacheDir"]])
 simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
-saveSimList(Copy(simOutPreamble), preambleFile, fileBackend = 2)
+saveSimList(simOutPreamble, preambleFile, fileBackend = 2)
 
 # Species layers ------------------------------------------------------------------------------
 
@@ -231,7 +232,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              paths = paths,
                              debug = 1)
 simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
-saveSimList(Copy(simOutSpeciesLayers), sppLayersFile, fileBackend = 2)
+saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
 
 if ("screen" %in% config$params[[".globals"]][[".plots"]]) {
   lapply(dev.list(), function(x) {
