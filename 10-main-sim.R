@@ -4,7 +4,7 @@
 
 times3 <- list(start = 0, end = config$args[["endTime"]])
 
-modules3 <- if (isTRUE(context$succession)) {
+modules3 <- if (isTRUE(config$context[["succession"]])) {
   list("Biomass_core", "LandMine", "Biomass_regeneration", "LandWeb_output", "timeSinceFire")
 } else {
   list("LandMine", "LandWeb_output", "timeSinceFire")
@@ -52,8 +52,9 @@ objects3 <- list(
   summaryPeriod = config$params[[".globals"]][["summaryPeriod"]]
 )
 
-analysesOutputsTimes <- analysesOutputsTimes(config$params[[".global"]][["summaryPeriod"]],
-                                             config$params[[".global"]][["summaryInterval"]])
+analysesOutputsTimes <- LandWebUtils::analysesOutputsTimes(
+  config$params[[".globals"]][["summaryPeriod"]], config$params[[".globals"]][["summaryInterval"]]
+)
 
 objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
 
