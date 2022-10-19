@@ -37,7 +37,7 @@ objects3 <- list(
   rasterToMatchLarge = simOutDataPrep[["rasterToMatchLarge"]],
   ROSTable = simOutPreamble[["LandMineROStable"]],
   rstFlammable = simOutPreamble[["rstFlammable"]],
-  rstTimeSinceFire = crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]), ## TODO: fix
+  rstTimeSinceFire = raster::crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]), ## TODO: fix
   #rstTimeSinceFire = simOutDataPrep[["standAgeMap"]],
   species = simOutDataPrep[["species"]],
   speciesEcoregion = simOutDataPrep[["speciesEcoregion"]],
@@ -90,7 +90,7 @@ outputs3c <- data.frame(stringsAsFactors = FALSE,
 outputs3 <- as.data.frame(data.table::rbindlist(list(outputs3a, outputs3b, outputs3c), fill = TRUE))
 
 fseed <- file.path(Paths$outputPath, "seed.rds")
-fseed2 <- extension(fseed, "txt")
+fseed2 <- raster::extension(fseed, "txt")
 if (file.exists(fseed)) {
   seed <- readRDS(fseed)
 } else {
