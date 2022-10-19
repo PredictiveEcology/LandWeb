@@ -42,7 +42,7 @@ if (!"remotes" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
 
 Require.version <- "PredictiveEcology/Require@development"
 if (!"Require" %in% rownames(installed.packages(lib.loc = .libPaths()[1])) ||
-    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.6") {
+    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.6.9008") {
   remotes::install_github(Require.version)
 }
 
@@ -67,7 +67,7 @@ if (RcppVersionAvail < RcppVersionNeeded) {
 setLinuxBinaryRepo()
 
 Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9017)"),
+          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9020)"),
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {

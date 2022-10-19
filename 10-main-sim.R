@@ -25,7 +25,7 @@ parameters3 <- list(
 objects3 <- list(
   biomassMap = simOutDataPrep[["biomassMap"]],
   cohortData = simOutDataPrep[["cohortData"]],
-  ecoDistrict = simOutDataPrep[["ecoDistrict"]],
+  #ecoDistrict = simOutDataPrep[["ecoDistrict"]], ## TODO: unused??
   ecoregion = simOutDataPrep[["ecoregion"]],
   ecoregionMap = simOutDataPrep[["ecoregionMap"]],
   fireReturnInterval = simOutPreamble[["fireReturnInterval"]],
@@ -37,7 +37,8 @@ objects3 <- list(
   rasterToMatchLarge = simOutDataPrep[["rasterToMatchLarge"]],
   ROSTable = simOutPreamble[["LandMineROStable"]],
   rstFlammable = simOutPreamble[["rstFlammable"]],
-  rstTimeSinceFire = simOutDataPrep[["standAgeMap"]],
+  rstTimeSinceFire = crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]), ## TODO: fix
+  #rstTimeSinceFire = simOutDataPrep[["standAgeMap"]],
   species = simOutDataPrep[["species"]],
   speciesEcoregion = simOutDataPrep[["speciesEcoregion"]],
   speciesLayers = simOutDataPrep[["speciesLayers"]],
@@ -45,7 +46,8 @@ objects3 <- list(
   speciesTable = simOutDataPrep[["speciesTable"]],
   sppColorVect = simOutDataPrep[["sppColorVect"]],
   sppEquiv = simOutDataPrep[["sppEquiv"]],
-  standAgeMap = simOutDataPrep[["standAgeMap"]],
+  standAgeMap = simOutPreamble[["CC TSF"]], ## TODO: fix
+  #standAgeMap = simOutDataPrep[["standAgeMap"]],
   studyArea = simOutDataPrep[["studyArea"]],
   studyAreaLarge = simOutDataPrep[["studyAreaLarge"]],
   sufficientLight = simOutDataPrep[["sufficientLight"]],
