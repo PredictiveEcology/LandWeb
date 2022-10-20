@@ -174,6 +174,11 @@ SpaDES.config::authGoogle(tryToken = "landweb", tryEmail = config$args[["cloud"]
 
 # begin simulations ---------------------------------------------------------------------------
 
+if (config$args[["delayStart"]] > 0) {
+  message(crayon::green("\nStaggered job start: delaying by", config$args[["delayStart"]], "minutes."))
+  Sys.sleep(config$args[["delayStart"]]*60)
+}
+
 do.call(SpaDES.core::setPaths, paths)
 
 objects1 <- list()
