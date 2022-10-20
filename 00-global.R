@@ -239,18 +239,6 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
 simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
 
-if ("screen" %in% config$params[[".globals"]][[".plots"]]) {
-  lapply(dev.list(), function(x) {
-    try(quickPlot::clearPlot(force = TRUE))
-    try(dev.off())
-  })
-  quickPlot::dev(3, width = 18, height = 10)
-  grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-  grid::grid.text(label = config$context[["studyAreaName"]], x = 0.90, y = 0.03)
-
-  Plot(simOutSpeciesLayers$speciesLayers)
-}
-
 if (config$context[["mode"]] != "postprocess") {
   # Boreal data prep + main sim -----------------------------------------------------------------
   parameters2a <- list(

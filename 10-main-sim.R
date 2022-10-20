@@ -119,7 +119,7 @@ tryCatch({
                     objects = objects3,
                     paths = paths,
                     loadOrder = unlist(modules3), ## TODO: use config$modules
-                    debug = list(file = list(file = file.path(config$paths[["logPath"]], "sim.log"),
+                    debug = list(file = list(file = file.path(checkPath(config$paths[["logPath"]], create = TRUE), "sim.log"),
                                              append = TRUE), debug = 1),
                     useCloud = FALSE, ## TODO param useCloud??
                     cloudFolderID = config$args[["cloud"]][["cacheDir"]],
