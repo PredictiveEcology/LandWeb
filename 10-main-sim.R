@@ -123,7 +123,8 @@ tryCatch({
                                              append = TRUE), debug = 1),
                     useCloud = FALSE, ## TODO param useCloud??
                     cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                    omitArgs = c("debug", "paths"))
+                    omitArgs = c("debug", "paths"),
+                    userTags = c(config$context$runName, "mainSim"))
   mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 }, error = function(e) {
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {
