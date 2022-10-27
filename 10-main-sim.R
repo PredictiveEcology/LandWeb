@@ -11,12 +11,12 @@ modules3 <- if (isTRUE(config$context[["succession"]])) {
 }
 
 parameters3 <- list(
-  .globals = config$params$.globals,
-  Biomass_core = config$params$Biomass_core,
-  Biomass_regeneration = config$params$Biomass_regeneration,
-  LandMine = config$params$LandMine,
-  LandWeb_output = config$params$LandWeb_output,
-  timeSinceFire = config$params$timeSinceFire
+  .globals = config$params[[".globals"]],
+  Biomass_core = config$params[["Biomass_core"]],
+  Biomass_regeneration = config$params[["Biomass_regeneration"]],
+  LandMine = config$params[["LandMine"]],
+  LandWeb_output = config$params[["LandWeb_output"]],
+  timeSinceFire = config$params[["timeSinceFire"]]
 )
 
 ## check pixel resolution
