@@ -275,6 +275,12 @@ if (config$context[["mode"]] != "postprocess") {
                           paths = paths,
                           debug = 1)
   simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+
+  ## TODO: enforce correct species table types (LandR#90)
+  if (is(simOutDataPrep$species$postfireregen, "character")) {
+    simOutDataPrep$species$postfireregen <- as.factor(simOutDataPrep$species$postfireregen)
+  }
+
   saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)
 
   source("10-main-sim.R")
