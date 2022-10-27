@@ -1,6 +1,6 @@
 ## user + machine specific configs
 
-config.landweb.user <- switch(
+config.user <- switch(
   .user,
 
   ## Alex ------------------------------------------------------------------------------------------

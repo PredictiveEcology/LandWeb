@@ -150,11 +150,11 @@ if (.version == 2) {
 
 ## apply user and machine context settings here
 source("02-user-config.R")
-config$args <- config.landweb.user$args
-#config$modules <- config.landweb.user$modules ## no modules should differ among users/machines
-config$options <- config.landweb.user$options
-config$params <- config.landweb.user$params
-config$paths <- config.landweb.user$paths
+config$args <- config.user$args
+#config$modules <- config.user$modules ## no modules should differ among users/machines
+config$options <- config.user$options
+config$params <- config.user$params
+config$paths <- config.user$paths
 
 # print run info ------------------------------------------------------------------------------
 SpaDES.config::printRunInfo(config$context)
