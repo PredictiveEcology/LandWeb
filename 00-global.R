@@ -4,7 +4,8 @@ if (file.exists("~/.Renviron")) readRenviron("~/.Renviron") ## GITHUB_PAT
 if (file.exists("LandWeb.Renviron")) readRenviron("LandWeb.Renviron") ## database credentials
 
 #####
-.mode <- "postprocess"  # "development", "postprocess", "production", "profile"
+.mode <- "development"  # "development", "postprocess", "production", "profile"
+.ncores <- min(parallel::detectCores() / 2, 32L)
 .nodename <- Sys.info()[["nodename"]]
 .rep <- if (.mode == "postprocess") NA_integer_ else 1L
 .starttime <- Sys.time()
@@ -23,7 +24,7 @@ prjDir <- "~/GitHub/LandWeb"
 stopifnot(identical(normalizePath(prjDir), getwd()))
 
 options(
-  Ncpus = min(parallel::detectCores() / 2, 120),
+  Ncpus = .ncores,
   repos = c(CRAN = "https://cran.rstudio.com"),
   Require.RPackageCache = "default", ## will use default package cache directory: `RequirePkgCacheDir()`
   Require.usepak = FALSE ## pkg deps too complicated for pak
@@ -67,7 +68,7 @@ if (RcppVersionAvail < RcppVersionNeeded) {
 setLinuxBinaryRepo()
 
 Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9026)"),
+          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9032)"),
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
