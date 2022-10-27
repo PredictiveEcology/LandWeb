@@ -3,15 +3,27 @@
 if (file.exists("~/.Renviron")) readRenviron("~/.Renviron") ## GITHUB_PAT
 if (file.exists("LandWeb.Renviron")) readRenviron("LandWeb.Renviron") ## database credentials
 
-#####
-.mode <- "development"  # "development", "postprocess", "production", "profile"
+##### allow setting run context info from outside this script (e.g., bash script)
+if (!exists(".mode", .GlobalEnv)) {
+  .mode <- "production"  # "development", "postprocess", "production", "profile"
+}
+
+if (!exists(".rep", .GlobalEnv)) {
+  .rep <- if (.mode == "postprocess") NA_integer_ else 1L
+}
+
+if (!exists(".studyAreaName", .GlobalEnv)) {
+  .studyAreaName <- "provMB"
+}
+
+if (!exists(".version", .GlobalEnv)) {
+  .version <- 2 ## 3
+}
+
 .ncores <- min(parallel::detectCores() / 2, 32L)
 .nodename <- Sys.info()[["nodename"]]
-.rep <- if (.mode == "postprocess") NA_integer_ else 1L
 .starttime <- Sys.time()
-.studyAreaName <- "provMB"
 .user <- Sys.info()[["user"]]
-.version <- 2 ## 3
 
 if (.version == 2) {
   .dispersalType <- "high"
