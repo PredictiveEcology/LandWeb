@@ -35,7 +35,7 @@ objects3 <- list(
   rstLCC = simOutDataPrep[["rstLCC"]],
   rasterToMatch = simOutDataPrep[["rasterToMatch"]],
   rasterToMatchLarge = simOutDataPrep[["rasterToMatchLarge"]],
-  ROSTable = simOutPreamble[["LandMineROStable"]],
+  ROSTable = simOutPreamble[["ROStable"]],
   rstFlammable = simOutPreamble[["rstFlammable"]],
   rstTimeSinceFire = raster::crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]), ## TODO: fix
   #rstTimeSinceFire = simOutDataPrep[["standAgeMap"]],
