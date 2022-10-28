@@ -19,7 +19,7 @@ if (exists(".rep", .GlobalEnv)) {
 if (exists(".res", .GlobalEnv)) {
   stopifnot(.res %in% c(50, 125, 250))
 } else {
-  .res <- if (.mode == "postprocess") NA_integer_ else 1L
+  .res <- 250
 }
 
 if (!exists(".studyAreaName", .GlobalEnv)) {
@@ -173,7 +173,8 @@ if (FALSE) {
 }
 
 config <- SpaDES.config::useConfig(projectName = "LandWeb", projectPath = prjDir,
-                                   mode = .mode, rep = .rep, res = .res, studyAreaName = .studyAreaName, version = .version)
+                                   mode = .mode, rep = .rep, res = .res,
+                                   studyAreaName = .studyAreaName, version = .version)
 
 if (.version == 2) {
   config$context[["dispersalType"]] <- .dispersalType
