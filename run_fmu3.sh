@@ -7,14 +7,6 @@ FRI=$2
 RES=$3
 printf -v RUN "%02g" $4 ## assign to RUN, padding with extra zeros as needed
 
-OUTDIR1="outputs/FMU_${FMU}_fri${FRI}_res${RES}"
-OUTDIR2="outputs/FMU_${FMU}/fri${FRI}/res${RES}"
-OUTDIR3="${OUTDIR2}/rep${RUN}"
-RUNNAME="FMU_${FMU}_fri${FRI}_res${RES}_rep${RUN}"
-RCMD="runName <- '${RUNNAME}'; source('00-global.R')"
-
-if [ ! -d ${OUTDIR2} ]; then
-  mkdir -p ${OUTDIR2}
-fi
+RCMD=".mode <- 'production'; .studyAreaName <- 'FMU_${FMU}'; .res <- '${RES}'; .rep <- '${RUN}'; .version <- 3; source('00-global.R')"
 
 echo ${RCMD} | r

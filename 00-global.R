@@ -3,21 +3,34 @@
 if (file.exists("~/.Renviron")) readRenviron("~/.Renviron") ## GITHUB_PAT
 if (file.exists("LandWeb.Renviron")) readRenviron("LandWeb.Renviron") ## database credentials
 
-##### allow setting run context info from outside this script (e.g., bash script)
-if (!exists(".mode", .GlobalEnv)) {
-  .mode <- "production"  # "development", "postprocess", "production", "profile"
+###### allow setting run context info from outside this script (e.g., bash script) -----------------
+if (exists(".mode", .GlobalEnv)) {
+  stopifnot(.mode %in% c("development", "postprocess", "production", "profile"))
+} else {
+  .mode <- "development"
 }
 
-if (!exists(".rep", .GlobalEnv)) {
+if (exists(".rep", .GlobalEnv)) {
+  .rep <- if (.mode == "postprocess") NA_integer_ else as.integer(.rep)
+} else {
   .rep <- if (.mode == "postprocess") NA_integer_ else 1L
+}
+
+if (exists(".res", .GlobalEnv)) {
+  stopifnot(.res %in% c(50, 125, 250))
+} else {
+  .res <- if (.mode == "postprocess") NA_integer_ else 1L
 }
 
 if (!exists(".studyAreaName", .GlobalEnv)) {
   .studyAreaName <- "provMB"
 }
 
-if (!exists(".version", .GlobalEnv)) {
-  .version <- 2 ## 3
+if (exists(".version", .GlobalEnv)) {
+  .version <- as.integer(.version)
+  stopifnot(.version %in% c(2L, 3L))
+} else {
+  .version <- 2L ## 3L
 }
 
 .ncores <- min(parallel::detectCores() / 2, 32L)
@@ -25,9 +38,18 @@ if (!exists(".version", .GlobalEnv)) {
 .starttime <- Sys.time()
 .user <- Sys.info()[["user"]]
 
-if (.version == 2) {
-  .dispersalType <- "high"
-  .ROStype <- "default"
+if (.version == 2L) {
+  if (exists(".dispersalType", .GlobalEnv)) {
+    stopifnot(.dispersalType %in% c("default", "aspen", "high", "none"))
+  } else {
+    .dispersalType <- "high"
+  }
+
+  if (exists(".ROStype", .GlobalEnv)) {
+    stopifnot(.ROStype %in% c("default", "equal", "log"))
+  } else {
+    .ROStype <- "log"
+  }
 }
 #####
 
@@ -80,7 +102,7 @@ if (RcppVersionAvail < RcppVersionNeeded) {
 setLinuxBinaryRepo()
 
 Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9032)"),
+          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9034)"),
         upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
@@ -151,7 +173,7 @@ if (FALSE) {
 }
 
 config <- SpaDES.config::useConfig(projectName = "LandWeb", projectPath = prjDir,
-                                   mode = .mode, rep = .rep, studyAreaName = .studyAreaName, version = .version)
+                                   mode = .mode, rep = .rep, res = .res, studyAreaName = .studyAreaName, version = .version)
 
 if (.version == 2) {
   config$context[["dispersalType"]] <- .dispersalType

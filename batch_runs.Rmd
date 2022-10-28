@@ -1,7 +1,7 @@
 ---
 title: "LandWeb batch runs"
 author: "Alex M. Chubaty"
-date: "09/03/2021"
+date: "28/10/2022"
 output: html_document
 ---
 
@@ -14,23 +14,21 @@ knitr::opts_chunk$set(echo = TRUE)
 Running v3 of the model:
 
 ```
-screen -d -m ./run_landweb3.sh 1
-screen -d -m ./run_landweb3.sh 2
-screen -d -m ./run_landweb3.sh 3
-screen -d -m ./run_landweb3.sh 4
-screen -d -m ./run_landweb3.sh 5
-screen -d -m ./run_landweb3.sh 6
-screen -d -m ./run_landweb3.sh 7
-screen -d -m ./run_landweb3.sh 8
-screen -d -m ./run_landweb3.sh 9
-screen -d -m ./run_landweb3.sh 10
-screen -d -m ./run_landweb3.sh 11
-screen -d -m ./run_landweb3.sh 12
-screen -d -m ./run_landweb3.sh 13
-screen -d -m ./run_landweb3.sh 14
-screen -d -m ./run_landweb3.sh 15
-
-rsync -avzP ~/GitHub/LandWeb/outputs/LandWeb_v3 /mnt/landweb/outputs/
+screen -d -m -S LandWeb_01 ./run_landweb3.sh 1
+screen -d -m -S LandWeb_02 ./run_landweb3.sh 2
+screen -d -m -S LandWeb_03 ./run_landweb3.sh 3
+screen -d -m -S LandWeb_04 ./run_landweb3.sh 4
+screen -d -m -S LandWeb_05 ./run_landweb3.sh 5
+screen -d -m -S LandWeb_06 ./run_landweb3.sh 6
+screen -d -m -S LandWeb_07 ./run_landweb3.sh 7
+screen -d -m -S LandWeb_08 ./run_landweb3.sh 8
+screen -d -m -S LandWeb_09 ./run_landweb3.sh 9
+screen -d -m -S LandWeb_10 ./run_landweb3.sh 10
+screen -d -m -S LandWeb_11 ./run_landweb3.sh 11
+screen -d -m -S LandWeb_12 ./run_landweb3.sh 12
+screen -d -m -S LandWeb_13 ./run_landweb3.sh 13
+screen -d -m -S LandWeb_14 ./run_landweb3.sh 14
+screen -d -m -S LandWeb_15 ./run_landweb3.sh 15
 ```
 
 ## LandWeb v2
