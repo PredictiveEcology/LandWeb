@@ -4,8 +4,9 @@
 
 FMA=$1
 RES=250
-printf -v RUN "%02g" $2 ## assign to RUN, padding with extra zeros as needed
+printf -v RUN "%02d" $2 ## assign to RUN, padding with extra zeros as needed
+VERS=2
 
-RCMD=".mode <- 'production'; .studyAreaName <- '${FMA}'; .res <- '${RES}'; .rep <- '${RUN}'; .version <- 2; source('00-global.R')"
+RCMD=".mode <- 'production'; .studyAreaName <- '${FMA}'; .res <- '${RES}'; .rep <- '${RUN}'; .version <- ${VERS}; source('00-global.R')"
 
 echo ${RCMD} | r
