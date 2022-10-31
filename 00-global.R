@@ -55,7 +55,7 @@ if (.version == 2L) {
 
 prjDir <- "~/GitHub/LandWeb"
 
-stopifnot(identical(normalizePath(prjDir), getwd()))
+stopifnot(identical(normalizePath(prjDir), normalizePath(getwd())))
 
 options(
   Ncpus = .ncores,
