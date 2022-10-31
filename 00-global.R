@@ -101,9 +101,11 @@ if (RcppVersionAvail < RcppVersionNeeded) {
 
 setLinuxBinaryRepo()
 
-Require(c("PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
-          "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9038)"),
-        upgrade = FALSE, standAlone = TRUE)
+Require(c(
+  "PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
+  "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9038)",
+  "PredictiveEcology/SpaDES.core@development (>= 1.1.0.9003)"
+), upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
   # install.packages("pak")
