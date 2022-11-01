@@ -66,7 +66,8 @@ options(
 
 # install and load packages -------------------------------------------------------------------
 
-pkgDir <- file.path(prjDir, "packages", version$platform, substr(getRversion(), 1, 3))
+pkgDir <- file.path(tools::R_user_dir(basename(prjDir), "data"), "packages",
+                    version$platform, substr(getRversion(), 1, 3))
 dir.create(pkgDir, recursive = TRUE, showWarnings = FALSE)
 .libPaths(pkgDir, include.site = FALSE)
 message("Using libPaths:\n", paste(.libPaths(), collapse = "\n"))
