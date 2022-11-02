@@ -2,6 +2,8 @@
 ## main simulation
 ################################################################################
 
+checkPath(config$paths[["logPath"]], create = TRUE)
+
 times3 <- list(start = 0, end = config$args[["endTime"]])
 
 modules3 <- if (isTRUE(config$context[["succession"]])) {
@@ -120,7 +122,7 @@ tryCatch({
                     objects = objects3,
                     paths = paths,
                     loadOrder = unlist(modules3), ## TODO: use config$modules
-                    debug = list(file = list(file = file.path(checkPath(config$paths[["logPath"]], create = TRUE), "sim.log"),
+                    debug = list(file = list(file = file.path(config$paths[["logPath"]], "sim.log"),
                                              append = TRUE), debug = 1),
                     useCloud = FALSE, ## TODO param useCloud??
                     cloudFolderID = config$args[["cloud"]][["cacheDir"]],
@@ -128,7 +130,7 @@ tryCatch({
                     userTags = c(config$context$runName, "mainSim"))
   mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 }, error = function(e) {
-  capture.output(traceback(), file = file.path(paths[["outputPath"]], "traceback_mainSim.txt"), split = TRUE)
+  capture.output(traceback(), file = file.path(config$paths[["logPath"]], "traceback_mainSim.txt"), split = TRUE)
 
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     slackr::slackr_setup()
@@ -142,7 +144,7 @@ tryCatch({
   }
 })
 
-capture.output(warnings(), file = file.path(paths[["outputPath"]], "warnings.txt"), split = TRUE)
+capture.output(warnings(), file = file.path(config$paths[["logPath"]], "warnings.txt"), split = TRUE)
 
 fsim <- simFile("mySimOut", paths[["outputPath"]], SpaDES.core::end(mySimOut), "qs")
 message("Saving simulation to: ", fsim)
