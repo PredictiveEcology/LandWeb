@@ -50,7 +50,7 @@ objects3 <- list(
   #standAgeMap = simOutDataPrep[["standAgeMap"]],
   studyArea = simOutDataPrep[["studyArea"]],
   studyAreaLarge = simOutDataPrep[["studyAreaLarge"]],
-  studyAreaReporting = simOutDataPrep[["studyAreaReporting"]],
+  studyAreaReporting = simOutPreamble[["studyAreaReporting"]],
   sufficientLight = simOutDataPrep[["sufficientLight"]],
   summaryPeriod = config$params[[".globals"]][["summaryPeriod"]]
 )
