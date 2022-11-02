@@ -240,7 +240,8 @@ simOutPreamble <- Cache(simInitAndSpades,
                         debug = 1,
                         omitArgs = c("debug", "paths", ".plotInitialTime"),
                         useCloud = config$args[["cloud"]][["useCloud"]],
-                        cloudFolderID = config$args[["cloud"]][["cacheDir"]])
+                        cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+                        userTags = c(config$studyAreaName, "preamble"))
 simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
 saveSimList(simOutPreamble, preambleFile, fileBackend = 2)
@@ -270,11 +271,12 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              params = parameters2, ## TODO: use config$params
                              modules = c("Biomass_speciesData"),  ## TODO: use config$modules
                              objects = objects2,
+                             paths = paths,
+                             debug = 1,
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
                              useCloud = config$args[["cloud"]][["useCloud"]],
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                             paths = paths,
-                             debug = 1)
+                             userTags = c(config$studyAreaName, "speciesLayers"))
 simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
 
@@ -306,12 +308,13 @@ if (config$context[["mode"]] != "postprocess") {
                           params = parameters2a, ## TODO: use config$params
                           modules = c("Biomass_borealDataPrep"), ## TODO: use config$modules
                           objects = objects2a,
+                          paths = paths,
+                          debug = 1,
                           omitArgs = c("debug", "paths", ".plotInitialTime"),
                           useCloud = config$args[["cloud"]][["useCloud"]],
                           cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                           .plots = config$params[[".globals"]][[".plots"]],
-                          paths = paths,
-                          debug = 1)
+                          userTags = c(config$studyAreaName, "dataPrep"))
   simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 
   ## TODO: enforce correct species table types (LandR#90)
