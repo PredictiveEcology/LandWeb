@@ -35,7 +35,7 @@ objects3 <- list(
   rstLCC = simOutDataPrep[["rstLCC"]],
   rasterToMatch = simOutDataPrep[["rasterToMatch"]],
   rasterToMatchLarge = simOutDataPrep[["rasterToMatchLarge"]],
-  ROSTable = simOutPreamble[["ROStable"]],
+  ROSTable = simOutPreamble[["ROSTable"]],
   rstFlammable = simOutPreamble[["rstFlammable"]],
   rstTimeSinceFire = raster::crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]), ## TODO: fix
   #rstTimeSinceFire = simOutDataPrep[["standAgeMap"]],
@@ -50,7 +50,7 @@ objects3 <- list(
   #standAgeMap = simOutDataPrep[["standAgeMap"]],
   studyArea = simOutDataPrep[["studyArea"]],
   studyAreaLarge = simOutDataPrep[["studyAreaLarge"]],
-  studyAreaReporting = simOutPreamble[["studyAreaReporting"]],
+  studyAreaReporting = simOutPreamble[["studyAreaReporting"]], ## TODO: use sAR from simOutDataPrep
   sufficientLight = simOutDataPrep[["sufficientLight"]],
   summaryPeriod = config$params[[".globals"]][["summaryPeriod"]]
 )

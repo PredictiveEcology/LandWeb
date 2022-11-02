@@ -299,7 +299,8 @@ if (config$context[["mode"]] != "postprocess") {
     sppEquiv = simOutPreamble[["sppEquiv"]],
     standAgeMap = simOutPreamble[["CC TSF"]],
     studyArea = simOutPreamble[["studyArea"]],
-    studyAreaLarge = simOutPreamble[["studyAreaLarge"]]
+    studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
+    studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
   )
 
   dataPrepFile <- file.path(paths[["outputPath"]], paste0("simOutDataPrep_", config$context[["studyAreaName"]], ".qs"))
