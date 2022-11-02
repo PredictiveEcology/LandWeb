@@ -128,6 +128,8 @@ tryCatch({
                     userTags = c(config$context$runName, "mainSim"))
   mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 }, error = function(e) {
+  capture.output(traceback(), file = file.path(paths[["outputPath"]], "traceback_mainSim.txt"), split = TRUE)
+
   if (requireNamespace("slackr") & file.exists("~/.slackr")) {
     slackr::slackr_setup()
     slackr::slackr_msg(
@@ -135,8 +137,6 @@ tryCatch({
              "```\n", e$message, "\n```"),
       channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
     )
-
-    capture.output(traceback(), file = file.path(paths[["outputPath"]], "traceback_mainSim.txt"), split = TRUE)
 
     stop(e$message)
   }
