@@ -202,6 +202,9 @@ config$modules
 # project paths -------------------------------------------------------------------------------
 config$paths
 stopifnot(identical(checkPath(config$paths[["projectPath"]]), getwd()))
+
+checkPath(config$paths[["logPath"]], create = TRUE) ## others will be created as needed below
+
 paths <- SpaDES.config::paths4spades(config$paths)
 
 # project options -----------------------------------------------------------------------------
@@ -227,7 +230,7 @@ parameters1 <- list(
   LandWeb_preamble = config$params[["LandWeb_preamble"]]
 )
 
-preambleFile <- file.path(paths$outputPath, paste0(
+preambleFile <- file.path(paths[["outputPath"]], paste0(
   "simOutPreamble_", config$context[["studyAreaName"]], ".qs"
 ))
 
@@ -241,7 +244,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         omitArgs = c("debug", "paths", ".plotInitialTime"),
                         useCloud = config$args[["cloud"]][["useCloud"]],
                         cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                        userTags = c(config$studyAreaName, config$context$runName, "preamble"))
+                        userTags = c(config$studyAreaName, config$context[["runName"]], "preamble"))
 simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
 saveSimList(simOutPreamble, preambleFile, fileBackend = 2)
@@ -276,7 +279,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
                              useCloud = config$args[["cloud"]][["useCloud"]],
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                             userTags = c(config$studyAreaName, config$context$runName, "speciesLayers"))
+                             userTags = c(config$studyAreaName, config$context[["runName"]], "speciesLayers"))
 simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
 
@@ -315,7 +318,7 @@ if (config$context[["mode"]] != "postprocess") {
                           useCloud = config$args[["cloud"]][["useCloud"]],
                           cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                           .plots = config$params[[".globals"]][[".plots"]],
-                          userTags = c(config$studyAreaName, config$context$runName, "dataPrep"))
+                          userTags = c(config$studyAreaName, config$context[["runName"]], "dataPrep"))
   simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 
   ## TODO: enforce correct species table types (LandR#90)
@@ -341,7 +344,9 @@ if (config$context[["mode"]] != "postprocess") {
   ## NOTE: previous .useParallel value is too low for this module
   config$params[[".globals"]][[".useParallel"]] <- getOption("map.useParallel")
   config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.useParallel")
-  # getOption("map.maxNumCores")
+
+  getOption("map.maxNumCores") ## TODO: why is this set so high (48)??
+  options(map.maxNumCores = .ncores)
 
   parameters4 <- list(
     .globals = config$params[[".globals"]],
@@ -372,7 +377,7 @@ if (config$context[["mode"]] != "postprocess") {
                              useCloud = FALSE, ## TODO param useCloud??
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                              omitArgs = c("debug", "paths"),
-                             userTags = c(config$context$runName, "postprocess"))
+                             userTags = c(config$context[["runName"]], "postprocess"))
     simOutSummaries@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
   }, error = function(e) {
     if (requireNamespace("slackr") & file.exists("~/.slackr")) {
@@ -387,21 +392,21 @@ if (config$context[["mode"]] != "postprocess") {
     }
   })
 
-  cat(capture.output(warnings()), file = file.path(paths$outputPath, "warnings_postprocess.txt"), sep = "\n")
+  cat(capture.output(warnings()), file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"), sep = "\n")
 
-  fsim <- simFile("simOutSummaries", paths$outputPath, NULL, "qs")
+  fsim <- simFile("simOutSummaries", paths[["outputPath"]], NULL, "qs")
   message("Saving simulation to: ", fsim)
   saveSimList(sim = simOutSummaries, filename = fsim, fileBackend = 2)
 
   # save simulation stats -----------------------------------------------------------------------
 
   elapsed <- elapsedTime(simOutSummaries)
-  data.table::fwrite(elapsed, file.path(paths$outputPath, "elapsedTime_summaries.csv"))
-  qs::qsave(elapsed, file.path(paths$outputPath, "elapsedTime_summaries.qs"))
+  data.table::fwrite(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.csv"))
+  qs::qsave(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.qs"))
 
   memory <- memoryUse(simOutSummaries, max = TRUE)
-  data.table::fwrite(memory, file.path(paths$outputPath, "memoryUsed_summaries.csv"))
-  qs::qsave(memory, file.path(paths$outputPath, "memoryUsed_summaries.qs"))
+  data.table::fwrite(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.csv"))
+  qs::qsave(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.qs"))
 
   # archive and upload --------------------------------------------------------------------------
   #source("R/upload.R") ## TODO: not working correctly yet

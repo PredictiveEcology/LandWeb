@@ -2,8 +2,6 @@
 ## main simulation
 ################################################################################
 
-checkPath(config$paths[["logPath"]], create = TRUE)
-
 times3 <- list(start = 0, end = config$args[["endTime"]])
 
 modules3 <- if (isTRUE(config$context[["succession"]])) {
@@ -127,7 +125,7 @@ tryCatch({
                     useCloud = FALSE, ## TODO param useCloud??
                     cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                     omitArgs = c("debug", "paths"),
-                    userTags = c(config$studyAreaName, config$context$runName, "mainSim"))
+                    userTags = c(config$studyAreaName, config$context[["runName"]], "mainSim"))
   mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
 }, error = function(e) {
   capture.output(traceback(), file = file.path(config$paths[["logPath"]], "traceback_mainSim.txt"), split = TRUE)

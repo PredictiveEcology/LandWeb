@@ -20,6 +20,17 @@ config.user <- switch(
     ),
     params = list(
       LandWeb_summary = list(
+        .clInit = function() {
+          ## everything here has to be able to run from clean R session
+          raster::rasterOptions(default = TRUE)
+          options(
+            rasterTmpDir = switch(Sys.info()[["nodename"]],
+                                  `larix.for-cast.ca` = "/tmp/scratch/LandWeb/raster",
+                                  "/mnt/scratch/achubaty/LandWeb/raster"),
+            reproducible.cacheSaveFormat = "qs",
+            reproducible.conn = SpaDES.config::dbConnCache("postgresql")
+          )
+        },
         upload = FALSE ## TODO: use TRUE once `uploadTo` specified per study area
       )
     ),
