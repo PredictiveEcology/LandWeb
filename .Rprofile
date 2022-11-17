@@ -1,14 +1,17 @@
-## use empty .Rprofile to prevent loading of user's .Rprofile
+## trying to force Rstudio to behave when preloading packages...
+## at the very least, use an empty .Rprofile to prevent loading of ~/.Rprofile
 local({
-  message("initializing LandWeb project...\n")
+  prjName <- "LandWeb"
+  prjDir <- file.path("~", "GitHub", prjName) ## TODO: make more general
+  
+  message(paste("initializing", prjName, "project...\n"))
 
-  ## TODO: trying force Rstudio to behave...
-  local({
-    pkgDir <- file.path("packages", version$platform, substr(getRversion(), 1, 3))
-    dir.create(pkgDir, recursive = TRUE, showWarnings = FALSE)
-    .libPaths(pkgDir, include.site = FALSE)
-    message("Using libPaths:\n", paste(.libPaths(), collapse = "\n"))
-  })
+  pkgDir <- file.path(tools::R_user_dir(basename(prjDir), "data"), "packages",
+                      version$platform, getRversion()[, 1:2])
+  dir.create(pkgDir, recursive = TRUE, showWarnings = FALSE)
+  .libPaths(pkgDir, include.site = FALSE)
+  message("Using libPaths:\n", paste(.libPaths(), collapse = "\n"))
 
   message("\n...done")
 })
+
