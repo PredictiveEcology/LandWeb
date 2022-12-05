@@ -33,7 +33,7 @@ if (exists(".version", .GlobalEnv)) {
   .version <- 2L ## 3L
 }
 
-.ncores <- min(parallel::detectCores() / 2, 32L)
+.ncores <- min(parallel::detectCores() / 2, 24L)
 .nodename <- Sys.info()[["nodename"]]
 .starttime <- Sys.time()
 .user <- Sys.info()[["user"]]
