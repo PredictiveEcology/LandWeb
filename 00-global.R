@@ -204,6 +204,8 @@ config$paths
 stopifnot(identical(checkPath(config$paths[["projectPath"]]), getwd()))
 
 checkPath(config$paths[["logPath"]], create = TRUE) ## others will be created as needed below
+checkPath(file.path(config$paths[["scratchPath"]], "raster"), create = TRUE)
+checkPath(file.path(config$paths[["scratchPath"]], "terra"), create = TRUE)
 
 paths <- SpaDES.config::paths4spades(config$paths)
 
