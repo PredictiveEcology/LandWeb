@@ -125,7 +125,9 @@ tryCatch({
                     cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                     omitArgs = c("debug", "paths"),
                     userTags = c(config$studyAreaName, config$context[["runName"]], "mainSim"))
-  mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+  if (isTRUE(attr(mySimOut, ".Cache")[["newCache"]])) {
+    mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+  }
 }, error = function(e) {
   capture.output(traceback(), file = file.path(config$paths[["logPath"]], "traceback_mainSim.txt"), split = TRUE)
 

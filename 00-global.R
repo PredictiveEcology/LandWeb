@@ -245,7 +245,9 @@ simOutPreamble <- Cache(simInitAndSpades,
                         useCloud = config$args[["cloud"]][["useCloud"]],
                         cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                         userTags = c(config$studyAreaName, config$context[["runName"]], "preamble"))
-simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+if (isTRUE(attr(simOutPreamble, ".Cache")[["newCache"]])) {
+  simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+}
 saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
 saveSimList(simOutPreamble, preambleFile, fileBackend = 2)
 
@@ -280,7 +282,9 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              useCloud = config$args[["cloud"]][["useCloud"]],
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                              userTags = c(config$studyAreaName, config$context[["runName"]], "speciesLayers"))
-simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+if (isTRUE(attr(simOutSpeciesLayers, ".Cache")[["newCache"]])) {
+  simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+}
 saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
 
 if (config$context[["mode"]] != "postprocess") {
@@ -319,7 +323,9 @@ if (config$context[["mode"]] != "postprocess") {
                           cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                           .plots = config$params[[".globals"]][[".plots"]],
                           userTags = c(config$studyAreaName, config$context[["runName"]], "dataPrep"))
-  simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+  if (isTRUE(attr(simOutDataPrep, ".Cache")[["newCache"]])) {
+    simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+  }
 
   ## TODO: enforce correct species table types (LandR#90)
   if (is(simOutDataPrep$species$postfireregen, "character")) {
@@ -335,21 +341,25 @@ if (config$context[["mode"]] != "postprocess") {
     config$params[["timeSeriesTimes"]] <- 450:500
   }
 
-  modules4 <- list("LandWeb_summary")
+  modules4 <- list(
+    "HSI_Caribou_MB", ## TODO: add to config
+    "LandWeb_summary"
+  )
 
   ## don't cache the init event!
-  config$params[[".globals"]][[".useCache"]] <- c(".inputObjects", "animation", "postprocess")
+  config$params[["HSI_Caribou_MB"]][[".useCache"]] <- c(".inputObjects", "postprocess")
   config$params[["LandWeb_summary"]][[".useCache"]] <- c(".inputObjects", "animation", "postprocess")
 
   ## NOTE: previous .useParallel value is too low for this module
   config$params[[".globals"]][[".useParallel"]] <- getOption("map.useParallel")
   config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.useParallel")
 
-  getOption("map.maxNumCores") ## TODO: why is this set so high (48)??
+  getOption("map.maxNumCores") ## TODO: 48; why is this set so high??
   options(map.maxNumCores = .ncores)
 
   parameters4 <- list(
     .globals = config$params[[".globals"]],
+    HSI_caribou_MB = config$params[["HSI_Caribou_MB"]], ## TODO: add to config
     LandWeb_summary = config$params[["LandWeb_summary"]]
   )
 
@@ -378,7 +388,9 @@ if (config$context[["mode"]] != "postprocess") {
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                              omitArgs = c("debug", "paths"),
                              userTags = c(config$context[["runName"]], "postprocess"))
-    simOutSummaries@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+    if (isTRUE(attr(simOutSummaries, ".Cache")[["newCache"]])) {
+      simOutSummaries@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+    }
   }, error = function(e) {
     if (requireNamespace("slackr") & file.exists("~/.slackr")) {
       slackr::slackr_setup()
