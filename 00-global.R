@@ -370,6 +370,8 @@ if (config$context[["mode"]] != "postprocess") {
 
   outputs4 <- NULL
 
+  fsim <- simFile("simOutSummaries", paths[["outputPath"]], NULL, "qs")
+
   tryCatch({
     simOutSummaries <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
@@ -386,9 +388,7 @@ if (config$context[["mode"]] != "postprocess") {
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                              omitArgs = c("debug", "paths"),
                              userTags = c(config$context[["runName"]], "postprocess"))
-    if (isTRUE(attr(simOutSummaries, ".Cache")[["newCache"]])) {
-      simOutSummaries@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
-    }
+    cat(capture.output(warnings()), file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"), sep = "\n")
   }, error = function(e) {
     if (requireNamespace("slackr") & file.exists("~/.slackr")) {
       slackr::slackr_setup()
@@ -402,21 +402,21 @@ if (config$context[["mode"]] != "postprocess") {
     }
   })
 
-  cat(capture.output(warnings()), file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"), sep = "\n")
+  if (isTRUE(attr(simOutSummaries, ".Cache")[["newCache"]])) {
+    simOutSummaries@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+    message("Saving simulation to: ", fsim)
+    saveSimList(sim = simOutSummaries, filename = fsim, fileBackend = 2)
 
-  fsim <- simFile("simOutSummaries", paths[["outputPath"]], NULL, "qs")
-  message("Saving simulation to: ", fsim)
-  saveSimList(sim = simOutSummaries, filename = fsim, fileBackend = 2)
+    # save simulation stats -----------------------------------------------------------------------
 
-  # save simulation stats -----------------------------------------------------------------------
+    elapsed <- elapsedTime(simOutSummaries)
+    data.table::fwrite(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.csv"))
+    qs::qsave(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.qs"))
 
-  elapsed <- elapsedTime(simOutSummaries)
-  data.table::fwrite(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.csv"))
-  qs::qsave(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.qs"))
-
-  memory <- memoryUse(simOutSummaries, max = TRUE)
-  data.table::fwrite(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.csv"))
-  qs::qsave(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.qs"))
+    memory <- memoryUse(simOutSummaries, max = TRUE)
+    data.table::fwrite(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.csv"))
+    qs::qsave(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.qs"))
+  }
 
   # archive and upload --------------------------------------------------------------------------
   #source("R/upload.R") ## TODO: not working correctly yet
