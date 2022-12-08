@@ -111,6 +111,8 @@ if ("screen" %in% config$params[[".globals"]][[".plots"]]) {
 data.table::setDTthreads(config$params[[".globals"]][[".useParallel"]])
 
 tryCatch({
+  fsim <- simFile("mySimOut", paths[["outputPath"]], SpaDES.core::end(mySimOut), "qs")
+
   mySimOut <- Cache(simInitAndSpades,
                     times = times3,
                     params = parameters3, ## TODO: use config$params
@@ -126,7 +128,21 @@ tryCatch({
                     omitArgs = c("debug", "paths"),
                     userTags = c(config$studyAreaName, config$context[["runName"]], "mainSim"))
   if (isTRUE(attr(mySimOut, ".Cache")[["newCache"]])) {
+    capture.output(warnings(), file = file.path(config$paths[["logPath"]], "warnings.txt"), split = TRUE)
+
     mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+
+    message("Saving simulation to: ", fsim)
+    saveSimList(sim = mySimOut, filename = fsim, fileBackend = 2)
+
+    # save simulation stats -----------------------------------------------------------------------
+    elapsed <- elapsedTime(mySimOut)
+    data.table::fwrite(elapsed, file.path(paths[["outputPath"]], "elapsedTime.csv"))
+    qs::qsave(elapsed, file.path(paths[["outputPath"]], "elapsedTime.qs"))
+
+    memory <- memoryUse(mySimOut, max = TRUE)
+    data.table::fwrite(memory, file.path(paths[["outputPath"]], "memoryUsed.csv"))
+    qs::qsave(memory, file.path(paths[["outputPath"]], "memoryUsed.qs"))
   }
 }, error = function(e) {
   capture.output(traceback(), file = file.path(config$paths[["logPath"]], "traceback_mainSim.txt"), split = TRUE)
@@ -142,22 +158,6 @@ tryCatch({
     stop(e$message)
   }
 })
-
-capture.output(warnings(), file = file.path(config$paths[["logPath"]], "warnings.txt"), split = TRUE)
-
-fsim <- simFile("mySimOut", paths[["outputPath"]], SpaDES.core::end(mySimOut), "qs")
-message("Saving simulation to: ", fsim)
-saveSimList(sim = mySimOut, filename = fsim, fileBackend = 2)
-
-# save simulation stats -----------------------------------------------------------------------
-
-elapsed <- elapsedTime(mySimOut)
-data.table::fwrite(elapsed, file.path(paths[["outputPath"]], "elapsedTime.csv"))
-qs::qsave(elapsed, file.path(paths[["outputPath"]], "elapsedTime.qs"))
-
-memory <- memoryUse(mySimOut, max = TRUE)
-data.table::fwrite(memory, file.path(paths[["outputPath"]], "memoryUsed.csv"))
-qs::qsave(memory, file.path(paths[["outputPath"]], "memoryUsed.qs"))
 
 # end-of-sim notifications --------------------------------------------------------------------
 

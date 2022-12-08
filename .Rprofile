@@ -3,7 +3,7 @@
 local({
   prjName <- "LandWeb"
   prjDir <- file.path("~", "GitHub", prjName) ## TODO: make more general
-  
+
   message(paste("initializing", prjName, "project...\n"))
 
   pkgDir <- file.path(tools::R_user_dir(basename(prjDir), "data"), "packages",
@@ -14,4 +14,3 @@ local({
 
   message("\n...done")
 })
-

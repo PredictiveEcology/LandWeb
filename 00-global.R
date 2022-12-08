@@ -35,7 +35,6 @@ if (exists(".version", .GlobalEnv)) {
 
 .ncores <- min(parallel::detectCores() / 2, 24L)
 .nodename <- Sys.info()[["nodename"]]
-.starttime <- Sys.time()
 .user <- Sys.info()[["user"]]
 
 if (.version == 2L) {
@@ -105,7 +104,7 @@ setLinuxBinaryRepo()
 Require(c(
   "PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
   "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9040)",
-  "PredictiveEcology/SpaDES.core@development (>= 1.1.0.9004)"
+  "PredictiveEcology/SpaDES.core@development (>= 1.1.0.9016)"
 ), upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
@@ -204,8 +203,6 @@ config$paths
 stopifnot(identical(checkPath(config$paths[["projectPath"]]), getwd()))
 
 checkPath(config$paths[["logPath"]], create = TRUE) ## others will be created as needed below
-checkPath(file.path(config$paths[["scratchPath"]], "raster"), create = TRUE)
-checkPath(file.path(config$paths[["scratchPath"]], "terra"), create = TRUE)
 
 paths <- SpaDES.config::paths4spades(config$paths)
 
@@ -249,9 +246,9 @@ simOutPreamble <- Cache(simInitAndSpades,
                         userTags = c(config$studyAreaName, config$context[["runName"]], "preamble"))
 if (isTRUE(attr(simOutPreamble, ".Cache")[["newCache"]])) {
   simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+  saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
+  saveSimList(simOutPreamble, preambleFile, fileBackend = 2)
 }
-saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
-saveSimList(simOutPreamble, preambleFile, fileBackend = 2)
 
 # Species layers ------------------------------------------------------------------------------
 
@@ -286,8 +283,8 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              userTags = c(config$studyAreaName, config$context[["runName"]], "speciesLayers"))
 if (isTRUE(attr(simOutSpeciesLayers, ".Cache")[["newCache"]])) {
   simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+  saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
 }
-saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
 
 if (config$context[["mode"]] != "postprocess") {
   # Boreal data prep + main sim -----------------------------------------------------------------
@@ -327,14 +324,13 @@ if (config$context[["mode"]] != "postprocess") {
                           userTags = c(config$studyAreaName, config$context[["runName"]], "dataPrep"))
   if (isTRUE(attr(simOutDataPrep, ".Cache")[["newCache"]])) {
     simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
-  }
+    ## TODO: enforce correct species table types (LandR#90)
+    if (is(simOutDataPrep$species$postfireregen, "character")) {
+      simOutDataPrep$species$postfireregen <- as.factor(simOutDataPrep$species$postfireregen)
+    }
 
-  ## TODO: enforce correct species table types (LandR#90)
-  if (is(simOutDataPrep$species$postfireregen, "character")) {
-    simOutDataPrep$species$postfireregen <- as.factor(simOutDataPrep$species$postfireregen)
+    saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)
   }
-
-  saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)
 
   source("10-main-sim.R")
 } else {
