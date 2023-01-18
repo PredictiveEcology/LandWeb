@@ -16,7 +16,8 @@ config.user <- switch(
     ),
     options = list(
       reproducible.cacheSaveFormat = "qs",
-      reproducible.conn = SpaDES.config::dbConnCache("postgresql")
+      reproducible.conn = SpaDES.config::dbConnCache("postgresql"),
+      reproducible.useTerra = TRUE ## TODO: add to config
     ),
     params = list(
       LandWeb_summary = list(

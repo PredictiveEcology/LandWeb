@@ -87,9 +87,9 @@ if (!"remotes" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
   install.packages("remotes")
 }
 
-Require.version <- "PredictiveEcology/Require@development"
+Require.version <- "PredictiveEcology/Require@v0.2.6" ## use CRAN version
 if (!"Require" %in% rownames(installed.packages(lib.loc = .libPaths()[1])) ||
-    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.1.6.9008") {
+    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.2.6") {
   remotes::install_github(Require.version)
 }
 
@@ -114,9 +114,10 @@ if (RcppVersionAvail < RcppVersionNeeded) {
 setLinuxBinaryRepo()
 
 Require(c(
+  "PredictiveEcology/reproducible@development (>= 1.2.16.9018)", ## TODO: use development once merged
   "PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
   "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9040)",
-  "PredictiveEcology/SpaDES.core@development (>= 1.1.0.9016)"
+  "PredictiveEcology/SpaDES.core@development (>= 1.1.1)"
 ), upgrade = FALSE, standAlone = TRUE)
 
 if (FALSE) {
@@ -135,7 +136,7 @@ Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, up
 ## NOTE: always load packages LAST, after installation above;
 ##       ensure plyr loaded before dplyr or there will be problems
 Require(c("data.table", "plyr", "pryr", "SpaDES.core",
-          "googledrive", "httr", "magrittr", "sessioninfo", "slackr"),
+          "googledrive", "httr", "LandR", "LandWebUtils", "magrittr", "sessioninfo", "slackr"),
         upgrade = FALSE, standAlone = TRUE)
 
 # configure project ---------------------------------------------------------------------------
@@ -332,7 +333,6 @@ if (config$context[["mode"]] != "postprocess") {
                           omitArgs = c("debug", "paths", ".plotInitialTime"),
                           useCloud = config$args[["cloud"]][["useCloud"]],
                           cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                          .plots = config$params[[".globals"]][[".plots"]],
                           userTags = c(config$studyAreaName, config$context[["runName"]], "dataPrep"))
   if (isTRUE(attr(simOutDataPrep, ".Cache")[["newCache"]])) {
     simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
@@ -365,7 +365,9 @@ if (config$context[["mode"]] != "postprocess") {
   config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.useParallel")
 
   getOption("map.maxNumCores") ## TODO: 48; why is this set so high??
-  options(map.maxNumCores = .ncores)
+  options(map.maxNumCores = .ncores,
+          reproducible.rasterRead = "SpaDES.core::rasterToMemory",
+          reproducible.useTerra = FALSE) ## TODO: VTM grd file cannot be read using terra (rspatial/terra#976)
 
   parameters4 <- list(
     .globals = config$params[[".globals"]],
