@@ -67,18 +67,17 @@ outputs3a <- data.frame(stringsAsFactors = FALSE,
                         ),
                         fun = "writeRaster", package = "raster",
                         file = paste0(objectNamesToSave, c(".tif", ".grd")))
-
-outputs3b <- data.frame(expand.grid(objectName = c("simulationOutput"),
-                                    saveTime = times3$end),
-                        fun = "saveRDS",
-                        package = "base",
-                        stringsAsFactors = FALSE)
-
 outputs3a$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE,
                                        datatype = "INT2U", format = "GTiff"),
                                   list(overwrite = TRUE, progress = FALSE,
                                        datatype = "INT1U", format = "raster")),
                              times = NROW(outputs3a) / length(objectNamesToSave)))
+
+outputs3b <- data.frame(expand.grid(objectName = c("rstCurrentBurnCumulative", "simulationOutput"),
+                                    saveTime = times3$end),
+                        fun = c("writeRaster", "saveRDS"),
+                        package = c("raster", "base"),
+                        stringsAsFactors = FALSE)
 
 outputs3c <- data.frame(stringsAsFactors = FALSE,
                         objectName = "rstFlammable",
@@ -110,9 +109,9 @@ if ("screen" %in% config$params[[".globals"]][[".plots"]]) {
 
 data.table::setDTthreads(config$params[[".globals"]][[".useParallel"]])
 
-tryCatch({
-  fsim <- simFile("mySimOut", paths[["outputPath"]], SpaDES.core::end(mySimOut), "qs")
+fsim <- simFile("mySimOut", paths[["outputPath"]], config$args[["endTime"]], "qs")
 
+tryCatch({
   mySimOut <- Cache(simInitAndSpades,
                     times = times3,
                     params = parameters3, ## TODO: use config$params

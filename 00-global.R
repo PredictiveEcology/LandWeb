@@ -70,9 +70,7 @@ if (grepl("for-cast[.]ca", .nodename) && !grepl("larix", .nodename)) {
 
 options(
   Ncpus = .ncores,
-  repos = c(CRAN = "https://cran.rstudio.com"),
-  Require.RPackageCache = "default", ## will use default package cache directory: `RequirePkgCacheDir()`
-  Require.usepak = FALSE ## pkg deps too complicated for pak
+  repos = c(CRAN = "https://cran.rstudio.com")
 )
 
 # install and load packages -------------------------------------------------------------------
@@ -95,41 +93,18 @@ if (!"Require" %in% rownames(installed.packages(lib.loc = .libPaths()[1])) ||
 
 library(Require)
 
-## temporarily until new Rcpp release on CRAN in early 2023 ----------------------------------------
-options("Require.otherPkgs" = setdiff(getOption("Require.otherPkgs"), "Rcpp")) ## remove Rcpp from "forced source"
-RcppVersionNeeded <- package_version("1.0.9.3")
-
-RcppVersionAvail <- if (!"Rcpp" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
-  package_version(data.table::as.data.table(available.packages())[Package == "Rcpp", Version])
-} else {
-  package_version(packageVersion("Rcpp", lib.loc = .libPaths()[1]))
-}
-
-if (RcppVersionAvail < RcppVersionNeeded) {
-  Require(paste0("Rcpp (>= ", RcppVersionNeeded, ")"),  repos = "https://rcppcore.github.io/drat",
-          require = FALSE, verbose = 1)
-}
-##
-
 setLinuxBinaryRepo()
 
 Require(c(
-  "PredictiveEcology/reproducible@development (>= 1.2.16.9018)", ## TODO: use development once merged
   "PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
-  "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9040)",
-  "PredictiveEcology/SpaDES.core@development (>= 1.1.1)"
+  "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9058)"
 ), upgrade = FALSE, standAlone = TRUE)
 
-if (FALSE) {
-  # install.packages("pak")
-  # pak::pkg_install(.spatialPkgs)
-  # install.packages(.spatialPkgs, repos = "https://cran.r-project.org")
-  # install.packages(c("raster", "terra"), repos = "https://rspatial.r-universe.dev")
-  sf::sf_extSoftVersion() ## want at least GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1
-}
-
 modulePkgs <- unname(unlist(packagesInModules(modulePath = file.path(prjDir, "m"))))
-otherPkgs <- c("archive", "details", "DBI", "s-u/fastshp", "logging", "RPostgres", "slackr")
+otherPkgs <- c("archive", "details", "DBI", "s-u/fastshp", "logging",
+               "Rcpp (>= 1.0.10)", "RPostgres", "slackr",
+               "PredictiveEcology/reproducible@development (>= 1.2.16.9018)",
+               "PredictiveEcology/SpaDES.core@development (>= 1.1.1)")
 
 Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, upgrade = FALSE)
 
@@ -365,9 +340,7 @@ if (config$context[["mode"]] != "postprocess") {
   config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.useParallel")
 
   getOption("map.maxNumCores") ## TODO: 48; why is this set so high??
-  options(map.maxNumCores = .ncores,
-          reproducible.rasterRead = "SpaDES.core::rasterToMemory",
-          reproducible.useTerra = FALSE) ## TODO: VTM grd file cannot be read using terra (rspatial/terra#976)
+  options(map.maxNumCores = .ncores)
 
   parameters4 <- list(
     .globals = config$params[[".globals"]],
