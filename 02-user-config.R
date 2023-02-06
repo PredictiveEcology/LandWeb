@@ -35,8 +35,8 @@ config.user <- switch(
     ),
     paths = list(
       scratchPath = switch(.nodename,
-                           `larix.for-cast.ca` = "/tmp/scratch/LandWeb",
-                           "/mnt/scratch/achubaty/LandWeb")
+                           `larix.for-cast.ca` = file.path("/tmp/scratch", basename(prjDir)),
+                           file.path("/mnt/scratch", .user, basename(prjDir)))
     )
   ),
 

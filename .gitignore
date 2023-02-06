@@ -18,7 +18,7 @@
 docs/\.~lock\.LandWeb_module_diagram\.odp#
 
 ## cache files
-.channel_cache
+*_cache
 cache/
 cache
 cache_sqlite
@@ -35,26 +35,20 @@ rsconnect/shinyapps.io/landweb/LandWebDemo.dcf
 .RData
 *.Renviron
 .Rhistory
-.Rproj.user
+.Rproj.user/
 
-## R package management
-Packages*
-packages/
-packrat/lib*/
-packrat/src/
-R-Portable/
-
-## SpaDES-related files
+## simulation data and outputs
 .checkpoint
-
-last.dump.rda
-inputs*
-outputs*
+data/
+inputs
+inputs/
+outputs
+outputs/
 
 ## OAuth tokens
 .httr-oauth
 .httr-oauth-SUSPENDED
-landweb*.json
+*.json
 
 ## misc OS files
 Thumbs.db
