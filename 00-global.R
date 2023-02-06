@@ -45,7 +45,7 @@ if (.version == 2L) {
   }
 
   if (exists(".ROStype", .GlobalEnv)) {
-    stopifnot(.ROStype %in% c("default", "equal", "log"))
+    stopifnot(.ROStype %in% c("default", "burny", "equal", "log"))
   } else {
     .ROStype <- "log"
   }
@@ -97,14 +97,15 @@ setLinuxBinaryRepo()
 
 Require(c(
   "PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
-  "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9058)"
+  "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9065)"
 ), upgrade = FALSE, standAlone = TRUE)
 
 modulePkgs <- unname(unlist(packagesInModules(modulePath = file.path(prjDir, "m"))))
 otherPkgs <- c("archive", "details", "DBI", "s-u/fastshp", "logging",
                "Rcpp (>= 1.0.10)", "RPostgres", "slackr",
-               "PredictiveEcology/reproducible@development (>= 1.2.16.9018)",
-               "PredictiveEcology/SpaDES.core@development (>= 1.1.1)")
+               "PredictiveEcology/reproducible@development (>= 1.2.16.9024)",
+               "PredictiveEcology/SpaDES.core@development (>= 1.1.1)",
+               "terra (>= 1.7-3)")
 
 Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, upgrade = FALSE)
 
@@ -232,6 +233,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         useCloud = config$args[["cloud"]][["useCloud"]],
                         cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                         userTags = c(config$studyAreaName, config$context[["runName"]], "preamble"))
+
 if (isTRUE(attr(simOutPreamble, ".Cache")[["newCache"]])) {
   simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
   saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
