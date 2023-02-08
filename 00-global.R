@@ -328,10 +328,16 @@ if (config$context[["mode"]] != "postprocess") {
     config$params[["timeSeriesTimes"]] <- 450:500
   }
 
-  modules4 <- list(
-    "HSI_Caribou_MB", ## TODO: add to config
-    "LandWeb_summary"
-  )
+  modules4 <- if (grepl("provMB", config$context[["studyAreaName"]])) {
+    list(
+      "HSI_Caribou_MB", ## TODO: add to config
+      "LandWeb_summary"
+    )
+  } else {
+    list(
+      "LandWeb_summary"
+    )
+  }
 
   ## don't cache the init event!
   config$params[["HSI_Caribou_MB"]][[".useCache"]] <- c(".inputObjects", "postprocess")
