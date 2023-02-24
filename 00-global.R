@@ -95,7 +95,8 @@ library(Require)
 
 setLinuxBinaryRepo()
 
-Require("sf (>= 1.0.10)", repos = "https://r-spatial.r-universe.dev/") ## TODO: temporary until this version is on CRAN
+Require("sf (>= 1.0.10)", repos = "https://r-spatial.r-universe.dev/",
+        require = FALSE, standAlone = TRUE, upgrade = FALSE) ## TODO: temporary until this version is on CRAN
 
 Require(c(
   "PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
