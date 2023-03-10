@@ -418,7 +418,7 @@ if (config$context[["mode"]] != "postprocess") {
   }
 
   # archive and upload --------------------------------------------------------------------------
-  #source("R/upload.R") ## TODO: not working correctly yet
+  source("R/upload.R") ## TODO: not working correctly yet
 
   # end-of-sim notifications --------------------------------------------------------------------
 
