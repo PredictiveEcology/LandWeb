@@ -342,9 +342,10 @@ if (config$context[["mode"]] != "postprocess") {
     )
   }
 
-  ## don't cache the init event!
-  config$params[["HSI_Caribou_MB"]][[".useCache"]] <- c(".inputObjects", "postprocess")
-  config$params[["LandWeb_summary"]][[".useCache"]] <- c(".inputObjects", "animation", "postprocess")
+  ## don't cache the init event
+  ## TODO: temporarily don't cache postprocess due to Cache bug with futures
+  config$params[["HSI_Caribou_MB"]][[".useCache"]] <- c(".inputObjects") # "postprocess"
+  config$params[["LandWeb_summary"]][[".useCache"]] <- c(".inputObjects", "animation") # "postprocess"
 
   ## NOTE: previous .useParallel value is too low for this module
   config$params[[".globals"]][[".useParallel"]] <- getOption("map.useParallel")
