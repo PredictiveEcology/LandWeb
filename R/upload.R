@@ -1,9 +1,8 @@
 Require::Require("archive")
+Require::Require("furrr")
 Require::Require("googledrive")
 
-## avoid curl HTTP2 framing layer error:
-## per https://github.com/tidyverse/googlesheets4/issues/233#issuecomment-889376499
-httr::set_config(httr::config(http_version = 2)) ## corresponds to CURL_HTTP_VERSION_1_1
+plan(multisession, workers = 8)
 
 #' Upload a folder to Google Drive
 #'
@@ -21,7 +20,14 @@ httr::set_config(httr::config(http_version = 2)) ## corresponds to CURL_HTTP_VER
 #'
 #' @return A dribble of the uploaded files (not directories though.)
 drive_upload_folder <- function(folder, drive_path) {
-  # Only call fs::dir_info once in order to avoid weirdness if the contents of the folder is changing
+  ## avoid curl HTTP2 framing layer error:
+  ## per https://github.com/tidyverse/googlesheets4/issues/233#issuecomment-889376499
+  old <- httr::set_config(httr::config(http_version = 2)) ## corresponds to CURL_HTTP_VERSION_1_1
+  on.exit(httr::set_config(old), add = TRUE)
+
+  SpaDES.config::authGoogle(tryToken = "landweb") ## TODO
+
+  ## Only call fs::dir_info once in order to avoid weirdness if the contents of the folder is changing
   contents <- fs::dir_info(folder, type = c("file", "dir"))
   dirs_to_upload <- contents %>%
     dplyr::filter(type == "directory") %>%
@@ -37,10 +43,10 @@ drive_upload_folder <- function(folder, drive_path) {
   uploaded_files <- contents %>%
     dplyr::filter(type == "file") %>%
     dplyr::pull(path) %>%
-    purrr::map_dfr(googledrive::drive_put, path = fid)
+    furrr::future_map_dfr(googledrive::drive_put, path = fid)
 
   # Create the next level down of directories
-  purrr::map2_dfr(dirs_to_upload, fid, drive_upload_folder) %>%
+  furrr::future_map2_dfr(dirs_to_upload, fid, drive_upload_folder) %>%
     dplyr::bind_rows(uploaded_files) %>%
     invisible() ## return a dribble of what's been uploaded
 }

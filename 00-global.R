@@ -56,18 +56,6 @@ prjDir <- "~/GitHub/LandWeb"
 
 stopifnot(identical(normalizePath(prjDir), normalizePath(getwd())))
 
-## set new temp dir in scratch directory (existing /tmp too small for large callr ops in postprocessing)
-## see https://github.com/r-lib/callr/issues/172
-if (grepl("for-cast[.]ca", .nodename) && !grepl("larix", .nodename)) {
-  oldTmpDir <- tempdir()
-  newTmpDir <- file.path("/mnt/scratch", .user, basename(prjDir), "tmp")
-  if (!dir.exists(newTmpDir)) dir.create(newTmpDir, recursive = TRUE)
-  newTmpDir <- tools::file_path_as_absolute(newTmpDir)
-  Sys.setenv(TMPDIR = newTmpDir)
-  unlink(oldTmpDir, recursive = TRUE)
-  tempdir(check = TRUE)
-}
-
 options(
   Ncpus = .ncores,
   repos = c(CRAN = "https://cran.rstudio.com")
@@ -80,6 +68,17 @@ pkgDir <- file.path(tools::R_user_dir(basename(prjDir), "data"), "packages",
 dir.create(pkgDir, recursive = TRUE, showWarnings = FALSE)
 .libPaths(pkgDir, include.site = FALSE)
 message("Using libPaths:\n", paste(.libPaths(), collapse = "\n"))
+
+if (!"tmpdir" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
+  remotes::install_github("achubaty/tmpdir")
+}
+
+## set new temp dir in scratch directory (existing /tmp too small for large callr ops in postprocessing)
+## see https://github.com/r-lib/callr/issues/172
+if (grepl("for-cast[.]ca", .nodename) && !grepl("larix", .nodename)) {
+  newTmpDir <- file.path("/mnt/scratch", .user, basename(prjDir), "tmp")
+  tmpdir::setTmpDir(newTmpDir, rmOldTempDir = TRUE)
+}
 
 if (!"remotes" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
   install.packages("remotes")
@@ -215,6 +214,8 @@ if (config$args[["delayStart"]] > 0) {
 }
 
 objects1 <- list()
+
+config$params[["LandWeb_preamble"]][[".useCache"]] <- FALSE ## TODO: temporary; map/ml caching broken
 
 parameters1 <- list(
   .globals = config$params[[".globals"]],
