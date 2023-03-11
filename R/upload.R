@@ -1,6 +1,10 @@
 Require::Require("archive")
 Require::Require("googledrive")
 
+## avoid curl HTTP2 framing layer error:
+## per https://github.com/tidyverse/googlesheets4/issues/233#issuecomment-889376499
+httr::set_config(httr::config(http_version = 2)) ## corresponds to CURL_HTTP_VERSION_1_1
+
 #' Upload a folder to Google Drive
 #'
 #' Based on <https://github.com/tidyverse/googledrive/issues/200#issuecomment-1112766367>.
@@ -21,7 +25,7 @@ drive_upload_folder <- function(folder, drive_path) {
   contents <- fs::dir_info(folder, type = c("file", "dir"))
   dirs_to_upload <- contents %>%
     dplyr::filter(type == "directory") %>%
-    pull(path)
+    dplyr::pull(path)
 
   folderIDs <- drive_ls(drive_path)
   fid <- folderIDs[folderIDs[["name"]] == basename(folder), "id"][[1]]
@@ -32,7 +36,7 @@ drive_upload_folder <- function(folder, drive_path) {
   # Directly upload the files
   uploaded_files <- contents %>%
     dplyr::filter(type == "file") %>%
-    pull(path) %>%
+    dplyr::pull(path) %>%
     purrr::map_dfr(googledrive::drive_put, path = fid)
 
   # Create the next level down of directories
@@ -64,7 +68,7 @@ filesToUpload <- c(f0, f1, z1, z2)
 LandWeb_Results <- as_id("0AEyFltUAISU-Uk9PVA")
 runName_Results <- drive_ls(LandWeb_Results)
 
-gdrive_ID <- which(runName_Results[["name"]] == config$context[["runName"]])
+gdrive_ID <- runName_Results[runName_Results[["name"]] == config$context[["runName"]], ][["id"]]
 
 if (length(gdrive_ID) == 0) {
   gdrive_ID <- drive_mkdir(name = config$context[["runName"]], LandWeb_Results)[["id"]]
