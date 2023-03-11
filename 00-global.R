@@ -413,9 +413,11 @@ if (config$context[["mode"]] != "postprocess") {
     data.table::fwrite(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.csv"))
     qs::qsave(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.qs"))
 
-    memory <- memoryUse(simOutSummaries, max = TRUE)
-    data.table::fwrite(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.csv"))
-    qs::qsave(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.qs"))
+    if (!isFALSE(getOption("spades.memoryUseInterval"))) {
+      memory <- memoryUse(simOutSummaries, max = TRUE)
+      data.table::fwrite(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.csv"))
+      qs::qsave(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.qs"))
+    }
   }
 
   # archive and upload --------------------------------------------------------------------------
