@@ -103,9 +103,11 @@ Require(c(
 ), upgrade = FALSE, standAlone = TRUE)
 
 modulePkgs <- unname(unlist(packagesInModules(modulePath = file.path(prjDir, "m"))))
-otherPkgs <- c("archive", "details", "DBI", "s-u/fastshp", "logging",
+otherPkgs <- c("archive", "details", "DBI", "s-u/fastshp",
+               "PredictiveEcology/LandR@dev-stable",
+               "logging",
                "Rcpp (>= 1.0.10)", "RPostgres", "slackr",
-               "PredictiveEcology/reproducible@development (>= 1.2.16.9024)",
+               "PredictiveEcology/reproducible@dev-stable (>= 1.2.16.9024)",
                "PredictiveEcology/SpaDES.core@development (>= 1.1.1)",
                "terra (>= 1.7-3)")
 
@@ -215,8 +217,6 @@ if (config$args[["delayStart"]] > 0) {
 
 objects1 <- list()
 
-config$params[["LandWeb_preamble"]][[".useCache"]] <- FALSE ## TODO: temporary; map/ml caching broken
-
 parameters1 <- list(
   .globals = config$params[[".globals"]],
   LandWeb_preamble = config$params[["LandWeb_preamble"]]
@@ -275,6 +275,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              useCloud = config$args[["cloud"]][["useCloud"]],
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                              userTags = c(config$studyAreaName, config$context[["runName"]], "speciesLayers"))
+
 if (isTRUE(attr(simOutSpeciesLayers, ".Cache")[["newCache"]])) {
   simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
   saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
@@ -344,9 +345,8 @@ if (config$context[["mode"]] != "postprocess") {
   }
 
   ## don't cache the init event
-  ## TODO: temporarily don't cache postprocess due to Cache bug with futures
-  config$params[["HSI_Caribou_MB"]][[".useCache"]] <- c(".inputObjects") # "postprocess"
-  config$params[["LandWeb_summary"]][[".useCache"]] <- c(".inputObjects", "animation") # "postprocess"
+  config$params[["HSI_Caribou_MB"]][[".useCache"]] <- c(".inputObjects", "postprocess")
+  config$params[["LandWeb_summary"]][[".useCache"]] <- c(".inputObjects", "animation", "postprocess")
 
   ## NOTE: previous .useParallel value is too low for this module
   config$params[[".globals"]][[".useParallel"]] <- getOption("map.useParallel")
@@ -407,8 +407,13 @@ if (config$context[["mode"]] != "postprocess") {
     message("Saving simulation to: ", fsim)
     saveSimList(sim = simOutSummaries, filename = fsim, fileBackend = 2)
 
-    # save simulation stats -----------------------------------------------------------------------
+    # save simulation info ------------------------------------------------------------------------
+    relOutputPath <- SpaDES.config:::.getRelativePath(paths[["outputPath"]], prjDir)
+    rrFile <- file.path(relOutputPath, "INFO.md")
+    cat(SpaDES.config::printRunInfo(config$context), file = rrFile, sep = "")
+    cat(SpaDES.project::reproducibilityReceipt(), file = rrFile, sep = "\n", append = TRUE)
 
+    # save simulation stats -----------------------------------------------------------------------
     elapsed <- elapsedTime(simOutSummaries)
     data.table::fwrite(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.csv"))
     qs::qsave(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.qs"))
@@ -421,7 +426,7 @@ if (config$context[["mode"]] != "postprocess") {
   }
 
   # archive and upload --------------------------------------------------------------------------
-  source("R/upload.R") ## TODO: not working correctly yet
+  source("R/upload.R")
 
   # end-of-sim notifications --------------------------------------------------------------------
 
@@ -433,10 +438,5 @@ if (config$context[["mode"]] != "postprocess") {
     )
   }
 }
-
-relOutputPath <- SpaDES.config:::.getRelativePath(paths[["outputPath"]], prjDir)
-rrFile <- file.path(relOutputPath, "INFO.md")
-cat(SpaDES.config::printRunInfo(config$context), file = rrFile, sep = "")
-cat(SpaDES.project::reproducibilityReceipt(), file = rrFile, sep = "\n", append = TRUE)
 
 #source("11-post-sim.R")

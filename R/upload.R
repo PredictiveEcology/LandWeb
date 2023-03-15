@@ -2,6 +2,8 @@ Require::Require("archive")
 Require::Require("furrr")
 Require::Require("googledrive")
 
+SpaDES.config::authGoogle(tryToken = "landweb")
+
 plan(multisession, workers = 8)
 
 #' Upload a folder to Google Drive
@@ -58,8 +60,9 @@ d2 <- file.path(outputPath, "histograms")
 
 dirsToUpload <- c(d1, d2)
 
-f0 <- list.files(file.path(outputPath), "[.]csv", full.names = TRUE)
-f1 <- list.files(file.path(outputPath, "figures"), "[.]png", full.names = TRUE)
+f0 <- file.path(outputPath, "INFO.md")
+f1 <- list.files(file.path(outputPath), "[.]csv", full.names = TRUE)
+f2 <- list.files(file.path(outputPath, "figures"), "[.]png", full.names = TRUE)
 
 z1 <- file.path(outputPath, paste0(config$context[["runName"]], "_boxplots.7z"))
 archive::archive_write_dir(archive = z1, dir = file.path(outputPath, "boxplots"),
@@ -69,7 +72,7 @@ z2 <- file.path(outputPath, paste0(config$context[["runName"]], "_histograms.7z"
 archive::archive_write_dir(archive = z2, dir = file.path(outputPath, "histograms"),
                            full.names = FALSE, recursive = TRUE)
 
-filesToUpload <- c(f0, f1, z1, z2)
+filesToUpload <- c(f0, f1, f2, z1, z2)
 
 LandWeb_Results <- as_id("0AEyFltUAISU-Uk9PVA")
 runName_Results <- drive_ls(LandWeb_Results)
