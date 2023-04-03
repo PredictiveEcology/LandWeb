@@ -73,18 +73,21 @@ outputs3a$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE,
                                        datatype = "INT1U", format = "raster")),
                              times = NROW(outputs3a) / length(objectNamesToSave)))
 
-outputs3b <- data.frame(expand.grid(objectName = c("rstCurrentBurnCumulative", "simulationOutput"),
+outputs3b <- data.frame(stringsAsFactors = FALSE,
+                        expand.grid(objectName = c("simulationOutput"),
                                     saveTime = times3$end),
-                        fun = c("writeRaster", "saveRDS"),
-                        package = c("raster", "base"),
-                        stringsAsFactors = FALSE)
+                        fun = c("saveRDS"),
+                        package = c("base"))
 
 outputs3c <- data.frame(stringsAsFactors = FALSE,
-                        objectName = "rstFlammable",
-                        saveTime = times3$end,
-                        fun = "writeRaster", package = "raster",
+                        expand.grid(objectName = c("rstCurrentBurnCumulative", "rstFlammable"),
+                                    saveTime = times3$end),
+                        fun = c("writeRaster", "writeRaster"),
+                        package = c("raster", "raster"),
                         arguments = I(list(list(overwrite = TRUE, progress = FALSE,
-                                                datatype = "INT2U", format = "raster"))))
+                                                datatype = "INT2U", format = "GTiff"),
+                                           list(overwrite = TRUE, progress = FALSE,
+                                                datatype = "INT1U", format = "GTiff"))))
 
 outputs3 <- as.data.frame(data.table::rbindlist(list(outputs3a, outputs3b, outputs3c), fill = TRUE))
 
@@ -125,7 +128,7 @@ tryCatch({
                     useCloud = FALSE, ## TODO param useCloud??
                     cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                     omitArgs = c("debug", "paths"),
-                    userTags = c(config$studyAreaName, config$context[["runName"]], "mainSim"))
+                    userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "mainSim"))
   capture.output(warnings(), file = file.path(config$paths[["logPath"]], "warnings.txt"), split = TRUE)
 }, error = function(e) {
   capture.output(traceback(), file = file.path(config$paths[["logPath"]], "traceback_mainSim.txt"), split = TRUE)
@@ -153,9 +156,11 @@ if (isTRUE(attr(mySimOut, ".Cache")[["newCache"]])) {
   data.table::fwrite(elapsed, file.path(paths[["outputPath"]], "elapsedTime.csv"))
   qs::qsave(elapsed, file.path(paths[["outputPath"]], "elapsedTime.qs"))
 
-  memory <- memoryUse(mySimOut, max = TRUE)
-  data.table::fwrite(memory, file.path(paths[["outputPath"]], "memoryUsed.csv"))
-  qs::qsave(memory, file.path(paths[["outputPath"]], "memoryUsed.qs"))
+  if (!isFALSE(getOption("spades.memoryUseInterval"))) {
+    memory <- memoryUse(mySimOut, max = TRUE)
+    data.table::fwrite(memory, file.path(paths[["outputPath"]], "memoryUsed.csv"))
+    qs::qsave(memory, file.path(paths[["outputPath"]], "memoryUsed.qs"))
+  }
 }
 
 # end-of-sim notifications --------------------------------------------------------------------

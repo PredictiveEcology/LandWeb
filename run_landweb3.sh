@@ -9,4 +9,4 @@ VERS=3
 
 RCMD=".mode <- 'production'; .studyAreaName <- 'LandWeb'; .res <- ${RES}; .rep <- ${RUN}; .version <- ${VERS}; source('00-global.R')"
 
-echo ${RCMD} | r
+echo ${RCMD} | xvfb-run -a r

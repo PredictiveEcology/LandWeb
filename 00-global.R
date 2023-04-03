@@ -23,7 +23,7 @@ if (exists(".res", .GlobalEnv)) {
 }
 
 if (!exists(".studyAreaName", .GlobalEnv)) {
-  .studyAreaName <- "provMB"
+  .studyAreaName <- "LandWeb"
 }
 
 if (exists(".version", .GlobalEnv)) {
@@ -236,7 +236,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         omitArgs = c("debug", "paths", ".plotInitialTime"),
                         useCloud = config$args[["cloud"]][["useCloud"]],
                         cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                        userTags = c(config$studyAreaName, config$context[["runName"]], "preamble"))
+                        userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "preamble"))
 
 if (isTRUE(attr(simOutPreamble, ".Cache")[["newCache"]])) {
   simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
@@ -274,7 +274,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
                              useCloud = config$args[["cloud"]][["useCloud"]],
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                             userTags = c(config$studyAreaName, config$context[["runName"]], "speciesLayers"))
+                             userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "speciesLayers"))
 
 if (isTRUE(attr(simOutSpeciesLayers, ".Cache")[["newCache"]])) {
   simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
@@ -315,7 +315,8 @@ if (config$context[["mode"]] != "postprocess") {
                           omitArgs = c("debug", "paths", ".plotInitialTime"),
                           useCloud = config$args[["cloud"]][["useCloud"]],
                           cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                          userTags = c(config$studyAreaName, config$context[["runName"]], "dataPrep"))
+                          userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "dataPrep"))
+
   if (isTRUE(attr(simOutDataPrep, ".Cache")[["newCache"]])) {
     simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
     ## TODO: enforce correct species table types (LandR#90)
