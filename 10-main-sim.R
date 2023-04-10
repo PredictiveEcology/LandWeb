@@ -115,20 +115,23 @@ data.table::setDTthreads(config$params[[".globals"]][[".useParallel"]])
 fsim <- simFile("mySimOut", paths[["outputPath"]], config$args[["endTime"]], "qs")
 
 tryCatch({
-  mySimOut <- Cache(simInitAndSpades,
-                    times = times3,
-                    params = parameters3, ## TODO: use config$params
-                    modules = modules3, ## TODO: use config$modules
-                    outputs = outputs3,
-                    objects = objects3,
-                    paths = paths,
-                    loadOrder = unlist(modules3), ## TODO: use config$modules
-                    debug = list(file = list(file = file.path(config$paths[["logPath"]], "sim.log"),
-                                             append = TRUE), debug = 1),
-                    useCloud = FALSE, ## TODO param useCloud??
-                    cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                    omitArgs = c("debug", "paths"),
-                    userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "mainSim"))
+  mySimOut <- simInitAndSpades(
+    times = times3,
+    params = parameters3, ## TODO: use config$params
+    modules = modules3, ## TODO: use config$modules
+    outputs = outputs3,
+    objects = objects3,
+    paths = paths,
+    loadOrder = unlist(modules3), ## TODO: use config$modules
+    debug = list(file = list(file = file.path(config$paths[["logPath"]], "sim.log"),
+                             append = TRUE), debug = 1)
+  ) # |>
+    # Cache(
+    #   useCloud = FALSE, ## TODO param useCloud??
+    #   cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+    #   omitArgs = c("debug", "paths"),
+    #   userTags = c(config$context[["runName"]], "mainSim")
+    # )
   capture.output(warnings(), file = file.path(config$paths[["logPath"]], "warnings.txt"), split = TRUE)
 }, error = function(e) {
   capture.output(traceback(), file = file.path(config$paths[["logPath"]], "traceback_mainSim.txt"), split = TRUE)
