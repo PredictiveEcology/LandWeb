@@ -29,6 +29,41 @@ screen -d -m -S LandWeb_12 ./run_landweb3.sh 12
 screen -d -m -S LandWeb_13 ./run_landweb3.sh 13
 screen -d -m -S LandWeb_14 ./run_landweb3.sh 14
 screen -d -m -S LandWeb_15 ./run_landweb3.sh 15
+screen -d -m -S LandWeb_16 ./run_landweb3.sh 16
+screen -d -m -S LandWeb_17 ./run_landweb3.sh 17
+screen -d -m -S LandWeb_18 ./run_landweb3.sh 18
+screen -d -m -S LandWeb_19 ./run_landweb3.sh 19
+screen -d -m -S LandWeb_20 ./run_landweb3.sh 20
+screen -d -m -S LandWeb_21 ./run_landweb3.sh 21
+screen -d -m -S LandWeb_22 ./run_landweb3.sh 22
+screen -d -m -S LandWeb_23 ./run_landweb3.sh 23
+screen -d -m -S LandWeb_24 ./run_landweb3.sh 24
+screen -d -m -S LandWeb_25 ./run_landweb3.sh 25
+screen -d -m -S LandWeb_26 ./run_landweb3.sh 26
+screen -d -m -S LandWeb_27 ./run_landweb3.sh 27
+screen -d -m -S LandWeb_28 ./run_landweb3.sh 28
+screen -d -m -S LandWeb_29 ./run_landweb3.sh 29
+screen -d -m -S LandWeb_30 ./run_landweb3.sh 30
+screen -d -m -S LandWeb_31 ./run_landweb3.sh 31
+screen -d -m -S LandWeb_32 ./run_landweb3.sh 32
+screen -d -m -S LandWeb_33 ./run_landweb3.sh 33
+screen -d -m -S LandWeb_34 ./run_landweb3.sh 34
+screen -d -m -S LandWeb_35 ./run_landweb3.sh 35
+screen -d -m -S LandWeb_36 ./run_landweb3.sh 36
+screen -d -m -S LandWeb_37 ./run_landweb3.sh 37
+screen -d -m -S LandWeb_38 ./run_landweb3.sh 38
+screen -d -m -S LandWeb_39 ./run_landweb3.sh 39
+screen -d -m -S LandWeb_40 ./run_landweb3.sh 40
+screen -d -m -S LandWeb_41 ./run_landweb3.sh 41
+screen -d -m -S LandWeb_42 ./run_landweb3.sh 42
+screen -d -m -S LandWeb_43 ./run_landweb3.sh 43
+screen -d -m -S LandWeb_44 ./run_landweb3.sh 44
+screen -d -m -S LandWeb_45 ./run_landweb3.sh 45
+screen -d -m -S LandWeb_46 ./run_landweb3.sh 46
+screen -d -m -S LandWeb_47 ./run_landweb3.sh 47
+screen -d -m -S LandWeb_48 ./run_landweb3.sh 48
+screen -d -m -S LandWeb_49 ./run_landweb3.sh 49
+screen -d -m -S LandWeb_50 ./run_landweb3.sh 50 ## running to here
 ```
 
 ```r
@@ -47,6 +82,41 @@ screen -d -m -S LandWeb_15 ./run_landweb3.sh 15
 13 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
 14 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
 15 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+16 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+17 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+18 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+19 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+20 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+21 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+22 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+23 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+24 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+25 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+26 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+27 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+28 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+29 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+30 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+31 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+32 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+33 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+34 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+35 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+36 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+37 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+38 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+39 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+40 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+41 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+42 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+43 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+44 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+45 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+46 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+47 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+48 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+49 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+50 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
 ```
 
 ## LandWeb v2

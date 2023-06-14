@@ -1,210 +1,27 @@
-# project basics ------------------------------------------------------------------------------
-
-if (file.exists("~/.Renviron")) readRenviron("~/.Renviron") ## GITHUB_PAT
+# environment variables -----------------------------------------------------------------------
+if (file.exists("~/.Renviron")) readRenviron("~/.Renviron") ## GITHUB_PAT, etc.
 if (file.exists("LandWeb.Renviron")) readRenviron("LandWeb.Renviron") ## database credentials
 
-###### allow setting run context info from outside this script (e.g., bash script) -----------------
-if (exists(".mode", .GlobalEnv)) {
-  stopifnot(.mode %in% c("development", "postprocess", "production", "profile"))
-} else {
-  .mode <- "development"
-}
+# use renv for package management -------------------------------------------------------------
+source("renv/activate.R")
 
-if (exists(".rep", .GlobalEnv)) {
-  .rep <- if (.mode == "postprocess") NA_integer_ else as.integer(.rep)
-} else {
-  .rep <- if (.mode == "postprocess") NA_integer_ else 1L
-}
-
-if (exists(".res", .GlobalEnv)) {
-  stopifnot(.res %in% c(50, 125, 250))
-} else {
-  .res <- 250
-}
-
-if (!exists(".studyAreaName", .GlobalEnv)) {
-  .studyAreaName <- "LandWeb"
-}
-
-if (exists(".version", .GlobalEnv)) {
-  .version <- as.integer(.version)
-  stopifnot(.version %in% c(2L, 3L))
-} else {
-  .version <- 2L ## 3L
-}
-
-.ncores <- min(parallel::detectCores() / 2, 24L)
-.nodename <- Sys.info()[["nodename"]]
-.user <- Sys.info()[["user"]]
-
-if (.version == 2L) {
-  if (exists(".dispersalType", .GlobalEnv)) {
-    stopifnot(.dispersalType %in% c("default", "aspen", "high", "none"))
-  } else {
-    .dispersalType <- "high"
-  }
-
-  if (exists(".ROStype", .GlobalEnv)) {
-    stopifnot(.ROStype %in% c("default", "burny", "equal", "log"))
-  } else {
-    .ROStype <- "log"
-  }
-}
-#####
+# project setup (includes package installation etc.) ------------------------------------------
 
 prjDir <- "~/GitHub/LandWeb"
 
 stopifnot(identical(normalizePath(prjDir), normalizePath(getwd())))
 
+source("01a-globalvars.R")
+
 options(
   Ncpus = .ncores,
-  repos = c(CRAN = "https://cran.rstudio.com")
+  repos = c(CRAN = "https://cloud.r-project.org")
 )
 
-# install and load packages -------------------------------------------------------------------
-
-pkgDir <- file.path(tools::R_user_dir(basename(prjDir), "data"), "packages",
-                    version$platform, getRversion()[, 1:2])
-dir.create(pkgDir, recursive = TRUE, showWarnings = FALSE)
-.libPaths(pkgDir, include.site = FALSE)
-message("Using libPaths:\n", paste(.libPaths(), collapse = "\n"))
-
-if (!"tmpdir" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
-  remotes::install_github("achubaty/tmpdir")
-}
-
-## set new temp dir in scratch directory (existing /tmp too small for large callr ops in postprocessing)
-## see https://github.com/r-lib/callr/issues/172
-if (grepl("for-cast[.]ca", .nodename) && !grepl("larix", .nodename)) {
-  newTmpDir <- file.path("/mnt/scratch", .user, basename(prjDir), "tmp")
-  tmpdir::setTmpDir(newTmpDir, rmOldTempDir = TRUE)
-}
-
-if (!"remotes" %in% rownames(installed.packages(lib.loc = .libPaths()[1]))) {
-  install.packages("remotes")
-}
-
-Require.version <- "PredictiveEcology/Require@v0.2.6" ## use CRAN version
-if (!"Require" %in% rownames(installed.packages(lib.loc = .libPaths()[1])) ||
-    packageVersion("Require", lib.loc = .libPaths()[1]) < "0.2.6") {
-  remotes::install_github(Require.version)
-}
-
-library(Require)
-
-setLinuxBinaryRepo()
-
-Require("sf (>= 1.0.10)", repos = "https://r-spatial.r-universe.dev/",
-        require = FALSE, standAlone = TRUE, upgrade = FALSE) ## TODO: temporary until this version is on CRAN
-
-Require(c(
-  "PredictiveEcology/SpaDES.project@transition (>= 0.0.7.9003)", ## TODO: use development once merged
-  "PredictiveEcology/SpaDES.config@development (>= 0.0.2.9065)"
-), upgrade = FALSE, standAlone = TRUE)
-
-modulePkgs <- unname(unlist(packagesInModules(modulePath = file.path(prjDir, "m"))))
-otherPkgs <- c("archive", "details", "DBI", "s-u/fastshp",
-               "PredictiveEcology/LandR@dev-stable",
-               "logging",
-               "Rcpp (>= 1.0.10)", "RPostgres", "slackr",
-               "PredictiveEcology/reproducible@dev-stable (>= 1.2.16.9024)",
-               "PredictiveEcology/SpaDES.core@development (>= 1.1.1)",
-               "terra (>= 1.7-3)")
-
-Require(unique(c(modulePkgs, otherPkgs)), require = FALSE, standAlone = TRUE, upgrade = FALSE)
-
-## NOTE: always load packages LAST, after installation above;
-##       ensure plyr loaded before dplyr or there will be problems
-Require(c("data.table", "plyr", "pryr", "SpaDES.core",
-          "googledrive", "httr", "LandR", "LandWebUtils", "magrittr", "sessioninfo", "slackr"),
-        upgrade = FALSE, standAlone = TRUE)
+# source("01-setup.R") ## package installation; now done using `renv`
 
 # configure project ---------------------------------------------------------------------------
-
-## TODO: implement exptTbl stuff to pass values to config
-if (FALSE) {
-  fExptTbl <- file.path(prjDir, "experimentTable.csv")
-  if (!file.exists(fExptTbl)) {
-    exptTbl <- expand.grid(
-      .studyAreaName = c("ANC", "AlPac", "BlueRidge", "DMI", "Edson", "FMANWT",
-                         "LandWeb", "LP_BC", "LP_MB",
-                         "Manning", "MillarWestern", "Mistik", "SprayLake", "Sundre", "Tolko", ## TODO: check e.g. Tolko_SK etc.
-                         "Vanderwell", "WeyCo", "WestFraser",
-                         "provAB", "provMB", "provNWT", "provSK"),
-      delayStart = TRUE,
-      dispersalType = c("default"),
-      endTime = 1000,
-      forceResprout = c(FALSE),
-      friMultiple = c(1L),
-      pixelSize = 250,
-      rep = c(1L:15L, NA_integer_), ## NA for postprocessing runs
-      ROStype = c("default"),
-      succession = c(TRUE)
-    )
-    exptTbl$postProcessOnly <- FALSE
-
-    ## postprocessing runs -----------
-    exptTbl[is.na(exptTbl$rep), ]$postProcessOnly <- TRUE
-    exptTbl[is.na(exptTbl$rep), ]$delayStart <- FALSE
-
-    ## scheduling --------------------
-    exptTbl$._targetMachine <- NA
-    exptTbl[exptTbl$.studyAreaName %in% c("LandWeb", "provMB"), ]$._targetMachine <- "pseudotsuga.for-cast.ca"
-
-    exptTbl$._targetMemory <- NA
-
-    ## status and tracking -----------
-    ## TODO: populate these from completed sims for MB
-    exptTbl$._status <- NA ## "queued", "started", "completed", "error"
-    exptTbl$._runtime <- NA
-    exptTbl$._memory <- NA
-
-    write.csv(exptTbl, fExptTbl)
-  } else {
-    ## TODO: local csv; google sheet; database
-    #exptTbl <- getExperimentTable(fExptTbl)
-    exptTable <- read.csv(fExptTbl)
-  }
-}
-
-config <- SpaDES.config::useConfig(projectName = "LandWeb", projectPath = prjDir,
-                                   mode = .mode, rep = .rep, res = .res,
-                                   studyAreaName = .studyAreaName, version = .version)
-
-if (.version == 2) {
-  config$context[["dispersalType"]] <- .dispersalType
-  config$context[["ROStype"]] <- .ROStype
-
-  config$update()
-  config$validate()
-}
-
-## apply user and machine context settings here
-source("02-user-config.R")
-config$args <- config.user$args
-#config$modules <- config.user$modules ## no modules should differ among users/machines
-config$options <- config.user$options
-config$params <- config.user$params
-config$paths <- config.user$paths
-
-# print run info ------------------------------------------------------------------------------
-SpaDES.config::printRunInfo(config$context)
-config$modules
-
-# project paths -------------------------------------------------------------------------------
-config$paths
-stopifnot(identical(checkPath(config$paths[["projectPath"]]), getwd()))
-
-checkPath(config$paths[["logPath"]], create = TRUE) ## others will be created as needed below
-
-paths <- SpaDES.config::paths4spades(config$paths)
-
-# project options -----------------------------------------------------------------------------
-opts <- SpaDES.config::setProjectOptions(config)
-
-quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer())
-
-SpaDES.config::authGoogle(tryToken = "landweb", tryEmail = config$args[["cloud"]][["googleUser"]])
+source("02-configure.R")
 
 # begin simulations ---------------------------------------------------------------------------
 
@@ -352,6 +169,11 @@ if (config$context[["mode"]] != "postprocess") {
   ## NOTE: previous .useParallel value is too low for this module
   config$params[[".globals"]][[".useParallel"]] <- getOption("map.useParallel")
   config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.useParallel")
+
+  ## adjust N reps as needed:
+  if (config$context[["studyAreaName"]] == "LandWeb_full") {
+    config$params[["LandWeb_summary"]][["reps"]] <- 1L:50L
+  }
 
   getOption("map.maxNumCores") ## TODO: 48; why is this set so high??
   options(map.maxNumCores = .ncores)
