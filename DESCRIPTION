@@ -248,6 +248,7 @@ Imports:
     sass (== 0.4.5),
     satellite (== 1.0.4),
     scales (== 1.2.1),
+    SDMTools (== 1.1-221.2),
     servr (== 0.25),
     sessioninfo (== 1.2.2),
     sf (== 1.0-12),

@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.2",
+    "Version": "4.2.3",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -473,6 +473,18 @@
         "utils"
       ],
       "Hash": "3fa011aa2f087cf95d919b0190a874af"
+    },
+    "SDMTools": {
+      "Package": "SDMTools",
+      "Version": "1.1-221.2",
+      "Source": "URL",
+      "Repository": "CRAN",
+      "RemoteType": "url",
+      "RemoteUrl": "https://cran.r-project.org/src/contrib/Archive/SDMTools/SDMTools_1.1-221.2.tar.gz",
+      "Requirements": [
+        "R.utils"
+      ],
+      "Hash": "2b0fde55976a97f43e31d7bb1034bd79"
     },
     "SpaDES.config": {
       "Package": "SpaDES.config",
