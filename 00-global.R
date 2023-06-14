@@ -11,6 +11,13 @@ prjDir <- "~/GitHub/LandWeb"
 
 stopifnot(identical(normalizePath(prjDir), normalizePath(getwd())))
 
+## set new temp dir in scratch directory (existing /tmp too small for large callr ops in postprocessing)
+## see https://github.com/r-lib/callr/issues/172
+if (grepl("for-cast[.]ca", .nodename) && !grepl("larix", .nodename)) {
+  newTmpDir <- file.path("/mnt/scratch", .user, basename(prjDir), "tmp")
+  tmpdir::setTmpDir(newTmpDir, rmOldTempDir = TRUE)
+}
+
 source("01a-globalvars.R")
 
 options(
