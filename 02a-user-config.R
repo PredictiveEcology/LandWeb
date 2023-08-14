@@ -18,7 +18,8 @@ config.user <- switch(
       reproducible.cacheSaveFormat = "qs",
       reproducible.conn = SpaDES.config::dbConnCache("postgresql"),
       reproducible.useTerra = TRUE, ## TODO: add to config
-      spades.memoryUseInterval = FALSE ## TODO: temporary until callr/future cache bug fixed
+      spades.memoryUseInterval = FALSE, ## TODO: temporary until callr/future cache bug fixed
+      spades.useRequire = FALSE
     ),
     params = list(
       LandWeb_summary = list(

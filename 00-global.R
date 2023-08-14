@@ -3,13 +3,17 @@ if (file.exists("~/.Renviron")) readRenviron("~/.Renviron") ## GITHUB_PAT, etc.
 if (file.exists("LandWeb.Renviron")) readRenviron("LandWeb.Renviron") ## database credentials
 
 # use renv for package management -------------------------------------------------------------
-source("renv/activate.R")
+if (!grepl("renv", .libPaths()[1])) {
+  source("renv/activate.R")
+}
 
 # project setup (includes package installation etc.) ------------------------------------------
 
 prjDir <- "~/GitHub/LandWeb"
 
 stopifnot(identical(normalizePath(prjDir), normalizePath(getwd())))
+
+source("01a-globalvars.R")
 
 ## set new temp dir in scratch directory (existing /tmp too small for large callr ops in postprocessing)
 ## see https://github.com/r-lib/callr/issues/172
@@ -18,14 +22,23 @@ if (grepl("for-cast[.]ca", .nodename) && !grepl("larix", .nodename)) {
   tmpdir::setTmpDir(newTmpDir, rmOldTempDir = TRUE)
 }
 
-source("01a-globalvars.R")
-
 options(
   Ncpus = .ncores,
   repos = c(CRAN = "https://cloud.r-project.org")
 )
 
 # source("01-setup.R") ## package installation; now done using `renv`
+library("data.table")
+library("plyr")
+library("pryr")
+library("reproducible")
+library("SpaDES.core")
+library("googledrive")
+library("httr")
+library("LandR")
+library("LandWebUtils")
+library("notifications")
+library("sessioninfo")
 
 # configure project ---------------------------------------------------------------------------
 source("02-configure.R")
