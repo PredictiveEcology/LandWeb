@@ -76,7 +76,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "preamble"))
 
 if (isTRUE(attr(simOutPreamble, ".Cache")[["newCache"]])) {
-  simOutPreamble@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+  simOutPreamble@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
   saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
   saveSimList(simOutPreamble, preambleFile, fileBackend = 2)
 }
@@ -114,7 +114,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "speciesLayers"))
 
 if (isTRUE(attr(simOutSpeciesLayers, ".Cache")[["newCache"]])) {
-  simOutSpeciesLayers@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+  simOutSpeciesLayers@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
   saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
 }
 
@@ -155,7 +155,7 @@ if (config$context[["mode"]] != "postprocess") {
                           userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "dataPrep"))
 
   if (isTRUE(attr(simOutDataPrep, ".Cache")[["newCache"]])) {
-    simOutDataPrep@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+    simOutDataPrep@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
     ## TODO: enforce correct species table types (LandR#90)
     if (is(simOutDataPrep$species$postfireregen, "character")) {
       simOutDataPrep$species$postfireregen <- as.factor(simOutDataPrep$species$postfireregen)
@@ -246,7 +246,7 @@ if (config$context[["mode"]] != "postprocess") {
   })
 
   if (isTRUE(attr(simOutSummaries, ".Cache")[["newCache"]])) {
-    simOutSummaries@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+    simOutSummaries@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
     message("Saving simulation to: ", fsim)
     saveSimList(sim = simOutSummaries, filename = fsim, fileBackend = 2)
 

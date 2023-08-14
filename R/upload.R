@@ -1,6 +1,6 @@
-Require::Require("archive")
-Require::Require("furrr")
-Require::Require("googledrive")
+library("archive")
+library("furrr")
+library("googledrive")
 
 SpaDES.config::authGoogle(tryToken = "landweb")
 
@@ -74,7 +74,9 @@ archive::archive_write_dir(archive = z2, dir = file.path(outputPath, "histograms
 
 filesToUpload <- c(f0, f1, f2, z1, z2)
 
-runName_Results <- drive_ls(as_id("0AEyFltUAISU-Uk9PVA"))
+LandWeb_Results <- as_id("0AEyFltUAISU-Uk9PVA")
+
+runName_Results <- drive_ls(LandWeb_Results)
 
 gdrive_ID <- runName_Results[runName_Results[["name"]] == config$context[["runName"]], ][["id"]]
 
