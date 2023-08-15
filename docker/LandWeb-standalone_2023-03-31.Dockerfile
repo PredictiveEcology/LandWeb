@@ -16,9 +16,9 @@ ENV DEFAULT_USER=$USERNAME
 ## clone project repo and set up additional project directories
 WORKDIR /home/$DEFAULT_USER/GitHub
 
-ARG GH_ORG
-ARG GH_REPO
-ARG GH_TAG
+ARG GH_ORG=PredictiveEcology
+ARG GH_REPO=LandWeb
+ARG GH_TAG=development
 RUN --mount=type=ssh git clone --single-branch -b $GH_TAG \
       --recurse-submodules="." \
       --recurse-submodules=":(exclude)app" \
