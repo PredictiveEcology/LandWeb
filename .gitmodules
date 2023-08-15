@@ -38,3 +38,9 @@
 	path = m/timeSinceFire
 	url = https://github.com/fRI-Research/timeSinceFire
 	branch = development
+[submodule "m/LandWeb_summary"]
+	path = m/LandWeb_summary
+	url = https://github.com/PredictiveEcology/LandWeb_summary
+[submodule "m/HSI_Caribou_MB"]
+	path = m/HSI_Caribou_MB
+	url = https://github.com/FOR-CAST/HSI_Caribou_MB

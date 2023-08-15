@@ -4,8 +4,8 @@
 
 **Authors:**
 
-- Eliot McIntire (eliot.mcintire@canada.ca)
-- Alex M. Chubaty (achubaty@for-cast.ca)
+- Eliot McIntire (<eliot.mcintire@nrcan-rncan.gc.ca>)
+- Alex M. Chubaty (<achubaty@for-cast.ca>)
 
 **Date:** July 27, 2021
 
@@ -40,6 +40,7 @@ _Modules_
 - [fRI-Research/LandWeb_deploy](https://github.com/fRI-Research/LandWeb_deploy)
 - [fRI-Research/LandWeb_output](https://github.com/fRI-Research/LandWeb_output)
 - [fRI-Research/LandWeb_preamble](https://github.com/fRI-Research/LandWeb_preamble)
+- [PredictiveEcology/LandWeb_summary](https://github.com/PredictiveEcology/LandWeb_summary)
 - [fRI-Research/timeSinceFire](https://github.com/fRI-Research/timeSinceFire)
 
 _Packages_

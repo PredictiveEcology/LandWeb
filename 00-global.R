@@ -1,78 +1,285 @@
-if (file.exists(".Renviron")) readRenviron(".Renviron")
+# environment variables -----------------------------------------------------------------------
+if (file.exists("~/.Renviron")) readRenviron("~/.Renviron") ## GITHUB_PAT, etc.
+if (file.exists("LandWeb.Renviron")) readRenviron("LandWeb.Renviron") ## database credentials
 
-if (Sys.info()["sysname"] == "Linux" && grepl("Ubuntu", utils::osVersion)) {
-  .os.version <- system("lsb_release -cs", intern = TRUE)
-  options(repos = c(CRAN = paste0("https://packagemanager.rstudio.com/all/__linux__/", .os.version, "/latest")))
+# use renv for package management -------------------------------------------------------------
+if (!grepl("renv", .libPaths()[1])) {
+  source("renv/activate.R")
+}
+
+# project setup (includes package installation etc.) ------------------------------------------
+
+prjDir <- "~/GitHub/LandWeb"
+
+stopifnot(identical(normalizePath(prjDir), normalizePath(getwd())))
+
+source("01a-globalvars.R")
+
+## set new temp dir in scratch directory (existing /tmp too small for large callr ops in postprocessing)
+## see https://github.com/r-lib/callr/issues/172
+if (grepl("for-cast[.]ca", .nodename) && !grepl("larix", .nodename)) {
+  newTmpDir <- file.path("/mnt/scratch", .user, basename(prjDir), "tmp")
+  tmpdir::setTmpDir(newTmpDir, rmOldTempDir = TRUE)
 }
 
 options(
-  Ncpus = min(parallel::detectCores() / 2, 120),
-  repos = c(CRAN = "https://cran.rstudio.com"),
-  Require.RPackageCache = TRUE, ## will use default package cache directory: `RequirePkgCacheDir()`
-  Require.usepak = FALSE ## TODO: use TRUE
+  Ncpus = .ncores,
+  repos = c(CRAN = "https://cloud.r-project.org")
 )
 
-source("01-packages.R")
+# source("01-setup.R") ## package installation; now done using `renv`
+library("data.table")
+library("plyr")
+library("pryr")
+library("reproducible")
+library("SpaDES.core")
+library("googledrive")
+library("httr")
+library("LandR")
+library("LandWebUtils")
+library("notifications")
+library("sessioninfo")
 
-switch(Sys.info()[["user"]],
-       "achubaty" = Sys.setenv(R_CONFIG_ACTIVE = "alex"),
-       "emcintir" = Sys.setenv(R_CONFIG_ACTIVE = "eliot"),
-       "rstudio" = Sys.setenv(R_CONFIG_ACTIVE = "docker"), ## i.e., using LandWeb docker container
-       Sys.setenv(R_CONFIG_ACTIVE = "test")
+# configure project ---------------------------------------------------------------------------
+source("02-configure.R")
+
+# begin simulations ---------------------------------------------------------------------------
+
+do.call(SpaDES.core::setPaths, paths)
+
+if (config$args[["delayStart"]] > 0) {
+  message(crayon::green("\nStaggered job start: delaying by", config$args[["delayStart"]], "minutes."))
+  Sys.sleep(config$args[["delayStart"]]*60)
+}
+
+objects1 <- list()
+
+parameters1 <- list(
+  .globals = config$params[[".globals"]],
+  LandWeb_preamble = config$params[["LandWeb_preamble"]]
 )
-#Sys.getenv("R_CONFIG_ACTIVE") ## verify
 
-if (isFALSE(config::get("batchmode"))) {
-  runName <- paste0(
-    config::get("studyarea"),
-    "_", config::get("scenariodisp"),
-    "_", config::get("scenariofire"),
-    "_fri", config::get("frimultiple"),
-    "_res", 250 / config::get("mapresfact"),
-    if (isTRUE(config::is_active("test"))) "_test" else "",
-    if (isTRUE(config::get("postprocess"))) "" else sprintf("_rep%02g", config::get("rep"))
+preambleFile <- file.path(paths[["outputPath"]], paste0(
+  "simOutPreamble_", config$context[["studyAreaName"]], ".qs"
+))
+
+simOutPreamble <- Cache(simInitAndSpades,
+                        times = list(start = 0, end = 1),
+                        params = parameters1, ## TODO: use config$params
+                        modules = c("LandWeb_preamble"), ## TODO: use config$modules
+                        objects = objects1,
+                        paths = paths,
+                        debug = 1,
+                        omitArgs = c("debug", "paths", ".plotInitialTime"),
+                        useCloud = config$args[["cloud"]][["useCloud"]],
+                        cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+                        userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "preamble"))
+
+if (isTRUE(attr(simOutPreamble, ".Cache")[["newCache"]])) {
+  simOutPreamble@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
+  saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
+  saveSimList(simOutPreamble, preambleFile, fileBackend = 2)
+}
+
+# Species layers ------------------------------------------------------------------------------
+
+parameters2 <- list(
+  .globals = config$params[[".globals"]],
+  Biomass_speciesData = config$params[["Biomass_speciesData"]]
+)
+
+objects2 <- list(
+  #nonTreePixels = simOutPreamble[["nonTreePixels"]], ## TODO: confirm no longer required
+  rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
+  sppColorVect = simOutPreamble[["sppColorVect"]],
+  sppEquiv = simOutPreamble[["sppEquiv"]],
+  studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
+  studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
+)
+
+sppLayersFile <- file.path(paths[["outputPath"]], paste0(
+  "simOutSpeciesLayers_", config$context[["studyAreaName"]], ".qs"
+))
+
+simOutSpeciesLayers <- Cache(simInitAndSpades,
+                             times = list(start = 0, end = 1),
+                             params = parameters2, ## TODO: use config$params
+                             modules = c("Biomass_speciesData"),  ## TODO: use config$modules
+                             objects = objects2,
+                             paths = paths,
+                             debug = 1,
+                             omitArgs = c("debug", "paths", ".plotInitialTime"),
+                             useCloud = config$args[["cloud"]][["useCloud"]],
+                             cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+                             userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "speciesLayers"))
+
+if (isTRUE(attr(simOutSpeciesLayers, ".Cache")[["newCache"]])) {
+  simOutSpeciesLayers@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
+  saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
+}
+
+if (config$context[["mode"]] != "postprocess") {
+  # Boreal data prep + main sim -----------------------------------------------------------------
+  parameters2a <- list(
+    .globals = config$params[[".globals"]],
+    Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]]
   )
-}
-stopifnot(exists("runName", envir = .GlobalEnv)) ## run name should be set: e.g., see batch_runs.R
 
-runNamePostProcess <- strsplit(runName, "_")[[1]] %>%
-  grep("rep", ., value = TRUE, invert = TRUE) %>%
-  paste(., collapse = "_")
+  objects2a <- list(
+    cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+    rstLCC = simOutPreamble[["LCC"]],
+    rasterToMatch = simOutPreamble[["rasterToMatch"]],
+    rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
+    speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
+    speciesParams = simOutPreamble[["speciesParams"]],
+    speciesTable = simOutPreamble[["speciesTable"]],
+    sppColorVect = simOutPreamble[["sppColorVect"]],
+    sppEquiv = simOutPreamble[["sppEquiv"]],
+    standAgeMap = simOutPreamble[["CC TSF"]],
+    studyArea = simOutPreamble[["studyArea"]],
+    studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
+    studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
+  )
 
-message(crayon::red(runName))
+  dataPrepFile <- file.path(paths[["outputPath"]], paste0("simOutDataPrep_", config$context[["studyAreaName"]], ".qs"))
+  simOutDataPrep <- Cache(simInitAndSpades,
+                          times = list(start = 0, end = 1),
+                          params = parameters2a, ## TODO: use config$params
+                          modules = c("Biomass_borealDataPrep"), ## TODO: use config$modules
+                          objects = objects2a,
+                          paths = paths,
+                          debug = 1,
+                          omitArgs = c("debug", "paths", ".plotInitialTime"),
+                          useCloud = config$args[["cloud"]][["useCloud"]],
+                          cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+                          userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "dataPrep"))
 
-source("02-init.R")
-source("03-paths.R")
-source("04-options.R")
-source("05-sim-objects.R")
+  if (isTRUE(attr(simOutDataPrep, ".Cache")[["newCache"]])) {
+    simOutDataPrep@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
+    ## TODO: enforce correct species table types (LandR#90)
+    if (is(simOutDataPrep$species$postfireregen, "character")) {
+      simOutDataPrep$species$postfireregen <- as.factor(simOutDataPrep$species$postfireregen)
+    }
 
-if (delayStart > 0) {
-  message(crayon::green("\nStaggered job start: delaying by", as.integer(delayStart), "minutes."))
-  Sys.sleep(delayStart*60)
-}
-
-source("06-preamble.R")
-source("07-speciesLayers.R")
-
-message(crayon::red(runName))
-
-if (isFALSE(postProcessOnly)) {
-  source("08-borealDataPrep.R")
-  source("09-pre-sim.R")
-
-  if (isFALSE(usePOM)) {
-    source("10-main-sim.R")
-    #source("11-post-sim.R")
-  } else {
-    source("10a-POM.R") ## TODO: may not work out-of-the-box; untested!!
+    saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)
   }
+
+  source("10-main-sim.R")
 } else {
-  #mySimOut <- loadSimList(simFile("mySimOut", Paths$outputPath, 1000))
-  source("12-postprocessing.R")
+  ## postprocessing --------------------------------------------------------------------------------
+  if (grepl("Manning", config$context[["runName"]])) {
+    config$params[["timeSeriesTimes"]] <- 450:500
+  }
+
+  modules4 <- if (grepl("provMB", config$context[["studyAreaName"]])) {
+    list(
+      "HSI_Caribou_MB", ## TODO: add to config
+      "LandWeb_summary"
+    )
+  } else {
+    list(
+      "LandWeb_summary"
+    )
+  }
+
+  ## don't cache the init event
+  config$params[["HSI_Caribou_MB"]][[".useCache"]] <- c(".inputObjects", "postprocess")
+  config$params[["LandWeb_summary"]][[".useCache"]] <- c(".inputObjects", "animation", "postprocess")
+
+  ## NOTE: previous .useParallel value is too low for this module
+  config$params[[".globals"]][[".useParallel"]] <- getOption("map.useParallel")
+  config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.useParallel")
+
+  ## adjust N reps as needed:
+  if (config$context[["studyAreaName"]] == "LandWeb_full") {
+    config$params[["LandWeb_summary"]][["reps"]] <- 1L:50L
+  }
+
+  getOption("map.maxNumCores") ## TODO: 48; why is this set so high??
+  options(map.maxNumCores = .ncores)
+
+  parameters4 <- list(
+    .globals = config$params[[".globals"]],
+    HSI_caribou_MB = config$params[["HSI_Caribou_MB"]], ## TODO: add to config
+    LandWeb_summary = config$params[["LandWeb_summary"]]
+  )
+
+  objects4 <- list(
+    ml = simOutPreamble[["ml"]],
+    speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
+    sppColorVect = simOutPreamble[["sppColorVect"]],
+    sppEquiv = simOutPreamble[["sppEquiv"]]
+  )
+
+  outputs4 <- NULL
+
+  fsim <- simFile("simOutSummaries", paths[["outputPath"]], NULL, "qs")
+
+  tryCatch({
+    simOutSummaries <- Cache(simInitAndSpades,
+                             times = list(start = 0, end = 1),
+                             params = parameters4, ## TODO: use config$params
+                             modules = modules4, ## TODO: use config$modules
+                             #outputs = outputs4,
+                             objects = objects4,
+                             paths = paths,
+                             loadOrder = unlist(modules4), ## TODO: use config$modules
+                             #cl = cl, ## TODO: get parallel processing working !!!
+                             debug = list(file = list(file = file.path(config$paths[["logPath"]], "summaries.log"),
+                                                      append = TRUE), debug = 1),
+                             useCloud = FALSE, ## TODO param useCloud??
+                             cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+                             omitArgs = c("debug", "paths"),
+                             userTags = c(config$context[["runName"]], "postprocess"))
+    cat(capture.output(warnings()), file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"), sep = "\n")
+  }, error = function(e) {
+    if (requireNamespace("slackr") & file.exists("~/.slackr")) {
+      slackr::slackr_setup()
+      slackr::slackr_msg(
+        paste0("ERROR in post-processing `", config$context[["runName"]],
+               "` on host `", config$context[["machine"]], "`.\n",
+               "```\n", e$message, "\n```"),
+        channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
+      )
+      stop(e$message)
+    }
+  })
+
+  if (isTRUE(attr(simOutSummaries, ".Cache")[["newCache"]])) {
+    simOutSummaries@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
+    message("Saving simulation to: ", fsim)
+    saveSimList(sim = simOutSummaries, filename = fsim, fileBackend = 2)
+
+    # save simulation info ------------------------------------------------------------------------
+    relOutputPath <- SpaDES.config:::.getRelativePath(paths[["outputPath"]], prjDir)
+    rrFile <- file.path(relOutputPath, "INFO.md")
+    cat(SpaDES.config::printRunInfo(config$context), file = rrFile, sep = "")
+    cat(SpaDES.project::reproducibilityReceipt(), file = rrFile, sep = "\n", append = TRUE)
+
+    # save simulation stats -----------------------------------------------------------------------
+    elapsed <- elapsedTime(simOutSummaries)
+    data.table::fwrite(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.csv"))
+    qs::qsave(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.qs"))
+
+    if (!isFALSE(getOption("spades.memoryUseInterval"))) {
+      memory <- memoryUse(simOutSummaries, max = TRUE)
+      data.table::fwrite(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.csv"))
+      qs::qsave(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.qs"))
+    }
+  }
+
+  # archive and upload --------------------------------------------------------------------------
+  source("R/upload.R")
+
+  # end-of-sim notifications --------------------------------------------------------------------
+
+  if (requireNamespace("slackr") & file.exists("~/.slackr")) {
+    slackr::slackr_setup()
+    slackr::slackr_msg(
+      paste0("Post-processing for `", config$context[["runName"]], "` completed on host `", Sys.info()[["nodename"]], "`."),
+      channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
+    )
+  }
 }
 
 #source("11-post-sim.R")
-
-if (FALSE) {
-  source("13-old.R")
-}

@@ -151,7 +151,7 @@ mySim_landr <- Cache(simInit,
                      paths = paths3,
                      loadOrder = unlist(modules_landr),
                      useCloud = FALSE,
-                     cloudFolderID = cloudCacheFolderID,
+                     cloudFolderID = config$cloud$cacheDir,
                      omitArgs = c("debug", "paths", ".plotInitialTime")
 )
 

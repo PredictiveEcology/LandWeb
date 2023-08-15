@@ -1,50 +1,93 @@
-Require::Require("archive")
-Require::Require("googledrive")
+library("archive")
+library("furrr")
+library("googledrive")
 
-outputPath <- normalizePath(file.path("outputs", runName))
+SpaDES.config::authGoogle(tryToken = "landweb")
 
-#f1 <- list.files(outputPath, "[.]png")
+plan(multisession, workers = 8)
 
-z1 <- file.path(outputPath, paste0(runName, "_boxplots.7z"))
+#' Upload a folder to Google Drive
+#'
+#' Based on <https://github.com/tidyverse/googledrive/issues/200#issuecomment-1112766367>.
+#'
+#' Upload the contents of a folder (directory) to Google Drive recursively. The
+#' implementation is depth-first. Only uploads objects that have type "file" or
+#' "directory" according to `fs::dir_info()`; ignores types "symlink", "FIFO",
+#' "socket", "character_device" or "block_device".
+#'
+#' @param folder The local folder that is to be uploaded, given as a path e.g. with `fs::path()`.
+#'   The folder and its contents are uploaded.
+#'
+#' @param drive_path The destination folder on Google Drive, given as a URL, file id, or dribble
+#'
+#' @return A dribble of the uploaded files (not directories though.)
+drive_upload_folder <- function(folder, drive_path) {
+  ## avoid curl HTTP2 framing layer error:
+  ## per https://github.com/tidyverse/googlesheets4/issues/233#issuecomment-889376499
+  old <- httr::set_config(httr::config(http_version = 2)) ## corresponds to CURL_HTTP_VERSION_1_1
+  on.exit(httr::set_config(old), add = TRUE)
+
+  SpaDES.config::authGoogle(tryToken = "landweb") ## TODO
+
+  ## Only call fs::dir_info once in order to avoid weirdness if the contents of the folder is changing
+  contents <- fs::dir_info(folder, type = c("file", "dir"))
+  dirs_to_upload <- contents %>%
+    dplyr::filter(type == "directory") %>%
+    dplyr::pull(path)
+
+  folderIDs <- drive_ls(drive_path)
+  fid <- folderIDs[folderIDs[["name"]] == basename(folder), "id"][[1]]
+  if (length(fid) == 0) {
+    fid <- drive_mkdir(basename(folder), drive_path)[["id"]]
+  }
+
+  # Directly upload the files
+  uploaded_files <- contents %>%
+    dplyr::filter(type == "file") %>%
+    dplyr::pull(path) %>%
+    furrr::future_map_dfr(googledrive::drive_put, path = fid)
+
+  # Create the next level down of directories
+  furrr::future_map2_dfr(dirs_to_upload, fid, drive_upload_folder) %>%
+    dplyr::bind_rows(uploaded_files) %>%
+    invisible() ## return a dribble of what's been uploaded
+}
+
+outputPath <- normalizePath(file.path("outputs", config$context[["runName"]]))
+
+d1 <- file.path(outputPath, "boxplots")
+d2 <- file.path(outputPath, "histograms")
+
+dirsToUpload <- c(d1, d2)
+
+f0 <- file.path(outputPath, "INFO.md")
+f1 <- list.files(file.path(outputPath), "[.]csv", full.names = TRUE)
+f2 <- list.files(file.path(outputPath, "figures"), "[.]png", full.names = TRUE)
+
+z1 <- file.path(outputPath, paste0(config$context[["runName"]], "_boxplots.7z"))
 archive::archive_write_dir(archive = z1, dir = file.path(outputPath, "boxplots"),
                            full.names = FALSE, recursive = TRUE)
 
-z2 <- file.path(outputPath, paste0(runName, "_histograms.7z"))
+z2 <- file.path(outputPath, paste0(config$context[["runName"]], "_histograms.7z"))
 archive::archive_write_dir(archive = z2, dir = file.path(outputPath, "histograms"),
                            full.names = FALSE, recursive = TRUE)
 
-filesToUpload <- c(#f1,
-                   z1, z2)
+filesToUpload <- c(f0, f1, f2, z1, z2)
 
-gdrive_ID <- switch(runName,
-                    AlPac_highDispersal_logROS = "1Fmg9i070XHBRK6ScOixQZXNcZL6wtv9C",
-                    ANC_aspenDiseprsal_logROS = "1aGzdCQJvE0L76ROEdxv09qzeEJQp2s4A",
-                    BlueRidge_highDispersal_logROS = "1Lq6oNT0qG3P_HaTzjOi_VVR3IpdM9Say",
-                    DMI_aspenDispersal_logROS = "1BMAKr_vuR3ZDnVKsRRDvckMVMhLoaSB0",
-                    Edson_highDispersal_logROS = "14PKDcEZGorhLkaDQv5rF0-qD3bbWzixn",
-                    FMANWT_highDispersal_logROS = "10BkqSRr5m5d1LQvT21ZmJUoi4EXKcyik",
-                    FMANWT2_highDispersal_logROS = "1ZdBmICjA6pINzZ8KFIngU9QmjQDUDlxo",
-                    LandWeb_highDispersal_logROS = "1k6MCpSiLEDSeys2_8mn9jc6DrKAlcgXL",
-                    LP_BC_highDispersal_logROS = "1dnLS3XC89eg0-olNnHLZhtO-8R7qt_UO",
-                    LP_MB_aspenDispersal_logROS = "18cd1rFWh-k-IvQjiwtiiAjRRBDKm1BPf",
-                    Manning_highDispersal_logROS = "10NzbpAEDDTUHmId2DA_Z7hWwOaZbRtzo",
-                    MillarWestern_highDispersal_logROS = "13J0aOUpIQPgnXl1w_PavBU7NLPC2wRXc",
-                    Mistik_highDispersal_logROS = "1X6QgcBq8usDBLjtqoEQsP5W4yRi1of4Y",
-                    provAB_highDispersal_logROS = "1qQW5osWLb1PaLjRIh64CnEqlxTKRl0Ar",
-                    provNWT_highDispersal_logROS = "11kYmwV2jWi6S8XZ1i056nNSH9qOGfF7_",
-                    provSK_highDispersal_logROS = "1PbmS3HH2WRN5NMg7htm-Xb0-DV4AgAWt",
-                    Sundre_highDispersal_logROS = "1yMwGxHwKiY2umY7RcqRGpLDV14S8Z_sv",
-                    Tolko_AB_N_aspenDispersal_logROS = "1ssKmOEhBY25mGWH5VH4WcxBwCIc1Sigt",
-                    Tolko_AB_S_aspenDispersal_logROS = "1gVQUs9HhQvu-gg1YPklfRFIyQ5FCOfNb",
-                    Tolko_SK_aspenDispersal_logROS = "1-u8MnaPfIrOTqZ0qqa4ZJJxX6iXOxy77",
-                    Vanderwell_highDispersal_logROS = "1HCzpKDrskhwa8_jXabnlauwJBSqjr2-l",
-                    WestFraser_N_highDispersal_logROS = "1Fqm6g1x45Db7j4oqG2BPp6ck3ARkjaYF",
-                    WestFraser_S_highDispersal_logROS = "1lX2Gleal7mr-yDqOXo8om83Yna5liCyi",
-                    WeyCo_GP_highDispersal_logROS = "1eBXczso7svpWY3fv152lf1vKapla-axn",
-                    WeyCo_PT_highDispersal_logROS = "16A8TI1PZWyyGFKOEDY9qb-ydHnH6SeHm",
-                    WeyCo_SK_highDispersal_logROS = "1XWe0eMOEvGXMOoapzcDzGWhu1ctsg8_T"
-)
+LandWeb_Results <- as_id("0AEyFltUAISU-Uk9PVA")
+
+runName_Results <- drive_ls(LandWeb_Results)
+
+gdrive_ID <- runName_Results[runName_Results[["name"]] == config$context[["runName"]], ][["id"]]
+
+if (length(gdrive_ID) == 0) {
+  gdrive_ID <- drive_mkdir(name = config$context[["runName"]], LandWeb_Results)[["id"]]
+}
 
 lapply(filesToUpload, function(f) {
-  drive_upload(file.path("outputs", runName, f), as_id(gdrive_ID), overwrite = TRUE)
+  drive_put(f, as_id(gdrive_ID))
+})
+
+lapply(dirsToUpload, function(d) {
+  drive_upload_folder(d, gdrive_ID)
 })

@@ -57,7 +57,7 @@ parallel::stopCluster(cl)
 setDTthreads(8)
 allFireSizes[, simArea := cleanAreaName(simArea)]
 
-fAllFireSizes <- file.path(outputDir, "allFireSizes.csv")
+fAllFireSizes <- file.path(outputDir, paste0("allFireSizes_", Sys.Date(), ".csv"))
 fwrite(allFireSizes, fAllFireSizes)
 
 googledrive::drive_update(file = googledrive::as_id("1lJtPJ4IfzUsMqcEeYCDXvX2MbrtqAySK"),

@@ -88,7 +88,7 @@ burnDT <- parallel::parLapplyLB(cl = cl, simAreas, function(area) {
 
 parallel::stopCluster(cl)
 
-fAreaBurned <- file.path(outputDir, "areaBurned.csv")
+fAreaBurned <- file.path(outputDir, paste0("areaBurned_", Sys.Date(), ".csv"))
 
 fwrite(burnDT, fAreaBurned)
 
