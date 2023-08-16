@@ -29,7 +29,7 @@ WORKDIR /home/$DEFAULT_USER/GitHub/$GH_REPO
 
 RUN mkdir cache inputs outputs
 
-RUN Rscript -e 'options(Ncpus = min(32, parallel::detectCores() / 2));; renv::restore()'
+RUN Rscript -e 'options(Ncpus = min(32, parallel::detectCores() / 2)); renv::restore()'
 
 ## set default project (https://stackoverflow.com/a/53547334/1380598)
 RUN mkdir -p /home/$DEFAULT_USER/.rstudio/projects_settings
