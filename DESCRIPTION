@@ -278,7 +278,7 @@ Imports:
     slackr (== 3.2.0),
     sourcetools (== 0.1.7-1),
     sp (== 1.6-0),
-    SpaDES.config (== 0.0.2.9065),
+    SpaDES.config (== 0.0.2.9070),
     SpaDES.core (== 1.1.1),
     SpaDES.project (== 0.0.7.9004),
     SpaDES.tools (== 1.0.2),
