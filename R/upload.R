@@ -27,12 +27,10 @@ drive_upload_folder <- function(folder, drive_path) {
   old <- httr::set_config(httr::config(http_version = 2)) ## corresponds to CURL_HTTP_VERSION_1_1
   on.exit(httr::set_config(old), add = TRUE)
 
-  SpaDES.config::authGoogle(tryToken = "landweb") ## TODO
-
   ## Only call fs::dir_info once in order to avoid weirdness if the contents of the folder is changing
   contents <- fs::dir_info(folder, type = c("file", "dir"))
-  dirs_to_upload <- contents %>%
-    dplyr::filter(type == "directory") %>%
+  dirs_to_upload <- contents |>
+    dplyr::filter(type == "directory") |>
     dplyr::pull(path)
 
   folderIDs <- drive_ls(drive_path)
@@ -42,14 +40,14 @@ drive_upload_folder <- function(folder, drive_path) {
   }
 
   # Directly upload the files
-  uploaded_files <- contents %>%
-    dplyr::filter(type == "file") %>%
-    dplyr::pull(path) %>%
+  uploaded_files <- contents |>
+    dplyr::filter(type == "file") |>
+    dplyr::pull(path) |>
     furrr::future_map_dfr(googledrive::drive_put, path = fid)
 
   # Create the next level down of directories
-  furrr::future_map2_dfr(dirs_to_upload, fid, drive_upload_folder) %>%
-    dplyr::bind_rows(uploaded_files) %>%
+  furrr::future_map2_dfr(dirs_to_upload, fid, drive_upload_folder) |>
+    dplyr::bind_rows(uploaded_files) |>
     invisible() ## return a dribble of what's been uploaded
 }
 
@@ -89,5 +87,6 @@ lapply(filesToUpload, function(f) {
 })
 
 lapply(dirsToUpload, function(d) {
+  SpaDES.config::authGoogle(tryToken = "landweb") ## TODO: is re-auth needed?
   drive_upload_folder(d, gdrive_ID)
 })

@@ -46,4 +46,3 @@ RUN ln -s $MNT_INPUTS ./inputs \
 RUN groupmod --gid $USER_GID $DEFAULT_USER \
     && usermod --uid $USER_UID --gid $USER_GID $DEFAULT_USER \
     && chown -R $USER_UID:$USER_GID /home/$DEFAULT_USER
-
