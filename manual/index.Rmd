@@ -1,0 +1,116 @@
+---
+title: "LandWeb Manual"
+subtitle: "`r paste('v.', Sys.getenv('LANDWEB_MAN_VERSION'))`"
+author: "Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison" 
+date: "`r Sys.Date()`"
+description: "A manual for the LandWeb ecosystem of SpaDES modules"
+documentclass: krantz
+site: bookdown::bookdown_site
+github-repo: PredictiveEcology/LandWeb
+url: 'https\://predictiveecology.github.io/LandWeb'
+knit: "bookdown::render_book"
+bibliography:
+  - citations/references.bib
+csl: citations/ecology-letters.csl
+biblatexoptions: [refsegment=chapter]
+link-citations: true
+#cover-image: "figures/LandWeb_gg.png"
+always_allow_html: true
+colorlinks: yes
+graphics: yes
+fontsize: 11pt
+lot: yes
+lof: yes
+---
+
+# Overview {-}
+
+:::{.rmdimportant}
+This manual is a live document which is automatically updated as changes are made to to underlying model code and documentation.
+:::
+
+## Background
+
+<!--
+## Historic Natural Range of Variation
+
+Lorem ipsum ... (TODO)
+-->
+
+## The LandWeb Model
+
+LandWeb is the first large scale, data-driven approach to simulating historic natural range of variation (H/NRV) (<https://landweb.ca>).
+In developing the model, analyses, as well as the infrastructure to host data, we strove to implement a single, reproducible workflow to facilitate running simulations, analyses, and model reuse and future expansion.
+This tight linkage between data and simulation model is made possible via its implementation using the `SpaDES` family of packages [@ChubatyMcIntire2019] within the R Statistical Language and Environment [@R-base].
+For more information about `SpaDES`, see <https://spades.predictiveecology.org/>.
+
+The LandWeb model integrates two well-used models for forest stand succession and wildfire simulation, implemented in the `SpaDES` simulation platform as a collection of submodels (implement as `SpaDES` modules).
+Vegetation dynamics are modeled using the LandR Biomass suite of modules, which reimplement the LANDIS-II Biomass Succession model [@SchellerMladenoff2004; @Scheller2007] in R.
+Wildfire dynamics are modeled using an implementation of LandMine [@Andison:1996; @Andison:1998].
+Simulations were run for the entire LandWeb study area, which spans most of the western Canadian boreal forest.
+A summary of the results are presented using a web app, which can be run locally.
+
+```{r landwebStudyArea, eval = TRUE, echo = FALSE, fig.align = "center", fig.cap = "LandWeb study area (blue) with mountain and boreal caribou ranges highlighted (pink).", fig.width = 6, out.width = "90%"}
+knitr::include_graphics(Require::normPath(c("figures/LandWeb_gg.png")))
+```
+
+### Data preparation
+
+Input data were derived from multiple sources, including several publicly available as well as proprietary datasets.
+
+Detailed descriptions of these sources are provided in the relevant sections of this manual.
+
+#### Public data sources
+
+- Land Cover Classification 2005 map (no longer available from Government of Canada's Open Data website);
+- LANDIS-II species traits: <https://github.com/dcyr/LANDIS-II_IA_generalUseFiles>;
+- LANDIS-II parameterization tables and data: <https://github.com/LANDIS-II-Foundation/Extensions-Succession-Archive/master/biomass-succession-archive/trunk/tests/v6.0-2.0/>;
+- Canada biomass, stand volume, and species data [from @BeaudoinEtAl2014]: <http://tree.pfc.forestry.ca>;
+- National ecodistrict polygons: <http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip>;
+- National ecoregion polygons: <http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip>;
+- National ecozone polygons: <http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip>.
+
+#### Proprietary data sources
+
+All proprietary data used by for the model are stored in an access-controlled Google Drive location.
+
+- biomass by species maps created by Pickell & Coops [-@Pickell:2016] resolution 100m x 100m from LandSat and kNN based on CASFRI;
+- various reporting polygons used to summarize model results in the app.
+
+To request access, please contact Alex Chubaty ([achubaty\@for-cast.ca](mailto:achubaty@for-cast.ca){.email}).
+
+### Vegetation dynamics
+
+Vegetation growth and succession are modeled using a re-implementation of the LANDIS-II Biomass model, a widely used and well-documented dynamic vegetation succession model [@SchellerMladenoff2004; @Scheller2007].
+Our re-implemented model largely follows the original LANDIS-II source code (v 3.6.2; @SchellerMiranda2015), but with some modifications with respect to species traits parameterization.
+This model simulates landscape-scale forest dynamics in a spatio-temporally explicit manner, using cohorts of tree species within each pixel.
+Multiple ecological processes are captured by the model, including vegetation growth, mortality, seed dispersal, and post-disturbance regeneration.
+
+This submodel is described in further detail in [Vegetation submodel].
+
+### Wildfire dynamics
+
+Wildfire is simulated using a re-implementation of the fire submodel of Andison's [-@Andison:1996; -@Andison:1998] `LandMine` model of landscape disturbance.
+
+This submodel is described in further detail in [Wildfire submodel].
+
+### Summary maps and statistics
+
+Summaries are derived from simulation outputs, and consist of maps showing the time since fire as well as histogram summaries of 1) number of large patches (i.e., patches above the number of hectares specified by the user) contained within the selected spatial area; and 2) the vegetation cover within the selected spatial area.
+Histograms are provided for each spatial area by polygon, age class, and species.
+Authorized users can additionally overlay current stand conditions onto these histograms.
+Simulation outputs are summarized for several publicly available reporting polygons (including Alberta Natural Ecoregions and Caribou Ranges).
+
+These are described in further detail in [Model outputs].
+
+### LandWeb app
+
+Using the web app is described in [Web app].
+
+<!-- TODO: flesh out this description -->
+
+## Previous Manual Versions
+
+If available, archived copies of previous manual versions are available from the links below.
+
+-   [LandR Manual v3.0.0](archive/pdf/LandWeb-manual-v3.0.0.pdf) (*current*)

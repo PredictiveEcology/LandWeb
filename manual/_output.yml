@@ -1,0 +1,39 @@
+bookdown::bs4_book:
+  css: css/style.css
+  download: ["pdf", "epub"]
+  edit: null
+  footnotes_inline: false
+  repo:
+    base: https://github.com/PredictiveEcology/LandWeb
+    branch: master
+  split_bib: false       # otherwise refs printed twice
+  theme:
+    fg: "#2b2121"
+    bg: "#ffffff"
+    primary: "#01665e"   # default .rmdnote = blue ("#0d6efd")
+    danger:  "#dc3545"   # default .rmdcaution = red ("#dc3545")
+    success: "#198754"   # default .rmdimportant = green ("#198754")
+    info:    "#0dcaf0"   # default .rmdtip = cyan ("#0dcaf0")
+    warning: "#ffc107"   # default .rmdwarning = yellow ("#ffc107")
+
+bookdown::pdf_book:
+  includes:
+    in_header: latex/preamble.tex
+    # before_body: latex/before_body.tex
+    after_body: latex/after_body.tex
+  citation_package: biblatex
+  dev: "cairo_pdf"
+  fig_crop: false
+  highlight_bw: false
+  latex_engine: xelatex
+  # pandoc_args: [--top-level-division=chapter, --wrap=none]
+  pandoc_args: --top-level-division=chapter
+  quote_footer: ["\\VA{", "}{}"]
+  template: null
+  toc_depth: 3
+  toc_unnumbered: false
+  toc_appendix: true
+
+bookdown::epub_book:
+  dev: svglite
+  stylesheet: css/style.css

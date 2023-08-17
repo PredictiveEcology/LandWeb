@@ -1,0 +1,398 @@
+# Getting started
+
+## Prerequisites
+
+:::{.rmdnote}
+**Minimum system requirements:**
+
+-   Windows 10, macOS 10.13 High Sierra, or Ubuntu 20.04 LTS;
+-   20 GB of storage space, plus additional storage for model outputs;
+-   128 GB RAM to run the model over the full area (less for sub-areas);
+-   High-speed internet connection.
+:::
+
+The following section provides details on installing prerequisite software for running LandWeb.
+
+### Docker
+
+:::{.rmdwarning}
+**If you prefer to not use Docker, skip this subsection.**
+
+Due to idiosyncratic difficulties of installing multiple pieces of software and ensuring the correct versions are used throughout, we provide prebuilt Docker (<https://www.docker.com/>) images, which better provides a consistent and reproducible software environment for running the model.
+
+Thus, using these images are preferred over 'bare-metal' installation.
+:::
+
+Install Docker for your system following <https://docs.docker.com/get-docker/>.
+
+Next, pull the image from Docker Hub:
+
+```bash
+## get the image
+docker pull achubaty/landweb-standalone:2023-03-31
+
+## launch a new container based on thi image
+docker run -d -it \
+  -e GITHUB_PAT=$(cat ${HOME}/.Renviron | grep GITHUB_PAT | cut -d '=' -f 2) \
+  -e PASSWORD='<mySecretPassword>' \
+  --memory=128g \
+  --cpus=32 \
+  -p 127.0.0.1:8080:8787 \
+  --name LandWeb-standalone_2023-03-31 \
+  achubaty/landweb-standalone:2023-03-31
+```
+
+Once the container is running, open your web browser and go to `localhost:8080`.
+
+Login to the Rstudio session as user `rstudio` and password `<mySecretPassword>` (change this password when launching container above).
+
+Once finished, you can stop and destroy the container:
+
+```bash
+docker stop landweb-standalone:2023-03-31
+docker rm landweb-standalone:2023-03-31
+```
+
+### Development tools
+
+#### Windows
+
+`Rtools` provides the necessary compilers etc. to build and install R packages from source on Windows.
+
+Download[^1] and install `Rtools` version 4.2 *as administrator*.
+During installation, be sure to check the option to add `Rtools` to your `PATH`.
+
+[^1]: <https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html>
+
+#### macOS
+
+##### Xcode command line tools
+
+To build software, you will need the Xcode command line tools[^5], which include various compilers and `git` version control software.
+
+[^5]: <https://developer.apple.com/downloads/>
+
+```zsh
+xcode-select --install
+```
+
+##### `homebrew` package manager
+
+Next, install `homebrew` which provides a package manager for macOS.
+This will facilitate software updates and will handle various package dependency issues automatically.
+
+```zsh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+#### Ubuntu Linux
+
+```bash
+sudo apt-get update
+
+sudo apt-get -y install \
+    build-essential \
+    ccache \
+    curl \
+    libarchive-dev \
+    libcairo2-dev \
+    libcurl4-openssl-dev \
+    libgit2-dev \
+    libglpk-dev \
+    libgmp3-dev \
+    libicu-dev \
+    libjq-dev \
+    libmagick++-dev \
+    libnode-dev \
+    libpng-dev \
+    libprotobuf-dev \
+    libprotoc-dev \
+    libssh2-1-dev \
+    libssl-dev \
+    libxml2-dev \
+    libxt-dev \
+    make \
+    pandoc pandoc-citeproc \
+    protobuf-compiler \
+    sysstat \
+    wget \
+    xauth \
+    xfonts-base \
+    xvfb \
+    zlib1g-dev
+```
+
+### Geospatial libraries
+
+In order to work with geospatial data, recent versions of `GDAL`, `PROJ`, and `GEOS` geospatial libraries need to be available on your system.
+
+#### Windows
+
+No additional should be needed, as recent versions of R geospatial packages include pre-bundled versions of `GDAL`, `PROJ`, and `GEOS`.
+
+#### macOS
+
+Use `homebrew` to install the required geospatial software libraries:
+
+```zsh
+brew install pkg-config
+brew install gdal
+# brew install geos
+# brew install proj
+brew install udunits
+```
+
+#### Ubuntu Linux
+
+The default Ubuntu 20.04 LTS package repositories ship older versions of the geospatial libraries we will be using, so we will need to to add some additional repositories to get the latest versions.
+
+```bash
+## add GIS repository
+sudo add-apt-repository ppa:ubuntugis-unstable/ppa
+sudo apt-get update
+```
+
+Install additional system dependencies that serve as prerequisites for running the LandWeb model in R.
+
+```{r get-sysdeps-pkgs, eval = FALSE, include = FALSE}
+## get list of apt package dependencies using e.g.,
+remotes::system_requirements("ubuntu", "20.04", "~/GitHub/PredictiveEcology/SpaDES.core")
+```
+
+```bash
+sudo apt-get -y install \
+    gdal-bin \
+    libgdal-dev \
+    libgeos-dev \
+    libproj-dev \
+    libudunits2-dev \
+    python3-gdal
+```
+
+Optionally, we install `mapshaper` geospatial library which is used to speed up polygon simplification.
+
+```bash
+## mapshaper installation
+sudo apt-get remove -y libnode-dev
+
+curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+
+sudo apt install nodejs
+sudo npm install npm@latest -g
+sudo npm install -g mapshaper
+```
+
+### `git`, Git Kraken, and GitHub
+
+`git` is the version control software used throughout this project, and is required to 'checkout' specific versions of the code as well as to make changes and 'push' these changes to the model code repository.
+
+1. Install the latest version of `git` from <https://git-scm.com/downloads> or via your package manager.
+    
+    :::{.rmdimportant}
+    Windows users should install *as administrator*.
+    Use `nano` (instead of `vi`/`vim`) as the default text editor.
+    For all other choices, use the recommended settings.
+    
+    For macOS users, `git` is included with the Xcode command line tools.
+    :::
+
+2. Create a GitHub (<https://github.com>) account if you don't already have one, and configure a Personal Access Token (PAT).
+
+    :::{.rmdwarning}
+    A GitHub (<https://github.com>) account is required to assist with package installation and accessing model code.
+    :::
+
+    Several packages used by LandWeb are only available on GitHub.
+    Because we will be installing several of these, we want to ensure we can do so without GitHub rate-limiting our requests.
+    Without a PAT, some packages may *temporarily* fail to install, but can be retried a little later (usually 1 hour).
+    
+    a.  Create a GitHub PAT following the instructions[^GH_PAT];
+    b.  Be sure to uncheck all scopes.
+    c.  Copy this token and save it in a text file in your home directory called `.Renviron`.
+    
+        ```bash
+        ## ~/.Renviron
+        GITHUB_PAT=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        ```
+    
+        If you are not sure where your home directory is located, run the following in an R session: 
+    
+        ```r
+        Sys.getenv("HOME")
+        ```
+
+3.  *Optional.* Install the latest version of `GitKraken` from <https://www.gitkraken.com/download/>.
+
+    :::{.rmdimportant}
+    The free version is sufficient to access the public repositories used in this project.
+    However, the paid pro version is required to access private repositories.
+    :::
+    
+[^GH_PAT]: <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>
+
+### R and Rstudio
+
+1. Download and install R version 4.2.3.
+
+    :::{.rmdimportant}
+    **Windows**
+    
+    1. Download R from <https://cran.r-project.org/bin/windows/base/R-4.2.3-win.exe>;
+    2. Install R *as administrator*.
+    
+    **macOS**
+    
+    1. Install `rig` (<https://github.com/r-lib/rig>) to manage multiple R installations.
+
+    ```zsh
+    brew tap r-lib/rig
+    brew install --cask rig
+    
+    ## e.g., M1/M2 mac users, install the arm version
+    rig install 4.2-arm64
+    
+    ## start Rstudio using a specific R version:
+    rig rstudio 4.2-arm64
+    ```
+
+    ***Ubuntu Linux**
+    1. Add the CRAN `apt` repository to get the required version of R.
+    
+    ```bash
+    ## add R repository
+    sudo sh -c 'echo "deb https://cran.rstudio.com/bin/linux/ubuntu focal-cran40/" > \
+        /etc/apt/sources.list.d/cran.list'
+    sudo apt-key adv --keyserver keyserver.ubuntu.com \
+        --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+    
+    sudo apt-get update
+    ```
+    
+    2. Install R version 4.2.3
+    
+    :::{.rmdcaution}
+    **This is out of date, as R 4.3 is the most recent version of R.**
+    
+    To install previous versions of R see <https://github.com/achubaty/r-config/blob/master/using-multiple-R-versions-on-linux.Rmd> or use `rig` (<https://github.com/r-lib/rig>). 
+    :::
+    
+    ```bash
+    ## install R
+    sudo apt-get -y install r-base r-base-dev r-cran-littler 
+    sudo apt-get build-dep -y r-cran-rjava r-cran-tkrplot
+    sudo R CMD javareconf
+    ```
+
+2. Download and install the latest version of Rstudio from <https://www.rstudio.com/products/rstudio/download/>.
+
+    :::{.rmdimportant}
+    Windows users should install Rstudio *as administrator*.
+    :::
+
+3. (optional) On Linux, configure `ccache` to speed up R package re-installation and updates[^6].
+
+    ```bash
+    ## configure ccache for R package installation
+    mkdir -p ~/.ccache
+    mkdir -p ~/.R
+    { echo 'VER='; \
+      echo 'CCACHE=ccache'; \
+      echo 'CC=$(CCACHE) gcc$(VER)'; \
+      echo 'CXX=$(CCACHE) g++$(VER)'; \
+      echo 'CXX11=$(CCACHE) g++$(VER)'; \
+      echo 'CXX14=$(CCACHE) g++$(VER)'; \
+      echo 'FC=$(CCACHE) gfortran$(VER)'; \
+      echo 'F77=$(CCACHE) gfortran$(VER)'; } >> ~/.R/Makevars
+    { echo 'max_size = 5.0G'; \
+      echo 'sloppiness = include_file_ctime'; \
+      echo 'hash_dir = false'; } >> ~/.ccache/ccache.conf
+    ```
+
+[^6]: <http://dirk.eddelbuettel.com/blog/2017/11/27/#011_faster_package_installation_one>
+
+## Getting the code
+
+All modules are written in R and all model code was developed collaboratively using GitHub (<https://github.com>), with each module contained in its own repository.
+Code that is shared among modules was bundled into R packages, and hosted in on GitHub repositories.
+All package code is automatically and regularly tested using cross-platform continuous integration frameworks to ensure the code is reliable and free of errors.
+
+```bash
+mkdir -p ~/GitHub
+cd ~/GitHub
+
+## get development branch (app and deploy are private submodules)
+git clone --single-branch -b development \
+  --recurse-submodules="." \
+  --recurse-submodules=":(exclude)app" \
+  --recurse-submodules=":(exclude)deploy" \
+  -j8  https://github.com/PredictiveEcology/LandWeb
+```
+
+**NOTE:** the `app` and `deploy` submodule repos are *private*.
+
+## Project directory structure
+
+Model code is organized by the following directories and summarized in the table below.
+
+**NOTE:** it may be useful to store data in a different location, but to map this location back to the e.g., `cache/`, `inputs/`, and/or `outputs/` directories using symbolic links.
+See R's `?file.link` to set these up on your machine.
+
+```{r dir-structure, echo = FALSE, eval = TRUE}
+data.frame(
+  directory = fs::dir_ls("~/GitHub/LandWeb", recurse = 0, type = c("directory", "symlink")) |>
+    fs::path_file() |>
+    paste0("/"),
+  description = c(
+    "additional R helper scripts",                             ## R/
+    "web-app code (git submodule; private repo)",              ## app/
+    "all per-run and per-study area cache files stored here",  ## cache/
+    "web-app deployment code (git submodule; private repo)",   ## deploy/
+    "Dockerfiles, scripts, and documentation",                 ## docker/
+    "rendered model and app documentation",                    ## docs/
+    "all model data inputs stored here",                       ## inputs/
+    "module code (git submodules)",                            ## m/
+    "raw files for generating documentation manual",           ## manual/
+    "all per-run model outputs stored here",                   ## outputs/
+    "project package management directory"                     ## renv/
+  )
+) |> 
+  knitr::kable(caption = "LandWeb project directory structure",
+               format = "latex", booktabs = TRUE) |> 
+  kableExtra::kable_styling(latex_options = c("striped", "scale_down"))
+```
+
+## Updating the code
+
+After having cloned the LandWeb code repository, users can keep up-to-date using their preferred graphical git tools (*e.g.*, GitKraken) or from the command line.
+
+### Using GitKraken
+
+```{r gitkraken-screen, eval = TRUE, echo = FALSE, fig.align = "center", fig.cap = "Screenshot showing showing code commits in Git Kraken. The submodules pane is highlighted on the bottom left.", fig.width = 6, out.width = "90%"}
+knitr::include_graphics(Require::normPath(c("figures/gitkraken1.png")))
+```
+
+1.  Open the LandWeb repo, and after a few moments you will see the commit history update to reflect the latest changes on the server.
+
+2.  'Pull' in the latest changes to this repo, noting that the status of the git submodules (left hand side) may change.
+
+3.  If any submodules have changed status, for each one, right-click and select 'Update <module name>'.
+
+### Using the command line
+
+**WARNING:** experienced git users only!
+
+```bash
+git pull
+git submodule update --recursive
+```
+
+## Data requirements
+
+In order to access and use the proprietary data in LandWeb simulations, you will need to be granted access to the shared Google Drive directory.
+During first-run of the model, all required data will be downloaded to the `inputs/` directory.
+
+To request access, please contact Alex Chubaty ([achubaty\@for-cast.ca](mailto:achubaty@for-cast.ca){.email}).
+
+## Getting help
+
+- <https://github.com/PredictiveEcology/LandWeb/issues>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 2 LandR LandWeb_preamble Module | LandWeb Manual</title>
+<meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
+<meta name="description" content="2.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Alex M. Chubaty achubaty@for-cast.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut]   2.1 Module Overview  2.1.1...">
+<meta name="generator" content="bookdown 0.34 with bs4_book()">
+<meta property="og:title" content="Chapter 2 LandR LandWeb_preamble Module | LandWeb Manual">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://predictiveecology.github.io/LandWeb/landr-landweb_preamble-module.html">
+<meta property="og:description" content="2.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Alex M. Chubaty achubaty@for-cast.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut]   2.1 Module Overview  2.1.1...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 2 LandR LandWeb_preamble Module | LandWeb Manual">
+<meta name="twitter:description" content="2.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Alex M. Chubaty achubaty@for-cast.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut]   2.1 Module Overview  2.1.1...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="v. 3.0.0">LandWeb Manual</a>:
+        <small class="text-muted">v. 3.0.0</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Overview</a></li>
+<li><a class="" href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></li>
+<li><a class="" href="study-areas.html">Study areas</a></li>
+<li><a class="active" href="landr-landweb_preamble-module.html"><span class="header-section-number">2</span> LandR LandWeb_preamble Module</a></li>
+<li><a class="" href="vegetation-submodel.html">Vegetation submodel</a></li>
+<li><a class="" href="landr-biomass_core-module.html"><span class="header-section-number">3</span> LandR Biomass_core Module</a></li>
+<li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
+<li><a class="" href="model-outputs.html">Model outputs</a></li>
+<li><a class="" href="web-app.html">Web app</a></li>
+<li><a class="" href="references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/PredictiveEcology/LandWeb">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landr-landweb_preamble-module" class="section level1" number="2">
+<h1>
+<span class="header-section-number">2</span> LandR <em>LandWeb_preamble</em> Module<a class="anchor" aria-label="anchor" href="#landr-landweb_preamble-module"><i class="fas fa-link"></i></a>
+</h1>
+<div id="authors" class="section level4" number="2.0.0.1">
+<h4>
+<span class="header-section-number">2.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors"><i class="fas fa-link"></i></a>
+</h4>
+<p>Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut, cre], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [aut], Ceres Barros <a href="mailto:cbarros@mail.ubc.ca" class="email">cbarros@mail.ubc.ca</a> [aut]
+<!-- ideally separate authors with new lines, '\n' not working --></p>
+</div>
+<div id="module-overview" class="section level2" number="2.1">
+<h2>
+<span class="header-section-number">2.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview"><i class="fas fa-link"></i></a>
+</h2>
+<div id="module-summary" class="section level3" number="2.1.1">
+<h3>
+<span class="header-section-number">2.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary"><i class="fas fa-link"></i></a>
+</h3>
+<p>Set up study areas and parameters for LandWeb simulations.</p>
+</div>
+</div>
+<div id="parameters" class="section level2" number="2.2">
+<h2>
+<span class="header-section-number">2.2</span> Parameters<a class="anchor" aria-label="anchor" href="#parameters"><i class="fas fa-link"></i></a>
+</h2>
+<p>Provide a summary of user-visible parameters.</p>
+<div class="inline-table"><table class="table table-sm">
+<colgroup>
+<col width="6%">
+<col width="3%">
+<col width="4%">
+<col width="1%">
+<col width="1%">
+<col width="81%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">paramName</th>
+<th align="left">paramClass</th>
+<th align="left">default</th>
+<th align="left">min</th>
+<th align="left">max</th>
+<th align="left">paramDesc</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">bufferDist</td>
+<td align="left">numeric</td>
+<td align="left">25000</td>
+<td align="left">20000</td>
+<td align="left">1e+05</td>
+<td align="left">Study area buffer distance (m) used to make studyArea.</td>
+</tr>
+<tr class="even">
+<td align="left">bufferDistLarge</td>
+<td align="left">numeric</td>
+<td align="left">50000</td>
+<td align="left">20000</td>
+<td align="left">1e+05</td>
+<td align="left">Study area buffer distance (m) used to make studyAreaLarge.</td>
+</tr>
+<tr class="odd">
+<td align="left">forceResprout</td>
+<td align="left">logical</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">
+<code>TRUE</code> forces all species to resprout, setting <code>resproutage_min</code> to zero, <code>resproutage_max</code> to 400, and <code>resproutProb</code> to 1.0.</td>
+</tr>
+<tr class="even">
+<td align="left">friMultiple</td>
+<td align="left">numeric</td>
+<td align="left">1</td>
+<td align="left">0.5</td>
+<td align="left">2</td>
+<td align="left">Multiplication factor for adjusting fire return intervals.</td>
+</tr>
+<tr class="odd">
+<td align="left">dispersalType</td>
+<td align="left">character</td>
+<td align="left">default</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">One of ‘aspen’, ‘high’, ‘none’, or ‘default’.</td>
+</tr>
+<tr class="even">
+<td align="left">minFRI</td>
+<td align="left">numeric</td>
+<td align="left">40</td>
+<td align="left">0</td>
+<td align="left">200</td>
+<td align="left">The value of fire return interval below which, pixels will be changed to <code>NA</code>, i.e., ignored</td>
+</tr>
+<tr class="odd">
+<td align="left">pixelSize</td>
+<td align="left">numeric</td>
+<td align="left">250</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Pixel size in metres. Should be one of 250, 125, 50, 25.</td>
+</tr>
+<tr class="even">
+<td align="left">ROStype</td>
+<td align="left">character</td>
+<td align="left">default</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">One of ‘burny’, ‘equal’, ‘log’, or ‘default’.</td>
+</tr>
+<tr class="odd">
+<td align="left">treeClassesLCC</td>
+<td align="left">integer</td>
+<td align="left">1, 2, 3,….</td>
+<td align="left">0</td>
+<td align="left">39</td>
+<td align="left">AKA forestedLCCClasses. The classes in the LCC2005 layer that are considered ‘trees’ from the perspective of LandR-Biomass.</td>
+</tr>
+<tr class="even">
+<td align="left">treeClassesToReplace</td>
+<td align="left">numeric</td>
+<td align="left">34, 35, 36</td>
+<td align="left">0</td>
+<td align="left">39</td>
+<td align="left">The transient classes in the LCC2005 layer that will become ‘trees’ from the perspective of LandR-Biomass (e.g., burned)</td>
+</tr>
+<tr class="odd">
+<td align="left">.plotInitialTime</td>
+<td align="left">numeric</td>
+<td align="left">0</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">This describes the simulation time at which the first plot event should occur</td>
+</tr>
+<tr class="even">
+<td align="left">.plotInterval</td>
+<td align="left">numeric</td>
+<td align="left">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">This describes the simulation time interval between plot events</td>
+</tr>
+<tr class="odd">
+<td align="left">.plots</td>
+<td align="left">character</td>
+<td align="left">object</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Passed to <code>types</code> in <code>Plots</code> (see <code>?Plots</code>). There are a few plots that are made within this module, if set. Note that plots (or their data) saving will ONLY occur at <code>end(sim)</code>. If <code>NA</code>, plotting is turned off completely (this includes plot saving).</td>
+</tr>
+<tr class="even">
+<td align="left">.saveInitialTime</td>
+<td align="left">numeric</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">This describes the simulation time at which the first save event should occur</td>
+</tr>
+<tr class="odd">
+<td align="left">.saveInterval</td>
+<td align="left">numeric</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">This describes the simulation time interval between save events</td>
+</tr>
+<tr class="even">
+<td align="left">.sslVerify</td>
+<td align="left">integer</td>
+<td align="left">64</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Passed to <code>httr::config(ssl_verifypeer = P(sim)$sslVerify)</code> when downloading KNN (NFI) datasets. Set to 0L if necessary to bypass checking the SSL certificate (this may be necessary when NFI’s website SSL certificate is not correctly configured).</td>
+</tr>
+<tr class="odd">
+<td align="left">.studyAreaName</td>
+<td align="left">character</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Human-readable name for the study area used. If <code>NA</code>, a hash of <code>studyAreaLarge</code> will be used.</td>
+</tr>
+<tr class="even">
+<td align="left">.useCache</td>
+<td align="left">logical</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div id="data-dependencies" class="section level2" number="2.3">
+<h2>
+<span class="header-section-number">2.3</span> Data dependencies<a class="anchor" aria-label="anchor" href="#data-dependencies"><i class="fas fa-link"></i></a>
+</h2>
+<div id="input-data" class="section level3" number="2.3.1">
+<h3>
+<span class="header-section-number">2.3.1</span> Input data<a class="anchor" aria-label="anchor" href="#input-data"><i class="fas fa-link"></i></a>
+</h3>
+<p>Description of the module inputs.</p>
+<div class="inline-table"><table style="width:100%;" class="table table-sm">
+<colgroup>
+<col width="12%">
+<col width="28%">
+<col width="47%">
+<col width="11%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">objectName</th>
+<th align="left">objectClass</th>
+<th align="left">desc</th>
+<th align="left">sourceURL</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="left">canProvs</td>
+<td align="left">SpatialPolygonsDataFrame</td>
+<td align="left">Canadian provincial boundaries shapefile</td>
+<td align="left">NA</td>
+</tr></tbody>
+</table></div>
+</div>
+<div id="output-data" class="section level3" number="2.3.2">
+<h3>
+<span class="header-section-number">2.3.2</span> Output data<a class="anchor" aria-label="anchor" href="#output-data"><i class="fas fa-link"></i></a>
+</h3>
+<p>Description of the module outputs.</p>
+<div class="inline-table"><table class="table table-sm">
+<colgroup>
+<col width="4%">
+<col width="4%">
+<col width="90%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">objectName</th>
+<th align="left">objectClass</th>
+<th align="left">desc</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">CC TSF</td>
+<td align="left">RasterLayer</td>
+<td align="left">Time since fire (aka age) map derived from Current Conditions data.</td>
+</tr>
+<tr class="even">
+<td align="left">fireReturnInterval</td>
+<td align="left">RasterLayer</td>
+<td align="left">fire return interval raster</td>
+</tr>
+<tr class="odd">
+<td align="left">LandTypeCC</td>
+<td align="left">RasterLayer</td>
+<td align="left">Land Cover Classification map derived from Current Conditions data.</td>
+</tr>
+<tr class="even">
+<td align="left">ml</td>
+<td align="left">map</td>
+<td align="left">
+<code>map</code> object containing study areas, reporting polygons, etc. for post-processing.</td>
+</tr>
+<tr class="odd">
+<td align="left">LCC</td>
+<td align="left">RasterLayer</td>
+<td align="left">A key output from this module: it is the result of LandR::overlayLCCs on LCC2005 and LandTypeCC</td>
+</tr>
+<tr class="even">
+<td align="left">nonTreePixels</td>
+<td align="left">integer</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">rasterToMatch</td>
+<td align="left">RasterLayer</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">rasterToMatchLarge</td>
+<td align="left">RasterLayer</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">rasterToMatchReporting</td>
+<td align="left">RasterLayer</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">ROSTable</td>
+<td align="left">data.table</td>
+<td align="left">A data.table with 3 columns, ‘age’, ‘leading’, and ‘ros’. The values under the ‘age’ column can be ‘mature’, ‘immature’, ‘young’ and compound versions of these, e.g., ‘immature_young’ which can be used when 2 or more age classes share same ‘ros’. ‘leading’ should be vegetation type. ‘ros’ gives the rate of spread values for each age and type.</td>
+</tr>
+<tr class="odd">
+<td align="left">rstFlammable</td>
+<td align="left">RasterLayer</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">speciesParams</td>
+<td align="left">list</td>
+<td align="left">list of updated species trait values to be used to updated <code>speciesTable</code> to create <code>species</code>.</td>
+</tr>
+<tr class="odd">
+<td align="left">speciesTable</td>
+<td align="left">data.table</td>
+<td align="left">a table of invariant species traits with the following trait colums: ‘species’, ‘Area’, ‘longevity’, ‘sexualmature’, ‘shadetolerance’, ‘firetolerance’, ‘seeddistance_eff’, ‘seeddistance_max’, ‘resproutprob’, ‘resproutage_min’, ‘resproutage_max’, ‘postfireregen’, ‘leaflongevity’, ‘wooddecayrate’, ‘mortalityshape’, ‘growthcurve’, ‘leafLignin’, ‘hardsoft’. Names can differ, but not the column order. Default is from Dominic Cyr and Yan Boulanger’s project.</td>
+</tr>
+<tr class="even">
+<td align="left">sppColorVect</td>
+<td align="left">character</td>
+<td align="left">A named vector of colors to use for plotting. The names must be in <code>sim$sppEquiv[['LandWeb']]</code>, and should also contain a color for ‘Mixed’</td>
+</tr>
+<tr class="odd">
+<td align="left">sppEquiv</td>
+<td align="left">data.table</td>
+<td align="left">table of species equivalencies. See <code><a href="https://landr.predictiveecology.org/reference/sppEquivalencies_CA.html">LandR::sppEquivalencies_CA</a></code>.</td>
+</tr>
+<tr class="even">
+<td align="left">studyArea</td>
+<td align="left">SpatialPolygonsDataFrame</td>
+<td align="left">Polygon to use as the simulation study area.</td>
+</tr>
+<tr class="odd">
+<td align="left">studyAreaLarge</td>
+<td align="left">SpatialPolygonsDataFrame</td>
+<td align="left">Polygon to use as the parametrisation study area. Note that <code>studyAreaLarge</code> is only used for parameter estimation, and can be larger than the actual study area used for LandR simulations (e.g, larger than <code>studyArea</code> in LandR Biomass_core).</td>
+</tr>
+<tr class="even">
+<td align="left">studyAreaReporting</td>
+<td align="left">SpatialPolygonsDataFrame</td>
+<td align="left">multipolygon (typically smaller/unbuffered than <code>studyAreaLarge</code> and <code>studyArea</code> in LandR Biomass_core) to use for plotting/reporting.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div id="links-to-other-modules" class="section level2" number="2.4">
+<h2>
+<span class="header-section-number">2.4</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules"><i class="fas fa-link"></i></a>
+</h2>
+<p>Originally developed for use with the LandR Biomass suite of modules, with LandMine fire model.
+## References
+</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="study-areas.html">Study areas</a></div>
+<div class="next"><a href="vegetation-submodel.html">Vegetation submodel</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#landr-landweb_preamble-module"><span class="header-section-number">2</span> LandR LandWeb_preamble Module</a></li>
+<li>
+<a class="nav-link" href="#module-overview"><span class="header-section-number">2.1</span> Module Overview</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#module-summary"><span class="header-section-number">2.1.1</span> Module summary</a></li></ul>
+</li>
+<li><a class="nav-link" href="#parameters"><span class="header-section-number">2.2</span> Parameters</a></li>
+<li>
+<a class="nav-link" href="#data-dependencies"><span class="header-section-number">2.3</span> Data dependencies</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#input-data"><span class="header-section-number">2.3.1</span> Input data</a></li>
+<li><a class="nav-link" href="#output-data"><span class="header-section-number">2.3.2</span> Output data</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#links-to-other-modules"><span class="header-section-number">2.4</span> Links to other modules</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/../m/LandWeb_preamble/LandWeb_preamble2.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/../m/LandWeb_preamble/LandWeb_preamble2.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-17.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

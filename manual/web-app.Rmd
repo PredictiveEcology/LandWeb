@@ -1,0 +1,10 @@
+# Web app {-}
+
+:::{.rmdnote}
+As of spring 2023, fRI Research no longer hosts the LandWeb App.
+However, with appropriate access to the output data, the app may be run in a local `shiny` instance.
+:::
+
+Previously available from <https://landweb.ca>.
+
+<!-- TODO: flesh this out based on previous documentation -->

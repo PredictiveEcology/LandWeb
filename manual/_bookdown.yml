@@ -1,0 +1,28 @@
+book_filename: LandWeb_manual
+repo: https://github.com/PredictiveEcology/LandWeb
+output_dir: "../docs"
+before_chapter_script: common.R
+#after_chapter_script: "script3.R"
+language:
+  ui:
+    chapter_name: "Chapter "
+delete_merged_file: true
+rmd_files:
+  - index.Rmd
+  - getting-started.Rmd
+#  - running-landweb.Rmd
+  - study-areas.Rmd
+  - ../m/LandWeb_preamble/LandWeb_preamble2.Rmd
+  - vegetation-submodel.Rmd
+#  - ../m/Biomass_speciesData/Biomass_speciesData2.Rmd
+#  - ../m/Biomass_borealDataPrep/Biomass_borealDataPrep2.Rmd
+  - ../m/Biomass_core/Biomass_core2.Rmd
+#  - ../m/Biomass_regeneration/Biomass_regeneration2.Rmd
+  - fire-submodel.Rmd
+  #- ../m/LandMine/LandMine2.Rmd
+  - model-outputs.Rmd
+#  - ../m/LandWeb_output/LandWeb_output2.Rmd
+#  - ../m/timeSinceFire/timeSinceFire2.Rmd
+#  - ../m/LandWeb_summary/LandWeb_summary2.Rmd
+  - web-app.Rmd
+  - references.Rmd

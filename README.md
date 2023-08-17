@@ -5,9 +5,9 @@
 **Authors:**
 
 - Eliot McIntire (<eliot.mcintire@nrcan-rncan.gc.ca>)
-- Alex M. Chubaty (<achubaty@for-cast.ca>)
+- Alex M. Chubaty (<achubaty@for-cast.ca>) [maintainer]
 
-**Date:** July 27, 2021
+**Date:** August 15, 2023
 
 ### Getting the code
 
@@ -16,9 +16,6 @@ Code that is shared among modules was bundled into R packages, and hosted in ope
 All package code is automatically and regularly tested using cross-platform continuous integration frameworks to ensure the code is reliable and free of errors.
 
 ```bash
-## master branch
-git clone --recurse-submodules -j8 https://github.com/PredictiveEcology/LandWeb
-
 ## development branch
 git clone --single-branch -b development \
   --recurse-submodules="." \
@@ -33,11 +30,10 @@ _Modules_
 
 - [PredictiveEcology/Biomass_borealDataPrep](https://github.com/PredictiveEcology/Biomass_borealDataPrep)
 - [PredictiveEcology/Biomass_core](https://github.com/PredictiveEcology/Biomass_core)
-- [PredictiveEcology/Biomass_speciesData](https://github.com/PredictiveEcology/Biomass_speciesData)
 - [PredictiveEcology/Biomass_regeneration](https://github.com/PredictiveEcology/Biomass_regeneration)
+- [PredictiveEcology/Biomass_speciesData](https://github.com/PredictiveEcology/Biomass_speciesData)
+- [FOR-CAST/HSI_Caribou_MB](https://github.com/FOR-CAST/HSI_Caribou_MB)
 - [PredictiveEcology/LandMine](https://github.com/PredictiveEcology/LandMine)
-- [fRI-Research/LandWeb_app](https://github.com/fRI-Research/LandWeb_app)
-- [fRI-Research/LandWeb_deploy](https://github.com/fRI-Research/LandWeb_deploy)
 - [fRI-Research/LandWeb_output](https://github.com/fRI-Research/LandWeb_output)
 - [fRI-Research/LandWeb_preamble](https://github.com/fRI-Research/LandWeb_preamble)
 - [PredictiveEcology/LandWeb_summary](https://github.com/PredictiveEcology/LandWeb_summary)
@@ -60,7 +56,6 @@ devtools::has_devel()
 ```
 
 The code is mostly self-sufficient: additional packages than those below are needed, but will be installed automatically.
-See `03-packages.R` to see which additional packages will be used.
 
 #### Overview
 

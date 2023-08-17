@@ -1,0 +1,238 @@
+# Running LandWeb
+
+1. Launch Rstudio and open the LandWeb Rstudio project (`LandWeb.Rproj`);
+2. Open the file `00-global.R` and run each line in sequence, responding to any prompts as required.
+
+:::{.rmdwarning}
+Before you can run the model, you first need to install the packages required for the project by restoring from the project's snapshot file.
+
+```r
+renv::restore()
+```
+:::
+
+## Model setup and configuration
+
+```r{setup-running-landweb, echo=FALSE, eval=TRUE, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, results = "hold") ## change to eval = TRUE if all chunks are to be evaluated
+
+library("ggplot2")
+library("sf")
+```
+
+The `runName` of the model is used to configure several model run options, including the study area and the default sets of parameters used.
+It follows the general format:
+
+```
+studyArea_scenarios_repXX
+```
+
+A `runName` must be set in order to run the model, which, in an interactive session is best done by editing the `config.yml` file.
+
+### Select a study area
+
+The model can be run over the entire study area, for certain individual provinces (currently only AB, SK, NWT), or groups of predefined FMAs (see Fig. 1 and Table 1).
+
+#### FMA boundaries
+
+Currently, only a subset of the FMAs within the LandWeb study area are predefined to be run on their own (i.e., without needing to run the model over the entire study area; see Table 2).
+
+\newpage
+\blandscape
+
+<!-- TODO: fix this code block! -->
+
+```{r fma-map, echo = FALSE, eval = FALSE, fig.keep = 'all', out.width = '90%', results = 'hide', fig.cap = "\\label{fig:fma-map} FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs."}
+canProvs <- geodata::gadm(country = "CAN", level = 1, path = "data") |>
+  sf::st_as_sf()
+lwProvs <- c("British Columbia", "Alberta", "Saskatchewan", "Manitoba")
+
+fshp2 <- file.path("~/GitHub/LandWeb/inputs/FMA_Boundaries",
+                   "FMA_Boundary_CustomProj/FMA_Boundary_Updated.shp")
+sf2 <- sf::st_read(fshp2)
+centroids_sf2 <- cbind(sf::st_centroid(sf2), sf::st_coordinates(sf::st_centroid(sf2$geometry)))
+
+ggplot(data = sf2) +
+  geom_sf(data = canProvs[canProvs$NAME_1 %in% lwProvs, ]) +
+  geom_sf(mapping = aes(fill = as.factor(OBJECTID_1 %% 10))) +
+  scale_fill_brewer(type = "div", palette = "Spectral") +
+  geom_text(data = centroids_sf2, mapping = aes(x = X, y = Y, label = OBJECTID_1), size = 2) + 
+  labs(title = "FMA boundaries within the LandWeb study area") + 
+  xlab("Longitude") +
+  ylab("Latitude") + 
+  guides(fill = FALSE) +
+  theme_bw()
+```
+
+\elandscape
+\newpage
+
+```{r fma-table, echo = FALSE, eval = TRUE}
+data.frame(ID = sf2$OBJECTID_1, Name = sf2$Name) |>
+  knitr::kable(caption = "FMA polygon IDs (from Figure 1) and their corresponding FMA names.",
+               format = "latex", booktabs = TRUE, longtable = TRUE) |>
+  kableExtra::kable_styling(latex_options =  c("striped", "repeat_header")) # font_size = 10
+```
+
+#### Choosing a study area
+
+The model can be run on any of several pre-defined study areas summarized in the table below.
+To select one of these predefined study areas, set `runName` to use one of the following, corresponding to the polygon IDs in the map above.
+
+```{r studyarea-table, echo = FALSE, eval = TRUE}
+knitr::kable(read.csv("data/studyAreas.csv", stringsAsFactors = FALSE),
+             caption = "Model study areas with corresponding FMA polygon IDs (from Figure 1).",
+             format = "latex", booktabs = TRUE) |>
+  kableExtra::kable_styling(latex_options = "striped") # font_size = 10
+```
+
+To run LandWeb over an entire province use one of `provAB`, `provNWT`, or `provSK`.
+
+To run the entire LandWeb study area, use `LandWeb`.
+
+\newpage
+
+### Select a scenario
+
+In version 2.0.0 of the LandWeb model, seed dispersal distances needed to be adjusted to ensure sufficient regeneration following fire.
+These adjustments cause the model to behave more like a state-transition model, rather than a process-based one. 
+
+**Dispersal Scenario** | **Description**
+-----------------------|----------------------------------------------------------------------------
+`aspenDispersal`       | limit seed dispersal to deciduous only
+`highDispersal`        | high seed dispersal of all species (used for v2.0.0 runs)
+`noDispersal`          | no seed dispersal (all species)
+
+Furthermore, the fire return intervals (FRI) and rates of spread (ROS) of fires were also adjusted.
+
+**Fire Scenario** | **Description**
+------------------|---------------------------------------------------------------------------------
+`doubleFRI`       | Double all fire return intervals (i.e., less frequent fires)
+`equalROS`        | Set all rates of fire spread equal to each other (no vegetation differences)
+`logROS`          | Reduce the rates of spread but keep the magnitude of vegetation differences
+
+To run the model 'as-is' (i.e., without modifying the dispersal or fire scenarios), do not include one of these scenarios in the run name.
+
+### Replication
+
+To run multiple replicates of a given run, append `_repXX` to the `runName`, where `XX` is a two-digit run number.
+All replicate runs use a different random seed, and this seed is saved as on output for reuse in the event that a replicate needs to be rerun.
+To rerun a replicate using a different seed, be sure to delete that run's `seed.rds` file.
+The seed used is also saved in human-readable `seed.txt` file.
+
+To define a scenario to run, select one dispersal scenario and one fire scenario from the tables above.
+All LandWeb v2.0.0 runs from 2019 were run using:
+
+```{r runName}
+runName <- "studyArea_highDispersal_logROS_repXX"
+```
+
+## Running the model
+
+**NOTE:** The first time the model is run, it will automatically download additional data and install additional R packages, which can take some time to complete.
+
+### Interactive R session
+
+When working in an R session, be sure to set the working directory to the LandWeb project directory.
+The first time running the model, open the file `00-global.R`, and step through each line to ensure any prompts etc. are answered correctly.
+
+```{r interactive-runs}
+source("00-global.R")
+```
+
+### Commandline interface
+
+In addition to running the model in an interactive R session, we provide a commandline interface to run replicates of the model for the study areas defined above (i.e., batch mode).
+
+For example, to run replicate number 7 of the model at $250 m$ resolution using FRI multiple of $1$ for Alberta FMU L11, use:
+
+```{bash batch-runs-fmu}
+cd ~/GitHub/LandWeb
+
+## ./run_fmu.sh <FMU> <FRI> <RES> <REP>
+./run_fmu.sh L11 1 250 7
+```
+
+FMU commandline runs do not use modified dispersal nor fire scenarios, and thus only require the study area, replicate, and FRI multiple to be defined.
+
+To run replicate number 7 of the model for the entire province of Alberta, use:
+
+```{bash batch-runs-fma}
+cd ~/GitHub/LandWeb
+
+## ./run_fma.sh <FMU> <REP>
+./run_fma.sh provAB 7
+# ./run_fma_win.sh provAB 7 ## if on Windows!
+```
+
+FMA commandline runs use `highDispersal_logROS` scenarios at $250 m$ resolution, and thus only require the study area and replicate to be defined.
+
+To run the entire LandWeb study area, only a replicate number needs to be passed.
+For example:
+
+```{bash batch-runs-landweb}
+## ./run_landweb.sh <REP>
+./run_landweb.sh 7
+```
+
+LandWeb commandline runs use `highDispersal_logROS` scenarios at $250 m$ resolution, and thus only require the study area and replicate to be defined.
+
+## Changing model config values
+
+The `config.yml` file sets several options defining how the model is run.
+These configuration values are read early in the initialization of the model run, and are summarized in Table 5.
+
+```{r config-vars, echo = FALSE, eval = TRUE}
+yml <- yaml::read_yaml("~/GitHub/LandWeb/config.yml", eval.expr = TRUE)
+
+config_df <- data.frame(
+  value = unlist(yml$default),
+  description = c(
+    "logical indicating whether to run in batch mode.",
+    "the cache database backend to use ('sqlite', default; or 'postgresql')",
+    "a Google Drive folder to use for cloud-based caching ",
+    "Google email address to use for authentication for proprietary data download",
+    "logical indicating whether to use cloud-based caching",
+    "time used to delay the start of the simulation (to avoid race conditions running multiple sims)",
+    "fire return interval multiplier",
+    "path to local github package repositories",
+    "map resolution factor (one of 1, 2, 5; results in pixels sizes of 250, 125, 50 m respectively)",
+    "path to the active (LandWeb) project directory",
+    "path to the cache directory",
+    "path to the temporary scratch directory",
+    "logical indicating whether to plot to screen",
+    "logical indicating whether to run post-processing only on pre-run simulations",
+    "replicate number",
+    "study area name",
+    "dispersal scenario name",
+    "fire scenario name",
+    "logical indicating whether to restart R during simulations (true is untested)",
+    "LandWeb version to use"
+  ),
+  stringsAsFactors = FALSE
+)
+
+knitr::kable(config_df, caption = "Description of model configuration parameters in `config.yml`.",
+             format = "latex", booktabs = TRUE) |> 
+  kableExtra::kable_styling(latex_options = c("striped", "scale_down"))
+```
+
+## Cache options
+
+Simulation caching is provided by the `reproducible` and `SpaDES.core` packages, and is enabled by default.
+
+The default cache uses a SQLite database backend; however, other backends can also be used.
+More advanced users running multiple parallel simulations may wish to set up and use a PostgreSQL database for this cache.
+
+## Post-processing analyses
+
+After having run several reps of the model on a given study area, results are combined in subsequent post-processing analyses to generate the following outputs:
+
+- boxplots of leading vegetation cover;
+- histograms of leading vegetation cover;
+- histograms of large patches.
+
+## Additional Resources
+
+Resources for (re)learning R and spatial data:
+- <https://rspatial.org>
