@@ -1,11 +1,9 @@
-## This manual must be knitted by running this script
-
-if (file.exists("~/.Renviron")) readRenviron("~/.Renviron") ## GITHUB_PAT
-
-## packages -----------------------------------------
+## this manual must be knitted by running this script
 
 prjDir <- "~/GitHub/LandWeb"
-manDir <- file.path(prjDir, "manual")
+manDir <- file.path(prjDir, "manual") ## raw files; rendered manual in docs/ (see _bookdown.yml)
+
+bibDir <- Require::checkPath(file.path(manDir, "citations"), create = TRUE)
 figDir <- Require::checkPath(file.path(prjDir, "figures"), create = TRUE)
 
 options(
@@ -24,7 +22,6 @@ library("SpaDES.docs")
 ## references ---------------------------------------
 
 ## automatically create a bib database for R packages
-bibDir <- Require::checkPath(file.path(manDir, "citations"), create = TRUE)
 allPkgs <- .packages(all.available = TRUE, lib.loc = .libPaths()[1]) ## TODO: some pkg desc files broken
 keyPkgs <- c(
   "bookdown", "knitr", "LandR", "LandWebUtils",
