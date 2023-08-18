@@ -50,7 +50,7 @@ jobs:
           path: 'docs/'
 
   deploy-manual-site:
-    needs: build
+    needs: build-manual-site
     runs-on: ubuntu-latest
 
     ## deploy to github-pages environment
