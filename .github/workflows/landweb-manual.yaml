@@ -1,0 +1,69 @@
+name: landweb-manual
+
+on:
+  push:
+    # branches: [$default-branch]
+    branches: [development]
+  pull_request:
+    # branches: [$default-branch]
+    branches: [development]
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-manual-site:
+    if: "!contains(github.event.commits[0].message, '[skip-ci]')"
+    runs-on: ubuntu-latest
+    container: achubaty/landweb-standalone:2023-03-31
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      LANDWEB_PAT: ${{ secrets.LANDWEB_PAT }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: LANDWEB_PAT
+          submodules: true
+
+      - uses: actions/configure-pages@v3
+
+      ## build the manual
+      - run: |
+          renv::restore()
+          source("manual/RUNME.R")
+          shell: Rscript {0}
+
+      - uses: actions/upload-pages-artifact@v2
+        with:
+          path: 'docs/'
+
+  deploy-manual-site:
+    needs: build
+    runs-on: ubuntu-latest
+
+    ## deploy to github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    ## grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
