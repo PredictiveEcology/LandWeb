@@ -30,15 +30,9 @@ jobs:
       options: --env DISABLE_AUTH=true --user rstudio
 
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      LANDWEB_PAT: ${{ secrets.LANDWEB_PAT }}
+      GITHUB_PAT: ${{ secrets.LANDWEB_PAT }}
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          token: LANDWEB_PAT
-          submodules: true
-
       - uses: actions/configure-pages@v3
 
       ## build the manual
