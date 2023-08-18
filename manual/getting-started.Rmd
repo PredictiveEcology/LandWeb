@@ -29,7 +29,7 @@ Next, pull the image from Docker Hub:
 
 ```bash
 ## get the image
-docker pull achubaty/landweb-standalone:2023-03-31
+docker pull achubaty/landweb-standalone:latest
 
 ## launch a new container based on thi image
 docker run -d -it \
@@ -38,8 +38,8 @@ docker run -d -it \
   --memory=128g \
   --cpus=32 \
   -p 127.0.0.1:8080:8787 \
-  --name LandWeb-standalone_2023-03-31 \
-  achubaty/landweb-standalone:2023-03-31
+  --name LandWeb \
+  achubaty/landweb-standalone:latest
 ```
 
 Once the container is running, open your web browser and go to `localhost:8080`.
@@ -49,8 +49,8 @@ Login to the Rstudio session as user `rstudio` and password `<mySecretPassword>`
 Once finished, you can stop and destroy the container:
 
 ```bash
-docker stop landweb-standalone:2023-03-31
-docker rm landweb-standalone:2023-03-31
+docker stop LandWeb
+docker rm LandWeb
 ```
 
 ### Development tools
@@ -92,7 +92,9 @@ sudo apt-get update
 
 sudo apt-get -y install \
     build-essential \
+    biber \
     ccache \
+    cmake \
     curl \
     libarchive-dev \
     libcairo2-dev \
@@ -112,9 +114,14 @@ sudo apt-get -y install \
     libxml2-dev \
     libxt-dev \
     make \
+    p7zip-full p7zip-rar \
     pandoc pandoc-citeproc \
     protobuf-compiler \
+    qpdf \
+    screen \
     sysstat \
+    texinfo texlive-base texlive-bibtex-extra \
+    texlive-fonts-extra texlive-latex-extra texlive-xetex \
     wget \
     xauth \
     xfonts-base \
