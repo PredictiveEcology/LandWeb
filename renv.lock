@@ -484,16 +484,36 @@
       ],
       "Hash": "9d930f5e12e075d57965f46503a1f9b1"
     },
+    "RefManageR": {
+      "Package": "RefManageR",
+      "Version": "1.4.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "bibtex",
+        "httr",
+        "jsonlite",
+        "lubridate",
+        "methods",
+        "plyr",
+        "stringr",
+        "tools",
+        "utils",
+        "xml2"
+      ],
+      "Hash": "d22e94d9088f55cc112e722888afcc70"
+    },
     "Require": {
       "Package": "Require",
-      "Version": "0.2.6.9018",
+      "Version": "0.2.6.9009",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "Require",
-      "RemoteRef": "5718f304e3d8ffd004c93bc33fc6742e6d46e143",
-      "RemoteSha": "5718f304e3d8ffd004c93bc33fc6742e6d46e143",
+      "RemoteRef": "dev-stable",
+      "RemoteSha": "4a25e88e8b4ca6627299408ad5a41d1b985494d4",
       "Requirements": [
         "R",
         "data.table",
@@ -501,7 +521,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "3fa011aa2f087cf95d919b0190a874af"
+      "Hash": "6ac58edcb887d63949a18d02aa8ea4dd"
     },
     "SDMTools": {
       "Package": "SDMTools",
@@ -566,6 +586,30 @@
         "whisker"
       ],
       "Hash": "59f1c2f5defa7d76ea592008082f0009"
+    },
+    "SpaDES.docs": {
+      "Package": "SpaDES.docs",
+      "Version": "0.0.1",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "PredictiveEcology",
+      "RemoteRepo": "SpaDES.docs",
+      "RemoteRef": "development",
+      "RemoteSha": "48e27eb9c0f36c22bbfc5b9d8d74bb83a61daec7",
+      "Remotes": "PredictiveEcology/Require",
+      "Requirements": [
+        "R",
+        "Require",
+        "data.table",
+        "kableExtra",
+        "knitr",
+        "modelr",
+        "pander",
+        "stringi",
+        "utils"
+      ],
+      "Hash": "a48e1a10b8cdec3fa0fe409f7cf8ea4a"
     },
     "SpaDES.project": {
       "Package": "SpaDES.project",
@@ -844,6 +888,18 @@
         "R"
       ],
       "Hash": "543776ae6848fde2f48ff3816d0628bc"
+    },
+    "bibtex": {
+      "Package": "bibtex",
+      "Version": "0.5.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "backports",
+        "utils"
+      ],
+      "Hash": "a704d52e87822191b42c715c568f96dd"
     },
     "bit": {
       "Package": "bit",
@@ -1373,6 +1429,26 @@
       ],
       "Hash": "5fb91088ba75f9194aa7c7b4fb45192d"
     },
+    "downlit": {
+      "Package": "downlit",
+      "Version": "0.4.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "brio",
+        "desc",
+        "digest",
+        "evaluate",
+        "fansi",
+        "memoise",
+        "rlang",
+        "vctrs",
+        "withr",
+        "yaml"
+      ],
+      "Hash": "14fa1f248b60ed67e1f5418391a17b14"
+    },
     "dplyr": {
       "Package": "dplyr",
       "Version": "1.1.0",
@@ -1593,6 +1669,16 @@
         "utils"
       ],
       "Hash": "467ec0ca895d4e61a22cfbac9bccddf8"
+    },
+    "formatR": {
+      "Package": "formatR",
+      "Version": "1.14",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "63cb26d12517c7863f5abb006c5e0f25"
     },
     "fpCompare": {
       "Package": "fpCompare",
@@ -1920,6 +2006,18 @@
         "rlang"
       ],
       "Hash": "03533b1c875028233598f848fda44c4c"
+    },
+    "git2r": {
+      "Package": "git2r",
+      "Version": "0.32.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "graphics",
+        "utils"
+      ],
+      "Hash": "1882d7a76fd8c14b2322865f74c9a348"
     },
     "gitcreds": {
       "Package": "gitcreds",
@@ -2829,6 +2927,24 @@
       ],
       "Hash": "c075218a4fc802bab009a7f5e01bb686"
     },
+    "modelr": {
+      "Package": "modelr",
+      "Version": "0.1.11",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "broom",
+        "magrittr",
+        "purrr",
+        "rlang",
+        "tibble",
+        "tidyr",
+        "tidyselect",
+        "vctrs"
+      ],
+      "Hash": "4f50122dc256b1b6996a4703fecea821"
+    },
     "multcomp": {
       "Package": "multcomp",
       "Version": "1.4-20",
@@ -2999,6 +3115,23 @@
       ],
       "Hash": "b04c27110bf367b4daa93f34f3d58e75"
     },
+    "openxlsx": {
+      "Package": "openxlsx",
+      "Version": "4.2.5.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "grDevices",
+        "methods",
+        "stats",
+        "stringi",
+        "utils",
+        "zip"
+      ],
+      "Hash": "c03b4c18d42da881fb8e15a085c2b9d6"
+    },
     "pak": {
       "Package": "pak",
       "Version": "0.5.1",
@@ -3010,6 +3143,24 @@
         "utils"
       ],
       "Hash": "7ef6f300721d2beb43e73f476ec3476e"
+    },
+    "pander": {
+      "Package": "pander",
+      "Version": "0.6.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "digest",
+        "grDevices",
+        "graphics",
+        "methods",
+        "stats",
+        "tools",
+        "utils"
+      ],
+      "Hash": "737924139a1e4fc96356ff377c754c35"
     },
     "parallelly": {
       "Package": "parallelly",
