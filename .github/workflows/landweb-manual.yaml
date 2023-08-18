@@ -25,7 +25,9 @@ jobs:
   build-manual-site:
     if: "!contains(github.event.commits[0].message, '[skip-ci]')"
     runs-on: ubuntu-latest
-    container: achubaty/landweb-standalone:2023-03-31
+    container:
+      image: achubaty/landweb-standalone:2023-03-31
+      options: --env DISABLE_AUTH=true --user rstudio
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
