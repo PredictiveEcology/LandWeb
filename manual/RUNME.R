@@ -57,8 +57,8 @@ if (!file.exists(csl)) {
 setwd(normalizePath(manDir))
 
 ## prevents GitHub from rendering book using Jekyll
-if (!file.exists(file.path(docsDir, ".nojekyll"))) {
-  file.create(file.path(docsDir, ".nojekyll"))
+if (!file.exists(file.path(prjDir, ".nojekyll"))) {
+  file.create(file.path(prjDir, ".nojekyll"))
 }
 
 ## set manual version
