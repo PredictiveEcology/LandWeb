@@ -10,7 +10,7 @@ delete_merged_file: true
 rmd_files:
   - index.Rmd
   - getting-started.Rmd
-#  - running-landweb.Rmd
+  - running-landweb.Rmd
   - study-areas.Rmd
   - ../m/LandWeb_preamble/LandWeb_preamble2.Rmd
   - vegetation-submodel.Rmd

@@ -20,18 +20,13 @@ library("ggplot2")
 library("sf")
 ```
 
-The `runName` of the model is used to configure several model run options, including the study area and the default sets of parameters used.
-It follows the general format:
-
-```
-studyArea_scenarios_repXX
-```
-
-A `runName` must be set in order to run the model, which, in an interactive session is best done by editing the `config.yml` file.
+The default settings for study area, model version, and scenario are defined in `01a-globalvars.R`.
+These defaults are defined as 'dot-variables' (e.g., `.studyAreaName`) and can be set externally to the main script
+(e.g., if `.studyAreaName` is defined before running `01a-globalvars.R`, then the user-set value will be used, rather than the default defined in that script).
 
 ### Select a study area
 
-The model can be run over the entire study area, for certain individual provinces (currently only AB, SK, NWT), or groups of predefined FMAs (see Fig. 1 and Table 1).
+The model can be run over the entire study area, for certain individual provinces (currently only AB, SK, MB, NWT), or groups of predefined FMAs (see Fig. 1 and Table 1).
 
 #### FMA boundaries
 
@@ -40,10 +35,8 @@ Currently, only a subset of the FMAs within the LandWeb study area are predefine
 \newpage
 \blandscape
 
-<!-- TODO: fix this code block! -->
-
-```{r fma-map, echo = FALSE, eval = FALSE, fig.keep = 'all', out.width = '90%', results = 'hide', fig.cap = "\\label{fig:fma-map} FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs."}
-canProvs <- geodata::gadm(country = "CAN", level = 1, path = "data") |>
+```{r fma-map, echo = FALSE, eval = 'true', fig.keep = 'all', out.width = '90%', results = 'hide', fig.cap = "\\label{fig:fma-map} FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs."}
+canProvs <- geodata::gadm(country = "CAN", level = 1, path = "../inputs") |>
   sf::st_as_sf()
 lwProvs <- c("British Columbia", "Alberta", "Saskatchewan", "Manitoba")
 
@@ -52,16 +45,17 @@ fshp2 <- file.path("~/GitHub/LandWeb/inputs/FMA_Boundaries",
 sf2 <- sf::st_read(fshp2)
 centroids_sf2 <- cbind(sf::st_centroid(sf2), sf::st_coordinates(sf::st_centroid(sf2$geometry)))
 
-ggplot(data = sf2) +
-  geom_sf(data = canProvs[canProvs$NAME_1 %in% lwProvs, ]) +
-  geom_sf(mapping = aes(fill = as.factor(OBJECTID_1 %% 10))) +
-  scale_fill_brewer(type = "div", palette = "Spectral") +
-  geom_text(data = centroids_sf2, mapping = aes(x = X, y = Y, label = OBJECTID_1), size = 2) + 
-  labs(title = "FMA boundaries within the LandWeb study area") + 
-  xlab("Longitude") +
-  ylab("Latitude") + 
-  guides(fill = FALSE) +
-  theme_bw()
+ggplot2::ggplot(data = sf2) +
+  ggplot2::geom_sf(data = canProvs[canProvs$NAME_1 %in% lwProvs, ]) +
+  ggplot2::geom_sf(mapping = ggplot2::aes(fill = as.factor(OBJECTID_1 %% 10))) +
+  ggplot2::scale_fill_brewer(type = "div", palette = "Spectral") +
+  ggplot2::geom_text(data = centroids_sf2, 
+                     mapping = ggplot2::aes(x = X, y = Y, label = OBJECTID_1), size = 2) + 
+  ggplot2::labs(title = "FMA boundaries within the LandWeb study area") + 
+  ggplot2::xlab("Longitude") +
+  ggplot2::ylab("Latitude") + 
+  ggplot2::guides(fill = FALSE) +
+  ggplot2::theme_bw()
 ```
 
 \elandscape
@@ -77,16 +71,36 @@ data.frame(ID = sf2$OBJECTID_1, Name = sf2$Name) |>
 #### Choosing a study area
 
 The model can be run on any of several pre-defined study areas summarized in the table below.
-To select one of these predefined study areas, set `runName` to use one of the following, corresponding to the polygon IDs in the map above.
+To select one of these predefined study areas, set `.studyAreaName` to use one of the following, corresponding to the polygon IDs in the map above.
 
 ```{r studyarea-table, echo = FALSE, eval = TRUE}
-knitr::kable(read.csv("data/studyAreas.csv", stringsAsFactors = FALSE),
-             caption = "Model study areas with corresponding FMA polygon IDs (from Figure 1).",
+data.frame(
+  studyAreaName = c("ANC", "Blueridge", "DMI", "Edson", "FMANWT ", "FMANWT2",
+                    "LP_BC", "LP_MB", "Manning", "MillarWestern", "Mistik", "MPR",
+                    "Sundre", "Tolko_AB_N", "Tolko_AB_S", "Tolko_SK", "Vanderwell",
+                    "WestFraser_N", "WestFraser_S", "WeyCo_GP", "WeyCo_PT", "WeyCo_SK"),
+  ID = c("39", "40", "42, 43", "53", "59", "58", "5, 6", "32", "45", "46", "15", "42, 43",
+         "48", "50", "44, 49, 51", "22", "51, 52", "44, 51, 55", "53, 54", "56", "57", "21"), 
+  Description = c(
+    "ANC Timber Ltd.", "Blueridge Lumber Inc.",
+    "Mercer Peace River Pulp Ltd. (formerly DMI)", 
+    "West Fraser Mills Ltd. (Edson)", "Fort Resolution", "Fort Providence", 
+    "Lousiana Pacific (British Columbia)", "Lousiana Pacific (Manitoba)", 
+    "Manning Diversified Forest Products Ltd.", "Millar Western Forest Products Ltd.", 
+    "Mistik", "Mercer Peace River Pulp Ltd. (formerly DMI)", "Sundre Forest Products Inc.", 
+    "Tolko Industries Ltd. (Alberta North)", "Tolko Industries Ltd. (Alberta South)", 
+    "Tolko (Saskatchewan)", "Vanderwell Contractors (1971) Ltd.", 
+    "West Fraser Mills Ltd. (Slave Lake)", "West Fraser Mills Ltd. (Edson + Hinton)", 
+    "Weyerhauser Company Ltd. (Grand Prairie)", "Weyerhauser Company Ltd. (Pembina Timberland)", 
+    "Weyerhauser Company Ltd. (Pasquia-Porcupine)"
+  )
+) |>
+  knitr::kable(caption = "Model study areas with corresponding FMA polygon IDs (from Figure 1).",
              format = "latex", booktabs = TRUE) |>
   kableExtra::kable_styling(latex_options = "striped") # font_size = 10
 ```
 
-To run LandWeb over an entire province use one of `provAB`, `provNWT`, or `provSK`.
+To run LandWeb over an entire province use one of `provAB`, `provMB`, `provNWT`, or `provSK`.
 
 To run the entire LandWeb study area, use `LandWeb`.
 
@@ -97,35 +111,39 @@ To run the entire LandWeb study area, use `LandWeb`.
 In version 2.0.0 of the LandWeb model, seed dispersal distances needed to be adjusted to ensure sufficient regeneration following fire.
 These adjustments cause the model to behave more like a state-transition model, rather than a process-based one. 
 
+Version 3.0.0 relaxes these parameter forcings to behave like the standard LANDIS-II model.
+
+The dispersal scenario is principally set via `.version` but can be overridden is set via `.dispersalType`:
+
 **Dispersal Scenario** | **Description**
 -----------------------|----------------------------------------------------------------------------
-`aspenDispersal`       | limit seed dispersal to deciduous only
-`highDispersal`        | high seed dispersal of all species (used for v2.0.0 runs)
-`noDispersal`          | no seed dispersal (all species)
+`default` (v3)         | default LANDIS-II dispersal
+`aspen`                | limit seed dispersal to deciduous only
+`high` (v2)            | high seed dispersal of all species (used for v2.0.0 runs)
+`none`                 | no seed dispersal (all species)
 
-Furthermore, the fire return intervals (FRI) and rates of spread (ROS) of fires were also adjusted.
+Additionally, v2.0.0 of the model uses adjusted fire return intervals (FRI) and log-adjusted rates of spread (ROS).
+Version 3.0.0 uses the LandMine defaults.
+
+The fire scenario is principally set via `.version` but can be overridden by specifying `.ROStype`:
 
 **Fire Scenario** | **Description**
 ------------------|---------------------------------------------------------------------------------
-`doubleFRI`       | Double all fire return intervals (i.e., less frequent fires)
-`equalROS`        | Set all rates of fire spread equal to each other (no vegetation differences)
-`logROS`          | Reduce the rates of spread but keep the magnitude of vegetation differences
+`default` (v3)    | default rate of spread values
+`burny`           | Increases the flammability of non-forest types to facilitate fire spread in landscapes with discontinuous fuels.
+`equal`           | Set all rates of fire spread equal to each other (no vegetation differences)
+`log` (v2)        | Reduce the rates of spread but keep the magnitude of vegetation differences
 
-To run the model 'as-is' (i.e., without modifying the dispersal or fire scenarios), do not include one of these scenarios in the run name.
+To define a scenario to run, select one dispersal scenario and one fire scenario from the tables above.
+All LandWeb v2.0.0 runs from 2019 were run using `.dispersalType = "high"` and `.ROStype = "log"`.
+Using v3.0.0 of the model, `.dispersalType = "default"` and `.ROStype = "default"`.
 
 ### Replication
 
-To run multiple replicates of a given run, append `_repXX` to the `runName`, where `XX` is a two-digit run number.
+To run multiple replicates of a given run, set `.rep` to an integer corresponding to the replicate id.
 All replicate runs use a different random seed, and this seed is saved as on output for reuse in the event that a replicate needs to be rerun.
 To rerun a replicate using a different seed, be sure to delete that run's `seed.rds` file.
 The seed used is also saved in human-readable `seed.txt` file.
-
-To define a scenario to run, select one dispersal scenario and one fire scenario from the tables above.
-All LandWeb v2.0.0 runs from 2019 were run using:
-
-```{r runName}
-runName <- "studyArea_highDispersal_logROS_repXX"
-```
 
 ## Running the model
 
@@ -136,7 +154,7 @@ runName <- "studyArea_highDispersal_logROS_repXX"
 When working in an R session, be sure to set the working directory to the LandWeb project directory.
 The first time running the model, open the file `00-global.R`, and step through each line to ensure any prompts etc. are answered correctly.
 
-```{r interactive-runs}
+```r
 source("00-global.R")
 ```
 
@@ -146,7 +164,7 @@ In addition to running the model in an interactive R session, we provide a comma
 
 For example, to run replicate number 7 of the model at $250 m$ resolution using FRI multiple of $1$ for Alberta FMU L11, use:
 
-```{bash batch-runs-fmu}
+```bash
 cd ~/GitHub/LandWeb
 
 ## ./run_fmu.sh <FMU> <FRI> <RES> <REP>
@@ -157,7 +175,7 @@ FMU commandline runs do not use modified dispersal nor fire scenarios, and thus 
 
 To run replicate number 7 of the model for the entire province of Alberta, use:
 
-```{bash batch-runs-fma}
+```bash
 cd ~/GitHub/LandWeb
 
 ## ./run_fma.sh <FMU> <REP>
@@ -170,52 +188,16 @@ FMA commandline runs use `highDispersal_logROS` scenarios at $250 m$ resolution,
 To run the entire LandWeb study area, only a replicate number needs to be passed.
 For example:
 
-```{bash batch-runs-landweb}
+```bash
 ## ./run_landweb.sh <REP>
 ./run_landweb.sh 7
 ```
 
-LandWeb commandline runs use `highDispersal_logROS` scenarios at $250 m$ resolution, and thus only require the study area and replicate to be defined.
+LandWeb commandline run set the dispersal and fire scenarios as above, and the pixel resolution (`.pixelSize`) at $250 m$, and thus only require the study area and replicate to be defined.
 
 ## Changing model config values
 
-The `config.yml` file sets several options defining how the model is run.
-These configuration values are read early in the initialization of the model run, and are summarized in Table 5.
-
-```{r config-vars, echo = FALSE, eval = TRUE}
-yml <- yaml::read_yaml("~/GitHub/LandWeb/config.yml", eval.expr = TRUE)
-
-config_df <- data.frame(
-  value = unlist(yml$default),
-  description = c(
-    "logical indicating whether to run in batch mode.",
-    "the cache database backend to use ('sqlite', default; or 'postgresql')",
-    "a Google Drive folder to use for cloud-based caching ",
-    "Google email address to use for authentication for proprietary data download",
-    "logical indicating whether to use cloud-based caching",
-    "time used to delay the start of the simulation (to avoid race conditions running multiple sims)",
-    "fire return interval multiplier",
-    "path to local github package repositories",
-    "map resolution factor (one of 1, 2, 5; results in pixels sizes of 250, 125, 50 m respectively)",
-    "path to the active (LandWeb) project directory",
-    "path to the cache directory",
-    "path to the temporary scratch directory",
-    "logical indicating whether to plot to screen",
-    "logical indicating whether to run post-processing only on pre-run simulations",
-    "replicate number",
-    "study area name",
-    "dispersal scenario name",
-    "fire scenario name",
-    "logical indicating whether to restart R during simulations (true is untested)",
-    "LandWeb version to use"
-  ),
-  stringsAsFactors = FALSE
-)
-
-knitr::kable(config_df, caption = "Description of model configuration parameters in `config.yml`.",
-             format = "latex", booktabs = TRUE) |> 
-  kableExtra::kable_styling(latex_options = c("striped", "scale_down"))
-```
+See <https://github.com/PredictiveEcology/SpaDES.config/blob/development/R/config.landweb.R>
 
 ## Cache options
 
@@ -231,6 +213,8 @@ After having run several reps of the model on a given study area, results are co
 - boxplots of leading vegetation cover;
 - histograms of leading vegetation cover;
 - histograms of large patches.
+
+To run processing, use `.mode = "postprocess"` and be sure to set the number of replicates run in the config.
 
 ## Additional Resources
 

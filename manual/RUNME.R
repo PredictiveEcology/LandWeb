@@ -9,7 +9,7 @@ docsDir <- file.path(manDir, "_bookdown.yml") |>
   fs::path_abs()
 
 bibDir <- Require::checkPath(file.path(manDir, "citations"), create = TRUE)
-figDir <- Require::checkPath(file.path(prjDir, "figures"), create = TRUE)
+figDir <- Require::checkPath(file.path(docsDir, "figures"), create = TRUE)
 
 options(
   Ncpus = min(parallel::detectCores() / 2, 8)
