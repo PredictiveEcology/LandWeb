@@ -26,7 +26,7 @@ jobs:
     if: "!contains(github.event.commits[0].message, '[skip-ci]')"
     runs-on: ubuntu-latest
     container:
-      image: achubaty/landweb-standalone:2023-03-31
+      image: achubaty/landweb-standalone:latest
       options: --env DISABLE_AUTH=true --user rstudio
 
     env:
