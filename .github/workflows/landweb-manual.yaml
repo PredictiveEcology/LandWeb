@@ -2,11 +2,9 @@ name: landweb-manual
 
 on:
   push:
-    # branches: [$default-branch]
-    branches: [development]
+    branches: [$default-branch]
   pull_request:
-    # branches: [$default-branch]
-    branches: [development]
+    branches: [$default-branch]
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
