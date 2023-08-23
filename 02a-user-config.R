@@ -78,5 +78,11 @@ config.user <- switch(
   ),
 
   ## default (i.e, no changes) ---------------------------------------------------------------------
-  list()
+  list(
+    args = list(
+      cloud = list(
+        googleUser = "",
+        useCloud = FALSE
+      )
+  )
 )
