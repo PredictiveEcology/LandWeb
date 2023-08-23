@@ -64,6 +64,8 @@ During installation, be sure to check the option to add `Rtools` to your `PATH`.
 
 [^1]: <https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html>
 
+Additionally, Windows users will need a proper text editor, *e.g.* Notepad++ (<https://notepad-plus-plus.org/downloads/>).
+
 #### macOS
 
 ##### Xcode command line tools
