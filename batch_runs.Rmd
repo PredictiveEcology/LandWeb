@@ -119,6 +119,11 @@ screen -d -m -S LandWeb_50 ./run_landweb3.sh 50 ## running to here
 50 -> .rep; .mode <- 'production'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
 ```
 
+```r
+.mode <- 'postprocess'; .studyAreaName <- 'LandWeb'; .version <- 3; source("00-global.R")
+```
+
+
 ## LandWeb v2
 
 Previously, running in an R session:
