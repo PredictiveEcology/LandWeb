@@ -7,6 +7,7 @@
 Before you can run the model, you first need to install the packages required for the project by restoring from the project's snapshot file.
 
 ```r
+options(renv.config.mran.enabled = FALSE)
 renv::restore()
 ```
 :::
