@@ -96,8 +96,9 @@
 </ol>
 <div class="rmdwarning">
 <p>Before you can run the model, you first need to install the packages required for the project by restoring from the project’s snapshot file.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html">restore</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>renv.config.mran.enabled <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html">restore</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div id="model-setup-and-configuration" class="section level2" number="2.1">
 <h2>
@@ -237,7 +238,7 @@ The seed used is also saved in human-readable <code>seed.txt</code> file.</p>
 </h3>
 <p>When working in an R session, be sure to set the working directory to the LandWeb project directory.
 The first time running the model, open the file <code>00-global.R</code>, and step through each line to ensure any prompts etc. are answered correctly.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html">source</a></span><span class="op">(</span><span class="st">"00-global.R"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div id="commandline-interface" class="section level3" number="2.2.2">
@@ -246,22 +247,22 @@ The first time running the model, open the file <code>00-global.R</code>, and st
 </h3>
 <p>In addition to running the model in an interactive R session, we provide a commandline interface to run replicates of the model for the study areas defined above (i.e., batch mode).</p>
 <p>For example, to run replicate number 7 of the model at <span class="math inline">\(250 m\)</span> resolution using FRI multiple of <span class="math inline">\(1\)</span> for Alberta FMU L11, use:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="running-landweb.html#cb22-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
-<span id="cb22-2"><a href="running-landweb.html#cb22-2" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="running-landweb.html#cb22-3" tabindex="-1"></a><span class="co">## ./run_fmu.sh &lt;FMU&gt; &lt;FRI&gt; &lt;RES&gt; &lt;REP&gt;</span></span>
-<span id="cb22-4"><a href="running-landweb.html#cb22-4" tabindex="-1"></a><span class="ex">./run_fmu.sh</span> L11 1 250 7</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="running-landweb.html#cb21-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
+<span id="cb21-2"><a href="running-landweb.html#cb21-2" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="running-landweb.html#cb21-3" tabindex="-1"></a><span class="co">## ./run_fmu.sh &lt;FMU&gt; &lt;FRI&gt; &lt;RES&gt; &lt;REP&gt;</span></span>
+<span id="cb21-4"><a href="running-landweb.html#cb21-4" tabindex="-1"></a><span class="ex">./run_fmu.sh</span> L11 1 250 7</span></code></pre></div>
 <p>FMU commandline runs do not use modified dispersal nor fire scenarios, and thus only require the study area, replicate, and FRI multiple to be defined.</p>
 <p>To run replicate number 7 of the model for the entire province of Alberta, use:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="running-landweb.html#cb23-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
-<span id="cb23-2"><a href="running-landweb.html#cb23-2" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="running-landweb.html#cb23-3" tabindex="-1"></a><span class="co">## ./run_fma.sh &lt;FMU&gt; &lt;REP&gt;</span></span>
-<span id="cb23-4"><a href="running-landweb.html#cb23-4" tabindex="-1"></a><span class="ex">./run_fma.sh</span> provAB 7</span>
-<span id="cb23-5"><a href="running-landweb.html#cb23-5" tabindex="-1"></a><span class="co"># ./run_fma_win.sh provAB 7 ## if on Windows!</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="running-landweb.html#cb22-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
+<span id="cb22-2"><a href="running-landweb.html#cb22-2" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="running-landweb.html#cb22-3" tabindex="-1"></a><span class="co">## ./run_fma.sh &lt;FMU&gt; &lt;REP&gt;</span></span>
+<span id="cb22-4"><a href="running-landweb.html#cb22-4" tabindex="-1"></a><span class="ex">./run_fma.sh</span> provAB 7</span>
+<span id="cb22-5"><a href="running-landweb.html#cb22-5" tabindex="-1"></a><span class="co"># ./run_fma_win.sh provAB 7 ## if on Windows!</span></span></code></pre></div>
 <p>FMA commandline runs use <code>highDispersal_logROS</code> scenarios at <span class="math inline">\(250 m\)</span> resolution, and thus only require the study area and replicate to be defined.</p>
 <p>To run the entire LandWeb study area, only a replicate number needs to be passed.
 For example:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="running-landweb.html#cb24-1" tabindex="-1"></a><span class="co">## ./run_landweb.sh &lt;REP&gt;</span></span>
-<span id="cb24-2"><a href="running-landweb.html#cb24-2" tabindex="-1"></a><span class="ex">./run_landweb.sh</span> 7</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="running-landweb.html#cb23-1" tabindex="-1"></a><span class="co">## ./run_landweb.sh &lt;REP&gt;</span></span>
+<span id="cb23-2"><a href="running-landweb.html#cb23-2" tabindex="-1"></a><span class="ex">./run_landweb.sh</span> 7</span></code></pre></div>
 <p>LandWeb commandline run set the dispersal and fire scenarios as above, and the pixel resolution (<code>.pixelSize</code>) at <span class="math inline">\(250 m\)</span>, and thus only require the study area and replicate to be defined.</p>
 </div>
 </div>
@@ -341,7 +342,7 @@ More advanced users running multiple parallel simulations may wish to set up and
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v." was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-21.</p>
+    <p>"<strong>LandWeb Manual</strong>: v." was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-23.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

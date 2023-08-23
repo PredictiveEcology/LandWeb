@@ -195,45 +195,45 @@ sudo npm install -g mapshaper
 
 1. Install the latest version of `git` from <https://git-scm.com/downloads> or via your package manager.
     
-    :::{.rmdimportant}
-    Windows users should install *as administrator*.
-    Use `nano` (instead of `vi`/`vim`) as the default text editor.
-    For all other choices, use the recommended settings.
-    
-    For macOS users, `git` is included with the Xcode command line tools.
-    :::
+:::{.rmdimportant}
+Windows users should install *as administrator*.
+Use `nano` (instead of `vi`/`vim`) as the default text editor.
+For all other choices, use the recommended settings.
+
+For macOS users, `git` is included with the Xcode command line tools.
+:::
 
 2. Create a GitHub (<https://github.com>) account if you don't already have one, and configure a Personal Access Token (PAT).
 
-    :::{.rmdwarning}
-    A GitHub (<https://github.com>) account is required to assist with package installation and accessing model code.
-    :::
+:::{.rmdwarning}
+A GitHub (<https://github.com>) account is required to assist with package installation and accessing model code.
+:::
 
-    Several packages used by LandWeb are only available on GitHub.
-    Because we will be installing several of these, we want to ensure we can do so without GitHub rate-limiting our requests.
-    Without a PAT, some packages may *temporarily* fail to install, but can be retried a little later (usually 1 hour).
-    
-    a.  Create a GitHub PAT following the instructions[^GH_PAT];
-    b.  Be sure to uncheck all scopes.
-    c.  Copy this token and save it in a text file in your home directory called `.Renviron`.
-    
-        ```bash
-        ## ~/.Renviron
-        GITHUB_PAT=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        ```
-    
-        If you are not sure where your home directory is located, run the following in an R session: 
-    
-        ```r
-        Sys.getenv("HOME")
-        ```
+Several packages used by LandWeb are only available on GitHub.
+Because we will be installing several of these, we want to ensure we can do so without GitHub rate-limiting our requests.
+Without a PAT, some packages may *temporarily* fail to install, but can be retried a little later (usually 1 hour).
+
+a.  Create a GitHub PAT following the instructions[^GH_PAT];
+b.  Be sure to uncheck all scopes.
+c.  Copy this token and save it in a text file in your home directory called `.Renviron`.
+
+    ```bash
+    ## ~/.Renviron
+    GITHUB_PAT=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    ```
+
+    If you are not sure where your home directory is located, run the following in an R session: 
+
+    ```r
+    Sys.getenv("HOME")
+    ```
 
 3.  *Optional.* Install the latest version of `GitKraken` from <https://www.gitkraken.com/download/>.
 
-    :::{.rmdimportant}
-    The free version is sufficient to access the public repositories used in this project.
-    However, the paid pro version is required to access private repositories.
-    :::
+:::{.rmdimportant}
+The free version is sufficient to access the public repositories used in this project.
+However, the paid pro version is required to access private repositories.
+:::
     
 [^GH_PAT]: <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>
 
@@ -241,60 +241,51 @@ sudo npm install -g mapshaper
 
 1. Download and install R version 4.2.3.
 
-    :::{.rmdimportant}
-    **Windows**
-    
-    1. Download R from <https://cran.r-project.org/bin/windows/base/R-4.2.3-win.exe>;
-    2. Install R *as administrator*.
-    
-    **macOS**
-    
-    1. Install `rig` (<https://github.com/r-lib/rig>) to manage multiple R installations.
+:::{.rmdimportant}
+**Windows**
 
-    ```zsh
-    brew tap r-lib/rig
-    brew install --cask rig
-    
-    ## e.g., M1/M2 mac users, install the arm version
-    rig install 4.2-arm64
-    
-    ## start Rstudio using a specific R version:
-    rig rstudio 4.2-arm64
-    ```
+1. Download R from <https://cran.r-project.org/bin/windows/base/R-4.2.3-win.exe>;
+2. Install R *as administrator*.
 
-    ***Ubuntu Linux**
-    1. Add the CRAN `apt` repository to get the required version of R.
+**macOS**
+
+1. Install `rig` (<https://github.com/r-lib/rig>) to manage multiple R installations.
+
+```zsh
+brew tap r-lib/rig
+brew install --cask rig
+
+## e.g., M1/M2 mac users, install the arm version
+rig install 4.2-arm64
+
+## start Rstudio using a specific R version:
+rig rstudio 4.2-arm64
+```
+
+**Ubuntu Linux**
+
+1. Add the CRAN `apt` repository to get the required version of R.
+
+```bash
+## add R repository
+sudo sh -c 'echo "deb https://cran.rstudio.com/bin/linux/ubuntu focal-cran40/" > \
+    /etc/apt/sources.list.d/cran.list'
+sudo apt-key adv --keyserver keyserver.ubuntu.com \
+    --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+
+sudo apt-get update
+```
+
+2. Install R version 4.2.3
     
-    ```bash
-    ## add R repository
-    sudo sh -c 'echo "deb https://cran.rstudio.com/bin/linux/ubuntu focal-cran40/" > \
-        /etc/apt/sources.list.d/cran.list'
-    sudo apt-key adv --keyserver keyserver.ubuntu.com \
-        --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
-    
-    sudo apt-get update
-    ```
-    
-    2. Install R version 4.2.3
-    
-    :::{.rmdcaution}
-    **This is out of date, as R 4.3 is the most recent version of R.**
-    
-    To install previous versions of R see <https://github.com/achubaty/r-config/blob/master/using-multiple-R-versions-on-linux.Rmd> or use `rig` (<https://github.com/r-lib/rig>). 
-    :::
-    
-    ```bash
-    ## install R
-    sudo apt-get -y install r-base r-base-dev r-cran-littler 
-    sudo apt-get build-dep -y r-cran-rjava r-cran-tkrplot
-    sudo R CMD javareconf
-    ```
+To install previous versions of R see <https://github.com/achubaty/r-config/blob/master/using-multiple-R-versions-on-linux.Rmd> or use `rig` (<https://github.com/r-lib/rig>).
+:::
 
 2. Download and install the latest version of Rstudio from <https://www.rstudio.com/products/rstudio/download/>.
 
-    :::{.rmdimportant}
-    Windows users should install Rstudio *as administrator*.
-    :::
+:::{.rmdimportant}
+Windows users should install Rstudio *as administrator*.
+:::
 
 3. (optional) On Linux, configure `ccache` to speed up R package re-installation and updates[^6].
 

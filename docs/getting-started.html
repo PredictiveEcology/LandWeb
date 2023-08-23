@@ -265,20 +265,20 @@ This will facilitate software updates and will handle various package dependency
 </h3>
 <p><code>git</code> is the version control software used throughout this project, and is required to ‘checkout’ specific versions of the code as well as to make changes and ‘push’ these changes to the model code repository.</p>
 <ol style="list-style-type: decimal">
-<li>
-<p>Install the latest version of <code>git</code> from <a href="https://git-scm.com/downloads" class="uri">https://git-scm.com/downloads</a> or via your package manager.</p>
-<p>:::{.rmdimportant}
-Windows users should install <em>as administrator</em>.
+<li>Install the latest version of <code>git</code> from <a href="https://git-scm.com/downloads" class="uri">https://git-scm.com/downloads</a> or via your package manager.</li>
+</ol>
+<div class="rmdimportant">
+<p>Windows users should install <em>as administrator</em>.
 Use <code>nano</code> (instead of <code>vi</code>/<code>vim</code>) as the default text editor.
 For all other choices, use the recommended settings.</p>
-<p>For macOS users, <code>git</code> is included with the Xcode command line tools.
-:::</p>
-</li>
-<li>
-<p>Create a GitHub (<a href="https://github.com" class="uri">https://github.com</a>) account if you don’t already have one, and configure a Personal Access Token (PAT).</p>
-<p>:::{.rmdwarning}
-A GitHub (<a href="https://github.com" class="uri">https://github.com</a>) account is required to assist with package installation and accessing model code.
-:::</p>
+<p>For macOS users, <code>git</code> is included with the Xcode command line tools.</p>
+</div>
+<ol start="2" style="list-style-type: decimal">
+<li>Create a GitHub (<a href="https://github.com" class="uri">https://github.com</a>) account if you don’t already have one, and configure a Personal Access Token (PAT).</li>
+</ol>
+<div class="rmdwarning">
+<p>A GitHub (<a href="https://github.com" class="uri">https://github.com</a>) account is required to assist with package installation and accessing model code.</p>
+</div>
 <p>Several packages used by LandWeb are only available on GitHub.
 Because we will be installing several of these, we want to ensure we can do so without GitHub rate-limiting our requests.
 Without a PAT, some packages may <em>temporarily</em> fail to install, but can be retried a little later (usually 1 hour).</p>
@@ -294,25 +294,24 @@ Without a PAT, some packages may <em>temporarily</em> fail to install, but can b
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html">Sys.getenv</a></span><span class="op">(</span><span class="st">"HOME"</span><span class="op">)</span></span></code></pre></div>
 </li>
 </ol>
-</li>
+<ol start="3" style="list-style-type: decimal">
 <li>
-<p><em>Optional.</em> Install the latest version of <code>GitKraken</code> from <a href="https://www.gitkraken.com/download/" class="uri">https://www.gitkraken.com/download/</a>.</p>
+<em>Optional.</em> Install the latest version of <code>GitKraken</code> from <a href="https://www.gitkraken.com/download/" class="uri">https://www.gitkraken.com/download/</a>.</li>
+</ol>
 <div class="rmdimportant">
 <p>The free version is sufficient to access the public repositories used in this project.
 However, the paid pro version is required to access private repositories.</p>
 </div>
-</li>
-</ol>
 </div>
 <div id="r-and-rstudio" class="section level3" number="1.1.5">
 <h3>
 <span class="header-section-number">1.1.5</span> R and Rstudio<a class="anchor" aria-label="anchor" href="#r-and-rstudio"><i class="fas fa-link"></i></a>
 </h3>
 <ol style="list-style-type: decimal">
-<li>
-<p>Download and install R version 4.2.3.</p>
-<p>:::{.rmdimportant}
-<strong>Windows</strong></p>
+<li>Download and install R version 4.2.3.</li>
+</ol>
+<div class="rmdimportant">
+<p><strong>Windows</strong></p>
 <ol style="list-style-type: decimal">
 <li>Download R from <a href="https://cran.r-project.org/bin/windows/base/R-4.2.3-win.exe" class="uri">https://cran.r-project.org/bin/windows/base/R-4.2.3-win.exe</a>;</li>
 <li>Install R <em>as administrator</em>.</li>
@@ -329,7 +328,7 @@ However, the paid pro version is required to access private repositories.</p>
 <span id="cb12-6"><a href="getting-started.html#cb12-6" tabindex="-1"></a></span>
 <span id="cb12-7"><a href="getting-started.html#cb12-7" tabindex="-1"></a><span class="co">## start Rstudio using a specific R version:</span></span>
 <span id="cb12-8"><a href="getting-started.html#cb12-8" tabindex="-1"></a><span class="ex">rig</span> rstudio 4.2-arm64</span></code></pre></div>
-<p>*<strong>Ubuntu Linux</strong></p>
+<p><strong>Ubuntu Linux</strong></p>
 <ol style="list-style-type: decimal">
 <li>Add the CRAN <code>apt</code> repository to get the required version of R.</li>
 </ol>
@@ -343,37 +342,31 @@ However, the paid pro version is required to access private repositories.</p>
 <ol start="2" style="list-style-type: decimal">
 <li>Install R version 4.2.3</li>
 </ol>
-<p>:::{.rmdcaution}
-<strong>This is out of date, as R 4.3 is the most recent version of R.</strong></p>
-<p>To install previous versions of R see <a href="https://github.com/achubaty/r-config/blob/master/using-multiple-R-versions-on-linux.Rmd" class="uri">https://github.com/achubaty/r-config/blob/master/using-multiple-R-versions-on-linux.Rmd</a> or use <code>rig</code> (<a href="https://github.com/r-lib/rig" class="uri">https://github.com/r-lib/rig</a>).
-:::</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="getting-started.html#cb14-1" tabindex="-1"></a><span class="co">## install R</span></span>
-<span id="cb14-2"><a href="getting-started.html#cb14-2" tabindex="-1"></a><span class="fu">sudo</span> apt-get <span class="at">-y</span> install r-base r-base-dev r-cran-littler </span>
-<span id="cb14-3"><a href="getting-started.html#cb14-3" tabindex="-1"></a><span class="fu">sudo</span> apt-get build-dep <span class="at">-y</span> r-cran-rjava r-cran-tkrplot</span>
-<span id="cb14-4"><a href="getting-started.html#cb14-4" tabindex="-1"></a><span class="fu">sudo</span> R CMD javareconf</span></code></pre></div>
-</li>
-<li>
-<p>Download and install the latest version of Rstudio from <a href="https://www.rstudio.com/products/rstudio/download/" class="uri">https://www.rstudio.com/products/rstudio/download/</a>.</p>
-<p>:::{.rmdimportant}
-Windows users should install Rstudio <em>as administrator</em>.
-:::</p>
-</li>
+<p>To install previous versions of R see <a href="https://github.com/achubaty/r-config/blob/master/using-multiple-R-versions-on-linux.Rmd" class="uri">https://github.com/achubaty/r-config/blob/master/using-multiple-R-versions-on-linux.Rmd</a> or use <code>rig</code> (<a href="https://github.com/r-lib/rig" class="uri">https://github.com/r-lib/rig</a>).</p>
+</div>
+<ol start="2" style="list-style-type: decimal">
+<li>Download and install the latest version of Rstudio from <a href="https://www.rstudio.com/products/rstudio/download/" class="uri">https://www.rstudio.com/products/rstudio/download/</a>.</li>
+</ol>
+<div class="rmdimportant">
+<p>Windows users should install Rstudio <em>as administrator</em>.</p>
+</div>
+<ol start="3" style="list-style-type: decimal">
 <li>
 <p>(optional) On Linux, configure <code>ccache</code> to speed up R package re-installation and updates<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="getting-started.html#cb15-1" tabindex="-1"></a><span class="co">## configure ccache for R package installation</span></span>
-<span id="cb15-2"><a href="getting-started.html#cb15-2" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.ccache</span>
-<span id="cb15-3"><a href="getting-started.html#cb15-3" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.R</span>
-<span id="cb15-4"><a href="getting-started.html#cb15-4" tabindex="-1"></a><span class="kw">{</span> <span class="bu">echo</span> <span class="st">'VER='</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-5"><a href="getting-started.html#cb15-5" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CCACHE=ccache'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-6"><a href="getting-started.html#cb15-6" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CC=$(CCACHE) gcc$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-7"><a href="getting-started.html#cb15-7" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-8"><a href="getting-started.html#cb15-8" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX11=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-9"><a href="getting-started.html#cb15-9" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX14=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-10"><a href="getting-started.html#cb15-10" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'FC=$(CCACHE) gfortran$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-11"><a href="getting-started.html#cb15-11" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'F77=$(CCACHE) gfortran$(VER)'</span><span class="kw">;</span> <span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.R/Makevars</span>
-<span id="cb15-12"><a href="getting-started.html#cb15-12" tabindex="-1"></a><span class="kw">{</span> <span class="bu">echo</span> <span class="st">'max_size = 5.0G'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-13"><a href="getting-started.html#cb15-13" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'sloppiness = include_file_ctime'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-14"><a href="getting-started.html#cb15-14" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'hash_dir = false'</span><span class="kw">;</span> <span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.ccache/ccache.conf</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="getting-started.html#cb14-1" tabindex="-1"></a><span class="co">## configure ccache for R package installation</span></span>
+<span id="cb14-2"><a href="getting-started.html#cb14-2" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.ccache</span>
+<span id="cb14-3"><a href="getting-started.html#cb14-3" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.R</span>
+<span id="cb14-4"><a href="getting-started.html#cb14-4" tabindex="-1"></a><span class="kw">{</span> <span class="bu">echo</span> <span class="st">'VER='</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-5"><a href="getting-started.html#cb14-5" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CCACHE=ccache'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-6"><a href="getting-started.html#cb14-6" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CC=$(CCACHE) gcc$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-7"><a href="getting-started.html#cb14-7" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-8"><a href="getting-started.html#cb14-8" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX11=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-9"><a href="getting-started.html#cb14-9" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX14=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-10"><a href="getting-started.html#cb14-10" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'FC=$(CCACHE) gfortran$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-11"><a href="getting-started.html#cb14-11" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'F77=$(CCACHE) gfortran$(VER)'</span><span class="kw">;</span> <span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.R/Makevars</span>
+<span id="cb14-12"><a href="getting-started.html#cb14-12" tabindex="-1"></a><span class="kw">{</span> <span class="bu">echo</span> <span class="st">'max_size = 5.0G'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-13"><a href="getting-started.html#cb14-13" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'sloppiness = include_file_ctime'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-14"><a href="getting-started.html#cb14-14" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'hash_dir = false'</span><span class="kw">;</span> <span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.ccache/ccache.conf</span></code></pre></div>
 </li>
 </ol>
 </div>
@@ -385,15 +378,15 @@ Windows users should install Rstudio <em>as administrator</em>.
 <p>All modules are written in R and all model code was developed collaboratively using GitHub (<a href="https://github.com" class="uri">https://github.com</a>), with each module contained in its own repository.
 Code that is shared among modules was bundled into R packages, and hosted in on GitHub repositories.
 All package code is automatically and regularly tested using cross-platform continuous integration frameworks to ensure the code is reliable and free of errors.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="getting-started.html#cb16-1" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/GitHub</span>
-<span id="cb16-2"><a href="getting-started.html#cb16-2" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub</span>
-<span id="cb16-3"><a href="getting-started.html#cb16-3" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="getting-started.html#cb16-4" tabindex="-1"></a><span class="co">## get development branch (app and deploy are private submodules)</span></span>
-<span id="cb16-5"><a href="getting-started.html#cb16-5" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--single-branch</span> <span class="at">-b</span> development <span class="dt">\</span></span>
-<span id="cb16-6"><a href="getting-started.html#cb16-6" tabindex="-1"></a>  <span class="at">--recurse-submodules</span><span class="op">=</span><span class="st">"."</span> <span class="dt">\</span></span>
-<span id="cb16-7"><a href="getting-started.html#cb16-7" tabindex="-1"></a>  <span class="at">--recurse-submodules</span><span class="op">=</span><span class="st">":(exclude)app"</span> <span class="dt">\</span></span>
-<span id="cb16-8"><a href="getting-started.html#cb16-8" tabindex="-1"></a>  <span class="at">--recurse-submodules</span><span class="op">=</span><span class="st">":(exclude)deploy"</span> <span class="dt">\</span></span>
-<span id="cb16-9"><a href="getting-started.html#cb16-9" tabindex="-1"></a>  <span class="at">-j8</span>  https://github.com/PredictiveEcology/LandWeb</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="getting-started.html#cb15-1" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/GitHub</span>
+<span id="cb15-2"><a href="getting-started.html#cb15-2" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub</span>
+<span id="cb15-3"><a href="getting-started.html#cb15-3" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="getting-started.html#cb15-4" tabindex="-1"></a><span class="co">## get development branch (app and deploy are private submodules)</span></span>
+<span id="cb15-5"><a href="getting-started.html#cb15-5" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--single-branch</span> <span class="at">-b</span> development <span class="dt">\</span></span>
+<span id="cb15-6"><a href="getting-started.html#cb15-6" tabindex="-1"></a>  <span class="at">--recurse-submodules</span><span class="op">=</span><span class="st">"."</span> <span class="dt">\</span></span>
+<span id="cb15-7"><a href="getting-started.html#cb15-7" tabindex="-1"></a>  <span class="at">--recurse-submodules</span><span class="op">=</span><span class="st">":(exclude)app"</span> <span class="dt">\</span></span>
+<span id="cb15-8"><a href="getting-started.html#cb15-8" tabindex="-1"></a>  <span class="at">--recurse-submodules</span><span class="op">=</span><span class="st">":(exclude)deploy"</span> <span class="dt">\</span></span>
+<span id="cb15-9"><a href="getting-started.html#cb15-9" tabindex="-1"></a>  <span class="at">-j8</span>  https://github.com/PredictiveEcology/LandWeb</span></code></pre></div>
 <p><strong>NOTE:</strong> the <code>app</code> and <code>deploy</code> submodule repos are <em>private</em>.</p>
 </div>
 <div id="project-directory-structure" class="section level2" number="1.3">
@@ -430,8 +423,8 @@ Figure 1.1: Screenshot showing showing code commits in Git Kraken. The submodule
 <span class="header-section-number">1.4.2</span> Using the command line<a class="anchor" aria-label="anchor" href="#using-the-command-line"><i class="fas fa-link"></i></a>
 </h3>
 <p><strong>WARNING:</strong> experienced git users only!</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="getting-started.html#cb17-1" tabindex="-1"></a><span class="fu">git</span> pull</span>
-<span id="cb17-2"><a href="getting-started.html#cb17-2" tabindex="-1"></a><span class="fu">git</span> submodule update <span class="at">--recursive</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="getting-started.html#cb16-1" tabindex="-1"></a><span class="fu">git</span> pull</span>
+<span id="cb16-2"><a href="getting-started.html#cb16-2" tabindex="-1"></a><span class="fu">git</span> submodule update <span class="at">--recursive</span></span></code></pre></div>
 </div>
 </div>
 <div id="data-requirements" class="section level2" number="1.5">
@@ -503,7 +496,7 @@ During first-run of the model, all required data will be downloaded to the <code
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v." was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-21.</p>
+    <p>"<strong>LandWeb Manual</strong>: v." was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-23.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

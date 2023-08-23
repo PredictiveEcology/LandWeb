@@ -3057,7 +3057,7 @@ Figure 4.6: Simulation efficiencies of LBSE and <em>Biomass_core</em> with incre
 <h3>
 <span class="header-section-number">4.3.1</span> Set up R libraries<a class="anchor" aria-label="anchor" href="#example-libs"><i class="fas fa-link"></i></a>
 </h3>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>CRAN <span class="op">=</span> <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">tempDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -3087,7 +3087,7 @@ repository</a> directly.</p>
 dependencies are installed in their correct version.
 <code><a href="http://spades-project.predictiveecology.org/reference/metadata.html">SpaDES.project::packagesInModules</a></code> makes a list of necessary packages for all
 modules in the <code>paths$modulePath</code>, and <code>Require</code> installs them.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://Require.predictiveecology.org/reference/Require.html">Require</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES.project@6d7de6ee12fc967c7c60de44f1aa3b04e6eeb5db"</span>,</span>
 <span>    require <span class="op">=</span> <span class="cn">FALSE</span>, upgrade <span class="op">=</span> <span class="cn">FALSE</span>, standAlone <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -3120,7 +3120,7 @@ pixel-based, so to “spatialise” results <em>a posteriori</em> the <code>pixe
 also be saved.</p>
 <p>Please see the lists of <a href="landr-biomass_core-module.html#inputs-list">input objects</a>,
 <a href="landr-biomass_core-module.html#params-list">parameters</a> and <a href="landr-biomass_core-module.html#outputs-list">outputs</a> for more information.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fl">0</span>, end <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">studyArea</span> <span class="op">&lt;-</span> <span class="fu">Cache</span><span class="op">(</span><span class="va">randomStudyArea</span>, size <span class="op">=</span> <span class="fl">1e+07</span><span class="op">)</span>  <span class="co"># cache this so it creates a random one only once on a machine</span></span>
@@ -3164,7 +3164,7 @@ initialises all modules) and <code>spades</code> (which runs all modules, i.e., 
 to which pass all the necessary setup objects created above.</p>
 <p>Below, we pass some useful <code>reproducible</code> options that control caching (<code>"reproducible.useCache"</code>)
 and where inputs should be downloaded to (<code>"reproducible.destinationPath"</code>).</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">opts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>reproducible.useCache <span class="op">=</span> <span class="cn">TRUE</span>, reproducible.destinationPath <span class="op">=</span> <span class="va">paths</span><span class="op">$</span><span class="va">inputPath</span>,</span>
 <span>    spades.useRequire <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html">graphics.off</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -8131,7 +8131,7 @@ mechanisms to satisfy each module’s expected inputs with default values.<a hre
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v." was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-21.</p>
+    <p>"<strong>LandWeb Manual</strong>: v." was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-23.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
