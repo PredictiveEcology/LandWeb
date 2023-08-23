@@ -159,6 +159,10 @@ The first time running the model, open the file `00-global.R`, and step through 
 source("00-global.R")
 ```
 
+:::{.rmdimportant}
+When authenticating with Google Drive, be sure to check the box to allow access to files.
+:::
+
 ### Commandline interface
 
 In addition to running the model in an interactive R session, we provide a commandline interface to run replicates of the model for the study areas defined above (i.e., batch mode).

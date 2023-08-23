@@ -1,0 +1,13 @@
+# Modifying LandWeb
+
+## Adding a new study area
+
+Lorem ipsum ... (TODO)
+
+## Updating the LTFHC map
+
+Lorem ipsum ... (TODO)
+
+## Contributing changes
+
+- via pull request on GitHub

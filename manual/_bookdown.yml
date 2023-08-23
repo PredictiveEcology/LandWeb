@@ -25,4 +25,5 @@ rmd_files:
 #  - ../m/timeSinceFire/timeSinceFire2.Rmd
 #  - ../m/LandWeb_summary/LandWeb_summary2.Rmd
   - web-app.Rmd
+  - modifying-landweb.Rmd
   - references.Rmd
