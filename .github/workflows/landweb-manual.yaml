@@ -36,7 +36,7 @@ jobs:
       ## build the manual
       - run: |
           renv::restore()
-          source("manual/RUNME.R")
+          source("manual/build.R")
           shell: Rscript {0}
 
       - uses: actions/upload-pages-artifact@v2
