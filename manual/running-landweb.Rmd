@@ -13,7 +13,7 @@ renv::restore()
 
 ## Model setup and configuration
 
-```r{setup-running-landweb, echo=FALSE, eval=TRUE, include=FALSE, message=FALSE}
+```{r setup-running-landweb, echo=FALSE, eval=TRUE, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval = FALSE, results = "hold") ## change to eval = TRUE if all chunks are to be evaluated
 
 library("ggplot2")
