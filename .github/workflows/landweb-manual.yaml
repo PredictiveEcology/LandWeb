@@ -35,6 +35,7 @@ jobs:
 
       ## build the manual
       - run: |
+          options(renv.config.mran.enabled = FALSE)
           renv::restore()
           source("manual/build.R")
           shell: Rscript {0}
