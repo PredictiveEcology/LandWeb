@@ -155,7 +155,7 @@ example-runSim
 appendix
 appendix-tables
 refs
-biomass_regeneration-module
+landr-biomass_regeneration-module
 authors-3
 module-overview-3
 module-summary-1

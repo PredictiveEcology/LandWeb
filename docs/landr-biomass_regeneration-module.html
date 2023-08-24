@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 6 LandR Biomass_regeneration Module | LandWeb Manual</title>
+<meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
+<meta name="description" content="6.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Yong Luo yluo1@lakeheadu.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
+<meta name="generator" content="bookdown 0.34 with bs4_book()">
+<meta property="og:title" content="Chapter 6 LandR Biomass_regeneration Module | LandWeb Manual">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://predictiveecology.github.io/LandWeb/landr-biomass_regeneration-module.html">
+<meta property="og:description" content="6.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Yong Luo yluo1@lakeheadu.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 6 LandR Biomass_regeneration Module | LandWeb Manual">
+<meta name="twitter:description" content="6.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Yong Luo yluo1@lakeheadu.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="v.">LandWeb Manual</a>:
+        <small class="text-muted">v.</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Overview</a></li>
+<li><a class="" href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></li>
+<li><a class="" href="running-landweb.html"><span class="header-section-number">2</span> Running LandWeb</a></li>
+<li><a class="" href="study-areas.html">Study areas</a></li>
+<li><a class="" href="landr-landweb_preamble-module.html"><span class="header-section-number">3</span> LandR LandWeb_preamble Module</a></li>
+<li><a class="" href="vegetation-submodel.html">Vegetation submodel</a></li>
+<li><a class="" href="landr-biomass_borealdataprep-module.html"><span class="header-section-number">4</span> LandR Biomass_borealDataPrep Module</a></li>
+<li><a class="" href="landr-biomass_core-module.html"><span class="header-section-number">5</span> LandR Biomass_core Module</a></li>
+<li><a class="active" href="landr-biomass_regeneration-module.html"><span class="header-section-number">6</span> LandR Biomass_regeneration Module</a></li>
+<li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
+<li><a class="" href="model-outputs.html">Model outputs</a></li>
+<li><a class="" href="web-app.html">Web app</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">7</span> Modifying LandWeb</a></li>
+<li><a class="" href="references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/PredictiveEcology/LandWeb">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landr-biomass_regeneration-module" class="section level1" number="6">
+<h1>
+<span class="header-section-number">6</span> LandR <em>Biomass_regeneration</em> Module<a class="anchor" aria-label="anchor" href="#landr-biomass_regeneration-module"><i class="fas fa-link"></i></a>
+</h1>
+<!-- the following are text references used in captions for LaTeX compatibility -->
+
+<div id="authors-3" class="section level4" number="6.0.0.1">
+<h4>
+<span class="header-section-number">6.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-3"><i class="fas fa-link"></i></a>
+</h4>
+<p>Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut, cre], Yong Luo <a href="mailto:yluo1@lakeheadu.ca" class="email">yluo1@lakeheadu.ca</a> [aut], Ceres Barros <a href="mailto:cbarros@mail.ubc.ca" class="email">cbarros@mail.ubc.ca</a> [aut], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [ctb]
+<!-- ideally separate authors with new lines, '\n' not working --></p>
+</div>
+<div id="module-overview-3" class="section level2" number="6.1">
+<h2>
+<span class="header-section-number">6.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview-3"><i class="fas fa-link"></i></a>
+</h2>
+<div id="module-summary-1" class="section level3" number="6.1.1">
+<h3>
+<span class="header-section-number">6.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>Biomass_regeneration is a SpaDES module that simulates post-disturbance regeneration mechanisms for Biomass_core.
+As such, this module is mostly based on the post-disturbance regeneration mechanisms present in LANDIS-II Biomass Succession v3.2.1 extension (see <a href="https://github.com/LANDIS-II-Foundation/Extension-Biomass-Succession/blob/master/docs/LANDIS-II%20Biomass%20Succession%20v3.2%20User%20Guide.docx">LANDIS-II Biomass Succession v3.2 User Guide</a> and <a href="https://pdfs.semanticscholar.org/4d38/d0be6b292eccd444af399775d37a757d1967.pdf">Scheller and Mladenoff (2004)</a>.
+At the moment, the Biomass_regeneration module only simulates post-fire disturbance effects on forest species, by simulating post-fire mortality and activating serotiny or resprouting mechanisms for each species, depending on their traits (i.e. ability to resprout and/or germinate from seeds, serotiny, following fire).
+Post-fire mortality behaves in a stand-replacing fashion, i.e. should a pixel be within a fire perimeter (determined by a fire raster) all cohorts see their biomasses set to 0.</p>
+<p>As for post-fire regeneration, the module first evaluates whether any species present prior to fire are serotinous.
+If so, these species will germinate depending on light conditions and their shade tolerance, and depending on their (seed) establishment probability (i.e. germination success) in that pixel.
+The module then evaluates if any species present before fire are capable of resprouting.
+If so the model growth these species depending, again, on light conditions and their shade tolerance, and on their resprouting probability (i.e. resprouting success).
+For any given species in any given pixel, only serotiny or resprouting can occur.
+Hence, species that are capable of both will only resprout if serotiny was not activated.</p>
+<p>In LANDIS-II, resprouting could never occur in a given pixel if serotiny was activated for one or more species.
+According to the manual:</p>
+<blockquote>
+<p>If serotiny (only possible immediately following a fire) is triggered for one or more species, then neither resprouting nor seeding will occur.
+Serotiny is given precedence over resprouting as it typically has a higher threshold for success than resprouting.
+This slightly favors serotinous species when mixed with species able to resprout following a fire.</p>
+</blockquote>
+<p>(<a href="https://github.com/LANDIS-II-Foundation/Extension-Biomass-Succession/blob/master/docs/LANDIS-II%20Biomass%20Succession%20v3.2%20User%20Guide.docx">LANDIS-II Biomass Succession v3.2 User Guide</a>)</p>
+<p>This is no longer the case in Biomass_regeneration, where both serotinity and resprouting can occur in the same pixel, although not for the same species.
+We feel that this is more realistic ecologically, as resprouters will typically regenerate faster after a fire, often shading serotinous species and creating interesting successional feedbacks (e.g. light-loving serotinous species having to “wait” for canopy gaps to germinate).</p>
+</div>
+<div id="general-flow-of-biomass_regeneration-processes---fire-disturbances-only" class="section level3" number="6.1.2">
+<h3>
+<span class="header-section-number">6.1.2</span> General flow of Biomass_regeneration processes - fire disturbances only<a class="anchor" aria-label="anchor" href="#general-flow-of-biomass_regeneration-processes---fire-disturbances-only"><i class="fas fa-link"></i></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>Removal of biomass in disturbed, i.e. burnt, pixels</li>
+<li>Activation of serotiny for serotinous species present before the fire</li>
+<li>Activation of resprouting for resprouter species present before the fire and for which serotiny was not activated</li>
+<li>Establishment/growth of species for which serotiny or resprouting were activated</li>
+</ol>
+</div>
+<div id="module-inputs-and-parameters" class="section level3" number="6.1.3">
+<h3>
+<span class="header-section-number">6.1.3</span> Module inputs and parameters<a class="anchor" aria-label="anchor" href="#module-inputs-and-parameters"><i class="fas fa-link"></i></a>
+</h3>
+<p>Table <a href="landr-biomass_regeneration-module.html#tab:moduleInputs-Biomass-regeneration">6.1</a> shows the full list of module inputs.</p>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:moduleInputs-Biomass-regeneration">Table 6.1: </span>List of <em>Biomass_regeneration</em> input objects and their description.</caption>
+<colgroup>
+<col width="7%">
+<col width="2%">
+<col width="49%">
+<col width="40%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">objectName</th>
+<th align="left">objectClass</th>
+<th align="left">desc</th>
+<th align="left">sourceURL</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">cohortData</td>
+<td align="left">data.table</td>
+<td align="left">age cohort-biomass table hooked to pixel group map by <code>pixelGroupIndex</code> at succession time step</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">inactivePixelIndex</td>
+<td align="left">logical</td>
+<td align="left">internal use. Keeps track of which pixels are inactive</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">pixelGroupMap</td>
+<td align="left">RasterLayer</td>
+<td align="left">updated community map at each succession time step</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">rasterToMatch</td>
+<td align="left">RasterLayer</td>
+<td align="left">a raster of the <code>studyArea</code>.</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">rstCurrentBurn</td>
+<td align="left">RasterLayer</td>
+<td align="left">Binary raster of fires, 1 meaning ‘burned’, 0 or NA is non-burned</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">species</td>
+<td align="left">data.table</td>
+<td align="left">a table that has species traits such as longevity…</td>
+<td align="left"><a href="https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/species.txt" class="uri">https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/species.txt</a></td>
+</tr>
+<tr class="odd">
+<td align="left">speciesEcoregion</td>
+<td align="left">data.table</td>
+<td align="left">table defining the maxANPP, maxB and SEP, which can change with both ecoregion and simulation time</td>
+<td align="left"><a href="https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/biomass-succession-dynamic-inputs_test.txt" class="uri">https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/biomass-succession-dynamic-inputs_test.txt</a></td>
+</tr>
+<tr class="even">
+<td align="left">sufficientLight</td>
+<td align="left">data.frame</td>
+<td align="left">table defining how the species with different shade tolerance respond to stand shadiness</td>
+<td align="left"><a href="https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/biomass-succession_test.txt" class="uri">https://raw.githubusercontent.com/LANDIS-II-Foundation/Extensions-Succession/master/biomass-succession-archive/trunk/tests/v6.0-2.0/biomass-succession_test.txt</a></td>
+</tr>
+<tr class="odd">
+<td align="left">treedFirePixelTableSinceLastDisp</td>
+<td align="left">data.table</td>
+<td align="left">3 columns: pixelIndex, pixelGroup, and burnTime. Each row represents a forested pixel that was burned up to and including this year, since last dispersal event, with its corresponding pixelGroup and time it occurred</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table></div>
+<p>Summary of user-visible parameters (Table <a href="landr-biomass_regeneration-module.html#tab:moduleParams-Biomass-regeneration">6.2</a>):</p>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:moduleParams-Biomass-regeneration">Table 6.2: </span>List of <em>Biomass_regeneration</em> parameters and their description.</caption>
+<colgroup>
+<col width="8%">
+<col width="4%">
+<col width="5%">
+<col width="1%">
+<col width="1%">
+<col width="79%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">paramName</th>
+<th align="left">paramClass</th>
+<th align="left">default</th>
+<th align="left">min</th>
+<th align="left">max</th>
+<th align="left">paramDesc</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">calibrate</td>
+<td align="left">logical</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Do calibration? Defaults to FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">cohortDefinitionCols</td>
+<td align="left">character</td>
+<td align="left">pixelGro….</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">columns in cohortData that determine unique cohorts</td>
+</tr>
+<tr class="odd">
+<td align="left">fireInitialTime</td>
+<td align="left">numeric</td>
+<td align="left">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">The event time that the first fire disturbance event occurs</td>
+</tr>
+<tr class="even">
+<td align="left">fireTimestep</td>
+<td align="left">numeric</td>
+<td align="left">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">The number of time units between successive fire events in a fire module</td>
+</tr>
+<tr class="odd">
+<td align="left">initialB</td>
+<td align="left">numeric</td>
+<td align="left">10</td>
+<td align="left">1</td>
+<td align="left">NA</td>
+<td align="left">initial biomass values of new age-1 cohorts. If <code>NA</code> or <code>NULL</code>, initial biomass will be calculated as in LANDIS-II Biomass Suc. Extension (see Scheller and Miranda, 2015 or <code><a href="https://landr.predictiveecology.org/reference/updateCohortData.html">?LandR::.initiateNewCohorts</a></code>)</td>
+</tr>
+<tr class="even">
+<td align="left">successionTimestep</td>
+<td align="left">numeric</td>
+<td align="left">10</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">defines the simulation time step, default is 10 years</td>
+</tr>
+<tr class="odd">
+<td align="left">.plots</td>
+<td align="left">character</td>
+<td align="left">screen</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Used by Plots function, which can be optionally used here</td>
+</tr>
+<tr class="even">
+<td align="left">.plotInitialTime</td>
+<td align="left">numeric</td>
+<td align="left">0</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">This describes the simulation time at which the first plot event should occur</td>
+</tr>
+<tr class="odd">
+<td align="left">.plotInterval</td>
+<td align="left">numeric</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">This describes the simulation time interval between plot events</td>
+</tr>
+<tr class="even">
+<td align="left">.saveInitialTime</td>
+<td align="left">numeric</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">This describes the simulation time at which the first save event should occur</td>
+</tr>
+<tr class="odd">
+<td align="left">.saveInterval</td>
+<td align="left">numeric</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">This describes the simulation time interval between save events</td>
+</tr>
+<tr class="even">
+<td align="left">.useCache</td>
+<td align="left">character</td>
+<td align="left">.inputOb….</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div id="module-outputs" class="section level3" number="6.1.4">
+<h3>
+<span class="header-section-number">6.1.4</span> Module outputs<a class="anchor" aria-label="anchor" href="#module-outputs"><i class="fas fa-link"></i></a>
+</h3>
+<p>Description of the module outputs (Table <a href="landr-biomass_regeneration-module.html#tab:moduleOutputs-Biomass-regeneration">6.3</a>).</p>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:moduleOutputs-Biomass-regeneration">Table 6.3: </span>List of <em>Biomass_regeneration</em> outputs and their description.</caption>
+<colgroup>
+<col width="12%">
+<col width="4%">
+<col width="82%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">objectName</th>
+<th align="left">objectClass</th>
+<th align="left">desc</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">cohortData</td>
+<td align="left">data.table</td>
+<td align="left">age cohort-biomass table hooked to pixel group map by pixelGroupIndex at succession time step</td>
+</tr>
+<tr class="even">
+<td align="left">lastFireYear</td>
+<td align="left">numeric</td>
+<td align="left">Year of the most recent fire year</td>
+</tr>
+<tr class="odd">
+<td align="left">pixelGroupMap</td>
+<td align="left">RasterLayer</td>
+<td align="left">updated community map at each succession time step</td>
+</tr>
+<tr class="even">
+<td align="left">serotinyResproutSuccessPixels</td>
+<td align="left">numeric</td>
+<td align="left">Pixels that were successfully regenerated via serotiny or resprouting. This is a subset of treedBurnLoci</td>
+</tr>
+<tr class="odd">
+<td align="left">postFireRegenSummary</td>
+<td align="left">data.table</td>
+<td align="left">summary table of species post-fire regeneration</td>
+</tr>
+<tr class="even">
+<td align="left">severityBMap</td>
+<td align="left">RasterLayer</td>
+<td align="left">A map of fire severity, as in the amount of post-fire mortality (biomass loss)</td>
+</tr>
+<tr class="odd">
+<td align="left">severityData</td>
+<td align="left">data.table</td>
+<td align="left">A data.table of pixel fire severity, as in the amount of post-fire mortality (biomass loss). May also have severity class used to calculate mortality.</td>
+</tr>
+<tr class="even">
+<td align="left">treedFirePixelTableSinceLastDisp</td>
+<td align="left">data.table</td>
+<td align="left">3 columns: pixelIndex, pixelGroup, and burnTime. Each row represents a forested pixel that was burned up to and including this year, since last dispersal event, with its corresponding pixelGroup and time it occurred</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div id="links-to-other-modules-1" class="section level3" number="6.1.5">
+<h3>
+<span class="header-section-number">6.1.5</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules-1"><i class="fas fa-link"></i></a>
+</h3>
+<p>Primarily used with the LandR Biomass suite of modules, namely <a href="https://github.com/PredictiveEcology/Biomass_core">Biomass_core</a>.</p>
+</div>
+</div>
+<div id="getting-help-1" class="section level2" number="6.2">
+<h2>
+<span class="header-section-number">6.2</span> Getting help<a class="anchor" aria-label="anchor" href="#getting-help-1"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>
+<a href="https://gitter.im/PredictiveEcology/LandR_Biomass" class="uri">https://gitter.im/PredictiveEcology/LandR_Biomass</a>
+## References
+</li>
+</ul>
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="landr-biomass_core-module.html"><span class="header-section-number">5</span> LandR Biomass_core Module</a></div>
+<div class="next"><a href="wildfire-submodel.html">Wildfire submodel</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#landr-biomass_regeneration-module"><span class="header-section-number">6</span> LandR Biomass_regeneration Module</a></li>
+<li>
+<a class="nav-link" href="#module-overview-3"><span class="header-section-number">6.1</span> Module Overview</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#module-summary-1"><span class="header-section-number">6.1.1</span> Module summary</a></li>
+<li><a class="nav-link" href="#general-flow-of-biomass_regeneration-processes---fire-disturbances-only"><span class="header-section-number">6.1.2</span> General flow of Biomass_regeneration processes - fire disturbances only</a></li>
+<li><a class="nav-link" href="#module-inputs-and-parameters"><span class="header-section-number">6.1.3</span> Module inputs and parameters</a></li>
+<li><a class="nav-link" href="#module-outputs"><span class="header-section-number">6.1.4</span> Module outputs</a></li>
+<li><a class="nav-link" href="#links-to-other-modules-1"><span class="header-section-number">6.1.5</span> Links to other modules</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#getting-help-1"><span class="header-section-number">6.2</span> Getting help</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/../m/Biomass_regeneration/Biomass_regeneration2.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/../m/Biomass_regeneration/Biomass_regeneration2.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>LandWeb Manual</strong>: v." was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-23.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>
