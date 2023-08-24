@@ -78,6 +78,7 @@
 <li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
 <li><a class="" href="model-outputs.html">Model outputs</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">5</span> Modifying LandWeb</a></li>
 <li><a class="" href="references.html">References</a></li>
 </ul>
 
@@ -119,11 +120,9 @@ These defaults are defined as ‘dot-variables’ (e.g., <code>.studyAreaName</c
 <p>Currently, only a subset of the FMAs within the LandWeb study area are predefined to be run on their own (i.e., without needing to run the model over the entire study area; see Table 2).</p>
 <pre><code>## Warning: st_centroid assumes attributes are constant over
 ## geometries</code></pre>
-<pre><code>## Warning: The `&lt;scale&gt;` argument of `guides()` cannot be `FALSE`. Use "none" instead as
-## of ggplot2 3.3.4.
+<pre><code>## Warning: The `&lt;scale&gt;` argument of `guides()` cannot be `FALSE`. Use "none" instead as of ggplot2 3.3.4.
 ## This warning is displayed once every 8 hours.
-## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-## generated.</code></pre>
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</code></pre>
 <div class="figure">
 <span style="display:block;" id="fig:fma-map"></span>
 <img src="LandWeb_manual_files/figure-html/fma-map-1.png" alt="\label{fig:fma-map} FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs." width="90%"><p class="caption">
@@ -240,6 +239,9 @@ The seed used is also saved in human-readable <code>seed.txt</code> file.</p>
 The first time running the model, open the file <code>00-global.R</code>, and step through each line to ensure any prompts etc. are answered correctly.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html">source</a></span><span class="op">(</span><span class="st">"00-global.R"</span><span class="op">)</span></span></code></pre></div>
+<div class="rmdimportant">
+<p>When authenticating with Google Drive, be sure to check the box to allow access to files.</p>
+</div>
 </div>
 <div id="commandline-interface" class="section level3" number="2.2.2">
 <h3>
@@ -284,7 +286,7 @@ More advanced users running multiple parallel simulations may wish to set up and
 <h2>
 <span class="header-section-number">2.5</span> Post-processing analyses<a class="anchor" aria-label="anchor" href="#post-processing-analyses"><i class="fas fa-link"></i></a>
 </h2>
-<p>After having run several reps of the model on a given study area, results are combined in subsequent post-processing analyses to generate the following outputs:</p>
+<p>After having run several reps of the model on a given study area, results are combined in subsequent post-processing analyses to generate the following outputs for each set of rreporting polygons within the study area:</p>
 <ul>
 <li>boxplots of leading vegetation cover;</li>
 <li>histograms of leading vegetation cover;</li>
@@ -329,8 +331,8 @@ More advanced users running multiple parallel simulations may wish to set up and
 
       <div class="book-extra">
         <ul class="list-unstyled">
-<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/running-landweb.Rmd">View source <i class="fab fa-github"></i></a></li>
-          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/running-landweb.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/02-running-landweb.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/02-running-landweb.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
         </ul>
 </div>
     </nav>

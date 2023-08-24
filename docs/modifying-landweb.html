@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 5 Modifying LandWeb | LandWeb Manual</title>
+<meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
+<meta name="description" content="5.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
+<meta name="generator" content="bookdown 0.34 with bs4_book()">
+<meta property="og:title" content="Chapter 5 Modifying LandWeb | LandWeb Manual">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://predictiveecology.github.io/LandWeb/modifying-landweb.html">
+<meta property="og:description" content="5.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 5 Modifying LandWeb | LandWeb Manual">
+<meta name="twitter:description" content="5.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="v.">LandWeb Manual</a>:
+        <small class="text-muted">v.</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Overview</a></li>
+<li><a class="" href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></li>
+<li><a class="" href="running-landweb.html"><span class="header-section-number">2</span> Running LandWeb</a></li>
+<li><a class="" href="study-areas.html">Study areas</a></li>
+<li><a class="" href="landr-landweb_preamble-module.html"><span class="header-section-number">3</span> LandR LandWeb_preamble Module</a></li>
+<li><a class="" href="vegetation-submodel.html">Vegetation submodel</a></li>
+<li><a class="" href="landr-biomass_core-module.html"><span class="header-section-number">4</span> LandR Biomass_core Module</a></li>
+<li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
+<li><a class="" href="model-outputs.html">Model outputs</a></li>
+<li><a class="" href="web-app.html">Web app</a></li>
+<li><a class="active" href="modifying-landweb.html"><span class="header-section-number">5</span> Modifying LandWeb</a></li>
+<li><a class="" href="references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/PredictiveEcology/LandWeb">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="modifying-landweb" class="section level1" number="5">
+<h1>
+<span class="header-section-number">5</span> Modifying LandWeb<a class="anchor" aria-label="anchor" href="#modifying-landweb"><i class="fas fa-link"></i></a>
+</h1>
+<div id="example-1-adding-new-reporting-polygons" class="section level2" number="5.1">
+<h2>
+<span class="header-section-number">5.1</span> Example 1: adding new reporting polygons<a class="anchor" aria-label="anchor" href="#example-1-adding-new-reporting-polygons"><i class="fas fa-link"></i></a>
+</h2>
+<p>‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area.
+These are created in the <code>LandWeb_preamble</code> module, and added to <code>sim$ml</code> (an object of class <code>map</code>, from the <code>map</code> package).
+Reporting polygons are not used during simulation, but rather during post-processing in the <code>LandWeb_summaries</code> module.</p>
+<p>Adding a new reporting polygons is straightforward - one simply needs to edit the <code>LandWeb_preamble</code> code to 1) create the object and 2) add it to the <code>map</code> (<em>i.e.</em>, <code>sim$ml</code>) object.
+For reporting polygons retrieved from public or Google Drive URLs, both steps may be combined in a single <code>mapAdd()</code> call.</p>
+<div class="rmdimportant">
+<p>Downstream use requires each set of reporting polygons to have a <code>Name</code> (and <code>shinyLabel</code>) field (column).
+These fields are typically derived from a single field in the raw source, and are thus identical in value.
+Additionally, the helper function <code>joinreportingPolygons()</code> should be used following a geospatial intersection operation (<em>e.g.</em>, using <code>postProcess()</code>) to ensure that post-intersection labels like <code>Names.1</code> and <code>shinyLabel.1</code> are corrected.</p>
+</div>
+<div id="national-scale-polygons" class="section level3" number="5.1.1">
+<h3>
+<span class="header-section-number">5.1.1</span> National-scale polygons<a class="anchor" aria-label="anchor" href="#national-scale-polygons"><i class="fas fa-link"></i></a>
+</h3>
+<p>When adding reporting polygons derived from <em>national-scale</em> data sources, the changes need to be made in <code>LandWeb_preamble.R</code> <em>as well as</em> each of the study-area-specific files in <code>LandWeb_preamble/R/</code> so that LandWeb runs using any study area can make use the new reporting polygons.</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## LandWeb_preamble.R</span></span>
+<span></span>
+<span><span class="co">## create the national-scale object and add to map object in a single call</span></span>
+<span><span class="va">ml</span> <span class="op">&lt;-</span> <span class="fu">mapAdd</span><span class="op">(</span>map <span class="op">=</span> <span class="va">ml</span>, layerName <span class="op">=</span> <span class="st">"National Ecoregions"</span>,</span>
+<span>             useSAcrs <span class="op">=</span> <span class="cn">TRUE</span>, poly <span class="op">=</span> <span class="cn">TRUE</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>             url <span class="op">=</span> <span class="st">"https://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip"</span>,</span>
+<span>             columnNameForLabels <span class="op">=</span> <span class="st">"REGION_NAM"</span>, isStudyArea <span class="op">=</span> <span class="cn">FALSE</span>, filename2 <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## ensure there is a 'Name' field in the new object</span></span>
+<span><span class="va">ml</span><span class="op">[[</span><span class="st">"National Ecoregions"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Name"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">ml</span><span class="op">[[</span><span class="st">"National Ecoregions"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"REGION_NAM"</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
+<p>Next, we need to modify each of the regional files to make use of these new national polygons, but intersected and cropped to the study area:</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## LandWeb_preamble/R/provSK.R</span></span>
+<span></span>
+<span><span class="co">## 1. create the reporting polygons by intesecting the National Ecoregions with SK admin boundary</span></span>
+<span><span class="va">SK.natler</span> <span class="op">&lt;-</span> <span class="fu">postProcess</span><span class="op">(</span><span class="va">ml</span><span class="op">[[</span><span class="st">"National Ecoregions"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                         studyArea <span class="op">=</span> <span class="va">SK</span>, useSAcrs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                         filename2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">dataDir</span>, <span class="st">"SK_NATLER.shp"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">joinReportingPolygons</span><span class="op">(</span><span class="va">SK</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co">## 2. add to the map object</span></span>
+<span><span class="va">ml</span> <span class="op">&lt;-</span> <span class="fu">mapAdd</span><span class="op">(</span><span class="va">SK.natler</span>, <span class="va">ml</span>, layerName <span class="op">=</span> <span class="st">"SK NATLER"</span>, useSAcrs <span class="op">=</span> <span class="cn">TRUE</span>, poly <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>             analysisGroupReportingPolygon <span class="op">=</span> <span class="st">"SK NATLER"</span>,</span>
+<span>             columnNameForLabels <span class="op">=</span> <span class="st">"REGION_NAM"</span>, filename2 <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div id="regional-or-study-area-specific-polygons" class="section level3" number="5.1.2">
+<h3>
+<span class="header-section-number">5.1.2</span> Regional or study-area-specific polygons<a class="anchor" aria-label="anchor" href="#regional-or-study-area-specific-polygons"><i class="fas fa-link"></i></a>
+</h3>
+<p>If adding regional or study-area-specific reporting polygons (<em>e.g.</em>, for an FMA’s active/passive landbase), then the new reporting polygons should be added to the corresponding study area code file found in <code>LandWeb_preamble/R</code>.</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## LandWeb_preamble/R/WestFraser.R</span></span>
+<span></span>
+<span><span class="co">## 1. create the reporting polygons by downloading and cleaning up shapefile</span></span>
+<span><span class="va">wf_br.lbstatus</span> <span class="op">&lt;-</span> <span class="fu">Cache</span><span class="op">(</span></span>
+<span>  <span class="va">prepInputs</span>,</span>
+<span>  url <span class="op">=</span> <span class="st">"https://drive.google.com/file/d/1A7N_EIbO2wMBI_YTmU2Z-bQwqC9sY_EC/"</span>,</span>
+<span>  destinationPath <span class="op">=</span> <span class="va">dataDir</span>,</span>
+<span>  targetFile <span class="op">=</span> <span class="st">"BRL_Landbase.shp"</span>, alsoExtract <span class="op">=</span> <span class="st">"similar"</span>,</span>
+<span>  fun <span class="op">=</span> <span class="st">"sf::st_read"</span>, studyArea <span class="op">=</span> <span class="va">wf_br</span>, useSAcrs <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">wf_br.lbstatus</span> <span class="op">&lt;-</span> <span class="va">wf_br.lbstatus</span><span class="op">[</span><span class="fu">st_is_valid</span><span class="op">(</span><span class="va">wf_br.lbstatus</span><span class="op">)</span>, <span class="op">]</span> <span class="co">## remove invalid geometries</span></span>
+<span><span class="va">wf_br.lbstatus</span> <span class="op">&lt;-</span> <span class="va">wf_br.lbstatus</span><span class="op">[</span><span class="op">!</span><span class="fu">st_is_empty</span><span class="op">(</span><span class="va">wf_br.lbstatus</span><span class="op">)</span>, <span class="op">]</span> <span class="co">## remove empty polygons</span></span>
+<span><span class="va">wf_br.lbstatus</span> <span class="op">&lt;-</span> <span class="fu">Cache</span><span class="op">(</span><span class="op">{</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span><span class="va">wf_br.lbstatus</span>, Name <span class="op">=</span> <span class="va">LBC_LBStat</span>, geometry <span class="op">=</span> <span class="va">geometry</span>, .keep <span class="op">=</span> <span class="st">"used"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">group_by</span><span class="op">(</span><span class="va">Name</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">summarise</span><span class="op">(</span>geometry <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_combine.html">st_union</a></span><span class="op">(</span><span class="va">geometry</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">ungroup</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">mutate</span><span class="op">(</span>shinyLabel <span class="op">=</span> <span class="va">Name</span>, .before <span class="op">=</span> <span class="va">geometry</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">joinReportingPolygons</span><span class="op">(</span><span class="va">wf_br</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## 2. add to the map object</span></span>
+<span><span class="va">ml</span> <span class="op">&lt;-</span> <span class="fu">mapAdd</span><span class="op">(</span><span class="va">wf_br.lbstatus</span>, <span class="va">ml</span>, layerName <span class="op">=</span> <span class="st">"West Fraser Blue Ridge LBstatus"</span>, useSAcrs <span class="op">=</span> <span class="cn">TRUE</span>, poly <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>             analysisGroupReportingPolygon <span class="op">=</span> <span class="st">"West Fraser Blue Ridge LBstatus"</span>,</span>
+<span>             columnNameForLabels <span class="op">=</span> <span class="st">"Name"</span>, filename2 <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div id="example-2-adding-a-new-study-area" class="section level2" number="5.2">
+<h2>
+<span class="header-section-number">5.2</span> Example 2: adding a new study area<a class="anchor" aria-label="anchor" href="#example-2-adding-a-new-study-area"><i class="fas fa-link"></i></a>
+</h2>
+<p>Here we will create a custom study area for an area in northwestern Alberta.
+We want to use the latest FMU map from Spring 2022 (<a href="https://www.alberta.ca/forest-management-agreements" class="uri">https://www.alberta.ca/forest-management-agreements</a>).</p>
+<ol style="list-style-type: decimal">
+<li>
+<p><strong>Externally from LandWeb</strong>, create a shapefile (or similar) for the new study area, dissolving any internal polygon boundaries.</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">nwab</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html">st_read</a></span><span class="op">(</span><span class="st">"AB_FMAs_2022-03-25/Forest Management Unit.shp"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">FMU_CODE</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"F10"</span>, <span class="st">"F11"</span>, <span class="st">"F14"</span>, <span class="st">"F15"</span>, <span class="st">"F20"</span>, <span class="st">"F23"</span>, <span class="st">"F26"</span>, <span class="st">"F51"</span>, <span class="st">"M01"</span>,</span>
+<span>                         <span class="st">"P08"</span>, <span class="st">"P14"</span>, <span class="st">"P19"</span>, <span class="st">"P20"</span>, <span class="st">"P21"</span>, <span class="st">"P22"</span>, <span class="st">"P52"</span>, <span class="st">"P55"</span>, <span class="st">"S10"</span>, <span class="st">"S11"</span>, <span class="st">"S14"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/geos_combine.html">st_union</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</li>
+<li>
+<p><strong>Externally from LandWeb</strong>, upload the shapefile to Google Drive and record the file’s Google Drive ID.</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">shpfile</span> <span class="op">&lt;-</span> <span class="st">"inputs/NW_AB.shp"</span></span>
+<span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_write.html">st_write</a></span><span class="op">(</span><span class="va">nwab</span>, <span class="va">shpfile</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">googledrive</span><span class="fu">::</span><span class="fu"><a href="https://googledrive.tidyverse.org/reference/drive_put.html">drive_put</a></span><span class="op">(</span><span class="va">shpfile</span>, <span class="fu">googledrive</span><span class="fu">::</span><span class="fu"><a href="https://googledrive.tidyverse.org/reference/as_id.html">as_id</a></span><span class="op">(</span><span class="st">"1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fid</span> <span class="op">&lt;-</span> <span class="va">result</span><span class="op">$</span><span class="va">id</span></span></code></pre></div>
+</li>
+<li>
+<p>Determine the name to use for running LandWeb with your new study area, and modify <code>LandWeb_preamble.R</code> to use this new study area by name.
+Add a new case to the <code>if</code>-<code>else</code> block in <code>LandWeb_preamble.R</code>:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="modifying-landweb.html#cb33-1" tabindex="-1"></a><span class="er">}</span> <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">grepl</span>(<span class="st">"customABNW"</span>, <span class="fu">P</span>(sim)<span class="sc">$</span>.studyAreaName)) {</span>
+<span id="cb33-2"><a href="modifying-landweb.html#cb33-2" tabindex="-1"></a>  ml <span class="ot">&lt;-</span> <span class="fu">customABNW</span>(ml, <span class="fu">P</span>(sim)<span class="sc">$</span>.studyAreaName, dataDir, sim<span class="sc">$</span>canProvs, <span class="fu">P</span>(sim)<span class="sc">$</span>bufferDist, <span class="at">asStudyArea =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</li>
+<li>
+<p>Add this new study area to the <code>map</code> object by wrapping the necessary components in a new function defined in a new file at <code>LandWeb_preamble/R</code>.
+It’s simplest to use an existing function/file in <code>LandWeb_preamble/R</code> as a template, making modifications as appropriate for your new study area.</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>copy <code>LandWeb_preamble/R/provAB.R</code> to <code>LandWeb_preamble/R/NWAB.R</code>;</p></li>
+<li><p>edit <code>LandWeb_preamble/R/NWAB.R</code>, to crop <code>AB</code> to the new study area (<code>NWAB</code>) and subsquently using <code>NWAB</code> in lieu of <code>AB</code> throughout;</p></li>
+<li><p>remove any unnecessary elements (<em>e.g.</em>, planning units and planning regions).</p></li>
+</ol>
+</li>
+<li><p>You should now be able to run the LandWeb model setting `.studyAreaName = “NWAB” and it will use the new study area.</p></li>
+</ol>
+</div>
+<div id="example-3-updating-the-lthfc-map" class="section level2" number="5.3">
+<h2>
+<span class="header-section-number">5.3</span> Example 3: updating the LTHFC map<a class="anchor" aria-label="anchor" href="#example-3-updating-the-lthfc-map"><i class="fas fa-link"></i></a>
+</h2>
+<p>Using an updated version of a data source requires only basic code modifications provided the following conditions are met:</p>
+<ul>
+<li>spatial data attributes remain the same (<em>e.g.</em>, field names are the same);</li>
+<li>a new URL is provided to the new data source;</li>
+<li>the new file name in different from the previous version (<em>e.g.</em>, it has a version number or date).</li>
+</ul>
+<p>Here we show how to modify the <code>LandWeb_preamble</code> module to use a hypothetical new version of the longs-term historic fire cycle (LTHFC) map.</p>
+<ol style="list-style-type: decimal">
+<li><p>looking at <code>LandWeb_preamble.R</code> we see that the current version of the file is <code>landweb_ltfc_v8.shp</code>.</p></li>
+<li><p>create a new spatial layer and save as <code>landweb_ltfc_v9.shp</code>.</p></li>
+<li><p>zip the new shapefile (with auxiliary files) upload this zip file to Google Drive as <code>landweb_ltfc_v9.zip</code>, making note of the Google Drive share URL.</p></li>
+<li><p>modify the <strong>two</strong> <code>mapAdd()</code> calls in <code>LandWeb_preamble.R</code> that reference the previous version (v8) of the LTHFC map to use the new (v9) Google Drive URL.</p></li>
+</ol>
+</div>
+<div id="contributing-changes" class="section level2" number="5.4">
+<h2>
+<span class="header-section-number">5.4</span> Contributing changes<a class="anchor" aria-label="anchor" href="#contributing-changes"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>via pull request[^PR] against <code>development</code> branch on GitHub</li>
+</ul>
+<p><a href="#fn11" class="footnote-ref" id="fnref11"><sup>11</sup></a>: <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request" class="uri">https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request</a></p>
+
+</div>
+</div>
+<div class="footnotes">
+<hr>
+<ol start="11">
+<li id="fn11"><p>PR<a href="modifying-landweb.html#fnref11" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="web-app.html">Web app</a></div>
+<div class="next"><a href="references.html">References</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#modifying-landweb"><span class="header-section-number">5</span> Modifying LandWeb</a></li>
+<li>
+<a class="nav-link" href="#example-1-adding-new-reporting-polygons"><span class="header-section-number">5.1</span> Example 1: adding new reporting polygons</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#national-scale-polygons"><span class="header-section-number">5.1.1</span> National-scale polygons</a></li>
+<li><a class="nav-link" href="#regional-or-study-area-specific-polygons"><span class="header-section-number">5.1.2</span> Regional or study-area-specific polygons</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#example-2-adding-a-new-study-area"><span class="header-section-number">5.2</span> Example 2: adding a new study area</a></li>
+<li><a class="nav-link" href="#example-3-updating-the-lthfc-map"><span class="header-section-number">5.3</span> Example 3: updating the LTHFC map</a></li>
+<li><a class="nav-link" href="#contributing-changes"><span class="header-section-number">5.4</span> Contributing changes</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/08-section-modifying-landweb.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/08-section-modifying-landweb.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>LandWeb Manual</strong>: v." was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-23.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

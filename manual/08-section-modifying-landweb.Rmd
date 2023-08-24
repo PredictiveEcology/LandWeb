@@ -1,0 +1,150 @@
+# Modifying LandWeb
+
+## Example 1: adding new reporting polygons
+
+'Reporting polygons' refer to the polygons by which LandWeb results are summarized within the study area.
+These are created in the `LandWeb_preamble` module, and added to `sim$ml` (an object of class `map`, from the `map` package).
+Reporting polygons are not used during simulation, but rather during post-processing in the `LandWeb_summaries` module.
+
+Adding a new reporting polygons is straightforward - one simply needs to edit the `LandWeb_preamble` code to 1) create the object and 2) add it to the `map` (*i.e.*, `sim$ml`) object.
+For reporting polygons retrieved from public or Google Drive URLs, both steps may be combined in a single `mapAdd()` call.
+
+:::{.rmdimportant}
+Downstream use requires each set of reporting polygons to have a `Name` (and `shinyLabel`) field (column).
+These fields are typically derived from a single field in the raw source, and are thus identical in value.
+Additionally, the helper function `joinreportingPolygons()` should be used following a geospatial intersection operation (*e.g.*, using `postProcess()`) to ensure that post-intersection labels like `Names.1` and `shinyLabel.1` are corrected.
+:::
+
+### National-scale polygons
+
+When adding reporting polygons derived from *national-scale* data sources, the changes need to be made in `LandWeb_preamble.R` *as well as* each of the study-area-specific files in `LandWeb_preamble/R/` so that LandWeb runs using any study area can make use the new reporting polygons.
+
+```r
+## LandWeb_preamble.R
+
+## create the national-scale object and add to map object in a single call
+ml <- mapAdd(map = ml, layerName = "National Ecoregions",
+             useSAcrs = TRUE, poly = TRUE, overwrite = TRUE,
+             url = "https://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip",
+             columnNameForLabels = "REGION_NAM", isStudyArea = FALSE, filename2 = NULL)
+
+## ensure there is a 'Name' field in the new object
+ml[["National Ecoregions"]][["Name"]] <- ml[["National Ecoregions"]][["REGION_NAM"]]
+```
+
+Next, we need to modify each of the regional files to make use of these new national polygons, but intersected and cropped to the study area:
+
+```r
+## LandWeb_preamble/R/provSK.R
+
+## 1. create the reporting polygons by intesecting the National Ecoregions with SK admin boundary
+SK.natler <- postProcess(ml[["National Ecoregions"]],
+                         studyArea = SK, useSAcrs = TRUE,
+                         filename2 = file.path(dataDir, "SK_NATLER.shp")) |>
+  joinReportingPolygons(SK)
+
+
+## 2. add to the map object
+ml <- mapAdd(SK.natler, ml, layerName = "SK NATLER", useSAcrs = TRUE, poly = TRUE,
+             analysisGroupReportingPolygon = "SK NATLER",
+             columnNameForLabels = "REGION_NAM", filename2 = NULL)
+```
+
+### Regional or study-area-specific polygons
+
+If adding regional or study-area-specific reporting polygons (*e.g.*, for an FMA's active/passive landbase), then the new reporting polygons should be added to the corresponding study area code file found in `LandWeb_preamble/R`.
+
+```r
+## LandWeb_preamble/R/WestFraser.R
+
+## 1. create the reporting polygons by downloading and cleaning up shapefile
+wf_br.lbstatus <- Cache(
+  prepInputs,
+  url = "https://drive.google.com/file/d/1A7N_EIbO2wMBI_YTmU2Z-bQwqC9sY_EC/",
+  destinationPath = dataDir,
+  targetFile = "BRL_Landbase.shp", alsoExtract = "similar",
+  fun = "sf::st_read", studyArea = wf_br, useSAcrs = TRUE
+)
+wf_br.lbstatus <- wf_br.lbstatus[st_is_valid(wf_br.lbstatus), ] ## remove invalid geometries
+wf_br.lbstatus <- wf_br.lbstatus[!st_is_empty(wf_br.lbstatus), ] ## remove empty polygons
+wf_br.lbstatus <- Cache({
+  mutate(wf_br.lbstatus, Name = LBC_LBStat, geometry = geometry, .keep = "used") |>
+    group_by(Name) |>
+    summarise(geometry = sf::st_union(geometry)) |>
+    ungroup() |>
+    mutate(shinyLabel = Name, .before = geometry) |>
+    joinReportingPolygons(wf_br)
+})
+
+## 2. add to the map object
+ml <- mapAdd(wf_br.lbstatus, ml, layerName = "West Fraser Blue Ridge LBstatus", useSAcrs = TRUE, poly = TRUE,
+             analysisGroupReportingPolygon = "West Fraser Blue Ridge LBstatus",
+             columnNameForLabels = "Name", filename2 = NULL)
+```
+
+## Example 2: adding a new study area
+
+Here we will create a custom study area for an area in northwestern Alberta.
+We want to use the latest FMU map from Spring 2022 (<https://www.alberta.ca/forest-management-agreements>).
+
+1. **Externally from LandWeb**, create a shapefile (or similar) for the new study area, dissolving any internal polygon boundaries.
+
+    ```r
+    nwab <- sf::st_read("AB_FMAs_2022-03-25/Forest Management Unit.shp") |> 
+      subset(FMU_CODE %in% c("F10", "F11", "F14", "F15", "F20", "F23", "F26", "F51", "M01",
+                             "P08", "P14", "P19", "P20", "P21", "P22", "P52", "P55", "S10", "S11", "S14")) |> 
+      sf::st_union()
+    ```
+
+2. **Externally from LandWeb**, upload the shapefile to Google Drive and record the file's Google Drive ID.
+
+    ```r
+    shpfile <- "inputs/NW_AB.shp"
+    sf::st_write(nwab, shpfile)
+    
+    result <- googledrive::drive_put(shpfile, googledrive::as_id("1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"))
+    fid <- result$id
+    ```
+
+3. Determine the name to use for running LandWeb with your new study area, and modify `LandWeb_preamble.R` to use this new study area by name.
+    Add a new case to the `if`-`else` block in `LandWeb_preamble.R`:
+   
+   ```r
+   } else if (grepl("customABNW", P(sim)$.studyAreaName)) {
+     ml <- customABNW(ml, P(sim)$.studyAreaName, dataDir, sim$canProvs, P(sim)$bufferDist, asStudyArea = TRUE)
+   ```
+
+4. Add this new study area to the `map` object by wrapping the necessary components in a new function defined in a new file at `LandWeb_preamble/R`.
+    It's simplest to use an existing function/file in `LandWeb_preamble/R` as a template, making modifications as appropriate for your new study area.
+   
+    a. copy `LandWeb_preamble/R/provAB.R` to `LandWeb_preamble/R/NWAB.R`;
+    
+    b. edit `LandWeb_preamble/R/NWAB.R`, to crop `AB` to the new study area (`NWAB`) and subsquently using `NWAB` in lieu of `AB` throughout;
+    
+    c. remove any unnecessary elements (*e.g.*, planning units and planning regions).
+    
+5. You should now be able to run the LandWeb model setting `.studyAreaName = "NWAB" and it will use the new study area.
+
+## Example 3: updating the LTHFC map
+
+Using an updated version of a data source requires only basic code modifications provided the following conditions are met:
+
+- spatial data attributes remain the same (*e.g.*, field names are the same);
+- a new URL is provided to the new data source;
+- the new file name in different from the previous version (*e.g.*, it has a version number or date).
+
+Here we show how to modify the `LandWeb_preamble` module to use a hypothetical new version of the longs-term historic fire cycle (LTHFC) map.
+
+1. looking at `LandWeb_preamble.R` we see that the current version of the file is `landweb_ltfc_v8.shp`.
+
+2. create a new spatial layer and save as `landweb_ltfc_v9.shp`.
+
+3. zip the new shapefile (with auxiliary files) upload this zip file to Google Drive as `landweb_ltfc_v9.zip`, making note of the Google Drive share URL.
+
+4. modify the **two** `mapAdd()` calls in `LandWeb_preamble.R` that reference the previous version (v8) of the LTHFC map to use the new (v9) Google Drive URL.
+
+## Contributing changes
+
+- via pull request[^PR] against `development` branch on GitHub
+
+^[PR]: <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>

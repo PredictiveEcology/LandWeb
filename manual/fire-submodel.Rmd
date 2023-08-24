@@ -1,3 +1,0 @@
-# Wildfire submodel {-}
-
-Lorem ipsum ... (TODO)

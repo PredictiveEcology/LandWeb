@@ -1,4 +1,0 @@
-# Vegetation submodel {-}
-
-The LandR ecosystem of SpaDES modules has a variety of data and/or calibration modules that are used to obtain and pre-process input data, as well as estimate input parameters required by the core forest landscape simulation module *Biomass_core*.
-These modules are presented in the subsequent chapters.  

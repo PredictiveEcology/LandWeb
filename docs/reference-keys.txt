@@ -114,3 +114,10 @@ example-runSim
 appendix
 appendix-tables
 refs
+modifying-landweb
+example-1-adding-new-reporting-polygons
+national-scale-polygons
+regional-or-study-area-specific-polygons
+example-2-adding-a-new-study-area
+example-3-updating-the-lthfc-map
+contributing-changes
