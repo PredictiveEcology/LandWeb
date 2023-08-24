@@ -344,9 +344,7 @@ data.frame(
     paste0("/"),
   description = c(
     "additional R helper scripts",                             ## R/
-    "web-app code (git submodule; private repo)",              ## app/
     "all per-run and per-study area cache files stored here",  ## cache/
-    "web-app deployment code (git submodule; private repo)",   ## deploy/
     "Dockerfiles, scripts, and documentation",                 ## docker/
     "rendered model and app documentation",                    ## docs/
     "all model data inputs stored here",                       ## inputs/
