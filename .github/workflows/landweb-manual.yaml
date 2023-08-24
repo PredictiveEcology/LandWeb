@@ -27,12 +27,13 @@ jobs:
       image: achubaty/spades-project:4.2.3
 
     env:
-      GITHUB_PAT: ${{ secrets.LANDWEB_PAT }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
         with:
-          token: LANDWEB_PAT
+          repository: PredictiveEcology/LandWeb
+          token: GITHUB_PAT
           sparse-checkout: |
             docs
             m
