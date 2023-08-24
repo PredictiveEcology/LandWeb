@@ -117,7 +117,7 @@ Additionally, the helper function <code>joinreportingPolygons()</code> should be
 <span class="header-section-number">12.1.1</span> National-scale polygons<a class="anchor" aria-label="anchor" href="#national-scale-polygons"><i class="fas fa-link"></i></a>
 </h3>
 <p>When adding reporting polygons derived from <em>national-scale</em> data sources, the changes need to be made in <code>LandWeb_preamble.R</code> <em>as well as</em> each of the study-area-specific files in <code>LandWeb_preamble/R/</code> so that LandWeb runs using any study area can make use the new reporting polygons.</p>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## LandWeb_preamble.R</span></span>
 <span></span>
 <span><span class="co">## create the national-scale object and add to map object in a single call</span></span>
@@ -129,7 +129,7 @@ Additionally, the helper function <code>joinreportingPolygons()</code> should be
 <span><span class="co">## ensure there is a 'Name' field in the new object</span></span>
 <span><span class="va">ml</span><span class="op">[[</span><span class="st">"National Ecoregions"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Name"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">ml</span><span class="op">[[</span><span class="st">"National Ecoregions"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"REGION_NAM"</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <p>Next, we need to modify each of the regional files to make use of these new national polygons, but intersected and cropped to the study area:</p>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## LandWeb_preamble/R/provSK.R</span></span>
 <span></span>
 <span><span class="co">## 1. create the reporting polygons by intesecting the National Ecoregions with SK admin boundary</span></span>
@@ -149,7 +149,7 @@ Additionally, the helper function <code>joinreportingPolygons()</code> should be
 <span class="header-section-number">12.1.2</span> Regional or study-area-specific polygons<a class="anchor" aria-label="anchor" href="#regional-or-study-area-specific-polygons"><i class="fas fa-link"></i></a>
 </h3>
 <p>If adding regional or study-area-specific reporting polygons (<em>e.g.</em>, for an FMA’s active/passive landbase), then the new reporting polygons should be added to the corresponding study area code file found in <code>LandWeb_preamble/R</code>.</p>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## LandWeb_preamble/R/WestFraser.R</span></span>
 <span></span>
 <span><span class="co">## 1. create the reporting polygons by downloading and cleaning up shapefile</span></span>
@@ -186,7 +186,7 @@ We want to use the latest FMU map from Spring 2022 (<a href="https://www.alberta
 <ol style="list-style-type: decimal">
 <li>
 <p><strong>Externally from LandWeb</strong>, create a shapefile (or similar) for the new study area, dissolving any internal polygon boundaries.</p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nwab</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html">st_read</a></span><span class="op">(</span><span class="st">"AB_FMAs_2022-03-25/Forest Management Unit.shp"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">FMU_CODE</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"F10"</span>, <span class="st">"F11"</span>, <span class="st">"F14"</span>, <span class="st">"F15"</span>, <span class="st">"F20"</span>, <span class="st">"F23"</span>, <span class="st">"F26"</span>, <span class="st">"F51"</span>, <span class="st">"M01"</span>,</span>
 <span>                         <span class="st">"P08"</span>, <span class="st">"P14"</span>, <span class="st">"P19"</span>, <span class="st">"P20"</span>, <span class="st">"P21"</span>, <span class="st">"P22"</span>, <span class="st">"P52"</span>, <span class="st">"P55"</span>, <span class="st">"S10"</span>, <span class="st">"S11"</span>, <span class="st">"S14"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -194,7 +194,7 @@ We want to use the latest FMU map from Spring 2022 (<a href="https://www.alberta
 </li>
 <li>
 <p><strong>Externally from LandWeb</strong>, upload the shapefile to Google Drive and record the file’s Google Drive ID.</p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">shpfile</span> <span class="op">&lt;-</span> <span class="st">"inputs/NW_AB.shp"</span></span>
 <span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_write.html">st_write</a></span><span class="op">(</span><span class="va">nwab</span>, <span class="va">shpfile</span><span class="op">)</span></span>
 <span></span>
@@ -204,8 +204,8 @@ We want to use the latest FMU map from Spring 2022 (<a href="https://www.alberta
 <li>
 <p>Determine the name to use for running LandWeb with your new study area, and modify <code>LandWeb_preamble.R</code> to use this new study area by name.
 Add a new case to the <code>if</code>-<code>else</code> block in <code>LandWeb_preamble.R</code>:</p>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="modifying-landweb.html#cb58-1" tabindex="-1"></a><span class="er">}</span> <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">grepl</span>(<span class="st">"customABNW"</span>, <span class="fu">P</span>(sim)<span class="sc">$</span>.studyAreaName)) {</span>
-<span id="cb58-2"><a href="modifying-landweb.html#cb58-2" tabindex="-1"></a>  ml <span class="ot">&lt;-</span> <span class="fu">customABNW</span>(ml, <span class="fu">P</span>(sim)<span class="sc">$</span>.studyAreaName, dataDir, sim<span class="sc">$</span>canProvs, <span class="fu">P</span>(sim)<span class="sc">$</span>bufferDist, <span class="at">asStudyArea =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="modifying-landweb.html#cb57-1" tabindex="-1"></a><span class="er">}</span> <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">grepl</span>(<span class="st">"customABNW"</span>, <span class="fu">P</span>(sim)<span class="sc">$</span>.studyAreaName)) {</span>
+<span id="cb57-2"><a href="modifying-landweb.html#cb57-2" tabindex="-1"></a>  ml <span class="ot">&lt;-</span> <span class="fu">customABNW</span>(ml, <span class="fu">P</span>(sim)<span class="sc">$</span>.studyAreaName, dataDir, sim<span class="sc">$</span>canProvs, <span class="fu">P</span>(sim)<span class="sc">$</span>bufferDist, <span class="at">asStudyArea =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 </li>
 <li>
 <p>Add this new study area to the <code>map</code> object by wrapping the necessary components in a new function defined in a new file at <code>LandWeb_preamble/R</code>.
