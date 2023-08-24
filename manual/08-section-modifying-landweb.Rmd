@@ -147,4 +147,4 @@ Here we show how to modify the `LandWeb_preamble` module to use a hypothetical n
 
 - via pull request[^PR] against `development` branch on GitHub
 
-^[PR]: <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>
+[^PR]: <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>

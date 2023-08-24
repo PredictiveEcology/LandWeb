@@ -168,7 +168,7 @@ When authenticating with Google Drive, be sure to check the box to allow access 
 
 ### Commandline interface
 
-In addition to running the model in an interactive R session, we provide a commandline interface to run replicates of the model for the study areas defined above (i.e., batch mode).
+In addition to running the model in an interactive R session, we provide a command line interface to run replicates of the model for the study areas defined above (i.e., batch mode).
 
 For example, to run replicate number 7 of the model at $250 m$ resolution using FRI multiple of $1$ for Alberta FMU L11, use:
 
@@ -179,7 +179,7 @@ cd ~/GitHub/LandWeb
 ./run_fmu.sh L11 1 250 7
 ```
 
-FMU commandline runs do not use modified dispersal nor fire scenarios, and thus only require the study area, replicate, and FRI multiple to be defined.
+FMU command line runs do not use modified dispersal nor fire scenarios, and thus only require the study area, replicate, and FRI multiple to be defined.
 
 To run replicate number 7 of the model for the entire province of Alberta, use:
 
@@ -191,7 +191,7 @@ cd ~/GitHub/LandWeb
 # ./run_fma_win.sh provAB 7 ## if on Windows!
 ```
 
-FMA commandline runs use `highDispersal_logROS` scenarios at $250 m$ resolution, and thus only require the study area and replicate to be defined.
+FMA command line runs use `highDispersal_logROS` scenarios at $250 m$ resolution, and thus only require the study area and replicate to be defined.
 
 To run the entire LandWeb study area, only a replicate number needs to be passed.
 For example:
@@ -201,7 +201,7 @@ For example:
 ./run_landweb.sh 7
 ```
 
-LandWeb commandline run set the dispersal and fire scenarios as above, and the pixel resolution (`.pixelSize`) at $250 m$, and thus only require the study area and replicate to be defined.
+LandWeb command line run set the dispersal and fire scenarios as above, and the pixel resolution (`.pixelSize`) at $250 m$, and thus only require the study area and replicate to be defined.
 
 ## Changing model config values
 
@@ -216,7 +216,7 @@ More advanced users running multiple parallel simulations may wish to set up and
 
 ## Post-processing analyses
 
-After having run several reps of the model on a given study area, results are combined in subsequent post-processing analyses to generate the following outputs for each set of rreporting polygons within the study area:
+After having run several reps of the model on a given study area, results are combined in subsequent post-processing analyses to generate the following outputs for each set of reporting polygons within the study area:
 
 - boxplots of leading vegetation cover;
 - histograms of leading vegetation cover;

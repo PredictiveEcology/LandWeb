@@ -57,14 +57,14 @@ docker rm LandWeb
 
 #### Windows
 
-`Rtools` provides the necessary compilers etc. to build and install R packages from source on Windows.
+1. Download[^1] and install `Rtools` version 4.2 *as administrator*.
+    `Rtools` provides the necessary compilers etc. to build and install R packages from source on Windows.
 
-Download[^1] and install `Rtools` version 4.2 *as administrator*.
-During installation, be sure to check the option to add `Rtools` to your `PATH`.
+    a. During installation, be sure to check the option to add `Rtools` to your `PATH`.
+
+2. Download and install a proper text editor, *e.g.* Notepad++ (<https://notepad-plus-plus.org/downloads/>).
 
 [^1]: <https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html>
-
-Additionally, Windows users will need a proper text editor, *e.g.* Notepad++ (<https://notepad-plus-plus.org/downloads/>).
 
 #### macOS
 
