@@ -123,7 +123,7 @@ We want to use the latest FMU map from Spring 2022 (<https://www.alberta.ca/fore
     
     c. remove any unnecessary elements (*e.g.*, planning units and planning regions).
     
-5. You should now be able to run the LandWeb model setting `.studyAreaName = "NWAB" and it will use the new study area.
+5. You should now be able to run the LandWeb model setting `.studyAreaName = "customABNW" and it will use the new study area.
 
 ## Example 3: updating the LTHFC map
 
