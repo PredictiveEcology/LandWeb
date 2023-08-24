@@ -2,10 +2,6 @@
 	path = app
 	url = https://github.com/fRI-Research/LandWeb_app
 	branch=development
-[submodule "deploy"]
-	path = deploy
-	url = https://github.com/fRI-Research/LandWeb_deploy.git
-	branch=development
 [submodule "m/Biomass_borealDataPrep"]
 	path = m/Biomass_borealDataPrep
 	url = https://github.com/PredictiveEcology/Biomass_borealDataPrep
