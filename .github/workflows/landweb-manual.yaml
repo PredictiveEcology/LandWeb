@@ -44,7 +44,8 @@ jobs:
       - uses: actions/configure-pages@v3
 
       ## build the manual
-      - run: |
+      - name: Build LandWeb manual
+        run: |
           options(renv.config.mran.enabled = FALSE)
           renv::restore()
           source("manual/build.R")
