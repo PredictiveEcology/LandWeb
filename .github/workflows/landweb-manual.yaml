@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: achubaty/landweb-standalone:latest
-      options: --env DISABLE_AUTH=true --user rstudio
+      options: --env DISABLE_AUTH=true --env ROOT=true --user rstudio
 
     env:
       GITHUB_PAT: ${{ secrets.LANDWEB_PAT }}
