@@ -23,7 +23,7 @@ rmd_files:
   - 06-section-model-outputs.Rmd
   - ../m/LandWeb_output/LandWeb_output2.Rmd
   - ../m/timeSinceFire/timeSinceFire2.Rmd
-#  - ../m/LandWeb_summary/LandWeb_summary2.Rmd
+  - ../m/LandWeb_summary/LandWeb_summary2.Rmd
   - 07-section-web-app.Rmd
   - 08-section-modifying-landweb.Rmd
   - 99-references.Rmd

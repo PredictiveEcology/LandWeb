@@ -81,10 +81,11 @@
 <li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
 <li><a class="" href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></li>
 <li><a class="" href="model-outputs.html">Model outputs</a></li>
-<li><a class="" href="landr-landweb_output-module.html"><span class="header-section-number">9</span> LandR LandWeb_output Module</a></li>
+<li><a class="" href="landweb_output-module.html"><span class="header-section-number">9</span> LandWeb_output Module</a></li>
 <li><a class="active" href="timesincefire-module.html"><span class="header-section-number">10</span> timeSinceFire Module</a></li>
+<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">11</span> LandWeb_summary Module</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
-<li><a class="" href="modifying-landweb.html"><span class="header-section-number">11</span> Modifying LandWeb</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">12</span> Modifying LandWeb</a></li>
 <li><a class="" href="references-1.html">References</a></li>
 </ul>
 
@@ -289,7 +290,7 @@ If this becomes a problem, one could initialize to the regional median age.
 This can be done by multiplying the <code>FireReturnInterval</code> by <span class="math inline">\(log(2)\)</span> and then rounding; or some other lower quantile could be chosen: see the <a href="https://en.wikipedia.org/wiki/Exponential_distribution">wikipedia page</a> for the general quantile function.</p>
 <p>Alternatively, a random exponential age structure could be generated for each ecoregion from the current <code>rstTimeSinceFire</code>, roughly as follows.
 See the wiki page for details and possible alternative methods.</p>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">U_</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="fu">ncell</span><span class="op">(</span><span class="va">rstTimeSinceFire</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">T_</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="va">U_</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="va">rstTimeSinceFire</span><span class="op">[</span><span class="op">]</span></span>
 <span><span class="va">rstTimeSinceFire</span><span class="op">[</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">T_</span><span class="op">)</span></span></code></pre></div>
@@ -365,8 +366,8 @@ Then burned cells, as specified in the input vector <code>burnLoci</code> are se
 </div>
 </div>
   <div class="chapter-nav">
-<div class="prev"><a href="landr-landweb_output-module.html"><span class="header-section-number">9</span> LandR LandWeb_output Module</a></div>
-<div class="next"><a href="web-app.html">Web app</a></div>
+<div class="prev"><a href="landweb_output-module.html"><span class="header-section-number">9</span> LandWeb_output Module</a></div>
+<div class="next"><a href="landweb_summary-module.html"><span class="header-section-number">11</span> LandWeb_summary Module</a></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
