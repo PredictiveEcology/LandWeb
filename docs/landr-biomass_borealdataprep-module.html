@@ -6,15 +6,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 5 LandR Biomass_borealDataPrep Module | LandWeb Manual</title>
 <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
-<meta name="description" content="5.0.0.1 Authors: Yong Luo Yong.Luo@gov.bc.ca [aut], Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Ceres Barros ceres.barros@ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
+<meta name="description" content="This documentation is work in progress. Please report any discrepancies or omissions at https://github.com/PredictiveEcology/Biomass_borealDataPrep/issues.  5.0.0.1 Authors: Yong Luo...">
 <meta name="generator" content="bookdown 0.34 with bs4_book()">
 <meta property="og:title" content="Chapter 5 LandR Biomass_borealDataPrep Module | LandWeb Manual">
 <meta property="og:type" content="book">
 <meta property="og:url" content="https://predictiveecology.github.io/LandWeb/landr-biomass_borealdataprep-module.html">
-<meta property="og:description" content="5.0.0.1 Authors: Yong Luo Yong.Luo@gov.bc.ca [aut], Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Ceres Barros ceres.barros@ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
+<meta property="og:description" content="This documentation is work in progress. Please report any discrepancies or omissions at https://github.com/PredictiveEcology/Biomass_borealDataPrep/issues.  5.0.0.1 Authors: Yong Luo...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chapter 5 LandR Biomass_borealDataPrep Module | LandWeb Manual">
-<meta name="twitter:description" content="5.0.0.1 Authors: Yong Luo Yong.Luo@gov.bc.ca [aut], Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Ceres Barros ceres.barros@ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
+<meta name="twitter:description" content="This documentation is work in progress. Please report any discrepancies or omissions at https://github.com/PredictiveEcology/Biomass_borealDataPrep/issues.  5.0.0.1 Authors: Yong Luo...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -79,9 +79,10 @@
 <li><a class="" href="landr-biomass_core-module.html"><span class="header-section-number">6</span> LandR Biomass_core Module</a></li>
 <li><a class="" href="landr-biomass_regeneration-module.html"><span class="header-section-number">7</span> LandR Biomass_regeneration Module</a></li>
 <li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
+<li><a class="" href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></li>
 <li><a class="" href="model-outputs.html">Model outputs</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
-<li><a class="" href="modifying-landweb.html"><span class="header-section-number">8</span> Modifying LandWeb</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">9</span> Modifying LandWeb</a></li>
 <li><a class="" href="references-1.html">References</a></li>
 </ul>
 
@@ -96,16 +97,16 @@
 </h1>
 <!-- the following are text references used in captions for LaTeX compatibility -->
 
+<div class="rmdwarning">
+<p>This documentation is work in progress.
+Please report any discrepancies or omissions at <a href="https://github.com/PredictiveEcology/Biomass_borealDataPrep/issues" class="uri">https://github.com/PredictiveEcology/Biomass_borealDataPrep/issues</a>.</p>
+</div>
 <div id="authors-2" class="section level4" number="5.0.0.1">
 <h4>
 <span class="header-section-number">5.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-2"><i class="fas fa-link"></i></a>
 </h4>
 <p>Yong Luo <a href="mailto:Yong.Luo@gov.bc.ca" class="email">Yong.Luo@gov.bc.ca</a> [aut], Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut, cre], Ceres Barros <a href="mailto:ceres.barros@ubc.ca" class="email">ceres.barros@ubc.ca</a> [aut], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [aut]
 <!-- ideally separate authors with new lines, '\n' not working --></p>
-<div class="rmdwarning">
-<p>This documentation is work in progress.
-Please report any discrepancies or omissions at <a href="https://github.com/PredictiveEcology/Biomass_borealDataPrep/issues" class="uri">https://github.com/PredictiveEcology/Biomass_borealDataPrep/issues</a>.</p>
-</div>
 </div>
 <div id="module-overview-2" class="section level2" number="5.1">
 <h2>
