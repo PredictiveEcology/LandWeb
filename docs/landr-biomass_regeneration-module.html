@@ -4,17 +4,17 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Chapter 6 LandR Biomass_regeneration Module | LandWeb Manual</title>
+<title>Chapter 7 LandR Biomass_regeneration Module | LandWeb Manual</title>
 <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
-<meta name="description" content="6.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Yong Luo yluo1@lakeheadu.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
+<meta name="description" content="7.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Yong Luo yluo1@lakeheadu.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
 <meta name="generator" content="bookdown 0.34 with bs4_book()">
-<meta property="og:title" content="Chapter 6 LandR Biomass_regeneration Module | LandWeb Manual">
+<meta property="og:title" content="Chapter 7 LandR Biomass_regeneration Module | LandWeb Manual">
 <meta property="og:type" content="book">
 <meta property="og:url" content="https://predictiveecology.github.io/LandWeb/landr-biomass_regeneration-module.html">
-<meta property="og:description" content="6.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Yong Luo yluo1@lakeheadu.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
+<meta property="og:description" content="7.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Yong Luo yluo1@lakeheadu.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Chapter 6 LandR Biomass_regeneration Module | LandWeb Manual">
-<meta name="twitter:description" content="6.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Yong Luo yluo1@lakeheadu.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
+<meta name="twitter:title" content="Chapter 7 LandR Biomass_regeneration Module | LandWeb Manual">
+<meta name="twitter:description" content="7.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Yong Luo yluo1@lakeheadu.ca [aut], Ceres Barros cbarros@mail.ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -55,8 +55,8 @@
 
     <div class="d-flex align-items-start justify-content-between">
       <h1>
-        <a href="index.html" title="v.">LandWeb Manual</a>:
-        <small class="text-muted">v.</small>
+        <a href="index.html" title="v. 3.0.0">LandWeb Manual</a>:
+        <small class="text-muted">v. 3.0.0</small>
       </h1>
       <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
     </div>
@@ -74,14 +74,15 @@
 <li><a class="" href="study-areas.html">Study areas</a></li>
 <li><a class="" href="landr-landweb_preamble-module.html"><span class="header-section-number">3</span> LandR LandWeb_preamble Module</a></li>
 <li><a class="" href="vegetation-submodel.html">Vegetation submodel</a></li>
-<li><a class="" href="landr-biomass_borealdataprep-module.html"><span class="header-section-number">4</span> LandR Biomass_borealDataPrep Module</a></li>
-<li><a class="" href="landr-biomass_core-module.html"><span class="header-section-number">5</span> LandR Biomass_core Module</a></li>
-<li><a class="active" href="landr-biomass_regeneration-module.html"><span class="header-section-number">6</span> LandR Biomass_regeneration Module</a></li>
+<li><a class="" href="landr-biomass_speciesdata-module.html"><span class="header-section-number">4</span> LandR Biomass_speciesData Module</a></li>
+<li><a class="" href="landr-biomass_borealdataprep-module.html"><span class="header-section-number">5</span> LandR Biomass_borealDataPrep Module</a></li>
+<li><a class="" href="landr-biomass_core-module.html"><span class="header-section-number">6</span> LandR Biomass_core Module</a></li>
+<li><a class="active" href="landr-biomass_regeneration-module.html"><span class="header-section-number">7</span> LandR Biomass_regeneration Module</a></li>
 <li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
 <li><a class="" href="model-outputs.html">Model outputs</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
-<li><a class="" href="modifying-landweb.html"><span class="header-section-number">7</span> Modifying LandWeb</a></li>
-<li><a class="" href="references.html">References</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">8</span> Modifying LandWeb</a></li>
+<li><a class="" href="references-1.html">References</a></li>
 </ul>
 
         <div class="book-extra">
@@ -89,26 +90,26 @@
         </div>
       </nav>
 </div>
-  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landr-biomass_regeneration-module" class="section level1" number="6">
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landr-biomass_regeneration-module" class="section level1" number="7">
 <h1>
-<span class="header-section-number">6</span> LandR <em>Biomass_regeneration</em> Module<a class="anchor" aria-label="anchor" href="#landr-biomass_regeneration-module"><i class="fas fa-link"></i></a>
+<span class="header-section-number">7</span> LandR <em>Biomass_regeneration</em> Module<a class="anchor" aria-label="anchor" href="#landr-biomass_regeneration-module"><i class="fas fa-link"></i></a>
 </h1>
 <!-- the following are text references used in captions for LaTeX compatibility -->
 
-<div id="authors-3" class="section level4" number="6.0.0.1">
+<div id="authors-4" class="section level4" number="7.0.0.1">
 <h4>
-<span class="header-section-number">6.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-3"><i class="fas fa-link"></i></a>
+<span class="header-section-number">7.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-4"><i class="fas fa-link"></i></a>
 </h4>
 <p>Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut, cre], Yong Luo <a href="mailto:yluo1@lakeheadu.ca" class="email">yluo1@lakeheadu.ca</a> [aut], Ceres Barros <a href="mailto:cbarros@mail.ubc.ca" class="email">cbarros@mail.ubc.ca</a> [aut], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [ctb]
 <!-- ideally separate authors with new lines, '\n' not working --></p>
 </div>
-<div id="module-overview-3" class="section level2" number="6.1">
+<div id="module-overview-4" class="section level2" number="7.1">
 <h2>
-<span class="header-section-number">6.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview-3"><i class="fas fa-link"></i></a>
+<span class="header-section-number">7.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview-4"><i class="fas fa-link"></i></a>
 </h2>
-<div id="module-summary-1" class="section level3" number="6.1.1">
+<div id="module-summary-2" class="section level3" number="7.1.1">
 <h3>
-<span class="header-section-number">6.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary-1"><i class="fas fa-link"></i></a>
+<span class="header-section-number">7.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary-2"><i class="fas fa-link"></i></a>
 </h3>
 <p>Biomass_regeneration is a SpaDES module that simulates post-disturbance regeneration mechanisms for Biomass_core.
 As such, this module is mostly based on the post-disturbance regeneration mechanisms present in LANDIS-II Biomass Succession v3.2.1 extension (see <a href="https://github.com/LANDIS-II-Foundation/Extension-Biomass-Succession/blob/master/docs/LANDIS-II%20Biomass%20Succession%20v3.2%20User%20Guide.docx">LANDIS-II Biomass Succession v3.2 User Guide</a> and <a href="https://pdfs.semanticscholar.org/4d38/d0be6b292eccd444af399775d37a757d1967.pdf">Scheller and Mladenoff (2004)</a>.
@@ -131,9 +132,9 @@ This slightly favors serotinous species when mixed with species able to resprout
 <p>This is no longer the case in Biomass_regeneration, where both serotinity and resprouting can occur in the same pixel, although not for the same species.
 We feel that this is more realistic ecologically, as resprouters will typically regenerate faster after a fire, often shading serotinous species and creating interesting successional feedbacks (e.g. light-loving serotinous species having to “wait” for canopy gaps to germinate).</p>
 </div>
-<div id="general-flow-of-biomass_regeneration-processes---fire-disturbances-only" class="section level3" number="6.1.2">
+<div id="general-flow-of-biomass_regeneration-processes---fire-disturbances-only" class="section level3" number="7.1.2">
 <h3>
-<span class="header-section-number">6.1.2</span> General flow of Biomass_regeneration processes - fire disturbances only<a class="anchor" aria-label="anchor" href="#general-flow-of-biomass_regeneration-processes---fire-disturbances-only"><i class="fas fa-link"></i></a>
+<span class="header-section-number">7.1.2</span> General flow of Biomass_regeneration processes - fire disturbances only<a class="anchor" aria-label="anchor" href="#general-flow-of-biomass_regeneration-processes---fire-disturbances-only"><i class="fas fa-link"></i></a>
 </h3>
 <ol style="list-style-type: decimal">
 <li>Removal of biomass in disturbed, i.e. burnt, pixels</li>
@@ -142,14 +143,14 @@ We feel that this is more realistic ecologically, as resprouters will typically 
 <li>Establishment/growth of species for which serotiny or resprouting were activated</li>
 </ol>
 </div>
-<div id="module-inputs-and-parameters" class="section level3" number="6.1.3">
+<div id="module-inputs-and-parameters" class="section level3" number="7.1.3">
 <h3>
-<span class="header-section-number">6.1.3</span> Module inputs and parameters<a class="anchor" aria-label="anchor" href="#module-inputs-and-parameters"><i class="fas fa-link"></i></a>
+<span class="header-section-number">7.1.3</span> Module inputs and parameters<a class="anchor" aria-label="anchor" href="#module-inputs-and-parameters"><i class="fas fa-link"></i></a>
 </h3>
-<p>Table <a href="landr-biomass_regeneration-module.html#tab:moduleInputs-Biomass-regeneration">6.1</a> shows the full list of module inputs.</p>
+<p>Table <a href="landr-biomass_regeneration-module.html#tab:moduleInputs-Biomass-regeneration">7.1</a> shows the full list of module inputs.</p>
 <div class="inline-table"><table class="table table-sm">
 <caption>
-<span id="tab:moduleInputs-Biomass-regeneration">Table 6.1: </span>List of <em>Biomass_regeneration</em> input objects and their description.</caption>
+<span id="tab:moduleInputs-Biomass-regeneration">Table 7.1: </span>List of <em>Biomass_regeneration</em> input objects and their description.</caption>
 <colgroup>
 <col width="7%">
 <col width="2%">
@@ -219,10 +220,10 @@ We feel that this is more realistic ecologically, as resprouters will typically 
 </tr>
 </tbody>
 </table></div>
-<p>Summary of user-visible parameters (Table <a href="landr-biomass_regeneration-module.html#tab:moduleParams-Biomass-regeneration">6.2</a>):</p>
+<p>Summary of user-visible parameters (Table <a href="landr-biomass_regeneration-module.html#tab:moduleParams-Biomass-regeneration">7.2</a>):</p>
 <div class="inline-table"><table class="table table-sm">
 <caption>
-<span id="tab:moduleParams-Biomass-regeneration">Table 6.2: </span>List of <em>Biomass_regeneration</em> parameters and their description.</caption>
+<span id="tab:moduleParams-Biomass-regeneration">Table 7.2: </span>List of <em>Biomass_regeneration</em> parameters and their description.</caption>
 <colgroup>
 <col width="8%">
 <col width="4%">
@@ -339,14 +340,14 @@ We feel that this is more realistic ecologically, as resprouters will typically 
 </tbody>
 </table></div>
 </div>
-<div id="module-outputs" class="section level3" number="6.1.4">
+<div id="module-outputs-1" class="section level3" number="7.1.4">
 <h3>
-<span class="header-section-number">6.1.4</span> Module outputs<a class="anchor" aria-label="anchor" href="#module-outputs"><i class="fas fa-link"></i></a>
+<span class="header-section-number">7.1.4</span> Module outputs<a class="anchor" aria-label="anchor" href="#module-outputs-1"><i class="fas fa-link"></i></a>
 </h3>
-<p>Description of the module outputs (Table <a href="landr-biomass_regeneration-module.html#tab:moduleOutputs-Biomass-regeneration">6.3</a>).</p>
+<p>Description of the module outputs (Table <a href="landr-biomass_regeneration-module.html#tab:moduleOutputs-Biomass-regeneration">7.3</a>).</p>
 <div class="inline-table"><table class="table table-sm">
 <caption>
-<span id="tab:moduleOutputs-Biomass-regeneration">Table 6.3: </span>List of <em>Biomass_regeneration</em> outputs and their description.</caption>
+<span id="tab:moduleOutputs-Biomass-regeneration">Table 7.3: </span>List of <em>Biomass_regeneration</em> outputs and their description.</caption>
 <colgroup>
 <col width="12%">
 <col width="4%">
@@ -401,16 +402,16 @@ We feel that this is more realistic ecologically, as resprouters will typically 
 </tbody>
 </table></div>
 </div>
-<div id="links-to-other-modules-1" class="section level3" number="6.1.5">
+<div id="links-to-other-modules-2" class="section level3" number="7.1.5">
 <h3>
-<span class="header-section-number">6.1.5</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules-1"><i class="fas fa-link"></i></a>
+<span class="header-section-number">7.1.5</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules-2"><i class="fas fa-link"></i></a>
 </h3>
 <p>Primarily used with the LandR Biomass suite of modules, namely <a href="https://github.com/PredictiveEcology/Biomass_core">Biomass_core</a>.</p>
 </div>
 </div>
-<div id="getting-help-1" class="section level2" number="6.2">
+<div id="getting-help-2" class="section level2" number="7.2">
 <h2>
-<span class="header-section-number">6.2</span> Getting help<a class="anchor" aria-label="anchor" href="#getting-help-1"><i class="fas fa-link"></i></a>
+<span class="header-section-number">7.2</span> Getting help<a class="anchor" aria-label="anchor" href="#getting-help-2"><i class="fas fa-link"></i></a>
 </h2>
 <ul>
 <li>
@@ -421,22 +422,22 @@ We feel that this is more realistic ecologically, as resprouters will typically 
 </div>
 </div>
   <div class="chapter-nav">
-<div class="prev"><a href="landr-biomass_core-module.html"><span class="header-section-number">5</span> LandR Biomass_core Module</a></div>
+<div class="prev"><a href="landr-biomass_core-module.html"><span class="header-section-number">6</span> LandR Biomass_core Module</a></div>
 <div class="next"><a href="wildfire-submodel.html">Wildfire submodel</a></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
-<li><a class="nav-link" href="#landr-biomass_regeneration-module"><span class="header-section-number">6</span> LandR Biomass_regeneration Module</a></li>
+<li><a class="nav-link" href="#landr-biomass_regeneration-module"><span class="header-section-number">7</span> LandR Biomass_regeneration Module</a></li>
 <li>
-<a class="nav-link" href="#module-overview-3"><span class="header-section-number">6.1</span> Module Overview</a><ul class="nav navbar-nav">
-<li><a class="nav-link" href="#module-summary-1"><span class="header-section-number">6.1.1</span> Module summary</a></li>
-<li><a class="nav-link" href="#general-flow-of-biomass_regeneration-processes---fire-disturbances-only"><span class="header-section-number">6.1.2</span> General flow of Biomass_regeneration processes - fire disturbances only</a></li>
-<li><a class="nav-link" href="#module-inputs-and-parameters"><span class="header-section-number">6.1.3</span> Module inputs and parameters</a></li>
-<li><a class="nav-link" href="#module-outputs"><span class="header-section-number">6.1.4</span> Module outputs</a></li>
-<li><a class="nav-link" href="#links-to-other-modules-1"><span class="header-section-number">6.1.5</span> Links to other modules</a></li>
+<a class="nav-link" href="#module-overview-4"><span class="header-section-number">7.1</span> Module Overview</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#module-summary-2"><span class="header-section-number">7.1.1</span> Module summary</a></li>
+<li><a class="nav-link" href="#general-flow-of-biomass_regeneration-processes---fire-disturbances-only"><span class="header-section-number">7.1.2</span> General flow of Biomass_regeneration processes - fire disturbances only</a></li>
+<li><a class="nav-link" href="#module-inputs-and-parameters"><span class="header-section-number">7.1.3</span> Module inputs and parameters</a></li>
+<li><a class="nav-link" href="#module-outputs-1"><span class="header-section-number">7.1.4</span> Module outputs</a></li>
+<li><a class="nav-link" href="#links-to-other-modules-2"><span class="header-section-number">7.1.5</span> Links to other modules</a></li>
 </ul>
 </li>
-<li><a class="nav-link" href="#getting-help-1"><span class="header-section-number">6.2</span> Getting help</a></li>
+<li><a class="nav-link" href="#getting-help-2"><span class="header-section-number">7.2</span> Getting help</a></li>
 </ul>
 
       <div class="book-extra">
@@ -454,7 +455,7 @@ We feel that this is more realistic ecologically, as resprouters will typically 
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v." was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-23.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-23.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
