@@ -321,10 +321,7 @@ mkdir -p ~/GitHub
 cd ~/GitHub
 
 ## get development branch (app and deploy are private submodules)
-git clone --single-branch -b development \
-  --recurse-submodules="." \
-  --recurse-submodules=":(exclude)app" \
-  --recurse-submodules=":(exclude)deploy" \
+git clone --single-branch -b development --recurse-submodules \
   -j8  https://github.com/PredictiveEcology/LandWeb
 ```
 
