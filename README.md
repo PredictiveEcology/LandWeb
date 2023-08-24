@@ -17,14 +17,9 @@ All package code is automatically and regularly tested using cross-platform cont
 
 ```bash
 ## development branch
-git clone --single-branch -b development \
-  --recurse-submodules="." \
-  --recurse-submodules=":(exclude)app" \
-  --recurse-submodules=":(exclude)deploy" \
+git clone --single-branch -b development --recurse-submodules
   -j8 https://github.com/PredictiveEcology/LandWeb
 ```
-
-**NOTE:** you will need access to each of the following repositories:
 
 _Modules_
 
@@ -45,6 +40,11 @@ _Packages_
 - [PredictiveEcology/LandWebUtils](https://github.com/PredictiveEcology/LandWebUtils)
 - [PredictiveEcology/map](https://github.com/PredictiveEcology/map)
 - [PredictiveEcology/pemisc](https://github.com/PredictiveEcology/pemisc)
+
+_Other LandWeb Repositories_
+
+- [fRI-Research/LandWeb_app](https://github.com/fRI-Research/LandWeb_app)
+- [fRI-Research/LandWeb_deploy](https://github.com/fRI-Research/LandWeb_deploy)
 
 ### Prerequisites
 
