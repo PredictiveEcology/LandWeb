@@ -408,6 +408,93 @@ All package code is automatically and regularly tested using cross-platform cont
 <p>Model code is organized by the following directories and summarized in the table below.</p>
 <p><strong>NOTE:</strong> it may be useful to store data in a different location, but to map this location back to the e.g., <code>cache/</code>, <code>inputs/</code>, and/or <code>outputs/</code> directories using symbolic links.
 See R’s <code><a href="https://rdrr.io/r/base/files.html">?file.link</a></code> to set these up on your machine.</p>
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:dir-structure">Table 1.1: </span>LandWeb project directory structure
+</caption>
+<thead><tr>
+<th style="text-align:left;">
+directory
+</th>
+<th style="text-align:left;">
+description
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+R/
+</td>
+<td style="text-align:left;">
+additional R helper scripts
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cache/
+</td>
+<td style="text-align:left;">
+all per-run and per-study area cache files stored here
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+docker/
+</td>
+<td style="text-align:left;">
+Dockerfiles, scripts, and documentation
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+docs/
+</td>
+<td style="text-align:left;">
+rendered model and app documentation
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+inputs/
+</td>
+<td style="text-align:left;">
+all model data inputs stored here
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m/
+</td>
+<td style="text-align:left;">
+module code (git submodules)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+manual/
+</td>
+<td style="text-align:left;">
+raw files for generating documentation manual
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+outputs/
+</td>
+<td style="text-align:left;">
+all per-run model outputs stored here
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+renv/
+</td>
+<td style="text-align:left;">
+project package management directory
+</td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <div id="updating-the-code" class="section level2" number="1.4">
 <h2>

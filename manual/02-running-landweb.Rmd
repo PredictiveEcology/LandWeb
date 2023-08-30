@@ -211,8 +211,12 @@ See <https://github.com/PredictiveEcology/SpaDES.config/blob/development/R/confi
 
 Simulation caching is provided by the `reproducible` and `SpaDES.core` packages, and is enabled by default.
 
-The default cache uses a SQLite database backend; however, other backends can also be used.
-More advanced users running multiple parallel simulations may wish to set up and use a PostgreSQL database for this cache.
+The default cache uses a SQLite database backend and stores cache files in `cache/`.
+However, other database backends can also be used, and advanced users running multiple parallel simulations may wish to set up and use a PostgreSQL database for this cache.
+
+Additionally, caching and other disk-based file operations benefit from using an SSD instead of a conventional spinning hard drive.
+Advanced users can move their `cache/` directory to an SSD mountpoint and create a symlink to this location in the project directory.
+Likewise, users can configure a scratch path for temporary raster file operations to point to an SSD location.
 
 ## Post-processing analyses
 

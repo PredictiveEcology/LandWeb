@@ -57,22 +57,20 @@ docker rm LandWeb
 
 #### Windows
 
-1. Download[^1] and install `Rtools` version 4.2 *as administrator*.
+1. Download `Rtools` version 4.2 from <https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html> and install it *as administrator*.
     `Rtools` provides the necessary compilers etc. to build and install R packages from source on Windows.
 
     a. During installation, be sure to check the option to add `Rtools` to your `PATH`.
 
-2. Download and install a proper text editor, *e.g.* Notepad++ (<https://notepad-plus-plus.org/downloads/>).
-
-[^1]: <https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html>
+2. Download and install a proper text editor, *e.g.* `Notepad++` (<https://notepad-plus-plus.org/downloads/>).
 
 #### macOS
 
 ##### Xcode command line tools
 
-To build software, you will need the Xcode command line tools[^5], which include various compilers and `git` version control software.
+To build software, you will need the Xcode command line tools[^xcode], which include various compilers and `git` version control software.
 
-[^5]: <https://developer.apple.com/downloads/>
+[^xcode]: <https://developer.apple.com/downloads/>
 
 ```zsh
 xcode-select --install
@@ -217,18 +215,25 @@ Without a PAT, some packages may *temporarily* fail to install, but can be retri
 
 a.  Create a GitHub PAT following the instructions[^GH_PAT];
 b.  Be sure to uncheck all scopes.
-c.  Copy this token and save it in a text file in your home directory called `.Renviron`.
+c.  Copy this token and save it in a text file in your home directory called `.Renviron`:
 
-    ```bash
-    ## ~/.Renviron
-    GITHUB_PAT=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    ```
-
-    If you are not sure where your home directory is located, run the following in an R session: 
+    Run the following in an R session to edit `~/.Renviron`:
 
     ```r
-    Sys.getenv("HOME")
+    install.packages("usethis")
+    usethis::edit_r_environ()
     ```
+
+    Paste the following into the `.Renviron` file, using your copied token:
+    
+    ```bash
+    GITHUB_PAT=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    ```
+    
+:::{.rmdwarning}
+If creating `~/.Renviron` using a text editor, be sure to save it *without* a `.txt` extension.
+Windows users in particular should ensure they edit this file via Rstudio per above, or use a proper text editor, e.g., `Notepad++` (<https://notepad-plus-plus.org/downloads/>).
+:::
 
 3.  *Optional.* Install the latest version of `GitKraken` from <https://www.gitkraken.com/download/>.
 
@@ -289,7 +294,7 @@ To install previous versions of R see <https://github.com/achubaty/r-config/blob
 Windows users should install Rstudio *as administrator*.
 :::
 
-3. (optional) On Linux, configure `ccache` to speed up R package re-installation and updates[^6].
+3. (optional) On Linux, configure `ccache` to speed up R package re-installation and updates[^ccache].
 
     ```bash
     ## configure ccache for R package installation
@@ -308,7 +313,7 @@ Windows users should install Rstudio *as administrator*.
       echo 'hash_dir = false'; } >> ~/.ccache/ccache.conf
     ```
 
-[^6]: <http://dirk.eddelbuettel.com/blog/2017/11/27/#011_faster_package_installation_one>
+[^ccache]: <http://dirk.eddelbuettel.com/blog/2017/11/27/#011_faster_package_installation_one>
 
 ## Getting the code
 
@@ -321,11 +326,17 @@ mkdir -p ~/GitHub
 cd ~/GitHub
 
 ## get development branch (app and deploy are private submodules)
-git clone --single-branch -b development --recurse-submodules \
+git clone --recurse-submodules \
   -j8  https://github.com/PredictiveEcology/LandWeb
 ```
 
-**NOTE:** the `app` and `deploy` submodule repos are *private*.
+:::{.rmdimportant}
+Windows users should ensure the `GitHub/` directory is accessible at both `~/GitHub` and `~/Documents/GitHub` by creating a directory junction:
+
+```bash
+mklink /J C:\\Users\\username\\Documents\\GitHub C:\\Users\\username\\GitHub
+```
+:::
 
 ## Project directory structure
 
@@ -334,10 +345,13 @@ Model code is organized by the following directories and summarized in the table
 **NOTE:** it may be useful to store data in a different location, but to map this location back to the e.g., `cache/`, `inputs/`, and/or `outputs/` directories using symbolic links.
 See R's `?file.link` to set these up on your machine.
 
-```{r dir-structure, echo = FALSE, eval = TRUE, results = 'hold'}
+```{r dir-structure-setup, echo = FALSE, eval = TRUE, results = 'hide'}
 prjDir <- SpaDES.project::findProjectPath()
 file.path(prjDir, c("cache", "inputs", "outputs")) |>
   Require::checkPath(create = TRUE) ## create these if they don't exist (e.g., GHA)
+```
+
+```{r dir-structure, echo = FALSE, eval = TRUE}
 data.frame(
   directory = fs::dir_ls(prjDir, recurse = 0, type = c("directory", "symlink")) |>
     fs::path_file() |>
@@ -354,8 +368,7 @@ data.frame(
     "project package management directory"                     ## renv/
   )
 ) |> 
-  knitr::kable(caption = "LandWeb project directory structure",
-               format = "latex", booktabs = TRUE) |> 
+  knitr::kable(caption = "LandWeb project directory structure", booktabs = TRUE) |>
   kableExtra::kable_styling(latex_options = c("striped", "scale_down"))
 ```
 
