@@ -42,7 +42,7 @@ See <https://predictiveecology.github.io/LandWeb/running-landweb.html> for detai
 
 #### References
 
-Beaudoin, et al. (2014). Mapping attributes of Canada’s forests at moderate resolution through kNN and MODIS imagery. Canadian Journal of Forest Research, 44, 521–532. http://doi.org/10.1139/cjfr-2013-0401. Data available from http://tree.nfis.org/.
+Beaudoin, et al. (2014). Mapping attributes of Canada’s forests at moderate resolution through kNN and MODIS imagery. Canadian Journal of Forest Research, 44, 521–532. <http://doi.org/10.1139/cjfr-2013-0401>. Data available from <http://tree.nfis.org/>.
 
 Chubaty, A. M. & McIntire, E. J. B. (2019) `SpaDES`: Develop and Run Spatially Explicit Discrete Event Simulation Models. R package version 2.0.4. <https://CRAN.R-project.org/package=SpaDES>
 
