@@ -334,8 +334,10 @@ Model code is organized by the following directories and summarized in the table
 **NOTE:** it may be useful to store data in a different location, but to map this location back to the e.g., `cache/`, `inputs/`, and/or `outputs/` directories using symbolic links.
 See R's `?file.link` to set these up on your machine.
 
-```{r dir-structure, echo = FALSE, eval = TRUE}
+```{r dir-structure, echo = FALSE, eval = TRUE, results = 'hold'}
 prjDir <- SpaDES.project::findProjectPath()
+file.path(prjDir, c("cache", "inputs", "outputs")) |>
+  Require::checkPath(create = TRUE) ## create these if they don't exist (e.g., GHA)
 data.frame(
   directory = fs::dir_ls(prjDir, recurse = 0, type = c("directory", "symlink")) |>
     fs::path_file() |>
