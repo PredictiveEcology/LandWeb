@@ -225,6 +225,11 @@ current-2022-version
 cleaning-up
 code-and-data-availability
 links-to-other-modules-3
+currently-selected-spatial-area
+large-patches-data-for-study-region
+leading-vegetation-cover-data-for-study-region
+simulation-rasters-cropped-to-study-region
+additional-r-data-files-advanced-users
 landweb_output-module
 authors-6
 module-overview-6
@@ -252,8 +257,8 @@ module-overview-8
 module-summary-6
 module-inputs-and-parameters-4
 module-outputs-5
-large-patches-data-for-study-region
-leading-vegetation-cover-data-for-study-region
+large-patches-data-for-study-region-1
+leading-vegetation-cover-data-for-study-region-1
 links-to-other-modules-6
 getting-help-4
 modifying-landweb

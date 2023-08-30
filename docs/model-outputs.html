@@ -6,15 +6,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Model outputs | LandWeb Manual</title>
 <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
-<meta name="description" content="LandWeb_outputs module … (TODO) timeSinceFire module … (TODO) LandWeb_summary module … (TODO)">
+<meta name="description" content="LandWeb_outputs module … (TODO) timeSinceFire module … (TODO) LandWeb_summary module … (TODO) Previously-run model outputs are available to download for authorized users, and are described below. ...">
 <meta name="generator" content="bookdown 0.34 with bs4_book()">
 <meta property="og:title" content="Model outputs | LandWeb Manual">
 <meta property="og:type" content="book">
 <meta property="og:url" content="https://predictiveecology.github.io/LandWeb/model-outputs.html">
-<meta property="og:description" content="LandWeb_outputs module … (TODO) timeSinceFire module … (TODO) LandWeb_summary module … (TODO)">
+<meta property="og:description" content="LandWeb_outputs module … (TODO) timeSinceFire module … (TODO) LandWeb_summary module … (TODO) Previously-run model outputs are available to download for authorized users, and are described below. ...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Model outputs | LandWeb Manual">
-<meta name="twitter:description" content="LandWeb_outputs module … (TODO) timeSinceFire module … (TODO) LandWeb_summary module … (TODO)">
+<meta name="twitter:description" content="LandWeb_outputs module … (TODO) timeSinceFire module … (TODO) LandWeb_summary module … (TODO) Previously-run model outputs are available to download for authorized users, and are described below. ...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -102,13 +102,86 @@
 <li>timeSinceFire module … (TODO)</li>
 <li>LandWeb_summary module … (TODO)</li>
 </ul>
+<p>Previously-run model outputs are available to download for authorized users, and are described below.</p>
+<div id="currently-selected-spatial-area" class="section level2" number="8.6">
+<h2>
+<span class="header-section-number">8.6</span> Currently Selected Spatial Area<a class="anchor" aria-label="anchor" href="#currently-selected-spatial-area"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Currently selected reporting polygon (<code>.shp</code>)</li>
+</ul>
+</div>
+<div id="large-patches-data-for-study-region" class="section level2" number="8.7">
+<h2>
+<span class="header-section-number">8.7</span> Large Patches Data for study region<a class="anchor" aria-label="anchor" href="#large-patches-data-for-study-region"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Large Patches Data (<code>.csv</code>)</li>
+<li>Large patches histograms (<code>.png</code>)</li>
+</ul>
+</div>
+<div id="leading-vegetation-cover-data-for-study-region" class="section level2" number="8.8">
+<h2>
+<span class="header-section-number">8.8</span> Leading Vegetation Cover Data for study region<a class="anchor" aria-label="anchor" href="#leading-vegetation-cover-data-for-study-region"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Leading Vegetation Cover Data (<code>.csv</code>)</li>
+<li>Leading Vegetation Cover histograms (<code>.png</code>)</li>
+<li>Leading Vegetation Cover boxplots (<code>.png</code>)</li>
+</ul>
+</div>
+<div id="simulation-rasters-cropped-to-study-region" class="section level2" number="8.9">
+<h2>
+<span class="header-section-number">8.9</span> Simulation Rasters (cropped to study region)<a class="anchor" aria-label="anchor" href="#simulation-rasters-cropped-to-study-region"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Flammability maps (<code>.grd</code>)</li>
+<li>Time Since Fire maps (<code>.tif</code>)</li>
+<li>Vegetation type maps (<code>.grd</code>, <code>.tif</code>)</li>
+</ul>
+</div>
+<div id="additional-r-data-files-advanced-users" class="section level2" number="8.10">
+<h2>
+<span class="header-section-number">8.10</span> Additional R Data Files (advanced users)<a class="anchor" aria-label="anchor" href="#additional-r-data-files-advanced-users"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Simulation data files (<code>.RData</code>, <code>.rds</code>)</li>
+</ul>
+<p>The downloaded outputs are bundled into a zip file (<em>e.g.</em>, <code>LandWeb_v2.0.0_2019-09-23.zip</code>) with the following directory and file structure:</p>
+<pre><code>LandWeb_v2.0.0_2019-09-23/
+ |_ boxplots/
+     |_ leading_*.csv
+ |_ histograms/
+     |_ largePatches/
+         |_ 100/
+         |_ 500/
+         |_ 1000/
+         |_ 5000/
+     |_ leading/
+     |_ largePatches_*.csv
+ |_ polygons/
+ |_ rasters/
+     |_ rstTimeSinceFire_*.tif
+     |_ vegTypeMap_*.tif*
+ |_ INFO.md
+ |_ README.md
+ |_ simulationOutput_*.rds</code></pre>
+
+</div>
 </div>
   <div class="chapter-nav">
 <div class="prev"><a href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></div>
 <div class="next"><a href="landweb_output-module.html"><span class="header-section-number">9</span> LandWeb_output Module</a></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
-      <ul class="nav navbar-nav"><li><a class="nav-link" href="#model-outputs">Model outputs</a></li></ul>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#model-outputs">Model outputs</a></li>
+<li><a class="nav-link" href="#currently-selected-spatial-area"><span class="header-section-number">8.6</span> Currently Selected Spatial Area</a></li>
+<li><a class="nav-link" href="#large-patches-data-for-study-region"><span class="header-section-number">8.7</span> Large Patches Data for study region</a></li>
+<li><a class="nav-link" href="#leading-vegetation-cover-data-for-study-region"><span class="header-section-number">8.8</span> Leading Vegetation Cover Data for study region</a></li>
+<li><a class="nav-link" href="#simulation-rasters-cropped-to-study-region"><span class="header-section-number">8.9</span> Simulation Rasters (cropped to study region)</a></li>
+<li><a class="nav-link" href="#additional-r-data-files-advanced-users"><span class="header-section-number">8.10</span> Additional R Data Files (advanced users)</a></li>
+</ul>
 
       <div class="book-extra">
         <ul class="list-unstyled">
@@ -125,7 +198,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-24.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-30.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
