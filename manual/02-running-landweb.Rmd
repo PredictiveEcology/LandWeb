@@ -41,19 +41,27 @@ Currently, only a subset of the FMAs within the LandWeb study area are predefine
 \blandscape
 
 ```{r fma-map, echo = FALSE, eval = "true", fig.keep = "all", out.width = "90%", results = "hide", fig.cap = "\\label{fig:fma-map} FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs."}
-canProvs <- geodata::gadm(country = "CAN", level = 1, path = "../inputs") |>
+prjDir <- SpaDES.project::findProjectPath()
+canProvs <- geodata::gadm(country = "CAN", level = 1, path = file.path(prjDir, "inputs")) |>
   sf::st_as_sf()
 lwProvs <- c("British Columbia", "Alberta", "Saskatchewan", "Manitoba")
 
-fshp2 <- file.path("~/GitHub/LandWeb/inputs/FMA_Boundaries",
-                   "FMA_Boundary_CustomProj/FMA_Boundary_Updated.shp")
+manData <- file.path(prjDir, "manual", "ext_data")
+fshp2 <- file.path(manData, "FMA_Boundary_Updated.shp")
+fzip2 <- file.path(manData, "FMA_Boundary_Updated.zip")
+
+if (!file.exists(fshp2)) {
+  archive::archive_extract(fzip2, manData)
+}
+
 sf2 <- sf::st_read(fshp2)
+
 centroids_sf2 <- cbind(
   suppressWarnings(sf::st_centroid(sf2)),
   suppressWarnings(sf::st_coordinates(sf::st_centroid(sf2$geometry)))
 )
 
-ggplot2::ggplot(data = sf2) +
+gg2 <- ggplot2::ggplot(data = sf2) +
   ggplot2::geom_sf(data = canProvs[canProvs$NAME_1 %in% lwProvs, ]) +
   ggplot2::geom_sf(mapping = ggplot2::aes(fill = as.factor(OBJECTID_1 %% 10))) +
   ggplot2::scale_fill_brewer(type = "div", palette = "Spectral") +
@@ -64,6 +72,8 @@ ggplot2::ggplot(data = sf2) +
   ggplot2::ylab("Latitude") + 
   ggplot2::guides(fill = "none") +
   ggplot2::theme_bw()
+
+gg2
 ```
 
 \elandscape
