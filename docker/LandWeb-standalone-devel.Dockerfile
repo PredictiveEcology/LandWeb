@@ -19,8 +19,7 @@ WORKDIR /home/$DEFAULT_USER/GitHub
 ARG GH_ORG=PredictiveEcology
 ARG GH_REPO=LandWeb
 ARG GH_TAG=development
-RUN --mount=type=ssh git clone --single-branch -b $GH_TAG \
-      --recurse-submodules \
+RUN --mount=type=ssh git clone --single-branch -b $GH_TAG --recurse-submodules \
       -j8 https://github.com/$GH_ORG/$GH_REPO
 
 WORKDIR /home/$DEFAULT_USER/GitHub/$GH_REPO
