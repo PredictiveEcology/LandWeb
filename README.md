@@ -14,11 +14,11 @@
 #### Overview
 
 The LandWeb model integrates two well-used models for forest stand succession and fire simulation, implemented in the `SpaDES` simulation platform (Chubaty & McIntire, 2019).
-Vegetation dynamics are modeled using an implementation of the LANDIS-II Biomass Succession model (Scheller & Mladenoff, 2004; Scheller *et al.*, 2007).
-Fire dynamics are modeled using an implementation of LandMine (Andison, 1996).
+Vegetation dynamics are modelled using an implementation of the LANDIS-II Biomass Succession model (Scheller & Mladenoff, 2004; Scheller *et al.*, 2007).
+Fire dynamics are modelled using an implementation of LandMine (Andison, 1996).
 
 Simulations were run for the entire LandWeb study area, which spans most of the western Canadian boreal forest.
-Input data were derived from several publically available remote-sensed datasets (Beaudoin *et al.*, 2014), as well as proprietary data complied by Pickell *et al.* (2016).
+Input data were derived from several publicly available remote-sensed data sets (Beaudoin *et al.*, 2014), as well as proprietary data complied by Pickell *et al.* (2016).
 
 Simulation outputs consist of maps showing the time since fire as well as histogram summaries of 1) number of large patches (i.e., patches above the number of hectares specified by the user) contained within the selected spatial area; and 2) the vegetation cover within the selected spatial area.
 Histograms are provided for each spatial area by polygon, age class, and species.
