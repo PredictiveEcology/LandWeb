@@ -1,6 +1,6 @@
 ## this manual must be knitted by running this script
 
-prjDir <- "~/GitHub/LandWeb"
+prjDir <- SpaDES.project::findProjectPath()
 manDir <- file.path(prjDir, "manual") ## raw files; edit these, not the ones in `docsDir`!
 
 docsDir <- file.path(manDir, "_bookdown.yml") |>

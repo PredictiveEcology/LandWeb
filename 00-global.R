@@ -9,7 +9,7 @@ if (!grepl("renv", .libPaths()[1])) {
 
 # project setup (includes package installation etc.) ------------------------------------------
 
-prjDir <- "~/GitHub/LandWeb"
+prjDir <- SpaDES.project::findProjectPath()
 
 stopifnot(identical(normalizePath(prjDir), normalizePath(getwd())))
 
