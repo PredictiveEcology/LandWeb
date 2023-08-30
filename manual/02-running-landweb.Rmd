@@ -25,6 +25,10 @@ The default settings for study area, model version, and scenario are defined in 
 These defaults are defined as 'dot-variables' (e.g., `.studyAreaName`) and can be set externally to the main script
 (e.g., if `.studyAreaName` is defined before running `01a-globalvars.R`, then the user-set value will be used, rather than the default defined in that script).
 
+:::{.rmdnote}
+Advanced setup and model run customization is described in [Advanced setup].
+:::
+
 ### Select a study area
 
 The model can be run over the entire study area, for certain individual provinces (currently only AB, SK, MB, NWT), or groups of predefined FMAs (see Fig. 1 and Table 1).
@@ -203,21 +207,6 @@ For example:
 
 LandWeb command line run set the dispersal and fire scenarios as above, and the pixel resolution (`.pixelSize`) at $250 m$, and thus only require the study area and replicate to be defined.
 
-## Changing model config values
-
-See <https://github.com/PredictiveEcology/SpaDES.config/blob/development/R/config.landweb.R>
-
-## Cache options
-
-Simulation caching is provided by the `reproducible` and `SpaDES.core` packages, and is enabled by default.
-
-The default cache uses a SQLite database backend and stores cache files in `cache/`.
-However, other database backends can also be used, and advanced users running multiple parallel simulations may wish to set up and use a PostgreSQL database for this cache.
-
-Additionally, caching and other disk-based file operations benefit from using an SSD instead of a conventional spinning hard drive.
-Advanced users can move their `cache/` directory to an SSD mountpoint and create a symlink to this location in the project directory.
-Likewise, users can configure a scratch path for temporary raster file operations to point to an SSD location.
-
 ## Post-processing analyses
 
 After having run several reps of the model on a given study area, results are combined in subsequent post-processing analyses to generate the following outputs for each set of reporting polygons within the study area:
@@ -227,6 +216,34 @@ After having run several reps of the model on a given study area, results are co
 - histograms of large patches.
 
 To run processing, use `.mode = "postprocess"` and be sure to set the number of replicates run in the config.
+
+## Advanced setup
+
+### Customizing model run configuration
+
+See [SpaDES.config/R/config.landweb.R](https://github.com/PredictiveEcology/SpaDES.config/blob/development/R/config.landweb.R).
+
+(TODO)
+
+### Cache backend
+
+Simulation caching is provided by the `reproducible` and `SpaDES.core` packages, and is enabled by default.
+
+The default cache uses a SQLite database backend and stores cache files in `cache/`.
+However, other database backends can also be used, and advanced users running multiple parallel simulations may wish to set up and use a PostgreSQL database for this cache.
+
+See <https://github.com/PredictiveEcology/SpaDES/wiki/Using-alternate-database-backends-for-Cache> and ensure the following options are added to your user-specific config in `02a-user-config.R`:
+
+```r
+reproducible.cacheSaveFormat = "qs",
+reproducible.conn = SpaDES.config::dbConnCache("postgresql"),
+```
+
+### Speeding up disk-based operations
+
+Caching and other disk-based file operations benefit from using an solid state drive (SSD) instead of a conventional spinning hard drive.
+Advanced users can move their `cache/` directory to an SSD mountpoint and create a symlink to this location in the project directory.
+Likewise, users can configure a scratch path for temporary raster file operations to point to an SSD location.
 
 ## Additional Resources
 

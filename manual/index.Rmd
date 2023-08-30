@@ -111,6 +111,6 @@ Using the web app is described in [Web app].
 
 ## Previous Manual Versions
 
-If available, archived copies of previous manual versions are available from the links below.
+If available, archived copies of previous manual versions are provided at the links below.
 
 -   [LandR Manual v3.0.0](archive/pdf/LandWeb-manual-v3.0.0.pdf) (*current*)

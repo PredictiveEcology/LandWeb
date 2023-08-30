@@ -300,7 +300,7 @@ The <em>Biomass_borealDataPrep</em> module manual also provides information abou
 estimation of many of these traits/inputs from available data, or their
 adjustment using published values or our best knowledge of boreal forest
 dynamics in Western Canada.</p>
-<p>Unlike the initialisation in LBSE<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>, <em>Biomass_core</em> initialises
+<p>Unlike the initialisation in LBSE<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>, <em>Biomass_core</em> initialises
 the simulation using data-derived initial cohort biomass and age. This
 information is ideally supplied by data and calibration modules like
 <em>Biomass_borealDataPrep</em> (<a href="landr-biomass_core-module.html#links-modules">Links to other modules</a>), but
@@ -1323,7 +1323,7 @@ already mentioned above.</p>
 <span class="header-section-number">6.2.3</span> List of input objects<a class="anchor" aria-label="anchor" href="#inputs-list"><i class="fas fa-link"></i></a>
 </h3>
 <p>All of <em>Biomass_core</em>’s input objects have (theoretical) defaults that are
-produced automatically by the module<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a>. We suggest that new users
+produced automatically by the module<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>. We suggest that new users
 run <em>Biomass_core</em> by itself supplying only a <code>studyArea</code> polygon, before
 attempting to supply their own or combining <em>Biomass_core</em> with other modules.
 This will enable them to become familiar with all the input objects in a
@@ -1722,11 +1722,11 @@ NA
 <span class="header-section-number">6.2.4</span> List of parameters<a class="anchor" aria-label="anchor" href="#params-list"><i class="fas fa-link"></i></a>
 </h3>
 <p>In addition to the above inputs objects, <em>Biomass_core</em> uses several
-parameters<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> that control aspects like the simulation length, the
+parameters<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a> that control aspects like the simulation length, the
 “succession” time step, plotting and saving intervals, amongst others. Note that
 a few of these parameters are only relevant when simulating climate effects of
 cohort growth and mortality, which require also loading the <code>LandR.CS</code> R
-package<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a> (or another similar package). These are not discussed
+package<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> (or another similar package). These are not discussed
 in detail here, since climate effects are calculated externally to
 <em>Biomass_core</em> in <code>LandR.CS</code> functions and thus documented there.</p>
 <p>A list of useful parameters and their description is listed below, while the
@@ -2419,7 +2419,7 @@ landscape and the simulation length, and several maps of stand biomass,
 mortality and reproductive success (i.e, new biomass) on a yearly basis.</p>
 <p>However, any of the objects changed/output by <em>Biomass_core</em> (listed in Table
 <a href="landr-biomass_core-module.html#tab:moduleOutputs-Biomass-core">6.7</a>) can be saved via the <code>outputs</code> argument
-in <code>simInit</code><a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a>.</p>
+in <code>simInit</code><a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a>.</p>
 <div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleOutputs-Biomass-core">Table 6.7: </span>List of <em>Biomass_core</em> output objects and their description.
@@ -2775,7 +2775,7 @@ immediately before post-disturbance effects are calculated.</p>
 <ol style="list-style-type: decimal">
 <li><p>Preparation of necessary objects for the simulation – either by data and
 calibration modules or by <em>Biomass_core</em> itself (during <code>simInit</code> and the
-<code>init</code> event<a href="#fn11" class="footnote-ref" id="fnref11"><sup>11</sup></a>);</p></li>
+<code>init</code> event<a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a>);</p></li>
 <li><p>Disturbances (OPTIONAL) – simulated by a disturbance module (e.g.,
 <em>LandMine</em>);</p></li>
 <li><p>Post-disturbance mortality/regeneration (OPTIONAL) – simulated by a
@@ -3064,7 +3064,7 @@ Figure 6.6: Simulation efficiencies of LBSE and <em>Biomass_core</em> with incre
 <h3>
 <span class="header-section-number">6.3.1</span> Set up R libraries<a class="anchor" aria-label="anchor" href="#example-libs"><i class="fas fa-link"></i></a>
 </h3>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>CRAN <span class="op">=</span> <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">tempDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -3094,7 +3094,7 @@ repository</a> directly.</p>
 dependencies are installed in their correct version.
 <code><a href="http://spades-project.predictiveecology.org/reference/metadata.html">SpaDES.project::packagesInModules</a></code> makes a list of necessary packages for all
 modules in the <code>paths$modulePath</code>, and <code>Require</code> installs them.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://Require.predictiveecology.org/reference/Require.html">Require</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES.project@6d7de6ee12fc967c7c60de44f1aa3b04e6eeb5db"</span>,</span>
 <span>    require <span class="op">=</span> <span class="cn">FALSE</span>, upgrade <span class="op">=</span> <span class="cn">FALSE</span>, standAlone <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -3127,7 +3127,7 @@ pixel-based, so to “spatialise” results <em>a posteriori</em> the <code>pixe
 also be saved.</p>
 <p>Please see the lists of <a href="landr-biomass_core-module.html#inputs-list">input objects</a>,
 <a href="landr-biomass_core-module.html#params-list">parameters</a> and <a href="landr-biomass_core-module.html#outputs-list">outputs</a> for more information.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fl">0</span>, end <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">studyArea</span> <span class="op">&lt;-</span> <span class="fu">Cache</span><span class="op">(</span><span class="va">randomStudyArea</span>, size <span class="op">=</span> <span class="fl">1e+07</span><span class="op">)</span>  <span class="co"># cache this so it creates a random one only once on a machine</span></span>
@@ -3171,7 +3171,7 @@ initialises all modules) and <code>spades</code> (which runs all modules, i.e., 
 to which pass all the necessary setup objects created above.</p>
 <p>Below, we pass some useful <code>reproducible</code> options that control caching (<code>"reproducible.useCache"</code>)
 and where inputs should be downloaded to (<code>"reproducible.destinationPath"</code>).</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">opts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>reproducible.useCache <span class="op">=</span> <span class="cn">TRUE</span>, reproducible.destinationPath <span class="op">=</span> <span class="va">paths</span><span class="op">$</span><span class="va">inputPath</span>,</span>
 <span>    spades.useRequire <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html">graphics.off</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -8063,25 +8063,25 @@ tsugcana
 </div>
 <div class="footnotes">
 <hr>
-<ol start="6">
-<li id="fn6"><p>in LBSE the initialisation consists in “iterat[ing] the
+<ol start="5">
+<li id="fn5"><p>in LBSE the initialisation consists in “iterat[ing] the
 number of time steps equal to the maximum cohort age for each site”,
 beginning at 0 minus <em>t</em> (<em>t =</em> oldest cohort age) and adding cohorts at the
 appropriate time until the initial simulation time is reached (0)
-<span class="citation">(<a href="references-1.html#ref-SchellerMiranda2015">Scheller &amp; Miranda 2015a</a>)</span>.<a href="landr-biomass_core-module.html#fnref6" class="footnote-back">↩︎</a></p></li>
-<li id="fn7"><p>usually, default inputs are made when running the
+<span class="citation">(<a href="references-1.html#ref-SchellerMiranda2015">Scheller &amp; Miranda 2015a</a>)</span>.<a href="landr-biomass_core-module.html#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p>usually, default inputs are made when running the
 <code>.inputObjects</code> function (inside the module R script) during the <code>simInit</code>
 call and in the <code>init</code> event during the <code>spades</code> call – see
-<code><a href="https://spades-core.predictiveecology.org/reference/simList-accessors-events.html">?SpaDES.core::events</a></code> and <code><a href="https://spades-core.predictiveecology.org/reference/simInit.html">SpaDES.core::simInit</a></code><a href="landr-biomass_core-module.html#fnref7" class="footnote-back">↩︎</a></p></li>
-<li id="fn8"><p>in <code>SpaDES</code> lingo parameters are “small” objects, such as an
+<code><a href="https://spades-core.predictiveecology.org/reference/simList-accessors-events.html">?SpaDES.core::events</a></code> and <code><a href="https://spades-core.predictiveecology.org/reference/simInit.html">SpaDES.core::simInit</a></code><a href="landr-biomass_core-module.html#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p>in <code>SpaDES</code> lingo parameters are “small” objects, such as an
 integer or boolean, that can be controlled via the <code>parameters</code> argument in
-<code>simInit</code>.<a href="landr-biomass_core-module.html#fnref8" class="footnote-back">↩︎</a></p></li>
-<li id="fn9"><p><a href="https://github.com/ianmseddy/LandR.CS" class="uri">https://github.com/ianmseddy/LandR.CS</a><a href="landr-biomass_core-module.html#fnref9" class="footnote-back">↩︎</a></p></li>
-<li id="fn10"><p>see <code><a href="https://spades-core.predictiveecology.org/reference/simList-accessors-outputs.html">?SpaDES.core::outputs</a></code><a href="landr-biomass_core-module.html#fnref10" class="footnote-back">↩︎</a></p></li>
-<li id="fn11"><p><code>simInit</code> is a <code>SpaDES</code> function that initialises the
+<code>simInit</code>.<a href="landr-biomass_core-module.html#fnref7" class="footnote-back">↩︎</a></p></li>
+<li id="fn8"><p><a href="https://github.com/ianmseddy/LandR.CS" class="uri">https://github.com/ianmseddy/LandR.CS</a><a href="landr-biomass_core-module.html#fnref8" class="footnote-back">↩︎</a></p></li>
+<li id="fn9"><p>see <code><a href="https://spades-core.predictiveecology.org/reference/simList-accessors-outputs.html">?SpaDES.core::outputs</a></code><a href="landr-biomass_core-module.html#fnref9" class="footnote-back">↩︎</a></p></li>
+<li id="fn10"><p><code>simInit</code> is a <code>SpaDES</code> function that initialises the
 execution of one or more modules by parsing and checking their code and
 executing the <code>.inputObjects</code> function(s), where the developer provides
-mechanisms to satisfy each module’s expected inputs with default values.<a href="landr-biomass_core-module.html#fnref11" class="footnote-back">↩︎</a></p></li>
+mechanisms to satisfy each module’s expected inputs with default values.<a href="landr-biomass_core-module.html#fnref10" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   <div class="chapter-nav">
