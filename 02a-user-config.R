@@ -84,5 +84,6 @@ config.user <- switch(
         googleUser = "",
         useCloud = FALSE
       )
+    )
   )
 )
