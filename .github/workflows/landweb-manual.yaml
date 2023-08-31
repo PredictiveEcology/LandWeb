@@ -49,6 +49,7 @@ jobs:
         run: |
           if (!requireNamespace("renv", quietly=TRUE)) install.packages("renv")
           options(renv.config.mran.enabled = FALSE)
+          renv::paths$root()
           renv::restore()
         shell: Rscript {0}
 
