@@ -28,7 +28,7 @@ jobs:
 
     env:
       GITHUB_PAT: ${{ secrets.LANDWEB_PAT }}
-      RENV_PATHS_ROOT: ~/.local/share/renv
+      RENV_PATHS_ROOT: ~/.cache/R/renv
 
     steps:
       - uses: actions/checkout@v3
@@ -65,16 +65,6 @@ jobs:
   deploy-manual-site:
     needs: build-manual-site
     runs-on: ubuntu-latest
-
-    ## deploy to github-pages environment
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    ## grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
 
     steps:
       - name: Deploy to GitHub pages 🚀
