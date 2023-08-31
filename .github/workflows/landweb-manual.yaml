@@ -2,9 +2,9 @@ name: landweb-manual
 
 on:
   push:
-    branches: [$default-branch]
+    branches: [main]
   pull_request:
-    branches: [$default-branch]
+    branches: [main]
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -28,6 +28,7 @@ jobs:
 
     env:
       GITHUB_PAT: ${{ secrets.LANDWEB_PAT }}
+      RENV_PATHS_ROOT: ~/.local/share/renv
 
     steps:
       - uses: actions/checkout@v3
@@ -36,11 +37,24 @@ jobs:
 
       - uses: actions/configure-pages@v3
 
+      - name: Restore Renv package cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.RENV_PATHS_ROOT }}
+          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-renv-
+
+      - name: Install renv dependencies
+        run: |
+          if (!requireNamespace("renv", quietly=TRUE)) install.packages("renv")
+          options(renv.config.mran.enabled = FALSE)
+          renv::restore()
+        shell: Rscript {0}
+
       ## build the manual
       - name: Build LandWeb manual
         run: |
-          options(renv.config.mran.enabled = FALSE)
-          renv::restore()
           source("manual/build.R")
         shell: Rscript {0}
 
