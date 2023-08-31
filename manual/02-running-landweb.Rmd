@@ -48,10 +48,14 @@ lwProvs <- c("British Columbia", "Alberta", "Saskatchewan", "Manitoba")
 
 fshp2 <- file.path(prjDir, "inputs", "FMA_Boundaries",
                    "FMA_Boundary_CustomProj", "FMA_Boundary_Updated.shp")
+fcsv2 <- file.path(prjDir, "manual", "tables", "FMA_Boundary_Updated.csv")
 fgg2 <- file.path(prjDir, "manual", "figures", "FMA_Boundary_Updated.png")
 
 if (file.exists(fshp2)) {
   sf2 <- sf::st_read(fshp2)
+  
+  data.frame(ID = sf2$OBJECTID_1, Name = sf2$Name) |>
+    write.csv(fcsv2, row.names = FALSE)
   
   centroids_sf2 <- cbind(
     suppressWarnings(sf::st_centroid(sf2)),
@@ -80,10 +84,10 @@ if (file.exists(fshp2)) {
 \newpage
 
 ```{r fma-table, echo = FALSE, eval = TRUE}
-data.frame(ID = sf2$OBJECTID_1, Name = sf2$Name) |>
+read.csv(fcsv2) |>
   knitr::kable(caption = "FMA polygon IDs (from Figure 1) and their corresponding FMA names.",
                format = "latex", booktabs = TRUE, longtable = TRUE) |>
-  kableExtra::kable_styling(latex_options =  c("striped", "repeat_header")) # font_size = 10
+  kableExtra::kable_styling(latex_options =  c("striped", "repeat_header"))
 ```
 
 #### Choosing a study area

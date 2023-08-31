@@ -3,3 +3,4 @@ citations/*
 libs/
 LandWeb_manual_files/
 LandWeb_manual.Rmd
+!tables/*
