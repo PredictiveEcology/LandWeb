@@ -46,34 +46,34 @@ canProvs <- geodata::gadm(country = "CAN", level = 1, path = file.path(prjDir, "
   sf::st_as_sf()
 lwProvs <- c("British Columbia", "Alberta", "Saskatchewan", "Manitoba")
 
-manData <- file.path(prjDir, "manual", "ext_data")
-fshp2 <- file.path(manData, "FMA_Boundary_Updated.shp")
-fzip2 <- file.path(manData, "FMA_Boundary_Updated.zip")
+fshp2 <- file.path(prjDir, "inputs", "FMA_Boundaries",
+                   "FMA_Boundary_CustomProj", "FMA_Boundary_Updated.shp")
+fgg2 <- file.path(prjDir, "manual", "figures", "FMA_Boundary_Updated.png")
 
-if (!file.exists(fshp2)) {
-  archive::archive_extract(fzip2, manData)
+if (file.exists(fshp2)) {
+  sf2 <- sf::st_read(fshp2)
+  
+  centroids_sf2 <- cbind(
+    suppressWarnings(sf::st_centroid(sf2)),
+    suppressWarnings(sf::st_coordinates(sf::st_centroid(sf2$geometry)))
+  )
+  
+  gg2 <- ggplot2::ggplot(data = sf2) +
+    ggplot2::geom_sf(data = canProvs[canProvs$NAME_1 %in% lwProvs, ]) +
+    ggplot2::geom_sf(mapping = ggplot2::aes(fill = as.factor(OBJECTID_1 %% 10))) +
+    ggplot2::scale_fill_brewer(type = "div", palette = "Spectral") +
+    ggplot2::geom_text(data = centroids_sf2, 
+                       mapping = ggplot2::aes(x = X, y = Y, label = OBJECTID_1), size = 2) + 
+    ggplot2::labs(title = "FMA boundaries within the LandWeb study area") + 
+    ggplot2::xlab("Longitude") +
+    ggplot2::ylab("Latitude") + 
+    ggplot2::guides(fill = "none") +
+    ggplot2::theme_bw()
+  ggplot2::ggsave(fgg2, gg2)
+  gg2
+} else {
+  knitr::include_graphics(fgg2)
 }
-
-sf2 <- sf::st_read(fshp2)
-
-centroids_sf2 <- cbind(
-  suppressWarnings(sf::st_centroid(sf2)),
-  suppressWarnings(sf::st_coordinates(sf::st_centroid(sf2$geometry)))
-)
-
-gg2 <- ggplot2::ggplot(data = sf2) +
-  ggplot2::geom_sf(data = canProvs[canProvs$NAME_1 %in% lwProvs, ]) +
-  ggplot2::geom_sf(mapping = ggplot2::aes(fill = as.factor(OBJECTID_1 %% 10))) +
-  ggplot2::scale_fill_brewer(type = "div", palette = "Spectral") +
-  ggplot2::geom_text(data = centroids_sf2, 
-                     mapping = ggplot2::aes(x = X, y = Y, label = OBJECTID_1), size = 2) + 
-  ggplot2::labs(title = "FMA boundaries within the LandWeb study area") + 
-  ggplot2::xlab("Longitude") +
-  ggplot2::ylab("Latitude") + 
-  ggplot2::guides(fill = "none") +
-  ggplot2::theme_bw()
-
-gg2
 ```
 
 \elandscape

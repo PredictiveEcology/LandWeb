@@ -1,6 +1,0 @@
-## ignore all
-*
-
-## don't ignore:
-!.gitignore
-!FMA_Boundary_Updated.zip
