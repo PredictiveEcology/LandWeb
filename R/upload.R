@@ -20,8 +20,11 @@ plan(multisession, workers = 8)
 #'
 #' @param drive_path The destination folder on Google Drive, given as a URL, file id, or dribble
 #'
+#' @param batch_size the maximum number of files per upload batch.
+#'   Uploads are done in batches to mitigate curl handle errors.
+#'
 #' @return A dribble of the uploaded files (not directories though.)
-drive_upload_folder <- function(folder, drive_path) {
+drive_upload_folder <- function(folder, drive_path, batch_size = 10) {
   ## avoid curl HTTP2 framing layer error:
   ## per https://github.com/tidyverse/googlesheets4/issues/233#issuecomment-889376499
   old <- httr::set_config(httr::config(http_version = 2)) ## corresponds to CURL_HTTP_VERSION_1_1
@@ -40,10 +43,16 @@ drive_upload_folder <- function(folder, drive_path) {
   }
 
   # Directly upload the files
-  uploaded_files <- contents |>
+  files_to_upload <- contents |>
     dplyr::filter(type == "file") |>
-    dplyr::pull(path) |>
-    furrr::future_map_dfr(googledrive::drive_put, path = fid)
+    dplyr::pull(path)
+  g <- seq(files_to_upload) %/% batch_size
+  uploaded_files <- files_to_upload |>
+    split(g) |>
+    lapply(function(x) {
+      furrr::future_map_dfr(x, googledrive::drive_put, path = fid)
+    }) |>
+    dplyr::bind_rows()
 
   # Create the next level down of directories
   furrr::future_map2_dfr(dirs_to_upload, fid, drive_upload_folder) |>
@@ -87,6 +96,6 @@ lapply(filesToUpload, function(f) {
 })
 
 lapply(dirsToUpload, function(d) {
-  SpaDES.config::authGoogle(tryToken = "landweb") ## TODO: is re-auth needed?
+  SpaDES.config::authGoogle(tryToken = "landweb") ## TODO: why is re-auth needed?
   drive_upload_folder(d, gdrive_ID)
 })
