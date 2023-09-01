@@ -97,5 +97,5 @@ lapply(filesToUpload, function(f) {
 
 lapply(dirsToUpload, function(d) {
   SpaDES.config::authGoogle(tryToken = "landweb") ## TODO: why is re-auth needed?
-  drive_upload_folder(d, gdrive_ID)
+  drive_upload_folder(d, gdrive_ID, batch_size = 20)
 })
