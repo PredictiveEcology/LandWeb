@@ -3174,6 +3174,22 @@
       ],
       "Hash": "2a795ec0ddbfe465ca0d6471039631bf"
     },
+    "patchwork": {
+      "Package": "patchwork",
+      "Version": "1.1.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "ggplot2",
+        "grDevices",
+        "graphics",
+        "grid",
+        "gtable",
+        "stats",
+        "utils"
+      ],
+      "Hash": "63b611e9d909a9ed057639d9c3b77152"
+    },
     "pbkrtest": {
       "Package": "pbkrtest",
       "Version": "0.5.2",

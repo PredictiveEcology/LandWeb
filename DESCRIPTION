@@ -202,6 +202,7 @@ Imports:
     pak (== 0.5.1),
     pander (== 0.6.5),
     parallelly (== 1.34.0),
+    patchwork (== 1.1.2),
     pbkrtest (== 0.5.2),
     pemisc (== 0.0.4.9009),
     peutils (== 0.1.0),
