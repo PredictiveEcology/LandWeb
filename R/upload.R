@@ -50,7 +50,9 @@ drive_upload_folder <- function(folder, drive_path, batch_size = 10) {
   uploaded_files <- files_to_upload |>
     split(g) |>
     lapply(function(x) {
-      furrr::future_map_dfr(x, googledrive::drive_put, path = fid)
+      reproducible::retry({
+        quote(furrr::future_map_dfr(x, googledrive::drive_put, path = fid))
+      })
     }) |>
     dplyr::bind_rows()
 
