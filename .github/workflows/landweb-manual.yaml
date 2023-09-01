@@ -1,3 +1,5 @@
+## Workflow based on from https://github.com/r-lib/actions/tree/v2/examples/bookdown.yaml
+
 name: landweb-manual
 
 on:
@@ -35,8 +37,6 @@ jobs:
         with:
           submodules: true
 
-      - uses: actions/configure-pages@v3
-
       - name: Restore Renv package cache
         uses: actions/cache@v3
         with:
@@ -55,21 +55,20 @@ jobs:
           renv::restore()
         shell: Rscript {0}
 
+      - name: Cache bookdown results
+        uses: actions/cache@v3
+        with:
+          path: manual/_bookdown_files
+          key: bookdown-${{ hashFiles('**/*Rmd') }}
+          restore-keys: bookdown-
+
       ## build the manual
       - name: Build LandWeb manual
         run: |
           source("manual/build.R")
         shell: Rscript {0}
 
-      - uses: actions/upload-pages-artifact@v2
-        with:
-          path: 'docs/'
-
-  deploy-manual-site:
-    needs: build-manual-site
-    runs-on: ubuntu-latest
-
-    steps:
+      ## deploy to GitHub Pages
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
