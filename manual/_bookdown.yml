@@ -15,7 +15,7 @@ rmd_files:
   - ../m/LandWeb_preamble/LandWeb_preamble2.Rmd
   - 04-section-vegetation-submodel.Rmd
   - ../m/Biomass_speciesData/Biomass_speciesData2.Rmd
-  - ../m/Biomass_borealDataPrep/Biomass_borealDataPrep2.Rmd
+  # - ../m/Biomass_borealDataPrep/Biomass_borealDataPrep2.Rmd
   # - ../m/Biomass_core/Biomass_core2.Rmd
   # - ../m/Biomass_regeneration/Biomass_regeneration2.Rmd
   # - 05-section-fire-submodel.Rmd
