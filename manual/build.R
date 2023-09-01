@@ -74,8 +74,6 @@ Sys.getenv("R_USE_REQUIRE")
 
 ## render the book using new env -- see <https://stackoverflow.com/a/46083308>
 bookdown::render_book(output_format = "all", envir = new.env())
-# bookdown::render_book(output_format = "bookdown::pdf_book", envir = new.env())
-# bookdown::render_book(output_format = "bookdown::bs4_book", envir = new.env())
 
 pdfArchiveDir <- Require::checkPath(file.path(manDir, "archive", "pdf"), create = TRUE)
 file.copy(
