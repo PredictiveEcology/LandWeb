@@ -7,6 +7,7 @@ language:
   ui:
     chapter_name: "Chapter "
 delete_merged_file: true
+new_session: true
 rmd_files:
   - index.Rmd
   # - 01-getting-started.Rmd
