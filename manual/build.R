@@ -17,12 +17,12 @@ options(
 
 # load packages -------------------------------------
 
-library("bibtex")
-library("bookdown")
-library("data.table")
-library("knitr")
-library("RefManageR")
-library("SpaDES.docs")
+library(bibtex)
+library(bookdown)
+library(data.table)
+library(knitr)
+library(RefManageR)
+library(SpaDES.docs)
 
 ## references ---------------------------------------
 
