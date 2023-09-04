@@ -3134,7 +3134,7 @@
     },
     "pak": {
       "Package": "pak",
-      "Version": "0.5.1",
+      "Version": "0.6.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3142,7 +3142,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "7ef6f300721d2beb43e73f476ec3476e"
+      "Hash": "8b18efeaf9e27136a65692bcec07fc7a"
     },
     "pander": {
       "Package": "pander",
