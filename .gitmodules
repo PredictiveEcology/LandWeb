@@ -36,3 +36,6 @@
 [submodule "m/HSI_Caribou_MB"]
 	path = m/HSI_Caribou_MB
 	url = https://github.com/FOR-CAST/HSI_Caribou_MB
+[submodule "m/burnSummaries"]
+	path = m/burnSummaries
+	url = https://github.com/PredictiveEcology/burnSummaries
