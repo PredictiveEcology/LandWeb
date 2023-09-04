@@ -24,12 +24,11 @@ concurrency:
 jobs:
   build-manual-site:
     if: "!contains(github.event.commits[0].message, '[skip-ci]')"
-    runs-on: ubuntu-latest
-    container:
-      image: achubaty/spades-project:4.2.3
+    runs-on: ubuntu-20.04
 
     env:
       GITHUB_PAT: ${{ secrets.LANDWEB_PAT }}
+      RENV_CONFIG_MRAN_ENABLED: false
       RENV_PATHS_ROOT: ~/.cache/R/renv
 
     steps:
@@ -37,20 +36,20 @@ jobs:
         with:
           submodules: true
 
-      - name: Restore Renv package cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.RENV_PATHS_ROOT }}
-          key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-renv-
+      - uses: r-lib/actions/setup-pandoc@v2
 
-      - name: Install renv dependencies
-        run: |
-          if (!requireNamespace("renv", quietly=TRUE)) install.packages("renv")
-          options(renv.config.mran.enabled = FALSE)
-          renv::restore()
-        shell: Rscript {0}
+      - uses: PredictiveEcology/actions/install-spatial-deps@main
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          extra-repositories: 'https://predictiveecology.r-universe.dev/'
+          Ncpus: 2
+          r-version: ${{ matrix.config.r }}
+          use-public-rspm: false
+
+      - uses: r-lib/actions/setup-renv@v2
+        # with:
+        #   profile: '"manual"'
 
       - name: Cache bookdown results
         uses: actions/cache@v3
