@@ -58,13 +58,11 @@ jobs:
           key: bookdown-${{ hashFiles('**/*Rmd') }}
           restore-keys: bookdown-
 
-      ## build the manual
       - name: Build LandWeb manual
         run: |
           source("manual/build.R")
         shell: Rscript {0}
 
-      ## deploy to GitHub Pages
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
