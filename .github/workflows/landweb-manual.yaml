@@ -44,7 +44,7 @@ jobs:
         with:
           extra-repositories: 'https://predictiveecology.r-universe.dev/'
           Ncpus: 2
-          r-version: ${{ matrix.config.r }}
+          r-version: 4.2.3
           use-public-rspm: false
 
       - uses: r-lib/actions/setup-renv@v2
