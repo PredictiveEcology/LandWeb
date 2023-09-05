@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Overview | LandWeb Manual</title>
+<meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
+<meta name="description" content="A manual for the LandWeb ecosystem of SpaDES modules">
+<meta name="generator" content="bookdown 0.34 with bs4_book()">
+<meta property="og:title" content="Overview | LandWeb Manual">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://predictiveecology.github.io/LandWeb">
+<meta property="og:description" content="A manual for the LandWeb ecosystem of SpaDES modules">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Overview | LandWeb Manual">
+<meta name="twitter:description" content="A manual for the LandWeb ecosystem of SpaDES modules">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="v. 3.0.0">LandWeb Manual</a>:
+        <small class="text-muted">v. 3.0.0</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="active" href="index.html">Overview</a></li>
+<li><a class="" href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></li>
+<li><a class="" href="running-landweb.html"><span class="header-section-number">2</span> Running LandWeb</a></li>
+<li><a class="" href="study-areas.html">Study areas</a></li>
+<li><a class="" href="landr-landweb_preamble-module.html"><span class="header-section-number">3</span> LandR LandWeb_preamble Module</a></li>
+<li><a class="" href="vegetation-submodel.html">Vegetation submodel</a></li>
+<li><a class="" href="landr-biomass_speciesdata-module.html"><span class="header-section-number">4</span> LandR Biomass_speciesData Module</a></li>
+<li><a class="" href="web-app.html">Web app</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">5</span> Modifying LandWeb</a></li>
+<li><a class="" href="references-1.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/PredictiveEcology/LandWeb">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><!--bookdown:title:end--><!--bookdown:title:start--><div id="overview" class="section level1 unnumbered">
+<h1>Overview<a class="anchor" aria-label="anchor" href="#overview"><i class="fas fa-link"></i></a>
+</h1>
+<div class="rmdimportant">
+<p>This manual is a live document which is automatically updated as changes are made to to underlying model code and documentation.</p>
+</div>
+<div id="background" class="section level2" number="0.1">
+<h2>
+<span class="header-section-number">0.1</span> Background<a class="anchor" aria-label="anchor" href="#background"><i class="fas fa-link"></i></a>
+</h2>
+<!--
+## Historic Natural Range of Variation
+
+Lorem ipsum ... (TODO)
+-->
+</div>
+<div id="the-landweb-model" class="section level2" number="0.2">
+<h2>
+<span class="header-section-number">0.2</span> The LandWeb Model<a class="anchor" aria-label="anchor" href="#the-landweb-model"><i class="fas fa-link"></i></a>
+</h2>
+<p>LandWeb is the first large scale, data-driven approach to simulating historic natural range of variation (H/NRV) (<a href="https://landweb.ca" class="uri">https://landweb.ca</a>).
+In developing the model, analyses, as well as the infrastructure to host data, we strove to implement a single, reproducible workflow to facilitate running simulations, analyses, and model reuse and future expansion.
+This tight linkage between data and simulation model is made possible via its implementation using the <code>SpaDES</code> family of packages <span class="citation">(<a href="references-1.html#ref-ChubatyMcIntire2019" role="doc-biblioref">Chubaty &amp; McIntire 2019</a>)</span> within the R Statistical Language and Environment <span class="citation">(<a href="#ref-R-base" role="doc-biblioref"><strong>R-base?</strong></a>)</span>.
+For more information about <code>SpaDES</code>, see <a href="https://spades.predictiveecology.org/" class="uri">https://spades.predictiveecology.org/</a>.</p>
+<p>The LandWeb model integrates two well-used models for forest stand succession and wildfire simulation, implemented in the <code>SpaDES</code> simulation platform as a collection of submodels (implement as <code>SpaDES</code> modules).
+Vegetation dynamics are modeled using the LandR Biomass suite of modules, which reimplement the LANDIS-II Biomass Succession model <span class="citation">(<a href="references-1.html#ref-SchellerMladenoff2004" role="doc-biblioref">Scheller &amp; Mladenoff 2004</a>; <a href="references-1.html#ref-Scheller2007" role="doc-biblioref">Scheller <em>et al.</em> 2007</a>)</span> in R.
+Wildfire dynamics are modeled using an implementation of LandMine <span class="citation">(<a href="references-1.html#ref-Andison:1996" role="doc-biblioref">Andison 1996</a>; <a href="references-1.html#ref-Andison:1998" role="doc-biblioref">Andison 1998</a>)</span>.
+Simulations were run for the entire LandWeb study area, which spans most of the western Canadian boreal forest.
+A summary of the results are presented using a web app, which can be run locally.</p>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:landwebStudyArea"></span>
+<img src="figures/LandWeb_gg.png" alt="LandWeb study area (blue) with mountain and boreal caribou ranges highlighted (pink)." width="90%"><p class="caption">
+Figure 0.1: LandWeb study area (blue) with mountain and boreal caribou ranges highlighted (pink).
+</p>
+</div>
+<div id="data-preparation" class="section level3" number="0.2.1">
+<h3>
+<span class="header-section-number">0.2.1</span> Data preparation<a class="anchor" aria-label="anchor" href="#data-preparation"><i class="fas fa-link"></i></a>
+</h3>
+<p>Input data were derived from multiple sources, including several publicly available as well as proprietary datasets.</p>
+<p>Detailed descriptions of these sources are provided in the relevant sections of this manual.</p>
+<div id="public-data-sources" class="section level4" number="0.2.1.1">
+<h4>
+<span class="header-section-number">0.2.1.1</span> Public data sources<a class="anchor" aria-label="anchor" href="#public-data-sources"><i class="fas fa-link"></i></a>
+</h4>
+<ul>
+<li>Land Cover Classification 2005 map (no longer available from Government of Canada’s Open Data website);</li>
+<li>LANDIS-II species traits: <a href="https://github.com/dcyr/LANDIS-II_IA_generalUseFiles" class="uri">https://github.com/dcyr/LANDIS-II_IA_generalUseFiles</a>;</li>
+<li>LANDIS-II parameterization tables and data: <a href="https://github.com/LANDIS-II-Foundation/Extensions-Succession-Archive/master/biomass-succession-archive/trunk/tests/v6.0-2.0/" class="uri">https://github.com/LANDIS-II-Foundation/Extensions-Succession-Archive/master/biomass-succession-archive/trunk/tests/v6.0-2.0/</a>;</li>
+<li>Canada biomass, stand volume, and species data <span class="citation">(from <a href="references-1.html#ref-BeaudoinEtAl2014" role="doc-biblioref">Beaudoin <em>et al.</em> 2014</a>)</span>: <a href="http://tree.pfc.forestry.ca" class="uri">http://tree.pfc.forestry.ca</a>;</li>
+<li>National ecodistrict polygons: <a href="http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip" class="uri">http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip</a>;</li>
+<li>National ecoregion polygons: <a href="http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip" class="uri">http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip</a>;</li>
+<li>National ecozone polygons: <a href="http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip" class="uri">http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip</a>.</li>
+</ul>
+</div>
+<div id="proprietary-data-sources" class="section level4" number="0.2.1.2">
+<h4>
+<span class="header-section-number">0.2.1.2</span> Proprietary data sources<a class="anchor" aria-label="anchor" href="#proprietary-data-sources"><i class="fas fa-link"></i></a>
+</h4>
+<p>All proprietary data used by for the model are stored in an access-controlled Google Drive location.</p>
+<ul>
+<li>biomass by species maps created by Pickell &amp; Coops <span class="citation">(<a href="references-1.html#ref-Pickell:2016" role="doc-biblioref">2016</a>)</span> resolution 100m x 100m from LandSat and kNN based on CASFRI;</li>
+<li>various reporting polygons used to summarize model results in the app.</li>
+</ul>
+<p>To request access, please contact Alex Chubaty (<a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a>).</p>
+</div>
+</div>
+<div id="vegetation-dynamics" class="section level3" number="0.2.2">
+<h3>
+<span class="header-section-number">0.2.2</span> Vegetation dynamics<a class="anchor" aria-label="anchor" href="#vegetation-dynamics"><i class="fas fa-link"></i></a>
+</h3>
+<p>Vegetation growth and succession are modeled using a re-implementation of the LANDIS-II Biomass model, a widely used and well-documented dynamic vegetation succession model <span class="citation">(<a href="references-1.html#ref-SchellerMladenoff2004" role="doc-biblioref">Scheller &amp; Mladenoff 2004</a>; <a href="references-1.html#ref-Scheller2007" role="doc-biblioref">Scheller <em>et al.</em> 2007</a>)</span>.
+Our re-implemented model largely follows the original LANDIS-II source code (v 3.6.2; <span class="citation">Scheller &amp; Miranda (<a href="references-1.html#ref-SchellerMiranda2015" role="doc-biblioref">2015</a>)</span>), but with some modifications with respect to species traits parameterization.
+This model simulates landscape-scale forest dynamics in a spatio-temporally explicit manner, using cohorts of tree species within each pixel.
+Multiple ecological processes are captured by the model, including vegetation growth, mortality, seed dispersal, and post-disturbance regeneration.</p>
+<p>This submodel is described in further detail in <a href="vegetation-submodel.html#vegetation-submodel">Vegetation submodel</a>.</p>
+</div>
+<div id="wildfire-dynamics" class="section level3" number="0.2.3">
+<h3>
+<span class="header-section-number">0.2.3</span> Wildfire dynamics<a class="anchor" aria-label="anchor" href="#wildfire-dynamics"><i class="fas fa-link"></i></a>
+</h3>
+<p>Wildfire is simulated using a re-implementation of the fire submodel of Andison’s <span class="citation">(<a href="references-1.html#ref-Andison:1996" role="doc-biblioref">1996</a>; <a href="references-1.html#ref-Andison:1998" role="doc-biblioref">1998</a>)</span> <code>LandMine</code> model of landscape disturbance.</p>
+<p>This submodel is described in further detail in [Wildfire submodel].</p>
+</div>
+<div id="summary-maps-and-statistics" class="section level3" number="0.2.4">
+<h3>
+<span class="header-section-number">0.2.4</span> Summary maps and statistics<a class="anchor" aria-label="anchor" href="#summary-maps-and-statistics"><i class="fas fa-link"></i></a>
+</h3>
+<p>Summaries are derived from simulation outputs, and consist of maps showing the time since fire as well as histogram summaries of 1) number of large patches (i.e., patches above the number of hectares specified by the user) contained within the selected spatial area; and 2) the vegetation cover within the selected spatial area.
+Histograms are provided for each spatial area by polygon, age class, and species.
+Authorized users can additionally overlay current stand conditions onto these histograms.
+Simulation outputs are summarized for several publicly available reporting polygons (including Alberta Natural Ecoregions and Caribou Ranges).</p>
+<p>These are described in further detail in [Model outputs].</p>
+</div>
+<div id="landweb-app" class="section level3" number="0.2.5">
+<h3>
+<span class="header-section-number">0.2.5</span> LandWeb app<a class="anchor" aria-label="anchor" href="#landweb-app"><i class="fas fa-link"></i></a>
+</h3>
+<p>Using the web app is described in <a href="web-app.html#web-app">Web app</a>.</p>
+<!-- TODO: flesh out this description -->
+</div>
+</div>
+<div id="previous-manual-versions" class="section level2" number="0.3">
+<h2>
+<span class="header-section-number">0.3</span> Previous Manual Versions<a class="anchor" aria-label="anchor" href="#previous-manual-versions"><i class="fas fa-link"></i></a>
+</h2>
+<p>If available, archived copies of previous manual versions are provided at the links below.</p>
+<ul>
+<li>
+<a href="archive/pdf/LandWeb-manual-v3.0.0.pdf">LandR Manual v3.0.0</a> (<em>current</em>)</li>
+</ul>
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="empty"></div>
+<div class="next"><a href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#overview">Overview</a></li>
+<li><a class="nav-link" href="#background"><span class="header-section-number">0.1</span> Background</a></li>
+<li>
+<a class="nav-link" href="#the-landweb-model"><span class="header-section-number">0.2</span> The LandWeb Model</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#data-preparation"><span class="header-section-number">0.2.1</span> Data preparation</a></li>
+<li><a class="nav-link" href="#vegetation-dynamics"><span class="header-section-number">0.2.2</span> Vegetation dynamics</a></li>
+<li><a class="nav-link" href="#wildfire-dynamics"><span class="header-section-number">0.2.3</span> Wildfire dynamics</a></li>
+<li><a class="nav-link" href="#summary-maps-and-statistics"><span class="header-section-number">0.2.4</span> Summary maps and statistics</a></li>
+<li><a class="nav-link" href="#landweb-app"><span class="header-section-number">0.2.5</span> LandWeb app</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#previous-manual-versions"><span class="header-section-number">0.3</span> Previous Manual Versions</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/index.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/index.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-05.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

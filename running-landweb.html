@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 2 Running LandWeb | LandWeb Manual</title>
+<meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
+<meta name="description" content="Launch Rstudio and open the LandWeb Rstudio project (LandWeb.Rproj); Open the file 00-global.R and run each line in sequence, responding to any prompts as required. Before you can run the model,...">
+<meta name="generator" content="bookdown 0.34 with bs4_book()">
+<meta property="og:title" content="Chapter 2 Running LandWeb | LandWeb Manual">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://predictiveecology.github.io/LandWeb/running-landweb.html">
+<meta property="og:description" content="Launch Rstudio and open the LandWeb Rstudio project (LandWeb.Rproj); Open the file 00-global.R and run each line in sequence, responding to any prompts as required. Before you can run the model,...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 2 Running LandWeb | LandWeb Manual">
+<meta name="twitter:description" content="Launch Rstudio and open the LandWeb Rstudio project (LandWeb.Rproj); Open the file 00-global.R and run each line in sequence, responding to any prompts as required. Before you can run the model,...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="v. 3.0.0">LandWeb Manual</a>:
+        <small class="text-muted">v. 3.0.0</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Overview</a></li>
+<li><a class="" href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></li>
+<li><a class="active" href="running-landweb.html"><span class="header-section-number">2</span> Running LandWeb</a></li>
+<li><a class="" href="study-areas.html">Study areas</a></li>
+<li><a class="" href="landr-landweb_preamble-module.html"><span class="header-section-number">3</span> LandR LandWeb_preamble Module</a></li>
+<li><a class="" href="vegetation-submodel.html">Vegetation submodel</a></li>
+<li><a class="" href="landr-biomass_speciesdata-module.html"><span class="header-section-number">4</span> LandR Biomass_speciesData Module</a></li>
+<li><a class="" href="web-app.html">Web app</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">5</span> Modifying LandWeb</a></li>
+<li><a class="" href="references-1.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/PredictiveEcology/LandWeb">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="running-landweb" class="section level1" number="2">
+<h1>
+<span class="header-section-number">2</span> Running LandWeb<a class="anchor" aria-label="anchor" href="#running-landweb"><i class="fas fa-link"></i></a>
+</h1>
+<ol style="list-style-type: decimal">
+<li>Launch Rstudio and open the LandWeb Rstudio project (<code>LandWeb.Rproj</code>);</li>
+<li>Open the file <code>00-global.R</code> and run each line in sequence, responding to any prompts as required.</li>
+</ol>
+<div class="rmdwarning">
+<p>Before you can run the model, you first need to install the packages required for the project by restoring from the project’s snapshot file.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>renv.config.mran.enabled <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html">restore</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div id="model-setup-and-configuration" class="section level2" number="2.1">
+<h2>
+<span class="header-section-number">2.1</span> Model setup and configuration<a class="anchor" aria-label="anchor" href="#model-setup-and-configuration"><i class="fas fa-link"></i></a>
+</h2>
+<p>The default settings for study area, model version, and scenario are defined in <code>01a-globalvars.R</code>.
+These defaults are defined as ‘dot-variables’ (e.g., <code>.studyAreaName</code>) and can be set externally to the main script
+(e.g., if <code>.studyAreaName</code> is defined before running <code>01a-globalvars.R</code>, then the user-set value will be used, rather than the default defined in that script).</p>
+<div class="rmdnote">
+<p>Advanced setup and model run customization is described in <a href="running-landweb.html#advanced-setup">Advanced setup</a>.</p>
+</div>
+<div id="select-a-study-area" class="section level3" number="2.1.1">
+<h3>
+<span class="header-section-number">2.1.1</span> Select a study area<a class="anchor" aria-label="anchor" href="#select-a-study-area"><i class="fas fa-link"></i></a>
+</h3>
+<p>The model can be run over the entire study area, for certain individual provinces (currently only AB, SK, MB, NWT), or groups of predefined FMAs (see Fig. 1 and Table 1).</p>
+<div id="fma-boundaries" class="section level4" number="2.1.1.1">
+<h4>
+<span class="header-section-number">2.1.1.1</span> FMA boundaries<a class="anchor" aria-label="anchor" href="#fma-boundaries"><i class="fas fa-link"></i></a>
+</h4>
+<p>Currently, only a subset of the FMAs within the LandWeb study area are predefined to be run on their own (i.e., without needing to run the model over the entire study area; see Table 2).</p>
+</div>
+<div id="choosing-a-study-area" class="section level4" number="2.1.1.2">
+<h4>
+<span class="header-section-number">2.1.1.2</span> Choosing a study area<a class="anchor" aria-label="anchor" href="#choosing-a-study-area"><i class="fas fa-link"></i></a>
+</h4>
+<p>The model can be run on any of several pre-defined study areas summarized in the table below.
+To select one of these predefined study areas, set <code>.studyAreaName</code> to use one of the following, corresponding to the polygon IDs in the map above.</p>
+<p>To run LandWeb over an entire province use one of <code>provAB</code>, <code>provMB</code>, <code>provNWT</code>, or <code>provSK</code>.</p>
+<p>To run the entire LandWeb study area, use <code>LandWeb</code>.</p>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div id="select-a-scenario" class="section level3" number="2.1.2">
+<h3>
+<span class="header-section-number">2.1.2</span> Select a scenario<a class="anchor" aria-label="anchor" href="#select-a-scenario"><i class="fas fa-link"></i></a>
+</h3>
+<p>In version 2.0.0 of the LandWeb model, seed dispersal distances needed to be adjusted to ensure sufficient regeneration following fire.
+These adjustments cause the model to behave more like a state-transition model, rather than a process-based one.</p>
+<p>Version 3.0.0 relaxes these parameter forcings to behave like the standard LANDIS-II model.</p>
+<p>The dispersal scenario is principally set via <code>.version</code> but can be overridden is set via <code>.dispersalType</code>:</p>
+<div class="inline-table"><table class="table table-sm">
+<colgroup>
+<col width="23%">
+<col width="76%">
+</colgroup>
+<thead><tr class="header">
+<th><strong>Dispersal Scenario</strong></th>
+<th><strong>Description</strong></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>
+<code>default</code> (v3)</td>
+<td>default LANDIS-II dispersal</td>
+</tr>
+<tr class="even">
+<td><code>aspen</code></td>
+<td>limit seed dispersal to deciduous only</td>
+</tr>
+<tr class="odd">
+<td>
+<code>high</code> (v2)</td>
+<td>high seed dispersal of all species (used for v2.0.0 runs)</td>
+</tr>
+<tr class="even">
+<td><code>none</code></td>
+<td>no seed dispersal (all species)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Additionally, v2.0.0 of the model uses adjusted fire return intervals (FRI) and log-adjusted rates of spread (ROS).
+Version 3.0.0 uses the LandMine defaults.</p>
+<p>The fire scenario is principally set via <code>.version</code> but can be overridden by specifying <code>.ROStype</code>:</p>
+<div class="inline-table"><table class="table table-sm">
+<colgroup>
+<col width="18%">
+<col width="81%">
+</colgroup>
+<thead><tr class="header">
+<th><strong>Fire Scenario</strong></th>
+<th><strong>Description</strong></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>
+<code>default</code> (v3)</td>
+<td>default rate of spread values</td>
+</tr>
+<tr class="even">
+<td><code>burny</code></td>
+<td>Increases the flammability of non-forest types to facilitate fire spread in landscapes with discontinuous fuels.</td>
+</tr>
+<tr class="odd">
+<td><code>equal</code></td>
+<td>Set all rates of fire spread equal to each other (no vegetation differences)</td>
+</tr>
+<tr class="even">
+<td>
+<code>log</code> (v2)</td>
+<td>Reduce the rates of spread but keep the magnitude of vegetation differences</td>
+</tr>
+</tbody>
+</table></div>
+<p>To define a scenario to run, select one dispersal scenario and one fire scenario from the tables above.
+All LandWeb v2.0.0 runs from 2019 were run using <code>.dispersalType = "high"</code> and <code>.ROStype = "log"</code>.
+Using v3.0.0 of the model, <code>.dispersalType = "default"</code> and <code>.ROStype = "default"</code>.</p>
+</div>
+<div id="replication" class="section level3" number="2.1.3">
+<h3>
+<span class="header-section-number">2.1.3</span> Replication<a class="anchor" aria-label="anchor" href="#replication"><i class="fas fa-link"></i></a>
+</h3>
+<p>To run multiple replicates of a given run, set <code>.rep</code> to an integer corresponding to the replicate id.
+All replicate runs use a different random seed, and this seed is saved as on output for reuse in the event that a replicate needs to be rerun.
+To rerun a replicate using a different seed, be sure to delete that run’s <code>seed.rds</code> file.
+The seed used is also saved in human-readable <code>seed.txt</code> file.</p>
+</div>
+</div>
+<div id="running-the-model" class="section level2" number="2.2">
+<h2>
+<span class="header-section-number">2.2</span> Running the model<a class="anchor" aria-label="anchor" href="#running-the-model"><i class="fas fa-link"></i></a>
+</h2>
+<p><strong>NOTE:</strong> The first time the model is run, it will automatically download additional data and install additional R packages, which can take some time to complete.</p>
+<div id="interactive-r-session" class="section level3" number="2.2.1">
+<h3>
+<span class="header-section-number">2.2.1</span> Interactive R session<a class="anchor" aria-label="anchor" href="#interactive-r-session"><i class="fas fa-link"></i></a>
+</h3>
+<p>When working in an R session, be sure to set the working directory to the LandWeb project directory.
+The first time running the model, open the file <code>00-global.R</code>, and step through each line to ensure any prompts etc. are answered correctly.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html">source</a></span><span class="op">(</span><span class="st">"00-global.R"</span><span class="op">)</span></span></code></pre></div>
+<div class="rmdimportant">
+<p>When authenticating with Google Drive, be sure to check the box to allow access to files.</p>
+</div>
+</div>
+<div id="commandline-interface" class="section level3" number="2.2.2">
+<h3>
+<span class="header-section-number">2.2.2</span> Commandline interface<a class="anchor" aria-label="anchor" href="#commandline-interface"><i class="fas fa-link"></i></a>
+</h3>
+<p>In addition to running the model in an interactive R session, we provide a command line interface to run replicates of the model for the study areas defined above (i.e., batch mode).</p>
+<p>For example, to run replicate number 7 of the model at <span class="math inline">\(250 m\)</span> resolution using FRI multiple of <span class="math inline">\(1\)</span> for Alberta FMU L11, use:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="running-landweb.html#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
+<span id="cb20-2"><a href="running-landweb.html#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="running-landweb.html#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">## ./run_fmu.sh &lt;FMU&gt; &lt;FRI&gt; &lt;RES&gt; &lt;REP&gt;</span></span>
+<span id="cb20-4"><a href="running-landweb.html#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="ex">./run_fmu.sh</span> L11 1 250 7</span></code></pre></div>
+<p>FMU command line runs do not use modified dispersal nor fire scenarios, and thus only require the study area, replicate, and FRI multiple to be defined.</p>
+<p>To run replicate number 7 of the model for the entire province of Alberta, use:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="running-landweb.html#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
+<span id="cb21-2"><a href="running-landweb.html#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="running-landweb.html#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co">## ./run_fma.sh &lt;FMU&gt; &lt;REP&gt;</span></span>
+<span id="cb21-4"><a href="running-landweb.html#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="ex">./run_fma.sh</span> provAB 7</span>
+<span id="cb21-5"><a href="running-landweb.html#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="co"># ./run_fma_win.sh provAB 7 ## if on Windows!</span></span></code></pre></div>
+<p>FMA command line runs use <code>highDispersal_logROS</code> scenarios at <span class="math inline">\(250 m\)</span> resolution, and thus only require the study area and replicate to be defined.</p>
+<p>To run the entire LandWeb study area, only a replicate number needs to be passed.
+For example:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="running-landweb.html#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">## ./run_landweb.sh &lt;REP&gt;</span></span>
+<span id="cb22-2"><a href="running-landweb.html#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./run_landweb.sh</span> 7</span></code></pre></div>
+<p>LandWeb command line run set the dispersal and fire scenarios as above, and the pixel resolution (<code>.pixelSize</code>) at <span class="math inline">\(250 m\)</span>, and thus only require the study area and replicate to be defined.</p>
+</div>
+</div>
+<div id="post-processing-analyses" class="section level2" number="2.3">
+<h2>
+<span class="header-section-number">2.3</span> Post-processing analyses<a class="anchor" aria-label="anchor" href="#post-processing-analyses"><i class="fas fa-link"></i></a>
+</h2>
+<p>After having run several reps of the model on a given study area, results are combined in subsequent post-processing analyses to generate the following outputs for each set of reporting polygons within the study area:</p>
+<ul>
+<li>boxplots of leading vegetation cover;</li>
+<li>histograms of leading vegetation cover;</li>
+<li>histograms of large patches.</li>
+</ul>
+<p>To run processing, use <code>.mode = "postprocess"</code> and be sure to set the number of replicates run in the config.</p>
+</div>
+<div id="advanced-setup" class="section level2" number="2.4">
+<h2>
+<span class="header-section-number">2.4</span> Advanced setup<a class="anchor" aria-label="anchor" href="#advanced-setup"><i class="fas fa-link"></i></a>
+</h2>
+<div id="customizing-model-run-configuration" class="section level3" number="2.4.1">
+<h3>
+<span class="header-section-number">2.4.1</span> Customizing model run configuration<a class="anchor" aria-label="anchor" href="#customizing-model-run-configuration"><i class="fas fa-link"></i></a>
+</h3>
+<p>See <a href="https://github.com/PredictiveEcology/SpaDES.config/blob/development/R/config.landweb.R">SpaDES.config/R/config.landweb.R</a>.</p>
+<p>(TODO)</p>
+</div>
+<div id="cache-backend" class="section level3" number="2.4.2">
+<h3>
+<span class="header-section-number">2.4.2</span> Cache backend<a class="anchor" aria-label="anchor" href="#cache-backend"><i class="fas fa-link"></i></a>
+</h3>
+<p>Simulation caching is provided by the <code>reproducible</code> and <code>SpaDES.core</code> packages, and is enabled by default.</p>
+<p>The default cache uses a SQLite database backend and stores cache files in <code>cache/</code>.
+However, other database backends can also be used, and advanced users running multiple parallel simulations may wish to set up and use a PostgreSQL database for this cache.</p>
+<p>See <a href="https://github.com/PredictiveEcology/SpaDES/wiki/Using-alternate-database-backends-for-Cache" class="uri">https://github.com/PredictiveEcology/SpaDES/wiki/Using-alternate-database-backends-for-Cache</a> and ensure the following options are added to your user-specific config in <code>02a-user-config.R</code>:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="running-landweb.html#cb23-1" aria-hidden="true" tabindex="-1"></a>reproducible.cacheSaveFormat <span class="ot">=</span> <span class="st">"qs"</span>,</span>
+<span id="cb23-2"><a href="running-landweb.html#cb23-2" aria-hidden="true" tabindex="-1"></a>reproducible.conn <span class="ot">=</span> SpaDES.config<span class="sc">::</span><span class="fu">dbConnCache</span>(<span class="st">"postgresql"</span>),</span></code></pre></div>
+</div>
+<div id="speeding-up-disk-based-operations" class="section level3" number="2.4.3">
+<h3>
+<span class="header-section-number">2.4.3</span> Speeding up disk-based operations<a class="anchor" aria-label="anchor" href="#speeding-up-disk-based-operations"><i class="fas fa-link"></i></a>
+</h3>
+<p>Caching and other disk-based file operations benefit from using an solid state drive (SSD) instead of a conventional spinning hard drive.
+Advanced users can move their <code>cache/</code> directory to an SSD mountpoint and create a symlink to this location in the project directory.
+Likewise, users can configure a scratch path for temporary raster file operations to point to an SSD location.</p>
+</div>
+</div>
+<div id="additional-resources" class="section level2" number="2.5">
+<h2>
+<span class="header-section-number">2.5</span> Additional Resources<a class="anchor" aria-label="anchor" href="#additional-resources"><i class="fas fa-link"></i></a>
+</h2>
+<p>Resources for (re)learning R and spatial data:</p>
+<ul>
+<li><a href="https://rspatial.org" class="uri">https://rspatial.org</a></li>
+</ul>
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></div>
+<div class="next"><a href="study-areas.html">Study areas</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#running-landweb"><span class="header-section-number">2</span> Running LandWeb</a></li>
+<li>
+<a class="nav-link" href="#model-setup-and-configuration"><span class="header-section-number">2.1</span> Model setup and configuration</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#select-a-study-area"><span class="header-section-number">2.1.1</span> Select a study area</a></li>
+<li><a class="nav-link" href="#select-a-scenario"><span class="header-section-number">2.1.2</span> Select a scenario</a></li>
+<li><a class="nav-link" href="#replication"><span class="header-section-number">2.1.3</span> Replication</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#running-the-model"><span class="header-section-number">2.2</span> Running the model</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#interactive-r-session"><span class="header-section-number">2.2.1</span> Interactive R session</a></li>
+<li><a class="nav-link" href="#commandline-interface"><span class="header-section-number">2.2.2</span> Commandline interface</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#post-processing-analyses"><span class="header-section-number">2.3</span> Post-processing analyses</a></li>
+<li>
+<a class="nav-link" href="#advanced-setup"><span class="header-section-number">2.4</span> Advanced setup</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#customizing-model-run-configuration"><span class="header-section-number">2.4.1</span> Customizing model run configuration</a></li>
+<li><a class="nav-link" href="#cache-backend"><span class="header-section-number">2.4.2</span> Cache backend</a></li>
+<li><a class="nav-link" href="#speeding-up-disk-based-operations"><span class="header-section-number">2.4.3</span> Speeding up disk-based operations</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#additional-resources"><span class="header-section-number">2.5</span> Additional Resources</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/02-running-landweb.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/02-running-landweb.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-05.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

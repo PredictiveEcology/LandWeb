@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 1 Getting started | LandWeb Manual</title>
+<meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
+<meta name="description" content="1.1 Prerequisites  Minimum system requirements: Windows 10, macOS 10.13 High Sierra, or Ubuntu 20.04 LTS; 20 GB of storage space, plus additional storage for model outputs; 128 GB RAM to run the...">
+<meta name="generator" content="bookdown 0.34 with bs4_book()">
+<meta property="og:title" content="Chapter 1 Getting started | LandWeb Manual">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://predictiveecology.github.io/LandWeb/getting-started.html">
+<meta property="og:description" content="1.1 Prerequisites  Minimum system requirements: Windows 10, macOS 10.13 High Sierra, or Ubuntu 20.04 LTS; 20 GB of storage space, plus additional storage for model outputs; 128 GB RAM to run the...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 1 Getting started | LandWeb Manual">
+<meta name="twitter:description" content="1.1 Prerequisites  Minimum system requirements: Windows 10, macOS 10.13 High Sierra, or Ubuntu 20.04 LTS; 20 GB of storage space, plus additional storage for model outputs; 128 GB RAM to run the...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="v. 3.0.0">LandWeb Manual</a>:
+        <small class="text-muted">v. 3.0.0</small>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Overview</a></li>
+<li><a class="active" href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></li>
+<li><a class="" href="running-landweb.html"><span class="header-section-number">2</span> Running LandWeb</a></li>
+<li><a class="" href="study-areas.html">Study areas</a></li>
+<li><a class="" href="landr-landweb_preamble-module.html"><span class="header-section-number">3</span> LandR LandWeb_preamble Module</a></li>
+<li><a class="" href="vegetation-submodel.html">Vegetation submodel</a></li>
+<li><a class="" href="landr-biomass_speciesdata-module.html"><span class="header-section-number">4</span> LandR Biomass_speciesData Module</a></li>
+<li><a class="" href="web-app.html">Web app</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">5</span> Modifying LandWeb</a></li>
+<li><a class="" href="references-1.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/PredictiveEcology/LandWeb">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="getting-started" class="section level1" number="1">
+<h1>
+<span class="header-section-number">1</span> Getting started<a class="anchor" aria-label="anchor" href="#getting-started"><i class="fas fa-link"></i></a>
+</h1>
+<div id="prerequisites" class="section level2" number="1.1">
+<h2>
+<span class="header-section-number">1.1</span> Prerequisites<a class="anchor" aria-label="anchor" href="#prerequisites"><i class="fas fa-link"></i></a>
+</h2>
+<div class="rmdnote">
+<p><strong>Minimum system requirements:</strong></p>
+<ul>
+<li>Windows 10, macOS 10.13 High Sierra, or Ubuntu 20.04 LTS;</li>
+<li>20 GB of storage space, plus additional storage for model outputs;</li>
+<li>128 GB RAM to run the model over the full area (less for sub-areas);</li>
+<li>High-speed internet connection.</li>
+</ul>
+</div>
+<p>The following section provides details on installing prerequisite software for running LandWeb.</p>
+<div id="docker" class="section level3" number="1.1.1">
+<h3>
+<span class="header-section-number">1.1.1</span> Docker<a class="anchor" aria-label="anchor" href="#docker"><i class="fas fa-link"></i></a>
+</h3>
+<div class="rmdwarning">
+<p><strong>If you prefer to not use Docker, skip this subsection.</strong></p>
+<p>Due to idiosyncratic difficulties of installing multiple pieces of software and ensuring the correct versions are used throughout, we provide prebuilt Docker (<a href="https://www.docker.com/" class="uri">https://www.docker.com/</a>) images, which better provides a consistent and reproducible software environment for running the model.</p>
+<p>Thus, using these images are preferred over ‘bare-metal’ installation.</p>
+</div>
+<p>Install Docker for your system following <a href="https://docs.docker.com/get-docker/" class="uri">https://docs.docker.com/get-docker/</a>.</p>
+<p>Next, pull the image from Docker Hub:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="getting-started.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">## get the image</span></span>
+<span id="cb1-2"><a href="getting-started.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> pull achubaty/landweb-standalone:latest</span>
+<span id="cb1-3"><a href="getting-started.html#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="getting-started.html#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">## launch a new container based on thi image</span></span>
+<span id="cb1-5"><a href="getting-started.html#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="at">-it</span> <span class="dt">\</span></span>
+<span id="cb1-6"><a href="getting-started.html#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> GITHUB_PAT=<span class="va">$(</span><span class="fu">cat</span> <span class="va">${HOME}</span>/.Renviron <span class="kw">|</span> <span class="fu">grep</span> GITHUB_PAT <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span> <span class="st">'='</span> <span class="at">-f</span> 2<span class="va">)</span> <span class="dt">\</span></span>
+<span id="cb1-7"><a href="getting-started.html#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">-e</span> PASSWORD=<span class="st">'&lt;mySecretPassword&gt;'</span> <span class="dt">\</span></span>
+<span id="cb1-8"><a href="getting-started.html#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">--memory</span><span class="op">=</span>128g <span class="dt">\</span></span>
+<span id="cb1-9"><a href="getting-started.html#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">--cpus</span><span class="op">=</span>32 <span class="dt">\</span></span>
+<span id="cb1-10"><a href="getting-started.html#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">-p</span> 127.0.0.1:8080:8787 <span class="dt">\</span></span>
+<span id="cb1-11"><a href="getting-started.html#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">--name</span> LandWeb <span class="dt">\</span></span>
+<span id="cb1-12"><a href="getting-started.html#cb1-12" aria-hidden="true" tabindex="-1"></a>  achubaty/landweb-standalone:latest</span></code></pre></div>
+<p>Once the container is running, open your web browser and go to <code>localhost:8080</code>.</p>
+<p>Login to the Rstudio session as user <code>rstudio</code> and password <code>&lt;mySecretPassword&gt;</code> (change this password when launching container above).</p>
+<p>Once finished, you can stop and destroy the container:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="getting-started.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> stop LandWeb</span>
+<span id="cb2-2"><a href="getting-started.html#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> rm LandWeb</span></code></pre></div>
+</div>
+<div id="development-tools" class="section level3" number="1.1.2">
+<h3>
+<span class="header-section-number">1.1.2</span> Development tools<a class="anchor" aria-label="anchor" href="#development-tools"><i class="fas fa-link"></i></a>
+</h3>
+<div id="windows" class="section level4" number="1.1.2.1">
+<h4>
+<span class="header-section-number">1.1.2.1</span> Windows<a class="anchor" aria-label="anchor" href="#windows"><i class="fas fa-link"></i></a>
+</h4>
+<ol style="list-style-type: decimal">
+<li>
+<p>Download <code>Rtools</code> version 4.2 from <a href="https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html" class="uri">https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html</a> and install it <em>as administrator</em>.
+<code>Rtools</code> provides the necessary compilers etc. to build and install R packages from source on Windows.</p>
+<ol style="list-style-type: lower-alpha">
+<li>During installation, be sure to check the option to add <code>Rtools</code> to your <code>PATH</code>.</li>
+</ol>
+</li>
+<li><p>Download and install a proper text editor, <em>e.g.</em> <code>Notepad++</code> (<a href="https://notepad-plus-plus.org/downloads/" class="uri">https://notepad-plus-plus.org/downloads/</a>).</p></li>
+</ol>
+</div>
+<div id="macos" class="section level4" number="1.1.2.2">
+<h4>
+<span class="header-section-number">1.1.2.2</span> macOS<a class="anchor" aria-label="anchor" href="#macos"><i class="fas fa-link"></i></a>
+</h4>
+<div id="xcode-command-line-tools" class="section level5" number="1.1.2.2.1">
+<h5>
+<span class="header-section-number">1.1.2.2.1</span> Xcode command line tools<a class="anchor" aria-label="anchor" href="#xcode-command-line-tools"><i class="fas fa-link"></i></a>
+</h5>
+<p>To build software, you will need the Xcode command line tools<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, which include various compilers and <code>git</code> version control software.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb3-1"><a href="getting-started.html#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">xcode-select</span> <span class="at">--install</span></span></code></pre></div>
+</div>
+<div id="homebrew-package-manager" class="section level5" number="1.1.2.2.2">
+<h5>
+<span class="header-section-number">1.1.2.2.2</span> <code>homebrew</code> package manager<a class="anchor" aria-label="anchor" href="#homebrew-package-manager"><i class="fas fa-link"></i></a>
+</h5>
+<p>Next, install <code>homebrew</code> which provides a package manager for macOS.
+This will facilitate software updates and will handle various package dependency issues automatically.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb4-1"><a href="getting-started.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/bin/bash</span> <span class="at">-c</span> <span class="st">"</span><span class="va">$(</span><span class="ex">curl</span> <span class="at">-fsSL</span> https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh<span class="va">)</span><span class="st">"</span></span></code></pre></div>
+</div>
+</div>
+<div id="ubuntu-linux" class="section level4" number="1.1.2.3">
+<h4>
+<span class="header-section-number">1.1.2.3</span> Ubuntu Linux<a class="anchor" aria-label="anchor" href="#ubuntu-linux"><i class="fas fa-link"></i></a>
+</h4>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="getting-started.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb5-2"><a href="getting-started.html#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="getting-started.html#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get <span class="at">-y</span> install <span class="dt">\</span></span>
+<span id="cb5-4"><a href="getting-started.html#cb5-4" aria-hidden="true" tabindex="-1"></a>    build-essential <span class="dt">\</span></span>
+<span id="cb5-5"><a href="getting-started.html#cb5-5" aria-hidden="true" tabindex="-1"></a>    biber <span class="dt">\</span></span>
+<span id="cb5-6"><a href="getting-started.html#cb5-6" aria-hidden="true" tabindex="-1"></a>    ccache <span class="dt">\</span></span>
+<span id="cb5-7"><a href="getting-started.html#cb5-7" aria-hidden="true" tabindex="-1"></a>    cmake <span class="dt">\</span></span>
+<span id="cb5-8"><a href="getting-started.html#cb5-8" aria-hidden="true" tabindex="-1"></a>    curl <span class="dt">\</span></span>
+<span id="cb5-9"><a href="getting-started.html#cb5-9" aria-hidden="true" tabindex="-1"></a>    libarchive-dev <span class="dt">\</span></span>
+<span id="cb5-10"><a href="getting-started.html#cb5-10" aria-hidden="true" tabindex="-1"></a>    libcairo2-dev <span class="dt">\</span></span>
+<span id="cb5-11"><a href="getting-started.html#cb5-11" aria-hidden="true" tabindex="-1"></a>    libcurl4-openssl-dev <span class="dt">\</span></span>
+<span id="cb5-12"><a href="getting-started.html#cb5-12" aria-hidden="true" tabindex="-1"></a>    libgit2-dev <span class="dt">\</span></span>
+<span id="cb5-13"><a href="getting-started.html#cb5-13" aria-hidden="true" tabindex="-1"></a>    libglpk-dev <span class="dt">\</span></span>
+<span id="cb5-14"><a href="getting-started.html#cb5-14" aria-hidden="true" tabindex="-1"></a>    libgmp3-dev <span class="dt">\</span></span>
+<span id="cb5-15"><a href="getting-started.html#cb5-15" aria-hidden="true" tabindex="-1"></a>    libicu-dev <span class="dt">\</span></span>
+<span id="cb5-16"><a href="getting-started.html#cb5-16" aria-hidden="true" tabindex="-1"></a>    libjq-dev <span class="dt">\</span></span>
+<span id="cb5-17"><a href="getting-started.html#cb5-17" aria-hidden="true" tabindex="-1"></a>    libmagick++-dev <span class="dt">\</span></span>
+<span id="cb5-18"><a href="getting-started.html#cb5-18" aria-hidden="true" tabindex="-1"></a>    libnode-dev <span class="dt">\</span></span>
+<span id="cb5-19"><a href="getting-started.html#cb5-19" aria-hidden="true" tabindex="-1"></a>    libpng-dev <span class="dt">\</span></span>
+<span id="cb5-20"><a href="getting-started.html#cb5-20" aria-hidden="true" tabindex="-1"></a>    libprotobuf-dev <span class="dt">\</span></span>
+<span id="cb5-21"><a href="getting-started.html#cb5-21" aria-hidden="true" tabindex="-1"></a>    libprotoc-dev <span class="dt">\</span></span>
+<span id="cb5-22"><a href="getting-started.html#cb5-22" aria-hidden="true" tabindex="-1"></a>    libssh2-1-dev <span class="dt">\</span></span>
+<span id="cb5-23"><a href="getting-started.html#cb5-23" aria-hidden="true" tabindex="-1"></a>    libssl-dev <span class="dt">\</span></span>
+<span id="cb5-24"><a href="getting-started.html#cb5-24" aria-hidden="true" tabindex="-1"></a>    libxml2-dev <span class="dt">\</span></span>
+<span id="cb5-25"><a href="getting-started.html#cb5-25" aria-hidden="true" tabindex="-1"></a>    libxt-dev <span class="dt">\</span></span>
+<span id="cb5-26"><a href="getting-started.html#cb5-26" aria-hidden="true" tabindex="-1"></a>    make <span class="dt">\</span></span>
+<span id="cb5-27"><a href="getting-started.html#cb5-27" aria-hidden="true" tabindex="-1"></a>    p7zip-full p7zip-rar <span class="dt">\</span></span>
+<span id="cb5-28"><a href="getting-started.html#cb5-28" aria-hidden="true" tabindex="-1"></a>    pandoc pandoc-citeproc <span class="dt">\</span></span>
+<span id="cb5-29"><a href="getting-started.html#cb5-29" aria-hidden="true" tabindex="-1"></a>    protobuf-compiler <span class="dt">\</span></span>
+<span id="cb5-30"><a href="getting-started.html#cb5-30" aria-hidden="true" tabindex="-1"></a>    qpdf <span class="dt">\</span></span>
+<span id="cb5-31"><a href="getting-started.html#cb5-31" aria-hidden="true" tabindex="-1"></a>    screen <span class="dt">\</span></span>
+<span id="cb5-32"><a href="getting-started.html#cb5-32" aria-hidden="true" tabindex="-1"></a>    sysstat <span class="dt">\</span></span>
+<span id="cb5-33"><a href="getting-started.html#cb5-33" aria-hidden="true" tabindex="-1"></a>    texinfo texlive-base texlive-bibtex-extra <span class="dt">\</span></span>
+<span id="cb5-34"><a href="getting-started.html#cb5-34" aria-hidden="true" tabindex="-1"></a>    texlive-fonts-extra texlive-latex-extra texlive-xetex <span class="dt">\</span></span>
+<span id="cb5-35"><a href="getting-started.html#cb5-35" aria-hidden="true" tabindex="-1"></a>    wget <span class="dt">\</span></span>
+<span id="cb5-36"><a href="getting-started.html#cb5-36" aria-hidden="true" tabindex="-1"></a>    xauth <span class="dt">\</span></span>
+<span id="cb5-37"><a href="getting-started.html#cb5-37" aria-hidden="true" tabindex="-1"></a>    xfonts-base <span class="dt">\</span></span>
+<span id="cb5-38"><a href="getting-started.html#cb5-38" aria-hidden="true" tabindex="-1"></a>    xvfb <span class="dt">\</span></span>
+<span id="cb5-39"><a href="getting-started.html#cb5-39" aria-hidden="true" tabindex="-1"></a>    zlib1g-dev</span></code></pre></div>
+</div>
+</div>
+<div id="geospatial-libraries" class="section level3" number="1.1.3">
+<h3>
+<span class="header-section-number">1.1.3</span> Geospatial libraries<a class="anchor" aria-label="anchor" href="#geospatial-libraries"><i class="fas fa-link"></i></a>
+</h3>
+<p>In order to work with geospatial data, recent versions of <code>GDAL</code>, <code>PROJ</code>, and <code>GEOS</code> geospatial libraries need to be available on your system.</p>
+<div id="windows-1" class="section level4" number="1.1.3.1">
+<h4>
+<span class="header-section-number">1.1.3.1</span> Windows<a class="anchor" aria-label="anchor" href="#windows-1"><i class="fas fa-link"></i></a>
+</h4>
+<p>No additional should be needed, as recent versions of R geospatial packages include pre-bundled versions of <code>GDAL</code>, <code>PROJ</code>, and <code>GEOS</code>.</p>
+</div>
+<div id="macos-1" class="section level4" number="1.1.3.2">
+<h4>
+<span class="header-section-number">1.1.3.2</span> macOS<a class="anchor" aria-label="anchor" href="#macos-1"><i class="fas fa-link"></i></a>
+</h4>
+<p>Use <code>homebrew</code> to install the required geospatial software libraries:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb6-1"><a href="getting-started.html#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install pkg-config</span>
+<span id="cb6-2"><a href="getting-started.html#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install gdal</span>
+<span id="cb6-3"><a href="getting-started.html#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># brew install geos</span></span>
+<span id="cb6-4"><a href="getting-started.html#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># brew install proj</span></span>
+<span id="cb6-5"><a href="getting-started.html#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install udunits</span></code></pre></div>
+</div>
+<div id="ubuntu-linux-1" class="section level4" number="1.1.3.3">
+<h4>
+<span class="header-section-number">1.1.3.3</span> Ubuntu Linux<a class="anchor" aria-label="anchor" href="#ubuntu-linux-1"><i class="fas fa-link"></i></a>
+</h4>
+<p>The default Ubuntu 20.04 LTS package repositories ship older versions of the geospatial libraries we will be using, so we will need to to add some additional repositories to get the latest versions.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="getting-started.html#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">## add GIS repository</span></span>
+<span id="cb7-2"><a href="getting-started.html#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> add-apt-repository ppa:ubuntugis-unstable/ppa</span>
+<span id="cb7-3"><a href="getting-started.html#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span></code></pre></div>
+<p>Install additional system dependencies that serve as prerequisites for running the LandWeb model in R.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="getting-started.html#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get <span class="at">-y</span> install <span class="dt">\</span></span>
+<span id="cb8-2"><a href="getting-started.html#cb8-2" aria-hidden="true" tabindex="-1"></a>    gdal-bin <span class="dt">\</span></span>
+<span id="cb8-3"><a href="getting-started.html#cb8-3" aria-hidden="true" tabindex="-1"></a>    libgdal-dev <span class="dt">\</span></span>
+<span id="cb8-4"><a href="getting-started.html#cb8-4" aria-hidden="true" tabindex="-1"></a>    libgeos-dev <span class="dt">\</span></span>
+<span id="cb8-5"><a href="getting-started.html#cb8-5" aria-hidden="true" tabindex="-1"></a>    libproj-dev <span class="dt">\</span></span>
+<span id="cb8-6"><a href="getting-started.html#cb8-6" aria-hidden="true" tabindex="-1"></a>    libudunits2-dev <span class="dt">\</span></span>
+<span id="cb8-7"><a href="getting-started.html#cb8-7" aria-hidden="true" tabindex="-1"></a>    python3-gdal</span></code></pre></div>
+<p>Optionally, we install <code>mapshaper</code> geospatial library which is used to speed up polygon simplification.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="getting-started.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">## mapshaper installation</span></span>
+<span id="cb9-2"><a href="getting-started.html#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get remove <span class="at">-y</span> libnode-dev</span>
+<span id="cb9-3"><a href="getting-started.html#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="getting-started.html#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sL</span> https://deb.nodesource.com/setup_20.x <span class="kw">|</span> <span class="fu">sudo</span> <span class="at">-E</span> bash <span class="at">-</span></span>
+<span id="cb9-5"><a href="getting-started.html#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="getting-started.html#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install nodejs</span>
+<span id="cb9-7"><a href="getting-started.html#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> npm install npm@latest <span class="at">-g</span></span>
+<span id="cb9-8"><a href="getting-started.html#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> npm install <span class="at">-g</span> mapshaper</span></code></pre></div>
+</div>
+</div>
+<div id="git-git-kraken-and-github" class="section level3" number="1.1.4">
+<h3>
+<span class="header-section-number">1.1.4</span> <code>git</code>, Git Kraken, and GitHub<a class="anchor" aria-label="anchor" href="#git-git-kraken-and-github"><i class="fas fa-link"></i></a>
+</h3>
+<p><code>git</code> is the version control software used throughout this project, and is required to ‘checkout’ specific versions of the code as well as to make changes and ‘push’ these changes to the model code repository.</p>
+<ol style="list-style-type: decimal">
+<li>Install the latest version of <code>git</code> from <a href="https://git-scm.com/downloads" class="uri">https://git-scm.com/downloads</a> or via your package manager.</li>
+</ol>
+<div class="rmdimportant">
+<p>Windows users should install <em>as administrator</em>.
+Use <code>nano</code> (instead of <code>vi</code>/<code>vim</code>) as the default text editor.
+For all other choices, use the recommended settings.</p>
+<p>For macOS users, <code>git</code> is included with the Xcode command line tools.</p>
+</div>
+<ol start="2" style="list-style-type: decimal">
+<li>Create a GitHub (<a href="https://github.com" class="uri">https://github.com</a>) account if you don’t already have one, and configure a Personal Access Token (PAT).</li>
+</ol>
+<div class="rmdwarning">
+<p>A GitHub (<a href="https://github.com" class="uri">https://github.com</a>) account is required to assist with package installation and accessing model code.</p>
+</div>
+<p>Several packages used by LandWeb are only available on GitHub.
+Because we will be installing several of these, we want to ensure we can do so without GitHub rate-limiting our requests.
+Without a PAT, some packages may <em>temporarily</em> fail to install, but can be retried a little later (usually 1 hour).</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>Create a GitHub PAT following the instructions<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>;</p></li>
+<li><p>Be sure to uncheck all scopes.</p></li>
+<li>
+<p>Copy this token and save it in a text file in your home directory called <code>.Renviron</code>:</p>
+<p>Run the following in an R session to edit <code>~/.Renviron</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"usethis"</span><span class="op">)</span></span>
+<span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/edit.html">edit_r_environ</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Paste the following into the <code>.Renviron</code> file, using your copied token:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="getting-started.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="va">GITHUB_PAT</span><span class="op">=</span>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span></code></pre></div>
+</li>
+</ol>
+<div class="rmdwarning">
+<p>If creating <code>~/.Renviron</code> using a text editor, be sure to save it <em>without</em> a <code>.txt</code> extension.
+Windows users in particular should ensure they edit this file via Rstudio per above, or use a proper text editor, e.g., <code>Notepad++</code> (<a href="https://notepad-plus-plus.org/downloads/" class="uri">https://notepad-plus-plus.org/downloads/</a>).</p>
+</div>
+<ol start="3" style="list-style-type: decimal">
+<li>
+<em>Optional.</em> Install the latest version of <code>GitKraken</code> from <a href="https://www.gitkraken.com/download/" class="uri">https://www.gitkraken.com/download/</a>.</li>
+</ol>
+<div class="rmdimportant">
+<p>The free version is sufficient to access the public repositories used in this project.
+However, the paid pro version is required to access private repositories.</p>
+</div>
+</div>
+<div id="r-and-rstudio" class="section level3" number="1.1.5">
+<h3>
+<span class="header-section-number">1.1.5</span> R and Rstudio<a class="anchor" aria-label="anchor" href="#r-and-rstudio"><i class="fas fa-link"></i></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>Download and install R version 4.2.3.</li>
+</ol>
+<div class="rmdimportant">
+<p><strong>Windows</strong></p>
+<ol style="list-style-type: decimal">
+<li>Download R from <a href="https://cran.r-project.org/bin/windows/base/R-4.2.3-win.exe" class="uri">https://cran.r-project.org/bin/windows/base/R-4.2.3-win.exe</a>;</li>
+<li>Install R <em>as administrator</em>.</li>
+</ol>
+<p><strong>macOS</strong></p>
+<ol style="list-style-type: decimal">
+<li>Install <code>rig</code> (<a href="https://github.com/r-lib/rig" class="uri">https://github.com/r-lib/rig</a>) to manage multiple R installations.</li>
+</ol>
+<div class="sourceCode" id="cb12"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb12-1"><a href="getting-started.html#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> tap r-lib/rig</span>
+<span id="cb12-2"><a href="getting-started.html#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install <span class="at">--cask</span> rig</span>
+<span id="cb12-3"><a href="getting-started.html#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="getting-started.html#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">## e.g., M1/M2 mac users, install the arm version</span></span>
+<span id="cb12-5"><a href="getting-started.html#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">rig</span> install 4.2-arm64</span>
+<span id="cb12-6"><a href="getting-started.html#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="getting-started.html#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">## start Rstudio using a specific R version:</span></span>
+<span id="cb12-8"><a href="getting-started.html#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="ex">rig</span> rstudio 4.2-arm64</span></code></pre></div>
+<p><strong>Ubuntu Linux</strong></p>
+<ol style="list-style-type: decimal">
+<li>Add the CRAN <code>apt</code> repository to get the required version of R.</li>
+</ol>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="getting-started.html#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">## add R repository</span></span>
+<span id="cb13-2"><a href="getting-started.html#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> sh <span class="at">-c</span> <span class="st">'echo "deb https://cran.rstudio.com/bin/linux/ubuntu focal-cran40/" &gt; \</span></span>
+<span id="cb13-3"><a href="getting-started.html#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">    /etc/apt/sources.list.d/cran.list'</span></span>
+<span id="cb13-4"><a href="getting-started.html#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-key adv <span class="at">--keyserver</span> keyserver.ubuntu.com <span class="dt">\</span></span>
+<span id="cb13-5"><a href="getting-started.html#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">--recv-keys</span> E298A3A825C0D65DFD57CBB651716619E084DAB9</span>
+<span id="cb13-6"><a href="getting-started.html#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="getting-started.html#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span></code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>Install R version 4.2.3</li>
+</ol>
+<p>To install previous versions of R see <a href="https://github.com/achubaty/r-config/blob/master/using-multiple-R-versions-on-linux.Rmd" class="uri">https://github.com/achubaty/r-config/blob/master/using-multiple-R-versions-on-linux.Rmd</a> or use <code>rig</code> (<a href="https://github.com/r-lib/rig" class="uri">https://github.com/r-lib/rig</a>).</p>
+</div>
+<ol start="2" style="list-style-type: decimal">
+<li>Download and install the latest version of Rstudio from <a href="https://www.rstudio.com/products/rstudio/download/" class="uri">https://www.rstudio.com/products/rstudio/download/</a>.</li>
+</ol>
+<div class="rmdimportant">
+<p>Windows users should install Rstudio <em>as administrator</em>.</p>
+</div>
+<ol start="3" style="list-style-type: decimal">
+<li>
+<p>(optional) On Linux, configure <code>ccache</code> to speed up R package re-installation and updates<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="getting-started.html#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">## configure ccache for R package installation</span></span>
+<span id="cb14-2"><a href="getting-started.html#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.ccache</span>
+<span id="cb14-3"><a href="getting-started.html#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.R</span>
+<span id="cb14-4"><a href="getting-started.html#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span> <span class="bu">echo</span> <span class="st">'VER='</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-5"><a href="getting-started.html#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CCACHE=ccache'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-6"><a href="getting-started.html#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CC=$(CCACHE) gcc$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-7"><a href="getting-started.html#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-8"><a href="getting-started.html#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX11=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-9"><a href="getting-started.html#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX14=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-10"><a href="getting-started.html#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'FC=$(CCACHE) gfortran$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-11"><a href="getting-started.html#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'F77=$(CCACHE) gfortran$(VER)'</span><span class="kw">;</span> <span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.R/Makevars</span>
+<span id="cb14-12"><a href="getting-started.html#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span> <span class="bu">echo</span> <span class="st">'max_size = 5.0G'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-13"><a href="getting-started.html#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'sloppiness = include_file_ctime'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb14-14"><a href="getting-started.html#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'hash_dir = false'</span><span class="kw">;</span> <span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.ccache/ccache.conf</span></code></pre></div>
+</li>
+</ol>
+</div>
+</div>
+<div id="getting-the-code" class="section level2" number="1.2">
+<h2>
+<span class="header-section-number">1.2</span> Getting the code<a class="anchor" aria-label="anchor" href="#getting-the-code"><i class="fas fa-link"></i></a>
+</h2>
+<p>All modules are written in R and all model code was developed collaboratively using GitHub (<a href="https://github.com" class="uri">https://github.com</a>), with each module contained in its own repository.
+Code that is shared among modules was bundled into R packages, and hosted in on GitHub repositories.
+All package code is automatically and regularly tested using cross-platform continuous integration frameworks to ensure the code is reliable and free of errors.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="getting-started.html#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/GitHub</span>
+<span id="cb15-2"><a href="getting-started.html#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub</span>
+<span id="cb15-3"><a href="getting-started.html#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="getting-started.html#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">## get development branch (app and deploy are private submodules)</span></span>
+<span id="cb15-5"><a href="getting-started.html#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--recurse-submodules</span> <span class="dt">\</span></span>
+<span id="cb15-6"><a href="getting-started.html#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-j8</span>  https://github.com/PredictiveEcology/LandWeb</span></code></pre></div>
+<div class="rmdimportant">
+<p>Windows users should ensure the <code>GitHub/</code> directory is accessible at both <code>~/GitHub</code> and <code>~/Documents/GitHub</code> by creating a directory junction:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="getting-started.html#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mklink</span> /J C:<span class="dt">\\</span>Users<span class="dt">\\</span>username<span class="dt">\\</span>Documents<span class="dt">\\</span>GitHub C:<span class="dt">\\</span>Users<span class="dt">\\</span>username<span class="dt">\\</span>GitHub</span></code></pre></div>
+</div>
+</div>
+<div id="project-directory-structure" class="section level2" number="1.3">
+<h2>
+<span class="header-section-number">1.3</span> Project directory structure<a class="anchor" aria-label="anchor" href="#project-directory-structure"><i class="fas fa-link"></i></a>
+</h2>
+<p>Model code is organized by the following directories and summarized in the table below.</p>
+<p><strong>NOTE:</strong> it may be useful to store data in a different location, but to map this location back to the e.g., <code>cache/</code>, <code>inputs/</code>, and/or <code>outputs/</code> directories using symbolic links.
+See R’s <code><a href="https://rdrr.io/r/base/files.html">?file.link</a></code> to set these up on your machine.</p>
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:dir-structure">Table 1.1: </span>LandWeb project directory structure
+</caption>
+<thead><tr>
+<th style="text-align:left;">
+directory
+</th>
+<th style="text-align:left;">
+description
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+R/
+</td>
+<td style="text-align:left;">
+additional R helper scripts
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cache/
+</td>
+<td style="text-align:left;">
+all per-run and per-study area cache files stored here
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+docker/
+</td>
+<td style="text-align:left;">
+Dockerfiles, scripts, and documentation
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+docs/
+</td>
+<td style="text-align:left;">
+rendered model and app documentation
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+inputs/
+</td>
+<td style="text-align:left;">
+all model data inputs stored here
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m/
+</td>
+<td style="text-align:left;">
+module code (git submodules)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+manual/
+</td>
+<td style="text-align:left;">
+raw files for generating documentation manual
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+outputs/
+</td>
+<td style="text-align:left;">
+all per-run model outputs stored here
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+renv/
+</td>
+<td style="text-align:left;">
+project package management directory
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div id="updating-the-code" class="section level2" number="1.4">
+<h2>
+<span class="header-section-number">1.4</span> Updating the code<a class="anchor" aria-label="anchor" href="#updating-the-code"><i class="fas fa-link"></i></a>
+</h2>
+<p>After having cloned the LandWeb code repository, users can keep up-to-date using their preferred graphical git tools (<em>e.g.</em>, GitKraken) or from the command line.</p>
+<div id="using-gitkraken" class="section level3" number="1.4.1">
+<h3>
+<span class="header-section-number">1.4.1</span> Using GitKraken<a class="anchor" aria-label="anchor" href="#using-gitkraken"><i class="fas fa-link"></i></a>
+</h3>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:gitkraken-screen"></span>
+<img src="figures/gitkraken1.png" alt="Screenshot showing showing code commits in Git Kraken. The submodules pane is highlighted on the bottom left." width="90%"><p class="caption">
+Figure 1.1: Screenshot showing showing code commits in Git Kraken. The submodules pane is highlighted on the bottom left.
+</p>
+</div>
+<ol style="list-style-type: decimal">
+<li><p>Open the LandWeb repo, and after a few moments you will see the commit history update to reflect the latest changes on the server.</p></li>
+<li><p>‘Pull’ in the latest changes to this repo, noting that the status of the git submodules (left hand side) may change.</p></li>
+<li><p>If any submodules have changed status, for each one, right-click and select ‘Update <module name>’.</module></p></li>
+</ol>
+</div>
+<div id="using-the-command-line" class="section level3" number="1.4.2">
+<h3>
+<span class="header-section-number">1.4.2</span> Using the command line<a class="anchor" aria-label="anchor" href="#using-the-command-line"><i class="fas fa-link"></i></a>
+</h3>
+<p><strong>WARNING:</strong> experienced git users only!</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="getting-started.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull</span>
+<span id="cb17-2"><a href="getting-started.html#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> submodule update</span></code></pre></div>
+</div>
+</div>
+<div id="data-requirements" class="section level2" number="1.5">
+<h2>
+<span class="header-section-number">1.5</span> Data requirements<a class="anchor" aria-label="anchor" href="#data-requirements"><i class="fas fa-link"></i></a>
+</h2>
+<p>In order to access and use the proprietary data in LandWeb simulations, you will need to be granted access to the shared Google Drive directory.
+During first-run of the model, all required data will be downloaded to the <code>inputs/</code> directory.</p>
+<p>To request access, please contact Alex Chubaty (<a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a>).</p>
+</div>
+<div id="getting-help" class="section level2" number="1.6">
+<h2>
+<span class="header-section-number">1.6</span> Getting help<a class="anchor" aria-label="anchor" href="#getting-help"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li><a href="https://github.com/PredictiveEcology/LandWeb/issues" class="uri">https://github.com/PredictiveEcology/LandWeb/issues</a></li>
+</ul>
+</div>
+</div>
+<div class="footnotes">
+<hr>
+<ol start="1">
+<li id="fn1"><p><a href="https://developer.apple.com/downloads/" class="uri">https://developer.apple.com/downloads/</a><a href="getting-started.html#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p><a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token" class="uri">https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token</a><a href="getting-started.html#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p><a href="http://dirk.eddelbuettel.com/blog/2017/11/27/#011_faster_package_installation_one" class="uri">http://dirk.eddelbuettel.com/blog/2017/11/27/#011_faster_package_installation_one</a><a href="getting-started.html#fnref3" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="index.html">Overview</a></div>
+<div class="next"><a href="running-landweb.html"><span class="header-section-number">2</span> Running LandWeb</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#getting-started"><span class="header-section-number">1</span> Getting started</a></li>
+<li>
+<a class="nav-link" href="#prerequisites"><span class="header-section-number">1.1</span> Prerequisites</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#docker"><span class="header-section-number">1.1.1</span> Docker</a></li>
+<li><a class="nav-link" href="#development-tools"><span class="header-section-number">1.1.2</span> Development tools</a></li>
+<li><a class="nav-link" href="#geospatial-libraries"><span class="header-section-number">1.1.3</span> Geospatial libraries</a></li>
+<li><a class="nav-link" href="#git-git-kraken-and-github"><span class="header-section-number">1.1.4</span> git, Git Kraken, and GitHub</a></li>
+<li><a class="nav-link" href="#r-and-rstudio"><span class="header-section-number">1.1.5</span> R and Rstudio</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#getting-the-code"><span class="header-section-number">1.2</span> Getting the code</a></li>
+<li><a class="nav-link" href="#project-directory-structure"><span class="header-section-number">1.3</span> Project directory structure</a></li>
+<li>
+<a class="nav-link" href="#updating-the-code"><span class="header-section-number">1.4</span> Updating the code</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#using-gitkraken"><span class="header-section-number">1.4.1</span> Using GitKraken</a></li>
+<li><a class="nav-link" href="#using-the-command-line"><span class="header-section-number">1.4.2</span> Using the command line</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#data-requirements"><span class="header-section-number">1.5</span> Data requirements</a></li>
+<li><a class="nav-link" href="#getting-help"><span class="header-section-number">1.6</span> Getting help</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/01-getting-started.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/01-getting-started.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-05.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>
