@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     env:
-      GITHUB_PAT: ${{ secrets.LANDWEB_PAT }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       RENV_CONFIG_MRAN_ENABLED: false
       RENV_CONFIG_PAK_ENABLED: true
       RENV_PATHS_ROOT: ~/.cache/R/renv
