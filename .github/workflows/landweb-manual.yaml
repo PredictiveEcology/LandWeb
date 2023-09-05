@@ -39,6 +39,8 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v2
 
+      - uses: r-lib/actions/setup-tinytex@v2
+
       - uses: PredictiveEcology/actions/install-spatial-deps@v0.1
 
       - name: Install additional system dependencies
