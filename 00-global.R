@@ -287,7 +287,9 @@ if (config$context[["mode"]] != "postprocess") {
   }
 
   # archive and upload --------------------------------------------------------------------------
-  source("R/upload.R")
+  if (isTRUE(.upload)) {
+    source("R/upload.R")
+  }
 
   # end-of-sim notifications --------------------------------------------------------------------
 

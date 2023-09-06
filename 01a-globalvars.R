@@ -48,3 +48,7 @@ if (.version == 2L) {
     .ROStype <- "log"
   }
 }
+
+if (!exists(".upload", .GlobalEnv)) {
+  .upload <- FALSE
+}
