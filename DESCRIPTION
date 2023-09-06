@@ -72,6 +72,7 @@ Imports:
     curl (== 5.0.0),
     data.table (== 1.14.8),
     DBI (== 1.1.3),
+    DEoptim (== 2.2-8),
     deldir (== 1.0-6),
     desc (== 1.4.2),
     details (== 0.3.0),

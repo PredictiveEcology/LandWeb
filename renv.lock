@@ -44,6 +44,17 @@
       ],
       "Hash": "b2866e62bab9378c3cc9476a1954226b"
     },
+    "DEoptim": {
+      "Package": "DEoptim",
+      "Version": "2.2-8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "methods",
+        "parallel"
+      ],
+      "Hash": "3d75dd10e7228c9d734237dda013ed90"
+    },
     "DT": {
       "Package": "DT",
       "Version": "0.28",
