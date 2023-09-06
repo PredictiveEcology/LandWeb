@@ -6,15 +6,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Model outputs | LandWeb Manual</title>
 <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
-<meta name="description" content="LandWeb_outputs module … (TODO) timeSinceFire module … (TODO) LandWeb_summary module … (TODO) Previously-run model outputs are available to download for authorized users, and are described below. ...">
+<meta name="description" content="burnSummaries module … (TODO) LandMine module … (TODO) LandWeb_outputs module … (TODO) LandWeb_summary module … (TODO) timeSinceFire module … (TODO) Previously-run model outputs are available to...">
 <meta name="generator" content="bookdown 0.34 with bs4_book()">
 <meta property="og:title" content="Model outputs | LandWeb Manual">
 <meta property="og:type" content="book">
 <meta property="og:url" content="https://predictiveecology.github.io/LandWeb/model-outputs.html">
-<meta property="og:description" content="LandWeb_outputs module … (TODO) timeSinceFire module … (TODO) LandWeb_summary module … (TODO) Previously-run model outputs are available to download for authorized users, and are described below. ...">
+<meta property="og:description" content="burnSummaries module … (TODO) LandMine module … (TODO) LandWeb_outputs module … (TODO) LandWeb_summary module … (TODO) timeSinceFire module … (TODO) Previously-run model outputs are available to...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Model outputs | LandWeb Manual">
-<meta name="twitter:description" content="LandWeb_outputs module … (TODO) timeSinceFire module … (TODO) LandWeb_summary module … (TODO) Previously-run model outputs are available to download for authorized users, and are described below. ...">
+<meta name="twitter:description" content="burnSummaries module … (TODO) LandMine module … (TODO) LandWeb_outputs module … (TODO) LandWeb_summary module … (TODO) timeSinceFire module … (TODO) Previously-run model outputs are available to...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -72,7 +72,7 @@
 <li><a class="" href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></li>
 <li><a class="" href="running-landweb.html"><span class="header-section-number">2</span> Running LandWeb</a></li>
 <li><a class="" href="study-areas.html">Study areas</a></li>
-<li><a class="" href="landr-landweb_preamble-module.html"><span class="header-section-number">3</span> LandR LandWeb_preamble Module</a></li>
+<li><a class="" href="landweb_preamble-module.html"><span class="header-section-number">3</span> LandWeb_preamble Module</a></li>
 <li><a class="" href="vegetation-submodel.html">Vegetation submodel</a></li>
 <li><a class="" href="landr-biomass_speciesdata-module.html"><span class="header-section-number">4</span> LandR Biomass_speciesData Module</a></li>
 <li><a class="" href="landr-biomass_borealdataprep-module.html"><span class="header-section-number">5</span> LandR Biomass_borealDataPrep Module</a></li>
@@ -81,11 +81,12 @@
 <li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
 <li><a class="" href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></li>
 <li><a class="active" href="model-outputs.html">Model outputs</a></li>
-<li><a class="" href="landweb_output-module.html"><span class="header-section-number">9</span> LandWeb_output Module</a></li>
-<li><a class="" href="timesincefire-module.html"><span class="header-section-number">10</span> timeSinceFire Module</a></li>
-<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">11</span> LandWeb_summary Module</a></li>
+<li><a class="" href="burnsummaries-module.html"><span class="header-section-number">9</span> burnSummaries Module</a></li>
+<li><a class="" href="landweb_output-module.html"><span class="header-section-number">10</span> LandWeb_output Module</a></li>
+<li><a class="" href="timesincefire-module.html"><span class="header-section-number">11</span> timeSinceFire Module</a></li>
+<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">12</span> LandWeb_summary Module</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
-<li><a class="" href="modifying-landweb.html"><span class="header-section-number">12</span> Modifying LandWeb</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">13</span> Modifying LandWeb</a></li>
 <li><a class="" href="references-1.html">References</a></li>
 </ul>
 
@@ -98,9 +99,11 @@
 <h1>Model outputs<a class="anchor" aria-label="anchor" href="#model-outputs"><i class="fas fa-link"></i></a>
 </h1>
 <ul>
+<li>burnSummaries module … (TODO)</li>
+<li>LandMine module … (TODO)</li>
 <li>LandWeb_outputs module … (TODO)</li>
-<li>timeSinceFire module … (TODO)</li>
 <li>LandWeb_summary module … (TODO)</li>
+<li>timeSinceFire module … (TODO)</li>
 </ul>
 <p>Previously-run model outputs are available to download for authorized users, and are described below.</p>
 <div id="currently-selected-spatial-area" class="section level2" number="8.6">
@@ -171,7 +174,7 @@
 </div>
   <div class="chapter-nav">
 <div class="prev"><a href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></div>
-<div class="next"><a href="landweb_output-module.html"><span class="header-section-number">9</span> LandWeb_output Module</a></div>
+<div class="next"><a href="burnsummaries-module.html"><span class="header-section-number">9</span> burnSummaries Module</a></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
@@ -198,7 +201,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-30.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

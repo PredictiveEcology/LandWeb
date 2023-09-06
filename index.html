@@ -72,11 +72,21 @@
 <li><a class="" href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></li>
 <li><a class="" href="running-landweb.html"><span class="header-section-number">2</span> Running LandWeb</a></li>
 <li><a class="" href="study-areas.html">Study areas</a></li>
-<li><a class="" href="landr-landweb_preamble-module.html"><span class="header-section-number">3</span> LandR LandWeb_preamble Module</a></li>
+<li><a class="" href="landweb_preamble-module.html"><span class="header-section-number">3</span> LandWeb_preamble Module</a></li>
 <li><a class="" href="vegetation-submodel.html">Vegetation submodel</a></li>
 <li><a class="" href="landr-biomass_speciesdata-module.html"><span class="header-section-number">4</span> LandR Biomass_speciesData Module</a></li>
+<li><a class="" href="landr-biomass_borealdataprep-module.html"><span class="header-section-number">5</span> LandR Biomass_borealDataPrep Module</a></li>
+<li><a class="" href="landr-biomass_core-module.html"><span class="header-section-number">6</span> LandR Biomass_core Module</a></li>
+<li><a class="" href="landr-biomass_regeneration-module.html"><span class="header-section-number">7</span> LandR Biomass_regeneration Module</a></li>
+<li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
+<li><a class="" href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></li>
+<li><a class="" href="model-outputs.html">Model outputs</a></li>
+<li><a class="" href="burnsummaries-module.html"><span class="header-section-number">9</span> burnSummaries Module</a></li>
+<li><a class="" href="landweb_output-module.html"><span class="header-section-number">10</span> LandWeb_output Module</a></li>
+<li><a class="" href="timesincefire-module.html"><span class="header-section-number">11</span> timeSinceFire Module</a></li>
+<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">12</span> LandWeb_summary Module</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
-<li><a class="" href="modifying-landweb.html"><span class="header-section-number">5</span> Modifying LandWeb</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">13</span> Modifying LandWeb</a></li>
 <li><a class="" href="references-1.html">References</a></li>
 </ul>
 
@@ -157,7 +167,7 @@ Figure 0.1: LandWeb study area (blue) with mountain and boreal caribou ranges hi
 <span class="header-section-number">0.2.2</span> Vegetation dynamics<a class="anchor" aria-label="anchor" href="#vegetation-dynamics"><i class="fas fa-link"></i></a>
 </h3>
 <p>Vegetation growth and succession are modeled using a re-implementation of the LANDIS-II Biomass model, a widely used and well-documented dynamic vegetation succession model <span class="citation">(<a href="references-1.html#ref-SchellerMladenoff2004" role="doc-biblioref">Scheller &amp; Mladenoff 2004</a>; <a href="references-1.html#ref-Scheller2007" role="doc-biblioref">Scheller <em>et al.</em> 2007</a>)</span>.
-Our re-implemented model largely follows the original LANDIS-II source code (v 3.6.2; <span class="citation">Scheller &amp; Miranda (<a href="references-1.html#ref-SchellerMiranda2015" role="doc-biblioref">2015</a>)</span>), but with some modifications with respect to species traits parameterization.
+Our re-implemented model largely follows the original LANDIS-II source code (v 3.6.2; <span class="citation">Scheller &amp; Miranda (<a href="references-1.html#ref-SchellerMiranda2015" role="doc-biblioref">2015a</a>)</span>), but with some modifications with respect to species traits parameterization.
 This model simulates landscape-scale forest dynamics in a spatio-temporally explicit manner, using cohorts of tree species within each pixel.
 Multiple ecological processes are captured by the model, including vegetation growth, mortality, seed dispersal, and post-disturbance regeneration.</p>
 <p>This submodel is described in further detail in <a href="vegetation-submodel.html#vegetation-submodel">Vegetation submodel</a>.</p>
@@ -167,7 +177,7 @@ Multiple ecological processes are captured by the model, including vegetation gr
 <span class="header-section-number">0.2.3</span> Wildfire dynamics<a class="anchor" aria-label="anchor" href="#wildfire-dynamics"><i class="fas fa-link"></i></a>
 </h3>
 <p>Wildfire is simulated using a re-implementation of the fire submodel of Andison’s <span class="citation">(<a href="references-1.html#ref-Andison:1996" role="doc-biblioref">1996</a>; <a href="references-1.html#ref-Andison:1998" role="doc-biblioref">1998</a>)</span> <code>LandMine</code> model of landscape disturbance.</p>
-<p>This submodel is described in further detail in [Wildfire submodel].</p>
+<p>This submodel is described in further detail in <a href="wildfire-submodel.html#wildfire-submodel">Wildfire submodel</a>.</p>
 </div>
 <div id="summary-maps-and-statistics" class="section level3" number="0.2.4">
 <h3>
@@ -177,7 +187,7 @@ Multiple ecological processes are captured by the model, including vegetation gr
 Histograms are provided for each spatial area by polygon, age class, and species.
 Authorized users can additionally overlay current stand conditions onto these histograms.
 Simulation outputs are summarized for several publicly available reporting polygons (including Alberta Natural Ecoregions and Caribou Ranges).</p>
-<p>These are described in further detail in [Model outputs].</p>
+<p>These are described in further detail in <a href="model-outputs.html#model-outputs">Model outputs</a>.</p>
 </div>
 <div id="landweb-app" class="section level3" number="0.2.5">
 <h3>
@@ -233,7 +243,7 @@ Simulation outputs are summarized for several publicly available reporting polyg
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-05.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
