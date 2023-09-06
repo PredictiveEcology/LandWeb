@@ -83,6 +83,9 @@ if (isTRUE(attr(simOutPreamble, ".Cache")[["newCache"]])) {
 
 # Species layers ------------------------------------------------------------------------------
 
+config$params[[".globals"]][[".plots"]] <- c("png") ## TODO: change in config
+config$params[["Biomass_speciesData"]][[".plots"]] <- c("png") ## TODO: change in config
+
 parameters2 <- list(
   .globals = config$params[[".globals"]],
   Biomass_speciesData = config$params[["Biomass_speciesData"]]
@@ -173,11 +176,15 @@ if (config$context[["mode"]] != "postprocess") {
 
   modules4 <- if (grepl("provMB", config$context[["studyAreaName"]])) {
     list(
+      "burnSummaries", ## TODO: add to config
       "HSI_Caribou_MB", ## TODO: add to config
+      "LandMine", ## TODO: add to config - using 'multi' mode
       "LandWeb_summary"
     )
   } else {
     list(
+      "burnSummaries", ## TODO: add to config
+      "LandMine", ## TODO: add to config - using 'multi' mode
       "LandWeb_summary"
     )
   }
@@ -195,12 +202,23 @@ if (config$context[["mode"]] != "postprocess") {
     config$params[["LandWeb_summary"]][["reps"]] <- 1L:50L
   }
 
-  getOption("map.maxNumCores") ## TODO: 48; why is this set so high??
+  getOption("map.maxNumCores")
   options(map.maxNumCores = .ncores)
 
   parameters4 <- list(
     .globals = config$params[[".globals"]],
+    burnSummaries = list( ## TODO: add to config
+      reps = 1L:15L,
+      simOutputPath = "outputs",
+      .studyAreaName = config$context[["studyAreaName"]]
+    ),
     HSI_caribou_MB = config$params[["HSI_Caribou_MB"]], ## TODO: add to config
+    LandMine = list( ## TODO: add to config
+      mode = "multi",
+      reps = 1L:15L,
+      simOutputPath = "outputs",
+      .studyAreaName = config$context[["studyAreaName"]]
+    ),
     LandWeb_summary = config$params[["LandWeb_summary"]]
   )
 
