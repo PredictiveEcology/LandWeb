@@ -23,28 +23,6 @@
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
-<style type="text/css">
-    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
-    div.csl-bib-body { }
-    div.csl-entry {
-      clear: both;
-        }
-    .hanging div.csl-entry {
-      margin-left:2em;
-      text-indent:-2em;
-    }
-    div.csl-left-margin {
-      min-width:2em;
-      float:left;
-    }
-    div.csl-right-inline {
-      margin-left:2em;
-      padding-left:1em;
-    }
-    div.csl-indent {
-      margin-left: 2em;
-    }
-  </style>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-spy="scroll" data-target="#toc">
@@ -79,13 +57,12 @@
 <li><a class="" href="landr-biomass_core-module.html"><span class="header-section-number">6</span> LandR Biomass_core Module</a></li>
 <li><a class="" href="landr-biomass_regeneration-module.html"><span class="header-section-number">7</span> LandR Biomass_regeneration Module</a></li>
 <li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
-<li><a class="" href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></li>
 <li><a class="" href="model-outputs.html">Model outputs</a></li>
-<li><a class="" href="landweb_output-module.html"><span class="header-section-number">9</span> LandWeb_output Module</a></li>
-<li><a class="" href="timesincefire-module.html"><span class="header-section-number">10</span> timeSinceFire Module</a></li>
-<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">11</span> LandWeb_summary Module</a></li>
+<li><a class="" href="landweb_output-module.html"><span class="header-section-number">8</span> LandWeb_output Module</a></li>
+<li><a class="" href="timesincefire-module.html"><span class="header-section-number">9</span> timeSinceFire Module</a></li>
+<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">10</span> LandWeb_summary Module</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
-<li><a class="" href="modifying-landweb.html"><span class="header-section-number">12</span> Modifying LandWeb</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">11</span> Modifying LandWeb</a></li>
 <li><a class="" href="references-1.html">References</a></li>
 </ul>
 
@@ -94,7 +71,7 @@
         </div>
       </nav>
 </div>
-  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="running-landweb" class="section level1" number="2">
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="running-landweb" class="section level1">
 <h1>
 <span class="header-section-number">2</span> Running LandWeb<a class="anchor" aria-label="anchor" href="#running-landweb"><i class="fas fa-link"></i></a>
 </h1>
@@ -108,7 +85,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>renv.config.mran.enabled <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html">restore</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="model-setup-and-configuration" class="section level2" number="2.1">
+<div id="model-setup-and-configuration" class="section level2">
 <h2>
 <span class="header-section-number">2.1</span> Model setup and configuration<a class="anchor" aria-label="anchor" href="#model-setup-and-configuration"><i class="fas fa-link"></i></a>
 </h2>
@@ -118,16 +95,17 @@ These defaults are defined as ‘dot-variables’ (e.g., <code>.studyAreaName</c
 <div class="rmdnote">
 <p>Advanced setup and model run customization is described in <a href="running-landweb.html#advanced-setup">Advanced setup</a>.</p>
 </div>
-<div id="select-a-study-area" class="section level3" number="2.1.1">
+<div id="select-a-study-area" class="section level3">
 <h3>
 <span class="header-section-number">2.1.1</span> Select a study area<a class="anchor" aria-label="anchor" href="#select-a-study-area"><i class="fas fa-link"></i></a>
 </h3>
 <p>The model can be run over the entire study area, for certain individual provinces (currently only AB, SK, MB, NWT), or groups of predefined FMAs (see Fig. 1 and Table 1).</p>
-<div id="fma-boundaries" class="section level4" number="2.1.1.1">
+<div id="fma-boundaries" class="section level4">
 <h4>
 <span class="header-section-number">2.1.1.1</span> FMA boundaries<a class="anchor" aria-label="anchor" href="#fma-boundaries"><i class="fas fa-link"></i></a>
 </h4>
 <p>Currently, only a subset of the FMAs within the LandWeb study area are predefined to be run on their own (i.e., without needing to run the model over the entire study area; see Table 2).</p>
+
 <pre><code>## Saving 7 x 5 in image</code></pre>
 <div class="figure">
 <span style="display:block;" id="fig:fma-map"></span>
@@ -135,19 +113,22 @@ These defaults are defined as ‘dot-variables’ (e.g., <code>.studyAreaName</c
 Figure 2.1:  FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs.
 </p>
 </div>
+
+
 </div>
-<div id="choosing-a-study-area" class="section level4" number="2.1.1.2">
+<div id="choosing-a-study-area" class="section level4">
 <h4>
 <span class="header-section-number">2.1.1.2</span> Choosing a study area<a class="anchor" aria-label="anchor" href="#choosing-a-study-area"><i class="fas fa-link"></i></a>
 </h4>
 <p>The model can be run on any of several pre-defined study areas summarized in the table below.
 To select one of these predefined study areas, set <code>.studyAreaName</code> to use one of the following, corresponding to the polygon IDs in the map above.</p>
+
 <p>To run LandWeb over an entire province use one of <code>provAB</code>, <code>provMB</code>, <code>provNWT</code>, or <code>provSK</code>.</p>
 <p>To run the entire LandWeb study area, use <code>LandWeb</code>.</p>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
-<div id="select-a-scenario" class="section level3" number="2.1.2">
+<div id="select-a-scenario" class="section level3">
 <h3>
 <span class="header-section-number">2.1.2</span> Select a scenario<a class="anchor" aria-label="anchor" href="#select-a-scenario"><i class="fas fa-link"></i></a>
 </h3>
@@ -156,10 +137,6 @@ These adjustments cause the model to behave more like a state-transition model, 
 <p>Version 3.0.0 relaxes these parameter forcings to behave like the standard LANDIS-II model.</p>
 <p>The dispersal scenario is principally set via <code>.version</code> but can be overridden is set via <code>.dispersalType</code>:</p>
 <div class="inline-table"><table class="table table-sm">
-<colgroup>
-<col width="23%">
-<col width="76%">
-</colgroup>
 <thead><tr class="header">
 <th><strong>Dispersal Scenario</strong></th>
 <th><strong>Description</strong></th>
@@ -222,7 +199,7 @@ Version 3.0.0 uses the LandMine defaults.</p>
 All LandWeb v2.0.0 runs from 2019 were run using <code>.dispersalType = "high"</code> and <code>.ROStype = "log"</code>.
 Using v3.0.0 of the model, <code>.dispersalType = "default"</code> and <code>.ROStype = "default"</code>.</p>
 </div>
-<div id="replication" class="section level3" number="2.1.3">
+<div id="replication" class="section level3">
 <h3>
 <span class="header-section-number">2.1.3</span> Replication<a class="anchor" aria-label="anchor" href="#replication"><i class="fas fa-link"></i></a>
 </h3>
@@ -232,12 +209,12 @@ To rerun a replicate using a different seed, be sure to delete that run’s <cod
 The seed used is also saved in human-readable <code>seed.txt</code> file.</p>
 </div>
 </div>
-<div id="running-the-model" class="section level2" number="2.2">
+<div id="running-the-model" class="section level2">
 <h2>
 <span class="header-section-number">2.2</span> Running the model<a class="anchor" aria-label="anchor" href="#running-the-model"><i class="fas fa-link"></i></a>
 </h2>
 <p><strong>NOTE:</strong> The first time the model is run, it will automatically download additional data and install additional R packages, which can take some time to complete.</p>
-<div id="interactive-r-session" class="section level3" number="2.2.1">
+<div id="interactive-r-session" class="section level3">
 <h3>
 <span class="header-section-number">2.2.1</span> Interactive R session<a class="anchor" aria-label="anchor" href="#interactive-r-session"><i class="fas fa-link"></i></a>
 </h3>
@@ -249,32 +226,32 @@ The first time running the model, open the file <code>00-global.R</code>, and st
 <p>When authenticating with Google Drive, be sure to check the box to allow access to files.</p>
 </div>
 </div>
-<div id="commandline-interface" class="section level3" number="2.2.2">
+<div id="commandline-interface" class="section level3">
 <h3>
 <span class="header-section-number">2.2.2</span> Commandline interface<a class="anchor" aria-label="anchor" href="#commandline-interface"><i class="fas fa-link"></i></a>
 </h3>
 <p>In addition to running the model in an interactive R session, we provide a command line interface to run replicates of the model for the study areas defined above (i.e., batch mode).</p>
 <p>For example, to run replicate number 7 of the model at <span class="math inline">\(250 m\)</span> resolution using FRI multiple of <span class="math inline">\(1\)</span> for Alberta FMU L11, use:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="running-landweb.html#cb21-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
-<span id="cb21-2"><a href="running-landweb.html#cb21-2" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="running-landweb.html#cb21-3" tabindex="-1"></a><span class="co">## ./run_fmu.sh &lt;FMU&gt; &lt;FRI&gt; &lt;RES&gt; &lt;REP&gt;</span></span>
-<span id="cb21-4"><a href="running-landweb.html#cb21-4" tabindex="-1"></a><span class="ex">./run_fmu.sh</span> L11 1 250 7</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb21-1" title="1"><span class="bu">cd</span> ~/GitHub/LandWeb</a>
+<a class="sourceLine" id="cb21-2" title="2"></a>
+<a class="sourceLine" id="cb21-3" title="3"><span class="co">## ./run_fmu.sh &lt;FMU&gt; &lt;FRI&gt; &lt;RES&gt; &lt;REP&gt;</span></a>
+<a class="sourceLine" id="cb21-4" title="4"><span class="ex">./run_fmu.sh</span> L11 1 250 7</a></code></pre></div>
 <p>FMU command line runs do not use modified dispersal nor fire scenarios, and thus only require the study area, replicate, and FRI multiple to be defined.</p>
 <p>To run replicate number 7 of the model for the entire province of Alberta, use:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="running-landweb.html#cb22-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
-<span id="cb22-2"><a href="running-landweb.html#cb22-2" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="running-landweb.html#cb22-3" tabindex="-1"></a><span class="co">## ./run_fma.sh &lt;FMU&gt; &lt;REP&gt;</span></span>
-<span id="cb22-4"><a href="running-landweb.html#cb22-4" tabindex="-1"></a><span class="ex">./run_fma.sh</span> provAB 7</span>
-<span id="cb22-5"><a href="running-landweb.html#cb22-5" tabindex="-1"></a><span class="co"># ./run_fma_win.sh provAB 7 ## if on Windows!</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb22-1" title="1"><span class="bu">cd</span> ~/GitHub/LandWeb</a>
+<a class="sourceLine" id="cb22-2" title="2"></a>
+<a class="sourceLine" id="cb22-3" title="3"><span class="co">## ./run_fma.sh &lt;FMU&gt; &lt;REP&gt;</span></a>
+<a class="sourceLine" id="cb22-4" title="4"><span class="ex">./run_fma.sh</span> provAB 7</a>
+<a class="sourceLine" id="cb22-5" title="5"><span class="co"># ./run_fma_win.sh provAB 7 ## if on Windows!</span></a></code></pre></div>
 <p>FMA command line runs use <code>highDispersal_logROS</code> scenarios at <span class="math inline">\(250 m\)</span> resolution, and thus only require the study area and replicate to be defined.</p>
 <p>To run the entire LandWeb study area, only a replicate number needs to be passed.
 For example:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="running-landweb.html#cb23-1" tabindex="-1"></a><span class="co">## ./run_landweb.sh &lt;REP&gt;</span></span>
-<span id="cb23-2"><a href="running-landweb.html#cb23-2" tabindex="-1"></a><span class="ex">./run_landweb.sh</span> 7</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb23-1" title="1"><span class="co">## ./run_landweb.sh &lt;REP&gt;</span></a>
+<a class="sourceLine" id="cb23-2" title="2"><span class="ex">./run_landweb.sh</span> 7</a></code></pre></div>
 <p>LandWeb command line run set the dispersal and fire scenarios as above, and the pixel resolution (<code>.pixelSize</code>) at <span class="math inline">\(250 m\)</span>, and thus only require the study area and replicate to be defined.</p>
 </div>
 </div>
-<div id="post-processing-analyses" class="section level2" number="2.3">
+<div id="post-processing-analyses" class="section level2">
 <h2>
 <span class="header-section-number">2.3</span> Post-processing analyses<a class="anchor" aria-label="anchor" href="#post-processing-analyses"><i class="fas fa-link"></i></a>
 </h2>
@@ -286,18 +263,18 @@ For example:</p>
 </ul>
 <p>To run processing, use <code>.mode = "postprocess"</code> and be sure to set the number of replicates run in the config.</p>
 </div>
-<div id="advanced-setup" class="section level2" number="2.4">
+<div id="advanced-setup" class="section level2">
 <h2>
 <span class="header-section-number">2.4</span> Advanced setup<a class="anchor" aria-label="anchor" href="#advanced-setup"><i class="fas fa-link"></i></a>
 </h2>
-<div id="customizing-model-run-configuration" class="section level3" number="2.4.1">
+<div id="customizing-model-run-configuration" class="section level3">
 <h3>
 <span class="header-section-number">2.4.1</span> Customizing model run configuration<a class="anchor" aria-label="anchor" href="#customizing-model-run-configuration"><i class="fas fa-link"></i></a>
 </h3>
 <p>See <a href="https://github.com/PredictiveEcology/SpaDES.config/blob/development/R/config.landweb.R">SpaDES.config/R/config.landweb.R</a>.</p>
 <p>(TODO)</p>
 </div>
-<div id="cache-backend" class="section level3" number="2.4.2">
+<div id="cache-backend" class="section level3">
 <h3>
 <span class="header-section-number">2.4.2</span> Cache backend<a class="anchor" aria-label="anchor" href="#cache-backend"><i class="fas fa-link"></i></a>
 </h3>
@@ -305,10 +282,10 @@ For example:</p>
 <p>The default cache uses a SQLite database backend and stores cache files in <code>cache/</code>.
 However, other database backends can also be used, and advanced users running multiple parallel simulations may wish to set up and use a PostgreSQL database for this cache.</p>
 <p>See <a href="https://github.com/PredictiveEcology/SpaDES/wiki/Using-alternate-database-backends-for-Cache" class="uri">https://github.com/PredictiveEcology/SpaDES/wiki/Using-alternate-database-backends-for-Cache</a> and ensure the following options are added to your user-specific config in <code>02a-user-config.R</code>:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="running-landweb.html#cb24-1" tabindex="-1"></a>reproducible.cacheSaveFormat <span class="ot">=</span> <span class="st">"qs"</span>,</span>
-<span id="cb24-2"><a href="running-landweb.html#cb24-2" tabindex="-1"></a>reproducible.conn <span class="ot">=</span> SpaDES.config<span class="sc">::</span><span class="fu">dbConnCache</span>(<span class="st">"postgresql"</span>),</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">reproducible.cacheSaveFormat =<span class="st"> "qs"</span>,</a>
+<a class="sourceLine" id="cb24-2" title="2">reproducible.conn =<span class="st"> </span>SpaDES.config<span class="op">::</span><span class="kw">dbConnCache</span>(<span class="st">"postgresql"</span>),</a></code></pre></div>
 </div>
-<div id="speeding-up-disk-based-operations" class="section level3" number="2.4.3">
+<div id="speeding-up-disk-based-operations" class="section level3">
 <h3>
 <span class="header-section-number">2.4.3</span> Speeding up disk-based operations<a class="anchor" aria-label="anchor" href="#speeding-up-disk-based-operations"><i class="fas fa-link"></i></a>
 </h3>
@@ -317,7 +294,7 @@ Advanced users can move their <code>cache/</code> directory to an SSD mountpoint
 Likewise, users can configure a scratch path for temporary raster file operations to point to an SSD location.</p>
 </div>
 </div>
-<div id="additional-resources" class="section level2" number="2.5">
+<div id="additional-resources" class="section level2">
 <h2>
 <span class="header-section-number">2.5</span> Additional Resources<a class="anchor" aria-label="anchor" href="#additional-resources"><i class="fas fa-link"></i></a>
 </h2>
@@ -373,7 +350,7 @@ Likewise, users can configure a scratch path for temporary raster file operation
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-30.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-05.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

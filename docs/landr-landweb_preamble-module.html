@@ -23,28 +23,6 @@
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
-<style type="text/css">
-    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
-    div.csl-bib-body { }
-    div.csl-entry {
-      clear: both;
-        }
-    .hanging div.csl-entry {
-      margin-left:2em;
-      text-indent:-2em;
-    }
-    div.csl-left-margin {
-      min-width:2em;
-      float:left;
-    }
-    div.csl-right-inline {
-      margin-left:2em;
-      padding-left:1em;
-    }
-    div.csl-indent {
-      margin-left: 2em;
-    }
-  </style>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-spy="scroll" data-target="#toc">
@@ -79,13 +57,12 @@
 <li><a class="" href="landr-biomass_core-module.html"><span class="header-section-number">6</span> LandR Biomass_core Module</a></li>
 <li><a class="" href="landr-biomass_regeneration-module.html"><span class="header-section-number">7</span> LandR Biomass_regeneration Module</a></li>
 <li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
-<li><a class="" href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></li>
 <li><a class="" href="model-outputs.html">Model outputs</a></li>
-<li><a class="" href="landweb_output-module.html"><span class="header-section-number">9</span> LandWeb_output Module</a></li>
-<li><a class="" href="timesincefire-module.html"><span class="header-section-number">10</span> timeSinceFire Module</a></li>
-<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">11</span> LandWeb_summary Module</a></li>
+<li><a class="" href="landweb_output-module.html"><span class="header-section-number">8</span> LandWeb_output Module</a></li>
+<li><a class="" href="timesincefire-module.html"><span class="header-section-number">9</span> timeSinceFire Module</a></li>
+<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">10</span> LandWeb_summary Module</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
-<li><a class="" href="modifying-landweb.html"><span class="header-section-number">12</span> Modifying LandWeb</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">11</span> Modifying LandWeb</a></li>
 <li><a class="" href="references-1.html">References</a></li>
 </ul>
 
@@ -94,29 +71,29 @@
         </div>
       </nav>
 </div>
-  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landr-landweb_preamble-module" class="section level1" number="3">
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landr-landweb_preamble-module" class="section level1">
 <h1>
 <span class="header-section-number">3</span> LandR <em>LandWeb_preamble</em> Module<a class="anchor" aria-label="anchor" href="#landr-landweb_preamble-module"><i class="fas fa-link"></i></a>
 </h1>
-<div id="authors" class="section level4" number="3.0.0.1">
+<div id="authors" class="section level4">
 <h4>
 <span class="header-section-number">3.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors"><i class="fas fa-link"></i></a>
 </h4>
 <p>Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut, cre], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [aut], Ceres Barros <a href="mailto:cbarros@mail.ubc.ca" class="email">cbarros@mail.ubc.ca</a> [aut]
 <!-- ideally separate authors with new lines, '\n' not working --></p>
 </div>
-<div id="module-overview" class="section level2" number="3.1">
+<div id="module-overview" class="section level2">
 <h2>
 <span class="header-section-number">3.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview"><i class="fas fa-link"></i></a>
 </h2>
-<div id="module-summary" class="section level3" number="3.1.1">
+<div id="module-summary" class="section level3">
 <h3>
 <span class="header-section-number">3.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary"><i class="fas fa-link"></i></a>
 </h3>
 <p>Set up study areas and parameters for LandWeb simulations.</p>
 </div>
 </div>
-<div id="parameters" class="section level2" number="3.2">
+<div id="parameters" class="section level2">
 <h2>
 <span class="header-section-number">3.2</span> Parameters<a class="anchor" aria-label="anchor" href="#parameters"><i class="fas fa-link"></i></a>
 </h2>
@@ -145,7 +122,7 @@
 <td align="left">25000</td>
 <td align="left">20000</td>
 <td align="left">1e+05</td>
-<td align="left">Study area buffer distance (m) used to make studyArea.</td>
+<td align="left">Study area buffer distance (m) used to make <code>studyArea</code>.</td>
 </tr>
 <tr class="even">
 <td align="left">bufferDistLarge</td>
@@ -153,7 +130,7 @@
 <td align="left">50000</td>
 <td align="left">20000</td>
 <td align="left">1e+05</td>
-<td align="left">Study area buffer distance (m) used to make studyAreaLarge.</td>
+<td align="left">Study area buffer distance (m) used to make <code>studyAreaLarge</code>.</td>
 </tr>
 <tr class="odd">
 <td align="left">forceResprout</td>
@@ -202,7 +179,7 @@
 <td align="left">default</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
-<td align="left">One of ‘burny’, ‘equal’, ‘log’, or ‘default’.</td>
+<td align="left">Rate of spread preset to use. One of ‘burny’, ‘equal’, ‘log’, or ‘default’.</td>
 </tr>
 <tr class="odd">
 <td align="left">treeClassesLCC</td>
@@ -210,7 +187,7 @@
 <td align="left">1, 2, 3,….</td>
 <td align="left">0</td>
 <td align="left">39</td>
-<td align="left">AKA forestedLCCClasses. The classes in the LCC2005 layer that are considered ‘trees’ from the perspective of LandR-Biomass.</td>
+<td align="left">AKA <code>forestedLCCClasses</code>. The classes in the <code>LCC2005</code> layer that are considered ‘trees’ from the perspective of LandR-Biomass.</td>
 </tr>
 <tr class="even">
 <td align="left">treeClassesToReplace</td>
@@ -218,7 +195,7 @@
 <td align="left">34, 35, 36</td>
 <td align="left">0</td>
 <td align="left">39</td>
-<td align="left">The transient classes in the LCC2005 layer that will become ‘trees’ from the perspective of LandR-Biomass (e.g., burned)</td>
+<td align="left">The transient classes in the <code>LCC2005</code> layer that will become ‘trees’ from the perspective of LandR-Biomass (e.g., burned)</td>
 </tr>
 <tr class="odd">
 <td align="left">.plotInitialTime</td>
@@ -287,11 +264,11 @@
 </tbody>
 </table></div>
 </div>
-<div id="data-dependencies" class="section level2" number="3.3">
+<div id="data-dependencies" class="section level2">
 <h2>
 <span class="header-section-number">3.3</span> Data dependencies<a class="anchor" aria-label="anchor" href="#data-dependencies"><i class="fas fa-link"></i></a>
 </h2>
-<div id="input-data" class="section level3" number="3.3.1">
+<div id="input-data" class="section level3">
 <h3>
 <span class="header-section-number">3.3.1</span> Input data<a class="anchor" aria-label="anchor" href="#input-data"><i class="fas fa-link"></i></a>
 </h3>
@@ -317,7 +294,7 @@
 </tr></tbody>
 </table></div>
 </div>
-<div id="output-data" class="section level3" number="3.3.2">
+<div id="output-data" class="section level3">
 <h3>
 <span class="header-section-number">3.3.2</span> Output data<a class="anchor" aria-label="anchor" href="#output-data"><i class="fas fa-link"></i></a>
 </h3>
@@ -358,7 +335,7 @@
 <tr class="odd">
 <td align="left">LCC</td>
 <td align="left">RasterLayer</td>
-<td align="left">A key output from this module: it is the result of LandR::overlayLCCs on LCC2005 and LandTypeCC</td>
+<td align="left">The result of <code><a href="https://landr.predictiveecology.org/reference/overlayLCCs.html">LandR::overlayLCCs()</a></code> on <code>LCC2005</code> and <code>LandTypeCC</code>.</td>
 </tr>
 <tr class="even">
 <td align="left">nonTreePixels</td>
@@ -383,7 +360,7 @@
 <tr class="even">
 <td align="left">ROSTable</td>
 <td align="left">data.table</td>
-<td align="left">A data.table with 3 columns, ‘age’, ‘leading’, and ‘ros’. The values under the ‘age’ column can be ‘mature’, ‘immature’, ‘young’ and compound versions of these, e.g., ‘immature_young’ which can be used when 2 or more age classes share same ‘ros’. ‘leading’ should be vegetation type. ‘ros’ gives the rate of spread values for each age and type.</td>
+<td align="left">A <code>data.table</code> with 3 columns: <code>age</code>, <code>leading</code>, and <code>ros</code>. The values under the <code>age</code> column can be <code>mature</code>, <code>immature</code>, <code>young</code> and compound versions of these, e.g., <code>immature_young</code> which can be used when 2 or more age classes share same <code>ros</code>. <code>leading</code> should be vegetation type. <code>ros</code> gives the rate of spread values for each age and type.</td>
 </tr>
 <tr class="odd">
 <td align="left">rstFlammable</td>
@@ -418,18 +395,18 @@
 <tr class="odd">
 <td align="left">studyAreaLarge</td>
 <td align="left">SpatialPolygonsDataFrame</td>
-<td align="left">Polygon to use as the parametrisation study area. Note that <code>studyAreaLarge</code> is only used for parameter estimation, and can be larger than the actual study area used for LandR simulations (e.g, larger than <code>studyArea</code> in LandR Biomass_core).</td>
+<td align="left">Polygon to use as the parametrisation study area. Note that <code>studyAreaLarge</code> is only used for parameter estimation, and can be larger than the actual study area used for LandR simulations (e.g, larger than <code>studyArea</code> in LandR <code>Biomass_core</code>).</td>
 </tr>
 <tr class="even">
 <td align="left">studyAreaReporting</td>
 <td align="left">SpatialPolygonsDataFrame</td>
-<td align="left">multipolygon (typically smaller/unbuffered than <code>studyAreaLarge</code> and <code>studyArea</code> in LandR Biomass_core) to use for plotting/reporting.</td>
+<td align="left">multipolygon (typically smaller/unbuffered than <code>studyAreaLarge</code> and <code>studyArea</code> in LandR <code>Biomass_core</code>) to use for plotting/reporting.</td>
 </tr>
 </tbody>
 </table></div>
 </div>
 </div>
-<div id="links-to-other-modules" class="section level2" number="3.4">
+<div id="links-to-other-modules" class="section level2">
 <h2>
 <span class="header-section-number">3.4</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules"><i class="fas fa-link"></i></a>
 </h2>
@@ -474,7 +451,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-08-30.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-05.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
