@@ -21,6 +21,7 @@ rmd_files:
   - 05-section-fire-submodel.Rmd
   - ../m/LandMine/LandMine2.Rmd
   - 06-section-model-outputs.Rmd
+  - ../m/burnSummaries/burnSummaries2.Rmd
   - ../m/LandWeb_output/LandWeb_output2.Rmd
   - ../m/timeSinceFire/timeSinceFire2.Rmd
   - ../m/LandWeb_summary/LandWeb_summary2.Rmd

@@ -59,11 +59,12 @@
 <li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
 <li><a class="" href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></li>
 <li><a class="" href="model-outputs.html">Model outputs</a></li>
-<li><a class="" href="landweb_output-module.html"><span class="header-section-number">9</span> LandWeb_output Module</a></li>
-<li><a class="" href="timesincefire-module.html"><span class="header-section-number">10</span> timeSinceFire Module</a></li>
-<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">11</span> LandWeb_summary Module</a></li>
+<li><a class="" href="burnsummaries-module.html"><span class="header-section-number">9</span> burnSummaries Module</a></li>
+<li><a class="" href="landweb_output-module.html"><span class="header-section-number">10</span> LandWeb_output Module</a></li>
+<li><a class="" href="timesincefire-module.html"><span class="header-section-number">11</span> timeSinceFire Module</a></li>
+<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">12</span> LandWeb_summary Module</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
-<li><a class="" href="modifying-landweb.html"><span class="header-section-number">12</span> Modifying LandWeb</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">13</span> Modifying LandWeb</a></li>
 <li><a class="" href="references-1.html">References</a></li>
 </ul>
 
@@ -342,7 +343,7 @@ species traits. Note that <em>Biomass_core</em> (alone) requires all the columns
 <p>Please see <span class="citation">Scheller &amp; Domingo (<a href="references-1.html#ref-SchellerDomingo2011">2011</a>)</span> and <span class="citation">Scheller &amp; Miranda (<a href="references-1.html#ref-SchellerMiranda2015">2015</a><a href="references-1.html#ref-SchellerMiranda2015">a</a>)</span> for
 further detail.</p>
 
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:invariantSpptraits">Table 6.1: </span>Example of an invariant species traits table (the <code>species</code> table object in the module), with species <em>Abies sp.</em> (Abie_sp), <em>Picea engelmannii</em> (Pice_eng), <em>Picea glauca</em> (Pice_gla), <em>Pinus sp.</em> (Pinu_sp), <em>Populus sp.</em> (Popu_sp) and <em>Pseudotsuga menziesii</em> (Pseu_men). Note that these are theoretical values.
 </caption>
@@ -653,7 +654,7 @@ applications), or passing a custom table directly. <em>Biomass_speciesParameters
 further calibrates <code>maxB</code> and <code>maxANPP</code> by estimating two additional invariant
 species traits (<code>inflationFactor</code> and <code>mANPPproportion</code>; also for Western
 Canadian forests). See Table <a href="landr-biomass_core-module.html#tab:varyingSpptraits">6.2</a> for an example.</p>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:varyingSpptraits">Table 6.2: </span>Example of a spatio-temporally varying species traits table (the <code>speciesEcoregion</code> table object in the module), with two ecolocations (called <code>ecoregionGroups</code>) and species <em>Abies sp.</em> (Abie_sp), <em>Picea engelmannii</em> (Pice_eng), <em>Picea glauca</em> (Pice_gla), <em>Pinus sp.</em> (Pinu_sp), <em>Populus sp.</em> (Popu_sp) and <em>Pseudotsuga menziesii</em> (Pseu_men). If a simulation runs for 10 year using this table, trait values from year 2 would be used during simulation years 2-10.
 </caption>
@@ -1063,7 +1064,7 @@ Western Canada boreal forest dynamics (see Table <a href="landr-biomass_core-mod
 <em>Biomass_borealDataPrep</em> does the same adjustment by default. As with other
 inputs, these values can be adjusted by using other modules or by passing
 user-defined tables.</p>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:minRelB">Table 6.3: </span>Example of a minimum relative biomass table (the <code>minRelativeB</code> table object in the module), with two ecolocations (<code>ecoregionGroups</code>) sharing the same values
 </caption>
@@ -1137,7 +1138,7 @@ biomass in the pixel – see <a href="landr-biomass_core-module.html#ecolocation
 parameter</a> and Scheller &amp; Miranda <a href="references-1.html#ref-SchellerMiranda2015">2015</a><a href="references-1.html#ref-SchellerMiranda2015">a</a>)</span>. By default, both
 <em>Biomass_core</em> and <em>Biomass_borealDataPrep</em> use a publicly available LANDIS-II
 table (called <code>sufficientLight</code> in the module; Table <a href="landr-biomass_core-module.html#tab:suffLight">6.4</a>).</p>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:suffLight">Table 6.4: </span>Default species probability of germination values used by <em>Biomass_core</em> and <em>Biomass_borealDataPrep</em>. Columns X0-X5 are different site shade levels and each line has the probability of germination for each site shade and species shade tolerance combination.
 </caption>
@@ -1409,7 +1410,7 @@ and <code>B</code> composition, even if the user supplies other initial grouping
 (e.g., this is possible in the <em>Biomass_borealDataPrep</em> data module).
 <!-- may be revised in following versions--></p></li>
 </ul>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleInputs2-Biomass-core">Table 6.5: </span>List of <em>Biomass_core</em> input objects and their description.
 </caption>
@@ -1739,7 +1740,7 @@ event (growth and mortality are always yearly);</p></li>
 <code>vegLeadingProportion</code> – relative biomass threshold to consider a species
 “leading” (i.e., dominant);</li>
 </ul>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleParams2-Biomass-core">Table 6.6: </span>List of <em>Biomass_core</em> parameters and their description.
 </caption>
@@ -2399,7 +2400,7 @@ mortality and reproductive success (i.e, new biomass) on a yearly basis.</p>
 <p>However, any of the objects changed/output by <em>Biomass_core</em> (listed in Table
 <a href="landr-biomass_core-module.html#tab:moduleOutputs-Biomass-core">6.7</a>) can be saved via the <code>outputs</code> argument
 in <code>simInit</code><a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a>.</p>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleOutputs-Biomass-core">Table 6.7: </span>List of <em>Biomass_core</em> output objects and their description.
 </caption>
@@ -3174,7 +3175,7 @@ Figure 6.7: <em>Biomass_core</em> automatically generates simulation visuals of 
 <span class="header-section-number">6.4.1</span> Tables<a class="anchor" aria-label="anchor" href="#appendix-tables"><i class="fas fa-link"></i></a>
 </h3>
 
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest1">Table 6.8: </span>Input order and processing order (as determined by LBSE) for the same community used to assess the impact of sequential calculation of the competition index, combined with a lack of explicit species ordering. The input order was the order of species in the initial communities table input file. The processing order was the order used in the simulation, which was obtained from <code>Landis-log.txt</code> when <code>CalibrateMode</code> was set to ‘yes’. Species starting ages are also shown.
 </caption>
@@ -3643,7 +3644,7 @@ piceglau
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest2">Table 6.9: </span>Input order and processing order (as determined by LBSE) for the same community used to assess the impact of setting the succession time step to 1, combined with a lack of explicit species ordering. The input order was the order of species in the initial communities table input file. The processing order was the order used in the simulation, which was obtained from <code>Landis-log.txt</code> when <code>CalibrateMode</code> was set to ‘yes’. Species starting ages are also shown.
 </caption>
@@ -4112,7 +4113,7 @@ piceglau
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest3">Table 6.10: </span>Randomly generated community combination no. 1 used in the recruitment comparison runs.
 </caption>
@@ -5047,7 +5048,7 @@ NA
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest4">Table 6.11: </span>Randomly generated community combination no. 2 used in the recruitment comparison runs.
 </caption>
@@ -6127,7 +6128,7 @@ NA
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest5">Table 6.12: </span>Randomly generated community combination no. 3 used in the recruitment comparison runs.
 </caption>
@@ -7091,7 +7092,7 @@ NA
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest6">Table 6.13: </span>Invariant species traits table used in comparison runs.
 </caption>
@@ -7540,7 +7541,7 @@ tsugcana
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest7">Table 6.14: </span>Minimum relative biomass table used in comparison runs. X0-5 represent site shade classes from no-shade (0) to maximum shade (5). All ecolocations shared the same values.
 </caption>
@@ -7591,7 +7592,7 @@ All
 </td>
 </tr></tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest8">Table 6.15: </span>Probability of germination for species shade tolerance and shade level combinations (called <em>sufficient light</em> table in LBSE and <code>sufficientLight</code> input <code>data.table</code> in LandR <em>Biomass_core</em>) used in comparison runs.
 </caption>
@@ -7736,7 +7737,7 @@ Shadetolerance
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest9">Table 6.16: </span>Species ecolocation table used in comparison runs. <code>SEP</code> stands for species establishment probability, <code>maxB</code> for maximum biomass and <code>maxANPP</code> for maximum aboveground net primary productivity. Values were held constant throughout the simulation.
 </caption>
@@ -8119,7 +8120,7 @@ mechanisms to satisfy each module’s expected inputs with default values.<a hre
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-05.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

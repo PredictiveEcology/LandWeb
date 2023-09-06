@@ -59,11 +59,12 @@
 <li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
 <li><a class="active" href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></li>
 <li><a class="" href="model-outputs.html">Model outputs</a></li>
-<li><a class="" href="landweb_output-module.html"><span class="header-section-number">9</span> LandWeb_output Module</a></li>
-<li><a class="" href="timesincefire-module.html"><span class="header-section-number">10</span> timeSinceFire Module</a></li>
-<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">11</span> LandWeb_summary Module</a></li>
+<li><a class="" href="burnsummaries-module.html"><span class="header-section-number">9</span> burnSummaries Module</a></li>
+<li><a class="" href="landweb_output-module.html"><span class="header-section-number">10</span> LandWeb_output Module</a></li>
+<li><a class="" href="timesincefire-module.html"><span class="header-section-number">11</span> timeSinceFire Module</a></li>
+<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">12</span> LandWeb_summary Module</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
-<li><a class="" href="modifying-landweb.html"><span class="header-section-number">12</span> Modifying LandWeb</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">13</span> Modifying LandWeb</a></li>
 <li><a class="" href="references-1.html">References</a></li>
 </ul>
 
@@ -210,7 +211,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <tr class="even">
 <td align="left">fireReturnInterval</td>
 <td align="left">Raster</td>
-<td align="left">A raster layer that is a factor raster, with at least 1 column called ‘fireReturnInterval’, representing the fire return interval in years.</td>
+<td align="left">A raster layer that is a factor raster, with at least 1 column called <code>fireReturnInterval</code>, representing the fire return interval in years.</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
@@ -258,7 +259,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <tr class="even">
 <td align="left">sppEquiv</td>
 <td align="left">data.table</td>
-<td align="left">Multi-columned data.table indicating species name equivalencies. Default taken from LandR sppEquivalencies_CA which has names for species of trees in Canada</td>
+<td align="left">Multi-columned data.table indicating species name equivalencies. Default taken from <code><a href="https://landr.predictiveecology.org/reference/sppEquivalencies_CA.html">LandR::sppEquivalencies_CA</a></code> which has names for species of trees in Canada</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
@@ -282,10 +283,10 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <colgroup>
 <col width="7%">
 <col width="3%">
-<col width="2%">
+<col width="3%">
 <col width="1%">
 <col width="1%">
-<col width="83%">
+<col width="82%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">paramName</th>
@@ -329,6 +330,22 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <td align="left">If no Fire Return Interval map is supplied, then a random one will be created and cached. Use this to make a new one.</td>
 </tr>
 <tr class="odd">
+<td align="left">maxReburns</td>
+<td align="left">integer</td>
+<td align="left">10</td>
+<td align="left">0</td>
+<td align="left">20</td>
+<td align="left">Number of attempts to reburn fires that don’t reach their target fire size. Unlike <code>maxRetriesPerID</code>, which tries spreading an ongoing fire to nearby cells, this reignites the fire from a new pixel, so it’s less likely to continue being stuck in a region with sinuous fires.</td>
+</tr>
+<tr class="even">
+<td align="left">maxRetriesPerID</td>
+<td align="left">integer</td>
+<td align="left">4</td>
+<td align="left">0</td>
+<td align="left">20</td>
+<td align="left">Number of attempts (‘jumps’) that will be made per event ID, before abandoning. See <code><a href="https://spades-tools.predictiveecology.org/reference/spread2.html">?SpaDES.tools::spread2</a></code>. NOTE: increasing this value results in drastically longer simulation times because firelets get ‘stuck’.</td>
+</tr>
+<tr class="odd">
 <td align="left">minPropBurn</td>
 <td align="left">numeric</td>
 <td align="left">0.9</td>
@@ -345,20 +362,20 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <td align="left">How to define mixed stands: 1 for any species admixture; 2 for deciduous &gt; conifer. See ?vegTypeMapGenerator.</td>
 </tr>
 <tr class="odd">
-<td align="left">maxRetriesPerID</td>
-<td align="left">integer</td>
-<td align="left">4</td>
-<td align="left">0</td>
-<td align="left">20</td>
-<td align="left">Number of attempts (‘jumps’) that will be made per event ID, before abandoning. See <code><a href="https://spades-tools.predictiveecology.org/reference/spread2.html">?SpaDES.tools::spread2</a></code>. NOTE: increasing this value results in drastically longer simulation times because firelets get ‘stuck’.</td>
+<td align="left">mode</td>
+<td align="left">character</td>
+<td align="left">single</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">use ‘single’ to run part of a landscape simulation; use ‘multi’ to run as part of postprocessing multiple simulation runs.</td>
 </tr>
 <tr class="even">
-<td align="left">maxReburns</td>
+<td align="left">reps</td>
 <td align="left">integer</td>
-<td align="left">10</td>
-<td align="left">0</td>
-<td align="left">20</td>
-<td align="left">Number of attempts to reburn fires that don’t reach their target fire size. Unlike <code>maxRetriesPerID</code>, which tries spreading an ongoing fire to nearby cells, this reignites the fire from a new pixel, so it’s less likely to continue being stuck in a region with sinuous fires.</td>
+<td align="left">NA</td>
+<td align="left">1</td>
+<td align="left">NA</td>
+<td align="left">number of replicates/runs per study area when running in ‘multi’ mode.</td>
 </tr>
 <tr class="odd">
 <td align="left">ROSother</td>
@@ -419,7 +436,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <tr class="even">
 <td align="left">.plots</td>
 <td align="left">character</td>
-<td align="left">object</td>
+<td align="left">png, screen</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
 <td align="left">Passed to <code>types</code> in <code>Plots</code> (see <code>?Plots</code>). There are a few plots that are made within this module, if set. Note that plots (or their data) saving will ONLY occur at <code>end(sim)</code>. If <code>NA</code>, plotting is turned off completely (this includes plot saving).</td>
@@ -441,6 +458,15 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <td align="left">This describes the simulation time interval between save events</td>
 </tr>
 <tr class="odd">
+<td align="left">.studyAreaName</td>
+<td align="left">character</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Human-readable name for the study area used - e.g., a hash of the studyarea obtained using <code><a href="https://reproducible.predictiveecology.org/reference/studyAreaName.html">reproducible::studyAreaName()</a></code>
+</td>
+</tr>
+<tr class="even">
 <td align="left">.useCache</td>
 <td align="left">logical</td>
 <td align="left">FALSE</td>
@@ -448,7 +474,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <td align="left">NA</td>
 <td align="left">Should this entire module be run with caching activated? This is generally intended for data-type modules, where stochasticity and time are not relevant</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.unitTest</td>
 <td align="left">logical</td>
 <td align="left">TRUE</td>
@@ -456,7 +482,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <td align="left">NA</td>
 <td align="left">Some functions can have internal testing. This will turn those on or off, if any exist.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.useParallel</td>
 <td align="left">numeric</td>
 <td align="left">2</td>
@@ -489,32 +515,43 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <tr class="odd">
 <td align="left">fireInitialTime</td>
 <td align="left">numeric</td>
-<td align="left">The initial event time of the burn event. This is simply a reassignment from P(sim)<span class="math inline">\(burnInitialTime. | |fireSizes |list |A list of data.tables, one per burn event, each with two columns, size and maxSize. These indicate the actual sizes and expected sizes burned, respectively. These can be put into a single data.table with rbindlist(sim\)</span>fireSizes, idcol = ‘year’)</td>
+<td align="left">The initial event time of the burn event. This is simply a reassignment from <code>P(sim)$burnInitialTime</code>.</td>
 </tr>
 <tr class="even">
-<td align="left">fireReturnInterval</td>
-<td align="left">RasterLayer</td>
-<td align="left">A Raster map showing the fire return interval. This is created from the rstCurrentBurn.</td>
+<td align="left">fireSizes</td>
+<td align="left">list</td>
+<td align="left">A list of data.tables, one per burn event, each with two columns, <code>size</code> and <code>maxSize</code>. These indicate the actual sizes and expected sizes burned, respectively. These can be put into a single data.table with <code>rbindlist(sim$fireSizes, idcol = 'year')</code>
+</td>
 </tr>
 <tr class="odd">
+<td align="left">fireReturnInterval</td>
+<td align="left">RasterLayer</td>
+<td align="left">A <code>Raster</code> map showing the fire return interval. This is created from the <code>rstCurrentBurn</code>.</td>
+</tr>
+<tr class="even">
 <td align="left">fireReturnIntervalsByPolygonNumeric</td>
 <td align="left">numeric</td>
 <td align="left">A vector of the fire return intervals, ordered by the numeric representation of polygon ID</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">fireTimestep</td>
 <td align="left">numeric</td>
 <td align="left">The number of time units between successive fire events in a fire module.</td>
 </tr>
+<tr class="even">
+<td align="left">friSummary</td>
+<td align="left">data.table</td>
+<td align="left">summary fire return interval table</td>
+</tr>
 <tr class="odd">
 <td align="left">kBest</td>
 <td align="left">numeric</td>
-<td align="left">A numeric scalar that is the optimal value of K in the Truncated Pareto distribution (rtruncpareto)</td>
+<td align="left">A numeric scalar that is the optimal value of <code>K</code> in the Truncated Pareto distribution (<code>rtruncpareto</code>)</td>
 </tr>
 <tr class="even">
 <td align="left">numFiresPerYear</td>
 <td align="left">numeric</td>
-<td align="left">The average number of fires per year, by fire return interval level on rstCurrentBurn.</td>
+<td align="left">The average number of fires per year, by fire return interval level on <code>rstCurrentBurn</code>.</td>
 </tr>
 <tr class="odd">
 <td align="left">rstCurrentBurn</td>
@@ -529,7 +566,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <tr class="odd">
 <td align="left">sppEquiv</td>
 <td align="left">data.table</td>
-<td align="left">Same as input, but with new column, LandMine</td>
+<td align="left">Same as input, but with new column, <code>LandMine</code>.</td>
 </tr>
 </tbody>
 </table></div>
@@ -1072,7 +1109,7 @@ This version uses 250m pixels.</p>
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-05.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

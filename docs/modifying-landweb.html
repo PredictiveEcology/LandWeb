@@ -4,17 +4,17 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Chapter 12 Modifying LandWeb | LandWeb Manual</title>
+<title>Chapter 13 Modifying LandWeb | LandWeb Manual</title>
 <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
-<meta name="description" content="12.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
+<meta name="description" content="13.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
 <meta name="generator" content="bookdown 0.34 with bs4_book()">
-<meta property="og:title" content="Chapter 12 Modifying LandWeb | LandWeb Manual">
+<meta property="og:title" content="Chapter 13 Modifying LandWeb | LandWeb Manual">
 <meta property="og:type" content="book">
 <meta property="og:url" content="https://predictiveecology.github.io/LandWeb/modifying-landweb.html">
-<meta property="og:description" content="12.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
+<meta property="og:description" content="13.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Chapter 12 Modifying LandWeb | LandWeb Manual">
-<meta name="twitter:description" content="12.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
+<meta name="twitter:title" content="Chapter 13 Modifying LandWeb | LandWeb Manual">
+<meta name="twitter:description" content="13.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -59,11 +59,12 @@
 <li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
 <li><a class="" href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></li>
 <li><a class="" href="model-outputs.html">Model outputs</a></li>
-<li><a class="" href="landweb_output-module.html"><span class="header-section-number">9</span> LandWeb_output Module</a></li>
-<li><a class="" href="timesincefire-module.html"><span class="header-section-number">10</span> timeSinceFire Module</a></li>
-<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">11</span> LandWeb_summary Module</a></li>
+<li><a class="" href="burnsummaries-module.html"><span class="header-section-number">9</span> burnSummaries Module</a></li>
+<li><a class="" href="landweb_output-module.html"><span class="header-section-number">10</span> LandWeb_output Module</a></li>
+<li><a class="" href="timesincefire-module.html"><span class="header-section-number">11</span> timeSinceFire Module</a></li>
+<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">12</span> LandWeb_summary Module</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
-<li><a class="active" href="modifying-landweb.html"><span class="header-section-number">12</span> Modifying LandWeb</a></li>
+<li><a class="active" href="modifying-landweb.html"><span class="header-section-number">13</span> Modifying LandWeb</a></li>
 <li><a class="" href="references-1.html">References</a></li>
 </ul>
 
@@ -74,11 +75,11 @@
 </div>
   </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="modifying-landweb" class="section level1">
 <h1>
-<span class="header-section-number">12</span> Modifying LandWeb<a class="anchor" aria-label="anchor" href="#modifying-landweb"><i class="fas fa-link"></i></a>
+<span class="header-section-number">13</span> Modifying LandWeb<a class="anchor" aria-label="anchor" href="#modifying-landweb"><i class="fas fa-link"></i></a>
 </h1>
 <div id="example-1-adding-new-reporting-polygons" class="section level2">
 <h2>
-<span class="header-section-number">12.1</span> Example 1: adding new reporting polygons<a class="anchor" aria-label="anchor" href="#example-1-adding-new-reporting-polygons"><i class="fas fa-link"></i></a>
+<span class="header-section-number">13.1</span> Example 1: adding new reporting polygons<a class="anchor" aria-label="anchor" href="#example-1-adding-new-reporting-polygons"><i class="fas fa-link"></i></a>
 </h2>
 <p>‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area.
 These are created in the <code>LandWeb_preamble</code> module, and added to <code>sim$ml</code> (an object of class <code>map</code>, from the <code>map</code> package).
@@ -92,7 +93,7 @@ Additionally, the helper function <code>joinreportingPolygons()</code> should be
 </div>
 <div id="national-scale-polygons" class="section level3">
 <h3>
-<span class="header-section-number">12.1.1</span> National-scale polygons<a class="anchor" aria-label="anchor" href="#national-scale-polygons"><i class="fas fa-link"></i></a>
+<span class="header-section-number">13.1.1</span> National-scale polygons<a class="anchor" aria-label="anchor" href="#national-scale-polygons"><i class="fas fa-link"></i></a>
 </h3>
 <p>When adding reporting polygons derived from <em>national-scale</em> data sources, the changes need to be made in <code>LandWeb_preamble.R</code> <em>as well as</em> each of the study-area-specific files in <code>LandWeb_preamble/R/</code> so that LandWeb runs using any study area can make use the new reporting polygons.</p>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
@@ -124,7 +125,7 @@ Additionally, the helper function <code>joinreportingPolygons()</code> should be
 </div>
 <div id="regional-or-study-area-specific-polygons" class="section level3">
 <h3>
-<span class="header-section-number">12.1.2</span> Regional or study-area-specific polygons<a class="anchor" aria-label="anchor" href="#regional-or-study-area-specific-polygons"><i class="fas fa-link"></i></a>
+<span class="header-section-number">13.1.2</span> Regional or study-area-specific polygons<a class="anchor" aria-label="anchor" href="#regional-or-study-area-specific-polygons"><i class="fas fa-link"></i></a>
 </h3>
 <p>If adding regional or study-area-specific reporting polygons (<em>e.g.</em>, for an FMA’s active/passive landbase), then the new reporting polygons should be added to the corresponding study area code file found in <code>LandWeb_preamble/R</code>.</p>
 <div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
@@ -157,7 +158,7 @@ Additionally, the helper function <code>joinreportingPolygons()</code> should be
 </div>
 <div id="example-2-adding-a-new-study-area" class="section level2">
 <h2>
-<span class="header-section-number">12.2</span> Example 2: adding a new study area<a class="anchor" aria-label="anchor" href="#example-2-adding-a-new-study-area"><i class="fas fa-link"></i></a>
+<span class="header-section-number">13.2</span> Example 2: adding a new study area<a class="anchor" aria-label="anchor" href="#example-2-adding-a-new-study-area"><i class="fas fa-link"></i></a>
 </h2>
 <p>Here we will create a custom study area for an area in northwestern Alberta.
 We want to use the latest FMU map from Spring 2022 (<a href="https://www.alberta.ca/forest-management-agreements" class="uri">https://www.alberta.ca/forest-management-agreements</a>).</p>
@@ -199,7 +200,7 @@ It’s simplest to use an existing function/file in <code>LandWeb_preamble/R</co
 </div>
 <div id="example-3-updating-the-lthfc-map" class="section level2">
 <h2>
-<span class="header-section-number">12.3</span> Example 3: updating the LTHFC map<a class="anchor" aria-label="anchor" href="#example-3-updating-the-lthfc-map"><i class="fas fa-link"></i></a>
+<span class="header-section-number">13.3</span> Example 3: updating the LTHFC map<a class="anchor" aria-label="anchor" href="#example-3-updating-the-lthfc-map"><i class="fas fa-link"></i></a>
 </h2>
 <p>Using an updated version of a data source requires only basic code modifications provided the following conditions are met:</p>
 <ul>
@@ -217,7 +218,7 @@ It’s simplest to use an existing function/file in <code>LandWeb_preamble/R</co
 </div>
 <div id="contributing-changes" class="section level2">
 <h2>
-<span class="header-section-number">12.4</span> Contributing changes<a class="anchor" aria-label="anchor" href="#contributing-changes"><i class="fas fa-link"></i></a>
+<span class="header-section-number">13.4</span> Contributing changes<a class="anchor" aria-label="anchor" href="#contributing-changes"><i class="fas fa-link"></i></a>
 </h2>
 <ul>
 <li>via pull request<a href="#fn11" class="footnote-ref" id="fnref11"><sup>11</sup></a> against <code>development</code> branch on GitHub</li>
@@ -236,16 +237,16 @@ It’s simplest to use an existing function/file in <code>LandWeb_preamble/R</co
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
-<li><a class="nav-link" href="#modifying-landweb"><span class="header-section-number">12</span> Modifying LandWeb</a></li>
+<li><a class="nav-link" href="#modifying-landweb"><span class="header-section-number">13</span> Modifying LandWeb</a></li>
 <li>
-<a class="nav-link" href="#example-1-adding-new-reporting-polygons"><span class="header-section-number">12.1</span> Example 1: adding new reporting polygons</a><ul class="nav navbar-nav">
-<li><a class="nav-link" href="#national-scale-polygons"><span class="header-section-number">12.1.1</span> National-scale polygons</a></li>
-<li><a class="nav-link" href="#regional-or-study-area-specific-polygons"><span class="header-section-number">12.1.2</span> Regional or study-area-specific polygons</a></li>
+<a class="nav-link" href="#example-1-adding-new-reporting-polygons"><span class="header-section-number">13.1</span> Example 1: adding new reporting polygons</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#national-scale-polygons"><span class="header-section-number">13.1.1</span> National-scale polygons</a></li>
+<li><a class="nav-link" href="#regional-or-study-area-specific-polygons"><span class="header-section-number">13.1.2</span> Regional or study-area-specific polygons</a></li>
 </ul>
 </li>
-<li><a class="nav-link" href="#example-2-adding-a-new-study-area"><span class="header-section-number">12.2</span> Example 2: adding a new study area</a></li>
-<li><a class="nav-link" href="#example-3-updating-the-lthfc-map"><span class="header-section-number">12.3</span> Example 3: updating the LTHFC map</a></li>
-<li><a class="nav-link" href="#contributing-changes"><span class="header-section-number">12.4</span> Contributing changes</a></li>
+<li><a class="nav-link" href="#example-2-adding-a-new-study-area"><span class="header-section-number">13.2</span> Example 2: adding a new study area</a></li>
+<li><a class="nav-link" href="#example-3-updating-the-lthfc-map"><span class="header-section-number">13.3</span> Example 3: updating the LTHFC map</a></li>
+<li><a class="nav-link" href="#contributing-changes"><span class="header-section-number">13.4</span> Contributing changes</a></li>
 </ul>
 
       <div class="book-extra">
@@ -263,7 +264,7 @@ It’s simplest to use an existing function/file in <code>LandWeb_preamble/R</co
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-05.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

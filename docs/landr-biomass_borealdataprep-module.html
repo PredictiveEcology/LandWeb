@@ -59,11 +59,12 @@
 <li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
 <li><a class="" href="landmine-module.html"><span class="header-section-number">8</span> LandMine Module</a></li>
 <li><a class="" href="model-outputs.html">Model outputs</a></li>
-<li><a class="" href="landweb_output-module.html"><span class="header-section-number">9</span> LandWeb_output Module</a></li>
-<li><a class="" href="timesincefire-module.html"><span class="header-section-number">10</span> timeSinceFire Module</a></li>
-<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">11</span> LandWeb_summary Module</a></li>
+<li><a class="" href="burnsummaries-module.html"><span class="header-section-number">9</span> burnSummaries Module</a></li>
+<li><a class="" href="landweb_output-module.html"><span class="header-section-number">10</span> LandWeb_output Module</a></li>
+<li><a class="" href="timesincefire-module.html"><span class="header-section-number">11</span> timeSinceFire Module</a></li>
+<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">12</span> LandWeb_summary Module</a></li>
 <li><a class="" href="web-app.html">Web app</a></li>
-<li><a class="" href="modifying-landweb.html"><span class="header-section-number">12</span> Modifying LandWeb</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">13</span> Modifying LandWeb</a></li>
 <li><a class="" href="references-1.html">References</a></li>
 </ul>
 
@@ -650,7 +651,7 @@ invariant trait values (see <a href="landr-biomass_borealdataprep-module.html#bb
 traits</a>) (e.g. genus-level group or a functional
 group). To do so, the name of the species group in <code>sppEquivCol</code> column of the
 <code>sppEquiv</code> table must be identical for each grouped species.</p>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:mergingSpp-Biomass-borealDataPrep">Table 5.1: </span>Example of species merging for simulation. Here the user wants to model <em>Abies balsamea</em>, <em>A. lasiocarpa</em> and <em>Pinus contorta</em> as separate species, but all <em>Picea spp.</em> as a genus-level group. For this, all six species are identified in the ‘KNN’ column, so that their % cover layers can be obtained, but in the ‘Boreal’ column (which defines the naming convention used in the simulation in this example) all <em>Picea spp.</em> have the same name. <em>Biomass_borealDataPrep</em> will merge their % cover data into a single layer by summing their cover per pixel.
 </caption>
@@ -845,7 +846,7 @@ following columns (even if not all are necessary to the simulation):
 The order can vary but the column names must be identical. See <span class="citation">Scheller &amp; Miranda (<a href="references-1.html#ref-scheller2015">2015</a><a href="references-1.html#ref-scheller2015">b</a>)</span>
 and <em>Biomass_core</em> manual for further detail about these columns.</li>
 </ul>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleInputs2-Biomass-borealDataPrep">Table 5.2: </span>List of <em>Biomass_borealDataPrep</em> input objects and their description.
 </caption>
@@ -1145,7 +1146,7 @@ broadleaf species cover to biomass relationships; the second and third are
 the model used to refit <code>deciduousCoverDiscount</code> in the supplied
 <code>studyAreaLarge</code> and whether refitting should be attempted (respectively).</p></li>
 </ul>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleParams2-Biomass-borealDataPrep">Table 5.3: </span>List of <em>Biomass_borealDataPrep</em> parameters and their description.
 </caption>
@@ -1961,7 +1962,7 @@ the initial map used for hashing within <code>Biomass_core</code>, in conjunctio
 <code>cohortData</code>.</p></li>
 <li><p><code>ecoregionMap</code> – map of ecolocations.</p></li>
 </ul>
-<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleOutputs-Biomass-borealDataPrep">Table 5.4: </span>List of <em>Biomass_borealDataPrep</em> output objects and their description.
 </caption>
@@ -2249,7 +2250,7 @@ in `dataPath(sim)`, which can be controlled via
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-05.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
