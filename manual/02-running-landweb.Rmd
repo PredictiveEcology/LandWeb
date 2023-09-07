@@ -1,6 +1,18 @@
 # Running LandWeb
 
 1. Launch Rstudio and open the LandWeb Rstudio project (`LandWeb.Rproj`);
+
+:::{.rmdimportant}
+Be sure to use R 4.2.3 when running the model!
+
+If using `rig` to manage multiple R versions, use the following to launch Rstudio with the correct version of R:
+
+```bash
+cd ~/GitHub/LandWeb
+rig rstudio env.lock
+```
+:::
+
 2. Open the file `00-global.R` and run each line in sequence, responding to any prompts as required.
 
 :::{.rmdwarning}
