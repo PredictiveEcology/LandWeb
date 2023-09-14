@@ -10,6 +10,13 @@ modules3 <- if (isTRUE(config$context[["succession"]])) {
   list("LandMine", "LandWeb_output", "timeSinceFire")
 }
 
+config$params[["LandMine"]] <- list(
+  biggestPossibleFireSizeHa = 3e5, ## for MB
+  maxReburns = 10L,
+  maxRetriesPerID = 19L,
+  .useCache = FALSE
+) ## TODO: add these to config -- MB struggling to reach fire sizes
+
 parameters3 <- list(
   .globals = config$params[[".globals"]],
   Biomass_core = config$params[["Biomass_core"]],
@@ -125,21 +132,15 @@ tryCatch({
     loadOrder = unlist(modules3), ## TODO: use config$modules
     debug = list(file = list(file = file.path(config$paths[["logPath"]], "sim.log"),
                              append = TRUE), debug = 1)
-  ) # |>
-    # Cache(
-    #   useCloud = FALSE, ## TODO param useCloud??
-    #   cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-    #   omitArgs = c("debug", "paths"),
-    #   userTags = c(config$context[["runName"]], "mainSim")
-    # )
+  )
   capture.output(warnings(), file = file.path(config$paths[["logPath"]], "warnings.txt"), split = TRUE)
 }, error = function(e) {
   capture.output(traceback(), file = file.path(config$paths[["logPath"]], "traceback_mainSim.txt"), split = TRUE)
 
-  if (requireNamespace("slackr") & file.exists("~/.slackr")) {
-    slackr::slackr_setup()
-    slackr::slackr_msg(
-      paste0("ERROR in simulation `", config$context[["runName"]], "` on host `", .nodename, "`.\n",
+  if (requireNamespace("notifications") & file.exists("~/.slackr")) {
+    notifications::notiy_slack(
+      paste0("ERROR in simulation `", config$context[["runName"]],
+             "` on host `", config$context[["machine"]], "`.\n",
              "```\n", e$message, "\n```"),
       channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
     )
@@ -168,4 +169,11 @@ if (isTRUE(attr(mySimOut, ".Cache")[["newCache"]])) {
 
 # end-of-sim notifications --------------------------------------------------------------------
 
-SpaDES.project::notify_slack(config$context[["runName"]], config$args[["notifications"]][["slackChannel"]])
+if (requireNamespace("notifications") & file.exists("~/.slackr")) {
+  notifications::notify_slack(
+    paste0("Simulation `", config$context[["runName"]],
+           "` completed on host `", config$context[["machine"]], "`",
+           if (nzchar(Sys.getenv("STY"))) paste0(" (screen `", Sys.getenv("STY"), "`)"), "."),
+    channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
+  )
+}

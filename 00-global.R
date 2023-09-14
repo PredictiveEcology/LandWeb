@@ -11,7 +11,7 @@ if (!grepl("renv", .libPaths()[1])) {
 
 prjDir <- SpaDES.project::findProjectPath()
 
-stopifnot(identical(normalizePath(prjDir), normalizePath(getwd())))
+stopifnot(identical(prjDir, normalizePath(getwd())))
 
 source("01a-globalvars.R")
 
@@ -27,7 +27,7 @@ options(
   repos = c(CRAN = "https://cloud.r-project.org")
 )
 
-# source("01-setup.R") ## package installation; now done using `renv`
+# source("01-setup.R") ## defunct package installation; now done using `renv`.
 library("data.table")
 library("plyr")
 library("pryr")
@@ -38,7 +38,6 @@ library("httr")
 library("LandR")
 library("LandWebUtils")
 library("notifications")
-library("sessioninfo")
 
 # configure project ---------------------------------------------------------------------------
 source("02-configure.R")
@@ -145,6 +144,7 @@ if (config$context[["mode"]] != "postprocess") {
   )
 
   dataPrepFile <- file.path(paths[["outputPath"]], paste0("simOutDataPrep_", config$context[["studyAreaName"]], ".qs"))
+
   simOutDataPrep <- Cache(simInitAndSpades,
                           times = list(start = 0, end = 1),
                           params = parameters2a, ## TODO: use config$params
@@ -156,14 +156,13 @@ if (config$context[["mode"]] != "postprocess") {
                           useCloud = config$args[["cloud"]][["useCloud"]],
                           cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                           userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "dataPrep"))
+  ## TODO: enforce correct species table types (LandR#90)
+  if (is(simOutDataPrep$species$postfireregen, "character")) {
+    simOutDataPrep$species$postfireregen <- as.factor(simOutDataPrep$species$postfireregen)
+  }
 
   if (isTRUE(attr(simOutDataPrep, ".Cache")[["newCache"]])) {
     simOutDataPrep@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
-    ## TODO: enforce correct species table types (LandR#90)
-    if (is(simOutDataPrep$species$postfireregen, "character")) {
-      simOutDataPrep$species$postfireregen <- as.factor(simOutDataPrep$species$postfireregen)
-    }
-
     saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)
   }
 
@@ -251,9 +250,8 @@ if (config$context[["mode"]] != "postprocess") {
                              userTags = c(config$context[["runName"]], "postprocess"))
     cat(capture.output(warnings()), file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"), sep = "\n")
   }, error = function(e) {
-    if (requireNamespace("slackr") & file.exists("~/.slackr")) {
-      slackr::slackr_setup()
-      slackr::slackr_msg(
+    if (requireNamespace("notifications") & file.exists("~/.slackr")) {
+      notifications::notify_slack(
         paste0("ERROR in post-processing `", config$context[["runName"]],
                "` on host `", config$context[["machine"]], "`.\n",
                "```\n", e$message, "\n```"),
@@ -292,14 +290,11 @@ if (config$context[["mode"]] != "postprocess") {
   }
 
   # end-of-sim notifications --------------------------------------------------------------------
-
-  if (requireNamespace("slackr") & file.exists("~/.slackr")) {
-    slackr::slackr_setup()
-    slackr::slackr_msg(
-      paste0("Post-processing for `", config$context[["runName"]], "` completed on host `", Sys.info()[["nodename"]], "`."),
-      channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
-    )
-  }
+  notifications::notify_slack(
+    paste0("Post-processing for `", config$context[["runName"]],
+           "` completed on host `", config$context[["machine"]], "`."),
+    channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
+  )
 }
 
 #source("11-post-sim.R")
