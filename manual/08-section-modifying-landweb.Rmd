@@ -135,13 +135,16 @@ Using an updated version of a data source requires only basic code modifications
 
 Here we show how to modify the `LandWeb_preamble` module to use a hypothetical new version of the longs-term historic fire cycle (LTHFC) map.
 
-1. looking at `LandWeb_preamble.R` we see that the current version of the file is `landweb_ltfc_v8.shp`.
+1. looking at `LandWeb_preamble.R` we see that the current version of the file is `landweb_ltfc_v8a.shp`.
 
 2. create a new spatial layer and save as `landweb_ltfc_v9.shp`.
 
 3. zip the new shapefile (with auxiliary files) upload this zip file to Google Drive as `landweb_ltfc_v9.zip`, making note of the Google Drive share URL.
 
 4. modify the **two** `mapAdd()` calls in `LandWeb_preamble.R` that reference the previous version (v8) of the LTHFC map to use the new (v9) Google Drive URL.
+
+See <https://github.com/PredictiveEcology/LandWeb/blob/development/R/new_lthfc.R> for the script that was used to make the v8a map from v8.
+See [this `LandWeb_preamble` commit](https://github.com/fRI-Research/LandWeb_preamble/commit/ce7a9f02efe44d7bc8bb3ad1f22bd13c1ec12856) to see how this new version was added to the preamble module.
 
 ## Contributing changes
 
