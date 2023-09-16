@@ -12,7 +12,7 @@ modules3 <- if (isTRUE(config$context[["succession"]])) {
 
 config$params[["LandMine"]] <- list(
   biggestPossibleFireSizeHa = 3e5, ## for MB
-  maxReburns = c(5L, 20L),
+  maxReburns = c(1L, 20L),
   maxRetriesPerID = 49L,
   .useCache = FALSE
 ) ## TODO: add these to config -- MB struggling to reach fire sizes
