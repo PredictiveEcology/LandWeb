@@ -138,7 +138,7 @@ tryCatch({
   capture.output(traceback(), file = file.path(config$paths[["logPath"]], "traceback_mainSim.txt"), split = TRUE)
 
   if (requireNamespace("notifications") & file.exists("~/.slackr")) {
-    notifications::notiy_slack(
+    notifications::notify_slack(
       paste0("ERROR in simulation `", config$context[["runName"]],
              "` on host `", config$context[["machine"]], "`.\n",
              "```\n", e$message, "\n```"),
