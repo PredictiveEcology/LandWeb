@@ -1,5 +1,13 @@
 # Modifying LandWeb
 
+:::{.rmdimportant}
+**Important note regarding caching:**
+
+When caching simulation events, modifications made to the code that do not change the input values to a function or module event will likely not trigger a re-evaluation of the cached call.
+For example, when adding new study areas within the `LandWeb_preamble` module (examples 1-3 below).
+Therefore, users will  need to clear their simulation caches to ensure these changes are picked up for caching.
+:::
+
 ## Example 1: adding new reporting polygons
 
 'Reporting polygons' refer to the polygons by which LandWeb results are summarized within the study area.
