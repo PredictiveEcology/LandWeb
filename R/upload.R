@@ -36,10 +36,10 @@ drive_upload_folder <- function(folder, drive_path, batch_size = 10) {
     dplyr::filter(type == "directory") |>
     dplyr::pull(path)
 
-  folderIDs <- drive_ls(drive_path)
+  folderIDs <- googledrive::drive_ls(drive_path)
   fid <- folderIDs[folderIDs[["name"]] == basename(folder), "id"][[1]]
   if (length(fid) == 0) {
-    fid <- drive_mkdir(basename(folder), drive_path)[["id"]]
+    fid <- googledrive::drive_mkdir(basename(folder), drive_path)[["id"]]
   }
 
   # Directly upload the files
@@ -81,14 +81,14 @@ archive::archive_write_dir(archive = z2, dir = file.path(outputPath, "histograms
 
 filesToUpload <- c(f0, f1, f2, z1, z2)
 
-LandWeb_Results <- as_id("0AEyFltUAISU-Uk9PVA")
+LandWeb_Results <- googledrive::as_id("0AEyFltUAISU-Uk9PVA")
 
-runName_Results <- drive_ls(LandWeb_Results)
+runName_Results <- googledrive::drive_ls(LandWeb_Results)
 
 gdrive_ID <- runName_Results[runName_Results[["name"]] == config$context[["runName"]], ][["id"]]
 
 if (length(gdrive_ID) == 0) {
-  gdrive_ID <- drive_mkdir(name = config$context[["runName"]], LandWeb_Results)[["id"]]
+  gdrive_ID <- googledrive::drive_mkdir(name = config$context[["runName"]], LandWeb_Results)[["id"]]
 }
 
 lapply(filesToUpload, function(f) {
