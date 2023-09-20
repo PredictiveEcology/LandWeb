@@ -213,26 +213,32 @@ Several packages used by LandWeb are only available on GitHub.
 Because we will be installing several of these, we want to ensure we can do so without GitHub rate-limiting our requests.
 Without a PAT, some packages may *temporarily* fail to install, but can be retried a little later (usually 1 hour).
 
-a.  Create a GitHub PAT following the instructions[^GH_PAT];
-b.  Be sure to uncheck all scopes.
-c.  Copy this token and save it in a text file in your home directory called `.Renviron`:
+a.  Create a GitHub Personal Acess Token (PAT):
 
-    Run the following in an R session to edit `~/.Renviron`:
+  i. either 'manually' following the instructions[^GH_PAT], making sure to check the `repo`, `workflow`, and `user:email` scopes;
+
+  ii. or directly from an R session:
 
     ```r
-    install.packages("usethis")
-    usethis::edit_r_environ()
+    # install.packages("usethis")
+    usethis::create_github_token()
     ```
 
-    Paste the following into the `.Renviron` file, using your copied token:
+b.  Securely store this token using the credential store, from an R session:
+
+    ```r
+    > gitcreds::gitcreds_set()
     
-    ```bash
-    GITHUB_PAT=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    ? Enter password or token: ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    -> Adding new credentials...
+    -> Removing credentials from cache...
+    -> Done.
     ```
     
 :::{.rmdwarning}
-If creating `~/.Renviron` using a text editor, be sure to save it *without* a `.txt` extension.
-Windows users in particular should ensure they edit this file via Rstudio per above, or use a proper text editor, e.g., `Notepad++` (<https://notepad-plus-plus.org/downloads/>).
+**Storing GitHub credentials in `.Renviron` is no longer recommended.**
+
+See <https://usethis.r-lib.org/articles/git-credentials.html>.
 :::
 
 3.  *Optional.* Install the latest version of `GitKraken` from <https://www.gitkraken.com/download/>.
