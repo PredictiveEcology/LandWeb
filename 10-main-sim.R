@@ -13,7 +13,7 @@ modules3 <- if (isTRUE(config$context[["succession"]])) {
 config$params[["LandMine"]] <- list(
   biggestPossibleFireSizeHa = 3e5, ## for MB
   maxReburns = c(1L, 20L),
-  maxRetriesPerID = 49L,
+  maxRetriesPerID = 9L,
   .useCache = FALSE
 ) ## TODO: add these to config -- MB struggling to reach fire sizes
 
@@ -137,12 +137,11 @@ tryCatch({
 }, error = function(e) {
   capture.output(traceback(), file = file.path(config$paths[["logPath"]], "traceback_mainSim.txt"), split = TRUE)
 
-  if (requireNamespace("notifications") & file.exists("~/.slackr")) {
-    notifications::notify_slack(
+  if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+    notifications::notify_google(
       paste0("ERROR in simulation `", config$context[["runName"]],
              "` on host `", config$context[["machine"]], "`.\n",
-             "```\n", e$message, "\n```"),
-      channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
+             "```\n", e$message, "\n```")
     )
 
     stop(e$message)
@@ -169,11 +168,10 @@ if (isTRUE(attr(mySimOut, ".Cache")[["newCache"]])) {
 
 # end-of-sim notifications --------------------------------------------------------------------
 
-if (requireNamespace("notifications") & file.exists("~/.slackr")) {
-  notifications::notify_slack(
+if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+  notifications::notify_google(
     paste0("Simulation `", config$context[["runName"]],
            "` completed on host `", config$context[["machine"]], "`",
-           if (nzchar(Sys.getenv("STY"))) paste0(" (screen `", Sys.getenv("STY"), "`)"), "."),
-    channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
+           if (nzchar(Sys.getenv("STY"))) paste0(" (screen `", Sys.getenv("STY"), "`)"), ".")
   )
 }

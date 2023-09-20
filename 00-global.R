@@ -173,17 +173,18 @@ if (config$context[["mode"]] != "postprocess") {
     config$params[["timeSeriesTimes"]] <- 450:500
   }
 
+  ## TODO: use config
   modules4 <- if (grepl("provMB", config$context[["studyAreaName"]])) {
     list(
-      "burnSummaries", ## TODO: add to config
-      "HSI_Caribou_MB", ## TODO: add to config
-      "LandMine", ## TODO: add to config - using 'multi' mode
+      "burnSummaries",
+      "HSI_Caribou_MB",
+      "LandMine", ## using 'multi' mode
       "LandWeb_summary"
     )
   } else {
     list(
-      "burnSummaries", ## TODO: add to config
-      "LandMine", ## TODO: add to config - using 'multi' mode
+      "burnSummaries",
+      "LandMine", ## using 'multi' mode
       "LandWeb_summary"
     )
   }
@@ -250,12 +251,11 @@ if (config$context[["mode"]] != "postprocess") {
                              userTags = c(config$context[["runName"]], "postprocess"))
     cat(capture.output(warnings()), file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"), sep = "\n")
   }, error = function(e) {
-    if (requireNamespace("notifications") & file.exists("~/.slackr")) {
-      notifications::notify_slack(
+    if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+      notifications::notify_google(
         paste0("ERROR in post-processing `", config$context[["runName"]],
                "` on host `", config$context[["machine"]], "`.\n",
-               "```\n", e$message, "\n```"),
-        channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
+               "```\n", e$message, "\n```")
       )
       stop(e$message)
     }
@@ -290,11 +290,12 @@ if (config$context[["mode"]] != "postprocess") {
   }
 
   # end-of-sim notifications --------------------------------------------------------------------
-  notifications::notify_slack(
-    paste0("Post-processing for `", config$context[["runName"]],
-           "` completed on host `", config$context[["machine"]], "`."),
-    channel = config$args[["notifications"]][["slackChannel"]], preformatted = FALSE
-  )
+  if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+    notifications::notify_google(
+      paste0("Post-processing for `", config$context[["runName"]],
+             "` completed on host `", config$context[["machine"]], "`.")
+    )
+  }
 }
 
 #source("11-post-sim.R")
