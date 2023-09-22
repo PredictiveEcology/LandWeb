@@ -18,7 +18,7 @@ The following section provides details on installing prerequisite software for r
 :::{.rmdwarning}
 **If you prefer to not use Docker, skip this subsection.**
 
-Due to idiosyncratic difficulties of installing multiple pieces of software and ensuring the correct versions are used throughout, we provide prebuilt Docker (<https://www.docker.com/>) images, which better provides a consistent and reproducible software environment for running the model.
+Due to idiosyncratic difficulties of installing multiple pieces of software and ensuring the correct versions are used throughout, we provide prebuilt [Docker](https://www.docker.com/) images, which better provides a consistent and reproducible software environment for running the model.
 
 Thus, using these images are preferred over 'bare-metal' installation.
 :::
