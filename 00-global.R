@@ -53,6 +53,8 @@ if (config$args[["delayStart"]] > 0) {
 
 objects1 <- list()
 
+config$params[["LandWeb_preamble"]][["mergeSlivers"]] <- FALSE ## TODO: awaiting decision re: merging slivers
+
 parameters1 <- list(
   .globals = config$params[[".globals"]],
   LandWeb_preamble = config$params[["LandWeb_preamble"]]
