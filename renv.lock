@@ -3550,22 +3550,8 @@
     },
     "qs": {
       "Package": "qs",
-      "Version": "0.25.4",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "qs",
-      "RemoteRef": "qs",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.25.4",
-      "Requirements": [
-        "R",
-        "RApiSerialize",
-        "Rcpp",
-        "stringfish"
-      ],
-      "Hash": "ffc0d1d65ca061b04ab23e790828d897"
+      "Version": "0.25.5",
+      "Source": "Repository"
     },
     "quantreg": {
       "Package": "quantreg",

@@ -229,7 +229,7 @@ Imports:
     pryr (== 0.1.6),
     ps (== 1.7.2),
     purrr (== 1.0.1),
-    qs (== 0.25.4),
+    qs (== 0.25.5),
     quantreg (== 5.94),
     quickPlot (== 0.1.8.9000),
     R.methodsS3 (== 1.8.2),
