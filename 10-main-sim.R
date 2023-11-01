@@ -65,36 +65,43 @@ analysesOutputsTimes <- LandWebUtils::analysesOutputsTimes(
   config$params[[".globals"]][["summaryPeriod"]], config$params[[".globals"]][["summaryInterval"]]
 )
 
-objectNamesToSave <- c("rstTimeSinceFire", "vegTypeMap")
+objectNamesToSave <- c("cohortData", "pixelGroupMap", "standAgeMap", "rstTimeSinceFire", "vegTypeMap")
 
-outputs3a <- data.frame(stringsAsFactors = FALSE,
-                        expand.grid(
-                          objectName = objectNamesToSave,
-                          saveTime = c(config$args[["timeSeriesTimes"]], analysesOutputsTimes)
-                        ),
-                        fun = "writeRaster", package = "raster",
-                        file = paste0(objectNamesToSave, c(".tif", ".grd")))
-outputs3a$arguments <- I(rep(list(list(overwrite = TRUE, progress = FALSE,
-                                       datatype = "INT2U", format = "GTiff"),
-                                  list(overwrite = TRUE, progress = FALSE,
-                                       datatype = "INT1U", format = "raster")),
-                             times = NROW(outputs3a) / length(objectNamesToSave)))
+outputs3a <- data.frame(
+  expand.grid(
+    objectName = objectNamesToSave,
+    saveTime = c(config$args[["timeSeriesTimes"]], analysesOutputsTimes)
+  ),
+  fun = c("qsave", "writeRaster", "writeRaster", "writeRaster", "writeRaster"),
+  package = c("qs", "raster", "raster", "raster", "raster"),
+  file = paste0(objectNamesToSave, c(".qs", ".tif", ".tif", ".tif", ".grd")),
+  stringsAsFactors = FALSE
+)
+outputs3a$arguments <- I(rep(list(
+  list(nthreads = 1),
+  list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
+  list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
+  list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
+  list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")
+), times = NROW(outputs3a) / length(objectNamesToSave)))
 
-outputs3b <- data.frame(stringsAsFactors = FALSE,
-                        expand.grid(objectName = c("simulationOutput"),
-                                    saveTime = times3$end),
-                        fun = c("saveRDS"),
-                        package = c("base"))
+outputs3b <- data.frame(
+  expand.grid(objectName = c("simulationOutput"), saveTime = times3$end),
+  fun = c("saveRDS"),
+  package = c("base"),
+  stringsAsFactors = FALSE
+)
 
-outputs3c <- data.frame(stringsAsFactors = FALSE,
-                        expand.grid(objectName = c("rstCurrentBurnCumulative", "rstFlammable"),
-                                    saveTime = times3$end),
-                        fun = c("writeRaster", "writeRaster"),
-                        package = c("raster", "raster"),
-                        arguments = I(list(list(overwrite = TRUE, progress = FALSE,
-                                                datatype = "INT2U", format = "GTiff"),
-                                           list(overwrite = TRUE, progress = FALSE,
-                                                datatype = "INT1U", format = "GTiff"))))
+outputs3c <- data.frame(
+  expand.grid(objectName = c("rstCurrentBurnCumulative", "rstFlammable"), saveTime = times3$end),
+  fun = c("writeRaster", "writeRaster"),
+  package = c("raster", "raster"),
+  arguments = I(list(list(overwrite = TRUE, progress = FALSE,
+                          datatype = "INT2U", format = "GTiff"),
+                     list(overwrite = TRUE, progress = FALSE,
+                          datatype = "INT1U", format = "GTiff"))),
+  stringsAsFactors = FALSE
+)
 
 outputs3 <- as.data.frame(data.table::rbindlist(list(outputs3a, outputs3b, outputs3c), fill = TRUE))
 
@@ -118,8 +125,6 @@ if ("screen" %in% config$params[[".globals"]][[".plots"]]) {
 }
 
 data.table::setDTthreads(config$params[[".globals"]][[".useParallel"]])
-
-fsim <- simFile("mySimOut", paths[["outputPath"]], config$args[["endTime"]], "qs")
 
 tryCatch({
   mySimOut <- simInitAndSpades(
@@ -148,9 +153,10 @@ tryCatch({
   }
 })
 
-if (isTRUE(attr(mySimOut, ".Cache")[["newCache"]])) {
-  mySimOut@.xData[["._sessionInfo"]] <- projectSessionInfo(prjDir)
+if (isUpdated(mySimOut) || isFALSE(config$args[["useCache"]])) {
+  mySimOut@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
 
+  fsim <- simFile("mySimOut", paths[["outputPath"]], config$args[["endTime"]], "qs")
   message("Saving simulation to: ", fsim)
   saveSimList(sim = mySimOut, filename = fsim, fileBackend = 2)
 

@@ -39,6 +39,8 @@ library("LandR")
 library("LandWebUtils")
 library("notifications")
 
+source("R/cache_helpers.R") ## TODO: remove once reproducible updated to latest version
+
 # configure project ---------------------------------------------------------------------------
 source("02-configure.R")
 
@@ -76,7 +78,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                         userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "preamble"))
 
-if (isTRUE(attr(simOutPreamble, ".Cache")[["newCache"]])) {
+if (isUpdated(simOutPreamble) || isFALSE(config$args[["useCache"]])) {
   simOutPreamble@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
   saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
   saveSimList(simOutPreamble, preambleFile, fileBackend = 2)
@@ -117,7 +119,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                              userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "speciesLayers"))
 
-if (isTRUE(attr(simOutSpeciesLayers, ".Cache")[["newCache"]])) {
+if (isUpdated(simOutSpeciesLayers) || isFALSE(config$args[["useCache"]])) {
   simOutSpeciesLayers@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
   saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
 }
@@ -163,7 +165,7 @@ if (config$context[["mode"]] != "postprocess") {
     simOutDataPrep$species$postfireregen <- as.factor(simOutDataPrep$species$postfireregen)
   }
 
-  if (isTRUE(attr(simOutDataPrep, ".Cache")[["newCache"]])) {
+  if (isUpdated(simOutDataPrep) || isFALSE(config$args[["useCache"]])) {
     simOutDataPrep@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
     saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)
   }
@@ -176,19 +178,14 @@ if (config$context[["mode"]] != "postprocess") {
   }
 
   ## TODO: use config
-  modules4 <- if (grepl("provMB", config$context[["studyAreaName"]])) {
-    list(
-      "burnSummaries",
-      "HSI_Caribou_MB",
-      "LandMine", ## using 'multi' mode
-      "LandWeb_summary"
-    )
-  } else {
-    list(
-      "burnSummaries",
-      "LandMine", ## using 'multi' mode
-      "LandWeb_summary"
-    )
+  modules4 <- list(
+    "burnSummaries",
+    "LandMine", ## using 'multi' mode
+    "LandWeb_summary"
+  )
+
+  if (grepl("provMB", config$context[["studyAreaName"]])) {
+    modules4 <- append(modules4, list("HSI_Caribou_MB"))
   }
 
   ## don't cache the init event
@@ -225,6 +222,7 @@ if (config$context[["mode"]] != "postprocess") {
   )
 
   objects4 <- list(
+    flammableMap = simOutPreamble[["rstFlammable"]],
     ml = simOutPreamble[["ml"]],
     speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
     sppColorVect = simOutPreamble[["sppColorVect"]],
