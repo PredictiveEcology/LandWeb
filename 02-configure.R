@@ -2,9 +2,12 @@ source("01c-exptTbl.R") ## TODO
 
 # configure project ---------------------------------------------------------------------------
 
-config <- SpaDES.config::useConfig(projectName = "LandWeb", projectPath = prjDir,
-                                   mode = .mode, rep = .rep, res = .res,
-                                   studyAreaName = .studyAreaName, version = .version)
+box::use(box/prjcfg)
+config <- prjcfg$landwebConfig$new(
+  projectName = "LandWeb", projectPath = prjDir,
+  mode = .mode, rep = .rep, res = .res,
+  studyAreaName = .studyAreaName, version = .version
+)$update()$validate()
 
 if (.version == 2) {
   config$context[["dispersalType"]] <- .dispersalType

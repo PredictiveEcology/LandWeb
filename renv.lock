@@ -32,12 +32,6 @@
       "Version": "1.1.3",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "DBI",
-      "RemoteRef": "DBI",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "1.1.3",
       "Requirements": [
         "R",
         "methods"
@@ -362,12 +356,6 @@
       "Version": "0.1.2",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "RApiSerialize",
-      "RemoteRef": "RApiSerialize",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.1.2",
       "Hash": "d8a79c95f553670ceffbd190815bbfce"
     },
     "RColorBrewer": {
@@ -375,12 +363,6 @@
       "Version": "1.1-3",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "RColorBrewer",
-      "RemoteRef": "RColorBrewer",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "1.1-3",
       "Requirements": [
         "R"
       ],
@@ -550,26 +532,25 @@
     },
     "SpaDES.config": {
       "Package": "SpaDES.config",
-      "Version": "0.0.2.9071",
+      "Version": "1.0.3",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.config",
       "RemoteRef": "development",
-      "RemoteSha": "d0f8ca039f3bc8e8b8f8f5bea54c83160ed1b470",
-      "RemoteHost": "api.github.com",
-      "Remotes": "PredictiveEcology/fireSenseUtils@development, PredictiveEcology/LandR@development, PredictiveEcology/pemisc@development, PredictiveEcology/reproducible@development, PredictiveEcology/Require@development, PredictiveEcology/scfmutils, PredictiveEcology/SpaDES.core@development, PredictiveEcology/SpaDES.project@transition",
+      "RemoteSha": "1ed1bfd60f2db1064a8151cfe96e862d63a35a13",
+      "Remotes": "PredictiveEcology/fireSenseUtils@development, PredictiveEcology/LandR@development, PredictiveEcology/pemisc@development, PredictiveEcology/reproducible@development, PredictiveEcology/scfmutils@development, PredictiveEcology/SpaDES.core@development",
       "Requirements": [
         "R",
         "R6",
-        "Require",
-        "SpaDES.project",
         "crayon",
+        "fs",
         "methods",
-        "tools",
+        "rprojroot",
         "utils"
       ],
-      "Hash": "a3796b7e2ee5c95966949de6f0754eb0"
+      "Hash": "38a3bea4b1033c48baf680069597a6c0"
     },
     "SpaDES.core": {
       "Package": "SpaDES.core",
@@ -881,12 +862,6 @@
       "Version": "1.4.1",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "backports",
-      "RemoteRef": "backports",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "1.4.1",
       "Requirements": [
         "R"
       ],
@@ -929,12 +904,6 @@
       "Version": "4.0.5",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "bit64",
-      "RemoteRef": "bit64",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "4.0.5",
       "Requirements": [
         "R",
         "bit",
@@ -970,12 +939,6 @@
       "Version": "1.2.3",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "blob",
-      "RemoteRef": "blob",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "1.2.3",
       "Requirements": [
         "methods",
         "rlang",
@@ -1011,6 +974,17 @@
         "stats"
       ],
       "Hash": "9a052fbcbe97a98ceb18dbfd30ebd96e"
+    },
+    "box": {
+      "Package": "box",
+      "Version": "1.1.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "tools"
+      ],
+      "Hash": "ce8187a260e8e3abc2294284badc3b76"
     },
     "brew": {
       "Package": "brew",
@@ -1554,12 +1528,6 @@
       "Version": "2.1.1",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "farver",
-      "RemoteRef": "farver",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "2.1.1",
       "Hash": "8106d78941f34855c440ddb946b8f7a5"
     },
     "fastdigest": {
@@ -1567,12 +1535,6 @@
       "Version": "0.6-3",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "fastdigest",
-      "RemoteRef": "fastdigest",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.6-3",
       "Hash": "9340d16db406dc224f90875b0e94eaea"
     },
     "fasterize": {
@@ -1698,12 +1660,6 @@
       "Version": "0.2.4",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "fpCompare",
-      "RemoteRef": "fpCompare",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.2.4",
       "Requirements": [
         "R"
       ],
@@ -2105,12 +2061,6 @@
       "Version": "0.4-7",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "gridBase",
-      "RemoteRef": "gridBase",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.4-7",
       "Requirements": [
         "R",
         "graphics",
@@ -2137,12 +2087,6 @@
       "Version": "0.3.1",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "gtable",
-      "RemoteRef": "gtable",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.3.1",
       "Requirements": [
         "R",
         "grid"
@@ -2488,12 +2432,6 @@
       "Version": "0.4.2",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "labeling",
-      "RemoteRef": "labeling",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.4.2",
       "Requirements": [
         "graphics",
         "stats"
@@ -2513,7 +2451,7 @@
     },
     "lattice": {
       "Package": "lattice",
-      "Version": "0.21-8",
+      "Version": "0.21-9",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2524,7 +2462,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "0b8a6d63c8770f02a8b5635f3c431e6b"
+      "Hash": "5558c61e0136e247252f5f952cdaad6a"
     },
     "latticeExtra": {
       "Package": "latticeExtra",
@@ -2680,12 +2618,6 @@
       "Version": "1.1.2",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "lobstr",
-      "RemoteRef": "lobstr",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "1.1.2",
       "Requirements": [
         "R",
         "cpp11",
@@ -2990,12 +2922,6 @@
       "Version": "0.5.0",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "munsell",
-      "RemoteRef": "munsell",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.5.0",
       "Requirements": [
         "colorspace",
         "methods"
@@ -3030,7 +2956,7 @@
     },
     "nlme": {
       "Package": "nlme",
-      "Version": "3.1-162",
+      "Version": "3.1-163",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3040,7 +2966,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "0984ce8da8da9ead8643c5cbbb60f83e"
+      "Hash": "8d1938040a05566f4f7a14af4feadd6b"
     },
     "nloptr": {
       "Package": "nloptr",
@@ -3316,12 +3242,6 @@
       "Version": "0.2.0",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "plogr",
-      "RemoteRef": "plogr",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.2.0",
       "Hash": "09eb987710984fc2905c7129c7d85e65"
     },
     "plot3D": {
@@ -3494,12 +3414,6 @@
       "Version": "0.4-27",
       "Source": "Repository",
       "Repository": "CRAN",
-      "RemoteType": "standard",
-      "RemotePkgRef": "proxy",
-      "RemoteRef": "proxy",
-      "RemoteRepos": "https://cran.rstudio.com",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.4-27",
       "Requirements": [
         "R",
         "stats",
@@ -3550,8 +3464,16 @@
     },
     "qs": {
       "Package": "qs",
-      "Version": "0.25.5",
-      "Source": "Repository"
+      "Version": "0.25.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "RApiSerialize",
+        "Rcpp",
+        "stringfish"
+      ],
+      "Hash": "ffc0d1d65ca061b04ab23e790828d897"
     },
     "quantreg": {
       "Package": "quantreg",
@@ -3708,10 +3630,12 @@
     "renv": {
       "Package": "renv",
       "Version": "1.0.3",
-      "OS_type": null,
-      "NeedsCompilation": "no",
+      "Source": "Repository",
       "Repository": "CRAN",
-      "Source": "Repository"
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "41b847654f567341725473431dd0d5ab"
     },
     "reproducible": {
       "Package": "reproducible",
@@ -3880,7 +3804,7 @@
     },
     "rpart": {
       "Package": "rpart",
-      "Version": "4.1.19",
+      "Version": "4.1.21",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3889,7 +3813,7 @@
         "graphics",
         "stats"
       ],
-      "Hash": "b3c892a81783376cc2204af0f5805a80"
+      "Hash": "d5bc1a16e01e50e08581f0c362d3955d"
     },
     "rprojroot": {
       "Package": "rprojroot",
@@ -4016,12 +3940,6 @@
       "Version": "1.2.1",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "scales",
-      "RemoteRef": "scales",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "1.2.1",
       "Requirements": [
         "R",
         "R6",
@@ -4257,6 +4175,19 @@
       ],
       "Hash": "14ee4bf0dbd2e53f86d161d161e5923e"
     },
+    "spatial": {
+      "Package": "spatial",
+      "Version": "7.3-17",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "graphics",
+        "stats",
+        "utils"
+      ],
+      "Hash": "1229a01b4ec059e9f2396724f2ec9010"
+    },
     "spatialEco": {
       "Package": "spatialEco",
       "Version": "2.0-0",
@@ -4444,12 +4375,6 @@
       "Version": "0.15.7",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "stringfish",
-      "RemoteRef": "stringfish",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.15.7",
       "Requirements": [
         "R",
         "Rcpp",
@@ -4800,12 +4725,6 @@
       "Version": "0.4.1",
       "Source": "Repository",
       "Repository": "RSPM",
-      "RemoteType": "standard",
-      "RemotePkgRef": "viridisLite",
-      "RemoteRef": "viridisLite",
-      "RemoteRepos": "https://packagemanager.rstudio.com/all/__linux__/focal/latest",
-      "RemotePkgPlatform": "source",
-      "RemoteSha": "0.4.1",
       "Requirements": [
         "R"
       ],

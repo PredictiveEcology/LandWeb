@@ -1,7 +1,21 @@
-# Require::pkgSnapshot("packages_2023-08-18.txt")
-pkgs <- read.csv("packages_2023-08-18.txt")
-cranPkgs <- pkgs[is.na(pkgs$GithubUsername), ]
-ghPkgs <- pkgs[!is.na(pkgs$GithubUsername), ]
+# # Require::pkgSnapshot("packages_2023-08-18.txt")
+# pkgs <- read.csv("packages_2023-08-18.txt")
+# cranPkgs <- pkgs[is.na(pkgs$GithubUsername), ]
+# ghPkgs <- pkgs[!is.na(pkgs$GithubUsername), ]
+
+library(data.table)
+
+options(Ncpus = min(parallel::detectCores() / 2, 24L))
+
+renv::snapshot(type = "all")
+
+pkgs <- jsonlite::fromJSON(txt = "renv.lock")[["Packages"]] |>
+  lapply(as.data.frame) |>
+  rbindlist(fill = TRUE)
+set(pkgs, NULL, "Requirements", NULL)
+pkgs <- pkgs[!duplicated(pkgs)]
+cranPkgs <- ghPkgs <- pkgs[is.na(RemoteUsername), ]
+ghPkgs <- pkgs[!is.na(pkgs$RemoteUsername), ]
 
 ## TODO: use SpaDES.project::description()
 usethis::use_description(fields = list(
@@ -32,7 +46,7 @@ usethis::use_description(fields = list(
   License = "GPL-3",
   Depends = paste0("R (== 4.2)", collapse = ",\n    "),
   Imports = paste0(pkgs$Package, " (== ", pkgs$Version, ")", collapse = ",\n    "),
-  Remotes = paste0(ghPkgs$GithubUsername, "/", ghPkgs$GithubRepo, "@", ghPkgs$GithubSHA1, collapse = ",\n    ")
+  Remotes = paste0(ghPkgs$RemoteUsername, "/", ghPkgs$RemoteRepo, "@", ghPkgs$RemoteSha, collapse = ",\n    ")
 ), check_name = FALSE, roxygen = FALSE)
 
 if (FALSE) {
