@@ -126,9 +126,18 @@ if (isUpdated(simOutSpeciesLayers) || isFALSE(config$args[["useCache"]])) {
 
 if (config$context[["mode"]] != "postprocess") {
   # Boreal data prep + main sim -----------------------------------------------------------------
+  modules2a <- c("Biomass_borealDataPrep") ## TODO: use config$modules
+
+  if (.version == 3L) {
+    modules2a <- c(modules2a, "Biomass_speciesParameters") ## TODO: use config$modules
+  }
+
   parameters2a <- list(
     .globals = config$params[[".globals"]],
-    Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]]
+    Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]],
+    Biomass_speciesParameters = list(
+      PSPdataTypes = "NFI"
+    ) ## TODO: add to config
   )
 
   objects2a <- list(
@@ -152,7 +161,7 @@ if (config$context[["mode"]] != "postprocess") {
   simOutDataPrep <- Cache(simInitAndSpades,
                           times = list(start = 0, end = 1),
                           params = parameters2a, ## TODO: use config$params
-                          modules = c("Biomass_borealDataPrep"), ## TODO: use config$modules
+                          modules = modules2a,
                           objects = objects2a,
                           paths = paths,
                           debug = 1,

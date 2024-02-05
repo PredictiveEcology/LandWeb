@@ -39,3 +39,6 @@
 [submodule "m/burnSummaries"]
 	path = m/burnSummaries
 	url = https://github.com/PredictiveEcology/burnSummaries
+[submodule "m/Biomass_speciesParameters"]
+	path = m/Biomass_speciesParameters
+	url = https://github.com/PredictiveEcology/Biomass_speciesParameters
