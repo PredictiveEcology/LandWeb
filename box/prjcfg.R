@@ -112,7 +112,7 @@ landwebContext <- R6::R6Class(
         runName = self$runName
       )
 
-      info <- .context2md(cntxt)
+      info <- context2md(cntxt)
 
       message(info)
 

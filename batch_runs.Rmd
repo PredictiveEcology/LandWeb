@@ -11,7 +11,111 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## LandWeb v3
 
-Running v3 of the model:
+Running v3 of the model with specific version of R:
+
+```bash
+screen -d -m -S LandWeb_v3_01 xvfb-run -a Rscript-4.2.3 -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_02 xvfb-run -a Rscript-4.2.3 -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_03 xvfb-run -a Rscript-4.2.3 -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_04 xvfb-run -a Rscript-4.2.3 -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_05 xvfb-run -a Rscript-4.2.3 -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_06 xvfb-run -a Rscript-4.2.3 -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_07 xvfb-run -a Rscript-4.2.3 -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_08 xvfb-run -a Rscript-4.2.3 -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_09 xvfb-run -a Rscript-4.2.3 -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_10 xvfb-run -a Rscript-4.2.3 -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_11 xvfb-run -a Rscript-4.2.3 -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_12 xvfb-run -a Rscript-4.2.3 -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_13 xvfb-run -a Rscript-4.2.3 -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_14 xvfb-run -a Rscript-4.2.3 -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_15 xvfb-run -a Rscript-4.2.3 -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+screen -d -m -S LandWeb_v3_16 xvfb-run -a Rscript-4.2.3 -e '16L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_17 xvfb-run -a Rscript-4.2.3 -e '17L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_18 xvfb-run -a Rscript-4.2.3 -e '18L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_19 xvfb-run -a Rscript-4.2.3 -e '19L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_20 xvfb-run -a Rscript-4.2.3 -e '20L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_21 xvfb-run -a Rscript-4.2.3 -e '21L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_22 xvfb-run -a Rscript-4.2.3 -e '22L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_23 xvfb-run -a Rscript-4.2.3 -e '23L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_24 xvfb-run -a Rscript-4.2.3 -e '24L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_25 xvfb-run -a Rscript-4.2.3 -e '25L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_26 xvfb-run -a Rscript-4.2.3 -e '26L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_27 xvfb-run -a Rscript-4.2.3 -e '27L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_28 xvfb-run -a Rscript-4.2.3 -e '28L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_29 xvfb-run -a Rscript-4.2.3 -e '29L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_30 xvfb-run -a Rscript-4.2.3 -e '30L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_31 xvfb-run -a Rscript-4.2.3 -e '31L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_32 xvfb-run -a Rscript-4.2.3 -e '32L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_33 xvfb-run -a Rscript-4.2.3 -e '33L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_34 xvfb-run -a Rscript-4.2.3 -e '34L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_35 xvfb-run -a Rscript-4.2.3 -e '35L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_36 xvfb-run -a Rscript-4.2.3 -e '36L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_37 xvfb-run -a Rscript-4.2.3 -e '37L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_38 xvfb-run -a Rscript-4.2.3 -e '38L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_39 xvfb-run -a Rscript-4.2.3 -e '39L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_40 xvfb-run -a Rscript-4.2.3 -e '40L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_41 xvfb-run -a Rscript-4.2.3 -e '41L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_42 xvfb-run -a Rscript-4.2.3 -e '42L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_43 xvfb-run -a Rscript-4.2.3 -e '43L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_44 xvfb-run -a Rscript-4.2.3 -e '44L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_45 xvfb-run -a Rscript-4.2.3 -e '45L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_46 xvfb-run -a Rscript-4.2.3 -e '46L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_47 xvfb-run -a Rscript-4.2.3 -e '47L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_48 xvfb-run -a Rscript-4.2.3 -e '48L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_49 xvfb-run -a Rscript-4.2.3 -e '49L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S LandWeb_v3_50 xvfb-run -a Rscript-4.2.3 -e '50L -> .rep; .mode <- "production"; .studyAreaName <- "LandWeb"; .version <- 3; source("00-global.R")'
+sleep 5
+```
+
+Running v3 of the model with current version of R:
 
 ```bash
 screen -d -m -S LandWeb_01 ./run_landweb3.sh 1
