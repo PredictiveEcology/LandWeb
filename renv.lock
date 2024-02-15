@@ -203,14 +203,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "0.1.7",
+      "Version": "1.0.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "dcb26fe3308d0f572de5036d7f115d8eff5f9887",
+      "RemoteSha": "c8bb13aa23906170788ad34601a08daa3f981d08",
       "Remotes": "PredictiveEcology/LandR@LandWeb, PredictiveEcology/map@development, PredictiveEcology/pemisc@development, cran/SDMTools, PredictiveEcology/SpaDES.tools@development",
       "Requirements": [
         "LandR",
@@ -233,7 +233,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "2ae1f697aa8e5fd19be8840f0d5cb689"
+      "Hash": "e5ac081ea494cd08671ea02c47820a7e"
     },
     "MASS": {
       "Package": "MASS",
@@ -508,7 +508,7 @@
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "Require",
       "RemoteRef": "dev-stable",
-      "RemoteSha": "4a25e88e8b4ca6627299408ad5a41d1b985494d4",
+      "RemoteSha": "fe3273f67c96c81d1de3f624ab4b16bcf696d6d9",
       "Requirements": [
         "R",
         "data.table",
@@ -516,7 +516,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "6ac58edcb887d63949a18d02aa8ea4dd"
+      "Hash": "32f8551576e66ad28b16e7b3926b0403"
     },
     "SDMTools": {
       "Package": "SDMTools",
