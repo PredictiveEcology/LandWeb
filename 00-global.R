@@ -128,16 +128,14 @@ if (config$context[["mode"]] != "postprocess") {
   # Boreal data prep + main sim -----------------------------------------------------------------
   modules2a <- c("Biomass_borealDataPrep") ## TODO: use config$modules
 
-  if (.version == 3L) {
-    modules2a <- c(modules2a, "Biomass_speciesParameters") ## TODO: use config$modules
-  }
+  # if (.version == 3L) {
+  #   modules2a <- c(modules2a, "Biomass_speciesParameters") ## TODO: use config$modules
+  # }
 
   parameters2a <- list(
     .globals = config$params[[".globals"]],
-    Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]],
-    Biomass_speciesParameters = list(
-      PSPdataTypes = "NFI"
-    ) ## TODO: add to config
+    Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]]#,
+    # Biomass_speciesParameters = config$params[["Biomass_speciesParameters"]]
   )
 
   objects2a <- list(
