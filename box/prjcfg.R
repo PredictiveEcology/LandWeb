@@ -364,15 +364,17 @@ landwebConfig <- R6::R6Class(
         .globals = list(
           fireTimestep = 1L,
           initialB = if (.version == 2) NA_real_ else 10,
+          # reps = 1L:15L, ## TODO: used elsewhere to setup runs (expt table)?
+          # simOutputPath = self$paths[["outputPath"]],
           sppEquivCol = "LandWeb",
           successionTimestep = 10,
           summaryInterval = 100,
           summaryPeriod = c(700, 1000),
           vegLeadingProportion = 0.8,
           .plotInitialTime = 0,
-          .plots = c("object", "png", "raw", "screen"),
+          .plots = c("png"),  # c("object", "png", "raw", "screen"),
           .sslVerify = 0L, ## TODO: temporary to deal with NFI server SSL issues
-          .studyAreaName = "random",
+          .studyAreaName = self$context[["studyAreaName"]],
           .useParallel = 2 ## doesn't benefit from more DT threads
         ),
         Biomass_borealDataPrep = list(
@@ -449,6 +451,7 @@ landwebConfig <- R6::R6Class(
           useSeed = NULL, ## NULL to avoid setting a seed
           .plotInitialTime = 1, ## sim(start) + 1
           .plotInterval = 1,
+          .studyAreaName = self$context[["studyAreaName"]],
           .unitTest = TRUE,
           .useCache = FALSE
         ),
@@ -483,6 +486,7 @@ landwebConfig <- R6::R6Class(
           version = .version,
           .makeTiles = FALSE, ## no tiles until parallel tile creation resolved (ropensci/tiler#18)
           .plotInitialTime = 0, ## sim(start)
+          .studyAreaName = self$context[["studyAreaName"]],
           .useCache = c(".inputObjects", "animation", "postprocess"), ## don't cache 'init'
           .useParallel = self$options[["map.maxNumCores"]]
         ),

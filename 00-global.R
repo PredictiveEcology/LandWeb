@@ -204,27 +204,24 @@ if (config$context[["mode"]] != "postprocess") {
   config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.useParallel")
 
   ## adjust N reps as needed:
+  config$params[[".globals"]][["reps"]] <- 1L:15L ## TODO: not all previous runs used 1:15
   if (config$context[["studyAreaName"]] == "LandWeb_full") {
-    config$params[["LandWeb_summary"]][["reps"]] <- 1L:50L
+    config$params[[".globals"]][["reps"]] <- 1L:50L
+  } else {
+
   }
+  config$params[["burnSummaries"]][["reps"]] <- config$params[[".globals"]][["reps"]]
+  config$params[["LandMine"]][["reps"]] <- config$params[[".globals"]][["reps"]]
+  config$params[["LandWeb_summary"]][["reps"]] <- config$params[[".globals"]][["reps"]]
 
   getOption("map.maxNumCores")
   options(map.maxNumCores = .ncores)
 
   parameters4 <- list(
     .globals = config$params[[".globals"]],
-    burnSummaries = list( ## TODO: add to config
-      reps = 1L:15L,
-      simOutputPath = "outputs",
-      .studyAreaName = config$context[["studyAreaName"]]
-    ),
-    HSI_caribou_MB = config$params[["HSI_Caribou_MB"]], ## TODO: add to config
-    LandMine = list( ## TODO: add to config
-      mode = "multi",
-      reps = 1L:15L,
-      simOutputPath = "outputs",
-      .studyAreaName = config$context[["studyAreaName"]]
-    ),
+    burnSummaries = config$params[["burnSummaries"]],
+    HSI_caribou_MB = config$params[["HSI_Caribou_MB"]],
+    LandMine = config$params[["LandMine"]],
     LandWeb_summary = config$params[["LandWeb_summary"]]
   )
 
