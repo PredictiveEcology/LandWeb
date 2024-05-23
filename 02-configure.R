@@ -2,8 +2,8 @@ source("01c-exptTbl.R") ## TODO
 
 # configure project ---------------------------------------------------------------------------
 
-box::use(box/prjcfg)
-config <- prjcfg$landwebConfig$new(
+box::use(box/landweb)
+config <- landweb$landwebConfig$new(
   projectName = "LandWeb", projectPath = prjDir,
   mode = .mode, rep = .rep, res = .res,
   studyAreaName = .studyAreaName, version = .version
