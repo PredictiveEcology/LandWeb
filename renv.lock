@@ -49,6 +49,16 @@
       ],
       "Hash": "3d75dd10e7228c9d734237dda013ed90"
     },
+    "DEoptimR": {
+      "Package": "DEoptimR",
+      "Version": "1.1-3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "stats"
+      ],
+      "Hash": "72f87e0092e39384aee16df8d67d7410"
+    },
     "DT": {
       "Package": "DT",
       "Version": "0.28",
@@ -3781,6 +3791,21 @@
         "survival"
       ],
       "Hash": "ca879f7cadf624568f827f4b5766cd10"
+    },
+    "robustbase": {
+      "Package": "robustbase",
+      "Version": "0.99-2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "DEoptimR",
+        "R",
+        "graphics",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "bae2e53c94459ff147aef478eac6ee94"
     },
     "rosm": {
       "Package": "rosm",
