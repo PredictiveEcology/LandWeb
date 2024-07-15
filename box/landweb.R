@@ -389,7 +389,7 @@ landwebConfig <- R6::R6Class(
           pixelGroupBiomassClass = 1000, ## 1000 / mapResFact^2; can be coarse because initial conditions are irrelevant
           subsetDataAgeModel = 100,
           subsetDataBiomassModel = 100,
-          speciesTableAreas = c("BSW", "BP", "MC"), ## TODO: should we remove BP? MC?
+          speciesTableAreas = c("BSW", "BP", "MC"),
           speciesUpdateFunction = list(
             quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
             quote(LandR::updateSpeciesTable(sim$species, sim$speciesParams))
