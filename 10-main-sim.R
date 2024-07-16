@@ -79,7 +79,7 @@ outputs3a <- data.frame(
 )
 outputs3a$arguments <- I(rep(list(
   list(nthreads = 1),
-  list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
+  list(overwrite = TRUE, progress = FALSE, format = "GTiff"),
   list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
   list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
   list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")
