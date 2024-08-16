@@ -72,7 +72,8 @@ simOutPreamble <- Cache(simInitAndSpades,
                         modules = c("LandWeb_preamble"), ## TODO: use config$modules
                         objects = objects1,
                         paths = paths,
-                        debug = 1,
+                        debug = list(file = list(file = file.path(config$paths[["logPath"]], "01-preamble.log"),
+                                                 append = TRUE), debug = 1),
                         omitArgs = c("debug", "paths", ".plotInitialTime"),
                         useCloud = config$args[["cloud"]][["useCloud"]],
                         cloudFolderID = config$args[["cloud"]][["cacheDir"]],
@@ -113,7 +114,8 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              modules = c("Biomass_speciesData"),  ## TODO: use config$modules
                              objects = objects2,
                              paths = paths,
-                             debug = 1,
+                             debug = list(file = list(file = file.path(config$paths[["logPath"]], "02-speciesLayers.log"),
+                                                      append = TRUE), debug = 1),
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
                              useCloud = config$args[["cloud"]][["useCloud"]],
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
@@ -162,7 +164,8 @@ if (config$context[["mode"]] != "postprocess") {
                           modules = modules2a,
                           objects = objects2a,
                           paths = paths,
-                          debug = 1,
+                          debug = list(file = list(file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"),
+                                                   append = TRUE), debug = 1),
                           omitArgs = c("debug", "paths", ".plotInitialTime"),
                           useCloud = config$args[["cloud"]][["useCloud"]],
                           cloudFolderID = config$args[["cloud"]][["cacheDir"]],
@@ -247,7 +250,7 @@ if (config$context[["mode"]] != "postprocess") {
                              paths = paths,
                              loadOrder = unlist(modules4), ## TODO: use config$modules
                              #cl = cl, ## TODO: get parallel processing working !!!
-                             debug = list(file = list(file = file.path(config$paths[["logPath"]], "summaries.log"),
+                             debug = list(file = list(file = file.path(config$paths[["logPath"]], "04-summaries.log"),
                                                       append = TRUE), debug = 1),
                              useCloud = FALSE, ## TODO param useCloud??
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],

@@ -135,7 +135,7 @@ tryCatch({
     objects = objects3,
     paths = paths,
     loadOrder = unlist(modules3), ## TODO: use config$modules
-    debug = list(file = list(file = file.path(config$paths[["logPath"]], "sim.log"),
+    debug = list(file = list(file = file.path(config$paths[["logPath"]], "03-sim.log"),
                              append = TRUE), debug = 1)
   )
   capture.output(warnings(), file = file.path(config$paths[["logPath"]], "warnings.txt"), split = TRUE)
