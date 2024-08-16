@@ -207,15 +207,16 @@ if (config$context[["mode"]] != "postprocess") {
   config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.useParallel")
 
   ## adjust N reps as needed:
-  config$params[[".globals"]][["reps"]] <- 1L:15L ## TODO: not all previous runs used 1:15
   if (config$context[["studyAreaName"]] == "LandWeb_full") {
     config$params[[".globals"]][["reps"]] <- 1L:50L
   } else {
-
+    config$params[[".globals"]][["reps"]] <- 1L:15L ## TODO: not all previous runs used 1:15
   }
   config$params[["burnSummaries"]][["reps"]] <- config$params[[".globals"]][["reps"]]
   config$params[["LandMine"]][["reps"]] <- config$params[[".globals"]][["reps"]]
   config$params[["LandWeb_summary"]][["reps"]] <- config$params[[".globals"]][["reps"]]
+
+  # config$params[["LandWeb_summary"]][["standAgeMapFromCohorts"]] <- FALSE
 
   getOption("map.maxNumCores")
   options(map.maxNumCores = .ncores)

@@ -82,7 +82,7 @@ outputs3a$arguments <- I(rep(list(
   list(overwrite = TRUE, progress = FALSE, format = "GTiff"),
   list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
   list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
-  list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster")
+  list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster") ## TODO: use GTiff
 ), times = NROW(outputs3a) / length(objectNamesToSave)))
 
 outputs3b <- data.frame(
