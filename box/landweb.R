@@ -301,12 +301,13 @@ landwebConfig <- R6::R6Class(
           useCloud = FALSE
         ),
         delayStart = 0,
+        fsimext = "rds", ## TODO: use "qs" once SpaDES.core is fixed
         endTime = 1000, ## TODO: use `simYears = list(start = 0, end = 1000)` in order to use
         ##       `self$args$simYears$start` instead of hardgoding `start(sim)`
         notifications = list(
           slackChannel = ""
         ),
-        useCache = FALSE ## simulation caching
+        useCache = FALSE ## TODO: caching simulations broken in SpaDES.core
       )
 
       # modules ------------------------------------------------------------------------------------
@@ -396,7 +397,7 @@ landwebConfig <- R6::R6Class(
           ),
           useCloudCacheForStats = FALSE, ## TODO: re-enable once errors in species levels resolved
           .plotInitialTime = 0, ## sim(start)
-          .useCache = c(".inputObjects", "init")
+          .useCache = self$args[["useCache"]]
         ),
         Biomass_core = list(
           growthInitialTime = 0, ## start(sim)
@@ -404,17 +405,17 @@ landwebConfig <- R6::R6Class(
           seedingAlgorithm = "wardDispersal",
           .maxMemory = if (format(pemisc::availableMemory(), units = "GiB") > 130) 5 else 2, ## GB
           .plotInitialTime = 0, ## sim(start)
-          .useCache = c(".inputObjects", "init")
+          .useCache = self$args[["useCache"]]
         ),
         Biomass_regeneration = list(
           fireInitialTime = 1, ## start(sim, "year") + 1
           .plotInitialTime = 0, ## sim(start)
-          .useCache = c(".inputObjects", "init")
+          .useCache = self$args[["useCache"]]
         ),
         Biomass_speciesData = list(
           types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
           .plots = c("png"),
-          .useCache = c(".inputObjects", "init")
+          .useCache = self$args[["useCache"]]
         ),
         Biomass_speciesParameters = list(
           PSPdataTypes = "NFI"
@@ -436,7 +437,7 @@ landwebConfig <- R6::R6Class(
           version = .version,
           .makeTiles = FALSE, ## no tiles until parallel tile creation resolved (ropensci/tiler#18)
           .plotInitialTime = 0, ## sim(start)
-          .useCache = c(".inputObjects", "postprocess"), ## don't cache 'init'
+          .useCache = self$args[["useCache"]],
           .useParallel = self$options[["map.maxNumCores"]]
         ),
         LandMine = list(
@@ -453,12 +454,12 @@ landwebConfig <- R6::R6Class(
           .plotInterval = 1,
           .studyAreaName = self$context[["studyAreaName"]],
           .unitTest = TRUE,
-          .useCache = FALSE
+          .useCache = self$args[["useCache"]]
         ),
         LandWeb_output = list(
           summaryInterval = 100, ## also set in .globals
           .plotInitialTime = 0, ## sim(start)
-          .useCache = c(".inputObjects", "init")
+          .useCache = self$args[["useCache"]]
         ),
         LandWeb_preamble = list(
           bufferDist = 20000,        ## 20 km buffer
@@ -470,7 +471,7 @@ landwebConfig <- R6::R6Class(
           ROStype = self$context[["ROStype"]],
           treeClassesLCC = c(1:15, 20, 32, 34:36), ## should match B_bDP's forestedLCCClasses
           .plotInitialTime = 0, ## sim(start)
-          .useCache = c(".inputObjects") ## faster without caching for "init"
+          .useCache = self$args[["useCache"]]
         ),
         LandWeb_summary = list(
           ageClasses = c("Young", "Immature", "Mature", "Old"), ## LandWebUtils:::.ageClasses
@@ -488,12 +489,12 @@ landwebConfig <- R6::R6Class(
           .makeTiles = FALSE, ## no tiles until parallel tile creation resolved (ropensci/tiler#18)
           .plotInitialTime = 0, ## sim(start)
           .studyAreaName = self$context[["studyAreaName"]],
-          .useCache = c(".inputObjects", "animation", "postprocess"), ## don't cache 'init'
+          .useCache = self$args[["useCache"]],
           .useParallel = self$options[["map.maxNumCores"]]
         ),
         timeSinceFire = list(
           startTime = 1L,
-          .useCache = c(".inputObjects") ## faster without caching for "init"
+          .useCache = self$args[["useCache"]]
         )
       )
 

@@ -62,9 +62,11 @@ parameters1 <- list(
   LandWeb_preamble = config$params[["LandWeb_preamble"]]
 )
 
-preambleFile <- file.path(paths[["outputPath"]], paste0(
-  "simOutPreamble_", config$context[["studyAreaName"]], ".qs"
-))
+preambleFile <- simFile(
+  name = paste0("simOutPreamble_", config$context[["studyAreaName"]]),
+  path = paths[["outputPath"]],
+  ext = config$args[["fsimext"]]
+)
 
 simOutPreamble <- Cache(simInitAndSpades,
                         times = list(start = 0, end = 1),
@@ -75,6 +77,7 @@ simOutPreamble <- Cache(simInitAndSpades,
                         debug = list(file = list(file = file.path(config$paths[["logPath"]], "01-preamble.log"),
                                                  append = TRUE), debug = 1),
                         omitArgs = c("debug", "paths", ".plotInitialTime"),
+                        useCache = config$args[["useCache"]],
                         useCloud = config$args[["cloud"]][["useCloud"]],
                         cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                         userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "preamble"))
@@ -86,9 +89,6 @@ if (isUpdated(simOutPreamble) || isFALSE(config$args[["useCache"]])) {
 }
 
 # Species layers ------------------------------------------------------------------------------
-
-config$params[[".globals"]][[".plots"]] <- c("png") ## TODO: change in config
-config$params[["Biomass_speciesData"]][[".plots"]] <- c("png") ## TODO: change in config
 
 parameters2 <- list(
   .globals = config$params[[".globals"]],
@@ -104,9 +104,11 @@ objects2 <- list(
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
 )
 
-sppLayersFile <- file.path(paths[["outputPath"]], paste0(
-  "simOutSpeciesLayers_", config$context[["studyAreaName"]], ".qs"
-))
+sppLayersFile <- simFile(
+  name = paste0("simOutSpeciesLayers_", config$context[["studyAreaName"]]),
+  path = paths[["outputPath"]],
+  ext = config$args[["fsimext"]]
+)
 
 simOutSpeciesLayers <- Cache(simInitAndSpades,
                              times = list(start = 0, end = 1),
@@ -117,6 +119,7 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              debug = list(file = list(file = file.path(config$paths[["logPath"]], "02-speciesLayers.log"),
                                                       append = TRUE), debug = 1),
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
+                             useCache = config$args[["useCache"]],
                              useCloud = config$args[["cloud"]][["useCloud"]],
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                              userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "speciesLayers"))
@@ -156,7 +159,11 @@ if (config$context[["mode"]] != "postprocess") {
     studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
   )
 
-  dataPrepFile <- file.path(paths[["outputPath"]], paste0("simOutDataPrep_", config$context[["studyAreaName"]], ".qs"))
+  dataPrepFile <- simFile(
+    name = paste0("simOutDataPrep_", config$context[["studyAreaName"]]),
+    path = paths[["outputPath"]],
+    ext = config$args[["fsimext"]]
+  )
 
   simOutDataPrep <- Cache(simInitAndSpades,
                           times = list(start = 0, end = 1),
@@ -167,6 +174,7 @@ if (config$context[["mode"]] != "postprocess") {
                           debug = list(file = list(file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"),
                                                    append = TRUE), debug = 1),
                           omitArgs = c("debug", "paths", ".plotInitialTime"),
+                          useCache = config$args[["useCache"]],
                           useCloud = config$args[["cloud"]][["useCloud"]],
                           cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                           userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "dataPrep"))

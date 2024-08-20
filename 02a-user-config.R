@@ -15,7 +15,7 @@ config.user <- switch(
       )
     ),
     options = list(
-      reproducible.cacheSaveFormat = "qs",
+      reproducible.cacheSaveFormat = "rds", ## use "qs" when caching is fixed upstream
       reproducible.conn = SpaDES.config::dbConnCache("postgresql"),
       reproducible.useTerra = TRUE, ## TODO: add to config
       spades.memoryUseInterval = FALSE, ## TODO: temporary until callr/future cache bug fixed

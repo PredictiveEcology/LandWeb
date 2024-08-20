@@ -156,7 +156,12 @@ tryCatch({
 if (isUpdated(mySimOut) || isFALSE(config$args[["useCache"]])) {
   mySimOut@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
 
-  fsim <- simFile("mySimOut", paths[["outputPath"]], config$args[["endTime"]], "qs")
+  fsim <- simFile(
+    name = "mySimOut",
+    path = paths[["outputPath"]],
+    time = config$args[["endTime"]],
+    ext = config$args[["fsimext"]]
+  )
   message("Saving simulation to: ", fsim)
   saveSimList(sim = mySimOut, filename = fsim, fileBackend = 2)
 
