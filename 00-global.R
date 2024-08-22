@@ -74,8 +74,8 @@ simOutPreamble <- Cache(simInitAndSpades,
                         modules = c("LandWeb_preamble"), ## TODO: use config$modules
                         objects = objects1,
                         paths = paths,
-                        debug = list(file = list(file = file.path(config$paths[["logPath"]], "01-preamble.log"),
-                                                 append = TRUE), debug = 1),
+                        debug = list(file = file.path(config$paths[["logPath"]], "01-preamble.log"),
+                                     append = TRUE, debug = 1),
                         omitArgs = c("debug", "paths", ".plotInitialTime"),
                         useCache = config$args[["useCache"]],
                         useCloud = config$args[["cloud"]][["useCloud"]],
@@ -116,8 +116,8 @@ simOutSpeciesLayers <- Cache(simInitAndSpades,
                              modules = c("Biomass_speciesData"),  ## TODO: use config$modules
                              objects = objects2,
                              paths = paths,
-                             debug = list(file = list(file = file.path(config$paths[["logPath"]], "02-speciesLayers.log"),
-                                                      append = TRUE), debug = 1),
+                             debug = list(file = file.path(config$paths[["logPath"]], "02-speciesLayers.log"),
+                                          append = TRUE, debug = 1),
                              omitArgs = c("debug", "paths", ".plotInitialTime"),
                              useCache = config$args[["useCache"]],
                              useCloud = config$args[["cloud"]][["useCloud"]],
@@ -231,7 +231,7 @@ if (config$context[["mode"]] != "postprocess") {
 
   parameters4 <- list(
     .globals = config$params[[".globals"]],
-    burnSummaries = config$params[["burnSummaries"]],
+    burnSummaries = config$params[["burnSummaries"]], ## TODO: exclude for old runs
     HSI_caribou_MB = config$params[["HSI_Caribou_MB"]],
     LandMine = config$params[["LandMine"]],
     LandWeb_summary = config$params[["LandWeb_summary"]]
@@ -247,7 +247,11 @@ if (config$context[["mode"]] != "postprocess") {
 
   outputs4 <- NULL
 
-  fsim <- simFile("simOutSummaries", paths[["outputPath"]], NULL, "qs")
+  fsim <- simFile(
+    name = "simOutSummaries",
+    path = paths[["outputPath"]],
+    ext = config$args[["fsimext"]]
+  )
 
   tryCatch({
     simOutSummaries <- Cache(simInitAndSpades,
@@ -261,6 +265,7 @@ if (config$context[["mode"]] != "postprocess") {
                              #cl = cl, ## TODO: get parallel processing working !!!
                              debug = list(file = list(file = file.path(config$paths[["logPath"]], "04-summaries.log"),
                                                       append = TRUE), debug = 1),
+                             useCache = config$args[["useCache"]],
                              useCloud = FALSE, ## TODO param useCloud??
                              cloudFolderID = config$args[["cloud"]][["cacheDir"]],
                              omitArgs = c("debug", "paths"),
