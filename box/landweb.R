@@ -481,7 +481,7 @@ landwebConfig <- R6::R6Class(
           simOutputPath = self$paths[["outputPath"]],
           summaryInterval = 100,        ## also in .globals
           summaryPeriod = c(700, 1000), ## also in .globals
-          standAgeMapFromCohorts = TRUE, ## use FALSE for re-postprocessing old sims
+          standAgeMapFromCohorts = FALSE, ## use FALSE for re-postprocessing old sims (using TSF)
           timeSeriesTimes = 601:650,
           upload = FALSE,
           uploadTo = "", ## TODO: use google-ids.csv to define these per WBI?
