@@ -153,28 +153,26 @@ tryCatch({
   }
 })
 
-if (isUpdated(mySimOut) || isFALSE(config$args[["useCache"]])) {
-  mySimOut@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
+mySimOut@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
 
-  fsim <- simFile(
-    name = "mySimOut",
-    path = paths[["outputPath"]],
-    time = config$args[["endTime"]],
-    ext = config$args[["fsimext"]]
-  )
-  message("Saving simulation to: ", fsim)
-  saveSimList(sim = mySimOut, filename = fsim, fileBackend = 2)
+fsim <- simFile(
+  name = "mySimOut",
+  path = paths[["outputPath"]],
+  time = config$args[["endTime"]],
+  ext = config$args[["fsimext"]]
+)
+message("Saving simulation to: ", fsim)
+saveSimList(sim = mySimOut, filename = fsim, fileBackend = 2)
 
-  # save simulation stats -----------------------------------------------------------------------
-  elapsed <- elapsedTime(mySimOut)
-  data.table::fwrite(elapsed, file.path(paths[["outputPath"]], "elapsedTime.csv"))
-  qs::qsave(elapsed, file.path(paths[["outputPath"]], "elapsedTime.qs"))
+# save simulation stats -----------------------------------------------------------------------
+elapsed <- elapsedTime(mySimOut)
+data.table::fwrite(elapsed, file.path(paths[["outputPath"]], "elapsedTime.csv"))
+qs::qsave(elapsed, file.path(paths[["outputPath"]], "elapsedTime.qs"))
 
-  if (!isFALSE(getOption("spades.memoryUseInterval"))) {
-    memory <- memoryUse(mySimOut, max = TRUE)
-    data.table::fwrite(memory, file.path(paths[["outputPath"]], "memoryUsed.csv"))
-    qs::qsave(memory, file.path(paths[["outputPath"]], "memoryUsed.qs"))
-  }
+if (!isFALSE(getOption("spades.memoryUseInterval"))) {
+  memory <- memoryUse(mySimOut, max = TRUE)
+  data.table::fwrite(memory, file.path(paths[["outputPath"]], "memoryUsed.csv"))
+  qs::qsave(memory, file.path(paths[["outputPath"]], "memoryUsed.qs"))
 }
 
 # end-of-sim notifications --------------------------------------------------------------------
