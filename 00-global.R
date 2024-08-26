@@ -197,7 +197,7 @@ if (config$context[["mode"]] != "postprocess") {
 
   ## TODO: use config
   modules4 <- list(
-    "burnSummaries",
+    "burnSummaries", ## TODO: exclude for old runs
     "LandMine", ## using 'multi' mode
     "LandWeb_summary"
   )
