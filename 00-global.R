@@ -242,7 +242,9 @@ if (config$context[["mode"]] != "postprocess") {
     ml = simOutPreamble[["ml"]],
     speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
     sppColorVect = simOutPreamble[["sppColorVect"]],
-    sppEquiv = simOutPreamble[["sppEquiv"]]
+    sppEquiv = simOutPreamble[["sppEquiv"]],
+    studyArea = simOutPreamble[["studyArea"]],
+    studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
   )
 
   outputs4 <- NULL
