@@ -68,19 +68,32 @@ preambleFile <- simFile(
   ext = config$args[["fsimext"]]
 )
 
-simOutPreamble <- Cache(simInitAndSpades,
-                        times = list(start = 0, end = 1),
-                        params = parameters1, ## TODO: use config$params
-                        modules = c("LandWeb_preamble"), ## TODO: use config$modules
-                        objects = objects1,
-                        paths = paths,
-                        debug = list(file = list(file = file.path(config$paths[["logPath"]], "01-preamble.log"),
-                                                 append = TRUE), debug = 1),
-                        omitArgs = c("debug", "paths", ".plotInitialTime"),
-                        useCache = config$args[["useCache"]],
-                        useCloud = config$args[["cloud"]][["useCloud"]],
-                        cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                        userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "preamble"))
+tryCatch({
+  simOutPreamble <- Cache(
+    simInitAndSpades,
+    times = list(start = 0, end = 1),
+    params = parameters1, ## TODO: use config$params
+    modules = c("LandWeb_preamble"), ## TODO: use config$modules
+    objects = objects1,
+    paths = paths,
+    debug = list(file = list(file = file.path(config$paths[["logPath"]], "01-preamble.log"),
+                             append = TRUE), debug = 1),
+    omitArgs = c("debug", "paths", ".plotInitialTime"),
+    useCache = config$args[["useCache"]],
+    useCloud = config$args[["cloud"]][["useCloud"]],
+    cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+    userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "preamble")
+  )
+}, error = function(e) {
+  if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+    notifications::notify_google(
+      paste0("ERROR in preamble `", config$context[["runName"]],
+             "` on host `", config$context[["machine"]], "`.\n",
+             "```\n", e$message, "\n```")
+    )
+    stop(e$message)
+  }
+})
 
 if (isUpdated(simOutPreamble) || isFALSE(config$args[["useCache"]])) {
   simOutPreamble@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
@@ -110,19 +123,32 @@ sppLayersFile <- simFile(
   ext = config$args[["fsimext"]]
 )
 
-simOutSpeciesLayers <- Cache(simInitAndSpades,
-                             times = list(start = 0, end = 1),
-                             params = parameters2, ## TODO: use config$params
-                             modules = c("Biomass_speciesData"),  ## TODO: use config$modules
-                             objects = objects2,
-                             paths = paths,
-                             debug = list(file = list(file = file.path(config$paths[["logPath"]], "02-speciesLayers.log"),
-                                                      append = TRUE), debug = 1),
-                             omitArgs = c("debug", "paths", ".plotInitialTime"),
-                             useCache = config$args[["useCache"]],
-                             useCloud = config$args[["cloud"]][["useCloud"]],
-                             cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                             userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "speciesLayers"))
+tryCatch({
+  simOutSpeciesLayers <- Cache(
+    simInitAndSpades,
+    times = list(start = 0, end = 1),
+    params = parameters2, ## TODO: use config$params
+    modules = c("Biomass_speciesData"),  ## TODO: use config$modules
+    objects = objects2,
+    paths = paths,
+    debug = list(file = list(file = file.path(config$paths[["logPath"]], "02-speciesLayers.log"),
+                             append = TRUE), debug = 1),
+    omitArgs = c("debug", "paths", ".plotInitialTime"),
+    useCache = config$args[["useCache"]],
+    useCloud = config$args[["cloud"]][["useCloud"]],
+    cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+    userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "speciesLayers")
+  )
+}, error = function(e) {
+  if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+    notifications::notify_google(
+      paste0("ERROR in species layers `", config$context[["runName"]],
+             "` on host `", config$context[["machine"]], "`.\n",
+             "```\n", e$message, "\n```")
+    )
+    stop(e$message)
+  }
+})
 
 if (isUpdated(simOutSpeciesLayers) || isFALSE(config$args[["useCache"]])) {
   simOutSpeciesLayers@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
@@ -165,19 +191,33 @@ if (config$context[["mode"]] != "postprocess") {
     ext = config$args[["fsimext"]]
   )
 
-  simOutDataPrep <- Cache(simInitAndSpades,
-                          times = list(start = 0, end = 1),
-                          params = parameters2a, ## TODO: use config$params
-                          modules = modules2a,
-                          objects = objects2a,
-                          paths = paths,
-                          debug = list(file = list(file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"),
-                                                   append = TRUE), debug = 1),
-                          omitArgs = c("debug", "paths", ".plotInitialTime"),
-                          useCache = config$args[["useCache"]],
-                          useCloud = config$args[["cloud"]][["useCloud"]],
-                          cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                          userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "dataPrep"))
+  tryCatch({
+    simOutDataPrep <- Cache(
+      simInitAndSpades,
+      times = list(start = 0, end = 1),
+      params = parameters2a, ## TODO: use config$params
+      modules = modules2a,
+      objects = objects2a,
+      paths = paths,
+      debug = list(file = list(file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"),
+                               append = TRUE), debug = 1),
+      omitArgs = c("debug", "paths", ".plotInitialTime"),
+      useCache = config$args[["useCache"]],
+      useCloud = config$args[["cloud"]][["useCloud"]],
+      cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+      userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "dataPrep")
+    )
+  }, error = function(e) {
+    if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+      notifications::notify_google(
+        paste0("ERROR in data prep `", config$context[["runName"]],
+               "` on host `", config$context[["machine"]], "`.\n",
+               "```\n", e$message, "\n```")
+      )
+      stop(e$message)
+    }
+  })
+
   ## TODO: enforce correct species table types (LandR#90)
   if (is(simOutDataPrep$species$postfireregen, "character")) {
     simOutDataPrep$species$postfireregen <- as.factor(simOutDataPrep$species$postfireregen)
