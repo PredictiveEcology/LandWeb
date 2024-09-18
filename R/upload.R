@@ -4,7 +4,8 @@ library("googledrive")
 
 SpaDES.config::authGoogle(tryToken = "landweb")
 
-plan(multisession, workers = 8)
+# plan(multisession, workers = 8)
+plan(sequential)
 
 #' Upload a folder to Google Drive
 #'
