@@ -251,8 +251,9 @@ if (config$context[["mode"]] != "postprocess") {
   config$params[["LandWeb_summary"]][[".useCache"]] <- c(".inputObjects", "animation", "postprocess")
 
   ## NOTE: previous .useParallel value is too low for this module
-  config$params[[".globals"]][[".useParallel"]] <- getOption("map.useParallel")
-  config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.useParallel")
+  options(map.maxNumCores = min(.ncores, getOption("map.maxNumCores")))
+  config$params[[".globals"]][[".useParallel"]] <- getOption("map.maxNumCores")
+  config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.maxNumCores")
 
   ## adjust N reps as needed:
   if (config$context[["studyAreaName"]] == "LandWeb_full") {
@@ -265,9 +266,6 @@ if (config$context[["mode"]] != "postprocess") {
   config$params[["LandWeb_summary"]][["reps"]] <- config$params[[".globals"]][["reps"]]
 
   # config$params[["LandWeb_summary"]][["standAgeMapFromCohorts"]] <- FALSE
-
-  getOption("map.maxNumCores")
-  options(map.maxNumCores = .ncores)
 
   parameters4 <- list(
     .globals = config$params[[".globals"]],
