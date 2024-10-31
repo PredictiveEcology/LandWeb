@@ -447,7 +447,7 @@ landwebConfig <- R6::R6Class(
           maxRetriesPerID = 9L,
           minPropBurn = 0.90,
           mode = if ("postprocess" %in% self$context[["mode"]]) "multi" else "single",
-          ROSother = switch(self$context[["ROStype"]], burny = 6L, equal = 1L, log = log(30L), 30L),
+          ROSother = switch(self$context[["ROStype"]], equal = 1L, log = log(30L), 30L),
           ROStype = self$context[["ROStype"]],
           useSeed = NULL, ## NULL to avoid setting a seed
           .plotInitialTime = 1, ## sim(start) + 1
@@ -565,7 +565,7 @@ landwebConfig <- R6::R6Class(
           pixelGroupBiomassClass = 1000 / (250 / self$context[["pixelSize"]])^2 ## 1000 / mapResFact^2; can be coarse because initial conditions are irrelevant
         ),
         LandMine = list(
-          ROSother = switch(self$context[["ROStype"]], burny = 6L, equal = 1L, log = log(30L), 30L),
+          ROSother = switch(self$context[["ROStype"]], equal = 1L, log = log(30L), 30L),
           ROStype = self$context[["ROStype"]],
           .unitTest = if (self$context[["mode"]] == "production") FALSE else TRUE
         ),

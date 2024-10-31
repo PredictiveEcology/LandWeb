@@ -213,14 +213,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.1",
+      "Version": "1.0.2",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "81f923398ac37cd9656c3f1568958909651226da",
+      "RemoteSha": "2bea977a09fee4becc13f288ae7981f552f70bfa",
       "Remotes": "PredictiveEcology/LandR@LandWeb, PredictiveEcology/map@development, PredictiveEcology/pemisc@development, cran/SDMTools, PredictiveEcology/SpaDES.tools@development",
       "Requirements": [
         "LandR",
@@ -243,7 +243,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "e68e7732cdfc37f69669bc77ddb9f0de"
+      "Hash": "af309c04258f6449fd38f5fc7294b096"
     },
     "MASS": {
       "Package": "MASS",
