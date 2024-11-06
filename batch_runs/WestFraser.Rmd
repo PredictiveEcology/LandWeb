@@ -1,0 +1,121 @@
+---
+title: "West Fraser batch runs"
+author: "Alex M. Chubaty"
+date: "October 2024"
+output: html_document
+---
+
+## development
+
+```r
+.studyAreaName <- "BlueRidge"; .mode <- "development"; .version <- 2;
+
+.studyAreaName <- "Sundre"; .mode <- "development"; .version <- 2;
+
+# .studyAreaName <- "Tolko_AB_N"; .mode <- "development"; .version <- 2;
+.studyAreaName <- "Tolko_AB_N"; .mode <- "development"; .dispersalType <- "aspen"; .version <- 2;
+
+.studyAreaName <- "WestFraser_N"; .mode <- "development"; .version <- 2;
+```
+
+## production
+
+### Blue Ridge
+
+```bash
+# screen -d -m -S WFBR_01 Rscript -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_02 Rscript -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_03 Rscript -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_04 Rscript -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_05 Rscript -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+#screen -d -m -S WFBR_06 Rscript -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_07 Rscript -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_08 Rscript -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_09 Rscript -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_10 Rscript -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_11 Rscript -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_12 Rscript -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_13 Rscript -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_14 Rscript -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WFBR_15 Rscript -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+```
+
+## (formerly) Tolko AB North
+
+```bash
+# screen -d -m -S TLKN_01 Rscript -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_02 Rscript -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_03 Rscript -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_04 Rscript -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_05 Rscript -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+#screen -d -m -S TLKN_06 Rscript -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_07 Rscript -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_08 Rscript -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_09 Rscript -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_10 Rscript -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_11 Rscript -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_12 Rscript -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_13 Rscript -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_14 Rscript -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S TLKN_15 Rscript -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+```
+
+## Sundre Forest Products
+
+```bash
+# screen -d -m -S SNDR_01 Rscript -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_02 Rscript -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_03 Rscript -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_04 Rscript -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_05 Rscript -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+#screen -d -m -S SNDR_06 Rscript -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_07 Rscript -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_08 Rscript -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_09 Rscript -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_10 Rscript -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_11 Rscript -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_12 Rscript -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_13 Rscript -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_14 Rscript -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+# screen -d -m -S SNDR_15 Rscript -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+```
+
+
+## West Fraser North
+
+```bash
+# screen -d -m -S WF_N_01 Rscript -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_02 Rscript -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_03 Rscript -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_04 Rscript -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_05 Rscript -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_06 Rscript -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_07 Rscript -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_08 Rscript -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_09 Rscript -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_10 Rscript -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_11 Rscript -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_12 Rscript -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_13 Rscript -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_14 Rscript -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+# screen -d -m -S WF_N_15 Rscript -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+```
+
+## post-processing
+
+```r
+.studyAreaName <- "BlueRidge"; .mode <- "postprocess"; .version <- 2;
+
+.studyAreaName <- "Sundre"; .mode <- "postprocess"; .version <- 2;
+
+.studyAreaName <- "Tolko_AB_N"; .mode <- "postprocess"; .version <- 2; .dispersalType <- "aspen";
+
+.studyAreaName <- "WestFraser_N"; .mode <- "postprocess"; .version <- 2;
+```
+
+```bash
+screen -d -m -S WFBR_post xvfb-run -a Rscript -e '.mode <- "postprocess"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
+screen -d -m -S SNDR_post xvfb-run -a Rscript -e '.mode <- "postprocess"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
+screen -d -m -S TLKN_post xvfb-run -a Rscript -e '.mode <- "postprocess"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+screen -d -m -S WF_N_post xvfb-run -a Rscript -e '.mode <- "postprocess"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
+```

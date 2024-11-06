@@ -1,0 +1,129 @@
+---
+title: "Saskatchewan batch runs"
+author: "Alex M. Chubaty"
+date: "November 2023"
+output: html_document
+---
+
+## Saskatchewan runs v2 (highDispersal)
+
+```bash
+screen -d -m -S SK_01_hd xvfb-run -a Rscript-4.2.3 -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_02_hd xvfb-run -a Rscript-4.2.3 -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_03_hd xvfb-run -a Rscript-4.2.3 -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_04_hd xvfb-run -a Rscript-4.2.3 -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_05_hd xvfb-run -a Rscript-4.2.3 -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_06_hd xvfb-run -a Rscript-4.2.3 -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_07_hd xvfb-run -a Rscript-4.2.3 -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_08_hd xvfb-run -a Rscript-4.2.3 -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_09_hd xvfb-run -a Rscript-4.2.3 -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_10_hd xvfb-run -a Rscript-4.2.3 -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_11_hd xvfb-run -a Rscript-4.2.3 -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_12_hd xvfb-run -a Rscript-4.2.3 -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_13_hd xvfb-run -a Rscript-4.2.3 -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_14_hd xvfb-run -a Rscript-4.2.3 -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+screen -d -m -S SK_15_hd xvfb-run -a Rscript-4.2.3 -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default"; source("00-global.R")'
+```
+
+### post-processing
+
+```bash
+screen -S SK_highDisp_postprocess xvfb-run -a R-4.2.3 --no-save
+```
+
+```r
+.mode <- "postprocess"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "default";
+```
+
+## Saskatchewan runs v2 (highDispersal_logROS)
+
+```bash
+screen -d -m -S SK_01 xvfb-run -a Rscript-4.2.3 -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_02 xvfb-run -a Rscript-4.2.3 -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_03 xvfb-run -a Rscript-4.2.3 -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_04 xvfb-run -a Rscript-4.2.3 -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_05 xvfb-run -a Rscript-4.2.3 -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_06 xvfb-run -a Rscript-4.2.3 -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_07 xvfb-run -a Rscript-4.2.3 -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_08 xvfb-run -a Rscript-4.2.3 -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_09 xvfb-run -a Rscript-4.2.3 -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_10 xvfb-run -a Rscript-4.2.3 -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_11 xvfb-run -a Rscript-4.2.3 -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_12 xvfb-run -a Rscript-4.2.3 -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_13 xvfb-run -a Rscript-4.2.3 -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_14 xvfb-run -a Rscript-4.2.3 -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+screen -d -m -S SK_15 xvfb-run -a Rscript-4.2.3 -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; source("00-global.R")'
+```
+
+### post-processing
+
+```bash
+screen -S SK_postprocess xvfb-run -a R-4.2.3 --no-save
+```
+
+```r
+.mode <- "postprocess"; .studyAreaName <- "provSK"; .version <- 2;
+source("00-global.R")
+```
+
+## Saskatchewan runs v2 (highDispersal_burnyROS)
+
+```bash
+screen -d -m -S SK_01_brny xvfb-run -a Rscript-4.2.3 -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_02_brny xvfb-run -a Rscript-4.2.3 -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_03_brny xvfb-run -a Rscript-4.2.3 -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_04_brny xvfb-run -a Rscript-4.2.3 -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_05_brny xvfb-run -a Rscript-4.2.3 -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_06_brny xvfb-run -a Rscript-4.2.3 -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_07_brny xvfb-run -a Rscript-4.2.3 -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_08_brny xvfb-run -a Rscript-4.2.3 -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_09_brny xvfb-run -a Rscript-4.2.3 -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_10_brny xvfb-run -a Rscript-4.2.3 -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_11_brny xvfb-run -a Rscript-4.2.3 -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_12_brny xvfb-run -a Rscript-4.2.3 -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_13_brny xvfb-run -a Rscript-4.2.3 -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_14_brny xvfb-run -a Rscript-4.2.3 -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+screen -d -m -S SK_15_brny xvfb-run -a Rscript-4.2.3 -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny"; source("00-global.R")'
+```
+
+### post-processing
+
+```bash
+screen -S SK_burny_postprocess xvfb-run -a R-4.2.3 --no-save
+```
+
+```r
+.mode <- "postprocess"; .studyAreaName <- "provSK"; .version <- 2; .ROStype <- "burny";
+source("00-global.R")
+```
+
+## provSK runs v3
+
+```bash
+screen -d -m -S SKv3_01 xvfb-run -a Rscript-4.2.3 -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_02 xvfb-run -a Rscript-4.2.3 -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_03 xvfb-run -a Rscript-4.2.3 -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_04 xvfb-run -a Rscript-4.2.3 -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_05 xvfb-run -a Rscript-4.2.3 -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_06 xvfb-run -a Rscript-4.2.3 -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_07 xvfb-run -a Rscript-4.2.3 -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_08 xvfb-run -a Rscript-4.2.3 -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_09 xvfb-run -a Rscript-4.2.3 -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_10 xvfb-run -a Rscript-4.2.3 -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_11 xvfb-run -a Rscript-4.2.3 -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_12 xvfb-run -a Rscript-4.2.3 -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_13 xvfb-run -a Rscript-4.2.3 -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_14 xvfb-run -a Rscript-4.2.3 -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+screen -d -m -S SKv3_15 xvfb-run -a Rscript-4.2.3 -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "provSK"; .version <- 3; source("00-global.R")'
+```
+
+### post-processing
+
+```bash
+screen -S SK_v3_postprocess xvfb-run -a R-4.2.3 --no-save
+```
+
+```r
+.mode <- "postprocess"; .studyAreaName <- "provSK"; .version <- 3;
+source("00-global.R")
+```

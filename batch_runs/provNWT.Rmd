@@ -1,0 +1,53 @@
+---
+title: "Northwest Territories batch runs"
+author: "Alex M. Chubaty"
+date: "November 2024"
+output: html_document
+---
+
+## provNWT runs v3
+
+```bash
+screen -d -m -S NWTv3_01 xvfb-run -a Rscript-4.2.3 -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_02 xvfb-run -a Rscript-4.2.3 -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_03 xvfb-run -a Rscript-4.2.3 -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_04 xvfb-run -a Rscript-4.2.3 -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_05 xvfb-run -a Rscript-4.2.3 -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_06 xvfb-run -a Rscript-4.2.3 -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_07 xvfb-run -a Rscript-4.2.3 -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_08 xvfb-run -a Rscript-4.2.3 -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_09 xvfb-run -a Rscript-4.2.3 -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_10 xvfb-run -a Rscript-4.2.3 -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_11 xvfb-run -a Rscript-4.2.3 -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_12 xvfb-run -a Rscript-4.2.3 -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_13 xvfb-run -a Rscript-4.2.3 -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_14 xvfb-run -a Rscript-4.2.3 -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+sleep 5
+screen -d -m -S NWTv3_15 xvfb-run -a Rscript-4.2.3 -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "provNWT"; .version <- 3; source("00-global.R")'
+```
+
+### postprocessing:
+
+```bash
+screen -S NWTv3_postprocess xvfb-run -a R-4.2.3 --no-save
+```
+
+Then, in the R session:
+
+  ```r
+.mode <- "postprocess"; .studyAreaName <- "provNWT"; .version <- 3;
+source("00-global.R")
+```
