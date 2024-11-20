@@ -175,6 +175,16 @@ if (!isFALSE(getOption("spades.memoryUseInterval"))) {
   qs::qsave(memory, file.path(paths[["outputPath"]], "memoryUsed.qs"))
 }
 
+# end-of-sim cleanup --------------------------------------------------------------------------
+
+## ensure any previously-created ggplot objects get removed from disk; they can be >100GB in size!!
+gg_qs <- file.path(paths[["outputPath"]], "figures") |>
+  list.files(pattern = "_gg[.]qs$", full.names = TRUE)
+
+if (length(gg_qs)) {
+  unlink(gg_qs)
+}
+
 # end-of-sim notifications --------------------------------------------------------------------
 
 if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
