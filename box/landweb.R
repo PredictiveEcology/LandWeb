@@ -523,7 +523,7 @@ landwebConfig <- R6::R6Class(
 
         self$params <- list(
           .globals = list(
-            .plots = c("object", "png", "raw") ## don't plot to screen
+            .plots = c("png", "raw") ## don't plot to screen; don't save objects
           )
         )
       } else if (self$context[["mode"]] == "profile") {
