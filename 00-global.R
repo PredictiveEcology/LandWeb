@@ -294,23 +294,27 @@ if (config$context[["mode"]] != "postprocess") {
   )
 
   tryCatch({
-    simOutSummaries <- Cache(simInitAndSpades,
-                             times = list(start = 0, end = 1),
-                             params = parameters4, ## TODO: use config$params
-                             modules = modules4, ## TODO: use config$modules
-                             #outputs = outputs4,
-                             objects = objects4,
-                             paths = paths,
-                             loadOrder = unlist(modules4), ## TODO: use config$modules
-                             #cl = cl, ## TODO: get parallel processing working !!!
-                             debug = list(file = list(file = file.path(config$paths[["logPath"]], "04-summaries.log"),
-                                                      append = TRUE), debug = 1),
-                             useCache = config$args[["useCache"]],
-                             useCloud = FALSE, ## TODO param useCloud??
-                             cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-                             omitArgs = c("debug", "paths"),
-                             userTags = c(config$context[["runName"]], "postprocess"))
-    cat(capture.output(warnings()), file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"), sep = "\n")
+    simOutSummaries <- Cache(
+      simInitAndSpades,
+      times = list(start = 0, end = 1),
+      params = parameters4, ## TODO: use config$params
+      modules = modules4, ## TODO: use config$modules
+      # outputs = outputs4,
+      objects = objects4,
+      paths = paths,
+      loadOrder = unlist(modules4), ## TODO: use config$modules
+      # cl = cl, ## TODO: get parallel processing working !!!
+      debug = list(file = list(file = file.path(config$paths[["logPath"]], "04-summaries.log"),
+                               append = TRUE), debug = 1),
+      useCache = config$args[["useCache"]],
+      useCloud = FALSE, ## TODO param useCloud??
+      cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+      omitArgs = c("debug", "paths"),
+      userTags = c(config$context[["runName"]], "postprocess")
+    )
+    cat(capture.output(warnings()),
+        file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"),
+        sep = "\n")
   }, error = function(e) {
     if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
       notifications::notify_google(
