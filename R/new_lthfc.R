@@ -5,21 +5,45 @@ library(sf)
 library(terra)
 
 ## add polygons to existing LTHFC map ---------------------------------------------------------
-v_old <- "v8b"
-v_new <- "v8c"
+v_old <- "v8c"
+v_new <- "v8d"
 
 lthfc_old <- file.path("inputs", paste0("landweb_ltfc_", v_old, ".shp")) |>
   st_read(quiet = TRUE) |>
   st_set_crs("epsg:26911")
-ecodistricts <- file.path("inputs", "ecodistricts.shp") |>
+
+fmas <- file.path("inputs", "FMA_Boundary_Updated_2024.shp") |>
   st_read(quiet = TRUE) |>
-  st_transform(st_crs(lthfc_old))
+  st_transform(st_crs(lthfc_old)) |>
+  st_make_valid()
+fmas <- fmas[grep("Spray Lake|Crowsnest", fmas$Name), ]
 
-polys2add <- ecodistricts[ ecodistricts$ECODISTRIC %in% c(183, 270, 271, 272), ] ## northern MB
-polys2add <- polys2add[, colnames(polys2add) %in% colnames(lthfc_old)]
-polys2add$LTHFC <- 80L
+sls <- file.path("inputs", "ltfc_sls_v3.shp") |>
+  st_read(quiet = TRUE) |>
+  st_set_crs("epsg:26911") |>
+  st_make_valid()
 
-lthfc_new <- bind_rows(lthfc_old, polys2add)
+## TODO: only want to update LTHFCs for these two FMAs
+# updated <- rbind(
+#   sls[apply(st_intersects(sls, fmas[1, ], sparse = FALSE), 1, any), ],
+#   sls[apply(st_intersects(sls, fmas[2, ], sparse = FALSE), 1, any), ]
+# )
+
+ggplot(st_crop(sls, fmas)) +
+  geom_sf(aes(fill = LTHFC)) +
+  geom_sf(data = fmas, fill = "orange")
+
+lthfc_new <- st_join(lthfc_old, updated)
+lthfc_new$LTHFC <- lthfc_new$LTHFC.x
+lthfc_new$LTHFC[!is.na(lthfc_new$LTHFC.y)] <- lthfc_new$LTHFC.y[!is.na(lthfc_new$LTHFC.y)]
+lthfc_new$LTHFC.x <- NULL
+lthfc_new$LTHFC.y <- NULL
+
+lthfc_new$NAME <- lthfc_new$NAME.x
+lthfc_new$NAME.x <- NULL
+lthfc_new$NAME.y <- NULL
+
+lthfc_new <- relocate(lthfc_new, NAME, LTHFC, .before = ZONE_NOM_)
 
 ## inspect + confirm differences --------------------------------------------------------------
 gg_old <- ggplot(lthfc_old) +
