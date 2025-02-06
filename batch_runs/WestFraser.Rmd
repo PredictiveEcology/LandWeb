@@ -111,6 +111,8 @@ output: html_document
 .studyAreaName <- "Tolko_AB_N"; .mode <- "postprocess"; .version <- 2; .dispersalType <- "aspen";
 
 .studyAreaName <- "WestFraser_N"; .mode <- "postprocess"; .version <- 2;
+
+source("00-global.R")
 ```
 
 ```bash

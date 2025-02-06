@@ -346,6 +346,7 @@ landwebConfig <- R6::R6Class(
         reproducible.nThreads = 2,
         reproducible.overwrite = TRUE,
         reproducible.showSimilar = TRUE,
+        reproducible.useCache = TRUE, ## TODO: set to self$args[["useCache"]]?
         reproducible.useCloud = FALSE, ## TODO: cloudCache spams Google Drive; doesn't respect drive path
         reproducible.useGDAL = FALSE,
         reproducible.useTerra = TRUE,
