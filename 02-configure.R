@@ -40,6 +40,8 @@ paths <- SpaDES.config::paths4spades(config$paths)
 # project options -----------------------------------------------------------------------------
 opts <- SpaDES.config::setProjectOptions(config)
 
+sf::sf_proj_network(TRUE)
+
 quickPlot::dev.useRSGD(useRSGD = quickPlot::isRstudioServer())
 
 SpaDES.config::authGoogle(tryToken = "landweb", tryEmail = config$args[["cloud"]][["googleUser"]])
