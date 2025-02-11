@@ -80,7 +80,6 @@ output: html_document
 # screen -d -m -S SNDR_15 xvfb-run -a Rscript-4.2.3 -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "Sundre"; .version <- 2; Sys.sleep(24*3600); source("00-global.R")'
 ```
 
-
 ## West Fraser North
 
 ```bash
