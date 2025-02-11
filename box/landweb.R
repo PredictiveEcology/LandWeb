@@ -487,6 +487,7 @@ landwebConfig <- R6::R6Class(
           upload = FALSE,
           uploadTo = "", ## TODO: use google-ids.csv to define these per WBI?
           version = .version,
+          # .clInit = NULL, ## NOTE: defined in user-config.R
           .makeTiles = FALSE, ## no tiles until parallel tile creation resolved (ropensci/tiler#18)
           .plotInitialTime = 0, ## sim(start)
           .studyAreaName = self$context[["studyAreaName"]],
