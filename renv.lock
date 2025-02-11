@@ -2699,20 +2699,20 @@
     },
     "map": {
       "Package": "map",
-      "Version": "0.0.5",
+      "Version": "0.0.5.9007",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "map",
-      "RemoteRef": "3b3fa6aed7d006791e5b03810e5cd9ecda406b1e",
-      "RemoteSha": "3b3fa6aed7d006791e5b03810e5cd9ecda406b1e",
-      "Remotes": "ropensci/tiler, gearslaboratory/gdalUtils, PredictiveEcology/pemisc@development, PredictiveEcology/reproducible@development, PredictiveEcology/SpaDES.tools@development, rspatial/terra@6a3ea837be88de5a66cd0577c6d79c1091562547",
+      "RemoteRef": "dev-stable",
+      "RemoteSha": "16e2a2bd6610aff7514a59fc32688b528e14aa58",
+      "Remotes": "ropensci/tiler, gearslaboratory/gdalUtils, PredictiveEcology/pemisc@dev-stable, PredictiveEcology/reproducible@dev-stable, cran/rgdal, cran/rgeos, PredictiveEcology/SpaDES.tools@dev-stable",
       "Requirements": [
         "R",
         "backports",
         "data.table",
-        "fastdigest",
+        "digest",
         "fasterize",
         "methods",
         "parallelly",
@@ -2724,10 +2724,11 @@
         "sf",
         "sp",
         "stats",
+        "terra",
         "tiler",
         "utils"
       ],
-      "Hash": "7dfbd0caa548eed9fde93070668663dc"
+      "Hash": "f6a78353c15efaa2a093bf8d22bc5539"
     },
     "maptools": {
       "Package": "maptools",
