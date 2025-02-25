@@ -269,10 +269,10 @@ brew tap r-lib/rig
 brew install --cask rig
 
 ## e.g., M1/M2 mac users, install the arm version
-rig install 4.2-arm64
+rig install 4.2.3
 
 ## start Rstudio using a specific R version:
-rig rstudio 4.2-arm64
+rig rstudio ~/GitHub/LandWeb.Rproj 4.2.3
 ```
 
 **Ubuntu Linux**
@@ -294,10 +294,7 @@ sudo apt install r-rig
 2. Install R version 4.2.3
 
 ```bash
-rig add 4.3.1
 rig add 4.2.3
-
-rig default 4.3.1
 
 rig system make-links
 
