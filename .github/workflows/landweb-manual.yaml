@@ -22,7 +22,7 @@ concurrency:
 jobs:
   build-manual-site:
     if: "!contains(github.event.commits[0].message, '[skip-ci]')"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -39,7 +39,7 @@ jobs:
 
       - uses: r-lib/actions/setup-tinytex@v2
 
-      - uses: PredictiveEcology/actions/install-spatial-deps@v0.1
+      - uses: PredictiveEcology/actions/install-spatial-deps@v0.2
 
       - name: Install additional system dependencies
         if: runner.os == 'Linux'
