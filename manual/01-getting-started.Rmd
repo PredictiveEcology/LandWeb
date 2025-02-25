@@ -298,6 +298,8 @@ rig add 4.2.3
 
 rig system make-links
 
+sudo ln -s /opt/R/4.2.3/bin/Rscript /usr/local/bin/Rscript-4.2.3
+
 rig list
 ```
     
