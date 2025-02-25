@@ -29,7 +29,7 @@ library(SpaDES.docs)
 ## automatically create a bib database for R packages
 allPkgs <- .packages(all.available = TRUE, lib.loc = .libPaths()[1])
 keyPkgs <- c(
-  "bookdown", "knitr", "LandR", "LandWebUtils",
+  "base", "bookdown", "knitr", "LandR", "LandWebUtils",
   "reproducible", "rmarkdown", "shiny", "SpaDES.core", "SpaDES.tools"
 )
 ## TODO: using allPkgs, not all pkgs have dates/years

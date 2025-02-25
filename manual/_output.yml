@@ -30,7 +30,7 @@ bookdown::pdf_book:
   pandoc_args: --top-level-division=chapter
   quote_footer: ["\\VA{", "}{}"]
   template: null
-  toc_depth: 3
+  toc_depth: 4
   toc_unnumbered: false
   toc_appendix: true
 
