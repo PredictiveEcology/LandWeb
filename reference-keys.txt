@@ -74,6 +74,7 @@ previous-manual-versions
 getting-started
 prerequisites
 docker
+bare-metal-installation
 development-tools
 windows
 macos
@@ -84,7 +85,7 @@ geospatial-libraries
 windows-1
 macos-1
 ubuntu-linux-1
-git-git-kraken-and-github
+version-control
 r-and-rstudio
 getting-the-code
 project-directory-structure

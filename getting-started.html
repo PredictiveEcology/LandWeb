@@ -143,14 +143,18 @@
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="getting-started.html#cb2-1" tabindex="-1"></a><span class="ex">docker</span> stop LandWeb</span>
 <span id="cb2-2"><a href="getting-started.html#cb2-2" tabindex="-1"></a><span class="ex">docker</span> rm LandWeb</span></code></pre></div>
 </div>
-<div id="development-tools" class="section level3" number="1.1.2">
+<div id="bare-metal-installation" class="section level3" number="1.1.2">
 <h3>
-<span class="header-section-number">1.1.2</span> Development tools<a class="anchor" aria-label="anchor" href="#development-tools"><i class="fas fa-link"></i></a>
+<span class="header-section-number">1.1.2</span> Bare metal installation<a class="anchor" aria-label="anchor" href="#bare-metal-installation"><i class="fas fa-link"></i></a>
 </h3>
-<div id="windows" class="section level4" number="1.1.2.1">
+<div id="development-tools" class="section level4" number="1.1.2.1">
 <h4>
-<span class="header-section-number">1.1.2.1</span> Windows<a class="anchor" aria-label="anchor" href="#windows"><i class="fas fa-link"></i></a>
+<span class="header-section-number">1.1.2.1</span> Development tools<a class="anchor" aria-label="anchor" href="#development-tools"><i class="fas fa-link"></i></a>
 </h4>
+<div id="windows" class="section level5" number="1.1.2.1.1">
+<h5>
+<span class="header-section-number">1.1.2.1.1</span> Windows<a class="anchor" aria-label="anchor" href="#windows"><i class="fas fa-link"></i></a>
+</h5>
 <ol style="list-style-type: decimal">
 <li>
 <p>Download <code>Rtools</code> version 4.2 from <a href="https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html" class="uri">https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html</a> and install it <em>as administrator</em>.
@@ -162,30 +166,30 @@
 <li><p>Download and install a proper text editor, <em>e.g.</em> <code>Notepad++</code> (<a href="https://notepad-plus-plus.org/downloads/" class="uri">https://notepad-plus-plus.org/downloads/</a>).</p></li>
 </ol>
 </div>
-<div id="macos" class="section level4" number="1.1.2.2">
-<h4>
-<span class="header-section-number">1.1.2.2</span> macOS<a class="anchor" aria-label="anchor" href="#macos"><i class="fas fa-link"></i></a>
-</h4>
-<div id="xcode-command-line-tools" class="section level5" number="1.1.2.2.1">
+<div id="macos" class="section level5" number="1.1.2.1.2">
 <h5>
-<span class="header-section-number">1.1.2.2.1</span> Xcode command line tools<a class="anchor" aria-label="anchor" href="#xcode-command-line-tools"><i class="fas fa-link"></i></a>
+<span class="header-section-number">1.1.2.1.2</span> macOS<a class="anchor" aria-label="anchor" href="#macos"><i class="fas fa-link"></i></a>
 </h5>
+<div id="xcode-command-line-tools" class="section level6" number="1.1.2.1.2.1">
+<h6>
+<span class="header-section-number">1.1.2.1.2.1</span> Xcode command line tools<a class="anchor" aria-label="anchor" href="#xcode-command-line-tools"><i class="fas fa-link"></i></a>
+</h6>
 <p>To build software, you will need the Xcode command line tools<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, which include various compilers and <code>git</code> version control software.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb3-1"><a href="getting-started.html#cb3-1" tabindex="-1"></a><span class="ex">xcode-select</span> <span class="at">--install</span></span></code></pre></div>
 </div>
-<div id="homebrew-package-manager" class="section level5" number="1.1.2.2.2">
-<h5>
-<span class="header-section-number">1.1.2.2.2</span> <code>homebrew</code> package manager<a class="anchor" aria-label="anchor" href="#homebrew-package-manager"><i class="fas fa-link"></i></a>
-</h5>
+<div id="homebrew-package-manager" class="section level6" number="1.1.2.1.2.2">
+<h6>
+<span class="header-section-number">1.1.2.1.2.2</span> <code>homebrew</code> package manager<a class="anchor" aria-label="anchor" href="#homebrew-package-manager"><i class="fas fa-link"></i></a>
+</h6>
 <p>Next, install <code>homebrew</code> which provides a package manager for macOS.
 This will facilitate software updates and will handle various package dependency issues automatically.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb4-1"><a href="getting-started.html#cb4-1" tabindex="-1"></a><span class="ex">/bin/bash</span> <span class="at">-c</span> <span class="st">"</span><span class="va">$(</span><span class="ex">curl</span> <span class="at">-fsSL</span> https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh<span class="va">)</span><span class="st">"</span></span></code></pre></div>
 </div>
 </div>
-<div id="ubuntu-linux" class="section level4" number="1.1.2.3">
-<h4>
-<span class="header-section-number">1.1.2.3</span> Ubuntu Linux<a class="anchor" aria-label="anchor" href="#ubuntu-linux"><i class="fas fa-link"></i></a>
-</h4>
+<div id="ubuntu-linux" class="section level5" number="1.1.2.1.3">
+<h5>
+<span class="header-section-number">1.1.2.1.3</span> Ubuntu Linux<a class="anchor" aria-label="anchor" href="#ubuntu-linux"><i class="fas fa-link"></i></a>
+</h5>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="getting-started.html#cb5-1" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
 <span id="cb5-2"><a href="getting-started.html#cb5-2" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="getting-started.html#cb5-3" tabindex="-1"></a><span class="fu">sudo</span> apt-get <span class="at">-y</span> install <span class="dt">\</span></span>
@@ -227,21 +231,21 @@ This will facilitate software updates and will handle various package dependency
 <span id="cb5-39"><a href="getting-started.html#cb5-39" tabindex="-1"></a>    zlib1g-dev</span></code></pre></div>
 </div>
 </div>
-<div id="geospatial-libraries" class="section level3" number="1.1.3">
-<h3>
-<span class="header-section-number">1.1.3</span> Geospatial libraries<a class="anchor" aria-label="anchor" href="#geospatial-libraries"><i class="fas fa-link"></i></a>
-</h3>
-<p>In order to work with geospatial data, recent versions of <code>GDAL</code>, <code>PROJ</code>, and <code>GEOS</code> geospatial libraries need to be available on your system.</p>
-<div id="windows-1" class="section level4" number="1.1.3.1">
+<div id="geospatial-libraries" class="section level4" number="1.1.2.2">
 <h4>
-<span class="header-section-number">1.1.3.1</span> Windows<a class="anchor" aria-label="anchor" href="#windows-1"><i class="fas fa-link"></i></a>
+<span class="header-section-number">1.1.2.2</span> Geospatial libraries<a class="anchor" aria-label="anchor" href="#geospatial-libraries"><i class="fas fa-link"></i></a>
 </h4>
+<p>In order to work with geospatial data, recent versions of <code>GDAL</code>, <code>PROJ</code>, and <code>GEOS</code> geospatial libraries need to be available on your system.</p>
+<div id="windows-1" class="section level5" number="1.1.2.2.1">
+<h5>
+<span class="header-section-number">1.1.2.2.1</span> Windows<a class="anchor" aria-label="anchor" href="#windows-1"><i class="fas fa-link"></i></a>
+</h5>
 <p>No additional should be needed, as recent versions of R geospatial packages include pre-bundled versions of <code>GDAL</code>, <code>PROJ</code>, and <code>GEOS</code>.</p>
 </div>
-<div id="macos-1" class="section level4" number="1.1.3.2">
-<h4>
-<span class="header-section-number">1.1.3.2</span> macOS<a class="anchor" aria-label="anchor" href="#macos-1"><i class="fas fa-link"></i></a>
-</h4>
+<div id="macos-1" class="section level5" number="1.1.2.2.2">
+<h5>
+<span class="header-section-number">1.1.2.2.2</span> macOS<a class="anchor" aria-label="anchor" href="#macos-1"><i class="fas fa-link"></i></a>
+</h5>
 <p>Use <code>homebrew</code> to install the required geospatial software libraries:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb6-1"><a href="getting-started.html#cb6-1" tabindex="-1"></a><span class="ex">brew</span> install pkg-config</span>
 <span id="cb6-2"><a href="getting-started.html#cb6-2" tabindex="-1"></a><span class="ex">brew</span> install gdal</span>
@@ -249,10 +253,10 @@ This will facilitate software updates and will handle various package dependency
 <span id="cb6-4"><a href="getting-started.html#cb6-4" tabindex="-1"></a><span class="co"># brew install proj</span></span>
 <span id="cb6-5"><a href="getting-started.html#cb6-5" tabindex="-1"></a><span class="ex">brew</span> install udunits</span></code></pre></div>
 </div>
-<div id="ubuntu-linux-1" class="section level4" number="1.1.3.3">
-<h4>
-<span class="header-section-number">1.1.3.3</span> Ubuntu Linux<a class="anchor" aria-label="anchor" href="#ubuntu-linux-1"><i class="fas fa-link"></i></a>
-</h4>
+<div id="ubuntu-linux-1" class="section level5" number="1.1.2.2.3">
+<h5>
+<span class="header-section-number">1.1.2.2.3</span> Ubuntu Linux<a class="anchor" aria-label="anchor" href="#ubuntu-linux-1"><i class="fas fa-link"></i></a>
+</h5>
 <p>The default Ubuntu 20.04 LTS package repositories ship older versions of the geospatial libraries we will be using, so we will need to to add some additional repositories to get the latest versions.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="getting-started.html#cb7-1" tabindex="-1"></a><span class="co">## add GIS repository</span></span>
 <span id="cb7-2"><a href="getting-started.html#cb7-2" tabindex="-1"></a><span class="fu">sudo</span> add-apt-repository ppa:ubuntugis-unstable/ppa</span>
@@ -276,10 +280,10 @@ This will facilitate software updates and will handle various package dependency
 <span id="cb9-8"><a href="getting-started.html#cb9-8" tabindex="-1"></a><span class="fu">sudo</span> npm install <span class="at">-g</span> mapshaper</span></code></pre></div>
 </div>
 </div>
-<div id="git-git-kraken-and-github" class="section level3" number="1.1.4">
-<h3>
-<span class="header-section-number">1.1.4</span> <code>git</code>, Git Kraken, and GitHub<a class="anchor" aria-label="anchor" href="#git-git-kraken-and-github"><i class="fas fa-link"></i></a>
-</h3>
+<div id="version-control" class="section level4" number="1.1.2.3">
+<h4>
+<span class="header-section-number">1.1.2.3</span> Version control<a class="anchor" aria-label="anchor" href="#version-control"><i class="fas fa-link"></i></a>
+</h4>
 <p><code>git</code> is the version control software used throughout this project, and is required to ‘checkout’ specific versions of the code as well as to make changes and ‘push’ these changes to the model code repository.</p>
 <ol style="list-style-type: decimal">
 <li>Install the latest version of <code>git</code> from <a href="https://git-scm.com/downloads" class="uri">https://git-scm.com/downloads</a> or via your package manager.</li>
@@ -334,10 +338,10 @@ usethis::create_github_token()
 However, the paid pro version is required to access private repositories.</p>
 </div>
 </div>
-<div id="r-and-rstudio" class="section level3" number="1.1.5">
-<h3>
-<span class="header-section-number">1.1.5</span> R and Rstudio<a class="anchor" aria-label="anchor" href="#r-and-rstudio"><i class="fas fa-link"></i></a>
-</h3>
+<div id="r-and-rstudio" class="section level4" number="1.1.2.4">
+<h4>
+<span class="header-section-number">1.1.2.4</span> R and Rstudio<a class="anchor" aria-label="anchor" href="#r-and-rstudio"><i class="fas fa-link"></i></a>
+</h4>
 <ol style="list-style-type: decimal">
 <li>Download and install R version 4.2.3.</li>
 </ol>
@@ -407,6 +411,7 @@ However, the paid pro version is required to access private repositories.</p>
 <span id="cb15-14"><a href="getting-started.html#cb15-14" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'hash_dir = false'</span><span class="kw">;</span> <span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.ccache/ccache.conf</span></code></pre></div>
 </li>
 </ol>
+</div>
 </div>
 </div>
 <div id="getting-the-code" class="section level2" number="1.2">
@@ -603,10 +608,7 @@ During first-run of the model, all required data will be downloaded to the <code
 <li>
 <a class="nav-link" href="#prerequisites"><span class="header-section-number">1.1</span> Prerequisites</a><ul class="nav navbar-nav">
 <li><a class="nav-link" href="#docker"><span class="header-section-number">1.1.1</span> Docker</a></li>
-<li><a class="nav-link" href="#development-tools"><span class="header-section-number">1.1.2</span> Development tools</a></li>
-<li><a class="nav-link" href="#geospatial-libraries"><span class="header-section-number">1.1.3</span> Geospatial libraries</a></li>
-<li><a class="nav-link" href="#git-git-kraken-and-github"><span class="header-section-number">1.1.4</span> git, Git Kraken, and GitHub</a></li>
-<li><a class="nav-link" href="#r-and-rstudio"><span class="header-section-number">1.1.5</span> R and Rstudio</a></li>
+<li><a class="nav-link" href="#bare-metal-installation"><span class="header-section-number">1.1.2</span> Bare metal installation</a></li>
 </ul>
 </li>
 <li><a class="nav-link" href="#getting-the-code"><span class="header-section-number">1.2</span> Getting the code</a></li>
