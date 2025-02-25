@@ -11,10 +11,6 @@ docsDir <- file.path(manDir, "_bookdown.yml") |>
 bibDir <- Require::checkPath(file.path(manDir, "citations"), create = TRUE)
 figDir <- Require::checkPath(file.path(docsDir, "figures"), create = TRUE)
 
-options(
-  Ncpus = min(parallel::detectCores() / 2, 8)
-)
-
 # load packages -------------------------------------
 
 library(bibtex)
@@ -27,13 +23,9 @@ library(SpaDES.docs)
 ## references ---------------------------------------
 
 ## automatically create a bib database for R packages
-allPkgs <- .packages(all.available = TRUE, lib.loc = .libPaths()[1])
-keyPkgs <- c(
-  "base", "bookdown", "knitr", "LandR", "LandWebUtils",
-  "reproducible", "rmarkdown", "shiny", "SpaDES.core", "SpaDES.tools"
-)
-## TODO: using allPkgs, not all pkgs have dates/years
+allPkgs <- c("base", .packages(all.available = TRUE, lib.loc = .libPaths()))
 suppressWarnings({
+  ## TODO: using allPkgs, not all pkgs have dates/years
   write_bib(allPkgs, file.path(bibDir, "packages.bib"))
 })
 
