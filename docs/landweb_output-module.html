@@ -23,6 +23,29 @@
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+          margin-bottom: 0em;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-spy="scroll" data-target="#toc">
@@ -73,30 +96,30 @@
         </div>
       </nav>
 </div>
-  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landweb_output-module" class="section level1">
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landweb_output-module" class="section level1" number="10">
 <h1>
 <span class="header-section-number">10</span> LandWeb_output Module<a class="anchor" aria-label="anchor" href="#landweb_output-module"><i class="fas fa-link"></i></a>
 </h1>
 <!-- the following are text references used in captions for LaTeX compatibility -->
 
-<div id="authors-7" class="section level4">
+<div id="authors-7" class="section level4" number="10.0.0.1">
 <h4>
 <span class="header-section-number">10.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-7"><i class="fas fa-link"></i></a>
 </h4>
 <p>Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut, cre], Yong Luo <a href="mailto:yluo1@lakeheadu.ca" class="email">yluo1@lakeheadu.ca</a> [aut], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [ctb]
 <!-- ideally separate authors with new lines, '\n' not working --></p>
 </div>
-<div id="module-overview-7" class="section level2">
+<div id="module-overview-7" class="section level2" number="10.1">
 <h2>
 <span class="header-section-number">10.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview-7"><i class="fas fa-link"></i></a>
 </h2>
-<div id="module-summary-5" class="section level3">
+<div id="module-summary-5" class="section level3" number="10.1.1">
 <h3>
 <span class="header-section-number">10.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary-5"><i class="fas fa-link"></i></a>
 </h3>
 <p>This module saves LandR Biomass outputs for use with LandWeb post-processing.</p>
 </div>
-<div id="module-inputs-and-parameters-3" class="section level3">
+<div id="module-inputs-and-parameters-3" class="section level3" number="10.1.2">
 <h3>
 <span class="header-section-number">10.1.2</span> Module inputs and parameters<a class="anchor" aria-label="anchor" href="#module-inputs-and-parameters-3"><i class="fas fa-link"></i></a>
 </h3>
@@ -291,7 +314,7 @@
 </tbody>
 </table></div>
 </div>
-<div id="module-outputs-4" class="section level3">
+<div id="module-outputs-4" class="section level3" number="10.1.3">
 <h3>
 <span class="header-section-number">10.1.3</span> Module outputs<a class="anchor" aria-label="anchor" href="#module-outputs-4"><i class="fas fa-link"></i></a>
 </h3>
@@ -304,20 +327,27 @@
 <th align="left">objectClass</th>
 <th align="left">desc</th>
 </tr></thead>
-<tbody><tr class="odd">
+<tbody>
+<tr class="odd">
+<td align="left">standAgeMap</td>
+<td align="left">SpatRaster</td>
+<td align="left">stand ages derived from <code>cohortData</code>.</td>
+</tr>
+<tr class="even">
 <td align="left">vegTypeMap</td>
-<td align="left">Raster</td>
-<td align="left">NA</td>
-</tr></tbody>
+<td align="left">SpatRaster</td>
+<td align="left">map of leading tree species.</td>
+</tr>
+</tbody>
 </table></div>
 </div>
-<div id="links-to-other-modules-5" class="section level3">
+<div id="links-to-other-modules-5" class="section level3" number="10.1.4">
 <h3>
 <span class="header-section-number">10.1.4</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules-5"><i class="fas fa-link"></i></a>
 </h3>
 <p>Originally developed as part of the <a href="https://github.com/PredictiveEcology/LandWeb">LandWeb</a> project.</p>
 </div>
-<div id="getting-help-4" class="section level3">
+<div id="getting-help-4" class="section level3" number="10.1.5">
 <h3>
 <span class="header-section-number">10.1.5</span> Getting help<a class="anchor" aria-label="anchor" href="#getting-help-4"><i class="fas fa-link"></i></a>
 </h3>
@@ -361,7 +391,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-24.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

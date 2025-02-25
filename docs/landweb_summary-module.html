@@ -23,6 +23,29 @@
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+          margin-bottom: 0em;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-spy="scroll" data-target="#toc">
@@ -73,7 +96,7 @@
         </div>
       </nav>
 </div>
-  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landweb_summary-module" class="section level1">
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landweb_summary-module" class="section level1" number="12">
 <h1>
 <span class="header-section-number">12</span> LandWeb_summary Module<a class="anchor" aria-label="anchor" href="#landweb_summary-module"><i class="fas fa-link"></i></a>
 </h1>
@@ -83,25 +106,25 @@
 <p>This documentation is work in progress.
 Please report any discrepancies or omissions at <a href="https://github.com/PredictiveEcology/LandWeb_summary/issues" class="uri">https://github.com/PredictiveEcology/LandWeb_summary/issues</a>.</p>
 </div>
-<div id="authors-9" class="section level4">
+<div id="authors-9" class="section level4" number="12.0.0.1">
 <h4>
 <span class="header-section-number">12.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-9"><i class="fas fa-link"></i></a>
 </h4>
-<p>Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut, cre], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [aut]
+<p>Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [aut, cre]
 <!-- ideally separate authors with new lines, '\n' not working --></p>
 </div>
-<div id="module-overview-9" class="section level2">
+<div id="module-overview-9" class="section level2" number="12.1">
 <h2>
 <span class="header-section-number">12.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview-9"><i class="fas fa-link"></i></a>
 </h2>
-<div id="module-summary-7" class="section level3">
+<div id="module-summary-7" class="section level3" number="12.1.1">
 <h3>
 <span class="header-section-number">12.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary-7"><i class="fas fa-link"></i></a>
 </h3>
 <p>LandWeb simulation post-processing and summary creation.</p>
 <!-- TODO: add more details from LandWeb development document -->
 </div>
-<div id="module-inputs-and-parameters-5" class="section level3">
+<div id="module-inputs-and-parameters-5" class="section level3" number="12.1.2">
 <h3>
 <span class="header-section-number">12.1.2</span> Module inputs and parameters<a class="anchor" aria-label="anchor" href="#module-inputs-and-parameters-5"><i class="fas fa-link"></i></a>
 </h3>
@@ -123,24 +146,30 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td align="left">flammableMap</td>
+<td align="left">Raster</td>
+<td align="left">A raster layer, with 0, 1 and NA, where 1 indicates areas that are flammable, 0 not flammable (e.g., lakes) and NA not applicable (e.g., masked)</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
 <td align="left">ml</td>
 <td align="left">map</td>
 <td align="left">map list object from LandWeb_preamble</td>
 <td align="left">NA</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">speciesLayers</td>
 <td align="left">RasterStack</td>
 <td align="left">initial percent cover raster layers used for simulation.</td>
 <td align="left">NA</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">sppColorVect</td>
 <td align="left">character</td>
 <td align="left">A named vector of colors to use for plotting. The names must be in <code>sim$sppEquiv[[P(sim)$sppEquivCol]]</code>, and should also contain a color for ‘Mixed’</td>
 <td align="left">NA</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">sppEquiv</td>
 <td align="left">data.table</td>
 <td align="left">table of species equivalencies. See <code><a href="https://landr.predictiveecology.org/reference/sppEquivalencies_CA.html">LandR::sppEquivalencies_CA</a></code>.</td>
@@ -153,12 +182,12 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <caption>
 <span id="tab:moduleParams-LandWeb-summary">Table 12.2: </span>List of <em>LandWeb_summary</em> parameters and their description.</caption>
 <colgroup>
-<col width="9%">
+<col width="10%">
 <col width="4%">
 <col width="5%">
 <col width="1%">
 <col width="1%">
-<col width="76%">
+<col width="75%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">paramName</th>
@@ -204,7 +233,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <tr class="odd">
 <td align="left">simOutputPath</td>
 <td align="left">character</td>
-<td align="left">/tmp/Rtm….</td>
+<td align="left">/mnt/scr….</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
 <td align="left">Directory specifying the location of the simulation outputs.</td>
@@ -218,6 +247,14 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">The column in <code>sim$sppEquiv</code> data.table to use as a naming convention</td>
 </tr>
 <tr class="odd">
+<td align="left">standAgeMapFromCohorts</td>
+<td align="left">logical</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">should stand age maps be calculated from <code>cohortData</code> instead of time since fire</td>
+</tr>
+<tr class="even">
 <td align="left">summaryInterval</td>
 <td align="left">integer</td>
 <td align="left">100</td>
@@ -225,7 +262,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">simulation time interval at which to take ‘snapshots’ used for summary analyses</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">summaryPeriod</td>
 <td align="left">integer</td>
 <td align="left">700, 1000</td>
@@ -233,7 +270,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">lower and upper end of the range of simulation times used for summary analyses</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">timeSeriesTimes</td>
 <td align="left">integer</td>
 <td align="left">601, 602….</td>
@@ -241,7 +278,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">timesteps to use to build timeseries rasters showing leading cover change over time</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">upload</td>
 <td align="left">logical</td>
 <td align="left">FALSE</td>
@@ -249,7 +286,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">if TRUE, uses the <code>googledrive</code> package to upload figures.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">uploadTo</td>
 <td align="left">character</td>
 <td align="left">NA</td>
@@ -257,7 +294,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">if <code>upload = TRUE</code>, a Google Drive folder id corresponding to <code>.studyAreaName</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">vegLeadingProportion</td>
 <td align="left">numeric</td>
 <td align="left">0.8</td>
@@ -265,7 +302,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">1</td>
 <td align="left">a number that defines whether a species is leading for a given pixel</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">version</td>
 <td align="left">integer</td>
 <td align="left">3</td>
@@ -273,7 +310,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">3</td>
 <td align="left">LandWeb model version (2 for runs using vegetation parameter forcings, else 3).</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.clInit</td>
 <td align="left">{</td>
 <td align="left"></td>
@@ -281,7 +318,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">Quoted expression to be evaluated on each node in a parallel cluster when running <code>map</code> analyses. Useful to set options or create non-serializable objects on each node.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.makeTiles</td>
 <td align="left">logical</td>
 <td align="left">FALSE</td>
@@ -289,7 +326,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">If <code>TRUE</code>, will generate leaflet tiles during postprocessing.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.plots</td>
 <td align="left">character</td>
 <td align="left">screen</td>
@@ -297,7 +334,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">Used by Plots function, which can be optionally used here</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.plotInitialTime</td>
 <td align="left">numeric</td>
 <td align="left">0</td>
@@ -305,7 +342,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">Describes the simulation time at which the first plot event should occur.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.plotInterval</td>
 <td align="left">numeric</td>
 <td align="left">NA</td>
@@ -313,7 +350,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">Describes the simulation time interval between plot events.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.saveInitialTime</td>
 <td align="left">numeric</td>
 <td align="left">NA</td>
@@ -321,7 +358,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">Describes the simulation time at which the first save event should occur.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.saveInterval</td>
 <td align="left">numeric</td>
 <td align="left">NA</td>
@@ -329,7 +366,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">This describes the simulation time interval between save events.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.studyAreaName</td>
 <td align="left">character</td>
 <td align="left">NA</td>
@@ -338,7 +375,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">Human-readable name for the study area used - e.g., a hash of the study area obtained using <code><a href="https://reproducible.predictiveecology.org/reference/studyAreaName.html">reproducible::studyAreaName()</a></code>
 </td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.useCache</td>
 <td align="left">character</td>
 <td align="left">.inputOb….</td>
@@ -346,7 +383,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <td align="left">NA</td>
 <td align="left">Names of events to be cached.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.useParallel</td>
 <td align="left">logical</td>
 <td align="left">TRUE</td>
@@ -357,11 +394,11 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 </tbody>
 </table></div>
 </div>
-<div id="module-outputs-6" class="section level3">
+<div id="module-outputs-6" class="section level3" number="12.1.3">
 <h3>
 <span class="header-section-number">12.1.3</span> Module outputs<a class="anchor" aria-label="anchor" href="#module-outputs-6"><i class="fas fa-link"></i></a>
 </h3>
-<div id="large-patches-data-for-study-region-1" class="section level4">
+<div id="large-patches-data-for-study-region-1" class="section level4" number="12.1.3.1">
 <h4>
 <span class="header-section-number">12.1.3.1</span> Large Patches Data for study region<a class="anchor" aria-label="anchor" href="#large-patches-data-for-study-region-1"><i class="fas fa-link"></i></a>
 </h4>
@@ -370,7 +407,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <li>Large patches histograms (<code>.png</code>)</li>
 </ul>
 </div>
-<div id="leading-vegetation-cover-data-for-study-region-1" class="section level4">
+<div id="leading-vegetation-cover-data-for-study-region-1" class="section level4" number="12.1.3.2">
 <h4>
 <span class="header-section-number">12.1.3.2</span> Leading Vegetation Cover Data for study region<a class="anchor" aria-label="anchor" href="#leading-vegetation-cover-data-for-study-region-1"><i class="fas fa-link"></i></a>
 </h4>
@@ -396,13 +433,13 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 </table></div>
 </div>
 </div>
-<div id="links-to-other-modules-7" class="section level3">
+<div id="links-to-other-modules-7" class="section level3" number="12.1.4">
 <h3>
 <span class="header-section-number">12.1.4</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules-7"><i class="fas fa-link"></i></a>
 </h3>
 <p>Initially developed for use with the <a href="https://github.com/PredictiveEcology/LandWeb">LandWeb</a> model.</p>
 </div>
-<div id="getting-help-5" class="section level3">
+<div id="getting-help-5" class="section level3" number="12.1.5">
 <h3>
 <span class="header-section-number">12.1.5</span> Getting help<a class="anchor" aria-label="anchor" href="#getting-help-5"><i class="fas fa-link"></i></a>
 </h3>
@@ -448,7 +485,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-24.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

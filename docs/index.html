@@ -23,6 +23,29 @@
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+          margin-bottom: 0em;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-spy="scroll" data-target="#toc">
@@ -77,9 +100,9 @@
 <h1>Overview<a class="anchor" aria-label="anchor" href="#overview"><i class="fas fa-link"></i></a>
 </h1>
 <div class="rmdimportant">
-<p>This manual is a live document which is automatically updated as changes are made to to underlying model code and documentation.</p>
+<p>This manual is a live document which is automatically updated as changes are made to underlying model code and documentation.</p>
 </div>
-<div id="background" class="section level2">
+<div id="background" class="section level2" number="0.1">
 <h2>
 <span class="header-section-number">0.1</span> Background<a class="anchor" aria-label="anchor" href="#background"><i class="fas fa-link"></i></a>
 </h2>
@@ -89,17 +112,17 @@
 Lorem ipsum ... (TODO)
 -->
 </div>
-<div id="the-landweb-model" class="section level2">
+<div id="the-landweb-model" class="section level2" number="0.2">
 <h2>
 <span class="header-section-number">0.2</span> The LandWeb Model<a class="anchor" aria-label="anchor" href="#the-landweb-model"><i class="fas fa-link"></i></a>
 </h2>
 <p>LandWeb is the first large scale, data-driven approach to simulating historic natural range of variation (H/NRV) (<a href="https://landweb.ca" class="uri">https://landweb.ca</a>).
 In developing the model, analyses, as well as the infrastructure to host data, we strove to implement a single, reproducible workflow to facilitate running simulations, analyses, and model reuse and future expansion.
-This tight linkage between data and simulation model is made possible via its implementation using the <code>SpaDES</code> family of packages <span class="citation">(Chubaty &amp; McIntire <a href="references-1.html#ref-ChubatyMcIntire2019">2019</a>)</span> within the R Statistical Language and Environment <span class="citation">(<span class="citeproc-not-found" data-reference-id="R-base"><strong>???</strong></span>)</span>.
+This tight linkage between data and simulation model is made possible via its implementation using the <code>SpaDES</code> family of packages <span class="citation">(<a href="references-1.html#ref-ChubatyMcIntire2019">Chubaty &amp; McIntire 2019</a>)</span> within the R Statistical Language and Environment <span class="citation">(<a href="#ref-R-base"><strong>R-base?</strong></a>)</span>.
 For more information about <code>SpaDES</code>, see <a href="https://spades.predictiveecology.org/" class="uri">https://spades.predictiveecology.org/</a>.</p>
 <p>The LandWeb model integrates two well-used models for forest stand succession and wildfire simulation, implemented in the <code>SpaDES</code> simulation platform as a collection of submodels (implement as <code>SpaDES</code> modules).
-Vegetation dynamics are modeled using the LandR Biomass suite of modules, which reimplement the LANDIS-II Biomass Succession model <span class="citation">(Scheller &amp; Mladenoff <a href="references-1.html#ref-SchellerMladenoff2004">2004</a>; Scheller <em>et al.</em> <a href="references-1.html#ref-Scheller2007">2007</a>)</span> in R.
-Wildfire dynamics are modeled using an implementation of LandMine <span class="citation">(Andison <a href="references-1.html#ref-Andison:1996">1996</a>, <a href="references-1.html#ref-Andison:1998">1998</a>)</span>.
+Vegetation dynamics are modeled using the LandR Biomass suite of modules, which reimplement the LANDIS-II Biomass Succession model <span class="citation">(<a href="references-1.html#ref-Scheller2007">Scheller <em>et al.</em> 2007</a>; <a href="references-1.html#ref-SchellerMladenoff2004">Scheller &amp; Mladenoff 2004</a>)</span> in R.
+Wildfire dynamics are modeled using an implementation of LandMine <span class="citation">(<a href="references-1.html#ref-Andison:1996">Andison 1996</a>; <a href="references-1.html#ref-Andison:1998">Andison 1998</a>)</span>.
 Simulations were run for the entire LandWeb study area, which spans most of the western Canadian boreal forest.
 A summary of the results are presented using a web app, which can be run locally.</p>
 <div class="figure" style="text-align: center">
@@ -108,13 +131,13 @@ A summary of the results are presented using a web app, which can be run locally
 Figure 0.1: LandWeb study area (blue) with mountain and boreal caribou ranges highlighted (pink).
 </p>
 </div>
-<div id="data-preparation" class="section level3">
+<div id="data-preparation" class="section level3" number="0.2.1">
 <h3>
 <span class="header-section-number">0.2.1</span> Data preparation<a class="anchor" aria-label="anchor" href="#data-preparation"><i class="fas fa-link"></i></a>
 </h3>
 <p>Input data were derived from multiple sources, including several publicly available as well as proprietary datasets.</p>
 <p>Detailed descriptions of these sources are provided in the relevant sections of this manual.</p>
-<div id="public-data-sources" class="section level4">
+<div id="public-data-sources" class="section level4" number="0.2.1.1">
 <h4>
 <span class="header-section-number">0.2.1.1</span> Public data sources<a class="anchor" aria-label="anchor" href="#public-data-sources"><i class="fas fa-link"></i></a>
 </h4>
@@ -122,13 +145,13 @@ Figure 0.1: LandWeb study area (blue) with mountain and boreal caribou ranges hi
 <li>Land Cover Classification 2005 map (no longer available from Government of Canada’s Open Data website);</li>
 <li>LANDIS-II species traits: <a href="https://github.com/dcyr/LANDIS-II_IA_generalUseFiles" class="uri">https://github.com/dcyr/LANDIS-II_IA_generalUseFiles</a>;</li>
 <li>LANDIS-II parameterization tables and data: <a href="https://github.com/LANDIS-II-Foundation/Extensions-Succession-Archive/master/biomass-succession-archive/trunk/tests/v6.0-2.0/" class="uri">https://github.com/LANDIS-II-Foundation/Extensions-Succession-Archive/master/biomass-succession-archive/trunk/tests/v6.0-2.0/</a>;</li>
-<li>Canada biomass, stand volume, and species data <span class="citation">(from Beaudoin <em>et al.</em> <a href="references-1.html#ref-BeaudoinEtAl2014">2014</a>)</span>: <a href="http://tree.pfc.forestry.ca" class="uri">http://tree.pfc.forestry.ca</a>;</li>
+<li>Canada biomass, stand volume, and species data <span class="citation">(from <a href="references-1.html#ref-BeaudoinEtAl2014">Beaudoin <em>et al.</em> 2014</a>)</span>: <a href="http://tree.pfc.forestry.ca" class="uri">http://tree.pfc.forestry.ca</a>;</li>
 <li>National ecodistrict polygons: <a href="http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip" class="uri">http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip</a>;</li>
 <li>National ecoregion polygons: <a href="http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip" class="uri">http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip</a>;</li>
 <li>National ecozone polygons: <a href="http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip" class="uri">http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip</a>.</li>
 </ul>
 </div>
-<div id="proprietary-data-sources" class="section level4">
+<div id="proprietary-data-sources" class="section level4" number="0.2.1.2">
 <h4>
 <span class="header-section-number">0.2.1.2</span> Proprietary data sources<a class="anchor" aria-label="anchor" href="#proprietary-data-sources"><i class="fas fa-link"></i></a>
 </h4>
@@ -140,24 +163,24 @@ Figure 0.1: LandWeb study area (blue) with mountain and boreal caribou ranges hi
 <p>To request access, please contact Alex Chubaty (<a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a>).</p>
 </div>
 </div>
-<div id="vegetation-dynamics" class="section level3">
+<div id="vegetation-dynamics" class="section level3" number="0.2.2">
 <h3>
 <span class="header-section-number">0.2.2</span> Vegetation dynamics<a class="anchor" aria-label="anchor" href="#vegetation-dynamics"><i class="fas fa-link"></i></a>
 </h3>
-<p>Vegetation growth and succession are modeled using a re-implementation of the LANDIS-II Biomass model, a widely used and well-documented dynamic vegetation succession model <span class="citation">(Scheller &amp; Mladenoff <a href="references-1.html#ref-SchellerMladenoff2004">2004</a>; Scheller <em>et al.</em> <a href="references-1.html#ref-Scheller2007">2007</a>)</span>.
-Our re-implemented model largely follows the original LANDIS-II source code (v 3.6.2; <span class="citation">Scheller &amp; Miranda (<a href="references-1.html#ref-SchellerMiranda2015">2015</a><a href="references-1.html#ref-SchellerMiranda2015">a</a>)</span>), but with some modifications with respect to species traits parameterization.
+<p>Vegetation growth and succession are modeled using a re-implementation of the LANDIS-II Biomass model, a widely used and well-documented dynamic vegetation succession model <span class="citation">(<a href="references-1.html#ref-Scheller2007">Scheller <em>et al.</em> 2007</a>; <a href="references-1.html#ref-SchellerMladenoff2004">Scheller &amp; Mladenoff 2004</a>)</span>.
+Our re-implemented model largely follows the original LANDIS-II source code (v 3.6.2; <span class="citation">Scheller &amp; Miranda (<a href="references-1.html#ref-SchellerMiranda2015">2015a</a>)</span>), but with some modifications with respect to species traits parameterization.
 This model simulates landscape-scale forest dynamics in a spatio-temporally explicit manner, using cohorts of tree species within each pixel.
 Multiple ecological processes are captured by the model, including vegetation growth, mortality, seed dispersal, and post-disturbance regeneration.</p>
 <p>This submodel is described in further detail in <a href="vegetation-submodel.html#vegetation-submodel">Vegetation submodel</a>.</p>
 </div>
-<div id="wildfire-dynamics" class="section level3">
+<div id="wildfire-dynamics" class="section level3" number="0.2.3">
 <h3>
 <span class="header-section-number">0.2.3</span> Wildfire dynamics<a class="anchor" aria-label="anchor" href="#wildfire-dynamics"><i class="fas fa-link"></i></a>
 </h3>
-<p>Wildfire is simulated using a re-implementation of the fire submodel of Andison’s <span class="citation">(<a href="references-1.html#ref-Andison:1996">1996</a>, <a href="references-1.html#ref-Andison:1998">1998</a>)</span> <code>LandMine</code> model of landscape disturbance.</p>
+<p>Wildfire is simulated using a re-implementation of the fire submodel of Andison’s <span class="citation">(<a href="references-1.html#ref-Andison:1996">1996</a>; <a href="references-1.html#ref-Andison:1998">1998</a>)</span> <code>LandMine</code> model of landscape disturbance.</p>
 <p>This submodel is described in further detail in <a href="wildfire-submodel.html#wildfire-submodel">Wildfire submodel</a>.</p>
 </div>
-<div id="summary-maps-and-statistics" class="section level3">
+<div id="summary-maps-and-statistics" class="section level3" number="0.2.4">
 <h3>
 <span class="header-section-number">0.2.4</span> Summary maps and statistics<a class="anchor" aria-label="anchor" href="#summary-maps-and-statistics"><i class="fas fa-link"></i></a>
 </h3>
@@ -167,7 +190,7 @@ Authorized users can additionally overlay current stand conditions onto these hi
 Simulation outputs are summarized for several publicly available reporting polygons (including Alberta Natural Ecoregions and Caribou Ranges).</p>
 <p>These are described in further detail in <a href="model-outputs.html#model-outputs">Model outputs</a>.</p>
 </div>
-<div id="landweb-app" class="section level3">
+<div id="landweb-app" class="section level3" number="0.2.5">
 <h3>
 <span class="header-section-number">0.2.5</span> LandWeb app<a class="anchor" aria-label="anchor" href="#landweb-app"><i class="fas fa-link"></i></a>
 </h3>
@@ -175,7 +198,7 @@ Simulation outputs are summarized for several publicly available reporting polyg
 <!-- TODO: flesh out this description -->
 </div>
 </div>
-<div id="previous-manual-versions" class="section level2">
+<div id="previous-manual-versions" class="section level2" number="0.3">
 <h2>
 <span class="header-section-number">0.3</span> Previous Manual Versions<a class="anchor" aria-label="anchor" href="#previous-manual-versions"><i class="fas fa-link"></i></a>
 </h2>
@@ -221,7 +244,7 @@ Simulation outputs are summarized for several publicly available reporting polyg
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-24.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

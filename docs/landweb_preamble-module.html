@@ -23,6 +23,29 @@
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+          margin-bottom: 0em;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-spy="scroll" data-target="#toc">
@@ -73,31 +96,31 @@
         </div>
       </nav>
 </div>
-  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landweb_preamble-module" class="section level1">
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landweb_preamble-module" class="section level1" number="3">
 <h1>
 <span class="header-section-number">3</span> <em>LandWeb_preamble</em> Module<a class="anchor" aria-label="anchor" href="#landweb_preamble-module"><i class="fas fa-link"></i></a>
 </h1>
 <!-- the following are text references used in captions for LaTeX compatibility -->
 <p>(ref:LandWeb_preamble) <em>LandWeb_preamble</em></p>
-<div id="authors" class="section level4">
+<div id="authors" class="section level4" number="3.0.0.1">
 <h4>
 <span class="header-section-number">3.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors"><i class="fas fa-link"></i></a>
 </h4>
 <p>Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut, cre], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [aut], Ceres Barros <a href="mailto:cbarros@mail.ubc.ca" class="email">cbarros@mail.ubc.ca</a> [aut]
 <!-- ideally separate authors with new lines, '\n' not working --></p>
 </div>
-<div id="module-overview" class="section level2">
+<div id="module-overview" class="section level2" number="3.1">
 <h2>
 <span class="header-section-number">3.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview"><i class="fas fa-link"></i></a>
 </h2>
-<div id="module-summary" class="section level3">
+<div id="module-summary" class="section level3" number="3.1.1">
 <h3>
 <span class="header-section-number">3.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary"><i class="fas fa-link"></i></a>
 </h3>
 <p>Set up study areas and parameters for LandWeb simulations.</p>
 </div>
 </div>
-<div id="parameters" class="section level2">
+<div id="parameters" class="section level2" number="3.2">
 <h2>
 <span class="header-section-number">3.2</span> Parameters<a class="anchor" aria-label="anchor" href="#parameters"><i class="fas fa-link"></i></a>
 </h2>
@@ -162,6 +185,14 @@
 <td align="left">One of ‘aspen’, ‘high’, ‘none’, or ‘default’.</td>
 </tr>
 <tr class="even">
+<td align="left">mergeSlivers</td>
+<td align="left">logical</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Should sliver polygons in LTHFC map be merged into nearest non-zero polygon?</td>
+</tr>
+<tr class="odd">
 <td align="left">minFRI</td>
 <td align="left">numeric</td>
 <td align="left">40</td>
@@ -169,7 +200,7 @@
 <td align="left">200</td>
 <td align="left">The value of fire return interval below which, pixels will be changed to <code>NA</code>, i.e., ignored</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">pixelSize</td>
 <td align="left">numeric</td>
 <td align="left">250</td>
@@ -177,7 +208,7 @@
 <td align="left">NA</td>
 <td align="left">Pixel size in metres. Should be one of 250, 125, 50, 25.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">ROStype</td>
 <td align="left">character</td>
 <td align="left">default</td>
@@ -185,7 +216,7 @@
 <td align="left">NA</td>
 <td align="left">Rate of spread preset to use. One of ‘burny’, ‘equal’, ‘log’, or ‘default’.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">treeClassesLCC</td>
 <td align="left">integer</td>
 <td align="left">1, 2, 3,….</td>
@@ -193,7 +224,7 @@
 <td align="left">39</td>
 <td align="left">AKA <code>forestedLCCClasses</code>. The classes in the <code>LCC2005</code> layer that are considered ‘trees’ from the perspective of LandR-Biomass.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">treeClassesToReplace</td>
 <td align="left">numeric</td>
 <td align="left">34, 35, 36</td>
@@ -201,7 +232,7 @@
 <td align="left">39</td>
 <td align="left">The transient classes in the <code>LCC2005</code> layer that will become ‘trees’ from the perspective of LandR-Biomass (e.g., burned)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.plotInitialTime</td>
 <td align="left">numeric</td>
 <td align="left">0</td>
@@ -209,7 +240,7 @@
 <td align="left">NA</td>
 <td align="left">This describes the simulation time at which the first plot event should occur</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.plotInterval</td>
 <td align="left">numeric</td>
 <td align="left">1</td>
@@ -217,7 +248,7 @@
 <td align="left">NA</td>
 <td align="left">This describes the simulation time interval between plot events</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.plots</td>
 <td align="left">character</td>
 <td align="left">object</td>
@@ -225,7 +256,7 @@
 <td align="left">NA</td>
 <td align="left">Passed to <code>types</code> in <code>Plots</code> (see <code>?Plots</code>). There are a few plots that are made within this module, if set. Note that plots (or their data) saving will ONLY occur at <code>end(sim)</code>. If <code>NA</code>, plotting is turned off completely (this includes plot saving).</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.saveInitialTime</td>
 <td align="left">numeric</td>
 <td align="left">NA</td>
@@ -233,7 +264,7 @@
 <td align="left">NA</td>
 <td align="left">This describes the simulation time at which the first save event should occur</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.saveInterval</td>
 <td align="left">numeric</td>
 <td align="left">NA</td>
@@ -241,7 +272,7 @@
 <td align="left">NA</td>
 <td align="left">This describes the simulation time interval between save events</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.sslVerify</td>
 <td align="left">integer</td>
 <td align="left">64</td>
@@ -249,7 +280,7 @@
 <td align="left">NA</td>
 <td align="left">Passed to <code>httr::config(ssl_verifypeer = P(sim)$sslVerify)</code> when downloading KNN (NFI) datasets. Set to 0L if necessary to bypass checking the SSL certificate (this may be necessary when NFI’s website SSL certificate is not correctly configured).</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.studyAreaName</td>
 <td align="left">character</td>
 <td align="left">NA</td>
@@ -257,7 +288,7 @@
 <td align="left">NA</td>
 <td align="left">Human-readable name for the study area used. If <code>NA</code>, a hash of <code>studyAreaLarge</code> will be used.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.useCache</td>
 <td align="left">logical</td>
 <td align="left">FALSE</td>
@@ -268,11 +299,11 @@
 </tbody>
 </table></div>
 </div>
-<div id="data-dependencies" class="section level2">
+<div id="data-dependencies" class="section level2" number="3.3">
 <h2>
 <span class="header-section-number">3.3</span> Data dependencies<a class="anchor" aria-label="anchor" href="#data-dependencies"><i class="fas fa-link"></i></a>
 </h2>
-<div id="input-data" class="section level3">
+<div id="input-data" class="section level3" number="3.3.1">
 <h3>
 <span class="header-section-number">3.3.1</span> Input data<a class="anchor" aria-label="anchor" href="#input-data"><i class="fas fa-link"></i></a>
 </h3>
@@ -298,7 +329,7 @@
 </tr></tbody>
 </table></div>
 </div>
-<div id="output-data" class="section level3">
+<div id="output-data" class="section level3" number="3.3.2">
 <h3>
 <span class="header-section-number">3.3.2</span> Output data<a class="anchor" aria-label="anchor" href="#output-data"><i class="fas fa-link"></i></a>
 </h3>
@@ -410,7 +441,7 @@
 </table></div>
 </div>
 </div>
-<div id="links-to-other-modules" class="section level2">
+<div id="links-to-other-modules" class="section level2" number="3.4">
 <h2>
 <span class="header-section-number">3.4</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules"><i class="fas fa-link"></i></a>
 </h2>
@@ -455,7 +486,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-24.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

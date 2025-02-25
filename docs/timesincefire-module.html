@@ -23,6 +23,29 @@
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+          margin-bottom: 0em;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-spy="scroll" data-target="#toc">
@@ -73,7 +96,7 @@
         </div>
       </nav>
 </div>
-  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="timesincefire-module" class="section level1">
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="timesincefire-module" class="section level1" number="11">
 <h1>
 <span class="header-section-number">11</span> timeSinceFire Module<a class="anchor" aria-label="anchor" href="#timesincefire-module"><i class="fas fa-link"></i></a>
 </h1>
@@ -83,18 +106,18 @@
 <p>This documentation is work in progress.
 Please report any discrepancies or omissions at <a href="https://github.com/fRI-Research/timeSinceFire/issues" class="uri">https://github.com/fRI-Research/timeSinceFire/issues</a>.</p>
 </div>
-<div id="authors-8" class="section level4">
+<div id="authors-8" class="section level4" number="11.0.0.1">
 <h4>
 <span class="header-section-number">11.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-8"><i class="fas fa-link"></i></a>
 </h4>
 <p>Steve G Cumming <a href="mailto:stevec@sbf.ulaval.ca" class="email">stevec@sbf.ulaval.ca</a> [aut, cre], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [ctb]
 <!-- ideally separate authors with new lines, '\n' not working --></p>
 </div>
-<div id="module-overview-8" class="section level2">
+<div id="module-overview-8" class="section level2" number="11.1">
 <h2>
 <span class="header-section-number">11.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview-8"><i class="fas fa-link"></i></a>
 </h2>
-<div id="module-summary-6" class="section level3">
+<div id="module-summary-6" class="section level3" number="11.1.1">
 <h3>
 <span class="header-section-number">11.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary-6"><i class="fas fa-link"></i></a>
 </h3>
@@ -104,7 +127,7 @@ This one is peculiar to the LandWeb application.</p>
 cells identified as having been burned in the current year are set to 0.</p>
 <p>Any statistics on age structure are to be calculated here, but none are yet implemented…because with the current fire model they would be pretty boring.</p>
 </div>
-<div id="module-inputs-and-parameters-4" class="section level3">
+<div id="module-inputs-and-parameters-4" class="section level3" number="11.1.2">
 <h3>
 <span class="header-section-number">11.1.2</span> Module inputs and parameters<a class="anchor" aria-label="anchor" href="#module-inputs-and-parameters-4"><i class="fas fa-link"></i></a>
 </h3>
@@ -247,11 +270,11 @@ cells identified as having been burned in the current year are set to 0.</p>
 </tbody>
 </table></div>
 </div>
-<div id="events-2" class="section level3">
+<div id="events-2" class="section level3" number="11.1.3">
 <h3>
 <span class="header-section-number">11.1.3</span> Events<a class="anchor" aria-label="anchor" href="#events-2"><i class="fas fa-link"></i></a>
 </h3>
-<div id="init" class="section level4">
+<div id="init" class="section level4" number="11.1.3.1">
 <h4>
 <span class="header-section-number">11.1.3.1</span> Init<a class="anchor" aria-label="anchor" href="#init"><i class="fas fa-link"></i></a>
 </h4>
@@ -274,20 +297,20 @@ See the wiki page for details and possible alternative methods.</p>
 <span><span class="va">T_</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="va">U_</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="va">rstTimeSinceFire</span><span class="op">[</span><span class="op">]</span></span>
 <span><span class="va">rstTimeSinceFire</span><span class="op">[</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">T_</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="plotting-1" class="section level4">
+<div id="plotting-1" class="section level4" number="11.1.3.2">
 <h4>
 <span class="header-section-number">11.1.3.2</span> Plotting<a class="anchor" aria-label="anchor" href="#plotting-1"><i class="fas fa-link"></i></a>
 </h4>
 <p>A bare call to <code>Plot(sim$rstTimeSinceFire)</code>.
 If you really want to see this, you’ll have to live with the automated colour scheme and legend, or hack <code>Init</code> to your satisfaction.</p>
 </div>
-<div id="saving-1" class="section level4">
+<div id="saving-1" class="section level4" number="11.1.3.3">
 <h4>
 <span class="header-section-number">11.1.3.3</span> Saving<a class="anchor" aria-label="anchor" href="#saving-1"><i class="fas fa-link"></i></a>
 </h4>
 <p>Nothing is saved at present.</p>
 </div>
-<div id="age" class="section level4">
+<div id="age" class="section level4" number="11.1.3.4">
 <h4>
 <span class="header-section-number">11.1.3.4</span> Age<a class="anchor" aria-label="anchor" href="#age"><i class="fas fa-link"></i></a>
 </h4>
@@ -295,7 +318,7 @@ If you really want to see this, you’ll have to live with the automated colour 
 Then burned cells, as specified in the input vector <code>burnLoci</code> are set to age 0.</p>
 </div>
 </div>
-<div id="module-outputs-5" class="section level3">
+<div id="module-outputs-5" class="section level3" number="11.1.4">
 <h3>
 <span class="header-section-number">11.1.4</span> Module outputs<a class="anchor" aria-label="anchor" href="#module-outputs-5"><i class="fas fa-link"></i></a>
 </h3>
@@ -327,13 +350,13 @@ Then burned cells, as specified in the input vector <code>burnLoci</code> are se
 </tbody>
 </table></div>
 </div>
-<div id="code-and-data-availability-1" class="section level3">
+<div id="code-and-data-availability-1" class="section level3" number="11.1.5">
 <h3>
 <span class="header-section-number">11.1.5</span> Code and data availability<a class="anchor" aria-label="anchor" href="#code-and-data-availability-1"><i class="fas fa-link"></i></a>
 </h3>
 <p>Code available from <a href="https://github.com/fRI-Research/timeSinceFire" class="uri">https://github.com/fRI-Research/timeSinceFire</a>.</p>
 </div>
-<div id="links-to-other-modules-6" class="section level3">
+<div id="links-to-other-modules-6" class="section level3" number="11.1.6">
 <h3>
 <span class="header-section-number">11.1.6</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules-6"><i class="fas fa-link"></i></a>
 </h3>
@@ -378,7 +401,7 @@ Then burned cells, as specified in the input vector <code>burnLoci</code> are se
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-24.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

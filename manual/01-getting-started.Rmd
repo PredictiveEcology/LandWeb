@@ -375,6 +375,8 @@ data.frame(
     paste0("/"),
   description = c(
     "additional R helper scripts",                             ## R/
+    "scripts for running multiple simulations",                ## batch_runs/
+    "contains LandWeb config, used by the 'box' package",      ## box/
     "all per-run and per-study area cache files stored here",  ## cache/
     "Dockerfiles, scripts, and documentation",                 ## docker/
     "rendered model and app documentation",                    ## docs/

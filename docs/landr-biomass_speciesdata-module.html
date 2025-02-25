@@ -23,6 +23,29 @@
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+          margin-bottom: 0em;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-spy="scroll" data-target="#toc">
@@ -73,7 +96,7 @@
         </div>
       </nav>
 </div>
-  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landr-biomass_speciesdata-module" class="section level1">
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landr-biomass_speciesdata-module" class="section level1" number="4">
 <h1>
 <span class="header-section-number">4</span> LandR <em>Biomass_speciesData</em> Module<a class="anchor" aria-label="anchor" href="#landr-biomass_speciesdata-module"><i class="fas fa-link"></i></a>
 </h1>
@@ -88,18 +111,18 @@
 <p>This documentation is work in progress.
 Please report any discrepancies or omissions at <a href="https://github.com/PredictiveEcology/Biomass_speciesData/issues" class="uri">https://github.com/PredictiveEcology/Biomass_speciesData/issues</a>.</p>
 </div>
-<div id="authors-1" class="section level4">
+<div id="authors-1" class="section level4" number="4.0.0.1">
 <h4>
 <span class="header-section-number">4.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-1"><i class="fas fa-link"></i></a>
 </h4>
 <p>Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut, cre], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [aut], Ceres Barros <a href="mailto:cbarros@mail.ubc.ca" class="email">cbarros@mail.ubc.ca</a> [aut]
 <!-- ideally separate authors with new lines, '\n' not working --></p>
 </div>
-<div id="module-overview-1" class="section level2">
+<div id="module-overview-1" class="section level2" number="4.1">
 <h2>
 <span class="header-section-number">4.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview-1"><i class="fas fa-link"></i></a>
 </h2>
-<div id="module-summary-1" class="section level3">
+<div id="module-summary-1" class="section level3" number="4.1.1">
 <h3>
 <span class="header-section-number">4.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary-1"><i class="fas fa-link"></i></a>
 </h3>
@@ -107,7 +130,7 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 be passed to other LandR data modules (e.g., <em>Biomass_borealDataPrep</em>) or to the
 LandR forest simulation module <em>Biomass_core</em>.</p>
 </div>
-<div id="module-inputs-and-parameters-at-a-glance" class="section level3">
+<div id="module-inputs-and-parameters-at-a-glance" class="section level3" number="4.1.2">
 <h3>
 <span class="header-section-number">4.1.2</span> Module inputs and parameters at a glance<a class="anchor" aria-label="anchor" href="#module-inputs-and-parameters-at-a-glance"><i class="fas fa-link"></i></a>
 </h3>
@@ -231,7 +254,7 @@ be controlled via <code>options(reproducible.destinationPath = ...)</code>.</p>
 </tbody>
 </table></div>
 </div>
-<div id="events" class="section level3">
+<div id="events" class="section level3" number="4.1.3">
 <h3>
 <span class="header-section-number">4.1.3</span> Events<a class="anchor" aria-label="anchor" href="#events"><i class="fas fa-link"></i></a>
 </h3>
@@ -242,7 +265,7 @@ cover layers are downloaded and processed.</li>
 <li>Plotting of the processed species cover layers (<code>initPlot</code> event).</li>
 </ul>
 </div>
-<div id="module-outputs" class="section level3">
+<div id="module-outputs" class="section level3" number="4.1.4">
 <h3>
 <span class="header-section-number">4.1.4</span> Module outputs<a class="anchor" aria-label="anchor" href="#module-outputs"><i class="fas fa-link"></i></a>
 </h3>
@@ -281,7 +304,7 @@ cover layers are downloaded and processed.</li>
 <p>and automatically saves the processed species cover layers in the output path
 defined in <code>getPaths(sim)$outputPath</code>.</p>
 </div>
-<div id="links-to-other-modules-1" class="section level3">
+<div id="links-to-other-modules-1" class="section level3" number="4.1.5">
 <h3>
 <span class="header-section-number">4.1.5</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules-1"><i class="fas fa-link"></i></a>
 </h3>
@@ -292,7 +315,7 @@ within the LandR ecosystem
 <a href="https://rpubs.com/PredictiveEcology/LandR_Module_Ecosystem">here</a>. Select
 <em>Biomass_speciesData</em> from the drop-down menu to see linkages.</p>
 </div>
-<div id="getting-help-1" class="section level3">
+<div id="getting-help-1" class="section level3" number="4.1.6">
 <h3>
 <span class="header-section-number">4.1.6</span> Getting help<a class="anchor" aria-label="anchor" href="#getting-help-1"><i class="fas fa-link"></i></a>
 </h3>
@@ -301,11 +324,11 @@ within the LandR ecosystem
 </ul>
 </div>
 </div>
-<div id="module-manual" class="section level2">
+<div id="module-manual" class="section level2" number="4.2">
 <h2>
 <span class="header-section-number">4.2</span> Module manual<a class="anchor" aria-label="anchor" href="#module-manual"><i class="fas fa-link"></i></a>
 </h2>
-<div id="detailed-description" class="section level3">
+<div id="detailed-description" class="section level3" number="4.2.1">
 <h3>
 <span class="header-section-number">4.2.1</span> Detailed description<a class="anchor" aria-label="anchor" href="#detailed-description"><i class="fas fa-link"></i></a>
 </h3>
@@ -317,18 +340,18 @@ fill-in and replace the lowest quality data with higher quality data when
 several data sources are used. It’s primary output is a <code>RasterStack</code> of species
 % cover, with each layer corresponding to a species.</p>
 <p>Currently, the module can access the Canadian Forest Inventory forest attributes
-kNN dataset <span class="citation">(the default; Beaudoin <em>et al.</em> <a href="references-1.html#ref-BeaudoinEtAl2017">2017</a>)</span>, the Common Attribute Schema for
-Forest Resource Inventories <span class="citation">(CASFRI; Cosco <a href="references-1.html#ref-Cosco2011">2011</a>)</span> dataset, the Ontario Forest
+kNN dataset [the default; <span class="citation">Beaudoin <em>et al.</em> (<a href="references-1.html#ref-BeaudoinEtAl2017">2017</a>)</span>], the Common Attribute Schema for
+Forest Resource Inventories [CASFRI; <span class="citation">Cosco (<a href="references-1.html#ref-Cosco2011">2011</a>)</span>] dataset, the Ontario Forest
 Resource Inventory (ONFRI), a dataset specific to Alberta compiled by Paul
 Pickell, and other Alberta forest inventory datasets. However, <strong>only the NFI
 kNN data are freely available</strong> – access to the other datasets must be granted
 by module developers and data owners, and a Google account is required.
 Nevertheless, the module is flexible enough that any user can use it to process
 additional datasets, provided that an adequate R function is passed to the
-module (see <code>types</code> parameter details in <a href="landr-biomass_speciesdata-module.html#parameters-1">Parameters</a>)</p>
+module (see <code>types</code> parameter details in <a href="landweb_preamble-module.html#parameters">Parameters</a>)</p>
 <p>When multiple data sources are used, the module will use replace lower quality
 data with higher quality data following the order specified by the parameter
-<code>types</code> (see <a href="landr-biomass_speciesdata-module.html#parameters-1">Parameters</a>).</p>
+<code>types</code> (see <a href="landweb_preamble-module.html#parameters">Parameters</a>).</p>
 <p>When multiple species of a given data source are to be grouped, %
 cover is summed across species of the same group within each pixel. Please see
 the <code>sppEquiv</code> input in <a href="landr-biomass_speciesdata-module.html#input-objects">Input objects</a> for information on how species groups
@@ -342,7 +365,7 @@ species <em>a posteriori</em>. The summary plot automatically shown by
 <em>Biomass_speciesData</em> can help diagnose whether certain species are present in
 very few pixels (see Fig. <a href="landr-biomass_speciesdata-module.html#fig:fig-Biomass-speciesDataOutPlots">4.1</a>).</p>
 </div>
-<div id="initialization-inputs-and-parameters" class="section level3">
+<div id="initialization-inputs-and-parameters" class="section level3" number="4.2.2">
 <h3>
 <span class="header-section-number">4.2.2</span> Initialization, inputs and parameters<a class="anchor" aria-label="anchor" href="#initialization-inputs-and-parameters"><i class="fas fa-link"></i></a>
 </h3>
@@ -529,7 +552,7 @@ more information):</p>
 </tr>
 </tbody>
 </table></div>
-<div id="input-objects" class="section level4">
+<div id="input-objects" class="section level4" number="4.2.2.1">
 <h4>
 <span class="header-section-number">4.2.2.1</span> Input objects<a class="anchor" aria-label="anchor" href="#input-objects"><i class="fas fa-link"></i></a>
 </h4>
@@ -617,6 +640,12 @@ coumn chosen for the naming convention used throughout the simulation (the
 <div class="inline-table"><table class="table table-sm">
 <caption>
 <span id="tab:mergingSpp-Biomass-speciesData">Table 4.6: </span>Example of species merging for simulation. Here the user wants to model <em>Abies balsamea</em>, <em>A. lasiocarpa</em> and <em>Pinus contorta</em> as separate species, but all <em>Picea spp.</em> as a genus-level group. For this, all six species are identified in the 'KNN' column, so that their % cover layers can be obtained, but in the 'Boreal' column (which defines the naming convention used in the simulation in this example) all <em>Picea spp.</em> have the same name. <em>Biomass_speciesData</em> will merge their % cover data into a single layer by summing their cover per pixel.</caption>
+<colgroup>
+<col width="41%">
+<col width="18%">
+<col width="12%">
+<col width="27%">
+</colgroup>
 <thead><tr class="header">
 <th align="left">Species</th>
 <th align="left">KNN</th>
@@ -675,7 +704,7 @@ coumn chosen for the naming convention used throughout the simulation (the
 </tbody>
 </table></div>
 </div>
-<div id="parameters-1" class="section level4">
+<div id="parameters-1" class="section level4" number="4.2.2.2">
 <h4>
 <span class="header-section-number">4.2.2.2</span> Parameters<a class="anchor" aria-label="anchor" href="#parameters-1"><i class="fas fa-link"></i></a>
 </h4>
@@ -808,7 +837,7 @@ coumn chosen for the naming convention used throughout the simulation (the
 <tr class="even">
 <td align="left">.useParallel</td>
 <td align="left">numeric</td>
-<td align="left">96</td>
+<td align="left">64</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
 <td align="left">Used in reading csv file with fread. Will be passed to data.table::setDTthreads.</td>
@@ -837,7 +866,7 @@ of <em>ForestInventory</em> layers.</p></li>
 </ul>
 </div>
 </div>
-<div id="simulation-flow" class="section level3">
+<div id="simulation-flow" class="section level3" number="4.2.3">
 <h3>
 <span class="header-section-number">4.2.3</span> Simulation flow<a class="anchor" aria-label="anchor" href="#simulation-flow"><i class="fas fa-link"></i></a>
 </h3>
@@ -859,19 +888,19 @@ species whose layers may have been initially excluded after applying the
 <li><p>Steps 2 and 3 are repeated for remaining data sources listed in <code>types</code>.</p></li>
 <li><p>Final layers are saved to disk and plotted. A summary of number of pixels
 with forest cover are calculated (<code>treed</code>and <code>numTreed</code> output objects; see
-<a href="landweb_summary-module.html#module-outputs-6">Module outputs</a>).</p></li>
+<a href="landr-biomass_speciesdata-module.html#module-outputs">Module outputs</a>).</p></li>
 </ol>
 </div>
 </div>
-<div id="usage-example" class="section level2">
+<div id="usage-example" class="section level2" number="4.3">
 <h2>
 <span class="header-section-number">4.3</span> Usage example<a class="anchor" aria-label="anchor" href="#usage-example"><i class="fas fa-link"></i></a>
 </h2>
-<div id="load-spades-and-other-packages." class="section level3">
+<div id="load-spades-and-other-packages." class="section level3" number="4.3.1">
 <h3>
 <span class="header-section-number">4.3.1</span> Load <code>SpaDES</code> and other packages.<a class="anchor" aria-label="anchor" href="#load-spades-and-other-packages."><i class="fas fa-link"></i></a>
 </h3>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://Require.predictiveecology.org">Require</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"Require"</span><span class="op">)</span></span>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://Require.predictiveecology.org">Require</a></span><span class="op">)</span></span>
@@ -880,11 +909,11 @@ with forest cover are calculated (<code>treed</code>and <code>numTreed</code> ou
 <span><span class="fu"><a href="https://Require.predictiveecology.org/reference/Require.html">Require</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES.install"</span>, <span class="st">"SpaDES"</span>, <span class="st">"PredictiveEcology/SpaDES.core@development"</span>,</span>
 <span>    <span class="st">"PredictiveEcology/LandR"</span><span class="op">)</span>, install_githubArgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="get-module-necessary-packages-and-set-up-folder-directories" class="section level3">
+<div id="get-module-necessary-packages-and-set-up-folder-directories" class="section level3" number="4.3.2">
 <h3>
 <span class="header-section-number">4.3.2</span> Get module, necessary packages and set up folder directories<a class="anchor" aria-label="anchor" href="#get-module-necessary-packages-and-set-up-folder-directories"><i class="fas fa-link"></i></a>
 </h3>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tempDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>inputPath <span class="op">=</span> <span class="fu"><a href="https://Require.predictiveecology.org/reference/normPath.html">normPath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">tempDir</span>, <span class="st">"inputs"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>    cachePath <span class="op">=</span> <span class="fu"><a href="https://Require.predictiveecology.org/reference/normPath.html">normPath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">tempDir</span>, <span class="st">"cache"</span><span class="op">)</span><span class="op">)</span>, modulePath <span class="op">=</span> <span class="fu"><a href="https://Require.predictiveecology.org/reference/normPath.html">normPath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">tempDir</span>,</span>
@@ -897,7 +926,7 @@ with forest cover are calculated (<code>treed</code>and <code>numTreed</code> ou
 <span><span class="co">## make sure all necessary packages are installed:</span></span>
 <span><span class="fu">makeSureAllPackagesInstalled</span><span class="op">(</span><span class="va">paths</span><span class="op">$</span><span class="va">modulePath</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="setup-simulation" class="section level3">
+<div id="setup-simulation" class="section level3" number="4.3.3">
 <h3>
 <span class="header-section-number">4.3.3</span> Setup simulation<a class="anchor" aria-label="anchor" href="#setup-simulation"><i class="fas fa-link"></i></a>
 </h3>
@@ -908,7 +937,7 @@ major output of interest) are saved automatically, so there is no need to tell
 <code><a href="https://spades-core.predictiveecology.org/reference/simList-accessors-outputs.html">?SpaDES.core::outputs</a></code>).</p>
 <p>We pass the global parameter <code>.plotInitialTime = 1</code> in the <code>simInitAndSpades</code>
 function to activate plotting.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># User may want to set some options -- see</span></span>
 <span><span class="co"># ?reproducibleOptions -- e.g., often the path to the</span></span>
 <span><span class="co"># 'inputs' folder will be set outside of project by user:</span></span>
@@ -935,14 +964,14 @@ function to activate plotting.</p>
 <span>    sppColorVect <span class="op">=</span> <span class="va">sppColorVect</span><span class="op">)</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Biomass_speciesData <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>coverThresh <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="run-module" class="section level3">
+<div id="run-module" class="section level3" number="4.3.4">
 <h3>
 <span class="header-section-number">4.3.4</span> Run module<a class="anchor" aria-label="anchor" href="#run-module"><i class="fas fa-link"></i></a>
 </h3>
 <p>Note that because this is a data module (i.e., only attempts to prepare data for
 the simulation) we are not iterating it and so both the start and end times are
 set to <code>1</code> here.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">opts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>reproducible.useCache <span class="op">=</span> <span class="cn">TRUE</span>, reproducible.inputPaths <span class="op">=</span> <span class="va">paths</span><span class="op">$</span><span class="va">inputPath</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mySimOut</span> <span class="op">&lt;-</span> <span class="fu">simInitAndSpades</span><span class="op">(</span>times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
@@ -959,11 +988,10 @@ Figure 4.1: <em>Biomass_speciesData</em> automatically generates a plot of speci
 </div>
 </div>
 </div>
-<div id="references" class="section level2">
+<div id="references" class="section level2" number="4.4">
 <h2>
 <span class="header-section-number">4.4</span> References<a class="anchor" aria-label="anchor" href="#references"><i class="fas fa-link"></i></a>
 </h2>
-
 
 </div>
 </div>
@@ -1017,7 +1045,7 @@ Figure 4.1: <em>Biomass_speciesData</em> automatically generates a plot of speci
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-24.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

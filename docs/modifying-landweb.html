@@ -6,15 +6,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 13 Modifying LandWeb | LandWeb Manual</title>
 <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
-<meta name="description" content="13.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
+<meta name="description" content="Important note regarding caching: When caching simulation events, modifications made to the code that do not change the input values to a function or module event will likely not trigger a...">
 <meta name="generator" content="bookdown 0.34 with bs4_book()">
 <meta property="og:title" content="Chapter 13 Modifying LandWeb | LandWeb Manual">
 <meta property="og:type" content="book">
 <meta property="og:url" content="https://predictiveecology.github.io/LandWeb/modifying-landweb.html">
-<meta property="og:description" content="13.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
+<meta property="og:description" content="Important note regarding caching: When caching simulation events, modifications made to the code that do not change the input values to a function or module event will likely not trigger a...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chapter 13 Modifying LandWeb | LandWeb Manual">
-<meta name="twitter:description" content="13.1 Example 1: adding new reporting polygons ‘Reporting polygons’ refer to the polygons by which LandWeb results are summarized within the study area. These are created in the LandWeb_preamble...">
+<meta name="twitter:description" content="Important note regarding caching: When caching simulation events, modifications made to the code that do not change the input values to a function or module event will likely not trigger a...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -22,6 +22,29 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+          margin-bottom: 0em;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
   </style>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -73,11 +96,17 @@
         </div>
       </nav>
 </div>
-  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="modifying-landweb" class="section level1">
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="modifying-landweb" class="section level1" number="13">
 <h1>
 <span class="header-section-number">13</span> Modifying LandWeb<a class="anchor" aria-label="anchor" href="#modifying-landweb"><i class="fas fa-link"></i></a>
 </h1>
-<div id="example-1-adding-new-reporting-polygons" class="section level2">
+<div class="rmdimportant">
+<p><strong>Important note regarding caching:</strong></p>
+<p>When caching simulation events, modifications made to the code that do not change the input values to a function or module event will likely not trigger a re-evaluation of the cached call.
+For example, when adding new study areas within the <code>LandWeb_preamble</code> module (examples 1-3 below).
+Therefore, users will need to clear their simulation caches to ensure these changes are picked up for caching.</p>
+</div>
+<div id="example-1-adding-new-reporting-polygons" class="section level2" number="13.1">
 <h2>
 <span class="header-section-number">13.1</span> Example 1: adding new reporting polygons<a class="anchor" aria-label="anchor" href="#example-1-adding-new-reporting-polygons"><i class="fas fa-link"></i></a>
 </h2>
@@ -91,7 +120,7 @@ For reporting polygons retrieved from public or Google Drive URLs, both steps ma
 These fields are typically derived from a single field in the raw source, and are thus identical in value.
 Additionally, the helper function <code>joinreportingPolygons()</code> should be used following a geospatial intersection operation (<em>e.g.</em>, using <code>postProcess()</code>) to ensure that post-intersection labels like <code>Names.1</code> and <code>shinyLabel.1</code> are corrected.</p>
 </div>
-<div id="national-scale-polygons" class="section level3">
+<div id="national-scale-polygons" class="section level3" number="13.1.1">
 <h3>
 <span class="header-section-number">13.1.1</span> National-scale polygons<a class="anchor" aria-label="anchor" href="#national-scale-polygons"><i class="fas fa-link"></i></a>
 </h3>
@@ -123,7 +152,7 @@ Additionally, the helper function <code>joinreportingPolygons()</code> should be
 <span>             analysisGroupReportingPolygon <span class="op">=</span> <span class="st">"SK NATLER"</span>,</span>
 <span>             columnNameForLabels <span class="op">=</span> <span class="st">"REGION_NAM"</span>, filename2 <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="regional-or-study-area-specific-polygons" class="section level3">
+<div id="regional-or-study-area-specific-polygons" class="section level3" number="13.1.2">
 <h3>
 <span class="header-section-number">13.1.2</span> Regional or study-area-specific polygons<a class="anchor" aria-label="anchor" href="#regional-or-study-area-specific-polygons"><i class="fas fa-link"></i></a>
 </h3>
@@ -156,7 +185,7 @@ Additionally, the helper function <code>joinreportingPolygons()</code> should be
 <span>             columnNameForLabels <span class="op">=</span> <span class="st">"Name"</span>, filename2 <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
-<div id="example-2-adding-a-new-study-area" class="section level2">
+<div id="example-2-adding-a-new-study-area" class="section level2" number="13.2">
 <h2>
 <span class="header-section-number">13.2</span> Example 2: adding a new study area<a class="anchor" aria-label="anchor" href="#example-2-adding-a-new-study-area"><i class="fas fa-link"></i></a>
 </h2>
@@ -183,8 +212,8 @@ We want to use the latest FMU map from Spring 2022 (<a href="https://www.alberta
 <li>
 <p>Determine the name to use for running LandWeb with your new study area, and modify <code>LandWeb_preamble.R</code> to use this new study area by name.
 Add a new case to the <code>if</code>-<code>else</code> block in <code>LandWeb_preamble.R</code>:</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb61-1" title="1"><span class="er">}</span> <span class="cf">else</span> <span class="cf">if</span> (<span class="kw">grepl</span>(<span class="st">"customABNW"</span>, <span class="kw">P</span>(sim)<span class="op">$</span>.studyAreaName)) {</a>
-<a class="sourceLine" id="cb61-2" title="2">  ml &lt;-<span class="st"> </span><span class="kw">customABNW</span>(ml, <span class="kw">P</span>(sim)<span class="op">$</span>.studyAreaName, dataDir, sim<span class="op">$</span>canProvs, <span class="kw">P</span>(sim)<span class="op">$</span>bufferDist, <span class="dt">asStudyArea =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="modifying-landweb.html#cb61-1" tabindex="-1"></a><span class="er">}</span> <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">grepl</span>(<span class="st">"customABNW"</span>, <span class="fu">P</span>(sim)<span class="sc">$</span>.studyAreaName)) {</span>
+<span id="cb61-2"><a href="modifying-landweb.html#cb61-2" tabindex="-1"></a>  ml <span class="ot">&lt;-</span> <span class="fu">customABNW</span>(ml, <span class="fu">P</span>(sim)<span class="sc">$</span>.studyAreaName, dataDir, sim<span class="sc">$</span>canProvs, <span class="fu">P</span>(sim)<span class="sc">$</span>bufferDist, <span class="at">asStudyArea =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 </li>
 <li>
 <p>Add this new study area to the <code>map</code> object by wrapping the necessary components in a new function defined in a new file at <code>LandWeb_preamble/R</code>.
@@ -198,7 +227,7 @@ It’s simplest to use an existing function/file in <code>LandWeb_preamble/R</co
 <li><p>You should now be able to run the LandWeb model setting `.studyAreaName = “customABNW” and it will use the new study area.</p></li>
 </ol>
 </div>
-<div id="example-3-updating-the-lthfc-map" class="section level2">
+<div id="example-3-updating-the-lthfc-map" class="section level2" number="13.3">
 <h2>
 <span class="header-section-number">13.3</span> Example 3: updating the LTHFC map<a class="anchor" aria-label="anchor" href="#example-3-updating-the-lthfc-map"><i class="fas fa-link"></i></a>
 </h2>
@@ -210,13 +239,15 @@ It’s simplest to use an existing function/file in <code>LandWeb_preamble/R</co
 </ul>
 <p>Here we show how to modify the <code>LandWeb_preamble</code> module to use a hypothetical new version of the longs-term historic fire cycle (LTHFC) map.</p>
 <ol style="list-style-type: decimal">
-<li><p>looking at <code>LandWeb_preamble.R</code> we see that the current version of the file is <code>landweb_ltfc_v8.shp</code>.</p></li>
+<li><p>looking at <code>LandWeb_preamble.R</code> we see that the current version of the file is <code>landweb_ltfc_v8a.shp</code>.</p></li>
 <li><p>create a new spatial layer and save as <code>landweb_ltfc_v9.shp</code>.</p></li>
 <li><p>zip the new shapefile (with auxiliary files) upload this zip file to Google Drive as <code>landweb_ltfc_v9.zip</code>, making note of the Google Drive share URL.</p></li>
 <li><p>modify the <strong>two</strong> <code>mapAdd()</code> calls in <code>LandWeb_preamble.R</code> that reference the previous version (v8) of the LTHFC map to use the new (v9) Google Drive URL.</p></li>
 </ol>
+<p>See <a href="https://github.com/PredictiveEcology/LandWeb/blob/development/R/new_lthfc.R" class="uri">https://github.com/PredictiveEcology/LandWeb/blob/development/R/new_lthfc.R</a> for the script that was used to make the v8a map from v8.
+See <a href="https://github.com/fRI-Research/LandWeb_preamble/commit/ce7a9f02efe44d7bc8bb3ad1f22bd13c1ec12856">this <code>LandWeb_preamble</code> commit</a> to see how this new version was added to the preamble module.</p>
 </div>
-<div id="contributing-changes" class="section level2">
+<div id="contributing-changes" class="section level2" number="13.4">
 <h2>
 <span class="header-section-number">13.4</span> Contributing changes<a class="anchor" aria-label="anchor" href="#contributing-changes"><i class="fas fa-link"></i></a>
 </h2>
@@ -228,7 +259,7 @@ It’s simplest to use an existing function/file in <code>LandWeb_preamble/R</co
 <div class="footnotes">
 <hr>
 <ol start="11">
-<li id="fn11"><p><a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request" class="uri">https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request</a><a href="modifying-landweb.html#fnref11" class="footnote-back">↩</a></p></li>
+<li id="fn11"><p><a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request" class="uri">https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request</a><a href="modifying-landweb.html#fnref11" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   <div class="chapter-nav">
@@ -264,7 +295,7 @@ It’s simplest to use an existing function/file in <code>LandWeb_preamble/R</co
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-24.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

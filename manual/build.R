@@ -32,7 +32,10 @@ keyPkgs <- c(
   "bookdown", "knitr", "LandR", "LandWebUtils",
   "reproducible", "rmarkdown", "shiny", "SpaDES.core", "SpaDES.tools"
 )
-write_bib(allPkgs, file.path(bibDir, "packages.bib")) ## TODO: using allPkgs, not all pkgs have dates/years
+## TODO: using allPkgs, not all pkgs have dates/years
+suppressWarnings({
+  write_bib(allPkgs, file.path(bibDir, "packages.bib"))
+})
 
 ## collapse all chapter .bib files into one ------
 bibFiles <- c(
