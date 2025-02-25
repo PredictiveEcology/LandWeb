@@ -224,6 +224,9 @@ package-dependencies
 module-usage
 testing-the-burn-algorithm
 optimizing-parameters
+visual-examination
+alternate-optimization
+visual-examination-1
 manual-inspection-of-optimization-results
 original-2018-version
 current-2022-version

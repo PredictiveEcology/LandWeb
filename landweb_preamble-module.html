@@ -28,6 +28,7 @@
     div.csl-bib-body { }
     div.csl-entry {
       clear: both;
+          margin-bottom: 0em;
         }
     .hanging div.csl-entry {
       margin-left:2em;
@@ -184,6 +185,14 @@
 <td align="left">One of ‘aspen’, ‘high’, ‘none’, or ‘default’.</td>
 </tr>
 <tr class="even">
+<td align="left">mergeSlivers</td>
+<td align="left">logical</td>
+<td align="left">FALSE</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">Should sliver polygons in LTHFC map be merged into nearest non-zero polygon?</td>
+</tr>
+<tr class="odd">
 <td align="left">minFRI</td>
 <td align="left">numeric</td>
 <td align="left">40</td>
@@ -191,7 +200,7 @@
 <td align="left">200</td>
 <td align="left">The value of fire return interval below which, pixels will be changed to <code>NA</code>, i.e., ignored</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">pixelSize</td>
 <td align="left">numeric</td>
 <td align="left">250</td>
@@ -199,7 +208,7 @@
 <td align="left">NA</td>
 <td align="left">Pixel size in metres. Should be one of 250, 125, 50, 25.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">ROStype</td>
 <td align="left">character</td>
 <td align="left">default</td>
@@ -207,7 +216,7 @@
 <td align="left">NA</td>
 <td align="left">Rate of spread preset to use. One of ‘burny’, ‘equal’, ‘log’, or ‘default’.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">treeClassesLCC</td>
 <td align="left">integer</td>
 <td align="left">1, 2, 3,….</td>
@@ -215,7 +224,7 @@
 <td align="left">39</td>
 <td align="left">AKA <code>forestedLCCClasses</code>. The classes in the <code>LCC2005</code> layer that are considered ‘trees’ from the perspective of LandR-Biomass.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">treeClassesToReplace</td>
 <td align="left">numeric</td>
 <td align="left">34, 35, 36</td>
@@ -223,7 +232,7 @@
 <td align="left">39</td>
 <td align="left">The transient classes in the <code>LCC2005</code> layer that will become ‘trees’ from the perspective of LandR-Biomass (e.g., burned)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.plotInitialTime</td>
 <td align="left">numeric</td>
 <td align="left">0</td>
@@ -231,7 +240,7 @@
 <td align="left">NA</td>
 <td align="left">This describes the simulation time at which the first plot event should occur</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.plotInterval</td>
 <td align="left">numeric</td>
 <td align="left">1</td>
@@ -239,7 +248,7 @@
 <td align="left">NA</td>
 <td align="left">This describes the simulation time interval between plot events</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.plots</td>
 <td align="left">character</td>
 <td align="left">object</td>
@@ -247,7 +256,7 @@
 <td align="left">NA</td>
 <td align="left">Passed to <code>types</code> in <code>Plots</code> (see <code>?Plots</code>). There are a few plots that are made within this module, if set. Note that plots (or their data) saving will ONLY occur at <code>end(sim)</code>. If <code>NA</code>, plotting is turned off completely (this includes plot saving).</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.saveInitialTime</td>
 <td align="left">numeric</td>
 <td align="left">NA</td>
@@ -255,7 +264,7 @@
 <td align="left">NA</td>
 <td align="left">This describes the simulation time at which the first save event should occur</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.saveInterval</td>
 <td align="left">numeric</td>
 <td align="left">NA</td>
@@ -263,7 +272,7 @@
 <td align="left">NA</td>
 <td align="left">This describes the simulation time interval between save events</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.sslVerify</td>
 <td align="left">integer</td>
 <td align="left">64</td>
@@ -271,7 +280,7 @@
 <td align="left">NA</td>
 <td align="left">Passed to <code>httr::config(ssl_verifypeer = P(sim)$sslVerify)</code> when downloading KNN (NFI) datasets. Set to 0L if necessary to bypass checking the SSL certificate (this may be necessary when NFI’s website SSL certificate is not correctly configured).</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">.studyAreaName</td>
 <td align="left">character</td>
 <td align="left">NA</td>
@@ -279,7 +288,7 @@
 <td align="left">NA</td>
 <td align="left">Human-readable name for the study area used. If <code>NA</code>, a hash of <code>studyAreaLarge</code> will be used.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">.useCache</td>
 <td align="left">logical</td>
 <td align="left">FALSE</td>
@@ -477,7 +486,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2023-09-06.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-25.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
