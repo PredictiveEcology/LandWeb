@@ -53,9 +53,11 @@ docker stop LandWeb
 docker rm LandWeb
 ```
 
-### Development tools
+### Bare metal installation
 
-#### Windows
+#### Development tools
+
+##### Windows
 
 1. Download `Rtools` version 4.2 from <https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html> and install it *as administrator*.
     `Rtools` provides the necessary compilers etc. to build and install R packages from source on Windows.
@@ -64,9 +66,9 @@ docker rm LandWeb
 
 2. Download and install a proper text editor, *e.g.* `Notepad++` (<https://notepad-plus-plus.org/downloads/>).
 
-#### macOS
+##### macOS
 
-##### Xcode command line tools
+###### Xcode command line tools
 
 To build software, you will need the Xcode command line tools[^xcode], which include various compilers and `git` version control software.
 
@@ -76,7 +78,7 @@ To build software, you will need the Xcode command line tools[^xcode], which inc
 xcode-select --install
 ```
 
-##### `homebrew` package manager
+###### `homebrew` package manager
 
 Next, install `homebrew` which provides a package manager for macOS.
 This will facilitate software updates and will handle various package dependency issues automatically.
@@ -85,7 +87,7 @@ This will facilitate software updates and will handle various package dependency
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-#### Ubuntu Linux
+##### Ubuntu Linux
 
 ```bash
 sudo apt-get update
@@ -129,15 +131,15 @@ sudo apt-get -y install \
     zlib1g-dev
 ```
 
-### Geospatial libraries
+#### Geospatial libraries
 
 In order to work with geospatial data, recent versions of `GDAL`, `PROJ`, and `GEOS` geospatial libraries need to be available on your system.
 
-#### Windows
+##### Windows
 
 No additional should be needed, as recent versions of R geospatial packages include pre-bundled versions of `GDAL`, `PROJ`, and `GEOS`.
 
-#### macOS
+##### macOS
 
 Use `homebrew` to install the required geospatial software libraries:
 
@@ -149,7 +151,7 @@ brew install gdal
 brew install udunits
 ```
 
-#### Ubuntu Linux
+##### Ubuntu Linux
 
 The default Ubuntu 20.04 LTS package repositories ship older versions of the geospatial libraries we will be using, so we will need to to add some additional repositories to get the latest versions.
 
@@ -189,7 +191,7 @@ sudo npm install npm@latest -g
 sudo npm install -g mapshaper
 ```
 
-### `git`, Git Kraken, and GitHub
+#### Version control
 
 `git` is the version control software used throughout this project, and is required to 'checkout' specific versions of the code as well as to make changes and 'push' these changes to the model code repository.
 
@@ -250,7 +252,7 @@ However, the paid pro version is required to access private repositories.
     
 [^GH_PAT]: <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>
 
-### R and Rstudio
+#### R and Rstudio
 
 1. Download and install R version 4.2.3.
 
