@@ -31,7 +31,7 @@ Next, pull the image from Docker Hub:
 ## get the image
 docker pull achubaty/landweb-standalone:latest
 
-## launch a new container based on thi image
+## launch a new container based on this image
 docker run -d -it \
   -e GITHUB_PAT=$(cat ${HOME}/.Renviron | grep GITHUB_PAT | cut -d '=' -f 2) \
   -e PASSWORD='<mySecretPassword>' \
@@ -270,7 +270,6 @@ However, the paid pro version is required to access private repositories.
 brew tap r-lib/rig
 brew install --cask rig
 
-## e.g., M1/M2 mac users, install the arm version
 rig install 4.2.3
 
 ## start Rstudio using a specific R version:
