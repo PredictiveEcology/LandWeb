@@ -28,7 +28,6 @@
     div.csl-bib-body { }
     div.csl-entry {
       clear: both;
-          margin-bottom: 0em;
         }
     .hanging div.csl-entry {
       margin-left:2em;
@@ -119,7 +118,7 @@
 <span>  renv.config.mran.enabled <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  renv.config.pak.enabled <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/renv/man/restore.html">restore</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html">restore</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div id="model-setup-and-configuration" class="section level2" number="2.1">
 <h2>
@@ -148,8 +147,9 @@ These defaults are defined as ‘dot-variables’ (e.g., <code>.studyAreaName</c
 </h4>
 <p>The model can be run on any of several pre-defined study areas summarized in the table below.
 To select one of these predefined study areas, set <code>.studyAreaName</code> to use one of the following, corresponding to the polygon IDs in the map above.</p>
-<p>To run LandWeb over an entire province use one of <code>provAB</code>, <code>provMB</code>, <code>provNWT</code>, or <code>provSK</code>.</p>
-<p>To run the entire LandWeb study area, use <code>LandWeb</code>.</p>
+<p>To run an entire province use one of <code>"provAB"</code>, <code>"provMB"</code>, <code>"provNWT"</code>, or <code>"provSK"</code>.</p>
+<p>To run the entire LandWeb study area, use <code>"LandWeb_full"</code>.</p>
+<p>To run on a small test area use <code>"random"</code>.</p>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
@@ -250,7 +250,12 @@ The seed used is also saved in human-readable <code>seed.txt</code> file.</p>
 <p>When working in an R session, be sure to set the working directory to the LandWeb project directory.
 The first time running the model, open the file <code>00-global.R</code>, and step through each line to ensure any prompts etc. are answered correctly.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html">source</a></span><span class="op">(</span><span class="st">"00-global.R"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">.mode</span> <span class="op">&lt;-</span> <span class="st">"development"</span></span>
+<span><span class="va">.studyAreaName</span> <span class="op">&lt;-</span> <span class="st">"random"</span></span>
+<span><span class="va">.rep</span> <span class="op">&lt;-</span> <span class="fl">1L</span></span>
+<span><span class="va">.version</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/source.html">source</a></span><span class="op">(</span><span class="st">"00-global.R"</span><span class="op">)</span></span></code></pre></div>
 <div class="rmdimportant">
 <p>When authenticating with Google Drive, be sure to check the box to allow access to files.</p>
 </div>
@@ -300,7 +305,7 @@ For example:</p>
 <h3>
 <span class="header-section-number">2.4.1</span> Customizing model run configuration<a class="anchor" aria-label="anchor" href="#customizing-model-run-configuration"><i class="fas fa-link"></i></a>
 </h3>
-<p>See <a href="https://github.com/PredictiveEcology/SpaDES.config/blob/development/R/config.landweb.R">SpaDES.config/R/config.landweb.R</a>.</p>
+<p>See <code>box/landweb.R</code> file, and <code>02a-user-config.R</code>.</p>
 <p>(TODO)</p>
 </div>
 <div id="cache-backend" class="section level3" number="2.4.2">
@@ -379,7 +384,7 @@ Likewise, users can configure a scratch path for temporary raster file operation
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-25.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-26.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

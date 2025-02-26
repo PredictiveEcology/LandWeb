@@ -138,9 +138,11 @@ data.frame(
   kableExtra::kable_styling(latex_options = "striped") # font_size = 10
 ```
 
-To run LandWeb over an entire province use one of `provAB`, `provMB`, `provNWT`, or `provSK`.
+To run an entire province use one of `"provAB"`, `"provMB"`, `"provNWT"`, or `"provSK"`.
 
-To run the entire LandWeb study area, use `LandWeb_full`.
+To run the entire LandWeb study area, use `"LandWeb_full"`.
+
+To run on a small test area use `"random"`.
 
 \newpage
 
