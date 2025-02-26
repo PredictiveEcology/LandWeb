@@ -134,7 +134,7 @@ data.frame(
   )
 ) |>
   knitr::kable(caption = "Model study areas with corresponding FMA polygon IDs (from Figure 1).",
-             format = "latex", booktabs = TRUE) |>
+               format = "latex", booktabs = TRUE) |>
   kableExtra::kable_styling(latex_options = "striped") # font_size = 10
 ```
 
@@ -256,7 +256,7 @@ To run processing, use `.mode = "postprocess"` and be sure to set the number of 
 
 ### Customizing model run configuration
 
-See [SpaDES.config/R/config.landweb.R](https://github.com/PredictiveEcology/SpaDES.config/blob/development/R/config.landweb.R).
+See `box/landweb.R` file, and `02a-user-config.R`.
 
 (TODO)
 
