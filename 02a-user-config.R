@@ -10,9 +10,7 @@ config.user <- switch(
         googleUser = "achubaty@for-cast.ca",
         useCloud = FALSE
       ),
-      notifications = list(
-        slackChannel = "@alex.chubaty"
-      )
+      notifications = list()
     ),
     options = list(
       reproducible.cacheSaveFormat = "rds", ## use "qs" when caching is fixed upstream
@@ -36,9 +34,11 @@ config.user <- switch(
       )
     ),
     paths = list(
-      scratchPath = switch(.nodename,
-                           `larix.for-cast.ca` = file.path("/tmp/scratch", basename(prjDir)),
-                           file.path("/mnt/scratch", .user, basename(prjDir)))
+      scratchPath = if (dir.exists("/mnt/scratch"))  {
+        file.path("/mnt/scratch", .user, basename(prjDir))
+      } else {
+        file.path("/tmp/scratch", basename(prjDir))
+      }
     )
   ),
 
