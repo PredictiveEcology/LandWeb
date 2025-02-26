@@ -26,11 +26,14 @@ WORKDIR /home/$DEFAULT_USER/GitHub/$GH_REPO
 
 RUN mkdir cache inputs outputs
 
-# RUN Rscript -e 'options(Ncpus = min(32, parallel::detectCores() / 2)); renv::restore()'
+## install R packages
+ENV RENV_WATCHDOG_ENABLED FALSE
+RUN Rscript -e 'options(Ncpus = max(1, min(16, parallel::detectCores() - 1))); renv::restore()'
 
 ## set default project (https://stackoverflow.com/a/53547334/1380598)
-RUN mkdir -p /home/$DEFAULT_USER/.rstudio/projects_settings
-RUN echo /home/$DEFAULT_USER/GitHub/$GH_REPO/$GH_REPO.Rproj > /home/$DEFAULT_USER/.rstudio/projects_settings/switch-to-project
+RUN mkdir -p /home/$DEFAULT_USER/.rstudio/projects_settings \
+    && echo /home/$DEFAULT_USER/GitHub/$GH_REPO/$GH_REPO.Rproj > \
+            /home/$DEFAULT_USER/.rstudio/projects_settings/switch-to-project
 
 RUN groupmod --gid $USER_GID $DEFAULT_USER \
     && usermod --uid $USER_UID --gid $USER_GID $DEFAULT_USER \
