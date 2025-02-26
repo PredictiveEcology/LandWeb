@@ -193,6 +193,11 @@ When working in an R session, be sure to set the working directory to the LandWe
 The first time running the model, open the file `00-global.R`, and step through each line to ensure any prompts etc. are answered correctly.
 
 ```r
+.mode <- "development"
+.studyAreaName <- "random"
+.rep <- 1L
+.version <- 2
+
 source("00-global.R")
 ```
 
