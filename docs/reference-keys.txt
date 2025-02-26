@@ -1,6 +1,9 @@
 fig:landwebStudyArea
 tab:dir-structure
 fig:gitkraken-screen
+fig:fma-map
+tab:fma-table
+tab:studyarea-table
 tab:moduleInputs-Biomass-speciesData
 tab:moduleParams-Biomass-speciesData
 tab:moduleOutputs-Biomass-speciesData

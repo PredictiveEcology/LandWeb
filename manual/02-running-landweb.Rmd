@@ -55,7 +55,7 @@ Currently, only a subset of the FMAs within the LandWeb study area are predefine
 \newpage
 \blandscape
 
-```{r fma-map, echo = FALSE, eval = "true", fig.keep = "all", out.width = "90%", results = "hide", fig.cap = "\\label{fig:fma-map} FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs."}
+```{r fma-map, echo = FALSE, eval = "true", fig.keep = "all", message = FALSE, out.width = "90%", results = "hide", fig.cap = "\\label{fig:fma-map} FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs."}
 prjDir <- SpaDES.project::findProjectPath()
 canProvs <- geodata::gadm(country = "CAN", level = 1, path = file.path(prjDir, "inputs")) |>
   sf::st_as_sf()
@@ -66,43 +66,43 @@ fshp2 <- file.path(prjDir, "inputs", "FMA_Boundaries",
 fcsv2 <- file.path(prjDir, "manual", "tables", "FMA_Boundary_Updated.csv")
 fgg2 <- file.path(prjDir, "manual", "figures", "FMA_Boundary_Updated.png")
 
-## TODO: restore this block; fix error in geom_sf convreting geom to grob
-# if (file.exists(fshp2)) {
-#   sf2 <- sf::st_read(fshp2)
-#   
-#   data.frame(ID = sf2$OBJECTID_1, Name = sf2$Name) |>
-#     write.csv(fcsv2, row.names = FALSE)
-#   
-#   centroids_sf2 <- cbind(
-#     suppressWarnings(sf::st_centroid(sf2)),
-#     suppressWarnings(sf::st_coordinates(sf::st_centroid(sf2$geometry)))
-#   )
-#   
-#   gg2 <- ggplot2::ggplot(data = sf2) +
-#     ggplot2::geom_sf(data = canProvs[canProvs$NAME_1 %in% lwProvs, ]) +
-#     ggplot2::geom_sf(mapping = ggplot2::aes(fill = as.factor(OBJECTID_1 %% 10))) +
-#     ggplot2::scale_fill_brewer(type = "div", palette = "Spectral") +
-#     ggplot2::geom_text(data = centroids_sf2, 
-#                        mapping = ggplot2::aes(x = X, y = Y, label = OBJECTID_1), size = 2) + 
-#     ggplot2::labs(title = "FMA boundaries within the LandWeb study area") + 
-#     ggplot2::xlab("Longitude") +
-#     ggplot2::ylab("Latitude") + 
-#     ggplot2::guides(fill = "none") +
-#     ggplot2::theme_bw()
-#   ggplot2::ggsave(fgg2, gg2)
-#   gg2
-# } else {
+if (file.exists(fshp2)) {
+  sf2 <- sf::st_read(fshp2, quiet = TRUE) |>
+    sf::st_zm()
+
+  data.frame(ID = sf2$OBJECTID_1, Name = sf2$Name) |>
+    write.csv(fcsv2, row.names = FALSE)
+
+  centroids_sf2 <- cbind(
+    suppressWarnings(sf::st_centroid(sf2)),
+    suppressWarnings(sf::st_coordinates(sf::st_centroid(sf2$geometry)))
+  )
+
+  gg2 <- ggplot2::ggplot(data = sf2) +
+    ggplot2::geom_sf(data = canProvs[canProvs$NAME_1 %in% lwProvs, ]) +
+    ggplot2::geom_sf(data = sf2, mapping = ggplot2::aes(fill = as.factor(OBJECTID_1 %% 10))) +
+    ggplot2::scale_fill_brewer(type = "div", palette = "Spectral") +
+    ggplot2::geom_text(data = centroids_sf2,
+                       mapping = ggplot2::aes(x = X, y = Y, label = OBJECTID_1), size = 2) +
+    ggplot2::labs(title = "FMA boundaries within the LandWeb study area") +
+    ggplot2::xlab("Longitude") +
+    ggplot2::ylab("Latitude") +
+    ggplot2::guides(fill = "none") +
+    ggplot2::theme_bw()
+  ggplot2::ggsave(fgg2, gg2)
+  gg2
+} else {
   knitr::include_graphics(fgg2)
-# }
+}
 ```
 
 \elandscape
 \newpage
 
-```{r fma-table, echo = FALSE, eval = TRUE}
+```{r fma-table, echo = FALSE, eval = TRUE, message = FALSE, warning = FALSE}
 read.csv(fcsv2) |>
   knitr::kable(caption = "FMA polygon IDs (from Figure 1) and their corresponding FMA names.",
-               format = "latex", booktabs = TRUE, longtable = TRUE) |>
+               booktabs = TRUE, longtable = TRUE) |>
   kableExtra::kable_styling(latex_options =  c("striped", "repeat_header"))
 ```
 
@@ -111,7 +111,7 @@ read.csv(fcsv2) |>
 The model can be run on any of several pre-defined study areas summarized in the table below.
 To select one of these predefined study areas, set `.studyAreaName` to use one of the following, corresponding to the polygon IDs in the map above.
 
-```{r studyarea-table, echo = FALSE, eval = TRUE}
+```{r studyarea-table, echo = FALSE, eval = TRUE, message = FALSE, warning = FALSE}
 data.frame(
   studyAreaName = c("ANC", "Blueridge", "DMI", "Edson", "FMANWT ", "FMANWT2",
                     "LP_BC", "LP_MB", "Manning", "MillarWestern", "Mistik", "MPR",
@@ -134,7 +134,7 @@ data.frame(
   )
 ) |>
   knitr::kable(caption = "Model study areas with corresponding FMA polygon IDs (from Figure 1).",
-               format = "latex", booktabs = TRUE) |>
+               booktabs = TRUE) |>
   kableExtra::kable_styling(latex_options = "striped") # font_size = 10
 ```
 
