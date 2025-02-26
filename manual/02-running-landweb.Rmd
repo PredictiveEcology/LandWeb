@@ -140,7 +140,7 @@ data.frame(
 
 To run LandWeb over an entire province use one of `provAB`, `provMB`, `provNWT`, or `provSK`.
 
-To run the entire LandWeb study area, use `LandWeb`.
+To run the entire LandWeb study area, use `LandWeb_full`.
 
 \newpage
 
