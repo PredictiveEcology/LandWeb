@@ -27,7 +27,7 @@ WORKDIR /home/$DEFAULT_USER/GitHub/$GH_REPO
 RUN mkdir cache inputs outputs
 
 ## install R packages
-ENV RENV_WATCHDOG_ENABLED FALSE
+ENV RENV_WATCHDOG_ENABLED=FALSE
 RUN Rscript -e 'options(Ncpus = max(1, min(16, parallel::detectCores() - 1))); renv::restore()'
 
 ## set default project (https://stackoverflow.com/a/53547334/1380598)
