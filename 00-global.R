@@ -19,7 +19,6 @@ options(
   Ncpus = .ncores
 )
 
-# source("01-setup.R") ## defunct package installation; now done using `renv`.
 library("data.table")
 library("plyr")
 library("pryr")
