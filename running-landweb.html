@@ -620,6 +620,20 @@ The seed used is also saved in human-readable <code>seed.txt</code> file.</p>
 <span class="header-section-number">2.2</span> Running the model<a class="anchor" aria-label="anchor" href="#running-the-model"><i class="fas fa-link"></i></a>
 </h2>
 <p><strong>NOTE:</strong> The first time the model is run, it will automatically download additional data and install additional R packages, which can take some time to complete.</p>
+<div class="rmdcaution">
+<p>Due to a server configuration problem, the following national ecolocation polygons should be downloaded manually to the <code>inputs/</code> directory:</p>
+<ul>
+<li>
+<strong>ecodistricts</strong>: <a href="http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip">ecodistrict_shp.zip</a>
+</li>
+<li>
+<strong>ecoregions</strong>: <a href="http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip">ecoregion_shp.zip</a>
+</li>
+<li>
+<strong>ecozones</strong>: <a href="http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip">ecozone_shp.zip</a>
+</li>
+</ul>
+</div>
 <div id="interactive-r-session" class="section level3" number="2.2.1">
 <h3>
 <span class="header-section-number">2.2.1</span> Interactive R session<a class="anchor" aria-label="anchor" href="#interactive-r-session"><i class="fas fa-link"></i></a>
