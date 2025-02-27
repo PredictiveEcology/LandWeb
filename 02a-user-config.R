@@ -84,6 +84,12 @@ config.user <- switch(
         googleUser = "",
         useCloud = FALSE
       )
+    ),
+    options = list(
+      reproducible.cacheSaveFormat = "rds", ## use "qs" when caching is fixed upstream
+      reproducible.useTerra = TRUE, ## TODO: add to config
+      spades.memoryUseInterval = FALSE, ## TODO: temporary until callr/future cache bug fixed
+      spades.useRequire = FALSE
     )
   )
 )
