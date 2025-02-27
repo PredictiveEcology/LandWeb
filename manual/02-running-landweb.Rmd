@@ -189,6 +189,14 @@ The seed used is also saved in human-readable `seed.txt` file.
 
 **NOTE:** The first time the model is run, it will automatically download additional data and install additional R packages, which can take some time to complete.
 
+:::{.rmdcaution}
+Due to a server configuration problem, the following national ecolocation polygons should be downloaded manually to the `inputs/` directory:
+
+- **ecodistricts**: [ecodistrict_shp.zip](http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip)
+- **ecoregions**: [ecoregion_shp.zip](http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip)
+- **ecozones**: [ecozone_shp.zip](http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip)
+:::
+
 ### Interactive R session
 
 When working in an R session, be sure to set the working directory to the LandWeb project directory.
