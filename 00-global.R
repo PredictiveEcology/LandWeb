@@ -76,7 +76,7 @@ tryCatch({
     userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "preamble")
   )
 }, error = function(e) {
-  if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+  if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
     notifications::notify_google(
       paste0("ERROR in preamble `", config$context[["runName"]],
              "` on host `", config$context[["machine"]], "`.\n",
@@ -131,7 +131,7 @@ tryCatch({
     userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "speciesLayers")
   )
 }, error = function(e) {
-  if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+  if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
     notifications::notify_google(
       paste0("ERROR in species layers `", config$context[["runName"]],
              "` on host `", config$context[["machine"]], "`.\n",
@@ -199,7 +199,7 @@ if (config$context[["mode"]] != "postprocess") {
       userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "dataPrep")
     )
   }, error = function(e) {
-    if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+    if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
       notifications::notify_google(
         paste0("ERROR in data prep `", config$context[["runName"]],
                "` on host `", config$context[["machine"]], "`.\n",
@@ -307,7 +307,7 @@ if (config$context[["mode"]] != "postprocess") {
         file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"),
         sep = "\n")
   }, error = function(e) {
-    if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+    if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
       notifications::notify_google(
         paste0("ERROR in post-processing `", config$context[["runName"]],
                "` on host `", config$context[["machine"]], "`.\n",
@@ -346,7 +346,7 @@ if (config$context[["mode"]] != "postprocess") {
   }
 
   # end-of-sim notifications --------------------------------------------------------------------
-  if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+  if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
     notifications::notify_google(
       paste0("Post-processing for `", config$context[["runName"]],
              "` completed on host `", config$context[["machine"]], "`.")
