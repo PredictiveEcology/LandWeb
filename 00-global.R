@@ -11,7 +11,7 @@ if (!grepl("renv", .libPaths()[1])) {
 
 prjDir <- SpaDES.project::findProjectPath()
 
-stopifnot(identical(prjDir, normalizePath(getwd())))
+stopifnot(identical(prjDir, normalizePath(getwd(), winslash = "/")))
 
 source("01a-globalvars.R")
 
