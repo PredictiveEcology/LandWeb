@@ -16,7 +16,7 @@ rig rstudio renv.lock
 2. Open the file `00-global.R` and run each line in sequence, responding to any prompts as required.
 
 :::{.rmdwarning}
-Before you can run the model, you first need to install the packages required for the project by restoring from the project's snapshot file.
+Before you can run the model, ensure that all necesarry package versions are installed by restoring from the project's snapshot file.
 
 ```r
 options(
