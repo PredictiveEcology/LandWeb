@@ -259,7 +259,7 @@ However, the paid pro version is required to access private repositories.
 :::{.rmdimportant}
 **Windows**
 
-1. Download R from <https://cran.r-project.org/bin/windows/base/R-4.2.3-win.exe>;
+1. Download R from <https://cran.r-project.org/bin/windows/base/old/4.2.3/R-4.2.3-win.exe>;
 2. Install R *as administrator*.
 
 **macOS**
