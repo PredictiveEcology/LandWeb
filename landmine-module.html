@@ -607,7 +607,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <span class="header-section-number">8.2.1</span> Package dependencies<a class="anchor" aria-label="anchor" href="#package-dependencies"><i class="fas fa-link"></i></a>
 </h3>
 <p>To determine which packages are used by <code>LandMine</code>, use:</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">SpaDES.core</span><span class="fu">::</span><span class="fu"><a href="https://spades-core.predictiveecology.org/reference/packages.html">packages</a></span><span class="op">(</span>modules <span class="op">=</span> <span class="st">"LandMine"</span>, paths <span class="op">=</span> <span class="st">".."</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <pre><code>##  [1] "SpaDES.core"                                          
 ##  [2] "assertthat"                                           
@@ -634,29 +634,29 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <span class="header-section-number">8.2.2</span> Module usage<a class="anchor" aria-label="anchor" href="#module-usage"><i class="fas fa-link"></i></a>
 </h3>
 <p>First, define a study area and create a template raster.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">studyArea</span> <span class="op">&lt;-</span> <span class="fu">SpaDES.tools</span><span class="fu">::</span><span class="fu"><a href="https://spades-tools.predictiveecology.org/reference/randomStudyArea.html">randomStudyArea</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="fl">1234</span>, size <span class="op">=</span> <span class="fl">1e+10</span><span class="op">)</span></span>
 <span><span class="va">rasterToMatch</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="op">(</span><span class="va">studyArea</span>, res <span class="op">=</span> <span class="fl">250</span><span class="op">)</span></span></code></pre></div>
 <p>Next, set up the simulation to run for 13 timesteps using default module parameters.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="landmine-module.html#cb41-1" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">start =</span> <span class="dv">0</span>, <span class="at">end =</span> <span class="dv">13</span>)</span>
-<span id="cb41-2"><a href="landmine-module.html#cb41-2" tabindex="-1"></a></span>
-<span id="cb41-3"><a href="landmine-module.html#cb41-3" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) parameters</span></span>
-<span id="cb41-4"><a href="landmine-module.html#cb41-4" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) &lt;-</span></span>
-<span id="cb41-5"><a href="landmine-module.html#cb41-5" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) list(#</span></span>
-<span id="cb41-6"><a href="landmine-module.html#cb41-6" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) LandMine</span></span>
-<span id="cb41-7"><a href="landmine-module.html#cb41-7" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) =</span></span>
-<span id="cb41-8"><a href="landmine-module.html#cb41-8" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) list(flushCachedRandomFRI</span></span>
-<span id="cb41-9"><a href="landmine-module.html#cb41-9" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) =</span></span>
-<span id="cb41-10"><a href="landmine-module.html#cb41-10" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) TRUE)</span></span>
-<span id="cb41-11"><a href="landmine-module.html#cb41-11" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) )</span></span>
-<span id="cb41-12"><a href="landmine-module.html#cb41-12" tabindex="-1"></a></span>
-<span id="cb41-13"><a href="landmine-module.html#cb41-13" tabindex="-1"></a>modules <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"LandMine"</span>)</span>
-<span id="cb41-14"><a href="landmine-module.html#cb41-14" tabindex="-1"></a></span>
-<span id="cb41-15"><a href="landmine-module.html#cb41-15" tabindex="-1"></a>objects <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">studyArea =</span> studyArea, <span class="at">rasterToMatch =</span> rasterToMatch)</span>
-<span id="cb41-16"><a href="landmine-module.html#cb41-16" tabindex="-1"></a></span>
-<span id="cb41-17"><a href="landmine-module.html#cb41-17" tabindex="-1"></a>paths <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">cachePath =</span> cacheDir, <span class="at">modulePath =</span> moduleDir, <span class="at">inputPath =</span> inputDir,</span>
-<span id="cb41-18"><a href="landmine-module.html#cb41-18" tabindex="-1"></a>    <span class="at">outputPath =</span> outputDir)</span></code></pre></div>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="landmine-module.html#cb42-1" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">start =</span> <span class="dv">0</span>, <span class="at">end =</span> <span class="dv">13</span>)</span>
+<span id="cb42-2"><a href="landmine-module.html#cb42-2" tabindex="-1"></a></span>
+<span id="cb42-3"><a href="landmine-module.html#cb42-3" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) parameters</span></span>
+<span id="cb42-4"><a href="landmine-module.html#cb42-4" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) &lt;-</span></span>
+<span id="cb42-5"><a href="landmine-module.html#cb42-5" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) list(#</span></span>
+<span id="cb42-6"><a href="landmine-module.html#cb42-6" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) LandMine</span></span>
+<span id="cb42-7"><a href="landmine-module.html#cb42-7" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) =</span></span>
+<span id="cb42-8"><a href="landmine-module.html#cb42-8" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) list(flushCachedRandomFRI</span></span>
+<span id="cb42-9"><a href="landmine-module.html#cb42-9" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) =</span></span>
+<span id="cb42-10"><a href="landmine-module.html#cb42-10" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) TRUE)</span></span>
+<span id="cb42-11"><a href="landmine-module.html#cb42-11" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) )</span></span>
+<span id="cb42-12"><a href="landmine-module.html#cb42-12" tabindex="-1"></a></span>
+<span id="cb42-13"><a href="landmine-module.html#cb42-13" tabindex="-1"></a>modules <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"LandMine"</span>)</span>
+<span id="cb42-14"><a href="landmine-module.html#cb42-14" tabindex="-1"></a></span>
+<span id="cb42-15"><a href="landmine-module.html#cb42-15" tabindex="-1"></a>objects <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">studyArea =</span> studyArea, <span class="at">rasterToMatch =</span> rasterToMatch)</span>
+<span id="cb42-16"><a href="landmine-module.html#cb42-16" tabindex="-1"></a></span>
+<span id="cb42-17"><a href="landmine-module.html#cb42-17" tabindex="-1"></a>paths <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">cachePath =</span> cacheDir, <span class="at">modulePath =</span> moduleDir, <span class="at">inputPath =</span> inputDir,</span>
+<span id="cb42-18"><a href="landmine-module.html#cb42-18" tabindex="-1"></a>    <span class="at">outputPath =</span> outputDir)</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mySim</span> <span class="op">&lt;-</span> <span class="fu">simInit</span><span class="op">(</span>times <span class="op">=</span> <span class="va">times</span>, params <span class="op">=</span> <span class="va">parameters</span>, modules <span class="op">=</span> <span class="va">modules</span>,</span>
 <span>    objects <span class="op">=</span> <span class="va">objects</span>, paths <span class="op">=</span> <span class="va">paths</span><span class="op">)</span></span>
 <span></span>
@@ -669,7 +669,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <h2>
 <span class="header-section-number">8.3</span> Testing the burn algorithm<a class="anchor" aria-label="anchor" href="#testing-the-burn-algorithm"><i class="fas fa-link"></i></a>
 </h2>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://Require.predictiveecology.org/reference/Require.html">Require</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"data.table"</span>, <span class="st">"DEoptim"</span>, <span class="st">"parallel"</span>, <span class="st">"SDMTools"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">simInit</span><span class="op">(</span>times <span class="op">=</span> <span class="va">times</span>, params <span class="op">=</span> <span class="va">parameters</span>, modules <span class="op">=</span> <span class="va">modules</span>,</span>
@@ -681,7 +681,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <span class="header-section-number">8.4</span> Optimizing parameters<a class="anchor" aria-label="anchor" href="#optimizing-parameters"><i class="fas fa-link"></i></a>
 </h2>
 <p>The following code chunk tries to find values of <code>spawnNewActive</code> that creates “reasonable” fire shapes at all sizes.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pixelSize</span> <span class="op">&lt;-</span> <span class="fl">250</span></span>
 <span><span class="va">ros</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="op">(</span><span class="fu">extent</span><span class="op">(</span><span class="fl">0</span>, <span class="va">pixelSize</span> <span class="op">*</span> <span class="fl">1000</span>, <span class="fl">0</span>, <span class="va">pixelSize</span> <span class="op">*</span> <span class="fl">1000</span><span class="op">)</span>,</span>
 <span>    res <span class="op">=</span> <span class="va">pixelSize</span>, vals <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
@@ -703,7 +703,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <span>    <span class="st">"sizeCutoffs"</span>, <span class="st">"spreadProb"</span><span class="op">)</span></span>
 <span><span class="va">pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"data.table"</span>, <span class="st">"LandWebUtils"</span>, <span class="st">"raster"</span>, <span class="st">"SDMTools"</span>,</span>
 <span>    <span class="st">"SpaDES.tools"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">### SET UP CLUSTER FOR PARALLEL</span></span>
 <span><span class="va">wantParallel</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span></span>
@@ -735,7 +735,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <h3>
 <span class="header-section-number">8.4.1</span> Visual examination<a class="anchor" aria-label="anchor" href="#visual-examination"><i class="fas fa-link"></i></a>
 </h3>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">opt_sn</span> <span class="op">&lt;-</span> <span class="fu">DEoptim</span><span class="op">(</span><span class="va">landmine_optim_fitSN</span>, lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">3</span>, <span class="op">-</span><span class="fl">3</span>,</span>
 <span>    <span class="op">-</span><span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">3.5</span>, <span class="fl">0.75</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">3.5</span>, <span class="fl">5</span>,</span>
 <span>    <span class="fl">1</span><span class="op">)</span>, control <span class="op">=</span> <span class="fu">DEoptim.control</span><span class="op">(</span>VTR <span class="op">=</span> <span class="fl">0.001</span>, NP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">clNames</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -755,7 +755,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 <span></span>
 <span><span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/makeCluster.html">stopCluster</a></span><span class="op">(</span><span class="va">cl</span><span class="op">)</span></span>
 <span><span class="va">cl</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span></code></pre></div>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fs_sn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">1000</span>, <span class="fl">10000</span>, <span class="fl">1e+05</span><span class="op">)</span></span>
 <span><span class="va">fit_sn</span> <span class="op">&lt;-</span> <span class="fu">landmine_optim_fitSN</span><span class="op">(</span>sna <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">4</span>,</span>
 <span>    <span class="fl">0.9</span><span class="op">)</span>, ros <span class="op">=</span> <span class="va">ros</span>, centreCell <span class="op">=</span> <span class="va">centreCell</span>, fireSizes <span class="op">=</span> <span class="va">fs_sn</span>,</span>
@@ -771,7 +771,7 @@ Each of the species groups has its own Rate of Spread (ROS) for fire spreading:<
 </h2>
 <p>A second (alternative) version tries the optimization using fewer parameters, to test whether a simpler version gets better/different results.
 Although this version was not used for the final module, we preserve it here for posterity.</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fs_optim2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span> <span class="op">*</span> <span class="fl">10000</span></span>
 <span><span class="va">opt_sn2</span> <span class="op">&lt;-</span> <span class="fu">DEoptim</span><span class="op">(</span><span class="va">landmine_optim_fitSN2</span>, lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>,</span>
 <span>    <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span><span class="op">)</span>, control <span class="op">=</span> <span class="fu">DEoptim.control</span><span class="op">(</span>VTR <span class="op">=</span> <span class="fl">0.001</span>,</span>
@@ -781,7 +781,7 @@ Although this version was not used for the final module, we preserve it here for
 <h3>
 <span class="header-section-number">8.5.1</span> Visual examination<a class="anchor" aria-label="anchor" href="#visual-examination-1"><i class="fas fa-link"></i></a>
 </h3>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fs_sn2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">10</span>, <span class="fl">4000</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fit_sn2</span> <span class="op">&lt;-</span> <span class="fu">landmine_optim_fitSN2</span><span class="op">(</span>par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">0.63333</span>, <span class="fl">1</span>, <span class="fl">3.2</span>,</span>
 <span>    <span class="fl">4.4</span><span class="op">)</span>, ros <span class="op">=</span> <span class="va">ros</span>, centreCell <span class="op">=</span> <span class="va">centreCell</span>, fireSizes <span class="op">=</span> <span class="va">fs_sn2</span>,</span>
@@ -802,7 +802,7 @@ Although this version was not used for the final module, we preserve it here for
 </h3>
 <p>The original version was run using 100m pixels, despite the simulations being run using 250m pixels.
 This was corrected and rerun below.</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## 10,000 hectares burns gave this</span></span>
 <span><span class="va">spawnNewActive</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.0235999945606232</span>, <span class="fl">0.0263073265505955</span><span class="op">)</span></span>
 <span></span>
@@ -905,7 +905,7 @@ This was corrected and rerun below.</p>
 <span>        na.color <span class="op">=</span> <span class="st">"white"</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, visualSqueeze <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>        title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"Fire size: "</span>, <span class="va">fireSize</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">reps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"rep"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">perims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">perm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -956,7 +956,7 @@ This was corrected and rerun below.</p>
 </h3>
 <p>The original version was run using 100m pixels, despite the simulations being run using 250m pixels.
 This version uses 250m pixels.</p>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## final optimization after 200 iterations</span></span>
 <span><span class="co">## (landmine_optim_fitSN)</span></span>
 <span><span class="va">optimParams</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="va">fDEoptim</span><span class="op">)</span></span>
@@ -999,7 +999,7 @@ This version uses 250m pixels.</p>
 <h3>
 <span class="header-section-number">8.6.3</span> Cleaning up<a class="anchor" aria-label="anchor" href="#cleaning-up"><i class="fas fa-link"></i></a>
 </h3>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/makeCluster.html">stopCluster</a></span><span class="op">(</span><span class="va">cl</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html">unlink</a></span><span class="op">(</span><span class="va">cacheDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -1075,7 +1075,7 @@ This version uses 250m pixels.</p>
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-27.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-28.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

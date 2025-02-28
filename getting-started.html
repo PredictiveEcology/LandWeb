@@ -119,29 +119,27 @@
 <span class="header-section-number">1.1.1</span> Docker<a class="anchor" aria-label="anchor" href="#docker"><i class="fas fa-link"></i></a>
 </h3>
 <div class="rmdwarning">
-<p><strong>If you prefer to not use Docker, skip this subsection.</strong></p>
 <p>Due to idiosyncratic difficulties of installing multiple pieces of software and ensuring the correct versions are used throughout, we provide prebuilt <a href="https://www.docker.com/">Docker</a> images, which better provides a consistent and reproducible software environment for running the model.</p>
 <p>Thus, using these images are preferred over ‘bare-metal’ installation.</p>
+<p><strong>If you prefer to not use Docker, skip this subsection.</strong></p>
 </div>
 <p>Install Docker for your system following <a href="https://docs.docker.com/get-docker/" class="uri">https://docs.docker.com/get-docker/</a>.</p>
 <p>Next, pull the image from Docker Hub:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="getting-started.html#cb1-1" tabindex="-1"></a><span class="co">## get the image</span></span>
-<span id="cb1-2"><a href="getting-started.html#cb1-2" tabindex="-1"></a><span class="ex">docker</span> pull achubaty/landweb-standalone:latest</span>
-<span id="cb1-3"><a href="getting-started.html#cb1-3" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="getting-started.html#cb1-4" tabindex="-1"></a><span class="co">## launch a new container based on this image</span></span>
-<span id="cb1-5"><a href="getting-started.html#cb1-5" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="at">-it</span> <span class="dt">\</span></span>
-<span id="cb1-6"><a href="getting-started.html#cb1-6" tabindex="-1"></a>  <span class="at">-e</span> GITHUB_PAT=<span class="va">$(</span><span class="fu">cat</span> <span class="va">${HOME}</span>/.Renviron <span class="kw">|</span> <span class="fu">grep</span> GITHUB_PAT <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span> <span class="st">'='</span> <span class="at">-f</span> 2<span class="va">)</span> <span class="dt">\</span></span>
-<span id="cb1-7"><a href="getting-started.html#cb1-7" tabindex="-1"></a>  <span class="at">-e</span> PASSWORD=<span class="st">'&lt;mySecretPassword&gt;'</span> <span class="dt">\</span></span>
-<span id="cb1-8"><a href="getting-started.html#cb1-8" tabindex="-1"></a>  <span class="at">--memory</span><span class="op">=</span>128g <span class="dt">\</span></span>
-<span id="cb1-9"><a href="getting-started.html#cb1-9" tabindex="-1"></a>  <span class="at">--cpus</span><span class="op">=</span>32 <span class="dt">\</span></span>
-<span id="cb1-10"><a href="getting-started.html#cb1-10" tabindex="-1"></a>  <span class="at">-p</span> 127.0.0.1:8080:8787 <span class="dt">\</span></span>
-<span id="cb1-11"><a href="getting-started.html#cb1-11" tabindex="-1"></a>  <span class="at">--name</span> LandWeb <span class="dt">\</span></span>
-<span id="cb1-12"><a href="getting-started.html#cb1-12" tabindex="-1"></a>  achubaty/landweb-standalone:latest</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="getting-started.html#cb1-1" tabindex="-1"></a><span class="ex">docker</span> pull achubaty/landweb-standalone:latest</span></code></pre></div>
+<p>And launch a new container based on this image (adjusting <code>PASSWORD</code>, <code>memory</code>, and <code>cpus</code> as needed):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="getting-started.html#cb2-1" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="at">-it</span> <span class="dt">\</span></span>
+<span id="cb2-2"><a href="getting-started.html#cb2-2" tabindex="-1"></a>  <span class="at">-e</span> GITHUB_PAT=<span class="va">$(</span><span class="fu">cat</span> <span class="va">${HOME}</span>/.Renviron <span class="kw">|</span> <span class="fu">grep</span> GITHUB_PAT <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span> <span class="st">'='</span> <span class="at">-f</span> 2<span class="va">)</span> <span class="dt">\</span></span>
+<span id="cb2-3"><a href="getting-started.html#cb2-3" tabindex="-1"></a>  <span class="at">-e</span> PASSWORD=<span class="st">'&lt;mySecretPassword&gt;'</span> <span class="dt">\</span></span>
+<span id="cb2-4"><a href="getting-started.html#cb2-4" tabindex="-1"></a>  <span class="at">--memory</span><span class="op">=</span>128g <span class="dt">\</span></span>
+<span id="cb2-5"><a href="getting-started.html#cb2-5" tabindex="-1"></a>  <span class="at">--cpus</span><span class="op">=</span>32 <span class="dt">\</span></span>
+<span id="cb2-6"><a href="getting-started.html#cb2-6" tabindex="-1"></a>  <span class="at">-p</span> 127.0.0.1:8080:8787 <span class="dt">\</span></span>
+<span id="cb2-7"><a href="getting-started.html#cb2-7" tabindex="-1"></a>  <span class="at">--name</span> LandWeb <span class="dt">\</span></span>
+<span id="cb2-8"><a href="getting-started.html#cb2-8" tabindex="-1"></a>  achubaty/landweb-standalone:latest</span></code></pre></div>
 <p>Once the container is running, open your web browser and go to <code>localhost:8080</code>.</p>
-<p>Login to the Rstudio session as user <code>rstudio</code> and password <code>&lt;mySecretPassword&gt;</code> (change this password when launching container above).</p>
+<p>Log in to the Rstudio session as user <code>rstudio</code> and password <code>&lt;mySecretPassword&gt;</code> (change this password when launching container above).</p>
 <p>Once finished, you can stop and destroy the container:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="getting-started.html#cb2-1" tabindex="-1"></a><span class="ex">docker</span> stop LandWeb</span>
-<span id="cb2-2"><a href="getting-started.html#cb2-2" tabindex="-1"></a><span class="ex">docker</span> rm LandWeb</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="getting-started.html#cb3-1" tabindex="-1"></a><span class="ex">docker</span> stop LandWeb</span>
+<span id="cb3-2"><a href="getting-started.html#cb3-2" tabindex="-1"></a><span class="ex">docker</span> rm LandWeb</span></code></pre></div>
 </div>
 <div id="bare-metal-installation" class="section level3" number="1.1.2">
 <h3>
@@ -175,7 +173,7 @@
 <span class="header-section-number">1.1.2.1.2.1</span> Xcode command line tools<a class="anchor" aria-label="anchor" href="#xcode-command-line-tools"><i class="fas fa-link"></i></a>
 </h6>
 <p>To build software, you will need the Xcode command line tools<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, which include various compilers and <code>git</code> version control software.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb3-1"><a href="getting-started.html#cb3-1" tabindex="-1"></a><span class="ex">xcode-select</span> <span class="at">--install</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb4-1"><a href="getting-started.html#cb4-1" tabindex="-1"></a><span class="ex">xcode-select</span> <span class="at">--install</span></span></code></pre></div>
 </div>
 <div id="homebrew-package-manager" class="section level6" number="1.1.2.1.2.2">
 <h6>
@@ -183,52 +181,52 @@
 </h6>
 <p>Next, install <code>homebrew</code> which provides a package manager for macOS.
 This will facilitate software updates and will handle various package dependency issues automatically.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb4-1"><a href="getting-started.html#cb4-1" tabindex="-1"></a><span class="ex">/bin/bash</span> <span class="at">-c</span> <span class="st">"</span><span class="va">$(</span><span class="ex">curl</span> <span class="at">-fsSL</span> https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh<span class="va">)</span><span class="st">"</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb5-1"><a href="getting-started.html#cb5-1" tabindex="-1"></a><span class="ex">/bin/bash</span> <span class="at">-c</span> <span class="st">"</span><span class="va">$(</span><span class="ex">curl</span> <span class="at">-fsSL</span> https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh<span class="va">)</span><span class="st">"</span></span></code></pre></div>
 </div>
 </div>
 <div id="ubuntu-linux" class="section level5" number="1.1.2.1.3">
 <h5>
 <span class="header-section-number">1.1.2.1.3</span> Ubuntu Linux<a class="anchor" aria-label="anchor" href="#ubuntu-linux"><i class="fas fa-link"></i></a>
 </h5>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="getting-started.html#cb5-1" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
-<span id="cb5-2"><a href="getting-started.html#cb5-2" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="getting-started.html#cb5-3" tabindex="-1"></a><span class="fu">sudo</span> apt-get <span class="at">-y</span> install <span class="dt">\</span></span>
-<span id="cb5-4"><a href="getting-started.html#cb5-4" tabindex="-1"></a>    build-essential <span class="dt">\</span></span>
-<span id="cb5-5"><a href="getting-started.html#cb5-5" tabindex="-1"></a>    biber <span class="dt">\</span></span>
-<span id="cb5-6"><a href="getting-started.html#cb5-6" tabindex="-1"></a>    ccache <span class="dt">\</span></span>
-<span id="cb5-7"><a href="getting-started.html#cb5-7" tabindex="-1"></a>    cmake <span class="dt">\</span></span>
-<span id="cb5-8"><a href="getting-started.html#cb5-8" tabindex="-1"></a>    curl <span class="dt">\</span></span>
-<span id="cb5-9"><a href="getting-started.html#cb5-9" tabindex="-1"></a>    libarchive-dev <span class="dt">\</span></span>
-<span id="cb5-10"><a href="getting-started.html#cb5-10" tabindex="-1"></a>    libcairo2-dev <span class="dt">\</span></span>
-<span id="cb5-11"><a href="getting-started.html#cb5-11" tabindex="-1"></a>    libcurl4-openssl-dev <span class="dt">\</span></span>
-<span id="cb5-12"><a href="getting-started.html#cb5-12" tabindex="-1"></a>    libgit2-dev <span class="dt">\</span></span>
-<span id="cb5-13"><a href="getting-started.html#cb5-13" tabindex="-1"></a>    libglpk-dev <span class="dt">\</span></span>
-<span id="cb5-14"><a href="getting-started.html#cb5-14" tabindex="-1"></a>    libgmp3-dev <span class="dt">\</span></span>
-<span id="cb5-15"><a href="getting-started.html#cb5-15" tabindex="-1"></a>    libicu-dev <span class="dt">\</span></span>
-<span id="cb5-16"><a href="getting-started.html#cb5-16" tabindex="-1"></a>    libjq-dev <span class="dt">\</span></span>
-<span id="cb5-17"><a href="getting-started.html#cb5-17" tabindex="-1"></a>    libmagick++-dev <span class="dt">\</span></span>
-<span id="cb5-18"><a href="getting-started.html#cb5-18" tabindex="-1"></a>    libnode-dev <span class="dt">\</span></span>
-<span id="cb5-19"><a href="getting-started.html#cb5-19" tabindex="-1"></a>    libpng-dev <span class="dt">\</span></span>
-<span id="cb5-20"><a href="getting-started.html#cb5-20" tabindex="-1"></a>    libprotobuf-dev <span class="dt">\</span></span>
-<span id="cb5-21"><a href="getting-started.html#cb5-21" tabindex="-1"></a>    libprotoc-dev <span class="dt">\</span></span>
-<span id="cb5-22"><a href="getting-started.html#cb5-22" tabindex="-1"></a>    libssh2-1-dev <span class="dt">\</span></span>
-<span id="cb5-23"><a href="getting-started.html#cb5-23" tabindex="-1"></a>    libssl-dev <span class="dt">\</span></span>
-<span id="cb5-24"><a href="getting-started.html#cb5-24" tabindex="-1"></a>    libxml2-dev <span class="dt">\</span></span>
-<span id="cb5-25"><a href="getting-started.html#cb5-25" tabindex="-1"></a>    libxt-dev <span class="dt">\</span></span>
-<span id="cb5-26"><a href="getting-started.html#cb5-26" tabindex="-1"></a>    make <span class="dt">\</span></span>
-<span id="cb5-27"><a href="getting-started.html#cb5-27" tabindex="-1"></a>    p7zip-full p7zip-rar <span class="dt">\</span></span>
-<span id="cb5-28"><a href="getting-started.html#cb5-28" tabindex="-1"></a>    pandoc pandoc-citeproc <span class="dt">\</span></span>
-<span id="cb5-29"><a href="getting-started.html#cb5-29" tabindex="-1"></a>    protobuf-compiler <span class="dt">\</span></span>
-<span id="cb5-30"><a href="getting-started.html#cb5-30" tabindex="-1"></a>    qpdf <span class="dt">\</span></span>
-<span id="cb5-31"><a href="getting-started.html#cb5-31" tabindex="-1"></a>    screen <span class="dt">\</span></span>
-<span id="cb5-32"><a href="getting-started.html#cb5-32" tabindex="-1"></a>    sysstat <span class="dt">\</span></span>
-<span id="cb5-33"><a href="getting-started.html#cb5-33" tabindex="-1"></a>    texinfo texlive-base texlive-bibtex-extra <span class="dt">\</span></span>
-<span id="cb5-34"><a href="getting-started.html#cb5-34" tabindex="-1"></a>    texlive-fonts-extra texlive-latex-extra texlive-xetex <span class="dt">\</span></span>
-<span id="cb5-35"><a href="getting-started.html#cb5-35" tabindex="-1"></a>    wget <span class="dt">\</span></span>
-<span id="cb5-36"><a href="getting-started.html#cb5-36" tabindex="-1"></a>    xauth <span class="dt">\</span></span>
-<span id="cb5-37"><a href="getting-started.html#cb5-37" tabindex="-1"></a>    xfonts-base <span class="dt">\</span></span>
-<span id="cb5-38"><a href="getting-started.html#cb5-38" tabindex="-1"></a>    xvfb <span class="dt">\</span></span>
-<span id="cb5-39"><a href="getting-started.html#cb5-39" tabindex="-1"></a>    zlib1g-dev</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="getting-started.html#cb6-1" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb6-2"><a href="getting-started.html#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="getting-started.html#cb6-3" tabindex="-1"></a><span class="fu">sudo</span> apt-get <span class="at">-y</span> install <span class="dt">\</span></span>
+<span id="cb6-4"><a href="getting-started.html#cb6-4" tabindex="-1"></a>    build-essential <span class="dt">\</span></span>
+<span id="cb6-5"><a href="getting-started.html#cb6-5" tabindex="-1"></a>    biber <span class="dt">\</span></span>
+<span id="cb6-6"><a href="getting-started.html#cb6-6" tabindex="-1"></a>    ccache <span class="dt">\</span></span>
+<span id="cb6-7"><a href="getting-started.html#cb6-7" tabindex="-1"></a>    cmake <span class="dt">\</span></span>
+<span id="cb6-8"><a href="getting-started.html#cb6-8" tabindex="-1"></a>    curl <span class="dt">\</span></span>
+<span id="cb6-9"><a href="getting-started.html#cb6-9" tabindex="-1"></a>    libarchive-dev <span class="dt">\</span></span>
+<span id="cb6-10"><a href="getting-started.html#cb6-10" tabindex="-1"></a>    libcairo2-dev <span class="dt">\</span></span>
+<span id="cb6-11"><a href="getting-started.html#cb6-11" tabindex="-1"></a>    libcurl4-openssl-dev <span class="dt">\</span></span>
+<span id="cb6-12"><a href="getting-started.html#cb6-12" tabindex="-1"></a>    libgit2-dev <span class="dt">\</span></span>
+<span id="cb6-13"><a href="getting-started.html#cb6-13" tabindex="-1"></a>    libglpk-dev <span class="dt">\</span></span>
+<span id="cb6-14"><a href="getting-started.html#cb6-14" tabindex="-1"></a>    libgmp3-dev <span class="dt">\</span></span>
+<span id="cb6-15"><a href="getting-started.html#cb6-15" tabindex="-1"></a>    libicu-dev <span class="dt">\</span></span>
+<span id="cb6-16"><a href="getting-started.html#cb6-16" tabindex="-1"></a>    libjq-dev <span class="dt">\</span></span>
+<span id="cb6-17"><a href="getting-started.html#cb6-17" tabindex="-1"></a>    libmagick++-dev <span class="dt">\</span></span>
+<span id="cb6-18"><a href="getting-started.html#cb6-18" tabindex="-1"></a>    libnode-dev <span class="dt">\</span></span>
+<span id="cb6-19"><a href="getting-started.html#cb6-19" tabindex="-1"></a>    libpng-dev <span class="dt">\</span></span>
+<span id="cb6-20"><a href="getting-started.html#cb6-20" tabindex="-1"></a>    libprotobuf-dev <span class="dt">\</span></span>
+<span id="cb6-21"><a href="getting-started.html#cb6-21" tabindex="-1"></a>    libprotoc-dev <span class="dt">\</span></span>
+<span id="cb6-22"><a href="getting-started.html#cb6-22" tabindex="-1"></a>    libssh2-1-dev <span class="dt">\</span></span>
+<span id="cb6-23"><a href="getting-started.html#cb6-23" tabindex="-1"></a>    libssl-dev <span class="dt">\</span></span>
+<span id="cb6-24"><a href="getting-started.html#cb6-24" tabindex="-1"></a>    libxml2-dev <span class="dt">\</span></span>
+<span id="cb6-25"><a href="getting-started.html#cb6-25" tabindex="-1"></a>    libxt-dev <span class="dt">\</span></span>
+<span id="cb6-26"><a href="getting-started.html#cb6-26" tabindex="-1"></a>    make <span class="dt">\</span></span>
+<span id="cb6-27"><a href="getting-started.html#cb6-27" tabindex="-1"></a>    p7zip-full p7zip-rar <span class="dt">\</span></span>
+<span id="cb6-28"><a href="getting-started.html#cb6-28" tabindex="-1"></a>    pandoc pandoc-citeproc <span class="dt">\</span></span>
+<span id="cb6-29"><a href="getting-started.html#cb6-29" tabindex="-1"></a>    protobuf-compiler <span class="dt">\</span></span>
+<span id="cb6-30"><a href="getting-started.html#cb6-30" tabindex="-1"></a>    qpdf <span class="dt">\</span></span>
+<span id="cb6-31"><a href="getting-started.html#cb6-31" tabindex="-1"></a>    screen <span class="dt">\</span></span>
+<span id="cb6-32"><a href="getting-started.html#cb6-32" tabindex="-1"></a>    sysstat <span class="dt">\</span></span>
+<span id="cb6-33"><a href="getting-started.html#cb6-33" tabindex="-1"></a>    texinfo texlive-base texlive-bibtex-extra <span class="dt">\</span></span>
+<span id="cb6-34"><a href="getting-started.html#cb6-34" tabindex="-1"></a>    texlive-fonts-extra texlive-latex-extra texlive-xetex <span class="dt">\</span></span>
+<span id="cb6-35"><a href="getting-started.html#cb6-35" tabindex="-1"></a>    wget <span class="dt">\</span></span>
+<span id="cb6-36"><a href="getting-started.html#cb6-36" tabindex="-1"></a>    xauth <span class="dt">\</span></span>
+<span id="cb6-37"><a href="getting-started.html#cb6-37" tabindex="-1"></a>    xfonts-base <span class="dt">\</span></span>
+<span id="cb6-38"><a href="getting-started.html#cb6-38" tabindex="-1"></a>    xvfb <span class="dt">\</span></span>
+<span id="cb6-39"><a href="getting-started.html#cb6-39" tabindex="-1"></a>    zlib1g-dev</span></code></pre></div>
 </div>
 </div>
 <div id="geospatial-libraries" class="section level4" number="1.1.2.2">
@@ -247,37 +245,37 @@ This will facilitate software updates and will handle various package dependency
 <span class="header-section-number">1.1.2.2.2</span> macOS<a class="anchor" aria-label="anchor" href="#macos-1"><i class="fas fa-link"></i></a>
 </h5>
 <p>Use <code>homebrew</code> to install the required geospatial software libraries:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb6-1"><a href="getting-started.html#cb6-1" tabindex="-1"></a><span class="ex">brew</span> install pkg-config</span>
-<span id="cb6-2"><a href="getting-started.html#cb6-2" tabindex="-1"></a><span class="ex">brew</span> install gdal</span>
-<span id="cb6-3"><a href="getting-started.html#cb6-3" tabindex="-1"></a><span class="co"># brew install geos</span></span>
-<span id="cb6-4"><a href="getting-started.html#cb6-4" tabindex="-1"></a><span class="co"># brew install proj</span></span>
-<span id="cb6-5"><a href="getting-started.html#cb6-5" tabindex="-1"></a><span class="ex">brew</span> install udunits</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb7-1"><a href="getting-started.html#cb7-1" tabindex="-1"></a><span class="ex">brew</span> install pkg-config</span>
+<span id="cb7-2"><a href="getting-started.html#cb7-2" tabindex="-1"></a><span class="ex">brew</span> install gdal</span>
+<span id="cb7-3"><a href="getting-started.html#cb7-3" tabindex="-1"></a><span class="co"># brew install geos</span></span>
+<span id="cb7-4"><a href="getting-started.html#cb7-4" tabindex="-1"></a><span class="co"># brew install proj</span></span>
+<span id="cb7-5"><a href="getting-started.html#cb7-5" tabindex="-1"></a><span class="ex">brew</span> install udunits</span></code></pre></div>
 </div>
 <div id="ubuntu-linux-1" class="section level5" number="1.1.2.2.3">
 <h5>
 <span class="header-section-number">1.1.2.2.3</span> Ubuntu Linux<a class="anchor" aria-label="anchor" href="#ubuntu-linux-1"><i class="fas fa-link"></i></a>
 </h5>
 <p>The default Ubuntu 20.04 LTS package repositories ship older versions of the geospatial libraries we will be using, so we will need to to add some additional repositories to get the latest versions.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="getting-started.html#cb7-1" tabindex="-1"></a><span class="co">## add GIS repository</span></span>
-<span id="cb7-2"><a href="getting-started.html#cb7-2" tabindex="-1"></a><span class="fu">sudo</span> add-apt-repository ppa:ubuntugis-unstable/ppa</span>
-<span id="cb7-3"><a href="getting-started.html#cb7-3" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="getting-started.html#cb8-1" tabindex="-1"></a><span class="co">## add GIS repository</span></span>
+<span id="cb8-2"><a href="getting-started.html#cb8-2" tabindex="-1"></a><span class="fu">sudo</span> add-apt-repository ppa:ubuntugis-unstable/ppa</span>
+<span id="cb8-3"><a href="getting-started.html#cb8-3" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span></code></pre></div>
 <p>Install additional system dependencies that serve as prerequisites for running the LandWeb model in R.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="getting-started.html#cb8-1" tabindex="-1"></a><span class="fu">sudo</span> apt-get <span class="at">-y</span> install <span class="dt">\</span></span>
-<span id="cb8-2"><a href="getting-started.html#cb8-2" tabindex="-1"></a>    gdal-bin <span class="dt">\</span></span>
-<span id="cb8-3"><a href="getting-started.html#cb8-3" tabindex="-1"></a>    libgdal-dev <span class="dt">\</span></span>
-<span id="cb8-4"><a href="getting-started.html#cb8-4" tabindex="-1"></a>    libgeos-dev <span class="dt">\</span></span>
-<span id="cb8-5"><a href="getting-started.html#cb8-5" tabindex="-1"></a>    libproj-dev <span class="dt">\</span></span>
-<span id="cb8-6"><a href="getting-started.html#cb8-6" tabindex="-1"></a>    libudunits2-dev <span class="dt">\</span></span>
-<span id="cb8-7"><a href="getting-started.html#cb8-7" tabindex="-1"></a>    python3-gdal</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="getting-started.html#cb9-1" tabindex="-1"></a><span class="fu">sudo</span> apt-get <span class="at">-y</span> install <span class="dt">\</span></span>
+<span id="cb9-2"><a href="getting-started.html#cb9-2" tabindex="-1"></a>    gdal-bin <span class="dt">\</span></span>
+<span id="cb9-3"><a href="getting-started.html#cb9-3" tabindex="-1"></a>    libgdal-dev <span class="dt">\</span></span>
+<span id="cb9-4"><a href="getting-started.html#cb9-4" tabindex="-1"></a>    libgeos-dev <span class="dt">\</span></span>
+<span id="cb9-5"><a href="getting-started.html#cb9-5" tabindex="-1"></a>    libproj-dev <span class="dt">\</span></span>
+<span id="cb9-6"><a href="getting-started.html#cb9-6" tabindex="-1"></a>    libudunits2-dev <span class="dt">\</span></span>
+<span id="cb9-7"><a href="getting-started.html#cb9-7" tabindex="-1"></a>    python3-gdal</span></code></pre></div>
 <p>Optionally, we install <code>mapshaper</code> geospatial library which is used to speed up polygon simplification.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="getting-started.html#cb9-1" tabindex="-1"></a><span class="co">## mapshaper installation</span></span>
-<span id="cb9-2"><a href="getting-started.html#cb9-2" tabindex="-1"></a><span class="fu">sudo</span> apt-get remove <span class="at">-y</span> libnode-dev</span>
-<span id="cb9-3"><a href="getting-started.html#cb9-3" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="getting-started.html#cb9-4" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sL</span> https://deb.nodesource.com/setup_20.x <span class="kw">|</span> <span class="fu">sudo</span> <span class="at">-E</span> bash <span class="at">-</span></span>
-<span id="cb9-5"><a href="getting-started.html#cb9-5" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="getting-started.html#cb9-6" tabindex="-1"></a><span class="fu">sudo</span> apt install nodejs</span>
-<span id="cb9-7"><a href="getting-started.html#cb9-7" tabindex="-1"></a><span class="fu">sudo</span> npm install npm@latest <span class="at">-g</span></span>
-<span id="cb9-8"><a href="getting-started.html#cb9-8" tabindex="-1"></a><span class="fu">sudo</span> npm install <span class="at">-g</span> mapshaper</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="getting-started.html#cb10-1" tabindex="-1"></a><span class="co">## mapshaper installation</span></span>
+<span id="cb10-2"><a href="getting-started.html#cb10-2" tabindex="-1"></a><span class="fu">sudo</span> apt-get remove <span class="at">-y</span> libnode-dev</span>
+<span id="cb10-3"><a href="getting-started.html#cb10-3" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="getting-started.html#cb10-4" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sL</span> https://deb.nodesource.com/setup_20.x <span class="kw">|</span> <span class="fu">sudo</span> <span class="at">-E</span> bash <span class="at">-</span></span>
+<span id="cb10-5"><a href="getting-started.html#cb10-5" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="getting-started.html#cb10-6" tabindex="-1"></a><span class="fu">sudo</span> apt install nodejs</span>
+<span id="cb10-7"><a href="getting-started.html#cb10-7" tabindex="-1"></a><span class="fu">sudo</span> npm install npm@latest <span class="at">-g</span></span>
+<span id="cb10-8"><a href="getting-started.html#cb10-8" tabindex="-1"></a><span class="fu">sudo</span> npm install <span class="at">-g</span> mapshaper</span></code></pre></div>
 </div>
 </div>
 <div id="version-control" class="section level4" number="1.1.2.3">
@@ -317,12 +315,12 @@ usethis::create_github_token()
 <ol start="2" style="list-style-type: lower-alpha">
 <li>
 <p>Securely store this token using the credential store, from an R session:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="getting-started.html#cb11-1" tabindex="-1"></a><span class="sc">&gt;</span> gitcreds<span class="sc">::</span><span class="fu">gitcreds_set</span>()</span>
-<span id="cb11-2"><a href="getting-started.html#cb11-2" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="getting-started.html#cb11-3" tabindex="-1"></a>? Enter password or token<span class="sc">:</span> ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
-<span id="cb11-4"><a href="getting-started.html#cb11-4" tabindex="-1"></a><span class="ot">-&gt;</span> Adding new credentials...</span>
-<span id="cb11-5"><a href="getting-started.html#cb11-5" tabindex="-1"></a><span class="ot">-&gt;</span> Removing credentials from cache...</span>
-<span id="cb11-6"><a href="getting-started.html#cb11-6" tabindex="-1"></a><span class="ot">-&gt;</span> Done.</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="getting-started.html#cb12-1" tabindex="-1"></a><span class="sc">&gt;</span> gitcreds<span class="sc">::</span><span class="fu">gitcreds_set</span>()</span>
+<span id="cb12-2"><a href="getting-started.html#cb12-2" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="getting-started.html#cb12-3" tabindex="-1"></a>? Enter password or token<span class="sc">:</span> ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
+<span id="cb12-4"><a href="getting-started.html#cb12-4" tabindex="-1"></a><span class="ot">-&gt;</span> Adding new credentials...</span>
+<span id="cb12-5"><a href="getting-started.html#cb12-5" tabindex="-1"></a><span class="ot">-&gt;</span> Removing credentials from cache...</span>
+<span id="cb12-6"><a href="getting-started.html#cb12-6" tabindex="-1"></a><span class="ot">-&gt;</span> Done.</span></code></pre></div>
 </li>
 </ol>
 <div class="rmdwarning">
@@ -348,42 +346,42 @@ However, the paid pro version is required to access private repositories.</p>
 <div class="rmdimportant">
 <p><strong>Windows</strong></p>
 <ol style="list-style-type: decimal">
-<li>Download R from <a href="https://cran.r-project.org/bin/windows/base/R-4.2.3-win.exe" class="uri">https://cran.r-project.org/bin/windows/base/R-4.2.3-win.exe</a>;</li>
+<li>Download R from <a href="https://cran.r-project.org/bin/windows/base/old/4.2.3/R-4.2.3-win.exe" class="uri">https://cran.r-project.org/bin/windows/base/old/4.2.3/R-4.2.3-win.exe</a>;</li>
 <li>Install R <em>as administrator</em>.</li>
 </ol>
 <p><strong>macOS</strong></p>
 <ol style="list-style-type: decimal">
 <li>Install <code>rig</code> (<a href="https://github.com/r-lib/rig" class="uri">https://github.com/r-lib/rig</a>) to manage multiple R installations.</li>
 </ol>
-<div class="sourceCode" id="cb12"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb12-1"><a href="getting-started.html#cb12-1" tabindex="-1"></a><span class="ex">brew</span> tap r-lib/rig</span>
-<span id="cb12-2"><a href="getting-started.html#cb12-2" tabindex="-1"></a><span class="ex">brew</span> install <span class="at">--cask</span> rig</span>
-<span id="cb12-3"><a href="getting-started.html#cb12-3" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="getting-started.html#cb12-4" tabindex="-1"></a><span class="ex">rig</span> install 4.2.3</span>
-<span id="cb12-5"><a href="getting-started.html#cb12-5" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="getting-started.html#cb12-6" tabindex="-1"></a><span class="co">## start Rstudio using a specific R version:</span></span>
-<span id="cb12-7"><a href="getting-started.html#cb12-7" tabindex="-1"></a><span class="ex">rig</span> rstudio ~/GitHub/LandWeb.Rproj 4.2.3</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode zsh"><code class="sourceCode zsh"><span id="cb13-1"><a href="getting-started.html#cb13-1" tabindex="-1"></a><span class="ex">brew</span> tap r-lib/rig</span>
+<span id="cb13-2"><a href="getting-started.html#cb13-2" tabindex="-1"></a><span class="ex">brew</span> install <span class="at">--cask</span> rig</span>
+<span id="cb13-3"><a href="getting-started.html#cb13-3" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="getting-started.html#cb13-4" tabindex="-1"></a><span class="ex">rig</span> install 4.2.3</span>
+<span id="cb13-5"><a href="getting-started.html#cb13-5" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="getting-started.html#cb13-6" tabindex="-1"></a><span class="co">## start Rstudio using a specific R version:</span></span>
+<span id="cb13-7"><a href="getting-started.html#cb13-7" tabindex="-1"></a><span class="ex">rig</span> rstudio ~/GitHub/LandWeb.Rproj 4.2.3</span></code></pre></div>
 <p><strong>Ubuntu Linux</strong></p>
 <p>Use <code>rig</code> (<a href="https://github.com/r-lib/rig" class="uri">https://github.com/r-lib/rig</a>) to easily manage multiple R installations, and easily switch among them.</p>
 <ol style="list-style-type: decimal">
 <li>Add the <code>apt</code> repository and install <code>rig</code>:</li>
 </ol>
-<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="getting-started.html#cb13-1" tabindex="-1"></a><span class="co">## add apt repository</span></span>
-<span id="cb13-2"><a href="getting-started.html#cb13-2" tabindex="-1"></a><span class="fu">sudo</span> curl <span class="at">-L</span> https://rig.r-pkg.org/deb/rig.gpg <span class="at">-o</span> /etc/apt/trusted.gpg.d/rig.gpg</span>
-<span id="cb13-3"><a href="getting-started.html#cb13-3" tabindex="-1"></a><span class="fu">sudo</span> sh <span class="at">-c</span> <span class="st">"echo 'deb [arch=amd64] http://rig.r-pkg.org/deb rig main' &gt; /etc/apt/sources.list.d/rig.list"</span></span>
-<span id="cb13-4"><a href="getting-started.html#cb13-4" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="getting-started.html#cb13-5" tabindex="-1"></a><span class="co">## install (NB: rig is different package; use r-rig!)</span></span>
-<span id="cb13-6"><a href="getting-started.html#cb13-6" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
-<span id="cb13-7"><a href="getting-started.html#cb13-7" tabindex="-1"></a><span class="fu">sudo</span> apt install r-rig</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="getting-started.html#cb14-1" tabindex="-1"></a><span class="co">## add apt repository</span></span>
+<span id="cb14-2"><a href="getting-started.html#cb14-2" tabindex="-1"></a><span class="fu">sudo</span> curl <span class="at">-L</span> https://rig.r-pkg.org/deb/rig.gpg <span class="at">-o</span> /etc/apt/trusted.gpg.d/rig.gpg</span>
+<span id="cb14-3"><a href="getting-started.html#cb14-3" tabindex="-1"></a><span class="fu">sudo</span> sh <span class="at">-c</span> <span class="st">"echo 'deb [arch=amd64] http://rig.r-pkg.org/deb rig main' &gt; /etc/apt/sources.list.d/rig.list"</span></span>
+<span id="cb14-4"><a href="getting-started.html#cb14-4" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="getting-started.html#cb14-5" tabindex="-1"></a><span class="co">## install (NB: rig is different package; use r-rig!)</span></span>
+<span id="cb14-6"><a href="getting-started.html#cb14-6" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
+<span id="cb14-7"><a href="getting-started.html#cb14-7" tabindex="-1"></a><span class="fu">sudo</span> apt install r-rig</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>Install R version 4.2.3</li>
 </ol>
-<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="getting-started.html#cb14-1" tabindex="-1"></a><span class="ex">rig</span> add 4.2.3</span>
-<span id="cb14-2"><a href="getting-started.html#cb14-2" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="getting-started.html#cb14-3" tabindex="-1"></a><span class="ex">rig</span> system make-links</span>
-<span id="cb14-4"><a href="getting-started.html#cb14-4" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="getting-started.html#cb14-5" tabindex="-1"></a><span class="fu">sudo</span> ln <span class="at">-s</span> /opt/R/4.2.3/bin/Rscript /usr/local/bin/Rscript-4.2.3</span>
-<span id="cb14-6"><a href="getting-started.html#cb14-6" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="getting-started.html#cb14-7" tabindex="-1"></a><span class="ex">rig</span> list</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="getting-started.html#cb15-1" tabindex="-1"></a><span class="ex">rig</span> add 4.2.3</span>
+<span id="cb15-2"><a href="getting-started.html#cb15-2" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="getting-started.html#cb15-3" tabindex="-1"></a><span class="ex">rig</span> system make-links</span>
+<span id="cb15-4"><a href="getting-started.html#cb15-4" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="getting-started.html#cb15-5" tabindex="-1"></a><span class="fu">sudo</span> ln <span class="at">-s</span> /opt/R/4.2.3/bin/Rscript /usr/local/bin/Rscript-4.2.3</span>
+<span id="cb15-6"><a href="getting-started.html#cb15-6" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="getting-started.html#cb15-7" tabindex="-1"></a><span class="ex">rig</span> list</span></code></pre></div>
 </div>
 <ol start="2" style="list-style-type: decimal">
 <li>Download and install the latest version of Rstudio from <a href="https://www.rstudio.com/products/rstudio/download/" class="uri">https://www.rstudio.com/products/rstudio/download/</a>.</li>
@@ -394,20 +392,20 @@ However, the paid pro version is required to access private repositories.</p>
 <ol start="3" style="list-style-type: decimal">
 <li>
 <p>(optional) On Linux, configure <code>ccache</code> to speed up R package re-installation and updates<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="getting-started.html#cb15-1" tabindex="-1"></a><span class="co">## configure ccache for R package installation</span></span>
-<span id="cb15-2"><a href="getting-started.html#cb15-2" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.ccache</span>
-<span id="cb15-3"><a href="getting-started.html#cb15-3" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.R</span>
-<span id="cb15-4"><a href="getting-started.html#cb15-4" tabindex="-1"></a><span class="kw">{</span> <span class="bu">echo</span> <span class="st">'VER='</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-5"><a href="getting-started.html#cb15-5" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CCACHE=ccache'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-6"><a href="getting-started.html#cb15-6" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CC=$(CCACHE) gcc$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-7"><a href="getting-started.html#cb15-7" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-8"><a href="getting-started.html#cb15-8" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX11=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-9"><a href="getting-started.html#cb15-9" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX14=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-10"><a href="getting-started.html#cb15-10" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'FC=$(CCACHE) gfortran$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-11"><a href="getting-started.html#cb15-11" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'F77=$(CCACHE) gfortran$(VER)'</span><span class="kw">;</span> <span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.R/Makevars</span>
-<span id="cb15-12"><a href="getting-started.html#cb15-12" tabindex="-1"></a><span class="kw">{</span> <span class="bu">echo</span> <span class="st">'max_size = 5.0G'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-13"><a href="getting-started.html#cb15-13" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'sloppiness = include_file_ctime'</span><span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb15-14"><a href="getting-started.html#cb15-14" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'hash_dir = false'</span><span class="kw">;</span> <span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.ccache/ccache.conf</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="getting-started.html#cb16-1" tabindex="-1"></a><span class="co">## configure ccache for R package installation</span></span>
+<span id="cb16-2"><a href="getting-started.html#cb16-2" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.ccache</span>
+<span id="cb16-3"><a href="getting-started.html#cb16-3" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/.R</span>
+<span id="cb16-4"><a href="getting-started.html#cb16-4" tabindex="-1"></a><span class="kw">{</span> <span class="bu">echo</span> <span class="st">'VER='</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb16-5"><a href="getting-started.html#cb16-5" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CCACHE=ccache'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb16-6"><a href="getting-started.html#cb16-6" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CC=$(CCACHE) gcc$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb16-7"><a href="getting-started.html#cb16-7" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb16-8"><a href="getting-started.html#cb16-8" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX11=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb16-9"><a href="getting-started.html#cb16-9" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'CXX14=$(CCACHE) g++$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb16-10"><a href="getting-started.html#cb16-10" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'FC=$(CCACHE) gfortran$(VER)'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb16-11"><a href="getting-started.html#cb16-11" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'F77=$(CCACHE) gfortran$(VER)'</span><span class="kw">;</span> <span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.R/Makevars</span>
+<span id="cb16-12"><a href="getting-started.html#cb16-12" tabindex="-1"></a><span class="kw">{</span> <span class="bu">echo</span> <span class="st">'max_size = 5.0G'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb16-13"><a href="getting-started.html#cb16-13" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'sloppiness = include_file_ctime'</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb16-14"><a href="getting-started.html#cb16-14" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">'hash_dir = false'</span><span class="kw">;</span> <span class="kw">}</span> <span class="op">&gt;&gt;</span> ~/.ccache/ccache.conf</span></code></pre></div>
 </li>
 </ol>
 </div>
@@ -420,15 +418,15 @@ However, the paid pro version is required to access private repositories.</p>
 <p>All modules are written in R and all model code was developed collaboratively using GitHub (<a href="https://github.com" class="uri">https://github.com</a>), with each module contained in its own repository.
 Code that is shared among modules was bundled into R packages, and hosted in on GitHub repositories.
 All package code is automatically and regularly tested using cross-platform continuous integration frameworks to ensure the code is reliable and free of errors.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="getting-started.html#cb16-1" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/GitHub</span>
-<span id="cb16-2"><a href="getting-started.html#cb16-2" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub</span>
-<span id="cb16-3"><a href="getting-started.html#cb16-3" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="getting-started.html#cb16-4" tabindex="-1"></a><span class="co">## get development branch (app and deploy are private submodules)</span></span>
-<span id="cb16-5"><a href="getting-started.html#cb16-5" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--recurse-submodules</span> <span class="dt">\</span></span>
-<span id="cb16-6"><a href="getting-started.html#cb16-6" tabindex="-1"></a>  <span class="at">-j8</span>  https://github.com/PredictiveEcology/LandWeb</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="getting-started.html#cb17-1" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> ~/GitHub</span>
+<span id="cb17-2"><a href="getting-started.html#cb17-2" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub</span>
+<span id="cb17-3"><a href="getting-started.html#cb17-3" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="getting-started.html#cb17-4" tabindex="-1"></a><span class="co">## get development branch (app and deploy are private submodules)</span></span>
+<span id="cb17-5"><a href="getting-started.html#cb17-5" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--recurse-submodules</span> <span class="dt">\</span></span>
+<span id="cb17-6"><a href="getting-started.html#cb17-6" tabindex="-1"></a>  <span class="at">-j8</span>  https://github.com/PredictiveEcology/LandWeb</span></code></pre></div>
 <div class="rmdimportant">
 <p>Windows users should ensure the <code>GitHub/</code> directory is accessible at both <code>~/GitHub</code> and <code>~/Documents/GitHub</code> by creating a directory junction:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="getting-started.html#cb17-1" tabindex="-1"></a><span class="ex">mklink</span> /J C:<span class="dt">\\</span>Users<span class="dt">\\</span>username<span class="dt">\\</span>Documents<span class="dt">\\</span>GitHub C:<span class="dt">\\</span>Users<span class="dt">\\</span>username<span class="dt">\\</span>GitHub</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="getting-started.html#cb18-1" tabindex="-1"></a><span class="ex">mklink</span> /J C:<span class="dt">\\</span>Users<span class="dt">\\</span>username<span class="dt">\\</span>Documents<span class="dt">\\</span>GitHub C:<span class="dt">\\</span>Users<span class="dt">\\</span>username<span class="dt">\\</span>GitHub</span></code></pre></div>
 </div>
 </div>
 <div id="project-directory-structure" class="section level2" number="1.3">
@@ -568,8 +566,8 @@ Figure 1.1: Screenshot showing showing code commits in Git Kraken. The submodule
 <span class="header-section-number">1.4.2</span> Using the command line<a class="anchor" aria-label="anchor" href="#using-the-command-line"><i class="fas fa-link"></i></a>
 </h3>
 <p><strong>WARNING:</strong> experienced git users only!</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="getting-started.html#cb18-1" tabindex="-1"></a><span class="fu">git</span> pull</span>
-<span id="cb18-2"><a href="getting-started.html#cb18-2" tabindex="-1"></a><span class="fu">git</span> submodule update</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="getting-started.html#cb19-1" tabindex="-1"></a><span class="fu">git</span> pull</span>
+<span id="cb19-2"><a href="getting-started.html#cb19-2" tabindex="-1"></a><span class="fu">git</span> submodule update</span></code></pre></div>
 </div>
 </div>
 <div id="data-requirements" class="section level2" number="1.5">
@@ -637,7 +635,7 @@ During first-run of the model, all required data will be downloaded to the <code
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-27.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-28.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
