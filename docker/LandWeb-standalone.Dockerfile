@@ -26,9 +26,12 @@ WORKDIR /home/$DEFAULT_USER/GitHub/$GH_REPO
 
 RUN mkdir cache inputs outputs
 
-## install R packages
+## pre-install R packages
+COPY renv/settings.json renv/settings.json
+RUN mkdir renv/.cache
+ENV RENV_PATHS_CACHE=renv/.cache
 ENV RENV_WATCHDOG_ENABLED=FALSE
-RUN Rscript -e 'options(Ncpus = max(1, min(16, parallel::detectCores() - 1))); renv::restore()'
+RUN Rscript -e 'options(Ncpus = max(1, min(8, parallel::detectCores() - 1))); renv::restore()'
 
 ## set default project (https://stackoverflow.com/a/53547334/1380598)
 RUN mkdir -p /home/$DEFAULT_USER/.rstudio/projects_settings \
