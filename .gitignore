@@ -42,6 +42,7 @@ rsconnect/shinyapps.io/landweb/LandWebDemo.dcf
 data/
 inputs
 inputs/
+inputs_docker/
 outputs
 outputs/
 

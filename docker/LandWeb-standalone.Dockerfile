@@ -12,6 +12,10 @@ ARG USER_UID=1000
 ARG USER_GID=1000
 
 ENV DEFAULT_USER=$USERNAME
+ENV RENV_PATHS_CACHE=/home/$DEFAULT_USER/.cache/R/renv
+ENV RENV_WATCHDOG_ENABLED=FALSE
+
+RUN mkdir -p $RENV_PATHS_CACHE
 
 ## clone project repo and set up additional project directories
 WORKDIR /home/$DEFAULT_USER/GitHub
@@ -28,15 +32,12 @@ RUN mkdir cache inputs outputs
 
 ## pre-install R packages
 COPY renv/settings.json renv/settings.json
-RUN mkdir renv/.cache
-ENV RENV_PATHS_CACHE=renv/.cache
-ENV RENV_WATCHDOG_ENABLED=FALSE
 RUN Rscript -e 'options(Ncpus = max(1, min(8, parallel::detectCores() - 1))); renv::restore()'
 
 ## temporary: national eco boundaries server not correctly configured for autodownloads
-COPY inputs/ecodistrict_shp.zip inputs/ecodistrict_shp.zip
-COPY inputs/ecoregion_shp.zip inputs/ecoregion_shp.zip
-COPY inputs/ecozone_shp.zip inputs/ecozone_shp.zip
+COPY inputs_docker/ecodistrict_shp.zip inputs/ecodistrict_shp.zip
+COPY inputs_docker/ecoregion_shp.zip inputs/ecoregion_shp.zip
+COPY inputs_docker/ecozone_shp.zip inputs/ecozone_shp.zip
 
 ## set default project (https://stackoverflow.com/a/53547334/1380598)
 RUN mkdir -p /home/$DEFAULT_USER/.rstudio/projects_settings \
