@@ -68,9 +68,13 @@ config.user <- switch(
         googleUser = "", ## TODO
         useCloud = FALSE
       ),
-      notifications = list(
-        slackChannel = "" ## TODO
-      )
+
+    ),
+    options = list(
+      reproducible.cacheSaveFormat = "rds", ## use "qs" when caching is fixed upstream
+      reproducible.useTerra = TRUE, ## TODO: add to config
+      spades.memoryUseInterval = FALSE, ## TODO: temporary until callr/future cache bug fixed
+      spades.useRequire = FALSE
     ),
     paths = list(
       cachePath = "cache_sqlite"
