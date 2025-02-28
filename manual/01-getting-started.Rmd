@@ -28,10 +28,12 @@ Install Docker for your system following <https://docs.docker.com/get-docker/>.
 Next, pull the image from Docker Hub:
 
 ```bash
-## get the image
 docker pull achubaty/landweb-standalone:latest
+```
 
-## launch a new container based on this image
+And launch a new container based on this image (adjusting `PASSWORD`, `memory`, and `cpus` as needed):
+
+```bash
 docker run -d -it \
   -e GITHUB_PAT=$(cat ${HOME}/.Renviron | grep GITHUB_PAT | cut -d '=' -f 2) \
   -e PASSWORD='<mySecretPassword>' \
@@ -44,7 +46,7 @@ docker run -d -it \
 
 Once the container is running, open your web browser and go to `localhost:8080`.
 
-Login to the Rstudio session as user `rstudio` and password `<mySecretPassword>` (change this password when launching container above).
+Log in to the Rstudio session as user `rstudio` and password `<mySecretPassword>` (change this password when launching container above).
 
 Once finished, you can stop and destroy the container:
 
