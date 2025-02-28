@@ -33,6 +33,11 @@ ENV RENV_PATHS_CACHE=renv/.cache
 ENV RENV_WATCHDOG_ENABLED=FALSE
 RUN Rscript -e 'options(Ncpus = max(1, min(8, parallel::detectCores() - 1))); renv::restore()'
 
+## temporary: national eco boundaries server not correctly configured for autodownloads
+COPY inputs/ecodistrict_shp.zip inputs/ecodistrict_shp.zip
+COPY inputs/ecoregion_shp.zip inputs/ecoregion_shp.zip
+COPY inputs/ecozone_shp.zip inputs/ecozone_shp.zip
+
 ## set default project (https://stackoverflow.com/a/53547334/1380598)
 RUN mkdir -p /home/$DEFAULT_USER/.rstudio/projects_settings \
     && echo /home/$DEFAULT_USER/GitHub/$GH_REPO/$GH_REPO.Rproj > \
