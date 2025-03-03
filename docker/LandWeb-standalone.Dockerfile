@@ -5,20 +5,16 @@ LABEL org.opencontainers.image.authors="achubaty@for-cast.ca"
 ## safely allow ssh access to private GitHub repos via the build machine's ssh
 RUN mkdir -p -m 0700 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-## update uid:gid for default user to mach some user
-## pass USERNAME as environment variable during build if don't want `rstudio`
+## pass USERNAME as argument during build if don't want `rstudio`
 ARG USERNAME=rstudio
-ARG USER_UID=1000
-ARG USER_GID=1000
 
-ENV DEFAULT_USER=$USERNAME
-ENV RENV_PATHS_CACHE=/home/$DEFAULT_USER/.cache/R/renv
+ENV RENV_PATHS_CACHE=/home/${USERNAME}/.cache/R/renv
 ENV RENV_WATCHDOG_ENABLED=FALSE
 
-RUN mkdir -p $RENV_PATHS_CACHE
+RUN mkdir -p ${RENV_PATHS_CACHE}
 
 ## clone project repo and set up additional project directories
-WORKDIR /home/$DEFAULT_USER/GitHub
+WORKDIR /home/${USERNAME}/GitHub
 
 ARG GH_ORG=PredictiveEcology
 ARG GH_REPO=LandWeb
@@ -26,13 +22,13 @@ ARG GH_TAG=main
 RUN --mount=type=ssh git clone --single-branch -b $GH_TAG --recurse-submodules \
    -j8 https://github.com/$GH_ORG/$GH_REPO
 
-WORKDIR /home/$DEFAULT_USER/GitHub/$GH_REPO
+WORKDIR /home/${USERNAME}/GitHub/$GH_REPO
 
 RUN mkdir cache inputs outputs
 
 ## pre-install R packages
 COPY renv/settings.json renv/settings.json
-RUN Rscript -e 'options(Ncpus = max(1, min(8, parallel::detectCores() - 1))); renv::restore()'
+RUN Rscript -e 'options(Ncpus = max(1, min(8, parallel::detectCores()))); renv::restore()'
 
 ## temporary: national eco boundaries server not correctly configured for autodownloads
 COPY inputs_docker/ecodistrict_shp.zip inputs/ecodistrict_shp.zip
@@ -40,10 +36,11 @@ COPY inputs_docker/ecoregion_shp.zip inputs/ecoregion_shp.zip
 COPY inputs_docker/ecozone_shp.zip inputs/ecozone_shp.zip
 
 ## set default project (https://stackoverflow.com/a/53547334/1380598)
-RUN mkdir -p /home/$DEFAULT_USER/.rstudio/projects_settings \
-    && echo /home/$DEFAULT_USER/GitHub/$GH_REPO/$GH_REPO.Rproj > \
-            /home/$DEFAULT_USER/.rstudio/projects_settings/switch-to-project
+RUN mkdir -p /home/${USERNAME}/.rstudio/projects_settings \
+    && echo /home/${USERNAME}/GitHub/$GH_REPO/$GH_REPO.Rproj > \
+            /home/${USERNAME}/.rstudio/projects_settings/switch-to-project
 
-RUN groupmod --gid $USER_GID $DEFAULT_USER \
-    && usermod --uid $USER_UID --gid $USER_GID $DEFAULT_USER \
-    && chown -R $USER_UID:$USER_GID /home/$DEFAULT_USER
+## set user permissions
+RUN chown -R ${USERNAME}:${USERNAME} ${RENV_PATHS_CACHE}
+RUN chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.rstudio
+RUN chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/GitHub
