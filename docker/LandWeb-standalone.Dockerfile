@@ -41,6 +41,6 @@ RUN mkdir -p /home/${USERNAME}/.rstudio/projects_settings \
             /home/${USERNAME}/.rstudio/projects_settings/switch-to-project
 
 ## set user permissions
-RUN chown -R ${USERNAME}:${USERNAME} ${RENV_PATHS_CACHE}
+RUN chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.cache
 RUN chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.rstudio
 RUN chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/GitHub
