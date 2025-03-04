@@ -67,8 +67,7 @@ config.user <- switch(
       cloud = list(
         googleUser = "", ## TODO
         useCloud = FALSE
-      ),
-
+      )
     ),
     options = list(
       reproducible.cacheSaveFormat = "rds", ## use "qs" when caching is fixed upstream
