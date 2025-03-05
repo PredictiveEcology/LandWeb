@@ -292,6 +292,11 @@ Likewise, users can configure a scratch path for temporary raster file operation
 
 ## Additional Resources
 
+Debugging in R and Rstudio:
+
+- <https://support.posit.co/hc/en-us/articles/205612627-Debugging-with-the-RStudio-IDE>
+- <https://adv-r.hadley.nz/debugging.html>
+
 Resources for (re)learning R and spatial data:
 
 - <https://rspatial.org>
