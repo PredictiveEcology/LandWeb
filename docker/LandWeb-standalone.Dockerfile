@@ -9,6 +9,7 @@ RUN mkdir -p -m 0700 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 ARG USERNAME=rstudio
 
 ENV RENV_PATHS_CACHE=/home/${USERNAME}/.cache/R/renv
+ENV RENV_PATHS_PREFIX_AUTO=TRUE
 ENV RENV_WATCHDOG_ENABLED=FALSE
 
 RUN mkdir -p ${RENV_PATHS_CACHE}
