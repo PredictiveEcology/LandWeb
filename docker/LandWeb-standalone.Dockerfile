@@ -8,7 +8,9 @@ RUN mkdir -p -m 0700 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 ## pass USERNAME as argument during build if don't want `rstudio`
 ARG USERNAME=rstudio
 
+ENV RENV_CONFIG_CACHE_SYMLINKS=FALSE
 ENV RENV_PATHS_CACHE=/home/${USERNAME}/.cache/R/renv
+ENV RENV_PATHS_PREFIX_AUTO=TRUE
 ENV RENV_WATCHDOG_ENABLED=FALSE
 
 RUN mkdir -p ${RENV_PATHS_CACHE}
@@ -28,7 +30,8 @@ RUN mkdir cache inputs outputs
 
 ## pre-install R packages
 COPY renv/settings.json renv/settings.json
-RUN Rscript -e 'options(Ncpus = max(1, min(8, parallel::detectCores()))); renv::restore()'
+RUN --mount=type=cache,target=${RENV_PATHS_CACHE} \
+    Rscript -e 'options(Ncpus = max(1, min(8, parallel::detectCores()))); renv::restore()'
 
 ## temporary: national eco boundaries server not correctly configured for autodownloads
 COPY inputs_docker/ecodistrict_shp.zip inputs/ecodistrict_shp.zip

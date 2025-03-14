@@ -70,6 +70,7 @@ config.user <- switch(
       )
     ),
     options = list(
+      gargle_oauth_cache = TRUE,
       reproducible.cacheSaveFormat = "rds", ## use "qs" when caching is fixed upstream
       reproducible.useTerra = TRUE, ## TODO: add to config
       spades.memoryUseInterval = FALSE, ## TODO: temporary until callr/future cache bug fixed
@@ -85,10 +86,11 @@ config.user <- switch(
     args = list(
       cloud = list(
         googleUser = "",
-        useCloud = FALSE
+        useCloud = FALSE ## TODO
       )
     ),
     options = list(
+      gargle_oauth_cache = TRUE,
       reproducible.cacheSaveFormat = "rds", ## use "qs" when caching is fixed upstream
       reproducible.useTerra = TRUE, ## TODO: add to config
       spades.memoryUseInterval = FALSE, ## TODO: temporary until callr/future cache bug fixed
