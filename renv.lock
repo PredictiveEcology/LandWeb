@@ -213,14 +213,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.2",
+      "Version": "1.0.3",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "2bea977a09fee4becc13f288ae7981f552f70bfa",
+      "RemoteSha": "433755aab942c70111bdf2fa4581d4cd06157f4d",
       "Remotes": "PredictiveEcology/LandR@LandWeb, PredictiveEcology/map@development, PredictiveEcology/pemisc@development, cran/SDMTools, PredictiveEcology/SpaDES.tools@development",
       "Requirements": [
         "LandR",
@@ -228,6 +228,7 @@
         "SpaDES.tools",
         "data.table",
         "dplyr",
+        "fs",
         "future.apply",
         "ggplot2",
         "grDevices",
@@ -243,7 +244,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "af309c04258f6449fd38f5fc7294b096"
+      "Hash": "d6bd039a1a975b6f8ceec989604ccf80"
     },
     "MASS": {
       "Package": "MASS",
@@ -4629,21 +4630,6 @@
         "xfun"
       ],
       "Hash": "c0f007e2eeed7722ce13d42b84a22e07"
-    },
-    "tmpdir": {
-      "Package": "tmpdir",
-      "Version": "0.1.1",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "achubaty",
-      "RemoteRepo": "tmpdir",
-      "RemoteRef": "b0a2faf8d00750f971964a9ead48f5051c44c4f2",
-      "RemoteSha": "b0a2faf8d00750f971964a9ead48f5051c44c4f2",
-      "Requirements": [
-        "tools"
-      ],
-      "Hash": "30b02275786213838adaefb7b7731818"
     },
     "tzdb": {
       "Package": "tzdb",
