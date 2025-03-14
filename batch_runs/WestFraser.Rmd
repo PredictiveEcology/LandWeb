@@ -117,6 +117,6 @@ source("00-global.R")
 ```bash
 screen -d -m -S WFBR_post xvfb-run -a Rscript-4.2.3 -e '.mode <- "postprocess"; .studyAreaName <- "BlueRidge"; .version <- 2; source("00-global.R")'
 screen -d -m -S SNDR_post xvfb-run -a Rscript-4.2.3 -e '.mode <- "postprocess"; .studyAreaName <- "Sundre"; .version <- 2; source("00-global.R")'
-screen -d -m -S TLKN_post xvfb-run -a Rscript-4.2.3 -e '.mode <- "postprocess"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; Sys.sleep(48*3600); source("00-global.R")'
+screen -d -m -S TLKN_post xvfb-run -a Rscript-4.2.3 -e '.mode <- "postprocess"; .studyAreaName <- "Tolko_AB_N"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
 screen -d -m -S WF_N_post xvfb-run -a Rscript-4.2.3 -e '.mode <- "postprocess"; .studyAreaName <- "WestFraser_N"; .version <- 2; source("00-global.R")'
 ```
