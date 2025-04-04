@@ -3,7 +3,6 @@ rm(list = ls(all.names = FALSE))
 
 # example R options set globally
 options(
-  repos = c(CRAN = "https://cloud.r-project.org"),
   width = 60
 )
 
