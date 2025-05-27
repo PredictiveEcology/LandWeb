@@ -213,14 +213,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.2",
+      "Version": "1.0.3",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "2bea977a09fee4becc13f288ae7981f552f70bfa",
+      "RemoteSha": "433755aab942c70111bdf2fa4581d4cd06157f4d",
       "Remotes": "PredictiveEcology/LandR@LandWeb, PredictiveEcology/map@development, PredictiveEcology/pemisc@development, cran/SDMTools, PredictiveEcology/SpaDES.tools@development",
       "Requirements": [
         "LandR",
@@ -228,6 +228,7 @@
         "SpaDES.tools",
         "data.table",
         "dplyr",
+        "fs",
         "future.apply",
         "ggplot2",
         "grDevices",
@@ -243,7 +244,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "af309c04258f6449fd38f5fc7294b096"
+      "Hash": "d6bd039a1a975b6f8ceec989604ccf80"
     },
     "MASS": {
       "Package": "MASS",
@@ -3160,14 +3161,14 @@
     },
     "pemisc": {
       "Package": "pemisc",
-      "Version": "0.0.4.9009",
+      "Version": "0.0.4.9013",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "pemisc",
-      "RemoteRef": "788ed1bf07b466fa9ca50427ea4cda0f1900a624",
-      "RemoteSha": "788ed1bf07b466fa9ca50427ea4cda0f1900a624",
+      "RemoteRef": "development",
+      "RemoteSha": "18592a149728379d2aa93c050d58260593a6db7f",
       "Remotes": "achubaty/amc@development, PredictiveEcology/peutils@development",
       "Requirements": [
         "R",
@@ -3187,7 +3188,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "5a07e8473f3283bc2538306495b76c93"
+      "Hash": "c3c2ed20e48fbd257fdfaeb2e6bdafa0"
     },
     "peutils": {
       "Package": "peutils",
