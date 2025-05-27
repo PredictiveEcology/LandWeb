@@ -342,7 +342,6 @@ Imports:
     tiler (== 0.2.6),
     timechange (== 0.2.0),
     tinytex (== 0.44),
-    tmpdir (== 0.1.1),
     tzdb (== 0.3.0),
     units (== 0.8-1),
     usethis (== 2.2.0),
@@ -369,7 +368,6 @@ Imports:
     zoo (== 1.8-11)
 Remotes: 
     achubaty/amc@3330753132d4dca15011e4e64db5ccea28e3b8c4,
-    achubaty/tmpdir@b0a2faf8d00750f971964a9ead48f5051c44c4f2,
     FOR-CAST/notifications@1c38b2b0190eed24ec0b0a59ac0f362a7ab8d3e9,
     ianmseddy/LandR.CS@0952eedde6e100c2aae822b210756a697a04b61a,
     PredictiveEcology/LandR@3f4f9e574ceae73c51050af0183a058d116cb6d7,

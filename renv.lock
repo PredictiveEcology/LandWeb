@@ -4631,21 +4631,6 @@
       ],
       "Hash": "c0f007e2eeed7722ce13d42b84a22e07"
     },
-    "tmpdir": {
-      "Package": "tmpdir",
-      "Version": "0.1.1",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "achubaty",
-      "RemoteRepo": "tmpdir",
-      "RemoteRef": "b0a2faf8d00750f971964a9ead48f5051c44c4f2",
-      "RemoteSha": "b0a2faf8d00750f971964a9ead48f5051c44c4f2",
-      "Requirements": [
-        "tools"
-      ],
-      "Hash": "30b02275786213838adaefb7b7731818"
-    },
     "tzdb": {
       "Package": "tzdb",
       "Version": "0.3.0",
