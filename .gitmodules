@@ -42,3 +42,6 @@
 [submodule "m/Biomass_speciesParameters"]
 	path = m/Biomass_speciesParameters
 	url = https://github.com/PredictiveEcology/Biomass_speciesParameters
+[submodule "packages/LandWebUtils"]
+	path = packages/LandWebUtils
+	url = https://github.com/PredictiveEcology/LandWebUtils
