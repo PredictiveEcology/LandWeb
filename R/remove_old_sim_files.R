@@ -5,6 +5,6 @@ outputDirs <- file.path("outputs", c(
 ))
 
 lapply(outputDirs, function(d) {
-  LandWebUtils::findOldSimFiles(d, before = "2025-01-15")) |>
+  LandWebUtils::findOldSimFiles(d, before = "2025-01-15") |>
     fs::file_delete()
 })
