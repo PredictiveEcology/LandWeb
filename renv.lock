@@ -24,13 +24,13 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "RNCan",
       "RemoteRepo": "BioSimClient_R",
-      "RemoteRef": "main",
+      "RemoteRef": "1e14e1c828337a70752ef560e2913ac627ccbf5f",
       "RemoteSha": "1e14e1c828337a70752ef560e2913ac627ccbf5f",
       "Requirements": [
         "J4R",
         "R"
       ],
-      "Hash": "e450ad72dd4adc0b2fbfff0426ed2f96"
+      "Hash": "9371366ef2e5c19b2d6a1576d9178580"
     },
     "CircStats": {
       "Package": "CircStats",
@@ -200,13 +200,13 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "CWFC-CCFB",
       "RemoteRepo": "J4R",
-      "RemoteRef": "main",
+      "RemoteRef": "d423d7cdad7903499e17fc646961078f0361573e",
       "RemoteSha": "d423d7cdad7903499e17fc646961078f0361573e",
       "Requirements": [
         "methods",
         "utils"
       ],
-      "Hash": "8cea48187625dc65634a7c6f06b35d6b"
+      "Hash": "48c7054e0140dd282bc01f791a829ebd"
     },
     "KernSmooth": {
       "Package": "KernSmooth",
@@ -387,7 +387,7 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "ropensci",
       "RemoteRepo": "NLMR",
-      "RemoteRef": "master",
+      "RemoteRef": "f5b63cc3764f04dd7838359704750d849e0d1474",
       "RemoteSha": "f5b63cc3764f04dd7838359704750d849e0d1474",
       "Requirements": [
         "R",
@@ -402,7 +402,7 @@
         "stats",
         "tibble"
       ],
-      "Hash": "576096784787b3ef9f632bcfd4982c46"
+      "Hash": "6237ca1424408368b1e22464b3877643"
     },
     "PresenceAbsence": {
       "Package": "PresenceAbsence",
@@ -640,7 +640,7 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "Require",
-      "RemoteRef": "development",
+      "RemoteRef": "4d4cea98044731a8e1d92c199235e3c46a28e922",
       "RemoteSha": "4d4cea98044731a8e1d92c199235e3c46a28e922",
       "Requirements": [
         "R",
@@ -650,7 +650,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "23f4da30f4f5b6c7568a1423860df22e"
+      "Hash": "ba845a69cbbfbdf43a01b408f1b2e12f"
     },
     "RhpcBLASctl": {
       "Package": "RhpcBLASctl",
@@ -1104,7 +1104,7 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "CeresBarros",
       "RemoteRepo": "biomod2",
-      "RemoteRef": "dev_currentCeres",
+      "RemoteRef": "c88734fdd66ec831deb6a8e56aecd78f50c17673",
       "RemoteSha": "c88734fdd66ec831deb6a8e56aecd78f50c17673",
       "Requirements": [
         "MASS",
@@ -1130,7 +1130,7 @@
         "terra",
         "utils"
       ],
-      "Hash": "e92166eb63ecc8a3c9ec40b9aa4fe230"
+      "Hash": "9176e52c0396f06d0f9a9942e105ab7f"
     },
     "bit": {
       "Package": "bit",
@@ -1954,48 +1954,6 @@
         "R"
       ],
       "Hash": "192053c276525c8495ccfd523aa8f2d1"
-    },
-    "fireSenseUtils": {
-      "Package": "fireSenseUtils",
-      "Version": "0.0.5.9097",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "PredictiveEcology",
-      "RemoteRepo": "fireSenseUtils",
-      "RemoteRef": "development",
-      "RemoteSha": "f14f67c45bbfb0542499f6602feee185f7d04bd1",
-      "Requirements": [
-        "DEoptim",
-        "EnvStats",
-        "LandR",
-        "R",
-        "RhpcBLASctl",
-        "SpaDES.core",
-        "SpaDES.tools",
-        "crayon",
-        "data.table",
-        "fastDummies",
-        "ggplot2",
-        "ggpubr",
-        "kSamples",
-        "mclust",
-        "methods",
-        "pROC",
-        "parallelly",
-        "pemisc",
-        "purrr",
-        "qs",
-        "quickPlot",
-        "reproducible",
-        "sf",
-        "sp",
-        "stats",
-        "terra",
-        "tidyr",
-        "utils"
-      ],
-      "Hash": "08fceb0d12818fdc3bd3f620360ca7ab"
     },
     "fontawesome": {
       "Package": "fontawesome",
@@ -4382,9 +4340,9 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "remotes",
       "RemoteUsername": "r-lib",
-      "RemotePkgRef": "r-lib/remotes",
+      "RemoteRepo": "remotes",
+      "RemoteRef": "bcd35d5ce22d7565397dea1bcf3f1bba5fd96d3e",
       "RemoteSha": "bcd35d5ce22d7565397dea1bcf3f1bba5fd96d3e",
       "Requirements": [
         "R",
@@ -4393,7 +4351,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "3c481897b4a669118d0af13bced4e1c9"
+      "Hash": "65af929cb0cdbabca87c97bd9ead620c"
     },
     "renv": {
       "Package": "renv",
@@ -4790,42 +4748,6 @@
         "stats"
       ],
       "Hash": "b2a064711690de76b4007e9085d25654"
-    },
-    "scfmutils": {
-      "Package": "scfmutils",
-      "Version": "2.0.9.9004",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "PredictiveEcology",
-      "RemoteRepo": "scfmutils",
-      "RemoteRef": "development",
-      "RemoteSha": "91192545d4f79fb3e9fc99adc380b5f5458ead8b",
-      "Requirements": [
-        "R",
-        "SpaDES.core",
-        "SpaDES.tools",
-        "data.table",
-        "dplyr",
-        "fpCompare",
-        "ggplot2",
-        "grDevices",
-        "graphics",
-        "methods",
-        "purrr",
-        "raster",
-        "reproducible",
-        "rlang",
-        "scam",
-        "sf",
-        "stats",
-        "terra",
-        "tidyterra",
-        "tools",
-        "viridis",
-        "withr"
-      ],
-      "Hash": "f8d83445f76dde1f58821c6d88be00d5"
     },
     "selectr": {
       "Package": "selectr",
