@@ -429,7 +429,7 @@ Imports:
     zoo (== 1.8-14)
 Remotes: 
     achubaty/amc@09a6f01363335d991d8139dffaac029881133f5d,
-    achubaty/SDMTools@e71a02efd2da0d07fc99a9dc321d0a256450c155,
+    achubaty/SDMTools@ee662f6b4fa43ce83cc811d0a343e396a3b983a8,
     CeresBarros/biomod2@c88734fdd66ec831deb6a8e56aecd78f50c17673,
     CWFC-CCFB/J4R@d423d7cdad7903499e17fc646961078f0361573e,
     FOR-CAST/notifications@57d5989cae5f324d388e3173a79e3eeb84d504c7,
