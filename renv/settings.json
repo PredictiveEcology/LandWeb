@@ -2,9 +2,11 @@
   "bioconductor.version": null,
   "external.libraries": [],
   "ignored.packages": [
+    "fireSenseUtils",
     "maptools",
     "rgdal",
     "rgeos",
+    "scfmutils",
     "SpaDES",
     "SpaDES.shiny"
   ],
