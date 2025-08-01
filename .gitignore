@@ -50,6 +50,7 @@ outputs/
 .httr-oauth
 .httr-oauth-SUSPENDED
 *.json
+!renv/settings.json
 
 ## misc OS files
 Thumbs.db
