@@ -283,7 +283,7 @@ landwebConfig <- R6::R6Class(
       ## do paths first as these may be used below
       # paths ---------------------------------------------------------------------------------------
       private[[".paths"]] <- list(
-        cachePath = projectPaths("cache"),
+        cachePath = file.path(projectPaths("cache"), self$context[["studyAreaName"]]),
         inputPath = projectPaths("input"),
         logPath = projectPaths("log"),
         modulePath = "m", ## non-standard (historical reasons: max path lengths on shinyapps.io)
@@ -601,6 +601,7 @@ landwebConfig <- R6::R6Class(
 
       ## paths --------------------------------------
       self$paths <- list(
+        cachePath = file.path(projectPaths("cache"), self$context[["studyAreaName"]]),
         logPath = file.path(updateOutputPath(self, .landwebRunName), "log"),
         outputPath = updateOutputPath(self, .landwebRunName),
         tilePath = file.path(updateOutputPath(self, .landwebRunName), "tiles")
