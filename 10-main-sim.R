@@ -153,7 +153,7 @@ tryCatch({
   }
 })
 
-mySimOut@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
+mySimOut@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
 
 fsim <- simFile(
   name = "mySimOut",

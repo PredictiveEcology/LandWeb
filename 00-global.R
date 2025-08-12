@@ -87,7 +87,7 @@ tryCatch({
 })
 
 if (isUpdated(simOutPreamble) || isFALSE(config$args[["useCache"]])) {
-  simOutPreamble@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
+  simOutPreamble@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
   saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
   saveSimList(simOutPreamble, preambleFile, fileBackend = 2)
 }
@@ -142,7 +142,7 @@ tryCatch({
 })
 
 if (isUpdated(simOutSpeciesLayers) || isFALSE(config$args[["useCache"]])) {
-  simOutSpeciesLayers@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
+  simOutSpeciesLayers@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
   saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
 }
 
@@ -215,7 +215,7 @@ if (config$context[["mode"]] != "postprocess") {
   }
 
   if (isUpdated(simOutDataPrep) || isFALSE(config$args[["useCache"]])) {
-    simOutDataPrep@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
+    simOutDataPrep@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
     saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)
   }
 
@@ -318,7 +318,7 @@ if (config$context[["mode"]] != "postprocess") {
   })
 
   if (isTRUE(attr(simOutSummaries, ".Cache")[["newCache"]])) {
-    simOutSummaries@.xData[["._sessionInfo"]] <- SpaDES.project::projectSessionInfo(prjDir)
+    simOutSummaries@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
     message("Saving simulation to: ", fsim)
     saveSimList(sim = simOutSummaries, filename = fsim, fileBackend = 2)
 
