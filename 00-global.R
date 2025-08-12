@@ -1,8 +1,14 @@
 # environment variables -----------------------------------------------------------------------
-if (file.exists("~/.Renviron")) readRenviron("~/.Renviron") ## GITHUB_PAT, etc.
-if (file.exists("LandWeb.Renviron")) readRenviron("LandWeb.Renviron") ## database credentials
+
+if (file.exists("~/.Renviron")) {
+  readRenviron("~/.Renviron") ## GITHUB_PAT, etc.
+}
+if (file.exists("LandWeb.Renviron")) {
+  readRenviron("LandWeb.Renviron") ## database credentials
+}
 
 # use renv for package management -------------------------------------------------------------
+
 if (!grepl("renv", .libPaths()[1])) {
   source("renv/activate.R")
 }
@@ -40,8 +46,12 @@ source("02-configure.R")
 do.call(SpaDES.core::setPaths, paths)
 
 if (config$args[["delayStart"]] > 0) {
-  message(crayon::green("\nStaggered job start: delaying by", config$args[["delayStart"]], "minutes."))
-  Sys.sleep(config$args[["delayStart"]]*60)
+  message(crayon::green(
+    "\nStaggered job start: delaying by",
+    config$args[["delayStart"]],
+    "minutes."
+  ))
+  Sys.sleep(config$args[["delayStart"]] * 60)
 }
 
 objects1 <- list()
@@ -59,32 +69,44 @@ preambleFile <- simFile(
   ext = config$args[["fsimext"]]
 )
 
-tryCatch({
-  simOutPreamble <- Cache(
-    simInitAndSpades,
-    times = list(start = 0, end = 1),
-    params = parameters1, ## TODO: use config$params
-    modules = c("LandWeb_preamble"), ## TODO: use config$modules
-    objects = objects1,
-    paths = paths,
-    debug = list(file = list(file = file.path(config$paths[["logPath"]], "01-preamble.log"),
-                             append = TRUE), debug = 1),
-    omitArgs = c("debug", "paths", ".plotInitialTime"),
-    useCache = config$args[["useCache"]],
-    useCloud = config$args[["cloud"]][["useCloud"]],
-    cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-    userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "preamble")
-  )
-}, error = function(e) {
-  if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
-    notifications::notify_google(
-      paste0("ERROR in preamble `", config$context[["runName"]],
-             "` on host `", config$context[["machine"]], "`.\n",
-             "```\n", e$message, "\n```")
+tryCatch(
+  {
+    simOutPreamble <- Cache(
+      simInitAndSpades,
+      times = list(start = 0, end = 1),
+      params = parameters1, ## TODO: use config$params
+      modules = c("LandWeb_preamble"), ## TODO: use config$modules
+      objects = objects1,
+      paths = paths,
+      debug = list(
+        file = list(file = file.path(config$paths[["logPath"]], "01-preamble.log"), append = TRUE),
+        debug = 1
+      ),
+      omitArgs = c("debug", "paths", ".plotInitialTime"),
+      useCache = config$args[["useCache"]],
+      useCloud = config$args[["cloud"]][["useCloud"]],
+      cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+      userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "preamble")
     )
-    stop(e$message)
+  },
+  error = function(e) {
+    if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
+      notifications::notify_google(
+        paste0(
+          "ERROR in preamble `",
+          config$context[["runName"]],
+          "` on host `",
+          config$context[["machine"]],
+          "`.\n",
+          "```\n",
+          e$message,
+          "\n```"
+        )
+      )
+      stop(e$message)
+    }
   }
-})
+)
 
 if (isUpdated(simOutPreamble) || isFALSE(config$args[["useCache"]])) {
   simOutPreamble@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
@@ -114,32 +136,47 @@ sppLayersFile <- simFile(
   ext = config$args[["fsimext"]]
 )
 
-tryCatch({
-  simOutSpeciesLayers <- Cache(
-    simInitAndSpades,
-    times = list(start = 0, end = 1),
-    params = parameters2, ## TODO: use config$params
-    modules = c("Biomass_speciesData"),  ## TODO: use config$modules
-    objects = objects2,
-    paths = paths,
-    debug = list(file = list(file = file.path(config$paths[["logPath"]], "02-speciesLayers.log"),
-                             append = TRUE), debug = 1),
-    omitArgs = c("debug", "paths", ".plotInitialTime"),
-    useCache = config$args[["useCache"]],
-    useCloud = config$args[["cloud"]][["useCloud"]],
-    cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-    userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "speciesLayers")
-  )
-}, error = function(e) {
-  if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
-    notifications::notify_google(
-      paste0("ERROR in species layers `", config$context[["runName"]],
-             "` on host `", config$context[["machine"]], "`.\n",
-             "```\n", e$message, "\n```")
+tryCatch(
+  {
+    simOutSpeciesLayers <- Cache(
+      simInitAndSpades,
+      times = list(start = 0, end = 1),
+      params = parameters2, ## TODO: use config$params
+      modules = c("Biomass_speciesData"), ## TODO: use config$modules
+      objects = objects2,
+      paths = paths,
+      debug = list(
+        file = list(
+          file = file.path(config$paths[["logPath"]], "02-speciesLayers.log"),
+          append = TRUE
+        ),
+        debug = 1
+      ),
+      omitArgs = c("debug", "paths", ".plotInitialTime"),
+      useCache = config$args[["useCache"]],
+      useCloud = config$args[["cloud"]][["useCloud"]],
+      cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+      userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "speciesLayers")
     )
-    stop(e$message)
+  },
+  error = function(e) {
+    if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
+      notifications::notify_google(
+        paste0(
+          "ERROR in species layers `",
+          config$context[["runName"]],
+          "` on host `",
+          config$context[["machine"]],
+          "`.\n",
+          "```\n",
+          e$message,
+          "\n```"
+        )
+      )
+      stop(e$message)
+    }
   }
-})
+)
 
 if (isUpdated(simOutSpeciesLayers) || isFALSE(config$args[["useCache"]])) {
   simOutSpeciesLayers@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
@@ -156,7 +193,7 @@ if (config$context[["mode"]] != "postprocess") {
 
   parameters2a <- list(
     .globals = config$params[[".globals"]],
-    Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]]#,
+    Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]] #,
     # Biomass_speciesParameters = config$params[["Biomass_speciesParameters"]]
   )
 
@@ -182,32 +219,47 @@ if (config$context[["mode"]] != "postprocess") {
     ext = config$args[["fsimext"]]
   )
 
-  tryCatch({
-    simOutDataPrep <- Cache(
-      simInitAndSpades,
-      times = list(start = 0, end = 1),
-      params = parameters2a, ## TODO: use config$params
-      modules = modules2a,
-      objects = objects2a,
-      paths = paths,
-      debug = list(file = list(file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"),
-                               append = TRUE), debug = 1),
-      omitArgs = c("debug", "paths", ".plotInitialTime"),
-      useCache = config$args[["useCache"]],
-      useCloud = config$args[["cloud"]][["useCloud"]],
-      cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-      userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "dataPrep")
-    )
-  }, error = function(e) {
-    if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
-      notifications::notify_google(
-        paste0("ERROR in data prep `", config$context[["runName"]],
-               "` on host `", config$context[["machine"]], "`.\n",
-               "```\n", e$message, "\n```")
+  tryCatch(
+    {
+      simOutDataPrep <- Cache(
+        simInitAndSpades,
+        times = list(start = 0, end = 1),
+        params = parameters2a, ## TODO: use config$params
+        modules = modules2a,
+        objects = objects2a,
+        paths = paths,
+        debug = list(
+          file = list(
+            file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"),
+            append = TRUE
+          ),
+          debug = 1
+        ),
+        omitArgs = c("debug", "paths", ".plotInitialTime"),
+        useCache = config$args[["useCache"]],
+        useCloud = config$args[["cloud"]][["useCloud"]],
+        cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+        userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "dataPrep")
       )
-      stop(e$message)
+    },
+    error = function(e) {
+      if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
+        notifications::notify_google(
+          paste0(
+            "ERROR in data prep `",
+            config$context[["runName"]],
+            "` on host `",
+            config$context[["machine"]],
+            "`.\n",
+            "```\n",
+            e$message,
+            "\n```"
+          )
+        )
+        stop(e$message)
+      }
     }
-  })
+  )
 
   ## TODO: enforce correct species table types (LandR#90)
   if (is(simOutDataPrep$species$postfireregen, "character")) {
@@ -239,7 +291,11 @@ if (config$context[["mode"]] != "postprocess") {
 
   ## don't cache the init event
   config$params[["HSI_Caribou_MB"]][[".useCache"]] <- c(".inputObjects", "postprocess")
-  config$params[["LandWeb_summary"]][[".useCache"]] <- c(".inputObjects", "animation", "postprocess")
+  config$params[["LandWeb_summary"]][[".useCache"]] <- c(
+    ".inputObjects",
+    "animation",
+    "postprocess"
+  )
 
   ## NOTE: previous .useParallel value is too low for this module
   options(map.maxNumCores = min(.ncores, getOption("map.maxNumCores")))
@@ -284,38 +340,55 @@ if (config$context[["mode"]] != "postprocess") {
     ext = config$args[["fsimext"]]
   )
 
-  tryCatch({
-    simOutSummaries <- Cache(
-      simInitAndSpades,
-      times = list(start = 0, end = 1),
-      params = parameters4, ## TODO: use config$params
-      modules = modules4, ## TODO: use config$modules
-      # outputs = outputs4,
-      objects = objects4,
-      paths = paths,
-      loadOrder = unlist(modules4), ## TODO: use config$modules
-      # cl = cl, ## TODO: get parallel processing working !!!
-      debug = list(file = list(file = file.path(config$paths[["logPath"]], "04-summaries.log"),
-                               append = TRUE), debug = 1),
-      useCache = config$args[["useCache"]],
-      useCloud = FALSE, ## TODO param useCloud??
-      cloudFolderID = config$args[["cloud"]][["cacheDir"]],
-      omitArgs = c("debug", "paths"),
-      userTags = c(config$context[["runName"]], "postprocess")
-    )
-    cat(capture.output(warnings()),
-        file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"),
-        sep = "\n")
-  }, error = function(e) {
-    if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
-      notifications::notify_google(
-        paste0("ERROR in post-processing `", config$context[["runName"]],
-               "` on host `", config$context[["machine"]], "`.\n",
-               "```\n", e$message, "\n```")
+  tryCatch(
+    {
+      simOutSummaries <- Cache(
+        simInitAndSpades,
+        times = list(start = 0, end = 1),
+        params = parameters4, ## TODO: use config$params
+        modules = modules4, ## TODO: use config$modules
+        # outputs = outputs4,
+        objects = objects4,
+        paths = paths,
+        loadOrder = unlist(modules4), ## TODO: use config$modules
+        # cl = cl, ## TODO: get parallel processing working !!!
+        debug = list(
+          file = list(
+            file = file.path(config$paths[["logPath"]], "04-summaries.log"),
+            append = TRUE
+          ),
+          debug = 1
+        ),
+        useCache = config$args[["useCache"]],
+        useCloud = FALSE, ## TODO param useCloud??
+        cloudFolderID = config$args[["cloud"]][["cacheDir"]],
+        omitArgs = c("debug", "paths"),
+        userTags = c(config$context[["runName"]], "postprocess")
       )
-      stop(e$message)
+      cat(
+        capture.output(warnings()),
+        file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"),
+        sep = "\n"
+      )
+    },
+    error = function(e) {
+      if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
+        notifications::notify_google(
+          paste0(
+            "ERROR in post-processing `",
+            config$context[["runName"]],
+            "` on host `",
+            config$context[["machine"]],
+            "`.\n",
+            "```\n",
+            e$message,
+            "\n```"
+          )
+        )
+        stop(e$message)
+      }
     }
-  })
+  )
 
   if (isTRUE(attr(simOutSummaries, ".Cache")[["newCache"]])) {
     simOutSummaries@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
@@ -348,8 +421,13 @@ if (config$context[["mode"]] != "postprocess") {
   # end-of-sim notifications --------------------------------------------------------------------
   if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
     notifications::notify_google(
-      paste0("Post-processing for `", config$context[["runName"]],
-             "` completed on host `", config$context[["machine"]], "`.")
+      paste0(
+        "Post-processing for `",
+        config$context[["runName"]],
+        "` completed on host `",
+        config$context[["machine"]],
+        "`."
+      )
     )
   }
 }

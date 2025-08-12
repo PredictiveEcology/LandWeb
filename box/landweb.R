@@ -8,7 +8,11 @@ box::use(pemisc[availableMemory])
 .landwebRunName <- function(context, withRep = TRUE) {
   .runName <- paste0(
     context$studyAreaName,
-    if (context$dispersalType == "default") "" else paste0("_", context[["dispersalType"]], "Dispersal"),
+    if (context$dispersalType == "default") {
+      ""
+    } else {
+      paste0("_", context[["dispersalType"]], "Dispersal")
+    },
     if (context$ROStype == "default") "" else paste0("_", context[["ROStype"]], "ROS"),
     if (isTRUE(context$succession)) "" else "_noSuccession",
     if (context$friMultiple == 1) "" else paste0("_fri", context[["friMultiple"]]),
@@ -57,11 +61,21 @@ landwebContext <- R6::R6Class(
     #' @param version Integer. Shorthand denoting whether vegetation parameter forcings (`version = 2`)
     #'                should be used as they were for the ca. 2018 runs.
     #'                Version 3 uses the default LandR Biomass parameters (i.e., no forcings).
-    initialize = function(projectPath, mode = "development", rep = 1L, res = 250, ROStype = NA,
-                          studyAreaName = "random", version = 3) {
-
+    initialize = function(
+      projectPath,
+      mode = "development",
+      rep = 1L,
+      res = 250,
+      ROStype = NA,
+      studyAreaName = "random",
+      version = 3
+    ) {
       if (is.na(ROStype)) {
-        ROStype <- if (version == 2) "log" else if (version == 3) "default"
+        ROStype <- if (version == 2) {
+          "log"
+        } else if (version == 3) {
+          "default"
+        }
       } else {
         ROStype <- tolower(ROStype)
       }
@@ -72,8 +86,16 @@ landwebContext <- R6::R6Class(
         version %in% c(2, 3)
       )
 
-      private[[".dispersalType"]] <- if (version == 2) "high" else if (version == 3) "default"
-      private[[".forceResprout"]] <- if (version == 2) TRUE else if (version == 3) FALSE
+      private[[".dispersalType"]] <- if (version == 2) {
+        "high"
+      } else if (version == 3) {
+        "default"
+      }
+      private[[".forceResprout"]] <- if (version == 2) {
+        TRUE
+      } else if (version == 3) {
+        FALSE
+      }
       private[[".friMultiple"]] <- 1L
       private[[".pixelSize"]] <- res
       private[[".projectPath"]] <- normPath(projectPath)
@@ -105,10 +127,10 @@ landwebContext <- R6::R6Class(
         rep = self$rep,
         dispersalType = self$dispersalType, ## additional for landweb
         forceResprout = self$forceResprout, ## additional for landweb
-        friMultiple = self$friMultiple,     ## additional for landweb
-        pixelSize = self$pixelSize,         ## additional for landweb
-        ROStype = self$ROStype,             ## additional for landweb
-        succession = self$succession,       ## additional for landweb
+        friMultiple = self$friMultiple, ## additional for landweb
+        pixelSize = self$pixelSize, ## additional for landweb
+        ROStype = self$ROStype, ## additional for landweb
+        succession = self$succession, ## additional for landweb
         runName = self$runName
       )
 
@@ -329,7 +351,7 @@ landwebConfig <- R6::R6Class(
       # options ------------------------------------------------------------------------------------
       private[[".options"]] <- list(
         fftempdir = file.path(dirname(tempdir()), "scratch", "LandWeb", "ff"),
-        future.globals.maxSize = 1000*1024^2,
+        future.globals.maxSize = 1000 * 1024^2,
         LandR.assertions = TRUE,
         LandR.verbose = 1,
         map.dataPath = self$paths$inputPath, # not used yet
@@ -374,26 +396,32 @@ landwebConfig <- R6::R6Class(
           summaryPeriod = c(700, 1000),
           vegLeadingProportion = 0.8,
           .plotInitialTime = 0,
-          .plots = c("png"),  # c("object", "png", "raw", "screen"),
+          .plots = c("png"), # c("object", "png", "raw", "screen"),
           .sslVerify = 0L, ## TODO: temporary to deal with NFI server SSL issues
           .studyAreaName = self$context[["studyAreaName"]],
           .useParallel = 2 ## doesn't benefit from more DT threads
         ),
         Biomass_borealDataPrep = list(
-          biomassModel = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
-                                            (logAge + cover | ecoregionGroup))),
+          biomassModel = quote(lme4::lmer(
+            B ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)
+          )),
           ecoregionLayerField = "ECOREGION", # "ECODISTRIC"
           forestedLCCClasses = c(1:15, 20, 32, 34:36), ## should match preamble's treeClassesLCC
           LCCClassesToReplaceNN = 34:36,
           # next two are used when assigning pixelGroup membership; what resolution for
           #   age and biomass
-          pixelGroupAgeClass = 2 * 10,  ## twice the successionTimestep; can be coarse because initial conditions are irrelevant
+          pixelGroupAgeClass = 2 * 10, ## twice the successionTimestep; can be coarse because initial conditions are irrelevant
           pixelGroupBiomassClass = 1000, ## 1000 / mapResFact^2; can be coarse because initial conditions are irrelevant
           subsetDataAgeModel = 100,
           subsetDataBiomassModel = 100,
           speciesTableAreas = c("BSW", "BP", "MC"),
           speciesUpdateFunction = list(
-            quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
+            quote(LandR::speciesTableUpdate(
+              sim$species,
+              sim$speciesTable,
+              sim$sppEquiv,
+              P(sim)$sppEquivCol
+            )),
             quote(LandR::updateSpeciesTable(sim$species, sim$speciesParams))
           ),
           useCloudCacheForStats = FALSE, ## TODO: re-enable once errors in species levels resolved
@@ -427,11 +455,11 @@ landwebConfig <- R6::R6Class(
         ),
         HSI_Caribou_MB = list(
           ageClasses = c("Young", "Immature", "Mature", "Old"), ## LandWebUtils:::.ageClasses
-          ageClassCutOffs = c(0, 40, 80, 120),                  ## LandWebUtils:::.ageClassCutOffs
+          ageClassCutOffs = c(0, 40, 80, 120), ## LandWebUtils:::.ageClassCutOffs
           ageClassMaxAge = 400L, ## was `maxAge` previously
           reps = 1L:15L, ## TODO: used elsewhere to setup runs (expt table)?
           simOutputPath = self$paths[["outputPath"]],
-          summaryInterval = 100,        ## also in .globals
+          summaryInterval = 100, ## also in .globals
           summaryPeriod = c(700, 1000), ## also in .globals
           upload = FALSE,
           uploadTo = "", ## TODO: use google-ids.csv to define these per WBI?
@@ -463,8 +491,8 @@ landwebConfig <- R6::R6Class(
           .useCache = self$args[["useCache"]]
         ),
         LandWeb_preamble = list(
-          bufferDist = 20000,        ## 20 km buffer
-          bufferDistLarge = 50000,   ## 50 km buffer
+          bufferDist = 20000, ## 20 km buffer
+          bufferDistLarge = 50000, ## 50 km buffer
           dispersalType = "default",
           friMultiple = 1L,
           pixelSize = 250,
@@ -476,11 +504,11 @@ landwebConfig <- R6::R6Class(
         ),
         LandWeb_summary = list(
           ageClasses = c("Young", "Immature", "Mature", "Old"), ## LandWebUtils:::.ageClasses
-          ageClassCutOffs = c(0, 40, 80, 120),                  ## LandWebUtils:::.ageClassCutOffs
+          ageClassCutOffs = c(0, 40, 80, 120), ## LandWebUtils:::.ageClassCutOffs
           ageClassMaxAge = 400L, ## was `maxAge` previously
           reps = 1L:15L, ## TODO: used elsewhere to setup runs (expt table)?
           simOutputPath = self$paths[["outputPath"]],
-          summaryInterval = 100,        ## also in .globals
+          summaryInterval = 100, ## also in .globals
           summaryPeriod = c(700, 1000), ## also in .globals
           standAgeMapFromCohorts = FALSE, ## use FALSE for re-postprocessing old sims (using TSF)
           timeSeriesTimes = 601:650,
@@ -545,9 +573,20 @@ landwebConfig <- R6::R6Class(
         )
       } else if (self$context[["mode"]] == "postprocess") {
         if (grepl("provMB", self$context[["studyAreaName"]])) {
-          self$modules <- list("LandWeb_preamble", "Biomass_speciesData", "HSI_Caribou_MB", "LandWeb_summary")
+          self$modules <- list(
+            "LandWeb_preamble",
+            "Biomass_speciesData",
+            "HSI_Caribou_MB",
+            "LandWeb_summary"
+          )
         } else {
-          self$modules <- list("LandWeb_preamble", "Biomass_speciesData", "burnSummaries", "LandMine", "LandWeb_summary")
+          self$modules <- list(
+            "LandWeb_preamble",
+            "Biomass_speciesData",
+            "burnSummaries",
+            "LandMine",
+            "LandWeb_summary"
+          )
         }
       }
 
@@ -583,7 +622,9 @@ landwebConfig <- R6::R6Class(
       if (grepl("FMU", self$context[["studyAreaName"]])) {
         self$params <- list(
           Biomass_borealDataPrep = list(
-            biomassModel = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode + (1 | ecoregionGroup)))
+            biomassModel = quote(lme4::lmer(
+              B ~ logAge * speciesCode + cover * speciesCode + (1 | ecoregionGroup)
+            ))
           )
         )
       } else if (grepl("provMB", self$context[["studyAreaName"]])) {
@@ -595,8 +636,13 @@ landwebConfig <- R6::R6Class(
       }
 
       if (isFALSE(self$context[["succession"]])) {
-        self$modules <- list("LandWeb_preamble", "Biomass_speciesData",
-                             "LandMine", "LandWeb_output", "timeSinceFire")
+        self$modules <- list(
+          "LandWeb_preamble",
+          "Biomass_speciesData",
+          "LandMine",
+          "LandWeb_output",
+          "timeSinceFire"
+        )
       }
 
       ## paths --------------------------------------

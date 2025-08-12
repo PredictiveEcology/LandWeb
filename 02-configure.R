@@ -4,9 +4,13 @@ source("01c-exptTbl.R") ## TODO
 
 box::use(box/landweb)
 config <- landweb$landwebConfig$new(
-  projectName = "LandWeb", projectPath = prjDir,
-  mode = .mode, rep = .rep, res = .res,
-  studyAreaName = .studyAreaName, version = .version
+  projectName = "LandWeb",
+  projectPath = prjDir,
+  mode = .mode,
+  rep = .rep,
+  res = .res,
+  studyAreaName = .studyAreaName,
+  version = .version
 )$update()$validate()
 
 if (.version == 2) {
@@ -20,7 +24,7 @@ if (.version == 2) {
 ## apply user and machine context settings here
 source("02a-user-config.R")
 config$args <- config.user$args
-#config$modules <- config.user$modules ## no modules should differ among users/machines
+# config$modules <- config.user$modules ## no modules should differ among users/machines
 config$options <- config.user$options
 config$params <- config.user$params
 config$paths <- config.user$paths
