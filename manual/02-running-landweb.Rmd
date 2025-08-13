@@ -13,7 +13,7 @@ rig rstudio renv.lock
 ```
 :::
 
-2. Open the file `00-global.R` and run each line in sequence, responding to any prompts as required.
+2. Open the file `00-main.R` and run each line in sequence, responding to any prompts as required.
 
 :::{.rmdwarning}
 Before you can run the model, ensure that all necessary package versions are installed by restoring from the project's snapshot file.
@@ -200,7 +200,7 @@ Due to a server configuration problem, the following national ecolocation polygo
 ### Interactive R session
 
 When working in an R session, be sure to set the working directory to the LandWeb project directory.
-The first time running the model, open the file `00-global.R`, and step through each line to ensure any prompts etc. are answered correctly.
+The first time running the model, open the file `00-main.R`, and step through each line to ensure any prompts etc. are answered correctly.
 
 ```r
 .mode <- "development"
@@ -208,7 +208,7 @@ The first time running the model, open the file `00-global.R`, and step through 
 .rep <- 1L
 .version <- 2
 
-source("00-global.R")
+source("00-main.R")
 ```
 
 :::{.rmdimportant}

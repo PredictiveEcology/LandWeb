@@ -3,17 +3,32 @@
 if (file.exists("~/.Renviron")) {
   readRenviron("~/.Renviron") ## GITHUB_PAT, etc.
 }
+
 if (file.exists("LandWeb.Renviron")) {
   readRenviron("LandWeb.Renviron") ## database credentials
 }
 
-# use renv for package management -------------------------------------------------------------
+# packages ------------------------------------------------------------------------------------
 
+## use renv for package management
 if (!grepl("renv", .libPaths()[1])) {
   source("renv/activate.R")
 }
 
-# project setup -------------------------------------------------------------------------------
+## load essential packgaes
+library("data.table")
+library("plyr")
+library("pryr")
+library("reproducible")
+library("SpaDES.core")
+
+library("googledrive")
+library("httr")
+library("LandR")
+library("LandWebUtils")
+library("notifications")
+
+# simulation setup ----------------------------------------------------------------------------
 
 prjDir <- SpaDES.project::findProjectPath()
 
@@ -21,25 +36,9 @@ stopifnot(identical(prjDir, normalizePath(getwd(), winslash = "/")))
 
 source("01a-globalvars.R")
 
-options(
-  Ncpus = .ncores
-)
+# source("01c-exptTbl.R") ## TODO
 
-library("data.table")
-library("plyr")
-library("pryr")
-library("reproducible")
-library("SpaDES.core")
-library("googledrive")
-library("httr")
-library("LandR")
-library("LandWebUtils")
-library("notifications")
-
-source("R/cache_helpers.R") ## TODO: remove once reproducible updated to latest version
-
-# configure project ---------------------------------------------------------------------------
-source("02-configure.R")
+source("02-configure.R") ## will also run user config
 
 # begin simulations ---------------------------------------------------------------------------
 

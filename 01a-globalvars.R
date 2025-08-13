@@ -1,6 +1,6 @@
 # global variables ----------------------------------------------------------------------------
 
-.ncores <- min(parallel::detectCores() / 2, 24L)
+.ncores <- min(parallelly::availableCores(), 24L)
 .nodename <- Sys.info()[["nodename"]]
 .user <- Sys.info()[["user"]]
 

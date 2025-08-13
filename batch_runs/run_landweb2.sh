@@ -7,6 +7,6 @@ RES=250
 printf -v RUN "%02d" $1 ## assign to RUN, padding with extra zeros as needed
 VERS=2
 
-RCMD=".mode <- 'production'; .studyAreaName <- 'LandWeb'; .res <- ${RES}; .rep <- ${RUN}; .version <- ${VERS}; source('00-global.R')"
+RCMD=".mode <- 'production'; .studyAreaName <- 'LandWeb'; .res <- ${RES}; .rep <- ${RUN}; .version <- ${VERS}; source('00-main.R')"
 
 echo ${RCMD} | xvfb-run -a r

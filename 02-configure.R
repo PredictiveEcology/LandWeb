@@ -1,5 +1,3 @@
-source("01c-exptTbl.R") ## TODO
-
 # configure project ---------------------------------------------------------------------------
 
 box::use(box/landweb)
