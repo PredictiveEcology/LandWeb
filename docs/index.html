@@ -6,18 +6,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Overview | LandWeb Manual</title>
 <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
-<meta name="description" content="A manual for the LandWeb ecosystem of SpaDES modules">
-<meta name="generator" content="bookdown 0.34 with bs4_book()">
+<meta name="description" content="User manual for the LandWeb simulation model.">
+<meta name="generator" content="bookdown 0.43 with bs4_book()">
 <meta property="og:title" content="Overview | LandWeb Manual">
 <meta property="og:type" content="book">
 <meta property="og:url" content="https://predictiveecology.github.io/LandWeb">
-<meta property="og:description" content="A manual for the LandWeb ecosystem of SpaDES modules">
+<meta property="og:description" content="User manual for the LandWeb simulation model.">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Overview | LandWeb Manual">
-<meta name="twitter:description" content="A manual for the LandWeb ecosystem of SpaDES modules">
+<meta name="twitter:description" content="User manual for the LandWeb simulation model.">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
-<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.9.0/transition.js"></script><script src="libs/bs3compat-0.9.0/tabs.js"></script><script src="libs/bs3compat-0.9.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
 <script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
     
@@ -117,10 +117,10 @@ Lorem ipsum ... (TODO)
 </h2>
 <p>LandWeb is the first large scale, data-driven approach to simulating historic natural range of variation (H/NRV) (<a href="https://landweb.ca" class="uri">https://landweb.ca</a>).
 In developing the model, analyses, as well as the infrastructure to host data, we strove to implement a single, reproducible workflow to facilitate running simulations, analyses, and model reuse and future expansion.
-This tight linkage between data and simulation model is made possible via its implementation using the <code>SpaDES</code> family of packages <span class="citation">(<a href="references-1.html#ref-ChubatyMcIntire2019">Chubaty &amp; McIntire 2019</a>)</span> within the R Statistical Language and Environment <span class="citation">(<a href="references-1.html#ref-R-base">R Core Team 2023</a>)</span>.
+This tight linkage between data and simulation model is made possible via its implementation using the <code>SpaDES</code> family of packages <span class="citation">(<a href="references-1.html#ref-ChubatyMcIntire2019">Chubaty &amp; McIntire 2019</a>)</span> within the R Statistical Language and Environment <span class="citation">(<a href="references-1.html#ref-R-base">R Core Team 2025</a>)</span>.
 For more information about <code>SpaDES</code>, see <a href="https://spades.predictiveecology.org/" class="uri">https://spades.predictiveecology.org/</a>.</p>
 <p>The LandWeb model integrates two well-used models for forest stand succession and wildfire simulation, implemented in the <code>SpaDES</code> simulation platform as a collection of submodels (implement as <code>SpaDES</code> modules).
-Vegetation dynamics are modeled using the LandR Biomass suite of modules, which reimplement the LANDIS-II Biomass Succession model <span class="citation">(<a href="references-1.html#ref-Scheller2007">Scheller <em>et al.</em> 2007</a>; <a href="references-1.html#ref-SchellerMladenoff2004">Scheller &amp; Mladenoff 2004</a>)</span> in R.
+Vegetation dynamics are modeled using the LandR Biomass suite of modules, which reimplement the LANDIS-II Biomass Succession model <span class="citation">(<a href="references-1.html#ref-SchellerMladenoff2004">Scheller &amp; Mladenoff 2004</a>; <a href="references-1.html#ref-Scheller2007">Scheller <em>et al.</em> 2007</a>)</span> in R.
 Wildfire dynamics are modeled using an implementation of LandMine <span class="citation">(<a href="references-1.html#ref-Andison:1996">Andison 1996</a>; <a href="references-1.html#ref-Andison:1998">Andison 1998</a>)</span>.
 Simulations were run for the entire LandWeb study area, which spans most of the western Canadian boreal forest.
 A summary of the results are presented using a web app, which can be run locally.</p>
@@ -166,7 +166,7 @@ Figure 0.1: LandWeb study area (blue) with mountain and boreal caribou ranges hi
 <h3>
 <span class="header-section-number">0.2.2</span> Vegetation dynamics<a class="anchor" aria-label="anchor" href="#vegetation-dynamics"><i class="fas fa-link"></i></a>
 </h3>
-<p>Vegetation growth and succession are modeled using a re-implementation of the LANDIS-II Biomass model, a widely used and well-documented dynamic vegetation succession model <span class="citation">(<a href="references-1.html#ref-Scheller2007">Scheller <em>et al.</em> 2007</a>; <a href="references-1.html#ref-SchellerMladenoff2004">Scheller &amp; Mladenoff 2004</a>)</span>.
+<p>Vegetation growth and succession are modeled using a re-implementation of the LANDIS-II Biomass model, a widely used and well-documented dynamic vegetation succession model <span class="citation">(<a href="references-1.html#ref-SchellerMladenoff2004">Scheller &amp; Mladenoff 2004</a>; <a href="references-1.html#ref-Scheller2007">Scheller <em>et al.</em> 2007</a>)</span>.
 Our re-implemented model largely follows the original LANDIS-II source code (v 3.6.2; <span class="citation">Scheller &amp; Miranda (<a href="references-1.html#ref-SchellerMiranda2015">2015a</a>)</span>), but with some modifications with respect to species traits parameterization.
 This model simulates landscape-scale forest dynamics in a spatio-temporally explicit manner, using cohorts of tree species within each pixel.
 Multiple ecological processes are captured by the model, including vegetation growth, mortality, seed dispersal, and post-disturbance regeneration.</p>
@@ -243,7 +243,7 @@ Simulation outputs are summarized for several publicly available reporting polyg
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-28.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-13.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

@@ -3,7 +3,7 @@
 1. Launch Rstudio and open the LandWeb Rstudio project (`LandWeb.Rproj`);
 
 :::{.rmdimportant}
-Be sure to use R 4.2.3 when running the model!
+Be sure to use R 4.5.1 when running the model!
 
 If using `rig` to manage multiple R versions, use the following to launch Rstudio with the correct version of R:
 
@@ -20,7 +20,6 @@ Before you can run the model, ensure that all necessary package versions are ins
 
 ```r
 options(
-  renv.config.mran.enabled = FALSE,
   renv.config.pak.enabled = FALSE
 )
 renv::restore()

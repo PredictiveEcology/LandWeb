@@ -1,3 +1,9 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
 # Getting started
 
 ## Prerequisites
@@ -28,7 +34,7 @@ Install Docker for your system following <https://docs.docker.com/get-docker/>.
 Next, pull the image from Docker Hub:
 
 ```bash
-docker pull achubaty/landweb-standalone:latest
+docker pull achubaty/landweb:latest
 ```
 
 And launch a new container based on this image (adjusting `PASSWORD`, `memory`, and `cpus` as needed):
@@ -41,7 +47,7 @@ docker run -d -it \
   --cpus=32 \
   -p 127.0.0.1:8080:8787 \
   --name LandWeb \
-  achubaty/landweb-standalone:latest
+  achubaty/landweb:latest
 ```
 
 Once the container is running, open your web browser and go to `localhost:8080`.
@@ -61,12 +67,13 @@ docker rm LandWeb
 
 ##### Windows
 
-1. Download `Rtools` version 4.2 from <https://cran.r-project.org/bin/windows/Rtools/rtools42/rtools.html> and install it *as administrator*.
-    `Rtools` provides the necessary compilers etc. to build and install R packages from source on Windows.
-
-    a. During installation, be sure to check the option to add `Rtools` to your `PATH`.
+1. `Rtools` provides the necessary compilers etc. to build and install R packages from source on Windows. It will be installed alongside R following the instructions in the section below.
 
 2. Download and install a proper text editor, *e.g.* `Notepad++` (<https://notepad-plus-plus.org/downloads/>).
+
+```shell
+winget install Notepad++.Notepad++
+```
 
 ##### macOS
 
@@ -193,6 +200,102 @@ sudo npm install npm@latest -g
 sudo npm install -g mapshaper
 ```
 
+#### R and Rstudio
+
+1. Download and install R version 4.5.1, using `rig` (<https://github.com/r-lib/rig>), which simplifies management of multiple R installations, and allows easy switching among them.
+
+
+:::{.rmdimportant}
+**Windows**
+
+1. Install `rig`:
+
+```shell
+winget install posit.rig
+```
+
+2. Install R:
+
+```shell
+rig add 4.5.1
+rig system make-links
+rig system rtools install 45
+```
+
+**macOS**
+
+1. Install `rig`:
+
+```zsh
+brew tap r-lib/rig
+brew install --cask rig
+```
+
+2. Install R:
+
+```zsh
+rig add 4.5.1
+
+rig system fix-permissions
+rig system make-links
+rig system make-orthogonal
+rig system setup-user-lib
+```
+
+**Ubuntu Linux**
+
+1. Install `rig`:
+
+```bash
+## add apt repository
+sudo curl -L https://rig.r-pkg.org/deb/rig.gpg -o /etc/apt/trusted.gpg.d/rig.gpg
+sudo sh -c "echo 'deb [arch=amd64] http://rig.r-pkg.org/deb rig main' > /etc/apt/sources.list.d/rig.list"
+
+## install (NB: rig is different package; use r-rig!)
+sudo apt update
+sudo apt install r-rig
+```
+
+2. Install R:
+
+```bash
+rig add 4.5.1
+
+rig system make-links
+
+sudo ln -s /opt/R/4.5.1/bin/Rscript /usr/local/bin/Rscript-4.5.1
+
+rig list
+```
+:::
+
+2. Download and install the latest version of Rstudio from <https://posit.co/download/rstudio-desktop/>.
+
+:::{.rmdimportant}
+Windows users should install Rstudio *as administrator*.
+:::
+
+3. (optional) On Linux, configure `ccache` to speed up R package re-installation and updates[^ccache].
+
+    ```bash
+    ## configure ccache for R package installation
+    mkdir -p ~/.ccache
+    mkdir -p ~/.R
+    { echo 'VER='; \
+      echo 'CCACHE=ccache'; \
+      echo 'CC=$(CCACHE) gcc$(VER)'; \
+      echo 'CXX=$(CCACHE) g++$(VER)'; \
+      echo 'CXX11=$(CCACHE) g++$(VER)'; \
+      echo 'CXX14=$(CCACHE) g++$(VER)'; \
+      echo 'FC=$(CCACHE) gfortran$(VER)'; \
+      echo 'F77=$(CCACHE) gfortran$(VER)'; } >> ~/.R/Makevars
+    { echo 'max_size = 5.0G'; \
+      echo 'sloppiness = include_file_ctime'; \
+      echo 'hash_dir = false'; } >> ~/.ccache/ccache.conf
+    ```
+
+[^ccache]: <http://dirk.eddelbuettel.com/blog/2017/11/27/#011_faster_package_installation_one>
+
 #### Version control
 
 `git` is the version control software used throughout this project, and is required to 'checkout' specific versions of the code as well as to make changes and 'push' these changes to the model code repository.
@@ -217,16 +320,16 @@ Several packages used by LandWeb are only available on GitHub.
 Because we will be installing several of these, we want to ensure we can do so without GitHub rate-limiting our requests.
 Without a PAT, some packages may *temporarily* fail to install, but can be retried a little later (usually 1 hour).
 
-a.  Create a GitHub Personal Acess Token (PAT):
+a.  Create a GitHub Personal Access Token (PAT):
 
   i. either 'manually' following the instructions[^GH_PAT], making sure to check the `repo`, `workflow`, and `user:email` scopes;
 
   ii. or directly from an R session:
 
-    ```r
-    # install.packages("usethis")
-    usethis::create_github_token()
-    ```
+      ```r
+      # install.packages("usethis")
+      usethis::create_github_token()
+      ```
 
 b.  Securely store this token using the credential store, from an R session:
 
@@ -253,87 +356,6 @@ However, the paid pro version is required to access private repositories.
 :::
     
 [^GH_PAT]: <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>
-
-#### R and Rstudio
-
-1. Download and install R version 4.2.3.
-
-:::{.rmdimportant}
-**Windows**
-
-1. Download R from <https://cran.r-project.org/bin/windows/base/old/4.2.3/R-4.2.3-win.exe>;
-2. Install R *as administrator*.
-
-**macOS**
-
-1. Install `rig` (<https://github.com/r-lib/rig>) to manage multiple R installations.
-
-```zsh
-brew tap r-lib/rig
-brew install --cask rig
-
-rig install 4.2.3
-
-## start Rstudio using a specific R version:
-rig rstudio ~/GitHub/LandWeb.Rproj 4.2.3
-```
-
-**Ubuntu Linux**
-
-Use `rig` (<https://github.com/r-lib/rig>) to easily manage multiple R installations, and easily switch among them.
-
-1. Add the `apt` repository and install `rig`:
-
-```bash
-## add apt repository
-sudo curl -L https://rig.r-pkg.org/deb/rig.gpg -o /etc/apt/trusted.gpg.d/rig.gpg
-sudo sh -c "echo 'deb [arch=amd64] http://rig.r-pkg.org/deb rig main' > /etc/apt/sources.list.d/rig.list"
-
-## install (NB: rig is different package; use r-rig!)
-sudo apt update
-sudo apt install r-rig
-```
-
-2. Install R version 4.2.3
-
-```bash
-rig add 4.2.3
-
-rig system make-links
-
-sudo ln -s /opt/R/4.2.3/bin/Rscript /usr/local/bin/Rscript-4.2.3
-
-rig list
-```
-    
-:::
-
-2. Download and install the latest version of Rstudio from <https://www.rstudio.com/products/rstudio/download/>.
-
-:::{.rmdimportant}
-Windows users should install Rstudio *as administrator*.
-:::
-
-3. (optional) On Linux, configure `ccache` to speed up R package re-installation and updates[^ccache].
-
-    ```bash
-    ## configure ccache for R package installation
-    mkdir -p ~/.ccache
-    mkdir -p ~/.R
-    { echo 'VER='; \
-      echo 'CCACHE=ccache'; \
-      echo 'CC=$(CCACHE) gcc$(VER)'; \
-      echo 'CXX=$(CCACHE) g++$(VER)'; \
-      echo 'CXX11=$(CCACHE) g++$(VER)'; \
-      echo 'CXX14=$(CCACHE) g++$(VER)'; \
-      echo 'FC=$(CCACHE) gfortran$(VER)'; \
-      echo 'F77=$(CCACHE) gfortran$(VER)'; } >> ~/.R/Makevars
-    { echo 'max_size = 5.0G'; \
-      echo 'sloppiness = include_file_ctime'; \
-      echo 'hash_dir = false'; } >> ~/.ccache/ccache.conf
-    ```
-
-[^ccache]: <http://dirk.eddelbuettel.com/blog/2017/11/27/#011_faster_package_installation_one>
 
 ## Getting the code
 
@@ -362,13 +384,17 @@ mklink /J C:\\Users\\username\\Documents\\GitHub C:\\Users\\username\\GitHub
 
 Model code is organized by the following directories and summarized in the table below.
 
-**NOTE:** it may be useful to store data in a different location, but to map this location back to the e.g., `cache/`, `inputs/`, and/or `outputs/` directories using symbolic links.
+:::{.rmdtip}
+It may be useful to store data in a different location, but to map this location back to the e.g., `cache/`, `inputs/`, and/or `outputs/` directories using symbolic links.
 See R's `?file.link` to set these up on your machine.
+:::
 
 ```{r dir-structure-setup, echo = FALSE, eval = TRUE, results = 'hide'}
 prjDir <- SpaDES.config::findProjectPath(from_wd = FALSE)
+
+## create these directories if they don't exist (e.g., GHA)
 file.path(prjDir, c("cache", "inputs", "outputs")) |>
-  Require::checkPath(create = TRUE) ## create these if they don't exist (e.g., GHA)
+  fs::dir_create() 
 ```
 
 ```{r dir-structure, echo = FALSE, eval = TRUE}
@@ -380,13 +406,14 @@ data.frame(
     "additional R helper scripts",                             ## R/
     "scripts for running multiple simulations",                ## batch_runs/
     "contains LandWeb config, used by the 'box' package",      ## box/
-    "all per-run and per-study area cache files stored here",  ## cache/
+    "all simulation cache files stored here",                  ## cache/
     "Dockerfiles, scripts, and documentation",                 ## docker/
     "rendered model and app documentation",                    ## docs/
     "all model data inputs stored here",                       ## inputs/
     "module code (git submodules)",                            ## m/
     "raw files for generating documentation manual",           ## manual/
     "all per-run model outputs stored here",                   ## outputs/
+    "package code (git submodules)",                           ## packages/
     "project package management directory"                     ## renv/
   )
 ) |> 

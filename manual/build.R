@@ -57,7 +57,7 @@ withr::with_dir(normalizePath(manDir), {
   }
 
   ## set manual version
-  Sys.setenv(LANDWEB_VERSION = read.dcf("../DESCRIPTION")[3]) ## version
+  Sys.setenv(LANDWEB_VERSION = read.dcf("../DESCRIPTION")[4]) ## version
   Sys.getenv("LANDWEB_VERSION")
 
   ## don't use Require for package installation etc.

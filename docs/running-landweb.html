@@ -6,18 +6,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 2 Running LandWeb | LandWeb Manual</title>
 <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
-<meta name="description" content="Launch Rstudio and open the LandWeb Rstudio project (LandWeb.Rproj); Be sure to use R 4.2.3 when running the model! If using rig to manage multiple R versions, use the following to launch Rstudio...">
-<meta name="generator" content="bookdown 0.34 with bs4_book()">
+<meta name="description" content="Launch Rstudio and open the LandWeb Rstudio project (LandWeb.Rproj); Be sure to use R 4.5.1 when running the model! If using rig to manage multiple R versions, use the following to launch Rstudio...">
+<meta name="generator" content="bookdown 0.43 with bs4_book()">
 <meta property="og:title" content="Chapter 2 Running LandWeb | LandWeb Manual">
 <meta property="og:type" content="book">
 <meta property="og:url" content="https://predictiveecology.github.io/LandWeb/running-landweb.html">
-<meta property="og:description" content="Launch Rstudio and open the LandWeb Rstudio project (LandWeb.Rproj); Be sure to use R 4.2.3 when running the model! If using rig to manage multiple R versions, use the following to launch Rstudio...">
+<meta property="og:description" content="Launch Rstudio and open the LandWeb Rstudio project (LandWeb.Rproj); Be sure to use R 4.5.1 when running the model! If using rig to manage multiple R versions, use the following to launch Rstudio...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chapter 2 Running LandWeb | LandWeb Manual">
-<meta name="twitter:description" content="Launch Rstudio and open the LandWeb Rstudio project (LandWeb.Rproj); Be sure to use R 4.2.3 when running the model! If using rig to manage multiple R versions, use the following to launch Rstudio...">
+<meta name="twitter:description" content="Launch Rstudio and open the LandWeb Rstudio project (LandWeb.Rproj); Be sure to use R 4.5.1 when running the model! If using rig to manage multiple R versions, use the following to launch Rstudio...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
-<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.9.0/transition.js"></script><script src="libs/bs3compat-0.9.0/tabs.js"></script><script src="libs/bs3compat-0.9.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
 <script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
     
@@ -103,19 +103,18 @@
 <li>Launch Rstudio and open the LandWeb Rstudio project (<code>LandWeb.Rproj</code>);</li>
 </ol>
 <div class="rmdimportant">
-<p>Be sure to use R 4.2.3 when running the model!</p>
+<p>Be sure to use R 4.5.1 when running the model!</p>
 <p>If using <code>rig</code> to manage multiple R versions, use the following to launch Rstudio with the correct version of R:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="running-landweb.html#cb19-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
-<span id="cb19-2"><a href="running-landweb.html#cb19-2" tabindex="-1"></a><span class="ex">rig</span> rstudio renv.lock</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="running-landweb.html#cb24-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
+<span id="cb24-2"><a href="running-landweb.html#cb24-2" tabindex="-1"></a><span class="ex">rig</span> rstudio renv.lock</span></code></pre></div>
 </div>
 <ol start="2" style="list-style-type: decimal">
 <li>Open the file <code>00-main.R</code> and run each line in sequence, responding to any prompts as required.</li>
 </ol>
 <div class="rmdwarning">
 <p>Before you can run the model, ensure that all necessary package versions are installed by restoring from the project’s snapshot file.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span></span>
-<span>  renv.config.mran.enabled <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  renv.config.pak.enabled <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html">restore</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -146,253 +145,490 @@ These defaults are defined as ‘dot-variables’ (e.g., <code>.studyAreaName</c
 Figure 2.1:  FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs.
 </p>
 </div>
-<div class="inline-table"><table class="table table-sm">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
-<span id="tab:fma-table">Table 2.1: </span>FMA polygon IDs (from Figure 1) and their corresponding FMA names.</caption>
-<colgroup>
-<col width="2%">
-<col width="97%">
-</colgroup>
-<thead><tr class="header">
-<th align="right">ID</th>
-<th align="left">Name</th>
+<span id="tab:fma-table">Table 2.1: </span><span id="tab:fma-table">Table 2.2: </span>FMA polygon IDs (from Figure 1) and their corresponding FMA names.
+</caption>
+<thead><tr>
+<th style="text-align:right;">
+ID
+</th>
+<th style="text-align:left;">
+Name
+</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
-<td align="right">1</td>
-<td align="left">Cranbrook</td>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+Cranbrook
+</td>
 </tr>
-<tr class="even">
-<td align="right">2</td>
-<td align="left">Fort Nelson</td>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+Fort Nelson
+</td>
 </tr>
-<tr class="odd">
-<td align="right">3</td>
-<td align="left">Mackenzie</td>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+Mackenzie
+</td>
 </tr>
-<tr class="even">
-<td align="right">4</td>
-<td align="left">Prince George</td>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+Prince George
+</td>
 </tr>
-<tr class="odd">
-<td align="right">5</td>
-<td align="left">Fort St. John</td>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+Fort St. John
+</td>
 </tr>
-<tr class="even">
-<td align="right">6</td>
-<td align="left">Dawson Creek</td>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+Dawson Creek
+</td>
 </tr>
-<tr class="odd">
-<td align="right">7</td>
-<td align="left">Island Forests</td>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+Island Forests
+</td>
 </tr>
-<tr class="even">
-<td align="right">8</td>
-<td align="left">Turtleford</td>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+Turtleford
+</td>
 </tr>
-<tr class="odd">
-<td align="right">9</td>
-<td align="left">Prince Albert</td>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+Prince Albert
+</td>
 </tr>
-<tr class="even">
-<td align="right">10</td>
-<td align="left">Kelvington</td>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:left;">
+Kelvington
+</td>
 </tr>
-<tr class="odd">
-<td align="right">11</td>
-<td align="left">Island Forests</td>
+<tr>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:left;">
+Island Forests
+</td>
 </tr>
-<tr class="even">
-<td align="right">12</td>
-<td align="left">Northern Reconnaisance</td>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:left;">
+Northern Reconnaisance
+</td>
 </tr>
-<tr class="odd">
-<td align="right">13</td>
-<td align="left">Turnor East</td>
+<tr>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:left;">
+Turnor East
+</td>
 </tr>
-<tr class="even">
-<td align="right">14</td>
-<td align="left">Turnor West</td>
+<tr>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:left;">
+Turnor West
+</td>
 </tr>
-<tr class="odd">
-<td align="right">15</td>
-<td align="left">Mistik</td>
+<tr>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:left;">
+Mistik
+</td>
 </tr>
-<tr class="even">
-<td align="right">16</td>
-<td align="left">Mee-Toos</td>
+<tr>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:left;">
+Mee-Toos
+</td>
 </tr>
-<tr class="odd">
-<td align="right">17</td>
-<td align="left">Kitsaki Zelensky</td>
+<tr>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:left;">
+Kitsaki Zelensky
+</td>
 </tr>
-<tr class="even">
-<td align="right">18</td>
-<td align="left">Nemeiben</td>
+<tr>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:left;">
+Nemeiben
+</td>
 </tr>
-<tr class="odd">
-<td align="right">19</td>
-<td align="left">Meadow Lake Fringe</td>
+<tr>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:left;">
+Meadow Lake Fringe
+</td>
 </tr>
-<tr class="even">
-<td align="right">20</td>
-<td align="left">Suggi Lowlands</td>
+<tr>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:left;">
+Suggi Lowlands
+</td>
 </tr>
-<tr class="odd">
-<td align="right">21</td>
-<td align="left">Pasquia-Porcupine</td>
+<tr>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:left;">
+Pasquia-Porcupine
+</td>
 </tr>
-<tr class="even">
-<td align="right">22</td>
-<td align="left">Meadow Lake OSB</td>
+<tr>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:left;">
+Meadow Lake OSB
+</td>
 </tr>
-<tr class="odd">
-<td align="right">23</td>
-<td align="left">L M Wood Products</td>
+<tr>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:left;">
+L M Wood Products
+</td>
 </tr>
-<tr class="even">
-<td align="right">24</td>
-<td align="left">North West</td>
+<tr>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:left;">
+North West
+</td>
 </tr>
-<tr class="odd">
-<td align="right">25</td>
-<td align="left">Prince Albert FMA</td>
+<tr>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:left;">
+Prince Albert FMA
+</td>
 </tr>
-<tr class="even">
-<td align="right">26</td>
-<td align="left">Island Forests</td>
+<tr>
+<td style="text-align:right;">
+26
+</td>
+<td style="text-align:left;">
+Island Forests
+</td>
 </tr>
-<tr class="odd">
-<td align="right">27</td>
-<td align="left">Island Forests</td>
+<tr>
+<td style="text-align:right;">
+27
+</td>
+<td style="text-align:left;">
+Island Forests
+</td>
 </tr>
-<tr class="even">
-<td align="right">28</td>
-<td align="left">Island Forests</td>
+<tr>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:left;">
+Island Forests
+</td>
 </tr>
-<tr class="odd">
-<td align="right">29</td>
-<td align="left">Island Forests</td>
+<tr>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:left;">
+Island Forests
+</td>
 </tr>
-<tr class="even">
-<td align="right">30</td>
-<td align="left">Spiritwood</td>
+<tr>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:left;">
+Spiritwood
+</td>
 </tr>
-<tr class="odd">
-<td align="right">31</td>
-<td align="left">INTERLAKE</td>
+<tr>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:left;">
+INTERLAKE
+</td>
 </tr>
-<tr class="even">
-<td align="right">32</td>
-<td align="left">Mountain</td>
+<tr>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:left;">
+Mountain
+</td>
 </tr>
-<tr class="odd">
-<td align="right">33</td>
-<td align="left">SASKATCHEWAN RIVER</td>
+<tr>
+<td style="text-align:right;">
+33
+</td>
+<td style="text-align:left;">
+SASKATCHEWAN RIVER
+</td>
 </tr>
-<tr class="even">
-<td align="right">34</td>
-<td align="left">Cranbrook</td>
+<tr>
+<td style="text-align:right;">
+34
+</td>
+<td style="text-align:left;">
+Cranbrook
+</td>
 </tr>
-<tr class="odd">
-<td align="right">35</td>
-<td align="left">Cranbrook</td>
+<tr>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:left;">
+Cranbrook
+</td>
 </tr>
-<tr class="even">
-<td align="right">36</td>
-<td align="left">Cranbrook</td>
+<tr>
+<td style="text-align:right;">
+36
+</td>
+<td style="text-align:left;">
+Cranbrook
+</td>
 </tr>
-<tr class="odd">
-<td align="right">37</td>
-<td align="left">Cranbrook</td>
+<tr>
+<td style="text-align:right;">
+37
+</td>
+<td style="text-align:left;">
+Cranbrook
+</td>
 </tr>
-<tr class="even">
-<td align="right">38</td>
-<td align="left">ALPAC Forest Products Incorporated</td>
+<tr>
+<td style="text-align:right;">
+38
+</td>
+<td style="text-align:left;">
+ALPAC Forest Products Incorporated
+</td>
 </tr>
-<tr class="odd">
-<td align="right">39</td>
-<td align="left">ANC Timber Ltd.</td>
+<tr>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:left;">
+ANC Timber Ltd. 
+</td>
 </tr>
-<tr class="even">
-<td align="right">40</td>
-<td align="left">Blue Ridge Lumber Inc.</td>
+<tr>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:left;">
+Blue Ridge Lumber Inc. 
+</td>
 </tr>
-<tr class="odd">
-<td align="right">41</td>
-<td align="left">Canadian Forest Products Ltd.</td>
+<tr>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:left;">
+Canadian Forest Products Ltd. 
+</td>
 </tr>
-<tr class="even">
-<td align="right">42</td>
-<td align="left">Daishowa-Marubeni International Ltd. (East)</td>
+<tr>
+<td style="text-align:right;">
+42
+</td>
+<td style="text-align:left;">
+Daishowa-Marubeni International Ltd. (East)
+</td>
 </tr>
-<tr class="odd">
-<td align="right">43</td>
-<td align="left">Daishowa-Marubeni International Ltd. (West)</td>
+<tr>
+<td style="text-align:right;">
+43
+</td>
+<td style="text-align:left;">
+Daishowa-Marubeni International Ltd. (West)
+</td>
 </tr>
-<tr class="even">
-<td align="right">44</td>
-<td align="left">West Fraser Mills Ltd. and Tolko Industries Ltd.</td>
+<tr>
+<td style="text-align:right;">
+44
+</td>
+<td style="text-align:left;">
+West Fraser Mills Ltd. and Tolko Industries Ltd. 
+</td>
 </tr>
-<tr class="odd">
-<td align="right">45</td>
-<td align="left">Manning Diversified Forest Products Ltd.</td>
+<tr>
+<td style="text-align:right;">
+45
+</td>
+<td style="text-align:left;">
+Manning Diversified Forest Products Ltd. 
+</td>
 </tr>
-<tr class="even">
-<td align="right">46</td>
-<td align="left">Millar Western Forest Products Ltd.</td>
+<tr>
+<td style="text-align:right;">
+46
+</td>
+<td style="text-align:left;">
+Millar Western Forest Products Ltd. 
+</td>
 </tr>
-<tr class="odd">
-<td align="right">47</td>
-<td align="left">Spray Lake Sawmills (1980) Ltd.</td>
+<tr>
+<td style="text-align:right;">
+47
+</td>
+<td style="text-align:left;">
+Spray Lake Sawmills (1980) Ltd. 
+</td>
 </tr>
-<tr class="even">
-<td align="right">48</td>
-<td align="left">Sundre Forest Products Inc.</td>
+<tr>
+<td style="text-align:right;">
+48
+</td>
+<td style="text-align:left;">
+Sundre Forest Products Inc. 
+</td>
 </tr>
-<tr class="odd">
-<td align="right">49</td>
-<td align="left">Tolko Industries Ltd. (High Prairie)</td>
+<tr>
+<td style="text-align:right;">
+49
+</td>
+<td style="text-align:left;">
+Tolko Industries Ltd. (High Prairie)
+</td>
 </tr>
-<tr class="even">
-<td align="right">50</td>
-<td align="left">Tolko Industries Ltd., Footner Forest Products Ltd. and La Crete Sawmills Ltd.</td>
+<tr>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:left;">
+Tolko Industries Ltd., Footner Forest Products Ltd. and La Crete Sawmills Ltd. 
+</td>
 </tr>
-<tr class="odd">
-<td align="right">51</td>
-<td align="left">Tolko Industries Ltd., Vanderwell Contractors (1971) Ltd. and West Fraser Mills Ltd. (Slave Lake)</td>
+<tr>
+<td style="text-align:right;">
+51
+</td>
+<td style="text-align:left;">
+Tolko Industries Ltd., Vanderwell Contractors (1971) Ltd. and West Fraser Mills Ltd. (Slave Lake)
+</td>
 </tr>
-<tr class="even">
-<td align="right">52</td>
-<td align="left">Vanderwell Contractors (1971) Ltd.</td>
+<tr>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:left;">
+Vanderwell Contractors (1971) Ltd. 
+</td>
 </tr>
-<tr class="odd">
-<td align="right">53</td>
-<td align="left">West Fraser Mills Ltd. (Edson)</td>
+<tr>
+<td style="text-align:right;">
+53
+</td>
+<td style="text-align:left;">
+West Fraser Mills Ltd. (Edson)
+</td>
 </tr>
-<tr class="even">
-<td align="right">54</td>
-<td align="left">West Fraser Mills Ltd. (Hinton)</td>
+<tr>
+<td style="text-align:right;">
+54
+</td>
+<td style="text-align:left;">
+West Fraser Mills Ltd. (Hinton)
+</td>
 </tr>
-<tr class="odd">
-<td align="right">55</td>
-<td align="left">West Fraser Mills Ltd. (Slave Lake)</td>
+<tr>
+<td style="text-align:right;">
+55
+</td>
+<td style="text-align:left;">
+West Fraser Mills Ltd. (Slave Lake)
+</td>
 </tr>
-<tr class="even">
-<td align="right">56</td>
-<td align="left">Weyerhaeuser Company Limited (Grande Prairie)</td>
+<tr>
+<td style="text-align:right;">
+56
+</td>
+<td style="text-align:left;">
+Weyerhaeuser Company Limited (Grande Prairie)
+</td>
 </tr>
-<tr class="odd">
-<td align="right">57</td>
-<td align="left">Weyerhaeuser Company Limited (Pembina Timberland)</td>
+<tr>
+<td style="text-align:right;">
+57
+</td>
+<td style="text-align:left;">
+Weyerhaeuser Company Limited (Pembina Timberland)
+</td>
 </tr>
-<tr class="even">
-<td align="right">58</td>
-<td align="left">Fort Providence</td>
+<tr>
+<td style="text-align:right;">
+58
+</td>
+<td style="text-align:left;">
+Fort Providence
+</td>
 </tr>
-<tr class="odd">
-<td align="right">59</td>
-<td align="left">Fort Resolution</td>
+<tr>
+<td style="text-align:right;">
+59
+</td>
+<td style="text-align:left;">
+Fort Resolution
+</td>
 </tr>
 </tbody>
 </table></div>
@@ -403,129 +639,263 @@ Figure 2.1:  FMAs within the LandWeb study area, identified by polygon IDs, whic
 </h4>
 <p>The model can be run on any of several pre-defined study areas summarized in the table below.
 To select one of these predefined study areas, set <code>.studyAreaName</code> to use one of the following, corresponding to the polygon IDs in the map above.</p>
-<div class="inline-table"><table class="table table-sm">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
-<span id="tab:studyarea-table">Table 2.2: </span>Model study areas with corresponding FMA polygon IDs (from Figure 1).</caption>
-<colgroup>
-<col width="19%">
-<col width="15%">
-<col width="64%">
-</colgroup>
-<thead><tr class="header">
-<th align="left">studyAreaName</th>
-<th align="left">ID</th>
-<th align="left">Description</th>
+<span id="tab:studyarea-table">Table 2.3: </span><span id="tab:studyarea-table">Table 2.4: </span>Model study areas with corresponding FMA polygon IDs (from Figure 1).
+</caption>
+<thead><tr>
+<th style="text-align:left;">
+studyAreaName
+</th>
+<th style="text-align:left;">
+ID
+</th>
+<th style="text-align:left;">
+Description
+</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
-<td align="left">ANC</td>
-<td align="left">39</td>
-<td align="left">ANC Timber Ltd.</td>
+<tr>
+<td style="text-align:left;">
+ANC
+</td>
+<td style="text-align:left;">
+39
+</td>
+<td style="text-align:left;">
+ANC Timber Ltd. 
+</td>
 </tr>
-<tr class="even">
-<td align="left">Blueridge</td>
-<td align="left">40</td>
-<td align="left">Blueridge Lumber Inc.</td>
+<tr>
+<td style="text-align:left;">
+Blueridge
+</td>
+<td style="text-align:left;">
+40
+</td>
+<td style="text-align:left;">
+Blueridge Lumber Inc. 
+</td>
 </tr>
-<tr class="odd">
-<td align="left">DMI</td>
-<td align="left">42, 43</td>
-<td align="left">Mercer Peace River Pulp Ltd. (formerly DMI)</td>
+<tr>
+<td style="text-align:left;">
+DMI
+</td>
+<td style="text-align:left;">
+42, 43
+</td>
+<td style="text-align:left;">
+Mercer Peace River Pulp Ltd. (formerly DMI)
+</td>
 </tr>
-<tr class="even">
-<td align="left">Edson</td>
-<td align="left">53</td>
-<td align="left">West Fraser Mills Ltd. (Edson)</td>
+<tr>
+<td style="text-align:left;">
+Edson
+</td>
+<td style="text-align:left;">
+53
+</td>
+<td style="text-align:left;">
+West Fraser Mills Ltd. (Edson)
+</td>
 </tr>
-<tr class="odd">
-<td align="left">FMANWT</td>
-<td align="left">59</td>
-<td align="left">Fort Resolution</td>
+<tr>
+<td style="text-align:left;">
+FMANWT
+</td>
+<td style="text-align:left;">
+59
+</td>
+<td style="text-align:left;">
+Fort Resolution
+</td>
 </tr>
-<tr class="even">
-<td align="left">FMANWT2</td>
-<td align="left">58</td>
-<td align="left">Fort Providence</td>
+<tr>
+<td style="text-align:left;">
+FMANWT2
+</td>
+<td style="text-align:left;">
+58
+</td>
+<td style="text-align:left;">
+Fort Providence
+</td>
 </tr>
-<tr class="odd">
-<td align="left">LP_BC</td>
-<td align="left">5, 6</td>
-<td align="left">Lousiana Pacific (British Columbia)</td>
+<tr>
+<td style="text-align:left;">
+LP_BC
+</td>
+<td style="text-align:left;">
+5, 6
+</td>
+<td style="text-align:left;">
+Lousiana Pacific (British Columbia)
+</td>
 </tr>
-<tr class="even">
-<td align="left">LP_MB</td>
-<td align="left">32</td>
-<td align="left">Lousiana Pacific (Manitoba)</td>
+<tr>
+<td style="text-align:left;">
+LP_MB
+</td>
+<td style="text-align:left;">
+32
+</td>
+<td style="text-align:left;">
+Lousiana Pacific (Manitoba)
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Manning</td>
-<td align="left">45</td>
-<td align="left">Manning Diversified Forest Products Ltd.</td>
+<tr>
+<td style="text-align:left;">
+Manning
+</td>
+<td style="text-align:left;">
+45
+</td>
+<td style="text-align:left;">
+Manning Diversified Forest Products Ltd. 
+</td>
 </tr>
-<tr class="even">
-<td align="left">MillarWestern</td>
-<td align="left">46</td>
-<td align="left">Millar Western Forest Products Ltd.</td>
+<tr>
+<td style="text-align:left;">
+MillarWestern
+</td>
+<td style="text-align:left;">
+46
+</td>
+<td style="text-align:left;">
+Millar Western Forest Products Ltd. 
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Mistik</td>
-<td align="left">15</td>
-<td align="left">Mistik</td>
+<tr>
+<td style="text-align:left;">
+Mistik
+</td>
+<td style="text-align:left;">
+15
+</td>
+<td style="text-align:left;">
+Mistik
+</td>
 </tr>
-<tr class="even">
-<td align="left">MPR</td>
-<td align="left">42, 43</td>
-<td align="left">Mercer Peace River Pulp Ltd. (formerly DMI)</td>
+<tr>
+<td style="text-align:left;">
+MPR
+</td>
+<td style="text-align:left;">
+42, 43
+</td>
+<td style="text-align:left;">
+Mercer Peace River Pulp Ltd. (formerly DMI)
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Sundre</td>
-<td align="left">48</td>
-<td align="left">Sundre Forest Products Inc.</td>
+<tr>
+<td style="text-align:left;">
+Sundre
+</td>
+<td style="text-align:left;">
+48
+</td>
+<td style="text-align:left;">
+Sundre Forest Products Inc. 
+</td>
 </tr>
-<tr class="even">
-<td align="left">Tolko_AB_N</td>
-<td align="left">50</td>
-<td align="left">Tolko Industries Ltd. (Alberta North)</td>
+<tr>
+<td style="text-align:left;">
+Tolko_AB_N
+</td>
+<td style="text-align:left;">
+50
+</td>
+<td style="text-align:left;">
+Tolko Industries Ltd. (Alberta North)
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Tolko_AB_S</td>
-<td align="left">44, 49, 51</td>
-<td align="left">Tolko Industries Ltd. (Alberta South)</td>
+<tr>
+<td style="text-align:left;">
+Tolko_AB_S
+</td>
+<td style="text-align:left;">
+44, 49, 51
+</td>
+<td style="text-align:left;">
+Tolko Industries Ltd. (Alberta South)
+</td>
 </tr>
-<tr class="even">
-<td align="left">Tolko_SK</td>
-<td align="left">22</td>
-<td align="left">Tolko (Saskatchewan)</td>
+<tr>
+<td style="text-align:left;">
+Tolko_SK
+</td>
+<td style="text-align:left;">
+22
+</td>
+<td style="text-align:left;">
+Tolko (Saskatchewan)
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Vanderwell</td>
-<td align="left">51, 52</td>
-<td align="left">Vanderwell Contractors (1971) Ltd.</td>
+<tr>
+<td style="text-align:left;">
+Vanderwell
+</td>
+<td style="text-align:left;">
+51, 52
+</td>
+<td style="text-align:left;">
+Vanderwell Contractors (1971) Ltd. 
+</td>
 </tr>
-<tr class="even">
-<td align="left">WestFraser_N</td>
-<td align="left">44, 51, 55</td>
-<td align="left">West Fraser Mills Ltd. (Slave Lake)</td>
+<tr>
+<td style="text-align:left;">
+WestFraser_N
+</td>
+<td style="text-align:left;">
+44, 51, 55
+</td>
+<td style="text-align:left;">
+West Fraser Mills Ltd. (Slave Lake)
+</td>
 </tr>
-<tr class="odd">
-<td align="left">WestFraser_S</td>
-<td align="left">53, 54</td>
-<td align="left">West Fraser Mills Ltd. (Edson + Hinton)</td>
+<tr>
+<td style="text-align:left;">
+WestFraser_S
+</td>
+<td style="text-align:left;">
+53, 54
+</td>
+<td style="text-align:left;">
+West Fraser Mills Ltd. (Edson + Hinton)
+</td>
 </tr>
-<tr class="even">
-<td align="left">WeyCo_GP</td>
-<td align="left">56</td>
-<td align="left">Weyerhauser Company Ltd. (Grand Prairie)</td>
+<tr>
+<td style="text-align:left;">
+WeyCo_GP
+</td>
+<td style="text-align:left;">
+56
+</td>
+<td style="text-align:left;">
+Weyerhauser Company Ltd. (Grand Prairie)
+</td>
 </tr>
-<tr class="odd">
-<td align="left">WeyCo_PT</td>
-<td align="left">57</td>
-<td align="left">Weyerhauser Company Ltd. (Pembina Timberland)</td>
+<tr>
+<td style="text-align:left;">
+WeyCo_PT
+</td>
+<td style="text-align:left;">
+57
+</td>
+<td style="text-align:left;">
+Weyerhauser Company Ltd. (Pembina Timberland)
+</td>
 </tr>
-<tr class="even">
-<td align="left">WeyCo_SK</td>
-<td align="left">21</td>
-<td align="left">Weyerhauser Company Ltd. (Pasquia-Porcupine)</td>
+<tr>
+<td style="text-align:left;">
+WeyCo_SK
+</td>
+<td style="text-align:left;">
+21
+</td>
+<td style="text-align:left;">
+Weyerhauser Company Ltd. (Pasquia-Porcupine)
+</td>
 </tr>
 </tbody>
 </table></div>
@@ -645,7 +1015,7 @@ The seed used is also saved in human-readable <code>seed.txt</code> file.</p>
 </h3>
 <p>When working in an R session, be sure to set the working directory to the LandWeb project directory.
 The first time running the model, open the file <code>00-main.R</code>, and step through each line to ensure any prompts etc. are answered correctly.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.mode</span> <span class="op">&lt;-</span> <span class="st">"development"</span></span>
 <span><span class="va">.studyAreaName</span> <span class="op">&lt;-</span> <span class="st">"random"</span></span>
 <span><span class="va">.rep</span> <span class="op">&lt;-</span> <span class="fl">1L</span></span>
@@ -662,22 +1032,22 @@ The first time running the model, open the file <code>00-main.R</code>, and step
 </h3>
 <p>In addition to running the model in an interactive R session, we provide a command line interface to run replicates of the model for the study areas defined above (i.e., batch mode).</p>
 <p>For example, to run replicate number 7 of the model at <span class="math inline">\(250 m\)</span> resolution using FRI multiple of <span class="math inline">\(1\)</span> for Alberta FMU L11, use:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="running-landweb.html#cb22-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
-<span id="cb22-2"><a href="running-landweb.html#cb22-2" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="running-landweb.html#cb22-3" tabindex="-1"></a><span class="co">## ./run_fmu.sh &lt;FMU&gt; &lt;FRI&gt; &lt;RES&gt; &lt;REP&gt;</span></span>
-<span id="cb22-4"><a href="running-landweb.html#cb22-4" tabindex="-1"></a><span class="ex">./run_fmu.sh</span> L11 1 250 7</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="running-landweb.html#cb27-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
+<span id="cb27-2"><a href="running-landweb.html#cb27-2" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="running-landweb.html#cb27-3" tabindex="-1"></a><span class="co">## ./run_fmu.sh &lt;FMU&gt; &lt;FRI&gt; &lt;RES&gt; &lt;REP&gt;</span></span>
+<span id="cb27-4"><a href="running-landweb.html#cb27-4" tabindex="-1"></a><span class="ex">./run_fmu.sh</span> L11 1 250 7</span></code></pre></div>
 <p>FMU command line runs do not use modified dispersal nor fire scenarios, and thus only require the study area, replicate, and FRI multiple to be defined.</p>
 <p>To run replicate number 7 of the model for the entire province of Alberta, use:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="running-landweb.html#cb23-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
-<span id="cb23-2"><a href="running-landweb.html#cb23-2" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="running-landweb.html#cb23-3" tabindex="-1"></a><span class="co">## ./run_fma.sh &lt;FMU&gt; &lt;REP&gt;</span></span>
-<span id="cb23-4"><a href="running-landweb.html#cb23-4" tabindex="-1"></a><span class="ex">./run_fma.sh</span> provAB 7</span>
-<span id="cb23-5"><a href="running-landweb.html#cb23-5" tabindex="-1"></a><span class="co"># ./run_fma_win.sh provAB 7 ## if on Windows!</span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="running-landweb.html#cb28-1" tabindex="-1"></a><span class="bu">cd</span> ~/GitHub/LandWeb</span>
+<span id="cb28-2"><a href="running-landweb.html#cb28-2" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="running-landweb.html#cb28-3" tabindex="-1"></a><span class="co">## ./run_fma.sh &lt;FMU&gt; &lt;REP&gt;</span></span>
+<span id="cb28-4"><a href="running-landweb.html#cb28-4" tabindex="-1"></a><span class="ex">./run_fma.sh</span> provAB 7</span>
+<span id="cb28-5"><a href="running-landweb.html#cb28-5" tabindex="-1"></a><span class="co"># ./run_fma_win.sh provAB 7 ## if on Windows!</span></span></code></pre></div>
 <p>FMA command line runs use <code>highDispersal_logROS</code> scenarios at <span class="math inline">\(250 m\)</span> resolution, and thus only require the study area and replicate to be defined.</p>
 <p>To run the entire LandWeb study area, only a replicate number needs to be passed.
 For example:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="running-landweb.html#cb24-1" tabindex="-1"></a><span class="co">## ./run_landweb.sh &lt;REP&gt;</span></span>
-<span id="cb24-2"><a href="running-landweb.html#cb24-2" tabindex="-1"></a><span class="ex">./run_landweb.sh</span> 7</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="running-landweb.html#cb29-1" tabindex="-1"></a><span class="co">## ./run_landweb.sh &lt;REP&gt;</span></span>
+<span id="cb29-2"><a href="running-landweb.html#cb29-2" tabindex="-1"></a><span class="ex">./run_landweb.sh</span> 7</span></code></pre></div>
 <p>LandWeb command line run set the dispersal and fire scenarios as above, and the pixel resolution (<code>.pixelSize</code>) at <span class="math inline">\(250 m\)</span>, and thus only require the study area and replicate to be defined.</p>
 </div>
 </div>
@@ -712,8 +1082,8 @@ For example:</p>
 <p>The default cache uses a SQLite database backend and stores cache files in <code>cache/</code>.
 However, other database backends can also be used, and advanced users running multiple parallel simulations may wish to set up and use a PostgreSQL database for this cache.</p>
 <p>See <a href="https://github.com/PredictiveEcology/SpaDES/wiki/Using-alternate-database-backends-for-Cache" class="uri">https://github.com/PredictiveEcology/SpaDES/wiki/Using-alternate-database-backends-for-Cache</a> and ensure the following options are added to your user-specific config in <code>02a-user-config.R</code>:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="running-landweb.html#cb25-1" tabindex="-1"></a>reproducible.cacheSaveFormat <span class="ot">=</span> <span class="st">"qs"</span>,</span>
-<span id="cb25-2"><a href="running-landweb.html#cb25-2" tabindex="-1"></a>reproducible.conn <span class="ot">=</span> SpaDES.config<span class="sc">::</span><span class="fu">dbConnCache</span>(<span class="st">"postgresql"</span>),</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="running-landweb.html#cb30-1" tabindex="-1"></a>reproducible.cacheSaveFormat <span class="ot">=</span> <span class="st">"qs"</span>,</span>
+<span id="cb30-2"><a href="running-landweb.html#cb30-2" tabindex="-1"></a>reproducible.conn <span class="ot">=</span> SpaDES.config<span class="sc">::</span><span class="fu">dbConnCache</span>(<span class="st">"postgresql"</span>),</span></code></pre></div>
 </div>
 <div id="speeding-up-disk-based-operations" class="section level3" number="2.4.3">
 <h3>
@@ -728,6 +1098,11 @@ Likewise, users can configure a scratch path for temporary raster file operation
 <h2>
 <span class="header-section-number">2.5</span> Additional Resources<a class="anchor" aria-label="anchor" href="#additional-resources"><i class="fas fa-link"></i></a>
 </h2>
+<p>Debugging in R and Rstudio:</p>
+<ul>
+<li><a href="https://support.posit.co/hc/en-us/articles/205612627-Debugging-with-the-RStudio-IDE" class="uri">https://support.posit.co/hc/en-us/articles/205612627-Debugging-with-the-RStudio-IDE</a></li>
+<li><a href="https://adv-r.hadley.nz/debugging.html" class="uri">https://adv-r.hadley.nz/debugging.html</a></li>
+</ul>
 <p>Resources for (re)learning R and spatial data:</p>
 <ul>
 <li><a href="https://rspatial.org" class="uri">https://rspatial.org</a></li>
@@ -780,7 +1155,7 @@ Likewise, users can configure a scratch path for temporary raster file operation
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-28.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-13.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

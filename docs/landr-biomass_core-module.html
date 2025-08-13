@@ -7,7 +7,7 @@
 <title>Chapter 6 LandR Biomass_core Module | LandWeb Manual</title>
 <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
 <meta name="description" content="6.0.0.1 Authors: Yong Luo yluo1@lakeheadu.ca [aut], Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Ceres Barros ceres.barros@ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
-<meta name="generator" content="bookdown 0.34 with bs4_book()">
+<meta name="generator" content="bookdown 0.43 with bs4_book()">
 <meta property="og:title" content="Chapter 6 LandR Biomass_core Module | LandWeb Manual">
 <meta property="og:type" content="book">
 <meta property="og:url" content="https://predictiveecology.github.io/LandWeb/landr-biomass_core-module.html">
@@ -17,7 +17,7 @@
 <meta name="twitter:description" content="6.0.0.1 Authors: Yong Luo yluo1@lakeheadu.ca [aut], Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut, cre], Ceres Barros ceres.barros@ubc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
-<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.2/transition.js"></script><script src="libs/bs3compat-0.4.2/tabs.js"></script><script src="libs/bs3compat-0.4.2/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.9.0/transition.js"></script><script src="libs/bs3compat-0.9.0/tabs.js"></script><script src="libs/bs3compat-0.9.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
 <script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
     
@@ -109,8 +109,8 @@
 
 
 
-<p><a href="https://github.com/PredictiveEcology/Biomass_core"><img src="/home/achubaty/GitHub/LandWeb/m/Biomass_core/figures/moduleVersionBadge.png" alt="module-version-Badge"></a></p>
-<p><a href="https://github.com/PredictiveEcology/Biomass_core/issues"><img src="/home/achubaty/GitHub/LandWeb/m/Biomass_core/figures/issuesBadge.png" alt="Issues-badge"></a></p>
+<p><a href="ssh://git@github.com/PredictiveEcology/Biomass_core"><img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_core/figures/moduleVersionBadge.png" alt="module-version-Badge"></a></p>
+<p><a href="https://github.com/PredictiveEcology/Biomass_core/issues"><img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_core/figures/issuesBadge.png" alt="Issues-badge"></a></p>
 <div id="authors-3" class="section level4" number="6.0.0.1">
 <h4>
 <span class="header-section-number">6.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-3"><i class="fas fa-link"></i></a>
@@ -125,9 +125,9 @@ link above.</strong></p>
 <h2>
 <span class="header-section-number">6.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview-3"><i class="fas fa-link"></i></a>
 </h2>
-<div id="quick-links-1" class="section level3" number="6.1.1">
+<div id="quick-links-2" class="section level3" number="6.1.1">
 <h3>
-<span class="header-section-number">6.1.1</span> Quick links<a class="anchor" aria-label="anchor" href="#quick-links-1"><i class="fas fa-link"></i></a>
+<span class="header-section-number">6.1.1</span> Quick links<a class="anchor" aria-label="anchor" href="#quick-links-2"><i class="fas fa-link"></i></a>
 </h3>
 <ul>
 <li><p><a href="landr-biomass_core-module.html#general-functioning">General functioning</a></p></li>
@@ -154,7 +154,7 @@ LANDIS-II counterpart, and we refer the reader to the corresponding LBSE manual
 the model.</p>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:fig-Biomass-core"></span>
-<img src="/home/achubaty/GitHub/LandWeb/m/Biomass_core/figures/Biomass_coreSchematic.png" alt="Biomass_core simulates tree cohort growth, mortality, recruitment and dispersal dynamics, as a function of  cohort ageing and competition for light (shading) and space, as well as disturbances like fire (simulated using other modules)." width="80%"><p class="caption">
+<img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_core/figures/Biomass_coreSchematic.png" alt="Biomass_core simulates tree cohort growth, mortality, recruitment and dispersal dynamics, as a function of  cohort ageing and competition for light (shading) and space, as well as disturbances like fire (simulated using other modules)." width="80%"><p class="caption">
 Figure 6.1: <em>Biomass_core</em> simulates tree cohort growth, mortality, recruitment and dispersal dynamics, as a function of cohort ageing and competition for light (shading) and space, as well as disturbances like fire (simulated using other modules).
 </p>
 </div>
@@ -301,7 +301,7 @@ The <em>Biomass_borealDataPrep</em> module manual also provides information abou
 estimation of many of these traits/inputs from available data, or their
 adjustment using published values or our best knowledge of boreal forest
 dynamics in Western Canada.</p>
-<p>Unlike the initialisation in LBSE<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a>, <em>Biomass_core</em> initialises
+<p>Unlike the initialisation in LBSE<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>, <em>Biomass_core</em> initialises
 the simulation using data-derived initial cohort biomass and age. This
 information is ideally supplied by data and calibration modules like
 <em>Biomass_borealDataPrep</em> (<a href="landr-biomass_core-module.html#links-modules">Links to other modules</a>), but
@@ -364,7 +364,7 @@ species traits. Note that <em>Biomass_core</em> (alone) requires all the columns
 (<em>Biomass_regeneration</em> and <em>Biomass_regenerationPM</em>).</p>
 <p>Please see <span class="citation">Scheller &amp; Domingo (<a href="references-1.html#ref-SchellerDomingo2011">2011</a>)</span> and <span class="citation">Scheller &amp; Miranda (<a href="references-1.html#ref-SchellerMiranda2015">2015a</a>)</span> for
 further detail.</p>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:invariantSpptraits">Table 6.1: </span>Example of an invariant species traits table (the <code>species</code> table object in the module), with species <em>Abies sp.</em> (Abie_sp), <em>Picea engelmannii</em> (Pice_eng), <em>Picea glauca</em> (Pice_gla), <em>Pinus sp.</em> (Pinu_sp), <em>Populus sp.</em> (Popu_sp) and <em>Pseudotsuga menziesii</em> (Pseu_men). Note that these are theoretical values.
 </caption>
@@ -675,7 +675,7 @@ applications), or passing a custom table directly. <em>Biomass_speciesParameters
 further calibrates <code>maxB</code> and <code>maxANPP</code> by estimating two additional invariant
 species traits (<code>inflationFactor</code> and <code>mANPPproportion</code>; also for Western
 Canadian forests). See Table <a href="landr-biomass_core-module.html#tab:varyingSpptraits">6.2</a> for an example.</p>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:varyingSpptraits">Table 6.2: </span>Example of a spatio-temporally varying species traits table (the <code>speciesEcoregion</code> table object in the module), with two ecolocations (called <code>ecoregionGroups</code>) and species <em>Abies sp.</em> (Abie_sp), <em>Picea engelmannii</em> (Pice_eng), <em>Picea glauca</em> (Pice_gla), <em>Pinus sp.</em> (Pinu_sp), <em>Populus sp.</em> (Popu_sp) and <em>Pseudotsuga menziesii</em> (Pseu_men). If a simulation runs for 10 year using this table, trait values from year 2 would be used during simulation years 2-10.
 </caption>
@@ -1085,7 +1085,7 @@ Western Canada boreal forest dynamics (see Table <a href="landr-biomass_core-mod
 <em>Biomass_borealDataPrep</em> does the same adjustment by default. As with other
 inputs, these values can be adjusted by using other modules or by passing
 user-defined tables.</p>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:minRelB">Table 6.3: </span>Example of a minimum relative biomass table (the <code>minRelativeB</code> table object in the module), with two ecolocations (<code>ecoregionGroups</code>) sharing the same values
 </caption>
@@ -1159,7 +1159,7 @@ biomass in the pixel – see <a href="landr-biomass_core-module.html#ecolocation
 parameter</a> and <a href="references-1.html#ref-SchellerMiranda2015">Scheller &amp; Miranda 2015a</a>)</span>. By default, both
 <em>Biomass_core</em> and <em>Biomass_borealDataPrep</em> use a publicly available LANDIS-II
 table (called <code>sufficientLight</code> in the module; Table <a href="landr-biomass_core-module.html#tab:suffLight">6.4</a>).</p>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:suffLight">Table 6.4: </span>Default species probability of germination values used by <em>Biomass_core</em> and <em>Biomass_borealDataPrep</em>. Columns X0-X5 are different site shade levels and each line has the probability of germination for each site shade and species shade tolerance combination.
 </caption>
@@ -1324,7 +1324,7 @@ already mentioned above.</p>
 <span class="header-section-number">6.2.3</span> List of input objects<a class="anchor" aria-label="anchor" href="#inputs-list"><i class="fas fa-link"></i></a>
 </h3>
 <p>All of <em>Biomass_core</em>’s input objects have (theoretical) defaults that are
-produced automatically by the module<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>. We suggest that new users
+produced automatically by the module<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a>. We suggest that new users
 run <em>Biomass_core</em> by itself supplying only a <code>studyArea</code> polygon, before
 attempting to supply their own or combining <em>Biomass_core</em> with other modules.
 This will enable them to become familiar with all the input objects in a
@@ -1431,7 +1431,7 @@ and <code>B</code> composition, even if the user supplies other initial grouping
 (e.g., this is possible in the <em>Biomass_borealDataPrep</em> data module).
 <!-- may be revised in following versions--></p></li>
 </ul>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleInputs2-Biomass-core">Table 6.5: </span>List of <em>Biomass_core</em> input objects and their description.
 </caption>
@@ -1723,11 +1723,11 @@ NA
 <span class="header-section-number">6.2.4</span> List of parameters<a class="anchor" aria-label="anchor" href="#params-list"><i class="fas fa-link"></i></a>
 </h3>
 <p>In addition to the above inputs objects, <em>Biomass_core</em> uses several
-parameters<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a> that control aspects like the simulation length, the
+parameters<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> that control aspects like the simulation length, the
 “succession” time step, plotting and saving intervals, amongst others. Note that
 a few of these parameters are only relevant when simulating climate effects of
 cohort growth and mortality, which require also loading the <code>LandR.CS</code> R
-package<a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a> (or another similar package). These are not discussed
+package<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a> (or another similar package). These are not discussed
 in detail here, since climate effects are calculated externally to
 <em>Biomass_core</em> in <code>LandR.CS</code> functions and thus documented there.</p>
 <p>A list of useful parameters and their description is listed below, while the
@@ -1739,9 +1739,10 @@ We also note that the <code>"spin-up"</code> and <code>"biomassMap"</code> optio
 no longer generates initial cohort biomass conditions using a spin-up based on
 initial stand age like LANDIS-II (<code>"spin-up"</code>), nor does it attempt to fill
 initial cohort biomasses using <code>biomassMap</code>.</p>
-<p><strong>Plotting and saving</strong> - <code>.plots</code> – activates/deactivates plotting and defines
-type of plotting (see <code>?Plots</code>);</p>
+<p><strong>Plotting and saving</strong></p>
 <ul>
+<li><p><code>.plots</code> – activates/deactivates plotting and defines
+type of plotting (see <code>?Plots</code>);</p></li>
 <li><p><code>.plotInitialTime</code> – defines when plotting starts;</p></li>
 <li><p><code>.plotInterval</code> – defines plotting frequency;</p></li>
 <li><p><code>.plotMaps</code> – activates/deactivates map plotting;</p></li>
@@ -1754,14 +1755,13 @@ type of plotting (see <code>?Plots</code>);</p>
 <li><p><code>successionTimestep</code> – defines frequency of dispersal/local recruitment
 event (growth and mortality are always yearly);</p></li>
 </ul>
-<p><strong>Other</strong><br>
-- <code>mixedType</code> – how mixed forest stands are defined;</p>
+<p><strong>Other</strong></p>
 <ul>
-<li>
-<code>vegLeadingProportion</code> – relative biomass threshold to consider a species
-“leading” (i.e., dominant);</li>
+<li><p><code>mixedType</code> – how mixed forest stands are defined;</p></li>
+<li><p><code>vegLeadingProportion</code> – relative biomass threshold to consider a species
+“leading” (i.e., dominant);</p></li>
 </ul>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleParams2-Biomass-core">Table 6.6: </span>List of <em>Biomass_core</em> parameters and their description.
 </caption>
@@ -2403,7 +2403,7 @@ NA
 NA
 </td>
 <td style="text-align:left;">
-Used only in seed dispersal. If numeric, it will be passed to <code><a href="https://rdrr.io/pkg/data.table/man/openmp-utils.html">data.table::setDTthreads</a></code> and should be &lt;= 2; If <code>TRUE</code>, it will be passed to <code><a href="https://rdrr.io/r/parallel/makeCluster.html">parallel::makeCluster</a></code>; and if a cluster object, it will be passed to <code>parallel::parClusterApplyB</code>.
+Used only in seed dispersal. If numeric, it will be passed to <code><a href="https://rdatatable.gitlab.io/data.table/reference/openmp-utils.html">data.table::setDTthreads</a></code> and should be &lt;= 2; If <code>TRUE</code>, it will be passed to <code><a href="https://rdrr.io/r/parallel/makeCluster.html">parallel::makeCluster</a></code>; and if a cluster object, it will be passed to <code>parallel::parClusterApplyB</code>.
 </td>
 </tr>
 </tbody>
@@ -2420,8 +2420,8 @@ landscape and the simulation length, and several maps of stand biomass,
 mortality and reproductive success (i.e, new biomass) on a yearly basis.</p>
 <p>However, any of the objects changed/output by <em>Biomass_core</em> (listed in Table
 <a href="landr-biomass_core-module.html#tab:moduleOutputs-Biomass-core">6.7</a>) can be saved via the <code>outputs</code> argument
-in <code>simInit</code><a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a>.</p>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+in <code>simInit</code><a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a>.</p>
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleOutputs-Biomass-core">Table 6.7: </span>List of <em>Biomass_core</em> output objects and their description.
 </caption>
@@ -2776,13 +2776,13 @@ immediately before post-disturbance effects are calculated.</p>
 <ol style="list-style-type: decimal">
 <li><p>Preparation of necessary objects for the simulation – either by data and
 calibration modules or by <em>Biomass_core</em> itself (during <code>simInit</code> and the
-<code>init</code> event<a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a>);</p></li>
+<code>init</code> event<a href="#fn11" class="footnote-ref" id="fnref11"><sup>11</sup></a>);</p></li>
 <li><p>Disturbances (OPTIONAL) – simulated by a disturbance module (e.g.,
 <em>LandMine</em>);</p></li>
 <li><p>Post-disturbance mortality/regeneration (OPTIONAL) – simulated by a
 regeneration module (e.g., <em>Biomass_regeneration</em>);</p></li>
-<li><p>Seed dispersal (every <code>successionTimestep</code>; <code>Dispersal</code> event):</p></li>
-</ol>
+<li>
+<p>Seed dispersal (every <code>successionTimestep</code>; <code>Dispersal</code> event):</p>
 <ul>
 <li>seed dispersal can be a slow process and has been adapted to occur every
 10 years (default <code>successionTimestep</code>). The user can set it to occur
@@ -2791,24 +2791,24 @@ to estimate species establishment probabilities, these values are
 integrated over 10 years.</li>
 <li>see <span class="citation">Scheller &amp; Domingo (<a href="references-1.html#ref-SchellerDomingo2012">2012</a>)</span> for details on dispersal algorithms.</li>
 </ul>
-<ol start="5" style="list-style-type: decimal">
-<li>Growth and mortality (<code>mortalityAndGrowth</code> event):</li>
-</ol>
+</li>
+<li>
+<p>Growth and mortality (<code>mortalityAndGrowth</code> event):</p>
 <ul>
 <li>unlike dispersal, growth and mortality always occur time step (year).</li>
 <li>see <span class="citation">Scheller &amp; Mladenoff (<a href="references-1.html#ref-SchellerMladenoff2004">2004</a>)</span> for further detail.</li>
 </ul>
-<ol start="6" style="list-style-type: decimal">
-<li>Cohort age binning (every <code>successionTimestep</code>; <code>cohortAgeReclassification</code>
-event):</li>
-</ol>
+</li>
+<li>
+<p>Cohort age binning (every <code>successionTimestep</code>; <code>cohortAgeReclassification</code>
+event):</p>
 <ul>
 <li>follows the same frequency as dispersal, collapsing cohorts (i.e.,
 summing their biomass/mortality/aNPP) to ages classes with resolution
 equal to <code>successionTimestep</code>.</li>
 <li>see <span class="citation">Scheller &amp; Miranda (<a href="references-1.html#ref-SchellerMiranda2015">2015a</a>)</span> for further detail.</li>
 </ul>
-<ol start="7" style="list-style-type: decimal">
+</li>
 <li><p>Summary tables of regeneration (<code>summaryRegen</code> event), biomass, age, growth
 and mortality (<code>summaryBGM</code> event);</p></li>
 <li><p>Plots of maps (<code>plotMaps</code> event) and averages (<code>plotAvgs</code> and
@@ -2852,7 +2852,7 @@ calculation of competition, growth and mortality for all cohorts at the same
 time also circumvented this issue.</p>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:figLBSEtest1"></span>
-<img src="/home/achubaty/GitHub/LandWeb/m/Biomass_core/figures/figLBSEtest1.png" alt="Differences in total landscape aboveground biomass when using two different input species orders for the same community. These simulations demonstrate how the sequential calculation of the competition index, combined with a lack of explicit species ordering affect the overall landscape aboveground biomass in time when using different input species orders (see Table \@ref(tab:tableLBSEtest1)). In order to prevent differences introduced by cohort recruitment, species’ ages at sexual maturity were changed to the species’ longevity values, and the simulation ran for 75 years to prevent any cohorts from reaching sexual maturity. The bottom panel shows the difference between the two simulations in percentage, calculated as $\frac{Biomass_{order2} - Biomass_{order1}}{Biomass_{order2}} * 100$" width="60%"><p class="caption">
+<img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_core/figures/figLBSEtest1.png" alt="Differences in total landscape aboveground biomass when using two different input species orders for the same community. These simulations demonstrate how the sequential calculation of the competition index, combined with a lack of explicit species ordering affect the overall landscape aboveground biomass in time when using different input species orders (see Table \@ref(tab:tableLBSEtest1)). In order to prevent differences introduced by cohort recruitment, species’ ages at sexual maturity were changed to the species’ longevity values, and the simulation ran for 75 years to prevent any cohorts from reaching sexual maturity. The bottom panel shows the difference between the two simulations in percentage, calculated as $\frac{Biomass_{order2} - Biomass_{order1}}{Biomass_{order2}} * 100$" width="60%"><p class="caption">
 Figure 6.2: Differences in total landscape aboveground biomass when using two different input species orders for the same community. These simulations demonstrate how the sequential calculation of the competition index, combined with a lack of explicit species ordering affect the overall landscape aboveground biomass in time when using different input species orders (see Table <a href="landr-biomass_core-module.html#tab:tableLBSEtest1">6.8</a>). In order to prevent differences introduced by cohort recruitment, species’ ages at sexual maturity were changed to the species’ longevity values, and the simulation ran for 75 years to prevent any cohorts from reaching sexual maturity. The bottom panel shows the difference between the two simulations in percentage, calculated as <span class="math inline">\(\frac{Biomass_{order2} - Biomass_{order1}}{Biomass_{order2}} * 100\)</span>
 </p>
 </div>
@@ -2871,7 +2871,7 @@ sequentially (as with competition, growth and mortality), and thus the biomass
 of new cohorts is never included in the calculation of total pixel biomass.</p>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:figLBSEtest2"></span>
-<img src="/home/achubaty/GitHub/LandWeb/m/Biomass_core/figures/figLBSEtest2.png" alt="Differences in the biomass assigned to new cohorts, summed for each species across pixels, when using two different input species orders for the same community and when the succession time step is 1. These simulations demonstrate how the different summation of total cohort biomass for a succession time step of 1 and the lack of explicit species ordering affect simulation results when changing the species order in the input file (see Table \@ref(tab:tableLBSEtest2)). Here, initial cohort ages were also set to 1. Values refer to the initial total biomass attributed to each species at the end of year 1." width="60%"><p class="caption">
+<img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_core/figures/figLBSEtest2.png" alt="Differences in the biomass assigned to new cohorts, summed for each species across pixels, when using two different input species orders for the same community and when the succession time step is 1. These simulations demonstrate how the different summation of total cohort biomass for a succession time step of 1 and the lack of explicit species ordering affect simulation results when changing the species order in the input file (see Table \@ref(tab:tableLBSEtest2)). Here, initial cohort ages were also set to 1. Values refer to the initial total biomass attributed to each species at the end of year 1." width="60%"><p class="caption">
 Figure 6.3: Differences in the biomass assigned to new cohorts, summed for each species across pixels, when using two different input species orders for the same community and when the succession time step is 1. These simulations demonstrate how the different summation of total cohort biomass for a succession time step of 1 and the lack of explicit species ordering affect simulation results when changing the species order in the input file (see Table <a href="landr-biomass_core-module.html#tab:tableLBSEtest2">6.9</a>). Here, initial cohort ages were also set to 1. Values refer to the initial total biomass attributed to each species at the end of year 1.
 </p>
 </div>
@@ -2949,7 +2949,7 @@ the simulation process. After recruitment and disturbance events, pixels are
 rehashed into new pixel groups.</p>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:figLBSEtest3"></span>
-<img src="/home/achubaty/GitHub/LandWeb/m/Biomass_core/figures/figLBSEtest3.png" alt="Hashing design for Biomass_core. In the re-coded Biomass_core, the pixel group map was hashed based on the unique combination of species composition ('community map') and ecolocation map, and associated with a lookup table. The insert in the top-right corner was the original design that linked the map to the lookup table by pixel key." width="75%"><p class="caption">
+<img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_core/figures/figLBSEtest3.png" alt="Hashing design for Biomass_core. In the re-coded Biomass_core, the pixel group map was hashed based on the unique combination of species composition ('community map') and ecolocation map, and associated with a lookup table. The insert in the top-right corner was the original design that linked the map to the lookup table by pixel key." width="75%"><p class="caption">
 Figure 6.4: Hashing design for <em>Biomass_core</em>. In the re-coded <em>Biomass_core</em>, the pixel group map was hashed based on the unique combination of species composition (‘community map’) and ecolocation map, and associated with a lookup table. The insert in the top-right corner was the original design that linked the map to the lookup table by pixel key.
 </p>
 </div>
@@ -3028,7 +3028,7 @@ differences between LBSE and <em>Biomass_core</em> were 0.03% (range:
 respectively (right panels in Fig. <a href="landr-biomass_core-module.html#fig:figLBSEtest4">6.5</a> of this appendix).</p>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:figLBSEtest4"></span>
-<img src="/home/achubaty/GitHub/LandWeb/m/Biomass_core/figures/figLBSEtest4.png" alt="Visual comparison of simulation outputs for three randomly generated initial communities (left panels) and difference between those outputs (right panels). The % difference between LBSE and Biomass_core were calculated as $\frac{Biomass_{LBSE} - Biomass_{Biomass_core}}{Biomass_{LBSE}} * 100$" width="60%"><p class="caption">
+<img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_core/figures/figLBSEtest4.png" alt="Visual comparison of simulation outputs for three randomly generated initial communities (left panels) and difference between those outputs (right panels). The % difference between LBSE and Biomass_core were calculated as $\frac{Biomass_{LBSE} - Biomass_{Biomass_core}}{Biomass_{LBSE}} * 100$" width="60%"><p class="caption">
 Figure 6.5: Visual comparison of simulation outputs for three randomly generated initial communities (left panels) and difference between those outputs (right panels). The % difference between LBSE and <em>Biomass_core</em> were calculated as <span class="math inline">\(\frac{Biomass_{LBSE} - Biomass_{Biomass_core}}{Biomass_{LBSE}} * 100\)</span>
 </p>
 </div>
@@ -3050,7 +3050,7 @@ sizes, while <em>Biomass_core</em> decreased from 21 to 11 seconds per 1,000 pix
 from smaller to larger maps (Fig. <a href="landr-biomass_core-module.html#fig:figLBSEtest5">6.6</a>b).</p>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:figLBSEtest5"></span>
-<img src="/home/achubaty/GitHub/LandWeb/m/Biomass_core/figures/figLBSEtest5.png" alt="Simulation efficiencies of LBSE and Biomass_core with increasing map size, in terms of a) mean running time across repetitions (left y-axis) and the ratio LBSE to Biomass_core running times (right y-axis and blue line), and b) running time scalability as the mean running time per 1000 pixels." width="60%"><p class="caption">
+<img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_core/figures/figLBSEtest5.png" alt="Simulation efficiencies of LBSE and Biomass_core with increasing map size, in terms of a) mean running time across repetitions (left y-axis) and the ratio LBSE to Biomass_core running times (right y-axis and blue line), and b) running time scalability as the mean running time per 1000 pixels." width="60%"><p class="caption">
 Figure 6.6: Simulation efficiencies of LBSE and <em>Biomass_core</em> with increasing map size, in terms of a) mean running time across repetitions (left y-axis) and the ratio LBSE to <em>Biomass_core</em> running times (right y-axis and blue line), and b) running time scalability as the mean running time per 1000 pixels.
 </p>
 </div>
@@ -3065,7 +3065,7 @@ Figure 6.6: Simulation efficiencies of LBSE and <em>Biomass_core</em> with incre
 <h3>
 <span class="header-section-number">6.3.1</span> Set up R libraries<a class="anchor" aria-label="anchor" href="#example-libs"><i class="fas fa-link"></i></a>
 </h3>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>CRAN <span class="op">=</span> <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">tempDir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -3095,7 +3095,7 @@ repository</a> directly.</p>
 dependencies are installed in their correct version.
 <code><a href="http://spades-project.predictiveecology.org/reference/metadata.html">SpaDES.project::packagesInModules</a></code> makes a list of necessary packages for all
 modules in the <code>paths$modulePath</code>, and <code>Require</code> installs them.</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://Require.predictiveecology.org/reference/Require.html">Require</a></span><span class="op">(</span><span class="st">"PredictiveEcology/SpaDES.project@6d7de6ee12fc967c7c60de44f1aa3b04e6eeb5db"</span>,</span>
 <span>    require <span class="op">=</span> <span class="cn">FALSE</span>, upgrade <span class="op">=</span> <span class="cn">FALSE</span>, standAlone <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -3128,7 +3128,7 @@ pixel-based, so to “spatialise” results <em>a posteriori</em> the <code>pixe
 also be saved.</p>
 <p>Please see the lists of <a href="landr-biomass_core-module.html#inputs-list">input objects</a>,
 <a href="landr-biomass_core-module.html#params-list">parameters</a> and <a href="landr-biomass_core-module.html#outputs-list">outputs</a> for more information.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fl">0</span>, end <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">studyArea</span> <span class="op">&lt;-</span> <span class="fu">Cache</span><span class="op">(</span><span class="va">randomStudyArea</span>, size <span class="op">=</span> <span class="fl">1e+07</span><span class="op">)</span>  <span class="co"># cache this so it creates a random one only once on a machine</span></span>
@@ -3172,7 +3172,7 @@ initialises all modules) and <code>spades</code> (which runs all modules, i.e., 
 to which pass all the necessary setup objects created above.</p>
 <p>Below, we pass some useful <code>reproducible</code> options that control caching (<code>"reproducible.useCache"</code>)
 and where inputs should be downloaded to (<code>"reproducible.destinationPath"</code>).</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">opts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>reproducible.useCache <span class="op">=</span> <span class="cn">TRUE</span>, reproducible.destinationPath <span class="op">=</span> <span class="va">paths</span><span class="op">$</span><span class="va">inputPath</span>,</span>
 <span>    spades.useRequire <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html">graphics.off</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -3181,7 +3181,7 @@ and where inputs should be downloaded to (<code>"reproducible.destinationPath"</
 <span>    debug <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <span style="display:block;" id="fig:fig-Biomass-coreOutPlots"></span>
-<img src="/home/achubaty/GitHub/LandWeb/m/Biomass_core/figures/Biomass_coreOutPlots1.png" alt="Biomass_core automatically generates simulation visuals of species dynamics across the landscape in terms of total biomass, number of presences and age and productivity (above), as well as yearly plots of total biomass, productivity, mortality, reproduction and leading species in each pixel (below)." width="50%"><img src="/home/achubaty/GitHub/LandWeb/m/Biomass_core/figures/Biomass_coreOutPlots2.png" alt="Biomass_core automatically generates simulation visuals of species dynamics across the landscape in terms of total biomass, number of presences and age and productivity (above), as well as yearly plots of total biomass, productivity, mortality, reproduction and leading species in each pixel (below)." width="50%"><p class="caption">
+<img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_core/figures/Biomass_coreOutPlots1.png" alt="Biomass_core automatically generates simulation visuals of species dynamics across the landscape in terms of total biomass, number of presences and age and productivity (above), as well as yearly plots of total biomass, productivity, mortality, reproduction and leading species in each pixel (below)." width="80%"><img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_core/figures/Biomass_coreOutPlots2.png" alt="Biomass_core automatically generates simulation visuals of species dynamics across the landscape in terms of total biomass, number of presences and age and productivity (above), as well as yearly plots of total biomass, productivity, mortality, reproduction and leading species in each pixel (below)." width="80%"><p class="caption">
 Figure 6.7: <em>Biomass_core</em> automatically generates simulation visuals of species dynamics across the landscape in terms of total biomass, number of presences and age and productivity (above), as well as yearly plots of total biomass, productivity, mortality, reproduction and leading species in each pixel (below).
 </p>
 </div>
@@ -3195,7 +3195,7 @@ Figure 6.7: <em>Biomass_core</em> automatically generates simulation visuals of 
 <h3>
 <span class="header-section-number">6.4.1</span> Tables<a class="anchor" aria-label="anchor" href="#appendix-tables"><i class="fas fa-link"></i></a>
 </h3>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest1">Table 6.8: </span>Input order and processing order (as determined by LBSE) for the same community used to assess the impact of sequential calculation of the competition index, combined with a lack of explicit species ordering. The input order was the order of species in the initial communities table input file. The processing order was the order used in the simulation, which was obtained from <code>Landis-log.txt</code> when <code>CalibrateMode</code> was set to ‘yes’. Species starting ages are also shown.
 </caption>
@@ -3664,7 +3664,7 @@ piceglau
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest2">Table 6.9: </span>Input order and processing order (as determined by LBSE) for the same community used to assess the impact of setting the succession time step to 1, combined with a lack of explicit species ordering. The input order was the order of species in the initial communities table input file. The processing order was the order used in the simulation, which was obtained from <code>Landis-log.txt</code> when <code>CalibrateMode</code> was set to ‘yes’. Species starting ages are also shown.
 </caption>
@@ -4133,7 +4133,7 @@ piceglau
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest3">Table 6.10: </span>Randomly generated community combination no. 1 used in the recruitment comparison runs.
 </caption>
@@ -5068,7 +5068,7 @@ NA
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest4">Table 6.11: </span>Randomly generated community combination no. 2 used in the recruitment comparison runs.
 </caption>
@@ -6148,7 +6148,7 @@ NA
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest5">Table 6.12: </span>Randomly generated community combination no. 3 used in the recruitment comparison runs.
 </caption>
@@ -7112,7 +7112,7 @@ NA
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest6">Table 6.13: </span>Invariant species traits table used in comparison runs.
 </caption>
@@ -7561,7 +7561,7 @@ tsugcana
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest7">Table 6.14: </span>Minimum relative biomass table used in comparison runs. X0-5 represent site shade classes from no-shade (0) to maximum shade (5). All ecolocations shared the same values.
 </caption>
@@ -7612,7 +7612,7 @@ All
 </td>
 </tr></tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest8">Table 6.15: </span>Probability of germination for species shade tolerance and shade level combinations (called <em>sufficient light</em> table in LBSE and <code>sufficientLight</code> input <code>data.table</code> in LandR <em>Biomass_core</em>) used in comparison runs.
 </caption>
@@ -7757,7 +7757,7 @@ Shadetolerance
 </tr>
 </tbody>
 </table></div>
-<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:tableLBSEtest9">Table 6.16: </span>Species ecolocation table used in comparison runs. <code>SEP</code> stands for species establishment probability, <code>maxB</code> for maximum biomass and <code>maxANPP</code> for maximum aboveground net primary productivity. Values were held constant throughout the simulation.
 </caption>
@@ -8064,25 +8064,25 @@ tsugcana
 </div>
 <div class="footnotes">
 <hr>
-<ol start="5">
-<li id="fn5"><p>in LBSE the initialisation consists in “iterat[ing] the
+<ol start="6">
+<li id="fn6"><p>in LBSE the initialisation consists in “iterat[ing] the
 number of time steps equal to the maximum cohort age for each site”,
 beginning at 0 minus <em>t</em> (<em>t =</em> oldest cohort age) and adding cohorts at the
 appropriate time until the initial simulation time is reached (0)
-<span class="citation">(<a href="references-1.html#ref-SchellerMiranda2015">Scheller &amp; Miranda 2015a</a>)</span>.<a href="landr-biomass_core-module.html#fnref5" class="footnote-back">↩︎</a></p></li>
-<li id="fn6"><p>usually, default inputs are made when running the
+<span class="citation">(<a href="references-1.html#ref-SchellerMiranda2015">Scheller &amp; Miranda 2015a</a>)</span>.<a href="landr-biomass_core-module.html#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p>usually, default inputs are made when running the
 <code>.inputObjects</code> function (inside the module R script) during the <code>simInit</code>
 call and in the <code>init</code> event during the <code>spades</code> call – see
-<code><a href="https://spades-core.predictiveecology.org/reference/simList-accessors-events.html">?SpaDES.core::events</a></code> and <code><a href="https://spades-core.predictiveecology.org/reference/simInit.html">SpaDES.core::simInit</a></code><a href="landr-biomass_core-module.html#fnref6" class="footnote-back">↩︎</a></p></li>
-<li id="fn7"><p>in <code>SpaDES</code> lingo parameters are “small” objects, such as an
+<code><a href="https://spades-core.predictiveecology.org/reference/simList-accessors-events.html">?SpaDES.core::events</a></code> and <code><a href="https://spades-core.predictiveecology.org/reference/simInit.html">SpaDES.core::simInit</a></code><a href="landr-biomass_core-module.html#fnref7" class="footnote-back">↩︎</a></p></li>
+<li id="fn8"><p>in <code>SpaDES</code> lingo parameters are “small” objects, such as an
 integer or boolean, that can be controlled via the <code>parameters</code> argument in
-<code>simInit</code>.<a href="landr-biomass_core-module.html#fnref7" class="footnote-back">↩︎</a></p></li>
-<li id="fn8"><p><a href="https://github.com/ianmseddy/LandR.CS" class="uri">https://github.com/ianmseddy/LandR.CS</a><a href="landr-biomass_core-module.html#fnref8" class="footnote-back">↩︎</a></p></li>
-<li id="fn9"><p>see <code><a href="https://spades-core.predictiveecology.org/reference/simList-accessors-outputs.html">?SpaDES.core::outputs</a></code><a href="landr-biomass_core-module.html#fnref9" class="footnote-back">↩︎</a></p></li>
-<li id="fn10"><p><code>simInit</code> is a <code>SpaDES</code> function that initialises the
+<code>simInit</code>.<a href="landr-biomass_core-module.html#fnref8" class="footnote-back">↩︎</a></p></li>
+<li id="fn9"><p><a href="https://github.com/ianmseddy/LandR.CS" class="uri">https://github.com/ianmseddy/LandR.CS</a><a href="landr-biomass_core-module.html#fnref9" class="footnote-back">↩︎</a></p></li>
+<li id="fn10"><p>see <code><a href="https://spades-core.predictiveecology.org/reference/simList-accessors-outputs.html">?SpaDES.core::outputs</a></code><a href="landr-biomass_core-module.html#fnref10" class="footnote-back">↩︎</a></p></li>
+<li id="fn11"><p><code>simInit</code> is a <code>SpaDES</code> function that initialises the
 execution of one or more modules by parsing and checking their code and
 executing the <code>.inputObjects</code> function(s), where the developer provides
-mechanisms to satisfy each module’s expected inputs with default values.<a href="landr-biomass_core-module.html#fnref10" class="footnote-back">↩︎</a></p></li>
+mechanisms to satisfy each module’s expected inputs with default values.<a href="landr-biomass_core-module.html#fnref11" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   <div class="chapter-nav">
@@ -8094,7 +8094,7 @@ mechanisms to satisfy each module’s expected inputs with default values.<a hre
 <li><a class="nav-link" href="#landr-biomass_core-module"><span class="header-section-number">6</span> LandR Biomass_core Module</a></li>
 <li>
 <a class="nav-link" href="#module-overview-3"><span class="header-section-number">6.1</span> Module Overview</a><ul class="nav navbar-nav">
-<li><a class="nav-link" href="#quick-links-1"><span class="header-section-number">6.1.1</span> Quick links</a></li>
+<li><a class="nav-link" href="#quick-links-2"><span class="header-section-number">6.1.1</span> Quick links</a></li>
 <li><a class="nav-link" href="#summary-1"><span class="header-section-number">6.1.2</span> Summary</a></li>
 <li><a class="nav-link" href="#links-modules"><span class="header-section-number">6.1.3</span> Links to other modules</a></li>
 </ul>
@@ -8139,7 +8139,7 @@ mechanisms to satisfy each module’s expected inputs with default values.<a hre
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-02-28.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-13.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

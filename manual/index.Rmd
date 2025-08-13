@@ -3,7 +3,7 @@ title: "LandWeb Manual"
 subtitle: "`r paste('v.', Sys.getenv('LANDWEB_VERSION'))`"
 author: "Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison" 
 date: "`r Sys.Date()`"
-description: "A manual for the LandWeb ecosystem of SpaDES modules"
+description: "User manual for the LandWeb simulation model."
 documentclass: krantz
 site: bookdown::bookdown_site
 github-repo: PredictiveEcology/LandWeb
