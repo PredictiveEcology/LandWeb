@@ -366,7 +366,7 @@ Model code is organized by the following directories and summarized in the table
 See R's `?file.link` to set these up on your machine.
 
 ```{r dir-structure-setup, echo = FALSE, eval = TRUE, results = 'hide'}
-prjDir <- SpaDES.project::findProjectPath()
+prjDir <- SpaDES.config::findProjectPath(from_wd = FALSE)
 file.path(prjDir, c("cache", "inputs", "outputs")) |>
   Require::checkPath(create = TRUE) ## create these if they don't exist (e.g., GHA)
 ```

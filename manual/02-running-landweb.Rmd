@@ -56,7 +56,8 @@ Currently, only a subset of the FMAs within the LandWeb study area are predefine
 \blandscape
 
 ```{r fma-map, echo = FALSE, eval = "true", fig.keep = "all", message = FALSE, out.width = "90%", results = "hide", fig.cap = "\\label{fig:fma-map} FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs."}
-prjDir <- SpaDES.project::findProjectPath()
+prjDir <- SpaDES.config::findProjectPath(from_wd = FALSE)
+
 canProvs <- geodata::gadm(country = "CAN", level = 1, path = file.path(prjDir, "inputs")) |>
   sf::st_as_sf()
 lwProvs <- c("British Columbia", "Alberta", "Saskatchewan", "Manitoba")

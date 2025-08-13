@@ -693,14 +693,14 @@
     },
     "SpaDES.config": {
       "Package": "SpaDES.config",
-      "Version": "1.0.7",
+      "Version": "1.0.7.9002",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.config",
       "RemoteRef": "development",
-      "RemoteSha": "12f70711783a502aa8035c5ebe81ce0976204fac",
+      "RemoteSha": "c01b0bc035773b3b40d02c786c06ef7c6ce3746e",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
         "R6",
@@ -711,7 +711,7 @@
         "rprojroot",
         "utils"
       ],
-      "Hash": "097e97ccc5919490418f4c761c301ea7"
+      "Hash": "6afc737ca806d29e962aa2bac81594bd"
     },
     "SpaDES.core": {
       "Package": "SpaDES.core",
@@ -774,7 +774,7 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.project",
-      "RemoteRef": "development",
+      "RemoteRef": "d7a21b358d7be50ecbec7cdc2bacf07fb51ef429",
       "RemoteSha": "d7a21b358d7be50ecbec7cdc2bacf07fb51ef429",
       "Requirements": [
         "R",
@@ -789,7 +789,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "6a122f980bf1f657567cda1f703c7925"
+      "Hash": "538452d3447663a2deeb7496d933494d"
     },
     "SpaDES.tools": {
       "Package": "SpaDES.tools",

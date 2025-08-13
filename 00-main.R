@@ -30,7 +30,7 @@ library("notifications")
 
 # simulation setup ----------------------------------------------------------------------------
 
-prjDir <- SpaDES.project::findProjectPath()
+prjDir <- SpaDES.config::findProjectPath()
 
 stopifnot(identical(prjDir, normalizePath(getwd(), winslash = "/")))
 
