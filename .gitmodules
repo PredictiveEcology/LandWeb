@@ -1,46 +1,46 @@
-[submodule "m/Biomass_borealDataPrep"]
-	path = m/Biomass_borealDataPrep
-	url = https://github.com/PredictiveEcology/Biomass_borealDataPrep
+[submodule "modules/Biomass_borealDataPrep"]
+	path = modules/Biomass_borealDataPrep
+	url = https://github.comodules/PredictiveEcology/Biomass_borealDataPrep
 	branch = LandWeb
-[submodule "m/Biomass_core"]
-	path = m/Biomass_core
+[submodule "modules/Biomass_core"]
+	path = modules/Biomass_core
 	url = https://github.com/PredictiveEcology/Biomass_core
 	branch = LandWeb
-[submodule "m/Biomass_regeneration"]
-	path = m/Biomass_regeneration
+[submodule "modules/Biomass_regeneration"]
+	path = modules/Biomass_regeneration
 	url = https://github.com/PredictiveEcology/Biomass_regeneration
 	branch = LandWeb
-[submodule "m/Biomass_speciesData"]
-	path = m/Biomass_speciesData
+[submodule "modules/Biomass_speciesData"]
+	path = modules/Biomass_speciesData
 	url = https://github.com/PredictiveEcology/Biomass_speciesData
 	branch = LandWeb
-[submodule "m/LandMine"]
-	path = m/LandMine
+[submodule "modules/LandMine"]
+	path = modules/LandMine
 	url = https://github.com/PredictiveEcology/LandMine
 	branch = LandWeb
-[submodule "m/LandWeb_preamble"]
-	path = m/LandWeb_preamble
+[submodule "modules/LandWeb_preamble"]
+	path = modules/LandWeb_preamble
 	url = https://github.com/fRI-Research/LandWeb_preamble
 	branch = development
-[submodule "m/LandWeb_output"]
-	path = m/LandWeb_output
+[submodule "modules/LandWeb_output"]
+	path = modules/LandWeb_output
 	url = https://github.com/fRI-Research/LandWeb_output
 	branch = development
-[submodule "m/timeSinceFire"]
-	path = m/timeSinceFire
+[submodule "modules/timeSinceFire"]
+	path = modules/timeSinceFire
 	url = https://github.com/fRI-Research/timeSinceFire
 	branch = development
-[submodule "m/LandWeb_summary"]
-	path = m/LandWeb_summary
+[submodule "modules/LandWeb_summary"]
+	path = modules/LandWeb_summary
 	url = https://github.com/PredictiveEcology/LandWeb_summary
-[submodule "m/HSI_Caribou_MB"]
-	path = m/HSI_Caribou_MB
+[submodule "modules/HSI_Caribou_MB"]
+	path = modules/HSI_Caribou_MB
 	url = https://github.com/FOR-CAST/HSI_Caribou_MB
-[submodule "m/burnSummaries"]
-	path = m/burnSummaries
+[submodule "modules/burnSummaries"]
+	path = modules/burnSummaries
 	url = https://github.com/PredictiveEcology/burnSummaries
-[submodule "m/Biomass_speciesParameters"]
-	path = m/Biomass_speciesParameters
+[submodule "modules/Biomass_speciesParameters"]
+	path = modules/Biomass_speciesParameters
 	url = https://github.com/PredictiveEcology/Biomass_speciesParameters
 [submodule "packages/LandWebUtils"]
 	path = packages/LandWebUtils

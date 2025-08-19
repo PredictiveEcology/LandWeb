@@ -19,9 +19,9 @@ if (exists(".rep", .GlobalEnv)) {
 }
 
 if (exists(".res", .GlobalEnv)) {
-  stopifnot(.res %in% c(50, 125, 250))
+  stopifnot(.res %in% c(240, 120))
 } else {
-  .res <- 250
+  .res <- 240
 }
 
 if (!exists(".studyAreaName", .GlobalEnv)) {
@@ -30,23 +30,9 @@ if (!exists(".studyAreaName", .GlobalEnv)) {
 
 if (exists(".version", .GlobalEnv)) {
   .version <- as.integer(.version)
-  stopifnot(.version %in% c(2L, 3L))
+  stopifnot(.version %in% c(3L))
 } else {
-  .version <- 2L ## 3L
-}
-
-if (.version == 2L) {
-  if (exists(".dispersalType", .GlobalEnv)) {
-    stopifnot(.dispersalType %in% c("default", "aspen", "high", "none"))
-  } else {
-    .dispersalType <- "high"
-  }
-
-  if (exists(".ROStype", .GlobalEnv)) {
-    stopifnot(.ROStype %in% c("default", "burny", "equal", "log"))
-  } else {
-    .ROStype <- "log"
-  }
+  .version <- 3L
 }
 
 if (!exists(".upload", .GlobalEnv)) {

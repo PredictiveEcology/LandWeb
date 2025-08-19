@@ -112,27 +112,7 @@ The model can be run on any of several pre-defined study areas summarized in the
 To select one of these predefined study areas, set `.studyAreaName` to use one of the following, corresponding to the polygon IDs in the map above.
 
 ```{r studyarea-table, echo = FALSE, eval = TRUE, message = FALSE, warning = FALSE}
-data.frame(
-  studyAreaName = c("ANC", "Blueridge", "DMI", "Edson", "FMANWT ", "FMANWT2",
-                    "LP_BC", "LP_MB", "Manning", "MillarWestern", "Mistik", "MPR",
-                    "Sundre", "Tolko_AB_N", "Tolko_AB_S", "Tolko_SK", "Vanderwell",
-                    "WestFraser_N", "WestFraser_S", "WeyCo_GP", "WeyCo_PT", "WeyCo_SK"),
-  ID = c("39", "40", "42, 43", "53", "59", "58", "5, 6", "32", "45", "46", "15", "42, 43",
-         "48", "50", "44, 49, 51", "22", "51, 52", "44, 51, 55", "53, 54", "56", "57", "21"), 
-  Description = c(
-    "ANC Timber Ltd.", "Blueridge Lumber Inc.",
-    "Mercer Peace River Pulp Ltd. (formerly DMI)", 
-    "West Fraser Mills Ltd. (Edson)", "Fort Resolution", "Fort Providence", 
-    "Lousiana Pacific (British Columbia)", "Lousiana Pacific (Manitoba)", 
-    "Manning Diversified Forest Products Ltd.", "Millar Western Forest Products Ltd.", 
-    "Mistik", "Mercer Peace River Pulp Ltd. (formerly DMI)", "Sundre Forest Products Inc.", 
-    "Tolko Industries Ltd. (Alberta North)", "Tolko Industries Ltd. (Alberta South)", 
-    "Tolko (Saskatchewan)", "Vanderwell Contractors (1971) Ltd.", 
-    "West Fraser Mills Ltd. (Slave Lake)", "West Fraser Mills Ltd. (Edson + Hinton)", 
-    "Weyerhauser Company Ltd. (Grand Prairie)", "Weyerhauser Company Ltd. (Pembina Timberland)", 
-    "Weyerhauser Company Ltd. (Pasquia-Porcupine)"
-  )
-) |>
+LandWebUtils::LandWebStudyAreas |>
   knitr::kable(caption = "Model study areas with corresponding FMA polygon IDs (from Figure 1).",
                booktabs = TRUE) |>
   kableExtra::kable_styling(latex_options = "striped") # font_size = 10

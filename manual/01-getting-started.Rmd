@@ -410,7 +410,7 @@ data.frame(
     "Dockerfiles, scripts, and documentation",                 ## docker/
     "rendered model and app documentation",                    ## docs/
     "all model data inputs stored here",                       ## inputs/
-    "module code (git submodules)",                            ## m/
+    "module code (git submodules)",                            ## modules/
     "raw files for generating documentation manual",           ## manual/
     "all per-run model outputs stored here",                   ## outputs/
     "package code (git submodules)",                           ## packages/

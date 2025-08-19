@@ -285,14 +285,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3",
+      "Version": "1.0.3.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "433755aab942c70111bdf2fa4581d4cd06157f4d",
+      "RemoteSha": "63d2858251986e0fa0e4a1a135e592b3dc09eda0",
       "Requirements": [
         "LandR",
         "R",
@@ -304,7 +304,6 @@
         "ggplot2",
         "grDevices",
         "graphics",
-        "magrittr",
         "map",
         "methods",
         "pemisc",
@@ -312,10 +311,14 @@
         "raster",
         "rasterVis",
         "reproducible",
+        "scales",
+        "sf",
+        "sp",
+        "stats",
         "tools",
         "utils"
       ],
-      "Hash": "4b4b6d30b5ba011a8fec9dbd7a51f7c2"
+      "Hash": "2ba8e9a03a737b3e85403665c3b7884d"
     },
     "MASS": {
       "Package": "MASS",
@@ -640,7 +643,7 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "Require",
-      "RemoteRef": "4d4cea98044731a8e1d92c199235e3c46a28e922",
+      "RemoteRef": "development",
       "RemoteSha": "4d4cea98044731a8e1d92c199235e3c46a28e922",
       "Requirements": [
         "R",
@@ -650,7 +653,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "ba845a69cbbfbdf43a01b408f1b2e12f"
+      "Hash": "23f4da30f4f5b6c7568a1423860df22e"
     },
     "RhpcBLASctl": {
       "Package": "RhpcBLASctl",
@@ -693,14 +696,14 @@
     },
     "SpaDES.config": {
       "Package": "SpaDES.config",
-      "Version": "1.0.7.9002",
+      "Version": "1.0.7.9003",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.config",
       "RemoteRef": "development",
-      "RemoteSha": "c01b0bc035773b3b40d02c786c06ef7c6ce3746e",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "52295b5cb0b4859fd1d85eaa49cb1c40010fa352",
       "Requirements": [
         "R",
         "R6",
@@ -711,7 +714,7 @@
         "rprojroot",
         "utils"
       ],
-      "Hash": "6afc737ca806d29e962aa2bac81594bd"
+      "Hash": "8f98cb3d7783bf840169cfeb7da70650"
     },
     "SpaDES.core": {
       "Package": "SpaDES.core",
@@ -774,7 +777,7 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.project",
-      "RemoteRef": "d7a21b358d7be50ecbec7cdc2bacf07fb51ef429",
+      "RemoteRef": "development",
       "RemoteSha": "d7a21b358d7be50ecbec7cdc2bacf07fb51ef429",
       "Requirements": [
         "R",
@@ -789,7 +792,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "538452d3447663a2deeb7496d933494d"
+      "Hash": "6a122f980bf1f657567cda1f703c7925"
     },
     "SpaDES.tools": {
       "Package": "SpaDES.tools",
@@ -3208,7 +3211,7 @@
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "map",
       "RemoteRef": "development",
-      "RemoteSha": "6258cd1ad7530a9e0c3f24c4d2bc50e3475f08ef",
+      "RemoteSha": "21b06a18e0b7b41b129d8d6997085ed117cd6a5f",
       "Requirements": [
         "R",
         "data.table",
@@ -3226,7 +3229,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "113ba441864d0c5e764856605150a1df"
+      "Hash": "db76bfe97ffc8e9206948103c37ed81b"
     },
     "mapproj": {
       "Package": "mapproj",

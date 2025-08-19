@@ -8,14 +8,7 @@ box::use(pemisc[availableMemory])
 .landwebRunName <- function(context, withRep = TRUE) {
   .runName <- paste0(
     context$studyAreaName,
-    if (context$dispersalType == "default") {
-      ""
-    } else {
-      paste0("_", context[["dispersalType"]], "Dispersal")
-    },
     if (context$ROStype == "default") "" else paste0("_", context[["ROStype"]], "ROS"),
-    if (isTRUE(context$succession)) "" else "_noSuccession",
-    if (context$friMultiple == 1) "" else paste0("_fri", context[["friMultiple"]]),
     if (context$pixelSize == 250) "" else paste0("_res", context[["pixelSize"]]),
     if (isTRUE(withRep)) {
       if (context$mode == "postprocess") "" else sprintf("_rep%02d", context$rep)
@@ -81,26 +74,14 @@ landwebContext <- R6::R6Class(
       }
 
       stopifnot(
-        res %in% c(50, 125, 250),
-        ROStype %in% c("default", "burny", "equal", "log"),
+        res %in% c(120, 240), ## (res %% 30 == 0)
+        ROStype %in% c("default", "burny"),
         version %in% c(2, 3)
       )
 
-      private[[".dispersalType"]] <- if (version == 2) {
-        "high"
-      } else if (version == 3) {
-        "default"
-      }
-      private[[".forceResprout"]] <- if (version == 2) {
-        TRUE
-      } else if (version == 3) {
-        FALSE
-      }
-      private[[".friMultiple"]] <- 1L
       private[[".pixelSize"]] <- res
       private[[".projectPath"]] <- normPath(projectPath)
       private[[".ROStype"]] <- ROStype
-      private[[".succession"]] <- TRUE
       private[[".version"]] <- as.integer(version)
 
       self$machine <- Sys.info()[["nodename"]]
@@ -125,12 +106,8 @@ landwebContext <- R6::R6Class(
         user = self$user,
         studyAreaName = self$studyAreaName,
         rep = self$rep,
-        dispersalType = self$dispersalType, ## additional for landweb
-        forceResprout = self$forceResprout, ## additional for landweb
-        friMultiple = self$friMultiple, ## additional for landweb
         pixelSize = self$pixelSize, ## additional for landweb
         ROStype = self$ROStype, ## additional for landweb
-        succession = self$succession, ## additional for landweb
         runName = self$runName
       )
 
@@ -196,44 +173,12 @@ landwebContext <- R6::R6Class(
       }
     },
 
-    #' @field dispersalType Character string describing the seed dispersal type to use.
-    #'                      One of 'default', 'aspen', 'high', 'none'.
-    dispersalType = function(value) {
-      if (missing(value)) {
-        return(private[[".dispersalType"]])
-      } else {
-        stopifnot(value %in% c("default", "aspen", "high", "none"))
-        private[[".dispersalType"]] <- value
-        self$runName <- .landwebRunName(self)
-      }
-    },
-
-    #' @field forceResprout Logical
-    forceResprout = function(value) {
-      if (missing(value)) {
-        return(private[[".forceResprout"]])
-      } else {
-        private[[".forceResprout"]] <- value
-        self$runName <- .landwebRunName(self)
-      }
-    },
-
-    #' @field friMultiple Numeric indicating a factor by which to scale the fire return intervals
-    friMultiple = function(value) {
-      if (missing(value)) {
-        return(private[[".friMultiple"]])
-      } else {
-        private[[".friMultiple"]] <- value
-        self$runName <- .landwebRunName(self)
-      }
-    },
-
     #' @field pixelSize raster pixel resolution (in metres) to use for simulations
     pixelSize = function(value) {
       if (missing(value)) {
         return(private[[".pixelSize"]])
       } else {
-        stopifnot(value %in% c(250, 125, 50))
+        stopifnot(value %in% c(240, 120)) ## (value %% 30 == 0)
         private[[".pixelSize"]] <- value
         self$runName <- .landwebRunName(self)
       }
@@ -241,35 +186,21 @@ landwebContext <- R6::R6Class(
 
     #' @field ROStype  Character string describing the scaling of the LandMine fire model's
     #'                 'rate of spread' parameters.
-    #'                 One of 'default', 'burny', 'equal' (i.e., all 1), 'log'.
+    #'                 One of 'default' or 'burny'.
     ROStype = function(value) {
       if (missing(value)) {
         return(private[[".ROStype"]])
       } else {
-        stopifnot(value %in% c("default", "burny", "equal", "log"))
+        stopifnot(value %in% c("default", "burny"))
         private[[".ROStype"]] <- value
-        self$runName <- .landwebRunName(self)
-      }
-    },
-
-    #' @field succession  logical
-    succession = function(value) {
-      if (missing(value)) {
-        return(private[[".succession"]])
-      } else {
-        private[[".succession"]] <- value
         self$runName <- .landwebRunName(self)
       }
     }
   ),
 
   private = list(
-    .dispersalType = NA_character_,
-    .forceResprout = NA,
-    .friMultiple = 1,
-    .pixelSize = 250,
+    .pixelSize = 240,
     .ROStype = NA_character_,
-    .succession = NA,
     .version = NA_integer_
   )
 )
@@ -295,12 +226,14 @@ landwebConfig <- R6::R6Class(
     #'
     #' @param projectPath character string giving the path to the project directory.
     #'
-    #' @param ... Additional arguments passed to `useContext()`
+    #' @param ... Additional arguments passed to creation of new context
     #'
     initialize = function(projectName, projectPath, ...) {
+      dots <- list(...)
+
       self$context <- landwebContext$new(projectPath = projectPath, ...)
 
-      .version <- if (grepl("v3$", self$context[["studyAreaName"]])) 3L else 2L ## TODO: clunky
+      .version <- dots$version %||% 3
 
       ## do paths first as these may be used below
       # paths ---------------------------------------------------------------------------------------
@@ -320,15 +253,13 @@ landwebConfig <- R6::R6Class(
         cloud = list(
           cacheDir = "LandWeb_cloudCache",
           googleUser = "",
-          useCloud = FALSE
+          useCloud = FALSE ## TODO: cloudCache spams Google Drive; doesn't respect drive path
         ),
         delayStart = 0,
         fsimext = "rds", ## TODO: use "qs" once SpaDES.core is fixed
         endTime = 1000, ## TODO: use `simYears = list(start = 0, end = 1000)` in order to use
         ##       `self$args$simYears$start` instead of hardgoding `start(sim)`
-        notifications = list(
-          slackChannel = ""
-        ),
+        notifications = list(),
         useCache = FALSE ## TODO: caching simulations broken in SpaDES.core
       )
 
@@ -338,7 +269,7 @@ landwebConfig <- R6::R6Class(
         Biomass_core = "Biomass_core",
         Biomass_regeneration = "Biomass_regeneration",
         Biomass_speciesData = "Biomass_speciesData",
-        # Biomass_speciesParameters = "Biomass_speciesParameters", ## TODO: add this module
+        Biomass_speciesParameters = "Biomass_speciesParameters",
         # burnSummaries = "burnSummaries", ## used for postprocess, not devel nor production
         # HSI_Caribou_MB = "HSI_Caribou_MB", ## used for postprocess in MB, not devel nor production
         LandMine = "LandMine",
@@ -350,17 +281,9 @@ landwebConfig <- R6::R6Class(
 
       # options ------------------------------------------------------------------------------------
       private[[".options"]] <- list(
-        fftempdir = file.path(dirname(tempdir()), "scratch", "LandWeb", "ff"),
         future.globals.maxSize = 1000 * 1024^2,
         LandR.assertions = TRUE,
         LandR.verbose = 1,
-        map.dataPath = self$paths$inputPath, # not used yet
-        map.maxNumCores = pemisc::optimalClusterNum(40000, parallel::detectCores() / 2),
-        map.overwrite = TRUE,
-        map.tilePath = FALSE, ## TODO: use self$paths$tilePath once parallel tile creation works
-        map.useParallel = TRUE,
-        rasterMaxMemory = 5e+9,
-        rasterTmpDir = normPath(file.path(self$paths[["scratchPath"]], "raster")),
         reproducible.cacheSaveFormat = "rds", ## can be "qs" or "rds"
         reproducible.conn = dbConnCache("sqlite"), ## "sqlite" or "postgresql"
         reproducible.destinationPath = normPath(self$paths[["inputPath"]]),
@@ -368,9 +291,9 @@ landwebConfig <- R6::R6Class(
         reproducible.nThreads = 2,
         reproducible.overwrite = TRUE,
         reproducible.showSimilar = TRUE,
-        reproducible.useCache = TRUE, ## TODO: set to self$args[["useCache"]]?
-        reproducible.useCloud = FALSE, ## TODO: cloudCache spams Google Drive; doesn't respect drive path
-        reproducible.useGDAL = FALSE,
+        reproducible.useCache = self$args[["useCache"]],
+        reproducible.useCloud = self$args[["cloud"]][["useCloud"]],
+        reproducible.useGDAL = FALSE, ## TODO: reassess
         reproducible.useTerra = TRUE,
         Require.install = FALSE, ## don't use Require; assume all pkgs installed
         spades.futurePlan = "callr",
@@ -424,7 +347,7 @@ landwebConfig <- R6::R6Class(
             )),
             quote(LandR::updateSpeciesTable(sim$species, sim$speciesParams))
           ),
-          useCloudCacheForStats = FALSE, ## TODO: re-enable once errors in species levels resolved
+          useCloudCacheForStats = self$args[["cloud"]][["useCloud"]],
           .plotInitialTime = 0, ## sim(start)
           .useCache = self$args[["useCache"]]
         ),
@@ -590,14 +513,13 @@ landwebConfig <- R6::R6Class(
         }
       }
 
-      ## options -- update based on context
+      ## options -- update based on context ----------
       self$options <- list(
         LandR.assertions = if (self$context[["mode"]] == "production") FALSE else TRUE,
-        rasterMaxMemory = if (grepl("LandWeb", self$context[["studyAreaName"]])) 1e+12 else 5e+9,
         spades.moduleCodeChecks = if (self$context[["mode"]] == "production") FALSE else TRUE
       )
 
-      ## study area + run info ----------------------
+      ## study area + run info -----------------------
       self$params <- list(
         .globals = list(
           .studyAreaName = self$context[["studyAreaName"]]

@@ -3,20 +3,12 @@ if (FALSE) {
   fExptTbl <- file.path(prjDir, "experimentTable.csv")
   if (!file.exists(fExptTbl)) {
     exptTbl <- expand.grid(
-      .studyAreaName = c("ANC", "AlPac", "BlueRidge", "DMI", "Edson", "FMANWT",
-                         "LandWeb", "LP_BC", "LP_MB",
-                         "Manning", "MillarWestern", "Mistik", "SprayLake", "Sundre", "Tolko", ## TODO: check e.g. Tolko_SK etc.
-                         "Vanderwell", "WeyCo", "WestFraser",
-                         "provAB", "provMB", "provNWT", "provSK"),
+      .studyAreaName = allStudyAreas$Name,
       delayStart = TRUE,
-      dispersalType = c("default"),
       endTime = 1000,
-      forceResprout = c(FALSE),
-      friMultiple = c(1L),
-      pixelSize = 250,
+      pixelSize = 240,
       rep = c(1L:15L, NA_integer_), ## NA for postprocessing runs
-      ROStype = c("default"),
-      succession = c(TRUE)
+      ROStype = c("default")
     )
     exptTbl$postProcessOnly <- FALSE
 
@@ -36,10 +28,10 @@ if (FALSE) {
     exptTbl$._runtime <- NA
     exptTbl$._memory <- NA
 
-    write.csv(exptTbl, fExptTbl)
+    write.csv(exptTbl, fExptTbl, row.names = FALSE)
   } else {
     ## TODO: local csv; google sheet; database
-    #exptTbl <- getExperimentTable(fExptTbl)
+    # exptTbl <- getExperimentTable(fExptTbl)
     exptTable <- read.csv(fExptTbl)
   }
 }
