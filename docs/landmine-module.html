@@ -1231,29 +1231,26 @@ Same as input, but with new column, <code>LandMine</code>.
 <code class="sourceCode R"><span><span class="co">### SET UP CLUSTER FOR PARALLEL</span></span>
 <span><span class="va">wantParallel</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
 <span></span>
-<span><span class="co">## numCores should be &gt;= 70 and needs to be multiple of number of params to be fit (7)</span></span>
-<span><span class="va">numCores</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu">parallelly</span><span class="fu">::</span><span class="fu"><a href="https://parallelly.futureverse.org/reference/availableCores.html">availableCores</a></span><span class="op">(</span>constraints <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"connections"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html">%/%</a></span> <span class="fl">7</span><span class="op">)</span> <span class="op">*</span> <span class="fl">7</span></span>
+<span><span class="co">## numCores should be &gt;= 70 and needs to be multiple of</span></span>
+<span><span class="co">## number of params to be fit (7)</span></span>
+<span><span class="va">numCores</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu">parallelly</span><span class="fu">::</span><span class="fu"><a href="https://parallelly.futureverse.org/reference/availableCores.html">availableCores</a></span><span class="op">(</span>constraints <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"connections"</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html">%/%</a></span><span class="fl">7</span><span class="op">)</span> <span class="op">*</span></span>
+<span>    <span class="fl">7</span></span>
 <span></span>
 <span><span class="va">machineName</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/strsplit.html">strsplit</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.info.html">Sys.info</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="st">"nodename"</span><span class="op">]</span>, <span class="st">"[.]"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
 <span></span>
-<span><span class="va">clNames</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/switch.html">switch</a></span><span class="op">(</span><span class="va">machineName</span>,</span>
-<span>                  pinus <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
-<span>                    <span class="co">## TODO: ssh cluster not yet working</span></span>
-<span>                    <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"localhost"</span>, <span class="fl">0</span><span class="op">)</span>,</span>
-<span>                    <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"picea.for-cast.ca"</span>, <span class="fl">20</span><span class="op">)</span>,</span>
-<span>                    <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"pseudotsuga.for-cast.ca"</span>, <span class="fl">82</span><span class="op">)</span></span>
-<span>                  <span class="op">)</span>,</span>
-<span>                  picea <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"localhost"</span>, <span class="va">numCores</span><span class="op">)</span>,</span>
-<span>                  <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"localhost"</span>, <span class="va">numCores</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">clNames</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/switch.html">switch</a></span><span class="op">(</span><span class="va">machineName</span>, pinus <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"localhost"</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"picea.for-cast.ca"</span>, <span class="fl">20</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"pseudotsuga.for-cast.ca"</span>,</span>
+<span>        <span class="fl">82</span><span class="op">)</span><span class="op">)</span>, picea <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"localhost"</span>, <span class="va">numCores</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"localhost"</span>,</span>
+<span>    <span class="va">numCores</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="va">wantParallel</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu">landmine_optim_clusterSetup</span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">clNames</span><span class="op">)</span></span>
+<span>    <span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu">landmine_optim_clusterSetup</span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">clNames</span><span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="va">cl</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span>    <span class="va">cl</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/class.html">inherits</a></span><span class="op">(</span><span class="va">cl</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="st">"forknode"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">landmine_optim_clusterExport</span><span class="op">(</span><span class="va">cl</span>, objs <span class="op">=</span> <span class="va">objs</span>, pkgs <span class="op">=</span> <span class="va">pkgs</span><span class="op">)</span></span>
+<span>    <span class="fu">landmine_optim_clusterExport</span><span class="op">(</span><span class="va">cl</span>, objs <span class="op">=</span> <span class="va">objs</span>, pkgs <span class="op">=</span> <span class="va">pkgs</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <div id="visual-examination" class="section level3" number="8.4.1">
 <h3>
