@@ -6,15 +6,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 3 LandWeb_preamble Module | LandWeb Manual</title>
 <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
-<meta name="description" content="(ref:LandWeb_preamble) LandWeb_preamble  3.0.0.1 Authors: Ceres Barros ceres.barros@ubc.ca [aut, cre], Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut], Alex M. Chubaty...">
+<meta name="description" content="(ref:LandWeb_preamble) LandWeb_preamble  3.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca [aut, cre]   3.1 Module Overview  3.1.1...">
 <meta name="generator" content="bookdown 0.43 with bs4_book()">
 <meta property="og:title" content="Chapter 3 LandWeb_preamble Module | LandWeb Manual">
 <meta property="og:type" content="book">
 <meta property="og:url" content="https://predictiveecology.github.io/LandWeb/landweb_preamble-module.html">
-<meta property="og:description" content="(ref:LandWeb_preamble) LandWeb_preamble  3.0.0.1 Authors: Ceres Barros ceres.barros@ubc.ca [aut, cre], Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut], Alex M. Chubaty...">
+<meta property="og:description" content="(ref:LandWeb_preamble) LandWeb_preamble  3.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca [aut, cre]   3.1 Module Overview  3.1.1...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chapter 3 LandWeb_preamble Module | LandWeb Manual">
-<meta name="twitter:description" content="(ref:LandWeb_preamble) LandWeb_preamble  3.0.0.1 Authors: Ceres Barros ceres.barros@ubc.ca [aut, cre], Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut], Alex M. Chubaty...">
+<meta name="twitter:description" content="(ref:LandWeb_preamble) LandWeb_preamble  3.0.0.1 Authors: Eliot J B McIntire eliot.mcintire@nrcan-rncan.gc.ca [aut], Alex M. Chubaty achubaty@for-cast.ca [aut, cre]   3.1 Module Overview  3.1.1...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.9.0/transition.js"></script><script src="libs/bs3compat-0.9.0/tabs.js"></script><script src="libs/bs3compat-0.9.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -28,6 +28,7 @@
     div.csl-bib-body { }
     div.csl-entry {
       clear: both;
+          margin-bottom: 0em;
         }
     .hanging div.csl-entry {
       margin-left:2em;
@@ -105,7 +106,7 @@
 <h4>
 <span class="header-section-number">3.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors"><i class="fas fa-link"></i></a>
 </h4>
-<p>Ceres Barros <a href="mailto:ceres.barros@ubc.ca" class="email">ceres.barros@ubc.ca</a> [aut, cre], Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [aut]
+<p>Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [aut, cre]
 <!-- ideally separate authors with new lines, '\n' not working --></p>
 </div>
 <div id="module-overview" class="section level2" number="3.1">
@@ -323,7 +324,7 @@ NA
 NA
 </td>
 <td style="text-align:left;">
-Rate of spread preset to use. One of ‘burny’, ‘equal’, ‘log’, or ‘default’.
+Rate of spread preset to use. One of ‘burny’ or ‘default’.
 </td>
 </tr>
 <tr>
@@ -363,7 +364,7 @@ numeric
 39
 </td>
 <td style="text-align:left;">
-The transient classes in the <code>LCC2005</code> layer that will become ‘trees’ from the perspective of LandR-Biomass (e.g., burned)
+The transient classes in the <code>LCC</code> layer that will become ‘trees’ from the perspective of LandR-Biomass (e.g., burned)
 </td>
 </tr>
 <tr>
@@ -503,7 +504,7 @@ NA
 NA
 </td>
 <td style="text-align:left;">
-Human-readable name for the study area used. If <code>NA</code>, a hash of <code>studyAreaLarge</code> will be used.
+Human-readable name for the study area used. Must be one of the names in <code><a href="https://rdrr.io/pkg/LandWebUtils/man/LandWebStudyAreas.html">LandWebUtils::LandWebStudyAreas</a></code>.
 </td>
 </tr>
 <tr>
@@ -553,20 +554,36 @@ desc
 sourceURL
 </th>
 </tr></thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td style="text-align:left;">
-canProvs
-</td>
-<td style="text-align:left;">
-SpatialPolygonsDataFrame
-</td>
-<td style="text-align:left;">
-Canadian provincial boundaries shapefile
+NA
 </td>
 <td style="text-align:left;">
 NA
 </td>
-</tr></tbody>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+:———-
+</td>
+<td style="text-align:left;">
+:———–
+</td>
+<td style="text-align:left;">
+:—-
+</td>
+<td style="text-align:left;">
+:———
+</td>
+</tr>
+</tbody>
 </table></div>
 </div>
 <div id="output-data" class="section level3" number="3.3.2">
@@ -589,13 +606,35 @@ desc
 <tbody>
 <tr>
 <td style="text-align:left;">
+canProvs
+</td>
+<td style="text-align:left;">
+sf
+</td>
+<td style="text-align:left;">
+Canadian provincial boundaries (polygons)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+caribouRanges
+</td>
+<td style="text-align:left;">
+sf
+</td>
+<td style="text-align:left;">
+caribou range boundaries (polygons)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 CC TSF
 </td>
 <td style="text-align:left;">
-RasterLayer
+SpatRaster
 </td>
 <td style="text-align:left;">
-Time since fire (aka age) map derived from Current Conditions data.
+Time since fire (a.k.a. age) map derived from Current Conditions data.
 </td>
 </tr>
 <tr>
@@ -603,7 +642,7 @@ Time since fire (aka age) map derived from Current Conditions data.
 fireReturnInterval
 </td>
 <td style="text-align:left;">
-RasterLayer
+SpatRaster
 </td>
 <td style="text-align:left;">
 fire return interval raster
@@ -614,7 +653,7 @@ fire return interval raster
 LandTypeCC
 </td>
 <td style="text-align:left;">
-RasterLayer
+SpatRaster
 </td>
 <td style="text-align:left;">
 Land Cover Classification map derived from Current Conditions data.
@@ -625,10 +664,21 @@ Land Cover Classification map derived from Current Conditions data.
 LCC
 </td>
 <td style="text-align:left;">
-RasterLayer
+SpatRaster
 </td>
 <td style="text-align:left;">
-The result of <code><a href="https://landr.predictiveecology.org/reference/overlayLCCs.html">LandR::overlayLCCs()</a></code> on <code>LCC2005</code> and <code>LandTypeCC</code>.
+The result of <code><a href="https://landr.predictiveecology.org/reference/overlayLCCs.html">LandR::overlayLCCs()</a></code> on <code>LCC</code> and <code>LandTypeCC</code>.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LTHFC
+</td>
+<td style="text-align:left;">
+sf
+</td>
+<td style="text-align:left;">
+Long-Term Historic Fire Cycle polygons derived from Andison 2019.
 </td>
 </tr>
 <tr>
@@ -639,7 +689,7 @@ nonTreePixels
 integer
 </td>
 <td style="text-align:left;">
-NA
+vector of non-forest pixel ids
 </td>
 </tr>
 <tr>
@@ -647,7 +697,7 @@ NA
 rasterToMatch
 </td>
 <td style="text-align:left;">
-RasterLayer
+SpatRaster
 </td>
 <td style="text-align:left;">
 NA
@@ -658,7 +708,7 @@ NA
 rasterToMatchLarge
 </td>
 <td style="text-align:left;">
-RasterLayer
+SpatRaster
 </td>
 <td style="text-align:left;">
 NA
@@ -669,7 +719,7 @@ NA
 rasterToMatchReporting
 </td>
 <td style="text-align:left;">
-RasterLayer
+SpatRaster
 </td>
 <td style="text-align:left;">
 NA
@@ -691,7 +741,7 @@ A <code>data.table</code> with 3 columns: <code>age</code>, <code>leading</code>
 rstFlammable
 </td>
 <td style="text-align:left;">
-RasterLayer
+SpatRaster
 </td>
 <td style="text-align:left;">
 NA
@@ -746,7 +796,7 @@ table of species equivalencies. See <code><a href="https://landr.predictiveecolo
 studyArea
 </td>
 <td style="text-align:left;">
-SpatialPolygonsDataFrame
+sf
 </td>
 <td style="text-align:left;">
 Polygon to use as the simulation study area.
@@ -757,7 +807,7 @@ Polygon to use as the simulation study area.
 studyAreaLarge
 </td>
 <td style="text-align:left;">
-SpatialPolygonsDataFrame
+sf
 </td>
 <td style="text-align:left;">
 Polygon to use as the parametrisation study area. Note that <code>studyAreaLarge</code> is only used for parameter estimation, and can be larger than the actual study area used for LandR simulations (e.g, larger than <code>studyArea</code> in LandR <code>Biomass_core</code>).
@@ -768,7 +818,7 @@ Polygon to use as the parametrisation study area. Note that <code>studyAreaLarge
 studyAreaReporting
 </td>
 <td style="text-align:left;">
-SpatialPolygonsDataFrame
+sf
 </td>
 <td style="text-align:left;">
 multipolygon (typically smaller/unbuffered than <code>studyAreaLarge</code> and <code>studyArea</code> in LandR <code>Biomass_core</code>) to use for plotting/reporting.
@@ -782,9 +832,20 @@ multipolygon (typically smaller/unbuffered than <code>studyAreaLarge</code> and 
 <h2>
 <span class="header-section-number">3.4</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules"><i class="fas fa-link"></i></a>
 </h2>
-<p>Originally developed for use with the LandR Biomass suite of modules, with LandMine fire model.
-## References
-</p>
+<p>Initially developed for use with the <a href="https://github.com/PredictiveEcology/LandWeb">LandWeb</a> model.</p>
+</div>
+<div id="getting-help-1" class="section level2" number="3.5">
+<h2>
+<span class="header-section-number">3.5</span> Getting help<a class="anchor" aria-label="anchor" href="#getting-help-1"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li><a href="https://github.com/PredictiveEcology/LandWeb_preamble/issues" class="uri">https://github.com/PredictiveEcology/LandWeb_preamble/issues</a></li>
+</ul>
+</div>
+<div id="lwpre-refs" class="section level2" number="3.6">
+<h2>
+<span class="header-section-number">3.6</span> References<a class="anchor" aria-label="anchor" href="#lwpre-refs"><i class="fas fa-link"></i></a>
+</h2>
 
 </div>
 </div>
@@ -806,12 +867,14 @@ multipolygon (typically smaller/unbuffered than <code>studyAreaLarge</code> and 
 </ul>
 </li>
 <li><a class="nav-link" href="#links-to-other-modules"><span class="header-section-number">3.4</span> Links to other modules</a></li>
+<li><a class="nav-link" href="#getting-help-1"><span class="header-section-number">3.5</span> Getting help</a></li>
+<li><a class="nav-link" href="#lwpre-refs"><span class="header-section-number">3.6</span> References</a></li>
 </ul>
 
       <div class="book-extra">
         <ul class="list-unstyled">
-<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/../m/LandWeb_preamble/LandWeb_preamble2.Rmd">View source <i class="fab fa-github"></i></a></li>
-          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/../m/LandWeb_preamble/LandWeb_preamble2.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/../modules/LandWeb_preamble/LandWeb_preamble2.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/../modules/LandWeb_preamble/LandWeb_preamble2.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
         </ul>
 </div>
     </nav>
@@ -823,7 +886,7 @@ multipolygon (typically smaller/unbuffered than <code>studyAreaLarge</code> and 
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-13.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-22.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

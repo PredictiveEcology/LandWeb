@@ -322,14 +322,14 @@ Without a PAT, some packages may *temporarily* fail to install, but can be retri
 
 a.  Create a GitHub Personal Access Token (PAT):
 
-  i. either 'manually' following the instructions[^GH_PAT], making sure to check the `repo`, `workflow`, and `user:email` scopes;
+    i. either 'manually' following the instructions[^GH_PAT], making sure to check the `repo`, `workflow`, and `user:email` scopes;
 
-  ii. or directly from an R session:
+    ii. or directly from an R session:
 
-      ```r
-      # install.packages("usethis")
-      usethis::create_github_token()
-      ```
+        ```r
+        # install.packages("usethis")
+        usethis::create_github_token()
+        ```
 
 b.  Securely store this token using the credential store, from an R session:
 
@@ -343,7 +343,7 @@ b.  Securely store this token using the credential store, from an R session:
     ```
     
 :::{.rmdwarning}
-**Storing GitHub credentials in `.Renviron` is no longer recommended.**
+**Storing GitHub credentials in `.Renviron` is no longer recommended for Windows / macOS.**
 
 See <https://usethis.r-lib.org/articles/git-credentials.html>.
 :::

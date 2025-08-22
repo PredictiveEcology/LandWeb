@@ -28,6 +28,7 @@
     div.csl-bib-body { }
     div.csl-entry {
       clear: both;
+          margin-bottom: 0em;
         }
     .hanging div.csl-entry {
       margin-left:2em;
@@ -106,8 +107,8 @@
 
 
 
-<p><a href="ssh://git@github.com/PredictiveEcology/Biomass_speciesData"><img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_speciesData/figures/moduleVersionBadge.png" alt="module-version-Badge"></a></p>
-<p><a href="https://github.com/PredictiveEcology/Biomass_speciesData/issues"><img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_speciesData/figures/issuesBadge.png" alt="Issues-badge"></a></p>
+<p><a href="ssh://git@github.com/PredictiveEcology/Biomass_speciesDatad9b0f993a0035037e305707aa8059a45afc2a766"><img src="/home/achubaty/Documents/GitHub/LandWeb/modules/Biomass_speciesData/figures/moduleVersionBadge.png" alt="module-version-Badge"></a></p>
+<p><a href="https://github.com/PredictiveEcology/Biomass_speciesData/issues"><img src="/home/achubaty/Documents/GitHub/LandWeb/modules/Biomass_speciesData/figures/issuesBadge.png" alt="Issues-badge"></a></p>
 <div id="authors-1" class="section level4" number="4.0.0.1">
 <h4>
 <span class="header-section-number">4.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-1"><i class="fas fa-link"></i></a>
@@ -1353,8 +1354,8 @@ function to activate plotting.</p>
 the simulation) we are not iterating it and so both the start and end times are
 set to <code>1</code> here.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">opts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>reproducible.useCache <span class="op">=</span> <span class="cn">TRUE</span>, reproducible.destinationPath <span class="op">=</span> <span class="va">paths</span><span class="op">$</span><span class="va">inputPath</span>,</span>
-<span>    <span class="va">reproducible.useCache</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">opts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>reproducible.destinationPath <span class="op">=</span> <span class="va">paths</span><span class="op">$</span><span class="va">inputPath</span>,</span>
+<span>    reproducible.useCache <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mySimOut</span> <span class="op">&lt;-</span> <span class="fu">simInitAndSpades</span><span class="op">(</span>times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>start <span class="op">=</span> <span class="fl">1</span>, end <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>    modules <span class="op">=</span> <span class="va">modules</span>, parameters <span class="op">=</span> <span class="va">params</span>, objects <span class="op">=</span> <span class="va">objects</span>,</span>
@@ -1364,7 +1365,7 @@ set to <code>1</code> here.</p>
 randomly generated study area within Canada.</p>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:fig-Biomass-speciesDataOutPlots"></span>
-<img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_speciesData/figures/testRunFigure.png" alt="Biomass_speciesData automatically generates a plot of species dominance and number of presences in the study area when `.plotInitialTime=1` is passed as an argument." width="70%"><p class="caption">
+<img src="/home/achubaty/Documents/GitHub/LandWeb/modules/Biomass_speciesData/figures/testRunFigure.png" alt="Biomass_speciesData automatically generates a plot of species dominance and number of presences in the study area when `.plotInitialTime=1` is passed as an argument." width="70%"><p class="caption">
 Figure 4.1: <em>Biomass_speciesData</em> automatically generates a plot of species dominance and number of presences in the study area when <code>.plotInitialTime=1</code> is passed as an argument.
 </p>
 </div>
@@ -1381,8 +1382,8 @@ Figure 4.1: <em>Biomass_speciesData</em> automatically generates a plot of speci
 <hr>
 <ol start="4">
 <li id="fn4"><p>Raw data layers downloaded by the module are saved in
-`dataPath(sim)`, which can be controlled via
-`options(reproducible.destinationPath = …)`.<a href="landr-biomass_speciesdata-module.html#fnref4" class="footnote-back">↩︎</a></p></li>
+<code>dataPath(sim)</code>, which can be controlled via
+<code>options(reproducible.destinationPath = ...)</code>.<a href="landr-biomass_speciesdata-module.html#fnref4" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   <div class="chapter-nav">
@@ -1422,8 +1423,8 @@ Figure 4.1: <em>Biomass_speciesData</em> automatically generates a plot of speci
 
       <div class="book-extra">
         <ul class="list-unstyled">
-<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/../m/Biomass_speciesData/Biomass_speciesData2.Rmd">View source <i class="fab fa-github"></i></a></li>
-          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/../m/Biomass_speciesData/Biomass_speciesData2.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/../modules/Biomass_speciesData/Biomass_speciesData2.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/../modules/Biomass_speciesData/Biomass_speciesData2.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
         </ul>
 </div>
     </nav>
@@ -1435,7 +1436,7 @@ Figure 4.1: <em>Biomass_speciesData</em> automatically generates a plot of speci
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-13.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-22.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

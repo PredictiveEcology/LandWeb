@@ -221,14 +221,14 @@
     },
     "LandR": {
       "Package": "LandR",
-      "Version": "1.1.5.9053",
+      "Version": "1.1.5.9054",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandR",
       "RemoteRef": "development",
-      "RemoteSha": "437ffac284cc18c8bcaeaa450cce8604b1f9667c",
+      "RemoteSha": "c7113463c07250fa32455f7a2da21c86f53794d2",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "Formula",
         "MuMIn",
@@ -259,7 +259,7 @@
         "utils",
         "viridis"
       ],
-      "Hash": "4a864af30d8f94f47ae0b698a73a4f0d"
+      "Hash": "2325b23dc641df17ab0139d3b5cbab56"
     },
     "LandR.CS": {
       "Package": "LandR.CS",
@@ -285,14 +285,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3.9000",
+      "Version": "1.0.3.9001",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "63d2858251986e0fa0e4a1a135e592b3dc09eda0",
+      "RemoteSha": "ea01de755f42dcb87e8e60f7e5218bec0d7e2a3d",
       "Requirements": [
         "LandR",
         "R",
@@ -308,17 +308,17 @@
         "methods",
         "pemisc",
         "purrr",
-        "raster",
         "rasterVis",
         "reproducible",
         "scales",
         "sf",
-        "sp",
         "stats",
+        "terra",
+        "tibble",
         "tools",
         "utils"
       ],
-      "Hash": "2ba8e9a03a737b3e85403665c3b7884d"
+      "Hash": "a55cd9522b058ceaf6136abb7a456d50"
     },
     "MASS": {
       "Package": "MASS",
@@ -799,11 +799,11 @@
       "Version": "2.0.7.9001",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.tools",
       "RemoteRef": "development",
       "RemoteSha": "b61267789da14bc2da302b4e297636810eb0c175",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
         "Rcpp",
@@ -948,11 +948,11 @@
       "Version": "1.0.3",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "achubaty",
       "RemoteRepo": "amc",
       "RemoteRef": "development",
       "RemoteSha": "09a6f01363335d991d8139dffaac029881133f5d",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
         "base64enc",
@@ -3740,11 +3740,11 @@
       "Version": "0.0.4.9014",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "pemisc",
       "RemoteRef": "development",
       "RemoteSha": "83bbf002ad6ef20a75eef515190e8ea4166ccd5b",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
         "RCurl",

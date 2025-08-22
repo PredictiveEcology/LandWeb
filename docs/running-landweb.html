@@ -28,6 +28,7 @@
     div.csl-bib-body { }
     div.csl-entry {
       clear: both;
+          margin-bottom: 0em;
         }
     .hanging div.csl-entry {
       margin-left:2em;
@@ -114,9 +115,7 @@
 <div class="rmdwarning">
 <p>Before you can run the model, ensure that all necessary package versions are installed by restoring from the project’s snapshot file.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span></span>
-<span>  renv.config.pak.enabled <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>renv.config.pak.enabled <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html">restore</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div id="model-setup-and-configuration" class="section level2" number="2.1">
@@ -645,7 +644,10 @@ To select one of these predefined study areas, set <code>.studyAreaName</code> t
 </caption>
 <thead><tr>
 <th style="text-align:left;">
-studyAreaName
+Name
+</th>
+<th style="text-align:left;">
+Province
 </th>
 <th style="text-align:left;">
 ID
@@ -657,7 +659,24 @@ Description
 <tbody>
 <tr>
 <td style="text-align:left;">
+AlPac
+</td>
+<td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
+38
+</td>
+<td style="text-align:left;">
+ALPAC Forest Products Incorporated
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 ANC
+</td>
+<td style="text-align:left;">
+AB
 </td>
 <td style="text-align:left;">
 39
@@ -668,7 +687,10 @@ ANC Timber Ltd. 
 </tr>
 <tr>
 <td style="text-align:left;">
-Blueridge
+BlueRidge
+</td>
+<td style="text-align:left;">
+AB
 </td>
 <td style="text-align:left;">
 40
@@ -682,6 +704,9 @@ Blueridge Lumber Inc. 
 DMI
 </td>
 <td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
 42, 43
 </td>
 <td style="text-align:left;">
@@ -691,6 +716,9 @@ Mercer Peace River Pulp Ltd. (formerly DMI)
 <tr>
 <td style="text-align:left;">
 Edson
+</td>
+<td style="text-align:left;">
+AB
 </td>
 <td style="text-align:left;">
 53
@@ -704,6 +732,9 @@ West Fraser Mills Ltd. (Edson)
 FMANWT
 </td>
 <td style="text-align:left;">
+NWT
+</td>
+<td style="text-align:left;">
 59
 </td>
 <td style="text-align:left;">
@@ -713,6 +744,9 @@ Fort Resolution
 <tr>
 <td style="text-align:left;">
 FMANWT2
+</td>
+<td style="text-align:left;">
+NWT
 </td>
 <td style="text-align:left;">
 58
@@ -726,6 +760,9 @@ Fort Providence
 LP_BC
 </td>
 <td style="text-align:left;">
+BC
+</td>
+<td style="text-align:left;">
 5, 6
 </td>
 <td style="text-align:left;">
@@ -735,6 +772,9 @@ Lousiana Pacific (British Columbia)
 <tr>
 <td style="text-align:left;">
 LP_MB
+</td>
+<td style="text-align:left;">
+MB
 </td>
 <td style="text-align:left;">
 32
@@ -748,6 +788,9 @@ Lousiana Pacific (Manitoba)
 Manning
 </td>
 <td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
 45
 </td>
 <td style="text-align:left;">
@@ -757,6 +800,9 @@ Manning Diversified Forest Products Ltd. 
 <tr>
 <td style="text-align:left;">
 MillarWestern
+</td>
+<td style="text-align:left;">
+AB
 </td>
 <td style="text-align:left;">
 46
@@ -770,6 +816,9 @@ Millar Western Forest Products Ltd. 
 Mistik
 </td>
 <td style="text-align:left;">
+SK
+</td>
+<td style="text-align:left;">
 15
 </td>
 <td style="text-align:left;">
@@ -781,6 +830,9 @@ Mistik
 MPR
 </td>
 <td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
 42, 43
 </td>
 <td style="text-align:left;">
@@ -789,7 +841,24 @@ Mercer Peace River Pulp Ltd. (formerly DMI)
 </tr>
 <tr>
 <td style="text-align:left;">
+SprayLake
+</td>
+<td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
+47
+</td>
+<td style="text-align:left;">
+Spray Lake Sawmills (1980) Ltd. 
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 Sundre
+</td>
+<td style="text-align:left;">
+AB
 </td>
 <td style="text-align:left;">
 48
@@ -803,6 +872,9 @@ Sundre Forest Products Inc. 
 Tolko_AB_N
 </td>
 <td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
 50
 </td>
 <td style="text-align:left;">
@@ -812,6 +884,9 @@ Tolko Industries Ltd. (Alberta North)
 <tr>
 <td style="text-align:left;">
 Tolko_AB_S
+</td>
+<td style="text-align:left;">
+AB
 </td>
 <td style="text-align:left;">
 44, 49, 51
@@ -825,6 +900,9 @@ Tolko Industries Ltd. (Alberta South)
 Tolko_SK
 </td>
 <td style="text-align:left;">
+SK
+</td>
+<td style="text-align:left;">
 22
 </td>
 <td style="text-align:left;">
@@ -834,6 +912,9 @@ Tolko (Saskatchewan)
 <tr>
 <td style="text-align:left;">
 Vanderwell
+</td>
+<td style="text-align:left;">
+AB
 </td>
 <td style="text-align:left;">
 51, 52
@@ -847,6 +928,9 @@ Vanderwell Contractors (1971) Ltd. 
 WestFraser_N
 </td>
 <td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
 44, 51, 55
 </td>
 <td style="text-align:left;">
@@ -856,6 +940,9 @@ West Fraser Mills Ltd. (Slave Lake)
 <tr>
 <td style="text-align:left;">
 WestFraser_S
+</td>
+<td style="text-align:left;">
+AB
 </td>
 <td style="text-align:left;">
 53, 54
@@ -869,6 +956,9 @@ West Fraser Mills Ltd. (Edson + Hinton)
 WeyCo_GP
 </td>
 <td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
 56
 </td>
 <td style="text-align:left;">
@@ -878,6 +968,9 @@ Weyerhauser Company Ltd. (Grand Prairie)
 <tr>
 <td style="text-align:left;">
 WeyCo_PT
+</td>
+<td style="text-align:left;">
+AB
 </td>
 <td style="text-align:left;">
 57
@@ -891,10 +984,125 @@ Weyerhauser Company Ltd. (Pembina Timberland)
 WeyCo_SK
 </td>
 <td style="text-align:left;">
+SK
+</td>
+<td style="text-align:left;">
 21
 </td>
 <td style="text-align:left;">
 Weyerhauser Company Ltd. (Pasquia-Porcupine)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FMU
+</td>
+<td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Alberta Forest Management Units
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NWAB
+</td>
+<td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
+42, 43, 45, 50
+</td>
+<td style="text-align:left;">
+Northwestern Alberta
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LandWeb
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+full LandWeb study area
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+provAB
+</td>
+<td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
+38–57
+</td>
+<td style="text-align:left;">
+Alberta
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+provMB
+</td>
+<td style="text-align:left;">
+MB
+</td>
+<td style="text-align:left;">
+31, 32, 33
+</td>
+<td style="text-align:left;">
+Manitoba
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+provNWT
+</td>
+<td style="text-align:left;">
+NWT
+</td>
+<td style="text-align:left;">
+58, 59
+</td>
+<td style="text-align:left;">
+Northwest Territories
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+provSK
+</td>
+<td style="text-align:left;">
+SK
+</td>
+<td style="text-align:left;">
+7–30
+</td>
+<td style="text-align:left;">
+Saskatchewan
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+random
+</td>
+<td style="text-align:left;">
+AB
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Small random study area used for testing
 </td>
 </tr>
 </tbody>
@@ -1155,7 +1363,7 @@ Likewise, users can configure a scratch path for temporary raster file operation
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-13.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-22.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

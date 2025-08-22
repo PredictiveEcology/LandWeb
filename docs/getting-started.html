@@ -28,6 +28,7 @@
     div.csl-bib-body { }
     div.csl-entry {
       clear: both;
+          margin-bottom: 0em;
         }
     .hanging div.csl-entry {
       margin-left:2em;
@@ -378,10 +379,10 @@ For all other choices, use the recommended settings.</p>
 Because we will be installing several of these, we want to ensure we can do so without GitHub rate-limiting our requests.
 Without a PAT, some packages may <em>temporarily</em> fail to install, but can be retried a little later (usually 1 hour).</p>
 <ol style="list-style-type: lower-alpha">
-<li><p>Create a GitHub Personal Access Token (PAT):</p></li>
+<li>
+<p>Create a GitHub Personal Access Token (PAT):</p>
+<ol style="list-style-type: lower-roman">
 <li><p>either ‘manually’ following the instructions<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>, making sure to check the <code>repo</code>, <code>workflow</code>, and <code>user:email</code> scopes;</p></li>
-</ol>
-<ol start="2" style="list-style-type: lower-roman">
 <li>
 <p>or directly from an R session:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
@@ -389,7 +390,7 @@ Without a PAT, some packages may <em>temporarily</em> fail to install, but can b
 <span><span class="fu">usethis</span><span class="fu">::</span><span class="fu"><a href="https://usethis.r-lib.org/reference/github-token.html">create_github_token</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </li>
 </ol>
-<ol start="2" style="list-style-type: lower-alpha">
+</li>
 <li>
 <p>Securely store this token using the credential store, from an R session:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="getting-started.html#cb20-1" tabindex="-1"></a><span class="sc">&gt;</span> gitcreds<span class="sc">::</span><span class="fu">gitcreds_set</span>()</span>
@@ -401,7 +402,7 @@ Without a PAT, some packages may <em>temporarily</em> fail to install, but can b
 </li>
 </ol>
 <div class="rmdwarning">
-<p><strong>Storing GitHub credentials in <code>.Renviron</code> is no longer recommended.</strong></p>
+<p><strong>Storing GitHub credentials in <code>.Renviron</code> is no longer recommended for Windows / macOS.</strong></p>
 <p>See <a href="https://usethis.r-lib.org/articles/git-credentials.html" class="uri">https://usethis.r-lib.org/articles/git-credentials.html</a>.</p>
 </div>
 <ol start="3" style="list-style-type: decimal">
@@ -513,7 +514,7 @@ all model data inputs stored here
 </tr>
 <tr>
 <td style="text-align:left;">
-m/
+manual/
 </td>
 <td style="text-align:left;">
 module code (git submodules)
@@ -521,7 +522,7 @@ module code (git submodules)
 </tr>
 <tr>
 <td style="text-align:left;">
-manual/
+modules/
 </td>
 <td style="text-align:left;">
 raw files for generating documentation manual
@@ -649,7 +650,7 @@ During first-run of the model, all required data will be downloaded to the <code
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-13.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-22.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

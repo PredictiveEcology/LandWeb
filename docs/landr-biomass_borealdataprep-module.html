@@ -28,6 +28,7 @@
     div.csl-bib-body { }
     div.csl-entry {
       clear: both;
+          margin-bottom: 0em;
         }
     .hanging div.csl-entry {
       margin-left:2em;
@@ -101,8 +102,8 @@
 </h1>
 <!-- the following are text references used in captions for LaTeX compatibility -->
 
-<p><a href="ssh://git@github.com/PredictiveEcology/Biomass_borealDataPrep"><img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_borealDataPrep/figures/moduleVersionBadge.png" alt="module-version-Badge"></a></p>
-<p><a href="https://github.com/PredictiveEcology/Biomass_borealDataPrep/issues"><img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_borealDataPrep/figures/issuesBadge.png" alt="Issues-badge"></a></p>
+<p><a href="ssh://git@github.com/PredictiveEcology/Biomass_borealDataPrepb26147481a3eba7756fbffef4d47efe349180f6f"><img src="/home/achubaty/Documents/GitHub/LandWeb/modules/Biomass_borealDataPrep/figures/moduleVersionBadge.png" alt="module-version-Badge"></a></p>
+<p><a href="https://github.com/PredictiveEcology/Biomass_borealDataPrep/issues"><img src="/home/achubaty/Documents/GitHub/LandWeb/modules/Biomass_borealDataPrep/figures/issuesBadge.png" alt="Issues-badge"></a></p>
 <!-- if knitting to pdf remember to add the pandoc_args: ["--extract-media", "."] option to yml in order to get the badge images -->
 <div id="authors-2" class="section level4" number="5.0.0.1">
 <h4>
@@ -514,13 +515,13 @@ because it will wrongly assume an <em>exponential</em> relationship between
 during the first years of the simulation (Fig. <a href="landr-biomass_borealdataprep-module.html#fig:fig-simBLogBtest">5.2</a>).</p>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:fig-biomassModelLogBtest"></span>
-<img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_borealDataPrep/figures/biomassModel_logBtest.png" alt="Modelling biomass as a linear vs. exponential relationship. a) `modelBiomass` as `B ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)`. b) `modelBiomass` as `logB ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)`. Blue dots are marginal mean B values (back-transformed in b) cross ages with confidence intervals as the bars." width="70%"><p class="caption">
+<img src="/home/achubaty/Documents/GitHub/LandWeb/modules/Biomass_borealDataPrep/figures/biomassModel_logBtest.png" alt="Modelling biomass as a linear vs. exponential relationship. a) `modelBiomass` as `B ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)`. b) `modelBiomass` as `logB ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)`. Blue dots are marginal mean B values (back-transformed in b) cross ages with confidence intervals as the bars." width="70%"><p class="caption">
 Figure 5.1: Modelling biomass as a linear vs. exponential relationship. a) <code>modelBiomass</code> as <code>B ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)</code>. b) <code>modelBiomass</code> as <code>logB ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)</code>. Blue dots are marginal mean B values (back-transformed in b) cross ages with confidence intervals as the bars.
 </p>
 </div>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:fig-simBLogBtest"></span>
-<img src="/home/achubaty/Documents/GitHub/LandWeb/m/Biomass_borealDataPrep/figures/simulatedB_logBtest.png" alt="Thirty years of simulation with `maxB` values estimated from a `logB ~ ...` `biomassModel` (see Fig. \@ref(fig:fig-biomassModelLogBtest)). The steep increase in such little time is abnormal." width="70%"><p class="caption">
+<img src="/home/achubaty/Documents/GitHub/LandWeb/modules/Biomass_borealDataPrep/figures/simulatedB_logBtest.png" alt="Thirty years of simulation with `maxB` values estimated from a `logB ~ ...` `biomassModel` (see Fig. \@ref(fig:fig-biomassModelLogBtest)). The steep increase in such little time is abnormal." width="70%"><p class="caption">
 Figure 5.2: Thirty years of simulation with <code>maxB</code> values estimated from a <code>logB ~ ...</code> <code>biomassModel</code> (see Fig. <a href="landr-biomass_borealdataprep-module.html#fig:fig-biomassModelLogBtest">5.1</a>). The steep increase in such little time is abnormal.
 </p>
 </div>
@@ -2294,8 +2295,8 @@ repository</a> and in
 <hr>
 <ol start="5">
 <li id="fn5"><p>Raw data layers downloaded by the module are saved
-in `dataPath(sim)`, which can be controlled via
-`options(reproducible.destinationPath = …)`.<a href="landr-biomass_borealdataprep-module.html#fnref5" class="footnote-back">↩︎</a></p></li>
+in <code>dataPath(sim)</code>, which can be controlled via
+<code>options(reproducible.destinationPath = ...)</code>.<a href="landr-biomass_borealdataprep-module.html#fnref5" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   <div class="chapter-nav">
@@ -2330,8 +2331,8 @@ in `dataPath(sim)`, which can be controlled via
 
       <div class="book-extra">
         <ul class="list-unstyled">
-<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/../m/Biomass_borealDataPrep/Biomass_borealDataPrep2.Rmd">View source <i class="fab fa-github"></i></a></li>
-          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/../m/Biomass_borealDataPrep/Biomass_borealDataPrep2.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/../modules/Biomass_borealDataPrep/Biomass_borealDataPrep2.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/../modules/Biomass_borealDataPrep/Biomass_borealDataPrep2.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
         </ul>
 </div>
     </nav>
@@ -2343,7 +2344,7 @@ in `dataPath(sim)`, which can be controlled via
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-13.</p>
+    <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-22.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

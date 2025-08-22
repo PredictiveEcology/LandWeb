@@ -19,9 +19,7 @@ rig rstudio renv.lock
 Before you can run the model, ensure that all necessary package versions are installed by restoring from the project's snapshot file.
 
 ```r
-options(
-  renv.config.pak.enabled = FALSE
-)
+options(renv.config.pak.enabled = FALSE)
 renv::restore()
 ```
 :::
