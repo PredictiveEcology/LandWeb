@@ -1,50 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <title>Chapter 11 burnSummaries Module | LandWeb Manual</title>
-
-    <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison" />
-  
-   <meta name="description" content="User manual for the LandWeb simulation model." />
-   <meta name="generator" content="placeholder" />
-  <meta property="og:title" content="Chapter 11 burnSummaries Module | LandWeb Manual" />
-  <meta property="og:type" content="book" />
-  <meta property="og:url" content="https://predictiveecology.github.io/LandWeb" />
-  
-  <meta property="og:description" content="User manual for the LandWeb simulation model." />
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 11 burnSummaries Module | LandWeb Manual" />
-  
-  <meta name="twitter:description" content="User manual for the LandWeb simulation model." />
-  
-  <!-- JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script>
-  <script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script>
-    <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet" />
-    <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script>
-    <script src="libs/bs3compat-0.9.0/transition.js"></script>
-    <script src="libs/bs3compat-0.9.0/tabs.js"></script>
-    <script src="libs/bs3compat-0.9.0/bs3compat.js"></script>
-    <link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet" />
-    <script src="libs/bs4_book-1.0.0/bs4_book.js"></script>
-    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
-    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script>
-
-  <!-- CSS -->
-  <style type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 11 burnSummaries Module | LandWeb Manual</title>
+<meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
+<meta name="description" content="11.0.0.1 Authors: Alex M Chubaty achubaty@for-cast.ca [aut, cre] (ORCID: https://orcid.org/0000-0001-7146-8135)  This documentation is work in progress. Please report any discrepancies or...">
+<meta name="generator" content="bookdown 0.43 with bs4_book()">
+<meta property="og:title" content="Chapter 11 burnSummaries Module | LandWeb Manual">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://predictiveecology.github.io/LandWeb/burnsummaries-module.html">
+<meta property="og:description" content="11.0.0.1 Authors: Alex M Chubaty achubaty@for-cast.ca [aut, cre] (ORCID: https://orcid.org/0000-0001-7146-8135)  This documentation is work in progress. Please report any discrepancies or...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 11 burnSummaries Module | LandWeb Manual">
+<meta name="twitter:description" content="11.0.0.1 Authors: Alex M Chubaty achubaty@for-cast.ca [aut, cre] (ORCID: https://orcid.org/0000-0001-7146-8135)  This documentation is work in progress. Please report any discrepancies or...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.9.0/transition.js"></script><script src="libs/bs3compat-0.9.0/tabs.js"></script><script src="libs/bs3compat-0.9.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
-    <style type="text/css">
+<style type="text/css">
     /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
     div.csl-bib-body { }
     div.csl-entry {
@@ -67,16 +46,13 @@
       margin-left: 2em;
     }
   </style>
-      <link rel="stylesheet" href="css/style.css" />
-  
+<link rel="stylesheet" href="css/style.css">
 </head>
-
 <body data-spy="scroll" data-target="#toc">
 
 <div class="container-fluid">
 <div class="row">
-  <header class="col-sm-12 col-lg-3 sidebar sidebar-book">
-    <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
 
     <div class="d-flex align-items-start justify-content-between">
       <h1>
@@ -89,28 +65,51 @@
     <div id="main-nav" class="collapse-lg">
       <form role="search">
         <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
-      </form>
+</form>
 
-      <nav aria-label="Table of contents">
-        <h2>Table of contents</h2>
-        <div id="book-toc"></div>
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Overview</a></li>
+<li><a class="" href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></li>
+<li><a class="" href="running-landweb.html"><span class="header-section-number">2</span> Running LandWeb</a></li>
+<li><a class="" href="study-areas.html">Study areas</a></li>
+<li><a class="" href="landweb_preamble-module.html"><span class="header-section-number">3</span> LandWeb_preamble Module</a></li>
+<li><a class="" href="vegetation-submodel.html">Vegetation submodel</a></li>
+<li><a class="" href="biomass_speciesfactorial-module.html"><span class="header-section-number">4</span> Biomass_speciesFactorial Module</a></li>
+<li><a class="" href="landr-biomass_speciesparameters-module.html"><span class="header-section-number">5</span> LandR Biomass_speciesParameters Module</a></li>
+<li><a class="" href="landr-biomass_speciesdata-module.html"><span class="header-section-number">6</span> LandR Biomass_speciesData Module</a></li>
+<li><a class="" href="landr-biomass_borealdataprep-module.html"><span class="header-section-number">7</span> LandR Biomass_borealDataPrep Module</a></li>
+<li><a class="" href="landr-biomass_core-module.html"><span class="header-section-number">8</span> LandR Biomass_core Module</a></li>
+<li><a class="" href="landr-biomass_regeneration-module.html"><span class="header-section-number">9</span> LandR Biomass_regeneration Module</a></li>
+<li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
+<li><a class="" href="landmine-module.html"><span class="header-section-number">10</span> LandMine Module</a></li>
+<li><a class="" href="model-outputs.html">Model outputs</a></li>
+<li><a class="active" href="burnsummaries-module.html"><span class="header-section-number">11</span> burnSummaries Module</a></li>
+<li><a class="" href="landweb_output-module.html"><span class="header-section-number">12</span> LandWeb_output Module</a></li>
+<li><a class="" href="timesincefire-module.html"><span class="header-section-number">13</span> timeSinceFire Module</a></li>
+<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">14</span> LandWeb_summary Module</a></li>
+<li><a class="" href="web-app.html">Web app</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">15</span> Modifying LandWeb</a></li>
+<li><a class="" href="references-2.html">References</a></li>
+</ul>
 
         <div class="book-extra">
-          <p><a id="book-repo" href="#">View book source <i class="fab fa-github"></i></a></li></p>
+          <p><a id="book-repo" href="https://github.com/PredictiveEcology/LandWeb">View book source <i class="fab fa-github"></i></a></p>
         </div>
       </nav>
-    </div>
-  </header>
-
-  <main class="col-sm-12 col-md-9 col-lg-7" id="content">
-<div id="burnsummaries-module" class="section level1" number="11">
-<h1><span class="header-section-number">Chapter 11</span> burnSummaries Module</h1>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="burnsummaries-module" class="section level1" number="11">
+<h1>
+<span class="header-section-number">11</span> burnSummaries Module<a class="anchor" aria-label="anchor" href="#burnsummaries-module"><i class="fas fa-link"></i></a>
+</h1>
 <!-- the following are text references used in captions for LaTeX compatibility -->
 
-<p><a href="ssh://git@github.com/PredictiveEcology/burnSummariesbb05333719ca529b709e61744531e32ba3130680"><img src="/home/achubaty/Documents/GitHub/LandWeb/modules/burnSummaries/figures/moduleVersionBadge.png" alt="module-version-Badge" /></a></p>
-<p><a href="https://github.com/PredictiveEcology/burnSummaries/issues"><img src="/home/achubaty/Documents/GitHub/LandWeb/modules/burnSummaries/figures/issuesBadge.png" alt="Issues-badge" /></a></p>
+<p><a href="ssh://git@github.com/PredictiveEcology/burnSummariesbb05333719ca529b709e61744531e32ba3130680"><img src="/home/achubaty/Documents/GitHub/LandWeb/modules/burnSummaries/figures/moduleVersionBadge.png" alt="module-version-Badge"></a></p>
+<p><a href="https://github.com/PredictiveEcology/burnSummaries/issues"><img src="/home/achubaty/Documents/GitHub/LandWeb/modules/burnSummaries/figures/issuesBadge.png" alt="Issues-badge"></a></p>
 <div id="authors-8" class="section level4" number="11.0.0.1">
-<h4><span class="header-section-number">11.0.0.1</span> Authors:</h4>
+<h4>
+<span class="header-section-number">11.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-8"><i class="fas fa-link"></i></a>
+</h4>
 <p>Alex M Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [aut, cre] (ORCID: <a href="https://orcid.org/0000-0001-7146-8135" class="uri">https://orcid.org/0000-0001-7146-8135</a>)
 <!-- ideally separate authors with new lines, '\n' not working --></p>
 <div class="rmdwarning">
@@ -119,25 +118,31 @@ Please report any discrepancies or omissions at <a href="https://github.com/Pred
 </div>
 </div>
 <div id="module-overview-8" class="section level2" number="11.1">
-<h2><span class="header-section-number">11.1</span> Module Overview</h2>
+<h2>
+<span class="header-section-number">11.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview-8"><i class="fas fa-link"></i></a>
+</h2>
 <div id="module-summary-5" class="section level3" number="11.1.1">
-<h3><span class="header-section-number">11.1.1</span> Module summary</h3>
+<h3>
+<span class="header-section-number">11.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary-5"><i class="fas fa-link"></i></a>
+</h3>
 <p>(TODO)</p>
 <ul>
 <li>LandMine <span class="citation">(<a href="references-2.html#ref-Andison:1996">Andison 1996</a>)</span> - based on <span class="citation">(<a href="references-2.html#ref-Clarke:1994">Clarke <em>et al.</em> 1994</a>)</span>;</li>
 <li>scfm <span class="citation">(<a href="references-2.html#ref-Cumming:1998">Cumming <em>et al.</em> 1998</a>; <a href="references-2.html#ref-Armstrong:2003">Armstrong &amp; Cumming 2003</a>)</span>;</li>
-<li>fireSense <span class="citation">(<a href="references-2.html#ref-Marchal:2017a">Marchal <em>et al.</em> 2017b</a>, <a href="references-2.html#ref-Marchal:2017b">a</a>; <a href="references-2.html#ref-Marchal:2019">2019</a>)</span></li>
+<li>fireSense <span class="citation">(<a href="references-2.html#ref-Marchal:2017a">Marchal <em>et al.</em> 2017b</a>, <a href="references-2.html#ref-Marchal:2017b">a</a>; <a href="references-2.html#ref-Marchal:2019">2019</a>)</span>
+</li>
 </ul>
 </div>
 <div id="module-inputs-and-parameters-3" class="section level3" number="11.1.2">
-<h3><span class="header-section-number">11.1.2</span> Module inputs and parameters</h3>
+<h3>
+<span class="header-section-number">11.1.2</span> Module inputs and parameters<a class="anchor" aria-label="anchor" href="#module-inputs-and-parameters-3"><i class="fas fa-link"></i></a>
+</h3>
 <p>Table <a href="burnsummaries-module.html#tab:moduleInputs-burnSummaries">11.1</a> shows the full list of module inputs.</p>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleInputs-burnSummaries">Table 11.1: </span><span id="tab:moduleInputs-burnSummaries">Table 11.2: </span>List of <em>burnSummaries</em> input objects and their description.
 </caption>
-<thead>
-<tr>
+<thead><tr>
 <th style="text-align:left;">
 objectName
 </th>
@@ -150,8 +155,7 @@ desc
 <th style="text-align:left;">
 sourceURL
 </th>
-</tr>
-</thead>
+</tr></thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
@@ -182,14 +186,13 @@ NA
 </td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Provide a summary of user-visible parameters (Table <a href="burnsummaries-module.html#tab:moduleParams-burnSummaries">11.3</a>)</p>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleParams-burnSummaries">Table 11.3: </span><span id="tab:moduleParams-burnSummaries">Table 11.4: </span>List of <em>burnSummaries</em> parameters and their description.
 </caption>
-<thead>
-<tr>
+<thead><tr>
 <th style="text-align:left;">
 paramName
 </th>
@@ -208,8 +211,7 @@ max
 <th style="text-align:left;">
 paramDesc
 </th>
-</tr>
-</thead>
+</tr></thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
@@ -408,7 +410,7 @@ NA
 NA
 </td>
 <td style="text-align:left;">
-Human-readable name for the study area used - e.g., a hash of the studyarea obtained using <code>reproducible::studyAreaName()</code>
+Human-readable name for the study area used - e.g., a hash of the studyarea obtained using <code><a href="https://reproducible.predictiveecology.org/reference/studyAreaName.html">reproducible::studyAreaName()</a></code>
 </td>
 </tr>
 <tr>
@@ -451,29 +453,36 @@ Should caching of events or module be used?
 </td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </div>
 <div id="events-1" class="section level3" number="11.1.3">
-<h3><span class="header-section-number">11.1.3</span> Events</h3>
+<h3>
+<span class="header-section-number">11.1.3</span> Events<a class="anchor" aria-label="anchor" href="#events-1"><i class="fas fa-link"></i></a>
+</h3>
 <p>Describe what happens for each event type.</p>
 </div>
 <div id="plotting-1" class="section level3" number="11.1.4">
-<h3><span class="header-section-number">11.1.4</span> Plotting</h3>
+<h3>
+<span class="header-section-number">11.1.4</span> Plotting<a class="anchor" aria-label="anchor" href="#plotting-1"><i class="fas fa-link"></i></a>
+</h3>
 <p>Write what is plotted.</p>
 </div>
 <div id="saving-1" class="section level3" number="11.1.5">
-<h3><span class="header-section-number">11.1.5</span> Saving</h3>
+<h3>
+<span class="header-section-number">11.1.5</span> Saving<a class="anchor" aria-label="anchor" href="#saving-1"><i class="fas fa-link"></i></a>
+</h3>
 <p>Write what is saved.</p>
 </div>
 <div id="module-outputs-3" class="section level3" number="11.1.6">
-<h3><span class="header-section-number">11.1.6</span> Module outputs</h3>
+<h3>
+<span class="header-section-number">11.1.6</span> Module outputs<a class="anchor" aria-label="anchor" href="#module-outputs-3"><i class="fas fa-link"></i></a>
+</h3>
 <p>Description of the module outputs (Table <a href="burnsummaries-module.html#tab:moduleOutputs-burnSummaries">11.5</a>).</p>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleOutputs-burnSummaries">Table 11.5: </span><span id="tab:moduleOutputs-burnSummaries">Table 11.6: </span>List of <em>burnSummaries</em> outputs and their description.
 </caption>
-<thead>
-<tr>
+<thead><tr>
 <th style="text-align:left;">
 objectName
 </th>
@@ -483,10 +492,8 @@ objectClass
 <th style="text-align:left;">
 desc
 </th>
-</tr>
-</thead>
-<tbody>
-<tr>
+</tr></thead>
+<tbody><tr>
 <td style="text-align:left;">
 fireSizes
 </td>
@@ -496,48 +503,67 @@ data.table
 <td style="text-align:left;">
 summary fire sizes table
 </td>
-</tr>
-</tbody>
-</table>
+</tr></tbody>
+</table></div>
 </div>
 <div id="links-to-other-modules-4" class="section level3" number="11.1.7">
-<h3><span class="header-section-number">11.1.7</span> Links to other modules</h3>
+<h3>
+<span class="header-section-number">11.1.7</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules-4"><i class="fas fa-link"></i></a>
+</h3>
 <p>Describe any anticipated linkages to other modules, such as modules that supply input data or do post-hoc analysis.</p>
 </div>
 <div id="getting-help-4" class="section level3" number="11.1.8">
-<h3><span class="header-section-number">11.1.8</span> Getting help</h3>
+<h3>
+<span class="header-section-number">11.1.8</span> Getting help<a class="anchor" aria-label="anchor" href="#getting-help-4"><i class="fas fa-link"></i></a>
+</h3>
 <ul>
 <li><a href="https://github.com/PredictiveEcology/burnSummaries/issues" class="uri">https://github.com/PredictiveEcology/burnSummaries/issues</a></li>
 </ul>
 <!-- autogenerated -->
 </div>
 <div id="references-1" class="section level3" number="11.1.9">
-<h3><span class="header-section-number">11.1.9</span> References</h3>
+<h3>
+<span class="header-section-number">11.1.9</span> References<a class="anchor" aria-label="anchor" href="#references-1"><i class="fas fa-link"></i></a>
+</h3>
 
 </div>
 </div>
 </div>
-  </main>
-
-  <div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
-    <nav id="toc" data-toggle="toc" aria-label="On this page">
-      <h2>On this page</h2>
-      <div id="book-on-this-page"></div>
+  <div class="chapter-nav">
+<div class="prev"><a href="model-outputs.html">Model outputs</a></div>
+<div class="next"><a href="landweb_output-module.html"><span class="header-section-number">12</span> LandWeb_output Module</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#burnsummaries-module"><span class="header-section-number">11</span> burnSummaries Module</a></li>
+<li>
+<a class="nav-link" href="#module-overview-8"><span class="header-section-number">11.1</span> Module Overview</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#module-summary-5"><span class="header-section-number">11.1.1</span> Module summary</a></li>
+<li><a class="nav-link" href="#module-inputs-and-parameters-3"><span class="header-section-number">11.1.2</span> Module inputs and parameters</a></li>
+<li><a class="nav-link" href="#events-1"><span class="header-section-number">11.1.3</span> Events</a></li>
+<li><a class="nav-link" href="#plotting-1"><span class="header-section-number">11.1.4</span> Plotting</a></li>
+<li><a class="nav-link" href="#saving-1"><span class="header-section-number">11.1.5</span> Saving</a></li>
+<li><a class="nav-link" href="#module-outputs-3"><span class="header-section-number">11.1.6</span> Module outputs</a></li>
+<li><a class="nav-link" href="#links-to-other-modules-4"><span class="header-section-number">11.1.7</span> Links to other modules</a></li>
+<li><a class="nav-link" href="#getting-help-4"><span class="header-section-number">11.1.8</span> Getting help</a></li>
+<li><a class="nav-link" href="#references-1"><span class="header-section-number">11.1.9</span> References</a></li>
+</ul>
+</li>
+</ul>
 
       <div class="book-extra">
         <ul class="list-unstyled">
-          <li><a id="book-source" href="#">View source <i class="fab fa-github"></i></a></li>
-          <li><a id="book-edit" href="#">Edit this page <i class="fab fa-github"></i></a></li>
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/../modules/burnSummaries/burnSummaries2.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/../modules/burnSummaries/burnSummaries2.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
         </ul>
-      </div>
+</div>
     </nav>
-  </div>
+</div>
 
 </div>
 </div> <!-- .container -->
 
-<footer class="bg-primary text-light mt-5">
-  <div class="container"><div class="row">
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
     <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-25.</p>
@@ -548,11 +574,7 @@ summary fire sizes table
   </div>
 
 </div></div>
-</footer>
-
-
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
@@ -564,8 +586,7 @@ summary fire sizes table
     script.src = src;
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
-</script>
-<script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
 for (let popover of popovers) {
   const div = document.createElement('div');
   div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
@@ -583,5 +604,4 @@ for (let popover of popovers) {
 }
 </script>
 </body>
-
 </html>

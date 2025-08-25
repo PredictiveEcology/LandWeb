@@ -1,50 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <title>Chapter 10 LandMine Module | LandWeb Manual</title>
-
-    <meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison" />
-  
-   <meta name="description" content="User manual for the LandWeb simulation model." />
-   <meta name="generator" content="placeholder" />
-  <meta property="og:title" content="Chapter 10 LandMine Module | LandWeb Manual" />
-  <meta property="og:type" content="book" />
-  <meta property="og:url" content="https://predictiveecology.github.io/LandWeb" />
-  
-  <meta property="og:description" content="User manual for the LandWeb simulation model." />
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Chapter 10 LandMine Module | LandWeb Manual" />
-  
-  <meta name="twitter:description" content="User manual for the LandWeb simulation model." />
-  
-  <!-- JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script>
-  <script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script>
-    <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet" />
-    <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script>
-    <script src="libs/bs3compat-0.9.0/transition.js"></script>
-    <script src="libs/bs3compat-0.9.0/tabs.js"></script>
-    <script src="libs/bs3compat-0.9.0/bs3compat.js"></script>
-    <link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet" />
-    <script src="libs/bs4_book-1.0.0/bs4_book.js"></script>
-    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
-    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script>
-
-  <!-- CSS -->
-  <style type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 10 LandMine Module | LandWeb Manual</title>
+<meta name="author" content="Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison">
+<meta name="description" content="This documentation is work in progress. Please report any discrepancies or omissions at https://github.com/PredictiveEcology/LandMine/issues.  10.0.0.1 Authors: Eliot J B McIntire...">
+<meta name="generator" content="bookdown 0.43 with bs4_book()">
+<meta property="og:title" content="Chapter 10 LandMine Module | LandWeb Manual">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://predictiveecology.github.io/LandWeb/landmine-module.html">
+<meta property="og:description" content="This documentation is work in progress. Please report any discrepancies or omissions at https://github.com/PredictiveEcology/LandMine/issues.  10.0.0.1 Authors: Eliot J B McIntire...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 10 LandMine Module | LandWeb Manual">
+<meta name="twitter:description" content="This documentation is work in progress. Please report any discrepancies or omissions at https://github.com/PredictiveEcology/LandMine/issues.  10.0.0.1 Authors: Eliot J B McIntire...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.9.0/transition.js"></script><script src="libs/bs3compat-0.9.0/tabs.js"></script><script src="libs/bs3compat-0.9.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
-    <style type="text/css">
+<style type="text/css">
     /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
     div.csl-bib-body { }
     div.csl-entry {
@@ -67,16 +46,13 @@
       margin-left: 2em;
     }
   </style>
-      <link rel="stylesheet" href="css/style.css" />
-  
+<link rel="stylesheet" href="css/style.css">
 </head>
-
 <body data-spy="scroll" data-target="#toc">
 
 <div class="container-fluid">
 <div class="row">
-  <header class="col-sm-12 col-lg-3 sidebar sidebar-book">
-    <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
 
     <div class="d-flex align-items-start justify-content-between">
       <h1>
@@ -89,22 +65,43 @@
     <div id="main-nav" class="collapse-lg">
       <form role="search">
         <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
-      </form>
+</form>
 
-      <nav aria-label="Table of contents">
-        <h2>Table of contents</h2>
-        <div id="book-toc"></div>
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Overview</a></li>
+<li><a class="" href="getting-started.html"><span class="header-section-number">1</span> Getting started</a></li>
+<li><a class="" href="running-landweb.html"><span class="header-section-number">2</span> Running LandWeb</a></li>
+<li><a class="" href="study-areas.html">Study areas</a></li>
+<li><a class="" href="landweb_preamble-module.html"><span class="header-section-number">3</span> LandWeb_preamble Module</a></li>
+<li><a class="" href="vegetation-submodel.html">Vegetation submodel</a></li>
+<li><a class="" href="biomass_speciesfactorial-module.html"><span class="header-section-number">4</span> Biomass_speciesFactorial Module</a></li>
+<li><a class="" href="landr-biomass_speciesparameters-module.html"><span class="header-section-number">5</span> LandR Biomass_speciesParameters Module</a></li>
+<li><a class="" href="landr-biomass_speciesdata-module.html"><span class="header-section-number">6</span> LandR Biomass_speciesData Module</a></li>
+<li><a class="" href="landr-biomass_borealdataprep-module.html"><span class="header-section-number">7</span> LandR Biomass_borealDataPrep Module</a></li>
+<li><a class="" href="landr-biomass_core-module.html"><span class="header-section-number">8</span> LandR Biomass_core Module</a></li>
+<li><a class="" href="landr-biomass_regeneration-module.html"><span class="header-section-number">9</span> LandR Biomass_regeneration Module</a></li>
+<li><a class="" href="wildfire-submodel.html">Wildfire submodel</a></li>
+<li><a class="active" href="landmine-module.html"><span class="header-section-number">10</span> LandMine Module</a></li>
+<li><a class="" href="model-outputs.html">Model outputs</a></li>
+<li><a class="" href="burnsummaries-module.html"><span class="header-section-number">11</span> burnSummaries Module</a></li>
+<li><a class="" href="landweb_output-module.html"><span class="header-section-number">12</span> LandWeb_output Module</a></li>
+<li><a class="" href="timesincefire-module.html"><span class="header-section-number">13</span> timeSinceFire Module</a></li>
+<li><a class="" href="landweb_summary-module.html"><span class="header-section-number">14</span> LandWeb_summary Module</a></li>
+<li><a class="" href="web-app.html">Web app</a></li>
+<li><a class="" href="modifying-landweb.html"><span class="header-section-number">15</span> Modifying LandWeb</a></li>
+<li><a class="" href="references-2.html">References</a></li>
+</ul>
 
         <div class="book-extra">
-          <p><a id="book-repo" href="#">View book source <i class="fab fa-github"></i></a></li></p>
+          <p><a id="book-repo" href="https://github.com/PredictiveEcology/LandWeb">View book source <i class="fab fa-github"></i></a></p>
         </div>
       </nav>
-    </div>
-  </header>
-
-  <main class="col-sm-12 col-md-9 col-lg-7" id="content">
-<div id="landmine-module" class="section level1" number="10">
-<h1><span class="header-section-number">Chapter 10</span> <em>LandMine</em> Module</h1>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="landmine-module" class="section level1" number="10">
+<h1>
+<span class="header-section-number">10</span> <em>LandMine</em> Module<a class="anchor" aria-label="anchor" href="#landmine-module"><i class="fas fa-link"></i></a>
+</h1>
 <!-- the following are text references used in captions for LaTeX compatibility -->
 
 <div class="rmdwarning">
@@ -112,20 +109,28 @@
 Please report any discrepancies or omissions at <a href="https://github.com/PredictiveEcology/LandMine/issues" class="uri">https://github.com/PredictiveEcology/LandMine/issues</a>.</p>
 </div>
 <div id="authors-7" class="section level4" number="10.0.0.1">
-<h4><span class="header-section-number">10.0.0.1</span> Authors:</h4>
+<h4>
+<span class="header-section-number">10.0.0.1</span> Authors:<a class="anchor" aria-label="anchor" href="#authors-7"><i class="fas fa-link"></i></a>
+</h4>
 <p>Eliot J B McIntire <a href="mailto:eliot.mcintire@nrcan-rncan.gc.ca" class="email">eliot.mcintire@nrcan-rncan.gc.ca</a> [aut], Alex M. Chubaty <a href="mailto:achubaty@for-cast.ca" class="email">achubaty@for-cast.ca</a> [ctb, cre]
 <!-- ideally separate authors with new lines, '\n' not working --></p>
 </div>
 <div id="module-overview-7" class="section level2" number="10.1">
-<h2><span class="header-section-number">10.1</span> Module Overview</h2>
+<h2>
+<span class="header-section-number">10.1</span> Module Overview<a class="anchor" aria-label="anchor" href="#module-overview-7"><i class="fas fa-link"></i></a>
+</h2>
 <div id="module-summary-4" class="section level3" number="10.1.1">
-<h3><span class="header-section-number">10.1.1</span> Module summary</h3>
+<h3>
+<span class="header-section-number">10.1.1</span> Module summary<a class="anchor" aria-label="anchor" href="#module-summary-4"><i class="fas fa-link"></i></a>
+</h3>
 <p>Landmine is a model created for simulating the natural range of variation for landscapes in the boreal forest <span class="citation">(<a href="references-2.html#ref-Andison:1996">Andison 1996</a>; <a href="references-2.html#ref-Andison:1998">Andison 1998</a>)</span>.
 It has been widely used by the public and the private sector for various purposes.
 This SpaDES module is a rewrite of the fire component in native R.</p>
 </div>
 <div id="model-differences" class="section level3" number="10.1.2">
-<h3><span class="header-section-number">10.1.2</span> Model Differences</h3>
+<h3>
+<span class="header-section-number">10.1.2</span> Model Differences<a class="anchor" aria-label="anchor" href="#model-differences"><i class="fas fa-link"></i></a>
+</h3>
 <p>The current version has not yet been fully tested and compared with the original version, but there are currently several known differences:</p>
 <ol style="list-style-type: decimal">
 <li>Fire sizes are taken from a Truncated Pareto distribution, resulting in numerous very small fires, and few large fires;</li>
@@ -133,15 +138,16 @@ This SpaDES module is a rewrite of the fire component in native R.</p>
 </ol>
 </div>
 <div id="known-species" class="section level3" number="10.1.3">
-<h3><span class="header-section-number">10.1.3</span> Known Species</h3>
+<h3>
+<span class="header-section-number">10.1.3</span> Known Species<a class="anchor" aria-label="anchor" href="#known-species"><i class="fas fa-link"></i></a>
+</h3>
 <p>Landmine requires the following codes as inputs (the genus and species codes below), which converts and groups species as follows.
 Each of the species groups has its own Rate of Spread (ROS) for fire spreading:</p>
-<table>
+<div class="inline-table"><table class="table table-sm">
 <caption>
 <span id="tab:species-table">Table 10.1: </span>LandMine species codes.
 </caption>
-<thead>
-<tr>
+<thead><tr>
 <th style="text-align:left;">
 Species
 </th>
@@ -151,8 +157,7 @@ Group
 <th style="text-align:left;">
 Code
 </th>
-</tr>
-</thead>
+</tr></thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
@@ -265,18 +270,19 @@ Abie_sp
 </td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <div style="page-break-after: always;"></div>
 </div>
 <div id="module-inputs-and-parameters-2" class="section level3" number="10.1.4">
-<h3><span class="header-section-number">10.1.4</span> Module inputs and parameters</h3>
+<h3>
+<span class="header-section-number">10.1.4</span> Module inputs and parameters<a class="anchor" aria-label="anchor" href="#module-inputs-and-parameters-2"><i class="fas fa-link"></i></a>
+</h3>
 <p>Table <a href="landmine-module.html#tab:moduleInputs-LandMine">10.2</a> shows the full list of module inputs.</p>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleInputs-LandMine">Table 10.2: </span><span id="tab:moduleInputs-LandMine">Table 10.3: </span>List of <em>LandMine</em> input objects and their description.
 </caption>
-<thead>
-<tr>
+<thead><tr>
 <th style="text-align:left;">
 objectName
 </th>
@@ -289,8 +295,7 @@ desc
 <th style="text-align:left;">
 sourceURL
 </th>
-</tr>
-</thead>
+</tr></thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
@@ -426,7 +431,7 @@ sppEquiv
 data.table
 </td>
 <td style="text-align:left;">
-Multi-columned data.table indicating species name equivalencies. Default taken from <code>LandR::sppEquivalencies_CA</code> which has names for species of trees in Canada
+Multi-columned data.table indicating species name equivalencies. Default taken from <code><a href="https://landr.predictiveecology.org/reference/sppEquivalencies_CA.html">LandR::sppEquivalencies_CA</a></code> which has names for species of trees in Canada
 </td>
 <td style="text-align:left;">
 NA
@@ -461,14 +466,13 @@ NA
 </td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <p>Summary of user-visible parameters (Table <a href="landmine-module.html#tab:moduleParams-LandMine">10.4</a>).</p>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleParams-LandMine">Table 10.4: </span><span id="tab:moduleParams-LandMine">Table 10.5: </span>List of <em>LandMine</em> parameters and their description.
 </caption>
-<thead>
-<tr>
+<thead><tr>
 <th style="text-align:left;">
 paramName
 </th>
@@ -487,8 +491,7 @@ max
 <th style="text-align:left;">
 paramDesc
 </th>
-</tr>
-</thead>
+</tr></thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
@@ -587,7 +590,7 @@ integer
 299
 </td>
 <td style="text-align:left;">
-Number of additional attempts (‘jumps’) that will be made per firelet ID, before abandoning. See <code>?SpaDES.tools::spread2</code>. NOTE: increasing this value results in longer simulation times when firelets get ‘stuck’, but higher values are needed to achive larger fire sizes with discontinuous fuels.
+Number of additional attempts (‘jumps’) that will be made per firelet ID, before abandoning. See <code><a href="https://spades-tools.predictiveecology.org/reference/spread2.html">?SpaDES.tools::spread2</a></code>. NOTE: increasing this value results in longer simulation times when firelets get ‘stuck’, but higher values are needed to achive larger fire sizes with discontinuous fuels.
 </td>
 </tr>
 <tr>
@@ -766,7 +769,7 @@ NA
 NA
 </td>
 <td style="text-align:left;">
-Only used for creating a starting <code>cohortData</code> dataset. If <code>NULL</code>, then it will be randomly generated; If non-<code>NULL</code>, will pass this value to <code>set.seed()</code> and be deterministic and identical each time. WARNING: setting the seed to a specific value will cause all simulations to be identical!
+Only used for creating a starting <code>cohortData</code> dataset. If <code>NULL</code>, then it will be randomly generated; If non-<code>NULL</code>, will pass this value to <code><a href="https://rdrr.io/r/base/Random.html">set.seed()</a></code> and be deterministic and identical each time. WARNING: setting the seed to a specific value will cause all simulations to be identical!
 </td>
 </tr>
 <tr>
@@ -906,7 +909,7 @@ NA
 NA
 </td>
 <td style="text-align:left;">
-Human-readable name for the study area used - e.g., a hash of the studyarea obtained using <code>reproducible::studyAreaName()</code>
+Human-readable name for the study area used - e.g., a hash of the studyarea obtained using <code><a href="https://reproducible.predictiveecology.org/reference/studyAreaName.html">reproducible::studyAreaName()</a></code>
 </td>
 </tr>
 <tr>
@@ -966,21 +969,22 @@ NA
 NA
 </td>
 <td style="text-align:left;">
-Used in burning. Will be passed to <code>data.table::setDTthreads()</code>. NOTE: use <code>.useParallel &amp;lt;= 2</code> as the additonal RAM overhead too high given marginal speedup.
+Used in burning. Will be passed to <code><a href="https://rdatatable.gitlab.io/data.table/reference/openmp-utils.html">data.table::setDTthreads()</a></code>. NOTE: use <code>.useParallel &amp;lt;= 2</code> as the additonal RAM overhead too high given marginal speedup.
 </td>
 </tr>
 </tbody>
-</table>
+</table></div>
 </div>
 <div id="module-outputs-2" class="section level3" number="10.1.5">
-<h3><span class="header-section-number">10.1.5</span> Module outputs</h3>
+<h3>
+<span class="header-section-number">10.1.5</span> Module outputs<a class="anchor" aria-label="anchor" href="#module-outputs-2"><i class="fas fa-link"></i></a>
+</h3>
 <p>Description of the module outputs (Table <a href="landmine-module.html#tab:moduleOutputs-LandMine">10.6</a>).</p>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:moduleOutputs-LandMine">Table 10.6: </span><span id="tab:moduleOutputs-LandMine">Table 10.7: </span>List of <em>LandMine</em> outputs and their description.
 </caption>
-<thead>
-<tr>
+<thead><tr>
 <th style="text-align:left;">
 objectName
 </th>
@@ -990,8 +994,7 @@ objectClass
 <th style="text-align:left;">
 desc
 </th>
-</tr>
-</thead>
+</tr></thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
@@ -1115,43 +1118,51 @@ Same as input, but with new column, <code>LandMine</code>.
 </td>
 </tr>
 </tbody>
-</table>
+</table></div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
 <div id="usage-1" class="section level2" number="10.2">
-<h2><span class="header-section-number">10.2</span> Usage</h2>
+<h2>
+<span class="header-section-number">10.2</span> Usage<a class="anchor" aria-label="anchor" href="#usage-1"><i class="fas fa-link"></i></a>
+</h2>
 <p>To run this Landmine module alone (<em>i.e.</em>, for fitting), the following should work (<em>iff</em> raster inputs for <code>studyArea</code> and <code>rasterToMatch</code> are available), assuming all R packages are available.</p>
 <p><strong>NB:</strong> Paths will have be changed for a different user.</p>
 <div id="package-dependencies" class="section level3" number="10.2.1">
-<h3><span class="header-section-number">10.2.1</span> Package dependencies</h3>
+<h3>
+<span class="header-section-number">10.2.1</span> Package dependencies<a class="anchor" aria-label="anchor" href="#package-dependencies"><i class="fas fa-link"></i></a>
+</h3>
 <p>To determine which packages are used by <code>LandMine</code>, use:</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="landmine-module.html#cb51-1" tabindex="-1"></a>SpaDES.core<span class="sc">::</span><span class="fu">packages</span>(<span class="at">modules =</span> <span class="st">&quot;LandMine&quot;</span>, <span class="at">paths =</span> <span class="st">&quot;..&quot;</span>)[[<span class="dv">1</span>]]</span></code></pre></div>
-<pre><code>##  [1] &quot;SpaDES.core&quot;                                          
-##  [2] &quot;assertthat&quot;                                           
-##  [3] &quot;data.table&quot;                                           
-##  [4] &quot;fasterize&quot;                                            
-##  [5] &quot;fpCompare&quot;                                            
-##  [6] &quot;ggplot2&quot;                                              
-##  [7] &quot;ggspatial&quot;                                            
-##  [8] &quot;grDevices&quot;                                            
-##  [9] &quot;gridExtra&quot;                                            
-## [10] &quot;magrittr&quot;                                             
-## [11] &quot;PredictiveEcology/LandR@development (&gt;= 1.1.0.9003)&quot;  
-## [12] &quot;PredictiveEcology/LandWebUtils@development (&gt;= 1.0.2)&quot;
-## [13] &quot;PredictiveEcology/pemisc@development&quot;                 
-## [14] &quot;PredictiveEcology/SpaDES.tools@development&quot;           
-## [15] &quot;quickPlot&quot;                                            
-## [16] &quot;raster&quot;                                               
-## [17] &quot;RColorBrewer&quot;                                         
-## [18] &quot;stats&quot;                                                
-## [19] &quot;VGAM&quot;</code></pre>
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">SpaDES.core</span><span class="fu">::</span><span class="fu"><a href="https://spades-core.predictiveecology.org/reference/packages.html">packages</a></span><span class="op">(</span>modules <span class="op">=</span> <span class="st">"LandMine"</span>, paths <span class="op">=</span> <span class="st">".."</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
+<pre><code>##  [1] "SpaDES.core"                                          
+##  [2] "assertthat"                                           
+##  [3] "data.table"                                           
+##  [4] "fasterize"                                            
+##  [5] "fpCompare"                                            
+##  [6] "ggplot2"                                              
+##  [7] "ggspatial"                                            
+##  [8] "grDevices"                                            
+##  [9] "gridExtra"                                            
+## [10] "magrittr"                                             
+## [11] "PredictiveEcology/LandR@development (&gt;= 1.1.0.9003)"  
+## [12] "PredictiveEcology/LandWebUtils@development (&gt;= 1.0.2)"
+## [13] "PredictiveEcology/pemisc@development"                 
+## [14] "PredictiveEcology/SpaDES.tools@development"           
+## [15] "quickPlot"                                            
+## [16] "raster"                                               
+## [17] "RColorBrewer"                                         
+## [18] "stats"                                                
+## [19] "VGAM"</code></pre>
 </div>
 <div id="module-usage" class="section level3" number="10.2.2">
-<h3><span class="header-section-number">10.2.2</span> Module usage</h3>
+<h3>
+<span class="header-section-number">10.2.2</span> Module usage<a class="anchor" aria-label="anchor" href="#module-usage"><i class="fas fa-link"></i></a>
+</h3>
 <p>First, define a study area and create a template raster.</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="landmine-module.html#cb53-1" tabindex="-1"></a>studyArea <span class="ot">&lt;-</span> SpaDES.tools<span class="sc">::</span><span class="fu">randomStudyArea</span>(<span class="at">seed =</span> <span class="dv">1234</span>, <span class="at">size =</span> <span class="fl">1e+10</span>)</span>
-<span id="cb53-2"><a href="landmine-module.html#cb53-2" tabindex="-1"></a>rasterToMatch <span class="ot">&lt;-</span> <span class="fu">raster</span>(studyArea, <span class="at">res =</span> <span class="dv">250</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">studyArea</span> <span class="op">&lt;-</span> <span class="fu">SpaDES.tools</span><span class="fu">::</span><span class="fu"><a href="https://spades-tools.predictiveecology.org/reference/randomStudyArea.html">randomStudyArea</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="fl">1234</span>, size <span class="op">=</span> <span class="fl">1e+10</span><span class="op">)</span></span>
+<span><span class="va">rasterToMatch</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="op">(</span><span class="va">studyArea</span>, res <span class="op">=</span> <span class="fl">250</span><span class="op">)</span></span></code></pre></div>
 <p>Next, set up the simulation to run for 13 timesteps using default module parameters.</p>
 <div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="landmine-module.html#cb54-1" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">start =</span> <span class="dv">0</span>, <span class="at">end =</span> <span class="dv">13</span>)</span>
 <span id="cb54-2"><a href="landmine-module.html#cb54-2" tabindex="-1"></a></span>
@@ -1165,332 +1176,366 @@ Same as input, but with new column, <code>LandMine</code>.
 <span id="cb54-10"><a href="landmine-module.html#cb54-10" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) TRUE)</span></span>
 <span id="cb54-11"><a href="landmine-module.html#cb54-11" tabindex="-1"></a>parameters <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co"># LandMine = list(flushCachedRandomFRI = TRUE) ) )</span></span>
 <span id="cb54-12"><a href="landmine-module.html#cb54-12" tabindex="-1"></a></span>
-<span id="cb54-13"><a href="landmine-module.html#cb54-13" tabindex="-1"></a>modules <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">&quot;LandMine&quot;</span>)</span>
+<span id="cb54-13"><a href="landmine-module.html#cb54-13" tabindex="-1"></a>modules <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"LandMine"</span>)</span>
 <span id="cb54-14"><a href="landmine-module.html#cb54-14" tabindex="-1"></a></span>
 <span id="cb54-15"><a href="landmine-module.html#cb54-15" tabindex="-1"></a>objects <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">studyArea =</span> studyArea, <span class="at">rasterToMatch =</span> rasterToMatch)</span>
 <span id="cb54-16"><a href="landmine-module.html#cb54-16" tabindex="-1"></a></span>
 <span id="cb54-17"><a href="landmine-module.html#cb54-17" tabindex="-1"></a>paths <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">cachePath =</span> cacheDir, <span class="at">modulePath =</span> moduleDir, <span class="at">inputPath =</span> inputDir,</span>
 <span id="cb54-18"><a href="landmine-module.html#cb54-18" tabindex="-1"></a>    <span class="at">outputPath =</span> outputDir)</span></code></pre></div>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="landmine-module.html#cb55-1" tabindex="-1"></a>mySim <span class="ot">&lt;-</span> <span class="fu">simInit</span>(<span class="at">times =</span> times, <span class="at">params =</span> parameters, <span class="at">modules =</span> modules,</span>
-<span id="cb55-2"><a href="landmine-module.html#cb55-2" tabindex="-1"></a>    <span class="at">objects =</span> objects, <span class="at">paths =</span> paths)</span>
-<span id="cb55-3"><a href="landmine-module.html#cb55-3" tabindex="-1"></a></span>
-<span id="cb55-4"><a href="landmine-module.html#cb55-4" tabindex="-1"></a><span class="fu">dev</span>()</span>
-<span id="cb55-5"><a href="landmine-module.html#cb55-5" tabindex="-1"></a>mySimOut <span class="ot">&lt;-</span> <span class="fu">spades</span>(mySim, <span class="at">.plotInitialTime =</span> times<span class="sc">$</span>start, <span class="at">debug =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mySim</span> <span class="op">&lt;-</span> <span class="fu">simInit</span><span class="op">(</span>times <span class="op">=</span> <span class="va">times</span>, params <span class="op">=</span> <span class="va">parameters</span>, modules <span class="op">=</span> <span class="va">modules</span>,</span>
+<span>    objects <span class="op">=</span> <span class="va">objects</span>, paths <span class="op">=</span> <span class="va">paths</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">dev</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">mySimOut</span> <span class="op">&lt;-</span> <span class="fu">spades</span><span class="op">(</span><span class="va">mySim</span>, .plotInitialTime <span class="op">=</span> <span class="va">times</span><span class="op">$</span><span class="va">start</span>, debug <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
 <div id="testing-the-burn-algorithm" class="section level2" number="10.3">
-<h2><span class="header-section-number">10.3</span> Testing the burn algorithm</h2>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="landmine-module.html#cb56-1" tabindex="-1"></a><span class="fu">Require</span>(<span class="fu">c</span>(<span class="st">&quot;data.table&quot;</span>, <span class="st">&quot;DEoptim&quot;</span>, <span class="st">&quot;parallel&quot;</span>, <span class="st">&quot;SDMTools&quot;</span>))</span>
-<span id="cb56-2"><a href="landmine-module.html#cb56-2" tabindex="-1"></a></span>
-<span id="cb56-3"><a href="landmine-module.html#cb56-3" tabindex="-1"></a>s <span class="ot">&lt;-</span> <span class="fu">simInit</span>(<span class="at">times =</span> times, <span class="at">params =</span> parameters, <span class="at">modules =</span> modules,</span>
-<span id="cb56-4"><a href="landmine-module.html#cb56-4" tabindex="-1"></a>    <span class="at">objects =</span> objects, <span class="at">paths =</span> paths)</span></code></pre></div>
+<h2>
+<span class="header-section-number">10.3</span> Testing the burn algorithm<a class="anchor" aria-label="anchor" href="#testing-the-burn-algorithm"><i class="fas fa-link"></i></a>
+</h2>
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://Require.predictiveecology.org/reference/Require.html">Require</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"data.table"</span>, <span class="st">"DEoptim"</span>, <span class="st">"parallel"</span>, <span class="st">"SDMTools"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">simInit</span><span class="op">(</span>times <span class="op">=</span> <span class="va">times</span>, params <span class="op">=</span> <span class="va">parameters</span>, modules <span class="op">=</span> <span class="va">modules</span>,</span>
+<span>    objects <span class="op">=</span> <span class="va">objects</span>, paths <span class="op">=</span> <span class="va">paths</span><span class="op">)</span></span></code></pre></div>
 <div style="page-break-after: always;"></div>
 </div>
 <div id="optimizing-parameters" class="section level2" number="10.4">
-<h2><span class="header-section-number">10.4</span> Optimizing parameters</h2>
+<h2>
+<span class="header-section-number">10.4</span> Optimizing parameters<a class="anchor" aria-label="anchor" href="#optimizing-parameters"><i class="fas fa-link"></i></a>
+</h2>
 <p>The following code chunk tries to find values of <code>spawnNewActive</code> that creates “reasonable” fire shapes at all sizes.</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="landmine-module.html#cb57-1" tabindex="-1"></a>pixelSize <span class="ot">&lt;-</span> <span class="dv">250</span></span>
-<span id="cb57-2"><a href="landmine-module.html#cb57-2" tabindex="-1"></a>ros <span class="ot">&lt;-</span> <span class="fu">raster</span>(<span class="fu">extent</span>(<span class="dv">0</span>, pixelSize <span class="sc">*</span> <span class="dv">1000</span>, <span class="dv">0</span>, pixelSize <span class="sc">*</span> <span class="dv">1000</span>),</span>
-<span id="cb57-3"><a href="landmine-module.html#cb57-3" tabindex="-1"></a>    <span class="at">res =</span> pixelSize, <span class="at">vals =</span> <span class="dv">0</span>)</span>
-<span id="cb57-4"><a href="landmine-module.html#cb57-4" tabindex="-1"></a>ros <span class="ot">&lt;-</span> ros <span class="sc">==</span> <span class="dv">0</span></span>
-<span id="cb57-5"><a href="landmine-module.html#cb57-5" tabindex="-1"></a>fireSize <span class="ot">&lt;-</span> <span class="fl">1e+05</span></span>
-<span id="cb57-6"><a href="landmine-module.html#cb57-6" tabindex="-1"></a></span>
-<span id="cb57-7"><a href="landmine-module.html#cb57-7" tabindex="-1"></a>maxRetriesPerID <span class="ot">&lt;-</span> <span class="dv">4</span>  <span class="do">## 4 retries (5 attempts total)</span></span>
-<span id="cb57-8"><a href="landmine-module.html#cb57-8" tabindex="-1"></a>spreadProb <span class="ot">&lt;-</span> <span class="fl">0.9</span></span>
-<span id="cb57-9"><a href="landmine-module.html#cb57-9" tabindex="-1"></a>spawnNewActive <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.46</span>, <span class="fl">0.2</span>, <span class="fl">0.26</span>, <span class="fl">0.11</span>)</span>
-<span id="cb57-10"><a href="landmine-module.html#cb57-10" tabindex="-1"></a>sizeCutoffs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8000</span>, <span class="dv">20000</span>)</span>
-<span id="cb57-11"><a href="landmine-module.html#cb57-11" tabindex="-1"></a></span>
-<span id="cb57-12"><a href="landmine-module.html#cb57-12" tabindex="-1"></a>NineCorners <span class="ot">&lt;-</span> <span class="fu">cellFromRowCol</span>(ros, <span class="at">row =</span> <span class="fu">nrow</span>(ros)<span class="sc">/</span><span class="dv">4</span> <span class="sc">*</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>,</span>
-<span id="cb57-13"><a href="landmine-module.html#cb57-13" tabindex="-1"></a>    <span class="dv">3</span>), <span class="at">col =</span> <span class="fu">ncol</span>(ros)<span class="sc">/</span><span class="dv">4</span> <span class="sc">*</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">each =</span> <span class="dv">3</span>))</span>
-<span id="cb57-14"><a href="landmine-module.html#cb57-14" tabindex="-1"></a></span>
-<span id="cb57-15"><a href="landmine-module.html#cb57-15" tabindex="-1"></a>centreCell <span class="ot">&lt;-</span> <span class="fu">cellFromRowCol</span>(ros, <span class="at">row =</span> <span class="fu">nrow</span>(ros)<span class="sc">/</span><span class="dv">2</span>, <span class="at">col =</span> <span class="fu">ncol</span>(ros)<span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb57-16"><a href="landmine-module.html#cb57-16" tabindex="-1"></a></span>
-<span id="cb57-17"><a href="landmine-module.html#cb57-17" tabindex="-1"></a><span class="do">## Set variables</span></span>
-<span id="cb57-18"><a href="landmine-module.html#cb57-18" tabindex="-1"></a>objs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;ros&quot;</span>, <span class="st">&quot;centreCell&quot;</span>, <span class="st">&quot;fireSize&quot;</span>, <span class="st">&quot;spawnNewActive&quot;</span>,</span>
-<span id="cb57-19"><a href="landmine-module.html#cb57-19" tabindex="-1"></a>    <span class="st">&quot;sizeCutoffs&quot;</span>, <span class="st">&quot;spreadProb&quot;</span>)</span>
-<span id="cb57-20"><a href="landmine-module.html#cb57-20" tabindex="-1"></a>pkgs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;data.table&quot;</span>, <span class="st">&quot;LandWebUtils&quot;</span>, <span class="st">&quot;raster&quot;</span>, <span class="st">&quot;SDMTools&quot;</span>,</span>
-<span id="cb57-21"><a href="landmine-module.html#cb57-21" tabindex="-1"></a>    <span class="st">&quot;SpaDES.tools&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="landmine-module.html#cb58-1" tabindex="-1"></a><span class="do">### SET UP CLUSTER FOR PARALLEL</span></span>
-<span id="cb58-2"><a href="landmine-module.html#cb58-2" tabindex="-1"></a>wantParallel <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
-<span id="cb58-3"><a href="landmine-module.html#cb58-3" tabindex="-1"></a></span>
-<span id="cb58-4"><a href="landmine-module.html#cb58-4" tabindex="-1"></a><span class="do">## numCores should be &gt;= 70 and needs to be multiple of</span></span>
-<span id="cb58-5"><a href="landmine-module.html#cb58-5" tabindex="-1"></a><span class="do">## number of params to be fit (7)</span></span>
-<span id="cb58-6"><a href="landmine-module.html#cb58-6" tabindex="-1"></a>numCores <span class="ot">&lt;-</span> (parallelly<span class="sc">::</span><span class="fu">availableCores</span>(<span class="at">constraints =</span> <span class="fu">c</span>(<span class="st">&quot;connections&quot;</span>))<span class="sc">%/%</span><span class="dv">7</span>) <span class="sc">*</span></span>
-<span id="cb58-7"><a href="landmine-module.html#cb58-7" tabindex="-1"></a>    <span class="dv">7</span></span>
-<span id="cb58-8"><a href="landmine-module.html#cb58-8" tabindex="-1"></a></span>
-<span id="cb58-9"><a href="landmine-module.html#cb58-9" tabindex="-1"></a>machineName <span class="ot">&lt;-</span> <span class="fu">strsplit</span>(<span class="fu">Sys.info</span>()[<span class="st">&quot;nodename&quot;</span>], <span class="st">&quot;[.]&quot;</span>)[[<span class="dv">1</span>]][<span class="dv">1</span>]</span>
-<span id="cb58-10"><a href="landmine-module.html#cb58-10" tabindex="-1"></a></span>
-<span id="cb58-11"><a href="landmine-module.html#cb58-11" tabindex="-1"></a>clNames <span class="ot">&lt;-</span> <span class="cf">switch</span>(machineName, <span class="at">pinus =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&quot;localhost&quot;</span>, <span class="dv">0</span>),</span>
-<span id="cb58-12"><a href="landmine-module.html#cb58-12" tabindex="-1"></a>    <span class="fu">rep</span>(<span class="st">&quot;picea.for-cast.ca&quot;</span>, <span class="dv">20</span>), <span class="fu">rep</span>(<span class="st">&quot;pseudotsuga.for-cast.ca&quot;</span>,</span>
-<span id="cb58-13"><a href="landmine-module.html#cb58-13" tabindex="-1"></a>        <span class="dv">82</span>)), <span class="at">picea =</span> <span class="fu">rep</span>(<span class="st">&quot;localhost&quot;</span>, numCores), <span class="fu">rep</span>(<span class="st">&quot;localhost&quot;</span>,</span>
-<span id="cb58-14"><a href="landmine-module.html#cb58-14" tabindex="-1"></a>    numCores))</span>
-<span id="cb58-15"><a href="landmine-module.html#cb58-15" tabindex="-1"></a></span>
-<span id="cb58-16"><a href="landmine-module.html#cb58-16" tabindex="-1"></a><span class="cf">if</span> (wantParallel) {</span>
-<span id="cb58-17"><a href="landmine-module.html#cb58-17" tabindex="-1"></a>    cl <span class="ot">&lt;-</span> <span class="fu">landmine_optim_clusterSetup</span>(<span class="at">nodes =</span> clNames)</span>
-<span id="cb58-18"><a href="landmine-module.html#cb58-18" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb58-19"><a href="landmine-module.html#cb58-19" tabindex="-1"></a>    cl <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb58-20"><a href="landmine-module.html#cb58-20" tabindex="-1"></a>}</span>
-<span id="cb58-21"><a href="landmine-module.html#cb58-21" tabindex="-1"></a></span>
-<span id="cb58-22"><a href="landmine-module.html#cb58-22" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">inherits</span>(cl[[<span class="dv">1</span>]], <span class="st">&quot;forknode&quot;</span>)) {</span>
-<span id="cb58-23"><a href="landmine-module.html#cb58-23" tabindex="-1"></a>    <span class="fu">landmine_optim_clusterExport</span>(cl, <span class="at">objs =</span> objs, <span class="at">pkgs =</span> pkgs)</span>
-<span id="cb58-24"><a href="landmine-module.html#cb58-24" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pixelSize</span> <span class="op">&lt;-</span> <span class="fl">250</span></span>
+<span><span class="va">ros</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="op">(</span><span class="fu">extent</span><span class="op">(</span><span class="fl">0</span>, <span class="va">pixelSize</span> <span class="op">*</span> <span class="fl">1000</span>, <span class="fl">0</span>, <span class="va">pixelSize</span> <span class="op">*</span> <span class="fl">1000</span><span class="op">)</span>,</span>
+<span>    res <span class="op">=</span> <span class="va">pixelSize</span>, vals <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">ros</span> <span class="op">&lt;-</span> <span class="va">ros</span> <span class="op">==</span> <span class="fl">0</span></span>
+<span><span class="va">fireSize</span> <span class="op">&lt;-</span> <span class="fl">1e+05</span></span>
+<span></span>
+<span><span class="va">maxRetriesPerID</span> <span class="op">&lt;-</span> <span class="fl">4</span>  <span class="co">## 4 retries (5 attempts total)</span></span>
+<span><span class="va">spreadProb</span> <span class="op">&lt;-</span> <span class="fl">0.9</span></span>
+<span><span class="va">spawnNewActive</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.46</span>, <span class="fl">0.2</span>, <span class="fl">0.26</span>, <span class="fl">0.11</span><span class="op">)</span></span>
+<span><span class="va">sizeCutoffs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">8000</span>, <span class="fl">20000</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">NineCorners</span> <span class="op">&lt;-</span> <span class="fu">cellFromRowCol</span><span class="op">(</span><span class="va">ros</span>, row <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">ros</span><span class="op">)</span><span class="op">/</span><span class="fl">4</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,</span>
+<span>    <span class="fl">3</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">ros</span><span class="op">)</span><span class="op">/</span><span class="fl">4</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, each <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">centreCell</span> <span class="op">&lt;-</span> <span class="fu">cellFromRowCol</span><span class="op">(</span><span class="va">ros</span>, row <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">ros</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">ros</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Set variables</span></span>
+<span><span class="va">objs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ros"</span>, <span class="st">"centreCell"</span>, <span class="st">"fireSize"</span>, <span class="st">"spawnNewActive"</span>,</span>
+<span>    <span class="st">"sizeCutoffs"</span>, <span class="st">"spreadProb"</span><span class="op">)</span></span>
+<span><span class="va">pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"data.table"</span>, <span class="st">"LandWebUtils"</span>, <span class="st">"raster"</span>, <span class="st">"SDMTools"</span>,</span>
+<span>    <span class="st">"SpaDES.tools"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">### SET UP CLUSTER FOR PARALLEL</span></span>
+<span><span class="va">wantParallel</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span></span>
+<span><span class="co">## numCores should be &gt;= 70 and needs to be multiple of</span></span>
+<span><span class="co">## number of params to be fit (7)</span></span>
+<span><span class="va">numCores</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu">parallelly</span><span class="fu">::</span><span class="fu"><a href="https://parallelly.futureverse.org/reference/availableCores.html">availableCores</a></span><span class="op">(</span>constraints <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"connections"</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html">%/%</a></span><span class="fl">7</span><span class="op">)</span> <span class="op">*</span></span>
+<span>    <span class="fl">7</span></span>
+<span></span>
+<span><span class="va">machineName</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/strsplit.html">strsplit</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.info.html">Sys.info</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="st">"nodename"</span><span class="op">]</span>, <span class="st">"[.]"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span></span>
+<span><span class="va">clNames</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/switch.html">switch</a></span><span class="op">(</span><span class="va">machineName</span>, pinus <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"localhost"</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"picea.for-cast.ca"</span>, <span class="fl">20</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"pseudotsuga.for-cast.ca"</span>,</span>
+<span>        <span class="fl">82</span><span class="op">)</span><span class="op">)</span>, picea <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"localhost"</span>, <span class="va">numCores</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="st">"localhost"</span>,</span>
+<span>    <span class="va">numCores</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">wantParallel</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu">landmine_optim_clusterSetup</span><span class="op">(</span>nodes <span class="op">=</span> <span class="va">clNames</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>    <span class="va">cl</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/class.html">inherits</a></span><span class="op">(</span><span class="va">cl</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="st">"forknode"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">landmine_optim_clusterExport</span><span class="op">(</span><span class="va">cl</span>, objs <span class="op">=</span> <span class="va">objs</span>, pkgs <span class="op">=</span> <span class="va">pkgs</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <div id="visual-examination" class="section level3" number="10.4.1">
-<h3><span class="header-section-number">10.4.1</span> Visual examination</h3>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="landmine-module.html#cb59-1" tabindex="-1"></a>opt_sn <span class="ot">&lt;-</span> <span class="fu">DEoptim</span>(landmine_optim_fitSN, <span class="at">lower =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="sc">-</span><span class="dv">3</span>, <span class="sc">-</span><span class="dv">3</span>,</span>
-<span id="cb59-2"><a href="landmine-module.html#cb59-2" tabindex="-1"></a>    <span class="sc">-</span><span class="dv">3</span>, <span class="dv">1</span>, <span class="fl">3.5</span>, <span class="fl">0.75</span>), <span class="at">upper =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.1</span>, <span class="sc">-</span><span class="fl">0.5</span>, <span class="sc">-</span><span class="fl">0.5</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="fl">3.5</span>, <span class="dv">5</span>,</span>
-<span id="cb59-3"><a href="landmine-module.html#cb59-3" tabindex="-1"></a>    <span class="dv">1</span>), <span class="at">control =</span> <span class="fu">DEoptim.control</span>(<span class="at">VTR =</span> <span class="fl">0.001</span>, <span class="at">NP =</span> <span class="fu">as.integer</span>(<span class="fu">length</span>(clNames)),</span>
-<span id="cb59-4"><a href="landmine-module.html#cb59-4" tabindex="-1"></a>    <span class="at">itermax =</span> <span class="dv">200</span>, <span class="at">cluster =</span> cl, <span class="at">strategy =</span> <span class="dv">6</span>), <span class="at">ros =</span> ros, <span class="at">centreCell =</span> centreCell,</span>
-<span id="cb59-5"><a href="landmine-module.html#cb59-5" tabindex="-1"></a>    <span class="at">fireSizes =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">10000</span>, <span class="fl">1e+05</span>), <span class="at">desiredPerimeterArea =</span> <span class="fl">0.003</span>)</span>
-<span id="cb59-6"><a href="landmine-module.html#cb59-6" tabindex="-1"></a></span>
-<span id="cb59-7"><a href="landmine-module.html#cb59-7" tabindex="-1"></a>opt_sn<span class="sc">$</span>optim<span class="sc">$</span>bestmem  <span class="do">## best param values</span></span>
-<span id="cb59-8"><a href="landmine-module.html#cb59-8" tabindex="-1"></a></span>
-<span id="cb59-9"><a href="landmine-module.html#cb59-9" tabindex="-1"></a><span class="do">## assign with suffix to facilitate multiple DEoptim runs</span></span>
-<span id="cb59-10"><a href="landmine-module.html#cb59-10" tabindex="-1"></a>optimParams <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">date =</span> <span class="fu">format</span>(<span class="fu">Sys.time</span>(), <span class="st">&quot;%Y-%m-%d&quot;</span>),</span>
-<span id="cb59-11"><a href="landmine-module.html#cb59-11" tabindex="-1"></a>    <span class="at">pixelSize =</span> pixelSize) <span class="sc">|&gt;</span></span>
-<span id="cb59-12"><a href="landmine-module.html#cb59-12" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">rbind</span>(opt_sn<span class="sc">$</span>optim<span class="sc">$</span>bestmem))</span>
-<span id="cb59-13"><a href="landmine-module.html#cb59-13" tabindex="-1"></a></span>
-<span id="cb59-14"><a href="landmine-module.html#cb59-14" tabindex="-1"></a>fDEoptim <span class="ot">&lt;-</span> <span class="fu">file.path</span>(moduleDir, <span class="st">&quot;LandMine&quot;</span>, <span class="st">&quot;data&quot;</span>, <span class="st">&quot;LandMine_DEoptim_params.csv&quot;</span>)</span>
-<span id="cb59-15"><a href="landmine-module.html#cb59-15" tabindex="-1"></a>prevVals <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(fDEoptim)</span>
-<span id="cb59-16"><a href="landmine-module.html#cb59-16" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">rbind</span>(prevVals, optimParams), fDEoptim, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb59-17"><a href="landmine-module.html#cb59-17" tabindex="-1"></a></span>
-<span id="cb59-18"><a href="landmine-module.html#cb59-18" tabindex="-1"></a>parallel<span class="sc">::</span><span class="fu">stopCluster</span>(cl)</span>
-<span id="cb59-19"><a href="landmine-module.html#cb59-19" tabindex="-1"></a>cl <span class="ot">&lt;-</span> <span class="cn">NULL</span></span></code></pre></div>
-<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="landmine-module.html#cb60-1" tabindex="-1"></a>fs_sn <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">10000</span>, <span class="fl">1e+05</span>)</span>
-<span id="cb60-2"><a href="landmine-module.html#cb60-2" tabindex="-1"></a>fit_sn <span class="ot">&lt;-</span> <span class="fu">landmine_optim_fitSN</span>(<span class="at">sna =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">4</span>,</span>
-<span id="cb60-3"><a href="landmine-module.html#cb60-3" tabindex="-1"></a>    <span class="fl">0.9</span>), <span class="at">ros =</span> ros, <span class="at">centreCell =</span> centreCell, <span class="at">fireSizes =</span> fs_sn,</span>
-<span id="cb60-4"><a href="landmine-module.html#cb60-4" tabindex="-1"></a>    <span class="at">desiredPerimeterArea =</span> <span class="fl">0.003</span>)</span>
-<span id="cb60-5"><a href="landmine-module.html#cb60-5" tabindex="-1"></a>bfs1_sn <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">transpose</span>(<span class="fu">attr</span>(fit_sn, <span class="st">&quot;bfs1&quot;</span>))</span>
-<span id="cb60-6"><a href="landmine-module.html#cb60-6" tabindex="-1"></a>LM_sn <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, bfs1_sn<span class="sc">$</span>LM)</span>
-<span id="cb60-7"><a href="landmine-module.html#cb60-7" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">log10</span>(fs_sn), LM_sn[, <span class="st">&quot;perim.area.ratio&quot;</span>])  <span class="do">## </span><span class="al">NOTE</span><span class="do">: visual inspection - not too round; not too sinuous</span></span></code></pre></div>
+<h3>
+<span class="header-section-number">10.4.1</span> Visual examination<a class="anchor" aria-label="anchor" href="#visual-examination"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">opt_sn</span> <span class="op">&lt;-</span> <span class="fu">DEoptim</span><span class="op">(</span><span class="va">landmine_optim_fitSN</span>, lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">3</span>, <span class="op">-</span><span class="fl">3</span>,</span>
+<span>    <span class="op">-</span><span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">3.5</span>, <span class="fl">0.75</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">3.5</span>, <span class="fl">5</span>,</span>
+<span>    <span class="fl">1</span><span class="op">)</span>, control <span class="op">=</span> <span class="fu">DEoptim.control</span><span class="op">(</span>VTR <span class="op">=</span> <span class="fl">0.001</span>, NP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">clNames</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    itermax <span class="op">=</span> <span class="fl">200</span>, cluster <span class="op">=</span> <span class="va">cl</span>, strategy <span class="op">=</span> <span class="fl">6</span><span class="op">)</span>, ros <span class="op">=</span> <span class="va">ros</span>, centreCell <span class="op">=</span> <span class="va">centreCell</span>,</span>
+<span>    fireSizes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">1000</span>, <span class="fl">10000</span>, <span class="fl">1e+05</span><span class="op">)</span>, desiredPerimeterArea <span class="op">=</span> <span class="fl">0.003</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">opt_sn</span><span class="op">$</span><span class="va">optim</span><span class="op">$</span><span class="va">bestmem</span>  <span class="co">## best param values</span></span>
+<span></span>
+<span><span class="co">## assign with suffix to facilitate multiple DEoptim runs</span></span>
+<span><span class="va">optimParams</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html">Sys.time</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"%Y-%m-%d"</span><span class="op">)</span>,</span>
+<span>    pixelSize <span class="op">=</span> <span class="va">pixelSize</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">opt_sn</span><span class="op">$</span><span class="va">optim</span><span class="op">$</span><span class="va">bestmem</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fDEoptim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">moduleDir</span>, <span class="st">"LandMine"</span>, <span class="st">"data"</span>, <span class="st">"LandMine_DEoptim_params.csv"</span><span class="op">)</span></span>
+<span><span class="va">prevVals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="va">fDEoptim</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html">write.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">prevVals</span>, <span class="va">optimParams</span><span class="op">)</span>, <span class="va">fDEoptim</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/makeCluster.html">stopCluster</a></span><span class="op">(</span><span class="va">cl</span><span class="op">)</span></span>
+<span><span class="va">cl</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fs_sn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">100</span>, <span class="fl">1000</span>, <span class="fl">10000</span>, <span class="fl">1e+05</span><span class="op">)</span></span>
+<span><span class="va">fit_sn</span> <span class="op">&lt;-</span> <span class="fu">landmine_optim_fitSN</span><span class="op">(</span>sna <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">4</span>,</span>
+<span>    <span class="fl">0.9</span><span class="op">)</span>, ros <span class="op">=</span> <span class="va">ros</span>, centreCell <span class="op">=</span> <span class="va">centreCell</span>, fireSizes <span class="op">=</span> <span class="va">fs_sn</span>,</span>
+<span>    desiredPerimeterArea <span class="op">=</span> <span class="fl">0.003</span><span class="op">)</span></span>
+<span><span class="va">bfs1_sn</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/transpose.html">transpose</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html">attr</a></span><span class="op">(</span><span class="va">fit_sn</span>, <span class="st">"bfs1"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">LM_sn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">bfs1_sn</span><span class="op">$</span><span class="va">LM</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">fs_sn</span><span class="op">)</span>, <span class="va">LM_sn</span><span class="op">[</span>, <span class="st">"perim.area.ratio"</span><span class="op">]</span><span class="op">)</span>  <span class="co">## NOTE: visual inspection - not too round; not too sinuous</span></span></code></pre></div>
 </div>
 </div>
 <div id="alternate-optimization" class="section level2" number="10.5">
-<h2><span class="header-section-number">10.5</span> Alternate optimization</h2>
+<h2>
+<span class="header-section-number">10.5</span> Alternate optimization<a class="anchor" aria-label="anchor" href="#alternate-optimization"><i class="fas fa-link"></i></a>
+</h2>
 <p>A second (alternative) version tries the optimization using fewer parameters, to test whether a simpler version gets better/different results.
 Although this version was not used for the final module, we preserve it here for posterity.</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="landmine-module.html#cb61-1" tabindex="-1"></a>fs_optim2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.2</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>) <span class="sc">*</span> <span class="dv">10000</span></span>
-<span id="cb61-2"><a href="landmine-module.html#cb61-2" tabindex="-1"></a>opt_sn2 <span class="ot">&lt;-</span> <span class="fu">DEoptim</span>(landmine_optim_fitSN2, <span class="at">lower =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>,</span>
-<span id="cb61-3"><a href="landmine-module.html#cb61-3" tabindex="-1"></a>    <span class="dv">3</span>, <span class="dv">4</span>), <span class="at">upper =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="sc">-</span><span class="fl">0.3</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>), <span class="at">control =</span> <span class="fu">DEoptim.control</span>(<span class="at">VTR =</span> <span class="fl">0.001</span>,</span>
-<span id="cb61-4"><a href="landmine-module.html#cb61-4" tabindex="-1"></a>    <span class="at">itermax =</span> <span class="dv">40</span>, <span class="at">cluster =</span> cl, <span class="at">strategy =</span> <span class="dv">6</span>), <span class="at">ros =</span> ros, <span class="at">centreCell =</span> centreCell,</span>
-<span id="cb61-5"><a href="landmine-module.html#cb61-5" tabindex="-1"></a>    <span class="at">fireSizes =</span> fs_optim2, <span class="at">desiredPerimeterArea =</span> <span class="fl">0.003</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fs_optim2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span> <span class="op">*</span> <span class="fl">10000</span></span>
+<span><span class="va">opt_sn2</span> <span class="op">&lt;-</span> <span class="fu">DEoptim</span><span class="op">(</span><span class="va">landmine_optim_fitSN2</span>, lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>,</span>
+<span>    <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span><span class="op">)</span>, control <span class="op">=</span> <span class="fu">DEoptim.control</span><span class="op">(</span>VTR <span class="op">=</span> <span class="fl">0.001</span>,</span>
+<span>    itermax <span class="op">=</span> <span class="fl">40</span>, cluster <span class="op">=</span> <span class="va">cl</span>, strategy <span class="op">=</span> <span class="fl">6</span><span class="op">)</span>, ros <span class="op">=</span> <span class="va">ros</span>, centreCell <span class="op">=</span> <span class="va">centreCell</span>,</span>
+<span>    fireSizes <span class="op">=</span> <span class="va">fs_optim2</span>, desiredPerimeterArea <span class="op">=</span> <span class="fl">0.003</span><span class="op">)</span></span></code></pre></div>
 <div id="visual-examination-1" class="section level3" number="10.5.1">
-<h3><span class="header-section-number">10.5.1</span> Visual examination</h3>
-<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="landmine-module.html#cb62-1" tabindex="-1"></a>fs_sn2 <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">runif</span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">4000</span>))</span>
-<span id="cb62-2"><a href="landmine-module.html#cb62-2" tabindex="-1"></a>fit_sn2 <span class="ot">&lt;-</span> <span class="fu">landmine_optim_fitSN2</span>(<span class="at">par =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="sc">-</span><span class="fl">0.63333</span>, <span class="dv">1</span>, <span class="fl">3.2</span>,</span>
-<span id="cb62-3"><a href="landmine-module.html#cb62-3" tabindex="-1"></a>    <span class="fl">4.4</span>), <span class="at">ros =</span> ros, <span class="at">centreCell =</span> centreCell, <span class="at">fireSizes =</span> fs_sn2,</span>
-<span id="cb62-4"><a href="landmine-module.html#cb62-4" tabindex="-1"></a>    <span class="at">desiredPerimeterArea =</span> <span class="fl">0.003</span>, <span class="at">spreadProb =</span> <span class="fl">0.9</span>)</span>
-<span id="cb62-5"><a href="landmine-module.html#cb62-5" tabindex="-1"></a>bfs1_sn2 <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">transpose</span>(<span class="fu">attr</span>(fit_sn2, <span class="st">&quot;bfs1&quot;</span>))</span>
-<span id="cb62-6"><a href="landmine-module.html#cb62-6" tabindex="-1"></a>LM_sn2 <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, bfs1_sn2<span class="sc">$</span>LM)</span>
-<span id="cb62-7"><a href="landmine-module.html#cb62-7" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">log10</span>(fs_sn2), LM_sn2[, <span class="st">&quot;perim.area.ratio&quot;</span>])  <span class="do">## </span><span class="al">NOTE</span><span class="do">: visual inspection - not too round; not too sinuous</span></span></code></pre></div>
+<h3>
+<span class="header-section-number">10.5.1</span> Visual examination<a class="anchor" aria-label="anchor" href="#visual-examination-1"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fs_sn2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">10</span>, <span class="fl">4000</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fit_sn2</span> <span class="op">&lt;-</span> <span class="fu">landmine_optim_fitSN2</span><span class="op">(</span>par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">0.63333</span>, <span class="fl">1</span>, <span class="fl">3.2</span>,</span>
+<span>    <span class="fl">4.4</span><span class="op">)</span>, ros <span class="op">=</span> <span class="va">ros</span>, centreCell <span class="op">=</span> <span class="va">centreCell</span>, fireSizes <span class="op">=</span> <span class="va">fs_sn2</span>,</span>
+<span>    desiredPerimeterArea <span class="op">=</span> <span class="fl">0.003</span>, spreadProb <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
+<span><span class="va">bfs1_sn2</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/transpose.html">transpose</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html">attr</a></span><span class="op">(</span><span class="va">fit_sn2</span>, <span class="st">"bfs1"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">LM_sn2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">bfs1_sn2</span><span class="op">$</span><span class="va">LM</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">fs_sn2</span><span class="op">)</span>, <span class="va">LM_sn2</span><span class="op">[</span>, <span class="st">"perim.area.ratio"</span><span class="op">]</span><span class="op">)</span>  <span class="co">## NOTE: visual inspection - not too round; not too sinuous</span></span></code></pre></div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
 <div id="manual-inspection-of-optimization-results" class="section level2" number="10.6">
-<h2><span class="header-section-number">10.6</span> Manual inspection of optimization results</h2>
+<h2>
+<span class="header-section-number">10.6</span> Manual inspection of optimization results<a class="anchor" aria-label="anchor" href="#manual-inspection-of-optimization-results"><i class="fas fa-link"></i></a>
+</h2>
 <div id="original-2018-version" class="section level3" number="10.6.1">
-<h3><span class="header-section-number">10.6.1</span> Original (2018) version</h3>
+<h3>
+<span class="header-section-number">10.6.1</span> Original (2018) version<a class="anchor" aria-label="anchor" href="#original-2018-version"><i class="fas fa-link"></i></a>
+</h3>
 <p>The original version was run using 100m pixels, despite the simulations being run using 250m pixels.
 This was corrected and rerun below.</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="landmine-module.html#cb63-1" tabindex="-1"></a><span class="do">## 10,000 hectares burns gave this</span></span>
-<span id="cb63-2"><a href="landmine-module.html#cb63-2" tabindex="-1"></a>spawnNewActive[<span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.0235999945606232</span>, <span class="fl">0.0263073265505955</span>)</span>
-<span id="cb63-3"><a href="landmine-module.html#cb63-3" tabindex="-1"></a></span>
-<span id="cb63-4"><a href="landmine-module.html#cb63-4" tabindex="-1"></a><span class="co"># 100,000 hectare burns gave this spawnNewActive &lt;-</span></span>
-<span id="cb63-5"><a href="landmine-module.html#cb63-5" tabindex="-1"></a><span class="co"># 10^c(-1.264780, -1.970946, -1.288213, -2.202580)</span></span>
-<span id="cb63-6"><a href="landmine-module.html#cb63-6" tabindex="-1"></a>spawnNewActive <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.586503645288758</span>, <span class="sc">-</span><span class="fl">1.08108837273903</span>,</span>
-<span id="cb63-7"><a href="landmine-module.html#cb63-7" tabindex="-1"></a>    <span class="sc">-</span><span class="fl">2.14391896536108</span>, <span class="sc">-</span><span class="fl">1.00221184641123</span>)</span>
-<span id="cb63-8"><a href="landmine-module.html#cb63-8" tabindex="-1"></a>sizeCutoffs <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span><span class="fu">c</span>(<span class="fl">3.37711253212765</span>, <span class="fl">4.52040993282571</span>)</span>
-<span id="cb63-9"><a href="landmine-module.html#cb63-9" tabindex="-1"></a></span>
-<span id="cb63-10"><a href="landmine-module.html#cb63-10" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.733262</span>, <span class="sc">-</span><span class="fl">0.933318</span>, <span class="sc">-</span><span class="fl">2.562183</span>, <span class="sc">-</span><span class="fl">2.493687</span>, <span class="fl">3.064458</span>,</span>
-<span id="cb63-11"><a href="landmine-module.html#cb63-11" tabindex="-1"></a>    <span class="fl">4.812305</span>)</span>
-<span id="cb63-12"><a href="landmine-module.html#cb63-12" tabindex="-1"></a>spawnNewActive <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>sns[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]</span>
-<span id="cb63-13"><a href="landmine-module.html#cb63-13" tabindex="-1"></a>sizeCutoffs <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>sns[<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>]</span>
-<span id="cb63-14"><a href="landmine-module.html#cb63-14" tabindex="-1"></a><span class="co"># spawnNewActive &lt;- 10^c(-1.646419, -1.815395, -2.809013,</span></span>
-<span id="cb63-15"><a href="landmine-module.html#cb63-15" tabindex="-1"></a><span class="co"># -2.613337) sizeCutoffs &lt;- 10^c(3.888317, 4.641961)</span></span>
-<span id="cb63-16"><a href="landmine-module.html#cb63-16" tabindex="-1"></a></span>
-<span id="cb63-17"><a href="landmine-module.html#cb63-17" tabindex="-1"></a><span class="do">## 100,000 pixel fires -- the next worked, but I think we</span></span>
-<span id="cb63-18"><a href="landmine-module.html#cb63-18" tabindex="-1"></a><span class="do">## can get better sns &lt;- structure(</span></span>
-<span id="cb63-19"><a href="landmine-module.html#cb63-19" tabindex="-1"></a><span class="do">## c(-1.652459,-0.962121,-0.964879,-2.304902, 3.522345,</span></span>
-<span id="cb63-20"><a href="landmine-module.html#cb63-20" tabindex="-1"></a><span class="do">## 4.173242), .Names = c(&#39;par1&#39;,</span></span>
-<span id="cb63-21"><a href="landmine-module.html#cb63-21" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">structure</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.641197</span>, <span class="sc">-</span><span class="fl">1.152821</span>, <span class="sc">-</span><span class="fl">0.697335</span>, <span class="sc">-</span><span class="fl">1.751917</span>,</span>
-<span id="cb63-22"><a href="landmine-module.html#cb63-22" tabindex="-1"></a>    <span class="fl">3.720378</span>, <span class="fl">4.034059</span>), <span class="at">.Names =</span> <span class="fu">c</span>(<span class="st">&quot;par1&quot;</span>, <span class="st">&quot;par2&quot;</span>, <span class="st">&quot;par3&quot;</span>, <span class="st">&quot;par4&quot;</span>,</span>
-<span id="cb63-23"><a href="landmine-module.html#cb63-23" tabindex="-1"></a>    <span class="st">&quot;par5&quot;</span>, <span class="st">&quot;par6&quot;</span>))</span>
-<span id="cb63-24"><a href="landmine-module.html#cb63-24" tabindex="-1"></a>spawnNewActive <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>sns[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]</span>
-<span id="cb63-25"><a href="landmine-module.html#cb63-25" tabindex="-1"></a>sizeCutoffs <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>(sns[<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>])</span>
-<span id="cb63-26"><a href="landmine-module.html#cb63-26" tabindex="-1"></a>fireSize <span class="ot">&lt;-</span> <span class="dv">30000</span></span>
-<span id="cb63-27"><a href="landmine-module.html#cb63-27" tabindex="-1"></a></span>
-<span id="cb63-28"><a href="landmine-module.html#cb63-28" tabindex="-1"></a><span class="do">## 100</span></span>
-<span id="cb63-29"><a href="landmine-module.html#cb63-29" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.77716149196811</span>, <span class="sc">-</span><span class="fl">0.769325340166688</span>, <span class="sc">-</span><span class="fl">1.2772046867758</span>,</span>
-<span id="cb63-30"><a href="landmine-module.html#cb63-30" tabindex="-1"></a>    <span class="sc">-</span><span class="fl">1.99332102853805</span>, <span class="fl">3.14260408212431</span>, <span class="fl">4.46155184064992</span>)</span>
-<span id="cb63-31"><a href="landmine-module.html#cb63-31" tabindex="-1"></a></span>
-<span id="cb63-32"><a href="landmine-module.html#cb63-32" tabindex="-1"></a><span class="do">## 1000</span></span>
-<span id="cb63-33"><a href="landmine-module.html#cb63-33" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.775107</span>, <span class="sc">-</span><span class="fl">1.03176</span>, <span class="sc">-</span><span class="fl">0.599669</span>, <span class="sc">-</span><span class="fl">1.958105</span>, <span class="fl">3.048958</span>,</span>
-<span id="cb63-34"><a href="landmine-module.html#cb63-34" tabindex="-1"></a>    <span class="fl">4.275831</span>)</span>
-<span id="cb63-35"><a href="landmine-module.html#cb63-35" tabindex="-1"></a></span>
-<span id="cb63-36"><a href="landmine-module.html#cb63-36" tabindex="-1"></a><span class="do">## seemed good for 100,000, pretty good for 1e3</span></span>
-<span id="cb63-37"><a href="landmine-module.html#cb63-37" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.54885</span>, <span class="sc">-</span><span class="fl">0.97052</span>, <span class="sc">-</span><span class="fl">1.38305</span>, <span class="sc">-</span><span class="fl">1.93759</span>, <span class="fl">3.20379</span>, <span class="fl">4.13237</span>)</span>
-<span id="cb63-38"><a href="landmine-module.html#cb63-38" tabindex="-1"></a></span>
-<span id="cb63-39"><a href="landmine-module.html#cb63-39" tabindex="-1"></a><span class="do">## good for 100 000, 10 000 ha -- too sinuous for 1000 and</span></span>
-<span id="cb63-40"><a href="landmine-module.html#cb63-40" tabindex="-1"></a><span class="do">## 100 ha</span></span>
-<span id="cb63-41"><a href="landmine-module.html#cb63-41" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.537203</span>, <span class="sc">-</span><span class="fl">1.462981</span>, <span class="sc">-</span><span class="fl">0.524957</span>, <span class="sc">-</span><span class="fl">1.002567</span>, <span class="fl">3.642046</span>,</span>
-<span id="cb63-42"><a href="landmine-module.html#cb63-42" tabindex="-1"></a>    <span class="fl">4.501754</span>)</span>
-<span id="cb63-43"><a href="landmine-module.html#cb63-43" tabindex="-1"></a></span>
-<span id="cb63-44"><a href="landmine-module.html#cb63-44" tabindex="-1"></a><span class="do">## good for 100 000, 10 000 ha (except some fires @ 1e5</span></span>
-<span id="cb63-45"><a href="landmine-module.html#cb63-45" tabindex="-1"></a><span class="do">## don&#39;t make it to full size) -- too sinuous for smaller</span></span>
-<span id="cb63-46"><a href="landmine-module.html#cb63-46" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.484338</span>, <span class="sc">-</span><span class="fl">1.22044</span>, <span class="sc">-</span><span class="fl">2.948275</span>, <span class="sc">-</span><span class="fl">2.15594</span>, <span class="fl">3.945281</span>,</span>
-<span id="cb63-47"><a href="landmine-module.html#cb63-47" tabindex="-1"></a>    <span class="fl">4.904893</span>)</span>
-<span id="cb63-48"><a href="landmine-module.html#cb63-48" tabindex="-1"></a></span>
-<span id="cb63-49"><a href="landmine-module.html#cb63-49" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.495247</span>, <span class="sc">-</span><span class="fl">0.800494</span>, <span class="sc">-</span><span class="fl">1.58235</span>, <span class="sc">-</span><span class="fl">2.270646</span>, <span class="fl">3.530671</span>,</span>
-<span id="cb63-50"><a href="landmine-module.html#cb63-50" tabindex="-1"></a>    <span class="fl">4.663245</span>)</span>
-<span id="cb63-51"><a href="landmine-module.html#cb63-51" tabindex="-1"></a></span>
-<span id="cb63-52"><a href="landmine-module.html#cb63-52" tabindex="-1"></a><span class="do">## final optimization after 75 iterations, Good: 1e5, 1e4</span></span>
-<span id="cb63-53"><a href="landmine-module.html#cb63-53" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.47809</span>, <span class="sc">-</span><span class="fl">0.86224</span>, <span class="sc">-</span><span class="fl">1.34532</span>, <span class="sc">-</span><span class="fl">1.93568</span>, <span class="fl">3.27149</span>, <span class="fl">4.20741</span>)</span>
-<span id="cb63-54"><a href="landmine-module.html#cb63-54" tabindex="-1"></a></span>
-<span id="cb63-55"><a href="landmine-module.html#cb63-55" tabindex="-1"></a><span class="do">## based on equal weights 10^(1:5)</span></span>
-<span id="cb63-56"><a href="landmine-module.html#cb63-56" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.923528</span>, <span class="sc">-</span><span class="fl">1.804549</span>, <span class="sc">-</span><span class="fl">1.760455</span>, <span class="sc">-</span><span class="fl">1.793594</span>, <span class="fl">1.683355</span>,</span>
-<span id="cb63-57"><a href="landmine-module.html#cb63-57" tabindex="-1"></a>    <span class="fl">4.466668</span>)</span>
-<span id="cb63-58"><a href="landmine-module.html#cb63-58" tabindex="-1"></a></span>
-<span id="cb63-59"><a href="landmine-module.html#cb63-59" tabindex="-1"></a><span class="do">## With spreadProb = 0.9 # Pretty GOOD!</span></span>
-<span id="cb63-60"><a href="landmine-module.html#cb63-60" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.73152</span>, <span class="sc">-</span><span class="fl">0.501823</span>, <span class="sc">-</span><span class="fl">0.605968</span>, <span class="sc">-</span><span class="fl">1.809726</span>, <span class="fl">2.202732</span>,</span>
-<span id="cb63-61"><a href="landmine-module.html#cb63-61" tabindex="-1"></a>    <span class="fl">4.69606</span>, <span class="fl">0.9</span>)  <span class="do">## used in module</span></span>
-<span id="cb63-62"><a href="landmine-module.html#cb63-62" tabindex="-1"></a>optimParams <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">date =</span> <span class="st">&quot;2018-05-18&quot;</span>, <span class="at">pixelSize =</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
-<span id="cb63-63"><a href="landmine-module.html#cb63-63" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">rbind</span>(sns))</span>
-<span id="cb63-64"><a href="landmine-module.html#cb63-64" tabindex="-1"></a><span class="fu">write.csv</span>(optimParams, fDEoptim, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb63-65"><a href="landmine-module.html#cb63-65" tabindex="-1"></a></span>
-<span id="cb63-66"><a href="landmine-module.html#cb63-66" tabindex="-1"></a><span class="do">## With spreadProb = 0.9 # Optimal</span></span>
-<span id="cb63-67"><a href="landmine-module.html#cb63-67" tabindex="-1"></a>sns <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.978947</span>, <span class="sc">-</span><span class="fl">0.540946</span>, <span class="sc">-</span><span class="fl">0.790736</span>, <span class="sc">-</span><span class="fl">1.583039</span>, <span class="fl">2.532013</span>,</span>
-<span id="cb63-68"><a href="landmine-module.html#cb63-68" tabindex="-1"></a>    <span class="fl">4.267547</span>, <span class="fl">0.94673</span>)</span>
-<span id="cb63-69"><a href="landmine-module.html#cb63-69" tabindex="-1"></a></span>
-<span id="cb63-70"><a href="landmine-module.html#cb63-70" tabindex="-1"></a>spawnNewActive <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>sns[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]</span>
-<span id="cb63-71"><a href="landmine-module.html#cb63-71" tabindex="-1"></a>sizeCutoffs <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>(sns[<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>])</span>
-<span id="cb63-72"><a href="landmine-module.html#cb63-72" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(sns) <span class="sc">==</span> <span class="dv">7</span>) spreadProb <span class="ot">&lt;-</span> sns[<span class="dv">7</span>]</span>
-<span id="cb63-73"><a href="landmine-module.html#cb63-73" tabindex="-1"></a></span>
-<span id="cb63-74"><a href="landmine-module.html#cb63-74" tabindex="-1"></a><span class="co"># from linear model version</span></span>
-<span id="cb63-75"><a href="landmine-module.html#cb63-75" tabindex="-1"></a>par <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1.548899</span>, <span class="sc">-</span><span class="fl">0.396904</span>, <span class="fl">2.191424</span>, <span class="fl">3.903082</span>, <span class="fl">4.854002</span>)</span>
-<span id="cb63-76"><a href="landmine-module.html#cb63-76" tabindex="-1"></a>sizeCutoffs <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span><span class="fu">c</span>(par[<span class="dv">4</span>], par[<span class="dv">5</span>])</span>
-<span id="cb63-77"><a href="landmine-module.html#cb63-77" tabindex="-1"></a>sna <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="sc">-</span><span class="fl">0.15</span>, par[<span class="dv">1</span>] <span class="sc">+</span> par[<span class="dv">2</span>] <span class="sc">*</span> <span class="fu">log10</span>(fireSize))</span>
-<span id="cb63-78"><a href="landmine-module.html#cb63-78" tabindex="-1"></a>sna <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span><span class="fu">c</span>(sna <span class="sc">*</span> par[<span class="dv">3</span>], sna <span class="sc">*</span> <span class="dv">2</span> <span class="sc">*</span> par[<span class="dv">3</span>], sna <span class="sc">*</span> <span class="dv">3</span> <span class="sc">*</span> par[<span class="dv">3</span>],</span>
-<span id="cb63-79"><a href="landmine-module.html#cb63-79" tabindex="-1"></a>    sna <span class="sc">*</span> <span class="dv">4</span> <span class="sc">*</span> par[<span class="dv">3</span>])</span>
-<span id="cb63-80"><a href="landmine-module.html#cb63-80" tabindex="-1"></a>spawnNewActive <span class="ot">&lt;-</span> sna</span>
-<span id="cb63-81"><a href="landmine-module.html#cb63-81" tabindex="-1"></a></span>
-<span id="cb63-82"><a href="landmine-module.html#cb63-82" tabindex="-1"></a><span class="do">###########################</span></span>
-<span id="cb63-83"><a href="landmine-module.html#cb63-83" tabindex="-1"></a><span class="fu">clearPlot</span>()</span>
-<span id="cb63-84"><a href="landmine-module.html#cb63-84" tabindex="-1"></a><span class="fu">dev</span>()</span>
-<span id="cb63-85"><a href="landmine-module.html#cb63-85" tabindex="-1"></a></span>
-<span id="cb63-86"><a href="landmine-module.html#cb63-86" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) {</span>
-<span id="cb63-87"><a href="landmine-module.html#cb63-87" tabindex="-1"></a>    fireSize <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>i</span>
-<span id="cb63-88"><a href="landmine-module.html#cb63-88" tabindex="-1"></a>    dim <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">sqrt</span>(fireSize) <span class="sc">*</span> <span class="dv">5</span> <span class="sc">*</span> <span class="dv">250</span>)</span>
-<span id="cb63-89"><a href="landmine-module.html#cb63-89" tabindex="-1"></a>    ros <span class="ot">&lt;-</span> <span class="fu">raster</span>(<span class="fu">extent</span>(<span class="dv">0</span>, dim, <span class="dv">0</span>, dim), <span class="at">res =</span> <span class="dv">250</span>, <span class="at">vals =</span> <span class="dv">1</span>)</span>
-<span id="cb63-90"><a href="landmine-module.html#cb63-90" tabindex="-1"></a>    centreCell <span class="ot">&lt;-</span> <span class="fu">cellFromRowCol</span>(ros, <span class="at">rownr =</span> <span class="fu">nrow</span>(ros)<span class="sc">/</span><span class="dv">2</span>, <span class="at">colnr =</span> <span class="fu">ncol</span>(ros)<span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb63-91"><a href="landmine-module.html#cb63-91" tabindex="-1"></a>    reps <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;rep&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span> <span class="sc">+</span> (<span class="fu">log10</span>(fireSize) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="dv">4</span>)</span>
-<span id="cb63-92"><a href="landmine-module.html#cb63-92" tabindex="-1"></a>    burnedMapList <span class="ot">&lt;-</span> <span class="fu">landmine_optim_clusterWrap</span>(<span class="at">cl =</span> cl, <span class="at">nodes =</span> clNames,</span>
-<span id="cb63-93"><a href="landmine-module.html#cb63-93" tabindex="-1"></a>        <span class="at">reps =</span> reps, <span class="at">objs =</span> objs, <span class="at">pkgs =</span> pkgs)</span>
-<span id="cb63-94"><a href="landmine-module.html#cb63-94" tabindex="-1"></a>    <span class="fu">names</span>(burnedMapList<span class="sc">$</span>out) <span class="ot">&lt;-</span> reps</span>
-<span id="cb63-95"><a href="landmine-module.html#cb63-95" tabindex="-1"></a>    burnedMapList <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">transpose</span>(burnedMapList<span class="sc">$</span>out)</span>
-<span id="cb63-96"><a href="landmine-module.html#cb63-96" tabindex="-1"></a>    cl <span class="ot">&lt;-</span> burnedMapList<span class="sc">$</span>cl</span>
-<span id="cb63-97"><a href="landmine-module.html#cb63-97" tabindex="-1"></a>    <span class="fu">do.call</span>(rbind, burnedMapList<span class="sc">$</span>LM)</span>
-<span id="cb63-98"><a href="landmine-module.html#cb63-98" tabindex="-1"></a></span>
-<span id="cb63-99"><a href="landmine-module.html#cb63-99" tabindex="-1"></a>    <span class="fu">Plot</span>(burnedMapList<span class="sc">$</span>burnedMap, <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">&quot;red&quot;</span>), <span class="at">new =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb63-100"><a href="landmine-module.html#cb63-100" tabindex="-1"></a>        <span class="at">na.color =</span> <span class="st">&quot;white&quot;</span>, <span class="at">legend =</span> <span class="cn">FALSE</span>, <span class="at">visualSqueeze =</span> <span class="fl">0.7</span>,</span>
-<span id="cb63-101"><a href="landmine-module.html#cb63-101" tabindex="-1"></a>        <span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">&quot;Fire size: &quot;</span>, fireSize))</span>
-<span id="cb63-102"><a href="landmine-module.html#cb63-102" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="landmine-module.html#cb64-1" tabindex="-1"></a>reps <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;rep&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">1</span>)</span>
-<span id="cb64-2"><a href="landmine-module.html#cb64-2" tabindex="-1"></a>perims <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb64-3"><a href="landmine-module.html#cb64-3" tabindex="-1"></a>perm <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb64-4"><a href="landmine-module.html#cb64-4" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb64-5"><a href="landmine-module.html#cb64-5" tabindex="-1"></a><span class="fu">dev</span>()</span>
-<span id="cb64-6"><a href="landmine-module.html#cb64-6" tabindex="-1"></a><span class="fu">clearPlot</span>()</span>
-<span id="cb64-7"><a href="landmine-module.html#cb64-7" tabindex="-1"></a>fireSizes <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>(<span class="dv">4</span>)</span>
-<span id="cb64-8"><a href="landmine-module.html#cb64-8" tabindex="-1"></a></span>
-<span id="cb64-9"><a href="landmine-module.html#cb64-9" tabindex="-1"></a><span class="cf">for</span> (fs <span class="cf">in</span> fireSizes) {</span>
-<span id="cb64-10"><a href="landmine-module.html#cb64-10" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1</span>) {</span>
-<span id="cb64-11"><a href="landmine-module.html#cb64-11" tabindex="-1"></a>        ros <span class="ot">&lt;-</span> <span class="fu">raster</span>(<span class="fu">extent</span>(<span class="dv">0</span>, <span class="fl">2e+05</span>, <span class="dv">0</span>, <span class="fl">2e+05</span>), <span class="at">res =</span> <span class="dv">250</span>,</span>
-<span id="cb64-12"><a href="landmine-module.html#cb64-12" tabindex="-1"></a>            <span class="at">vals =</span> <span class="dv">1</span>)</span>
-<span id="cb64-13"><a href="landmine-module.html#cb64-13" tabindex="-1"></a>        NineCorners <span class="ot">&lt;-</span> <span class="fu">cellFromRowCol</span>(ros, <span class="at">rownr =</span> <span class="fu">nrow</span>(ros)<span class="sc">/</span><span class="dv">4</span> <span class="sc">*</span></span>
-<span id="cb64-14"><a href="landmine-module.html#cb64-14" tabindex="-1"></a>            <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">3</span>), <span class="at">colnr =</span> <span class="fu">ncol</span>(ros)<span class="sc">/</span><span class="dv">4</span> <span class="sc">*</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">each =</span> <span class="dv">3</span>))</span>
-<span id="cb64-15"><a href="landmine-module.html#cb64-15" tabindex="-1"></a>        centreCell <span class="ot">&lt;-</span> NineCorners</span>
-<span id="cb64-16"><a href="landmine-module.html#cb64-16" tabindex="-1"></a>        ran <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">4</span>, <span class="sc">-</span><span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>)</span>
-<span id="cb64-17"><a href="landmine-module.html#cb64-17" tabindex="-1"></a>        spawnNewActive <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>ran</span>
-<span id="cb64-18"><a href="landmine-module.html#cb64-18" tabindex="-1"></a>        <span class="co"># spawnNewActive &lt;- 10^c(-0.1, -0.75, -1.2,</span></span>
-<span id="cb64-19"><a href="landmine-module.html#cb64-19" tabindex="-1"></a>        <span class="co"># ran*2.5)</span></span>
-<span id="cb64-20"><a href="landmine-module.html#cb64-20" tabindex="-1"></a>        fireSize <span class="ot">=</span> <span class="fu">rep</span>(fs, <span class="fu">length</span>(centreCell))</span>
-<span id="cb64-21"><a href="landmine-module.html#cb64-21" tabindex="-1"></a>        sizeCutoffs <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>)</span>
-<span id="cb64-22"><a href="landmine-module.html#cb64-22" tabindex="-1"></a>        burnedMapList <span class="ot">&lt;-</span> <span class="fu">landmine_optim_clusterWrap</span>(<span class="at">cl =</span> cl,</span>
-<span id="cb64-23"><a href="landmine-module.html#cb64-23" tabindex="-1"></a>            <span class="at">nodes =</span> clNames, <span class="at">reps =</span> reps, <span class="at">objs =</span> objs, <span class="at">pkgs =</span> pkgs)</span>
-<span id="cb64-24"><a href="landmine-module.html#cb64-24" tabindex="-1"></a>        <span class="fu">names</span>(burnedMapList<span class="sc">$</span>out) <span class="ot">&lt;-</span> reps</span>
-<span id="cb64-25"><a href="landmine-module.html#cb64-25" tabindex="-1"></a>        burnedMapList <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">transpose</span>(burnedMapList<span class="sc">$</span>out)</span>
-<span id="cb64-26"><a href="landmine-module.html#cb64-26" tabindex="-1"></a>        cl <span class="ot">&lt;-</span> burnedMapList<span class="sc">$</span>cl</span>
-<span id="cb64-27"><a href="landmine-module.html#cb64-27" tabindex="-1"></a>        <span class="fu">do.call</span>(rbind, burnedMapList<span class="sc">$</span>LM)</span>
-<span id="cb64-28"><a href="landmine-module.html#cb64-28" tabindex="-1"></a>        <span class="fu">Plot</span>(burnedMapList<span class="sc">$</span>burnedMap, <span class="at">new =</span> <span class="cn">TRUE</span>, <span class="at">zero.color =</span> <span class="st">&quot;white&quot;</span>)</span>
-<span id="cb64-29"><a href="landmine-module.html#cb64-29" tabindex="-1"></a>        perims[[i]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">perim =</span> burnedMapList<span class="sc">$</span>LM<span class="sc">$</span>rep1<span class="sc">$</span>perim.area.ratio,</span>
-<span id="cb64-30"><a href="landmine-module.html#cb64-30" tabindex="-1"></a>            <span class="at">spawnNewActive =</span> <span class="fu">mean</span>(spawnNewActive), <span class="at">others =</span> <span class="fu">t</span>(spawnNewActive))</span>
-<span id="cb64-31"><a href="landmine-module.html#cb64-31" tabindex="-1"></a>    }</span>
-<span id="cb64-32"><a href="landmine-module.html#cb64-32" tabindex="-1"></a>    fsChar <span class="ot">&lt;-</span> <span class="fu">as.character</span>(fs)</span>
-<span id="cb64-33"><a href="landmine-module.html#cb64-33" tabindex="-1"></a>    perm[[fsChar]] <span class="ot">&lt;-</span> <span class="fu">rbindlist</span>(perims)</span>
-<span id="cb64-34"><a href="landmine-module.html#cb64-34" tabindex="-1"></a>    perm[[fsChar]]<span class="sc">$</span>perim <span class="ot">&lt;-</span> <span class="fu">log10</span>(perm[[fsChar]]<span class="sc">$</span>perim)</span>
-<span id="cb64-35"><a href="landmine-module.html#cb64-35" tabindex="-1"></a>    perm[[fsChar]]<span class="sc">$</span>spawnNewActive <span class="ot">&lt;-</span> perm[[fsChar]]<span class="sc">$</span>spawnNewActive</span>
-<span id="cb64-36"><a href="landmine-module.html#cb64-36" tabindex="-1"></a>    <span class="fu">Plot</span>(perm[[fsChar]]<span class="sc">$</span>perim, perm[[fsChar]]<span class="sc">$</span>spawnNewActive,</span>
-<span id="cb64-37"><a href="landmine-module.html#cb64-37" tabindex="-1"></a>        <span class="at">new =</span> <span class="cn">TRUE</span>, <span class="at">addTo =</span> <span class="fu">paste0</span>(<span class="st">&quot;fs&quot;</span>, fsChar))</span>
-<span id="cb64-38"><a href="landmine-module.html#cb64-38" tabindex="-1"></a>    mod[[fsChar]] <span class="ot">&lt;-</span> <span class="fu">lm</span>(spawnNewActive <span class="sc">~</span> perim, <span class="at">data =</span> perm[[fsChar]])</span>
-<span id="cb64-39"><a href="landmine-module.html#cb64-39" tabindex="-1"></a>}</span>
-<span id="cb64-40"><a href="landmine-module.html#cb64-40" tabindex="-1"></a></span>
-<span id="cb64-41"><a href="landmine-module.html#cb64-41" tabindex="-1"></a>(<span class="fu">predict</span>(mod[[<span class="st">&quot;10&quot;</span>]], <span class="fu">data.frame</span>(<span class="at">perim =</span> <span class="fu">log10</span>(<span class="fl">0.003</span>))))</span>
-<span id="cb64-42"><a href="landmine-module.html#cb64-42" tabindex="-1"></a>(<span class="fu">predict</span>(mod[[<span class="st">&quot;100&quot;</span>]], <span class="fu">data.frame</span>(<span class="at">perim =</span> <span class="fu">log10</span>(<span class="fl">0.003</span>))))</span>
-<span id="cb64-43"><a href="landmine-module.html#cb64-43" tabindex="-1"></a><span class="fu">log10</span>(<span class="fu">predict</span>(mod[[<span class="st">&quot;1000&quot;</span>]], <span class="fu">data.frame</span>(<span class="at">perim =</span> <span class="fu">log10</span>(<span class="fl">0.003</span>))))</span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## 10,000 hectares burns gave this</span></span>
+<span><span class="va">spawnNewActive</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.0235999945606232</span>, <span class="fl">0.0263073265505955</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 100,000 hectare burns gave this spawnNewActive &lt;-</span></span>
+<span><span class="co"># 10^c(-1.264780, -1.970946, -1.288213, -2.202580)</span></span>
+<span><span class="va">spawnNewActive</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.586503645288758</span>, <span class="op">-</span><span class="fl">1.08108837273903</span>,</span>
+<span>    <span class="op">-</span><span class="fl">2.14391896536108</span>, <span class="op">-</span><span class="fl">1.00221184641123</span><span class="op">)</span></span>
+<span><span class="va">sizeCutoffs</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3.37711253212765</span>, <span class="fl">4.52040993282571</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.733262</span>, <span class="op">-</span><span class="fl">0.933318</span>, <span class="op">-</span><span class="fl">2.562183</span>, <span class="op">-</span><span class="fl">2.493687</span>, <span class="fl">3.064458</span>,</span>
+<span>    <span class="fl">4.812305</span><span class="op">)</span></span>
+<span><span class="va">spawnNewActive</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="va">sns</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span>
+<span><span class="va">sizeCutoffs</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="va">sns</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span>
+<span><span class="co"># spawnNewActive &lt;- 10^c(-1.646419, -1.815395, -2.809013,</span></span>
+<span><span class="co"># -2.613337) sizeCutoffs &lt;- 10^c(3.888317, 4.641961)</span></span>
+<span></span>
+<span><span class="co">## 100,000 pixel fires -- the next worked, but I think we</span></span>
+<span><span class="co">## can get better sns &lt;- structure(</span></span>
+<span><span class="co">## c(-1.652459,-0.962121,-0.964879,-2.304902, 3.522345,</span></span>
+<span><span class="co">## 4.173242), .Names = c('par1',</span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/structure.html">structure</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.641197</span>, <span class="op">-</span><span class="fl">1.152821</span>, <span class="op">-</span><span class="fl">0.697335</span>, <span class="op">-</span><span class="fl">1.751917</span>,</span>
+<span>    <span class="fl">3.720378</span>, <span class="fl">4.034059</span><span class="op">)</span>, .Names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"par1"</span>, <span class="st">"par2"</span>, <span class="st">"par3"</span>, <span class="st">"par4"</span>,</span>
+<span>    <span class="st">"par5"</span>, <span class="st">"par6"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">spawnNewActive</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="va">sns</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span>
+<span><span class="va">sizeCutoffs</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="op">(</span><span class="va">sns</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">fireSize</span> <span class="op">&lt;-</span> <span class="fl">30000</span></span>
+<span></span>
+<span><span class="co">## 100</span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.77716149196811</span>, <span class="op">-</span><span class="fl">0.769325340166688</span>, <span class="op">-</span><span class="fl">1.2772046867758</span>,</span>
+<span>    <span class="op">-</span><span class="fl">1.99332102853805</span>, <span class="fl">3.14260408212431</span>, <span class="fl">4.46155184064992</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## 1000</span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.775107</span>, <span class="op">-</span><span class="fl">1.03176</span>, <span class="op">-</span><span class="fl">0.599669</span>, <span class="op">-</span><span class="fl">1.958105</span>, <span class="fl">3.048958</span>,</span>
+<span>    <span class="fl">4.275831</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## seemed good for 100,000, pretty good for 1e3</span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.54885</span>, <span class="op">-</span><span class="fl">0.97052</span>, <span class="op">-</span><span class="fl">1.38305</span>, <span class="op">-</span><span class="fl">1.93759</span>, <span class="fl">3.20379</span>, <span class="fl">4.13237</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## good for 100 000, 10 000 ha -- too sinuous for 1000 and</span></span>
+<span><span class="co">## 100 ha</span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.537203</span>, <span class="op">-</span><span class="fl">1.462981</span>, <span class="op">-</span><span class="fl">0.524957</span>, <span class="op">-</span><span class="fl">1.002567</span>, <span class="fl">3.642046</span>,</span>
+<span>    <span class="fl">4.501754</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## good for 100 000, 10 000 ha (except some fires @ 1e5</span></span>
+<span><span class="co">## don't make it to full size) -- too sinuous for smaller</span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.484338</span>, <span class="op">-</span><span class="fl">1.22044</span>, <span class="op">-</span><span class="fl">2.948275</span>, <span class="op">-</span><span class="fl">2.15594</span>, <span class="fl">3.945281</span>,</span>
+<span>    <span class="fl">4.904893</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.495247</span>, <span class="op">-</span><span class="fl">0.800494</span>, <span class="op">-</span><span class="fl">1.58235</span>, <span class="op">-</span><span class="fl">2.270646</span>, <span class="fl">3.530671</span>,</span>
+<span>    <span class="fl">4.663245</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## final optimization after 75 iterations, Good: 1e5, 1e4</span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.47809</span>, <span class="op">-</span><span class="fl">0.86224</span>, <span class="op">-</span><span class="fl">1.34532</span>, <span class="op">-</span><span class="fl">1.93568</span>, <span class="fl">3.27149</span>, <span class="fl">4.20741</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## based on equal weights 10^(1:5)</span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.923528</span>, <span class="op">-</span><span class="fl">1.804549</span>, <span class="op">-</span><span class="fl">1.760455</span>, <span class="op">-</span><span class="fl">1.793594</span>, <span class="fl">1.683355</span>,</span>
+<span>    <span class="fl">4.466668</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## With spreadProb = 0.9 # Pretty GOOD!</span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.73152</span>, <span class="op">-</span><span class="fl">0.501823</span>, <span class="op">-</span><span class="fl">0.605968</span>, <span class="op">-</span><span class="fl">1.809726</span>, <span class="fl">2.202732</span>,</span>
+<span>    <span class="fl">4.69606</span>, <span class="fl">0.9</span><span class="op">)</span>  <span class="co">## used in module</span></span>
+<span><span class="va">optimParams</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>date <span class="op">=</span> <span class="st">"2018-05-18"</span>, pixelSize <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">sns</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html">write.csv</a></span><span class="op">(</span><span class="va">optimParams</span>, <span class="va">fDEoptim</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## With spreadProb = 0.9 # Optimal</span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.978947</span>, <span class="op">-</span><span class="fl">0.540946</span>, <span class="op">-</span><span class="fl">0.790736</span>, <span class="op">-</span><span class="fl">1.583039</span>, <span class="fl">2.532013</span>,</span>
+<span>    <span class="fl">4.267547</span>, <span class="fl">0.94673</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">spawnNewActive</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="va">sns</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span>
+<span><span class="va">sizeCutoffs</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="op">(</span><span class="va">sns</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">sns</span><span class="op">)</span> <span class="op">==</span> <span class="fl">7</span><span class="op">)</span> <span class="va">spreadProb</span> <span class="op">&lt;-</span> <span class="va">sns</span><span class="op">[</span><span class="fl">7</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># from linear model version</span></span>
+<span><span class="va">par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1.548899</span>, <span class="op">-</span><span class="fl">0.396904</span>, <span class="fl">2.191424</span>, <span class="fl">3.903082</span>, <span class="fl">4.854002</span><span class="op">)</span></span>
+<span><span class="va">sizeCutoffs</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">par</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span>, <span class="va">par</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">sna</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.15</span>, <span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">fireSize</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sna</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">sna</span> <span class="op">*</span> <span class="va">par</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="va">sna</span> <span class="op">*</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">par</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="va">sna</span> <span class="op">*</span> <span class="fl">3</span> <span class="op">*</span> <span class="va">par</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>,</span>
+<span>    <span class="va">sna</span> <span class="op">*</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">par</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">spawnNewActive</span> <span class="op">&lt;-</span> <span class="va">sna</span></span>
+<span></span>
+<span><span class="co">###########################</span></span>
+<span><span class="fu">clearPlot</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">dev</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">fireSize</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="va">i</span></span>
+<span>    <span class="va">dim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">fireSize</span><span class="op">)</span> <span class="op">*</span> <span class="fl">5</span> <span class="op">*</span> <span class="fl">250</span><span class="op">)</span></span>
+<span>    <span class="va">ros</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="op">(</span><span class="fu">extent</span><span class="op">(</span><span class="fl">0</span>, <span class="va">dim</span>, <span class="fl">0</span>, <span class="va">dim</span><span class="op">)</span>, res <span class="op">=</span> <span class="fl">250</span>, vals <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>    <span class="va">centreCell</span> <span class="op">&lt;-</span> <span class="fu">cellFromRowCol</span><span class="op">(</span><span class="va">ros</span>, rownr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">ros</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span>, colnr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">ros</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="va">reps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"rep"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">fireSize</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fl">4</span><span class="op">)</span></span>
+<span>    <span class="va">burnedMapList</span> <span class="op">&lt;-</span> <span class="fu">landmine_optim_clusterWrap</span><span class="op">(</span>cl <span class="op">=</span> <span class="va">cl</span>, nodes <span class="op">=</span> <span class="va">clNames</span>,</span>
+<span>        reps <span class="op">=</span> <span class="va">reps</span>, objs <span class="op">=</span> <span class="va">objs</span>, pkgs <span class="op">=</span> <span class="va">pkgs</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">burnedMapList</span><span class="op">$</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">reps</span></span>
+<span>    <span class="va">burnedMapList</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/transpose.html">transpose</a></span><span class="op">(</span><span class="va">burnedMapList</span><span class="op">$</span><span class="va">out</span><span class="op">)</span></span>
+<span>    <span class="va">cl</span> <span class="op">&lt;-</span> <span class="va">burnedMapList</span><span class="op">$</span><span class="va">cl</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">burnedMapList</span><span class="op">$</span><span class="va">LM</span><span class="op">)</span></span>
+<span></span>
+<span>    <span class="fu">Plot</span><span class="op">(</span><span class="va">burnedMapList</span><span class="op">$</span><span class="va">burnedMap</span>, cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span>, new <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        na.color <span class="op">=</span> <span class="st">"white"</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, visualSqueeze <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>        title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"Fire size: "</span>, <span class="va">fireSize</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">reps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"rep"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">perims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">perm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">dev</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">clearPlot</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">fireSizes</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">fs</span> <span class="kw">in</span> <span class="va">fireSizes</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="va">ros</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="op">(</span><span class="fu">extent</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2e+05</span>, <span class="fl">0</span>, <span class="fl">2e+05</span><span class="op">)</span>, res <span class="op">=</span> <span class="fl">250</span>,</span>
+<span>            vals <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>        <span class="va">NineCorners</span> <span class="op">&lt;-</span> <span class="fu">cellFromRowCol</span><span class="op">(</span><span class="va">ros</span>, rownr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">ros</span><span class="op">)</span><span class="op">/</span><span class="fl">4</span> <span class="op">*</span></span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>, colnr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">ros</span><span class="op">)</span><span class="op">/</span><span class="fl">4</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, each <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span>        <span class="va">centreCell</span> <span class="op">&lt;-</span> <span class="va">NineCorners</span></span>
+<span>        <span class="va">ran</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="fl">4</span>, <span class="op">-</span><span class="fl">3</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
+<span>        <span class="va">spawnNewActive</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="va">ran</span></span>
+<span>        <span class="co"># spawnNewActive &lt;- 10^c(-0.1, -0.75, -1.2,</span></span>
+<span>        <span class="co"># ran*2.5)</span></span>
+<span>        <span class="va">fireSize</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="va">fs</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">centreCell</span><span class="op">)</span><span class="op">)</span></span>
+<span>        <span class="va">sizeCutoffs</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span>        <span class="va">burnedMapList</span> <span class="op">&lt;-</span> <span class="fu">landmine_optim_clusterWrap</span><span class="op">(</span>cl <span class="op">=</span> <span class="va">cl</span>,</span>
+<span>            nodes <span class="op">=</span> <span class="va">clNames</span>, reps <span class="op">=</span> <span class="va">reps</span>, objs <span class="op">=</span> <span class="va">objs</span>, pkgs <span class="op">=</span> <span class="va">pkgs</span><span class="op">)</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">burnedMapList</span><span class="op">$</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">reps</span></span>
+<span>        <span class="va">burnedMapList</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/transpose.html">transpose</a></span><span class="op">(</span><span class="va">burnedMapList</span><span class="op">$</span><span class="va">out</span><span class="op">)</span></span>
+<span>        <span class="va">cl</span> <span class="op">&lt;-</span> <span class="va">burnedMapList</span><span class="op">$</span><span class="va">cl</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">burnedMapList</span><span class="op">$</span><span class="va">LM</span><span class="op">)</span></span>
+<span>        <span class="fu">Plot</span><span class="op">(</span><span class="va">burnedMapList</span><span class="op">$</span><span class="va">burnedMap</span>, new <span class="op">=</span> <span class="cn">TRUE</span>, zero.color <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span></span>
+<span>        <span class="va">perims</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>perim <span class="op">=</span> <span class="va">burnedMapList</span><span class="op">$</span><span class="va">LM</span><span class="op">$</span><span class="va">rep1</span><span class="op">$</span><span class="va">perim.area.ratio</span>,</span>
+<span>            spawnNewActive <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">spawnNewActive</span><span class="op">)</span>, others <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">spawnNewActive</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
+<span>    <span class="va">fsChar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">fs</span><span class="op">)</span></span>
+<span>    <span class="va">perm</span><span class="op">[[</span><span class="va">fsChar</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">rbindlist</span><span class="op">(</span><span class="va">perims</span><span class="op">)</span></span>
+<span>    <span class="va">perm</span><span class="op">[[</span><span class="va">fsChar</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">perim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">perm</span><span class="op">[[</span><span class="va">fsChar</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">perim</span><span class="op">)</span></span>
+<span>    <span class="va">perm</span><span class="op">[[</span><span class="va">fsChar</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">spawnNewActive</span> <span class="op">&lt;-</span> <span class="va">perm</span><span class="op">[[</span><span class="va">fsChar</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">spawnNewActive</span></span>
+<span>    <span class="fu">Plot</span><span class="op">(</span><span class="va">perm</span><span class="op">[[</span><span class="va">fsChar</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">perim</span>, <span class="va">perm</span><span class="op">[[</span><span class="va">fsChar</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">spawnNewActive</span>,</span>
+<span>        new <span class="op">=</span> <span class="cn">TRUE</span>, addTo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"fs"</span>, <span class="va">fsChar</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">mod</span><span class="op">[[</span><span class="va">fsChar</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">spawnNewActive</span> <span class="op">~</span> <span class="va">perim</span>, data <span class="op">=</span> <span class="va">perm</span><span class="op">[[</span><span class="va">fsChar</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">mod</span><span class="op">[[</span><span class="st">"10"</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>perim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="fl">0.003</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">mod</span><span class="op">[[</span><span class="st">"100"</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>perim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="fl">0.003</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">mod</span><span class="op">[[</span><span class="st">"1000"</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>perim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="fl">0.003</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div id="current-2022-version" class="section level3" number="10.6.2">
-<h3><span class="header-section-number">10.6.2</span> Current (2022) version</h3>
+<h3>
+<span class="header-section-number">10.6.2</span> Current (2022) version<a class="anchor" aria-label="anchor" href="#current-2022-version"><i class="fas fa-link"></i></a>
+</h3>
 <p>The original version was run using 100m pixels, despite the simulations being run using 250m pixels.
 This version uses 250m pixels.</p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="landmine-module.html#cb65-1" tabindex="-1"></a><span class="do">## final optimization after 200 iterations</span></span>
-<span id="cb65-2"><a href="landmine-module.html#cb65-2" tabindex="-1"></a><span class="do">## (landmine_optim_fitSN)</span></span>
-<span id="cb65-3"><a href="landmine-module.html#cb65-3" tabindex="-1"></a>optimParams <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(fDEoptim)</span>
-<span id="cb65-4"><a href="landmine-module.html#cb65-4" tabindex="-1"></a>sns <span class="ot">&lt;-</span> optimParams[, <span class="fu">grepl</span>(<span class="st">&quot;^par&quot;</span>, <span class="fu">colnames</span>(optimParams))] <span class="sc">|&gt;</span></span>
-<span id="cb65-5"><a href="landmine-module.html#cb65-5" tabindex="-1"></a>    <span class="fu">tail</span>(<span class="dv">1</span>)  <span class="do">## take last row</span></span>
-<span id="cb65-6"><a href="landmine-module.html#cb65-6" tabindex="-1"></a></span>
-<span id="cb65-7"><a href="landmine-module.html#cb65-7" tabindex="-1"></a>spawnNewActive <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>sns[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]</span>
-<span id="cb65-8"><a href="landmine-module.html#cb65-8" tabindex="-1"></a>sizeCutoffs <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>(sns[<span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>])</span>
-<span id="cb65-9"><a href="landmine-module.html#cb65-9" tabindex="-1"></a>spreadProb <span class="ot">&lt;-</span> sns[<span class="dv">7</span>]</span>
-<span id="cb65-10"><a href="landmine-module.html#cb65-10" tabindex="-1"></a></span>
-<span id="cb65-11"><a href="landmine-module.html#cb65-11" tabindex="-1"></a><span class="do">## from linear model version</span></span>
-<span id="cb65-12"><a href="landmine-module.html#cb65-12" tabindex="-1"></a>par <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1.548899</span>, <span class="sc">-</span><span class="fl">0.396904</span>, <span class="fl">2.191424</span>, <span class="fl">3.903082</span>, <span class="fl">4.854002</span>)</span>
-<span id="cb65-13"><a href="landmine-module.html#cb65-13" tabindex="-1"></a>sizeCutoffs <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span><span class="fu">c</span>(par[<span class="dv">4</span>], par[<span class="dv">5</span>])</span>
-<span id="cb65-14"><a href="landmine-module.html#cb65-14" tabindex="-1"></a>sna <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="sc">-</span><span class="fl">0.15</span>, par[<span class="dv">1</span>] <span class="sc">+</span> par[<span class="dv">2</span>] <span class="sc">*</span> <span class="fu">log10</span>(fireSize))</span>
-<span id="cb65-15"><a href="landmine-module.html#cb65-15" tabindex="-1"></a>sna <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span><span class="fu">c</span>(sna <span class="sc">*</span> par[<span class="dv">3</span>], sna <span class="sc">*</span> <span class="dv">2</span> <span class="sc">*</span> par[<span class="dv">3</span>], sna <span class="sc">*</span> <span class="dv">3</span> <span class="sc">*</span> par[<span class="dv">3</span>],</span>
-<span id="cb65-16"><a href="landmine-module.html#cb65-16" tabindex="-1"></a>    sna <span class="sc">*</span> <span class="dv">4</span> <span class="sc">*</span> par[<span class="dv">3</span>])</span>
-<span id="cb65-17"><a href="landmine-module.html#cb65-17" tabindex="-1"></a>spawnNewActive <span class="ot">&lt;-</span> sna</span>
-<span id="cb65-18"><a href="landmine-module.html#cb65-18" tabindex="-1"></a></span>
-<span id="cb65-19"><a href="landmine-module.html#cb65-19" tabindex="-1"></a><span class="fu">clearPlot</span>()</span>
-<span id="cb65-20"><a href="landmine-module.html#cb65-20" tabindex="-1"></a></span>
-<span id="cb65-21"><a href="landmine-module.html#cb65-21" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) {</span>
-<span id="cb65-22"><a href="landmine-module.html#cb65-22" tabindex="-1"></a>    fireSize <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">^</span>i</span>
-<span id="cb65-23"><a href="landmine-module.html#cb65-23" tabindex="-1"></a>    dim <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">sqrt</span>(fireSize) <span class="sc">*</span> <span class="dv">5</span> <span class="sc">*</span> <span class="dv">250</span>)</span>
-<span id="cb65-24"><a href="landmine-module.html#cb65-24" tabindex="-1"></a>    ros <span class="ot">&lt;-</span> <span class="fu">raster</span>(<span class="fu">extent</span>(<span class="dv">0</span>, dim, <span class="dv">0</span>, dim), <span class="at">res =</span> <span class="dv">250</span>, <span class="at">vals =</span> <span class="dv">1</span>)</span>
-<span id="cb65-25"><a href="landmine-module.html#cb65-25" tabindex="-1"></a>    centreCell <span class="ot">&lt;-</span> <span class="fu">cellFromRowCol</span>(ros, <span class="at">row =</span> <span class="fu">nrow</span>(ros)<span class="sc">/</span><span class="dv">2</span>, <span class="at">col =</span> <span class="fu">ncol</span>(ros)<span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb65-26"><a href="landmine-module.html#cb65-26" tabindex="-1"></a>    reps <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;rep&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span> <span class="sc">+</span> (<span class="fu">log10</span>(fireSize) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="dv">4</span>)</span>
-<span id="cb65-27"><a href="landmine-module.html#cb65-27" tabindex="-1"></a>    burnedMapList <span class="ot">&lt;-</span> <span class="fu">landmine_optim_clusterWrap</span>(<span class="at">cl =</span> cl, <span class="at">nodes =</span> clNames,</span>
-<span id="cb65-28"><a href="landmine-module.html#cb65-28" tabindex="-1"></a>        <span class="at">reps =</span> reps, <span class="at">objs =</span> objs, <span class="at">pkgs =</span> pkgs)</span>
-<span id="cb65-29"><a href="landmine-module.html#cb65-29" tabindex="-1"></a>    <span class="fu">names</span>(burnedMapList<span class="sc">$</span>out) <span class="ot">&lt;-</span> reps</span>
-<span id="cb65-30"><a href="landmine-module.html#cb65-30" tabindex="-1"></a>    burnedMapList <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">transpose</span>(burnedMapList<span class="sc">$</span>out)</span>
-<span id="cb65-31"><a href="landmine-module.html#cb65-31" tabindex="-1"></a>    cl <span class="ot">&lt;-</span> burnedMapList<span class="sc">$</span>cl</span>
-<span id="cb65-32"><a href="landmine-module.html#cb65-32" tabindex="-1"></a>    <span class="fu">do.call</span>(rbind, burnedMapList<span class="sc">$</span>LM)</span>
-<span id="cb65-33"><a href="landmine-module.html#cb65-33" tabindex="-1"></a></span>
-<span id="cb65-34"><a href="landmine-module.html#cb65-34" tabindex="-1"></a>    <span class="fu">Plot</span>(burnedMapList<span class="sc">$</span>burnedMap, <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">&quot;red&quot;</span>), <span class="at">new =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb65-35"><a href="landmine-module.html#cb65-35" tabindex="-1"></a>        <span class="at">na.color =</span> <span class="st">&quot;white&quot;</span>, <span class="at">legend =</span> <span class="cn">FALSE</span>, <span class="at">visualSqueeze =</span> <span class="fl">0.7</span>,</span>
-<span id="cb65-36"><a href="landmine-module.html#cb65-36" tabindex="-1"></a>        <span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">&quot;Fire size: &quot;</span>, fireSize))</span>
-<span id="cb65-37"><a href="landmine-module.html#cb65-37" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## final optimization after 200 iterations</span></span>
+<span><span class="co">## (landmine_optim_fitSN)</span></span>
+<span><span class="va">optimParams</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="va">fDEoptim</span><span class="op">)</span></span>
+<span><span class="va">sns</span> <span class="op">&lt;-</span> <span class="va">optimParams</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span><span class="op">(</span><span class="st">"^par"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">optimParams</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/utils/head.html">tail</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>  <span class="co">## take last row</span></span>
+<span></span>
+<span><span class="va">spawnNewActive</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="va">sns</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span></span>
+<span><span class="va">sizeCutoffs</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="op">(</span><span class="va">sns</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">spreadProb</span> <span class="op">&lt;-</span> <span class="va">sns</span><span class="op">[</span><span class="fl">7</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co">## from linear model version</span></span>
+<span><span class="va">par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1.548899</span>, <span class="op">-</span><span class="fl">0.396904</span>, <span class="fl">2.191424</span>, <span class="fl">3.903082</span>, <span class="fl">4.854002</span><span class="op">)</span></span>
+<span><span class="va">sizeCutoffs</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">par</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span>, <span class="va">par</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">sna</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.15</span>, <span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">fireSize</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sna</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">sna</span> <span class="op">*</span> <span class="va">par</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="va">sna</span> <span class="op">*</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">par</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="va">sna</span> <span class="op">*</span> <span class="fl">3</span> <span class="op">*</span> <span class="va">par</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>,</span>
+<span>    <span class="va">sna</span> <span class="op">*</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">par</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">spawnNewActive</span> <span class="op">&lt;-</span> <span class="va">sna</span></span>
+<span></span>
+<span><span class="fu">clearPlot</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">fireSize</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="va">i</span></span>
+<span>    <span class="va">dim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">fireSize</span><span class="op">)</span> <span class="op">*</span> <span class="fl">5</span> <span class="op">*</span> <span class="fl">250</span><span class="op">)</span></span>
+<span>    <span class="va">ros</span> <span class="op">&lt;-</span> <span class="fu">raster</span><span class="op">(</span><span class="fu">extent</span><span class="op">(</span><span class="fl">0</span>, <span class="va">dim</span>, <span class="fl">0</span>, <span class="va">dim</span><span class="op">)</span>, res <span class="op">=</span> <span class="fl">250</span>, vals <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>    <span class="va">centreCell</span> <span class="op">&lt;-</span> <span class="fu">cellFromRowCol</span><span class="op">(</span><span class="va">ros</span>, row <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">ros</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">ros</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="va">reps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"rep"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">fireSize</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fl">4</span><span class="op">)</span></span>
+<span>    <span class="va">burnedMapList</span> <span class="op">&lt;-</span> <span class="fu">landmine_optim_clusterWrap</span><span class="op">(</span>cl <span class="op">=</span> <span class="va">cl</span>, nodes <span class="op">=</span> <span class="va">clNames</span>,</span>
+<span>        reps <span class="op">=</span> <span class="va">reps</span>, objs <span class="op">=</span> <span class="va">objs</span>, pkgs <span class="op">=</span> <span class="va">pkgs</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">burnedMapList</span><span class="op">$</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">reps</span></span>
+<span>    <span class="va">burnedMapList</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/transpose.html">transpose</a></span><span class="op">(</span><span class="va">burnedMapList</span><span class="op">$</span><span class="va">out</span><span class="op">)</span></span>
+<span>    <span class="va">cl</span> <span class="op">&lt;-</span> <span class="va">burnedMapList</span><span class="op">$</span><span class="va">cl</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">burnedMapList</span><span class="op">$</span><span class="va">LM</span><span class="op">)</span></span>
+<span></span>
+<span>    <span class="fu">Plot</span><span class="op">(</span><span class="va">burnedMapList</span><span class="op">$</span><span class="va">burnedMap</span>, cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"red"</span><span class="op">)</span>, new <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        na.color <span class="op">=</span> <span class="st">"white"</span>, legend <span class="op">=</span> <span class="cn">FALSE</span>, visualSqueeze <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>        title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"Fire size: "</span>, <span class="va">fireSize</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 </div>
 <div id="cleaning-up" class="section level3" number="10.6.3">
-<h3><span class="header-section-number">10.6.3</span> Cleaning up</h3>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="landmine-module.html#cb66-1" tabindex="-1"></a>parallel<span class="sc">::</span><span class="fu">stopCluster</span>(cl)</span>
-<span id="cb66-2"><a href="landmine-module.html#cb66-2" tabindex="-1"></a><span class="fu">unlink</span>(cacheDir, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<h3>
+<span class="header-section-number">10.6.3</span> Cleaning up<a class="anchor" aria-label="anchor" href="#cleaning-up"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">parallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/parallel/makeCluster.html">stopCluster</a></span><span class="op">(</span><span class="va">cl</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html">unlink</a></span><span class="op">(</span><span class="va">cacheDir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div id="code-and-data-availability" class="section level3" number="10.6.4">
-<h3><span class="header-section-number">10.6.4</span> Code and data availability</h3>
+<h3>
+<span class="header-section-number">10.6.4</span> Code and data availability<a class="anchor" aria-label="anchor" href="#code-and-data-availability"><i class="fas fa-link"></i></a>
+</h3>
 <p>Code available from <a href="https://github.com/PredictiveEcology/LandMine" class="uri">https://github.com/PredictiveEcology/LandMine</a>.</p>
 </div>
 <div id="links-to-other-modules-3" class="section level3" number="10.6.5">
-<h3><span class="header-section-number">10.6.5</span> Links to other modules</h3>
+<h3>
+<span class="header-section-number">10.6.5</span> Links to other modules<a class="anchor" aria-label="anchor" href="#links-to-other-modules-3"><i class="fas fa-link"></i></a>
+</h3>
 <p>Originally developed as part of the <a href="https://github.com/PredictiveEcology/LandWeb">LandWeb</a> project.
 ## References
 </p>
@@ -1498,27 +1543,59 @@ This version uses 250m pixels.</p>
 </div>
 </div>
 </div>
-  </main>
-
-  <div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
-    <nav id="toc" data-toggle="toc" aria-label="On this page">
-      <h2>On this page</h2>
-      <div id="book-on-this-page"></div>
+  <div class="chapter-nav">
+<div class="prev"><a href="wildfire-submodel.html">Wildfire submodel</a></div>
+<div class="next"><a href="model-outputs.html">Model outputs</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#landmine-module"><span class="header-section-number">10</span> LandMine Module</a></li>
+<li>
+<a class="nav-link" href="#module-overview-7"><span class="header-section-number">10.1</span> Module Overview</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#module-summary-4"><span class="header-section-number">10.1.1</span> Module summary</a></li>
+<li><a class="nav-link" href="#model-differences"><span class="header-section-number">10.1.2</span> Model Differences</a></li>
+<li><a class="nav-link" href="#known-species"><span class="header-section-number">10.1.3</span> Known Species</a></li>
+<li><a class="nav-link" href="#module-inputs-and-parameters-2"><span class="header-section-number">10.1.4</span> Module inputs and parameters</a></li>
+<li><a class="nav-link" href="#module-outputs-2"><span class="header-section-number">10.1.5</span> Module outputs</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#usage-1"><span class="header-section-number">10.2</span> Usage</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#package-dependencies"><span class="header-section-number">10.2.1</span> Package dependencies</a></li>
+<li><a class="nav-link" href="#module-usage"><span class="header-section-number">10.2.2</span> Module usage</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#testing-the-burn-algorithm"><span class="header-section-number">10.3</span> Testing the burn algorithm</a></li>
+<li>
+<a class="nav-link" href="#optimizing-parameters"><span class="header-section-number">10.4</span> Optimizing parameters</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#visual-examination"><span class="header-section-number">10.4.1</span> Visual examination</a></li></ul>
+</li>
+<li>
+<a class="nav-link" href="#alternate-optimization"><span class="header-section-number">10.5</span> Alternate optimization</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#visual-examination-1"><span class="header-section-number">10.5.1</span> Visual examination</a></li></ul>
+</li>
+<li>
+<a class="nav-link" href="#manual-inspection-of-optimization-results"><span class="header-section-number">10.6</span> Manual inspection of optimization results</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#original-2018-version"><span class="header-section-number">10.6.1</span> Original (2018) version</a></li>
+<li><a class="nav-link" href="#current-2022-version"><span class="header-section-number">10.6.2</span> Current (2022) version</a></li>
+<li><a class="nav-link" href="#cleaning-up"><span class="header-section-number">10.6.3</span> Cleaning up</a></li>
+<li><a class="nav-link" href="#code-and-data-availability"><span class="header-section-number">10.6.4</span> Code and data availability</a></li>
+<li><a class="nav-link" href="#links-to-other-modules-3"><span class="header-section-number">10.6.5</span> Links to other modules</a></li>
+</ul>
+</li>
+</ul>
 
       <div class="book-extra">
         <ul class="list-unstyled">
-          <li><a id="book-source" href="#">View source <i class="fab fa-github"></i></a></li>
-          <li><a id="book-edit" href="#">Edit this page <i class="fab fa-github"></i></a></li>
+<li><a id="book-source" href="https://github.com/PredictiveEcology/LandWeb/blob/master/../modules/LandMine/LandMine2.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/PredictiveEcology/LandWeb/edit/master/../modules/LandMine/LandMine2.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
         </ul>
-      </div>
+</div>
     </nav>
-  </div>
+</div>
 
 </div>
 </div> <!-- .container -->
 
-<footer class="bg-primary text-light mt-5">
-  <div class="container"><div class="row">
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
     <p>"<strong>LandWeb Manual</strong>: v. 3.0.0" was written by Alex M. Chubaty; Ceres Barros; Ian M. S. Eddy; Eliot J. B. McIntire; David W. Andison. It was last built on 2025-08-25.</p>
@@ -1529,11 +1606,7 @@ This version uses 250m pixels.</p>
   </div>
 
 </div></div>
-</footer>
-
-
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
@@ -1545,8 +1618,7 @@ This version uses 250m pixels.</p>
     script.src = src;
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
-</script>
-<script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
 for (let popover of popovers) {
   const div = document.createElement('div');
   div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
@@ -1564,5 +1636,4 @@ for (let popover of popovers) {
 }
 </script>
 </body>
-
 </html>
