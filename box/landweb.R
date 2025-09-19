@@ -241,7 +241,7 @@ landwebConfig <- R6::R6Class(
         cachePath = file.path(projectPaths("cache"), self$context[["studyAreaName"]]),
         inputPath = projectPaths("input"),
         logPath = projectPaths("log"),
-        modulePath = "m", ## non-standard (historical reasons: max path lengths on shinyapps.io)
+        modulePath = "modules",
         outputPath = projectPaths("output"),
         projectPath = normPath(projectPath),
         scratchPath = file.path(dirname(tempdir()), "scratch", basename(projectPath)),
@@ -309,6 +309,7 @@ landwebConfig <- R6::R6Class(
       # parameters ---------------------------------------------------------------------------------
       private[[".params_full"]] <- list(
         .globals = list(
+          dataYear = 2020,
           fireTimestep = 1L,
           initialB = if (.version == 2) NA_real_ else 10,
           # reps = 1L:15L, ## TODO: used elsewhere to setup runs (expt table)?
@@ -329,8 +330,8 @@ landwebConfig <- R6::R6Class(
             B ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)
           )),
           ecoregionLayerField = "ECOREGION", # "ECODISTRIC"
-          forestedLCCClasses = c(1:15, 20, 32, 34:36), ## should match preamble's treeClassesLCC
-          LCCClassesToReplaceNN = 34:36,
+          forestedLCCClasses = c(81, 210, 220, 230, 240), ## should match preamble's treeClassesLCC
+          LCCClassesToReplaceNN = 240,
           # next two are used when assigning pixelGroup membership; what resolution for
           #   age and biomass
           pixelGroupAgeClass = 2 * 10, ## twice the successionTimestep; can be coarse because initial conditions are irrelevant
