@@ -9,7 +9,7 @@ box::use(pemisc[availableMemory])
   .runName <- paste0(
     context$studyAreaName,
     if (context$ROStype == "default") "" else paste0("_", context[["ROStype"]], "ROS"),
-    if (context$pixelSize == 250) "" else paste0("_res", context[["pixelSize"]]),
+    if (context$pixelSize == 240) "" else paste0("_res", context[["pixelSize"]]),
     if (isTRUE(withRep)) {
       if (context$mode == "postprocess") "" else sprintf("_rep%02d", context$rep)
     } else {
@@ -51,38 +51,29 @@ landwebContext <- R6::R6Class(
     #' @param studyAreaName Character string identifying a study area (see `LandWeb_preamble`
     #'                      module for up-to-date descriptions of each study area label).
     #'
-    #' @param version Integer. Shorthand denoting whether vegetation parameter forcings (`version = 2`)
-    #'                should be used as they were for the ca. 2018 runs.
-    #'                Version 3 uses the default LandR Biomass parameters (i.e., no forcings).
     initialize = function(
       projectPath,
       mode = "development",
       rep = 1L,
-      res = 250,
+      res = 240,
       ROStype = NA,
-      studyAreaName = "random",
-      version = 3
+      studyAreaName = "random"
     ) {
       if (is.na(ROStype)) {
-        ROStype <- if (version == 2) {
-          "log"
-        } else if (version == 3) {
-          "default"
-        }
+        ROStype <- "default"
       } else {
         ROStype <- tolower(ROStype)
       }
 
       stopifnot(
         res %in% c(120, 240), ## (res %% 30 == 0)
-        ROStype %in% c("default", "burny"),
-        version %in% c(2, 3)
+        ROStype %in% c("default", "burny")
       )
 
       private[[".pixelSize"]] <- res
       private[[".projectPath"]] <- normPath(projectPath)
       private[[".ROStype"]] <- ROStype
-      private[[".version"]] <- as.integer(version)
+      private[[".version"]] <- 3L
 
       self$machine <- Sys.info()[["nodename"]]
       self$user <- Sys.info()[["user"]]
@@ -148,11 +139,7 @@ landwebContext <- R6::R6Class(
           value
         }
 
-        newValue <- if (private[[".version"]] == 2) {
-          newValue
-        } else {
-          paste0(newValue, "_v", private[[".version"]])
-        }
+        newValue <- paste0(newValue, "_v", private[[".version"]])
 
         private[[".studyAreaName"]] <- newValue
         self$runName <- .landwebRunName(self)
@@ -233,7 +220,7 @@ landwebConfig <- R6::R6Class(
 
       self$context <- landwebContext$new(projectPath = projectPath, ...)
 
-      .version <- dots$version %||% 3
+      .version <- 3
 
       ## do paths first as these may be used below
       # paths ---------------------------------------------------------------------------------------
@@ -311,7 +298,7 @@ landwebConfig <- R6::R6Class(
         .globals = list(
           dataYear = 2020,
           fireTimestep = 1L,
-          initialB = if (.version == 2) NA_real_ else 10,
+          initialB = 10,
           # reps = 1L:15L, ## TODO: used elsewhere to setup runs (expt table)?
           # simOutputPath = self$paths[["outputPath"]],
           sppEquivCol = "LandWeb",
@@ -419,10 +406,10 @@ landwebConfig <- R6::R6Class(
           bufferDistLarge = 50000, ## 50 km buffer
           dispersalType = "default",
           friMultiple = 1L,
-          pixelSize = 250,
+          pixelSize = self$context[["pixelSize"]],
           minFRI = 25L,
           ROStype = self$context[["ROStype"]],
-          treeClassesLCC = c(1:15, 20, 32, 34:36), ## should match B_bDP's forestedLCCClasses
+          treeClassesLCC = c(81, 210, 220, 230, 240), ## should match B_bDP's forestedLCCClasses
           .plotInitialTime = 0, ## sim(start)
           .useCache = self$args[["useCache"]]
         ),
@@ -575,6 +562,7 @@ landwebConfig <- R6::R6Class(
         outputPath = updateOutputPath(self, .landwebRunName),
         tilePath = file.path(updateOutputPath(self, .landwebRunName), "tiles")
       )
+      unlist(self$paths) |> fs::dir_create() ## ensure all paths exist
 
       return(invisible(self))
     }

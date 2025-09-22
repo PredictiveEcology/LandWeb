@@ -1,6 +1,12 @@
-################################################################################
-## main simulation
-################################################################################
+## main simulation ---------------------------------------------------------------------------------
+
+if (!"postprocess" %in% config$context[["mode"]]) {
+  ## don't need replicated copies of preamble outputs
+  repID <- basename(config$paths[["outputPath"]])
+  config$paths[["outputPath"]] <- dirname(config$paths[["outputPath"]]) ## TODO: add to config
+  config$update() ## update logPath
+  fs::dir_create(config$paths[["logPath"]])
+}
 
 times3 <- list(start = 0, end = config$args[["endTime"]])
 
@@ -53,7 +59,7 @@ objects3 <- list(
   sppColorVect = simOutDataPrep[["sppColorVect"]],
   sppEquiv = simOutDataPrep[["sppEquiv"]],
   standAgeMap = simOutPreamble[["CC TSF"]], ## TODO: fix
-  #standAgeMap = simOutDataPrep[["standAgeMap"]],
+  # standAgeMap = simOutDataPrep[["standAgeMap"]],
   studyArea = simOutDataPrep[["studyArea"]],
   studyAreaLarge = simOutDataPrep[["studyAreaLarge"]],
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]], ## TODO: use sAR from simOutDataPrep
@@ -72,9 +78,9 @@ outputs3a <- data.frame(
     objectName = objectNamesToSave,
     saveTime = c(config$args[["timeSeriesTimes"]], analysesOutputsTimes)
   ),
-  fun = c("qsave", "writeRaster", "writeRaster", "writeRaster", "writeRaster"),
-  package = c("qs", "raster", "raster", "raster", "raster"),
-  file = paste0(objectNamesToSave, c(".qs", ".tif", ".tif", ".tif", ".grd")),
+  fun = c("saveRDS", "writeRaster", "writeRaster", "writeRaster", "writeRaster"),
+  package = c("base", "raster", "raster", "raster", "raster"),
+  file = paste0(objectNamesToSave, c(".rds", ".tif", ".tif", ".tif", ".tif")),
   stringsAsFactors = FALSE
 )
 outputs3a$arguments <- I(rep(list(
@@ -82,7 +88,7 @@ outputs3a$arguments <- I(rep(list(
   list(overwrite = TRUE, progress = FALSE, format = "GTiff"),
   list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
   list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
-  list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "raster") ## TODO: use GTiff
+  list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "GTiff")
 ), times = NROW(outputs3a) / length(objectNamesToSave)))
 
 outputs3b <- data.frame(
@@ -96,17 +102,19 @@ outputs3c <- data.frame(
   expand.grid(objectName = c("rstCurrentBurnCumulative", "rstFlammable"), saveTime = times3$end),
   fun = c("writeRaster", "writeRaster"),
   package = c("raster", "raster"),
-  arguments = I(list(list(overwrite = TRUE, progress = FALSE,
-                          datatype = "INT2U", format = "GTiff"),
-                     list(overwrite = TRUE, progress = FALSE,
-                          datatype = "INT1U", format = "GTiff"))),
+  arguments = I(
+    list(
+      list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
+      list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "GTiff")
+    )
+  ),
   stringsAsFactors = FALSE
 )
 
 outputs3 <- as.data.frame(data.table::rbindlist(list(outputs3a, outputs3b, outputs3c), fill = TRUE))
 
-fseed <- file.path(Paths$outputPath, "seed.rds")
-fseed2 <- raster::extension(fseed, "txt")
+fseed <- file.path(paths$outputPath, "seed.rds")
+fseed2 <- tools::file_path_sans_ext(fseed) |> paste0(".txt")
 if (file.exists(fseed)) {
   seed <- readRDS(fseed)
 } else {
@@ -117,12 +125,6 @@ print(paste("random seed:", seed))
 cat(paste("Setting seed in 10-main-sim.R:", seed), file = fseed2, sep = "\n")
 set.seed(seed)
 writeRNGInfo(fseed2, append = TRUE)
-
-if ("screen" %in% config$params[[".globals"]][[".plots"]]) {
-  quickPlot::dev(4, width = 18, height = 10)
-  grid::grid.rect(0.90, 0.03, width = 0.2, height = 0.06, gp = gpar(fill = "white", col = "white"))
-  grid::grid.text(label = config$context[["studyAreaName"]], x = 0.90, y = 0.03)
-}
 
 data.table::setDTthreads(config$params[[".globals"]][[".useParallel"]])
 
@@ -162,17 +164,24 @@ fsim <- simFile(
   ext = config$args[["fsimext"]]
 )
 message("Saving simulation to: ", fsim)
-saveSimList(sim = mySimOut, filename = fsim, fileBackend = 2)
+saveSimList(
+  mySimOut,
+  fsim,
+  inputs = FALSE,
+  outputs = FALSE,
+  cache = FALSE,
+  files = FALSE
+)
 
 # save simulation stats -----------------------------------------------------------------------
 elapsed <- elapsedTime(mySimOut)
 data.table::fwrite(elapsed, file.path(paths[["outputPath"]], "elapsedTime.csv"))
-qs::qsave(elapsed, file.path(paths[["outputPath"]], "elapsedTime.qs"))
+saveRDS(elapsed, file.path(paths[["outputPath"]], "elapsedTime.rds"))
 
 if (!isFALSE(getOption("spades.memoryUseInterval"))) {
   memory <- memoryUse(mySimOut, max = TRUE)
   data.table::fwrite(memory, file.path(paths[["outputPath"]], "memoryUsed.csv"))
-  qs::qsave(memory, file.path(paths[["outputPath"]], "memoryUsed.qs"))
+  saveRDS(memory, file.path(paths[["outputPath"]], "memoryUsed.rds"))
 }
 
 # end-of-sim cleanup --------------------------------------------------------------------------
@@ -184,6 +193,9 @@ gg_qs <- file.path(paths[["outputPath"]], "figures") |>
 if (length(gg_qs)) {
   unlink(gg_qs)
 }
+
+## cleanup intermediate terra files
+terra::tmpFiles(remove = TRUE)
 
 # end-of-sim notifications --------------------------------------------------------------------
 

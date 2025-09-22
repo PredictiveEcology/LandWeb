@@ -53,9 +53,21 @@ if (config$args[["delayStart"]] > 0) {
   Sys.sleep(config$args[["delayStart"]] * 60)
 }
 
+## preamble ----------------------------------------------------------------------------------------
+
+## paths
+
+if (!"postprocess" %in% config$context[["mode"]]) {
+  ## don't need replicated copies of preamble outputs
+  repID <- basename(config$paths[["outputPath"]])
+  config$paths[["outputPath"]] <- dirname(config$paths[["outputPath"]]) ## TODO: add to config
+  config$update() ## update logPath
+}
+
 objects1 <- list()
 
-config$params[["LandWeb_preamble"]][["mergeSlivers"]] <- FALSE ## TODO: awaiting decision re: merging slivers
+## TODO: awaiting decision re: merging slivers
+config$params[["LandWeb_preamble"]][["mergeSlivers"]] <- FALSE
 
 parameters1 <- list(
   .globals = config$params[[".globals"]],
@@ -109,11 +121,33 @@ tryCatch(
 
 if (isUpdated(simOutPreamble) || isFALSE(config$args[["useCache"]])) {
   simOutPreamble@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
-  saveRDS(simOutPreamble$ml, file.path(paths[["outputPath"]], "ml_preamble.rds")) ## TODO: use `qs::qsave()`
-  saveSimList(simOutPreamble, preambleFile, fileBackend = 2)
+  ## TODO: save async using e.g., mirai or future
+  saveSimList(
+    simOutPreamble,
+    preambleFile,
+    inputs = FALSE,
+    outputs = FALSE,
+    cache = FALSE,
+    files = FALSE
+  )
+  gc()
 }
 
+## restore paths + cleanup
+if (!"postprocess" %in% config$context[["mode"]]) {
+  config$paths[["outputPath"]] <- file.path(config$paths[["outputPath"]], repID)
+  config$update() ## update logPath
+}
+terra::tmpFiles(remove = TRUE)
+
 # Species layers ------------------------------------------------------------------------------
+
+if (!"postprocess" %in% config$context[["mode"]]) {
+  ## don't need replicated copies of species layers outputs
+  repID <- basename(config$paths[["outputPath"]])
+  config$paths[["outputPath"]] <- dirname(config$paths[["outputPath"]]) ## TODO: add to config
+  config$update() ## update logPath
+}
 
 parameters2 <- list(
   .globals = config$params[[".globals"]],
@@ -121,7 +155,7 @@ parameters2 <- list(
 )
 
 objects2 <- list(
-  #nonTreePixels = simOutPreamble[["nonTreePixels"]], ## TODO: confirm no longer required
+  # nonTreePixels = simOutPreamble[["nonTreePixels"]], ## TODO: confirm no longer required
   rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
   sppColorVect = simOutPreamble[["sppColorVect"]],
   sppEquiv = simOutPreamble[["sppEquiv"]],
@@ -179,21 +213,70 @@ tryCatch(
 
 if (isUpdated(simOutSpeciesLayers) || isFALSE(config$args[["useCache"]])) {
   simOutSpeciesLayers@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
-  saveSimList(simOutSpeciesLayers, sppLayersFile, fileBackend = 2)
+  ## TODO: save async using e.g., mirai or future
+  saveSimList(
+    simOutSpeciesLayers,
+    sppLayersFile,
+    inputs = FALSE,
+    outputs = FALSE,
+    cache = FALSE,
+    files = FALSE
+  )
 }
 
-if (config$context[["mode"]] != "postprocess") {
-  # Boreal data prep + main sim -----------------------------------------------------------------
-  modules2a <- c("Biomass_borealDataPrep") ## TODO: use config$modules
+## restore paths + cleanup
+if (!"postprocess" %in% config$context[["mode"]]) {
+  config$paths[["outputPath"]] <- file.path(config$paths[["outputPath"]], repID)
+  config$update() ## update logPath
+}
+terra::tmpFiles(remove = TRUE)
 
-  # if (.version == 3L) {
-  #   modules2a <- c(modules2a, "Biomass_speciesParameters") ## TODO: use config$modules
-  # }
+if (config$context[["mode"]] != "postprocess") {
+  ## data prep -------------------------------------------------------------------------------------
+
+  ## paths
+
+  if (!"postprocess" %in% config$context[["mode"]]) {
+    ## don't need replicated copies of dataPrep outputs
+    repID <- basename(config$paths[["outputPath"]])
+    config$paths[["outputPath"]] <- dirname(config$paths[["outputPath"]]) ## TODO: add to config
+    config$update() ## update logPath
+  }
+
+  ## modules
+
+  modules2a <- c(
+    "Biomass_speciesFactorial",
+    "Biomass_borealDataPrep",
+    "Biomass_speciesParameters"
+  ) ## TODO: use config$modules
+
+  myMinRelativeB <- function(pixelCohortData) {
+    pixelData <- unique(pixelCohortData, by = "pixelIndex")
+    pixelData[, ecoregionGroup := factor(as.character(ecoregionGroup))] ## resorts them in order
+    minRelativeB <- data.frame(
+      ecoregionGroup = as.factor(levels(pixelData$ecoregionGroup)),
+      data.frame(
+        X1 = 0.15, ## 0.15
+        X2 = 0.25, ## 0.25
+        X3 = 0.35, ## 0.50
+        X4 = 0.45, ## 0.75
+        X5 = 0.55  ## 0.85
+      )
+    )
+
+    return(minRelativeB)
+  }
+
+  config$params[["Biomass_speciesData"]] <- list(
+    minRelativeBFunction = quote(myMinRelativeB(pixelCohortData))
+  )
 
   parameters2a <- list(
     .globals = config$params[[".globals"]],
-    Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]] #,
-    # Biomass_speciesParameters = config$params[["Biomass_speciesParameters"]]
+    Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]],
+    Biomass_speciesFactorial = config$params[["Biomass_speciesFactorial"]],
+    Biomass_speciesParameters = config$params[["Biomass_speciesParameters"]]
   )
 
   objects2a <- list(
@@ -207,10 +290,38 @@ if (config$context[["mode"]] != "postprocess") {
     sppColorVect = simOutPreamble[["sppColorVect"]],
     sppEquiv = simOutPreamble[["sppEquiv"]],
     standAgeMap = simOutPreamble[["CC TSF"]],
-    studyArea = simOutPreamble[["studyArea"]],
-    studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
-    studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
+
+    ## study area polygons now need to be SpatVectors downstream in LandR Biomass???
+    studyArea = simOutPreamble[["studyArea"]] |> terra::vect(),
+    studyAreaLarge = simOutPreamble[["studyAreaLarge"]] |> terra::vect(),
+    studyAreaReporting = simOutPreamble[["studyAreaReporting"]] |> terra::vect()
   )
+
+  ### data prep outputs ----------------------------------------------------------------------------
+
+  outputs2a <- data.frame(
+    objectName = c(
+      "ecoregionMap",
+      "speciesEcoregion",
+      "species" ## adjusted species traits table
+    ),
+    saveTime = c(1, 1, 1),
+    fun = c("writeRaster", "write.csv", "write.csv"),
+    package = c("terra", "base", "base"),
+    file = c(
+      "ecoregionMap_year0000.tif",
+      "speciesEcoregion_year0000.csv",
+      "speciesTraits_adjusted.csv"
+    ),
+    stringsAsFactors = FALSE
+  )
+  outputs2a$arguments <- I(list(
+    list(overwrite = TRUE, progress = FALSE),
+    list(row.names = FALSE),
+    list(row.names = FALSE)
+  ))
+
+  ### run data prep simulation ---------------------------------------------------------------------
 
   dataPrepFile <- simFile(
     name = paste0("simOutDataPrep_", config$context[["studyAreaName"]]),
@@ -226,12 +337,10 @@ if (config$context[["mode"]] != "postprocess") {
         params = parameters2a, ## TODO: use config$params
         modules = modules2a,
         objects = objects2a,
+        outputs = outputs2a,
         paths = paths,
         debug = list(
-          file = list(
-            file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"),
-            append = TRUE
-          ),
+          file = list(file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"), append = TRUE),
           debug = 1
         ),
         omitArgs = c("debug", "paths", ".plotInitialTime"),
@@ -267,9 +376,25 @@ if (config$context[["mode"]] != "postprocess") {
 
   if (isUpdated(simOutDataPrep) || isFALSE(config$args[["useCache"]])) {
     simOutDataPrep@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
-    saveSimList(simOutDataPrep, dataPrepFile, fileBackend = 2)
+    ## TODO: save async using e.g., mirai or future
+    saveSimList(
+      simOutDataPrep,
+      dataPrepFile,
+      inputs = FALSE,
+      outputs = FALSE,
+      cache = FALSE,
+      files = FALSE
+    )
   }
 
+  ## restore paths + cleanup
+  if (!"postprocess" %in% config$context[["mode"]]) {
+    config$paths[["outputPath"]] <- file.path(config$paths[["outputPath"]], repID)
+    config$update() ## update logPath
+  }
+  terra::tmpFiles(remove = TRUE)
+
+  ## main simulation -------------------------------------------------------------------------------
   source("10-main-sim.R")
 } else {
   ## postprocessing --------------------------------------------------------------------------------
@@ -279,7 +404,7 @@ if (config$context[["mode"]] != "postprocess") {
 
   ## TODO: use config
   modules4 <- list(
-    "burnSummaries", ## TODO: exclude for old runs
+    "burnSummaries",
     "LandMine", ## using 'multi' mode
     "LandWeb_summary"
   )
@@ -302,11 +427,7 @@ if (config$context[["mode"]] != "postprocess") {
   config$params[["LandWeb_summary"]][[".useParallel"]] <- getOption("map.maxNumCores")
 
   ## adjust N reps as needed:
-  if (config$context[["studyAreaName"]] == "LandWeb_full") {
-    config$params[[".globals"]][["reps"]] <- 1L:50L
-  } else {
-    config$params[[".globals"]][["reps"]] <- 1L:15L ## TODO: not all previous runs used 1:15
-  }
+  config$params[[".globals"]][["reps"]] <- 1L:15L ## TODO: more reps?
   config$params[["burnSummaries"]][["reps"]] <- config$params[[".globals"]][["reps"]]
   config$params[["LandMine"]][["reps"]] <- config$params[[".globals"]][["reps"]]
   config$params[["LandWeb_summary"]][["reps"]] <- config$params[[".globals"]][["reps"]]
@@ -333,7 +454,7 @@ if (config$context[["mode"]] != "postprocess") {
 
   outputs4 <- NULL
 
-  fsim <- simFile(
+  summariesFile <- simFile(
     name = "simOutSummaries",
     path = paths[["outputPath"]],
     ext = config$args[["fsimext"]]
@@ -391,8 +512,16 @@ if (config$context[["mode"]] != "postprocess") {
 
   if (isTRUE(attr(simOutSummaries, ".Cache")[["newCache"]])) {
     simOutSummaries@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
-    message("Saving simulation to: ", fsim)
-    saveSimList(sim = simOutSummaries, filename = fsim, fileBackend = 2)
+    message("Saving simulation to: ", summariesFile)
+    ## TODO: save async using e.g., mirai or future
+    saveSimList(
+      simOutSummaries,
+      summariesFile,
+      inputs = FALSE,
+      outputs = FALSE,
+      cache = FALSE,
+      files = FALSE
+    )
 
     # save simulation info ------------------------------------------------------------------------
     relOutputPath <- SpaDES.config:::.getRelativePath(paths[["outputPath"]], prjDir)

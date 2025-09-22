@@ -7,8 +7,7 @@ config <- landweb$landwebConfig$new(
   mode = .mode,
   rep = .rep,
   res = .res,
-  studyAreaName = .studyAreaName,
-  version = .version
+  studyAreaName = .studyAreaName
 )$update()$validate()
 
 if (.version == 2) {
@@ -34,8 +33,6 @@ config$modules
 # project paths -------------------------------------------------------------------------------
 config$paths
 stopifnot(identical(checkPath(config$paths[["projectPath"]]), getwd()))
-
-checkPath(config$paths[["logPath"]], create = TRUE) ## others will be created as needed below
 
 paths <- SpaDES.config::paths4spades(config$paths)
 

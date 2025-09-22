@@ -9,8 +9,8 @@ docsDir <- file.path(manDir, "_bookdown.yml") |>
   purrr::pluck("output_dir") |>
   fs::path_abs()
 
-bibDir <- Require::checkPath(file.path(manDir, "citations"), create = TRUE)
-figDir <- Require::checkPath(file.path(docsDir, "figures"), create = TRUE)
+bibDir <- file.path(manDir, "citations") |> fs::dir_create()
+figDir <- file.path(docsDir, "figures") |> fs::dir_create()
 
 # load packages -------------------------------------
 
