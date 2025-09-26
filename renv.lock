@@ -285,14 +285,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3.9001",
+      "Version": "1.0.3.9002",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "ea01de755f42dcb87e8e60f7e5218bec0d7e2a3d",
+      "RemoteSha": "07c009420e0409adf212f060fa0085182a3be018",
       "Requirements": [
         "LandR",
         "R",
@@ -316,9 +316,10 @@
         "terra",
         "tibble",
         "tools",
-        "utils"
+        "utils",
+        "withr"
       ],
-      "Hash": "a55cd9522b058ceaf6136abb7a456d50"
+      "Hash": "e731146116c0cbcf00d7c22c9a11c680"
     },
     "MASS": {
       "Package": "MASS",
@@ -3204,14 +3205,14 @@
     },
     "map": {
       "Package": "map",
-      "Version": "1.1.2",
+      "Version": "1.1.2.9001",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "map",
       "RemoteRef": "development",
-      "RemoteSha": "21b06a18e0b7b41b129d8d6997085ed117cd6a5f",
+      "RemoteSha": "17d9d5b600ef0f177d31ea793162249470f705fa",
       "Requirements": [
         "R",
         "data.table",
@@ -3229,7 +3230,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "db76bfe97ffc8e9206948103c37ed81b"
+      "Hash": "94a4b14e71644b1f88835b691c290591"
     },
     "mapproj": {
       "Package": "mapproj",
