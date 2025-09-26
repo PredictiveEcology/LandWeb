@@ -232,7 +232,7 @@ landwebConfig <- R6::R6Class(
         outputPath = projectPaths("output"),
         projectPath = normPath(projectPath),
         scratchPath = file.path(dirname(tempdir()), "scratch", basename(projectPath)),
-        tilePath = file.path(projectPaths("output"), "tiles")
+        sharedOutputPath = projectPaths("output")
       )
 
       # arguments -----------------------------------------------------------------------------------
@@ -244,10 +244,24 @@ landwebConfig <- R6::R6Class(
         ),
         delayStart = 0,
         fsimext = "rds", ## TODO: use "qs" once SpaDES.core is fixed
-        endTime = 1000, ## TODO: use `simYears = list(start = 0, end = 1000)` in order to use
-        ##       `self$args$simYears$start` instead of hardgoding `start(sim)`
         notifications = list(),
+        simYears = list(start = 0, end = 1000),
         useCache = FALSE ## TODO: caching simulations broken in SpaDES.core
+      )
+      self$args <- list(
+        ## these need 'simYears' to already be defined
+        summaryInterval = 50,
+        summaryPeriod = c(self$args[["simYears"]][["start"]] + 700, self$args$simYears$end),
+        timeSeriesTimes = self$args[["simYears"]][["start"]] + 601:650,
+        transitionPlotTimes = seq(self$args[["simYears"]][["start"]], self$args[["simYears"]][["end"]], 100)
+      )
+      self$args <- list(
+        ## these need 'summaryPeriod' and 'summaryInterval' to already be defined
+        analysesOutputsTimes = seq(
+          self$args[["summaryPeriod"]][1],
+          self$args[["summaryPeriod"]][2],
+          self$args[["summaryInterval"]]
+        )
       )
 
       # modules ------------------------------------------------------------------------------------
@@ -256,6 +270,7 @@ landwebConfig <- R6::R6Class(
         Biomass_core = "Biomass_core",
         Biomass_regeneration = "Biomass_regeneration",
         Biomass_speciesData = "Biomass_speciesData",
+        Biomass_speciesFactorial = "Biomass_speciesFactorial",
         Biomass_speciesParameters = "Biomass_speciesParameters",
         # burnSummaries = "burnSummaries", ## used for postprocess, not devel nor production
         # HSI_Caribou_MB = "HSI_Caribou_MB", ## used for postprocess in MB, not devel nor production
@@ -274,17 +289,26 @@ landwebConfig <- R6::R6Class(
         reproducible.cacheSaveFormat = "rds", ## can be "qs" or "rds"
         reproducible.conn = dbConnCache("sqlite"), ## "sqlite" or "postgresql"
         reproducible.destinationPath = normPath(self$paths[["inputPath"]]),
+        # reproducible.gdalwarp = TRUE, ## required b/c prepInputs doing it wrong???
         reproducible.inputPaths = NULL,
+        reproducible.memoisePersist = FALSE,
         reproducible.nThreads = 2,
+        reproducible.objSize = FALSE, ## TODO: restore TRUE when 'error: bad binding access' fixed
         reproducible.overwrite = TRUE,
+        reproducible.quick = FALSE,
+        # reproducible.shapefileRead = "terra::vect",
         reproducible.showSimilar = TRUE,
         reproducible.useCache = self$args[["useCache"]],
         reproducible.useCloud = self$args[["cloud"]][["useCloud"]],
+        reproducible.useDBI = TRUE,
         reproducible.useGDAL = FALSE, ## TODO: reassess
+        reproducible.useMemoise = FALSE,
         reproducible.useTerra = TRUE,
         Require.install = FALSE, ## don't use Require; assume all pkgs installed
+        spades.allowInitDuringSimInit = FALSE, ## TODO: use TRUE when fixed / working correctly
+        spades.allowSequentialCaching = FALSE,
         spades.futurePlan = "callr",
-        spades.memoryUseInterval = 10, ## track memory use every 10 seconds
+        spades.memoryUseInterval = FALSE, ## TODO: broken with recent SpaDES.core versions; hangs indefinitely
         spades.messagingNumCharsModule = 36,
         spades.moduleCodeChecks = TRUE,
         spades.qsThreads = 4,
@@ -302,9 +326,9 @@ landwebConfig <- R6::R6Class(
           # reps = 1L:15L, ## TODO: used elsewhere to setup runs (expt table)?
           # simOutputPath = self$paths[["outputPath"]],
           sppEquivCol = "LandWeb",
-          successionTimestep = 10,
-          summaryInterval = 100,
-          summaryPeriod = c(700, 1000),
+          successionTimestep = 10, ## LandR default: 10
+          summaryInterval = self$args[["summaryInterval"]],
+          summaryPeriod = self$args[["summaryPeriod"]],
           vegLeadingProportion = 0.8,
           .plotInitialTime = 0,
           .plots = c("png"), # c("object", "png", "raw", "screen"),
@@ -316,15 +340,16 @@ landwebConfig <- R6::R6Class(
           biomassModel = quote(lme4::lmer(
             B ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)
           )),
+          earliestFireYear = 1950L,
           ecoregionLayerField = "ECOREGION", # "ECODISTRIC"
+          exportModels = "none", ## use "all" to export for debugging
+          fixModelBiomass = TRUE,
           forestedLCCClasses = c(81, 210, 220, 230, 240), ## should match preamble's treeClassesLCC
           LCCClassesToReplaceNN = 240,
           # next two are used when assigning pixelGroup membership; what resolution for
           #   age and biomass
           pixelGroupAgeClass = 2 * 10, ## twice the successionTimestep; can be coarse because initial conditions are irrelevant
           pixelGroupBiomassClass = 1000, ## 1000 / mapResFact^2; can be coarse because initial conditions are irrelevant
-          subsetDataAgeModel = 100,
-          subsetDataBiomassModel = 100,
           speciesTableAreas = c("BSW", "BP", "MC"),
           speciesUpdateFunction = list(
             quote(LandR::speciesTableUpdate(
@@ -335,33 +360,46 @@ landwebConfig <- R6::R6Class(
             )),
             quote(LandR::updateSpeciesTable(sim$species, sim$speciesParams))
           ),
+          subsetDataAgeModel = 100,
+          subsetDataBiomassModel = 100,
           useCloudCacheForStats = self$args[["cloud"]][["useCloud"]],
-          .plotInitialTime = 0, ## sim(start)
+          .plotInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
           .useCache = self$args[["useCache"]]
         ),
         Biomass_core = list(
-          growthInitialTime = 0, ## start(sim)
+          growthInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
           initialBiomassSource = "cohortData",
+          # minCohortBiomass = 0L, ## TODO: P(sim)$initialB - 1
+          mixedType = 2L, ## TODO: confirm
           seedingAlgorithm = "wardDispersal",
           .maxMemory = if (format(pemisc::availableMemory(), units = "GiB") > 130) 5 else 2, ## GB
-          .plotInitialTime = 0, ## sim(start)
+          .plotInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
           .useCache = self$args[["useCache"]]
         ),
         Biomass_regeneration = list(
-          fireInitialTime = 1, ## start(sim, "year") + 1
-          .plotInitialTime = 0, ## sim(start)
+          calibrate = FALSE, ## TODO: use TRUE for debugging regen
+          fireInitialTime = self$args[["simYears"]][["start"]] + 1, ## start(sim) + 1,
+          .plotInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
           .useCache = self$args[["useCache"]]
         ),
         Biomass_speciesData = list(
-          types = c("KNN", "CASFRI", "Pickell", "ForestInventory"),
+          ## types = c("KNN", "CASFRI", "Pickell", "ForestInventory"), ## v2
+          types = c("SCANFI"), ## TODO: also use CASFRI v5 and updated ForestInventory;
           .plots = c("png"),
           .useCache = self$args[["useCache"]]
         ),
+        Biomass_speciesFactorial = list(
+          factorialSize = "large" ## was "medium"
+        ),
         Biomass_speciesParameters = list(
-          PSPdataTypes = "NFI"
+          PSPdataTypes = "NFI",
+          quantileAgeSubset = 98,
+          speciesFittingApproach = "focal" ## "pairwise" ?
         ),
         burnSummaries = list(
           reps = 1L:15L, ## TODO: used elsewhere to setup runs (expt table)?
+          simOutPrefix = "simOutMainSim",
+          simTimes = unlist(self$args[["simYears"]]),
           simOutputPath = self$paths[["outputPath"]]
         ),
         HSI_Caribou_MB = list(
@@ -369,14 +407,13 @@ landwebConfig <- R6::R6Class(
           ageClassCutOffs = c(0, 40, 80, 120), ## LandWebUtils:::.ageClassCutOffs
           ageClassMaxAge = 400L, ## was `maxAge` previously
           reps = 1L:15L, ## TODO: used elsewhere to setup runs (expt table)?
-          simOutputPath = self$paths[["outputPath"]],
-          summaryInterval = 100, ## also in .globals
+          simOutputPath = self$paths[["sharedOutputPath"]],
+          summaryInterval = self$args[["summaryInterval"]],
           summaryPeriod = c(700, 1000), ## also in .globals
           upload = FALSE,
           uploadTo = "", ## TODO: use google-ids.csv to define these per WBI?
           version = .version,
-          .makeTiles = FALSE, ## no tiles until parallel tile creation resolved (ropensci/tiler#18)
-          .plotInitialTime = 0, ## sim(start)
+          .plotInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
           .useCache = self$args[["useCache"]],
           .useParallel = self$options[["map.maxNumCores"]]
         ),
@@ -398,7 +435,7 @@ landwebConfig <- R6::R6Class(
         ),
         LandWeb_output = list(
           summaryInterval = 100, ## also set in .globals
-          .plotInitialTime = 0, ## sim(start)
+          .plotInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
           .useCache = self$args[["useCache"]]
         ),
         LandWeb_preamble = list(
@@ -407,34 +444,34 @@ landwebConfig <- R6::R6Class(
           dispersalType = "default",
           friMultiple = 1L,
           pixelSize = self$context[["pixelSize"]],
+          mergeSlivers = FALSE, ## TODO: re-eval decision based on new LTHFC v10 map
           minFRI = 25L,
           ROStype = self$context[["ROStype"]],
           treeClassesLCC = c(81, 210, 220, 230, 240), ## should match B_bDP's forestedLCCClasses
-          .plotInitialTime = 0, ## sim(start)
+          .plotInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
           .useCache = self$args[["useCache"]]
         ),
         LandWeb_summary = list(
           ageClasses = c("Young", "Immature", "Mature", "Old"), ## LandWebUtils:::.ageClasses
           ageClassCutOffs = c(0, 40, 80, 120), ## LandWebUtils:::.ageClassCutOffs
-          ageClassMaxAge = 400L, ## was `maxAge` previously
+          ageClassMaxAge = 400L,
           reps = 1L:15L, ## TODO: used elsewhere to setup runs (expt table)?
-          simOutputPath = self$paths[["outputPath"]],
-          summaryInterval = 100, ## also in .globals
-          summaryPeriod = c(700, 1000), ## also in .globals
+          simOutputPath = self$paths[["sharedOutputPath"]],
+          summaryInterval = self$args[["summaryInterval"]],
+          summaryPeriod = self$args[["summaryPeriod"]],
           standAgeMapFromCohorts = FALSE, ## use FALSE for re-postprocessing old sims (using TSF)
-          timeSeriesTimes = 601:650,
+          timeSeriesTimes = self$args[["timeSeriesTimes"]],
           upload = FALSE,
           uploadTo = "", ## TODO: use google-ids.csv to define these per WBI?
           version = .version,
           # .clInit = NULL, ## NOTE: defined in user-config.R
-          .makeTiles = FALSE, ## no tiles until parallel tile creation resolved (ropensci/tiler#18)
-          .plotInitialTime = 0, ## sim(start)
+          .plotInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
           .studyAreaName = self$context[["studyAreaName"]],
           .useCache = self$args[["useCache"]],
           .useParallel = self$options[["map.maxNumCores"]]
         ),
         timeSinceFire = list(
-          startTime = 1L,
+          startTime = self$args[["simYears"]][["start"]] + 1, ## start(sim) +1
           .useCache = self$args[["useCache"]]
         )
       )
@@ -454,32 +491,16 @@ landwebConfig <- R6::R6Class(
             useCloud = FALSE ## TODO: cloudCache spams Google Drive folder; doesn't respect drive path
           ),
           delayStart = if (self$context[["mode"]] == "production") delay_rnd(5L:15L) else 0L, # 5-15 minutes
-          endTime = 1000,
           successionTimestep = 10,
-          summaryPeriod = c(700, 1000),
-          summaryInterval = 100,
-          timeSeriesTimes = 601:650,
+          summaryInterval = self$args[["summaryInterval"]],
+          summaryPeriod = self$args[["summaryPeriod"]],
+          timeSeriesTimes = self$args[["timeSeriesTimes"]],
           useCache = if (self$context[["mode"]] == "production") TRUE else FALSE
         )
 
         self$params <- list(
           .globals = list(
             .plots = c("png", "raw") ## don't plot to screen; don't save objects
-          )
-        )
-      } else if (self$context[["mode"]] == "profile") {
-        self$args <- list(
-          endTime = 20,
-          successionTimestep = 10,
-          summaryPeriod = c(10, 20),
-          summaryInterval = 10,
-          timeSeriesTimes = 10
-        )
-
-        self$params <- list(
-          .globals = list(
-            .plotInitialTime = 0,
-            .studyAreaName = self$context[["studyAreaName"]]
           )
         )
       } else if (self$context[["mode"]] == "postprocess") {
@@ -521,9 +542,6 @@ landwebConfig <- R6::R6Class(
           .unitTest = if (self$context[["mode"]] == "production") FALSE else TRUE
         ),
         LandWeb_preamble = list(
-          dispersalType = self$context[["dispersalType"]],
-          forceResprout = self$context[["forceResprout"]],
-          friMultiple = self$context[["friMultiple"]],
           pixelSize = self$context[["pixelSize"]],
           ROStype = self$context[["ROStype"]]
         )
@@ -545,22 +563,12 @@ landwebConfig <- R6::R6Class(
         )
       }
 
-      if (isFALSE(self$context[["succession"]])) {
-        self$modules <- list(
-          "LandWeb_preamble",
-          "Biomass_speciesData",
-          "LandMine",
-          "LandWeb_output",
-          "timeSinceFire"
-        )
-      }
-
       ## paths --------------------------------------
       self$paths <- list(
         cachePath = file.path(projectPaths("cache"), self$context[["studyAreaName"]]),
         logPath = file.path(updateOutputPath(self, .landwebRunName), "log"),
         outputPath = updateOutputPath(self, .landwebRunName),
-        tilePath = file.path(updateOutputPath(self, .landwebRunName), "tiles")
+        sharedOutputPath = updateOutputPath(self, .landwebRunName) |> dirname()
       )
       unlist(self$paths) |> fs::dir_create() ## ensure all paths exist
 

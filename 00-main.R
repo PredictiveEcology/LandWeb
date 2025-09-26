@@ -24,6 +24,8 @@ library("SpaDES.core")
 
 library("googledrive")
 library("httr")
+# pkgload::load_all("~/GitHub/PredictiveEcology/LandR")
+# pkgload::load_all("packages/LandWebUtils")
 library("LandR")
 library("LandWebUtils")
 library("notifications")
@@ -42,7 +44,7 @@ source("02-configure.R") ## will also run user config
 
 # begin simulations ---------------------------------------------------------------------------
 
-do.call(SpaDES.core::setPaths, paths)
+do.call(SpaDES.core::setPaths, SpaDES.config::paths4spades(config$paths))
 
 if (config$args[["delayStart"]] > 0) {
   message(crayon::green(
@@ -57,17 +59,7 @@ if (config$args[["delayStart"]] > 0) {
 
 ## paths
 
-if (!"postprocess" %in% config$context[["mode"]]) {
-  ## don't need replicated copies of preamble outputs
-  repID <- basename(config$paths[["outputPath"]])
-  config$paths[["outputPath"]] <- dirname(config$paths[["outputPath"]]) ## TODO: add to config
-  config$update() ## update logPath
-}
-
 objects1 <- list()
-
-## TODO: awaiting decision re: merging slivers
-config$params[["LandWeb_preamble"]][["mergeSlivers"]] <- FALSE
 
 parameters1 <- list(
   .globals = config$params[[".globals"]],
@@ -76,7 +68,7 @@ parameters1 <- list(
 
 preambleFile <- simFile(
   name = paste0("simOutPreamble_", config$context[["studyAreaName"]]),
-  path = paths[["outputPath"]],
+  path = config$paths[["outputPath"]],
   ext = config$args[["fsimext"]]
 )
 
@@ -88,9 +80,12 @@ tryCatch(
       params = parameters1, ## TODO: use config$params
       modules = c("LandWeb_preamble"), ## TODO: use config$modules
       objects = objects1,
-      paths = paths,
+      paths = SpaDES.config::paths4spades(config$paths),
       debug = list(
-        file = list(file = file.path(config$paths[["logPath"]], "01-preamble.log"), append = TRUE),
+        file = list(
+          file = file.path(config$paths[["logPath"]], "01-preamble.log"),
+          append = TRUE
+        ),
         debug = 1
       ),
       omitArgs = c("debug", "paths", ".plotInitialTime"),
@@ -133,21 +128,10 @@ if (isUpdated(simOutPreamble) || isFALSE(config$args[["useCache"]])) {
   gc()
 }
 
-## restore paths + cleanup
-if (!"postprocess" %in% config$context[["mode"]]) {
-  config$paths[["outputPath"]] <- file.path(config$paths[["outputPath"]], repID)
-  config$update() ## update logPath
-}
+## cleanup
 terra::tmpFiles(remove = TRUE)
 
 # Species layers ------------------------------------------------------------------------------
-
-if (!"postprocess" %in% config$context[["mode"]]) {
-  ## don't need replicated copies of species layers outputs
-  repID <- basename(config$paths[["outputPath"]])
-  config$paths[["outputPath"]] <- dirname(config$paths[["outputPath"]]) ## TODO: add to config
-  config$update() ## update logPath
-}
 
 parameters2 <- list(
   .globals = config$params[[".globals"]],
@@ -156,16 +140,16 @@ parameters2 <- list(
 
 objects2 <- list(
   # nonTreePixels = simOutPreamble[["nonTreePixels"]], ## TODO: confirm no longer required
-  rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
+  rasterToMatch_biomassParam = simOutPreamble[["rasterToMatchLarge"]],
   sppColorVect = simOutPreamble[["sppColorVect"]],
   sppEquiv = simOutPreamble[["sppEquiv"]],
-  studyAreaLarge = simOutPreamble[["studyAreaLarge"]],
+  studyArea_biomassParam = simOutPreamble[["studyAreaLarge"]],
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
 )
 
 sppLayersFile <- simFile(
   name = paste0("simOutSpeciesLayers_", config$context[["studyAreaName"]]),
-  path = paths[["outputPath"]],
+  path = config$paths[["outputPath"]],
   ext = config$args[["fsimext"]]
 )
 
@@ -177,7 +161,7 @@ tryCatch(
       params = parameters2, ## TODO: use config$params
       modules = c("Biomass_speciesData"), ## TODO: use config$modules
       objects = objects2,
-      paths = paths,
+      paths = SpaDES.config::paths4spades(config$paths),
       debug = list(
         file = list(
           file = file.path(config$paths[["logPath"]], "02-speciesLayers.log"),
@@ -224,26 +208,11 @@ if (isUpdated(simOutSpeciesLayers) || isFALSE(config$args[["useCache"]])) {
   )
 }
 
-## restore paths + cleanup
-if (!"postprocess" %in% config$context[["mode"]]) {
-  config$paths[["outputPath"]] <- file.path(config$paths[["outputPath"]], repID)
-  config$update() ## update logPath
-}
+## cleanup
 terra::tmpFiles(remove = TRUE)
 
 if (config$context[["mode"]] != "postprocess") {
   ## data prep -------------------------------------------------------------------------------------
-
-  ## paths
-
-  if (!"postprocess" %in% config$context[["mode"]]) {
-    ## don't need replicated copies of dataPrep outputs
-    repID <- basename(config$paths[["outputPath"]])
-    config$paths[["outputPath"]] <- dirname(config$paths[["outputPath"]]) ## TODO: add to config
-    config$update() ## update logPath
-  }
-
-  ## modules
 
   modules2a <- c(
     "Biomass_speciesFactorial",
@@ -325,7 +294,7 @@ if (config$context[["mode"]] != "postprocess") {
 
   dataPrepFile <- simFile(
     name = paste0("simOutDataPrep_", config$context[["studyAreaName"]]),
-    path = paths[["outputPath"]],
+    path = config$paths[["outputPath"]],
     ext = config$args[["fsimext"]]
   )
 
@@ -338,9 +307,12 @@ if (config$context[["mode"]] != "postprocess") {
         modules = modules2a,
         objects = objects2a,
         outputs = outputs2a,
-        paths = paths,
+        paths = SpaDES.config::paths4spades(config$paths),
         debug = list(
-          file = list(file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"), append = TRUE),
+          file = list(
+            file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"),
+            append = TRUE
+          ),
           debug = 1
         ),
         omitArgs = c("debug", "paths", ".plotInitialTime"),
@@ -387,11 +359,7 @@ if (config$context[["mode"]] != "postprocess") {
     )
   }
 
-  ## restore paths + cleanup
-  if (!"postprocess" %in% config$context[["mode"]]) {
-    config$paths[["outputPath"]] <- file.path(config$paths[["outputPath"]], repID)
-    config$update() ## update logPath
-  }
+  ## cleanup
   terra::tmpFiles(remove = TRUE)
 
   ## main simulation -------------------------------------------------------------------------------
@@ -456,7 +424,7 @@ if (config$context[["mode"]] != "postprocess") {
 
   summariesFile <- simFile(
     name = "simOutSummaries",
-    path = paths[["outputPath"]],
+    path = config$paths[["outputPath"]],
     ext = config$args[["fsimext"]]
   )
 
@@ -469,7 +437,7 @@ if (config$context[["mode"]] != "postprocess") {
         modules = modules4, ## TODO: use config$modules
         # outputs = outputs4,
         objects = objects4,
-        paths = paths,
+        paths = SpaDES.config::paths4spades(config$paths),
         loadOrder = unlist(modules4), ## TODO: use config$modules
         # cl = cl, ## TODO: get parallel processing working !!!
         debug = list(
@@ -560,4 +528,4 @@ if (config$context[["mode"]] != "postprocess") {
   }
 }
 
-#source("11-post-sim.R")
+# source("11-post-sim.R")

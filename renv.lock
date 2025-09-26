@@ -221,14 +221,14 @@
     },
     "LandR": {
       "Package": "LandR",
-      "Version": "1.1.5.9054",
+      "Version": "1.1.5.9057",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandR",
       "RemoteRef": "development",
-      "RemoteSha": "c7113463c07250fa32455f7a2da21c86f53794d2",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "951ada26952a42915ad43714dc3f5acd3b992bd1",
       "Requirements": [
         "Formula",
         "MuMIn",
@@ -259,7 +259,7 @@
         "utils",
         "viridis"
       ],
-      "Hash": "2325b23dc641df17ab0139d3b5cbab56"
+      "Hash": "638c343dc95892a27b14ddc55ed0e78a"
     },
     "LandR.CS": {
       "Package": "LandR.CS",
@@ -644,7 +644,7 @@
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "Require",
       "RemoteRef": "development",
-      "RemoteSha": "4d4cea98044731a8e1d92c199235e3c46a28e922",
+      "RemoteSha": "3f8469cf734f513e4eaf1ee696a6145be2c90b50",
       "Requirements": [
         "R",
         "data.table",
@@ -653,7 +653,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "23f4da30f4f5b6c7568a1423860df22e"
+      "Hash": "7ebba55dc7e5bdab4b41d54149dac687"
     },
     "RhpcBLASctl": {
       "Package": "RhpcBLASctl",
@@ -2227,7 +2227,7 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "tidyverse",
       "RemoteRepo": "ggplot2",
-      "RemoteRef": "main",
+      "RemoteRef": "bed8e32d45c7dc98afb783b409edac98854d41a7",
       "RemoteSha": "bed8e32d45c7dc98afb783b409edac98854d41a7",
       "Requirements": [
         "R",
@@ -2244,7 +2244,7 @@
         "vctrs",
         "withr"
       ],
-      "Hash": "de47542942db135788f6be00276e9ff1"
+      "Hash": "0f1fa00e3bca19aab10520c6dccbe276"
     },
     "ggplot2movies": {
       "Package": "ggplot2movies",
@@ -4136,6 +4136,19 @@
         "stringfish"
       ],
       "Hash": "c9b643f00e514841ba0ded6dc33f788b"
+    },
+    "qs2": {
+      "Package": "qs2",
+      "Version": "0.1.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "RcppParallel",
+        "stringfish"
+      ],
+      "Hash": "9e7ed4d4fdc5aef4ac2e729cc123d326"
     },
     "quantreg": {
       "Package": "quantreg",

@@ -10,14 +10,6 @@ config <- landweb$landwebConfig$new(
   studyAreaName = .studyAreaName
 )$update()$validate()
 
-if (.version == 2) {
-  config$context[["dispersalType"]] <- .dispersalType
-  config$context[["ROStype"]] <- .ROStype
-
-  config$update()
-  config$validate()
-}
-
 ## apply user and machine context settings here
 source("02a-user-config.R")
 config$args <- config.user$args
@@ -33,8 +25,6 @@ config$modules
 # project paths -------------------------------------------------------------------------------
 config$paths
 stopifnot(identical(checkPath(config$paths[["projectPath"]]), getwd()))
-
-paths <- SpaDES.config::paths4spades(config$paths)
 
 # project options -----------------------------------------------------------------------------
 opts <- SpaDES.config::setProjectOptions(config)

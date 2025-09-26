@@ -1,13 +1,5 @@
 ## main simulation ---------------------------------------------------------------------------------
 
-if (!"postprocess" %in% config$context[["mode"]]) {
-  ## don't need replicated copies of preamble outputs
-  repID <- basename(config$paths[["outputPath"]])
-  config$paths[["outputPath"]] <- dirname(config$paths[["outputPath"]]) ## TODO: add to config
-  config$update() ## update logPath
-  fs::dir_create(config$paths[["logPath"]])
-}
-
 times3 <- list(start = 0, end = config$args[["endTime"]])
 
 modules3 <- if (isTRUE(config$context[["succession"]])) {
@@ -113,7 +105,7 @@ outputs3c <- data.frame(
 
 outputs3 <- as.data.frame(data.table::rbindlist(list(outputs3a, outputs3b, outputs3c), fill = TRUE))
 
-fseed <- file.path(paths$outputPath, "seed.rds")
+fseed <- file.path(config$paths[["outputPath"]], "seed.rds")
 fseed2 <- tools::file_path_sans_ext(fseed) |> paste0(".txt")
 if (file.exists(fseed)) {
   seed <- readRDS(fseed)
@@ -135,10 +127,15 @@ tryCatch({
     modules = modules3, ## TODO: use config$modules
     outputs = outputs3,
     objects = objects3,
-    paths = paths,
+    paths = SpaDES.config::paths4spades(config$paths),
     loadOrder = unlist(modules3), ## TODO: use config$modules
-    debug = list(file = list(file = file.path(config$paths[["logPath"]], "03-sim.log"),
-                             append = TRUE), debug = 1)
+    debug = list(
+      file = list(
+        file = file.path(config$paths[["logPath"]], "03-sim.log"),
+        append = TRUE
+      ),
+      debug = 1
+    )
   )
   capture.output(warnings(), file = file.path(config$paths[["logPath"]], "warnings.txt"), split = TRUE)
 }, error = function(e) {
@@ -159,7 +156,7 @@ mySimOut@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
 
 fsim <- simFile(
   name = "mySimOut",
-  path = paths[["outputPath"]],
+  path = config$paths[["outputPath"]],
   time = config$args[["endTime"]],
   ext = config$args[["fsimext"]]
 )
@@ -175,19 +172,19 @@ saveSimList(
 
 # save simulation stats -----------------------------------------------------------------------
 elapsed <- elapsedTime(mySimOut)
-data.table::fwrite(elapsed, file.path(paths[["outputPath"]], "elapsedTime.csv"))
-saveRDS(elapsed, file.path(paths[["outputPath"]], "elapsedTime.rds"))
+data.table::fwrite(elapsed, file.path(config$paths[["outputPath"]], "elapsedTime.csv"))
+saveRDS(elapsed, file.path(config$paths[["outputPath"]], "elapsedTime.rds"))
 
 if (!isFALSE(getOption("spades.memoryUseInterval"))) {
   memory <- memoryUse(mySimOut, max = TRUE)
-  data.table::fwrite(memory, file.path(paths[["outputPath"]], "memoryUsed.csv"))
-  saveRDS(memory, file.path(paths[["outputPath"]], "memoryUsed.rds"))
+  data.table::fwrite(memory, file.path(config$paths[["outputPath"]], "memoryUsed.csv"))
+  saveRDS(memory, file.path(config$paths[["outputPath"]], "memoryUsed.rds"))
 }
 
 # end-of-sim cleanup --------------------------------------------------------------------------
 
 ## ensure any previously-created ggplot objects get removed from disk; they can be >100GB in size!!
-gg_qs <- file.path(paths[["outputPath"]], "figures") |>
+gg_qs <- file.path(config$paths[["outputPath"]], "figures") |>
   list.files(pattern = "_gg[.]qs$", full.names = TRUE)
 
 if (length(gg_qs)) {
