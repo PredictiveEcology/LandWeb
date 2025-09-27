@@ -255,7 +255,7 @@ if (config$context[["mode"]] != "postprocess") {
     cloudFolderID = config$args[["cloud"]][["cacheDir"]],
     rstLCC = simOutPreamble[["LCC"]],
     rasterToMatch = simOutPreamble[["rasterToMatch"]],
-    rasterToMatchLarge = simOutPreamble[["rasterToMatchLarge"]],
+    rasterToMatch_biomassParam = simOutPreamble[["rasterToMatchLarge"]],
     speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
     speciesParams = simOutPreamble[["speciesParams"]],
     speciesTable = simOutPreamble[["speciesTable"]],
@@ -265,7 +265,8 @@ if (config$context[["mode"]] != "postprocess") {
 
     ## study area polygons now need to be SpatVectors downstream in LandR Biomass???
     studyArea = simOutPreamble[["studyArea"]] |> terra::vect(),
-    studyAreaLarge = simOutPreamble[["studyAreaLarge"]] |> terra::vect(),
+    ## TODO: studyAreaANPP for B_sppParams?
+    studyArea_biomassParam = simOutPreamble[["studyAreaLarge"]] |> terra::vect(),
     studyAreaReporting = simOutPreamble[["studyAreaReporting"]] |> terra::vect()
   )
 
