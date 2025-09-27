@@ -129,6 +129,7 @@ if (isUpdated(simOutPreamble) || isFALSE(config$args[["useCache"]])) {
 }
 
 ## cleanup
+gc()
 terra::tmpFiles(remove = TRUE)
 
 # Species layers ------------------------------------------------------------------------------
@@ -210,6 +211,7 @@ if (isUpdated(simOutSpeciesLayers) || isFALSE(config$args[["useCache"]])) {
 }
 
 ## cleanup
+gc()
 terra::tmpFiles(remove = TRUE)
 
 if (config$context[["mode"]] != "postprocess") {
@@ -361,6 +363,7 @@ if (config$context[["mode"]] != "postprocess") {
   }
 
   ## cleanup
+  gc()
   terra::tmpFiles(remove = TRUE)
 
   ## main simulation -------------------------------------------------------------------------------
@@ -528,5 +531,9 @@ if (config$context[["mode"]] != "postprocess") {
     )
   }
 }
+
+## cleanup
+gc()
+terra::tmpFiles(remove = TRUE)
 
 # source("11-post-sim.R")

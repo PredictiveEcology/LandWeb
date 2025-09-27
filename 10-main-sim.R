@@ -191,7 +191,8 @@ if (length(gg_qs)) {
   unlink(gg_qs)
 }
 
-## cleanup intermediate terra files
+## cleanup
+gc()
 terra::tmpFiles(remove = TRUE)
 
 # end-of-sim notifications --------------------------------------------------------------------
