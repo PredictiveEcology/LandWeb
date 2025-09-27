@@ -138,6 +138,7 @@ parameters2 <- list(
   Biomass_speciesData = config$params[["Biomass_speciesData"]]
 )
 
+## TODO: confirm input objects
 objects2 <- list(
   # nonTreePixels = simOutPreamble[["nonTreePixels"]], ## TODO: confirm no longer required
   rasterToMatch_biomassParam = simOutPreamble[["rasterToMatchLarge"]],
