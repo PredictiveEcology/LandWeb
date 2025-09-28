@@ -131,26 +131,12 @@ These adjustments cause the model to behave more like a state-transition model, 
 
 Version 3.0.0 relaxes these parameter forcings to behave like the standard LANDIS-II model.
 
-The dispersal scenario is principally set via `.version` but can be overridden is set via `.dispersalType`:
-
-**Dispersal Scenario** | **Description**
------------------------|----------------------------------------------------------------------------
-`default` (v3)         | default LANDIS-II dispersal
-`aspen`                | limit seed dispersal to deciduous only
-`high` (v2)            | high seed dispersal of all species (used for v2.0.0 runs)
-`none`                 | no seed dispersal (all species)
-
-Additionally, v2.0.0 of the model uses adjusted fire return intervals (FRI) and log-adjusted rates of spread (ROS).
-Version 3.0.0 uses the LandMine defaults.
-
 The fire scenario is principally set via `.version` but can be overridden by specifying `.ROStype`:
 
 **Fire Scenario** | **Description**
 ------------------|---------------------------------------------------------------------------------
-`default` (v3)    | default rate of spread values
+`default`         | default rate of spread values
 `burny`           | Increases the flammability of non-forest types to facilitate fire spread in landscapes with discontinuous fuels.
-`equal`           | Set all rates of fire spread equal to each other (no vegetation differences)
-`log` (v2)        | Reduce the rates of spread but keep the magnitude of vegetation differences
 
 To define a scenario to run, select one dispersal scenario and one fire scenario from the tables above.
 All LandWeb v2.0.0 runs from 2019 were run using `.dispersalType = "high"` and `.ROStype = "log"`.
@@ -184,7 +170,6 @@ The first time running the model, open the file `00-main.R`, and step through ea
 .mode <- "development"
 .studyAreaName <- "random"
 .rep <- 1L
-.version <- 2
 
 source("00-main.R")
 ```

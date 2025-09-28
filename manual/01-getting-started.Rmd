@@ -155,8 +155,10 @@ Use `homebrew` to install the required geospatial software libraries:
 ```zsh
 brew install pkg-config
 brew install gdal
+brew install ghostscript
 # brew install geos
 # brew install proj
+brew install imagemagick
 brew install udunits
 ```
 

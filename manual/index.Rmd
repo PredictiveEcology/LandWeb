@@ -103,12 +103,6 @@ Simulation outputs are summarized for several publicly available reporting polyg
 
 These are described in further detail in [Model outputs].
 
-### LandWeb app
-
-Using the web app is described in [Web app].
-
-<!-- TODO: flesh out this description -->
-
 ## Previous Manual Versions
 
 If available, archived copies of previous manual versions are provided at the links below.
