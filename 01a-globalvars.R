@@ -25,7 +25,7 @@ if (exists(".res", .GlobalEnv)) {
 }
 
 if (!exists(".studyAreaName", .GlobalEnv)) {
-  .studyAreaName <- "LandWeb"
+  .studyAreaName <- "random"
 }
 
 if (exists(".version", .GlobalEnv)) {
