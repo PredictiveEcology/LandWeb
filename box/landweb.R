@@ -340,6 +340,7 @@ landwebConfig <- R6::R6Class(
           biomassModel = quote(lme4::lmer(
             B ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)
           )),
+          dataSource = "SCANFI",
           earliestFireYear = 1950L,
           ecoregionLayerField = "ECOREGION", # "ECODISTRIC"
           exportModels = "none", ## use "all" to export for debugging

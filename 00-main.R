@@ -125,7 +125,6 @@ if (isUpdated(simOutPreamble) || isFALSE(config$args[["useCache"]])) {
     cache = FALSE,
     files = FALSE
   )
-  gc()
 }
 
 ## cleanup
@@ -261,7 +260,7 @@ if (config$context[["mode"]] != "postprocess") {
     speciesTable = simOutPreamble[["speciesTable"]],
     sppColorVect = simOutPreamble[["sppColorVect"]],
     sppEquiv = simOutPreamble[["sppEquiv"]],
-    standAgeMap = simOutPreamble[["CC TSF"]],
+    standAgeMap = simOutPreamble[["CC_TSF"]],
 
     ## study area polygons now need to be SpatVectors downstream in LandR Biomass???
     studyArea = simOutPreamble[["studyArea"]] |> terra::vect(),
@@ -312,13 +311,14 @@ if (config$context[["mode"]] != "postprocess") {
         objects = objects2a,
         outputs = outputs2a,
         paths = SpaDES.config::paths4spades(config$paths),
-        debug = list(
-          file = list(
-            file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"),
-            append = TRUE
-          ),
-          debug = 1
-        ),
+        ## TODO: debug list is being used as `verbose` option in inputObject caching
+        # debug = list(
+        #   file = list(
+        #     file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"),
+        #     append = TRUE
+        #   ),
+        #   debug = 1
+        # ),
         omitArgs = c("debug", "paths", ".plotInitialTime"),
         useCache = config$args[["useCache"]],
         useCloud = config$args[["cloud"]][["useCloud"]],
