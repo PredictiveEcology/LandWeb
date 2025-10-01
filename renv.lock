@@ -408,6 +408,30 @@
       ],
       "Hash": "6237ca1424408368b1e22464b3877643"
     },
+    "PSPclean": {
+      "Package": "PSPclean",
+      "Version": "0.1.5.9005",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "ianmseddy",
+      "RemoteRepo": "PSPclean",
+      "RemoteRef": "development",
+      "RemoteSha": "d73dcb5bf102a71207068aa7353991794aca2fdb",
+      "Requirements": [
+        "LandR",
+        "R",
+        "bit64",
+        "data.table",
+        "dplyr",
+        "googledrive",
+        "magrittr",
+        "reproducible",
+        "sf",
+        "terra"
+      ],
+      "Hash": "ac96633e958816a5946214583b466270"
+    },
     "PresenceAbsence": {
       "Package": "PresenceAbsence",
       "Version": "1.1.11",
@@ -567,7 +591,7 @@
     },
     "RcppArmadillo": {
       "Package": "RcppArmadillo",
-      "Version": "15.0.2-2",
+      "Version": "14.6.0-1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -577,7 +601,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "58f3d2b5e2b8d44756c2d21e24b719e9"
+      "Hash": "1361fd84118452c8e80fe7b5201a8c03"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
