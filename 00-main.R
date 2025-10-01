@@ -32,9 +32,11 @@ library("notifications")
 
 # simulation setup ----------------------------------------------------------------------------
 
-prjDir <- SpaDES.config::findProjectPath()
+prjDir <- workflowtools::findProjectPath()
 
 stopifnot(identical(prjDir, normalizePath(getwd(), winslash = "/")))
+
+workflowtools::check_project_packages(prjDir)
 
 source("01a-globalvars.R")
 
