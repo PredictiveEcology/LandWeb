@@ -1,6 +1,6 @@
 [submodule "modules/Biomass_borealDataPrep"]
 	path = modules/Biomass_borealDataPrep
-	url = https://github.comodules/PredictiveEcology/Biomass_borealDataPrep
+	url = https://github.com/PredictiveEcology/Biomass_borealDataPrep
 	branch = LandWeb
 [submodule "modules/Biomass_core"]
 	path = modules/Biomass_core
