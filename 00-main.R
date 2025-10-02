@@ -375,7 +375,7 @@ if (config$context[["mode"]] != "postprocess") {
   terra::tmpFiles(remove = TRUE)
 
   ## main simulation -------------------------------------------------------------------------------
-  source("10-main-sim.R")
+  source("03-main-sim.R")
 } else {
   ## postprocessing --------------------------------------------------------------------------------
   if (grepl("Manning", config$context[["runName"]])) {
