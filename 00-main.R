@@ -352,11 +352,6 @@ if (config$context[["mode"]] != "postprocess") {
     }
   )
 
-  ## TODO: enforce correct species table types (LandR#90)
-  if (is(simOutDataPrep$species$postfireregen, "character")) {
-    simOutDataPrep$species$postfireregen <- as.factor(simOutDataPrep$species$postfireregen)
-  }
-
   if (isUpdated(simOutDataPrep) || isFALSE(config$args[["useCache"]])) {
     simOutDataPrep@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
     ## TODO: save async using e.g., mirai or future
