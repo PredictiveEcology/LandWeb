@@ -378,9 +378,6 @@ if (config$context[["mode"]] != "postprocess") {
   source("03-main-sim.R")
 } else {
   ## postprocessing --------------------------------------------------------------------------------
-  if (grepl("Manning", config$context[["runName"]])) {
-    config$params[["timeSeriesTimes"]] <- 450:500
-  }
 
   ## TODO: use config
   modules4 <- list(
@@ -393,14 +390,7 @@ if (config$context[["mode"]] != "postprocess") {
     modules4 <- append(modules4, list("HSI_Caribou_MB"))
   }
 
-  ## don't cache the init event
-  config$params[["HSI_Caribou_MB"]][[".useCache"]] <- c(".inputObjects", "postprocess")
-  config$params[["LandWeb_summary"]][[".useCache"]] <- c(
-    ".inputObjects",
-    "animation",
-    "postprocess"
-  )
-
+  ## TODO: don't use map option
   ## NOTE: previous .useParallel value is too low for this module
   options(map.maxNumCores = min(.ncores, getOption("map.maxNumCores")))
   config$params[[".globals"]][[".useParallel"]] <- getOption("map.maxNumCores")
@@ -544,4 +534,4 @@ if (config$context[["mode"]] != "postprocess") {
 gc()
 terra::tmpFiles(remove = TRUE)
 
-# source("11-post-sim.R")
+# source("04-post-sim.R")

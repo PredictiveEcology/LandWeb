@@ -2,18 +2,13 @@
 
 times3 <- list(start = 0, end = config$args[["endTime"]])
 
-modules3 <- if (isTRUE(config$context[["succession"]])) {
-  list("Biomass_core", "LandMine", "Biomass_regeneration", "LandWeb_output", "timeSinceFire")
-} else {
-  list("LandMine", "LandWeb_output", "timeSinceFire")
-}
-
-config$params[["LandMine"]] <- list(
-  biggestPossibleFireSizeHa = 3e5, ## for MB
-  maxReburns = c(1L, 20L),
-  maxRetriesPerID = 9L,
-  .useCache = FALSE
-) ## TODO: add these to config -- MB struggling to reach fire sizes
+modules3 <- list(
+  "Biomass_core",
+  "LandMine",
+  "Biomass_regeneration",
+  "LandWeb_output",
+  "timeSinceFire"
+)
 
 parameters3 <- list(
   .globals = config$params[[".globals"]],
@@ -30,7 +25,7 @@ parameters3 <- list(
 objects3 <- list(
   biomassMap = simOutDataPrep[["biomassMap"]],
   cohortData = simOutDataPrep[["cohortData"]],
-  #ecoDistrict = simOutDataPrep[["ecoDistrict"]], ## TODO: unused??
+  # ecoDistrict = simOutDataPrep[["ecoDistrict"]], ## TODO: unused??
   ecoregion = simOutDataPrep[["ecoregion"]],
   ecoregionMap = simOutDataPrep[["ecoregionMap"]],
   fireReturnInterval = simOutPreamble[["fireReturnInterval"]],
@@ -38,11 +33,11 @@ objects3 <- list(
   pixelGroupMap = simOutDataPrep[["pixelGroupMap"]],
   rawBiomassMap = simOutDataPrep[["rawBiomassMap"]],
   rasterToMatch = simOutDataPrep[["rasterToMatch"]],
-  rasterToMatchLarge = simOutDataPrep[["rasterToMatchLarge"]],
+  rasterToMatch_biomassParam = simOutDataPrep[["rasterToMatch_biomassParam"]],
   ROSTable = simOutPreamble[["ROSTable"]],
   rstFlammable = simOutPreamble[["rstFlammable"]],
   rstLCC = simOutDataPrep[["rstLCC"]],
-  rstTimeSinceFire = raster::crop(simOutPreamble[["CC TSF"]], simOutPreamble[["rasterToMatch"]]), ## TODO: fix
+  rstTimeSinceFire = simOutDataPrep[["standAgeMap"]], ## TODO: verify
   species = simOutDataPrep[["species"]],
   speciesEcoregion = simOutDataPrep[["speciesEcoregion"]],
   speciesLayers = simOutDataPrep[["speciesLayers"]],
@@ -50,11 +45,10 @@ objects3 <- list(
   speciesTable = simOutDataPrep[["speciesTable"]],
   sppColorVect = simOutDataPrep[["sppColorVect"]],
   sppEquiv = simOutDataPrep[["sppEquiv"]],
-  standAgeMap = simOutPreamble[["CC TSF"]], ## TODO: fix
-  # standAgeMap = simOutDataPrep[["standAgeMap"]],
+  standAgeMap = simOutDataPrep[["standAgeMap"]],
   studyArea = simOutDataPrep[["studyArea"]],
-  studyAreaLarge = simOutDataPrep[["studyAreaLarge"]],
-  studyAreaReporting = simOutPreamble[["studyAreaReporting"]], ## TODO: use sAR from simOutDataPrep
+  studyArea_biomassParam = simOutDataPrep[["studyArea_biomassParam"]],
+  studyAreaReporting = simOutPreamble[["studyAreaReporting"]],
   sufficientLight = simOutDataPrep[["sufficientLight"]],
   summaryPeriod = config$params[[".globals"]][["summaryPeriod"]]
 )
@@ -103,7 +97,9 @@ outputs3c <- data.frame(
   stringsAsFactors = FALSE
 )
 
-outputs3 <- as.data.frame(data.table::rbindlist(list(outputs3a, outputs3b, outputs3c), fill = TRUE))
+outputs3 <- list(outputs3a, outputs3b, outputs3c) |>
+  data.table::rbindlist(fill = TRUE) |>
+  as.data.frame()
 
 fseed <- file.path(config$paths[["outputPath"]], "seed.rds")
 fseed2 <- tools::file_path_sans_ext(fseed) |> paste0(".txt")
@@ -120,8 +116,15 @@ writeRNGInfo(fseed2, append = TRUE)
 
 data.table::setDTthreads(config$params[[".globals"]][[".useParallel"]])
 
+mainSimFile <- simFile(
+  name = "mainSim",
+  path = config$paths[["outputPath"]],
+  time = config$args[["endTime"]],
+  ext = config$args[["fsimext"]]
+)
+
 tryCatch({
-  mySimOut <- simInitAndSpades(
+  mainSim <- simInitAndSpades(
     times = times3,
     params = parameters3, ## TODO: use config$params
     modules = modules3, ## TODO: use config$modules
@@ -152,18 +155,12 @@ tryCatch({
   }
 })
 
-mySimOut@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
+mainSim@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
 
-fsim <- simFile(
-  name = "mySimOut",
-  path = config$paths[["outputPath"]],
-  time = config$args[["endTime"]],
-  ext = config$args[["fsimext"]]
-)
-message("Saving simulation to: ", fsim)
+message("Saving simulation to: ", mainSimFile)
 saveSimList(
-  mySimOut,
-  fsim,
+  mainSim,
+  mainSimFile,
   inputs = FALSE,
   outputs = FALSE,
   cache = FALSE,
@@ -171,12 +168,12 @@ saveSimList(
 )
 
 # save simulation stats -----------------------------------------------------------------------
-elapsed <- elapsedTime(mySimOut)
+elapsed <- elapsedTime(mainSim)
 data.table::fwrite(elapsed, file.path(config$paths[["outputPath"]], "elapsedTime.csv"))
 saveRDS(elapsed, file.path(config$paths[["outputPath"]], "elapsedTime.rds"))
 
 if (!isFALSE(getOption("spades.memoryUseInterval"))) {
-  memory <- memoryUse(mySimOut, max = TRUE)
+  memory <- memoryUse(mainSim, max = TRUE)
   data.table::fwrite(memory, file.path(config$paths[["outputPath"]], "memoryUsed.csv"))
   saveRDS(memory, file.path(config$paths[["outputPath"]], "memoryUsed.rds"))
 }

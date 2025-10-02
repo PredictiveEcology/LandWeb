@@ -414,11 +414,12 @@ landwebConfig <- R6::R6Class(
           uploadTo = "", ## TODO: use google-ids.csv to define these per WBI?
           version = .version,
           .plotInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
-          .useCache = self$args[["useCache"]],
+          .useCache = c(".inputObjects", "postprocess"), ## don't cache init
           .useParallel = self$options[["map.maxNumCores"]]
         ),
         LandMine = list(
-          biggestPossibleFireSizeHa = 5e5, ## 5e5 ha = 8e4 pixels @250m
+          ## NOTE: 5e5 ha = 8e4 pixels @250m
+          biggestPossibleFireSizeHa = 3e5, ## use 3e5 b/c MB struggles to reach larger sizes
           burnInitialTime = 1L, ## start(sim, "year") + 1; same as fireInitialTime
           maxReburns = c(1L, 20L),
           maxRetriesPerID = 9L,
@@ -467,7 +468,7 @@ landwebConfig <- R6::R6Class(
           # .clInit = NULL, ## NOTE: defined in user-config.R
           .plotInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
           .studyAreaName = self$context[["studyAreaName"]],
-          .useCache = self$args[["useCache"]],
+          .useCache = c(".inputObjects", "animation", "postprocess"), ## don't cache init
           .useParallel = self$options[["map.maxNumCores"]]
         ),
         timeSinceFire = list(
