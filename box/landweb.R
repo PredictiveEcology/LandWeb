@@ -24,7 +24,7 @@ box::use(pemisc[availableMemory])
 #' LandWeb project context class
 #'
 #' This extends the `projContext` class by setting various LandWeb defaults and
-#' employing custom fied validation.
+#' employing custom field validation.
 #'
 #' @export
 #' @importFrom R6 R6Class

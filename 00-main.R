@@ -46,6 +46,13 @@ source("02-configure.R") ## will also run user config
 
 # begin simulations ---------------------------------------------------------------------------
 
+## paths
+paths_shared <- config$paths |>
+  modifyList(list(
+    logPath = file.path(config$paths[["sharedOutputPath"]], "log") |> fs::dir_create(),
+    outputPath = config$paths[["sharedOutputPath"]]
+  ))
+
 do.call(SpaDES.core::setPaths, SpaDES.config::paths4spades(config$paths))
 
 if (config$args[["delayStart"]] > 0) {
@@ -59,8 +66,6 @@ if (config$args[["delayStart"]] > 0) {
 
 ## preamble ----------------------------------------------------------------------------------------
 
-## paths
-
 objects1 <- list()
 
 parameters1 <- list(
@@ -70,7 +75,7 @@ parameters1 <- list(
 
 preambleFile <- simFile(
   name = paste0("simOutPreamble_", config$context[["studyAreaName"]]),
-  path = config$paths[["outputPath"]],
+  path = config$paths[["sharedOutputPath"]], ## use shared path
   ext = config$args[["fsimext"]]
 )
 
@@ -82,10 +87,10 @@ tryCatch(
       params = parameters1, ## TODO: use config$params
       modules = c("LandWeb_preamble"), ## TODO: use config$modules
       objects = objects1,
-      paths = SpaDES.config::paths4spades(config$paths),
+      paths = SpaDES.config::paths4spades(paths_shared),
       debug = list(
         file = list(
-          file = file.path(config$paths[["logPath"]], "01-preamble.log"),
+          file = file.path(paths_shared[["logPath"]], "01-preamble.log"),
           append = TRUE
         ),
         debug = 1
@@ -152,7 +157,7 @@ objects2 <- list(
 
 sppLayersFile <- simFile(
   name = paste0("simOutSpeciesLayers_", config$context[["studyAreaName"]]),
-  path = config$paths[["outputPath"]],
+  path = config$paths[["sharedOutputPath"]], ## use shared path
   ext = config$args[["fsimext"]]
 )
 
@@ -164,10 +169,10 @@ tryCatch(
       params = parameters2, ## TODO: use config$params
       modules = c("Biomass_speciesData"), ## TODO: use config$modules
       objects = objects2,
-      paths = SpaDES.config::paths4spades(config$paths),
+      paths = SpaDES.config::paths4spades(paths_shared),
       debug = list(
         file = list(
-          file = file.path(config$paths[["logPath"]], "02-speciesLayers.log"),
+          file = file.path(paths_shared[["logPath"]], "02-speciesLayers.log"),
           append = TRUE
         ),
         debug = 1
@@ -299,7 +304,7 @@ if (config$context[["mode"]] != "postprocess") {
 
   dataPrepFile <- simFile(
     name = paste0("simOutDataPrep_", config$context[["studyAreaName"]]),
-    path = config$paths[["outputPath"]],
+    path = config$paths[["sharedOutputPath"]], ## use shared path
     ext = config$args[["fsimext"]]
   )
 
@@ -312,11 +317,11 @@ if (config$context[["mode"]] != "postprocess") {
         modules = modules2a,
         objects = objects2a,
         outputs = outputs2a,
-        paths = SpaDES.config::paths4spades(config$paths),
+        paths = SpaDES.config::paths4spades(paths_shared),
         ## TODO: debug list is being used as `verbose` option in inputObject caching
         # debug = list(
         #   file = list(
-        #     file = file.path(config$paths[["logPath"]], "02a-dataPrep.log"),
+        #     file = file.path(paths_shared[["logPath"]], "02a-dataPrep.log"),
         #     append = TRUE
         #   ),
         #   debug = 1
