@@ -1,6 +1,6 @@
 ## main simulation ---------------------------------------------------------------------------------
 
-times3 <- list(start = 0, end = config$args[["endTime"]])
+times3 <- list(start = 0, end = config$args[["simYears"]][["end"]])
 
 modules3 <- list(
   "Biomass_core",
@@ -37,7 +37,7 @@ objects3 <- list(
   ROSTable = simOutPreamble[["ROSTable"]],
   rstFlammable = simOutPreamble[["rstFlammable"]],
   rstLCC = simOutDataPrep[["rstLCC"]],
-  rstTimeSinceFire = simOutDataPrep[["standAgeMap"]], ## TODO: verify
+  rstTimeSinceFire = terra::crop(simOutDataPrep[["standAgeMap"]], simOutDataPrep[["rasterToMatch"]], mask = TRUE),
   species = simOutDataPrep[["species"]],
   speciesEcoregion = simOutDataPrep[["speciesEcoregion"]],
   speciesLayers = simOutDataPrep[["speciesLayers"]],
@@ -49,8 +49,7 @@ objects3 <- list(
   studyArea = simOutDataPrep[["studyArea"]],
   studyArea_biomassParam = simOutDataPrep[["studyArea_biomassParam"]],
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]],
-  sufficientLight = simOutDataPrep[["sufficientLight"]],
-  summaryPeriod = config$params[[".globals"]][["summaryPeriod"]]
+  sufficientLight = simOutDataPrep[["sufficientLight"]]
 )
 
 analysesOutputsTimes <- LandWebUtils::analysesOutputsTimes(

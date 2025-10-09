@@ -428,14 +428,15 @@ landwebConfig <- R6::R6Class(
           ROSother = switch(self$context[["ROStype"]], equal = 1L, log = log(30L), 30L),
           ROStype = self$context[["ROStype"]],
           useSeed = NULL, ## NULL to avoid setting a seed
-          .plotInitialTime = 1, ## sim(start) + 1
-          .plotInterval = 1,
+          .plotInitialTime = self$args[["simYears"]][["start"]] + 1, ## sim(start) + 1
+          .plotInterval = 100,
           .studyAreaName = self$context[["studyAreaName"]],
           .unitTest = TRUE,
           .useCache = self$args[["useCache"]]
         ),
         LandWeb_output = list(
-          summaryInterval = 100, ## also set in .globals
+          summaryInterval = self$args[["summaryInterval"]],
+          summaryPeriod = self$args[["summaryPeriod"]],
           .plotInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
           .useCache = self$args[["useCache"]]
         ),

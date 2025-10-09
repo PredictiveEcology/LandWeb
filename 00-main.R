@@ -223,12 +223,6 @@ terra::tmpFiles(remove = TRUE)
 if (config$context[["mode"]] != "postprocess") {
   ## data prep -------------------------------------------------------------------------------------
 
-  modules2a <- c(
-    "Biomass_speciesFactorial",
-    "Biomass_borealDataPrep",
-    "Biomass_speciesParameters"
-  ) ## TODO: use config$modules
-
   myMinRelativeB <- function(pixelCohortData) {
     pixelData <- unique(pixelCohortData, by = "pixelIndex")
     pixelData[, ecoregionGroup := factor(as.character(ecoregionGroup))] ## resorts them in order
@@ -250,12 +244,52 @@ if (config$context[["mode"]] != "postprocess") {
     minRelativeBFunction = quote(myMinRelativeB(pixelCohortData))
   )
 
-  parameters2a <- list(
-    .globals = config$params[[".globals"]],
-    Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]],
-    Biomass_speciesFactorial = config$params[["Biomass_speciesFactorial"]],
-    Biomass_speciesParameters = config$params[["Biomass_speciesParameters"]]
+  ## we don't want to rerun the factorial for each rep
+  factorial_files <- list(
+    cohortDataFactorial = fs::dir_ls(
+      path = config$paths[["sharedOutputPath"]],
+      recurse = FALSE,
+      regexp = "cohortDataFactorial_.*[.]df"
+    ),
+    speciesTableFactorial = fs::dir_ls(
+      path = config$paths[["sharedOutputPath"]],
+      recurse = FALSE,
+      regexp = "speciesTableFactorial_.*[.]df"
+    )
   )
+
+  n_cdf_files <- length(factorial_files$cohortDataFactorial)
+  n_stf_files <- length(factorial_files$speciesTableFactorial)
+
+  stopifnot(n_cdf_files <= 1, n_stf_files <= 1)
+
+  run_factorial <- n_cdf_files == 0 && n_stf_files == 0
+
+  if (run_factorial) {
+    modules2a <- c(
+      "Biomass_speciesFactorial",
+      "Biomass_borealDataPrep",
+      "Biomass_speciesParameters"
+    ) ## TODO: use config$modules
+
+    parameters2a <- list(
+      .globals = config$params[[".globals"]],
+      Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]],
+      Biomass_speciesFactorial = config$params[["Biomass_speciesFactorial"]],
+      Biomass_speciesParameters = config$params[["Biomass_speciesParameters"]]
+    )
+  } else {
+    modules2a <- c(
+      "Biomass_borealDataPrep",
+      "Biomass_speciesParameters"
+    ) ## TODO: use config$modules
+
+    parameters2a <- list(
+      .globals = config$params[[".globals"]],
+      Biomass_borealDataPrep = config$params[["Biomass_borealDataPrep"]],
+      Biomass_speciesParameters = config$params[["Biomass_speciesParameters"]]
+    )
+  }
 
   objects2a <- list(
     cloudFolderID = config$args[["cloud"]][["cacheDir"]],
@@ -271,12 +305,26 @@ if (config$context[["mode"]] != "postprocess") {
 
     ## study area polygons now need to be SpatVectors downstream in LandR Biomass???
     studyArea = simOutPreamble[["studyArea"]] |> terra::vect(),
-    ## TODO: studyAreaANPP for B_sppParams?
+    studyAreaANPP = simOutPreamble[["studyAreaLarge"]], ## currently sf
     studyArea_biomassParam = simOutPreamble[["studyAreaLarge"]] |> terra::vect(),
     studyAreaReporting = simOutPreamble[["studyAreaReporting"]] |> terra::vect()
   )
 
+  if (!run_factorial) {
+    list(
+      cohortDataFactorial_path = factorial_files$cohortDataFactorial,
+      speciesTableFactorial_path = factorial_files$speciesTableFactorial
+    ) |>
+      append(objects2a)
+  }
+
   ### data prep outputs ----------------------------------------------------------------------------
+
+  dataPrepFile <- simFile(
+    name = paste0("simOutDataPrep_", config$context[["studyAreaName"]]),
+    path = config$paths[["sharedOutputPath"]], ## use shared path
+    ext = config$args[["fsimext"]]
+  )
 
   outputs2a <- data.frame(
     objectName = c(
@@ -301,12 +349,6 @@ if (config$context[["mode"]] != "postprocess") {
   ))
 
   ### run data prep simulation ---------------------------------------------------------------------
-
-  dataPrepFile <- simFile(
-    name = paste0("simOutDataPrep_", config$context[["studyAreaName"]]),
-    path = config$paths[["sharedOutputPath"]], ## use shared path
-    ext = config$args[["fsimext"]]
-  )
 
   tryCatch(
     {

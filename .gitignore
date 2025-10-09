@@ -55,5 +55,9 @@ outputs/
 ## misc OS files
 Thumbs.db
 
+## temporary files
+_tmp*
+tmp/
+
 ## !! Module data should be gitignored in the respective module's data dir !!
 ## !! inputs/ has its own .gitignore file too !!
