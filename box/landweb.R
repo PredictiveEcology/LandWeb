@@ -336,6 +336,7 @@ landwebConfig <- R6::R6Class(
           .useParallel = 2 ## doesn't benefit from more DT threads
         ),
         Biomass_borealDataPrep = list(
+          adjustAgeAndLongevity = TRUE,
           biomassModel = quote(lme4::lmer(
             B ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)
           )),
