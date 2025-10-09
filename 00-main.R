@@ -539,12 +539,12 @@ if (config$context[["mode"]] != "postprocess") {
     # save simulation stats -----------------------------------------------------------------------
     elapsed <- elapsedTime(simOutSummaries)
     data.table::fwrite(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.csv"))
-    qs::qsave(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.qs"))
+    qs2::qs_save(elapsed, file.path(config$paths[["logPath"]], "elapsedTime_summaries.qs2"))
 
     if (!isFALSE(getOption("spades.memoryUseInterval"))) {
       memory <- memoryUse(simOutSummaries, max = TRUE)
       data.table::fwrite(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.csv"))
-      qs::qsave(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.qs"))
+      qs2::qs_save(memory, file.path(config$paths[["logPath"]], "memoryUsed_summaries.qs2"))
     }
   }
 

@@ -242,7 +242,7 @@ landwebConfig <- R6::R6Class(
           useCloud = FALSE ## TODO: cloudCache spams Google Drive; doesn't respect drive path
         ),
         delayStart = 0,
-        fsimext = "rds", ## TODO: use "qs" once SpaDES.core is fixed
+        fsimext = "rds", ## TODO: use "qs2"
         notifications = list(),
         simYears = list(start = 0, end = 1000),
         useCache = FALSE ## TODO: caching simulations broken in SpaDES.core
@@ -285,7 +285,7 @@ landwebConfig <- R6::R6Class(
         future.globals.maxSize = 1000 * 1024^2,
         LandR.assertions = TRUE,
         LandR.verbose = 1,
-        reproducible.cacheSaveFormat = "rds", ## can be "qs" or "rds"
+        reproducible.cacheSaveFormat = "rds", ## TODO: use qs2 in reproducible
         reproducible.conn = dbConnCache("sqlite"), ## "sqlite" or "postgresql"
         reproducible.destinationPath = normPath(self$paths[["inputPath"]]),
         # reproducible.gdalwarp = TRUE, ## required b/c prepInputs doing it wrong???
