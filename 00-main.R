@@ -240,7 +240,7 @@ if (config$context[["mode"]] != "postprocess") {
     return(minRelativeB)
   }
 
-  config$params[["Biomass_speciesData"]] <- list(
+  config$params[["Biomass_borealDataPrep"]] <- list(
     minRelativeBFunction = quote(myMinRelativeB(pixelCohortData))
   )
 
