@@ -743,14 +743,14 @@
     },
     "SpaDES.core": {
       "Package": "SpaDES.core",
-      "Version": "2.1.6",
+      "Version": "2.1.8.9001",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.core",
       "RemoteRef": "development",
-      "RemoteSha": "4b5042761d494d53cf487675629f68fb35d5b8a2",
+      "RemoteSha": "cb121c03d1a1fa4aa40eb4c7374cfb0a606b2c96",
       "Requirements": [
         "R",
         "Require",
@@ -760,7 +760,7 @@
         "igraph",
         "lobstr",
         "methods",
-        "qs",
+        "qs2",
         "quickPlot",
         "reproducible",
         "stats",
@@ -769,7 +769,7 @@
         "utils",
         "whisker"
       ],
-      "Hash": "f0789ec4664c574b4df191d06557591f"
+      "Hash": "886c4b9eb450f964c800af0a7a26d0d1"
     },
     "SpaDES.docs": {
       "Package": "SpaDES.docs",
@@ -821,14 +821,14 @@
     },
     "SpaDES.tools": {
       "Package": "SpaDES.tools",
-      "Version": "2.0.7.9002",
+      "Version": "2.0.9",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.tools",
       "RemoteRef": "development",
-      "RemoteSha": "ccba7d4b6bc8d8e0877e79e95db2481d58f1b988",
+      "RemoteSha": "40042d53d52d08d6ed1dd5ea19330ed61444ba71",
       "Requirements": [
         "R",
         "Rcpp",
@@ -843,7 +843,7 @@
         "stats",
         "terra"
       ],
-      "Hash": "f54e00497cbde73184c1999870a92fcb"
+      "Hash": "2b10231dd98697d84e03866d71412a16"
     },
     "SparseGrid": {
       "Package": "SparseGrid",
@@ -4428,14 +4428,14 @@
     },
     "reproducible": {
       "Package": "reproducible",
-      "Version": "2.1.2",
+      "Version": "2.1.2.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "reproducible",
       "RemoteRef": "development",
-      "RemoteSha": "b44d22889954534148e998162c4fc0684a6e2c82",
+      "RemoteSha": "5828c3cbae23bc6f5e97e1bb6822c04687f534ab",
       "Requirements": [
         "R",
         "cli",
@@ -4450,7 +4450,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "e409e41b9e1348f1059a173196f15fdd"
+      "Hash": "581131a73b3886d4c395133ab298dbf2"
     },
     "reshape": {
       "Package": "reshape",
