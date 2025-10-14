@@ -305,13 +305,12 @@ if (config$context[["mode"]] != "postprocess") {
 
     ## study area polygons now need to be SpatVectors downstream in LandR Biomass???
     studyArea = simOutPreamble[["studyArea"]] |> terra::vect(),
-    studyAreaANPP = simOutPreamble[["studyAreaLarge"]], ## currently sf
     studyArea_biomassParam = simOutPreamble[["studyAreaLarge"]] |> terra::vect(),
     studyAreaReporting = simOutPreamble[["studyAreaReporting"]] |> terra::vect()
   )
 
   if (!run_factorial) {
-    list(
+    objects2a <- list(
       cohortDataFactorial_path = factorial_files$cohortDataFactorial,
       speciesTableFactorial_path = factorial_files$speciesTableFactorial
     ) |>
