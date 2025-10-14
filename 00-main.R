@@ -151,7 +151,7 @@ objects2 <- list(
   rasterToMatch_biomassParam = simOutPreamble[["rasterToMatchLarge"]],
   sppColorVect = simOutPreamble[["sppColorVect"]],
   sppEquiv = simOutPreamble[["sppEquiv"]],
-  studyArea_biomassParam = simOutPreamble[["studyAreaLarge"]],
+  studyArea_biomassParam = simOutPreamble[["studyArea_biomassParam"]],
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
 )
 
@@ -305,7 +305,7 @@ if (config$context[["mode"]] != "postprocess") {
 
     ## study area polygons now need to be SpatVectors downstream in LandR Biomass???
     studyArea = simOutPreamble[["studyArea"]] |> terra::vect(),
-    studyArea_biomassParam = simOutPreamble[["studyAreaLarge"]] |> terra::vect(),
+    studyArea_biomassParam = simOutPreamble[["studyArea_biomassParam"]] |> terra::vect(),
     studyAreaReporting = simOutPreamble[["studyAreaReporting"]] |> terra::vect()
   )
 
