@@ -394,7 +394,7 @@ landwebConfig <- R6::R6Class(
         ),
         Biomass_speciesParameters = list(
           PSPdataTypes = "NFI",
-          quantileAgeSubset = 98,
+          quantileAgeSubset = 98, ## default 95
           speciesFittingApproach = "focal" ## "pairwise" ?
         ),
         burnSummaries = list(

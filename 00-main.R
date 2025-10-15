@@ -151,7 +151,8 @@ objects2 <- list(
   rasterToMatch_biomassParam = simOutPreamble[["rasterToMatchLarge"]],
   sppColorVect = simOutPreamble[["sppColorVect"]],
   sppEquiv = simOutPreamble[["sppEquiv"]],
-  studyArea_biomassParam = simOutPreamble[["studyArea_biomassParam"]],
+  studyAreaANPP = simOutPreamble[["studyAreaANPP"]],
+  studyArea_biomassParam = simOutPreamble[["studyAreaLarge"]],
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
 )
 
