@@ -375,6 +375,7 @@ landwebConfig <- R6::R6Class(
           seedingAlgorithm = "wardDispersal",
           .maxMemory = if (format(pemisc::availableMemory(), units = "GiB") > 130) 5 else 2, ## GB
           .plotInitialTime = self$args[["simYears"]][["start"]], ## start(sim)
+          .plotInterval = 100L,
           .useCache = self$args[["useCache"]]
         ),
         Biomass_regeneration = list(
