@@ -148,11 +148,11 @@ parameters2 <- list(
 ## TODO: confirm input objects
 objects2 <- list(
   # nonTreePixels = simOutPreamble[["nonTreePixels"]], ## TODO: confirm no longer required
-  rasterToMatch_biomassParam = simOutPreamble[["rasterToMatchLarge"]],
+  rasterToMatch_biomassParam = simOutPreamble[["rasterToMatch_biomassParam"]],
   sppColorVect = simOutPreamble[["sppColorVect"]],
   sppEquiv = simOutPreamble[["sppEquiv"]],
   studyAreaANPP = simOutPreamble[["studyAreaANPP"]],
-  studyArea_biomassParam = simOutPreamble[["studyAreaLarge"]],
+  studyArea_biomassParam = simOutPreamble[["studyArea_biomassParam"]],
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
 )
 
