@@ -149,9 +149,11 @@ parameters2 <- list(
 objects2 <- list(
   # nonTreePixels = simOutPreamble[["nonTreePixels"]], ## TODO: confirm no longer required
   rasterToMatch_biomassParam = simOutPreamble[["rasterToMatch_biomassParam"]],
+  rasterToMatch = simOutPreamble[["rasterToMatch"]],
   sppColorVect = simOutPreamble[["sppColorVect"]],
   sppEquiv = simOutPreamble[["sppEquiv"]],
-  studyArea_biomassParam = simOutPreamble[["studyArea_biomassParam"]],
+  studyArea_biomassParam = simOutPreamble[["studyArea_biomassParam"]] |> terra::vect(),
+  studyArea = simOutPreamble[["studyArea"]] |> terra::vect(),
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
 )
 
@@ -295,7 +297,7 @@ if (config$context[["mode"]] != "postprocess") {
     cloudFolderID = config$args[["cloud"]][["cacheDir"]],
     rstLCC = simOutPreamble[["LCC"]],
     rasterToMatch = simOutPreamble[["rasterToMatch"]],
-    rasterToMatch_biomassParam = simOutPreamble[["rasterToMatchLarge"]],
+    rasterToMatch_biomassParam = simOutPreamble[["rasterToMatch_biomassParam"]],
     speciesLayers = simOutSpeciesLayers[["speciesLayers"]],
     speciesParams = simOutPreamble[["speciesParams"]],
     speciesTable = simOutPreamble[["speciesTable"]],
