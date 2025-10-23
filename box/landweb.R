@@ -306,6 +306,7 @@ landwebConfig <- R6::R6Class(
         Require.install = FALSE, ## don't use Require; assume all pkgs installed
         spades.allowInitDuringSimInit = FALSE, ## TODO: use TRUE when fixed / working correctly
         spades.allowSequentialCaching = FALSE,
+        spades.futureEvents = FALSE,
         spades.futurePlan = "callr",
         spades.memoryUseInterval = FALSE, ## TODO: broken with recent SpaDES.core versions; hangs indefinitely
         spades.messagingNumCharsModule = 36,

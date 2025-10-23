@@ -750,7 +750,7 @@
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.core",
       "RemoteRef": "development",
-      "RemoteSha": "cb121c03d1a1fa4aa40eb4c7374cfb0a606b2c96",
+      "RemoteSha": "918c66deb800defda2395d2c86fdb8a5176ac98b",
       "Requirements": [
         "R",
         "Require",
@@ -769,7 +769,7 @@
         "utils",
         "whisker"
       ],
-      "Hash": "886c4b9eb450f964c800af0a7a26d0d1"
+      "Hash": "d6a05a7c0dd7ae090fa69cb25ce0c881"
     },
     "SpaDES.docs": {
       "Package": "SpaDES.docs",
@@ -4428,14 +4428,14 @@
     },
     "reproducible": {
       "Package": "reproducible",
-      "Version": "2.1.2.9000",
+      "Version": "2.1.2.9002",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "reproducible",
       "RemoteRef": "development",
-      "RemoteSha": "5828c3cbae23bc6f5e97e1bb6822c04687f534ab",
+      "RemoteSha": "3184b2df9a59c2a7fca488cff73b953e8d84708d",
       "Requirements": [
         "R",
         "cli",
@@ -4450,7 +4450,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "581131a73b3886d4c395133ab298dbf2"
+      "Hash": "7961f64bd365c467b4c2434baecfaffd"
     },
     "reshape": {
       "Package": "reshape",

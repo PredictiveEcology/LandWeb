@@ -73,6 +73,20 @@ parameters1 <- list(
   LandWeb_preamble = config$params[["LandWeb_preamble"]]
 )
 
+## remove previous log files
+## TODO: need to avoid race conditions for shared log files
+##   --> skip preamble, speciesLayers, dataPrep if previously complete!!
+f_elog <- file.path(paths_shared[["logPath"]], "errors_preamble.log")
+f_wlog <- file.path(paths_shared[["logPath"]], "warnings_preamble.log")
+
+if (file.exists(f_elog)) {
+  try(unlink(f_elog))
+}
+
+if (file.exists(f_wlog)) {
+  try(unlink(f_wlog))
+}
+
 preambleFile <- simFile(
   name = paste0("simOutPreamble_", config$context[["studyAreaName"]]),
   path = config$paths[["sharedOutputPath"]], ## use shared path
@@ -80,7 +94,7 @@ preambleFile <- simFile(
 )
 
 tryCatch(
-  {
+  withCallingHandlers({
     simOutPreamble <- Cache(
       simInitAndSpades,
       times = list(start = 0, end = 1),
@@ -102,6 +116,19 @@ tryCatch(
       userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "preamble")
     )
   },
+  warning = function(w) {
+    cat(w$message, file = f_wlog, append = TRUE)
+    invokeRestart("muffleWarning")
+  },
+  error = function(e) {
+    cat(paste("ERROR: ", e$message), file = f_elog, sep = "\n")
+    cat("---------------------------------------------------------",
+        file = f_elog, append = TRUE, sep = "\n")
+    sys.calls() |>
+      capture.output(file = f_elog, append = TRUE, split = TRUE)
+
+    cli::col_red(e$message)
+  }),
   error = function(e) {
     if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
       notifications::notify_google(
@@ -116,8 +143,8 @@ tryCatch(
           "\n```"
         )
       )
-      stop(e$message)
     }
+    stop(e$message)
   }
 )
 
@@ -157,6 +184,20 @@ objects2 <- list(
   studyAreaReporting = simOutPreamble[["studyAreaReporting"]]
 )
 
+## remove previous log files
+## TODO: need to avoid race conditions for shared log files
+##   --> skip preamble, speciesLayers, dataPrep if previously complete!!
+f_elog <- file.path(paths_shared[["logPath"]], "errors_speciesLayers.log")
+f_wlog <- file.path(paths_shared[["logPath"]], "warnings_speciesLayers.log")
+
+if (file.exists(f_elog)) {
+  try(unlink(f_elog))
+}
+
+if (file.exists(f_wlog)) {
+  try(unlink(f_wlog))
+}
+
 sppLayersFile <- simFile(
   name = paste0("simOutSpeciesLayers_", config$context[["studyAreaName"]]),
   path = config$paths[["sharedOutputPath"]], ## use shared path
@@ -164,7 +205,7 @@ sppLayersFile <- simFile(
 )
 
 tryCatch(
-  {
+  withCallingHandlers({
     simOutSpeciesLayers <- Cache(
       simInitAndSpades,
       times = list(start = 0, end = 1),
@@ -186,6 +227,19 @@ tryCatch(
       userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "speciesLayers")
     )
   },
+  warning = function(w) {
+    cat(w$message, file = f_wlog, append = TRUE)
+    invokeRestart("muffleWarning")
+  },
+  error = function(e) {
+    cat(paste("ERROR: ", e$message), file = f_elog, sep = "\n")
+    cat("---------------------------------------------------------",
+        file = f_elog, append = TRUE, sep = "\n")
+    sys.calls() |>
+      capture.output(file = f_elog, append = TRUE, split = TRUE)
+
+    cli::col_red(e$message)
+  }),
   error = function(e) {
     if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
       notifications::notify_google(
@@ -200,8 +254,8 @@ tryCatch(
           "\n```"
         )
       )
-      stop(e$message)
     }
+    stop(e$message)
   }
 )
 
@@ -322,12 +376,6 @@ if (config$context[["mode"]] != "postprocess") {
 
   ### data prep outputs ----------------------------------------------------------------------------
 
-  dataPrepFile <- simFile(
-    name = paste0("simOutDataPrep_", config$context[["studyAreaName"]]),
-    path = config$paths[["sharedOutputPath"]], ## use shared path
-    ext = config$args[["fsimext"]]
-  )
-
   outputs2a <- data.frame(
     objectName = c(
       "ecoregionMap",
@@ -352,8 +400,28 @@ if (config$context[["mode"]] != "postprocess") {
 
   ### run data prep simulation ---------------------------------------------------------------------
 
+  ## remove previous log files
+  ## TODO: need to avoid race conditions for shared log files
+  ##   --> skip preamble, speciesLayers, dataPrep if previously complete!!
+  f_elog <- file.path(paths_shared[["logPath"]], "errors_dataPrep.log")
+  f_wlog <- file.path(paths_shared[["logPath"]], "warnings_dataPrep.log")
+
+  if (file.exists(f_elog)) {
+    try(unlink(f_elog))
+  }
+
+  if (file.exists(f_wlog)) {
+    try(unlink(f_wlog))
+  }
+
+  dataPrepFile <- simFile(
+    name = paste0("simOutDataPrep_", config$context[["studyAreaName"]]),
+    path = config$paths[["sharedOutputPath"]], ## use shared path
+    ext = config$args[["fsimext"]]
+  )
+
   tryCatch(
-    {
+    withCallingHandlers({
       simOutDataPrep <- Cache(
         simInitAndSpades,
         times = list(start = 0, end = 1),
@@ -363,13 +431,13 @@ if (config$context[["mode"]] != "postprocess") {
         outputs = outputs2a,
         paths = SpaDES.config::paths4spades(paths_shared),
         ## TODO: debug list is being used as `verbose` option in inputObject caching
-        # debug = list(
-        #   file = list(
-        #     file = file.path(paths_shared[["logPath"]], "02a-dataPrep.log"),
-        #     append = TRUE
-        #   ),
-        #   debug = 1
-        # ),
+        debug = list(
+          file = list(
+            file = file.path(paths_shared[["logPath"]], "02a-dataPrep.log"),
+            append = TRUE
+          ),
+          debug = 1
+        ),
         omitArgs = c("debug", "paths", ".plotInitialTime"),
         useCache = config$args[["useCache"]],
         useCloud = config$args[["cloud"]][["useCloud"]],
@@ -377,6 +445,19 @@ if (config$context[["mode"]] != "postprocess") {
         userTags = c(config$context[["studyAreaName"]], config$context[["runName"]], "dataPrep")
       )
     },
+    warning = function(w) {
+      cat(w$message, file = f_wlog, append = TRUE)
+      invokeRestart("muffleWarning")
+    },
+    error = function(e) {
+      cat(paste("ERROR: ", e$message), file = f_elog, sep = "\n")
+      cat("---------------------------------------------------------",
+          file = f_elog, append = TRUE, sep = "\n")
+      sys.calls() |>
+        capture.output(file = f_elog, append = TRUE, split = TRUE)
+
+      cli::col_red(e$message)
+    }),
     error = function(e) {
       if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
         notifications::notify_google(
@@ -391,8 +472,8 @@ if (config$context[["mode"]] != "postprocess") {
             "\n```"
           )
         )
-        stop(e$message)
       }
+      stop(e$message)
     }
   )
 
@@ -470,7 +551,7 @@ if (config$context[["mode"]] != "postprocess") {
   )
 
   tryCatch(
-    {
+    withCallingHandlers({
       simOutSummaries <- Cache(
         simInitAndSpades,
         times = list(start = 0, end = 1),
@@ -494,12 +575,24 @@ if (config$context[["mode"]] != "postprocess") {
         omitArgs = c("debug", "paths"),
         userTags = c(config$context[["runName"]], "postprocess")
       )
-      cat(
-        capture.output(warnings()),
-        file = file.path(config$paths[["logPath"]], "warnings_postprocess.txt"),
-        sep = "\n"
-      )
     },
+    warning = function(w) {
+      cat(
+        w$message,
+        file = file.path(config$paths[["logPath"]], "warnings_postprocess.log"),
+        append = TRUE
+      )
+      invokeRestart("muffleWarning")
+    },
+    error = function(e) {
+      cat(paste("ERROR: ", e$message), file = f_elog, sep = "\n")
+      cat("---------------------------------------------------------",
+          file = f_elog, append = TRUE, sep = "\n")
+      sys.calls() |>
+        capture.output(file = f_elog, append = TRUE, split = TRUE)
+
+      cli::col_red(e$message)
+    }),
     error = function(e) {
       if (requireNamespace("notifications") && file.exists("~/.rgooglespaces")) {
         notifications::notify_google(
@@ -514,12 +607,12 @@ if (config$context[["mode"]] != "postprocess") {
             "\n```"
           )
         )
-        stop(e$message)
       }
+      stop(e$message)
     }
   )
 
-  if (isTRUE(attr(simOutSummaries, ".Cache")[["newCache"]])) {
+  if (isUpdated(simOutSummaries) || isFALSE(config$args[["useCache"]])) {
     simOutSummaries@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
     message("Saving simulation to: ", summariesFile)
     ## TODO: save async using e.g., mirai or future

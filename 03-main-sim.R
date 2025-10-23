@@ -64,16 +64,16 @@ outputs3a <- data.frame(
     saveTime = c(config$args[["timeSeriesTimes"]], analysesOutputsTimes)
   ),
   fun = c("saveRDS", "writeRaster", "writeRaster", "writeRaster", "writeRaster"),
-  package = c("base", "raster", "raster", "raster", "raster"),
+  package = c("base", "terra", "terra", "terra", "terra"),
   file = paste0(objectNamesToSave, c(".rds", ".tif", ".tif", ".tif", ".tif")),
   stringsAsFactors = FALSE
 )
 outputs3a$arguments <- I(rep(list(
-  list(nthreads = 1),
-  list(overwrite = TRUE, progress = FALSE, format = "GTiff"),
-  list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
-  list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
-  list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "GTiff")
+  list(),
+  list(overwrite = TRUE, progress = FALSE, filetype = "GTiff"),
+  list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", filetype = "GTiff"),
+  list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", filetype = "GTiff"),
+  list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", filetype = "GTiff")
 ), times = NROW(outputs3a) / length(objectNamesToSave)))
 
 outputs3b <- data.frame(
@@ -86,11 +86,11 @@ outputs3b <- data.frame(
 outputs3c <- data.frame(
   expand.grid(objectName = c("rstCurrentBurnCumulative", "rstFlammable"), saveTime = times3$end),
   fun = c("writeRaster", "writeRaster"),
-  package = c("raster", "raster"),
+  package = c("terra", "terra"),
   arguments = I(
     list(
-      list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", format = "GTiff"),
-      list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", format = "GTiff")
+      list(overwrite = TRUE, progress = FALSE, datatype = "INT2U", filetype = "GTiff"),
+      list(overwrite = TRUE, progress = FALSE, datatype = "INT1U", filetype = "GTiff")
     )
   ),
   stringsAsFactors = FALSE
@@ -115,6 +115,18 @@ writeRNGInfo(fseed2, append = TRUE)
 
 data.table::setDTthreads(config$params[[".globals"]][[".useParallel"]])
 
+## remove previous log files
+f_elog <- file.path(config$paths[["logPath"]], "errors_sim.log")
+f_wlog <- file.path(config$paths[["logPath"]], "warnings_sim.log")
+
+if (file.exists(f_elog)) {
+  try(unlink(f_elog))
+}
+
+if (file.exists(f_wlog)) {
+  try(unlink(f_wlog))
+}
+
 mainSimFile <- simFile(
   name = "mainSim",
   path = config$paths[["outputPath"]],
@@ -122,41 +134,52 @@ mainSimFile <- simFile(
   ext = config$args[["fsimext"]]
 )
 
-tryCatch({
-  mainSim <- simInitAndSpades(
-    times = times3,
-    params = parameters3, ## TODO: use config$params
-    modules = modules3, ## TODO: use config$modules
-    outputs = outputs3,
-    objects = objects3,
-    paths = SpaDES.config::paths4spades(config$paths),
-    loadOrder = unlist(modules3), ## TODO: use config$modules
-    debug = list(
-      file = list(
-        file = file.path(config$paths[["logPath"]], "03-sim.log"),
-        append = TRUE
-      ),
-      debug = 1
+tryCatch(
+  withCallingHandlers({
+    mainSim <- simInitAndSpades(
+      times = times3,
+      params = parameters3, ## TODO: use config$params
+      modules = modules3, ## TODO: use config$modules
+      outputs = outputs3,
+      objects = objects3,
+      paths = SpaDES.config::paths4spades(config$paths),
+      loadOrder = unlist(modules3), ## TODO: use config$modules
+      debug = list(
+        file = list(
+          file = file.path(config$paths[["logPath"]], "03-sim.log"),
+          append = TRUE
+        ),
+        debug = 1
+      )
     )
-  )
-  capture.output(warnings(), file = file.path(config$paths[["logPath"]], "warnings.txt"), split = TRUE)
-}, error = function(e) {
-  capture.output(traceback(), file = file.path(config$paths[["logPath"]], "traceback_mainSim.txt"), split = TRUE)
+  },
+  warning = function(w) {
+    cat(w$message, file = f_wlog, append = TRUE)
+    invokeRestart("muffleWarning")
+  },
+  error = function(e) {
+    cat(paste("ERROR: ", e$message), file = f_elog, sep = "\n")
+    cat("---------------------------------------------------------",
+        file = f_elog, append = TRUE, sep = "\n")
+    sys.calls() |>
+      capture.output(file = f_elog, append = TRUE, split = TRUE)
 
-  if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
-    notifications::notify_google(
-      paste0("ERROR in simulation `", config$context[["runName"]],
-             "` on host `", config$context[["machine"]], "`.\n",
-             "```\n", e$message, "\n```")
-    )
-
+    cli::col_red(e$message)
+  }),
+  error = function(e) {
+    if (requireNamespace("notifications") & file.exists("~/.rgooglespaces")) {
+      notifications::notify_google(
+        paste0("ERROR in simulation `", config$context[["runName"]],
+               "` on host `", config$context[["machine"]], "`.\n",
+               "```\n", e$message, "\n```")
+      )
+    }
     stop(e$message)
   }
-})
+)
 
 mainSim@.xData[["._sessionInfo"]] <- workflowtools::projectSessionInfo(prjDir)
 
-message("Saving simulation to: ", mainSimFile)
 saveSimList(
   mainSim,
   mainSimFile,
