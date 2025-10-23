@@ -6,4 +6,6 @@ line-ending = "auto"
 persistent-line-breaks = true
 exclude = []
 default-exclude = true
-skip = ["defineModule" "tribble" "use"]
+skip = ["defineModule" "use"]
+table = []
+default-table = true
