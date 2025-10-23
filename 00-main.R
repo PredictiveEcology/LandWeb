@@ -1,4 +1,4 @@
-# environment variables -----------------------------------------------------------------------
+# project basics ------------------------------------------------------------------------------
 
 if (file.exists("~/.Renviron")) {
   readRenviron("~/.Renviron") ## GITHUB_PAT, etc.
@@ -8,14 +8,14 @@ if (file.exists("LandWeb.Renviron")) {
   readRenviron("LandWeb.Renviron") ## database credentials
 }
 
-# packages ------------------------------------------------------------------------------------
+## packages, paths and options ----------------------------------------------------------------
 
 ## use renv for package management
 if (!grepl("renv", .libPaths()[1])) {
   source("renv/activate.R")
 }
 
-## load essential packgaes
+## load essential packages
 library("data.table")
 library("plyr")
 library("pryr")
@@ -28,7 +28,6 @@ library("httr")
 # pkgload::load_all("packages/LandWebUtils")
 library("LandR")
 library("LandWebUtils")
-library("notifications")
 
 # simulation setup ----------------------------------------------------------------------------
 
@@ -37,6 +36,8 @@ prjDir <- workflowtools::findProjectPath()
 stopifnot(identical(prjDir, normalizePath(getwd(), winslash = "/")))
 
 workflowtools::check_project_packages(prjDir)
+
+### configure project -------------------------------------------------------------------------
 
 source("01a-globalvars.R")
 
