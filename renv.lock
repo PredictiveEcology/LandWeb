@@ -285,14 +285,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3.9002",
+      "Version": "1.0.3.9004",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "07c009420e0409adf212f060fa0085182a3be018",
+      "RemoteSha": "4c727beb27079bc6017bd5d2487855c098aacd0a",
       "Requirements": [
         "LandR",
         "R",
@@ -319,7 +319,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "e731146116c0cbcf00d7c22c9a11c680"
+      "Hash": "b35b15be03e54adc930684c0bd8f1ec1"
     },
     "MASS": {
       "Package": "MASS",
@@ -698,27 +698,6 @@
       ],
       "Hash": "5deb66b3ae702137e1f4162c11861e76"
     },
-    "SDMTools": {
-      "Package": "SDMTools",
-      "Version": "1.1-221.3",
-      "Source": "GitHub",
-      "Repository": "CRAN",
-      "RemoteType": "github",
-      "RemoteUsername": "achubaty",
-      "RemoteRepo": "SDMTools",
-      "RemoteRef": "master",
-      "RemoteSha": "ee662f6b4fa43ce83cc811d0a343e396a3b983a8",
-      "RemoteHost": "api.github.com",
-      "Requirements": [
-        "R.utils",
-        "grDevices",
-        "graphics",
-        "raster",
-        "sp",
-        "stats"
-      ],
-      "Hash": "7e0c8d9612736c4949079f47e0f5cffa"
-    },
     "SpaDES.config": {
       "Package": "SpaDES.config",
       "Version": "1.0.7.9004",
@@ -750,7 +729,7 @@
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.core",
       "RemoteRef": "development",
-      "RemoteSha": "918c66deb800defda2395d2c86fdb8a5176ac98b",
+      "RemoteSha": "bbdf8aa718b916422546d2e2737810b46b02e6b7",
       "Requirements": [
         "R",
         "Require",
@@ -769,7 +748,7 @@
         "utils",
         "whisker"
       ],
-      "Hash": "d6a05a7c0dd7ae090fa69cb25ce0c881"
+      "Hash": "962823ab4ad925d0baed62f61db8815f"
     },
     "SpaDES.docs": {
       "Package": "SpaDES.docs",
@@ -2969,6 +2948,24 @@
       ],
       "Hash": "b64ec208ac5bc1852b285f665d6368b3"
     },
+    "landscapemetrics": {
+      "Package": "landscapemetrics",
+      "Version": "2.2.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "RcppArmadillo",
+        "cli",
+        "ggplot2",
+        "methods",
+        "stats",
+        "terra",
+        "tibble"
+      ],
+      "Hash": "2ac5fbeef14b9e857183475ac08a1e72"
+    },
     "later": {
       "Package": "later",
       "Version": "1.4.2",
@@ -3258,7 +3255,7 @@
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "map",
       "RemoteRef": "development",
-      "RemoteSha": "17d9d5b600ef0f177d31ea793162249470f705fa",
+      "RemoteSha": "eaf07860e3708e55a56fc2d1f8c4538c6cbe941f",
       "Requirements": [
         "R",
         "data.table",
@@ -3266,7 +3263,6 @@
         "methods",
         "parallelly",
         "pemisc",
-        "quickPlot",
         "raster",
         "reproducible",
         "sf",
@@ -3276,7 +3272,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "94a4b14e71644b1f88835b691c290591"
+      "Hash": "b3328fbef2a874e8cc57714f7850f3f0"
     },
     "mapproj": {
       "Package": "mapproj",
@@ -4609,7 +4605,7 @@
     },
     "roxygen2": {
       "Package": "roxygen2",
-      "Version": "7.3.2",
+      "Version": "7.3.3",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -4631,7 +4627,7 @@
         "withr",
         "xml2"
       ],
-      "Hash": "6ee25f9054a70f44d615300ed531ba8d"
+      "Hash": "44dd0ef95afe841ad84d88e22ce1ae1b"
     },
     "rpart": {
       "Package": "rpart",
@@ -5512,20 +5508,20 @@
     },
     "tiler": {
       "Package": "tiler",
-      "Version": "0.3.2",
+      "Version": "0.3.3",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "ropensci",
       "RemoteRepo": "tiler",
       "RemoteRef": "master",
-      "RemoteSha": "2f43081405e32ffb4cf56962ed082919ac780639",
+      "RemoteSha": "a2a37c486ec1470b49dd38070c7defd7d2673ccc",
       "Requirements": [
         "png",
         "raster",
         "sp"
       ],
-      "Hash": "78bb2824cd07c57a8009cf9f9c7e3780"
+      "Hash": "eb1b8d5605c82a2d22d1630b035cb6c3"
     },
     "timechange": {
       "Package": "timechange",
