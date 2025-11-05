@@ -3625,18 +3625,16 @@
       "Version": "0.0.1",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "notifications",
       "RemoteRef": "main",
-      "RemoteSha": "57d5989cae5f324d388e3173a79e3eeb84d504c7",
+      "RemoteSha": "ff7a8b7cbad58665dfa2dbab72107a1d0d61e5c2",
+      "RemoteHost": "api.github.com",
       "Requirements": [
-        "RPushbullet",
         "httr",
-        "slackr",
         "yaml"
       ],
-      "Hash": "a556cdb120006b134730552b1b3c6ffd"
+      "Hash": "a6bce03eeef67141d5533c57d00a7ab9"
     },
     "numDeriv": {
       "Package": "numDeriv",
@@ -4988,27 +4986,6 @@
         "Rcpp"
       ],
       "Hash": "c956d93f6768a9789edbc13072b70c78"
-    },
-    "slackr": {
-      "Package": "slackr",
-      "Version": "3.3.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "cachem",
-        "dplyr",
-        "grDevices",
-        "httr",
-        "jsonlite",
-        "magrittr",
-        "memoise",
-        "rlang",
-        "tibble",
-        "utils",
-        "withr"
-      ],
-      "Hash": "652c91f452bc8a46d2ab155cd08a41fe"
     },
     "smoothr": {
       "Package": "smoothr",
