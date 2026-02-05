@@ -1839,6 +1839,11 @@
       ],
       "Hash": "9122b3958e749badb5c939f498038b57"
     },
+    "ggalluvial": {
+      "Package": "ggalluvial",
+      "Version": "0.12.5",
+      "Source": "Repository"
+    },
     "ggplot2": {
       "Package": "ggplot2",
       "Version": "3.4.1",

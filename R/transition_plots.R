@@ -25,6 +25,7 @@ paths_sim <- list(
 ml <- readRDS(file.path(dirname(paths_sim[["outputPath"]]), "ml_preamble.rds"))
 
 studyAreaReporting <- sf::st_as_sf(ml$`DMI Full`)
+# studyAreaReporting <- sf::st_as_sf(ml$`Tolko AB North`)
 
 rasterToMatch <- ml$fireReturnInterval |>
   terra::rast() |>

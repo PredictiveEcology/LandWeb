@@ -122,6 +122,7 @@ Imports:
     geojsonsf (== 2.0.3),
     geometries (== 0.2.0),
     gert (== 1.9.2),
+    ggalluvial (== 0.12.5),
     ggplot2 (== 3.4.1),
     ggpubr (== 0.6.0),
     ggrepel (== 0.9.3),
