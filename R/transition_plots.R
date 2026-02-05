@@ -90,8 +90,8 @@ transition_ggs <- plotVegTransitions(transitions_df)
 purrr::walk(
   .x = names(transition_ggs),
   .f = function(i) {
-    fgg <- file.path(paths_sim[["outputPath"]], "figures") |> fs::dir_create() |>
-      file.path(paste0("transition_vegTypeMap_", i, ".png"))
+    figPath <- file.path(paths_sim[["outputPath"]], "figures") |> fs::dir_create()
+    fgg <- file.path(figPath, paste0("transition_vegTypeMap_", i, ".png"))
     ggsave(fgg, transition_ggs[[i]], width = 12, height = 6)
   }
 )
