@@ -467,6 +467,7 @@ landwebConfig <- R6::R6Class(
           bufferDistLarge = 50000,   ## 50 km buffer
           dispersalType = "default",
           friMultiple = 1L,
+          lthfc_option = "NW_AB_LTHFC_OptionB", ## NW_AB_LTHFC_Option(A|B|C)
           pixelSize = 250,
           minFRI = 25L,
           ROStype = self$context[["ROStype"]],

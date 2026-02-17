@@ -20,7 +20,7 @@ if (.version == 2) {
 ## apply user and machine context settings here
 source("02a-user-config.R")
 config$args <- config.user$args
-#config$modules <- config.user$modules ## no modules should differ among users/machines
+# config$modules <- config.user$modules ## no modules should differ among users/machines
 config$options <- config.user$options
 config$params <- config.user$params
 config$paths <- config.user$paths
