@@ -47,6 +47,18 @@ if (.version == 2L) {
   } else {
     .ROStype <- "log"
   }
+
+  if (.studyAreaName == "NW_AB") {
+    if (exists(".lthfc_option", .GlobalEnv)) {
+      .lthfc_option <- toupper(.lthfc_option)
+      stopifnot(.lthfc_option %in% c("A", "B", "C"))
+    } else {
+      .lthfc_option <- "B"
+    }
+  } else {
+    .lthfc_option <- NA_character_
+  }
+
 }
 
 if (!exists(".upload", .GlobalEnv)) {

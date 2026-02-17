@@ -6,7 +6,8 @@ box::use(box/landweb)
 config <- landweb$landwebConfig$new(
   projectName = "LandWeb", projectPath = prjDir,
   mode = .mode, rep = .rep, res = .res,
-  studyAreaName = .studyAreaName, version = .version
+  studyAreaName = .studyAreaName, lthfc_option = .lthfc_option,
+  version = .version
 )$update()$validate()
 
 if (.version == 2) {

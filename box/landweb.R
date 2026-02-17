@@ -7,7 +7,13 @@ box::use(pemisc[availableMemory])
 #' @keywords internal
 .landwebRunName <- function(context, withRep = TRUE) {
   .runName <- paste0(
-    context$studyAreaName,
+    if (is.na(context$studyAreaName)) {
+      NA_character_
+    } else if(context$studyAreaName == "NW_AB") {
+      context$lthfc_option ## includes studyAreaName 'NW_AB'
+    } else {
+      context$studyAreaName
+    },
     if (context$dispersalType == "default") "" else paste0("_", context[["dispersalType"]], "Dispersal"),
     if (context$ROStype == "default") "" else paste0("_", context[["ROStype"]], "ROS"),
     if (isTRUE(context$succession)) "" else "_noSuccession",
@@ -54,11 +60,24 @@ landwebContext <- R6::R6Class(
     #' @param studyAreaName Character string identifying a study area (see `LandWeb_preamble`
     #'                      module for up-to-date descriptions of each study area label).
     #'
+    #' @param lthfc_option Character string identifying the NW AB LTHFC option to use.
+    #'                     Must be specified as one of 'A', 'B', or 'C' when `studyAreaName` is "NW_AB".
+    #'
     #' @param version Integer. Shorthand denoting whether vegetation parameter forcings (`version = 2`)
     #'                should be used as they were for the ca. 2018 runs.
     #'                Version 3 uses the default LandR Biomass parameters (i.e., no forcings).
     initialize = function(projectPath, mode = "development", rep = 1L, res = 250, ROStype = NA,
-                          studyAreaName = "random", version = 3) {
+                          studyAreaName = "random", lthfc_option = NA_character_, version = 3) {
+      if (studyAreaName == "NW_AB") {
+        if (is.na(lthfc_option)) {
+          stop("when using studyNameArea = 'NW_AB', lthfc_option must be one of 'A', 'B', or 'C'.")
+        } else {
+          lthfc_option <- toupper(lthfc_option)
+          stopifnot(lthfc_option %in% c("A", "B", "C"))
+        }
+      } else {
+        lthfc_option <- NA_character_
+      }
 
       if (is.na(ROStype)) {
         ROStype <- if (version == 2) "log" else if (version == 3) "default"
@@ -87,6 +106,7 @@ landwebContext <- R6::R6Class(
       self$mode <- mode
       self$rep <- rep
       self$studyAreaName <- studyAreaName
+      self$lthfc_option <- lthfc_option
 
       self$runName <- .landwebRunName(self)
 
@@ -156,6 +176,31 @@ landwebContext <- R6::R6Class(
         }
 
         private[[".studyAreaName"]] <- newValue
+        self$runName <- .landwebRunName(self)
+      }
+    },
+
+    #' @field lthfc_option  Character string identifying the NW AB LTHFC option to use.
+    #' Must be specified as one of 'A', 'B', or 'C' when `studyAreaName` is "NW_AB".
+    lthfc_option = function(value) {
+      if (missing(value)) {
+        return(private[[".lthfc_option"]])
+      } else {
+        if (private[[".studyAreaName"]] == "NW_AB") {
+          if (is.na(value)) {
+            stop("when using studyNameArea = 'NW_AB', lthfc_option must be one of 'A', 'B', or 'C'.")
+          } else {
+            private[[".lthfc_option"]] <- switch(
+              toupper(value),
+              A = "NW_AB_LTHFC_OptionA",
+              B = "NW_AB_LTHFC_OptionB",
+              C = "NW_AB_LTHFC_OptionC",
+              stop("invalid lthfc_option")
+            )
+          }
+        } else {
+          private[[".lthfc_option"]] <- NA_character_
+        }
         self$runName <- .landwebRunName(self)
       }
     },
@@ -245,6 +290,7 @@ landwebContext <- R6::R6Class(
     .dispersalType = NA_character_,
     .forceResprout = NA,
     .friMultiple = 1,
+    .lthfc_option = NA_character_,
     .pixelSize = 250,
     .ROStype = NA_character_,
     .succession = NA,
@@ -467,7 +513,7 @@ landwebConfig <- R6::R6Class(
           bufferDistLarge = 50000,   ## 50 km buffer
           dispersalType = "default",
           friMultiple = 1L,
-          lthfc_option = "NW_AB_LTHFC_OptionB", ## NW_AB_LTHFC_Option(A|B|C)
+          lthfc_option = self$context[["lthfc_option"]],
           pixelSize = 250,
           minFRI = 25L,
           ROStype = self$context[["ROStype"]],
