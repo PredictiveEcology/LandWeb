@@ -98,7 +98,7 @@ source("00-global.R")
 ```
 
 ```bash
-.studyAreaName <- "NW_AB"; .lthfc_option <- "A"; .mode <- "postprocess"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+screen -d -m -S NWAB_post_A xvfb-run -a Rscript-4.2.3 -e  '.studyAreaName <- "NW_AB"; .lthfc_option <- "A"; .mode <- "postprocess"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
 ```
 
 ### LTHFC Option B
@@ -110,7 +110,7 @@ source("00-global.R")
 ```
 
 ```bash
-.studyAreaName <- "NW_AB"; .lthfc_option <- "B"; .mode <- "postprocess"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+screen -d -m -S NWAB_post_B xvfb-run -a Rscript-4.2.3 -e  '.studyAreaName <- "NW_AB"; .lthfc_option <- "B"; .mode <- "postprocess"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
 ```
 
 ### LTHFC Option C
@@ -122,5 +122,5 @@ source("00-global.R")
 ```
 
 ```bash
-.studyAreaName <- "NW_AB"; .lthfc_option <- "C"; .mode <- "postprocess"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+screen -d -m -S NWAB_post_C xvfb-run -a Rscript-4.2.3 -e  '.studyAreaName <- "NW_AB"; .lthfc_option <- "C"; .mode <- "postprocess"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
 ```

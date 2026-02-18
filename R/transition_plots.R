@@ -11,21 +11,21 @@ library(dplyr)
 library(ggplot2)
 
 ## TODO: customize this per study area ----------
-# studyAreaRun <- "NW_AB_highDispersal_logROS"
-studyAreaRun <- "DMI_aspenDispersal_logROS"
-# studyAreaRun <- "Tolko_AB_N_aspenDispersal_logROS"
+# studyAreaRun <- "NW_AB_LTHFC_OptionA_aspenDispersal_logROS"
+# studyAreaRun <- "NW_AB_LTHFC_OptionB_aspenDispersal_logROS"
+studyAreaRun <- "NW_AB_LTHFC_OptionC_aspenDispersal_logROS"
 paths_sim <- list(
   outputPath = file.path("outputs", studyAreaRun, "rep01")
 )
 
 ## TODO: can't load simlists -- these old sims didn't save them :/
-## and the old mySimOut.rds files can't be opened :(
-## try getting everything from ml objects
+##       and the old mySimOut.rds files can't be opened :(
+##       get everything from ml objects
+## NOTE: need to have run post-processing to have these files!
 
 ml <- readRDS(file.path(dirname(paths_sim[["outputPath"]]), "ml_preamble.rds"))
 
-studyAreaReporting <- sf::st_as_sf(ml$`DMI Full`)
-# studyAreaReporting <- sf::st_as_sf(ml$`Tolko AB North`)
+studyAreaReporting <- sf::st_as_sf(ml$`NW AB`)
 
 rasterToMatch <- ml$fireReturnInterval |>
   terra::rast() |>

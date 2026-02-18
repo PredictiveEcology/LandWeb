@@ -9,7 +9,7 @@ box::use(pemisc[availableMemory])
   .runName <- paste0(
     if (is.na(context$studyAreaName)) {
       NA_character_
-    } else if(context$studyAreaName == "NW_AB") {
+    } else if (context$studyAreaName == "NW_AB") {
       context$lthfc_option ## includes studyAreaName 'NW_AB'
     } else {
       context$studyAreaName
