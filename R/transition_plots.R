@@ -51,7 +51,7 @@ if (file.exists(CCVTM_tif)) {
   )
 } else if (file.exists(CCVTM_grd)) {
   file.copy(
-    CCWTM_grd,
+    CCVTM_grd,
     file.path(paths_sim[["outputPath"]], "vegTypeMap_year0000.grd")
   )
 
