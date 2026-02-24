@@ -30,7 +30,7 @@ option_labels <- c(
   "Shortest LTHFC (HD)", "Shortest LTHFC (AD)",
   "Original LTHFC (HD)", "Original LTHFC (AD)"
 )
-option_order <- c("A", "A_AD", "B", "B_AD", "C", "C_AD", "Old")
+option_order <- c("A_HD", "A_AD", "B_HD", "B_AD", "C_HD", "C_AD", "Old_HD", "Old_AD")
 option_label_map <- setNames(option_labels, option_order)
 
 ## Read and combine data
