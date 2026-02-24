@@ -51,7 +51,7 @@ if (.version == 2L) {
   if (.studyAreaName == "NW_AB") {
     if (exists(".lthfc_option", .GlobalEnv)) {
       .lthfc_option <- toupper(.lthfc_option)
-      stopifnot(.lthfc_option %in% c("A", "B", "C"))
+      stopifnot(.lthfc_option %in% c("0", "A", "B", "C"))
     } else {
       .lthfc_option <- "B"
     }

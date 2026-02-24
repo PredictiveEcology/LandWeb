@@ -70,10 +70,10 @@ landwebContext <- R6::R6Class(
                           studyAreaName = "random", lthfc_option = NA_character_, version = 3) {
       if (studyAreaName == "NW_AB") {
         if (is.na(lthfc_option)) {
-          stop("when using studyNameArea = 'NW_AB', lthfc_option must be one of 'A', 'B', or 'C'.")
+          stop("when using studyNameArea = 'NW_AB', lthfc_option must be one of '0', A', 'B', or 'C'.")
         } else {
           lthfc_option <- toupper(lthfc_option)
-          stopifnot(lthfc_option %in% c("A", "B", "C"))
+          stopifnot(lthfc_option %in% c("0", "A", "B", "C"))
         }
       } else {
         lthfc_option <- NA_character_
@@ -181,20 +181,21 @@ landwebContext <- R6::R6Class(
     },
 
     #' @field lthfc_option  Character string identifying the NW AB LTHFC option to use.
-    #' Must be specified as one of 'A', 'B', or 'C' when `studyAreaName` is "NW_AB".
+    #' Must be specified as one of '0', A', 'B', or 'C' when `studyAreaName` is "NW_AB".
     lthfc_option = function(value) {
       if (missing(value)) {
         return(private[[".lthfc_option"]])
       } else {
         if (private[[".studyAreaName"]] == "NW_AB") {
           if (is.na(value)) {
-            stop("when using studyNameArea = 'NW_AB', lthfc_option must be one of 'A', 'B', or 'C'.")
+            stop("when using studyNameArea = 'NW_AB', lthfc_option must be one of '0', 'A', 'B', or 'C'.")
           } else {
             private[[".lthfc_option"]] <- switch(
               toupper(value),
-              A = "NW_AB_LTHFC_OptionA",
-              B = "NW_AB_LTHFC_OptionB",
-              C = "NW_AB_LTHFC_OptionC",
+              "0" = "NW_AB_LTHFC_Option0",
+              "A" = "NW_AB_LTHFC_OptionA",
+              "B" = "NW_AB_LTHFC_OptionB",
+              "C" = "NW_AB_LTHFC_OptionC",
               stop("invalid lthfc_option")
             )
           }
