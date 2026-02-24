@@ -7,6 +7,12 @@ output: html_document
 
 ## development
 
+### LTHFC Option 0 (aspen dispersal)
+
+```r
+.studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .mode <- "development"; .dispersalType <- "aspen"; .version <- 2;
+```
+
 ### LTHFC Option 0 (high dispersal)
 
 ```r
@@ -33,24 +39,44 @@ output: html_document
 
 ## production
 
+### LTHFC Option 0 (aspen dispersal)
+
+```bash
+# screen -d -m -S NWAB_01_0a xvfb-run -a Rscript-4.2.3 -e '1L -> .rep; .mode <- "production"; .dispersalType <- "aspen"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_02_0a xvfb-run -a Rscript-4.2.3 -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_03_0a xvfb-run -a Rscript-4.2.3 -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_04_0a xvfb-run -a Rscript-4.2.3 -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_05_0a xvfb-run -a Rscript-4.2.3 -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_06_0a xvfb-run -a Rscript-4.2.3 -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_07_0a xvfb-run -a Rscript-4.2.3 -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_08_0a xvfb-run -a Rscript-4.2.3 -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_09_0a xvfb-run -a Rscript-4.2.3 -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_10_0a xvfb-run -a Rscript-4.2.3 -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_11_0a xvfb-run -a Rscript-4.2.3 -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_12_0a xvfb-run -a Rscript-4.2.3 -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_13_0a xvfb-run -a Rscript-4.2.3 -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_14_0a xvfb-run -a Rscript-4.2.3 -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_15_0a xvfb-run -a Rscript-4.2.3 -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+```
+
 ### LTHFC Option 0 (high dispersal)
 
 ```bash
-screen -d -m -S NWAB_01_0 xvfb-run -a Rscript-4.2.3 -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_02_0 xvfb-run -a Rscript-4.2.3 -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_03_0 xvfb-run -a Rscript-4.2.3 -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_04_0 xvfb-run -a Rscript-4.2.3 -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_05_0 xvfb-run -a Rscript-4.2.3 -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_06_0 xvfb-run -a Rscript-4.2.3 -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_07_0 xvfb-run -a Rscript-4.2.3 -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_08_0 xvfb-run -a Rscript-4.2.3 -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_09_0 xvfb-run -a Rscript-4.2.3 -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_10_0 xvfb-run -a Rscript-4.2.3 -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_11_0 xvfb-run -a Rscript-4.2.3 -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_12_0 xvfb-run -a Rscript-4.2.3 -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_13_0 xvfb-run -a Rscript-4.2.3 -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_14_0 xvfb-run -a Rscript-4.2.3 -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
-screen -d -m -S NWAB_15_0 xvfb-run -a Rscript-4.2.3 -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_01_0 xvfb-run -a Rscript-4.2.3 -e '1L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_02_0 xvfb-run -a Rscript-4.2.3 -e '2L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_03_0 xvfb-run -a Rscript-4.2.3 -e '3L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_04_0 xvfb-run -a Rscript-4.2.3 -e '4L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_05_0 xvfb-run -a Rscript-4.2.3 -e '5L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_06_0 xvfb-run -a Rscript-4.2.3 -e '6L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_07_0 xvfb-run -a Rscript-4.2.3 -e '7L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_08_0 xvfb-run -a Rscript-4.2.3 -e '8L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_09_0 xvfb-run -a Rscript-4.2.3 -e '9L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_10_0 xvfb-run -a Rscript-4.2.3 -e '10L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_11_0 xvfb-run -a Rscript-4.2.3 -e '11L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_12_0 xvfb-run -a Rscript-4.2.3 -e '12L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_13_0 xvfb-run -a Rscript-4.2.3 -e '13L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_14_0 xvfb-run -a Rscript-4.2.3 -e '14L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
+# screen -d -m -S NWAB_15_0 xvfb-run -a Rscript-4.2.3 -e '15L -> .rep; .mode <- "production"; .studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .version <- 2; source("00-global.R")'
 ```
 
 ### LTHFC Option A
@@ -114,6 +140,18 @@ screen -d -m -S NWAB_15_0 xvfb-run -a Rscript-4.2.3 -e '15L -> .rep; .mode <- "p
 ```
 
 ## post-processing
+
+### LTHFC Option 0 (aspen dispersal)
+
+```r
+.studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .mode <- "postprocess"; .version <- 2; .dispersalType <- "aspen";
+
+source("00-global.R")
+```
+
+```bash
+screen -d -m -S NWAB_post_0 xvfb-run -a Rscript-4.2.3 -e  '.studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .mode <- "postprocess"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+```
 
 ### LTHFC Option 0 (high dispersal)
 

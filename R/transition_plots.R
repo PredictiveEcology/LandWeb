@@ -4,13 +4,16 @@ library(sf)
 library(terra)
 
 library(LandR)
-library(SpaDES.core)
-
 library(data.table)
 library(dplyr)
 library(ggplot2)
 
+library(SpaDES.core)
+
 ## TODO: customize this per study area ----------
+# studyAreaRun <- "NW_AB_LTHFC_Option0_highDispersal_logROS"
+
+# studyAreaRun <- "NW_AB_LTHFC_Option0_aspenDispersal_logROS"
 # studyAreaRun <- "NW_AB_LTHFC_OptionA_aspenDispersal_logROS"
 # studyAreaRun <- "NW_AB_LTHFC_OptionB_aspenDispersal_logROS"
 studyAreaRun <- "NW_AB_LTHFC_OptionC_aspenDispersal_logROS"
