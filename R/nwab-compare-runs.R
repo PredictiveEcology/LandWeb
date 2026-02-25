@@ -1,11 +1,42 @@
-## plotting function to mass produce boxplots by NSR
-## inputs are from each of the NW AB Landweb runs:
-## - high dispersal: Options A, B, and C, plus one using original LTHFG layer;
-## - aspen dispersal: Options A, B, and C plus the original 2020 runs;
-
 library(data.table)
 library(dplyr)
 library(ggplot2)
+
+# LTHFC maps ---------------------------------------------------------------------------------------
+
+studyArea <- sf::st_read(file.path("outputs", "NW_AB_2025", "LTHFC_NW_AB.gpkg")) |>
+  sf::st_union()
+
+lthfc_options <- c("0", "A", "B", "C")
+
+lthfc_df <- purrr::map(
+  .x = lthfc_options,
+  .f = function(x) {
+    file.path("outputs", glue::glue("NW_AB_LTHFC_Option{x}_aspenDispersal_logROS"), "rep01", "landweb_lthfc_clean.shp") |>
+      sf::st_read() |>
+      sf::st_intersection(sf::st_transform(studyArea, sf::st_crs(lthfc))) |>
+      dplyr::rename(LTHFC = frRtrnI) |>
+      dplyr::mutate(option = x, .before = "area")
+  }
+) |> do.call(rbind, args = _) |>
+  dplyr::mutate(LTHFC = as.factor(LTHFC)) |>
+  dplyr::group_by(option)
+
+gg_lthfc <- ggplot2::ggplot(lthfc_df, ggplot2::aes(fill = LTHFC)) +
+  ggplot2::geom_sf() +
+  ggplot2::geom_sf_text(aes(label = LTHFC)) +
+  ggplot2::facet_wrap(~option, ncol = 2) +
+  ggplot2::xlab("longitude") +
+  ggplot2::ylab("latitude")
+
+f_gg_lthfc <- file.path("outputs", "NW_AB_2025", "LTHFC_NW_AB.png")
+ggplot2::ggsave(f_gg_lthfc, gg_lthfc, height = 8, width = 8)
+
+# boxplots -----------------------------------------------------------------------------------------
+
+## inputs are from each of the NW AB Landweb runs:
+## - high dispersal: Options A, B, and C, plus one using original LTHFC layer;
+## - aspen dispersal: Options A, B, and C, plus one using original LTHFC layer;
 
 csv_files <- list(
   Old_HD = file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "boxplots", "leading_NW_AB_ANSR.csv"),
