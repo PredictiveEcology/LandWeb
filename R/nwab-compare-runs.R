@@ -12,9 +12,9 @@ lthfc_options <- c("0", "A", "B", "C")
 lthfc_df <- purrr::map(
   .x = lthfc_options,
   .f = function(x) {
-    file.path("outputs", glue::glue("NW_AB_LTHFC_Option{x}_aspenDispersal_logROS"), "rep01", "landweb_lthfc_clean.shp") |>
-      sf::st_read() |>
-      sf::st_intersection(sf::st_transform(studyArea, sf::st_crs(lthfc))) |>
+    lthfc <- file.path("outputs", glue::glue("NW_AB_LTHFC_Option{x}_aspenDispersal_logROS"), "rep01", "landweb_lthfc_clean.shp") |>
+      sf::st_read()
+    lthfc <- sf::st_intersection(lthfc, sf::st_transform(studyArea, sf::st_crs(lthfc))) |>
       dplyr::rename(LTHFC = frRtrnI) |>
       dplyr::mutate(option = x, .before = "area")
   }
@@ -39,15 +39,15 @@ ggplot2::ggsave(f_gg_lthfc, gg_lthfc, height = 8, width = 8)
 ## - aspen dispersal: Options A, B, and C, plus one using original LTHFC layer;
 
 csv_files <- list(
-  Old_HD = file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "boxplots", "leading_NW_AB_ANSR.csv"),
-  A_HD   = file.path("outputs", "NW_AB_2025", "OptionA", "Boxplots", "leading_nw_ab_ANSR.csv"),
-  B_HD   = file.path("outputs", "NW_AB_2025", "OptionB", "Boxplots", "leading_nw_ab_ANSR.csv"),
-  C_HD   = file.path("outputs", "NW_AB_2025", "OptionC", "Boxplots", "leading_nw_ab_ANSR.csv"),
+  Old_HD = file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "boxplots", "leading_boxplots_NW_AB_ANSR.csv"),
+  A_HD   = file.path("outputs", "NW_AB_2025", "OptionA", "Boxplots", "leading_boxplots_nw_ab_ANSR.csv"),
+  B_HD   = file.path("outputs", "NW_AB_2025", "OptionB", "Boxplots", "leading_boxplots_nw_ab_ANSR.csv"),
+  C_HD   = file.path("outputs", "NW_AB_2025", "OptionC", "boxplots", "leading_boxplots_nw_ab_ANSR.csv"),
 
-  Old_AD = file.path("outputs", "NW_AB_LTHFC_Option0_aspenDispersal_logROS", "boxplots", "leading_NW_AB_ANSR.csv"),
-  A_AD   = file.path("outputs", "NW_AB_LTHFC_OptionA_aspenDispersal_logROS", "boxplots", "leading_NW_AB_ANSR.csv"),
-  B_AD   = file.path("outputs", "NW_AB_LTHFC_OptionB_aspenDispersal_logROS", "boxplots", "leading_NW_AB_ANSR.csv"),
-  C_AD   = file.path("outputs", "NW_AB_LTHFC_OptionC_aspenDispersal_logROS", "boxplots", "leading_NW_AB_ANSR.csv")
+  Old_AD = file.path("outputs", "NW_AB_LTHFC_Option0_aspenDispersal_logROS", "boxplots", "leading_boxplots_NW_AB_ANSR.csv"),
+  A_AD   = file.path("outputs", "NW_AB_LTHFC_OptionA_aspenDispersal_logROS", "boxplots", "leading_boxplots_NW_AB_ANSR.csv"),
+  B_AD   = file.path("outputs", "NW_AB_LTHFC_OptionB_aspenDispersal_logROS", "boxplots", "leading_boxplots_NW_AB_ANSR.csv"),
+  C_AD   = file.path("outputs", "NW_AB_LTHFC_OptionC_aspenDispersal_logROS", "boxplots", "leading_boxplots_NW_AB_ANSR.csv")
 )
 
 stopifnot(all(file.exists(unlist(csv_files)))) ## TODO: resume (HERE)
@@ -66,8 +66,8 @@ option_label_map <- setNames(option_labels, option_order)
 
 ## Read and combine data
 all_data <- bind_rows(
-  lapply(names(files), function(option) {
-    df <- fread(file = files[[option]])
+  lapply(names(csv_files), function(option) {
+    df <- fread(file = csv_files[[option]])
     ## Remove " LandWeb Study Area" from zone
     df$zone <- gsub(" LandWeb Study Area", "", df$zone)
     df$Option <- option
@@ -75,31 +75,35 @@ all_data <- bind_rows(
   })
 )
 
-all_data <- all_data %>% filter(vegCover == "All species")
+all_species <- all_data |> filter(vegCover == "All species")
 
-keep_zones <- all_data %>%
-  filter(Option %in% c("A", "B", "C")) %>%
-  pull(zone) %>%
+keep_zones <- all_species |>
+  dplyr::filter(Option %in% !!names(csv_files)) |>
+  dplyr::pull(zone) |>
   unique()
 
-all_data <- all_data %>% filter(zone %in% keep_zones)
-
-all_data$Option <- factor(all_data$Option, levels = option_order)
-all_data$PlotOption <- option_label_map[as.character(all_data$Option)]
-all_data$PlotOption <- factor(all_data$PlotOption, levels = option_labels)
-all_data$ageClass <- factor(all_data$ageClass, levels = c("Young", "Immature", "Mature", "Old"))
+all_species <- all_species |>
+  dplyr::filter(zone %in% keep_zones) |>
+  dplyr::mutate(
+    Option = factor(Option, levels = option_order),
+    PlotOption = factor(option_label_map[as.character(Option)], levels = option_labels),
+    ageClass = factor(ageClass, levels = c("Young", "Immature", "Mature", "Old"))
+  )
 
 ## Plotting Function
 plot_boxflip <- function(subdf, zone_arg, ageClass_arg, output_dir) {
-  plotdf <- subdf %>%
-    filter(
+  plotdf <- subdf |>
+    dplyr::filter(
       as.character(zone)     == as.character(zone_arg),
       as.character(ageClass) == as.character(ageClass_arg)
-    ) %>%
-    group_by(PlotOption) %>%
-    slice(1) %>%
-    ungroup() %>%
-    complete(PlotOption = factor(option_labels, levels = option_labels), fill = list(MIN = NA, q25_0 = NA, MED = NA, q75_0 = NA, MAX = NA, proportionCC = NA)) # ensure all labels appear
+    ) |>
+    dplyr::group_by(PlotOption) |>
+    dplyr::slice(1) |>
+    dplyr::ungroup() |>
+    tidyr::complete(
+      PlotOption = factor(option_labels, levels = option_labels),
+      fill = list(MIN = NA, q25_0 = NA, MED = NA, q75_0 = NA, MAX = NA, proportionCC = NA)
+    )
 
   ## Color: light green/grey for HD, dark green/grey for AD;
   box_colors <- c(
@@ -147,11 +151,12 @@ plot_boxflip <- function(subdf, zone_arg, ageClass_arg, output_dir) {
 }
 
 ## Generate all plots
-zones <- unique(as.character(all_data$zone))
-ages  <- unique(as.character(all_data$ageClass))
+zones <- unique(as.character(all_species$zone))
+ages  <- unique(as.character(all_species$ageClass))
+
 for(z in zones) {
   for(a in ages) {
-    plot_boxflip(all_data, z, a, output_dir)
+    plot_boxflip(all_species, z, a, output_dir)
   }
 }
 message("All comparative boxplots saved to: ", output_dir)

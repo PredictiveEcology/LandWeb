@@ -150,7 +150,7 @@ source("00-global.R")
 ```
 
 ```bash
-screen -d -m -S NWAB_post_0 xvfb-run -a Rscript-4.2.3 -e  '.studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .mode <- "postprocess"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
+screen -d -m -S NWAB_post_0a xvfb-run -a Rscript-4.2.3 -e  '.studyAreaName <- "NW_AB"; .lthfc_option <- "0"; .mode <- "postprocess"; .dispersalType <- "aspen"; .version <- 2; source("00-global.R")'
 ```
 
 ### LTHFC Option 0 (high dispersal)
