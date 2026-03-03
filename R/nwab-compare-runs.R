@@ -98,22 +98,13 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
       fill = list(MIN = NA, q25_0 = NA, MED = NA, q75_0 = NA, MAX = NA, proportionCC = NA)
     )
 
-  ## Color: light green/grey for HD, dark green/grey for AD;
-  box_colors <- c(
-    "limegreen", "darkgreen", ## option A
-    "limegreen", "darkgreen", ## option B
-    "limegreen", "darkgreen", ## option C
-    "gray",      "gray30"     ## original lthfc
-  )
-  names(box_colors) <- option_labels
-
-  p <- ggplot(plotdf,
-              aes(
-                x = lthfc_option,
-                fill = dispersal_type,
-                ymin = MIN, lower = q25_0, middle = MED, upper = q75_0, ymax = MAX,
-              )) +
+  p <- ggplot(plotdf) +
     geom_boxplot(
+      aes(
+        x = lthfc_option,
+        fill = dispersal_type,
+        ymin = MIN, lower = q25_0, middle = MED, upper = q75_0, ymax = MAX,
+      ),
       stat = "identity",
       color = "black",
       alpha = 0.7,
@@ -121,7 +112,13 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
       na.rm = TRUE
     ) +
     coord_flip() +
-    geom_point(aes(y = proportionCC), color = "red", size = 3, na.rm = TRUE, show.legend = FALSE) +
+    geom_point(
+      aes(x = lthfc_option, y = proportionCC),
+      color = "red",
+      size = 3,
+      na.rm = TRUE,
+      show.legend = FALSE
+    ) +
     facet_wrap(~ageClass, nrow = 2) +
     scale_x_discrete(drop = FALSE) +
     labs(
