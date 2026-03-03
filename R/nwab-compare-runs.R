@@ -127,7 +127,7 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
       y = "Proportion of forest area",
       fill = "Dispersal type"
     ) +
-    theme_classic(base_size = 16) +
+    theme_bw(base_size = 16) +
     theme(
       axis.title.x = element_text(face = "bold", size = 16),
       axis.title.y = element_text(face = "bold", size = 16),
