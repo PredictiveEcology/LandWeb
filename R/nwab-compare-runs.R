@@ -53,6 +53,18 @@ stopifnot(all(file.exists(unlist(csv_files))))
 
 output_dir <- file.path("outputs", "NW_AB_2025", "comparative_boxplots") |> fs::dir_create()
 
+## reporting polygons from ml object to calculate area to add to boxplots
+f_ml <- file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "ml_preamble.rds")
+ml <- readRDS(f_ml)
+ANSR_areas <- ml[["Alberta Natural Subregions"]] |>
+  sf:: st_as_sf() |>
+  dplyr::mutate(Shape_Area = sf::st_area(geometry) |> units::set_units("ha")) |>
+  as.data.frame() |>
+  dplyr::rename(zone = Name) |>
+  dplyr::group_by(zone) |>
+  dplyr::summarise(zone_area = sum(Shape_Area))
+rm(ml)
+
 ## LTHFC option labels (plot order)
 option_labels <- c("Original", "Longest", "Intermediate", "Shortest")
 option_order <- c("0", "A", "B", "C")
@@ -61,14 +73,14 @@ option_label_map <- setNames(option_labels, option_order)
 ## Read and combine data
 all_data <- bind_rows(
   lapply(names(csv_files), function(option) {
-    f_name <- csv_files[[option]]
-    df <- read.csv(file = f_name)
+    f_csv <- csv_files[[option]]
+    df <- read.csv(file = f_csv)
     ## Remove " LandWeb Study Area" from zone
     df <- df |>
       dplyr::mutate(
         zone = gsub(" LandWeb Study Area", "", zone),
         lthfc_option = strsplit(option, "_")[[1]][1],
-        dispersal_type = if_else(grepl("aspenDispersal", f_name), "aspen", "high"),
+        dispersal_type = if_else(grepl("aspenDispersal", f_csv), "aspen", "high"),
         .before = "proportionCC"
       )
 
@@ -123,6 +135,13 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
     scale_x_discrete(drop = FALSE) +
     labs(
       title = paste(zone_arg, "-", species_arg),
+      caption = paste(
+        zone_arg,
+        "Area:",
+        dplyr::filter(ANSR_areas, zone == zone_arg) |>
+          dplyr::pull(zone_area) |>
+          format(digits = 7, big.mark = ",")
+      ),
       x = "LTHFC option",
       y = "Proportion of forest area",
       fill = "Dispersal type"
@@ -140,13 +159,12 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
   cleaned_zone <- gsub("[^a-zA-Z0-9]", "", zone_arg)
   cleaned_species  <- gsub("[^a-zA-Z0-9]", "", species_arg)
   fname <- paste0("boxplot_", cleaned_zone, "_", cleaned_species, ".png")
-  ggsave(file.path(output_dir, fname), p, width = 10, height = 6, dpi = 300)
+  ggsave(file.path(output_dir, fname), p, width = 12, height = 9, dpi = 300)
 }
 
 ## Generate all plots
 zones <- unique(as.character(all_data$zone))
 species <- unique(as.character(all_data$vegCover))
-ages  <- unique(as.character(all_data$ageClass))
 
 for(z in zones) {
   for(s in species) {
