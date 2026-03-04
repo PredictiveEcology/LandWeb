@@ -1,5 +1,6 @@
 library(dplyr)
 library(ggplot2)
+library(ggpattern)
 
 # LTHFC maps ---------------------------------------------------------------------------------------
 
@@ -66,7 +67,7 @@ ANSR_areas <- ml[["Alberta Natural Subregions"]] |>
 rm(ml)
 
 ## LTHFC option labels (plot order)
-option_labels <- c("Original", "Longest", "Intermediate", "Shortest")
+option_labels <- c("original", "longest", "intermediate", "shortest")
 option_order <- c("0", "A", "B", "C")
 option_label_map <- setNames(option_labels, option_order)
 
@@ -111,18 +112,34 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
     )
 
   p <- ggplot(plotdf) +
-    geom_boxplot(
+    geom_boxplot_pattern(
       aes(
         x = lthfc_option,
-        fill = dispersal_type,
+        fill = lthfc_option,
+        pattern = dispersal_type,
         ymin = MIN, lower = q25_0, middle = MED, upper = q75_0, ymax = MAX,
       ),
       stat = "identity",
       color = "black",
-      alpha = 0.7,
+      pattern_fill = "black",
+      pattern_angle = 45,
+      pattern_density = 0.1,
+      pattern_spacing = 0.025,
+      pattern_key_scale_factor = 0.6,
       width = 0.5,
       na.rm = TRUE
     ) +
+    facet_wrap(~ageClass, nrow = 2) +
+    scale_fill_manual(
+      values = c(
+        original = "steelblue",
+        longest = "forestgreen",
+        intermediate =  "darkorange",
+        shortest = "firebrick"
+      ),
+      guide = "none"
+    ) +
+    scale_pattern_manual(values = c(aspen = "none", high = "stripe")) +
     coord_flip() +
     geom_point(
       aes(x = lthfc_option, y = proportionCC),
@@ -131,7 +148,6 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
       na.rm = TRUE,
       show.legend = FALSE
     ) +
-    facet_wrap(~ageClass, nrow = 2) +
     scale_x_discrete(drop = FALSE) +
     labs(
       title = paste(zone_arg, "-", species_arg),
