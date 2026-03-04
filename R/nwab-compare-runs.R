@@ -67,7 +67,7 @@ ANSR_areas <- ml[["Alberta Natural Subregions"]] |>
 rm(ml)
 
 ## LTHFC option labels (plot order)
-option_labels <- c("original", "longest", "intermediate", "shortest")
+option_labels <- c("Original", "Longest", "Intermediate", "Shortest")
 option_order <- c("0", "A", "B", "C")
 option_label_map <- setNames(option_labels, option_order)
 
@@ -81,7 +81,7 @@ all_data <- bind_rows(
       dplyr::mutate(
         zone = gsub(" LandWeb Study Area", "", zone),
         lthfc_option = strsplit(option, "_")[[1]][1],
-        dispersal_type = if_else(grepl("aspenDispersal", f_csv), "aspen", "high"),
+        dispersal_type = if_else(grepl("aspenDispersal", f_csv), "Aspen", "High"),
         .before = "proportionCC"
       )
 
@@ -92,7 +92,7 @@ all_data <- bind_rows(
 all_data <- all_data |>
   dplyr::mutate(
     ageClass = factor(ageClass, levels = c("Young", "Immature", "Mature", "Old")),
-    dispersal_type = factor(dispersal_type, levels = c("aspen", "high")),
+    dispersal_type = factor(dispersal_type, levels = c("Aspen", "High")),
     lthfc_option = factor(option_label_map[as.character(lthfc_option)], levels = option_labels)
   )
 
@@ -132,37 +132,38 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
       na.rm = TRUE
     ) +
     facet_wrap(~ageClass, nrow = 2) +
+    ylim(0, 1) +
     scale_fill_manual(
       values = c(
-        original = "steelblue",
-        longest = "forestgreen",
-        intermediate =  "darkorange",
-        shortest = "firebrick"
+        Original = "steelblue",
+        Longest = "forestgreen",
+        Intermediate =  "darkorange",
+        Shortest = "firebrick"
       ),
       guide = "none"
     ) +
-    scale_pattern_manual(values = c(aspen = "none", high = "stripe")) +
+    scale_pattern_manual(values = c(Aspen = "none", High = "stripe")) +
     coord_flip() +
     geom_point(
-      aes(x = lthfc_option, y = proportionCC),
-      color = "darkred",
+      aes(x = lthfc_option, y = proportionCC, colour = "Current condition"),
       size = 3,
-      na.rm = TRUE,
-      show.legend = FALSE
+      na.rm = TRUE
     ) +
     scale_x_discrete(drop = FALSE) +
+    scale_colour_discrete(type = "darkred") +
     labs(
       title = paste(zone_arg, "-", species_arg),
-      caption = paste(
-        zone_arg,
-        "Area:",
+      caption = "",
+      x = "LTHFC option",
+      y = paste0(
+        "Proportion of forest area (total ",
         dplyr::filter(ANSR_areas, zone == zone_arg) |>
           dplyr::pull(zone_area) |>
-          format(digits = 7, big.mark = ",")
+          format(digits = 7, big.mark = ","),
+        ")"
       ),
-      x = "LTHFC option",
-      y = "Proportion of forest area",
-      fill = "Dispersal type"
+      colour = "",
+      pattern = "Dispersal type"
     ) +
     theme_bw(base_size = 16) +
     theme(
