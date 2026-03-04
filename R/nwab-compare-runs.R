@@ -120,12 +120,14 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
         ymin = MIN, lower = q25_0, middle = MED, upper = q75_0, ymax = MAX,
       ),
       stat = "identity",
+      alpha = 0.7,
       color = "black",
       pattern_fill = "black",
       pattern_angle = 45,
       pattern_density = 0.1,
       pattern_spacing = 0.025,
       pattern_key_scale_factor = 0.6,
+      position = position_dodge2(padding = 0.3),
       width = 0.5,
       na.rm = TRUE
     ) +
@@ -143,7 +145,7 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
     coord_flip() +
     geom_point(
       aes(x = lthfc_option, y = proportionCC),
-      color = "red",
+      color = "darkred",
       size = 3,
       na.rm = TRUE,
       show.legend = FALSE
@@ -188,3 +190,12 @@ for(z in zones) {
   }
 }
 message("All comparative boxplots saved to: ", output_dir)
+
+## upload to Google Drive -----------------------------------------------------
+
+googledrive::drive_auth(path = fs::dir_ls(".", type = "file", regexp = "landweb.*[.]json$"))
+purrr::walk(
+  .x = fs::dir_ls(output_dir, type = "file"),
+  .f = googledrive::drive_put,
+  path = googledrive::as_id("1KQTvV0fT4bUZaiGYAtEwByyW8p2TlbOn")
+)
