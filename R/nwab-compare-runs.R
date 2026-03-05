@@ -80,6 +80,12 @@ all_data <- bind_rows(
     df <- df |>
       dplyr::mutate(
         zone = gsub(" LandWeb Study Area", "", zone),
+        ageClass = case_when(
+          ageClass == "Young" ~ "Young (0-39 years)",
+          ageClass == "Immature" ~ "Immature (40-79 years)",
+          ageClass == "Mature" ~ "Mature (80-119 years)",
+          ageClass == "Old" ~ "Old (≥120 years)",
+        ),
         lthfc_option = strsplit(option, "_")[[1]][1],
         dispersal_type = if_else(grepl("aspenDispersal", f_csv), "Aspen", "High"),
         .before = "proportionCC"
@@ -91,7 +97,15 @@ all_data <- bind_rows(
 
 all_data <- all_data |>
   dplyr::mutate(
-    ageClass = factor(ageClass, levels = c("Young", "Immature", "Mature", "Old")),
+    ageClass = factor(
+      ageClass,
+      levels = c(
+        "Young (0-39 years)",
+        "Immature (40-79 years)",
+        "Mature (80-119 years)",
+        "Old (≥120 years)"
+      )
+    ),
     dispersal_type = factor(dispersal_type, levels = c("Aspen", "High")),
     lthfc_option = factor(option_label_map[as.character(lthfc_option)], levels = option_labels)
   )
@@ -145,7 +159,7 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
     scale_pattern_manual(values = c(Aspen = "none", High = "stripe")) +
     coord_flip() +
     geom_point(
-      aes(x = lthfc_option, y = proportionCC, colour = "Current condition"),
+      aes(x = lthfc_option, y = proportionCC, colour = "Current Condition"),
       size = 3,
       na.rm = TRUE
     ) +
@@ -153,17 +167,18 @@ plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
     scale_colour_discrete(type = "darkred") +
     labs(
       title = paste(zone_arg, "-", species_arg),
-      caption = "",
-      x = "LTHFC option",
-      y = paste0(
-        "Proportion of forest area (total ",
+      caption = paste0(
+        "Total Area of ", zone_arg, ": ",
         dplyr::filter(ANSR_areas, zone == zone_arg) |>
           dplyr::pull(zone_area) |>
+          as.numeric() |>
           format(digits = 7, big.mark = ","),
-        ")"
+        " ha"
       ),
+      x = "LTFC Option",
+      y = paste0("Proportion of ", species_arg, "-Leading Area"),
       colour = "",
-      pattern = "Dispersal type"
+      pattern = "Dispersal Type"
     ) +
     theme_bw(base_size = 16) +
     theme(
