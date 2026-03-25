@@ -45,7 +45,9 @@ inputs/
 inputs_docker/
 outputs
 outputs/
-
+outputs_v2
+outputs_v2/
+reports/
 ## OAuth tokens
 .httr-oauth
 .httr-oauth-SUSPENDED

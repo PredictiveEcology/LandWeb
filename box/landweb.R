@@ -243,7 +243,6 @@ landwebConfig <- R6::R6Class(
         ),
         delayStart = 0,
         fsimext = "rds", ## TODO: use "qs2"
-        notifications = list(),
         simYears = list(start = 0, end = 1000),
         useCache = FALSE ## TODO: caching simulations broken in SpaDES.core
       )
