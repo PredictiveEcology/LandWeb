@@ -55,12 +55,21 @@ Currently, only a subset of the FMAs within the LandWeb study area are predefine
 ```{r fma-map, echo = FALSE, eval = "true", fig.keep = "all", message = FALSE, out.width = "90%", results = "hide", fig.cap = "\\label{fig:fma-map} FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs."}
 prjDir <- SpaDES.config::findProjectPath(from_wd = FALSE)
 
-canProvs <- geodata::gadm(country = "CAN", level = 1, path = file.path(prjDir, "inputs")) |>
+canProvs <- geodata::gadm(
+  country = "CAN",
+  level = 1,
+  path = file.path(prjDir, "inputs")
+) |>
   sf::st_as_sf()
 lwProvs <- c("British Columbia", "Alberta", "Saskatchewan", "Manitoba")
 
-fshp2 <- file.path(prjDir, "inputs", "FMA_Boundaries",
-                   "FMA_Boundary_CustomProj", "FMA_Boundary_Updated.shp")
+fshp2 <- file.path(
+  prjDir,
+  "inputs",
+  "FMA_Boundaries",
+  "FMA_Boundary_CustomProj",
+  "FMA_Boundary_Updated.shp"
+)
 fcsv2 <- file.path(prjDir, "manual", "tables", "FMA_Boundary_Updated.csv")
 fgg2 <- file.path(prjDir, "manual", "figures", "FMA_Boundary_Updated.png")
 
@@ -78,10 +87,16 @@ if (file.exists(fshp2)) {
 
   gg2 <- ggplot2::ggplot(data = sf2) +
     ggplot2::geom_sf(data = canProvs[canProvs$NAME_1 %in% lwProvs, ]) +
-    ggplot2::geom_sf(data = sf2, mapping = ggplot2::aes(fill = as.factor(OBJECTID_1 %% 10))) +
+    ggplot2::geom_sf(
+      data = sf2,
+      mapping = ggplot2::aes(fill = as.factor(OBJECTID_1 %% 10))
+    ) +
     ggplot2::scale_fill_brewer(type = "div", palette = "Spectral") +
-    ggplot2::geom_text(data = centroids_sf2,
-                       mapping = ggplot2::aes(x = X, y = Y, label = OBJECTID_1), size = 2) +
+    ggplot2::geom_text(
+      data = centroids_sf2,
+      mapping = ggplot2::aes(x = X, y = Y, label = OBJECTID_1),
+      size = 2
+    ) +
     ggplot2::labs(title = "FMA boundaries within the LandWeb study area") +
     ggplot2::xlab("Longitude") +
     ggplot2::ylab("Latitude") +
@@ -99,9 +114,12 @@ if (file.exists(fshp2)) {
 
 ```{r fma-table, echo = FALSE, eval = TRUE, message = FALSE, warning = FALSE}
 read.csv(fcsv2) |>
-  knitr::kable(caption = "FMA polygon IDs (from Figure 1) and their corresponding FMA names.",
-               booktabs = TRUE, longtable = TRUE) |>
-  kableExtra::kable_styling(latex_options =  c("striped", "repeat_header"))
+  knitr::kable(
+    caption = "FMA polygon IDs (from Figure 1) and their corresponding FMA names.",
+    booktabs = TRUE,
+    longtable = TRUE
+  ) |>
+  kableExtra::kable_styling(latex_options = c("striped", "repeat_header"))
 ```
 
 #### Choosing a study area
@@ -111,8 +129,10 @@ To select one of these predefined study areas, set `.studyAreaName` to use one o
 
 ```{r studyarea-table, echo = FALSE, eval = TRUE, message = FALSE, warning = FALSE}
 LandWebUtils::LandWebStudyAreas |>
-  knitr::kable(caption = "Model study areas with corresponding FMA polygon IDs (from Figure 1).",
-               booktabs = TRUE) |>
+  knitr::kable(
+    caption = "Model study areas with corresponding FMA polygon IDs (from Figure 1).",
+    booktabs = TRUE
+  ) |>
   kableExtra::kable_styling(latex_options = "striped") # font_size = 10
 ```
 
