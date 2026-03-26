@@ -9,6 +9,35 @@
     ]
   },
   "Packages": {
+    "AOI": {
+      "Package": "AOI",
+      "Version": "0.3.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "mikejohnson51",
+      "RemoteRepo": "AOI",
+      "RemoteRef": "master",
+      "RemoteSha": "f821d499b80371c7c389937072ea041312a8efcd",
+      "Requirements": [
+        "R",
+        "datasets",
+        "dplyr",
+        "fipio",
+        "htmlwidgets",
+        "jsonlite",
+        "leaflet",
+        "leaflet.extras",
+        "rnaturalearth",
+        "rvest",
+        "sf",
+        "shiny",
+        "terra",
+        "tidygeocoder",
+        "units"
+      ],
+      "Hash": "4fe88a37cf0d8716edb86e0c2dac2f37"
+    },
     "BH": {
       "Package": "BH",
       "Version": "1.90.0-1",
@@ -24,13 +53,13 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "RNCan",
       "RemoteRepo": "BioSimClient_R",
-      "RemoteRef": "1e14e1c828337a70752ef560e2913ac627ccbf5f",
-      "RemoteSha": "1e14e1c828337a70752ef560e2913ac627ccbf5f",
+      "RemoteRef": "main",
+      "RemoteSha": "88befad35913bb7346f63b55df85218b582332d8",
       "Requirements": [
         "J4R",
         "R"
       ],
-      "Hash": "9371366ef2e5c19b2d6a1576d9178580"
+      "Hash": "f85a1437e6f639fe690da763d23ef7a5"
     },
     "CircStats": {
       "Package": "CircStats",
@@ -45,14 +74,14 @@
     },
     "DBI": {
       "Package": "DBI",
-      "Version": "1.2.3",
+      "Version": "1.3.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "methods"
       ],
-      "Hash": "065ae649b05f1ff66bb0c793107508f5"
+      "Hash": "dbfa2adb83f8063640982459e153f650"
     },
     "DEoptim": {
       "Package": "DEoptim",
@@ -193,19 +222,19 @@
     },
     "J4R": {
       "Package": "J4R",
-      "Version": "1.2.3",
+      "Version": "1.3.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "CWFC-CCFB",
       "RemoteRepo": "J4R",
-      "RemoteRef": "d423d7cdad7903499e17fc646961078f0361573e",
-      "RemoteSha": "d423d7cdad7903499e17fc646961078f0361573e",
+      "RemoteRef": "main",
+      "RemoteSha": "a4aeb8645ceb0e9fc82642898b853a7c19af726a",
       "Requirements": [
         "methods",
         "utils"
       ],
-      "Hash": "48c7054e0140dd282bc01f791a829ebd"
+      "Hash": "439b4f5f90400923c13cb3bb29d2d17a"
     },
     "KernSmooth": {
       "Package": "KernSmooth",
@@ -220,31 +249,31 @@
     },
     "LandR": {
       "Package": "LandR",
-      "Version": "1.1.5.9061",
+      "Version": "1.1.5.9100",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandR",
-      "RemoteRef": "2e5585bb26b075d5f0a51bbf6c7577194fb376ca",
-      "RemoteSha": "2e5585bb26b075d5f0a51bbf6c7577194fb376ca",
+      "RemoteRef": "development",
+      "RemoteSha": "d2cc6c4f5ea3ee460696a702a7bea7e5d157d24d",
       "Requirements": [
         "Formula",
         "MuMIn",
         "R",
         "RColorBrewer",
         "SpaDES.tools",
-        "crayon",
+        "cli",
         "data.table",
         "fpCompare",
         "ggplot2",
-        "ggpubr",
         "ggspatial",
         "grDevices",
         "httr2",
         "lme4",
         "methods",
         "parallel",
+        "patchwork",
         "pemisc",
         "quickPlot",
         "raster",
@@ -258,7 +287,7 @@
         "utils",
         "viridis"
       ],
-      "Hash": "6bf28c71d8e4c6cee8b63c4c2c4bea1a"
+      "Hash": "1ece429e06cbac8d9696b85fa0f59753"
     },
     "LandR.CS": {
       "Package": "LandR.CS",
@@ -287,11 +316,11 @@
       "Version": "1.0.3.9010",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
       "RemoteSha": "0838428446121af7e12f2efc887cd09572d61779",
-      "RemoteHost": "api.github.com",
       "Requirements": [
         "LandR",
         "R",
@@ -337,7 +366,7 @@
     },
     "Matrix": {
       "Package": "Matrix",
-      "Version": "1.7-3",
+      "Version": "1.7-5",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -350,7 +379,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "fb578c2b5d796882c60e9f770352f7c4"
+      "Hash": "618b5c2d90180b15b4dc02f9a96b2631"
     },
     "MatrixModels": {
       "Package": "MatrixModels",
@@ -409,27 +438,26 @@
     },
     "PSPclean": {
       "Package": "PSPclean",
-      "Version": "0.1.5.9006",
+      "Version": "1.0.0.9005",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "ianmseddy",
       "RemoteRepo": "PSPclean",
       "RemoteRef": "development",
-      "RemoteSha": "85f5c41af76235623e242ab6e3ffd921167f7d80",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "f4218ed605c1a45e8ff9cfdb3a22c69aeb0bed56",
       "Requirements": [
         "LandR",
         "R",
         "bit64",
         "data.table",
         "dplyr",
-        "googledrive",
         "magrittr",
         "reproducible",
         "sf",
         "terra"
       ],
-      "Hash": "5bfd5e5f86d24dfb85b342fcc2fea651"
+      "Hash": "5a1122c0f363166159aeeca5f51bcec7"
     },
     "PresenceAbsence": {
       "Package": "PresenceAbsence",
@@ -516,15 +544,15 @@
     },
     "RCurl": {
       "Package": "RCurl",
-      "Version": "1.98-1.17",
+      "Version": "1.98-1.18",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "bitops",
         "methods"
       ],
-      "Hash": "cdea3a855cc0e4bea3805ddfb6b231f7"
+      "Hash": "70431d544293e31f85dcdb25f698405f"
     },
     "RPostgres": {
       "Package": "RPostgres",
@@ -543,19 +571,6 @@
         "withr"
       ],
       "Hash": "d30e8baa3875dbb0a2b9444ff2c37211"
-    },
-    "RPushbullet": {
-      "Package": "RPushbullet",
-      "Version": "0.3.5",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "curl",
-        "jsonlite",
-        "stats",
-        "utils"
-      ],
-      "Hash": "e41cfb97cfe1ed1e35a1427d783f3472"
     },
     "RSQLite": {
       "Package": "RSQLite",
@@ -577,18 +592,19 @@
     },
     "Rcpp": {
       "Package": "Rcpp",
-      "Version": "1.1.0",
+      "Version": "1.1.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
+        "R",
         "methods",
         "utils"
       ],
-      "Hash": "0d3d8867aa41b0d9ad113b50c169ecb2"
+      "Hash": "60df6f11cbeffbf9d50ad0852867f6b6"
     },
     "RcppArmadillo": {
       "Package": "RcppArmadillo",
-      "Version": "15.0.2-2",
+      "Version": "15.2.4-1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -598,7 +614,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "58f3d2b5e2b8d44756c2d21e24b719e9"
+      "Hash": "46ecbcf7ad20a43662f99bfa2922db2e"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
@@ -615,13 +631,13 @@
     },
     "RcppParallel": {
       "Package": "RcppParallel",
-      "Version": "5.1.11-1",
+      "Version": "5.1.11-2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "07d228a359f31d8aebe6d2f643c1f012"
+      "Hash": "03f41dbd55bb100847e38cab8ac0dde2"
     },
     "Rdpack": {
       "Package": "Rdpack",
@@ -659,14 +675,14 @@
     },
     "Require": {
       "Package": "Require",
-      "Version": "1.0.1.9020",
+      "Version": "1.0.1.9024",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "Require",
-      "RemoteRef": "3f8469cf734f513e4eaf1ee696a6145be2c90b50",
-      "RemoteSha": "3f8469cf734f513e4eaf1ee696a6145be2c90b50",
+      "RemoteRef": "development",
+      "RemoteSha": "26b07ecf08495f62f2b681c98ce827b9d5fb99ae",
       "Requirements": [
         "R",
         "data.table",
@@ -675,7 +691,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "b210e9c10762c5fcb82083a5d07fa0a1"
+      "Hash": "a992122cdd52c237c188d30f37a2592f"
     },
     "RhpcBLASctl": {
       "Package": "RhpcBLASctl",
@@ -686,14 +702,14 @@
     },
     "S7": {
       "Package": "S7",
-      "Version": "0.2.0",
+      "Version": "0.2.1",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "utils"
       ],
-      "Hash": "5deb66b3ae702137e1f4162c11861e76"
+      "Hash": "9da85950949574264f92f91f0e23de26"
     },
     "SpaDES.config": {
       "Package": "SpaDES.config",
@@ -772,28 +788,31 @@
     },
     "SpaDES.project": {
       "Package": "SpaDES.project",
-      "Version": "0.1.1.9047",
+      "Version": "1.0.1.9004",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.project",
       "RemoteRef": "development",
-      "RemoteSha": "bdc0b4648da9b4f96c48bb8d5cdb2bd33afe3f5c",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "93686dc223109dbe010cce27e02648b4433923c9",
       "Requirements": [
         "R",
         "Require",
         "data.table",
+        "filelock",
         "fs",
         "grDevices",
+        "magick",
         "methods",
         "rprojroot",
         "rstudioapi",
         "stats",
         "tools",
-        "utils"
+        "utils",
+        "withr"
       ],
-      "Hash": "2911cd625dd4fbb656ea35db045b4cc0"
+      "Hash": "b576d457ac31253f16fed3bc6ac15209"
     },
     "SpaDES.tools": {
       "Package": "SpaDES.tools",
@@ -1020,9 +1039,9 @@
     },
     "arrow": {
       "Package": "arrow",
-      "Version": "23.0.1.1",
+      "Version": "23.0.1.2",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "R6",
@@ -1038,7 +1057,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "54befead0d01961f1fd7b6699ab766ff"
+      "Hash": "16a699dbc79ce0a99e28966e67726e31"
     },
     "askpass": {
       "Package": "askpass",
@@ -1072,13 +1091,13 @@
     },
     "base64enc": {
       "Package": "base64enc",
-      "Version": "0.1-3",
+      "Version": "0.1-6",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "543776ae6848fde2f48ff3816d0628bc"
+      "Hash": "5edb675b7baa6e9a0d86dd2c28de1676"
     },
     "bbmle": {
       "Package": "bbmle",
@@ -1110,21 +1129,6 @@
       ],
       "Hash": "d36e416e5a8f91cf90b5edeb3306703a"
     },
-    "benchmarkmeData": {
-      "Package": "benchmarkmeData",
-      "Version": "2.0.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "dplyr",
-        "graphics",
-        "rlang",
-        "tibble",
-        "utils"
-      ],
-      "Hash": "3eddca6f15946968b6b17310021dc0e6"
-    },
     "bibtex": {
       "Package": "bibtex",
       "Version": "0.5.2",
@@ -1145,7 +1149,7 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "CeresBarros",
       "RemoteRepo": "biomod2",
-      "RemoteRef": "c88734fdd66ec831deb6a8e56aecd78f50c17673",
+      "RemoteRef": "dev_currentCeres",
       "RemoteSha": "c88734fdd66ec831deb6a8e56aecd78f50c17673",
       "Requirements": [
         "MASS",
@@ -1171,7 +1175,7 @@
         "terra",
         "utils"
       ],
-      "Hash": "9176e52c0396f06d0f9a9942e105ab7f"
+      "Hash": "e92166eb63ecc8a3c9ec40b9aa4fe230"
     },
     "bit": {
       "Package": "bit",
@@ -1340,7 +1344,7 @@
       "Package": "bslib",
       "Version": "0.10.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "base64enc",
@@ -1419,7 +1423,7 @@
     },
     "checkmate": {
       "Package": "checkmate",
-      "Version": "2.3.3",
+      "Version": "2.3.4",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1427,7 +1431,7 @@
         "backports",
         "utils"
       ],
-      "Hash": "92b3b84e5789dcde37cb0c409c54553a"
+      "Hash": "86cbe221fc19b56242f6c3eb0d4c5ab5"
     },
     "class": {
       "Package": "class",
@@ -1514,6 +1518,17 @@
       ],
       "Hash": "61e097f35917d342622f21cdc79c256e"
     },
+    "collapse": {
+      "Package": "collapse",
+      "Version": "2.1.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp"
+      ],
+      "Hash": "158158a0aad21d43154cf68f72d31fdc"
+    },
     "colorspace": {
       "Package": "colorspace",
       "Version": "2.1-2",
@@ -1581,13 +1596,13 @@
     },
     "cpp11": {
       "Package": "cpp11",
-      "Version": "0.5.2",
+      "Version": "0.5.3",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "2720e3fd3dad08f34b19b56b3d6f073d"
+      "Hash": "af5958631ca49510aff96d0f5c0bbb76"
     },
     "crayon": {
       "Package": "crayon",
@@ -1640,14 +1655,14 @@
     },
     "data.table": {
       "Package": "data.table",
-      "Version": "1.17.8",
+      "Version": "1.18.2.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "methods"
       ],
-      "Hash": "1d991cd6160fa7b1fdbd3689034cbd15"
+      "Hash": "df99cd4333ce592df5173d6ad39b5c14"
     },
     "deldir": {
       "Package": "deldir",
@@ -1743,14 +1758,14 @@
     },
     "digest": {
       "Package": "digest",
-      "Version": "0.6.37",
+      "Version": "0.6.39",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "utils"
       ],
-      "Hash": "33698c4b3127fc9f506654607fb73676"
+      "Hash": "d18028e978a88b2b16ef8d400cb49adf"
     },
     "dismo": {
       "Package": "dismo",
@@ -1815,7 +1830,7 @@
     },
     "dplyr": {
       "Package": "dplyr",
-      "Version": "1.1.4",
+      "Version": "1.2.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1834,7 +1849,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "fedd9d00c2944ff00a0e2696ccf048ec"
+      "Hash": "71a469a5d5f9fdbf7de6c0dbeece0e22"
     },
     "dqrng": {
       "Package": "dqrng",
@@ -1851,7 +1866,7 @@
     },
     "e1071": {
       "Package": "e1071",
-      "Version": "1.7-16",
+      "Version": "1.7-17",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1863,7 +1878,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "27a09ca40266a1066d62ef5402dd51d6"
+      "Hash": "9d516dde384526d4784166f888cd2c6c"
     },
     "earth": {
       "Package": "earth",
@@ -2107,14 +2122,14 @@
     },
     "fs": {
       "Package": "fs",
-      "Version": "1.6.6",
+      "Version": "2.0.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "methods"
       ],
-      "Hash": "7eb1e342eee7e0a7449c49cdaa526d39"
+      "Hash": "d3d100e3b09a24195a77ea79b2b943e3"
     },
     "furrr": {
       "Package": "furrr",
@@ -2136,7 +2151,7 @@
       "Package": "future",
       "Version": "1.70.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "digest",
@@ -2153,7 +2168,7 @@
       "Package": "future.apply",
       "Version": "1.20.2",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "future",
@@ -2263,7 +2278,7 @@
       "Package": "gert",
       "Version": "2.3.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "askpass",
         "credentials",
@@ -2293,14 +2308,14 @@
     },
     "ggplot2": {
       "Package": "ggplot2",
-      "Version": "3.5.2.9002",
+      "Version": "4.0.2.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "tidyverse",
       "RemoteRepo": "ggplot2",
-      "RemoteRef": "bed8e32d45c7dc98afb783b409edac98854d41a7",
-      "RemoteSha": "bed8e32d45c7dc98afb783b409edac98854d41a7",
+      "RemoteRef": "main",
+      "RemoteSha": "6f1d98842de0489222c04bff64b3596b796d492d",
       "Requirements": [
         "R",
         "S7",
@@ -2316,7 +2331,7 @@
         "vctrs",
         "withr"
       ],
-      "Hash": "0f1fa00e3bca19aab10520c6dccbe276"
+      "Hash": "3c80c0f678fc6be761f6cdc553b1673f"
     },
     "ggplot2movies": {
       "Package": "ggplot2movies",
@@ -2517,7 +2532,7 @@
       "Package": "globals",
       "Version": "0.19.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "codetools"
@@ -2646,7 +2661,7 @@
       "Package": "highr",
       "Version": "0.12",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "xfun"
@@ -2690,7 +2705,7 @@
       "Package": "htmltools",
       "Version": "0.5.9",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "base64enc",
@@ -2721,7 +2736,7 @@
       "Package": "httpuv",
       "Version": "1.6.17",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "R6",
@@ -2734,7 +2749,7 @@
     },
     "httr": {
       "Package": "httr",
-      "Version": "1.4.7",
+      "Version": "1.4.8",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2745,13 +2760,13 @@
         "mime",
         "openssl"
       ],
-      "Hash": "ac107251d9d9fd72f0ca8049988f1d7f"
+      "Hash": "10bcae7793493db63a6872096132e10c"
     },
     "httr2": {
       "Package": "httr2",
       "Version": "1.2.2",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "R6",
@@ -2782,7 +2797,7 @@
     },
     "igraph": {
       "Package": "igraph",
-      "Version": "2.2.1",
+      "Version": "2.2.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2801,7 +2816,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "8f3943f8c98e594bff132804aa4edf57"
+      "Hash": "f5c501f18510803806e60517cdd84cc4"
     },
     "ini": {
       "Package": "ini",
@@ -2838,14 +2853,17 @@
     },
     "isoband": {
       "Package": "isoband",
-      "Version": "0.2.7",
+      "Version": "0.3.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
+        "cli",
+        "cpp11",
         "grid",
+        "rlang",
         "utils"
       ],
-      "Hash": "0080607b4a1a7b28979aecef976d8bc2"
+      "Hash": "0f9a864bbd7ce0232ad05cb76249cc1a"
     },
     "iterators": {
       "Package": "iterators",
@@ -2956,7 +2974,7 @@
       "Package": "knitr",
       "Version": "1.51",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "evaluate",
@@ -3020,7 +3038,7 @@
       "Package": "later",
       "Version": "1.4.8",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "Rcpp",
@@ -3030,7 +3048,7 @@
     },
     "lattice": {
       "Package": "lattice",
-      "Version": "0.22-7",
+      "Version": "0.22-9",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3041,7 +3059,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "934f30aea6442867f57a610034ab06d3"
+      "Hash": "91febc38a877968922d0d37d5db0f674"
     },
     "latticeExtra": {
       "Package": "latticeExtra",
@@ -3119,6 +3137,26 @@
       ],
       "Hash": "da8aa03b2885c2b934923e6a53fe592a"
     },
+    "leaflet.extras": {
+      "Package": "leaflet.extras",
+      "Version": "2.0.1.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "trafficonese",
+      "RemoteRepo": "leaflet.extras",
+      "RemoteRef": "e619a981fd39be0733ba1c06a6e10e2dcf8d3f77",
+      "RemoteSha": "e619a981fd39be0733ba1c06a6e10e2dcf8d3f77",
+      "Requirements": [
+        "R",
+        "htmltools",
+        "htmlwidgets",
+        "leaflet",
+        "magrittr",
+        "stringr"
+      ],
+      "Hash": "51b19e70b197391fc01df59bc80227fd"
+    },
     "leaflet.providers": {
       "Package": "leaflet.providers",
       "Version": "3.0.0",
@@ -3148,22 +3186,21 @@
     },
     "lifecycle": {
       "Package": "lifecycle",
-      "Version": "1.0.4",
+      "Version": "1.0.5",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
       "Requirements": [
         "R",
         "cli",
-        "glue",
         "rlang"
       ],
-      "Hash": "b8552d117e1b808b09a832f589b79035"
+      "Hash": "36dbfe4fba6c064db50a671a90297c85"
     },
     "listenv": {
       "Package": "listenv",
       "Version": "0.10.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
@@ -3226,7 +3263,7 @@
     },
     "lobstr": {
       "Package": "lobstr",
-      "Version": "1.1.2",
+      "Version": "1.2.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3237,7 +3274,7 @@
         "prettyunits",
         "rlang"
       ],
-      "Hash": "f2a94f8fc9db382a642e965339635ad6"
+      "Hash": "fff0d4c19e343d9bf6ecc44381f6f1f8"
     },
     "logging": {
       "Package": "logging",
@@ -3315,13 +3352,13 @@
     },
     "map": {
       "Package": "map",
-      "Version": "1.1.2.9001",
+      "Version": "1.1.2.9002",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "map",
       "RemoteRef": "development",
-      "RemoteSha": "eaf07860e3708e55a56fc2d1f8c4538c6cbe941f",
+      "RemoteSha": "3c7373d10d38ba17123c0c195d91eedfcafd2a2b",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
@@ -3339,7 +3376,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "b3328fbef2a874e8cc57714f7850f3f0"
+      "Hash": "3834ccafb4d8e4afe873e809885eda0d"
     },
     "mapproj": {
       "Package": "mapproj",
@@ -3727,13 +3764,13 @@
     },
     "openssl": {
       "Package": "openssl",
-      "Version": "2.3.4",
+      "Version": "2.3.5",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "askpass"
       ],
-      "Hash": "d5811dade9cd3a34a9038a45f1a59bae"
+      "Hash": "cfb0063e43e91f0fb8114b4cacbc0943"
     },
     "openxlsx": {
       "Package": "openxlsx",
@@ -3806,15 +3843,15 @@
     },
     "parallelly": {
       "Package": "parallelly",
-      "Version": "1.45.1",
+      "Version": "1.46.1",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "parallel",
         "tools",
         "utils"
       ],
-      "Hash": "1e127bc944e0c1ec7c0297d685917dfe"
+      "Hash": "f4d2d1926bcb9a9384193bd7fea39fe3"
     },
     "patchwork": {
       "Package": "patchwork",
@@ -3855,13 +3892,13 @@
     },
     "pemisc": {
       "Package": "pemisc",
-      "Version": "0.0.4.9015",
+      "Version": "0.0.4.9016",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "pemisc",
       "RemoteRef": "development",
-      "RemoteSha": "d0365d58f61763a59c02eea016b3a0c132f79b39",
+      "RemoteSha": "cabc7e79b2b09d969ef2781051b0a6ff13019945",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
@@ -3870,6 +3907,7 @@
         "amc",
         "data.table",
         "fasterize",
+        "magrittr",
         "methods",
         "parallel",
         "parallelly",
@@ -3881,7 +3919,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "ff6a8b0d01820abd8083aee9d15b27bc"
+      "Hash": "46a18917af1c8a4bac313b0711103b06"
     },
     "peutils": {
       "Package": "peutils",
@@ -4048,13 +4086,13 @@
     },
     "png": {
       "Package": "png",
-      "Version": "0.1-8",
+      "Version": "0.1-9",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "bd54ba8a0a5faded999a7aab6e46b374"
+      "Hash": "961c433971606243a724eb19b1075e60"
     },
     "polspline": {
       "Package": "polspline",
@@ -4191,7 +4229,7 @@
     },
     "proxy": {
       "Package": "proxy",
-      "Version": "0.4-27",
+      "Version": "0.4-29",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -4199,7 +4237,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "e0ef355c12942cf7a6b91a6cfaea8b3e"
+      "Hash": "b6c826e897b46b163c51a3b990113a21"
     },
     "pryr": {
       "Package": "pryr",
@@ -4229,7 +4267,7 @@
     },
     "purrr": {
       "Package": "purrr",
-      "Version": "1.2.0",
+      "Version": "1.2.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -4240,7 +4278,7 @@
         "rlang",
         "vctrs"
       ],
-      "Hash": "5150f0e38b8150315ac853acade2740e"
+      "Hash": "0154ac5b9ef4df1a7be3a54602e781cf"
     },
     "qs": {
       "Package": "qs",
@@ -4258,7 +4296,7 @@
     },
     "qs2": {
       "Package": "qs2",
-      "Version": "0.1.5",
+      "Version": "0.1.7",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -4267,7 +4305,7 @@
         "RcppParallel",
         "stringfish"
       ],
-      "Hash": "9e7ed4d4fdc5aef4ac2e729cc123d326"
+      "Hash": "36ddc204dcd74a14882494a30efa1e20"
     },
     "quantreg": {
       "Package": "quantreg",
@@ -4295,7 +4333,7 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "quickPlot",
-      "RemoteRef": "b773db66d73e28e369a61090a2798fd544de082b",
+      "RemoteRef": "development",
       "RemoteSha": "b773db66d73e28e369a61090a2798fd544de082b",
       "Requirements": [
         "R",
@@ -4309,7 +4347,7 @@
         "terra",
         "utils"
       ],
-      "Hash": "dc0aeec9093c9a19c0d7bb6a8c2847ba"
+      "Hash": "624fb470fd01453ace6dcc151811d059"
     },
     "ragg": {
       "Package": "ragg",
@@ -4344,7 +4382,7 @@
       "Package": "rappdirs",
       "Version": "0.3.4",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
@@ -4493,10 +4531,12 @@
     "renv": {
       "Package": "renv",
       "Version": "1.2.0",
-      "OS_type": null,
-      "NeedsCompilation": "yes",
+      "Source": "Repository",
       "Repository": "CRAN",
-      "Source": "Repository"
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "b7d230b07507f361d3bcf794d157a188"
     },
     "reproducible": {
       "Package": "reproducible",
@@ -4597,7 +4637,7 @@
     },
     "rmarkdown": {
       "Package": "rmarkdown",
-      "Version": "2.30",
+      "Version": "2.31",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -4616,7 +4656,7 @@
         "xfun",
         "yaml"
       ],
-      "Hash": "efe19db0fde0fff13cea7eec6f695021"
+      "Hash": "f34039d57d861d2869cbf9be813ed08e"
     },
     "rms": {
       "Package": "rms",
@@ -4755,7 +4795,7 @@
       "Package": "rstudioapi",
       "Version": "0.18.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Hash": "d6e1ecf8e39b6d53c8acde372b2f92d1"
     },
     "rversions": {
@@ -4811,6 +4851,22 @@
         "zoo"
       ],
       "Hash": "072bb2d27425f2a58fe71fe1080676ce"
+    },
+    "santoku": {
+      "Package": "santoku",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "assertthat",
+        "glue",
+        "lifecycle",
+        "rlang",
+        "vctrs"
+      ],
+      "Hash": "eb6f145b561c687317e45086ee752c0d"
     },
     "sass": {
       "Package": "sass",
@@ -4886,7 +4942,7 @@
       "Package": "selectr",
       "Version": "0.5-1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "R6",
@@ -4924,7 +4980,7 @@
     },
     "sf": {
       "Package": "sf",
-      "Version": "1.0-21",
+      "Version": "1.1-0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -4943,7 +4999,7 @@
         "units",
         "utils"
       ],
-      "Hash": "14a8dae2a678fa953907893a9df561c0"
+      "Hash": "3e61ec188b75e39ce061f6b2dee44179"
     },
     "sfheaders": {
       "Package": "sfheaders",
@@ -4974,7 +5030,7 @@
       "Package": "shiny",
       "Version": "1.13.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "R6",
@@ -5095,9 +5151,9 @@
     },
     "sp": {
       "Package": "sp",
-      "Version": "2.2-0",
+      "Version": "2.2-1",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "grDevices",
@@ -5108,7 +5164,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "d9ff3b753db98bc50650314c8782abe6"
+      "Hash": "850a810e2c595694187a8ee286472fcc"
     },
     "spData": {
       "Package": "spData",
@@ -5224,7 +5280,7 @@
     },
     "spatstat.random": {
       "Package": "spatstat.random",
-      "Version": "3.4-2",
+      "Version": "3.4-5",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -5238,7 +5294,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "afa4760092400221967a5436aa989456"
+      "Hash": "28813bd0968fb1f0d5c4439958aac78d"
     },
     "spatstat.sparse": {
       "Package": "spatstat.sparse",
@@ -5407,7 +5463,7 @@
       "Package": "systemfonts",
       "Version": "1.3.2",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "base64enc",
@@ -5429,7 +5485,7 @@
     },
     "terra": {
       "Package": "terra",
-      "Version": "1.8-70",
+      "Version": "1.9-11",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -5437,7 +5493,7 @@
         "Rcpp",
         "methods"
       ],
-      "Hash": "366d90437eed64db1ada9722388d8a58"
+      "Hash": "3f41ef449a07bcd560ad6732dee99cb5"
     },
     "testthat": {
       "Package": "testthat",
@@ -5471,7 +5527,7 @@
       "Package": "textshaping",
       "Version": "1.0.5",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "cpp11",
@@ -5485,9 +5541,9 @@
     },
     "tibble": {
       "Package": "tibble",
-      "Version": "3.3.0",
+      "Version": "3.3.1",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "cli",
@@ -5500,13 +5556,13 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "784b27d0801c3829de602105757b2cd7"
+      "Hash": "c55df870972551cac674b50cadb2d51f"
     },
     "tidyr": {
       "Package": "tidyr",
       "Version": "1.3.2",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "cli",
@@ -5615,7 +5671,7 @@
       "Package": "tinytex",
       "Version": "0.58",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "xfun"
       ],
@@ -5634,14 +5690,14 @@
     },
     "units": {
       "Package": "units",
-      "Version": "1.0-0",
+      "Version": "1.0-1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "Rcpp"
       ],
-      "Hash": "3797c73fd3bde8b1601a4e1bf53557ac"
+      "Hash": "14743a941151a12449e8af67497c7b96"
     },
     "urca": {
       "Package": "urca",
@@ -5725,9 +5781,9 @@
     },
     "vctrs": {
       "Package": "vctrs",
-      "Version": "0.6.5",
+      "Version": "0.7.2",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Requirements": [
         "R",
         "cli",
@@ -5735,7 +5791,7 @@
         "lifecycle",
         "rlang"
       ],
-      "Hash": "c03fa420630029418f7e6da3667aac4a"
+      "Hash": "60d6a84437e249a6820ab93206f2a4f0"
     },
     "vdiffr": {
       "Package": "vdiffr",
@@ -5771,13 +5827,13 @@
     },
     "viridisLite": {
       "Package": "viridisLite",
-      "Version": "0.4.2",
+      "Version": "0.4.3",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "c826c7c4241b6fc89ff55aaea3fa7491"
+      "Hash": "9380d36888b72faf5ae6c22b44703867"
     },
     "visNetwork": {
       "Package": "visNetwork",
@@ -5872,13 +5928,13 @@
     },
     "wk": {
       "Package": "wk",
-      "Version": "0.9.4",
+      "Version": "0.9.5",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "37be35d733130f1de1ef51672cf7cdc0"
+      "Hash": "10fb21ed42dbd4ed9162aaab818146e3"
     },
     "workflowtools": {
       "Package": "workflowtools",
@@ -5933,7 +5989,7 @@
       "Package": "xml2",
       "Version": "1.5.2",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "cli",
@@ -5957,7 +6013,7 @@
       "Package": "xtable",
       "Version": "1.8-8",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/all/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "methods",
@@ -5982,10 +6038,10 @@
     },
     "yaml": {
       "Package": "yaml",
-      "Version": "2.3.10",
+      "Version": "2.3.12",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "51dab85c6c98e50a18d7551e9d49f76c"
+      "Hash": "7cd77cb32abd9220d744307e9fc94ffb"
     },
     "yulab.utils": {
       "Package": "yulab.utils",
@@ -6011,6 +6067,31 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "6ebe4b1dc74c3e50e74e316323629583"
+    },
+    "zonal": {
+      "Package": "zonal",
+      "Version": "0.1.1",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "mikejohnson51",
+      "RemoteRepo": "zonal",
+      "RemoteRef": "master",
+      "RemoteSha": "8d932f3d419489f90e7ab6c6afa085791324dc46",
+      "Requirements": [
+        "R",
+        "collapse",
+        "data.table",
+        "dplyr",
+        "exactextractr",
+        "jsonlite",
+        "methods",
+        "rlang",
+        "santoku",
+        "terra",
+        "tidyr"
+      ],
+      "Hash": "b95ee02fd117759ab53c6697ad7457f2"
     },
     "zoo": {
       "Package": "zoo",
