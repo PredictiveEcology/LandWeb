@@ -2,8 +2,12 @@ library(dplyr)
 library(ggplot2)
 library(ggpattern)
 
+## polygon type for which to build comparative boxplots
+poly_types <- c("", "ANSR", "Caribou")
+
 # LTHFC maps ---------------------------------------------------------------------------------------
 
+## fmt: skip
 studyArea <- sf::st_read(file.path("outputs", "NW_AB_2025", "LTHFC_NW_AB.gpkg")) |>
   sf::st_union()
 
@@ -12,13 +16,16 @@ lthfc_options <- c("0", "A", "B", "C")
 lthfc_df <- purrr::map(
   .x = lthfc_options,
   .f = function(x) {
+    ## fmt: skip
     lthfc <- file.path("outputs", glue::glue("NW_AB_LTHFC_Option{x}_aspenDispersal_logROS"), "rep01", "landweb_lthfc_clean.shp") |>
       sf::st_read()
+    ## fmt: skip
     lthfc <- sf::st_intersection(lthfc, sf::st_transform(studyArea, sf::st_crs(lthfc))) |>
       dplyr::rename(LTHFC = frRtrnI) |>
       dplyr::mutate(option = x, .before = "area")
   }
-) |> do.call(rbind, args = _) |>
+) |>
+  do.call(rbind, args = _) |>
   dplyr::mutate(LTHFC = as.factor(LTHFC)) |>
   dplyr::group_by(option)
 
@@ -38,180 +45,242 @@ ggplot2::ggsave(f_gg_lthfc, gg_lthfc, height = 8, width = 8)
 ## - high dispersal: Options A, B, and C, plus one using original LTHFC layer;
 ## - aspen dispersal: Options A, B, and C, plus one using original LTHFC layer;
 
-csv_files <- list(
-  "0_HD" = file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "boxplots", "leading_boxplots_NW_AB_ANSR.csv"),
-  "A_HD"   = file.path("outputs", "NW_AB_2025", "OptionA", "Boxplots", "leading_boxplots_nw_ab_ANSR.csv"),
-  "B_HD"   = file.path("outputs", "NW_AB_2025", "OptionB", "Boxplots", "leading_boxplots_nw_ab_ANSR.csv"),
-  "C_HD"   = file.path("outputs", "NW_AB_2025", "OptionC", "boxplots", "leading_boxplots_nw_ab_ANSR.csv"),
+## TODO: 1. make sure the area being reported in the figure is what the proportions are being based on.
+##          -- can this be forested area, not just polygon area?
+## TODO: 2. add comparison boxplots by caribou ranges
 
-  "0_AD" = file.path("outputs", "NW_AB_LTHFC_Option0_aspenDispersal_logROS", "boxplots", "leading_boxplots_NW_AB_ANSR.csv"),
-  "A_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionA_aspenDispersal_logROS", "boxplots", "leading_boxplots_NW_AB_ANSR.csv"),
-  "B_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionB_aspenDispersal_logROS", "boxplots", "leading_boxplots_NW_AB_ANSR.csv"),
-  "C_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionC_aspenDispersal_logROS", "boxplots", "leading_boxplots_NW_AB_ANSR.csv")
-)
+purrr::walk(.x = poly_types, .f = function(type) {
+  ._type <- ifelse(nzchar(type), paste0("_", type), type)
+  ._type_name <- paste0("NW_AB", ._type) ## underscores in name
+  type_name <- gsub("_", " ", ._type_name) ## underscores replaced with spaces
 
-stopifnot(all(file.exists(unlist(csv_files))))
+  ## fmt: skip
+  csv_files <- list(
+    "0_HD" = file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "boxplots", paste0("leading_boxplots_NW_AB", ._type, ".csv")),
+    "A_HD"   = file.path("outputs", "NW_AB_2025", "OptionA", "Boxplots", paste0("leading_boxplots_nw_ab", ._type, ".csv")),
+    "B_HD"   = file.path("outputs", "NW_AB_2025", "OptionB", "Boxplots", paste0("leading_boxplots_nw_ab", ._type, ".csv")),
+    "C_HD"   = file.path("outputs", "NW_AB_2025", "OptionC", "boxplots", paste0("leading_boxplots_nw_ab", ._type, ".csv")),
 
-output_dir <- file.path("outputs", "NW_AB_2025", "comparative_boxplots") |> fs::dir_create()
-
-## reporting polygons from ml object to calculate area to add to boxplots
-f_ml <- file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "ml_preamble.rds")
-ml <- readRDS(f_ml)
-ANSR_areas <- ml[["Alberta Natural Subregions"]] |>
-  sf:: st_as_sf() |>
-  dplyr::mutate(Shape_Area = sf::st_area(geometry) |> units::set_units("ha")) |>
-  as.data.frame() |>
-  dplyr::rename(zone = Name) |>
-  dplyr::group_by(zone) |>
-  dplyr::summarise(zone_area = sum(Shape_Area))
-rm(ml)
-
-## LTHFC option labels (plot order)
-option_labels <- c("Original", "Longest", "Intermediate", "Shortest")
-option_order <- c("0", "A", "B", "C")
-option_label_map <- setNames(option_labels, option_order)
-
-## Read and combine data
-all_data <- bind_rows(
-  lapply(names(csv_files), function(option) {
-    f_csv <- csv_files[[option]]
-    df <- read.csv(file = f_csv)
-    ## Remove " LandWeb Study Area" from zone
-    df <- df |>
-      dplyr::mutate(
-        zone = gsub(" LandWeb Study Area", "", zone),
-        ageClass = case_when(
-          ageClass == "Young" ~ "Young (0-39 years)",
-          ageClass == "Immature" ~ "Immature (40-79 years)",
-          ageClass == "Mature" ~ "Mature (80-119 years)",
-          ageClass == "Old" ~ "Old (≥120 years)",
-        ),
-        lthfc_option = strsplit(option, "_")[[1]][1],
-        dispersal_type = if_else(grepl("aspenDispersal", f_csv), "Aspen", "High"),
-        .before = "proportionCC"
-      )
-
-    return(df)
-  })
-)
-
-all_data <- all_data |>
-  dplyr::mutate(
-    ageClass = factor(
-      ageClass,
-      levels = c(
-        "Young (0-39 years)",
-        "Immature (40-79 years)",
-        "Mature (80-119 years)",
-        "Old (≥120 years)"
-      )
-    ),
-    dispersal_type = factor(dispersal_type, levels = c("Aspen", "High")),
-    lthfc_option = factor(option_label_map[as.character(lthfc_option)], levels = option_labels)
+    "0_AD" = file.path("outputs", "NW_AB_LTHFC_Option0_aspenDispersal_logROS", "boxplots", paste0("leading_boxplots_NW_AB", ._type, ".csv")),
+    "A_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionA_aspenDispersal_logROS", "boxplots", paste0("leading_boxplots_NW_AB", ._type, ".csv")),
+    "B_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionB_aspenDispersal_logROS", "boxplots", paste0("leading_boxplots_NW_AB", ._type, ".csv")),
+    "C_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionC_aspenDispersal_logROS", "boxplots", paste0("leading_boxplots_NW_AB", ._type, ".csv"))
   )
 
-## Plotting Function
-plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
-  plotdf <- subdf |>
-    dplyr::filter(
-      as.character(zone)     == as.character(zone_arg),
-      as.character(vegCover) == as.character(species_arg)
+  stopifnot(all(file.exists(unlist(csv_files))))
+
+  ## fmt: skip
+  output_dir <- file.path("outputs", "NW_AB_2025", "comparative_boxplots", ._type_name) |>
+    fs::dir_create()
+
+  ## reporting polygons from ml object to calculate area to add to boxplots
+
+  ## fmt: skip
+  f_ml <- file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "ml_preamble.rds")
+  ml <- readRDS(f_ml)
+
+  poly_areas <- ml[[type_name]] |>
+    sf::st_as_sf() |>
+    dplyr::mutate(
+      Shape_Area = sf::st_area(geometry) |> units::set_units("ha")
     ) |>
-    dplyr::group_by(lthfc_option, dispersal_type, ageClass) |>
-    dplyr::slice(1) |>
-    dplyr::ungroup() |>
-    tidyr::complete(
-      lthfc_option = factor(option_labels, levels = option_labels),
-      fill = list(MIN = NA, q25_0 = NA, MED = NA, q75_0 = NA, MAX = NA, proportionCC = NA)
+    as.data.frame() |>
+    dplyr::rename(zone = Name) |>
+    dplyr::group_by(zone) |>
+    dplyr::summarise(zone_area = sum(Shape_Area)) |>
+    dplyr::mutate(
+      zone = gsub(" LandWeb Study Area", "", zone),
+      zone = sub("^(.+)\\s+\\1$", "\\1", zone)
     )
 
-  p <- ggplot(plotdf) +
-    geom_boxplot_pattern(
-      aes(
-        x = lthfc_option,
-        fill = lthfc_option,
-        pattern = dispersal_type,
-        ymin = MIN, lower = q25_0, middle = MED, upper = q75_0, ymax = MAX,
+  rm(ml)
+
+  ## LTHFC option labels (plot order)
+  option_labels <- c("Original", "Longest", "Intermediate", "Shortest")
+  option_order <- c("0", "A", "B", "C")
+  option_label_map <- setNames(option_labels, option_order)
+
+  ## Read and combine data
+  all_data <- bind_rows(
+    lapply(names(csv_files), function(option) {
+      f_csv <- csv_files[[option]]
+      df <- read.csv(file = f_csv)
+      df <- df |>
+        dplyr::mutate(
+          ## Remove " LandWeb Study Area" from zone
+          zone = gsub(" LandWeb Study Area", "", zone),
+          ageClass = case_when(
+            ageClass == "Young" ~ "Young (0-39 years)",
+            ageClass == "Immature" ~ "Immature (40-79 years)",
+            ageClass == "Mature" ~ "Mature (80-119 years)",
+            ageClass == "Old" ~ "Old (≥120 years)",
+          ),
+          lthfc_option = strsplit(option, "_")[[1]][1],
+          dispersal_type = if_else(
+            grepl("aspenDispersal", f_csv),
+            "Aspen",
+            "High"
+          ),
+          .before = "proportionCC"
+        ) |>
+        dplyr::mutate(
+          ## fix zone name repeats (e.g., "Yates (YAT) Yates (YAT)" should be "Yates (YAT)")
+          zone = sub("^(.+)\\s+\\1$", "\\1", zone)
+        )
+
+      return(df)
+    })
+  )
+
+  all_data <- all_data |>
+    dplyr::mutate(
+      ageClass = factor(
+        ageClass,
+        levels = c(
+          "Young (0-39 years)",
+          "Immature (40-79 years)",
+          "Mature (80-119 years)",
+          "Old (≥120 years)"
+        )
       ),
-      stat = "identity",
-      alpha = 0.7,
-      color = "black",
-      pattern_fill = "black",
-      pattern_angle = 45,
-      pattern_density = 0.1,
-      pattern_spacing = 0.025,
-      pattern_key_scale_factor = 0.6,
-      position = position_dodge2(padding = 0.3),
-      width = 0.5,
-      na.rm = TRUE
-    ) +
-    facet_wrap(~ageClass, nrow = 2) +
-    ylim(0, 1) +
-    scale_fill_manual(
-      values = c(
-        Original = "steelblue",
-        Longest = "forestgreen",
-        Intermediate =  "darkorange",
-        Shortest = "firebrick"
-      ),
-      guide = "none"
-    ) +
-    scale_pattern_manual(values = c(Aspen = "none", High = "stripe")) +
-    coord_flip() +
-    geom_point(
-      aes(x = lthfc_option, y = proportionCC, colour = "Current Condition"),
-      size = 3,
-      na.rm = TRUE
-    ) +
-    scale_x_discrete(drop = FALSE) +
-    scale_colour_discrete(type = "darkred") +
-    labs(
-      title = paste(zone_arg, "-", species_arg),
-      caption = paste0(
-        "Total Area of ", zone_arg, ": ",
-        dplyr::filter(ANSR_areas, zone == zone_arg) |>
-          dplyr::pull(zone_area) |>
-          as.numeric() |>
-          format(digits = 7, big.mark = ","),
-        " ha"
-      ),
-      x = "LTFC Option",
-      y = paste0("Proportion of ", species_arg, "-Leading Area"),
-      colour = "",
-      pattern = "Dispersal Type"
-    ) +
-    theme_bw(base_size = 16) +
-    theme(
-      axis.title.x = element_text(face = "bold", size = 16),
-      axis.title.y = element_text(face = "bold", size = 16),
-      axis.text.y = element_text(face = "bold", size = 14),
-      legend.position = "bottom",
-      panel.grid.minor = element_blank(),
-      plot.title = element_text(hjust = 0.5, face = "bold", size = 20)
+      dispersal_type = factor(dispersal_type, levels = c("Aspen", "High")),
+      lthfc_option = factor(
+        option_label_map[as.character(lthfc_option)],
+        levels = option_labels
+      )
     )
 
-  cleaned_zone <- gsub("[^a-zA-Z0-9]", "", zone_arg)
-  cleaned_species  <- gsub("[^a-zA-Z0-9]", "", species_arg)
-  fname <- paste0("boxplot_", cleaned_zone, "_", cleaned_species, ".png")
-  ggsave(file.path(output_dir, fname), p, width = 12, height = 9, dpi = 300)
-}
+  ## Plotting Function
+  plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
+    plotdf <- subdf |>
+      dplyr::filter(
+        as.character(zone) == as.character(zone_arg),
+        as.character(vegCover) == as.character(species_arg)
+      ) |>
+      dplyr::group_by(lthfc_option, dispersal_type, ageClass) |>
+      dplyr::slice(1) |>
+      dplyr::ungroup() |>
+      tidyr::complete(
+        lthfc_option = factor(option_labels, levels = option_labels),
+        fill = list(
+          MIN = NA,
+          q25_0 = NA,
+          MED = NA,
+          q75_0 = NA,
+          MAX = NA,
+          proportionCC = NA
+        )
+      )
 
-## Generate all plots
-zones <- unique(as.character(all_data$zone))
-species <- unique(as.character(all_data$vegCover))
+    p <- ggplot(plotdf) +
+      geom_boxplot_pattern(
+        aes(
+          x = lthfc_option,
+          fill = lthfc_option,
+          pattern = dispersal_type,
+          ymin = MIN,
+          lower = q25_0,
+          middle = MED,
+          upper = q75_0,
+          ymax = MAX,
+        ),
+        stat = "identity",
+        alpha = 0.7,
+        color = "black",
+        pattern_fill = "black",
+        pattern_angle = 45,
+        pattern_density = 0.1,
+        pattern_spacing = 0.025,
+        pattern_key_scale_factor = 0.6,
+        position = position_dodge2(padding = 0.3),
+        width = 0.5,
+        na.rm = TRUE
+      ) +
+      facet_wrap(~ageClass, nrow = 2) +
+      ylim(0, 1) +
+      scale_fill_manual(
+        values = c(
+          Original = "steelblue",
+          Longest = "forestgreen",
+          Intermediate = "darkorange",
+          Shortest = "firebrick"
+        ),
+        guide = "none"
+      ) +
+      scale_pattern_manual(values = c(Aspen = "none", High = "stripe")) +
+      coord_flip() +
+      geom_point(
+        aes(x = lthfc_option, y = proportionCC, colour = "Current Condition"),
+        size = 3,
+        na.rm = TRUE
+      ) +
+      scale_x_discrete(drop = FALSE) +
+      scale_colour_discrete(type = "darkred") +
+      labs(
+        title = paste(zone_arg, "-", species_arg),
+        caption = paste0(
+          "Total Area of ",
+          zone_arg,
+          ": ",
+          dplyr::filter(poly_areas, zone == zone_arg) |>
+            dplyr::pull(zone_area) |>
+            as.numeric() |>
+            format(digits = 7, big.mark = ","),
+          " ha"
+        ),
+        x = "LTFC Option",
+        y = paste0("Proportion of ", species_arg, "-Leading Area"),
+        colour = "",
+        pattern = "Dispersal Type"
+      ) +
+      theme_bw(base_size = 16) +
+      theme(
+        axis.title.x = element_text(face = "bold", size = 16),
+        axis.title.y = element_text(face = "bold", size = 16),
+        axis.text.y = element_text(face = "bold", size = 14),
+        legend.position = "bottom",
+        panel.grid.minor = element_blank(),
+        plot.title = element_text(hjust = 0.5, face = "bold", size = 20)
+      )
 
-for(z in zones) {
-  for(s in species) {
-    plot_boxflip(all_data, z, s, output_dir)
+    cleaned_zone <- gsub("[^a-zA-Z0-9]", "", zone_arg)
+    cleaned_species <- gsub("[^a-zA-Z0-9]", "", species_arg)
+    fname <- paste0("boxplot_", cleaned_zone, "_", cleaned_species, ".png")
+    ggsave(file.path(output_dir, fname), p, width = 12, height = 9, dpi = 300)
   }
-}
-message("All comparative boxplots saved to: ", output_dir)
+
+  ## Generate all plots
+  zones <- unique(as.character(all_data$zone))
+  species <- unique(as.character(all_data$vegCover))
+
+  for (z in zones) {
+    for (s in species) {
+      plot_boxflip(all_data, z, s, output_dir)
+    }
+  }
+  message("All comparative boxplots saved to: ", output_dir)
+})
 
 ## upload to Google Drive -----------------------------------------------------
 
+## fmt: skip
 googledrive::drive_auth(path = fs::dir_ls(".", type = "file", regexp = "landweb.*[.]json$"))
-purrr::walk(
-  .x = fs::dir_ls(output_dir, type = "file"),
-  .f = googledrive::drive_put,
-  path = googledrive::as_id("1KQTvV0fT4bUZaiGYAtEwByyW8p2TlbOn")
-)
+
+purrr::walk(.x = poly_types, .f = function(type) {
+  ._type <- ifelse(nzchar(type), paste0("_", type), type)
+  ._type_name <- paste0("NW_AB", ._type) ## underscores in name
+
+  ## fmt: skip
+  output_dir <- file.path("outputs", "NW_AB_2025", "comparative_boxplots", ._type_name)
+
+  stopifnot(dir.exists(output_dir))
+
+  purrr::walk(
+    .x = fs::dir_ls(output_dir, type = "file"),
+    .f = googledrive::drive_put,
+    path = googledrive::as_id("1KQTvV0fT4bUZaiGYAtEwByyW8p2TlbOn") |>
+      googledrive::drive_ls() |>
+      dplyr::filter(name == ._type_name) |>
+      dplyr::pull(id)
+  )
+})
