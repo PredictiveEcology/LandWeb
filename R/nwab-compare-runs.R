@@ -307,7 +307,7 @@ purrr::walk(.x = poly_types, .f = function(type) {
       "0_HD" = file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
       "A_HD"   = file.path("outputs", "NW_AB_2025", "OptionA", "Histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
       "B_HD"   = file.path("outputs", "NW_AB_2025", "OptionB", "Histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
-      # "C_HD"   = file.path("outputs", "NW_AB_2025", "OptionC", "histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")), ## TODO: missing !!
+      "C_HD"   = file.path("outputs", "NW_AB_2025", "OptionC", "histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
 
       "0_AD" = file.path("outputs", "NW_AB_LTHFC_Option0_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
       "A_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionA_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
@@ -414,7 +414,10 @@ purrr::walk(.x = poly_types, .f = function(type) {
         ggplot2::facet_grid(
           dispersal_type ~ ageClass,
           labeller = ggplot2::labeller(
-            dispersal_type = c(Aspen = "Aspen Dispersal", High = "High Dispersal")
+            dispersal_type = c(
+              Aspen = "Aspen Dispersal",
+              High = "High Dispersal"
+            )
           )
         ) +
         ggplot2::scale_fill_manual(
