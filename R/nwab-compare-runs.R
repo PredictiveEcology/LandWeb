@@ -31,7 +31,8 @@ lthfc_df <- purrr::map(
 
 gg_lthfc <- ggplot2::ggplot(lthfc_df, ggplot2::aes(fill = LTHFC)) +
   ggplot2::geom_sf() +
-  ggplot2::geom_sf_text(aes(label = LTHFC)) +
+  ggplot2::geom_sf_text(ggplot2::aes(label = LTHFC)) +
+  ggplot2::scale_fill_brewer(palette = "Spectral") +
   ggplot2::facet_wrap(~option, ncol = 2) +
   ggplot2::xlab("longitude") +
   ggplot2::ylab("latitude")
