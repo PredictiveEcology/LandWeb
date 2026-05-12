@@ -49,15 +49,20 @@ gg_lthfc <- ggplot2::ggplot(lthfc_df, ggplot2::aes(fill = LTHFC)) +
 f_gg_lthfc <- file.path("outputs", "NW_AB_2025", "LTHFC_NW_AB.png")
 ggplot2::ggsave(f_gg_lthfc, gg_lthfc, height = 8, width = 8)
 
+## get vegTypeMap of initial conditions for calculating forested areas
+vtm <- file.path(
+  "outputs",
+  "NW_AB_LTHFC_Option0_highDispersal_logROS",
+  "rep01",
+  "vegTypeMap_year0000.grd"
+) |>
+  terra::rast()
+
 # boxplots -----------------------------------------------------------------------------------------
 
 ## inputs are from each of the NW AB Landweb runs:
 ## - high dispersal: Options A, B, and C, plus one using original LTHFC layer;
 ## - aspen dispersal: Options A, B, and C, plus one using original LTHFC layer;
-
-## TODO: 1. make sure the area being reported in the figure is what the proportions are being based on.
-##          -- can this be forested area, not just polygon area?
-## TODO: 2. add comparison boxplots by caribou ranges
 
 purrr::walk(.x = poly_types, .f = function(type) {
   ._type <- ifelse(nzchar(type), paste0("_", type), type)
@@ -83,27 +88,36 @@ purrr::walk(.x = poly_types, .f = function(type) {
   output_dir <- file.path("outputs", "NW_AB_2025", "comparative_boxplots", ._type_name) |>
     fs::dir_create()
 
-  ## reporting polygons from ml object to calculate area to add to boxplots
+  ## reporting polygons from ml object to calculate *forested* area to add to boxplots
 
   ## fmt: skip
   f_ml <- file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "ml_preamble.rds")
   ml <- readRDS(f_ml)
+  polys <- ml[[type_name]] |>
+    sf::st_as_sf()
+  rm(ml)
 
-  poly_areas <- ml[[type_name]] |>
-    sf::st_as_sf() |>
-    dplyr::mutate(
-      Shape_Area = sf::st_area(geometry) |> units::set_units("ha")
-    ) |>
-    as.data.frame() |>
+  polys <- polys |>
     dplyr::rename(zone = Name) |>
-    dplyr::group_by(zone) |>
-    dplyr::summarise(zone_area = sum(Shape_Area)) |>
     dplyr::mutate(
       zone = gsub(" LandWeb Study Area", "", zone),
       zone = sub("^(.+)\\s+\\1$", "\\1", zone)
-    )
+    ) |>
+    terra::vect() |>
+    terra::project(vtm)
 
-  rm(ml)
+  pixel_area <- prod(terra::res(vtm)) ## in map units (m^2)
+
+  poly_areas <- terra::extract(vtm, polys, cells = FALSE, na.rm = TRUE) |>
+    dplyr::group_by(ID) |>
+    dplyr::summarise(n_pixels = dplyr::n()) |>
+    dplyr::mutate(
+      zone = polys$zone[ID],
+      zone_area = units::set_units(n_pixels * pixel_area, "m^2") |>
+        units::set_units("ha")
+    ) |>
+    dplyr::group_by(zone) |>
+    dplyr::summarise(zone_area = sum(zone_area))
 
   ## LTHFC option labels (plot order)
   option_labels <- c("Original", "Longest", "Intermediate", "Shortest")
