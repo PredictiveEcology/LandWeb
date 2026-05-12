@@ -29,10 +29,19 @@ lthfc_df <- purrr::map(
   dplyr::mutate(LTHFC = as.factor(LTHFC)) |>
   dplyr::group_by(option)
 
+## build a linear blue-to-red palette across all possible values (multiples of 5)
+lthfc_range <- range(as.integer(as.character(lthfc_df$LTHFC)), na.rm = TRUE)
+lthfc_all_vals <- seq(lthfc_range[1], lthfc_range[2], by = 5)
+lthfc_all_cols <- setNames(
+  colorRampPalette(c("red", "yellow"))(length(lthfc_all_vals)),
+  as.character(lthfc_all_vals)
+)
+lthfc_cols <- lthfc_all_cols[levels(lthfc_df$LTHFC)] ## subset to only values present in data
+
 gg_lthfc <- ggplot2::ggplot(lthfc_df, ggplot2::aes(fill = LTHFC)) +
   ggplot2::geom_sf() +
   ggplot2::geom_sf_text(ggplot2::aes(label = LTHFC)) +
-  ggplot2::scale_fill_brewer(palette = "Spectral") +
+  ggplot2::scale_fill_manual(values = lthfc_cols) +
   ggplot2::facet_wrap(~option, ncol = 2) +
   ggplot2::xlab("longitude") +
   ggplot2::ylab("latitude")
@@ -474,6 +483,11 @@ purrr::walk(.x = poly_types, .f = function(type) {
 
 ## fmt: skip
 googledrive::drive_auth(path = fs::dir_ls(".", type = "file", regexp = "landweb.*[.]json$"))
+
+googledrive::drive_put(
+  f_gg_lthfc,
+  path = googledrive::as_id("1B-TnYde-81RzMvH3OAG7YalFn1kY5mGj")
+)
 
 purrr::walk(.x = poly_types, .f = function(type) {
   ._type <- ifelse(nzchar(type), paste0("_", type), type)
