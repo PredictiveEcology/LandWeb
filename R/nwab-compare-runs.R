@@ -102,7 +102,7 @@ purrr::walk(.x = poly_types, .f = function(type) {
   option_label_map <- setNames(option_labels, option_order)
 
   ## Read and combine data
-  all_data <- bind_rows(
+  all_data <- dplyr::bind_rows(
     lapply(names(csv_files), function(option) {
       f_csv <- csv_files[[option]]
       df <- read.csv(file = f_csv)
@@ -110,7 +110,7 @@ purrr::walk(.x = poly_types, .f = function(type) {
         dplyr::mutate(
           ## Remove " LandWeb Study Area" from zone
           zone = gsub(" LandWeb Study Area", "", zone),
-          ageClass = case_when(
+          ageClass = dplyr::case_when(
             ageClass == "Young" ~ "Young (0-39 years)",
             ageClass == "Immature" ~ "Immature (40-79 years)",
             ageClass == "Mature" ~ "Mature (80-119 years)",
@@ -173,9 +173,9 @@ purrr::walk(.x = poly_types, .f = function(type) {
         )
       )
 
-    p <- ggplot(plotdf) +
-      geom_boxplot_pattern(
-        aes(
+    p <- ggplot2::ggplot(plotdf) +
+      ggpattern::geom_boxplot_pattern(
+        ggplot2::aes(
           x = lthfc_option,
           fill = lthfc_option,
           pattern = dispersal_type,
@@ -193,13 +193,13 @@ purrr::walk(.x = poly_types, .f = function(type) {
         pattern_density = 0.1,
         pattern_spacing = 0.025,
         pattern_key_scale_factor = 0.6,
-        position = position_dodge2(padding = 0.3),
+        position = ggplot2::position_dodge2(padding = 0.3),
         width = 0.5,
         na.rm = TRUE
       ) +
-      facet_wrap(~ageClass, nrow = 2) +
-      ylim(0, 1) +
-      scale_fill_manual(
+      ggplot2::facet_wrap(~ageClass, nrow = 2) +
+      ggplot2::ylim(0, 1) +
+      ggplot2::scale_fill_manual(
         values = c(
           Original = "steelblue",
           Longest = "forestgreen",
@@ -208,16 +208,22 @@ purrr::walk(.x = poly_types, .f = function(type) {
         ),
         guide = "none"
       ) +
-      scale_pattern_manual(values = c(Aspen = "none", High = "stripe")) +
-      coord_flip() +
-      geom_point(
-        aes(x = lthfc_option, y = proportionCC, colour = "Current Condition"),
+      ggpattern::scale_pattern_manual(
+        values = c(Aspen = "none", High = "stripe")
+      ) +
+      ggplot2::coord_flip() +
+      ggplot2::geom_point(
+        ggplot2::aes(
+          x = lthfc_option,
+          y = proportionCC,
+          colour = "Current Condition"
+        ),
         size = 3,
         na.rm = TRUE
       ) +
-      scale_x_discrete(drop = FALSE) +
-      scale_colour_discrete(type = "darkred") +
-      labs(
+      ggplot2::scale_x_discrete(drop = FALSE) +
+      ggplot2::scale_colour_discrete(type = "darkred") +
+      ggplot2::labs(
         title = paste(zone_arg, "-", species_arg),
         caption = paste0(
           "Total Area of ",
@@ -229,25 +235,36 @@ purrr::walk(.x = poly_types, .f = function(type) {
             format(digits = 7, big.mark = ","),
           " ha"
         ),
+        ## NOTE: "LTFC" is used instead of "LTHFC" for historical reasons
         x = "LTFC Option",
         y = paste0("Proportion of ", species_arg, "-Leading Area"),
         colour = "",
         pattern = "Dispersal Type"
       ) +
-      theme_bw(base_size = 16) +
-      theme(
-        axis.title.x = element_text(face = "bold", size = 16),
-        axis.title.y = element_text(face = "bold", size = 16),
-        axis.text.y = element_text(face = "bold", size = 14),
+      ggplot2::theme_bw(base_size = 16) +
+      ggplot2::theme(
+        axis.title.x = ggplot2::element_text(face = "bold", size = 16),
+        axis.title.y = ggplot2::element_text(face = "bold", size = 16),
+        axis.text.y = ggplot2::element_text(face = "bold", size = 14),
         legend.position = "bottom",
-        panel.grid.minor = element_blank(),
-        plot.title = element_text(hjust = 0.5, face = "bold", size = 20)
+        panel.grid.minor = ggplot2::element_blank(),
+        plot.title = ggplot2::element_text(
+          hjust = 0.5,
+          face = "bold",
+          size = 20
+        )
       )
 
     cleaned_zone <- gsub("[^a-zA-Z0-9]", "", zone_arg)
     cleaned_species <- gsub("[^a-zA-Z0-9]", "", species_arg)
     fname <- paste0("boxplot_", cleaned_zone, "_", cleaned_species, ".png")
-    ggsave(file.path(output_dir, fname), p, width = 12, height = 9, dpi = 300)
+    ggplot2::ggsave(
+      file.path(output_dir, fname),
+      p,
+      width = 12,
+      height = 9,
+      dpi = 300
+    )
   }
 
   ## Generate all plots
