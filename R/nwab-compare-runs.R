@@ -279,6 +279,197 @@ purrr::walk(.x = poly_types, .f = function(type) {
   message("All comparative boxplots saved to: ", output_dir)
 })
 
+# patch size histograms ----------------------------------------------------------------------------
+
+## inputs are from each of the NW AB Landweb runs:
+## - high dispersal: Options A, B, and C, plus one using original LTHFC layer;
+## - aspen dispersal: Options A, B, and C, plus one using original LTHFC layer;
+
+purrr::walk(.x = poly_types, .f = function(type) {
+  ._type <- ifelse(nzchar(type), paste0("_", type), type)
+  ._type_name <- paste0("NW_AB", ._type) ## underscores in name
+
+  patch_sizes <- c(100L, 500L, 1000L, 5000L)
+  purrr::walk(.x = patch_sizes, .f = function(psize) {
+    ._psize <- paste0("_", psize)
+
+    ## fmt: skip
+    csv_files <- list(
+      "0_HD" = file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
+      "A_HD"   = file.path("outputs", "NW_AB_2025", "OptionA", "Histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
+      "B_HD"   = file.path("outputs", "NW_AB_2025", "OptionB", "Histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
+      # "C_HD"   = file.path("outputs", "NW_AB_2025", "OptionC", "histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")), ## TODO: missing !!
+
+      "0_AD" = file.path("outputs", "NW_AB_LTHFC_Option0_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
+      "A_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionA_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
+      "B_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionB_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
+      "C_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionC_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv"))
+    )
+
+    stopifnot(all(file.exists(unlist(csv_files))))
+
+    ## fmt: skip
+    output_dir <- file.path("outputs", "NW_AB_2025", "comparative_histograms", ._type_name) |>
+    fs::dir_create()
+
+    ## LTHFC option labels (plot order)
+    option_labels <- c("Original", "Longest", "Intermediate", "Shortest")
+    option_order <- c("0", "A", "B", "C")
+    option_label_map <- setNames(option_labels, option_order)
+
+    ## Read and combine data
+    all_data <- dplyr::bind_rows(
+      lapply(names(csv_files), function(option) {
+        f_csv <- csv_files[[option]]
+        df <- read.csv(file = f_csv)
+        df <- df |>
+          dplyr::mutate(
+            ## Remove " LandWeb Study Area" from polygonName
+            polygonName = gsub(" LandWeb Study Area", "", polygonName),
+            ageClass = dplyr::case_when(
+              ageClass == "Young" ~ "Young (0-39 years)",
+              ageClass == "Immature" ~ "Immature (40-79 years)",
+              ageClass == "Mature" ~ "Mature (80-119 years)",
+              ageClass == "Old" ~ "Old (≥120 years)",
+            ),
+            lthfc_option = strsplit(option, "_")[[1]][1],
+            dispersal_type = if_else(
+              grepl("aspenDispersal", f_csv),
+              "Aspen",
+              "High"
+            ),
+            .before = "N"
+          ) |>
+          dplyr::mutate(
+            ## drop row numbers
+            X = NULL,
+            ## fix zone name repeats (e.g., "Yates (YAT) Yates (YAT)" should be "Yates (YAT)")
+            polygonName = sub("^(.+)\\s+\\1$", "\\1", polygonName)
+          )
+
+        return(df)
+      })
+    )
+
+    all_data <- all_data |>
+      dplyr::mutate(
+        ageClass = factor(
+          ageClass,
+          levels = c(
+            "Young (0-39 years)",
+            "Immature (40-79 years)",
+            "Mature (80-119 years)",
+            "Old (≥120 years)"
+          )
+        ),
+        dispersal_type = factor(dispersal_type, levels = c("Aspen", "High")),
+        lthfc_option = factor(
+          option_label_map[as.character(lthfc_option)],
+          levels = option_labels
+        )
+      )
+
+    ## Plotting Function
+    plot_hists <- function(
+      subdf,
+      zone_arg,
+      species_arg,
+      patch_size,
+      output_dir
+    ) {
+      plotdf <- subdf |>
+        dplyr::filter(
+          as.character(polygonName) == as.character(zone_arg),
+          as.character(vegCover) == as.character(species_arg)
+        )
+
+      p <- ggplot2::ggplot(
+        plotdf,
+        ggplot2::aes(x = N, fill = lthfc_option, pattern = dispersal_type)
+      ) +
+        ggpattern::geom_histogram_pattern(
+          position = "identity",
+          alpha = 0.7,
+          color = "black",
+          pattern_fill = "black",
+          pattern_angle = 45,
+          pattern_density = 0.1,
+          pattern_spacing = 0.025,
+          pattern_key_scale_factor = 0.6,
+          na.rm = TRUE
+        ) +
+        ggpattern::scale_pattern_manual(
+          values = c(Aspen = "none", High = "stripe"),
+          guide = "none"
+        ) +
+        ggplot2::facet_grid(
+          dispersal_type ~ ageClass,
+          labeller = ggplot2::labeller(
+            dispersal_type = c(Aspen = "Aspen Dispersal", High = "High Dispersal")
+          )
+        ) +
+        ggplot2::scale_fill_manual(
+          values = c(
+            Original = "steelblue",
+            Longest = "forestgreen",
+            Intermediate = "darkorange",
+            Shortest = "firebrick"
+          )
+        ) +
+        ggplot2::geom_vline(
+          ggplot2::aes(xintercept = NCC, colour = "Current Condition"),
+          na.rm = TRUE
+        ) +
+        ggplot2::scale_colour_manual(
+          values = c("Current Condition" = "darkred")
+        ) +
+        ggplot2::labs(
+          title = paste0(zone_arg, " - ", species_arg),
+          x = paste0("Number of patches greater than ", patch_size, " ha"),
+          y = "Count",
+          colour = "",
+          ## NOTE: "LTFC" is used instead of "LTHFC" for historical reasons
+          fill = "LTFC Option"
+        ) +
+        ggplot2::theme_bw(base_size = 16) +
+        ggplot2::theme(
+          axis.title.x = ggplot2::element_text(face = "bold", size = 16),
+          axis.title.y = ggplot2::element_text(face = "bold", size = 16),
+          axis.text.y = ggplot2::element_text(face = "bold", size = 14),
+          legend.position = "bottom",
+          panel.grid.minor = ggplot2::element_blank(),
+          plot.title = ggplot2::element_text(
+            hjust = 0.5,
+            face = "bold",
+            size = 20
+          )
+        )
+
+      cleaned_zone <- gsub("[^a-zA-Z0-9]", "", zone_arg)
+      cleaned_species <- gsub("[^a-zA-Z0-9]", "", species_arg)
+      fname <- paste0("histogram_", cleaned_zone, "_", cleaned_species, ".png")
+      ggplot2::ggsave(
+        file.path(output_dir, fname),
+        p,
+        width = 12,
+        height = 9,
+        dpi = 300
+      )
+    }
+
+    ## Generate all plots
+    zones <- unique(as.character(all_data$polygonName))
+    species <- unique(as.character(all_data$vegCover))
+
+    for (z in zones) {
+      for (s in species) {
+        plot_hists(all_data, z, s, psize, output_dir)
+      }
+    }
+    message("All comparative histograms saved to: ", output_dir)
+  })
+})
+
 ## upload to Google Drive -----------------------------------------------------
 
 ## fmt: skip
@@ -289,14 +480,28 @@ purrr::walk(.x = poly_types, .f = function(type) {
   ._type_name <- paste0("NW_AB", ._type) ## underscores in name
 
   ## fmt: skip
-  output_dir <- file.path("outputs", "NW_AB_2025", "comparative_boxplots", ._type_name)
+  output_dir_boxplots <- file.path("outputs", "NW_AB_2025", "comparative_boxplots", ._type_name)
+  stopifnot(dir.exists(output_dir_boxplots))
 
-  stopifnot(dir.exists(output_dir))
-
+  ## upload boxplots
   purrr::walk(
-    .x = fs::dir_ls(output_dir, type = "file"),
+    .x = fs::dir_ls(output_dir_boxplots, type = "file"),
     .f = googledrive::drive_put,
     path = googledrive::as_id("1KQTvV0fT4bUZaiGYAtEwByyW8p2TlbOn") |>
+      googledrive::drive_ls() |>
+      dplyr::filter(name == ._type_name) |>
+      dplyr::pull(id)
+  )
+
+  ## fmt: skip
+  output_dir_histograms <- file.path("outputs", "NW_AB_2025", "comparative_histograms", ._type_name)
+  stopifnot(dir.exists(output_dir_histograms))
+
+  ## upload histograms
+  purrr::walk(
+    .x = fs::dir_ls(output_dir_histograms, type = "file"),
+    .f = googledrive::drive_put,
+    path = googledrive::as_id("1-dUcUzB4P-2-WiJN7TSFZd6xjntnbUgL") |>
       googledrive::drive_ls() |>
       dplyr::filter(name == ._type_name) |>
       dplyr::pull(id)
