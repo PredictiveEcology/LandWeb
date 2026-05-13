@@ -29,7 +29,7 @@ lthfc_df <- purrr::map(
   dplyr::mutate(LTHFC = as.factor(LTHFC)) |>
   dplyr::group_by(option)
 
-## build a linear blue-to-red palette across all possible values (multiples of 5)
+## build a linear palette across all possible values (multiples of 5)
 lthfc_range <- range(as.integer(as.character(lthfc_df$LTHFC)), na.rm = TRUE)
 lthfc_all_vals <- seq(lthfc_range[1], lthfc_range[2], by = 5)
 lthfc_all_cols <- setNames(
