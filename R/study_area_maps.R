@@ -38,7 +38,7 @@ ecozones <- file.path("inputs/Ecozones/ecozones.shp") |>
     ecozone = tools::toTitleCase(tolower(ZONE_NAME))
   ) |>
   sf::st_transform(target_crs) |>
-  sf::st_intersection(landweb_area) |>
+  sf::st_intersection(landweb_ext_area) |>
   dplyr::filter(!ecozone %in% peripheral_ecozones)
 
 landweb_area <- sf::st_intersection(landweb_ext_area, sf::st_union(ecozones))
@@ -80,12 +80,12 @@ gg_lthfc <- ggplot2::ggplot() +
     data = lthfc,
     ggplot2::aes(fill = LTHFC)
   ) +
-  ggrepel::geom_text_repel(
+  ggplot2::geom_sf_text(
     data = lthfc,
-    ggplot2::aes(label = LTHFC, geometry = geometry),
-    stat = "sf_coordinates",
-    min.segment.length = 0,
-    max.overlaps = Inf
+    ggplot2::aes(label = LTHFC),
+    size = 3.5,
+    # fontface = "bold",
+    check_overlap = TRUE
   ) +
   ggplot2::scale_fill_manual(values = lthfc_cols) +
   ggplot2::geom_sf(
@@ -105,9 +105,9 @@ gg_lthfc <- ggplot2::ggplot() +
     style = ggspatial::north_arrow_fancy_orienteering
   ) +
   ggplot2::guides(fill = "none") +
+  ggplot2::ggtitle("Long-Term Historic Fire Cycle (LTFC)") +
   ggplot2::xlab("Longitude") +
-  ggplot2::ylab("Latitude") +
-  ggplot2::ggtitle("Long Term Historic Fire Cycle (LTHFC)")
+  ggplot2::ylab("Latitude")
 
 f_gg_lthfc <- file.path(maps_dir, "landweb_lthfc.png")
 ggplot2::ggsave(f_gg_lthfc, gg_lthfc, width = 16, height = 12)
@@ -170,6 +170,12 @@ ggplot2::ggsave(f_gg_caribou, gg_caribou, width = 16, height = 12)
 
 ## ----------------------------------------------------------------------------
 
+ecozone_labels <- ecozones |>
+  sf::st_intersection(landweb_area) |>
+  dplyr::group_by(ecozone) |>
+  dplyr::summarise(geometry = sf::st_union(geometry), .groups = "drop") |>
+  sf::st_point_on_surface()
+
 gg_ecozones <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = ecozones, ggplot2::aes(fill = ecozone)) +
   ggplot2::geom_sf(data = can_provs, color = "black", fill = NA) +
@@ -178,6 +184,13 @@ gg_ecozones <- ggplot2::ggplot() +
     color = "black",
     fill = NA,
     linewidth = 1.2
+  ) +
+  ggplot2::geom_sf_text(
+    data = ecozone_labels,
+    ggplot2::aes(label = ecozone),
+    size = 3.5,
+    fontface = "bold",
+    check_overlap = TRUE
   ) +
   ggplot2::theme_bw() +
   ggspatial::annotation_north_arrow(
@@ -190,6 +203,7 @@ gg_ecozones <- ggplot2::ggplot() +
     style = ggspatial::north_arrow_fancy_orienteering
   ) +
   ggplot2::scale_fill_manual(
+    guide = "none",
     values = c(
       "Atlantic Maritime" = "#B8860B",
       "Boreal Plain" = "#228B22",
@@ -200,7 +214,6 @@ gg_ecozones <- ggplot2::ggplot() +
       "Taiga Shield" = "#2E8B57"
     )
   ) +
-  ggplot2::theme(legend.position = "bottom") +
   ggplot2::xlab("Longitude") +
   ggplot2::ylab("Latitude") +
   ggplot2::ggtitle("Ecozones within the LandWeb study area")
@@ -217,6 +230,6 @@ all_plots <- c(f_gg_caribou, f_gg_ecozones, f_gg_lthfc, f_gg_provs)
 purrr::walk(.x = all_plots, .f = function(f) {
   googledrive::drive_put(
     f,
-    path = googledrive::as_id("1B-TnYde-81RzMvH3OAG7YalFn1kY5mGj")
+    path = googledrive::as_id("1icwggSLDnOqbAVuJCZiyIW5GrhZ8nXF0") ## maps
   )
 })

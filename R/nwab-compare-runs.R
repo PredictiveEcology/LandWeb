@@ -506,7 +506,7 @@ googledrive::drive_auth(path = fs::dir_ls(".", type = "file", regexp = "landweb.
 
 googledrive::drive_put(
   f_gg_lthfc,
-  path = googledrive::as_id("1B-TnYde-81RzMvH3OAG7YalFn1kY5mGj")
+  path = googledrive::as_id("1icwggSLDnOqbAVuJCZiyIW5GrhZ8nXF0") ## maps
 )
 
 purrr::walk(.x = poly_types, .f = function(type) {
