@@ -46,7 +46,7 @@ gg_lthfc <- ggplot2::ggplot(lthfc_df, ggplot2::aes(fill = LTHFC)) +
   ggplot2::xlab("longitude") +
   ggplot2::ylab("latitude")
 
-f_gg_lthfc <- file.path("outputs", "NW_AB_2025", "LTHFC_NW_AB.png")
+f_gg_lthfc <- file.path("outputs", "NW_AB_2025", "maps", "LTHFC_NW_AB.png")
 ggplot2::ggsave(f_gg_lthfc, gg_lthfc, height = 8, width = 8)
 
 ## get vegTypeMap of initial conditions for calculating forested areas
@@ -317,6 +317,9 @@ purrr::walk(.x = poly_types, .f = function(type) {
     ._psize <- paste0("_", psize)
 
     ## fmt: skip
+    cli::cli_alert_info(paste0("Building comparative histograms for ", ._type_name, " (patch size ", psize, ") ..."))
+
+    ## fmt: skip
     csv_files <- list(
       "0_HD" = file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
       "A_HD"   = file.path("outputs", "NW_AB_2025", "OptionA", "Histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
@@ -473,7 +476,8 @@ purrr::walk(.x = poly_types, .f = function(type) {
 
       cleaned_zone <- gsub("[^a-zA-Z0-9]", "", zone_arg)
       cleaned_species <- gsub("[^a-zA-Z0-9]", "", species_arg)
-      fname <- paste0("histogram_", cleaned_zone, "_", cleaned_species, ".png")
+      ## fmt: skip
+      fname <- paste0("histogram_", cleaned_zone, "_", cleaned_species,"_", psize, ".png")
       ggplot2::ggsave(
         file.path(output_dir, fname),
         p,
@@ -492,7 +496,6 @@ purrr::walk(.x = poly_types, .f = function(type) {
         plot_hists(all_data, z, s, psize, output_dir)
       }
     }
-    message("All comparative histograms saved to: ", output_dir)
   })
 })
 
