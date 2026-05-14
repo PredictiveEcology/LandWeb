@@ -1,4 +1,5 @@
 library(dplyr)
+library(furrr)
 library(ggplot2)
 library(ggpattern)
 
@@ -59,6 +60,11 @@ vtm <- file.path(
   terra::rast()
 
 # boxplots -----------------------------------------------------------------------------------------
+
+future::plan(
+  future::multisession,
+  workers = parallelly::availableCores(constraints = "connections")
+)
 
 ## inputs are from each of the NW AB Landweb runs:
 ## - high dispersal: Options A, B, and C, plus one using original LTHFC layer;
@@ -294,15 +300,21 @@ purrr::walk(.x = poly_types, .f = function(type) {
   zones <- unique(as.character(all_data$zone))
   species <- unique(as.character(all_data$vegCover))
 
-  for (z in zones) {
-    for (s in species) {
-      plot_boxflip(all_data, z, s, output_dir)
-    }
-  }
+  combos <- tidyr::expand_grid(z = zones, s = species)
+  furrr::future_walk2(combos$z, combos$s, function(z, s) {
+    plot_boxflip(all_data, z, s, output_dir)
+  })
   message("All comparative boxplots saved to: ", output_dir)
 })
 
+future::plan(future::sequential)
+
 # patch size histograms ----------------------------------------------------------------------------
+
+future::plan(
+  future::multisession,
+  workers = parallelly::availableCores(constraints = "connections")
+)
 
 ## inputs are from each of the NW AB Landweb runs:
 ## - high dispersal: Options A, B, and C, plus one using original LTHFC layer;
@@ -491,13 +503,14 @@ purrr::walk(.x = poly_types, .f = function(type) {
     zones <- unique(as.character(all_data$polygonName))
     species <- unique(as.character(all_data$vegCover))
 
-    for (z in zones) {
-      for (s in species) {
-        plot_hists(all_data, z, s, psize, output_dir)
-      }
-    }
+    combos <- tidyr::expand_grid(z = zones, s = species)
+    furrr::future_walk2(combos$z, combos$s, function(z, s) {
+      plot_hists(all_data, z, s, psize, output_dir)
+    })
   })
 })
+
+future::plan(future::sequential)
 
 ## upload to Google Drive -----------------------------------------------------
 
