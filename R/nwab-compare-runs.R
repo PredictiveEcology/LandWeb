@@ -76,6 +76,9 @@ purrr::walk(.x = poly_types, .f = function(type) {
   type_name <- gsub("_", " ", ._type_name) ## underscores replaced with spaces
 
   ## fmt: skip
+  cli::cli_alert_info(paste0("Building comparative histograms for ", ._type_name, " ..."))
+
+  ## fmt: skip
   csv_files <- list(
     "0_HD" = file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "boxplots", paste0("leading_boxplots_NW_AB", ._type, ".csv")),
     "A_HD"   = file.path("outputs", "NW_AB_2025", "OptionA", "Boxplots", paste0("leading_boxplots_nw_ab", ._type, ".csv")),
@@ -304,7 +307,6 @@ purrr::walk(.x = poly_types, .f = function(type) {
   furrr::future_walk2(combos$z, combos$s, function(z, s) {
     plot_boxflip(all_data, z, s, output_dir)
   })
-  message("All comparative boxplots saved to: ", output_dir)
 })
 
 future::plan(future::sequential)
