@@ -596,6 +596,11 @@ purrr::walk(.x = poly_types, .f = function(type) {
       dplyr::filter(name == ._type_name) |>
       dplyr::pull(id)
   )
+})
+
+purrr::walk(.x = poly_types, .f = function(type) {
+  ._type <- ifelse(nzchar(type), paste0("_", type), type)
+  ._type_name <- paste0("NW_AB", ._type) ## underscores in name
 
   ## fmt: skip
   output_dir_histograms <- file.path("outputs", "NW_AB_2025", "comparative_histograms", ._type_name)
