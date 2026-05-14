@@ -50,6 +50,17 @@ gg_lthfc <- ggplot2::ggplot(lthfc_df, ggplot2::aes(fill = LTHFC)) +
 f_gg_lthfc <- file.path("outputs", "NW_AB_2025", "maps", "LTHFC_NW_AB.png")
 ggplot2::ggsave(f_gg_lthfc, gg_lthfc, height = 8, width = 8)
 
+# boxplots -----------------------------------------------------------------------------------------
+
+## inputs are from each of the NW AB Landweb runs:
+## - high dispersal: Options A, B, and C, plus one using original LTHFC layer;
+## - aspen dispersal: Options A, B, and C, plus one using original LTHFC layer;
+
+future::plan(
+  future::multisession,
+  workers = parallelly::availableCores(constraints = "connections")
+)
+
 ## get vegTypeMap of initial conditions for calculating forested areas
 vtm <- file.path(
   "outputs",
@@ -58,17 +69,6 @@ vtm <- file.path(
   "vegTypeMap_year0000.grd"
 ) |>
   terra::rast()
-
-# boxplots -----------------------------------------------------------------------------------------
-
-future::plan(
-  future::multisession,
-  workers = parallelly::availableCores(constraints = "connections")
-)
-
-## inputs are from each of the NW AB Landweb runs:
-## - high dispersal: Options A, B, and C, plus one using original LTHFC layer;
-## - aspen dispersal: Options A, B, and C, plus one using original LTHFC layer;
 
 purrr::walk(.x = poly_types, .f = function(type) {
   ._type <- ifelse(nzchar(type), paste0("_", type), type)
