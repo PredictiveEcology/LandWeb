@@ -9,9 +9,9 @@ target_crs <- paste(
   "+x_0=0 +y_0=0 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"
 )
 
-## lthfc represents the extended study area used for modelling;
+## lthfc_ext represents the extended study area used for modelling;
 ## this includes a buffer to mitigate edge effects.
-## lthfc is larger than the true AOI.
+## lthfc_ext is larger than the true lthfc AOI.
 lthfc_ext <- file.path("inputs/LTHFC_v10_draft/lthfc_v10_draft.shp") |>
   sf::st_read(quiet = TRUE) |>
   sf::st_set_crs("epsg:26911") |>
@@ -174,7 +174,38 @@ ecozone_labels <- ecozones |>
   sf::st_intersection(landweb_area) |>
   dplyr::group_by(ecozone) |>
   dplyr::summarise(geometry = sf::st_union(geometry), .groups = "drop") |>
-  sf::st_point_on_surface()
+  sf::st_centroid() |>
+  # sf::st_point_on_surface() |>
+  dplyr::mutate(ecozone = gsub(" ", "\n", ecozone))
+
+## fmt: table
+label_offsets <- dplyr::tribble(
+  ~ecozone         , ~dx     , ~dy    ,
+  "Boreal\nPlain"  , -100000 ,  80000 ,
+  "Boreal\nShield" ,   65000 ,      0 ,
+  "Taiga\nPlain"   ,       0 ,      0 ,
+  "Taiga\nShield"  ,    5000 , -40000
+)
+coords <- sf::st_coordinates(ecozone_labels)
+offsets <- dplyr::left_join(
+  data.frame(ecozone = ecozone_labels$ecozone),
+  label_offsets,
+  by = "ecozone"
+) |>
+  dplyr::mutate(dx = dplyr::coalesce(dx, 0), dy = dplyr::coalesce(dy, 0))
+
+ecozone_labels <- sf::st_set_geometry(
+  ecozone_labels,
+  sf::st_sfc(
+    lapply(seq_len(nrow(coords)), function(i) {
+      sf::st_point(c(
+        coords[i, 1] + offsets$dx[i],
+        coords[i, 2] + offsets$dy[i]
+      ))
+    }),
+    crs = sf::st_crs(ecozone_labels)
+  )
+)
 
 gg_ecozones <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = ecozones, ggplot2::aes(fill = ecozone)) +
@@ -188,7 +219,7 @@ gg_ecozones <- ggplot2::ggplot() +
   ggplot2::geom_sf_text(
     data = ecozone_labels,
     ggplot2::aes(label = ecozone),
-    size = 3.5,
+    size = 4.5,
     fontface = "bold",
     check_overlap = TRUE
   ) +
