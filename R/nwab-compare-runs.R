@@ -2,6 +2,7 @@ library(dplyr)
 library(furrr)
 library(ggplot2)
 library(ggpattern)
+library(map)
 
 ## polygon type for which to build comparative boxplots
 poly_types <- c("", "ANSR", "Caribou")
@@ -56,11 +57,6 @@ ggplot2::ggsave(f_gg_lthfc, gg_lthfc, height = 8, width = 8)
 ## - high dispersal: Options A, B, and C, plus one using original LTHFC layer;
 ## - aspen dispersal: Options A, B, and C, plus one using original LTHFC layer;
 
-future::plan(
-  future::multisession,
-  workers = parallelly::availableCores(constraints = "connections")
-)
-
 ## get vegTypeMap of initial conditions for calculating forested areas
 vtm <- file.path(
   "outputs",
@@ -70,13 +66,18 @@ vtm <- file.path(
 ) |>
   terra::rast()
 
+## reporting polygons from ml object to calculate *forested* area to add to boxplots
+## fmt: skip
+ml <- readRDS(file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "ml_preamble.rds"))
+pixel_area <- prod(terra::res(vtm)) ## in map units (m^2)
+
 purrr::walk(.x = poly_types, .f = function(type) {
   ._type <- ifelse(nzchar(type), paste0("_", type), type)
   ._type_name <- paste0("NW_AB", ._type) ## underscores in name
   type_name <- gsub("_", " ", ._type_name) ## underscores replaced with spaces
 
   ## fmt: skip
-  cli::cli_alert_info(paste0("Building comparative histograms for ", ._type_name, " ..."))
+  cli::cli_alert_info(paste0("Building comparative boxplots for ", ._type_name, " ..."))
 
   ## fmt: skip
   csv_files <- list(
@@ -97,14 +98,8 @@ purrr::walk(.x = poly_types, .f = function(type) {
   output_dir <- file.path("outputs", "NW_AB_2025", "comparative_boxplots", ._type_name) |>
     fs::dir_create()
 
-  ## reporting polygons from ml object to calculate *forested* area to add to boxplots
-
-  ## fmt: skip
-  f_ml <- file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "ml_preamble.rds")
-  ml <- readRDS(f_ml)
   polys <- ml[[type_name]] |>
     sf::st_as_sf()
-  rm(ml)
 
   polys <- polys |>
     dplyr::rename(zone = Name) |>
@@ -114,8 +109,6 @@ purrr::walk(.x = poly_types, .f = function(type) {
     ) |>
     terra::vect() |>
     terra::project(vtm)
-
-  pixel_area <- prod(terra::res(vtm)) ## in map units (m^2)
 
   poly_areas <- terra::extract(vtm, polys, cells = FALSE, na.rm = TRUE) |>
     dplyr::group_by(ID) |>
@@ -137,7 +130,7 @@ purrr::walk(.x = poly_types, .f = function(type) {
   all_data <- dplyr::bind_rows(
     lapply(names(csv_files), function(option) {
       f_csv <- csv_files[[option]]
-      df <- read.csv(file = f_csv)
+      df <- data.table::fread(file = f_csv, data.table = FALSE)
       df <- df |>
         dplyr::mutate(
           ## Remove " LandWeb Study Area" from zone
@@ -184,12 +177,15 @@ purrr::walk(.x = poly_types, .f = function(type) {
     )
 
   ## Plotting Function
-  plot_boxflip <- function(subdf, zone_arg, species_arg, output_dir) {
+  plot_boxflip <- function(
+    subdf,
+    zone_arg,
+    species_arg,
+    output_dir,
+    poly_areas,
+    option_labels
+  ) {
     plotdf <- subdf |>
-      dplyr::filter(
-        as.character(zone) == as.character(zone_arg),
-        as.character(vegCover) == as.character(species_arg)
-      ) |>
       dplyr::group_by(lthfc_option, dispersal_type, ageClass) |>
       dplyr::slice(1) |>
       dplyr::ungroup() |>
@@ -299,23 +295,34 @@ purrr::walk(.x = poly_types, .f = function(type) {
     )
   }
 
-  ## Generate all plots
-  zones <- unique(as.character(all_data$zone))
-  species <- unique(as.character(all_data$vegCover))
+  ## Pre-split data so each worker receives only its subset
+  data_splits <- split(
+    all_data,
+    list(all_data$zone, all_data$vegCover),
+    drop = TRUE
+  )
 
-  combos <- tidyr::expand_grid(z = zones, s = species)
-  furrr::future_walk2(combos$z, combos$s, function(z, s) {
-    plot_boxflip(all_data, z, s, output_dir)
-  })
+  ## Generate all plots sequentially
+  ## NOTE: parallel execution (furrr::future_walk) is not faster here for unknown reasons
+  ## fmt: skip
+  cli::cli_alert_info(paste0("  Generating ", length(data_splits), " boxplots ..."))
+  purrr::walk(
+    data_splits,
+    function(subdf) {
+      z <- as.character(subdf$zone[1])
+      s <- as.character(subdf$vegCover[1])
+      plot_boxflip(subdf, z, s, output_dir, poly_areas, option_labels)
+    }
+  )
 })
 
-future::plan(future::sequential)
+rm(ml)
 
 # patch size histograms ----------------------------------------------------------------------------
 
 future::plan(
   future::multisession,
-  workers = parallelly::availableCores(constraints = "connections")
+  workers = parallelly::availableCores(constraints = "connections", omit = 1)
 )
 
 ## inputs are from each of the NW AB Landweb runs:
@@ -327,189 +334,199 @@ purrr::walk(.x = poly_types, .f = function(type) {
   ._type_name <- paste0("NW_AB", ._type) ## underscores in name
 
   patch_sizes <- c(100L, 500L, 1000L, 5000L)
-  purrr::walk(.x = patch_sizes, .f = function(psize) {
-    ._psize <- paste0("_", psize)
 
-    ## fmt: skip
-    cli::cli_alert_info(paste0("Building comparative histograms for ", ._type_name, " (patch size ", psize, ") ..."))
+  ## fmt: skip
+  cli::cli_alert_info(paste0("Building comparative histograms for ", ._type_name, " ..."))
 
-    ## fmt: skip
-    csv_files <- list(
-      "0_HD" = file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
-      "A_HD"   = file.path("outputs", "NW_AB_2025", "OptionA", "Histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
-      "B_HD"   = file.path("outputs", "NW_AB_2025", "OptionB", "Histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
-      "C_HD"   = file.path("outputs", "NW_AB_2025", "OptionC", "histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
-
-      "0_AD" = file.path("outputs", "NW_AB_LTHFC_Option0_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
-      "A_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionA_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
-      "B_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionB_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
-      "C_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionC_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv"))
-    )
-
-    stopifnot(all(file.exists(unlist(csv_files))))
-
-    ## fmt: skip
-    output_dir <- file.path("outputs", "NW_AB_2025", "comparative_histograms", ._type_name) |>
+  ## fmt: skip
+  output_dir <- file.path("outputs", "NW_AB_2025", "comparative_histograms", ._type_name) |>
     fs::dir_create()
 
-    ## LTHFC option labels (plot order)
-    option_labels <- c("Original", "Longest", "Intermediate", "Shortest")
-    option_order <- c("0", "A", "B", "C")
-    option_label_map <- setNames(option_labels, option_order)
+  ## LTHFC option labels (plot order)
+  option_labels <- c("Original", "Longest", "Intermediate", "Shortest")
+  option_order <- c("0", "A", "B", "C")
+  option_label_map <- setNames(option_labels, option_order)
 
-    ## Read and combine data
-    all_data <- dplyr::bind_rows(
-      lapply(names(csv_files), function(option) {
-        f_csv <- csv_files[[option]]
-        df <- read.csv(file = f_csv)
-        df <- df |>
-          dplyr::mutate(
-            ## Remove " LandWeb Study Area" from polygonName
-            polygonName = gsub(" LandWeb Study Area", "", polygonName),
-            ageClass = dplyr::case_when(
-              ageClass == "Young" ~ "Young (0-39 years)",
-              ageClass == "Immature" ~ "Immature (40-79 years)",
-              ageClass == "Mature" ~ "Mature (80-119 years)",
-              ageClass == "Old" ~ "Old (≥120 years)",
-            ),
-            lthfc_option = strsplit(option, "_")[[1]][1],
-            dispersal_type = if_else(
-              grepl("aspenDispersal", f_csv),
-              "Aspen",
-              "High"
-            ),
-            .before = "N"
-          ) |>
-          dplyr::mutate(
-            ## drop row numbers
-            X = NULL,
-            ## fix zone name repeats (e.g., "Yates (YAT) Yates (YAT)" should be "Yates (YAT)")
-            polygonName = sub("^(.+)\\s+\\1$", "\\1", polygonName)
-          )
+  ## fmt: skip
+  option_names <- c("0_HD", "A_HD", "B_HD", "C_HD", "0_AD", "A_AD", "B_AD", "C_AD")
 
-        return(df)
-      })
+  ## Read all CSVs for all patch sizes in one pass
+  all_data <- dplyr::bind_rows(
+    lapply(patch_sizes, function(psize) {
+      ._psize <- paste0("_", psize)
+
+      ## fmt: skip
+      csv_files <- list(
+        "0_HD" = file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
+        "A_HD"   = file.path("outputs", "NW_AB_2025", "OptionA", "Histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
+        "B_HD"   = file.path("outputs", "NW_AB_2025", "OptionB", "Histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
+        "C_HD"   = file.path("outputs", "NW_AB_2025", "OptionC", "histograms", paste0("largePatches_nw_ab", ._type, ._psize, ".csv")),
+
+        "0_AD" = file.path("outputs", "NW_AB_LTHFC_Option0_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
+        "A_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionA_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
+        "B_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionB_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv")),
+        "C_AD"   = file.path("outputs", "NW_AB_LTHFC_OptionC_aspenDispersal_logROS", "histograms", paste0("largePatches_NW_AB", ._type, ._psize, ".csv"))
+      )
+
+      stopifnot(all(file.exists(unlist(csv_files))))
+
+      dplyr::bind_rows(
+        lapply(option_names, function(option) {
+          f_csv <- csv_files[[option]]
+          df <- data.table::fread(file = f_csv, data.table = FALSE)
+          df <- df |>
+            dplyr::mutate(
+              patch_size = psize,
+              ## Remove " LandWeb Study Area" from polygonName
+              polygonName = gsub(" LandWeb Study Area", "", polygonName),
+              ageClass = dplyr::case_when(
+                ageClass == "Young" ~ "Young (0-39 years)",
+                ageClass == "Immature" ~ "Immature (40-79 years)",
+                ageClass == "Mature" ~ "Mature (80-119 years)",
+                ageClass == "Old" ~ "Old (≥120 years)",
+              ),
+              lthfc_option = strsplit(option, "_")[[1]][1],
+              dispersal_type = if_else(
+                grepl("aspenDispersal", f_csv),
+                "Aspen",
+                "High"
+              ),
+              .before = "N"
+            ) |>
+            dplyr::mutate(
+              ## drop row numbers
+              X = NULL,
+              ## fix zone name repeats (e.g., "Yates (YAT) Yates (YAT)" should be "Yates (YAT)")
+              polygonName = sub("^(.+)\\s+\\1$", "\\1", polygonName)
+            )
+
+          return(df)
+        })
+      )
+    })
+  )
+
+  all_data <- all_data |>
+    dplyr::mutate(
+      ageClass = factor(
+        ageClass,
+        levels = c(
+          "Young (0-39 years)",
+          "Immature (40-79 years)",
+          "Mature (80-119 years)",
+          "Old (≥120 years)"
+        )
+      ),
+      dispersal_type = factor(dispersal_type, levels = c("Aspen", "High")),
+      lthfc_option = factor(
+        option_label_map[as.character(lthfc_option)],
+        levels = option_labels
+      )
     )
 
-    all_data <- all_data |>
-      dplyr::mutate(
-        ageClass = factor(
-          ageClass,
-          levels = c(
-            "Young (0-39 years)",
-            "Immature (40-79 years)",
-            "Mature (80-119 years)",
-            "Old (≥120 years)"
-          )
-        ),
-        dispersal_type = factor(dispersal_type, levels = c("Aspen", "High")),
-        lthfc_option = factor(
-          option_label_map[as.character(lthfc_option)],
-          levels = option_labels
-        )
-      )
-
-    ## Plotting Function
-    plot_hists <- function(
+  ## Plotting Function
+  plot_hists <- function(subdf, zone_arg, species_arg, patch_size, output_dir) {
+    p <- ggplot2::ggplot(
       subdf,
-      zone_arg,
-      species_arg,
-      patch_size,
-      output_dir
-    ) {
-      plotdf <- subdf |>
-        dplyr::filter(
-          as.character(polygonName) == as.character(zone_arg),
-          as.character(vegCover) == as.character(species_arg)
-        )
-
-      p <- ggplot2::ggplot(
-        plotdf,
-        ggplot2::aes(x = N, fill = lthfc_option, pattern = dispersal_type)
+      ggplot2::aes(x = N, fill = lthfc_option, pattern = dispersal_type)
+    ) +
+      ggpattern::geom_histogram_pattern(
+        position = "identity",
+        alpha = 0.7,
+        color = "black",
+        pattern_fill = "black",
+        pattern_angle = 45,
+        pattern_density = 0.1,
+        pattern_spacing = 0.025,
+        pattern_key_scale_factor = 0.6,
+        na.rm = TRUE
       ) +
-        ggpattern::geom_histogram_pattern(
-          position = "identity",
-          alpha = 0.7,
-          color = "black",
-          pattern_fill = "black",
-          pattern_angle = 45,
-          pattern_density = 0.1,
-          pattern_spacing = 0.025,
-          pattern_key_scale_factor = 0.6,
-          na.rm = TRUE
-        ) +
-        ggpattern::scale_pattern_manual(
-          values = c(Aspen = "none", High = "stripe"),
-          guide = "none"
-        ) +
-        ggplot2::facet_grid(
-          dispersal_type ~ ageClass,
-          labeller = ggplot2::labeller(
-            dispersal_type = c(
-              Aspen = "Aspen Dispersal",
-              High = "High Dispersal"
-            )
-          )
-        ) +
-        ggplot2::scale_fill_manual(
-          values = c(
-            Original = "steelblue",
-            Longest = "forestgreen",
-            Intermediate = "darkorange",
-            Shortest = "firebrick"
-          )
-        ) +
-        ggplot2::geom_vline(
-          ggplot2::aes(xintercept = NCC, colour = "Current Condition"),
-          na.rm = TRUE
-        ) +
-        ggplot2::scale_colour_manual(
-          values = c("Current Condition" = "darkred")
-        ) +
-        ggplot2::labs(
-          title = paste0(zone_arg, " - ", species_arg),
-          x = paste0("Number of patches greater than ", patch_size, " ha"),
-          y = "Count",
-          colour = "",
-          ## NOTE: "LTFC" is used instead of "LTHFC" for historical reasons
-          fill = "LTFC Option"
-        ) +
-        ggplot2::theme_bw(base_size = 16) +
-        ggplot2::theme(
-          axis.title.x = ggplot2::element_text(face = "bold", size = 16),
-          axis.title.y = ggplot2::element_text(face = "bold", size = 16),
-          axis.text.y = ggplot2::element_text(face = "bold", size = 14),
-          legend.position = "bottom",
-          panel.grid.minor = ggplot2::element_blank(),
-          plot.title = ggplot2::element_text(
-            hjust = 0.5,
-            face = "bold",
-            size = 20
+      ggpattern::scale_pattern_manual(
+        values = c(Aspen = "none", High = "stripe"),
+        guide = "none"
+      ) +
+      ggplot2::facet_grid(
+        dispersal_type ~ ageClass,
+        labeller = ggplot2::labeller(
+          dispersal_type = c(
+            Aspen = "Aspen Dispersal",
+            High = "High Dispersal"
           )
         )
-
-      cleaned_zone <- gsub("[^a-zA-Z0-9]", "", zone_arg)
-      cleaned_species <- gsub("[^a-zA-Z0-9]", "", species_arg)
-      ## fmt: skip
-      fname <- paste0("histogram_", cleaned_zone, "_", cleaned_species,"_", psize, ".png")
-      ggplot2::ggsave(
-        file.path(output_dir, fname),
-        p,
-        width = 12,
-        height = 9,
-        dpi = 300
+      ) +
+      ggplot2::scale_fill_manual(
+        values = c(
+          Original = "steelblue",
+          Longest = "forestgreen",
+          Intermediate = "darkorange",
+          Shortest = "firebrick"
+        )
+      ) +
+      ggplot2::geom_vline(
+        ggplot2::aes(xintercept = NCC, colour = "Current Condition"),
+        na.rm = TRUE
+      ) +
+      ggplot2::scale_colour_manual(
+        values = c("Current Condition" = "darkred")
+      ) +
+      ggplot2::labs(
+        title = paste0(zone_arg, " - ", species_arg),
+        x = paste0("Number of patches greater than ", patch_size, " ha"),
+        y = "Count",
+        colour = "",
+        ## NOTE: "LTFC" is used instead of "LTHFC" for historical reasons
+        fill = "LTFC Option"
+      ) +
+      ggplot2::theme_bw(base_size = 16) +
+      ggplot2::theme(
+        axis.title.x = ggplot2::element_text(face = "bold", size = 16),
+        axis.title.y = ggplot2::element_text(face = "bold", size = 16),
+        axis.text.y = ggplot2::element_text(face = "bold", size = 14),
+        legend.position = "bottom",
+        panel.grid.minor = ggplot2::element_blank(),
+        plot.title = ggplot2::element_text(
+          hjust = 0.5,
+          face = "bold",
+          size = 20
+        )
       )
-    }
 
-    ## Generate all plots
-    zones <- unique(as.character(all_data$polygonName))
-    species <- unique(as.character(all_data$vegCover))
+    cleaned_zone <- gsub("[^a-zA-Z0-9]", "", zone_arg)
+    cleaned_species <- gsub("[^a-zA-Z0-9]", "", species_arg)
+    ## fmt: skip
+    fname <- paste0("histogram_", cleaned_zone, "_", cleaned_species, "_", patch_size, ".png")
+    ggplot2::ggsave(
+      file.path(output_dir, fname),
+      p,
+      width = 12,
+      height = 9,
+      dpi = 300
+    )
+  }
 
-    combos <- tidyr::expand_grid(z = zones, s = species)
-    furrr::future_walk2(combos$z, combos$s, function(z, s) {
-      plot_hists(all_data, z, s, psize, output_dir)
-    })
-  })
+  ## Pre-split data so each worker receives only its subset
+  data_splits <- split(
+    all_data,
+    list(all_data$patch_size, all_data$polygonName, all_data$vegCover),
+    drop = TRUE
+  )
+
+  ## Generate all plots in a single parallel dispatch across all patch sizes
+  ## fmt: skip
+  cli::cli_alert_info(paste0("  Generating ", length(data_splits), " histograms ..."))
+  furrr::future_walk(
+    data_splits,
+    function(subdf) {
+      psize <- subdf$patch_size[1]
+      z <- as.character(subdf$polygonName[1])
+      s <- as.character(subdf$vegCover[1])
+      plot_hists(subdf, z, s, psize, output_dir)
+    },
+    .options = furrr::furrr_options(
+      seed = NULL,
+      globals = c("plot_hists", "output_dir")
+    )
+  )
 })
 
 future::plan(future::sequential)
