@@ -71,6 +71,16 @@ vtm <- file.path(
 ml <- readRDS(file.path("outputs", "NW_AB_LTHFC_Option0_highDispersal_logROS", "ml_preamble.rds"))
 pixel_area <- prod(terra::res(vtm)) ## in map units (m^2)
 
+## mapping from raster category labels to CSV vegCover names
+vegtype_map <- c(
+  "Abie_sp" = "Fir",
+  "Pice_gla" = "Wh Spruce",
+  "Pice_mar" = "Bl Spruce",
+  "Pinu_sp" = "Pine",
+  "Popu_sp" = "Decid",
+  "Mixed" = "Mixed"
+)
+
 purrr::walk(.x = poly_types, .f = function(type) {
   ._type <- ifelse(nzchar(type), paste0("_", type), type)
   ._type_name <- paste0("NW_AB", ._type) ## underscores in name
@@ -110,16 +120,38 @@ purrr::walk(.x = poly_types, .f = function(type) {
     terra::vect() |>
     terra::project(vtm)
 
-  poly_areas <- terra::extract(vtm, polys, cells = FALSE, na.rm = TRUE) |>
-    dplyr::group_by(ID) |>
-    dplyr::summarise(n_pixels = dplyr::n()) |>
+  poly_extracted <- terra::extract(vtm, polys, cells = FALSE, na.rm = TRUE)
+  vtm_col <- setdiff(names(poly_extracted), "ID")
+
+  poly_areas <- poly_extracted |>
+    dplyr::mutate(
+      vegCover = vegtype_map[as.character(.data[[vtm_col]])]
+    ) |>
+    dplyr::group_by(ID, vegCover) |>
+    dplyr::summarise(n_pixels = dplyr::n(), .groups = "drop") |>
     dplyr::mutate(
       zone = polys$zone[ID],
       zone_area = units::set_units(n_pixels * pixel_area, "m^2") |>
         units::set_units("ha")
     ) |>
+    dplyr::group_by(zone, vegCover) |>
+    dplyr::summarise(
+      n_pixels = sum(n_pixels),
+      zone_area = sum(zone_area),
+      .groups = "drop"
+    )
+
+  ## Add "All species" rows: total forested area per zone
+  poly_areas_all <- poly_areas |>
     dplyr::group_by(zone) |>
-    dplyr::summarise(zone_area = sum(zone_area))
+    dplyr::summarise(
+      n_pixels = sum(n_pixels),
+      zone_area = sum(zone_area),
+      .groups = "drop"
+    ) |>
+    dplyr::mutate(vegCover = "All species")
+
+  poly_areas <- dplyr::bind_rows(poly_areas, poly_areas_all)
 
   ## LTHFC option labels (plot order)
   option_labels <- c("Original", "Longest", "Intermediate", "Shortest")
@@ -254,10 +286,16 @@ purrr::walk(.x = poly_types, .f = function(type) {
       ggplot2::labs(
         title = paste(zone_arg, "-", species_arg),
         caption = paste0(
-          "Total Area of ",
+          "Total ",
+          species_arg,
+          "-leading area in ",
           zone_arg,
           ": ",
-          dplyr::filter(poly_areas, zone == zone_arg) |>
+          dplyr::filter(
+            poly_areas,
+            zone == zone_arg,
+            vegCover == species_arg
+          ) |>
             dplyr::pull(zone_area) |>
             as.numeric() |>
             format(digits = 7, big.mark = ","),
