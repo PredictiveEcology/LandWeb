@@ -63,6 +63,12 @@ caribou_ranges <- file.path(
   sf::st_filter(landweb_area, .predicate = sf::st_intersects) |>
   sf::st_crop(landweb_area)
 
+fmas <- file.path("inputs/FMA_Boundary_Updated_2024.shp") |>
+  sf::st_read(quiet = TRUE) |>
+  sf::st_transform(target_crs) |>
+  sf::st_filter(landweb_area, .predicate = sf::st_intersects) |>
+  sf::st_crop(landweb_area)
+
 ## ----------------------------------------------------------------------------
 
 ## build a linear palette across all possible values (multiples of 5)
@@ -252,12 +258,55 @@ gg_ecozones <- ggplot2::ggplot() +
 f_gg_ecozones <- file.path(maps_dir, "landweb_ecozones.png")
 ggplot2::ggsave(f_gg_ecozones, gg_ecozones, width = 16, height = 12)
 
+## FMA - dispersal parameterizations ------------------------------------------
+
+fmas_aspen_dispersal <- fmas |>
+  dplyr::mutate(
+    Name = gsub(
+      "Daishowa-Marubeni International Ltd.",
+      "Mercer Peace River Pulp Ltd.",
+      Name,
+      fixed = TRUE
+    )
+  ) |>
+  dplyr::filter(OBJECTID_1 %in% c(32, 39, 42, 43, 44, 49, 50, 51))
+
+gg_fmas <- ggplot2::ggplot() +
+  ggplot2::geom_sf(data = can_provs, color = "black", fill = NA) +
+  ggplot2::geom_sf(
+    data = landweb_area,
+    color = "black",
+    fill = NA,
+    linewidth = 1.2
+  ) +
+  ggplot2::geom_sf(data = fmas, color = "blue", fill = NA) +
+  ggplot2::geom_sf(data = fmas_aspen_dispersal, fill = "blue", alpha = 0.5) +
+  ggplot2::theme_bw() +
+  ggspatial::annotation_north_arrow(
+    location = "bl",
+    which_north = "true",
+    height = grid::unit(1.2, "cm"),
+    width = grid::unit(1.2, "cm"),
+    pad_x = grid::unit(0.1, "in"),
+    pad_y = grid::unit(0.1, "in"),
+    style = ggspatial::north_arrow_fancy_orienteering
+  ) +
+  ggplot2::guides(fill = "none") +
+  ggplot2::xlab("Longitude") +
+  ggplot2::ylab("Latitude") +
+  ggplot2::ggtitle(
+    "Forest Management Agreement areas within the study area using 'aspen dispersal' parameterization"
+  )
+
+f_gg_fmas <- file.path(maps_dir, "landweb_fma_aspen_dispersal.png")
+ggplot2::ggsave(f_gg_fmas, gg_fmas, width = 16, height = 12)
+
 ## upload to Google Drive -----------------------------------------------------
 
 ## fmt: skip
 googledrive::drive_auth(path = fs::dir_ls(".", type = "file", regexp = "landweb.*[.]json$"))
 
-all_plots <- c(f_gg_caribou, f_gg_ecozones, f_gg_lthfc, f_gg_provs)
+all_plots <- c(f_gg_caribou, f_gg_ecozones, f_gg_fmas, f_gg_lthfc, f_gg_provs)
 purrr::walk(.x = all_plots, .f = function(f) {
   googledrive::drive_put(
     f,
