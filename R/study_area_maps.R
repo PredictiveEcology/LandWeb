@@ -67,7 +67,9 @@ fmas <- file.path("inputs/FMA_Boundary_Updated_2024.shp") |>
   sf::st_read(quiet = TRUE) |>
   sf::st_transform(target_crs) |>
   sf::st_filter(landweb_area, .predicate = sf::st_intersects) |>
-  sf::st_crop(landweb_area)
+  sf::st_crop(landweb_area) |>
+  dplyr::rename(ID = OBJECTID_1, FMA_HOLDER = Name) |>
+  dplyr::mutate(Shape_Leng = NULL, Shape_Area = NULL)
 
 ## ----------------------------------------------------------------------------
 
@@ -262,14 +264,50 @@ ggplot2::ggsave(f_gg_ecozones, gg_ecozones, width = 16, height = 12)
 
 fmas_aspen_dispersal <- fmas |>
   dplyr::mutate(
-    Name = gsub(
+    FMA_HOLDER = gsub(
       "Daishowa-Marubeni International Ltd.",
       "Mercer Peace River Pulp Ltd.",
-      Name,
+      FMA_HOLDER,
       fixed = TRUE
-    )
+    ),
   ) |>
-  dplyr::filter(OBJECTID_1 %in% c(32, 39, 42, 43, 44, 49, 50, 51))
+  dplyr::filter(ID %in% c(32, 39, 42, 43, 44, 49, 50, 51)) |>
+  dplyr::mutate(
+    FMU_ID = c("Mountain", "W15", "P21", "P19", "S21", "S19", "F26", "S17"),
+    .before = "geometry"
+  )
+
+## explode multipolygons into individual polygons (st_cast on sf only keeps
+## the first sub-polygon; processing per-feature preserves all of them)
+fmas_aspen_labels <- do.call(rbind, lapply(seq_len(nrow(fmas_aspen_dispersal)), function(i) {
+  row <- fmas_aspen_dispersal[i, ]
+  geom <- sf::st_geometry(row)[[1]]
+  if (inherits(geom, "MULTIPOLYGON")) {
+    polys <- lapply(geom, sf::st_polygon)
+    rows <- row[rep(1, length(polys)), ]
+    sf::st_geometry(rows) <- sf::st_sfc(polys, crs = sf::st_crs(row))
+    rows
+  } else {
+    row
+  }
+}))
+
+## keep only the largest sub-polygon per FMU for labelling
+fmas_aspen_labels <- fmas_aspen_labels |>
+  dplyr::mutate(area = sf::st_area(geometry)) |>
+  dplyr::group_by(FMU_ID) |>
+  dplyr::filter(area == max(area)) |>
+  dplyr::ungroup()
+
+## place label anchors at the pole of inaccessibility (center of largest
+## inscribed circle), which avoids narrow extensions of irregular polygons
+fmas_label_pts <- vapply(sf::st_geometry(fmas_aspen_labels), function(geom) {
+  circle <- sf::st_inscribed_circle(geom, dTolerance = 1000)
+  sf::st_coordinates(sf::st_centroid(circle))[1, c("X", "Y")]
+}, numeric(2))
+fmas_aspen_labels$label_x <- fmas_label_pts["X", ]
+fmas_aspen_labels$label_y <- fmas_label_pts["Y", ]
+fmas_aspen_labels$area <- NULL
 
 gg_fmas <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = can_provs, color = "black", fill = NA) +
@@ -280,7 +318,25 @@ gg_fmas <- ggplot2::ggplot() +
     linewidth = 1.2
   ) +
   ggplot2::geom_sf(data = fmas, color = "blue", fill = NA) +
-  ggplot2::geom_sf(data = fmas_aspen_dispersal, fill = "blue", alpha = 0.5) +
+  ggplot2::geom_sf(
+    data = fmas_aspen_dispersal,
+    # fill = "lightblue",
+    ggplot2::aes(fill = FMU_ID), ## TODO: temporary for debugging
+    alpha = 0.5
+  ) +
+  ggrepel::geom_label_repel(
+    data = fmas_aspen_labels,
+    ggplot2::aes(x = label_x, y = label_y, label = FMU_ID),
+    min.segment.length = 0,
+    segment.color = "black",
+    size = 3.5,
+    fill = "lightgrey",
+    alpha = 0.8,
+    max.overlaps = Inf,
+    force = 20,
+    force_pull = 0.5,
+    box.padding = 0.5
+  ) +
   ggplot2::theme_bw() +
   ggspatial::annotation_north_arrow(
     location = "bl",
