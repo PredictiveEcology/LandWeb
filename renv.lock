@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.5.3",
+    "Version": "4.6.0",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -60,6 +60,16 @@
         "R"
       ],
       "Hash": "f85a1437e6f639fe690da763d23ef7a5"
+    },
+    "CFtime": {
+      "Package": "CFtime",
+      "Version": "1.7.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R6"
+      ],
+      "Hash": "959a6f12ebce3008aee440bfac57aef5"
     },
     "CircStats": {
       "Package": "CircStats",
@@ -553,6 +563,16 @@
         "methods"
       ],
       "Hash": "70431d544293e31f85dcdb25f698405f"
+    },
+    "RNetCDF": {
+      "Package": "RNetCDF",
+      "Version": "2.11-1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "152f8aff5e9d4493033fd6200e38d998"
     },
     "RPostgres": {
       "Package": "RPostgres",
@@ -1473,6 +1493,34 @@
       ],
       "Hash": "16850760556401a2eeb27d39bd11c9cb"
     },
+    "climateR": {
+      "Package": "climateR",
+      "Version": "0.3.7",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "mikejohnson51",
+      "RemoteRepo": "climateR",
+      "RemoteRef": "master",
+      "RemoteSha": "718a8d0357e9249894fb4f6e922911042db47e79",
+      "Requirements": [
+        "R",
+        "RNetCDF",
+        "arrow",
+        "dplyr",
+        "future.apply",
+        "gifski",
+        "glue",
+        "grDevices",
+        "methods",
+        "ncmeta",
+        "rnz",
+        "stats",
+        "terra",
+        "utils"
+      ],
+      "Hash": "a9ba84f2bb3be773e0d76f6421113af9"
+    },
     "clipr": {
       "Package": "clipr",
       "Version": "0.8.0",
@@ -2010,6 +2058,16 @@
       ],
       "Hash": "192053c276525c8495ccfd523aa8f2d1"
     },
+    "fipio": {
+      "Package": "fipio",
+      "Version": "1.1.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "4c6404890c266750b9670c9d20f74940"
+    },
     "fontawesome": {
       "Package": "fontawesome",
       "Version": "0.5.3",
@@ -2487,6 +2545,13 @@
         "rlang"
       ],
       "Hash": "d92acb7afad09df6839e4e456e538d03"
+    },
+    "gifski": {
+      "Package": "gifski",
+      "Version": "1.32.0-2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "7c58097dfa68463cd26f927f0a892031"
     },
     "git2r": {
       "Package": "git2r",
@@ -3677,6 +3742,29 @@
       ],
       "Hash": "54388cc0cf3dfc0948a4bfbf9e8cceba"
     },
+    "ncmeta": {
+      "Package": "ncmeta",
+      "Version": "0.4.0.9002",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "dblodgett-usgs",
+      "RemoteRepo": "ncmeta",
+      "RemoteRef": "main",
+      "RemoteSha": "7f9d4370a587302fbaf246e3fcb35a3ba0d62018",
+      "Requirements": [
+        "CFtime",
+        "R",
+        "RNetCDF",
+        "dplyr",
+        "rlang",
+        "rnz",
+        "stats",
+        "tibble",
+        "tidyr"
+      ],
+      "Hash": "d6117638b07aee16b8345792af65874e"
+    },
     "nlme": {
       "Package": "nlme",
       "Version": "3.1-168",
@@ -3948,6 +4036,28 @@
         "vctrs"
       ],
       "Hash": "1395e64f2689ffd503657778e810cee2"
+    },
+    "pizzarr": {
+      "Package": "pizzarr",
+      "Version": "0.1.1",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "keller-mark",
+      "RemoteRepo": "pizzarr",
+      "RemoteRef": "main",
+      "RemoteSha": "a9e38d42a6f7fbd6b929e0f0612ee499145d19dc",
+      "Requirements": [
+        "R",
+        "R6",
+        "jsonlite",
+        "memoise",
+        "qs2",
+        "stats",
+        "stringr",
+        "utils"
+      ],
+      "Hash": "7e738da1529069df34e06c7990a09f6a"
     },
     "pkgbuild": {
       "Package": "pkgbuild",
@@ -4530,13 +4640,11 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "1.2.0",
-      "Source": "Repository",
+      "Version": "1.2.3",
+      "OS_type": null,
+      "NeedsCompilation": "no",
       "Repository": "CRAN",
-      "Requirements": [
-        "utils"
-      ],
-      "Hash": "b7d230b07507f361d3bcf794d157a188"
+      "Source": "Repository"
     },
     "reproducible": {
       "Package": "reproducible",
@@ -4687,6 +4795,39 @@
         "survival"
       ],
       "Hash": "123ea0e537bf73e4caee5c017e63ddb7"
+    },
+    "rnaturalearth": {
+      "Package": "rnaturalearth",
+      "Version": "1.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "cli",
+        "httr",
+        "jsonlite",
+        "sf",
+        "terra",
+        "utils"
+      ],
+      "Hash": "6b84b1182110af1a2e2432f82f4eb41c"
+    },
+    "rnz": {
+      "Package": "rnz",
+      "Version": "0.2.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "doi-usgs",
+      "RemoteRepo": "rnz",
+      "RemoteRef": "main",
+      "RemoteSha": "30a817a0f101e44a16478e2b14a02dd7bee976f7",
+      "Requirements": [
+        "RNetCDF",
+        "tools",
+        "utils"
+      ],
+      "Hash": "314655b6669446e7637a59979dbe200e"
     },
     "robustbase": {
       "Package": "robustbase",
@@ -5557,6 +5698,21 @@
         "vctrs"
       ],
       "Hash": "c55df870972551cac674b50cadb2d51f"
+    },
+    "tidygeocoder": {
+      "Package": "tidygeocoder",
+      "Version": "1.0.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "dplyr",
+        "httr",
+        "jsonlite",
+        "progress",
+        "tibble"
+      ],
+      "Hash": "8e9327e321b183e1904873f75713c626"
     },
     "tidyr": {
       "Package": "tidyr",
