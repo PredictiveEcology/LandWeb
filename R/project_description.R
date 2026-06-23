@@ -25,7 +25,7 @@ workflowtools::description(
     Version = "3.0.0",
     Language = "en-CA",
     License = "GPL-3",
-    Depends = "R (== 4.5)"
+    Depends = "R (== 4.6)"
   ),
   snapshot = "renv.lock"
 )

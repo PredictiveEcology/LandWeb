@@ -4,6 +4,8 @@
   "ignored.packages": [
     "fireSenseUtils",
     "maptools",
+    "plogr",
+    "qs",
     "rgdal",
     "rgeos",
     "scfmutils",

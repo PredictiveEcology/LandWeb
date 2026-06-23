@@ -18,7 +18,6 @@ if (!grepl("renv", .libPaths()[1])) {
 ## load essential packages
 library("data.table")
 library("plyr")
-library("pryr")
 library("reproducible")
 library("SpaDES.core")
 
