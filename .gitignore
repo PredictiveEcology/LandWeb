@@ -30,6 +30,8 @@ profiles/
 uploads/
 
 ## R and Rstudio files
+/.quarto/
+**/*.quarto_ipynb
 rsconnect/shinyapps.io/landweb/LandWebDemo.dcf
 .Rapp.history
 .RData
