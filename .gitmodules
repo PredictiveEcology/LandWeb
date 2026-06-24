@@ -48,3 +48,6 @@
 [submodule "packages/LandWebUtils"]
 	path = packages/LandWebUtils
 	url = https://github.com/PredictiveEcology/LandWebUtils
+[submodule "packages/SpaDES.targets"]
+	path = packages/SpaDES.targets
+	url = https://github.com/FOR-CAST/SpaDES.targets

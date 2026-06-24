@@ -857,6 +857,29 @@
       ],
       "Hash": "fb74d8e890b63f5c71fd273138264a25"
     },
+    "SpaDES.targets": {
+      "Package": "SpaDES.targets",
+      "Version": "0.0.0.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "FOR-CAST",
+      "RemoteRepo": "SpaDES.targets",
+      "RemoteRef": "main",
+      "RemoteSha": "c5544516ec230105c5d75d30a9cefa06931298de",
+      "Requirements": [
+        "R",
+        "cli",
+        "fs",
+        "rlang",
+        "targets",
+        "terra",
+        "tools",
+        "utils",
+        "withr"
+      ],
+      "Hash": "801e50434d19ca72765b60e91ede22a0"
+    },
     "SpaDES.tools": {
       "Package": "SpaDES.tools",
       "Version": "2.1.2",
@@ -1143,6 +1166,16 @@
         "R"
       ],
       "Hash": "5edb675b7baa6e9a0d86dd2c28de1676"
+    },
+    "base64url": {
+      "Package": "base64url",
+      "Version": "1.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "backports"
+      ],
+      "Hash": "0c54cf3a08cc0e550fbd64ad33166143"
     },
     "bbmle": {
       "Package": "bbmle",
@@ -5111,6 +5144,16 @@
       ],
       "Hash": "5687e7ed51b1b44f956a6f23d7cb1979"
     },
+    "secretbase": {
+      "Package": "secretbase",
+      "Version": "1.3.0",
+      "Source": "Repository",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "41b2e78a924fd3ba84e2b99b217df178"
+    },
     "selectr": {
       "Package": "selectr",
       "Version": "0.5-1",
@@ -5651,6 +5694,35 @@
         "utils"
       ],
       "Hash": "1f930828d6590af5da47b3ab4fe161e6"
+    },
+    "targets": {
+      "Package": "targets",
+      "Version": "1.12.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "R6",
+        "base64url",
+        "callr",
+        "cli",
+        "codetools",
+        "data.table",
+        "igraph",
+        "knitr",
+        "prettyunits",
+        "ps",
+        "rlang",
+        "secretbase",
+        "stats",
+        "tibble",
+        "tidyselect",
+        "tools",
+        "utils",
+        "vctrs",
+        "yaml"
+      ],
+      "Hash": "b9bf718726baef9f03d1c306e80b78d4"
     },
     "tensor": {
       "Package": "tensor",
