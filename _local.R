@@ -25,6 +25,13 @@ local <- list(
   ## within-rep data.table threads (pinned per worker; workers don't source this file)
   dt_threads = 2L,
 
+  ## raster resolution / pixel size (m); LandWeb default 240 (also supports 120)
+  ## TODO: evaluate whether running at 120 m is an improvement and practical
+  ## (output quality vs ~4x RAM/scratch/runtime). Must be applied GLOBALLY (all
+  ## study areas at the same resolution) so results are comparable -- an
+  ## all-or-nothing fleet-wide choice, not per-area. See Part F.
+  res = 240L,
+
   ## simulation length (years)
   sim_end = 1000L
 )
