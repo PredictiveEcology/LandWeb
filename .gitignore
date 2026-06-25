@@ -50,6 +50,10 @@ outputs/
 outputs_v2
 outputs_v2/
 reports/
+
+## targets pipeline data store (keep _targets.R / _local.R, ignore the store)
+_targets/
+
 ## OAuth tokens
 .httr-oauth
 .httr-oauth-SUSPENDED
