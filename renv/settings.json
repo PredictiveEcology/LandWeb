@@ -17,7 +17,7 @@
     "Depends",
     "LinkingTo"
   ],
-  "r.version": "4.6.0",
+  "r.version": "4.6.1",
   "snapshot.type": "implicit",
   "use.cache": true,
   "vcs.ignore.cellar": true,

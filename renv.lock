@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.6.0",
+    "Version": "4.6.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -335,17 +335,11 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3.9010",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "LandWebUtils",
-      "RemoteUsername": "PredictiveEcology",
-      "RemotePkgRef": "PredictiveEcology/LandWebUtils@development",
-      "RemoteRef": "development",
-      "RemoteSha": "0838428446121af7e12f2efc887cd09572d61779",
+      "Version": "1.0.3.9011",
+      "Source": "Local",
+      "RemoteType": "local",
+      "RemoteUrl": "./packages/LandWebUtils",
       "Requirements": [
-        "LandR",
         "R",
         "SpaDES.tools",
         "data.table",
@@ -353,6 +347,7 @@
         "fs",
         "future.apply",
         "ggplot2",
+        "googledrive",
         "grDevices",
         "graphics",
         "map",
@@ -363,14 +358,16 @@
         "reproducible",
         "scales",
         "sf",
+        "spatialutils",
         "stats",
         "terra",
         "tibble",
         "tools",
         "utils",
-        "withr"
+        "withr",
+        "workflowtools"
       ],
-      "Hash": "84221c80f82e4e4f208ad797a497aad1"
+      "Hash": "1d3011003546446967f0817724a5a7d1"
     },
     "MASS": {
       "Package": "MASS",
