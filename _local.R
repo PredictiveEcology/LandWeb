@@ -16,7 +16,6 @@ local <- list(
   ## SpaDES paths. Heavy IO belongs on docker-visible NVMe scratch, not /home or NFS.
   paths = list(
     modulePath = "modules",
-    packagePath = "packages",
     inputPath = "inputs",
     outputPath = "outputs",
     scratchPath = file.path(tempdir(), "scratch", "LandWeb")
