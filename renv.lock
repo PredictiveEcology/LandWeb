@@ -2733,9 +2733,9 @@
     },
     "gridExtra": {
       "Package": "gridExtra",
-      "Version": "2.3",
+      "Version": "2.3.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "grDevices",
         "graphics",
@@ -2743,7 +2743,7 @@
         "gtable",
         "utils"
       ],
-      "Hash": "7d7f283939f563670a697165b2cf5560"
+      "Hash": "4e172eb9a8e2e01e0494ea230b73f068"
     },
     "gridGraphics": {
       "Package": "gridGraphics",
@@ -2897,9 +2897,9 @@
     },
     "httr2": {
       "Package": "httr2",
-      "Version": "1.2.2",
+      "Version": "1.2.3",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R",
         "R6",
@@ -2914,7 +2914,7 @@
         "vctrs",
         "withr"
       ],
-      "Hash": "c20959a9442c0e3adb1e8d3809c5d1f7"
+      "Hash": "9abd0afe15a1a7ea72c00db06af262c7"
     },
     "hunspell": {
       "Package": "hunspell",
@@ -5153,16 +5153,14 @@
     },
     "selectr": {
       "Package": "selectr",
-      "Version": "0.5-1",
+      "Version": "0.6-0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R",
-        "R6",
-        "methods",
-        "stringr"
+        "R6"
       ],
-      "Hash": "fb6f4aacfcc16539458c66b698339e69"
+      "Hash": "c538f20abf5a9a4ab8fac8f1ee3f50e8"
     },
     "servr": {
       "Package": "servr",
