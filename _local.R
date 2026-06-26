@@ -22,7 +22,12 @@ local <- list(
     modulePath = "modules",
     inputPath = "inputs",
     outputPath = "outputs",
-    scratchPath = file.path(tempdir(), "scratch", "LandWeb")
+    ## FIXED (deterministic) compute-node NVMe scratch base, NOT file.path(tempdir(), ...): tempdir()
+    ## changes every R session, baking a fresh path into every tar_simspades command and invalidating
+    ## the WHOLE pipeline each run. The nodes have dedicated /mnt/scratch; run_simspades isolates +
+    ## cleans up a per-run subdir under this base after each phase. (The control node has no
+    ## /mnt/scratch but runs no modules, so it never uses this.)
+    scratchPath = file.path("/mnt/scratch", Sys.info()[["user"]], "LandWeb")
   ),
 
   ## within-rep data.table threads (pinned per worker; workers don't source this file)
