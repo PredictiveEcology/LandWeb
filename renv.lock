@@ -860,14 +860,14 @@
     },
     "SpaDES.targets": {
       "Package": "SpaDES.targets",
-      "Version": "0.0.0.9002",
+      "Version": "0.0.0.9003",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "SpaDES.targets",
       "RemoteRef": "main",
-      "RemoteSha": "f200d6bbe167ae911c155c9b9f14637c4045774c",
+      "RemoteSha": "7927eff3366ad15dbadbe3057cee9a2536a68a29",
       "Requirements": [
         "R",
         "cli",
@@ -879,7 +879,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "f02dd5e90fffff9ff9699d8fc52223cc"
+      "Hash": "0ee6d331d8ef6acc43ab46601a0054c9"
     },
     "SpaDES.tools": {
       "Package": "SpaDES.tools",
