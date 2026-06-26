@@ -91,6 +91,11 @@ p_speciesData <- list(
   Biomass_speciesData = list(types = "SCANFI", .plots = "png", .useCache = FALSE)
 )
 
+p_factorial <- list(
+  .globals = globals,
+  Biomass_speciesFactorial = list(factorialSize = "large")
+)
+
 p_dataPrep <- list(
   .globals = globals,
   Biomass_borealDataPrep = list(
@@ -109,7 +114,6 @@ p_dataPrep <- list(
     ## quote(myMinRelativeB(pixelCohortData)) -- port verbatim from box/landweb.R
     ## + 00-main.R:299-301 when wiring the real run.
   ),
-  Biomass_speciesFactorial = list(factorialSize = "large"),
   Biomass_speciesParameters = list(
     PSPdataTypes = "NFI", quantileAgeSubset = 98L, speciesFittingApproach = "focal"
   )
@@ -183,17 +187,35 @@ list(
     outputs = quote(outputs_spec(raster = "speciesLayers"))
   ),
 
-  ## Stage 3: dataPrep
+  ## Stage 3a: factorial -- self-contained species-trait calibration (its only input,
+  ## argsForFactorial, is defaulted via `factorialSize`). Split into its own target so the
+  ## heavy "large" build runs ONCE and is cached by targets: iterating on dataPrep (e.g. the
+  ## borealDataPrep code-235) does NOT re-run it -- the firewall sets reproducible.useCache =
+  ## FALSE, so a bundled factorial would rebuild on every dataPrep run. Biomass_speciesFactorial
+  ## writes its arrow datasets under outputPath (the shared-NFS `outputs` symlink) and emits the
+  ## paths, which persist across the target boundary and across compute nodes.
+  tar_simspades(
+    "factorial",
+    modules = "Biomass_speciesFactorial",
+    params = p_factorial,
+    paths = local$paths,
+    plain = c("cohortDataFactorial_path", "speciesTableFactorial_path")
+  ),
+
+  ## Stage 3b: dataPrep -- Biomass_borealDataPrep + Biomass_speciesParameters, consuming the
+  ## factorial paths from the cached `factorial` target via `objects`.
   tar_simspades(
     "dataPrep",
-    modules = c("Biomass_speciesFactorial", "Biomass_borealDataPrep", "Biomass_speciesParameters"),
+    modules = c("Biomass_borealDataPrep", "Biomass_speciesParameters"),
     params = p_dataPrep,
     paths = local$paths,
     objects = quote(list(
       speciesParams = preamble$speciesParams,
       speciesTable = preamble$speciesTable,
       sppColorVect = preamble$sppColorVect,
-      sppEquiv = preamble$sppEquiv
+      sppEquiv = preamble$sppEquiv,
+      cohortDataFactorial_path = factorial$cohortDataFactorial_path,
+      speciesTableFactorial_path = factorial$speciesTableFactorial_path
     )),
     inputs = quote(rbind(
       sim_inputs(
