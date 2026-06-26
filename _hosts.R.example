@@ -1,0 +1,32 @@
+## _hosts.R -- LandWeb cluster config for crew.ssh + scripts/sync-nodes.R (gitignored).
+##
+## COPY to _hosts.R and edit. The options below are PROJECT-AGNOSTIC (prefix
+## `crew.ssh.`), so the same sync-nodes.R works across projects -- every project
+## specific (hosts, paths, branch, symlinks) lives here. _hosts.R lives ONLY on the
+## control node; worker nodes never read it. Keep real hostnames/IPs OUT of version
+## control -- they belong here (gitignored) only, never in committed files.
+options(
+  ## host = per-node worker capacity (RAM-bound). TUNE before real runs.
+  crew.ssh.nodes = c(host1 = 8L, host2 = 8L),
+  ## project path on every node (identical across nodes)
+  crew.ssh.projdir = "/home/you/GitHub/LandWeb",
+  ## RECOMMENDED dial-back: a reverse SSH tunnel -- no inbound firewall port, works
+  ## through ufw/firewalld and custom ssh ports. Forces the dispatcher to 127.0.0.1,
+  ## so crew.ssh.host / crew.ssh.port below are then UNUSED.
+  crew.ssh.tunnel = TRUE,
+  ## remote Rscript (default tracks the renv.lock R version)
+  crew.ssh.rscript = "Rscript-4.6.1",
+  ## sync-nodes.R: git branch to sync (default: the control node's current branch)
+  # crew.ssh.branch = "targets",
+  ## sync-nodes.R: symlinks to (re)create in projdir on each node (linkname -> target).
+  ## Put the _targets store (and inputs/outputs) on shared NFS so every node -- and the
+  ## control node -- share ONE store/data copy.
+  crew.ssh.symlinks = c(
+    inputs     = "/mnt/projects/HRV/LandWeb/inputs",
+    outputs    = "/mnt/projects/HRV/LandWeb/outputs",
+    "_targets" = "/mnt/projects/HRV/LandWeb/_targets"
+  )
+  ## --- only for DIRECT dial-back (crew.ssh.tunnel = FALSE) ---
+  # crew.ssh.host = "control-node",  # control-node address reachable from workers
+  # crew.ssh.port = 5555L            # FIXED dial-back port (open it in the firewall)
+)

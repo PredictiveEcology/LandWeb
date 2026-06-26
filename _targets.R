@@ -15,10 +15,41 @@ source("_local.R") # per-user/host knobs, BEFORE tar_source()
 library(targets)
 library(SpaDES.targets)
 
+## Optional multi-node SSH cluster (CONTROL NODE ONLY). When _hosts.R defines crew.ssh.nodes,
+## heavy module execution (preamble/speciesData/dataPrep/mainSim) is dispatched to the compute
+## nodes via crew.ssh; otherwise a local crew pool is used. _hosts.R is gitignored and lives
+## only on the control node -- it holds the real hostnames + per-node worker caps, never committed.
+if (file.exists("_hosts.R")) {
+  source("_hosts.R")
+}
+
+primary_controller <- if (length(getOption("crew.ssh.nodes"))) {
+  crew.ssh::crew_controller_ssh(
+    name = "primary",
+    nodes = getOption("crew.ssh.nodes"),
+    projdir = getOption("crew.ssh.projdir"),
+    ## reverse SSH tunnel by default: dispatcher binds 127.0.0.1, no inbound port
+    tunnel = getOption("crew.ssh.tunnel", TRUE),
+    ## NULL -> this session's Rscript path (homogeneous installs); override via crew.ssh.rscript
+    rscript = getOption("crew.ssh.rscript"),
+    seconds_idle = Inf,
+    crashes_max = 25L
+  )
+} else {
+  ## local fallback -- a small pool on whatever machine runs tar_make (e.g. running directly on a
+  ## compute node with no _hosts.R present). seconds_idle = Inf keeps workers for the whole run.
+  crew::crew_controller_local(
+    name = "primary",
+    workers = min(parallelly::availableCores(omit = 1), 4L),
+    seconds_idle = Inf,
+    options_local = crew::crew_options_local(log_directory = "/tmp/crew_worker_logs")
+  )
+}
+
 tar_option_set(
   packages = "SpaDES.targets", # for unqualified read_spatial() in target commands
-  format = "rds"
-  # controller = ... # crew / crew.ssh added in Phase 6
+  format = "rds",
+  controller = primary_controller
 )
 
 res <- local$res

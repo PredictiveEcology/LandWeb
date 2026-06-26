@@ -51,8 +51,13 @@ outputs_v2
 outputs_v2/
 reports/
 
-## targets pipeline data store (keep _targets.R / _local.R, ignore the store)
+## targets pipeline data store (keep _targets.R / _local.R, ignore the store).
+## On the control node _targets is a symlink to the shared NFS store -- ignore the symlink too.
+_targets
 _targets/
+
+## crew.ssh cluster config -- control-node-only, has real hostnames (see _hosts.R.example)
+_hosts.R
 
 ## OAuth tokens
 .httr-oauth
