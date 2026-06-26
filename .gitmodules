@@ -66,3 +66,6 @@
 	path = packages/nrvtools
 	url = https://github.com/FOR-CAST/nrvtools
 	branch = development
+[submodule "packages/crew.ssh"]
+	path = packages/crew.ssh
+	url = https://github.com/FOR-CAST/crew.ssh.git
