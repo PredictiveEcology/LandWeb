@@ -1,8 +1,29 @@
+# Speeds up renv dependency discovery (snapshot.type = "implicit"): exclude trees
+# that have no project-level package deps to scan. Deps are managed explicitly via
+# renv::install(..., lock = TRUE) + the project DESCRIPTION, not by scanning these.
+
+## build / deploy / docker artifacts
 app/
 cache/
 deploy/
 docker/
+
+## SpaDES module + package submodules (manage their own deps via reqdPkgs / DESCRIPTION)
+modules/
+packages/
+
+## docs + reports
+manual/
+reports/
+docs/
+
+## one-off scratch scripts (not project deps)
+_tmp/
+_tmp_*.R
+_TODO_*.R
+
+## symlinked shared-storage data dirs (slow to scan; no project deps)
 inputs/
 outputs/
 outputs_v2/
-reports/
+_targets/
