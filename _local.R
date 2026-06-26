@@ -14,6 +14,10 @@ local <- list(
   n_reps = 1L,
 
   ## SpaDES paths. Heavy IO belongs on docker-visible NVMe scratch, not /home or NFS.
+  ## TODO (after a preamble run completes): these paths are NOT reaching the run --
+  ## inputPath(sim) resolved to /mnt/projects/HRV/LandWeb/inputs, not "inputs" below.
+  ## Fix the _local.R -> simInitAndSpades(paths=) propagation so inputs/scratch land
+  ## where _local.R says (esp. for the docker-visible-NVMe scratch story, Part E).
   paths = list(
     modulePath = "modules",
     inputPath = "inputs",
