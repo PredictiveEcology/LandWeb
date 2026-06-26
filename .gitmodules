@@ -51,3 +51,18 @@
 [submodule "packages/SpaDES.targets"]
 	path = packages/SpaDES.targets
 	url = https://github.com/FOR-CAST/SpaDES.targets
+[submodule "packages/spatialutils"]
+	path = packages/spatialutils
+	url = https://github.com/FOR-CAST/spatialutils
+[submodule "packages/workflowtools"]
+	path = packages/workflowtools
+	url = https://github.com/FOR-CAST/workflowtools
+	branch = development
+[submodule "modules/NRV_summary"]
+	path = modules/NRV_summary
+	url = https://github.com/FOR-CAST/NRV_summary
+	branch = development
+[submodule "packages/nrvtools"]
+	path = packages/nrvtools
+	url = https://github.com/FOR-CAST/nrvtools
+	branch = development
