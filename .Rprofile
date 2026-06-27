@@ -13,3 +13,15 @@ source("renv/activate.R")
 ## landweb service account that can read the project's restricted Drive data (SCANFI,
 ## etc.). Sourced in callr children too, so the targets pipeline + workers pick it up.
 if (file.exists("LandWeb.Renviron")) readRenviron("LandWeb.Renviron")
+
+## GOOGLEDRIVE_AUTH is recorded project-relative in LandWeb.Renviron; resolve it to an
+## absolute path now (cwd is the project root at startup) so it still resolves after
+## reproducible/prepInputs setwd() to a scratch dir mid-download on a crew worker --
+## otherwise googledrive::drive_auth() cannot find the service-account JSON and falls
+## back to a (failing, non-interactive) prompt.
+local({
+  gda <- Sys.getenv("GOOGLEDRIVE_AUTH")
+  if (nzchar(gda) && !startsWith(gda, "/") && file.exists(gda)) {
+    Sys.setenv(GOOGLEDRIVE_AUTH = normalizePath(gda, mustWork = FALSE))
+  }
+})
