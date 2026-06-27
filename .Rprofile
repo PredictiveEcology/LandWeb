@@ -25,3 +25,18 @@ local({
     Sys.setenv(GOOGLEDRIVE_AUTH = normalizePath(gda, mustWork = FALSE))
   }
 })
+
+## Pre-authenticate googledrive with the service account on non-interactive
+## (pipeline / crew worker) sessions. Some download helpers -- e.g.
+## LandR::prepSpeciesLayers_SCANFI -- call `googledrive::drive_ls()` DIRECTLY to
+## resolve a shared-drive folder, BEFORE reproducible's prepInputs auto-auth runs,
+## so a token must already exist or that raw call falls back to a failing
+## interactive `drive_auth()` ("Can't get Google credentials"). Interactive
+## sessions are left to the user's own credentials.
+local({
+  gda <- Sys.getenv("GOOGLEDRIVE_AUTH")
+  if (!interactive() && nzchar(gda) && file.exists(gda) &&
+      requireNamespace("googledrive", quietly = TRUE)) {
+    try(googledrive::drive_auth(path = gda), silent = TRUE)
+  }
+})

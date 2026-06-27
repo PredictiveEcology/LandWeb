@@ -88,7 +88,11 @@ p_preamble <- list(
 
 p_speciesData <- list(
   .globals = globals,
-  Biomass_speciesData = list(types = "SCANFI", .plots = "png", .useCache = FALSE)
+  ## .useParallel = 1 (serial): the within-module parallel cluster (PSOCK) spawns
+  ## fresh R sessions that carry neither the in-memory googledrive SA token nor the
+  ## absolute GOOGLEDRIVE_AUTH (no .Rprofile from a scratch cwd), so the SCANFI Drive
+  ## download fails auth in a sub-process. crew already parallelizes across stages.
+  Biomass_speciesData = list(types = "SCANFI", .plots = "png", .useCache = FALSE, .useParallel = 1)
 )
 
 p_factorial <- list(
