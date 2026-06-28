@@ -8,10 +8,14 @@ options(
 
 source("renv/activate.R")
 
-## Project-local env overrides (untracked secrets). MUST run AFTER renv/activate.R,
-## which re-reads ~/.Renviron -- this overrides the global GOOGLEDRIVE_AUTH with the
-## landweb service account that can read the project's restricted Drive data (SCANFI,
-## etc.). Sourced in callr children too, so the targets pipeline + workers pick it up.
+## Read env files AFTER renv/activate.R (which can reset the process environment):
+## first ~/.Renviron (GITHUB_PAT etc. -- without it renv's many GitHub remote fetches
+## fall back to the anonymous 60/hr rate limit and error with "code 22" on workers),
+## then the untracked project LandWeb.Renviron, whose landweb service-account
+## GOOGLEDRIVE_AUTH must override the global one. The old 00-main.R read both; the
+## targets migration dropped the ~/.Renviron read. Sourced in callr children too, so
+## the targets pipeline + crew workers pick these up.
+if (file.exists("~/.Renviron")) readRenviron("~/.Renviron")
 if (file.exists("LandWeb.Renviron")) readRenviron("LandWeb.Renviron")
 
 ## GOOGLEDRIVE_AUTH is recorded project-relative in LandWeb.Renviron; resolve it to an
