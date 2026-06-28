@@ -213,16 +213,20 @@ list(
     modules = c("Biomass_borealDataPrep", "Biomass_speciesParameters"),
     params = p_dataPrep,
     paths = local$paths,
-    objects = quote(list(
-      speciesParams = preamble$speciesParams,
-      speciesTable = preamble$speciesTable,
-      sppColorVect = preamble$sppColorVect,
-      sppEquiv = preamble$sppEquiv,
-      cohortDataFactorial_path = factorial$cohortDataFactorial_path,
-      speciesTableFactorial_path = factorial$speciesTableFactorial_path
-    )),
-    inputs = quote(rbind(
-      sim_inputs(
+    ## Spatial handoff objects pass in-memory via sim_objects() (loaded on the worker),
+    ## NOT as file inputs: Biomass_borealDataPrep/Biomass_speciesParameters read several
+    ## (studyArea, rasterToMatch, ...) in .inputObjects(), which runs during simInit() --
+    ## before inputs= load. terra layers load lazily, so this stays cheap.
+    objects = quote(c(
+      list(
+        speciesParams = preamble$speciesParams,
+        speciesTable = preamble$speciesTable,
+        sppColorVect = preamble$sppColorVect,
+        sppEquiv = preamble$sppEquiv,
+        cohortDataFactorial_path = factorial$cohortDataFactorial_path,
+        speciesTableFactorial_path = factorial$speciesTableFactorial_path
+      ),
+      sim_objects(
         preamble,
         objects = c(
           "rstLCC", "rasterToMatch", "rasterToMatch_biomassParam", "standAgeMap",
@@ -230,7 +234,7 @@ list(
         ),
         files = preamble_files
       ),
-      sim_inputs(speciesData, objects = "speciesLayers", files = speciesData_files)
+      sim_objects(speciesData, objects = "speciesLayers", files = speciesData_files)
     )),
     plain = c(
       "cohortData", "species", "speciesEcoregion", "ecoregion", "minRelativeB",
