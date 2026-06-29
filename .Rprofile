@@ -1,7 +1,6 @@
 options(
   Ncpus = 8L,
   # renv.config.pak.enabled = FALSE,
-  renv.config.mran.enabled = FALSE,
   renv.lockfile.version = 1, ## TODO: workflowtools#1
   renv.paths.prefix.auto = TRUE
 )
@@ -15,8 +14,12 @@ source("renv/activate.R")
 ## GOOGLEDRIVE_AUTH must override the global one. The old 00-main.R read both; the
 ## targets migration dropped the ~/.Renviron read. Sourced in callr children too, so
 ## the targets pipeline + crew workers pick these up.
-if (file.exists("~/.Renviron")) readRenviron("~/.Renviron")
-if (file.exists("LandWeb.Renviron")) readRenviron("LandWeb.Renviron")
+if (file.exists("~/.Renviron")) {
+  readRenviron("~/.Renviron")
+}
+if (file.exists("LandWeb.Renviron")) {
+  readRenviron("LandWeb.Renviron")
+}
 
 ## GOOGLEDRIVE_AUTH is recorded project-relative in LandWeb.Renviron; resolve it to an
 ## absolute path now (cwd is the project root at startup) so it still resolves after
@@ -39,8 +42,12 @@ local({
 ## sessions are left to the user's own credentials.
 local({
   gda <- Sys.getenv("GOOGLEDRIVE_AUTH")
-  if (!interactive() && nzchar(gda) && file.exists(gda) &&
-      requireNamespace("googledrive", quietly = TRUE)) {
+  if (
+    !interactive() &&
+      nzchar(gda) &&
+      file.exists(gda) &&
+      requireNamespace("googledrive", quietly = TRUE)
+  ) {
     try(googledrive::drive_auth(path = gda), silent = TRUE)
   }
 })
