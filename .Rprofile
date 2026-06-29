@@ -51,3 +51,11 @@ local({
     try(googledrive::drive_auth(path = gda), silent = TRUE)
   }
 })
+
+## pre-load core packages so {targets} / tarborist static analysis resolves cleanly.
+## Guarded so a not-yet-populated library (e.g. mid renv rebuild) doesn't abort startup.
+suppressWarnings(suppressMessages(
+  for (.pkg in c("dplyr", "sf", "targets", "geotargets")) {
+    if (requireNamespace(.pkg, quietly = TRUE)) library(.pkg, character.only = TRUE)
+  }
+))
