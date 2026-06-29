@@ -95,8 +95,19 @@ p_speciesData <- list(
   Biomass_speciesData = list(types = "SCANFI", .plots = "png", .useCache = FALSE, .useParallel = 1)
 )
 
+## Biomass_speciesFactorial is a GENERIC trait-space lookup table: it fabricates its own synthetic
+## single-ecoregion studyArea and synthetic (trait-combination) species, and reads `.studyAreaName`
+## nowhere (confirmed by module audit). Its output depends only on `factorialSize` + the numeric
+## params -- NOT on the study area or the real species (those enter downstream in
+## Biomass_speciesParameters via PSP matching). So pin `.studyAreaName` to a fixed sentinel here:
+## tar_simspades bakes the `params` VALUE into the factorial command, and `.studyAreaName` is the
+## only study-area-coupled entry in `globals`, so this decouples the factorial from
+## `local$study_areas`. It is then built once and reused across study areas; it still rebuilds on
+## its true inputs (factorialSize, initialB, maxBInFactorial, minCohortBiomass) or a module change.
+globals_factorial <- modifyList(globals, list(.studyAreaName = "_factorial_"))
+
 p_factorial <- list(
-  .globals = globals,
+  .globals = globals_factorial,
   Biomass_speciesFactorial = list(factorialSize = "large")
 )
 
