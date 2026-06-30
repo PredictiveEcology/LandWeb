@@ -267,6 +267,9 @@ list(
   tar_simspades(
     "mainSim",
     modules = c("Biomass_core", "LandMine", "Biomass_regeneration", "LandWeb_output", "timeSinceFire"),
+    ## explicit load order: Biomass_core's `after = "Biomass_speciesParameters"` metadata refers to a
+    ## module absent from this stage, breaking auto-inference; set it like the old 03-main-sim.R did.
+    loadOrder = c("Biomass_core", "LandMine", "Biomass_regeneration", "LandWeb_output", "timeSinceFire"),
     params = p_mainSim,
     times = list(start = 0, end = local$sim_end),
     paths = local$paths,
