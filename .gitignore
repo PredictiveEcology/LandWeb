@@ -49,7 +49,12 @@ outputs
 outputs/
 outputs_v2
 outputs_v2/
-reports/
+
+## ignore legacy report output dirs (reports/2020, reports/2026, ...) but track
+## the pipeline's Quarto sources and published PDFs.
+reports/*
+!reports/*.qmd
+!reports/pdf/
 
 ## targets pipeline data store (keep _targets.R / _local.R, ignore the store).
 ## On the control node _targets is a symlink to the shared NFS store -- ignore the symlink too.

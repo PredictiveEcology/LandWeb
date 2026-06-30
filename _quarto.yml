@@ -1,0 +1,19 @@
+project:
+  type: default
+  # render to the NFS-shared outputs/ (a symlink); the publish_* targets copy the
+  # final PDF to the git-tracked reports/pdf/ on the controller.
+  output-dir: outputs/reports
+  # Only the pipeline's Quarto reports belong to this project. The legacy bookdown
+  # manual/ (manual/LandWeb_manual.Rmd) is NOT quarto-valid, so scope explicitly.
+  render:
+    - reports/*.qmd
+
+## DRAFT watermark on every report (temporary; remove when the reports are finalised).
+format:
+  pdf:
+    include-in-header:
+      text: |
+        \usepackage{draftwatermark}
+        \SetWatermarkText{DRAFT}
+        \SetWatermarkScale{1}
+        \SetWatermarkColor[gray]{0.9}

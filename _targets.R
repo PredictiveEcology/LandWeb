@@ -20,6 +20,13 @@ source("_local.R") # per-user/host knobs, BEFORE tar_source()
 library(targets)
 library(SpaDES.targets)
 
+## Gated "extended analyses" (SCANFI study-area vegetation summary + report).
+## These define functions only; R/ also holds standalone scripts, so source the
+## specific files rather than tar_source()-ing the whole dir.
+source("R/scanfi_veg_summary.R")
+source("R/publish_pdf.R")
+source("R/targets_extended_analyses.R")
+
 ## Optional multi-node SSH cluster (CONTROL NODE ONLY). When _hosts.R defines crew.ssh.nodes,
 ## heavy module execution (preamble/speciesData/dataPrep/mainSim) is dispatched to the compute
 ## nodes via crew.ssh; otherwise a local crew pool is used. _hosts.R is gitignored and lives
@@ -156,6 +163,17 @@ p_mainSim <- list(
   ),
   timeSinceFire = list(startTime = 1, .useCache = FALSE)
 )
+
+## ---- gated extended analyses --------------------------------------------------
+## SCANFI per-species cover over the full LTHFC domain + a study-area vegetation
+## report. Multi-hour scan, but cache-aware + pre-seeded so it is normally a
+## no-op. Off by default; enable with options(landweb.extended_analyses = TRUE)
+## in _local.R (workers do not source _local.R, so the gate + the quarto
+## inspection only fire on the control node).
+extended_targets <- list()
+if (isTRUE(getOption("landweb.extended_analyses", FALSE))) {
+  extended_targets <- get_targets_extended_analyses(local)
+}
 
 ## ---- pipeline -----------------------------------------------------------------
 list(
@@ -310,7 +328,11 @@ list(
         "rstCurrentBurnCumulative", "rstFlammable"
       )
     ))
-  )
+  ),
 
   ## Stage 5: summaries + report -- added once stage 4 runs (Part J / G#7)
+
+  ## Gated extended analyses (empty list unless landweb.extended_analyses is set
+  ## in _local.R). targets flattens nested lists, so this splices in cleanly.
+  extended_targets
 )

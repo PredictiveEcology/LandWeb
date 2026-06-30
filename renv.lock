@@ -4559,6 +4559,68 @@
       ],
       "Hash": "c761594a7770e688a6e79003ed04877a"
     },
+    "quarto": {
+      "Package": "quarto",
+      "Version": "1.5.1",
+      "Source": "Repository",
+      "Priority": null,
+      "Depends": [
+        "R (>= 4.1.0)"
+      ],
+      "Imports": [
+        "cli",
+        "fs",
+        "htmltools",
+        "jsonlite",
+        "later",
+        "lifecycle",
+        "processx",
+        "rlang",
+        "rmarkdown",
+        "rstudioapi",
+        "tools",
+        "utils",
+        "xfun",
+        "yaml (>=\n2.3.10)"
+      ],
+      "LinkingTo": [
+        null
+      ],
+      "Suggests": [
+        "bslib",
+        "callr",
+        "curl",
+        "dplyr",
+        "flextable",
+        "ggiraph",
+        "ggplot2",
+        "gt",
+        "heatmaply",
+        "kableExtra",
+        "knitr",
+        "palmerpenguins",
+        "patchwork",
+        "pkgload",
+        "plotly",
+        "rsconnect (>= 0.8.26)",
+        "testthat (>= 3.1.7)",
+        "thematic",
+        "tidyverse",
+        "tinytable",
+        "whoami",
+        "withr"
+      ],
+      "Enhances": [
+        null
+      ],
+      "License": "MIT + file LICENSE",
+      "License_is_FOSS": null,
+      "License_restricts_use": null,
+      "OS_type": null,
+      "NeedsCompilation": "no",
+      "Repository": "CRAN",
+      "Type": "source"
+    },
     "quickPlot": {
       "Package": "quickPlot",
       "Version": "1.0.4.9000",
@@ -5765,6 +5827,27 @@
         "utils"
       ],
       "Hash": "1f930828d6590af5da47b3ab4fe161e6"
+    },
+    "tarchetypes": {
+      "Package": "tarchetypes",
+      "Version": "0.14.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "dplyr",
+        "fs",
+        "parallel",
+        "rlang",
+        "secretbase",
+        "targets",
+        "tibble",
+        "tidyselect",
+        "utils",
+        "vctrs",
+        "withr"
+      ],
+      "Hash": "f1c58e0dabb39e34df1faaefc99f73dc"
     },
     "targets": {
       "Package": "targets",

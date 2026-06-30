@@ -1,0 +1,161 @@
+---
+title: "LandWeb Study-Area Vegetation"
+subtitle: "SCANFI species composition over the LandWeb study area"
+author: "Alex M. Chubaty"
+date: today
+format:
+  pdf:
+    pdf-engine: pdflatex
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fontsize: 11pt
+fig-width: 8
+fig-height: 6
+bibliography:
+  - ../citations/references.bib
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(targets)
+library(data.table)
+library(ggplot2)
+library(kableExtra)
+
+## display absolute pipeline paths as short project-relative paths
+relpath <- function(p) sub("^.*/((?:inputs|outputs)/.*)$", "\\1", p, perl = TRUE)
+
+scanfi_csv <- tar_read(scanfi_veg_summary_csv)
+veg <- fread(scanfi_csv)
+area_cells <- veg$domain_forested_cells[1]
+area_km2 <- veg$domain_area_km2[1]
+suspects <- c("TSUG_HET", "THUJ_PLI", "PINU_CON_CON")
+veg[, suspect := species %in% suspects]
+pct <- function(code) veg[species == code, pct_forested]
+```
+
+\newpage
+
+::: {.callout-warning}
+**Draft report: pending human review**
+
+Portions of this document were drafted with the help of generative AI (large language models) and have not yet been fully reviewed by the co-authors.
+Content may be incomplete, inaccurate, or misattributed.
+This notice will be removed once a complete review has been carried out.
+:::
+
+# Overview
+
+This report summarizes the SCANFI v2 (2020) [@scanfi-v2] per-species
+**crown-closure prevalence** over the **full LandWeb study area**
+(`r format(round(area_km2), big.mark = ",")` km^2^,
+`r format(area_cells, big.mark = ",")` forested 30 m cells). For each SCANFI
+source species that maps to a simulated LandWeb species it reports the number
+(and %) of forested study-area cells carrying *any* cover.
+
+Its primary purpose is to document the evidence behind the
+**`THUJ_PLI`/`TSUG_HET` → `Abie_spp` merge** in `LandWeb_preamble`: western
+redcedar and western hemlock are a *localized* SCANFI over-attribution in the
+SW Alberta Rockies, not a study-area-wide signal.
+
+# Study area composition
+
+```{r}
+#| label: tbl-composition
+#| tbl-cap: "SCANFI species prevalence over the LandWeb study area, by cells with any cover (sorted). `LandWeb species` is the simulated species each SCANFI code merges into."
+knitr::kable(
+  veg[, .(
+    `SCANFI code` = species,
+    `Common name` = common_name,
+    `LandWeb species` = landweb_species,
+    `Cells (cover > 0)` = format(n_cover_gt0, big.mark = ","),
+    `% of study area` = sprintf("%.3f", pct_forested)
+  )],
+  align = "lllrr",
+  booktabs = TRUE
+) |>
+  kable_styling(font_size = 8, latex_options = "hold_position")
+```
+
+```{r}
+#| label: fig-composition
+#| fig-cap: "Prevalence (% of forested study-area cells with cover > 0) by SCANFI species; coastal-attribution suspects in red."
+ggplot(veg, aes(reorder(common_name, pct_forested), pct_forested, fill = suspect)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values = c(`FALSE` = "grey40", `TRUE` = "firebrick"), guide = "none") +
+  labs(x = NULL, y = "% of forested study-area cells with cover > 0") +
+  theme_minimal(base_size = 12)
+```
+
+The composition is a textbook western-boreal signature --- black spruce
+dominant, then tamarack, aspen, jack pine, and white spruce.
+
+# Coastal over-attribution (the merge rationale)
+
+```{r}
+#| label: tbl-suspects
+#| tbl-cap: "Coastal-attribution suspects: study-area prevalence and substantial-cover (>= 10%) extent."
+knitr::kable(
+  veg[species %in% suspects][
+    order(-pct_forested),
+    .(
+      `SCANFI code` = species,
+      `Common name` = common_name,
+      `% study area (cover > 0)` = sprintf("%.3f", pct_forested),
+      `% study area (>= 10%)` = sprintf("%.4f", pct_ge10),
+      `Max cover %` = cover_max
+    )
+  ],
+  align = "llrrr",
+  booktabs = TRUE
+) |>
+  kable_styling(font_size = 8, latex_options = "hold_position")
+```
+
+Western hemlock (`TSUG_HET`) covers only **`r sprintf("%.2f", pct("TSUG_HET"))`%**
+of the LandWeb study area, and western redcedar (`THUJ_PLI`)
+**`r sprintf("%.2f", pct("THUJ_PLI"))`%** --- rounding errors at the study-area
+scale. By contrast, a stand-alone count over the **Spray Lake FMA** (SW Alberta
+Rockies) put western hemlock on **~25%** of pixels: a ~175× concentration in the
+SW corner, exactly where SCANFI bleeds coastal species across the BC boundary.
+Where these species do appear they can reach high cover (up to
+`r veg[species == "TSUG_HET", cover_max]`% hemlock), but the footprint is tiny
+and localized.
+
+Because both fold into `Abie_spp` (the closest shade-tolerant softwood), the
+merge:
+
+- removes a stand-alone species that has no usable known-age / non-zero-biomass
+  cohorts in the SW --- the cause of the `Biomass_borealDataPrep` non-conformable
+  ("code 235") crash; and
+- relabels only ~0.3% of the study area's cover, leaving the rest untouched.
+
+`PINU_CON_CON` (shore pine, the coastal *Pinus contorta* variety) is effectively
+absent across the study area
+(`r format(veg[species == "PINU_CON_CON", n_cover_gt0], big.mark = ",")` cells),
+so it is left merged into `Pinu_spp`, where --- like all pines --- it is harmless.
+
+\newpage
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+\newpage
+
+# Provenance {.unnumbered}
+
+- **Source:** SCANFI v2 species crown-closure layers [@scanfi-v2], derived via
+  the SCANFI approach [@scanfi-methods]
+  (`SCANFI_spsCC_<code>_2020_v2_20260119.tif`), masked to the LandWeb study area
+  (the LTHFC v10 union, `landweb_ltfc_v10`).
+- **Data file:** `` `r relpath(scanfi_csv)` ``
+- **Method:** `R/scanfi_veg_summary.R`, built by the gated
+  `landweb.extended_analyses` target. The scan is multi-hour over the
+  ~3.0 M km^2^ study area, so the result is cached as a `format = "file"` target
+  and reused unless the CSV is deleted or the SCANFI/LTHFC version stamp changes.

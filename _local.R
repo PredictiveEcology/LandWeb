@@ -43,3 +43,13 @@ local <- list(
   ## simulation length (years)
   sim_end = 1000L
 )
+
+## Gated "extended analyses" -- opt-in, OFF by default. When TRUE, the pipeline
+## adds the SCANFI study-area vegetation summary (a cache-aware, pre-seeded
+## format="file" target -- it does NOT re-run the multi-hour domain scan) and its
+## Quarto report. Workers do not source this file, so the gate (and the quarto
+## inspection in tar_quarto) only fires on the control node. Enable for a single
+## run via the LANDWEB_EXTENDED_ANALYSES env var, or flip the default below.
+options(
+  landweb.extended_analyses = isTRUE(as.logical(Sys.getenv("LANDWEB_EXTENDED_ANALYSES", "FALSE")))
+)
