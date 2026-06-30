@@ -1,19 +1,19 @@
 [submodule "modules/Biomass_borealDataPrep"]
 	path = modules/Biomass_borealDataPrep
-	url = https://github.com/PredictiveEcology/Biomass_borealDataPrep
-	branch = LandWeb
+	url = https://github.com/FOR-CAST/Biomass_borealDataPrep
+	branch = main
 [submodule "modules/Biomass_core"]
 	path = modules/Biomass_core
-	url = https://github.com/PredictiveEcology/Biomass_core
-	branch = LandWeb
+	url = https://github.com/FOR-CAST/Biomass_core
+	branch = main
 [submodule "modules/Biomass_regeneration"]
 	path = modules/Biomass_regeneration
-	url = https://github.com/PredictiveEcology/Biomass_regeneration
-	branch = LandWeb
+	url = https://github.com/FOR-CAST/Biomass_regeneration
+	branch = main
 [submodule "modules/Biomass_speciesData"]
 	path = modules/Biomass_speciesData
-	url = https://github.com/PredictiveEcology/Biomass_speciesData
-	branch = LandWeb
+	url = https://github.com/FOR-CAST/Biomass_speciesData
+	branch = main
 [submodule "modules/LandMine"]
 	path = modules/LandMine
 	url = https://github.com/PredictiveEcology/LandMine
@@ -41,10 +41,12 @@
 	url = https://github.com/PredictiveEcology/burnSummaries
 [submodule "modules/Biomass_speciesParameters"]
 	path = modules/Biomass_speciesParameters
-	url = https://github.com/PredictiveEcology/Biomass_speciesParameters
+	url = https://github.com/FOR-CAST/Biomass_speciesParameters
+	branch = main
 [submodule "modules/Biomass_speciesFactorial"]
 	path = modules/Biomass_speciesFactorial
-	url = https://github.com/PredictiveEcology/Biomass_speciesFactorial
+	url = https://github.com/FOR-CAST/Biomass_speciesFactorial
+	branch = main
 [submodule "packages/LandWebUtils"]
 	path = packages/LandWebUtils
 	url = https://github.com/PredictiveEcology/LandWebUtils
