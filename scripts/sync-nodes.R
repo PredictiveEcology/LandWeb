@@ -106,6 +106,7 @@ remote_script <- sprintf(
     "git checkout --quiet %s",
     "git merge --ff-only --quiet origin/%s",
     "echo '[git] submodules'",
+    "git submodule sync --quiet --recursive",
     "git submodule update --init --recursive --quiet",
     "echo '[symlinks]'",
     "%s",
