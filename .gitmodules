@@ -17,7 +17,7 @@
 [submodule "modules/LandMine"]
 	path = modules/LandMine
 	url = https://github.com/PredictiveEcology/LandMine
-	branch = LandWeb
+	branch = development
 [submodule "modules/LandWeb_preamble"]
 	path = modules/LandWeb_preamble
 	url = https://github.com/fRI-Research/LandWeb_preamble
