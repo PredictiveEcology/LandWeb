@@ -1774,21 +1774,21 @@
     },
     "crew.ssh": {
       "Package": "crew.ssh",
-      "Version": "0.0.2",
+      "Version": "0.0.4",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "crew.ssh",
       "RemoteRef": "main",
-      "RemoteSha": "fb38e1d80a300875643b1d86612af0d9b3e93a7f",
+      "RemoteSha": "79c368f0fa7556ee5f3a14e04b1f559226fb83bd",
       "Requirements": [
         "R",
         "R6",
         "crew",
         "processx"
       ],
-      "Hash": "f193d550a072c5c548b7d337e7004f21"
+      "Hash": "500706d1dcc9b7e4b66eeac3cd3a44d1"
     },
     "crosstalk": {
       "Package": "crosstalk",
