@@ -61,7 +61,8 @@ primary_controller <- if (length(getOption("crew.ssh.nodes"))) {
 tar_option_set(
   packages = "SpaDES.targets", # for unqualified sim_inputs()/outputs_spec() in target commands
   format = "rds",
-  controller = primary_controller
+  controller = primary_controller,
+  workspace_on_error = TRUE ## save a workspace on error (tar_traceback()/tar_workspace()) while the pipeline is under active development
 )
 
 res <- local$res
@@ -146,6 +147,11 @@ p_mainSim <- list(
   Biomass_core = list(
     growthInitialTime = 0, initialBiomassSource = "cohortData", mixedType = 2L,
     seedingAlgorithm = "wardDispersal", .plotInitialTime = 0, .plotInterval = 100L,
+    ## Biomass_core-only param (no other pipeline module uses it): keep it OUT of the
+    ## shared `globals` so it doesn't invalidate the cached factorial/dataPrep. Default
+    ## "LandR" has a one-to-many mapping to the 7 LandWeb groups (e.g. Abie_spp <-
+    ## Abie_bal/Abie_las/Thuj_pli/Tsug_het), which fails plotSummaryBySpecies' assertion.
+    sppEquivPlotCol = "LandWeb",
     .useCache = FALSE
   ),
   Biomass_regeneration = list(
@@ -291,20 +297,32 @@ list(
     params = p_mainSim,
     times = list(start = 0, end = local$sim_end),
     paths = local$paths,
-    objects = quote(list(
-      cohortData = dataPrep$cohortData,
-      species = dataPrep$species,
-      speciesEcoregion = dataPrep$speciesEcoregion,
-      ecoregion = dataPrep$ecoregion,
-      minRelativeB = dataPrep$minRelativeB,
-      sufficientLight = dataPrep$sufficientLight,
-      sppEquiv = dataPrep$sppEquiv,
-      sppColorVect = dataPrep$sppColorVect,
-      speciesParams = dataPrep$speciesParams,
-      speciesTable = dataPrep$speciesTable,
-      ROSTable = preamble$ROSTable
+    objects = quote(c(
+      list(
+        cohortData = dataPrep$cohortData,
+        species = dataPrep$species,
+        speciesEcoregion = dataPrep$speciesEcoregion,
+        ecoregion = dataPrep$ecoregion,
+        minRelativeB = dataPrep$minRelativeB,
+        sufficientLight = dataPrep$sufficientLight,
+        sppEquiv = dataPrep$sppEquiv,
+        sppColorVect = dataPrep$sppColorVect,
+        speciesParams = dataPrep$speciesParams,
+        speciesTable = dataPrep$speciesTable,
+        ROSTable = preamble$ROSTable
+      ),
+      ## Fire layers + reporting polygon are touched in .inputObjects() (timeSinceFire
+      ## derives rstTimeSinceFire from fireReturnInterval; LandMine reads rstFlammable/
+      ## studyAreaReporting), which runs during simInit() -- before inputs= load. Pass
+      ## them in-memory via sim_objects() (loaded lazily on the worker), matching the
+      ## dataPrep stage; otherwise rstTimeSinceFire is NULL at LandMine's compareGeom.
+      sim_objects(
+        preamble,
+        objects = c("rstFlammable", "fireReturnInterval", "studyAreaReporting"),
+        files = preamble_files
+      )
     )),
-    inputs = quote(rbind(
+    inputs = quote(
       sim_inputs(
         dataPrep,
         objects = c(
@@ -313,13 +331,8 @@ list(
           "studyArea", "studyArea_biomassParam"
         ),
         files = dataPrep_files
-      ),
-      sim_inputs(
-        preamble,
-        objects = c("rstFlammable", "fireReturnInterval", "studyAreaReporting"),
-        files = preamble_files
       )
-    )),
+    ),
     seed = 1L, # Phase-0 single rep; later: per-rep seed via cross(rep_index)
     plain = c("cohortData", "simulationOutput"),
     outputs = quote(outputs_spec(
