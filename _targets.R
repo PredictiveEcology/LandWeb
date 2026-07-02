@@ -163,11 +163,14 @@ p_mainSim <- list(
     ROStype = "default", useSeed = NULL, .plotInitialTime = 1, .plotInterval = 100,
     .studyAreaName = local$study_areas, .unitTest = FALSE, .useCache = FALSE
   ),
-  LandWeb_output = list(
-    summaryInterval = 50L, summaryPeriod = c(700, 1000), .plotInitialTime = 0,
-    .useCache = FALSE
-  ),
-  timeSinceFire = list(startTime = 1, .useCache = FALSE)
+  ## burnSummaries + NRV_summary run IN the sim in mode="single" (two-phase Phase 1):
+  ## they generate + save the per-summary-year files (into out_dir = .../rep%02d) that
+  ## the mode="multi" summaries targets later aggregate across reps. burnSummaries owns
+  ## rstTimeSinceFire (increments yearly, resets on burn) + fire summaries -> supersedes
+  ## timeSinceFire; NRV_summary generates the vegTypeMap/standAgeMap per-year dumps ->
+  ## supersedes LandWeb_output. So both retired modules drop out of the module set below.
+  burnSummaries = list(mode = "single", .useCache = FALSE),
+  NRV_summary = list(mode = "single", .useCache = FALSE)
 )
 
 ## ---- gated extended analyses --------------------------------------------------
@@ -198,7 +201,7 @@ list(
     outputs = quote(outputs_spec(
       raster = c(
         "rasterToMatch", "rasterToMatch_biomassParam",
-        "rstLCC", "standAgeMap", "rstFlammable", "fireReturnInterval"
+        "rstLCC", "standAgeMap", "flammableMap", "fireReturnInterval"
       ),
       vect = c("studyArea", "studyArea_biomassParam", "studyAreaReporting", "studyAreaANPP")
     ))
@@ -284,16 +287,19 @@ list(
     ))
   ),
 
-  ## Stage 4: mainSim (current 5-module set for parity; NRV_summary retires
-  ## timeSinceFire/LandWeb_output in a later phase -- its per-year
-  ## registerOutputs() dumps and Plots() figures will then be captured
-  ## automatically, with no change to this stage's wiring).
+  ## Stage 4: mainSim (two-phase Phase 1). burnSummaries + NRV_summary run here in
+  ## mode="single" (params above), replacing timeSinceFire (burnSummaries owns
+  ## rstTimeSinceFire -- increments yearly, resets on burn) and LandWeb_output
+  ## (NRV_summary owns the per-year veg dumps). out_dir routes this rep's outputs into
+  ## outputs/mainSim/rep01/ so the mode="multi" summaries targets can aggregate across
+  ## rep%02d/ dirs (generalizes to rep%02d under cross(rep_index)).
   tar_simspades(
     "mainSim",
-    modules = c("Biomass_core", "LandMine", "Biomass_regeneration", "LandWeb_output", "timeSinceFire"),
+    modules = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
     ## explicit load order: Biomass_core's `after = "Biomass_speciesParameters"` metadata refers to a
     ## module absent from this stage, breaking auto-inference; set it like the old 03-main-sim.R did.
-    loadOrder = c("Biomass_core", "LandMine", "Biomass_regeneration", "LandWeb_output", "timeSinceFire"),
+    loadOrder = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
+    out_dir = file.path("outputs", "mainSim", "rep01"),
     params = p_mainSim,
     times = list(start = 0, end = local$sim_end),
     paths = local$paths,
@@ -311,14 +317,14 @@ list(
         speciesTable = dataPrep$speciesTable,
         ROSTable = preamble$ROSTable
       ),
-      ## Fire layers + reporting polygon are touched in .inputObjects() (timeSinceFire
-      ## derives rstTimeSinceFire from fireReturnInterval; LandMine reads rstFlammable/
+      ## Fire layers + reporting polygon are touched in .inputObjects() (burnSummaries
+      ## derives rstTimeSinceFire from fireReturnInterval; LandMine reads flammableMap/
       ## studyAreaReporting), which runs during simInit() -- before inputs= load. Pass
       ## them in-memory via sim_objects() (loaded lazily on the worker), matching the
       ## dataPrep stage; otherwise rstTimeSinceFire is NULL at LandMine's compareGeom.
       sim_objects(
         preamble,
-        objects = c("rstFlammable", "fireReturnInterval", "studyAreaReporting"),
+        objects = c("flammableMap", "fireReturnInterval", "studyAreaReporting"),
         files = preamble_files
       )
     )),
@@ -338,12 +344,35 @@ list(
     outputs = quote(outputs_spec(
       raster = c(
         "pixelGroupMap", "standAgeMap", "rstTimeSinceFire", "vegTypeMap",
-        "rstCurrentBurnCumulative", "rstFlammable"
+        "burnMap", "flammableMap"
       )
     ))
   ),
 
-  ## Stage 5: summaries + report -- added once stage 4 runs (Part J / G#7)
+  ## ---- Stage 5: post-processing (NRV_summary) --------------------------------
+
+  ## Reporting polygons: candidate FMA/FMU/ANSR/Caribou/Parks/ecoregion layers
+  ## (LandWebUtils::reportingPolygonLayers()) fetched from Drive/URL, clipped to the
+  ## study area, kept only where they intersect -- the polygon sets NRV_summary
+  ## summarizes metrics over. Stored as a named list of `sf` (serializable;
+  ## NRV_summary st_as_sf()-es each element anyway), so a plain cached target. The
+  ## sim-sourced "CC SAM"/"CC TSF"/"ecoregionLayer" entries are merged in at the
+  ## summaries stage, not here. NOTE: swapping the reporting datasets later is a
+  ## light edit to LandWebUtils::reportingPolygonLayers(); this wiring is unaffected.
+  tar_target(
+    reportingPolygons,
+    {
+      sa <- sim_objects(preamble, objects = "studyArea", files = preamble_files)[["studyArea"]]
+      polys <- LandWebUtils::buildReportingPolygons(
+        studyArea = sa,
+        destinationPath = file.path(local$paths$inputPath, "reportingPolygons"),
+        targetCRS = LandWebUtils::LandWebCRS
+      )
+      lapply(polys, sf::st_as_sf)
+    }
+  ),
+
+  ## Stage 5b: summaries (NRV_summary) + report -- next
 
   ## Gated extended analyses (empty list unless landweb.extended_analyses is set
   ## in _local.R). targets flattens nested lists, so this splices in cleanly.
