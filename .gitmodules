@@ -71,3 +71,7 @@
 [submodule "packages/crew.ssh"]
 	path = packages/crew.ssh
 	url = https://github.com/FOR-CAST/crew.ssh.git
+[submodule "packages/fireregimetools"]
+	path = packages/fireregimetools
+	url = https://github.com/FOR-CAST/fireregimetools
+	branch = main
