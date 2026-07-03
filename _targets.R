@@ -24,6 +24,9 @@ library(SpaDES.targets)
 ## These define functions only; R/ also holds standalone scripts, so source the
 ## specific files rather than tar_source()-ing the whole dir.
 source("R/scanfi_veg_summary.R")
+source("R/knn_veg_summary.R")
+source("R/lthfc_summary.R")
+source("R/module_changelog.R")
 source("R/publish_pdf.R")
 source("R/targets_extended_analyses.R")
 

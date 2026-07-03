@@ -1,0 +1,171 @@
+---
+title: "LandWeb v3: Overview"
+subtitle: "Historic Natural Range of Variation modelling in the western boreal --- and how to read this report suite"
+author: "Alex M. Chubaty"
+date: today
+format:
+  pdf:
+    pdf-engine: pdflatex
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fontsize: 11pt
+fig-width: 7
+fig-height: 6.5
+bibliography:
+  - ../citations/references.bib
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(data.table)
+library(ggplot2)
+library(kableExtra)
+```
+
+\newpage
+
+::: {.callout-warning}
+**Draft report: pending human review**
+
+Portions of this document were drafted with the help of generative AI (large language models) and
+have not yet been fully reviewed by the co-authors.
+Content may be incomplete, inaccurate, or misattributed.
+This notice will be removed once a complete review has been carried out.
+:::
+
+# What LandWeb is
+
+LandWeb is a data-driven modelling configuration for simulating the **Historic (Natural) Range of
+Variation (H/NRV)** of forest condition across most of the western Canadian boreal forest
+(~3 million km^2^). Rather than a single model, it couples two well-established simulation models
+inside the `SpaDES` platform [@R-SpaDES.core] --- a workflow embodiment of the PERFICT approach to
+predictive ecology [@McIntire:2022; @Barros2023]:
+
+- **vegetation dynamics** --- an implementation of the LANDIS-II Biomass Succession model
+  [@SchellerMladenoff2004; @Scheller2007], simulating growth, mortality, dispersal, and
+  post-disturbance regeneration of tree-species cohorts on each pixel; and
+- **wildfire** --- an implementation of the LandMine landscape-disturbance model
+  [@Andison:1996; @Andison:1998], igniting and spreading fires at rates set by a long-term
+  historic fire-cycle (LTHFC) map.
+
+Run over many centuries and many stochastic replicates, the simulation produces a *distribution* of
+plausible pre-industrial landscape states --- the natural range of variation --- against which the
+current landscape can be compared. The pre-industrial fire regime that anchors the fire model comes
+from a long-term historic fire-cycle synthesis for the western boreal [@Andison:2019].
+
+# The v3 update at a glance
+
+v3 is primarily a **rebuild of the modelling infrastructure and a refresh of the input data**, not a
+change of ecological content. The main changes (each documented in its own report, below):
+
+- **Inputs.** Tree-species / biomass / age initial conditions move from the Beaudoin *k*NN 2001 maps
+  [@BeaudoinEtAl2014] to SCANFI 2020 [@scanfi-v2] (report 01); the fire-cycle map is updated to
+  **v10**, incorporating the June-2026 Northwest Alberta work [@peterson-nwab-data] (report 02).
+- **Orchestration.** The manual `SpaDES` script chain is replaced by a **`targets` pipeline** that
+  owns caching and dispatch, with the `SpaDES` modules retained as the simulation engine (report 03).
+- **Scope.** Simulations are run and reported **per forest-management area (FMA)** rather than as one
+  monolithic run.
+- **Post-processing.** Three v2 summary modules are consolidated into the new `NRV_summary` module
+  plus the `nrvtools` package (report 03).
+
+# Modelling workflow
+
+```{r}
+#| label: fig-workflow
+#| fig-cap: "The LandWeb v3 modelling workflow: input data feed a data-preparation stage, a main simulation, and a post-processing (NRV analyses) stage that produces the summary outputs. In v3 the post-processing modules NRV_summary and burnSummaries replace the v2 trio timeSinceFire / LandWeb_output / LandWeb_summary."
+wf <- data.frame(
+  y = 5:1,
+  title = c("Input data", "Data preparation", "Main simulation",
+    "Post-processing (NRV analyses)", "Model outputs"),
+  body = c(
+    "forest cover  |  vegetation parameters  |  fire history  |  study area & reporting polygons",
+    "LandWeb_preamble  |  Biomass_speciesData  |  Biomass_speciesParameters  |  Biomass_speciesFactorial  |  Biomass_borealDataPrep",
+    "Biomass_core  |  Biomass_regeneration  |  LandMine",
+    "NRV_summary  |  burnSummaries",
+    "time-since-fire & stand-age maps  |  leading-vegetation, age-class & large-patch summaries  |  fire-size distributions"
+  ),
+  fill = c("#dbe9f6", "#fbf1cf", "#e3f1e3", "#ece5f4", "#f6ead4"),
+  stringsAsFactors = FALSE
+)
+wrapl <- function(s, w = 62) vapply(s, function(x) paste(strwrap(x, width = w), collapse = "\n"), character(1))
+wf$body_w <- wrapl(wf$body)
+arrows <- data.frame(ytop = c(5, 4, 3, 2))
+
+ggplot(wf) +
+  geom_rect(aes(xmin = 0.2, xmax = 9.8, ymin = y - 0.38, ymax = y + 0.38, fill = fill),
+    color = "grey55", linewidth = 0.4) +
+  geom_text(aes(x = 5, y = y + 0.24, label = title), fontface = "bold", size = 4) +
+  geom_text(aes(x = 5, y = y - 0.10, label = body_w), size = 2.7, lineheight = 0.95) +
+  geom_segment(data = arrows, aes(x = 5, xend = 5, y = ytop - 0.38, yend = ytop - 0.62),
+    arrow = arrow(length = unit(0.18, "cm"), type = "closed"), color = "grey35", linewidth = 0.6) +
+  scale_fill_identity() +
+  coord_cartesian(xlim = c(0, 10), ylim = c(0.5, 5.6), clip = "off") +
+  theme_void()
+```
+
+The `targets` pipeline runs the data-preparation stage once per study area (caching the
+study-area-independent species trait factorial), then crosses the prepared data with a set of
+stochastic replicates for the main simulation, and reduces the replicates into the NRV summaries.
+The generic `SpaDES`-to-`targets` glue lives in the owned `SpaDES.targets` package; heavy stages are
+dispatched across a small compute cluster via `crew.ssh` (report 03).
+
+# Study areas
+
+v3 treats the **forest-management area (FMA)** as the unit of simulation and reporting: each area is
+parameterized, simulated, and summarized on its own, rather than as part of a single continental run
+(the v2 `LandWeb_full` run is dropped). This keeps per-area updates from invalidating unrelated
+results and keeps peak memory bounded. The FMAs span the western boreal across British Columbia,
+Alberta, Saskatchewan, Manitoba, and the Northwest Territories; the historical per-FMA client
+deliverables in `reports/2020/` indicate the scope. The v3 pipeline was first validated end-to-end
+on the **Spray Lake** study area (SW Alberta).
+
+# This report suite
+
+The v3 documentation is organized as a numbered suite (this overview is report 00), plus the
+separate user manual. Reports are rendered from the pipeline so their figures and numbers stay
+consistent with the model.
+
+```{r}
+#| label: tbl-suite
+#| tbl-cap: "The LandWeb v3 report suite."
+suite <- data.table(
+  Report = c("00", "01", "02", "03", "04", "05", "06", "07", "Manual"),
+  Contents = c(
+    "Overview and rationale (this document); modelling workflow; report index.",
+    "Study-area vegetation: SCANFI composition, and the kNN (v2) to SCANFI (v3) initial-condition change.",
+    "Fire-model inputs: the LandMine LTHFC v10 (2026 NW Alberta) update vs the previous v8c / Spray Lake layers.",
+    "Code and module changes v2 to v3: per-module/package history; SpaDES framework breakage and the targets switch.",
+    "Output differences v2 vs v3: how the simulated NRV and burn summaries change (planned).",
+    "Per-study-area summary: the templated NRV report rendered per FMA --- the client-facing deliverable (planned).",
+    "Provenance: the input/output manifest and reproducibility standards (planned).",
+    "Best-practices alignment vs forest-landscape-model calibration guidance (planned, optional).",
+    "User guide / manual (migrating from bookdown to a Quarto book), tracked by issue #128."
+  )
+)
+knitr::kable(suite, align = "ll", booktabs = TRUE) |>
+  kable_styling(font_size = 8.5, latex_options = "hold_position") |>
+  column_spec(1, width = "3.5em") |>
+  column_spec(2, width = "38em")
+```
+
+\newpage
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+\newpage
+
+# Provenance {.unnumbered}
+
+- **Source:** this overview is narrative; the workflow figure (@fig-workflow) is a fixed schematic
+  built in `ggplot2` from the current v3 module set (cf. the DiagrammeR source in
+  `R/model_workflow.R`).
+- **Method:** rendered by the gated `landweb.extended_analyses` factory as a
+  `tar_quarto()` target on the control node; no pipeline data dependencies.
+
+{{< include _provenance-appendix.qmd >}}

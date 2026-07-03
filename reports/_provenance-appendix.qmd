@@ -1,0 +1,48 @@
+# Appendix: Build provenance {.unnumbered}
+
+```{r}
+#| label: prov-appendix-setup
+#| include: false
+library(data.table)
+library(kableExtra)
+.pv_gi <- tryCatch(workflowtools::info_git(), error = function(e) NULL)
+.pv_sm <- tryCatch(workflowtools::info_submodules(), error = function(e) NULL)
+.pv_si <- tryCatch(workflowtools::info_session(), error = function(e) NULL)
+.pv_sl <- tryCatch(workflowtools::info_spatial_libs(), error = function(e) NULL)
+.pv_head <- tryCatch(system2("git", c("rev-parse", "--short", "HEAD"), stdout = TRUE, stderr = FALSE)[1],
+  error = function(e) NA_character_)
+.pv_branch <- tryCatch(.pv_gi$Local, error = function(e) NA_character_)
+.pv_when <- format(Sys.time(), "%Y-%m-%d %H:%M %Z")
+.pv_rver <- tryCatch(.pv_si$platform$version, error = function(e) R.version.string)
+.pv_os <- tryCatch(.pv_si$platform$os, error = function(e) NA_character_)
+.pv_libs <- if (!is.null(.pv_sl)) {
+  sprintf("GEOS %s, GDAL %s, PROJ %s", .pv_sl[["GEOS"]], .pv_sl[["GDAL"]], .pv_sl[["proj.4"]])
+} else {
+  NA_character_
+}
+```
+
+This appendix pins the rendered PDF to the code, environment, and revisions that produced it, so a
+result can be reproduced or a difference attributed to code vs. inputs vs. randomness. It is
+generated at render time from the `workflowtools` `info_*()` family.
+
+**Build identity.** LandWeb repository, branch `` `r .pv_branch` ``, commit `` `r .pv_head` ``,
+rendered `` `r .pv_when` `` with `` `r .pv_rver` `` on `` `r .pv_os` `` (`` `r .pv_libs` ``).
+
+```{r}
+#| label: prov-appendix-modules
+#| tbl-cap: "SpaDES modules and owned packages at their pipeline-pinned revisions when this report was rendered (workflowtools::info_submodules())."
+if (!is.null(.pv_sm) && nrow(as.data.table(.pv_sm))) {
+  smt <- as.data.table(.pv_sm)[, .(
+    Component = basename(directory),
+    Kind = ifelse(grepl("(^|/)modules(/|$)", directory), "module", "package"),
+    `Pinned SHA` = substr(commit, 1, 10)
+  )]
+  setorder(smt, Kind, Component)
+  knitr::kable(smt, booktabs = TRUE, align = "lll") |>
+    kable_styling(font_size = 7.5, latex_options = "hold_position")
+}
+```
+
+The full `sessionInfo()` and the exact `renv.lock` package pins accompany the run; input datasets
+are recorded in `_input_manifest.json` (report 06).

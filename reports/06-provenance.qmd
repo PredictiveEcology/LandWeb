@@ -1,0 +1,197 @@
+---
+title: "LandWeb v3: Provenance"
+subtitle: "Input-data manifest, bibliography sync, and reproducibility (design in progress)"
+author: "Alex M. Chubaty"
+date: today
+format:
+  pdf:
+    pdf-engine: pdflatex
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fontsize: 11pt
+bibliography:
+  - ../citations/references.bib
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(data.table)
+library(kableExtra)
+nn <- function(x) if (is.null(x) || !length(x)) "" else as.character(x)
+
+mf <- c("_input_manifest.json", "../_input_manifest.json")
+mf <- mf[file.exists(mf)][1]
+j <- jsonlite::read_json(mf)
+rec <- rbindlist(lapply(j$records, function(r) {
+  data.table(
+    id = r$id, name = r$name, source = nn(r$source$type),
+    version = nn(r$version_or_vintage), license = nn(r$license)
+  )
+}))
+setorder(rec, id)
+```
+
+\newpage
+
+::: {.callout-warning}
+**Draft report: pending human review**
+
+Portions of this document were drafted with the help of generative AI and have not been fully
+reviewed. The input manifest, the bibliography sync, and the per-report build-provenance appendix
+are **implemented**; the **output manifest** and the **ODD / TRACE narratives** are designed here
+but not yet fully built (see the relevant sections).
+:::
+
+# Overview
+
+This report documents how LandWeb v3 records the **provenance of both its inputs and its outputs** ---
+where each dataset came from, and how each result can be traced back to the data + code + environment
+that produced it. **Inputs and outputs are documented together here** (rather than in separate
+reports): they are the two halves of one end-to-end lineage, and a reader auditing a result needs
+both in one place. The design has five parts, at different stages of maturity:
+
+1. an **input-data manifest** (implemented) --- one machine-readable record per input dataset (below);
+2. an **auto-synced bibliography** (implemented) --- data-source citations derived from the manifest;
+3. a **per-report build-provenance appendix** (implemented) --- repo commit, pinned module/package
+   revisions, and software environment stamped into every rendered report (see the appendix to this
+   document, and the shared `_provenance-appendix.qmd` include);
+4. **output provenance and lineage** (design below; partly implemented) --- each output artifact tied
+   to its producing `targets` target, the module revisions that generated it, its input lineage, and
+   the run parameters (study area, replicates, seed); and
+5. **reproducibility-standards alignment** (below) --- how the above maps onto FAIR, PERFICT, the Ten
+   Simple Rules, ODD, and TRACE.
+
+# Input-data manifest
+
+The manifest (`` `r mf` ``) is a schema.org `DataCatalog` (JSON-LD) with one record per input
+dataset, built with the `workflowtools` manifest API (`input_manifest_record()` /
+`register_input()`) from `R/build_input_manifest.R`. Each record carries a stable `id`, the source
+(type + URL), a `retrieved_at` timestamp, the local path, version/vintage, license, and a citation
+pointer. It currently registers **`r nrow(rec)`** datasets:
+
+```{r}
+#| label: tbl-manifest
+#| tbl-cap: "Registered input datasets (from _input_manifest.json). Each record additionally stores its retrieved_at timestamp, local path, license, and citation pointer."
+knitr::kable(
+  rec[, .(ID = id, Dataset = name, Source = source, `Version / vintage` = version)],
+  align = "llll", booktabs = TRUE
+) |>
+  kable_styling(font_size = 8, latex_options = "hold_position") |>
+  column_spec(2, width = "20em") |>
+  column_spec(4, width = "12em")
+```
+
+The manifest is hand-curated (run `R/build_input_manifest.R` to regenerate) and committed to the
+repo, so it travels with the code. It deliberately omits content hashes for the multi-GB rasters;
+`sha256` can be added per record where a hash is worth carrying.
+
+# Bibliography auto-sync
+
+`workflowtools::sync_manifest_to_bibtex()` reads the manifest and writes a sidecar
+`citations/data-sources.bib`, so that data-source citations do not have to be hand-maintained
+alongside the methods references. It is wired as the `data_sources_bib` pipeline target and
+deduplicates against the hand-maintained `citations/references.bib`.
+
+**Adopted convention.** Data sources that are *also* cited as methods (SCANFI, Beaudoin *k*NN, the
+NWAB reports) keep a single hand-maintained entry in `references.bib` and are marked `external` in
+the manifest (so they are not duplicated into `data-sources.bib`). Any data source that needs a
+citation but does *not* already have one in `references.bib` carries its BibTeX in the manifest
+record and is emitted to `data-sources.bib` automatically. Reports list both `.bib` files in their
+front matter, so either path resolves. This keeps the methods bibliography curated while making
+data-only citations a by-product of registering the dataset --- no separate hand-maintenance.
+
+# Per-report build-provenance appendix
+
+Every report ends with a **Build provenance** appendix (see the appendix to this document, below),
+generated at render time from `workflowtools`' `info_*()` family. It is a shared Quarto include ---
+`reports/_provenance-appendix.qmd` --- that any report adopts with a single line
+(`{{< include _provenance-appendix.qmd >}}`), so all reports are stamped identically. It records:
+
+- **build identity** --- repository branch, HEAD commit, and render timestamp (`info_git()`);
+- **pipeline state** --- the pinned SHA of every SpaDES module and owned package at render time
+  (`info_submodules()`), the same revisions report 03 documents;
+- **software environment** --- R version, operating system, and GEOS / GDAL / PROJ versions
+  (`info_session()` / `info_spatial_libs()`).
+
+For the simulation-run report (05) it will additionally carry the **base seed and per-replicate seed
+derivation**; those apply once the main simulation is wired. (Note: `workflowtools`'
+`reproducibility_receipt()` emits HTML `<details>` blocks aimed at HTML output, so the PDF reports
+format the same `info_*()` data into tables directly.)
+
+This appendix is what makes the v2-vs-v3 output comparison (report 04) interpretable: it pins each
+PDF to the code and environment that produced it, so a reader can attribute an output difference to
+code vs. inputs vs. randomness.
+
+# Output provenance and lineage
+
+Output provenance is the mirror of the input manifest: every artifact the pipeline produces --- a
+summary CSV, a map, a rendered figure, a simulation raster --- should be traceable to **what
+produced it**. The design has four ties per artifact:
+
+1. **Producing target** --- the `targets` node and its command that wrote the file;
+2. **Code revision** --- the SpaDES module / package SHAs in effect at build (the same
+   `info_submodules()` set stamped in the build-provenance appendix);
+3. **Input lineage** --- which registered inputs (`_input_manifest.json` ids) fed the target,
+   transitively; and
+4. **Run parameters** --- study area, replicate count, and random seed.
+
+Much of this is **already captured, not yet surfaced**:
+
+- **`targets` records it natively.** `targets::tar_meta()` stores, per target, the command, the
+  upstream dependencies, a content hash, the seed, and the build timestamp --- i.e. the store *is* a
+  content-addressed provenance graph. `targets::tar_network()` exposes the dependency edges (the
+  input-to-output lineage) directly.
+- **`SpaDES.targets` records per-run saves.** Each simulation stage returns an `outputs(sim)`
+  manifest of the files it wrote (per-timestep saves, module `registerOutputs()` dumps, `Plots()`
+  figures), discovered dynamically rather than declared a priori, plus a companion `format = "file"`
+  target that hashes every saved file.
+
+**What remains (planned):** a small producer that reduces `tar_meta()` + the run configuration into
+an **output manifest** in the same shape as the input manifest (one record per artifact: id,
+producing target, code SHA, input ids, run parameters, hash), and wiring the **build-provenance
+appendix of a simulation report (05) to filter that manifest to the artifacts that report used** ---
+closing the loop from a figure in a PDF back to the exact inputs, code, and seed behind it. This is
+scoped to land with the main-simulation and summary stages (reports 04/05).
+
+# Reproducibility standards
+
+LandWeb v3 targets a **PERFICT**-style workflow [@McIntire:2022; @Barros2023] --- frequent **P**redictions and
+**E**valuations of **R**eusable, **F**reely-accessible, **I**nteroperable models, built in
+**C**ontinuous, **T**ested workflows --- and the manifest, appendix, and `targets` graph are the
+runtime evidence for that claim. The table below maps the provenance design onto the standards the
+project aims to meet; the "status" column is an honest self-assessment for the co-authors to refine.
+
+| Standard | What it asks for | LandWeb v3 status |
+|---|---|---|
+| **FAIR** [@Wilkinson:2016] | Findable, Accessible, Interoperable, Reusable data + workflows | Inputs are registered with source, license, and citation (manifest); outputs FAIR-ify once the output manifest lands. Access to some inputs is controlled (proprietary/Drive). |
+| **PERFICT** [@McIntire:2022; @Barros2023] | Reusable, tested, continuous predictive-ecology workflows | Core aim of the v3 rebuild: `targets` continuous workflow, owned CI-tested packages, per-FMA reuse. |
+| **Ten Simple Rules** [@Sandve:2013] | Version control, recorded seeds, tracked intermediate steps, avoid manual steps | Met by `targets` (recorded seeds/hashes, no manual steps) + pinned revisions; NEWS now documents module history (report 03). |
+| **ODD** [@Grimm:2006] | A standard narrative description of the model | Partly served by the manual (#128) + report 00; a formal ODD write-up is outstanding. |
+| **TRACE** [@Grimm:2014] | Documented model development, testing, and analysis | Partly served by reports 01-03 (data, methods, changes) + module tests; a consolidated TRACE document is outstanding. |
+
+The manifest + build-provenance appendix are the *runtime evidence* an ODD/TRACE narrative would
+point to. Fleshing those narratives out (and the FLM-calibration best-practices alignment,
+[@Reese:2024], report 07) is the next step for the co-authors.
+
+\newpage
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+\newpage
+
+# Provenance {.unnumbered}
+
+- **Manifest:** `` `r mf` ``, built by `R/build_input_manifest.R` (hand-curated;
+  `workflowtools::input_manifest_record()`), `r nrow(rec)` records.
+- **Bibliography sync:** `citations/data-sources.bib`, generated by
+  `workflowtools::sync_manifest_to_bibtex()` (the `data_sources_bib` target).
+- **Method:** this report reads the committed manifest directly; rendered by the gated
+  `landweb.extended_analyses` factory as a `tar_quarto()` target on the control node.
+
+{{< include _provenance-appendix.qmd >}}

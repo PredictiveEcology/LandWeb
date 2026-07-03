@@ -69,6 +69,8 @@ _hosts.R
 .httr-oauth-SUSPENDED
 *.json
 !renv/settings.json
+## provenance manifest (report 06); committed so it travels with the repo
+!_input_manifest.json
 
 ## misc OS files
 Thumbs.db

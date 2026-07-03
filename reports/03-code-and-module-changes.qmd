@@ -1,0 +1,642 @@
+---
+title: "LandWeb Code and Module Changes"
+subtitle: "What changed from v2 to v3, and why"
+author: "Alex M. Chubaty"
+date: today
+format:
+  pdf:
+    pdf-engine: pdflatex
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fontsize: 11pt
+fig-width: 8
+fig-height: 6
+bibliography:
+  - ../citations/references.bib
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(targets)
+library(data.table)
+library(kableExtra)
+
+relpath <- function(p) sub("^.*/((?:inputs|outputs)/.*)$", "\\1", p, perl = TRUE)
+
+## live git-log summary (falls back to the seeded CSV for standalone renders)
+clog_csv <- tryCatch(
+  tar_read(module_changelog_csv),
+  error = function(e) {
+    cand <- c(
+      "outputs/extended_analyses/module_changelog.csv",
+      "../outputs/extended_analyses/module_changelog.csv"
+    )
+    cand[file.exists(cand)][1]
+  }
+)
+clog <- fread(clog_csv)
+```
+
+\newpage
+
+::: {.callout-warning}
+**Draft report: pending human review**
+
+Portions of this document were drafted with the help of generative AI (large language models) and
+have not yet been fully reviewed by the co-authors.
+Content may be incomplete, inaccurate, or misattributed.
+This notice will be removed once a complete review has been carried out.
+:::
+
+# Overview
+
+LandWeb v3 is a substantial rebuild of the modelling infrastructure rather than a change of
+ecological content. The simulation science --- the `LandR` Biomass vegetation modules
+[@R-LandR] and the LandMine fire model --- is retained, but the way those modules are
+**orchestrated, cached, and dispatched** has been rewritten, and the input data modernized (see the
+study-area vegetation and fire-model-inputs reports). This report reconstructs the code and module
+changes across the v2 (2020--2023) to v3 (2024--2026) window.
+
+NEWS files were not maintained across this window, so the change history here is reconstructed from
+each module's and package's **git log**. The per-component commit counts, last-update dates, and
+currently-pinned revisions are generated automatically (see the Appendix) and are therefore
+current as of this render.
+
+# From manual orchestration to a targets pipeline
+
+The defining v3 change is orchestration. In v2, a chain of hand-run scripts
+(`00-main.R` ... `03-main-sim.R`) drove `simInit()`/`spades()` calls in sequence, persisting whole
+`simList` objects between stages and relying on the `reproducible` [@R-reproducible] cache for
+invalidation. In v3, a **`targets` pipeline** owns orchestration and caching; the SpaDES modules
+[@R-SpaDES.core] remain the simulation engine but are wrapped as targets.
+
+| Concern | v2 (manual SpaDES) | v3 (targets pipeline) |
+|---|---|---|
+| Orchestration | hand-run `00`--`03` scripts | declarative `_targets.R` DAG |
+| Stage hand-off | serialized `simList` | components extracted, passed as plain objects |
+| Caching | `reproducible` cache (Postgres/SQLite) | `targets`; `reproducible.useCache = FALSE` everywhere |
+| Persistence | `saveSimList()` / `loadSimList()` | per-object `format = "file"` targets (qs2, spatial) |
+| Reps / scaling | ~15 reps/area, one machine | many reps; multi-node via `crew.ssh` |
+| Post-processing | 3 summary modules | consolidated into `NRV_summary` + `nrvtools` |
+
+The motivation was reliability, not preference: the `reproducible` cache and `saveSimList()` were
+fragile with environment references and `terra` pointers, and upstream framework churn (below) kept
+breaking long-running configurations. Routing caching and orchestration through `targets` --- which
+invalidates by content and rebuilds only what changed --- removed a large, recurring source of
+failure and made the multi-machine rep-scaling tractable. This is the PERFICT-style continuous,
+tested, reusable workflow argued for in @McIntire:2022 and @Barros2023, realized for LandWeb.
+
+# SpaDES module changes
+
+Each module is documented below with a high-level summary followed by grouped detail, reconstructed
+from its git history; commit magnitudes and current pins are in the Appendix. The recurring
+cross-cutting themes are **SCANFI data adoption** (replacing kNN/Beaudoin and NTEMS/Pickell inputs),
+the **qs2** serialization switch, **terra** migration, and adoption of **FOR-CAST forks** of the
+`Biomass_*` modules (pinned, self-backported). Modules are ordered by pipeline stage: data
+preparation, simulation, post-processing, then the retiring modules.
+
+## LandWeb_preamble
+
+The study-area/data-prep setup underwent a large Phase-0 rewrite onto `terra`/`tidyterra` for the
+`targets` pipeline, swapped in SCANFI as the current-conditions data source (with hand-rolled
+prepInputs/Drive workarounds), reworked the species set and labelling, and added Spray Lake + C5
+(Douglas-fir) landbases. As of mid-2026 Phase-0 runs end-to-end for SprayLake; several data steps
+(30 m CC maps, NTEMS age adjustment, mergeSlivers migration) remain TODO.
+
+### Phase-0 terra/targets port
+- ~938-line rewrite of `LandWeb_preamble.R` porting the module to `terra`/`tidyterra` for the targets pipeline; Phase-0 runs for SprayLake (c00e79a, 2026-06).
+- Introduced `studyAreaReporting`/`rasterToMatchReporting` outputs and rebuilt geoprocessing on `SpatVector`/`SpatRaster` (`terra::vect`, `terra::project`, `terra::expanse` in place of `sf::st_area`), touching all per-FMA `R/*.R` helpers.
+- Removed the `map` package dependency and moved plotting functions to LandWebUtils; adopted the native pipe (f0e33c2/a263b57, 2025-08).
+
+### SCANFI integration and prepInputs workarounds
+- Reworked current-conditions data prep around SCANFI, expanding required packages (dplyr, geodata, httr, nngeo, etc.) (5e0df33/bd3b1d2, 2025-09).
+- Bypassed `LandR::prepInputs_SCANFI_LCC_FAO` (its FAO step downloaded/processed the ~840 MB Canada-wide raster, over 50 min) with a windowed download-then-crop of SCANFI LCC + FAO; flagged as a future `prepInputs_SCANFI_LCC_FAO_fast` LandWebUtils helper (c00e79a, 2026-06).
+- Dropped the unreliable SCANFI `Popu_gra` species layer and switched tree classes to integer (e5e5215/4a57674, 2025-10); LandTypeCC left all-NA to defer to SCANFI LCC pending 30 m CC maps.
+
+### Species relabelling and expanded species set
+- Simulate more tree species with reworked species params (bd3b1d2, 2025-09).
+- Relabelled western redcedar/western hemlock (`THUJ_PLI`/`TSUG_HET`) to `Abie_spp` (fir), treating them as SCANFI over-attribution in AB (a101a9f, 2026-06).
+- Labelled Pinus contorta varieties (shore vs lodgepole) and dropped the vestigial `PINU_CON` in InitSpecies (8033234, 2026-06); added generic names and leading for Douglas-fir (a2b9ca6, 2024-09).
+
+### Google Drive service-account auth and large-file downloads
+- Fetch the v10 LTHFC map via `workflowtools::drive_download_once` (googledrive direct, service-account auth) to bypass reproducible's Drive path that lost SA auth (reproducible #447) (c00e79a, 2026-06).
+- Pull the ~5.5 GB SCANFI 2020 stand-age raster through the authenticated googledrive API because a fresh reproducible download returned an unauthenticated sign-in HTML page; raw SCANFI median age used for now, skipping NTEMS fire/harvest + kNN adjustment (TODO).
+- Removed the interactive `browser()` debug call left in the SCANFI rework during the Phase-0 port.
+
+### Study-area / FMA rework (Spray Lake + C5, LTHFC)
+- Added the Spray Lake + C5 landbase and its `R/SprayLake.R` builder (f94a650, 2024-08), later giving Spray Lakes custom LTHFCs and including Douglas-fir (c260a06, 2024-09).
+- `studyAreaName` checks updated to allow v3 SprayLake runs; adopted `ltfc_sls_v3`; multiple C5-boundary fixes (2024-09/10).
+
+### Object/naming restructuring and reporting polygons
+- Renamed core objects for consistency: `rasterToMatchLarge` to `rasterToMatch_biomassParam`, `StudyAreaLandWeb` to `studyAreaLandWeb`, `rstFlammable` to `flammableMap` (2025-10; 65dc365, 2026-07).
+- Reporting-polygon builder work: national ecozones + ecoregions reporting polys for AB (1eb353c, 2024-05), MB and v8c LTHFC polygons, sliver-merge/`write_sf` cleanup and `maskTo`-based postProcess (2023-09/2024-08).
+
+## Biomass_speciesData
+
+Migrated from raster/sp to terra/sf, then in v3's defining change switched its default tree-species
+cover source from NFI kNN to the 30 m SCANFI product (with kNN and several proprietary inventories
+retained as selectable `types`). Alongside this it gained more robust species inclusion/exclusion,
+CRS handling, caching tags, and modernized plotting/metadata. Runs on the FOR-CAST fork line (merged
+to main 2026-06-29).
+
+### SCANFI species-layer adoption (replacing kNN)
+- Changed the default `types` parameter from "KNN" to "SCANFI", the 30 m Spatialized Canadian National Forest Inventory product, driven via `LandR::prepSpeciesLayers_SCANFI` (2e3fdc0, 2025-09).
+- Expanded selectable layer sources documented in metadata: CASFRI, ForestInventory, KNN, MBFRI, NTEMS, ONFRI, Pickell (most non-kNN requiring proprietary access); added references for KNN, SCANFI, NTEMS (2025-09).
+- Handled SCANFI's 30 m native resolution by aggregating to an RTM resolution (240 m) and using SCANFI's projected CRS, since LandR requires projected rasters for dispersal (2025-09).
+
+### terra/sf spatial migration and CRS alignment
+- Switched spatial input/output object classes to terra and sf; adopted `postProcessTo`/`projectTo`/`cropTo`/`maskTo` for `rawBiomassMap` and layer preparation instead of `spTransform`/`raster::mask` (2023).
+- Late CRS-robustness fix: use `.compareCRS` instead of `terra::compareGeom` (study area may not be a terra object); require RTM as input and standardize on metres (2025).
+
+### Species inclusion/exclusion and layer integrity
+- Filter out species layers with no data or cover below `coverThresh` after overlaying, with messaging on removed/retained species (2023-02).
+- Ensured correct species names are assigned to raster layers, including a fix for missing layer names by falling back to species names (2023-03 / 2024-07).
+
+### Caching, plotting and metadata
+- Added `.studyAreaName`, `dataYear` to `speciesLayers` cache tags for correct keying across years/areas; corrected `useCache` being character not logical (2023-24).
+- Replaced `plotVTM` with the `Plots` function; piped to `Cache()`, removed `pryr`/`figurePath()`, adopted `sppHarmonize` (2023-2026).
+- Renamed the study-area-layers object `SAL` to `studyArea_biomassParam`; default `sppEquivCol` set to "LandR"; repeated LandR/SpaDES.core minimum-version bumps (2025).
+
+## Biomass_borealDataPrep
+
+Ingests national forest-inventory rasters (land cover, stand age, species cover, biomass) and fits
+the statistical models (biomass vs. age/cover, maxB, maxANPP, species establishment, per ecoregion x
+land-cover group) that parameterize `Biomass_core`. The headline v3 changes were a full terra
+migration, moving the input data pipeline from CASFRI/kNN/NTEMS to SCANFI, new longevity-vs-age and
+young-biomass corrections, and hardening of the nested `Biomass_core` run; it remains the heaviest
+and most actively developed module (currently v1.5.12).
+
+### Input data: terra migration and SCANFI/NTEMS
+- Ported all spatial I/O from sp/raster to terra `SpatRaster`/`SpatVector`, replacing `compareRaster`/`spTransform`/`postProcess` with `.compareRas`/`projectTo`/`postProcessTo` (2023).
+- Switched land cover from static LCC to NTEMS LCC selectable by `dataYear` (2024), then made SCANFI 2020 the default source for age, LCC, species cover and raw biomass, adding a `dataSource` parameter (default "SCANFI") and `dataYear` (default 2020) (2025, #95).
+- Added NTEMS raw-biomass ingestion (with an `archive` dependency to unzip), documenting NTEMS/SCANFI provenance in metadata and the bibliography (2025).
+
+### Land cover and disturbance handling
+- Reworked the "adjust LCC" logic that reassigns non-forest/disturbed pixels: NTEMS layers to backfill missing LCCs, treed wetland (class 81) added to forested classes, cleaner handling of empty pixels / `pixelsToRm` / `pixelFateDT` (2025); later migrated the LCC-disturbance backfill from NTEMS to SCANFI (2025).
+- Parameterized forested classes via `forestedLCCClasses`, and added a `landis` mode that collapses all forested classes to one so `ecoregionGroup` is defined by ecoregion only (for LANDIS-II Biomass Succession), default FALSE (2026).
+
+### Biomass and age parameterization
+- Added a longevity-vs-age adjustment reconciling species ages against LandR longevity, with a diagnostic figure (`ageAdjustmentPlot`) (2025).
+- Fixed young-biomass estimation (spinup): allow `minCohortBiomass = 0`, avoid negative biomass at low cover via `pmax`, relaxed the young-B assertion to tolerate NAs (2024-2025).
+- Handled multiple-to-1 mappings in `sppEquiv` (requiring updated LandR); default `sppEquivCol` set to "LandR" (2025).
+
+### Serialization and caching
+- Migrated serialization to `qs2` (from qs) in the module and `updateYoungBiomasses` (2026).
+- Tightened caching: explicit `.functionName` tags on many `Cache()` calls, piped to `Cache()`, reworked `speciesEcoregionStack`/`modelBiomass` caching to fix incorrect cache triggers (2023-2025).
+
+### Nested Biomass_core handling and fork pinning *(FOR-CAST fork)*
+- Moved nested-module code under a `submodules/` subdir (2023-2024).
+- Pinned `Biomass_core`: dropped the runtime `getModule("Biomass_core@development")` fetch and `SpaDES.project` dependency, requiring a pinned `Biomass_core` (>= 1.3.10) symlinked into `submodules/` (2026); re-assert `spades.loadReqdPkgs=TRUE` before the inner run and hardened the symlink against stale dirs (2026).
+
+### Framework robustness and metadata
+- Fixed a cluster of fire-behavior/perimeter bugs and multiple LandR version bumps; resolved "freq length zero" / empty-data.table errors; various data.table warnings and reprojection/whole-number-pixel assertions (2024-2025).
+- Decoupled the module so it need not run alongside the whole workflow (standalone runs; allow `studyArea` with NROW over 1) (2023-2026).
+- Migrated plotting to `Plots` + terra, converted messaging from `crayon` to `cli`, and repeatedly refreshed the auto-rendered manual Rmd + `render-module-rmd.yaml` GitHub Action (2024-2026).
+
+## Biomass_speciesParameters
+
+Substantially reworked in v3: the GAMM-based growth-curve machinery was replaced with lighter
+non-linear growth curves fit to a modernized PSPclean data pipeline, the big-data backend moved from
+the deprecated disk.frame to arrow, and a new opt-in LANDIS mode exposes fitted curves as LANDIS-II
+Biomass Succession inputs. Runs on the FOR-CAST fork line (merged to main 2026-06-29), currently
+v3.0.1.
+
+### PSP data / PSPclean pipeline
+- Removed ~200 lines of in-module PSP input handling in favour of the external PSPclean package; added New Brunswick data (2023-12).
+- Repeated PSPclean version bumps and adaptation to its evolving output; late-2025 rework for a "new data format" and trimming of extraneous columns (2025-12).
+- Added guards for insufficient/empty PSP data (warn on too few records, catch empty `PSP_sa`, fix age-1 stands); more efficient sampling of `standAge` from the factorial (2024-2025).
+
+### Growth-curve fitting
+- Major "deGAMM" rewrite: dropped GAMMs (mgcv) for non-linear growth curves, renaming objects/args throughout `aNPPfunctions.R`; removed `speciesGAMMs` from the simList with RAM-management cleanup (2023-11/12).
+- Improved detection/removal of bad/non-converging fits and no-data cases; "HeightFix" and quantile-based `deltaDiff` trait adjustments (2024-2025).
+
+### LANDIS-mode outputs
+- Added a `landis` parameter (default FALSE) exposing fitted LANDIS-version curves as new output `speciesGrowthCurvesLandis` for LANDIS-II Biomass Succession (2026-06).
+- Added companion output `speciesGrowthCurvesPSP` (source PSP observations behind the fits) for plotting fitted curves vs PSP points; both outputs always created as empty data.tables when `landis = FALSE` to preserve the createsOutput contract (2026-06).
+
+### Big-data backend and caching
+- Migrated off deprecated disk.frame to arrow: `cohortDataFactorial`/`speciesTableFactorial` passed as arrow dataset paths (produced by Biomass_speciesFactorial >= 1.0.0), using dplyr syntax and `fs` for factorial file paths (2025-10).
+- Cached `modifySpeciesTable` with `omitArgs`/`cacheExtra` to avoid oversized/long caches (2023-08, 2025-11).
+
+### Framework, metadata and API
+- Replaced deprecated crayon with cli; adopted native pipe and piping to `Cache()` (2025-10).
+- Object/API cleanups: default `sppEquivCol` to "LandR"; removed `pixelGroup` as a joining column; added modules to `loadOrder`; dropped unused `magrittr` dependency (2025-2026).
+
+## Biomass_speciesFactorial
+
+A smaller module retooled in v3 for the targets pipeline: `registerOutputs` wiring, qs2/arrow storage
+backends, decoupled (no-longer-always-run) execution, and a June-2026 push to pin and correctly
+resource the nested Biomass_core run. Runs on the FOR-CAST fork line (merged to main 2026-06-29),
+currently v1.0.4.
+
+### registerOutputs wiring for targets
+- Introduced `registerOutputs` to expose factorial products to the pipeline (2026-01); iterated through breakage after an earlier "can't registerOutputs until it's fixed" hold; final fix required strict character-type arguments (2026-06).
+
+### qs2 serialization and arrow/fs storage
+- Migrated serialization from qs to qs2 in code and Rmd; replaced disk.frame with arrow for the factorial tables; moved factorial-table file paths to `fs` (2025-10/2026-01).
+
+### Nested Biomass_core pinning and reqdPkgs *(FOR-CAST fork)*
+- Pinned the nested Biomass_core (dropped SpaDES.project/`getModule`, symlinking the project's module instead), then hardened that symlink against stale directories (2026-06).
+- Fixed nested-run dependencies: declared pemisc for `factorValues2`, then converged on re-asserting `loadReqdPkgs` rather than over-broad `reqdPkgs` (2026-06).
+
+### Decoupled execution and cohort parameters
+- Stopped forcing users to run all modules together (2024-04); moved `runExperiment`/`readExperimentFiles` into `init`; switched factorial runs to `times`/`end` instead of hardcoded 0 to 100 (2025-12).
+- Added `minCohortBiomass`, then `initialB`/`minCohortB` params with NA-`initialB` guards, passing `initialB` through the factorial (2025-2026).
+
+## Biomass_core
+
+The most heavily developed of the simulation modules: a new diagnostic/transition plotting suite,
+ggplot2 v4 and cli migration, a SCANFI-driven v2.0.0 species-layer refactor, restored LandR.CS
+climate-sensitive support, and a long tail of cohort-correctness and dependency modernisation.
+Active on the adopted FOR-CAST fork line (main merged 2026-06-29), currently v2.0.2.
+
+### Diagnostic and transition plotting
+- Added a species transition-plot subsystem: new `.plotTransitionField`/`.plotTransitionTimes` params, a `plotTransitions` event, and `vegTransitions()`/`plotVegTransitions()` driven by `studyAreaReporting` zones (217ae38, 2026-01).
+- Added a relative-biomass plot and a large plotting revamp (subtitles, presentation, new plots); switched default `.plots` output to png (2025).
+
+### ggplot2 v4 and cli migration
+- Fixed summary plotting for ggplot2 v4.0 (2025-10); replaced deprecated `crayon` with `cli` for console messaging (2025-10).
+
+### SCANFI species-layers support (v2.0.0)
+- Bumped module to v2.0.0 for SCANFI; reworked `sim$speciesLayers` sourcing and added SCANFI resolution/projection checks when building the RTM; documented `dataSource`/`dataYear` and added SCANFI/NTEMS citations (2025-10).
+
+### LandR.CS climate-sensitive support
+- Restored/fixed integration with LandR.CS (climate-sensitive growth/mortality), pinning its dev version rather than master (2026-02).
+
+### Cohort and biomass correctness fixes
+- Multiple `minCohortBiomass` fixes; latlon + sf handling; universal seed-dispersal bugfix; identical-cohort edge case (2024-2025).
+- Standardised on `LandR::cohortDefinitionCols()`, ensuring cohorts are not defined by `ecoregionGroup` or `B` (2024).
+
+### Dependency and cache/API modernisation
+- Updated `Cache` calls to the pipe form; simplified `inputObjects` (removed SAL); switched to stable package versions where possible; filtered sppEquiv/sppColorVect to simulated species (2024-2025).
+
+## Biomass_regeneration
+
+The lightest-touch module: essentially maintenance in the v3 window, focused on aligning cohort
+definitions with Biomass_core/LandR, finishing the terra migration, and metadata/manual
+housekeeping. Stable; currently v1.0.1.
+
+### LandR cohort-definition alignment
+- Added `loadOrder = list(after = "Biomass_core")` (2024-01); adopted the updated `LandR::cohortDefinitionCols()`, ensuring cohorts are not defined by `ecoregionGroup` or `B` (2024).
+
+### terra migration and maintenance
+- Removed `getValues()` in favour of `as.vector(rstObj[])` for terra compatibility (2023-09).
+- Switched to `inputPath` over `dataPath`; metadata cleanup; reformatted the manual Rmd and refreshed the render-module-rmd GHA workflow (2024-2026).
+
+## LandMine
+
+The fire model was ported off `raster`/`quickPlot` onto `terra`/`ggplot2` and its spread parameters
+re-fit with DEoptim for 240 m pixels, while the reburn logic, "burny" discontinuous-fuel handling,
+and reproducible/SpaDES plumbing were hardened. As of mid-2026 the terra rewrite runs and object
+names are aligned to the scfm/fireSense convention; a few pieces (registerOutputs) are freshly
+re-enabled.
+
+### terra migration (away from raster/quickPlot)
+- Large 2025-10 rewrite converting all I/O metadata from `Raster` to `SpatRaster`, dropping `quickPlot`/`fasterize`/`magrittr` for `terra`/`tidyterra`; replaced `compareRaster` with `terra::compareGeom` and `raster()`/`freq` with `terra::rast`/`terra::freq` (aea149b, 2025-10).
+- Rebuilt all plots as `ggplot2` + `tidyterra::geom_spatraster`/`geom_spatvector` (fire-return-interval, flammability, cumulative-burn) writing PNGs, superseding the old `Plot()` path (2025-10).
+
+### Fire-spread re-optimization (DEoptim)
+- Full LandMine optimization rerun with refreshed fire-size diagnostic figures and updated `data/LandMine_DEoptim_params.csv`; adopted the latest optim values tuned for 240 m pixels (2025-10).
+
+### Reburn logic and "burny" robustness
+- Two-phase reburn scheme (reignite undersized fires up to `maxReburns`, then start new fires sized to the shortfall); added the `maxReburns` parameter, later per-phase values (2023-09).
+- Added `ROStype` ("burny"/"equal"/"log"/"default") so areas with discontinuous fuels can still spread fire; fixes for Douglas-fir study areas and areas adjacent to polygons lacking an LTHFC (2023-2024).
+
+### Reproducible / SpaDES modernization
+- `reproducible` arg rename `cacheRepo` to `cachePath` in `EstimateTruncPareto` (2026-06); corrected `registerOutputs()` usage, temporarily disabled then re-enabled (2025-10 to 2026-07).
+- Moved burn/optim/helper functions out of the module into LandWebUtils (2023-09); standardized fire object names to the scfm/fireSense convention (`rstFlammable` to `flammableMap`, `rstCurrentBurnCumulative` to `burnMap`) (2026-06/07).
+
+### Study-area consistency, diagnostics and manual
+- Resolved `studyAreaName` inconsistencies; added an LTHFC/FRI summary plot and table; fixed a `rstCurrentBurnCumulative` zero-fill bug and consolidated plot devices to a single managed device (2023).
+
+## NRV_summary
+
+New-for-v3 consolidated post-processing module (first drafted Oct 2022 from a BC NRV script, matured
+2024-2026); it computes natural-range-of-variation summaries (leading vegetation, age classes, large
+patches, seral stages) over reporting polygons and **supersedes the older `LandWeb_summary`,
+`timeSinceFire`, and `LandWeb_output` modules**. Functional in both single and multi modes.
+
+### Module consolidation and single/multi mode
+- Converted the standalone BC NRV post-processing script into a SpaDES module (2022-10).
+- Major single/multi refactor absorbing `LandWeb_output` (and WIP `LandWeb_summary`): single mode saves the inputs multi mode needs as its own outputs to avoid re-loading whole simLists; adds `registerOutputs()`, switches to `qs2`, drops the `map` object, uses terra vectors and `tidyterra`+`ggplot2` for plotting (835b364, 2026-02).
+- Added a `postprocessEvent` parameter to select which post-processing events run, enabling province-specific use e.g. BC vs ON (2024-05).
+
+### reportingPolygons named-list (replacing the map/ml god-object)
+- Removed the `ml` (map list) output object entirely (2026-03).
+- Stripped all `sim$reportingPolygons@metadata` "map vestige" lookups across `landscapeMetrics`/`patchMetrics`/`patchMetricsSeralBC`/`plotFun`, replacing `md[layerName == p]` indexing with per-polygon named-list access (`rptPoly[["ID"]]`, `"NAME"`) (2026-03).
+- Switched per-polygon column selection to the list element's `field` attribute instead of the old `useCol` attribute (2026-02).
+
+### start(sim)-relative times and summaryPeriod
+- Made `summaryPeriod` and `timeSeriesTimes` default to `start(sim) +` their offsets, keyed the scheduled events off `start(sim)`, and hardened init-time range validation against `start(sim)`/`end(sim)` (2026-02/03).
+
+### standAge / vegType wiring
+- Moved `vegTypeMap`/`standAgeMap` generation off `sim$` onto `mod$` (module-local), writing rasters to disk and registering them rather than carrying them in the simList; declared both as explicit `createsOutput` objects (2026-03).
+- Relocated object-presence/consistency checks out of `.inputObjects` into `init` so validation runs against the assembled simList (2026-03).
+
+### Plotting and seral stages via nrvtools
+- Depends on `nrvtools` for seral-stage map creation (bumped to pick up fixes); added/corrected the `sieveThresh` control (2024-06).
+- Added violin plots, multi-page patch-metric plots, seral-stage patch figures; masked non-flammable pixels in time-since-fire maps that otherwise skewed ages very old (2023-2024).
+
+## burnSummaries
+
+Fire/burn post-processing module extracted from the main LandWeb repo (Sep 2023) for v3; it derives
+burn maps, fire-size distributions, cumulative (mean-annual) burn history, and time-since-fire from
+simulation outputs, comparing simulated to observed/expected fire regimes. Functional in single and
+multi modes, currently v1.0.2.9001.
+
+### Module origin and single/multi mode
+- Moved burn post-processing out of the main LandWeb repo into a self-contained module (2023-09); reached v1.0.0 with an scfm update and terra adoption (2024-06).
+- Single/multi refactor: single mode saves the inputs multi needs as its own outputs (avoiding unreliable simList loads), incorporates `timeSinceFire`, adds `registerOutputs()`, `qs2`, terra vectors, and `tidyterra`+`ggplot2` plotting in place of `rasterVis` (2026-02).
+
+### start(sim) integration and summaryPeriod robustness
+- Offset `analysesOutputsTimes` and the scheduled `save_single` events by `start(sim)`; added an init-time guard that `summaryPeriod` falls within `start(sim)`/`end(sim)` (2026-03).
+
+### fireSense interoperability
+- Accepts differently-named fireSense objects (`flammableRTM` for `flammableMap`, `nonForest_timeSinceDisturbance` for `rstTimeSinceFire`); declares `loadOrder = list(after = c("fireSense", "LandMine", "scfmSpread"))` (2026-03).
+
+### NFDB retrieval workaround and cumulative burn map
+- Introduced the historical cumulative (mean-annual) burn map from NFDB fire polygons (2023).
+- Replaced the failing `prepInputs()` NFDB fetch with a manual `download.file` + `archive::archive_extract`, dropping invalid geometries via `terra::is.valid` (avoiding slow `makeValid`) and combining via `tidyterra::bind_spat_rows`; added `archive`/`purrr` to `reqdPkgs` (2026-03).
+
+## LandWeb_summary
+
+The v2 post-processing/reporting module that aggregated per-rep LandR outputs into leading-species,
+large-patch, and stand-age products. **In v3 it is superseded by NRV_summary + nrvtools**, which fold
+in-simulation per-rep saves and post-hoc aggregation into one two-phase workflow.
+
+### Reporting-polygon and tiling refactor
+- Moved from a monolithic `map` object toward a `reportingPolygons` list (WIP, 2025-08); removed the `.makeTiles` parameter, dropping the old tiling path (2026-01).
+
+### Post-processing split and stand age
+- Split post-processing by `type` so stages can run across multiple machines; tuned RAM estimates and switched core detection to `parallelly::availableCores()` (2025).
+- Reworked stand age to derive from cohort data rather than time-since-fire, adding a `standAgeMapFromCohorts` param with TSF fallback (2023-2024).
+
+### Retirement in v3
+- Its leading-type/large-patch/stand-age summarization role is taken over by NRV_summary (single- then multi-mode aggregation) and nrvtools.
+
+## LandWeb_output
+
+The v2 module that wrote per-simulation LandR output maps (notably the stand-age map) to disk for
+downstream reporting. **In v3 it is retired**, superseded by NRV_summary's in-simulation per-rep
+saves plus nrvtools.
+
+### terra adoption and stand-age from cohorts
+- Switched from raster to terra (2023-09); produced `standAgeMap` from `cohortData` (biomass-weighted ages), bumping the LandR version requirement (2023-10).
+
+### Retirement in v3
+- Its output-writing role is absorbed by NRV_summary's in-sim per-rep saves; nrvtools handles downstream products.
+
+## timeSinceFire
+
+The v2 module that computed and wrote the time-since-fire (TSF) raster used by stand-age and
+reporting. **In v3 it is retired**: TSF is now derived post-hoc, and its role is superseded by
+NRV_summary + nrvtools.
+
+### terra/raster migration and paths
+- Reverted to raster from terra to fix a `compareGeom()` `ext`/`extent` mismatch (2023-09), then later re-migrated to terra with refreshed docs (2025-10); removed a duplicate metadata block left by a merge (2026-02).
+- Switched to `inputPath()` over `dataPath()`; removed a stray `browser()` (2023-09).
+
+### Retirement in v3
+- TSF is now computed post-hoc rather than as a standalone module; NRV_summary + nrvtools cover the downstream need.
+
+## HSI_Caribou_MB
+
+Manitoba caribou habitat-suitability-index module; only light maintenance since 2023, and retained
+(not retired) in v3.
+
+### Maintenance
+- Fixed a partial-match warning by renaming the `rasterListByPoly()` argument `poly` to `polys` (2024-02).
+- Manual/gitignore housekeeping for the PDF manual build (2023).
+
+# Owned R packages
+
+Much of v3 lives in packages the project owns and CI-tests, several created specifically for the
+refactor. These absorb the generic glue (so the modules stay thin) and the LandWeb-specific logic.
+
+## SpaDES.targets
+
+A new-for-v3 package that is the SpaDES-to-targets firewall and glue: it runs a
+`simInitAndSpades()` stage in-process as a `targets` stage and, instead of serializing the whole
+`simList`, returns a manifest of the files the stage saved (discovered from `outputs(sim)`) as
+`format = "file"` targets, plus a hard options "firewall" that disables the destructive/non-headless
+`reproducible`/`SpaDES.core` behaviours. Entire history is June 2026.
+
+### The options firewall
+- `spades_safe_options()` / `with_spades_safe_options()`: the single adapter that makes `targets` the sole cache and disables destructive/non-headless-safe behaviours -- `reproducible.useCache/useMemoise/useCloud = FALSE`, `spades.saveSimOnExit = FALSE` (never serialize a simList), `spades.browserOnError = FALSE` and `reproducible.interactiveOnDownloadFail = FALSE` (guard a worker hanging on `browser()`/a download prompt), and recoveryMode/futureEvents/allowInitDuringSimInit off.
+- A `strict = TRUE` switch turns development diagnostics back on; production default leaves them off for speed/memory. A cross-version rename shim sets both retired and current option names (e.g. `reproducible.rasterRead = "terra::rast"`); audited against SpaDES.core 3.1.2.9016 / reproducible 3.1.1.9062.
+
+### The outputs(sim) manifest API
+- `extract_outputs()` reads the files a stage actually saved after a run and returns a `manifest` plus a `files` vector, capturing per-timestep saves, module `registerOutputs()` dumps, and `Plots()` figures with no a-priori declaration (replaced the older `extract_components()`, a breaking change) (2026-06-26).
+- `outputs_spec()` builds a `simInit(outputs=)` table grouped by save function and expanded over `saveTime` (later added `qs`/`csv` groups); emits only `fun`/`package` strings so it adds no dependencies.
+- `sim_inputs()` builds a `simInit(inputs=)` table from an upstream manifest so a downstream stage reloads file-backed outputs; `sim_objects()` loads a manifest's outputs into memory for `simInit(objects=)` (spatial handoffs a downstream module touches in `.inputObjects()`).
+
+### Target factory, worker, and per-run scratch isolation
+- `tar_simspades()` target factory + `run_simspades()` worker run one stage in-process with no `simList` serialized; the factory emits the manifest target plus a `<name>_files` `format = "file"` companion tracking every saved file, with a `loadOrder` pass-through for ambiguous auto-inference.
+- Per-run scratch isolation: each stage runs in a unique subdir under `paths$scratchPath` (concurrent runs do not collide); `out_dir` cleared at start; a success removes the scratch dir, an R-level failure keeps it renamed `*.FAILED`, and stale dirs older than `scratch_retain_days` (default 7) are swept on the next run.
+
+### Path portability and spatial/provenance helpers
+- Manifest paths stay project-relative even when a stage writes through a symlinked output dir to NFS (re-relativized to the deepest shared component rather than escaping to `../../../mnt/...`).
+- `write_spatial()`/`read_spatial()`/`is_spatial()` terra-first spatial file-target helpers (with an `sf`-to-`SpatVector` bridge for not-yet-converted modules); `provenance_manifest()` records R version/platform, `renv.lock` md5, `modules/` pinned commits, and per-output md5 digests.
+
+## spatialutils
+
+A new-for-v3 package collecting generic, project-agnostic `sf`/`terra` spatial helpers: a robust
+vector-prep pipeline, polygon cleaning/overlay operations, and small convenience wrappers. It
+underpins the v3 reporting/preamble geometry handling.
+
+### Vector prep pipeline
+- `prep_vector()` (2026-06-25) crops, masks, and reprojects a vector to a study area while guaranteeing valid topology: source-CRS pre-crop, `terra::makeValid()` repair, optional `mask`, and a configurable `buffer`.
+
+### Polygon cleaning and overlay operations
+- `eliminate_slivers()` (alias `desliver()`) merges sliver polygons into the neighbor with the longest shared border (2026-06).
+- `st_union_analysis()` emulates arcpy `Union_analysis` with multi-attribute transfer and a `union_by` column, later sped up and refactored to use `st_erase()` (2026-01); additional ops `intersect_clean()`, `outerBuffer()`, `perimeter()`.
+
+### Generic sf/terra helpers, licensing, modernization
+- `create_bbox()`, `calc_centroid()`, `extract_coords()`, `save_gpkg()`, `spatial_join_intersects()`, and `prep_agg_lonlat_raster()` added as one batch (2026-06-17).
+- Dropped the `nngeo` dependency for `sf::st_exterior_ring()`; relicensed to Apache-2.0; bumped to R `>= 4.3`; added NEWS and testthat-3 snapshot tests.
+
+## nrvtools
+
+A new-for-v3 package providing reusable analytics for Natural Range of Variability (NRV) simulation
+outputs: patch- and landscape-level metrics, seral-stage mapping, configurable metric sets, baked-in
+Canadian ecological polygons, and ggplot2 summary plots. It is the shared engine behind the v3
+NRV_summary/burnSummaries reporting.
+
+### Patch and landscape metrics engine
+- Core exports `calculatePatchMetrics()`/`calculatePatchMetricsSeral()` (v0.0.2, 2024-05) and `calculateLandscapeMetrics()`, plus lower-level `patchStats()`/`patchAreas()`/`summarizePatchMetrics()` helpers.
+- Metrics via `landscapemetrics` with per-polygon extraction through `exactextractr::exact_extract()`; parallelized over polygons with `future.apply::future_lapply()` (hardened RNG/globals).
+
+### Seral-stage mapping and configurable metric sets
+- `seralStageMapGeneratorBC()`/`writeSeralStageMapBC()` build BC seral-stage maps from current-condition, PGM, and NDT/BEC inputs (iterative factor-level/NDT4 fixes through 2024-06).
+- `default_landscape_metrics()`/`default_patch_metrics()`/`default_patch_metrics_seral()` supply curated lists; all calculators accept a user `funList` override.
+
+### Baked-in ecological polygon data
+- Bundles `ecozones` (25), `ecoprovinces` (68), `ecoregions` (218), and `ecodistricts` (1025) as `sf` datasets sourced from open.canada.ca (2026-03-19), generated via `data-raw/eco.R` with `LazyData` gzip compression.
+
+### Plotting and modernization
+- `plot_over_time()`/`plot_over_time_by_class()`/`plot_by_class()` produce ggplot2 summaries with `ggforce::facet_wrap_paginate()` pagination.
+- Migrated from `raster` to `terra`; required R `>= 4.1` for the native pipe; added `exactextractr`/`tidyterra`/`qs2` deps (moved `qs`/`SpaDES.tools` to Suggests); adopted the `air` formatter, a GHA R-CMD-check, and testthat-3 tests.
+
+## workflowtools
+
+A new-for-v3 grab-bag of project-workflow helpers for large SpaDES/targets projects: idempotent
+"once" download/extract helpers, Google Drive and Microsoft Teams/SharePoint sync, an input-data
+manifest with one-way BibTeX export, and git+renv reproducibility/provenance capture. First committed
+2023-09, reaching v0.0.13 (2026-06-09).
+
+### Idempotent "once" fetch/extract helpers
+- `download_once()` and `drive_download_once()` skip the transfer when the destination exists; `archive_extract_once()` skips re-extraction when the target files are present (selection by filename or numeric index, plus `force`) (2026-03).
+
+### Google Drive and Microsoft Teams/SharePoint sync
+- `drive_download_folder()`/`drive_upload_folder()` recursively mirror Drive folders in batches (with an HTTP/1.1 hardening helper `.use_http11()` and `with_retry()` backoff).
+- New `teams_*()` family mirroring the Drive helpers against a Teams channel's SharePoint library: `teams_connect()`, `teams_download_folder()` (recursive walk, `exclude` list), `teams_upload_files()`, `teams_ensure_folder()` (2026-06).
+
+### Input-data manifest + BibTeX export
+- Manifest API tracking input datasets in `data/input_manifest.json`: `register_input()` (idempotent upsert keyed by `id`), `read_input_manifest()`/`write_input_manifest()`, `input_manifest_record()`/`validate_manifest_record()`, `input_manifest_schema()`; the format carries a JSON-LD `@context` (2026-06).
+- `extract_metadata()` S3 generic turns a source into a record (URL + HEAD `Last-Modified` probe; `bcdc_record`). `sync_manifest_to_bibtex()` is a conservative one-way exporter to a sidecar `.bib`, deduplicated against `references.bib`.
+
+### Reproducibility / provenance capture
+- The `info_*()` introspection family -- `info_git()`, `info_submodules()`, `info_session()`, `info_spatial_libs()`, and the aggregator `info_project()` -- plus `project_path()`/`project_name()` (snake_case migration, 2026-06).
+- `reproducibility_receipt()` wraps these into a git-repo + R-session provenance block for Rmd/Quarto; `packages_from_snapshot()`/`description()` derive project package metadata from an `renv`/`Require` snapshot.
+
+## crew.ssh
+
+A new-for-v3, experimental, currently private `crew` launcher plugin that runs `targets` workers on
+remote machines over SSH, to distribute a pipeline across several computers on a trusted local
+network. Workers are placed across nodes by per-node capacity weight so heterogeneous machines share
+one controller -- a lightweight counterpart to `crew.cluster`. All history is June 2026 (v0.0.4).
+
+### SSH launcher, controller, and node model
+- `crew_class_launcher_ssh` (R6) places workers across nodes in proportion to per-node capacities; `crew_controller_ssh()` creates the SSH controller; `crew_ssh_node()` describes one machine (host, capacity, optional `rscript`/`projdir`/`ssh_options`) for heterogeneous clusters.
+
+### Connectivity and robustness
+- `request_tty = TRUE` forces `ssh -tt` so the remote R exits when the local ssh is killed; `tunnel = TRUE` dials the dispatcher back through an SSH reverse tunnel so no inbound port need be open (2026-06).
+- `crew_ssh_check()` preflight-checks each node (connectivity, project dir, resolved Rscript/R version, package availability) with an S3 print method.
+
+### Live monitoring and node provisioning
+- `crew_ssh_monitor()` opens a live CPU/RAM dashboard (a `miniUI` gadget) polling each node over SSH on a timer; reworked to poll with concurrent `processx` children (forking inside a running Shiny gadget was unsafe), degrading a failed poll to "unreachable" (2026-06).
+- Bundles a project-agnostic `inst/templates/sync-nodes.R`: provisions nodes in parallel, groups by OS codename so the first node of each group warms a shared `renv` cache before the rest link it, and runs `git submodule sync` before update so a repointed fork URL is picked up (2026-06).
+
+## LandWebUtils
+
+Pre-existing LandWeb-specific helper package, **heavily refactored for v3**: migrated off `sp`/`raster`
+to `sf`/`terra`, slimmed its dependency stack (notably dropping `LandR`), and gained a
+reporting-polygon/study-area builder plus test and formatting infrastructure.
+
+### Consolidating LandWeb and LandMine logic
+- Absorbed LandWeb-specific functions formerly in `LandR` (2023-01) and the LandMine module functions (2023-09): `landmine_burn1()`, the `landmine_optim_*` cluster/fit family, and diagnostic plots `landmine_plot_FRI`/`_LTHFC`/`_areaBurnedOverTime`; extended `landmine_burn1()` for "burny" scenarios and switched optimization to `parallelly` clusters (2024-2025).
+
+### sf/terra migration
+- Replaced `sp`/`raster` with `sf`/`terra` across the package (2025-08), touching `polygonClean()`/`.cleanLandWebStudyArea()`, `LargePatches()`, `LeadingVegTypeByAgeClass()`, `rasterListByPoly()`, and the LandMine helpers; `targetCRS`/`LandWebCRS` aligned to SCANFI (2025-09).
+
+### Reporting-polygon and study-area builder
+- New `buildReportingPolygons()`, `reportingPolygonLayers()`, `joinReportingPolygons()`, plus prep helpers `prepFMAs()`/`prepFMUs()`/`prepANSRs()` and `prepStudyArea()`/`prepTestStudyArea()`; study-area lookups `LandWebStudyAreas`, `studyAreaProv()`/`studyAreaIn()`, `extractFMA()`/`extractFMU()` (with a name-fallback).
+- Geometry prep delegated to `spatialutils::prep_vector()`; inputs fetched via `workflowtools` idempotent `*_once` helpers.
+
+### Dependency slimming, modernization, testing
+- Dropped `LandR` from Imports/Remotes, vendoring `equivalentName()`/`equivalentNameColumn()`/`equivalentNameAsList()` (GPL-3) into `R/equivalentName.R` (2026-06); replaced `SDMTools` with `landscapemetrics` (2025-10). (`map` and `pemisc` remain in use.)
+- Bumped to R `>= 4.4`; adopted the native pipe (`|>`) and `air` formatting; added testthat-3 snapshot tests and refreshed GHA workflows.
+
+# Framework changes and the dependency firewall
+
+The recurring difficulty across v3 was not the ecological code but upstream framework practice.
+`SpaDES.core` [@R-SpaDES.core] and `reproducible` [@R-reproducible] ship large, non-atomic commits
+(fixes bundled with regressions) and periodically change user-facing APIs; because fixes are not
+backported, the only way to obtain one is the unstable development branch. LandWeb v3 insulates
+itself with a layered strategy:
+
+- **Pin exact revisions.** Modules and framework packages are pinned to specific SHAs (the
+  `Biomass_*` modules to FOR-CAST forks' `main`, not upstream `development`), so an upstream change
+  cannot silently alter a run.
+- **One anti-corruption layer.** All `SpaDES.core` / `reproducible` touch-points funnel through the
+  owned `SpaDES.targets` package. Its `spades_safe_options()` asserts a hardened set of ~14 options
+  (disabling destructive/unsafe development defaults, and `reproducible.useCache = FALSE` so
+  `targets` owns all caching). An upstream break becomes one adapter fix, not many.
+- **Refactor what we own; wrap the rest.** Owned modules (`LandWeb_preamble`, `burnSummaries`,
+  `NRV_summary`) are refactored directly; the shared `Biomass_*` modules + `LandMine` are wrapped
+  and fork-pinned.
+- **Discrete object hand-off.** Events increasingly pass plain objects rather than serialized
+  `simList`s, so `targets` can drive the modules directly.
+
+Concrete upstream issues encountered and worked around:
+
+| Issue | Symptom | Workaround |
+|---|---|---|
+| SCANFI FAO reproject | full-Canada reproject before crop (many minutes) | crop in source CRS first (seconds) |
+| `prepInputs` empty `cropTo` | silently returns the whole raster | guard for empty geometry before crop |
+| `overlayLCCs` all-NA layer | pixelIndex type mismatch on join | feed a filler layer instead of all-NA |
+| Drive restricted files | content download returns an HTML sign-in page | `workflowtools::drive_download_once()` |
+| reproducible #447 (WONTFIX) | service-account Drive auth deprecated | direct `googledrive::drive_auth()` |
+| nested-module `reqdPkgs` | inner `simInit` skips loading required pkgs | re-assert `loadReqdPkgs = TRUE` before nested run |
+
+Platform-wise, v3 moved to **R 4.6** (from 4.5), forcing a clang-21 rebuild and a full `renv`
+relock, and adopted `qs2`, `cli`, `tidyterra`, `exactextractr`, `landscapemetrics`, and
+`parallelly`.
+
+# Module supersession
+
+Three v2 post-processing modules are retired in v3, consolidated into one module plus one
+CI-tested package:
+
+- `LandWeb_summary` + `timeSinceFire` + `LandWeb_output` are retired into **`NRV_summary`**
+  (the module) and **`nrvtools`** (the reusable analytics + plotting package).
+- Time-since-fire is derived in post-processing from burn maps rather than tracked by a dedicated
+  simulation module.
+- The reporting-polygon build moved out of `LandWeb_preamble` into a data-driven builder
+  (`LandWebUtils::buildReportingPolygons()`), feeding the summaries stage.
+
+The `LandWeb_full` study area is also dropped: v3 simulates and reports per FMA rather than
+maintaining a single expensive full-extent run.
+
+# Appendix: change summary (auto-generated) {.unnumbered}
+
+Generated from each component's git log at render time (`R/module_changelog.R`); `commits` counts
+commits since 2023-01-01, the v3 window.
+
+```{r}
+#| label: tbl-changelog-modules
+#| tbl-cap: "SpaDES module submodules: commits since 2023, last update, and pinned revision."
+cm <- clog[kind == "module"][order(-commits_since)]
+knitr::kable(
+  cm[, .(Module = name, Commits = commits_since, `Last update` = as.character(last_update),
+    Branch = branch, SHA = sha)],
+  align = "lrlll", booktabs = TRUE
+) |>
+  kable_styling(font_size = 8, latex_options = "hold_position")
+```
+
+```{r}
+#| label: tbl-changelog-packages
+#| tbl-cap: "Owned R packages: commits since 2023, last update, and pinned revision."
+cp <- clog[kind == "package"][order(-commits_since)]
+knitr::kable(
+  cp[, .(Package = name, Commits = commits_since, `Last update` = as.character(last_update),
+    Branch = branch, SHA = sha)],
+  align = "lrlll", booktabs = TRUE
+) |>
+  kable_styling(font_size = 8, latex_options = "hold_position")
+```
+
+\newpage
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+\newpage
+
+# Provenance {.unnumbered}
+
+- **Source:** the git history of the module submodules (`modules/`) and owned packages
+  (`packages/`), plus the refactor design notes (`_tmp_refactor_targets.md`,
+  `_tmp_spades_targets_bchrv_gaps.md`, `_tmp_upstream_issues.md`).
+- **Data file:** `` `r relpath(clog_csv)` ``
+- **Method:** the change-summary tables are built by `R/module_changelog.R` (target
+  `module_changelog_csv`), which runs `git log` per component at render time; the narrative themes
+  are hand-curated from the same history.
+
+{{< include _provenance-appendix.qmd >}}

@@ -1,0 +1,177 @@
+{
+  "@context": "https://schema.org",
+  "@type": "DataCatalog",
+  "version": "1",
+  "records": [
+    {
+      "id": "current-condition-v2",
+      "name": "Current-condition layers, v2 era (CASFRI / Pickell / AVI-derived)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"
+      },
+      "retrieved_at": "2022-05-19T22:24:14Z",
+      "local_path": "inputs/CurrentCondition",
+      "description": "The v2 current-condition species/age rasters (CurrentCondition/, Pickell*.tif, CASFRI GIDs), to be superseded by the 2026 AVI+VRI+SBFI composite (not yet staged locally).",
+      "version_or_vintage": "v2 era",
+      "license": "Access controlled / proprietary (CASFRI)",
+      "extra": {
+        "status": "superseded; 2026 composite pending local staging"
+      }
+    },
+    {
+      "id": "gadm-canada-provinces",
+      "name": "GADM Canada provincial/territorial boundaries (level 1)",
+      "source": {
+        "type": "http_download",
+        "url": "https://gadm.org/download_country.html"
+      },
+      "retrieved_at": "2022-08-30T04:38:31Z",
+      "local_path": "inputs/gadm41_CAN_1_pk.rds",
+      "description": "Provincial boundaries used for geographic context in the report-02 fire maps.",
+      "version_or_vintage": "GADM 4.1",
+      "license": "GADM (non-commercial)"
+    },
+    {
+      "id": "knn-beaudoin-2001",
+      "name": "Beaudoin kNN forest attributes (2001 base year)",
+      "source": {
+        "type": "http_download",
+        "url": "https://open.canada.ca/data/en/dataset/ec9e2659-1c29-4ddb-87a2-6aced147a990"
+      },
+      "retrieved_at": "2026-02-17T18:58:00Z",
+      "local_path": "inputs/NFI_MODIS250m_2001_kNN_Species_Pice_Mar_v1.tif",
+      "description": "250 m kNN/MODIS species, biomass and stand-age maps; the v2 species/biomass/age initial-conditions source, superseded by SCANFI in v3.",
+      "version_or_vintage": "2001 base year, v1 (250 m)",
+      "license": "OGL-Canada-2.0",
+      "citation": {
+        "bibtex_key": "BeaudoinEtAl2014",
+        "external": true
+      }
+    },
+    {
+      "id": "ltfc-sls-v3",
+      "name": "Spray Lake Sawmills fire-cycle variant (SLS v3)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"
+      },
+      "retrieved_at": "2024-10-11T21:10:28Z",
+      "local_path": "inputs/ltfc_sls_v3.shp",
+      "description": "Spray Lake / Crowsnest fire-cycle variant, the patch source for the interim v8d map (R/new_lthfc.R).",
+      "version_or_vintage": "v3 (NAD83 / UTM 11N; field LTHFC)",
+      "license": "Access controlled (LandWeb hosted Drive)"
+    },
+    {
+      "id": "lthfc-nwab-aoi",
+      "name": "Northwest Alberta area-of-interest outline",
+      "source": {
+        "type": "manual_drop",
+        "url": "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"
+      },
+      "retrieved_at": "2026-02-17T17:31:10Z",
+      "local_path": "inputs/LTHFC_NW_AB.gpkg",
+      "description": "The NW Alberta AOI outline highlighted on the report-02 change maps.",
+      "version_or_vintage": "2026",
+      "license": "Access controlled (LandWeb hosted Drive)"
+    },
+    {
+      "id": "lthfc-v10",
+      "name": "LandWeb long-term historic fire-cycle map, v10 (2026)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"
+      },
+      "retrieved_at": "2026-05-07T17:59:50Z",
+      "local_path": "inputs/landweb_ltfc_v10.shp",
+      "description": "Fire-return-interval polygons (field LTFC10) that drive LandMine; v10 incorporates the June-2026 NW Alberta update.",
+      "version_or_vintage": "v10 (2026; NW Alberta = NWAB Intermediate)",
+      "license": "Access controlled (LandWeb hosted Drive)",
+      "citation": {
+        "bibtex_key": "peterson-nwab-data",
+        "external": true
+      }
+    },
+    {
+      "id": "lthfc-v8c",
+      "name": "LandWeb long-term historic fire-cycle map, v8c (previous)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"
+      },
+      "retrieved_at": "2024-02-05T19:39:18Z",
+      "local_path": "inputs/landweb_ltfc_v8c.shp",
+      "description": "The previous study-area fire-cycle map, retained for the v8c-vs-v10 comparison in report 02.",
+      "version_or_vintage": "v8c (NAD83 / UTM 11N; field LTHFC)",
+      "license": "Access controlled (LandWeb hosted Drive)"
+    },
+    {
+      "id": "nwab-data-report-2026",
+      "name": "Northwest Alberta NRV -- Data Report (June 2026)",
+      "source": {
+        "type": "literature",
+        "url": "https://friaa.ca"
+      },
+      "retrieved_at": "2026-06-17T21:09:04Z",
+      "local_path": "reports/2026/2026-06-08_NWAB_Data_Report.pdf",
+      "description": "Methods + numeric fire-cycle tables (incl. Table 2-5 FRI-by-NSR) behind the v10 LTHFC update.",
+      "version_or_vintage": "June 2026",
+      "license": "FRIAA report",
+      "citation": {
+        "bibtex_key": "peterson-nwab-data",
+        "external": true
+      }
+    },
+    {
+      "id": "nwab-final-report-2026",
+      "name": "Northwest Alberta NRV -- Final Report (June 2026)",
+      "source": {
+        "type": "literature",
+        "url": "https://friaa.ca"
+      },
+      "retrieved_at": "2026-06-17T21:09:16Z",
+      "local_path": "reports/2026/2026-06-08_NWAB_Final_Report.pdf",
+      "description": "NRV results and scenario comparison for the NW Alberta fire-cycle update.",
+      "version_or_vintage": "June 2026",
+      "license": "FRIAA report",
+      "citation": {
+        "bibtex_key": "peterson-nwab-final",
+        "external": true
+      }
+    },
+    {
+      "id": "scanfi-species-2020",
+      "name": "SCANFI v2 per-species crown closure (2020)",
+      "source": {
+        "type": "drive",
+        "url": "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"
+      },
+      "retrieved_at": "2026-06-26T01:38:39Z",
+      "local_path": "inputs/SCANFI_spsCC_ABIE_BAL_2020_v2_20260119.tif",
+      "description": "30 m per-species percent crown-closure rasters; the v3 species initial-conditions source (SCANFI_spsCC_<code>_2020_v2_20260119.tif).",
+      "version_or_vintage": "2020, v2 (stamp 20260119)",
+      "license": "OGL-Canada-2.0",
+      "citation": {
+        "bibtex_key": "scanfi-v2",
+        "external": true
+      }
+    },
+    {
+      "id": "scanfi-structure-2020",
+      "name": "SCANFI v2 stand age, biomass, land cover (2020)",
+      "source": {
+        "type": "drive",
+        "url": "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"
+      },
+      "retrieved_at": "2026-06-26T00:26:17Z",
+      "local_path": "inputs/SCANFI_age_median_2020_v2_20260119.tif",
+      "description": "30 m SCANFI attribute rasters (median age, biomass, NFI land-cover class) used for v3 age/biomass/LCC initial conditions.",
+      "version_or_vintage": "2020, v2 (stamp 20260119)",
+      "license": "OGL-Canada-2.0",
+      "citation": {
+        "bibtex_key": "scanfi-methods",
+        "external": true
+      }
+    }
+  ]
+}

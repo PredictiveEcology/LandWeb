@@ -1,6 +1,6 @@
 ---
 title: "LandWeb Study-Area Vegetation"
-subtitle: "SCANFI species composition over the LandWeb study area"
+subtitle: "SCANFI species composition, and the kNN (v2) to SCANFI (v3) initial-condition change"
 author: "Alex M. Chubaty"
 date: today
 format:
@@ -28,13 +28,35 @@ library(kableExtra)
 ## display absolute pipeline paths as short project-relative paths
 relpath <- function(p) sub("^.*/((?:inputs|outputs)/.*)$", "\\1", p, perl = TRUE)
 
-scanfi_csv <- tar_read(scanfi_veg_summary_csv)
+## read from the pipeline (the literal tar_read() calls wire the tar_quarto deps);
+## fall back to the seeded extended-analyses CSVs so the report also renders standalone.
+scanfi_csv <- tryCatch(tar_read(scanfi_veg_summary_csv), error = function(e) {
+  cand <- c("outputs/extended_analyses/scanfi_lthfc_v10_2020_veg_summary.csv",
+            "../outputs/extended_analyses/scanfi_lthfc_v10_2020_veg_summary.csv")
+  cand[file.exists(cand)][1]
+})
+knn_csv <- tryCatch(tar_read(knn_veg_summary_csv), error = function(e) {
+  cand <- c("outputs/extended_analyses/knn_lthfc_v10_2001_veg_summary.csv",
+            "../outputs/extended_analyses/knn_lthfc_v10_2001_veg_summary.csv")
+  cand[file.exists(cand)][1]
+})
 veg <- fread(scanfi_csv)
+knn <- fread(knn_csv)
 area_cells <- veg$domain_forested_cells[1]
 area_km2 <- veg$domain_area_km2[1]
 suspects <- c("TSUG_HET", "THUJ_PLI", "PINU_CON_CON")
 veg[, suspect := species %in% suspects]
 pct <- function(code) veg[species == code, pct_forested]
+
+## v2 (kNN) vs v3 (SCANFI): the LandWeb-species groups each product resolves
+grp_scanfi <- veg[, .(SCANFI = paste(unique(common_name), collapse = ", ")), by = landweb_species]
+grp_knn <- knn[, .(kNN = paste(unique(common_name), collapse = ", ")), by = landweb_species]
+grp_cmp <- merge(grp_scanfi, grp_knn, by = "landweb_species", all = TRUE)
+grp_cmp[is.na(kNN), kNN := "--- (not resolved)"]
+setorder(grp_cmp, landweb_species)
+scanfi_only <- setdiff(veg$landweb_species, knn$landweb_species)
+n_grp_knn <- length(unique(knn$landweb_species))
+n_grp_scanfi <- length(unique(veg$landweb_species))
 ```
 
 \newpage
@@ -56,10 +78,15 @@ This report summarizes the SCANFI v2 (2020) [@scanfi-v2] per-species
 source species that maps to a simulated LandWeb species it reports the number
 (and %) of forested study-area cells carrying *any* cover.
 
-Its primary purpose is to document the evidence behind the
+One primary purpose is to document the evidence behind the
 **`THUJ_PLI`/`TSUG_HET` → `Abie_spp` merge** in `LandWeb_preamble`: western
 redcedar and western hemlock are a *localized* SCANFI over-attribution in the
 SW Alberta Rockies, not a study-area-wide signal.
+
+It also documents the **change in starting conditions from v2 to v3**: the
+underlying tree-species product moved from the Beaudoin *k*NN (2001) maps
+[@BeaudoinEtAl2014] to SCANFI (2020) [@scanfi-v2] (see
+[Initial conditions: Beaudoin kNN (2001) to SCANFI (2020)]).
 
 # Study area composition
 
@@ -141,6 +168,96 @@ so it is left merged into `Pinu_spp`, where --- like all pines --- it is harmles
 
 \newpage
 
+# Initial conditions: Beaudoin kNN (2001) to SCANFI (2020)
+
+The v2 model built its starting species/biomass/age conditions from the Beaudoin
+*k*NN maps [@BeaudoinEtAl2014] --- 250 m, 2001 base year, derived by *k*-nearest-neighbours
+from MODIS imagery and NFI photo-plots. v3 replaces these with SCANFI (2020)
+[@scanfi-v2; @scanfi-methods] at 30 m. Because the model's initial vegetation is read
+directly from this product, the switch changes the composition the simulation starts from,
+in two ways: **which species are resolved**, and **their mapped extent**.
+
+## Species the two products resolve
+
+```{r}
+#| label: tbl-resolved
+#| tbl-cap: "Tree species each inventory resolves, grouped by simulated LandWeb species. SCANFI (v3) resolves larch and Douglas-fir --- absent from the kNN product (v2) --- and additionally splits Engelmann spruce and the two *Pinus contorta* varieties."
+knitr::kable(
+  grp_cmp[, .(
+    `LandWeb species` = landweb_species,
+    `kNN (v2, 2001)` = kNN,
+    `SCANFI (v3, 2020)` = SCANFI
+  )],
+  align = "lll", booktabs = TRUE
+) |>
+  kable_styling(font_size = 8, latex_options = "hold_position") |>
+  column_spec(2:3, width = "15em")
+```
+
+The kNN product resolves **`r n_grp_knn`** LandWeb species groups; SCANFI resolves
+**`r n_grp_scanfi`**. The two SCANFI adds are consequential:
+**`r paste(scanfi_only, collapse = " and ")`** --- i.e. **larch/tamarack** and
+**Douglas-fir**, which have no kNN layer at all. SCANFI also resolves Engelmann spruce
+(folded into `Pice_gla`) and both *Pinus contorta* varieties, where kNN carried a single
+lumped fir group and a single lodgepole layer.
+
+## Composition shift
+
+```{r}
+#| label: tbl-knn-composition
+#| tbl-cap: "Beaudoin kNN (2001) per-species mean cover and prevalence over the LandWeb study area (sorted by mean cover)."
+knitr::kable(
+  knn[, .(
+    `kNN species` = common_name,
+    `LandWeb species` = landweb_species,
+    `Mean cover %` = sprintf("%.2f", mean_cover),
+    `% of domain (cover > 0)` = sprintf("%.2f", pct_domain)
+  )],
+  align = "llrr", booktabs = TRUE
+) |>
+  kable_styling(font_size = 8, latex_options = "hold_position")
+```
+
+```{r}
+#| label: fig-knn-composition
+#| fig-cap: "Beaudoin kNN (2001) mean cover by species over the LandWeb study area, coloured by simulated LandWeb species. The kNN product carries no larch or Douglas-fir layer."
+ggplot(knn, aes(reorder(common_name, mean_cover), mean_cover, fill = landweb_species)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = NULL, y = "Mean cover (%) over the study area", fill = "LandWeb\nspecies") +
+  theme_minimal(base_size = 12)
+```
+
+Both products agree on the dominant signature --- **black spruce** leads by a wide margin,
+followed by aspen, jack pine, and white spruce. The most consequential difference is at #2:
+in SCANFI, **tamarack/larch (`Lari_spp`) is the second most prevalent group** (on
+**`r sprintf("%.1f", sum(veg[landweb_species == "Lari_spp", pct_forested]))`%** of the study
+area), yet the kNN product has **no larch layer** --- so the v2 model started with that entire
+LandWeb species group absent. The two products' resolutions (250 m vs 30 m) make the raw
+prevalence values not directly comparable in magnitude, so the comparison here emphasizes the
+species set and relative ordering rather than absolute percentages.
+
+## Bearing on simulated outcomes
+
+Because the initial cohort composition is seeded from this product, the v3 starting landscape
+carries a **richer species pool** (`r n_grp_scanfi` vs `r n_grp_knn` LandWeb groups) with
+larch and Douglas-fir newly present, Engelmann spruce distinguished, and a two-decade-newer
+vintage (2001 to 2020) that already reflects the intervening disturbance and growth. These
+initial-condition differences are one of the contributors to any change in simulated outcomes
+between v2 and v3, alongside the fire-input update (report 02) and the code/module changes
+(report 03); the output comparison (report 04) is where their combined effect is quantified.
+
+::: {.callout-note}
+**Scope of this comparison.** This section compares *species composition* only. Two related
+initial-condition changes are out of scope here: (1) the **stand-age and biomass** layers
+(kNN 250 m vs SCANFI 30 m), whose study-area-wide comparison needs the gated 30 m scan; and
+(2) the **current-condition** update from the earlier CASFRI/Pickell-era layers to the 2026
+merged Alberta AVI + BC VRI + national SBFI composite, which is pending that composite being
+staged locally.
+:::
+
+\newpage
+
 # References {.unnumbered}
 
 ::: {#refs}
@@ -150,12 +267,18 @@ so it is left merged into `Pinu_spp`, where --- like all pines --- it is harmles
 
 # Provenance {.unnumbered}
 
-- **Source:** SCANFI v2 species crown-closure layers [@scanfi-v2], derived via
+- **Sources:** SCANFI v2 species crown-closure layers [@scanfi-v2], derived via
   the SCANFI approach [@scanfi-methods]
-  (`SCANFI_spsCC_<code>_2020_v2_20260119.tif`), masked to the LandWeb study area
-  (the LTHFC v10 union, `landweb_ltfc_v10`).
-- **Data file:** `` `r relpath(scanfi_csv)` ``
-- **Method:** `R/scanfi_veg_summary.R`, built by the gated
-  `landweb.extended_analyses` target. The scan is multi-hour over the
-  ~3.0 M km^2^ study area, so the result is cached as a `format = "file"` target
-  and reused unless the CSV is deleted or the SCANFI/LTHFC version stamp changes.
+  (`SCANFI_spsCC_<code>_2020_v2_20260119.tif`); and the Beaudoin *k*NN 2001
+  species layers [@BeaudoinEtAl2014]
+  (`NFI_MODIS250m_2001_kNN_Species_<Sp>_v1.tif`). Both masked to the LandWeb
+  study area (the LTHFC v10 union, `landweb_ltfc_v10`).
+- **Data files:** `` `r relpath(scanfi_csv)` `` (SCANFI);
+  `` `r relpath(knn_csv)` `` (kNN).
+- **Method:** `R/scanfi_veg_summary.R` (multi-hour over the ~3.0 M km^2^ study
+  area at 30 m) and `R/knn_veg_summary.R` (~40 s at 250 m), both cache-aware
+  `format = "file"` targets built by the gated `landweb.extended_analyses`
+  factory; reused unless the CSV is deleted or a version stamp in its name
+  changes.
+
+{{< include _provenance-appendix.qmd >}}

@@ -1,0 +1,327 @@
+---
+title: "LandWeb Fire-Model Inputs"
+subtitle: "The LandMine LTHFC (fire-return-interval) layer and its v10 update"
+author: "Alex M. Chubaty"
+date: today
+format:
+  pdf:
+    pdf-engine: pdflatex
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fontsize: 11pt
+fig-width: 8
+fig-height: 6
+bibliography:
+  - ../citations/references.bib
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(targets)
+library(data.table)
+library(ggplot2)
+library(kableExtra)
+
+## display absolute pipeline paths as short project-relative paths
+relpath <- function(p) sub("^.*/((?:inputs|outputs)/.*)$", "\\1", p, perl = TRUE)
+
+## Read the LTHFC version summary from the pipeline; fall back to the seeded
+## extended-analyses CSV so this report also renders standalone.
+lthfc_csv <- tryCatch(
+  tar_read(lthfc_version_summary_csv),
+  error = function(e) {
+    cand <- c(
+      "outputs/extended_analyses/lthfc_version_summary.csv",
+      "../outputs/extended_analyses/lthfc_version_summary.csv"
+    )
+    cand[file.exists(cand)][1]
+  }
+)
+lthfc <- fread(lthfc_csv)
+
+## coarse fire-return-interval bins (years); fri == 0 is the v8c non-burnable code
+lthfc[, bin := cut(
+  fri,
+  breaks = c(-1, 0, 40, 60, 80, 120, Inf),
+  labels = c("non-burnable", "1-40", "41-60", "61-80", "81-120", "121+")
+)]
+
+tot <- lthfc[, .(total_km2 = sum(area_km2)), by = version]
+nonburn <- lthfc[fri == 0, .(nonburn_km2 = sum(area_km2)), by = version]
+km <- function(v) format(round(tot[version == v, total_km2]), big.mark = ",")
+
+## v8c -> v10 area by coarse bin (burnable only)
+burn <- lthfc[fri > 0]
+cmp <- dcast(burn[version %in% c("v8c", "v10")], bin ~ version,
+  value.var = "area_km2", fun.aggregate = sum
+)
+## dcast orders columns alphabetically (v10 before v8c); force v8c, v10 so the
+## positional col.names in tbl-area-bin line up with the data.
+setcolorder(cmp, c("bin", "v8c", "v10"))
+band <- function(b, v) cmp[bin == b][[v]]
+```
+
+\newpage
+
+::: {.callout-warning}
+**Draft report: pending human review**
+
+Portions of this document were drafted with the help of generative AI (large language models) and
+have not yet been fully reviewed by the co-authors.
+Content may be incomplete, inaccurate, or misattributed.
+This notice will be removed once a complete review has been carried out.
+:::
+
+# Overview
+
+LandWeb simulates wildfire with an implementation of **LandMine** [@Andison:1996; @Andison:1998].
+The single most important spatial input to that fire model is the **LTHFC** (Long-Term Historic
+Fire Cycle) polygon layer: each polygon carries an integer **fire-return interval (FRI, years)**
+that sets how often that part of the landscape burns. This report documents the current **v10**
+LTHFC layer --- in particular the **June 2026 Northwest Alberta (NWAB) update**
+[@peterson-nwab-data; @peterson-nwab-final] --- and compares it against the previously used **v8c**
+layer and the **Spray Lake Sawmills (SLS v3)** variant.
+
+The key message is a clean modelling seam: **v10 changes only the fire-return interval assigned to
+each zone. Everything else in the fire model is unchanged.** Any change in simulated fire regime
+attributable to inputs therefore traces to the FRI-by-zone values documented here.
+
+# How LandMine uses the LTHFC layer
+
+The LTHFC polygons enter the pipeline as a fire-return-interval raster and drive ignition
+frequency:
+
+- `LandWeb_preamble` downloads the v10 layer, renames its FRI field to `fireReturnInterval`, cleans
+  the polygons (`LandWebUtils::polygonClean(type = "LandWeb", minFRI = ...)`), and rasterizes
+  `fireReturnInterval` onto the study-area grid.
+- `LandMine` consumes `fireReturnInterval` (years) together with a separate flammability mask
+  (`rstFlammable`). The number of fires ignited per year in a zone is derived from that zone's area
+  and its FRI (zone area / mean fire size / FRI).
+
+Crucially, **only the fire-return interval comes from the LTHFC layer.** The fire-size distribution
+(a Truncated Pareto), the rate of spread (`ROSTable`, `ROSother`), and the per-pixel spread
+probability all come from LandMine's own parameters and its `DEoptim` calibration table --- not from
+the LTHFC polygons. This is why a v8c-to-v10 swap is cleanly interpretable: it moves area between
+FRI classes and nothing else.
+
+# The v10 update: Northwest Alberta NRV (2026)
+
+The v10 layer incorporates a major revision to the fire regime of **northwest Alberta**, produced by
+braiding Western science with Indigenous and long-time-resident knowledge
+[@peterson-nwab-data; @peterson-nwab-final]. It replaces the original characterization from the
+LandWeb pre-industrial fire-regime synthesis [@Andison:2019], which had assigned NW Alberta a
+**default 100-year** fire cycle --- a value the synthesis itself flagged as lowest-confidence and
+likely too long.
+
+## Method (in brief)
+
+1. **Time-since-fire** reconstruction from four stand-origin layers (reference years 1990 and 2023,
+   each in *Liberal* and *Conservative* confidence in mapped fires), built from a hierarchical
+   source-priority rule set (fire-history records, then undisturbed AVI, pre-harvest AVI, minimum
+   harvest age, adjacency, and the 1949--1956 Broad-Scale Inventory).
+2. **Fire cycle** estimated as the slope of cumulative undisturbed area against time-since-fire on a
+   semi-log plot [the method of Reed et al. 1998, per @peterson-nwab-data]. An inflection near
+   **1960** separates the pre-industrial regime (fire cycles of about 43--53 yr) from the
+   fire-control era (about 354--460 yr).
+3. **Three scenarios** bracket the estimate --- *Shortest*, *Intermediate*, and *Longest* --- cut to
+   Canadian eco-districts so the zones integrate seamlessly into the larger LandWeb map.
+
+The project recommends, and LandWeb adopts, the **Intermediate** scenario.
+
+## Fire-return intervals by natural subregion
+
+```{r}
+#| label: tbl-fri-nsr
+#| tbl-cap: "NWAB fire-return intervals (years) by Alberta natural subregion, per scenario. Reproduced from @peterson-nwab-data, Table 2-5; the adopted Intermediate column is in bold."
+fri_nsr <- data.frame(
+  NSR = c("Boreal Subarctic", "Central Mixedwood", "Dry Mixedwood",
+          "Lower Boreal Highlands", "Northern Mixedwood", "Upper Boreal Highlands"),
+  Shortest = c(45, 45, 35, 45, 45, 35),
+  Intermediate = c(55, 55, 40, 55, 55, 45),
+  Longest = c(65, 65, 45, 65, 65, 55)
+)
+knitr::kable(fri_nsr, align = "lrrr", booktabs = TRUE,
+  col.names = c("Natural subregion", "Shortest", "Intermediate (adopted)", "Longest")) |>
+  kable_styling(font_size = 9, latex_options = "hold_position") |>
+  column_spec(3, bold = TRUE)
+```
+
+Against the original 100-year default, the adopted intervals of **40--55 years** roughly *halve*
+the fire cycle across NW Alberta, which (per the Final Report) raises the modelled proportion of
+young forest and lowers old forest in the natural range of variation for that region.
+
+# Version comparison: v10 vs v8c vs SLS v3
+
+This section is derived directly from the LTHFC shapefiles in `inputs/` by
+`R/lthfc_summary.R` (area-by-FRI over each layer). The three layers span slightly different extents
+and schemas: **v10** (`r km("v10")` km^2^, field `LTFC10`, LCC projection), **v8c**
+(`r km("v8c")` km^2^, field `LTHFC`, UTM 11N), and **SLS v3**
+(`r km("sls_v3")` km^2^, field `LTHFC`, UTM 11N).
+
+## Where the change is
+
+```{r}
+#| label: fig-lthfc-map
+#| fig-cap: "Fire-return interval across the LandWeb study area under v8c (previous) and v10 (2026). Colour runs red (short fire cycle) to yellow (long), following the NWAB mapping convention. The Northwest Alberta area revised in 2026 is outlined in black: inside it, v10 shifts toward red (shorter intervals), while the rest of the map is largely unchanged."
+#| fig-width: 8
+#| fig-height: 5.5
+library(sf)
+gpkg <- tryCatch(
+  tar_read(lthfc_change_map_gpkg),
+  error = function(e) {
+    cand <- c(
+      "outputs/extended_analyses/lthfc_change_map.gpkg",
+      "../outputs/extended_analyses/lthfc_change_map.gpkg"
+    )
+    cand[file.exists(cand)][1]
+  }
+)
+mp <- st_read(gpkg, layer = "lthfc", quiet = TRUE)
+mp$band <- cut(mp$fri, breaks = c(0, 40, 60, 80, 120, Inf),
+  labels = c("1-40", "41-60", "61-80", "81-120", "121+"))
+mp$version <- factor(mp$version, levels = c("v8c (previous)", "v10 (2026)"))
+aoi <- tryCatch(st_read(gpkg, layer = "aoi", quiet = TRUE), error = function(e) NULL)
+prov <- tryCatch(st_read(gpkg, layer = "provinces", quiet = TRUE), error = function(e) NULL)
+
+## red (short cycle) -> yellow (long cycle), per the NWAB convention
+band_cols <- setNames(
+  colorRampPalette(c("red", "yellow"))(5),
+  c("1-40", "41-60", "61-80", "81-120", "121+")
+)
+
+p <- ggplot()
+if (!is.null(prov)) p <- p + geom_sf(data = prov, fill = "grey96", color = "grey75", linewidth = 0.2)
+p <- p + geom_sf(data = mp, aes(fill = band), color = NA)
+if (!is.null(prov)) p <- p + geom_sf(data = prov, fill = NA, color = "grey40", linewidth = 0.2)
+if (!is.null(aoi)) p <- p + geom_sf(data = aoi, fill = NA, color = "black", linewidth = 0.7)
+bb <- sf::st_bbox(mp)
+p +
+  scale_fill_manual(values = band_cols, name = "Fire-return\ninterval (yr)", drop = FALSE) +
+  coord_sf(xlim = bb[c("xmin", "xmax")], ylim = bb[c("ymin", "ymax")]) +
+  facet_wrap(~version) +
+  theme_bw(base_size = 11) +
+  theme(axis.text = element_text(size = 6), legend.position = "right") +
+  labs(x = NULL, y = NULL)
+```
+
+The two versions are near-identical outside Northwest Alberta; within the outlined AOI, v10 shifts
+toward red (shorter fire cycles). The difference map below isolates that change directly.
+
+```{r}
+#| label: fig-lthfc-diff
+#| fig-cap: "Change in fire-return interval, v10 minus v8c (years), over areas burnable in both versions. Red = v10 shortened the fire cycle (more fire); blue = lengthened; grey = unchanged. The change is concentrated in the outlined Northwest Alberta AOI, where the 2026 update roughly halved the cycle."
+#| fig-width: 7
+#| fig-height: 5.5
+library(terra)
+library(tidyterra)
+dtif <- tryCatch(
+  tar_read(lthfc_diff_tif),
+  error = function(e) {
+    cand <- c(
+      "outputs/extended_analyses/lthfc_diff.tif",
+      "../outputs/extended_analyses/lthfc_diff.tif"
+    )
+    cand[file.exists(cand)][1]
+  }
+)
+dr <- terra::rast(dtif)
+
+pd <- ggplot()
+if (!is.null(prov)) pd <- pd + geom_sf(data = prov, fill = "grey96", color = "grey75", linewidth = 0.2)
+pd <- pd + tidyterra::geom_spatraster(data = dr, maxcell = 5e5)
+if (!is.null(prov)) pd <- pd + geom_sf(data = prov, fill = NA, color = "grey40", linewidth = 0.2)
+if (!is.null(aoi)) pd <- pd + geom_sf(data = aoi, fill = NA, color = "black", linewidth = 0.7)
+pd +
+  scale_fill_gradient2(
+    low = "red", mid = "grey92", high = "blue", midpoint = 0,
+    na.value = "transparent", name = "FRI change\n(yr; v10 - v8c)"
+  ) +
+  coord_sf(xlim = bb[c("xmin", "xmax")], ylim = bb[c("ymin", "ymax")]) +
+  theme_bw(base_size = 11) +
+  theme(axis.text = element_text(size = 6)) +
+  labs(x = NULL, y = NULL)
+```
+
+## Area by fire-return interval
+
+```{r}
+#| label: tbl-area-bin
+#| tbl-cap: "Study-area area (thousand km2) by fire-return-interval band (years) under v8c vs v10 (burnable polygons only)."
+cmp_tbl <- copy(cmp)
+for (v in c("v8c", "v10")) set(cmp_tbl, j = v, value = round(cmp_tbl[[v]] / 1000, 1))
+knitr::kable(cmp_tbl, align = "lrr", booktabs = TRUE,
+  col.names = c("FRI band (yr)", "v8c (1000 km2)", "v10 (1000 km2)")) |>
+  kable_styling(font_size = 9, latex_options = "hold_position")
+```
+
+```{r}
+#| label: fig-area-bin
+#| fig-cap: "Study-area area by fire-return-interval band, v8c vs v10 (burnable polygons only). v10 shifts area out of the longest intervals and into the 41--60 yr band --- the NW Alberta halving."
+pd <- melt(cmp, id.vars = "bin", variable.name = "version", value.name = "area_km2")
+pd <- pd[!is.na(bin)]
+ggplot(pd, aes(bin, area_km2 / 1000, fill = version)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.75) +
+  scale_fill_manual(values = c(v8c = "grey60", v10 = "firebrick"),
+    labels = c(v8c = "v8c (previous)", v10 = "v10 (2026)")) +
+  labs(x = "Fire-return interval (years)", y = "Area (thousand km2)", fill = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top")
+```
+
+The signature of the NW Alberta update is visible at the landscape scale: relative to v8c, v10 moves
+roughly **`r round((band("41-60","v10") - band("41-60","v8c"))/1000)` thousand km^2^** of
+additional area into the **41-60 year** band (`r round(band("41-60","v8c")/1000)` to
+`r round(band("41-60","v10")/1000)` thousand km^2^), drawing it down from the **81-120**
+and **over-120** year bands. Note this is a *partial* update: v10 revises NW Alberta only, so most of
+the map retains its earlier intervals, and full re-integration of the Intermediate scenario across
+the whole LandWeb LTHFC map remains outstanding [@peterson-nwab-final].
+
+## The schema and non-burnable-coding change
+
+The v10 layer is not just new values --- it is a new schema. The FRI field was renamed
+(`LTHFC` to `LTFC10`), the projection changed (UTM 11N to LCC), and non-burnable land is
+handled differently: **v8c encoded `r format(round(nonburn[version == "v8c", nonburn_km2]), big.mark = ",")` km^2^
+as fire-return interval `0`**, whereas v10 carries no `0` class and instead marks water via a lakes
+attribute. Downstream, `minFRI` in the preamble still maps very-short intervals to non-burnable; with
+v10's 35-year minimum nothing is dropped at the pipeline's current `minFRI = 25`.
+
+The **SLS v3** layer is the Spray Lake Sawmills variant of the map (a near-full-extent layer, not a
+local patch); it was the source from which the Spray Lake / Crowsnest polygons were taken to build
+the interim `v8d` patch (`R/new_lthfc.R`). It is included here for the requested comparison but is
+not the current pipeline input.
+
+# Expected effect on the simulated fire regime
+
+Because LandMine derives ignition frequency directly from FRI, shortening NW Alberta's fire cycle
+increases the number of fires there, which over a multi-century run raises the proportion of
+young/recently-burned forest and lowers old forest --- shifting the seral-stage natural range of
+variation for that region. Quantifying that shift in simulated outputs (v2 vs v3) is the subject of
+the output-comparison report.
+
+\newpage
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+\newpage
+
+# Provenance {.unnumbered}
+
+- **v10 source:** the NWAB Intermediate fire-return intervals [@peterson-nwab-data], cut into the
+  LandWeb LTHFC map; `inputs/landweb_ltfc_v10.shp` (field `LTFC10`). Original fire-cycle
+  characterization from @Andison:2019.
+- **Comparison layers:** `inputs/landweb_ltfc_v8c.shp` (field `LTHFC`),
+  `inputs/ltfc_sls_v3.shp` (field `LTHFC`).
+- **Data file:** `` `r relpath(lthfc_csv)` ``
+- **Method:** `R/lthfc_summary.R`, built by the gated `lthfc_version_summary_csv` target. Areas are
+  geodesic (each layer reprojected to EPSG:4326, then `sf::st_area`) so the differently-projected
+  layers are comparable. The scan is light and cached as a `format = "file"` target; delete the CSV
+  to recompute.
+- **FRI-by-NSR table** reproduced from @peterson-nwab-data, Table 2-5.
+
+{{< include _provenance-appendix.qmd >}}
