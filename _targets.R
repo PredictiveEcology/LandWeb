@@ -155,6 +155,13 @@ p_mainSim <- list(
     ## "LandR" has a one-to-many mapping to the 7 LandWeb groups (e.g. Abie_spp <-
     ## Abie_bal/Abie_las/Thuj_pli/Tsug_het), which fails plotSummaryBySpecies' assertion.
     sppEquivPlotCol = "LandWeb",
+    ## vegetation-transition plots, built natively by Biomass_core (supersedes the
+    ## standalone `R/transition_plots.R`). Times mirror the NRV summary outputs
+    ## (year 0 + `summaryPeriod` at `summaryInterval`); `.plotTransitionField = NA`
+    ## dissolves `studyAreaReporting` into a single zone per study area.
+    .plotTransitionTimes = as.integer(c(0, seq(globals$summaryPeriod[1L], globals$summaryPeriod[2L],
+                                               by = globals$summaryInterval))),
+    .plotTransitionField = NA_character_,
     .useCache = FALSE
   ),
   Biomass_regeneration = list(
@@ -375,7 +382,87 @@ list(
     }
   ),
 
-  ## Stage 5b: summaries (NRV_summary) + report -- next
+  ## ---- Stage 5b: post-processing summaries (mode="multi") --------------------
+  ## Phase 2 of the two-phase design: NRV_summary + burnSummaries re-run as their
+  ## OWN targets in mode="multi", aggregating the per-rep files Phase 1 (mainSim)
+  ## saved under outputs/mainSim/rep%02d/ into the NRV envelopes + fire summaries.
+  ##
+  ## out_dir = outputs/mainSim -- the PARENT of the rep dirs: both modules read
+  ## outputPath(sim)/rep%02d/ and write their aggregates back into outputPath(sim)
+  ## (the v2 postprocess pattern from box/landweb.R, where the summary outputPath
+  ## is the per-study-area parent, not a per-rep subdir). clean_out_dir = FALSE so
+  ## run_simspades does NOT wipe outputs/mainSim first -- that would delete the rep
+  ## outputs being aggregated. The bare `mainSim_files` reference is a dependency
+  ## anchor: the modules discover the per-rep files via dir_ls() at run time (not
+  ## sim_inputs), so referencing it forces Phase 1 to run first and re-runs the
+  ## summaries whenever a rep output changes.
+
+  ## NRV_summary (mode="multi"): landscape (lm) + patch (pm) metric envelopes per
+  ## reporting polygon, via nrvtools' arrow-native summarize_nrv() path.
+  tar_simspades(
+    "summaries_nrv",
+    modules = "NRV_summary",
+    out_dir = file.path("outputs", "mainSim"),
+    clean_out_dir = FALSE,
+    params = list(
+      .globals = globals,
+      NRV_summary = list(
+        mode = "multi",
+        reps = seq_len(local$n_reps),
+        simTimes = c(0, local$sim_end),
+        postprocessEvents = c("lm", "pm"),
+        .useCache = FALSE
+      )
+    ),
+    times = list(start = 0, end = local$sim_end),
+    paths = local$paths,
+    ## reportingPolygons (geographic layers) + the sim objects the lm/pm events
+    ## read in-memory (studyAreaReporting, sppEquiv, sppColorVect; speciesLayers
+    ## via inputs). TODO (module-contract, resolve at the first data-backed run):
+    ## merge the sim-sourced "CC SAM" (current-condition standAgeMap) / "CC TSF" /
+    ## "ecoregionLayer" entries into reportingPolygons -- patchMetrics reads
+    ## reportingPolygons[["CC SAM"]] -- AND have NRV_summary exclude those special
+    ## keys from mod$rptPolyNames so they are not iterated as reporting polygons.
+    objects = quote({
+      mainSim_files # dependency anchor: Phase-1 per-rep files must exist first
+      c(
+        list(
+          reportingPolygons = reportingPolygons,
+          sppEquiv = dataPrep$sppEquiv,
+          sppColorVect = dataPrep$sppColorVect
+        ),
+        sim_objects(preamble, objects = "studyAreaReporting", files = preamble_files)
+      )
+    }),
+    inputs = quote(sim_inputs(dataPrep, objects = "speciesLayers", files = dataPrep_files))
+  ),
+
+  ## burnSummaries (mode="multi"): mean-annual cumulative burn maps + across-rep
+  ## fire-size distribution (fireregimetools' arrow-native open_burn_dataset /
+  ## fire_size_histogram). Reads per-rep burnMap/flammableMap + the fire-size
+  ## parquet partitions from outputs/mainSim/rep%02d/ and downloads NFDB polygons
+  ## into inputPath; needs no in-memory sim objects.
+  tar_simspades(
+    "summaries_burn",
+    modules = "burnSummaries",
+    out_dir = file.path("outputs", "mainSim"),
+    clean_out_dir = FALSE,
+    params = list(
+      .globals = globals,
+      burnSummaries = list(
+        mode = "multi",
+        reps = seq_len(local$n_reps),
+        simTimes = c(0, local$sim_end),
+        .useCache = FALSE
+      )
+    ),
+    times = list(start = 0, end = local$sim_end),
+    paths = local$paths,
+    objects = quote({
+      mainSim_files # dependency anchor: Phase-1 per-rep burn/flammable maps first
+      list()
+    })
+  ),
 
   ## Gated extended analyses (empty list unless landweb.extended_analyses is set
   ## in _local.R). targets flattens nested lists, so this splices in cleanly.

@@ -860,14 +860,14 @@
     },
     "SpaDES.targets": {
       "Package": "SpaDES.targets",
-      "Version": "0.0.0.9012",
+      "Version": "0.0.0.9013",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "SpaDES.targets",
       "RemoteRef": "main",
-      "RemoteSha": "b1f68a54670f846f2d6b82eb22fa9313f77432d6",
+      "RemoteSha": "2246eb01e5fda9c08c26c5d1cebac20156d3d182",
       "Requirements": [
         "R",
         "cli",
@@ -880,7 +880,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "a6cbcb5e6b36167df429556eb48bfbd7"
+      "Hash": "b8440f83f2173171ea61b8e86f94a4e2"
     },
     "SpaDES.tools": {
       "Package": "SpaDES.tools",
@@ -2180,6 +2180,27 @@
       ],
       "Hash": "4c6404890c266750b9670c9d20f74940"
     },
+    "fireregimetools": {
+      "Package": "fireregimetools",
+      "Version": "0.0.1",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "FOR-CAST",
+      "RemoteRepo": "fireregimetools",
+      "RemoteRef": "main",
+      "RemoteSha": "d6e2ed4b75b0d0f0a3cfeae8e818b3945363e94b",
+      "Requirements": [
+        "R",
+        "arrow",
+        "dplyr",
+        "fs",
+        "ggplot2",
+        "rlang",
+        "stats"
+      ],
+      "Hash": "bdb693ed14a2f9ca76d15e52eb7a1969"
+    },
     "fontawesome": {
       "Package": "fontawesome",
       "Version": "0.5.3",
@@ -2492,6 +2513,34 @@
         "tidyselect"
       ],
       "Hash": "e9cd76c34b2069fd4c3d3124124554e4"
+    },
+    "ggforce": {
+      "Package": "ggforce",
+      "Version": "0.5.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "MASS",
+        "R",
+        "cli",
+        "cpp11",
+        "ggplot2",
+        "grDevices",
+        "grid",
+        "gtable",
+        "lifecycle",
+        "polyclip",
+        "rlang",
+        "scales",
+        "stats",
+        "systemfonts",
+        "tidyselect",
+        "tweenr",
+        "utils",
+        "vctrs",
+        "withr"
+      ],
+      "Hash": "b70a0949e4de295ec6814a143f61fbb0"
     },
     "ggplot2": {
       "Package": "ggplot2",
@@ -3996,6 +4045,40 @@
         "yaml"
       ],
       "Hash": "0f04e9d4d839d9b839d5cfdc9b2e1203"
+    },
+    "nrvtools": {
+      "Package": "nrvtools",
+      "Version": "0.1.1",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "FOR-CAST",
+      "RemoteRepo": "nrvtools",
+      "RemoteRef": "main",
+      "RemoteSha": "69d5ef4d0c5b3cc66103f653dc644073d9e43e08",
+      "Requirements": [
+        "R",
+        "arrow",
+        "assertthat",
+        "data.table",
+        "dplyr",
+        "exactextractr",
+        "fs",
+        "future.apply",
+        "ggforce",
+        "ggplot2",
+        "landscapemetrics",
+        "methods",
+        "purrr",
+        "rlang",
+        "sf",
+        "stats",
+        "terra",
+        "tidyterra",
+        "tools",
+        "utils"
+      ],
+      "Hash": "73a1e9ed2e427e0b00e9d79e303ffb33"
     },
     "numDeriv": {
       "Package": "numDeriv",
@@ -6094,6 +6177,21 @@
         "xfun"
       ],
       "Hash": "263651b52279eaa7835e44aa32f9b754"
+    },
+    "tweenr": {
+      "Package": "tweenr",
+      "Version": "2.0.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "cpp11",
+        "farver",
+        "magrittr",
+        "rlang",
+        "vctrs"
+      ],
+      "Hash": "82fac2b73e6a1f3874fc000aaf96d8bc"
     },
     "tzdb": {
       "Package": "tzdb",
