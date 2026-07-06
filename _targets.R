@@ -51,11 +51,13 @@ primary_controller <- if (length(getOption("crew.ssh.nodes"))) {
     crashes_max = 25L
   )
 } else {
-  ## local fallback -- a small pool on whatever machine runs tar_make (e.g. running directly on a
-  ## compute node with no _hosts.R present). seconds_idle = Inf keeps workers for the whole run.
+  ## local fallback -- a pool sized by local$local_workers on whatever machine runs tar_make (e.g.
+  ## running directly on a compute node with no _hosts.R present); set it >= n_reps so all mainSim
+  ## branches run in one wave. Still capped by availableCores. seconds_idle = Inf keeps workers for
+  ## the whole run.
   crew::crew_controller_local(
     name = "primary",
-    workers = min(parallelly::availableCores(omit = 1), 4L),
+    workers = min(parallelly::availableCores(omit = 1), local$local_workers),
     seconds_idle = Inf,
     options_local = crew::crew_options_local(log_directory = "/tmp/crew_worker_logs")
   )

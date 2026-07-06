@@ -34,6 +34,12 @@ local <- list(
   ## within-rep data.table threads (pinned per worker; workers don't source this file)
   dt_threads = 2L,
 
+  ## crew workers for the LOCAL fallback controller (used when tar_make runs directly on a
+  ## compute node, i.e. no _hosts.R). Sized >= n_reps so all mainSim branches run in ONE wave;
+  ## capped by availableCores at pipeline-definition time (the fleet nodes have plenty -- picea
+  ## has 96 cores). Ignored on the control node, which uses crew.ssh across _hosts.R nodes.
+  local_workers = 8L,
+
   ## raster resolution / pixel size (m); LandWeb default 240 (also supports 120)
   ## TODO: evaluate whether running at 120 m is an improvement and practical
   ## (output quality vs ~4x RAM/scratch/runtime). Must be applied GLOBALLY (all
