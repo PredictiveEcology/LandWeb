@@ -335,14 +335,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3.9011",
+      "Version": "1.0.3.9012",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "cf29ea06e4a33a4267c54982062beb8d7946b205",
+      "RemoteSha": "477db2b98d3b3f231965bfd2220cba0c7e641e50",
       "Requirements": [
         "R",
         "SpaDES.tools",
@@ -371,7 +371,7 @@
         "withr",
         "workflowtools"
       ],
-      "Hash": "a6e581a27299b2f77f6fee9130ce5d9f"
+      "Hash": "7038fed1cc2b0348bfe45c87158c0df6"
     },
     "MASS": {
       "Package": "MASS",
@@ -4050,14 +4050,14 @@
     },
     "nrvtools": {
       "Package": "nrvtools",
-      "Version": "0.1.1",
+      "Version": "0.1.2",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "nrvtools",
       "RemoteRef": "main",
-      "RemoteSha": "69d5ef4d0c5b3cc66103f653dc644073d9e43e08",
+      "RemoteSha": "3b5c454aabf328bc03c93bd288fc407db85a032f",
       "Requirements": [
         "R",
         "arrow",
@@ -4080,7 +4080,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "73a1e9ed2e427e0b00e9d79e303ffb33"
+      "Hash": "e903cb0805b1db0357a6d0f32cfa5e76"
     },
     "numDeriv": {
       "Package": "numDeriv",
