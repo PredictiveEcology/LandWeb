@@ -6,12 +6,13 @@
 # .Rprofile). Do not set the same value in two places.
 
 local <- list(
-  ## Phase-0 spike: ONE small study area, single replicate.
+  ## Phase-0 spike: ONE small study area, 5 stochastic replicates (mainSim branches
+  ## over rep_index via pattern = map(rep_index)).
   ## SprayLake is the smallest Alberta FMA (~2,485 km^2). NB: it has a special-case
   ## branch in LandWeb_preamble.R; Edson (~2,660 km^2) is the next-smallest AB FMA
   ## without special-casing if a cleaner path is wanted.
   study_areas = c("SprayLake"),
-  n_reps = 1L,
+  n_reps = 5L,
 
   ## SpaDES paths. Heavy IO belongs on docker-visible NVMe scratch, not /home or NFS.
   ## TODO (after a preamble run completes): these paths are NOT reaching the run --

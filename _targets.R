@@ -1,4 +1,4 @@
-# _targets.R -- LandWeb pipeline (Phase-0 spike: 1 study area, n_reps = 1).
+# _targets.R -- LandWeb pipeline (Phase-0 spike: 1 study area, N replicates via map(rep_index)).
 #
 # Proves the outputs-manifest pattern (Part J of the refactor plan): each stage
 # runs simInitAndSpades in-process, declares what to save via outputs_spec()
@@ -156,7 +156,7 @@ p_mainSim <- list(
     ## Abie_bal/Abie_las/Thuj_pli/Tsug_het), which fails plotSummaryBySpecies' assertion.
     sppEquivPlotCol = "LandWeb",
     ## vegetation-transition plots, built natively by Biomass_core (supersedes the
-    ## standalone `R/transition_plots.R`). Times mirror the NRV summary outputs
+    ## former standalone transition-plot script). Times mirror the NRV summary outputs
     ## (year 0 + `summaryPeriod` at `summaryInterval`); `.plotTransitionField = NA`
     ## dissolves `studyAreaReporting` into a single zone per study area.
     .plotTransitionTimes = as.integer(c(0, seq(globals$summaryPeriod[1L], globals$summaryPeriod[2L],
@@ -300,16 +300,20 @@ list(
   ## Stage 4: mainSim (two-phase Phase 1). burnSummaries + NRV_summary run here in
   ## mode="single" (params above), replacing timeSinceFire (burnSummaries owns
   ## rstTimeSinceFire -- increments yearly, resets on burn) and LandWeb_output
-  ## (NRV_summary owns the per-year veg dumps). out_dir routes this rep's outputs into
-  ## outputs/mainSim/rep01/ so the mode="multi" summaries targets can aggregate across
-  ## rep%02d/ dirs (generalizes to rep%02d under cross(rep_index)).
+  ## (NRV_summary owns the per-year veg dumps). Branched over rep_index via
+  ## pattern = map(rep_index): each stochastic replicate runs as its own branch with
+  ## a per-rep deterministic seed, writing its outputs into outputs/mainSim/rep%02d/
+  ## so the mode="multi" summaries targets aggregate across all rep dirs.
+  ## iteration = "list" because each branch returns a run_simspades() list.
   tar_simspades(
     "mainSim",
     modules = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
     ## explicit load order: Biomass_core's `after = "Biomass_speciesParameters"` metadata refers to a
     ## module absent from this stage, breaking auto-inference; set it like the old 03-main-sim.R did.
     loadOrder = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
-    out_dir = file.path("outputs", "mainSim", "rep01"),
+    pattern = quote(map(rep_index)),
+    iteration = "list",
+    out_dir = quote(file.path("outputs", "mainSim", sprintf("rep%02d", rep_index))),
     params = p_mainSim,
     times = list(start = 0, end = local$sim_end),
     paths = local$paths,
@@ -360,7 +364,7 @@ list(
         files = dataPrep_files
       )
     ),
-    seed = 1L, # Phase-0 single rep; later: per-rep seed via cross(rep_index)
+    seed = quote(rep_index), # per-rep deterministic seed (rep 1 -> 1L, matches the validated single rep)
     plain = c("cohortData", "simulationOutput")
     ## NO outputs_spec here: in the two-phase design NRV_summary + burnSummaries
     ## (mode="single") OWN all per-rep raster saves -- pixelGroupMap/standAgeMap/
