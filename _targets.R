@@ -336,6 +336,17 @@ list(
         preamble,
         objects = c("flammableMap", "fireReturnInterval", "studyAreaReporting"),
         files = preamble_files
+      ),
+      ## studyArea + rasterToMatch are ALSO touched in Biomass_core's .inputObjects()
+      ## (it CRS-compares studyArea vs rasterToMatch and vs studyAreaReporting, e.g.
+      ## Biomass_core.R:2539/2555) -- which runs during simInit() BEFORE inputs= load.
+      ## Supplying them via inputs= leaves them NULL at that point, so the compare sees
+      ## an NA-CRS studyArea vs the loaded studyAreaReporting and spuriously reprojects
+      ## (modifies) studyAreaReporting. Pass them in-memory too, matching studyAreaReporting.
+      sim_objects(
+        dataPrep,
+        objects = c("studyArea", "rasterToMatch"),
+        files = dataPrep_files
       )
     )),
     inputs = quote(
@@ -343,20 +354,22 @@ list(
         dataPrep,
         objects = c(
           "biomassMap", "rawBiomassMap", "ecoregionMap", "pixelGroupMap", "rstLCC",
-          "standAgeMap", "speciesLayers", "rasterToMatch", "rasterToMatch_biomassParam",
-          "studyArea", "studyArea_biomassParam"
+          "standAgeMap", "speciesLayers", "rasterToMatch_biomassParam",
+          "studyArea_biomassParam"
         ),
         files = dataPrep_files
       )
     ),
     seed = 1L, # Phase-0 single rep; later: per-rep seed via cross(rep_index)
-    plain = c("cohortData", "simulationOutput"),
-    outputs = quote(outputs_spec(
-      raster = c(
-        "pixelGroupMap", "standAgeMap", "rstTimeSinceFire", "vegTypeMap",
-        "burnMap", "flammableMap"
-      )
-    ))
+    plain = c("cohortData", "simulationOutput")
+    ## NO outputs_spec here: in the two-phase design NRV_summary + burnSummaries
+    ## (mode="single") OWN all per-rep raster saves -- pixelGroupMap/standAgeMap/
+    ## vegTypeMap/flammableMap (NRV_summary save_single), rstTimeSinceFire/burnMap/
+    ## flammableMap (burnSummaries save_single), vegTypeMap (Biomass_core buildVTM) --
+    ## and registerOutputs() them. A redundant outputs= would make SpaDES saveFiles()
+    ## re-writeRaster the same paths at end(sim) WITHOUT overwrite=TRUE ->
+    ## "[writeRaster] file exists" (the 3h32m crash). mainSim_files still captures
+    ## every saved file via the modules' registerOutputs().
   ),
 
   ## ---- Stage 5: post-processing (NRV_summary) --------------------------------
@@ -458,9 +471,12 @@ list(
     ),
     times = list(start = 0, end = local$sim_end),
     paths = local$paths,
+    ## burnSummaries mode="multi" .inputObjects requires reportingPolygons
+    ## (stopifnot(suppliedElsewhere(...))). It is not otherwise used by the multi
+    ## events, but must be supplied. mainSim_files is the Phase-1 dependency anchor.
     objects = quote({
       mainSim_files # dependency anchor: Phase-1 per-rep burn/flammable maps first
-      list()
+      list(reportingPolygons = reportingPolygons)
     })
   ),
 

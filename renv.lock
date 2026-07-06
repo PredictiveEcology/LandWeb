@@ -2182,14 +2182,14 @@
     },
     "fireregimetools": {
       "Package": "fireregimetools",
-      "Version": "0.0.1",
+      "Version": "0.1.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "fireregimetools",
       "RemoteRef": "main",
-      "RemoteSha": "d6e2ed4b75b0d0f0a3cfeae8e818b3945363e94b",
+      "RemoteSha": "0c51c8676e311cf03e7e6b143303343baef71166",
       "Requirements": [
         "R",
         "arrow",
@@ -2197,9 +2197,11 @@
         "fs",
         "ggplot2",
         "rlang",
-        "stats"
+        "stats",
+        "terra",
+        "tidyterra"
       ],
-      "Hash": "bdb693ed14a2f9ca76d15e52eb7a1969"
+      "Hash": "630dc5d3f59d04e7b9522685bf3847ed"
     },
     "fontawesome": {
       "Package": "fontawesome",
