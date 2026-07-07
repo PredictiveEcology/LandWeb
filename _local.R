@@ -35,10 +35,12 @@ local <- list(
   dt_threads = 2L,
 
   ## crew workers for the LOCAL fallback controller (used when tar_make runs directly on a
-  ## compute node, i.e. no _hosts.R). Sized >= n_reps so all mainSim branches run in ONE wave;
-  ## capped by availableCores at pipeline-definition time (the fleet nodes have plenty -- picea
-  ## has 96 cores). Ignored on the control node, which uses crew.ssh across _hosts.R nodes.
-  local_workers = 8L,
+  ## compute node, i.e. no _hosts.R). TEMPORARILY 1 for a serial concurrency-isolation test: the
+  ## 8-wide one-wave run crashed all 5 mainSim reps in LandMine fire-spread (native worker crash,
+  ## not memory/seed -- even rep01/seed-1 crashed). Serial reps confirm whether it's concurrency.
+  ## Restore to >= n_reps (e.g. 8) once understood. Capped by availableCores; ignored on the
+  ## control node (crew.ssh across _hosts.R nodes).
+  local_workers = 1L,
 
   ## raster resolution / pixel size (m); LandWeb default 240 (also supports 120)
   ## TODO: evaluate whether running at 120 m is an improvement and practical
