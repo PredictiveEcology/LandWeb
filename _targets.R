@@ -20,14 +20,17 @@ source("_local.R") # per-user/host knobs, BEFORE tar_source()
 library(targets)
 library(SpaDES.targets)
 
-## Cap terra's per-process memory on every stage: with N crew workers sharing a node,
-## terra's default per-process memfrac (0.6 of RAM, no cross-worker coordination) lets
-## concurrent workers collectively OOM the node -- this SIGKILLed concurrent mainSim reps
-## in LandMine fire-spread. tar_simspades() reads this option as the mem_workers default,
-## so every stage caps terra at mem_frac * node RAM / local_workers. Matches the local pool
-## size (workers per node); harmless when tar_make runs via crew.ssh (per-node cap is the
-## same 8 in _hosts.R). Resolved on the controller, baked into each stage's command.
-options(SpaDES.targets.mem_workers = local$local_workers)
+## Terra per-process memory cap -- applied ONLY to the concurrent stage (mainSim). With N
+## crew workers sharing a node, terra's default per-process memfrac (0.6 of RAM, no
+## cross-worker coordination) lets concurrent workers collectively OOM the node -- this
+## SIGKILLed concurrent mainSim reps in LandMine fire-spread. Only mainSim runs its stages
+## concurrently (5 reps/node via map(rep_index)); preamble/speciesData/factorial/dataPrep run
+## sequentially or singly (<=2 concurrent), so they don't need the cap. Crucially, mem_workers
+## is a RUNTIME resource knob but tar_simspades() bakes it into the target's command hash, so
+## a global option would tie the expensive cached factorial (~2.2h) to local_workers and
+## needlessly rebuild it whenever the worker count changes. So the cap is passed explicitly to
+## the mainSim tar_simspades() call below (mem_workers = local$local_workers) and NOT set as a
+## global option -- the cached stages stay immune to worker-count changes.
 
 ## Gated "extended analyses" (SCANFI study-area vegetation summary + report).
 ## These define functions only; R/ also holds standalone scripts, so source the
@@ -328,6 +331,11 @@ list(
     params = p_mainSim,
     times = list(start = 0, end = local$sim_end),
     paths = local$paths,
+    ## terra memory cap: mainSim is the ONLY concurrent stage (5 reps/node), so it alone
+    ## needs the per-worker cap (mem_frac * node RAM / mem_workers) to avoid collective OOM
+    ## in LandMine fire-spread. Passed here (not as a global option) so the cached upstream
+    ## stages stay immune to worker-count changes -- see the note near the top of this file.
+    mem_workers = local$local_workers,
     objects = quote(c(
       list(
         cohortData = dataPrep$cohortData,
