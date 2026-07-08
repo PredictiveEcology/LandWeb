@@ -35,12 +35,13 @@ local <- list(
   dt_threads = 2L,
 
   ## crew workers for the LOCAL fallback controller (used when tar_make runs directly on a
-  ## compute node, i.e. no _hosts.R). TEMPORARILY 1 for a serial concurrency-isolation test: the
-  ## 8-wide one-wave run crashed all 5 mainSim reps in LandMine fire-spread (native worker crash,
-  ## not memory/seed -- even rep01/seed-1 crashed). Serial reps confirm whether it's concurrency.
-  ## Restore to >= n_reps (e.g. 8) once understood. Capped by availableCores; ignored on the
-  ## control node (crew.ssh across _hosts.R nodes).
-  local_workers = 1L,
+  ## compute node, i.e. no _hosts.R). Sized >= n_reps so all mainSim branches run in ONE wave.
+  ## The 8-wide one-wave run previously OOM-crashed in LandMine fire-spread because terra's
+  ## per-process memfrac let concurrent workers collectively exceed RAM; now safe because
+  ## tar_simspades caps terra memory at mem_frac * node RAM / local_workers (SpaDES.targets
+  ## reads SpaDES.targets.mem_workers, set from this value in _targets.R). Capped by
+  ## availableCores; ignored on the control node (crew.ssh across _hosts.R nodes).
+  local_workers = 8L,
 
   ## raster resolution / pixel size (m); LandWeb default 240 (also supports 120)
   ## TODO: evaluate whether running at 120 m is an improvement and practical

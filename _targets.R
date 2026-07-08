@@ -20,6 +20,15 @@ source("_local.R") # per-user/host knobs, BEFORE tar_source()
 library(targets)
 library(SpaDES.targets)
 
+## Cap terra's per-process memory on every stage: with N crew workers sharing a node,
+## terra's default per-process memfrac (0.6 of RAM, no cross-worker coordination) lets
+## concurrent workers collectively OOM the node -- this SIGKILLed concurrent mainSim reps
+## in LandMine fire-spread. tar_simspades() reads this option as the mem_workers default,
+## so every stage caps terra at mem_frac * node RAM / local_workers. Matches the local pool
+## size (workers per node); harmless when tar_make runs via crew.ssh (per-node cap is the
+## same 8 in _hosts.R). Resolved on the controller, baked into each stage's command.
+options(SpaDES.targets.mem_workers = local$local_workers)
+
 ## Gated "extended analyses" (SCANFI study-area vegetation summary + report).
 ## These define functions only; R/ also holds standalone scripts, so source the
 ## specific files rather than tar_source()-ing the whole dir.
