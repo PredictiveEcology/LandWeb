@@ -2,7 +2,10 @@ project:
   type: default
   # render to the NFS-shared outputs/ (a symlink); the publish_* targets copy the
   # final PDF to the git-tracked reports/pdf/ on the controller.
-  output-dir: outputs/reports
+  # Per-study-area: rendered reports live under outputs/<studyArea>/reports/ so runs
+  # don't collide (mirrors the per-run output layout). Phase-0 = single area (SprayLake);
+  # TODO: parameterize this per active study area when multiple FMAs render.
+  output-dir: outputs/SprayLake/reports
   # Only the pipeline's Quarto reports belong to this project. The legacy bookdown
   # manual/ (manual/LandWeb_manual.Rmd) is NOT quarto-valid, so scope explicitly.
   render:

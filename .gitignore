@@ -80,5 +80,9 @@ _tmp*
 _TODO_*
 tmp/
 
+## run/scratch logs (pipeline + crew worker logs live here; see CLAUDE.md)
+logs
+logs/
+
 ## !! Module data should be gitignored in the respective module's data dir !!
 ## !! inputs/ has its own .gitignore file too !!

@@ -40,6 +40,31 @@ See <https://predictiveecology.github.io/LandWeb/getting-started.html> for detai
 
 See <https://predictiveecology.github.io/LandWeb/running-landweb.html> for detailed instructions on running LandWeb.
 
+#### Output layout
+
+Simulation outputs are organized **one directory per run, keyed by study area**, so multiple
+study areas never collide and figures are easy to review:
+
+```
+outputs/
+  <studyArea>/            # e.g. SprayLake/ — ALL study-area-specific outputs for a run
+    preamble/  speciesData/  dataPrep/     # data-prep stages (each with figures/<module>/)
+    mainSim/                               # simulation + summaries share this dir
+      rep01/ … repNN/                      # per-replicate sim outputs + figures/
+      figures/{Biomass_core,LandMine,burnSummaries,NRV_summary}/   # aggregate + summary figures
+      _aggregates/                         # per-refCode parquet (NRV envelopes)
+      *.csv                                # envelope + fire-summary tables
+    reports/                               # rendered Quarto reports for this study area
+  factorial/              # SHARED, study-area-INDEPENDENT (built once, reused across areas)
+  extended_analyses/      # SHARED, LTHFC domain-wide analyses
+  _reference/             # shared reference layers
+logs/                     # run + crew worker logs (never in outputs/)
+```
+
+Study-area-specific stages write under `outputs/<studyArea>/`; study-area-**independent**
+outputs (`factorial`, `extended_analyses`) stay at the `outputs/` root. Log files go in
+`logs/`, never in `outputs/`. Both `outputs/` and `logs/` are git-ignored.
+
 #### References
 
 Beaudoin, et al. (2014). Mapping attributes of Canada’s forests at moderate resolution through kNN and MODIS imagery. Canadian Journal of Forest Research, 44, 521–532. <http://doi.org/10.1139/cjfr-2013-0401>. Data available from <http://tree.nfis.org/>.

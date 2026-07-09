@@ -71,7 +71,7 @@ primary_controller <- if (length(getOption("crew.ssh.nodes"))) {
     name = "primary",
     workers = min(parallelly::availableCores(omit = 1), local$local_workers),
     seconds_idle = Inf,
-    options_local = crew::crew_options_local(log_directory = "/tmp/crew_worker_logs")
+    options_local = crew::crew_options_local(log_directory = file.path("logs", "crew"))
   )
 }
 
@@ -83,6 +83,14 @@ tar_option_set(
 )
 
 res <- local$res
+
+## Per-run output directory = the study area. All STUDY-AREA-SPECIFIC stages write under
+## outputs/<sa_dir>/<stage>/ so multiple study areas never collide (matches the outputs_v2
+## one-dir-per-run layout). Study-area-INDEPENDENT outputs stay at the outputs/ root:
+## `factorial` (the `_factorial_` sentinel, built once + reused across areas) and the gated
+## `extended_analyses` (LTHFC domain-wide). Phase-0 runs a single area, so sa_dir is scalar;
+## when stages branch per-FMA this becomes the per-branch study-area name.
+sa_dir <- local$study_areas
 
 ## ---- shared (.globals) + per-module parameters --------------------------------
 globals <- list(
@@ -221,6 +229,7 @@ list(
     modules = "LandWeb_preamble",
     params = p_preamble,
     paths = local$paths,
+    out_dir = file.path("outputs", sa_dir, "preamble"),
     plain = c("sppEquiv", "sppColorVect", "speciesParams", "speciesTable", "ROSTable"),
     outputs = quote(outputs_spec(
       raster = c(
@@ -238,6 +247,7 @@ list(
     modules = "Biomass_speciesData",
     params = p_speciesData,
     paths = local$paths,
+    out_dir = file.path("outputs", sa_dir, "speciesData"),
     objects = quote(list(
       sppEquiv = preamble$sppEquiv,
       sppColorVect = preamble$sppColorVect
@@ -275,6 +285,7 @@ list(
     modules = c("Biomass_borealDataPrep", "Biomass_speciesParameters"),
     params = p_dataPrep,
     paths = local$paths,
+    out_dir = file.path("outputs", sa_dir, "dataPrep"),
     ## Spatial handoff objects pass in-memory via sim_objects() (loaded on the worker),
     ## NOT as file inputs: Biomass_borealDataPrep/Biomass_speciesParameters read several
     ## (studyArea, rasterToMatch, ...) in .inputObjects(), which runs during simInit() --
@@ -316,7 +327,7 @@ list(
   ## rstTimeSinceFire -- increments yearly, resets on burn) and LandWeb_output
   ## (NRV_summary owns the per-year veg dumps). Branched over rep_index via
   ## pattern = map(rep_index): each stochastic replicate runs as its own branch with
-  ## a per-rep deterministic seed, writing its outputs into outputs/mainSim/rep%02d/
+  ## a per-rep deterministic seed, writing its outputs into outputs/<sa>/mainSim/rep%02d/
   ## so the mode="multi" summaries targets aggregate across all rep dirs.
   ## iteration = "list" because each branch returns a run_simspades() list.
   tar_simspades(
@@ -327,7 +338,7 @@ list(
     loadOrder = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
     pattern = quote(map(rep_index)),
     iteration = "list",
-    out_dir = quote(file.path("outputs", "mainSim", sprintf("rep%02d", rep_index))),
+    out_dir = bquote(file.path("outputs", .(sa_dir), "mainSim", sprintf("rep%02d", rep_index))),
     params = p_mainSim,
     times = list(start = 0, end = local$sim_end),
     paths = local$paths,
@@ -421,13 +432,13 @@ list(
   ## ---- Stage 5b: post-processing summaries (mode="multi") --------------------
   ## Phase 2 of the two-phase design: NRV_summary + burnSummaries re-run as their
   ## OWN targets in mode="multi", aggregating the per-rep files Phase 1 (mainSim)
-  ## saved under outputs/mainSim/rep%02d/ into the NRV envelopes + fire summaries.
+  ## saved under outputs/<sa>/mainSim/rep%02d/ into the NRV envelopes + fire summaries.
   ##
-  ## out_dir = outputs/mainSim -- the PARENT of the rep dirs: both modules read
+  ## out_dir = outputs/<sa>/mainSim -- the PARENT of the rep dirs: both modules read
   ## outputPath(sim)/rep%02d/ and write their aggregates back into outputPath(sim)
   ## (the v2 postprocess pattern from box/landweb.R, where the summary outputPath
   ## is the per-study-area parent, not a per-rep subdir). clean_out_dir = FALSE so
-  ## run_simspades does NOT wipe outputs/mainSim first -- that would delete the rep
+  ## run_simspades does NOT wipe outputs/<sa>/mainSim first -- that would delete the rep
   ## outputs being aggregated. The bare `mainSim_files` reference is a dependency
   ## anchor: the modules discover the per-rep files via dir_ls() at run time (not
   ## sim_inputs), so referencing it forces Phase 1 to run first and re-runs the
@@ -438,7 +449,7 @@ list(
   tar_simspades(
     "summaries_nrv",
     modules = "NRV_summary",
-    out_dir = file.path("outputs", "mainSim"),
+    out_dir = file.path("outputs", sa_dir, "mainSim"),
     clean_out_dir = FALSE,
     params = list(
       .globals = globals,
@@ -476,12 +487,12 @@ list(
   ## burnSummaries (mode="multi"): mean-annual cumulative burn maps + across-rep
   ## fire-size distribution (fireregimetools' arrow-native open_burn_dataset /
   ## fire_size_histogram). Reads per-rep burnMap/flammableMap + the fire-size
-  ## parquet partitions from outputs/mainSim/rep%02d/ and downloads NFDB polygons
+  ## parquet partitions from outputs/<sa>/mainSim/rep%02d/ and downloads NFDB polygons
   ## into inputPath; needs no in-memory sim objects.
   tar_simspades(
     "summaries_burn",
     modules = "burnSummaries",
-    out_dir = file.path("outputs", "mainSim"),
+    out_dir = file.path("outputs", sa_dir, "mainSim"),
     clean_out_dir = FALSE,
     params = list(
       .globals = globals,
