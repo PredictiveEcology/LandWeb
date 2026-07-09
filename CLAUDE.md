@@ -21,8 +21,8 @@ outputs/
       _aggregates/      # per-refCode parquet (NRV envelopes)
       *.csv             # envelope + fire-summary tables
     reports/            # rendered Quarto reports for this study area
-  factorial/            # SHARED, study-area-INDEPENDENT — DO NOT nest per study area
-  extended_analyses/    # SHARED, LTHFC domain-wide analyses
+  _factorial/           # SHARED, study-area-INDEPENDENT — DO NOT nest per study area
+  _extended_analyses/   # SHARED, LTHFC domain-wide analyses
   _reference/           # shared reference layers
 logs/                   # run + crew worker logs — NEVER put logs in outputs/
 ```
@@ -31,11 +31,12 @@ logs/                   # run + crew worker logs — NEVER put logs in outputs/
 
 - **Study-area-specific** stages (`preamble`, `speciesData`, `dataPrep`, `mainSim`, the
   `mode="multi"` summaries, rendered `reports`) write under `outputs/<studyArea>/…`.
-- **Study-area-INDEPENDENT** outputs stay at the `outputs/` root:
-  - `factorial` — the `Biomass_speciesFactorial` trait table is built with a fixed
+- **Study-area-INDEPENDENT** outputs stay at the `outputs/` root with an **underscore prefix**
+  (so they sort/read apart from the per-study-area run dirs):
+  - `_factorial` — the `Biomass_speciesFactorial` trait table is built with a fixed
     `.studyAreaName = "_factorial_"` sentinel so it is built **once and reused across study
     areas**. Nesting it per-area would defeat that and force a costly (~2 h) rebuild per area.
-  - `extended_analyses` — LTHFC domain-wide, not per-FMA.
+  - `_extended_analyses` — LTHFC domain-wide, not per-FMA.
 - **Logs go in `logs/`, never in `outputs/`.** Both `outputs/` and `logs/` are git-ignored.
 - Figures are **stage-based**: they land under each stage's `out_dir/figures/<module>/`
   (SpaDES `figurePath` follows `outputPath`), so everything for a study area is under
@@ -46,7 +47,7 @@ logs/                   # run + crew worker logs — NEVER put logs in outputs/
 - `_targets.R` defines `sa_dir <- local$study_areas` and passes
   `out_dir = file.path("outputs", sa_dir, "<stage>")` to each study-area-specific
   `tar_simspades()` call (the branched `mainSim` uses `bquote(... .(sa_dir) ...)` so the
-  study area is baked into the per-replicate path). `factorial`/`extended_analyses` omit the
+  study area is baked into the per-replicate path). `_factorial`/`_extended_analyses` omit the
   `sa_dir` prefix. Phase-0 runs a single study area, so `sa_dir` is a scalar; when stages
   branch per-FMA this becomes the per-branch study-area name.
 - `_quarto.yml` `project.output-dir` points at `outputs/<studyArea>/reports/`.

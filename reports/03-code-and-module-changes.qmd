@@ -31,8 +31,8 @@ clog_csv <- tryCatch(
   tar_read(module_changelog_csv),
   error = function(e) {
     cand <- c(
-      "outputs/extended_analyses/module_changelog.csv",
-      "../outputs/extended_analyses/module_changelog.csv"
+      "outputs/_extended_analyses/module_changelog.csv",
+      "../outputs/_extended_analyses/module_changelog.csv"
     )
     cand[file.exists(cand)][1]
   }

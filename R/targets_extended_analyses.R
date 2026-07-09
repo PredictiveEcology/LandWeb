@@ -17,14 +17,14 @@ get_targets_extended_analyses <- function(local) {
   outputs_dir <- normalizePath(local$paths$outputPath, mustWork = TRUE)
   out_csv <- file.path(
     outputs_dir,
-    "extended_analyses",
+    "_extended_analyses",
     "scanfi_lthfc_v10_2020_veg_summary.csv"
   )
-  out_csv_knn <- file.path(outputs_dir, "extended_analyses", "knn_lthfc_v10_2001_veg_summary.csv")
-  out_csv_lthfc <- file.path(outputs_dir, "extended_analyses", "lthfc_version_summary.csv")
-  out_gpkg_lthfc <- file.path(outputs_dir, "extended_analyses", "lthfc_change_map.gpkg")
-  out_tif_lthfc <- file.path(outputs_dir, "extended_analyses", "lthfc_diff.tif")
-  out_csv_clog <- file.path(outputs_dir, "extended_analyses", "module_changelog.csv")
+  out_csv_knn <- file.path(outputs_dir, "_extended_analyses", "knn_lthfc_v10_2001_veg_summary.csv")
+  out_csv_lthfc <- file.path(outputs_dir, "_extended_analyses", "lthfc_version_summary.csv")
+  out_gpkg_lthfc <- file.path(outputs_dir, "_extended_analyses", "lthfc_change_map.gpkg")
+  out_tif_lthfc <- file.path(outputs_dir, "_extended_analyses", "lthfc_diff.tif")
+  out_csv_clog <- file.path(outputs_dir, "_extended_analyses", "module_changelog.csv")
 
   list(
     ## The expensive scan, gated + cache-aware. Paths are baked in as literals

@@ -55,14 +55,15 @@ outputs/
       _aggregates/                         # per-refCode parquet (NRV envelopes)
       *.csv                                # envelope + fire-summary tables
     reports/                               # rendered Quarto reports for this study area
-  factorial/              # SHARED, study-area-INDEPENDENT (built once, reused across areas)
-  extended_analyses/      # SHARED, LTHFC domain-wide analyses
+  _factorial/             # SHARED, study-area-INDEPENDENT (built once, reused across areas)
+  _extended_analyses/     # SHARED, LTHFC domain-wide analyses
   _reference/             # shared reference layers
 logs/                     # run + crew worker logs (never in outputs/)
 ```
 
 Study-area-specific stages write under `outputs/<studyArea>/`; study-area-**independent**
-outputs (`factorial`, `extended_analyses`) stay at the `outputs/` root. Log files go in
+outputs (`_factorial`, `_extended_analyses`) stay at the `outputs/` root (underscore-prefixed).
+Log files go in
 `logs/`, never in `outputs/`. Both `outputs/` and `logs/` are git-ignored.
 
 #### References

@@ -31,13 +31,13 @@ relpath <- function(p) sub("^.*/((?:inputs|outputs)/.*)$", "\\1", p, perl = TRUE
 ## read from the pipeline (the literal tar_read() calls wire the tar_quarto deps);
 ## fall back to the seeded extended-analyses CSVs so the report also renders standalone.
 scanfi_csv <- tryCatch(tar_read(scanfi_veg_summary_csv), error = function(e) {
-  cand <- c("outputs/extended_analyses/scanfi_lthfc_v10_2020_veg_summary.csv",
-            "../outputs/extended_analyses/scanfi_lthfc_v10_2020_veg_summary.csv")
+  cand <- c("outputs/_extended_analyses/scanfi_lthfc_v10_2020_veg_summary.csv",
+            "../outputs/_extended_analyses/scanfi_lthfc_v10_2020_veg_summary.csv")
   cand[file.exists(cand)][1]
 })
 knn_csv <- tryCatch(tar_read(knn_veg_summary_csv), error = function(e) {
-  cand <- c("outputs/extended_analyses/knn_lthfc_v10_2001_veg_summary.csv",
-            "../outputs/extended_analyses/knn_lthfc_v10_2001_veg_summary.csv")
+  cand <- c("outputs/_extended_analyses/knn_lthfc_v10_2001_veg_summary.csv",
+            "../outputs/_extended_analyses/knn_lthfc_v10_2001_veg_summary.csv")
   cand[file.exists(cand)][1]
 })
 veg <- fread(scanfi_csv)

@@ -34,8 +34,8 @@ lthfc_csv <- tryCatch(
   tar_read(lthfc_version_summary_csv),
   error = function(e) {
     cand <- c(
-      "outputs/extended_analyses/lthfc_version_summary.csv",
-      "../outputs/extended_analyses/lthfc_version_summary.csv"
+      "outputs/_extended_analyses/lthfc_version_summary.csv",
+      "../outputs/_extended_analyses/lthfc_version_summary.csv"
     )
     cand[file.exists(cand)][1]
   }
@@ -173,8 +173,8 @@ gpkg <- tryCatch(
   tar_read(lthfc_change_map_gpkg),
   error = function(e) {
     cand <- c(
-      "outputs/extended_analyses/lthfc_change_map.gpkg",
-      "../outputs/extended_analyses/lthfc_change_map.gpkg"
+      "outputs/_extended_analyses/lthfc_change_map.gpkg",
+      "../outputs/_extended_analyses/lthfc_change_map.gpkg"
     )
     cand[file.exists(cand)][1]
   }
@@ -221,8 +221,8 @@ dtif <- tryCatch(
   tar_read(lthfc_diff_tif),
   error = function(e) {
     cand <- c(
-      "outputs/extended_analyses/lthfc_diff.tif",
-      "../outputs/extended_analyses/lthfc_diff.tif"
+      "outputs/_extended_analyses/lthfc_diff.tif",
+      "../outputs/_extended_analyses/lthfc_diff.tif"
     )
     cand[file.exists(cand)][1]
   }

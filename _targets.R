@@ -86,9 +86,10 @@ res <- local$res
 
 ## Per-run output directory = the study area. All STUDY-AREA-SPECIFIC stages write under
 ## outputs/<sa_dir>/<stage>/ so multiple study areas never collide (matches the outputs_v2
-## one-dir-per-run layout). Study-area-INDEPENDENT outputs stay at the outputs/ root:
-## `factorial` (the `_factorial_` sentinel, built once + reused across areas) and the gated
-## `extended_analyses` (LTHFC domain-wide). Phase-0 runs a single area, so sa_dir is scalar;
+## one-dir-per-run layout). Study-area-INDEPENDENT outputs stay at the outputs/ root with an
+## underscore prefix (so they sort/read apart from the per-study-area run dirs): `_factorial`
+## (the `_factorial_` sentinel, built once + reused across areas) and the gated
+## `_extended_analyses` (LTHFC domain-wide). Phase-0 runs a single area, so sa_dir is scalar;
 ## when stages branch per-FMA this becomes the per-branch study-area name.
 sa_dir <- local$study_areas
 
@@ -275,6 +276,9 @@ list(
     modules = "Biomass_speciesFactorial",
     params = p_factorial,
     paths = local$paths,
+    ## SHARED, study-area-independent -> underscore-prefixed dir at the outputs/ root (NOT nested
+    ## per study area): built once with the `_factorial_` sentinel and reused across areas.
+    out_dir = file.path("outputs", "_factorial"),
     plain = c("cohortDataFactorial_path", "speciesTableFactorial_path")
   ),
 
