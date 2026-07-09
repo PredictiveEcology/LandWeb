@@ -471,6 +471,9 @@ list(
         reps = seq_len(local$n_reps),
         simTimes = c(0, local$sim_end),
         postprocessEvents = c("lm", "pm", "lw"),
+        ## lw large-patch connectivity: 4 = rook (4-connected, matches v2's GDAL polygonize);
+        ## 8 = queen (8-connected) is a v3-only departure. See NRV_summary `patchDirections`.
+        patchDirections = 4L,
         .useCache = FALSE
       )
     ),
