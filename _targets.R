@@ -231,6 +231,7 @@ list(
     params = p_preamble,
     paths = local$paths,
     out_dir = file.path("outputs", sa_dir, "preamble"),
+    log_file = file.path("outputs", sa_dir, "logs", "preamble.log"),
     plain = c("sppEquiv", "sppColorVect", "speciesParams", "speciesTable", "ROSTable"),
     outputs = quote(outputs_spec(
       raster = c(
@@ -249,6 +250,7 @@ list(
     params = p_speciesData,
     paths = local$paths,
     out_dir = file.path("outputs", sa_dir, "speciesData"),
+    log_file = file.path("outputs", sa_dir, "logs", "speciesData.log"),
     objects = quote(list(
       sppEquiv = preamble$sppEquiv,
       sppColorVect = preamble$sppColorVect
@@ -279,6 +281,7 @@ list(
     ## SHARED, study-area-independent -> underscore-prefixed dir at the outputs/ root (NOT nested
     ## per study area): built once with the `_factorial_` sentinel and reused across areas.
     out_dir = file.path("outputs", "_factorial"),
+    log_file = file.path("outputs", "_factorial", "logs", "factorial.log"),
     plain = c("cohortDataFactorial_path", "speciesTableFactorial_path")
   ),
 
@@ -290,6 +293,7 @@ list(
     params = p_dataPrep,
     paths = local$paths,
     out_dir = file.path("outputs", sa_dir, "dataPrep"),
+    log_file = file.path("outputs", sa_dir, "logs", "dataPrep.log"),
     ## Spatial handoff objects pass in-memory via sim_objects() (loaded on the worker),
     ## NOT as file inputs: Biomass_borealDataPrep/Biomass_speciesParameters read several
     ## (studyArea, rasterToMatch, ...) in .inputObjects(), which runs during simInit() --
@@ -343,6 +347,7 @@ list(
     pattern = quote(map(rep_index)),
     iteration = "list",
     out_dir = bquote(file.path("outputs", .(sa_dir), "mainSim", sprintf("rep%02d", rep_index))),
+    log_file = bquote(file.path("outputs", .(sa_dir), "logs", sprintf("mainSim_rep%02d.log", rep_index))),
     params = p_mainSim,
     times = list(start = 0, end = local$sim_end),
     paths = local$paths,
@@ -455,6 +460,7 @@ list(
     modules = "NRV_summary",
     out_dir = file.path("outputs", sa_dir, "mainSim"),
     clean_out_dir = FALSE,
+    log_file = file.path("outputs", sa_dir, "logs", "summaries_nrv.log"),
     params = list(
       .globals = globals,
       NRV_summary = list(
@@ -498,6 +504,7 @@ list(
     modules = "burnSummaries",
     out_dir = file.path("outputs", sa_dir, "mainSim"),
     clean_out_dir = FALSE,
+    log_file = file.path("outputs", sa_dir, "logs", "summaries_burn.log"),
     params = list(
       .globals = globals,
       burnSummaries = list(
