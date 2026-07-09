@@ -7,7 +7,7 @@
 modules_landweb <- c("LandWeb_preamble", "Biomass_speciesData", "Biomass_borealDataPrep", modules3)
 
 mm <- unique(unlist(lapply(modules_landweb, function(m) {
-  moduleMetadata(module = m, path = "m")$inputObjects$objectName
+  moduleMetadata(module = m, path = "modules")$inputObjects$objectName
 })))
 names(mm) <- mm
 
