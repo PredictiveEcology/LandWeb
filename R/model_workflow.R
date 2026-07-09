@@ -57,18 +57,9 @@ DiagrammeR::grViz(
     node [shape = box, style = 'filled,rounded', fillcolor = darkseagreen2, fontcolor = grey10, width = 1.8]
     M4 [label = 'Biomass_regeneration']
     M5 [label = 'Biomass_core']
-    M6 [label = 'timeSinceFire']
     M7 [label = 'LandMine']
-    M8 [label = 'LandWeb_output']
 
-    # 2-col x 3-row grid
-    {rank = same; M4; M5}
-    {rank = same; M6; M7}
-    {rank = same; M8}
-    # Vertical alignment between rows
-    M4 -> M6 [style = invis]
-    M5 -> M7 [style = invis]
-    M6 -> M8 [style = invis]
+    {rank = same; M4; M5; M7}
   }
 
   # --- Row 5: C3 NRV Analyses ---
@@ -83,7 +74,7 @@ DiagrammeR::grViz(
 
     node [shape = box, style = 'filled,rounded', fillcolor = plum, fontcolor = grey10, width = 1.8]
     M9 [label = 'burnSummaries']
-    M10 [label = 'LandWeb_summary']
+    M10 [label = 'NRV_summary']
 
     {rank = same; M9; M10}
   }
@@ -101,7 +92,7 @@ DiagrammeR::grViz(
   M2 -> spacer1 [ltail = cluster_C1, arrowhead = none]
   spacer1 -> M4 [lhead = cluster_C2]
   M3 -> M9 [ltail = cluster_C1, lhead = cluster_C3]
-  M8 -> D5 [ltail = cluster_C2]
+  M5 -> D5 [ltail = cluster_C2]
   D5 -> M10 [lhead = cluster_C3]
   M10 -> D6 [ltail = cluster_C3]
 }

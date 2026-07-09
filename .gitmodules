@@ -22,14 +22,6 @@
 	path = modules/LandWeb_preamble
 	url = https://github.com/fRI-Research/LandWeb_preamble
 	branch = development
-[submodule "modules/LandWeb_output"]
-	path = modules/LandWeb_output
-	url = https://github.com/fRI-Research/LandWeb_output
-	branch = development
-[submodule "modules/timeSinceFire"]
-	path = modules/timeSinceFire
-	url = https://github.com/fRI-Research/timeSinceFire
-	branch = development
 [submodule "modules/LandWeb_summary"]
 	path = modules/LandWeb_summary
 	url = https://github.com/PredictiveEcology/LandWeb_summary

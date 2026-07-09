@@ -11,9 +11,12 @@
 # `<name>$obj`. No simList crosses a target boundary.
 #
 # Module params are ported from 00-main.R / 03-main-sim.R + box/landweb.R for a
-# single small FMA. Phase-0 mirrors the CURRENT module set (5-module mainSim);
-# the NRV_summary consolidation that retires timeSinceFire/LandWeb_output is a
-# later phase (Part G #7).
+# single small FMA. The mainSim module set is the v3 5-module set; the NRV_summary
+# consolidation has retired timeSinceFire + LandWeb_output (submodules removed --
+# burnSummaries owns rstTimeSinceFire, NRV_summary owns the per-year veg dumps).
+# LandWeb_summary is retained (as a submodule, NOT in the module set) ONLY as the
+# porting reference for its Leading (LeadingVegTypeByAgeClass) + LargePatches
+# analyses, which are not yet ported to NRV_summary/nrvtools (Part G #7).
 
 source("_local.R") # per-user/host knobs, BEFORE tar_source()
 
