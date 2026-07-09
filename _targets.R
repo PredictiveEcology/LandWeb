@@ -470,7 +470,7 @@ list(
         mode = "multi",
         reps = seq_len(local$n_reps),
         simTimes = c(0, local$sim_end),
-        postprocessEvents = c("lm", "pm"),
+        postprocessEvents = c("lm", "pm", "lw"),
         .useCache = FALSE
       )
     ),
