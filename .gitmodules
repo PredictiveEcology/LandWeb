@@ -51,7 +51,7 @@
 [submodule "packages/workflowtools"]
 	path = packages/workflowtools
 	url = https://github.com/FOR-CAST/workflowtools
-	branch = development
+	branch = main
 [submodule "modules/NRV_summary"]
 	path = modules/NRV_summary
 	url = https://github.com/FOR-CAST/NRV_summary
