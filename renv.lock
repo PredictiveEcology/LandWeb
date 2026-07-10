@@ -2181,14 +2181,14 @@
     },
     "fireregimetools": {
       "Package": "fireregimetools",
-      "Version": "0.1.0",
+      "Version": "0.1.0.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "fireregimetools",
       "RemoteRef": "main",
-      "RemoteSha": "0c51c8676e311cf03e7e6b143303343baef71166",
+      "RemoteSha": "33ad66e2595d7a67841a80a58a1a2da8d077f32c",
       "Requirements": [
         "R",
         "arrow",
@@ -2196,11 +2196,12 @@
         "fs",
         "ggplot2",
         "rlang",
+        "spatialutils",
         "stats",
         "terra",
         "tidyterra"
       ],
-      "Hash": "630dc5d3f59d04e7b9522685bf3847ed"
+      "Hash": "9a928699f9024c93b7e011b9eb46b02d"
     },
     "fontawesome": {
       "Package": "fontawesome",
@@ -5637,14 +5638,14 @@
     },
     "spatialutils": {
       "Package": "spatialutils",
-      "Version": "0.0.0.9011",
+      "Version": "0.0.0.9012",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "spatialutils",
       "RemoteRef": "main",
-      "RemoteSha": "283aed8ce5e462c1beb62fa5640c8cd8c06b2eea",
+      "RemoteSha": "5bf41255ea0cdcf0a94169567311c1cfe0fca394",
       "Requirements": [
         "R",
         "dplyr",
@@ -5653,7 +5654,7 @@
         "smoothr",
         "terra"
       ],
-      "Hash": "27d855d3aaa1fba5d3f027fdfcdb71bb"
+      "Hash": "5cf641813fcd980148d8a364ba73042a"
     },
     "spatstat.data": {
       "Package": "spatstat.data",
