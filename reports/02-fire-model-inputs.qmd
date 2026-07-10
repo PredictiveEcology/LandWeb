@@ -14,6 +14,7 @@ fig-width: 8
 fig-height: 6
 bibliography:
   - ../citations/references.bib
+csl: ../citations/ecology-letters.csl
 editor_options:
   chunk_output_type: console
 ---

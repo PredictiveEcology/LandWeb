@@ -437,7 +437,16 @@ list(
         destinationPath = file.path(local$paths$inputPath, "reportingPolygons"),
         targetCRS = LandWebUtils::LandWebCRS
       )
-      lapply(polys, sf::st_as_sf)
+      ## active/passive landbase-status sub-zones for the applicable FMA(s) --
+      ## gated by study-area name so only relevant (large) landbase coverages are
+      ## fetched; non-applicable / non-intersecting sources are skipped.
+      landbase <- LandWebUtils::buildLandbasePolygons(
+        studyArea = sa,
+        studyAreaName = local$study_areas,
+        destinationPath = file.path(local$paths$inputPath, "landbase"),
+        targetCRS = LandWebUtils::LandWebCRS
+      )
+      lapply(c(polys, landbase), sf::st_as_sf)
     }
   ),
 
