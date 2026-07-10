@@ -12,11 +12,10 @@
 #
 # Module params are ported from 00-main.R / 03-main-sim.R + box/landweb.R for a
 # single small FMA. The mainSim module set is the v3 5-module set; the NRV_summary
-# consolidation has retired timeSinceFire + LandWeb_output (submodules removed --
-# burnSummaries owns rstTimeSinceFire, NRV_summary owns the per-year veg dumps).
-# LandWeb_summary is retained (as a submodule, NOT in the module set) ONLY as the
-# porting reference for its Leading (LeadingVegTypeByAgeClass) + LargePatches
-# analyses, which are not yet ported to NRV_summary/nrvtools (Part G #7).
+# consolidation has retired timeSinceFire, LandWeb_output, AND LandWeb_summary
+# (all three submodules removed). burnSummaries owns rstTimeSinceFire; NRV_summary
+# owns the per-year veg dumps, the Leading + LargePatches analyses (via nrvtools),
+# and the stand-age animation -- fully superseding LandWeb_summary.
 
 source("_local.R") # per-user/host knobs, BEFORE tar_source()
 
