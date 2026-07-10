@@ -36,6 +36,12 @@ git clone --recurse-submodules
 
 See <https://predictiveecology.github.io/LandWeb/getting-started.html> for detailed instructions and prerequisite installation.
 
+> **Animations:** the stand-age time-series animations (`NRV_summary`) are encoded with the bundled
+> [`gifski`](https://cran.r-project.org/package=gifski) package (pure-Rust), so **no ImageMagick or
+> `policy.xml` configuration is required**. This replaces the v2 workflow, which used
+> `animation::saveGIF` and needed ImageMagick's cache limits raised to avoid *"cache resources
+> exhausted"* failures (see [LandWeb #153](https://github.com/PredictiveEcology/LandWeb/issues/153)).
+
 #### Running the model
 
 See <https://predictiveecology.github.io/LandWeb/running-landweb.html> for detailed instructions on running LandWeb.
