@@ -482,8 +482,14 @@ list(
         reuseAggregates = isTRUE(as.logical(Sys.getenv("LANDWEB_REUSE_NRV_AGGREGATES", "FALSE"))),
         reps = seq_len(local$n_reps),
         simTimes = c(0, local$sim_end),
-        ## "am" = stand-age time-series animation (GIF via gifski; no ImageMagick).
-        postprocessEvents = c("lm", "pm", "lw", "am"),
+        ## "am" = stand-age time-series animation (GIF via gifski; no ImageMagick). Full set by
+        ## default; scope a replot to a subset per-run via a comma-separated env var (e.g.
+        ## LANDWEB_POSTPROCESS_EVENTS=pm) -- evaluated here on the controller so it bakes into the
+        ## target. Pairs with LANDWEB_REUSE_NRV_AGGREGATES for a fast, focused figure re-render.
+        postprocessEvents = local({
+          e <- Sys.getenv("LANDWEB_POSTPROCESS_EVENTS", "")
+          if (nzchar(e)) trimws(strsplit(e, ",")[[1L]]) else c("lm", "pm", "lw", "am")
+        }),
         ## lw large-patch connectivity: 4 = rook (4-connected, matches v2's GDAL polygonize);
         ## 8 = queen (8-connected) is a v3-only departure. See NRV_summary `patchDirections`.
         patchDirections = 4L,
