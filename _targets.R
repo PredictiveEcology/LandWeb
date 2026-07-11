@@ -480,6 +480,8 @@ list(
         ## iterate on plots/CSVs only. Off by default; opt in per-run via the env var (evaluated here
         ## on the controller, so the flag is baked into the target). MUST be FALSE for a fresh run.
         reuseAggregates = isTRUE(as.logical(Sys.getenv("LANDWEB_REUSE_NRV_AGGREGATES", "FALSE"))),
+        ## hard cap on parallel plot-render workers (RAM-aware below it); env-overridable per run.
+        plotWorkers = as.integer(Sys.getenv("LANDWEB_PLOT_WORKERS", "8")),
         reps = seq_len(local$n_reps),
         simTimes = c(0, local$sim_end),
         ## "am" = stand-age time-series animation (GIF via gifski; no ImageMagick). Full set by
