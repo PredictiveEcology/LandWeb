@@ -476,6 +476,10 @@ list(
       .globals = globals,
       NRV_summary = list(
         mode = "multi",
+        ## reuse a complete _aggregates parquet dataset (skip the ~2h landscape-metric recompute) to
+        ## iterate on plots/CSVs only. Off by default; opt in per-run via the env var (evaluated here
+        ## on the controller, so the flag is baked into the target). MUST be FALSE for a fresh run.
+        reuseAggregates = isTRUE(as.logical(Sys.getenv("LANDWEB_REUSE_NRV_AGGREGATES", "FALSE"))),
         reps = seq_len(local$n_reps),
         simTimes = c(0, local$sim_end),
         ## "am" = stand-age time-series animation (GIF via gifski; no ImageMagick).
