@@ -11,7 +11,7 @@ local <- list(
   ## SprayLake is the smallest Alberta FMA (~2,485 km^2). NB: it has a special-case
   ## branch in LandWeb_preamble.R; Edson (~2,660 km^2) is the next-smallest AB FMA
   ## without special-casing if a cleaner path is wanted.
-  study_areas = c("SprayLake"),
+  study_areas = c("SprayLake", "Edson"),
   n_reps = 5L,
 
   ## SpaDES paths. Heavy IO belongs on docker-visible NVMe scratch, not /home or NFS.

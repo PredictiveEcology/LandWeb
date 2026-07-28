@@ -1,4 +1,4 @@
-# _targets.R -- LandWeb pipeline (Phase-0 spike: 1 study area, N replicates via map(rep_index)).
+# _targets.R -- LandWeb pipeline (per-study-area STATIC branching; N replicates via map(rep_index)).
 #
 # Proves the outputs-manifest pattern (Part J of the refactor plan): each stage
 # runs simInitAndSpades in-process, declares what to save via outputs_spec()
@@ -10,12 +10,25 @@
 # the files via sim_inputs() (simInit `inputs`) and read plain objects as
 # `<name>$obj`. No simList crosses a target boundary.
 #
-# Module params are ported from 00-main.R / 03-main-sim.R + box/landweb.R for a
-# single small FMA. The mainSim module set is the v3 5-module set; the NRV_summary
-# consolidation has retired timeSinceFire, LandWeb_output, AND LandWeb_summary
-# (all three submodules removed). burnSummaries owns rstTimeSinceFire; NRV_summary
-# owns the per-year veg dumps, the Leading + LargePatches analyses (via nrvtools),
-# and the stand-age animation -- fully superseding LandWeb_summary.
+# Module params are ported from 00-main.R / 03-main-sim.R + box/landweb.R. The
+# mainSim module set is the v3 5-module set; the NRV_summary consolidation has
+# retired timeSinceFire, LandWeb_output, AND LandWeb_summary (all three submodules
+# removed). burnSummaries owns rstTimeSinceFire; NRV_summary owns the per-year veg
+# dumps, the Leading + LargePatches analyses (via nrvtools), and the stand-age
+# animation -- fully superseding LandWeb_summary.
+#
+# STUDY-AREA BRANCHING (static): study areas are a known, finite set at definition
+# time, so the study-area-specific stages are branched STATICALLY -- we loop over
+# local$study_areas and emit a per-area copy of each stage with an "_<sa>"-suffixed
+# target name writing under outputs/<sa>/. This is preferred over dynamic
+# `pattern = map(study_areas)` because (1) it keeps the nested rep-branch clean --
+# each mainSim_<sa> maps over rep_index on its own, with NO study_area x rep
+# cross-product and NO group-by reduction for the summaries; (2) per-branch output
+# dirs are baked at definition time (trivial isolation); (3) branches carry stable,
+# inspectable names (tar_read(dataPrep_Edson)); and (4) multiple areas coexist in
+# the _targets store. The single shared `factorial` target is study-area-INDEPENDENT
+# (the `_factorial_` sentinel) and is defined ONCE outside the loop -- adding a study
+# area never rebuilds it. See suffix_refs() below for the cross-stage ref rewrite.
 
 source("_local.R") # per-user/host knobs, BEFORE tar_source()
 
@@ -86,16 +99,33 @@ tar_option_set(
 
 res <- local$res
 
-## Per-run output directory = the study area. All STUDY-AREA-SPECIFIC stages write under
-## outputs/<sa_dir>/<stage>/ so multiple study areas never collide (matches the outputs_v2
-## one-dir-per-run layout). Study-area-INDEPENDENT outputs stay at the outputs/ root with an
-## underscore prefix (so they sort/read apart from the per-study-area run dirs): `_factorial`
-## (the `_factorial_` sentinel, built once + reused across areas) and the gated
-## `_extended_analyses` (LTHFC domain-wide). Phase-0 runs a single area, so sa_dir is scalar;
-## when stages branch per-FMA this becomes the per-branch study-area name.
-sa_dir <- local$study_areas
+## ---- per-study-area static-branching helper -----------------------------------
+## Cross-stage references inside the quoted objects/inputs/outputs blocks name their
+## upstream targets by BARE symbol (e.g. `preamble`, `dataPrep_files`). suffix_refs()
+## rewrites those symbols to their per-area names via substitute(). SHARED targets
+## (`factorial`, `rep_index`) and string literals are NOT in `sa_syms`, so they are
+## left untouched and remain shared across areas. NB: tar_simspades names each stage's
+## file-manifest companion `<stage>_<sa>_files` (the "_<sa>" goes BEFORE "_files"), so a
+## `<stage>_files` symbol must map to `<stage>_<sa>_files`, NOT `<stage>_files_<sa>` --
+## otherwise the file-dependency edge is silently dropped and Phase-2 summaries could
+## run before Phase-1 finishes.
+sa_syms <- c(
+  "preamble", "preamble_files", "speciesData", "speciesData_files",
+  "dataPrep", "dataPrep_files", "mainSim_files", "reportingPolygons"
+)
+suffix_refs <- function(expr, sa, syms = sa_syms) {
+  target_name <- function(s) {
+    if (grepl("_files$", s)) paste0(sub("_files$", "", s), "_", sa, "_files") else paste0(s, "_", sa)
+  }
+  repl <- stats::setNames(lapply(syms, function(s) as.name(target_name(s))), syms)
+  do.call("substitute", list(expr, repl))
+}
 
-## ---- shared (.globals) + per-module parameters --------------------------------
+## ---- shared (.globals) template -----------------------------------------------
+## Base globals shared by every study-area stage. `.studyAreaName` is a PLACEHOLDER
+## here -- it is ALWAYS overridden per context: to the per-area name inside
+## study_area_targets() (globals_sa), and to the `_factorial_` sentinel for the
+## shared factorial (globals_factorial). No target ever consumes this base directly.
 globals <- list(
   dataYear = 2020L,
   fireTimestep = 1L,
@@ -108,38 +138,20 @@ globals <- list(
   .plotInitialTime = 0,
   .plots = "png",
   .sslVerify = 0L,
-  .studyAreaName = local$study_areas,
+  .studyAreaName = NA_character_, # placeholder; always overridden per context
   .useParallel = local$dt_threads
 )
 
-p_preamble <- list(
-  .globals = globals,
-  LandWeb_preamble = list(
-    bufferDist = 20000, bufferDistLarge = 50000, dispersalType = "default",
-    friMultiple = 1L, pixelSize = res, mergeSlivers = FALSE, minFRI = 25L,
-    ROStype = "default", treeClassesLCC = c(81, 210, 220, 230, 240),
-    .plotInitialTime = 0, .useCache = FALSE
-  )
-)
-
-p_speciesData <- list(
-  .globals = globals,
-  ## .useParallel = 1 (serial): the within-module parallel cluster (PSOCK) spawns
-  ## fresh R sessions that carry neither the in-memory googledrive SA token nor the
-  ## absolute GOOGLEDRIVE_AUTH (no .Rprofile from a scratch cwd), so the SCANFI Drive
-  ## download fails auth in a sub-process. crew already parallelizes across stages.
-  Biomass_speciesData = list(types = "SCANFI", .plots = "png", .useCache = FALSE, .useParallel = 1)
-)
-
+## ---- shared, study-area-INDEPENDENT factorial ---------------------------------
 ## Biomass_speciesFactorial is a GENERIC trait-space lookup table: it fabricates its own synthetic
 ## single-ecoregion studyArea and synthetic (trait-combination) species, and reads `.studyAreaName`
 ## nowhere (confirmed by module audit). Its output depends only on `factorialSize` + the numeric
 ## params -- NOT on the study area or the real species (those enter downstream in
 ## Biomass_speciesParameters via PSP matching). So pin `.studyAreaName` to a fixed sentinel here:
 ## tar_simspades bakes the `params` VALUE into the factorial command, and `.studyAreaName` is the
-## only study-area-coupled entry in `globals`, so this decouples the factorial from
-## `local$study_areas`. It is then built once and reused across study areas; it still rebuilds on
-## its true inputs (factorialSize, initialB, maxBInFactorial, minCohortBiomass) or a module change.
+## only study-area-coupled entry in `globals`, so this decouples the factorial from the study area.
+## It is built ONCE (outside the per-area loop) and reused across areas; it still rebuilds on its
+## true inputs (factorialSize, initialB, maxBInFactorial, minCohortBiomass) or a module change.
 globals_factorial <- modifyList(globals, list(.studyAreaName = "_factorial_"))
 
 p_factorial <- list(
@@ -147,66 +159,405 @@ p_factorial <- list(
   Biomass_speciesFactorial = list(factorialSize = "large")
 )
 
-p_dataPrep <- list(
-  .globals = globals,
-  Biomass_borealDataPrep = list(
-    adjustAgeAndLongevity = TRUE,
-    biomassModel = quote(lme4::lmer(
-      B ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)
-    )),
-    dataSource = "SCANFI", earliestFireYear = 1950L, ecoregionLayerField = "ECOREGION",
-    exportModels = "none", fixModelBiomass = TRUE,
-    forestedLCCClasses = c(81, 210, 220, 230, 240), LCCClassesToReplaceNN = 240,
-    pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 1000 / (250 / res)^2,
-    speciesTableAreas = c("BSW", "BP", "MC"),
-    subsetDataAgeModel = 100L, subsetDataBiomassModel = 100L,
-    useCloudCacheForStats = FALSE, .plotInitialTime = 0, .useCache = FALSE
-    ## TODO: speciesUpdateFunction (2 quotes) + minRelativeBFunction =
-    ## quote(myMinRelativeB(pixelCohortData)) -- port verbatim from box/landweb.R
-    ## + 00-main.R:299-301 when wiring the real run.
-  ),
-  Biomass_speciesParameters = list(
-    PSPdataTypes = "NFI", quantileAgeSubset = 98L, speciesFittingApproach = "focal"
-  )
-)
+## ---- per-study-area stage factory ---------------------------------------------
+## Returns the list of study-area-specific targets for one study area `sa`, with
+## "_<sa>"-suffixed names, outputs/<sa>/ output dirs, and every cross-stage reference
+## rewritten to the corresponding per-area target via suffix_refs(). targets flattens
+## the nested list when this is spliced into the pipeline below.
+study_area_targets <- function(sa) {
+  ## per-area globals: bake THIS study area's name into `.studyAreaName`
+  globals_sa <- modifyList(globals, list(.studyAreaName = sa))
 
-p_mainSim <- list(
-  .globals = globals,
-  Biomass_core = list(
-    growthInitialTime = 0, initialBiomassSource = "cohortData", mixedType = 2L,
-    seedingAlgorithm = "wardDispersal", .plotInitialTime = 0, .plotInterval = 100L,
-    ## Biomass_core-only param (no other pipeline module uses it): keep it OUT of the
-    ## shared `globals` so it doesn't invalidate the cached factorial/dataPrep. Default
-    ## "LandR" has a one-to-many mapping to the 7 LandWeb groups (e.g. Abie_spp <-
-    ## Abie_bal/Abie_las/Thuj_pli/Tsug_het), which fails plotSummaryBySpecies' assertion.
-    sppEquivPlotCol = "LandWeb",
-    ## vegetation-transition plots, built natively by Biomass_core (supersedes the
-    ## former standalone transition-plot script). Times mirror the NRV summary outputs
-    ## (year 0 + `summaryPeriod` at `summaryInterval`); `.plotTransitionField = NA`
-    ## dissolves `studyAreaReporting` into a single zone per study area.
-    .plotTransitionTimes = as.integer(c(0, seq(globals$summaryPeriod[1L], globals$summaryPeriod[2L],
-                                               by = globals$summaryInterval))),
-    .plotTransitionField = NA_character_,
-    .useCache = FALSE
-  ),
-  Biomass_regeneration = list(
-    calibrate = FALSE, fireInitialTime = 1, .plotInitialTime = 0, .useCache = FALSE
-  ),
-  LandMine = list(
-    biggestPossibleFireSizeHa = 3e5, burnInitialTime = 1L, maxReburns = c(1L, 20L),
-    maxRetriesPerID = 9L, minPropBurn = 0.90, mode = "single", ROSother = 30L,
-    ROStype = "default", useSeed = NULL, .plotInitialTime = 1, .plotInterval = 100,
-    .studyAreaName = local$study_areas, .unitTest = FALSE, .useCache = FALSE
-  ),
-  ## burnSummaries + NRV_summary run IN the sim in mode="single" (two-phase Phase 1):
-  ## they generate + save the per-summary-year files (into out_dir = .../rep%02d) that
-  ## the mode="multi" summaries targets later aggregate across reps. burnSummaries owns
-  ## rstTimeSinceFire (increments yearly, resets on burn) + fire summaries -> supersedes
-  ## timeSinceFire; NRV_summary generates the vegTypeMap/standAgeMap per-year dumps ->
-  ## supersedes LandWeb_output. So both retired modules drop out of the module set below.
-  burnSummaries = list(mode = "single", .useCache = FALSE),
-  NRV_summary = list(mode = "single", .useCache = FALSE)
-)
+  p_preamble <- list(
+    .globals = globals_sa,
+    LandWeb_preamble = list(
+      bufferDist = 20000, bufferDistLarge = 50000, dispersalType = "default",
+      friMultiple = 1L, pixelSize = res, mergeSlivers = FALSE, minFRI = 25L,
+      ROStype = "default", treeClassesLCC = c(81, 210, 220, 230, 240),
+      .plotInitialTime = 0, .useCache = FALSE
+    )
+  )
+
+  p_speciesData <- list(
+    .globals = globals_sa,
+    ## .useParallel = 1 (serial): the within-module parallel cluster (PSOCK) spawns
+    ## fresh R sessions that carry neither the in-memory googledrive SA token nor the
+    ## absolute GOOGLEDRIVE_AUTH (no .Rprofile from a scratch cwd), so the SCANFI Drive
+    ## download fails auth in a sub-process. crew already parallelizes across stages.
+    Biomass_speciesData = list(types = "SCANFI", .plots = "png", .useCache = FALSE, .useParallel = 1)
+  )
+
+  p_dataPrep <- list(
+    .globals = globals_sa,
+    Biomass_borealDataPrep = list(
+      adjustAgeAndLongevity = TRUE,
+      biomassModel = quote(lme4::lmer(
+        B ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)
+      )),
+      dataSource = "SCANFI", earliestFireYear = 1950L, ecoregionLayerField = "ECOREGION",
+      exportModels = "none", fixModelBiomass = TRUE,
+      forestedLCCClasses = c(81, 210, 220, 230, 240), LCCClassesToReplaceNN = 240,
+      pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 1000 / (250 / res)^2,
+      speciesTableAreas = c("BSW", "BP", "MC"),
+      subsetDataAgeModel = 100L, subsetDataBiomassModel = 100L,
+      useCloudCacheForStats = FALSE, .plotInitialTime = 0, .useCache = FALSE
+      ## TODO: speciesUpdateFunction (2 quotes) + minRelativeBFunction =
+      ## quote(myMinRelativeB(pixelCohortData)) -- port verbatim from box/landweb.R
+      ## + 00-main.R:299-301 when wiring the real run.
+    ),
+    Biomass_speciesParameters = list(
+      PSPdataTypes = "NFI", quantileAgeSubset = 98L, speciesFittingApproach = "focal"
+    )
+  )
+
+  p_mainSim <- list(
+    .globals = globals_sa,
+    Biomass_core = list(
+      growthInitialTime = 0, initialBiomassSource = "cohortData", mixedType = 2L,
+      seedingAlgorithm = "wardDispersal", .plotInitialTime = 0, .plotInterval = 100L,
+      ## Biomass_core-only param (no other pipeline module uses it): keep it OUT of the
+      ## shared `globals` so it doesn't invalidate the cached factorial/dataPrep. Default
+      ## "LandR" has a one-to-many mapping to the 7 LandWeb groups (e.g. Abie_spp <-
+      ## Abie_bal/Abie_las/Thuj_pli/Tsug_het), which fails plotSummaryBySpecies' assertion.
+      sppEquivPlotCol = "LandWeb",
+      ## vegetation-transition plots, built natively by Biomass_core (supersedes the
+      ## former standalone transition-plot script). Times mirror the NRV summary outputs
+      ## (year 0 + `summaryPeriod` at `summaryInterval`); `.plotTransitionField = NA`
+      ## dissolves `studyAreaReporting` into a single zone per study area.
+      .plotTransitionTimes = as.integer(c(0, seq(globals$summaryPeriod[1L], globals$summaryPeriod[2L],
+                                                 by = globals$summaryInterval))),
+      .plotTransitionField = NA_character_,
+      .useCache = FALSE
+    ),
+    Biomass_regeneration = list(
+      calibrate = FALSE, fireInitialTime = 1, .plotInitialTime = 0, .useCache = FALSE
+    ),
+    LandMine = list(
+      biggestPossibleFireSizeHa = 3e5, burnInitialTime = 1L, maxReburns = c(1L, 20L),
+      maxRetriesPerID = 9L, minPropBurn = 0.90, mode = "single", ROSother = 30L,
+      ROStype = "default", useSeed = NULL, .plotInitialTime = 1, .plotInterval = 100,
+      .studyAreaName = sa, .unitTest = FALSE, .useCache = FALSE
+    ),
+    ## burnSummaries + NRV_summary run IN the sim in mode="single" (two-phase Phase 1):
+    ## they generate + save the per-summary-year files (into out_dir = .../rep%02d) that
+    ## the mode="multi" summaries targets later aggregate across reps. burnSummaries owns
+    ## rstTimeSinceFire (increments yearly, resets on burn) + fire summaries -> supersedes
+    ## timeSinceFire; NRV_summary generates the vegTypeMap/standAgeMap per-year dumps ->
+    ## supersedes LandWeb_output. So both retired modules drop out of the module set below.
+    burnSummaries = list(mode = "single", .useCache = FALSE),
+    NRV_summary = list(mode = "single", .useCache = FALSE)
+  )
+
+  list(
+    ## Stage 1: preamble. Saves its spatial handoff objects (so they appear in
+    ## outputs(sim)) and exposes small tables in-memory via `plain`.
+    tar_simspades(
+      paste0("preamble_", sa),
+      modules = "LandWeb_preamble",
+      params = p_preamble,
+      paths = local$paths,
+      out_dir = file.path("outputs", sa, "preamble"),
+      log_file = file.path("outputs", sa, "logs", "preamble.log"),
+      plain = c("sppEquiv", "sppColorVect", "speciesParams", "speciesTable", "ROSTable"),
+      outputs = quote(outputs_spec(
+        raster = c(
+          "rasterToMatch", "rasterToMatch_biomassParam",
+          "rstLCC", "standAgeMap", "flammableMap", "fireReturnInterval"
+        ),
+        vect = c("studyArea", "studyArea_biomassParam", "studyAreaReporting", "studyAreaANPP")
+      ))
+    ),
+
+    ## Stage 2: speciesData. Loads upstream files via sim_inputs() and small
+    ## tables via `objects`; saves speciesLayers.
+    tar_simspades(
+      paste0("speciesData_", sa),
+      modules = "Biomass_speciesData",
+      params = p_speciesData,
+      paths = local$paths,
+      out_dir = file.path("outputs", sa, "speciesData"),
+      log_file = file.path("outputs", sa, "logs", "speciesData.log"),
+      objects = suffix_refs(quote(list(
+        sppEquiv = preamble$sppEquiv,
+        sppColorVect = preamble$sppColorVect
+      )), sa),
+      inputs = suffix_refs(quote(sim_inputs(
+        preamble,
+        objects = c(
+          "rasterToMatch", "rasterToMatch_biomassParam",
+          "studyArea", "studyArea_biomassParam", "studyAreaReporting"
+        ),
+        files = preamble_files
+      )), sa),
+      outputs = quote(outputs_spec(raster = "speciesLayers"))
+    ),
+
+    ## Stage 3b: dataPrep -- Biomass_borealDataPrep + Biomass_speciesParameters, consuming the
+    ## SHARED factorial paths (unsuffixed `factorial` target) via `objects`.
+    tar_simspades(
+      paste0("dataPrep_", sa),
+      modules = c("Biomass_borealDataPrep", "Biomass_speciesParameters"),
+      params = p_dataPrep,
+      paths = local$paths,
+      out_dir = file.path("outputs", sa, "dataPrep"),
+      log_file = file.path("outputs", sa, "logs", "dataPrep.log"),
+      ## Spatial handoff objects pass in-memory via sim_objects() (loaded on the worker),
+      ## NOT as file inputs: Biomass_borealDataPrep/Biomass_speciesParameters read several
+      ## (studyArea, rasterToMatch, ...) in .inputObjects(), which runs during simInit() --
+      ## before inputs= load. terra layers load lazily, so this stays cheap.
+      objects = suffix_refs(quote(c(
+        list(
+          speciesParams = preamble$speciesParams,
+          speciesTable = preamble$speciesTable,
+          sppColorVect = preamble$sppColorVect,
+          sppEquiv = preamble$sppEquiv,
+          cohortDataFactorial_path = factorial$cohortDataFactorial_path,
+          speciesTableFactorial_path = factorial$speciesTableFactorial_path
+        ),
+        sim_objects(
+          preamble,
+          objects = c(
+            "rstLCC", "rasterToMatch", "rasterToMatch_biomassParam", "standAgeMap",
+            "studyArea", "studyAreaANPP", "studyArea_biomassParam", "studyAreaReporting"
+          ),
+          files = preamble_files
+        ),
+        sim_objects(speciesData, objects = "speciesLayers", files = speciesData_files)
+      )), sa),
+      plain = c(
+        "cohortData", "species", "speciesEcoregion", "ecoregion", "minRelativeB",
+        "sufficientLight", "sppEquiv", "sppColorVect", "speciesParams", "speciesTable"
+      ),
+      outputs = quote(outputs_spec(
+        raster = c(
+          "biomassMap", "rawBiomassMap", "ecoregionMap", "pixelGroupMap", "rstLCC",
+          "standAgeMap", "speciesLayers", "rasterToMatch", "rasterToMatch_biomassParam"
+        ),
+        vect = c("studyArea", "studyArea_biomassParam")
+      ))
+    ),
+
+    ## Stage 4: mainSim (two-phase Phase 1). burnSummaries + NRV_summary run here in
+    ## mode="single" (params above), replacing timeSinceFire (burnSummaries owns
+    ## rstTimeSinceFire -- increments yearly, resets on burn) and LandWeb_output
+    ## (NRV_summary owns the per-year veg dumps). Branched over rep_index via
+    ## pattern = map(rep_index): each stochastic replicate runs as its own branch with
+    ## a per-rep deterministic seed, writing its outputs into outputs/<sa>/mainSim/rep%02d/
+    ## so the mode="multi" summaries targets aggregate across all rep dirs.
+    ## iteration = "list" because each branch returns a run_simspades() list.
+    tar_simspades(
+      paste0("mainSim_", sa),
+      modules = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
+      ## explicit load order: Biomass_core's `after = "Biomass_speciesParameters"` metadata refers to a
+      ## module absent from this stage, breaking auto-inference; set it like the old 03-main-sim.R did.
+      loadOrder = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
+      pattern = quote(map(rep_index)),
+      iteration = "list",
+      out_dir = bquote(file.path("outputs", .(sa), "mainSim", sprintf("rep%02d", rep_index))),
+      log_file = bquote(file.path("outputs", .(sa), "logs", sprintf("mainSim_rep%02d.log", rep_index))),
+      params = p_mainSim,
+      times = list(start = 0, end = local$sim_end),
+      paths = local$paths,
+      ## terra memory cap: mainSim is the ONLY concurrent stage (5 reps/node), so it alone
+      ## needs the per-worker cap (mem_frac * node RAM / mem_workers) to avoid collective OOM
+      ## in LandMine fire-spread. Passed here (not as a global option) so the cached upstream
+      ## stages stay immune to worker-count changes -- see the note near the top of this file.
+      mem_workers = local$local_workers,
+      objects = suffix_refs(quote(c(
+        list(
+          cohortData = dataPrep$cohortData,
+          species = dataPrep$species,
+          speciesEcoregion = dataPrep$speciesEcoregion,
+          ecoregion = dataPrep$ecoregion,
+          minRelativeB = dataPrep$minRelativeB,
+          sufficientLight = dataPrep$sufficientLight,
+          sppEquiv = dataPrep$sppEquiv,
+          sppColorVect = dataPrep$sppColorVect,
+          speciesParams = dataPrep$speciesParams,
+          speciesTable = dataPrep$speciesTable,
+          ROSTable = preamble$ROSTable
+        ),
+        ## Fire layers + reporting polygon are touched in .inputObjects() (burnSummaries
+        ## derives rstTimeSinceFire from fireReturnInterval; LandMine reads flammableMap/
+        ## studyAreaReporting), which runs during simInit() -- before inputs= load. Pass
+        ## them in-memory via sim_objects() (loaded lazily on the worker), matching the
+        ## dataPrep stage; otherwise rstTimeSinceFire is NULL at LandMine's compareGeom.
+        sim_objects(
+          preamble,
+          objects = c("flammableMap", "fireReturnInterval", "studyAreaReporting"),
+          files = preamble_files
+        ),
+        ## studyArea + rasterToMatch are ALSO touched in Biomass_core's .inputObjects()
+        ## (it CRS-compares studyArea vs rasterToMatch and vs studyAreaReporting, e.g.
+        ## Biomass_core.R:2539/2555) -- which runs during simInit() BEFORE inputs= load.
+        ## Supplying them via inputs= leaves them NULL at that point, so the compare sees
+        ## an NA-CRS studyArea vs the loaded studyAreaReporting and spuriously reprojects
+        ## (modifies) studyAreaReporting. Pass them in-memory too, matching studyAreaReporting.
+        sim_objects(
+          dataPrep,
+          objects = c("studyArea", "rasterToMatch"),
+          files = dataPrep_files
+        )
+      )), sa),
+      inputs = suffix_refs(quote(
+        sim_inputs(
+          dataPrep,
+          objects = c(
+            "biomassMap", "rawBiomassMap", "ecoregionMap", "pixelGroupMap", "rstLCC",
+            "standAgeMap", "speciesLayers", "rasterToMatch_biomassParam",
+            "studyArea_biomassParam"
+          ),
+          files = dataPrep_files
+        )
+      ), sa),
+      seed = quote(rep_index), # per-rep deterministic seed (rep 1 -> 1L, matches the validated single rep)
+      plain = c("cohortData", "simulationOutput")
+      ## NO outputs_spec here: in the two-phase design NRV_summary + burnSummaries
+      ## (mode="single") OWN all per-rep raster saves -- pixelGroupMap/standAgeMap/
+      ## vegTypeMap/flammableMap (NRV_summary save_single), rstTimeSinceFire/burnMap/
+      ## flammableMap (burnSummaries save_single), vegTypeMap (Biomass_core buildVTM) --
+      ## and registerOutputs() them. A redundant outputs= would make SpaDES saveFiles()
+      ## re-writeRaster the same paths at end(sim) WITHOUT overwrite=TRUE ->
+      ## "[writeRaster] file exists" (the 3h32m crash). mainSim_files still captures
+      ## every saved file via the modules' registerOutputs().
+    ),
+
+    ## ---- Stage 5: post-processing (NRV_summary) ------------------------------
+
+    ## Reporting polygons: candidate FMA/FMU/ANSR/Caribou/Parks/ecoregion layers
+    ## (LandWebUtils::reportingPolygonLayers()) fetched from Drive/URL, clipped to the
+    ## study area, kept only where they intersect -- the polygon sets NRV_summary
+    ## summarizes metrics over. Stored as a named list of `sf` (serializable;
+    ## NRV_summary st_as_sf()-es each element anyway), so a plain cached target. The
+    ## sim-sourced "CC SAM"/"CC TSF"/"ecoregionLayer" entries are merged in at the
+    ## summaries stage, not here. NOTE: swapping the reporting datasets later is a
+    ## light edit to LandWebUtils::reportingPolygonLayers(); this wiring is unaffected.
+    tar_target_raw(
+      paste0("reportingPolygons_", sa),
+      suffix_refs(bquote({
+        saPoly <- sim_objects(preamble, objects = "studyArea", files = preamble_files)[["studyArea"]]
+        polys <- LandWebUtils::buildReportingPolygons(
+          studyArea = saPoly,
+          destinationPath = file.path(local$paths$inputPath, "reportingPolygons"),
+          targetCRS = LandWebUtils::LandWebCRS
+        )
+        ## active/passive landbase-status sub-zones for the applicable FMA(s) --
+        ## gated by study-area name so only relevant (large) landbase coverages are
+        ## fetched; non-applicable / non-intersecting sources are skipped.
+        landbase <- LandWebUtils::buildLandbasePolygons(
+          studyArea = saPoly,
+          studyAreaName = .(sa),
+          destinationPath = file.path(local$paths$inputPath, "landbase"),
+          targetCRS = LandWebUtils::LandWebCRS
+        )
+        lapply(c(polys, landbase), sf::st_as_sf)
+      }), sa)
+    ),
+
+    ## ---- Stage 5b: post-processing summaries (mode="multi") ------------------
+    ## Phase 2 of the two-phase design: NRV_summary + burnSummaries re-run as their
+    ## OWN targets in mode="multi", aggregating the per-rep files Phase 1 (mainSim)
+    ## saved under outputs/<sa>/mainSim/rep%02d/ into the NRV envelopes + fire summaries.
+    ##
+    ## out_dir = outputs/<sa>/mainSim -- the PARENT of the rep dirs: both modules read
+    ## outputPath(sim)/rep%02d/ and write their aggregates back into outputPath(sim)
+    ## (the v2 postprocess pattern from box/landweb.R, where the summary outputPath
+    ## is the per-study-area parent, not a per-rep subdir). clean_out_dir = FALSE so
+    ## run_simspades does NOT wipe outputs/<sa>/mainSim first -- that would delete the rep
+    ## outputs being aggregated. The bare `mainSim_files` reference is a dependency
+    ## anchor: the modules discover the per-rep files via dir_ls() at run time (not
+    ## sim_inputs), so referencing it forces Phase 1 to run first and re-runs the
+    ## summaries whenever a rep output changes.
+
+    ## NRV_summary (mode="multi"): landscape (lm) + patch (pm) metric envelopes per
+    ## reporting polygon, via nrvtools' arrow-native summarize_nrv() path.
+    tar_simspades(
+      paste0("summaries_nrv_", sa),
+      modules = "NRV_summary",
+      out_dir = file.path("outputs", sa, "mainSim"),
+      clean_out_dir = FALSE,
+      log_file = file.path("outputs", sa, "logs", "summaries_nrv.log"),
+      params = list(
+        .globals = globals_sa,
+        NRV_summary = list(
+          mode = "multi",
+          ## reuse a complete _aggregates parquet dataset (skip the ~2h landscape-metric recompute) to
+          ## iterate on plots/CSVs only. Off by default; opt in per-run via the env var (evaluated here
+          ## on the controller, so the flag is baked into the target). MUST be FALSE for a fresh run.
+          reuseAggregates = isTRUE(as.logical(Sys.getenv("LANDWEB_REUSE_NRV_AGGREGATES", "FALSE"))),
+          ## hard cap on parallel plot-render workers (RAM-aware below it); env-overridable per run.
+          plotWorkers = as.integer(Sys.getenv("LANDWEB_PLOT_WORKERS", "8")),
+          reps = seq_len(local$n_reps),
+          simTimes = c(0, local$sim_end),
+          ## "am" = stand-age time-series animation (GIF via gifski; no ImageMagick). Full set by
+          ## default; scope a replot to a subset per-run via a comma-separated env var (e.g.
+          ## LANDWEB_POSTPROCESS_EVENTS=pm) -- evaluated here on the controller so it bakes into the
+          ## target. Pairs with LANDWEB_REUSE_NRV_AGGREGATES for a fast, focused figure re-render.
+          postprocessEvents = local({
+            e <- Sys.getenv("LANDWEB_POSTPROCESS_EVENTS", "")
+            if (nzchar(e)) trimws(strsplit(e, ",")[[1L]]) else c("lm", "pm", "lw", "am")
+          }),
+          ## lw large-patch connectivity: 4 = rook (4-connected, matches v2's GDAL polygonize);
+          ## 8 = queen (8-connected) is a v3-only departure. See NRV_summary `patchDirections`.
+          patchDirections = 4L,
+          .useCache = FALSE
+        )
+      ),
+      times = list(start = 0, end = local$sim_end),
+      paths = local$paths,
+      ## reportingPolygons (geographic layers) + the sim objects the lm/pm events
+      ## read in-memory (studyAreaReporting, sppEquiv, sppColorVect; speciesLayers
+      ## via inputs). TODO (module-contract, resolve at the first data-backed run):
+      ## merge the sim-sourced "CC SAM" (current-condition standAgeMap) / "CC TSF" /
+      ## "ecoregionLayer" entries into reportingPolygons -- patchMetrics reads
+      ## reportingPolygons[["CC SAM"]] -- AND have NRV_summary exclude those special
+      ## keys from mod$rptPolyNames so they are not iterated as reporting polygons.
+      objects = suffix_refs(quote({
+        mainSim_files # dependency anchor: Phase-1 per-rep files must exist first
+        c(
+          list(
+            reportingPolygons = reportingPolygons,
+            sppEquiv = dataPrep$sppEquiv,
+            sppColorVect = dataPrep$sppColorVect
+          ),
+          sim_objects(preamble, objects = "studyAreaReporting", files = preamble_files)
+        )
+      }), sa),
+      inputs = suffix_refs(quote(sim_inputs(dataPrep, objects = "speciesLayers", files = dataPrep_files)), sa)
+    ),
+
+    ## burnSummaries (mode="multi"): mean-annual cumulative burn maps + across-rep
+    ## fire-size distribution (fireregimetools' arrow-native open_burn_dataset /
+    ## fire_size_histogram). Reads per-rep burnMap/flammableMap + the fire-size
+    ## parquet partitions from outputs/<sa>/mainSim/rep%02d/ and downloads NFDB polygons
+    ## into inputPath; needs no in-memory sim objects.
+    tar_simspades(
+      paste0("summaries_burn_", sa),
+      modules = "burnSummaries",
+      out_dir = file.path("outputs", sa, "mainSim"),
+      clean_out_dir = FALSE,
+      log_file = file.path("outputs", sa, "logs", "summaries_burn.log"),
+      params = list(
+        .globals = globals_sa,
+        burnSummaries = list(
+          mode = "multi",
+          reps = seq_len(local$n_reps),
+          simTimes = c(0, local$sim_end),
+          .useCache = FALSE
+        )
+      ),
+      times = list(start = 0, end = local$sim_end),
+      paths = local$paths,
+      ## burnSummaries mode="multi" .inputObjects requires reportingPolygons
+      ## (stopifnot(suppliedElsewhere(...))). It is not otherwise used by the multi
+      ## events, but must be supplied. mainSim_files is the Phase-1 dependency anchor.
+      objects = suffix_refs(quote({
+        mainSim_files # dependency anchor: Phase-1 per-rep burn/flammable maps first
+        list(reportingPolygons = reportingPolygons)
+      }), sa)
+    )
+  )
+}
 
 ## ---- gated extended analyses --------------------------------------------------
 ## SCANFI per-species cover over the full LTHFC domain + a study-area vegetation
@@ -221,336 +572,34 @@ if (isTRUE(getOption("landweb.extended_analyses", FALSE))) {
 
 ## ---- pipeline -----------------------------------------------------------------
 list(
-  ## branch sources
-  tar_target(study_areas, local$study_areas), # Phase-0: one area
+  ## record target: the study areas this pipeline covers (for inspection / reports)
+  tar_target(study_areas, local$study_areas),
+  ## shared rep-branch source (each mainSim_<sa> maps over this)
   tar_target(rep_index, seq_len(local$n_reps), iteration = "vector"),
 
-  ## Stage 1: preamble. Saves its spatial handoff objects (so they appear in
-  ## outputs(sim)) and exposes small tables in-memory via `plain`.
-  tar_simspades(
-    "preamble",
-    modules = "LandWeb_preamble",
-    params = p_preamble,
-    paths = local$paths,
-    out_dir = file.path("outputs", sa_dir, "preamble"),
-    log_file = file.path("outputs", sa_dir, "logs", "preamble.log"),
-    plain = c("sppEquiv", "sppColorVect", "speciesParams", "speciesTable", "ROSTable"),
-    outputs = quote(outputs_spec(
-      raster = c(
-        "rasterToMatch", "rasterToMatch_biomassParam",
-        "rstLCC", "standAgeMap", "flammableMap", "fireReturnInterval"
-      ),
-      vect = c("studyArea", "studyArea_biomassParam", "studyAreaReporting", "studyAreaANPP")
-    ))
-  ),
-
-  ## Stage 2: speciesData. Loads upstream files via sim_inputs() and small
-  ## tables via `objects`; saves speciesLayers.
-  tar_simspades(
-    "speciesData",
-    modules = "Biomass_speciesData",
-    params = p_speciesData,
-    paths = local$paths,
-    out_dir = file.path("outputs", sa_dir, "speciesData"),
-    log_file = file.path("outputs", sa_dir, "logs", "speciesData.log"),
-    objects = quote(list(
-      sppEquiv = preamble$sppEquiv,
-      sppColorVect = preamble$sppColorVect
-    )),
-    inputs = quote(sim_inputs(
-      preamble,
-      objects = c(
-        "rasterToMatch", "rasterToMatch_biomassParam",
-        "studyArea", "studyArea_biomassParam", "studyAreaReporting"
-      ),
-      files = preamble_files
-    )),
-    outputs = quote(outputs_spec(raster = "speciesLayers"))
-  ),
-
-  ## Stage 3a: factorial -- self-contained species-trait calibration (its only input,
-  ## argsForFactorial, is defaulted via `factorialSize`). Split into its own target so the
+  ## Stage 3a: factorial -- SHARED, study-area-independent, built ONCE. Its only input,
+  ## argsForFactorial, is defaulted via `factorialSize`. Split into its own target so the
   ## heavy "large" build runs ONCE and is cached by targets: iterating on dataPrep (e.g. the
   ## borealDataPrep code-235) does NOT re-run it -- the firewall sets reproducible.useCache =
   ## FALSE, so a bundled factorial would rebuild on every dataPrep run. Biomass_speciesFactorial
   ## writes its arrow datasets under outputPath (the shared-NFS `outputs` symlink) and emits the
   ## paths, which persist across the target boundary and across compute nodes.
+  ## SHARED, study-area-independent -> underscore-prefixed dir at the outputs/ root (NOT nested
+  ## per study area): built once with the `_factorial_` sentinel and reused across areas.
   tar_simspades(
     "factorial",
     modules = "Biomass_speciesFactorial",
     params = p_factorial,
     paths = local$paths,
-    ## SHARED, study-area-independent -> underscore-prefixed dir at the outputs/ root (NOT nested
-    ## per study area): built once with the `_factorial_` sentinel and reused across areas.
     out_dir = file.path("outputs", "_factorial"),
     log_file = file.path("outputs", "_factorial", "logs", "factorial.log"),
     plain = c("cohortDataFactorial_path", "speciesTableFactorial_path")
   ),
 
-  ## Stage 3b: dataPrep -- Biomass_borealDataPrep + Biomass_speciesParameters, consuming the
-  ## factorial paths from the cached `factorial` target via `objects`.
-  tar_simspades(
-    "dataPrep",
-    modules = c("Biomass_borealDataPrep", "Biomass_speciesParameters"),
-    params = p_dataPrep,
-    paths = local$paths,
-    out_dir = file.path("outputs", sa_dir, "dataPrep"),
-    log_file = file.path("outputs", sa_dir, "logs", "dataPrep.log"),
-    ## Spatial handoff objects pass in-memory via sim_objects() (loaded on the worker),
-    ## NOT as file inputs: Biomass_borealDataPrep/Biomass_speciesParameters read several
-    ## (studyArea, rasterToMatch, ...) in .inputObjects(), which runs during simInit() --
-    ## before inputs= load. terra layers load lazily, so this stays cheap.
-    objects = quote(c(
-      list(
-        speciesParams = preamble$speciesParams,
-        speciesTable = preamble$speciesTable,
-        sppColorVect = preamble$sppColorVect,
-        sppEquiv = preamble$sppEquiv,
-        cohortDataFactorial_path = factorial$cohortDataFactorial_path,
-        speciesTableFactorial_path = factorial$speciesTableFactorial_path
-      ),
-      sim_objects(
-        preamble,
-        objects = c(
-          "rstLCC", "rasterToMatch", "rasterToMatch_biomassParam", "standAgeMap",
-          "studyArea", "studyAreaANPP", "studyArea_biomassParam", "studyAreaReporting"
-        ),
-        files = preamble_files
-      ),
-      sim_objects(speciesData, objects = "speciesLayers", files = speciesData_files)
-    )),
-    plain = c(
-      "cohortData", "species", "speciesEcoregion", "ecoregion", "minRelativeB",
-      "sufficientLight", "sppEquiv", "sppColorVect", "speciesParams", "speciesTable"
-    ),
-    outputs = quote(outputs_spec(
-      raster = c(
-        "biomassMap", "rawBiomassMap", "ecoregionMap", "pixelGroupMap", "rstLCC",
-        "standAgeMap", "speciesLayers", "rasterToMatch", "rasterToMatch_biomassParam"
-      ),
-      vect = c("studyArea", "studyArea_biomassParam")
-    ))
-  ),
-
-  ## Stage 4: mainSim (two-phase Phase 1). burnSummaries + NRV_summary run here in
-  ## mode="single" (params above), replacing timeSinceFire (burnSummaries owns
-  ## rstTimeSinceFire -- increments yearly, resets on burn) and LandWeb_output
-  ## (NRV_summary owns the per-year veg dumps). Branched over rep_index via
-  ## pattern = map(rep_index): each stochastic replicate runs as its own branch with
-  ## a per-rep deterministic seed, writing its outputs into outputs/<sa>/mainSim/rep%02d/
-  ## so the mode="multi" summaries targets aggregate across all rep dirs.
-  ## iteration = "list" because each branch returns a run_simspades() list.
-  tar_simspades(
-    "mainSim",
-    modules = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
-    ## explicit load order: Biomass_core's `after = "Biomass_speciesParameters"` metadata refers to a
-    ## module absent from this stage, breaking auto-inference; set it like the old 03-main-sim.R did.
-    loadOrder = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
-    pattern = quote(map(rep_index)),
-    iteration = "list",
-    out_dir = bquote(file.path("outputs", .(sa_dir), "mainSim", sprintf("rep%02d", rep_index))),
-    log_file = bquote(file.path("outputs", .(sa_dir), "logs", sprintf("mainSim_rep%02d.log", rep_index))),
-    params = p_mainSim,
-    times = list(start = 0, end = local$sim_end),
-    paths = local$paths,
-    ## terra memory cap: mainSim is the ONLY concurrent stage (5 reps/node), so it alone
-    ## needs the per-worker cap (mem_frac * node RAM / mem_workers) to avoid collective OOM
-    ## in LandMine fire-spread. Passed here (not as a global option) so the cached upstream
-    ## stages stay immune to worker-count changes -- see the note near the top of this file.
-    mem_workers = local$local_workers,
-    objects = quote(c(
-      list(
-        cohortData = dataPrep$cohortData,
-        species = dataPrep$species,
-        speciesEcoregion = dataPrep$speciesEcoregion,
-        ecoregion = dataPrep$ecoregion,
-        minRelativeB = dataPrep$minRelativeB,
-        sufficientLight = dataPrep$sufficientLight,
-        sppEquiv = dataPrep$sppEquiv,
-        sppColorVect = dataPrep$sppColorVect,
-        speciesParams = dataPrep$speciesParams,
-        speciesTable = dataPrep$speciesTable,
-        ROSTable = preamble$ROSTable
-      ),
-      ## Fire layers + reporting polygon are touched in .inputObjects() (burnSummaries
-      ## derives rstTimeSinceFire from fireReturnInterval; LandMine reads flammableMap/
-      ## studyAreaReporting), which runs during simInit() -- before inputs= load. Pass
-      ## them in-memory via sim_objects() (loaded lazily on the worker), matching the
-      ## dataPrep stage; otherwise rstTimeSinceFire is NULL at LandMine's compareGeom.
-      sim_objects(
-        preamble,
-        objects = c("flammableMap", "fireReturnInterval", "studyAreaReporting"),
-        files = preamble_files
-      ),
-      ## studyArea + rasterToMatch are ALSO touched in Biomass_core's .inputObjects()
-      ## (it CRS-compares studyArea vs rasterToMatch and vs studyAreaReporting, e.g.
-      ## Biomass_core.R:2539/2555) -- which runs during simInit() BEFORE inputs= load.
-      ## Supplying them via inputs= leaves them NULL at that point, so the compare sees
-      ## an NA-CRS studyArea vs the loaded studyAreaReporting and spuriously reprojects
-      ## (modifies) studyAreaReporting. Pass them in-memory too, matching studyAreaReporting.
-      sim_objects(
-        dataPrep,
-        objects = c("studyArea", "rasterToMatch"),
-        files = dataPrep_files
-      )
-    )),
-    inputs = quote(
-      sim_inputs(
-        dataPrep,
-        objects = c(
-          "biomassMap", "rawBiomassMap", "ecoregionMap", "pixelGroupMap", "rstLCC",
-          "standAgeMap", "speciesLayers", "rasterToMatch_biomassParam",
-          "studyArea_biomassParam"
-        ),
-        files = dataPrep_files
-      )
-    ),
-    seed = quote(rep_index), # per-rep deterministic seed (rep 1 -> 1L, matches the validated single rep)
-    plain = c("cohortData", "simulationOutput")
-    ## NO outputs_spec here: in the two-phase design NRV_summary + burnSummaries
-    ## (mode="single") OWN all per-rep raster saves -- pixelGroupMap/standAgeMap/
-    ## vegTypeMap/flammableMap (NRV_summary save_single), rstTimeSinceFire/burnMap/
-    ## flammableMap (burnSummaries save_single), vegTypeMap (Biomass_core buildVTM) --
-    ## and registerOutputs() them. A redundant outputs= would make SpaDES saveFiles()
-    ## re-writeRaster the same paths at end(sim) WITHOUT overwrite=TRUE ->
-    ## "[writeRaster] file exists" (the 3h32m crash). mainSim_files still captures
-    ## every saved file via the modules' registerOutputs().
-  ),
-
-  ## ---- Stage 5: post-processing (NRV_summary) --------------------------------
-
-  ## Reporting polygons: candidate FMA/FMU/ANSR/Caribou/Parks/ecoregion layers
-  ## (LandWebUtils::reportingPolygonLayers()) fetched from Drive/URL, clipped to the
-  ## study area, kept only where they intersect -- the polygon sets NRV_summary
-  ## summarizes metrics over. Stored as a named list of `sf` (serializable;
-  ## NRV_summary st_as_sf()-es each element anyway), so a plain cached target. The
-  ## sim-sourced "CC SAM"/"CC TSF"/"ecoregionLayer" entries are merged in at the
-  ## summaries stage, not here. NOTE: swapping the reporting datasets later is a
-  ## light edit to LandWebUtils::reportingPolygonLayers(); this wiring is unaffected.
-  tar_target(
-    reportingPolygons,
-    {
-      sa <- sim_objects(preamble, objects = "studyArea", files = preamble_files)[["studyArea"]]
-      polys <- LandWebUtils::buildReportingPolygons(
-        studyArea = sa,
-        destinationPath = file.path(local$paths$inputPath, "reportingPolygons"),
-        targetCRS = LandWebUtils::LandWebCRS
-      )
-      ## active/passive landbase-status sub-zones for the applicable FMA(s) --
-      ## gated by study-area name so only relevant (large) landbase coverages are
-      ## fetched; non-applicable / non-intersecting sources are skipped.
-      landbase <- LandWebUtils::buildLandbasePolygons(
-        studyArea = sa,
-        studyAreaName = local$study_areas,
-        destinationPath = file.path(local$paths$inputPath, "landbase"),
-        targetCRS = LandWebUtils::LandWebCRS
-      )
-      lapply(c(polys, landbase), sf::st_as_sf)
-    }
-  ),
-
-  ## ---- Stage 5b: post-processing summaries (mode="multi") --------------------
-  ## Phase 2 of the two-phase design: NRV_summary + burnSummaries re-run as their
-  ## OWN targets in mode="multi", aggregating the per-rep files Phase 1 (mainSim)
-  ## saved under outputs/<sa>/mainSim/rep%02d/ into the NRV envelopes + fire summaries.
-  ##
-  ## out_dir = outputs/<sa>/mainSim -- the PARENT of the rep dirs: both modules read
-  ## outputPath(sim)/rep%02d/ and write their aggregates back into outputPath(sim)
-  ## (the v2 postprocess pattern from box/landweb.R, where the summary outputPath
-  ## is the per-study-area parent, not a per-rep subdir). clean_out_dir = FALSE so
-  ## run_simspades does NOT wipe outputs/<sa>/mainSim first -- that would delete the rep
-  ## outputs being aggregated. The bare `mainSim_files` reference is a dependency
-  ## anchor: the modules discover the per-rep files via dir_ls() at run time (not
-  ## sim_inputs), so referencing it forces Phase 1 to run first and re-runs the
-  ## summaries whenever a rep output changes.
-
-  ## NRV_summary (mode="multi"): landscape (lm) + patch (pm) metric envelopes per
-  ## reporting polygon, via nrvtools' arrow-native summarize_nrv() path.
-  tar_simspades(
-    "summaries_nrv",
-    modules = "NRV_summary",
-    out_dir = file.path("outputs", sa_dir, "mainSim"),
-    clean_out_dir = FALSE,
-    log_file = file.path("outputs", sa_dir, "logs", "summaries_nrv.log"),
-    params = list(
-      .globals = globals,
-      NRV_summary = list(
-        mode = "multi",
-        ## reuse a complete _aggregates parquet dataset (skip the ~2h landscape-metric recompute) to
-        ## iterate on plots/CSVs only. Off by default; opt in per-run via the env var (evaluated here
-        ## on the controller, so the flag is baked into the target). MUST be FALSE for a fresh run.
-        reuseAggregates = isTRUE(as.logical(Sys.getenv("LANDWEB_REUSE_NRV_AGGREGATES", "FALSE"))),
-        ## hard cap on parallel plot-render workers (RAM-aware below it); env-overridable per run.
-        plotWorkers = as.integer(Sys.getenv("LANDWEB_PLOT_WORKERS", "8")),
-        reps = seq_len(local$n_reps),
-        simTimes = c(0, local$sim_end),
-        ## "am" = stand-age time-series animation (GIF via gifski; no ImageMagick). Full set by
-        ## default; scope a replot to a subset per-run via a comma-separated env var (e.g.
-        ## LANDWEB_POSTPROCESS_EVENTS=pm) -- evaluated here on the controller so it bakes into the
-        ## target. Pairs with LANDWEB_REUSE_NRV_AGGREGATES for a fast, focused figure re-render.
-        postprocessEvents = local({
-          e <- Sys.getenv("LANDWEB_POSTPROCESS_EVENTS", "")
-          if (nzchar(e)) trimws(strsplit(e, ",")[[1L]]) else c("lm", "pm", "lw", "am")
-        }),
-        ## lw large-patch connectivity: 4 = rook (4-connected, matches v2's GDAL polygonize);
-        ## 8 = queen (8-connected) is a v3-only departure. See NRV_summary `patchDirections`.
-        patchDirections = 4L,
-        .useCache = FALSE
-      )
-    ),
-    times = list(start = 0, end = local$sim_end),
-    paths = local$paths,
-    ## reportingPolygons (geographic layers) + the sim objects the lm/pm events
-    ## read in-memory (studyAreaReporting, sppEquiv, sppColorVect; speciesLayers
-    ## via inputs). TODO (module-contract, resolve at the first data-backed run):
-    ## merge the sim-sourced "CC SAM" (current-condition standAgeMap) / "CC TSF" /
-    ## "ecoregionLayer" entries into reportingPolygons -- patchMetrics reads
-    ## reportingPolygons[["CC SAM"]] -- AND have NRV_summary exclude those special
-    ## keys from mod$rptPolyNames so they are not iterated as reporting polygons.
-    objects = quote({
-      mainSim_files # dependency anchor: Phase-1 per-rep files must exist first
-      c(
-        list(
-          reportingPolygons = reportingPolygons,
-          sppEquiv = dataPrep$sppEquiv,
-          sppColorVect = dataPrep$sppColorVect
-        ),
-        sim_objects(preamble, objects = "studyAreaReporting", files = preamble_files)
-      )
-    }),
-    inputs = quote(sim_inputs(dataPrep, objects = "speciesLayers", files = dataPrep_files))
-  ),
-
-  ## burnSummaries (mode="multi"): mean-annual cumulative burn maps + across-rep
-  ## fire-size distribution (fireregimetools' arrow-native open_burn_dataset /
-  ## fire_size_histogram). Reads per-rep burnMap/flammableMap + the fire-size
-  ## parquet partitions from outputs/<sa>/mainSim/rep%02d/ and downloads NFDB polygons
-  ## into inputPath; needs no in-memory sim objects.
-  tar_simspades(
-    "summaries_burn",
-    modules = "burnSummaries",
-    out_dir = file.path("outputs", sa_dir, "mainSim"),
-    clean_out_dir = FALSE,
-    log_file = file.path("outputs", sa_dir, "logs", "summaries_burn.log"),
-    params = list(
-      .globals = globals,
-      burnSummaries = list(
-        mode = "multi",
-        reps = seq_len(local$n_reps),
-        simTimes = c(0, local$sim_end),
-        .useCache = FALSE
-      )
-    ),
-    times = list(start = 0, end = local$sim_end),
-    paths = local$paths,
-    ## burnSummaries mode="multi" .inputObjects requires reportingPolygons
-    ## (stopifnot(suppliedElsewhere(...))). It is not otherwise used by the multi
-    ## events, but must be supplied. mainSim_files is the Phase-1 dependency anchor.
-    objects = quote({
-      mainSim_files # dependency anchor: Phase-1 per-rep burn/flammable maps first
-      list(reportingPolygons = reportingPolygons)
-    })
-  ),
+  ## per-study-area stages, branched statically over local$study_areas. targets
+  ## flattens this nested list; each area contributes preamble/speciesData/dataPrep/
+  ## mainSim/reportingPolygons/summaries_nrv/summaries_burn, all "_<sa>"-suffixed.
+  lapply(local$study_areas, study_area_targets),
 
   ## Gated extended analyses (empty list unless landweb.extended_analyses is set
   ## in _local.R). targets flattens nested lists, so this splices in cleanly.
