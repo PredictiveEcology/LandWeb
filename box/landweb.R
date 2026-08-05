@@ -347,6 +347,9 @@ landwebConfig <- R6::R6Class(
           fixModelBiomass = TRUE,
           forestedLCCClasses = c(81, 210, 220, 230, 240), ## should match preamble's treeClassesLCC
           LCCClassesToReplaceNN = 240,
+          ## deterministic + seed-free, and a grid-aligned crop matches the full extent,
+          ## so a small dev subset agrees with the scaled-up run (LandR >= 1.2.0.9005)
+          LCCClassesToReplaceNNMethod = "nearestWeighted",
           # next two are used when assigning pixelGroup membership; what resolution for
           #   age and biomass
           pixelGroupAgeClass = 2 * 10, ## twice the successionTimestep; can be coarse because initial conditions are irrelevant

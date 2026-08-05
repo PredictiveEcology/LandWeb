@@ -197,6 +197,9 @@ study_area_targets <- function(sa) {
       dataSource = "SCANFI", earliestFireYear = 1950L, ecoregionLayerField = "ECOREGION",
       exportModels = "none", fixModelBiomass = TRUE,
       forestedLCCClasses = c(81, 210, 220, 230, 240), LCCClassesToReplaceNN = 240,
+      ## deterministic + seed-free, and a grid-aligned crop matches the full extent,
+      ## so a small dev subset agrees with the scaled-up run (LandR >= 1.2.0.9005)
+      LCCClassesToReplaceNNMethod = "nearestWeighted",
       pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 1000 / (250 / res)^2,
       speciesTableAreas = c("BSW", "BP", "MC"),
       subsetDataAgeModel = 100L, subsetDataBiomassModel = 100L,
