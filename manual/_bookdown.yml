@@ -24,9 +24,10 @@ rmd_files:
   - ../modules/LandMine/LandMine2.Rmd
   - 06-section-model-outputs.Rmd
   - ../modules/burnSummaries/burnSummaries2.Rmd
-  - ../modules/LandWeb_output/LandWeb_output2.Rmd
-  - ../modules/timeSinceFire/timeSinceFire2.Rmd
-  - ../modules/LandWeb_summary/LandWeb_summary2.Rmd
+  ## NRV_summary supersedes the retired LandWeb_output / timeSinceFire / LandWeb_summary modules,
+  ## whose chapters were removed here (their module dirs no longer exist, so prepManualRmds() could
+  ## not generate them and the build failed).
+  - ../modules/NRV_summary/NRV_summary2.Rmd
   - 07-section-web-app.Rmd
   - 08-section-modifying-landweb.Rmd
   - 99-references.Rmd
