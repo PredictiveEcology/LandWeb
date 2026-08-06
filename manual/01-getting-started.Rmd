@@ -400,25 +400,38 @@ file.path(prjDir, c("cache", "inputs", "outputs")) |>
 ```
 
 ```{r dir-structure, echo = FALSE, eval = TRUE}
-data.frame(
-  directory = fs::dir_ls(prjDir, recurse = 0, type = c("directory", "symlink")) |>
-    fs::path_file() |>
-    paste0("/"),
-  description = c(
-    "additional R helper scripts",                             ## R/
-    "scripts for running multiple simulations",                ## batch_runs/
-    "contains LandWeb config, used by the 'box' package",      ## box/
-    "all simulation cache files stored here",                  ## cache/
-    "Dockerfiles, scripts, and documentation",                 ## docker/
-    "rendered model and app documentation",                    ## docs/
-    "all model data inputs stored here",                       ## inputs/
-    "module code (git submodules)",                            ## modules/
-    "raw files for generating documentation manual",           ## manual/
-    "all per-run model outputs stored here",                   ## outputs/
-    "package code (git submodules)",                           ## packages/
-    "project package management directory"                     ## renv/
+## NB: look descriptions up BY NAME rather than pairing a hardcoded vector against a live
+## directory listing -- the latter broke the build whenever a top-level directory was added
+## (v3 added `_targets/`, `reports/`, `logs/`, `citations/`, ... -> 19 dirs vs 12 descriptions,
+## "arguments imply differing number of rows"). Unknown directories now degrade gracefully.
+local({
+  descriptions <- c(
+    "R" = "additional R helper scripts",
+    "_targets" = "`targets` pipeline store (metadata + cached objects)",
+    "batch_runs" = "scripts for running multiple simulations",
+    "box" = "contains LandWeb config, used by the 'box' package",
+    "cache" = "all simulation cache files stored here",
+    "citations" = "bibliographies and citation styles",
+    "docker" = "Dockerfiles, scripts, and documentation",
+    "docs" = "rendered model and app documentation",
+    "inputs" = "all model data inputs stored here",
+    "logs" = "run and worker logs",
+    "manual" = "raw files for generating documentation manual",
+    "modules" = "module code (git submodules)",
+    "outputs" = "all per-run model outputs stored here",
+    "outputs_v2" = "archived LandWeb v2 outputs (reference for v2-vs-v3 comparisons)",
+    "packages" = "package code (git submodules)",
+    "regmod" = "regression model helpers",
+    "renv" = "project package management directory",
+    "reports" = "automated Quarto reports",
+    "scripts" = "standalone utility scripts"
   )
-) |> 
+  dirs <- fs::dir_ls(prjDir, recurse = 0, type = c("directory", "symlink")) |> fs::path_file()
+  data.frame(
+    directory = paste0(dirs, "/"),
+    description = unname(ifelse(dirs %in% names(descriptions), descriptions[dirs], ""))
+  )
+}) |>
   knitr::kable(caption = "LandWeb project directory structure", booktabs = TRUE) |>
   kableExtra::kable_styling(latex_options = c("striped", "scale_down"))
 ```
