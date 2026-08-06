@@ -6,12 +6,21 @@
 # .Rprofile). Do not set the same value in two places.
 
 local <- list(
-  ## Phase-0 spike: ONE small study area, 5 stochastic replicates (mainSim branches
-  ## over rep_index via pattern = map(rep_index)).
-  ## SprayLake is the smallest Alberta FMA (~2,485 km^2). NB: it has a special-case
-  ## branch in LandWeb_preamble.R; Edson (~2,660 km^2) is the next-smallest AB FMA
-  ## without special-casing if a cleaner path is wanted.
-  study_areas = c("SprayLake", "Edson"),
+  ## Study areas = ecoregion GROUPS from the LandWebUtils crosswalk (build_studyarea_crosswalk /
+  ## studyAreaCrosswalk.rds): each unions the v10 FMA/TSA/FML tenure polygons within one ecoregion
+  ## so studyAreaANPP captures enough PSP data -- a lone small FMA (e.g. Edson) starved
+  ## Biomass_speciesParameters. mainSim branches over rep_index (pattern = map(rep_index)).
+  ## Bring groups in incrementally during development; see _tmp_studyarea_regrouping.md.
+  study_areas = c("WesternAlbertaUpland"),
+  ## ALL 18 groups, largest -> smallest by pixel count (~0.04-1.85 Mpix @240m). Uncomment (or
+  ## subset) to scale up; keep the single-area line above active while testing:
+  # study_areas = c(
+  #   "ChurchillRiverUpland", "NorthernAlbertaUplands", "WesternAlbertaUpland", "ClearHillsUpland",
+  #   "MidBorealUplands", "WabascaLowland", "CentralCanadianRockyMountains", "LacSeulUpland",
+  #   "HayRiverLowland", "LakeoftheWoods", "InterlakePlain", "WesternContinentalRanges",
+  #   "MidBorealLowland", "PeaceLowland", "NorthernContinentalDivide", "BigTroutLake",
+  #   "SlaveRiverLowland", "WesternBoreal"
+  # ),
   n_reps = 5L,
 
   ## SpaDES paths. Heavy IO belongs on docker-visible NVMe scratch, not /home or NFS.
