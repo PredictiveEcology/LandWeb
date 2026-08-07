@@ -151,8 +151,21 @@ a larger area.
 **But a larger area must be ecologically coherent.** Species traits legitimately differ between
 ecological regions, so a PSP pool that spans very different ecology produces fits that are wrong
 everywhere in it. Bundling tenures purely by proximity --- or by corporate ownership --- would do
-exactly that. Grouping by **dominant ecoregion** makes each group's PSP pool both large enough and
-ecologically appropriate.
+exactly that.
+
+Two ecological units are therefore involved, at different levels, and it is worth keeping them
+apart:
+
+- **Group membership** --- which tenures are simulated together, and what the group is called ---
+  is set by **ecoregion**: each tenure is assigned to the ecoregion it mostly falls in, and the
+  group takes that ecoregion's name (`studyAreaCrosswalk(eco_field = "REGION_NAM")`). All 18 group
+  names are ecoregion names.
+- **The PSP catchment** used to fit species traits (`studyAreaANPP`) is **coarser still**: it is
+  the set of **ecoprovinces** the study area intersects. A single ecoregion does not supply enough
+  plots, which is exactly the failure that motivated the regrouping.
+
+So the groups are ecoregion-*defined* but their trait data are pooled at the ecoprovince level ---
+deliberately, to trade a little ecological specificity for a sample size that supports a fit.
 
 A third consideration settled *how* membership is defined. The former study-area registry was keyed
 to companies and referenced tenure polygons by ID, and neither survives contact with updated
@@ -200,7 +213,7 @@ if (!is.null(sa_tab)) {
 
 ```{r}
 #| label: fig-sa-facets
-#| fig-cap: "Member forest tenures (blue) of each study-area group, one panel per group. All panels share a single map scale, so group sizes are directly comparable both within and between pages. The tan area is the ecoregion the group is named for --- the unit that defines it --- so it is clear where a group's tenures spill beyond it; dashed lines are ecoprovince boundaries, for coarser context. Tenure labels are the curated short names used throughout the reporting, and panel numbers match @fig-sa-groups and @tbl-sa-groups."
+#| fig-cap: "Member forest tenures (blue) of each study-area group, one panel per group. All panels share a single map scale, so group sizes are directly comparable both within and between pages. The tan area is the ecoregion the group is named for, which is what defines its membership, so it is clear where a group's tenures spill beyond it; dashed lines are ecoprovince boundaries --- the coarser unit the PSP trait pool (`studyAreaANPP`) is drawn from. Tenure labels are the curated short names used throughout the reporting, and panel numbers match @fig-sa-groups and @tbl-sa-groups."
 #| out-width: "100%"
 if (length(sa_facet_pngs)) {
   knitr::include_graphics(normalizePath(unlist(sa_facet_pngs)))

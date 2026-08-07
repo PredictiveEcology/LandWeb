@@ -379,8 +379,8 @@ sa_facets <- function(page = 1L, perPage = 6L, ncol = 3L) {
         "All panels share ONE map scale, so the groups are directly comparable in size",
         "(they differ ~45-fold in area, ~6-fold across).\nTenure labels are the curated short names",
         "used throughout the reporting; panel numbers match the overview map.\nDashed lines are",
-        "ecoprovince boundaries (coarse context); the tan area is the ECOREGION the group is named",
-        "for --- the unit that defines it --- so it is clear where its tenures spill beyond it.",
+        "ecoprovince boundaries -- the unit the PSP trait pool is drawn from; the tan area is the",
+        "ECOREGION the group is NAMED for, which is what defines its membership.",
         collapse = " "
       ),
       theme = theme(
