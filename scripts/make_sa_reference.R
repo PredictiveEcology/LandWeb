@@ -284,10 +284,12 @@ sa_map <- function(standalone = FALSE) {
     labs(
       title = "LandWeb v3 study-area groups",
       subtitle = paste(
-        "A study area is the FILLED tenures inside each bold outline. It takes its NAME from the",
-        "ecoregion it mostly falls in (dashed, unfilled) --\nso a number labels the tenure group,",
-        "not the ecoregion outline near it. Each group has a unique colour + hatch (key below);",
-        "neighbouring groups always differ in colour."
+        "A study area is the FILLED tenures inside each bold outline. Its membership and name come",
+        "from the ECOREGION it mostly falls in (dashed, no fill; these run to ~187,000 km\u00b2, so they",
+        "\nlook large here) -- a number labels the tenure group, not the ecoregion outline near it.",
+        "Ecoprovinces, the coarser unit the PSP trait pool is drawn from, are on the per-group plate,",
+        "\nnot this map. Each group has a unique colour + hatch (key below); neighbours always differ",
+        "in colour."
       )
     ) +
     theme_bw() +
