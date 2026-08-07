@@ -427,7 +427,7 @@ study_area_targets <- function(sa) {
 
     ## ---- Stage 5: post-processing (NRV_summary) ------------------------------
 
-    ## Reporting polygons: candidate FMA/FMU/ANSR/Caribou/Parks/ecoregion layers
+    ## Reporting polygons: candidate FMA/ANSR/Caribou/Parks/ecoregion layers
     ## (LandWebUtils::reportingPolygonLayers()) fetched from Drive/URL, clipped to the
     ## study area, kept only where they intersect -- the polygon sets NRV_summary
     ## summarizes metrics over. Stored as a named list of `sf` (serializable;
@@ -435,25 +435,60 @@ study_area_targets <- function(sa) {
     ## sim-sourced "CC SAM"/"CC TSF"/"ecoregionLayer" entries are merged in at the
     ## summaries stage, not here. NOTE: swapping the reporting datasets later is a
     ## light edit to LandWebUtils::reportingPolygonLayers(); this wiring is unaffected.
+    ##
+    ## Each layer is keyed by its curated NAME_SHORT (= what `refCode` is slugged from), and
+    ## the study-area-clipped BASE layers are joined by the per-TENURE crossings that restore
+    ## the v2 reporting units (LandWeb#118): a study area is now an ecoregion group unioning
+    ## several tenures, so a layer clipped only to the group pools every tenure's share of a
+    ## sub-region into one number. buildCrossedReportingPolygons() crosses first, then the
+    ## downstream name-grouping aggregates correctly.
     tar_target_raw(
       paste0("reportingPolygons_", sa),
       suffix_refs(bquote({
-        saPoly <- sim_objects(preamble, objects = "studyArea", files = preamble_files)[["studyArea"]]
+        ## studyAreaREPORTING, not studyArea: the latter is BUFFERED (for WesternAlbertaUpland,
+        ## 155,581 km2 vs 66,422 km2), and clipping the tenure layer to it pulls in neighbouring
+        ## tenures that are not members of this study-area group -- two BC TSAs, in that case --
+        ## each of which would then mint its own crossed reporting units from a buffer-edge
+        ## sliver. NRV_summary crops every layer to studyAreaReporting anyway, so this changes
+        ## no reported number for a genuine unit; it just stops the spurious ones being created.
+        saPoly <- sim_objects(
+          preamble, objects = "studyAreaReporting", files = preamble_files
+        )[["studyAreaReporting"]]
         polys <- LandWebUtils::buildReportingPolygons(
           studyArea = saPoly,
           destinationPath = file.path(local$paths$inputPath, "reportingPolygons"),
           targetCRS = LandWebUtils::LandWebCRS
         )
-        ## active/passive landbase-status sub-zones for the applicable FMA(s) --
-        ## gated by study-area name so only relevant (large) landbase coverages are
-        ## fetched; non-applicable / non-intersecting sources are skipped.
+        ## active/passive landbase-status sub-zones -- gated by the TENURES actually present
+        ## in this study area (not the study-area name, which no longer names a company), so
+        ## only relevant (multi-GB) landbase coverages are fetched; non-applicable /
+        ## non-intersecting sources are skipped.
         landbase <- LandWebUtils::buildLandbasePolygons(
           studyArea = saPoly,
-          studyAreaName = .(sa),
+          tenures = polys[["FMA"]]$Name,
           destinationPath = file.path(local$paths$inputPath, "landbase"),
           targetCRS = LandWebUtils::LandWebCRS
         )
-        lapply(c(polys, landbase), sf::st_as_sf)
+        ## tenure x sub-region (and tenure x landbase, and the tenure x landbase x Caribou
+        ## triples). NB: `crossed` already contains the tenure-crossed landbases, so the raw
+        ## `landbase` list is NOT appended -- its features are labelled only by status
+        ## ("ACTIVE"/"PASSIVE"), which would collide across tenures once several are present.
+        ##
+        ## `members` restricts the crossings to THIS group's tenures. v10 tenure polygons
+        ## overlap, so clipping to a group boundary also catches neighbours belonging to a
+        ## different group (e.g. NorthernAlbertaUplands, whose sole member is FortNelson_TSA,
+        ## clips in Tolko_Norbord_LC); crossing those would split one partner's numbers
+        ## across two study-area reports. The crosswalk is the cached rds the preamble's
+        ## prepStudyArea() already built, so this is a read, not a rebuild.
+        cw <- LandWebUtils::studyAreaCrosswalk(
+          destinationPath = local$paths$inputPath,
+          targetCRS = LandWebUtils::LandWebCRS
+        )
+        crossed <- LandWebUtils::buildCrossedReportingPolygons(
+          polys, landbase,
+          members = cw[["name_short"]][cw[["group"]] == .(sa)]
+        )
+        lapply(c(polys, crossed), sf::st_as_sf)
       }), sa)
     ),
 
