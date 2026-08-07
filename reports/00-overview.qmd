@@ -24,6 +24,20 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 library(data.table)
 library(ggplot2)
 library(kableExtra)
+library(sf)
+
+## study-area group reference artifacts (study-area-independent -> outputs/_reference/);
+## regenerate with scripts/make_sa_reference.R. Paths tried from both the project root and
+## the report dir so the report also renders standalone.
+.ref <- function(f) {
+  cand <- file.path(c("outputs/_reference", "../outputs/_reference"), f)
+  cand[file.exists(cand)][1]
+}
+sa_csv <- .ref("studyAreaGroups.csv")
+sa_gpkg <- .ref("studyAreaGroups.gpkg")
+sa_tab <- if (!is.na(sa_csv)) fread(sa_csv) else NULL
+sa_report_png <- .ref("studyAreaGroups_report.png")
+sa_facet_pngs <- Filter(Negate(is.na), lapply(1:3, function(i) .ref(sprintf("studyAreaGroups_facets_p%d.png", i))))
 ```
 
 \newpage
@@ -67,8 +81,9 @@ change of ecological content. The main changes (each documented in its own repor
   **v10**, incorporating the June-2026 Northwest Alberta work [@peterson-nwab-data] (report 02).
 - **Orchestration.** The manual `SpaDES` script chain is replaced by a **`targets` pipeline** that
   owns caching and dispatch, with the `SpaDES` modules retained as the simulation engine (report 03).
-- **Scope.** Simulations are run and reported **per forest-management area (FMA)** rather than as one
-  monolithic run.
+- **Scope.** Simulations are run per **ecoregion-based study-area group** --- ecologically coherent
+  bundles of adjacent forest tenures --- rather than as one monolithic run, with the per-tenure
+  breakdown recovered through the reporting polygons.
 - **Post-processing.** Three v2 summary modules are consolidated into the new `NRV_summary` module
   plus the `nrvtools` package (report 03).
 
@@ -115,13 +130,117 @@ dispatched across a small compute cluster via `crew.ssh` (report 03).
 
 # Study areas
 
-v3 treats the **forest-management area (FMA)** as the unit of simulation and reporting: each area is
-parameterized, simulated, and summarized on its own, rather than as part of a single continental run
-(the v2 `LandWeb_full` run is dropped). This keeps per-area updates from invalidating unrelated
-results and keeps peak memory bounded. The FMAs span the western boreal across British Columbia,
-Alberta, Saskatchewan, Manitoba, and the Northwest Territories; the historical per-FMA client
-deliverables in `reports/2020/` indicate the scope. The v3 pipeline was first validated end-to-end
-on the **Spray Lake** study area (SW Alberta).
+v3 runs the model over a set of **ecoregion-based study-area groups** rather than one monolithic
+continental run (the v2 `LandWeb_full` run is dropped) or one run per forest tenure. Each group
+bundles forest tenures that are both **geographically adjacent** and **in the same ecological
+region**; it is parameterized, simulated, and summarized as a unit, and the per-tenure numbers
+partners need come from the *reporting polygons* (next section), not from running each tenure
+separately.
+
+## Why groups, and why ecoregions
+
+Two problems drove the design, and neither is solved by running tenures individually.
+
+**Small tenures cannot be parameterized alone.** Species traits are fitted from permanent sample
+plot (PSP) data cropped to the study area. Run a small tenure by itself and its PSP catchment is too
+small --- per-species samples fall below the 50-plot minimum and the trait fit fails outright. This
+is not hypothetical: a solo run of a ~2,700 km^2^ Alberta tenure dies in
+`Biomass_speciesParameters` for exactly this reason. Small tenures therefore have to be run *inside*
+a larger area.
+
+**But a larger area must be ecologically coherent.** Species traits legitimately differ between
+ecological regions, so a PSP pool that spans very different ecology produces fits that are wrong
+everywhere in it. Bundling tenures purely by proximity --- or by corporate ownership --- would do
+exactly that. Grouping by **dominant ecoregion** makes each group's PSP pool both large enough and
+ecologically appropriate.
+
+A third consideration settled *how* membership is defined. The former study-area registry was keyed
+to companies and referenced tenure polygons by ID, and neither survives contact with updated
+boundary data: tenure IDs are re-issued between versions, and tenures change hands, so a polygon
+labelled for one licensee in an older file may belong to another today. Group membership is
+therefore established by **verified spatial overlap against the current boundary layer**, never by
+inherited labels --- geography and ecology are stable, corporate identity is not. The grouping is
+recorded in an explicit crosswalk (`LandWebUtils::studyAreaCrosswalk()`), which retains `company`
+and `province` columns so a licensee-driven rerun still maps cleanly onto the groups holding their
+tenures.
+
+The grouping layer is a parameter, not a constant: a coarser layer (ecoprovinces) yields fewer,
+larger groups and a finer one (ecodistricts) subdivides any group that proves too large to run.
+
+## The groups
+
+```{r}
+#| label: fig-sa-groups
+#| fig-cap: "LandWeb v3 study-area groups. Each bold outline is one study area --- the union of its member forest tenures, whose individual boundaries are drawn within it. Every group has a unique colour + hatch combination, and neighbouring groups always differ in colour; numbers key to @tbl-sa-groups. Provinces and the ecoregions the groups are named for (dashed) are shown for context."
+#| out-width: "100%"
+## The figure is pre-rendered by scripts/make_sa_reference.R rather than rebuilt here: it needs the
+## FMA layer, the crosswalk and a GADM download, and rendering it in-report would duplicate ~40
+## lines of plotting code that could then drift from the standalone/shareable copy.
+if (!is.na(sa_report_png)) {
+  knitr::include_graphics(normalizePath(sa_report_png))
+} else {
+  knitr::asis_output("*(study-area map not found --- run `scripts/make_sa_reference.R`)*")
+}
+```
+
+```{r}
+#| label: tbl-sa-groups
+#| tbl-cap: "Study-area groups and their member forest tenures. `Mpix` is the approximate simulated pixel count at 240 m resolution --- the practical size measure for run planning."
+if (!is.null(sa_tab)) {
+  out <- sa_tab[, .(`#` = id, `Study area group` = group, Prov = province, N = n_members,
+                    `Member tenures` = members,
+                    `Area (km^2^)` = format(area_km2, big.mark = ","), Mpix = mpix)]
+  kbl(out, booktabs = TRUE, longtable = TRUE, align = "rllrlrr") |>
+    kable_styling(latex_options = c("striped", "repeat_header"), font_size = 7) |>
+    column_spec(5, width = "16em")
+} else {
+  knitr::asis_output("*(study-area lookup not found --- run `scripts/make_sa_reference.R`)*")
+}
+```
+
+```{r}
+#| label: fig-sa-facets
+#| fig-cap: "Member forest tenures (blue) of each study-area group, one panel per group. All panels share a single map scale, so group sizes are directly comparable both within and between pages. The tan area is the ecoregion the group is named for --- the unit that defines it --- so it is clear where a group's tenures spill beyond it; dashed lines are ecoprovince boundaries, for coarser context. Tenure labels are the curated short names used throughout the reporting, and panel numbers match @fig-sa-groups and @tbl-sa-groups."
+#| out-width: "100%"
+if (length(sa_facet_pngs)) {
+  knitr::include_graphics(normalizePath(unlist(sa_facet_pngs)))
+} else {
+  knitr::asis_output("*(study-area facet plate not found --- run `scripts/make_sa_reference.R`)*")
+}
+```
+
+`r if (!is.null(sa_tab)) sprintf("The %d groups cover %s km^2^ across %d member tenures in British Columbia, Alberta, Saskatchewan, Manitoba, Ontario, and the Northwest Territories. They span roughly %s-fold in area (%s--%s km^2^), so run cost varies accordingly.", nrow(sa_tab), format(sum(sa_tab$area_km2), big.mark = ","), sum(sa_tab$n_members), round(max(sa_tab$area_km2) / min(sa_tab$area_km2)), format(min(sa_tab$area_km2), big.mark = ","), format(max(sa_tab$area_km2), big.mark = ","))`
+`r if (!is.null(sa_tab)) sprintf("The v3 pipeline was first validated end-to-end on **WesternAlbertaUpland** (group %d), whose %d member tenures make it the densest-tenure group and therefore the most demanding test of the per-tenure reporting described next.", sa_tab[group == "WesternAlbertaUpland", id], sa_tab[group == "WesternAlbertaUpland", n_members])`
+
+# Reporting polygons
+
+Results are summarized over **reporting polygons**: the tenure boundaries themselves, a set of
+sub-region layers (caribou ranges, Alberta Natural Subregions, BC biogeoclimatic zones, national
+ecozones/ecoregions, NWT ecoregions, parks), and --- restored in v3 --- the **crossings** of each
+tenure with each sub-region layer, so a partner sees their own share of each sub-region rather
+than a study-area-wide total. Crossed units are named `<tenure> <layer>` (e.g. `SprayLake ANSR`),
+and the sub-regions within them `<sub-region> <tenure>`. Crossing happens *before* the
+name-grouping that aggregates a sub-region's disjoint parts, so two tenures' shares of the same
+sub-region are never pooled.
+
+::: {.callout-note}
+## Caveats on the caribou range reporting
+
+**Alberta range granularity --- REVISIT.** Alberta caribou units are reported at the **range**
+level (`LOCALRANGE`, 15 ranges), matching v2. The source layer also carries a finer **sub-range**
+attribute (`SUBUNIT`, 26 units) which would, for example, report Algar, Egg-Pony, Wiau, Agnes,
+Bohn, Christina, and Wandering separately instead of together as East Side Athabasca. Range was
+chosen for continuity with v2 reporting, but the appropriate granularity should be confirmed with
+partners before the v3 reporting is finalized.
+
+**Northwest Territories ranges --- interim source.** The current combined caribou layer contains
+no NWT ranges, so NWT caribou reporting is supplemented with the single `Northwest Territories
+(NWT)` range polygon from the layer used before that update. NWT tenures therefore get one
+whole-territory caribou unit rather than a sub-region breakdown. A replacement has been identified
+--- the Government of the Northwest Territories' *Boreal Caribou Range Planning Regions*, which
+subdivides the NT1 range into six named regions (Southern NWT, Sahtú, Wek'èezhìi, Gwich'in,
+Inuvialuit, Yukon) --- pending agreement on folding it into the maintained caribou layer.
+:::
 
 # This report suite
 

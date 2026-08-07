@@ -41,6 +41,13 @@ logs/                   # run + crew worker logs — NEVER put logs in outputs/
 - Figures are **stage-based**: they land under each stage's `out_dir/figures/<module>/`
   (SpaDES `figurePath` follows `outputPath`), so everything for a study area is under
   `outputs/<studyArea>/…`.
+- **Reference figures also get a standalone `.png`.** A figure that exists only inside a rendered
+  report can't be inspected or shared without rebuilding the report, and these get passed around on
+  their own. So a reference figure's producer script writes the PNG alongside its data artifacts,
+  and the report renders its own copy of the same figure at render time — e.g.
+  `scripts/make_sa_reference.R` → `outputs/_reference/studyAreaGroups.{gpkg,csv,png}` plus a
+  report-sized copy and a paginated per-group plate, consumed by report 00's `fig-sa-groups` /
+  `fig-sa-facets`. Use `ggplot2` for these (see the reporting conventions).
 
 ### Where this is wired
 

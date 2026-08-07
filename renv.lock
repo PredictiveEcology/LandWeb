@@ -2543,6 +2543,25 @@
       ],
       "Hash": "b70a0949e4de295ec6814a143f61fbb0"
     },
+    "ggpattern": {
+      "Package": "ggpattern",
+      "Version": "1.3.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "cli",
+        "ggplot2",
+        "glue",
+        "grid",
+        "gridpattern",
+        "lifecycle",
+        "rlang",
+        "scales",
+        "vctrs"
+      ],
+      "Hash": "ca783c3b14a24d0a0d5f34572a2fe6e4"
+    },
     "ggplot2": {
       "Package": "ggplot2",
       "Version": "4.0.3",
@@ -2862,6 +2881,24 @@
         "grid"
       ],
       "Hash": "5b79228594f02385d4df4979284879ae"
+    },
+    "gridpattern": {
+      "Package": "gridpattern",
+      "Version": "1.4.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "glue",
+        "grDevices",
+        "grid",
+        "memoise",
+        "png",
+        "rlang",
+        "sf",
+        "utils"
+      ],
+      "Hash": "15d9043c039e0b3834d8b11fa67a55eb"
     },
     "gtable": {
       "Package": "gtable",
