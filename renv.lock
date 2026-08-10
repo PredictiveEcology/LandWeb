@@ -781,7 +781,7 @@
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.core",
       "RemoteRef": "development",
-      "RemoteSha": "7b2a87f5df926f51ef7225316d60cea698a51b85",
+      "RemoteSha": "adc15591358cc9d69d58120173380d03f03d0662",
       "Requirements": [
         "R",
         "Require",
@@ -802,7 +802,7 @@
         "utils",
         "whisker"
       ],
-      "Hash": "4bfc9c19687912179137d8d30ba3a10d"
+      "Hash": "79c84a33690bde4ae44ac6eb04558a9b"
     },
     "SpaDES.docs": {
       "Package": "SpaDES.docs",
