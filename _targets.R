@@ -82,10 +82,20 @@ primary_controller <- if (length(getOption("crew.ssh.nodes"))) {
   ## running directly on a compute node with no _hosts.R present); set it >= n_reps so all mainSim
   ## branches run in one wave. Still capped by availableCores. seconds_idle = Inf keeps workers for
   ## the whole run.
+  ##
+  ## crashes_max MUST be set here to match the crew.ssh controller above. crew's DEFAULT is 5, and
+  ## a node-hosted run is the LONG one (it is the reboot-survivable mode used for multi-day mainSim
+  ## runs), so the default made it the LEAST crash-tolerant path -- the exact opposite of what is
+  ## wanted. That default ended the 2026-08-06 WesternAlbertaUpland run after 39.6 h with
+  ## "crashed 6 consecutive time(s)" and ZERO completed reps: a rep restarts from year 0 on each
+  ## retry, so a rep that takes ~6 days can absorb several worker deaths and still be the run's only
+  ## hope of finishing. NB this raises tolerance, it does not fix the underlying silent worker
+  ## deaths (clustered, no R error, not OOM -- suspected forking inside the mirai daemons).
   crew::crew_controller_local(
     name = "primary",
     workers = min(parallelly::availableCores(omit = 1), local$local_workers),
     seconds_idle = Inf,
+    crashes_max = 25L,
     options_local = crew::crew_options_local(log_directory = file.path("logs", "crew"))
   )
 }
