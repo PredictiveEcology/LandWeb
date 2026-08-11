@@ -665,13 +665,13 @@
     },
     "RcppParallel": {
       "Package": "RcppParallel",
-      "Version": "5.1.11-2",
+      "Version": "6.2.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R"
       ],
-      "Hash": "03f41dbd55bb100847e38cab8ac0dde2"
+      "Hash": "ae97343f2392836689f02881879ff787"
     },
     "Rdpack": {
       "Package": "Rdpack",
@@ -4653,7 +4653,7 @@
       "Package": "qs2",
       "Version": "0.2.2",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "Rcpp",
@@ -5850,15 +5850,15 @@
     },
     "stringfish": {
       "Package": "stringfish",
-      "Version": "0.19.0",
+      "Version": "0.19.2",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "Rcpp",
         "RcppParallel"
       ],
-      "Hash": "be1d56cba5a7ee446dadd87ec8b1395b"
+      "Hash": "3c4cd29a8ffb6669866147214a1a1f17"
     },
     "stringi": {
       "Package": "stringi",
