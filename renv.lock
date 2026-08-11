@@ -4948,13 +4948,11 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "1.2.3",
-      "Source": "Repository",
+      "Version": "1.2.4",
+      "OS_type": null,
+      "NeedsCompilation": "no",
       "Repository": "CRAN",
-      "Requirements": [
-        "utils"
-      ],
-      "Hash": "1bd9f58e1cfe27ce035933937c6f03de"
+      "Source": "Repository"
     },
     "reproducible": {
       "Package": "reproducible",
