@@ -33,6 +33,23 @@ rec <- rbindlist(lapply(j$records, function(r) {
   )
 }))
 setorder(rec, id)
+
+## caribou reference artifacts (study-area-independent -> outputs/_reference/); regenerate with
+## scripts/make_caribou_reference.R. Paths tried from both the project root and reports/.
+.ref <- function(f) {
+  cand <- file.path(c("outputs/_reference", "../outputs/_reference"), f)
+  cand <- cand[file.exists(cand)]
+  if (length(cand)) cand[[1L]] else NA_character_
+}
+cb_png <- .ref("caribouRanges_report.png")
+cb_csv <- .ref("caribouRanges.csv")
+cb_tab <- if (!is.na(cb_csv)) fread(cb_csv) else NULL
+if (!is.null(cb_tab)) setorder(cb_tab, layer, source)
+cb_eccc <- if (!is.null(cb_tab)) cb_tab[layer == "eccc"] else NULL
+## The regional total is a row the script emits, not the column sum: a cross-border range appears
+## under two jurisdictions but is ONE reporting unit, since the summaries group by name.
+cb_tot <- if (!is.null(cb_tab)) cb_tab[layer == "regional" & source == "(all sources)"] else NULL
+if (!is.null(cb_tot) && !nrow(cb_tot)) cb_tot <- NULL
 ```
 
 \newpage
@@ -88,6 +105,98 @@ knitr::kable(
 The manifest is hand-curated (run `R/build_input_manifest.R` to regenerate) and committed to the
 repo, so it travels with the code. It deliberately omits content hashes for the multi-GB rasters;
 `sha256` can be added per record where a hash is worth carrying.
+
+One group of records is **derived rather than hand-listed**: the six caribou range sources are
+generated from `LandWebUtils::caribouRangeLayers()`. That is the deliberate exception to the rule
+above, for the reason given in the next section --- they are the inputs most likely to change, and a
+hand-copied list would drift from the code that actually fetches them.
+
+# Multi-source assembly: caribou ranges {#sec-caribou-provenance}
+
+Most inputs are one dataset from one authority. The caribou reporting ranges are the exception, and
+they are worth documenting in full because they exercise every part of the provenance problem at once:
+**six** sources, six authorities, six vintages, six licences (one of them not openly licensed at all),
+disagreeing attribute schemas, disagreeing spellings for the same feature, and a national alternative
+that could plausibly have replaced the lot. They are also the input most likely to change --- a
+provincial re-delineation, or a refreshed by-request copy --- so how the assembly is recorded matters
+more here than anywhere else.
+
+## Why assembled here rather than delivered pre-combined
+
+Earlier LandWeb versions consumed a **hand-combined** caribou layer. Auditing it against its own
+documented sources found that the manual combine had:
+
+* **dropped the Northwest Territories ranges entirely** --- 0 of the delivered layer's 74 features intersect either NWT tenure, so the NWT tenure × caribou reporting units could not be rebuilt at all;
+* left range names scattered across **five** per-jurisdiction columns (`RANGE_NAME` populated for only the Ontario and Manitoba features, British Columbia in `HERD_NAME`, Alberta in `LOCALRANGE`, Saskatchewan in `CONUNIT`/`RNGEUNIT`), so labelling on any single column silently discarded most of the ranges; and
+* mis-cited one source --- the Saskatchewan URL of record pointed at a raster habitat-potential product rather than the vector ranges layer actually delivered.
+
+None of these are visible in a combined deliverable; all three are structural consequences of
+combining by hand. Assembling from the sources in-pipeline
+(`LandWebUtils::buildCaribouRanges()`) removes the whole class: each source is fetched, filtered and
+labelled on its own terms, and a bad merge becomes a one-row fix rather than a re-delivery.
+
+The assembly also applies two corrections that belong in code, not in a spreadsheet:
+
+* **locally extirpated herds are excluded.** Two sources flag this, in different vocabulary --- Alberta `STATUS == "Extirp"` (the Banff range, lost to an avalanche in 2009) and British Columbia `HERD_STATUS == "Extirpated"`. British Columbia's field is `HERD_STATUS` over its live WFS but truncated to `HERD_STAT` in a shapefile export, so both spellings are candidates.
+* **range names are normalised across jurisdictions** (`Bischto` → `Bistcho`, Alberta's own typo; `Snake-Sahtaneh` → `Snake-Sahtahneh`). This is not cosmetic: the summaries group features by **name**, so a range two provinces spell differently would be reported as two units. With the spellings reconciled, three cross-border ranges --- `Chinchaga`, `Narraway` and `Redrock-Prairie Creek` --- are stitched back into single reporting units for free.
+
+## The national alternative, and why it is not used
+
+Environment and Climate Change Canada publishes a national caribou layer that could in principle
+replace all six. @fig-caribou-sources compares them. With designatable-unit scope matched (boreal and
+mountain caribou; barren-ground and Peary are not used in LandWeb), the two **cover essentially the
+same ground** --- the footprints agree to within about 2% --- but partition it differently: the
+assembled layer resolves `r if (!is.null(cb_tot)) cb_tot$n_units else 69` reporting units against the
+federal layer's `r if (!is.null(cb_eccc)) cb_eccc$n_units else 52`.
+
+So the choice is not about coverage. It is about **granularity and vocabulary**, and both point the
+same way: LandWeb reports to *jurisdictional* partners, each of whom manages and names their own
+herds. The federal Southern Mountain units are aggregate Local Population Units that **merge** the
+finer provincial herds, and for ranges lying wholly inside one province the provincial polygon is
+geometrically identical to the federal one anyway (Alberta scores IoU = 1.0000 against it for 9 of 12
+boreal ranges). Adopting the national layer would therefore hand partners coarser units under names
+they do not use, in exchange for no additional information.
+
+What is given up is real and worth recording: the federal layer carries whole **cross-border** ranges
+as single units, where each provincial source holds only its own share, and it is the join key to
+ECCC's anthropogenic disturbance-footprint products. It is retained as a documented comparison --- the
+right-hand panel below, regenerated by `scripts/make_caribou_reference.R` --- rather than as a
+reporting layer.
+
+```{r}
+#| label: fig-caribou-sources
+#| fig-cap: "Caribou reporting ranges: the six-source jurisdictional assembly LandWeb reports on (left) against ECCC's national Priority Species at Risk layer (right), both clipped to the LandWeb v10 area of interest and restricted to boreal and mountain caribou with locally extirpated herds removed. Fill identifies the contributing jurisdiction; hatching marks mountain caribou. The two layers cover nearly the same ground but partition it differently --- note the federal panel's coarser mountain units, which aggregate the finer provincial herds. The left panel is built by the same `LandWebUtils::buildCaribouRanges()` the pipeline uses, so the figure cannot drift from the reporting units."
+#| out-width: "100%"
+## Pre-rendered by scripts/make_caribou_reference.R rather than rebuilt here: it fetches six remote
+## sources (one of them Drive-authenticated) and would otherwise duplicate the plotting code.
+if (!is.na(cb_png)) {
+  knitr::include_graphics(normalizePath(cb_png))
+} else {
+  knitr::asis_output("*(caribou comparison map not found --- run `scripts/make_caribou_reference.R`)*")
+}
+```
+
+```{r}
+#| label: tbl-caribou-sources
+#| tbl-cap: "Caribou range units by contributing source, within the LandWeb v10 area of interest. Only Alberta and British Columbia contribute mountain caribou; the remaining jurisdictions are boreal-only here. The `eccc` row is the national comparison layer, not a reporting input."
+if (!is.null(cb_tab)) {
+  knitr::kable(
+    cb_tab[, .(Layer = layer, Source = source, Units = n_units,
+               Boreal = n_boreal, Mountain = n_mountain,
+               `Area (km^2^)` = format(area_km2, big.mark = ","))],
+    align = "llrrrr", booktabs = TRUE
+  ) |>
+    kable_styling(font_size = 9, latex_options = "hold_position")
+} else {
+  knitr::asis_output("*(caribou source table not found --- run `scripts/make_caribou_reference.R`)*")
+}
+```
+
+Per-source provenance --- endpoint, label column, status field and extirpation rule --- is documented
+on `?caribouRangeLayers` and registered in the manifest above, one record per jurisdiction, so each
+source keeps its own vintage, licence and `retrieved_at`. Manitoba is the weak link: it is available
+**by request only**, with no public endpoint to refresh from, so its copy cannot be re-fetched or
+version-checked automatically and is flagged for re-request.
 
 # Bibliography auto-sync
 

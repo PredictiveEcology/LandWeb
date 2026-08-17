@@ -4,6 +4,108 @@
   "version": "1",
   "records": [
     {
+      "id": "caribou-ranges-ab",
+      "name": "Alberta caribou ranges (caribou reporting ranges: AB)",
+      "source": {
+        "type": "http_download",
+        "url": "https://extranet.gov.ab.ca/srd/geodiscover/srd_pub/LAT/FWDSensitivity/CaribouRange.zip"
+      },
+      "retrieved_at": "2026-01-01T00:00:00Z",
+      "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_AB",
+      "description": "Jurisdictional caribou range boundaries for AB; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on SUBUNIT,LOCALRANGE; locally extirpated herds excluded.",
+      "version_or_vintage": "published 2012",
+      "license": "Alberta Open Government Licence",
+      "extra": {
+        "assembled_into": "caribou-ranges",
+        "jurisdiction": "AB"
+      }
+    },
+    {
+      "id": "caribou-ranges-bc",
+      "name": "BC caribou herd locations (caribou reporting ranges: BC)",
+      "source": {
+        "type": "http_download",
+        "url": "https://openmaps.gov.bc.ca/geo/pub/WHSE_WILDLIFE_INVENTORY.GCPB_CARIBOU_POPULATION_SP/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=pub:WHSE_WILDLIFE_INVENTORY.GCPB_CARIBOU_POPULATION_SP&outputFormat=application/json"
+      },
+      "retrieved_at": "2026-01-01T00:00:00Z",
+      "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_BC",
+      "description": "Jurisdictional caribou range boundaries for BC; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on HERD_NAME; locally extirpated herds excluded.",
+      "version_or_vintage": "BC Data Catalogue WFS (live)",
+      "license": "OGL-BC-2.0",
+      "extra": {
+        "assembled_into": "caribou-ranges",
+        "jurisdiction": "BC"
+      }
+    },
+    {
+      "id": "caribou-ranges-mb",
+      "name": "Manitoba caribou ranges (caribou reporting ranges: MB)",
+      "source": {
+        "type": "drive",
+        "url": "1Y_Qi3twoU3fHaNgMzF5QEl1CosGmGyha"
+      },
+      "retrieved_at": "2026-01-01T00:00:00Z",
+      "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_MB",
+      "description": "Jurisdictional caribou range boundaries for MB; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on RANGE_NAME.",
+      "version_or_vintage": "2015 re-delineation",
+      "license": "By request (Govt. of Manitoba); not openly licensed",
+      "extra": {
+        "assembled_into": "caribou-ranges",
+        "jurisdiction": "MB"
+      }
+    },
+    {
+      "id": "caribou-ranges-nwt",
+      "name": "Northwest Territories caribou (caribou reporting ranges: NWT)",
+      "source": {
+        "type": "http_download",
+        "url": "https://www.apps.geomatics.gov.nt.ca/arcgis/rest/services/GNWT/BiologicEcologic_LCC/MapServer/97/query?where=1%3D1&outFields=REGION,NAME&returnGeometry=true&f=geojson"
+      },
+      "retrieved_at": "2026-01-01T00:00:00Z",
+      "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_NWT",
+      "description": "Jurisdictional caribou range boundaries for NWT; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on REGION.",
+      "version_or_vintage": "GNWT layer 97, modified 2023-06-23",
+      "license": "GNWT open data",
+      "extra": {
+        "assembled_into": "caribou-ranges",
+        "jurisdiction": "NWT"
+      }
+    },
+    {
+      "id": "caribou-ranges-on",
+      "name": "Ontario caribou range boundary (caribou reporting ranges: ON)",
+      "source": {
+        "type": "http_download",
+        "url": "https://ws.gisetl.lrc.gov.on.ca/fmedatadownload/Packages/CARIBRNG.zip"
+      },
+      "retrieved_at": "2026-01-01T00:00:00Z",
+      "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_ON",
+      "description": "Jurisdictional caribou range boundaries for ON; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on RANGE_NAME,RANGE.",
+      "version_or_vintage": "LIO release 2019-09-26",
+      "license": "OGL-Ontario-1.0",
+      "extra": {
+        "assembled_into": "caribou-ranges",
+        "jurisdiction": "ON"
+      }
+    },
+    {
+      "id": "caribou-ranges-sk",
+      "name": "Saskatchewan caribou ranges (caribou reporting ranges: SK)",
+      "source": {
+        "type": "http_download",
+        "url": "https://geohub.saskatchewan.ca/api/download/v1/items/61c26278ee28415abc9bce5018e6ec10/geojson?layers=0"
+      },
+      "retrieved_at": "2026-01-01T00:00:00Z",
+      "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_SK",
+      "description": "Jurisdictional caribou range boundaries for SK; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on CONUNIT,RNGEUNIT.",
+      "version_or_vintage": "published 2020",
+      "license": "Saskatchewan Open Data Licence",
+      "extra": {
+        "assembled_into": "caribou-ranges",
+        "jurisdiction": "SK"
+      }
+    },
+    {
       "id": "current-condition-v2",
       "name": "Current-condition layers, v2 era (CASFRI / Pickell / AVI-derived)",
       "source": {

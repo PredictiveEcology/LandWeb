@@ -130,6 +130,45 @@ build_input_manifest <- function(
     )
   )
 
+  ## The caribou range sources are DERIVED from LandWebUtils::caribouRangeLayers() rather than
+  ## hand-listed here -- the one deliberate exception to this file being hand-curated. There are six
+  ## of them, from six different authorities with different vintages and licences, and they are the
+  ## dataset most likely to change (a provincial re-delineation, or a refreshed by-request copy). If
+  ## the package's source table and this manifest were maintained separately they would drift, and the
+  ## manifest is exactly the artifact that must not silently go stale.
+  caribou <- tryCatch(LandWebUtils::caribouRangeLayers(), error = function(e) NULL)
+  if (!is.null(caribou)) {
+    LIC <- c(
+      AB = "Alberta Open Government Licence", BC = "OGL-BC-2.0",
+      SK = "Saskatchewan Open Data Licence", MB = "By request (Govt. of Manitoba); not openly licensed",
+      NWT = "GNWT open data", ON = "OGL-Ontario-1.0"
+    )
+    VIN <- c(
+      AB = "published 2012", BC = "BC Data Catalogue WFS (live)", SK = "published 2020",
+      MB = "2015 re-delineation", NWT = "GNWT layer 97, modified 2023-06-23",
+      ON = "LIO release 2019-09-26"
+    )
+    ds <- c(ds, lapply(seq_len(nrow(caribou)), function(i) {
+      r <- caribou[i, ]
+      list(
+        id = paste0("caribou-ranges-", tolower(r$juris)),
+        name = paste0(r$key, " (caribou reporting ranges: ", r$juris, ")"),
+        source = list(type = if (r$source == "drive") "drive" else "http_download", url = r$id),
+        local_path = file.path(inputs_dir, "reportingPolygons", "Caribou_Ranges",
+                               paste0("caribou_", r$juris)),
+        version_or_vintage = unname(VIN[[r$juris]]),
+        license = unname(LIC[[r$juris]]),
+        description = paste0(
+          "Jurisdictional caribou range boundaries for ", r$juris,
+          "; one of six sources assembled into LandWeb's caribou reporting layer by ",
+          "LandWebUtils::buildCaribouRanges(). Labelled on ", r$labelCols,
+          if (!is.na(r$extirpated)) "; locally extirpated herds excluded" else "", "."
+        ),
+        extra = list(assembled_into = "caribou-ranges", jurisdiction = r$juris)
+      )
+    }))
+  }
+
   records <- lapply(ds, function(d) {
     do.call(workflowtools::input_manifest_record, c(
       d[setdiff(names(d), "local_path_when")],
