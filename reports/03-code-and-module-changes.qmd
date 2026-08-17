@@ -325,6 +325,103 @@ patches, seral stages) over reporting polygons and **supersedes the older `LandW
 - Major single/multi refactor absorbing `LandWeb_output` (and WIP `LandWeb_summary`): single mode saves the inputs multi mode needs as its own outputs to avoid re-loading whole simLists; adds `registerOutputs()`, switches to `qs2`, drops the `map` object, uses terra vectors and `tidyterra`+`ggplot2` for plotting (835b364, 2026-02).
 - Added a `postprocessEvent` parameter to select which post-processing events run, enabling province-specific use e.g. BC vs ON (2024-05).
 
+### Caribou reporting units: v2 → v3 crosswalk
+
+v3 assembles caribou ranges from the six jurisdictional sources
+(`LandWebUtils::buildCaribouRanges()`; see the provenance report for *why*), where v2 labelled its
+boreal units from ECCC's national layer --- `Bistcho (BIS)`, `Saskatchewan Boreal Plains (BPL)`, and so
+on. **The ground barely moved, but the unit names did**, and reporting units are keyed by name
+(`refCode` is slugged from it). A v2-to-v3 comparison therefore **cannot match on name**; it has to match
+on geometry. `scripts/make_caribou_crosswalk.R` produces that mapping once, to
+`outputs/_reference/caribouCrosswalk.csv`.
+
+```{r}
+#| label: tbl-caribou-crosswalk
+#| tbl-cap: "How v2 caribou reporting units map onto v3, by geometric overlap, within the LandWeb v10 area of interest. A correspondence is counted where the shared area exceeds 1 km^2^ and accounts for at least 5% of either side. Classified per pair rather than per unit, so the parts of a split remain visible."
+cw_csv <- local({
+  cand <- file.path(c("outputs/_reference", "../outputs/_reference"), "caribouCrosswalk.csv")
+  cand <- cand[file.exists(cand)]
+  if (length(cand)) cand[[1L]] else NA_character_
+})
+cw <- if (!is.na(cw_csv)) fread(cw_csv) else NULL
+if (!is.null(cw)) {
+  DESC <- c(
+    identical = "same name, same geometry --- v2 already used this provincial source",
+    renamed = "same geometry, ECCC range code dropped for the provincial name",
+    `boundary-change` = "one-to-one, but the jurisdiction has since revised the boundary",
+    split = "one v2 unit resolves into several v3 units (finer granularity)",
+    merged = "several v2 units fall inside one v3 unit",
+    reorganised = "many-to-many --- boundaries genuinely redrawn between the two delineations"
+  )
+  s <- cw[, .(Pairs = .N), by = relation][order(-Pairs)]
+  s[, Meaning := DESC[relation]]
+  knitr::kable(s[, .(Relation = relation, Pairs, Meaning)], align = "lrl", booktabs = TRUE) |>
+    kable_styling(font_size = 9, latex_options = "hold_position") |>
+    column_spec(3, width = "26em")
+} else {
+  knitr::asis_output("*(crosswalk not found --- run `scripts/make_caribou_crosswalk.R`)*")
+}
+```
+
+```{r}
+#| label: txt-caribou-crosswalk-coverage
+## a chunk rather than an inline `r ...`: the sentence names the `retired`/`added` relation classes in
+## backticks, and a backtick inside an inline expression terminates it.
+if (!is.null(cw)) {
+  knitr::asis_output(sprintf(
+    paste(
+      "Of the %d v2 units inside the area of interest, **%d have no v3 counterpart** (`retired`), and",
+      "**%d of the %d v3 units have no v2 counterpart** (`added`). Both sets are fully explicable, and",
+      "neither is a coverage loss --- see below."
+    ),
+    ## the `retired`/`added` rows already carry their own unit name, so the distinct counts are the
+    ## totals -- adding the class counts on top double-counts them (it did)
+    length(unique(stats::na.omit(cw$v2_unit))),
+    sum(cw$relation == "retired"), sum(cw$relation == "added"),
+    length(unique(stats::na.omit(cw$v3_unit)))
+  ))
+}
+```
+
+The two **`retired`** units are `Burnt Pine` and `Central Rockies`. Both are British Columbia mountain
+herds that the v2-era data carried with status `Herd` and that British Columbia **now flags as
+`Extirpated`** --- so their disappearance is v3's extirpation filter working as intended, not a gap.
+(All five herds British Columbia currently flags extirpated are mountain ecotype; the other three fall
+outside this area of interest.)
+
+The eighteen **`added`** units are almost all **Ontario** (`Brightsand`, `Churchill`, `James Bay`,
+`Kinloch`, `Missisa`, `Nipigon`, `Ozhiski`, `Pagwachuan`, `Spirit`, `Swan`, `Sydney`, `Berens`,
+`Atikaki-Berens`), which v2's consolidated layer simply did not contain, plus the Manitoba provincial
+units (`Molson`, `Owl-Flintstone`, `Partridge Crop`) that v2 sourced from a *separate* per-study-area
+layer rather than the consolidated one, `Sahtu` from the GNWT sub-regions, and `Wells Gray South`. So
+these are units v3 gains by assembling all six jurisdictions uniformly, not units invented from nowhere.
+
+The remaining classes fall out by jurisdiction in a way that tracks exactly which source v2 had been
+using:
+
+- **`renamed` is entirely Alberta** (10 pairs, all 100% overlap both ways). v2 took Alberta's *boreal* ranges from ECCC and v3 takes them from Alberta, and the two polygons are geometrically identical --- so only the label changes (`Cold Lake (CLA)` → `Cold Lake`).
+- **`identical` is Alberta and British Columbia mountain/northern herds**, which v2 already sourced provincially, so nothing changed at all.
+- **`merged` is mostly Manitoba** --- v2's ECCC-derived Manitoba units sit inside the larger provincial local-population units v3 uses.
+- **`split` is a granularity *gain*** --- `East Side Athabasca River (ESA)` resolves into 7 Alberta subunits, `Northwest Territories (NWT)` into 3 GNWT planning regions, `Saskatchewan Boreal Plains (BPL)` into 2 conservation units.
+- **`reorganised`** is spread across British Columbia, Manitoba and Saskatchewan, and is the one class where the two delineations genuinely disagree rather than simply differing in resolution.
+
+::: {.callout-important}
+## Open decision: Alberta granularity
+
+The crosswalk exposes a choice that no single setting resolves. v3 labels Alberta on `SUBUNIT`, which
+reproduces v2 for the **mountain** ranges (`A La Peche`, `Narraway`, `Redrock-Prairie Creek` were three
+separate v2 units, all subunits of the one `LOCALRANGE` `"West Central"`) --- but **splits** the boreal
+ranges v2 reported whole, most visibly `East Side Athabasca River` into 7 units. Labelling on
+`LOCALRANGE` instead inverts the problem: boreal matches v2, and the three mountain ranges collapse
+into one `"West Central"`.
+
+Neither reproduces v2 alone, because v2 did not use one source for Alberta: its boreal units came from
+ECCC (range-level) and its mountain units from Alberta (subunit-level). A per-range rule --- `SUBUNIT`
+for the mountain ranges, `LOCALRANGE` for the boreal ones --- would reproduce v2 exactly. Whether that
+is wanted, or whether the finer Alberta subunits are an improvement worth the change in partner-facing
+unit counts, is a reporting decision rather than a technical one.
+:::
+
 ### reportingPolygons named-list (replacing the map/ml god-object)
 - Removed the `ml` (map list) output object entirely (2026-03).
 - Stripped all `sim$reportingPolygons@metadata` "map vestige" lookups across `landscapeMetrics`/`patchMetrics`/`patchMetricsSeralBC`/`plotFun`, replacing `md[layerName == p]` indexing with per-polygon named-list access (`rptPoly[["ID"]]`, `"NAME"`) (2026-03).

@@ -133,7 +133,7 @@ build_input_manifest <- function(
   ## The caribou range sources are DERIVED from LandWebUtils::caribouRangeLayers() rather than
   ## hand-listed here -- the one deliberate exception to this file being hand-curated. There are six
   ## of them, from six different authorities with different vintages and licences, and they are the
-  ## dataset most likely to change (a provincial re-delineation, or a refreshed by-request copy). If
+  ## dataset most likely to change (a provincial re-delineation). If
   ## the package's source table and this manifest were maintained separately they would drift, and the
   ## manifest is exactly the artifact that must not silently go stale.
   caribou <- tryCatch(LandWebUtils::caribouRangeLayers(), error = function(e) NULL)
@@ -145,7 +145,7 @@ build_input_manifest <- function(
     )
     VIN <- c(
       AB = "published 2012", BC = "BC Data Catalogue WFS (live)", SK = "published 2020",
-      MB = "2015 re-delineation", NWT = "GNWT layer 97, modified 2023-06-23",
+      MB = "delineated 2015, provided 2018 (current)", NWT = "GNWT layer 97, modified 2023-06-23",
       ON = "LIO release 2019-09-26"
     )
     ds <- c(ds, lapply(seq_len(nrow(caribou)), function(i) {

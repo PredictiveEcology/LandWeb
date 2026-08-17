@@ -117,9 +117,9 @@ Most inputs are one dataset from one authority. The caribou reporting ranges are
 they are worth documenting in full because they exercise every part of the provenance problem at once:
 **six** sources, six authorities, six vintages, six licences (one of them not openly licensed at all),
 disagreeing attribute schemas, disagreeing spellings for the same feature, and a national alternative
-that could plausibly have replaced the lot. They are also the input most likely to change --- a
-provincial re-delineation, or a refreshed by-request copy --- so how the assembly is recorded matters
-more here than anywhere else.
+that could plausibly have replaced the lot. They are also the input most likely to change --- any of the
+six jurisdictions can re-delineate independently --- so how the assembly is recorded matters more here
+than anywhere else.
 
 ## Why assembled here rather than delivered pre-combined
 
@@ -194,9 +194,10 @@ if (!is.null(cb_tab)) {
 
 Per-source provenance --- endpoint, label column, status field and extirpation rule --- is documented
 on `?caribouRangeLayers` and registered in the manifest above, one record per jurisdiction, so each
-source keeps its own vintage, licence and `retrieved_at`. Manitoba is the weak link: it is available
-**by request only**, with no public endpoint to refresh from, so its copy cannot be re-fetched or
-version-checked automatically and is flagged for re-request.
+source keeps its own vintage, licence and `retrieved_at`. Manitoba is the one source that cannot be
+refreshed automatically: it was provided **by request** in 2018 and Manitoba has published nothing
+since, so it is the authoritative version rather than a stale copy --- but with no public endpoint,
+a future revision will have to arrive the same way and cannot be version-checked from here.
 
 # Bibliography auto-sync
 

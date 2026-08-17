@@ -47,7 +47,7 @@
       "retrieved_at": "2026-01-01T00:00:00Z",
       "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_MB",
       "description": "Jurisdictional caribou range boundaries for MB; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on RANGE_NAME.",
-      "version_or_vintage": "2015 re-delineation",
+      "version_or_vintage": "delineated 2015, provided 2018 (current)",
       "license": "By request (Govt. of Manitoba); not openly licensed",
       "extra": {
         "assembled_into": "caribou-ranges",
