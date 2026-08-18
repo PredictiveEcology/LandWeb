@@ -405,23 +405,23 @@ using:
 - **`split` is a granularity *gain*** --- `East Side Athabasca River (ESA)` resolves into 7 Alberta subunits, `Northwest Territories (NWT)` into 3 GNWT planning regions, `Saskatchewan Boreal Plains (BPL)` into 2 conservation units.
 - **`reorganised`** is spread across British Columbia, Manitoba and Saskatchewan, and is the one class where the two delineations genuinely disagree rather than simply differing in resolution.
 
-::: {.callout-important}
-## Open decision: Alberta granularity
+::: {.callout-note}
+## Resolved: Alberta reports at subunit granularity
 
-The crosswalk exposes a choice that no single setting resolves. v3 labels Alberta on `SUBUNIT`, which
-reproduces v2 for the **mountain** ranges (`A La Peche`, `Narraway`, `Redrock-Prairie Creek` were three
-separate v2 units, all subunits of the one `LOCALRANGE` `"West Central"`) --- but **splits** the boreal
-ranges v2 reported whole, most visibly `East Side Athabasca River` into 7 units. Labelling on
-`LOCALRANGE` instead inverts the problem: boreal matches v2, and the three mountain ranges collapse
-into one `"West Central"`.
+The crosswalk exposed a choice that no single setting resolves, and it has been settled in favour of the
+**finer** option. v3 labels Alberta on `SUBUNIT`, which reproduces v2 for the **mountain** ranges
+(`A La Peche`, `Narraway` and `Redrock-Prairie Creek` were three separate v2 units, all subunits of the
+one `LOCALRANGE` `"West Central"`) and reports **finer than v2** for exactly one boreal range:
+`East Side Athabasca River` resolves into its 7 subunits --- `Agnes`, `Algar`, `Bohn`, `Christina`,
+`Egg-Pony`, `Wandering`, `Wiau`.
 
-Neither reproduces v2 alone, because v2 did not use one source for Alberta: its boreal units came from
-ECCC (range-level) and its mountain units from Alberta (subunit-level). A per-range rule --- `SUBUNIT`
-for the mountain ranges, `LOCALRANGE` for the boreal ones --- would reproduce v2 exactly. Whether that
-is wanted, or whether the finer Alberta subunits are an improvement worth the change in partner-facing
-unit counts, is a reporting decision rather than a technical one.
+Neither setting reproduces v2 alone, because v2 did not use one source for Alberta: its boreal units
+came from ECCC at range level and its mountain units from Alberta at subunit level. `LOCALRANGE` would
+invert the problem, matching v2's boreal ranges while collapsing the three mountain ranges into one.
+Since `East Side Athabasca River` is the **only** Alberta range where the two granularities differ ---
+every other one is 1:1 with both v2 and ECCC --- the finer breakdown is kept, and v2 comparisons for
+that one range aggregate its 7 subunits.
 :::
-
 ### reportingPolygons named-list (replacing the map/ml god-object)
 - Removed the `ml` (map list) output object entirely (2026-03).
 - Stripped all `sim$reportingPolygons@metadata` "map vestige" lookups across `landscapeMetrics`/`patchMetrics`/`patchMetricsSeralBC`/`plotFun`, replacing `md[layerName == p]` indexing with per-polygon named-list access (`rptPoly[["ID"]]`, `"NAME"`) (2026-03).
