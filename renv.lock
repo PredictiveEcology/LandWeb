@@ -335,14 +335,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3.9016",
+      "Version": "1.0.3.9021",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "34dafb6cec0582caa4cb842b5d5d73c3114647a2",
+      "RemoteSha": "6d12d80330c07a075e463f4212134ccd7722a2eb",
       "Requirements": [
         "R",
         "SpaDES.tools",
@@ -371,7 +371,7 @@
         "withr",
         "workflowtools"
       ],
-      "Hash": "f735244889d174bb7013fa39a97f8fa7"
+      "Hash": "37b8c896407cdb63196c3d647e289b58"
     },
     "MASS": {
       "Package": "MASS",
@@ -884,11 +884,11 @@
       "Version": "2.1.2",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.tools",
       "RemoteRef": "development",
       "RemoteSha": "0d0af74bb352d647dfbb9ea0e047af6ea6136231",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
         "Rcpp",
@@ -2485,7 +2485,7 @@
       "Package": "gert",
       "Version": "2.4.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "askpass",
         "credentials",
@@ -2723,7 +2723,7 @@
       "Package": "gh",
       "Version": "1.6.1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R",
         "cli",
@@ -4177,7 +4177,7 @@
       "Package": "pak",
       "Version": "0.11.1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R",
         "tools",
@@ -5459,7 +5459,7 @@
       "Package": "sf",
       "Version": "1.1-2",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "DBI",
         "R",
@@ -5629,7 +5629,7 @@
       "Package": "sp",
       "Version": "2.2-3",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R",
         "grDevices",
@@ -5872,7 +5872,7 @@
       "Package": "stringi",
       "Version": "1.8.9",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R",
         "stats",
@@ -6520,11 +6520,11 @@
       "Version": "0.0.15",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "workflowtools",
       "RemoteRef": "main",
       "RemoteSha": "05a6801b43289882e75f08bfe4db74873c930642",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
         "archive",
@@ -6645,7 +6645,7 @@
       "Package": "zip",
       "Version": "3.0.2",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "cli"
       ],
@@ -6679,7 +6679,7 @@
       "Package": "zoo",
       "Version": "1.9-0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R",
         "grDevices",
