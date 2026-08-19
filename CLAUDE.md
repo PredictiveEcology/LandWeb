@@ -15,11 +15,14 @@ outputs/
     preamble/           # data-prep stages, each with figures/<module>/
     speciesData/        #   (incl. the SCANFI_*.tif species layers)
     dataPrep/
-    mainSim/            # simulation + mode="multi" summaries share this dir
+    mainSim/            # per-replicate sim outputs + the burnSummaries mode="multi" outputs
       rep01/ … repNN/   # per-replicate sim outputs + figures/
-      figures/{Biomass_core,LandMine,burnSummaries,NRV_summary}/   # aggregate + summary figures
-      _aggregates/      # per-refCode parquet (NRV envelopes)
-      *.csv             # envelope + fire-summary tables
+      figures/{Biomass_core,LandMine,burnSummaries}/   # aggregate + burn-summary figures
+      *.csv / *.tif     # burnSummaries_fireSizes_allReps.csv, meanAnnualCumulBurnMap*.tif
+    postprocess/        # NRV_summary mode="multi" outputs (out_dir is mainSim; the module
+      _aggregates/      #   writes its own postprocess/ subdir under the study area)
+        <refCode>/replicate=repNN/part-0.parquet   # per-refCode NRV aggregates
+      figures/{lm,pm,boxplots,histograms}/
     reports/            # rendered Quarto reports for this study area
   _factorial/           # SHARED, study-area-INDEPENDENT — DO NOT nest per study area
   _extended_analyses/   # SHARED, LTHFC domain-wide analyses
