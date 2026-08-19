@@ -10,7 +10,7 @@
         "type": "http_download",
         "url": "https://extranet.gov.ab.ca/srd/geodiscover/srd_pub/LAT/FWDSensitivity/CaribouRange.zip"
       },
-      "retrieved_at": "2026-01-01T00:00:00Z",
+      "retrieved_at": "2026-08-18T14:41:38Z",
       "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_AB",
       "description": "Jurisdictional caribou range boundaries for AB; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on SUBUNIT,LOCALRANGE; locally extirpated herds excluded.",
       "version_or_vintage": "published 2012",
@@ -27,7 +27,7 @@
         "type": "http_download",
         "url": "https://openmaps.gov.bc.ca/geo/pub/WHSE_WILDLIFE_INVENTORY.GCPB_CARIBOU_POPULATION_SP/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=pub:WHSE_WILDLIFE_INVENTORY.GCPB_CARIBOU_POPULATION_SP&outputFormat=application/json"
       },
-      "retrieved_at": "2026-01-01T00:00:00Z",
+      "retrieved_at": "2026-08-18T14:41:40Z",
       "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_BC",
       "description": "Jurisdictional caribou range boundaries for BC; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on HERD_NAME; locally extirpated herds excluded.",
       "version_or_vintage": "BC Data Catalogue WFS (live)",
@@ -44,7 +44,7 @@
         "type": "drive",
         "url": "1Y_Qi3twoU3fHaNgMzF5QEl1CosGmGyha"
       },
-      "retrieved_at": "2026-01-01T00:00:00Z",
+      "retrieved_at": "2026-08-18T14:41:54Z",
       "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_MB",
       "description": "Jurisdictional caribou range boundaries for MB; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on RANGE_NAME.",
       "version_or_vintage": "delineated 2015, provided 2018 (current)",
@@ -61,7 +61,7 @@
         "type": "http_download",
         "url": "https://www.apps.geomatics.gov.nt.ca/arcgis/rest/services/GNWT/BiologicEcologic_LCC/MapServer/97/query?where=1%3D1&outFields=REGION,NAME&returnGeometry=true&f=geojson"
       },
-      "retrieved_at": "2026-01-01T00:00:00Z",
+      "retrieved_at": "2026-08-18T14:41:55Z",
       "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_NWT",
       "description": "Jurisdictional caribou range boundaries for NWT; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on REGION.",
       "version_or_vintage": "GNWT layer 97, modified 2023-06-23",
@@ -78,7 +78,7 @@
         "type": "http_download",
         "url": "https://ws.gisetl.lrc.gov.on.ca/fmedatadownload/Packages/CARIBRNG.zip"
       },
-      "retrieved_at": "2026-01-01T00:00:00Z",
+      "retrieved_at": "2026-08-18T14:41:59Z",
       "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_ON",
       "description": "Jurisdictional caribou range boundaries for ON; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on RANGE_NAME,RANGE.",
       "version_or_vintage": "LIO release 2019-09-26",
@@ -95,7 +95,7 @@
         "type": "http_download",
         "url": "https://geohub.saskatchewan.ca/api/download/v1/items/61c26278ee28415abc9bce5018e6ec10/geojson?layers=0"
       },
-      "retrieved_at": "2026-01-01T00:00:00Z",
+      "retrieved_at": "2026-08-18T14:41:46Z",
       "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_SK",
       "description": "Jurisdictional caribou range boundaries for SK; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on CONUNIT,RNGEUNIT.",
       "version_or_vintage": "published 2020",
@@ -242,6 +242,29 @@
       }
     },
     {
+      "id": "scanfi-lcc-2020",
+      "name": "SCANFI v2 land cover, reclassified to NFI/EOSD codes (2020)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1EGp7LUA7cXMR6KpXDmu617xsjwGM6aIx"
+      },
+      "retrieved_at": "2026-06-25T13:49:20Z",
+      "local_path": "inputs/SCANFI_att_nfiLandcover_CanadaLCCclassCodes_2020_v2_20260119.tif",
+      "description": "DERIVED product, not the published SCANFI layer: SCANFI's 8-class nfiLandcover relabelled 1:1 into NFI/EOSD numeric codes (1:8 -> 40, 100, 30, 50, 220, 210, 230, 20) by LandR::convert_SCANFI_LCC_codes(). Supplies rasterToMatch and the LCC input to Biomass_borealDataPrep. Upstream source is SCANFI_att_nfiLandcover_2020_v2_20260119.tif on the NRCan FTP; the DOI does not resolve to this file, and the hosted copy is access-controlled rather than openly downloadable.",
+      "version_or_vintage": "2020, v2 (stamp 20260119); derived, reclassified",
+      "license": "OGL-Canada-2.0 (upstream); hosted copy access-controlled",
+      "citation": {
+        "bibtex_key": "scanfi-methods",
+        "external": true
+      },
+      "extra": {
+        "derived": true,
+        "derived_from": "scanfi-structure-2020",
+        "derivation": "LandR::convert_SCANFI_LCC_codes()",
+        "upstream_url": "https://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/SCANFI/v2/SCANFI_att_nfiLandcover_2020_v2_20260119.tif"
+      }
+    },
+    {
       "id": "scanfi-species-2020",
       "name": "SCANFI v2 per-species crown closure (2020)",
       "source": {
@@ -260,14 +283,14 @@
     },
     {
       "id": "scanfi-structure-2020",
-      "name": "SCANFI v2 stand age, biomass, land cover (2020)",
+      "name": "SCANFI v2 stand age and biomass (2020)",
       "source": {
         "type": "drive",
         "url": "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"
       },
       "retrieved_at": "2026-06-26T00:26:17Z",
       "local_path": "inputs/SCANFI_age_median_2020_v2_20260119.tif",
-      "description": "30 m SCANFI attribute rasters (median age, biomass, NFI land-cover class) used for v3 age/biomass/LCC initial conditions.",
+      "description": "30 m SCANFI attribute rasters (median stand age, biomass) used for v3 age/biomass initial conditions. Land cover is NOT this record: the pipeline consumes a derived reclassification, registered separately as scanfi-lcc-2020.",
       "version_or_vintage": "2020, v2 (stamp 20260119)",
       "license": "OGL-Canada-2.0",
       "citation": {

@@ -34,13 +34,39 @@ build_input_manifest <- function(
     ),
     list(
       id = "scanfi-structure-2020",
-      name = "SCANFI v2 stand age, biomass, land cover (2020)",
+      name = "SCANFI v2 stand age and biomass (2020)",
       source = list(type = "drive", url = "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"),
       local_path = file.path(inputs_dir, "SCANFI_age_median_2020_v2_20260119.tif"),
       version_or_vintage = "2020, v2 (stamp 20260119)",
       license = "OGL-Canada-2.0",
-      description = "30 m SCANFI attribute rasters (median age, biomass, NFI land-cover class) used for v3 age/biomass/LCC initial conditions.",
+      description = "30 m SCANFI attribute rasters (median stand age, biomass) used for v3 age/biomass initial conditions. Land cover is NOT this record: the pipeline consumes a derived reclassification, registered separately as scanfi-lcc-2020.",
       citation = list(bibtex_key = "scanfi-methods", external = TRUE)
+    ),
+    list(
+      id = "scanfi-lcc-2020",
+      name = "SCANFI v2 land cover, reclassified to NFI/EOSD codes (2020)",
+      source = list(type = "drive", url = "https://drive.google.com/file/d/1EGp7LUA7cXMR6KpXDmu617xsjwGM6aIx"),
+      local_path = file.path(inputs_dir, "SCANFI_att_nfiLandcover_CanadaLCCclassCodes_2020_v2_20260119.tif"),
+      version_or_vintage = "2020, v2 (stamp 20260119); derived, reclassified",
+      license = "OGL-Canada-2.0 (upstream); hosted copy access-controlled",
+      description = paste0(
+        "DERIVED product, not the published SCANFI layer: SCANFI's 8-class nfiLandcover ",
+        "relabelled 1:1 into NFI/EOSD numeric codes (1:8 -> 40, 100, 30, 50, 220, 210, 230, 20) ",
+        "by LandR::convert_SCANFI_LCC_codes(). Supplies rasterToMatch and the LCC input to ",
+        "Biomass_borealDataPrep. Upstream source is ",
+        "SCANFI_att_nfiLandcover_2020_v2_20260119.tif on the NRCan FTP; the DOI does not resolve ",
+        "to this file, and the hosted copy is access-controlled rather than openly downloadable."
+      ),
+      citation = list(bibtex_key = "scanfi-methods", external = TRUE),
+      extra = list(
+        derived = TRUE,
+        derived_from = "scanfi-structure-2020",
+        derivation = "LandR::convert_SCANFI_LCC_codes()",
+        upstream_url = paste0(
+          "https://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/SCANFI/v2/",
+          "SCANFI_att_nfiLandcover_2020_v2_20260119.tif"
+        )
+      )
     ),
     list(
       id = "knn-beaudoin-2001",

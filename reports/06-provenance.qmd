@@ -199,6 +199,161 @@ refreshed automatically: it was provided **by request** in 2018 and Manitoba has
 since, so it is the authoritative version rather than a stale copy --- but with no public endpoint,
 a future revision will have to arrive the same way and cannot be version-checked from here.
 
+# Derived input: the SCANFI land-cover reclassification {#sec-scanfi-lcc}
+
+The caribou ranges are the input assembled from the most sources. The land-cover raster is the
+input whose **record most easily misleads**, and it is worth documenting for the opposite reason:
+it looks like a single published dataset, cites a DOI, and is not that dataset at all.
+
+Until this revision the manifest carried one record, `scanfi-structure-2020`, covering "stand age,
+biomass, land cover" and pointing at the SCANFI DOI under OGL. That is correct for age and biomass.
+For land cover it was wrong on three counts at once: the file the pipeline consumes is a
+**derived** reclassification rather than the published layer, the DOI does not resolve to it, and
+the copy actually fetched is an access-controlled Drive object rather than an openly downloadable
+one. Land cover is now registered separately as **`scanfi-lcc-2020`**, flagged `derived = TRUE`
+with a `derived_from` pointer, so the manifest states what is really being read.
+
+## Provenance chain
+
+```
+SCANFI_att_nfiLandcover_2020_v2_20260119.tif          published layer, 8 classes (1-8), Byte
+  NRCan FTP (.tif + .qml/.aux.xml/.ovr sidecars)      <- what the DOI covers
+        |
+        |  LandR::convert_SCANFI_LCC_codes()          terra::subst(), 1:1 relabel
+        v
+SCANFI_att_nfiLandcover_CanadaLCCclassCodes_2020_v2_20260119.tif    <- what we consume
+  Drive 1EGp7LUA7cXMR6KpXDmu617xsjwGM6aIx (2.73 GB, access-controlled)
+        |
+        |  + CA_FAO_forest_2019 (separate NFIS download)
+        |    LCC[FAO == 2 & !LCC %in% c(210, 220, 230)] <- 240
+        v
+LCC with 240 "recently disturbed"                     LandWeb_preamble / prepInputs_SCANFI_LCC_FAO
+```
+
+The Drive object is a **precomputed convenience copy** so that runs do not repeat the reclass;
+`LandR::convert_SCANFI_LCC_codes()` is what produced it, and can rebuild it (or the 1985--2025
+siblings) from the published layer at any time. Nothing is lost by treating the FTP layer as the
+source of record.
+
+## The reclassification is a pure relabel
+
+```{r}
+#| label: tbl-scanfi-recode
+#| tbl-cap: "LandR::convert_SCANFI_LCC_codes() is a single terra::subst(). Native class labels are from the published .qml sidecar; the LCC names are the NFI/EOSD legend LandR's LCC machinery is written against."
+knitr::kable(
+  data.table(
+    Native = 1:8,
+    `Native label` = c("Bryoid", "Herbs", "Rock", "Shrub", "TB (treed broadleaf)",
+                       "TC (treed conifer)", "TM (treed mixed)", "Water"),
+    `LCC code` = c(40L, 100L, 30L, 50L, 220L, 210L, 230L, 20L),
+    `LCC name` = c("bryoids", "herbs", "snow_ice / rock_rubble / exposed_barren_land", "shrubs",
+                   "broadleaf", "coniferous", "mixedwood", "water")
+  ),
+  align = "rlrl", booktabs = TRUE
+) |>
+  kable_styling(font_size = 8, latex_options = "hold_position")
+```
+
+It is a **bijection**: no class merges, splits, or disappears, and the thematic content is
+untouched. Only the numbering changes, so that downstream LandR code written against the NFI/EOSD
+code space (`overlayLCCs()`, `convertUnwantedLCC()`, `treeClassesLCC`) works unmodified. Two
+consequences follow for anyone reading the legend comment in `LandWeb_preamble.R`, which lists the
+full code space rather than the subset SCANFI can emit:
+
+* **Wetland codes `80` / `81` are never produced.** SCANFI has no wetland class at all. Sampling
+  four widely separated 1-degree windows (west-central Alberta, northern Yukon/NWT tundra, the
+  Hudson Bay lowland, southern Saskatchewan prairie) returned nothing outside
+  `{20, 30, 40, 50, 100, 210, 220, 230}`.
+* **Code `240` is not in this file.** It is stamped downstream by the FAO overlay.
+
+## Why treed wetlands arrive as forest
+
+SCANFI classifies **what is growing on a pixel**, from structure resolved by imagery and NFI
+photo-plots. NALCMS-style products --- including the 2020 Land Cover of Canada --- classify a
+mixture of structure, landform and land use, so a single `Wetland` class absorbs everything from
+open fen to black-spruce peatland regardless of canopy.
+
+For LandWeb the structural reading is the one required. A treed wetland carries conifer biomass,
+burns, and regenerates, so it must enter the vegetation and fire submodels as forest with a species
+composition rather than be masked out as non-vegetated. The same argument applies to treed pixels
+NALCMS assigns to cropland or shrubland. This is a deliberate property of choosing SCANFI, not an
+artifact of the reclassification --- which, being a bijection, cannot introduce it.
+
+The cost is that **wetness is invisible** in this input. Nothing downstream can separate an upland
+black-spruce stand from a black-spruce peatland, though the two differ in productivity, fire
+behaviour and succession. Recovering that distinction requires a separate wetland layer; it cannot
+be recovered from this one.
+
+### How much it moves, measured
+
+Cross-tabulated against the 2020 Land Cover of Canada (NALCMS, EPSG:3979, reprojected onto the
+SCANFI grid by nearest neighbour) over a 1-degree window in west-central Alberta, 13.2 M pixels:
+
+```{r}
+#| label: tbl-scanfi-nalcms
+#| tbl-cap: "Where NALCMS 2020 classes land in the SCANFI legend, west-central Alberta window (13.2 M 30 m pixels)."
+knitr::kable(
+  data.table(
+    `NALCMS 2020 class` = c("14 Wetland", "15 Cropland", "17 Urban", "18 Water"),
+    `% of window` = c("5.96", "19.91", "2.55", "2.53"),
+    `SCANFI calls it` = c("94% forested (210/220/230)", "75% herbs (100)",
+                          "67% rock/barren (30)", "only 69% detected as water (20)")
+  ),
+  align = "lrl", booktabs = TRUE
+) |>
+  kable_styling(font_size = 8, latex_options = "hold_position")
+```
+
+Net effect in that window: **74.5% treed** under SCANFI against **54.3% forest** under NALCMS, a
+~20 percentage-point difference sourced mostly from NALCMS wetland, cropland and shrubland.
+Regionally the divergence is larger --- in the Hudson Bay lowland NALCMS reports 72.9% wetland
+where SCANFI reports 45.6% coniferous, 32.5% shrub and 5.4% bryoid; on the prairie NALCMS's 73.1%
+cropland is effectively renamed to 77.9% herbs. Conifer/broadleaf/mixed boundaries also genuinely
+differ: SCANFI broadleaf is 20.9% of the Alberta window against 1.7% for the NALCMS broadleaf
+class, with most SCANFI broadleaf falling in NALCMS *mixed forest*.
+
+These are **not** errors in either product. They are two legends answering different questions, and
+the provenance record should make clear which question this pipeline asked.
+
+## Two format caveats
+
+**The CRS carries no EPSG code.** It is Canada Atlas Lambert except that the latitude of false
+origin is 0 rather than 49, so it is neither EPSG:3978 nor EPSG:3979 and tools will not recognise
+it as either. Relative to EPSG:3979 it is a pure northing shift of 6,585,077 m (constant to
+<0.1 m nationally; the ~0.5 m easting difference is NAD83 vs NAD83(CSRS) datum noise). That shift
+is **not** a whole number of pixels --- 6585077 / 30 = 219502.57 --- so the two 30 m grids sit ~17 m
+apart in northing and any reprojection resamples. Categorical data: use `method = "near"`.
+
+**The precomputed copy is stored inefficiently.** The published layer is `Byte`, 256x256-tiled,
+~1.5 GB. The precomputed reclassification is `Float32` written in full-width 178400x1 strips,
+2.73 GB, for values that fit in a byte and have never exceeded 230. Any windowed read must pull
+entire 178400-pixel rows at 4 bytes per pixel, which is part of why `LandWeb_preamble` performs its
+own `terra::crop()` rather than letting `reproducible` warp the national raster.
+
+This is fixed upstream rather than worked around here. `LandR::convert_SCANFI_LCC_codes()` now pins
+`INT1U` with `NAflag = 255` and writes 256x256 LZW tiles (PredictiveEcology/LandR#200). All twelve
+precomputed layers --- SCANFI v2 1985--2025 and v1 2000/2010/2020 --- were rebuilt from their
+published sources and compared pixel by pixel against the copies currently distributed: **12 of 12
+identical**, zero value mismatches and zero NA-pattern mismatches across each layer's
+21,247,440,000 pixels, with per-class histograms equal. For 2020 those counts also reproduce the
+histogram NRCan publishes in its own `.tif.aux.xml` sidecar, so rebuild and distributed copy agree
+with the upstream product rather than merely with each other. Storage across the set falls from
+32.98 GB to 15.05 GB. The rebuilt layers are drop-in replacements; the Drive copies are unchanged
+pending a decision to swap them in.
+
+## The FAO layer is a separate input
+
+`CA_FAO_forest_2019` (NFIS; @WulderEtAl2020) is a distinct three-class raster --- `0` non-forest,
+`1` current forest area, `2` temporally informed forest area --- where class `2` means forest *land
+use* whose tree cover is temporarily absent after a stand-replacing disturbance. The recode rule
+therefore reads: *FAO says this is forest land, SCANFI says nothing is standing on it, so mark it
+recently disturbed (`240`)*. This is the only point at which FAO enters, and it happens after the
+product described above; the land-cover file itself contains no FAO-derived values.
+
+It also arrives on a different grid (`NAD_1983_Lambert_Conformal_Conic`, latitude of origin 49) and
+must be cropped **before** reprojection, or `reproducible` warps the whole ~840 MB national raster
+(>50 min) --- the bypass documented in `LandWeb_preamble.R`.
+
 # Bibliography auto-sync
 
 `workflowtools::sync_manifest_to_bibtex()` reads the manifest and writes a sidecar
