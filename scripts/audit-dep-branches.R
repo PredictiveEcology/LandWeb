@@ -1,0 +1,150 @@
+#!/usr/bin/env Rscript
+
+## Flag any GitHub dependency this project requests at two DIFFERENT COMMITS.
+##
+## `pak` solves a dependency request as a single problem, so one repo wanted at two branches makes
+## the WHOLE solve fail -- and it then reports every other package as a "dependency conflict",
+## which reads like a far bigger problem than it is. Read past that list to the
+## `Can't find package` / `Conflicts with` lines, or just run this, which finds the class in one
+## pass. Two real instances (2026-08-20):
+##
+##   * Biomass_speciesParameters asked for "PredictiveEcology/LandR" with no branch (so `main`)
+##     while its own dependency ianmseddy/PSPclean@development requires LandR@development;
+##   * LandWebUtils + LandWeb_preamble pinned FOR-CAST/workflowtools@development (0.0.13) while
+##     burnSummaries requires >= 0.0.16, which existed only on `main`.
+##
+## Two things this gets right that a naive version does not:
+##
+##   * it reads each dependency's DESCRIPTION on the branch ACTUALLY REQUESTED, not the repo
+##     default. LandWebUtils' `main` lists `LandR@LandWeb`, but `development` -- the branch
+##     everything installs -- has no LandR remote at all, so reading defaults invents conflicts.
+##   * it resolves branch names to COMMITS before comparing, so two names that point at the same
+##     commit (e.g. after a fast-forward) are reported as agreeing, not as a conflict.
+##
+## Requires the `gh` CLI, authenticated. Exits 1 if any real conflict is found, so it can gate CI.
+
+`%||%` <- function(a, b) if (is.null(a) || !length(a)) b else a
+
+## branch may be "" (meaning "the repo default"), which %||% deliberately does NOT treat as absent
+orDefault <- function(branch, fallback) if (nzchar(branch)) branch else fallback
+
+gh <- function(...) {
+  out <- suppressWarnings(system2("gh", c(...), stdout = TRUE, stderr = FALSE))
+  if (!is.null(attr(out, "status")) && attr(out, "status") != 0L) return("")
+  paste(out, collapse = "\n")
+}
+
+.descCache <- new.env(parent = emptyenv())
+.shaCache <- new.env(parent = emptyenv())
+
+## DESCRIPTION of `repo` on `branch` (NULL/"" = repo default), as a single string.
+remoteDescription <- function(repo, branch) {
+  key <- paste0(repo, "@", branch)
+  if (!is.null(.descCache[[key]])) return(.descCache[[key]])
+  url <- paste0("repos/", repo, "/contents/DESCRIPTION",
+                if (nzchar(branch)) paste0("?ref=", branch) else "")
+  b64 <- gh("api", url, "--jq", ".content")
+  txt <- if (nzchar(b64)) {
+    tryCatch(rawToChar(base64enc::base64decode(gsub("\\s", "", b64))), error = function(e) "")
+  } else ""
+  .descCache[[key]] <- txt
+  txt
+}
+
+## The commit a branch name points at -- this is what we actually compare.
+remoteSha <- function(repo, branch) {
+  key <- paste0(repo, "@", branch)
+  if (!is.null(.shaCache[[key]])) return(.shaCache[[key]])
+  br <- orDefault(branch, gh("repo", "view", repo, "--json", "defaultBranchRef",
+                            "--jq", ".defaultBranchRef.name"))
+  sha <- substr(gh("api", paste0("repos/", repo, "/commits/", br), "--jq", ".sha"), 1L, 12L)
+  .shaCache[[key]] <- if (nzchar(sha)) sha else "?"
+  .shaCache[[key]]
+}
+
+## GitHub refs listed under a DESCRIPTION's `Remotes:` field.
+remotesOf <- function(desc) {
+  if (!nzchar(desc)) return(character())
+  lines <- strsplit(desc, "\n", fixed = TRUE)[[1L]]
+  start <- grep("^Remotes:", lines)
+  if (!length(start)) return(character())
+  out <- character()
+  for (l in lines[seq.int(start[1L] + 1L, length(lines))]) {
+    if (!grepl("^[ \t]", l)) break
+    s <- sub(",$", "", trimws(l))
+    if (grepl("^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(@[A-Za-z0-9_.-]+)?$", s)) out <- c(out, s)
+  }
+  out
+}
+
+splitRef <- function(ref) {
+  parts <- strsplit(ref, "@", fixed = TRUE)[[1L]]
+  list(repo = parts[1L], branch = if (length(parts) > 1L) parts[2L] else "")
+}
+
+wanted <- new.env(parent = emptyenv())
+note <- function(repo, branch, who) {
+  key <- repo
+  cur <- get0(key, envir = wanted, ifnotfound = list())
+  b <- if (nzchar(branch)) branch else "<default>"
+  cur[[b]] <- union(cur[[b]] %||% character(), who)
+  assign(key, cur, envir = wanted)
+}
+
+## Record `repo@branch`, then follow that DESCRIPTION's own Remotes one level down.
+walk <- function(repo, branch, who, depth = 0L) {
+  note(repo, branch, who)
+  if (depth > 1L) return(invisible())
+  for (rem in remotesOf(remoteDescription(repo, branch))) {
+    r <- splitRef(rem)
+    walk(r$repo, r$branch, paste0(repo, "@", if (nzchar(branch)) branch else "default"), depth + 1L)
+  }
+}
+
+## --- collect what the project asks for -------------------------------------------------------
+
+## module `reqdPkgs`
+for (f in Sys.glob(file.path("modules", "*", "*.R"))) {
+  mod <- basename(dirname(f))
+  if (tools::file_path_sans_ext(basename(f)) != mod) next
+  txt <- paste(readLines(f, warn = FALSE), collapse = "\n")
+  m <- regmatches(txt, regexpr("reqdPkgs\\s*=\\s*list\\((?s).*?\\n  \\)", txt, perl = TRUE))
+  if (!length(m)) next
+  refs <- regmatches(m, gregexpr('"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(@[A-Za-z0-9_.-]+)?', m))[[1L]]
+  for (ref in unique(sub('^"', "", refs))) {
+    r <- splitRef(ref)
+    walk(r$repo, r$branch, paste0(mod, ":reqdPkgs"))
+  }
+}
+
+## local package DESCRIPTIONs
+for (d in Sys.glob(file.path("packages", "*", "DESCRIPTION"))) {
+  for (rem in remotesOf(paste(readLines(d, warn = FALSE), collapse = "\n"))) {
+    r <- splitRef(rem)
+    walk(r$repo, r$branch, paste0("packages/", basename(dirname(d)), ":Remotes"))
+  }
+}
+
+## --- report -----------------------------------------------------------------------------------
+
+nReal <- 0L
+nBenign <- 0L
+for (repo in sort(ls(wanted))) {
+  brs <- get(repo, envir = wanted)
+  if (length(brs) < 2L) next
+  shas <- vapply(names(brs), function(b) remoteSha(repo, if (b == "<default>") "" else b), "")
+  if (length(unique(shas)) == 1L) {
+    nBenign <- nBenign + 1L
+    message(sprintf("  ok       %s: %s all resolve to %s",
+                    repo, paste(names(brs), collapse = ", "), unique(shas)))
+  } else {
+    nReal <- nReal + 1L
+    message(sprintf("\n  CONFLICT %s", repo))
+    for (b in names(brs)[order(-lengths(brs))]) {
+      message(sprintf("     %-14s %s  (%d) %s", b, shas[[b]], length(brs[[b]]),
+                      paste(sort(brs[[b]]), collapse = ", ")))
+    }
+  }
+}
+message(sprintf("\n=> %d real conflict(s), %d benign.", nReal, nBenign))
+quit(status = if (nReal > 0L) 1L else 0L)
