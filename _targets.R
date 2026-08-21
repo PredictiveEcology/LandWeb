@@ -275,7 +275,10 @@ study_area_targets <- function(sa) {
       outputs = quote(outputs_spec(
         raster = c(
           "rasterToMatch", "rasterToMatch_biomassParam",
-          "rstLCC", "standAgeMap", "flammableMap", "fireReturnInterval"
+          "rstLCC", "standAgeMap", "flammableMap", "fireReturnInterval",
+          ## current-conditions land cover with urban RETAINED; NRV_summary (mode="multi")
+          ## reads it from disk to correct the year-0 current-condition snapshot.
+          "LandTypeCC_reporting"
         ),
         vect = c("studyArea", "studyArea_biomassParam", "studyAreaReporting", "studyAreaANPP")
       ))

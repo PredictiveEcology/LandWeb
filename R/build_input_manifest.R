@@ -69,6 +69,32 @@ build_input_manifest <- function(
       )
     ),
     list(
+      id = "canlcc-2020",
+      name = "2020 Land Cover of Canada (NALCMS, 30 m)",
+      source = list(type = "http_download",
+                    url = "https://open.canada.ca/data/en/dataset/ee1580ab-a23d-4f86-a09b-79763677eb47"),
+      local_path = file.path(inputs_dir, "landcover-2020-classification.tif"),
+      version_or_vintage = "2020 edition (Landsat OLI, mostly 2020 with some 2019/2021)",
+      license = "OGL-Canada-2.0",
+      description = paste0(
+        "30 m FAO-LCCS land cover (19 level-II classes, 15 applicable in Canada) from the Canada ",
+        "Centre for Remote Sensing; Canada's NALCMS contribution. Used as the CURRENT-CONDITIONS ",
+        "land cover in v3. Chosen over SCANFI because SCANFI LCC already drives the simulation, ",
+        "so reusing it for current conditions would be circular; the two are methodologically ",
+        "independent (NFI photo-plot training vs unsupervised clustering + expert interpretation; ",
+        "kNN imputation vs per-tile random forest). Two layers are derived: the simulation copy ",
+        "reclassifies urban to its nearest type (pre-industrial approximation), while the ",
+        "reporting copy retains urban."
+      ),
+      citation = list(bibtex_key = "LatifovicEtAl2017", external = TRUE),
+      extra = list(
+        cog_url = paste0("https://datacube-prod-data-public.s3.ca-central-1.amazonaws.com/",
+                         "store/land/landcover/landcover-2020-classification.tif"),
+        crs = "EPSG:3979",
+        note = "Series is 2010/2015/2020; no 2025 edition released as of 2026-08."
+      )
+    ),
+    list(
       id = "knn-beaudoin-2001",
       name = "Beaudoin kNN forest attributes (2001 base year)",
       source = list(type = "http_download", url = "https://open.canada.ca/data/en/dataset/ec9e2659-1c29-4ddb-87a2-6aced147a990"),

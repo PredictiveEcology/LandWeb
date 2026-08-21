@@ -341,6 +341,32 @@ with the upstream product rather than merely with each other. Storage across the
 32.98 GB to 15.05 GB. The rebuilt layers are drop-in replacements; the Drive copies are unchanged
 pending a decision to swap them in.
 
+## Current conditions use Canada LCC 2020, not this layer
+
+This product supplies the simulation's land cover. It is deliberately **not** used for current
+conditions, because doing so would be circular --- the "observation" of today's landscape would be
+the same raster that defines the simulated one, so any departure it showed would be an artifact of
+the model's own inputs.
+
+Current conditions instead come from the **2020 Land Cover of Canada** (@LatifovicEtAl2017;
+manifest record `canlcc-2020`). The two are independent where it matters --- the training labels.
+SCANFI learns from NFI photo-plots; the CCRS product learns from unsupervised clustering labelled by
+image interpreters, per-tile random forest with local optimisation. Two products can share a sensor
+and still fail independently if their labels come from unrelated sources, which is the case here.
+What they do share is Landsat, so both will struggle where the imagery itself is limiting --- deep
+terrain shadow, persistent cloud, spectrally ambiguous cover.
+
+One caveat worth stating, because it cuts the other way: SCANFI's **non-forest** classes are not
+SCANFI's own. Its v2 update report states that water, urban and cropland are masked from a land-use
+time series initialised from ESRI Land Cover World and two AAFC products, and that water was removed
+as a modelled target variable entirely. So for anything that is not trees, SCANFI passes through
+third-party products, while the CCRS map classifies them itself (urban from road density, Landsat
+reflectance and VIIRS night lights). That strengthens rather than weakens the case for using LCC 2020
+as the independent current-conditions source.
+
+How the two derived layers are used, and why the reported current condition differs from the
+simulated landscape on urban pixels, is documented in report 03.
+
 ## The FAO layer is a separate input
 
 `CA_FAO_forest_2019` (NFIS; @WulderEtAl2020) is a distinct three-class raster --- `0` non-forest,

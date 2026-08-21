@@ -674,6 +674,43 @@ Platform-wise, v3 moved to **R 4.6** (from 4.5), forcing a clang-21 rebuild and 
 relock, and adopted `qs2`, `cli`, `tidyterra`, `exactextractr`, `landscapemetrics`, and
 `parallelly`.
 
+# Current-conditions land cover: a deliberate change from v2 {#sec-cc-lcc-change}
+
+v2 took current conditions from a 250 m `LandType1.tif` carrying six classes (0--2 tree,
+3 shrub/wetland/grassland, 4 water/rock/ice, 5 no-data/cropland). v3 replaces it with the **2020
+Land Cover of Canada** (NALCMS/CCRS, 30 m) --- see report 06 for why that product rather than
+SCANFI. Three consequences are behaviour changes rather than ports, and are recorded here because
+none is evident from reading the code.
+
+**1. Urban is now reclassified rather than treated as barren.** v2's current-conditions layer had
+*no* urban class. In the interim v3 state urban was invisible: SCANFI folds it into the `30`
+(rock/barren) code, so urban pixels became a non-tree class and were then dropped from
+`rasterToMatch` along with the rest of the non-forest landscape. They are now sent to `99` and
+reclassified by `LandR::convertUnwantedLCC()`, which draws each replaced pixel's new class from the
+available classes around it. That is the appropriate treatment for an HRV/NRV simulation, which
+approximates a **pre-industrial** landscape.
+
+**2. The current-condition reference is no longer the simulation's own year-0 state.**
+`NRV_summary` read `rep01/vegTypeMap_year0000.tif` as the current-conditions snapshot. Once urban is
+imputed to forest (change 1), that snapshot would report imputed forest as **real current forest**
+--- precisely what the change exists to avoid. The year-0 rasters are now masked by a reporting copy
+of the land cover in which urban is retained. Urban is the only class that needs this: water,
+barren and snow-ice are sent to `NA` on both sides.
+
+**3. The envelope and the current-condition marker are therefore computed on landscapes that
+differ.** Urban pixels are forest in the simulated envelope and non-forest in the reported current
+condition. This is intentional. Land conversion is a genuine component of departure from HRV, and
+netting it out by using one layer for both would make it invisible.
+
+The magnitude is small but was measured rather than assumed. Across the 54 FMA reporting polygons
+(72.7 Mha), urban covers **0.50% at 30 m and 0.15% at the 240 m simulation resolution** --- modal
+aggregation suppresses it 3.4x. Twenty-five of 54 FMAs fall below 0.1%; the maximum in any single
+FMA is 1.44% (Cranbrook TSA, whose valley settlements are compact enough to win 240 m cells).
+Per-FMA values are in `outputs/_reference/urban_footprint_byFMA.csv`.
+
+So the change is principled rather than material: it will not move the headline NRV results, but it
+makes the comparison mean what it claims to mean.
+
 # Module supersession
 
 Three v2 post-processing modules are retired in v3, consolidated into one module plus one

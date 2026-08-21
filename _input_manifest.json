@@ -4,13 +4,35 @@
   "version": "1",
   "records": [
     {
+      "id": "canlcc-2020",
+      "name": "2020 Land Cover of Canada (NALCMS, 30 m)",
+      "source": {
+        "type": "http_download",
+        "url": "https://open.canada.ca/data/en/dataset/ee1580ab-a23d-4f86-a09b-79763677eb47"
+      },
+      "retrieved_at": "2026-08-20T18:31:27Z",
+      "local_path": "inputs/landcover-2020-classification.tif",
+      "description": "30 m FAO-LCCS land cover (19 level-II classes, 15 applicable in Canada) from the Canada Centre for Remote Sensing; Canada's NALCMS contribution. Used as the CURRENT-CONDITIONS land cover in v3. Chosen over SCANFI because SCANFI LCC already drives the simulation, so reusing it for current conditions would be circular; the two are methodologically independent (NFI photo-plot training vs unsupervised clustering + expert interpretation; kNN imputation vs per-tile random forest). Two layers are derived: the simulation copy reclassifies urban to its nearest type (pre-industrial approximation), while the reporting copy retains urban.",
+      "version_or_vintage": "2020 edition (Landsat OLI, mostly 2020 with some 2019/2021)",
+      "license": "OGL-Canada-2.0",
+      "citation": {
+        "bibtex_key": "LatifovicEtAl2017",
+        "external": true
+      },
+      "extra": {
+        "cog_url": "https://datacube-prod-data-public.s3.ca-central-1.amazonaws.com/store/land/landcover/landcover-2020-classification.tif",
+        "crs": "EPSG:3979",
+        "note": "Series is 2010/2015/2020; no 2025 edition released as of 2026-08."
+      }
+    },
+    {
       "id": "caribou-ranges-ab",
       "name": "Alberta caribou ranges (caribou reporting ranges: AB)",
       "source": {
         "type": "http_download",
         "url": "https://extranet.gov.ab.ca/srd/geodiscover/srd_pub/LAT/FWDSensitivity/CaribouRange.zip"
       },
-      "retrieved_at": "2026-08-18T14:41:38Z",
+      "retrieved_at": "2026-08-19T18:09:20Z",
       "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_AB",
       "description": "Jurisdictional caribou range boundaries for AB; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on SUBUNIT,LOCALRANGE; locally extirpated herds excluded.",
       "version_or_vintage": "published 2012",
@@ -44,7 +66,7 @@
         "type": "drive",
         "url": "1Y_Qi3twoU3fHaNgMzF5QEl1CosGmGyha"
       },
-      "retrieved_at": "2026-08-18T14:41:54Z",
+      "retrieved_at": "2026-08-19T18:09:29Z",
       "local_path": "inputs/reportingPolygons/Caribou_Ranges/caribou_MB",
       "description": "Jurisdictional caribou range boundaries for MB; one of six sources assembled into LandWeb's caribou reporting layer by LandWebUtils::buildCaribouRanges(). Labelled on RANGE_NAME.",
       "version_or_vintage": "delineated 2015, provided 2018 (current)",
