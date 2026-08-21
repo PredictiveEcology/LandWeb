@@ -1,0 +1,53 @@
+name: dep-branch-audit
+
+## Catches the failure mode where one GitHub dependency is requested at two different commits.
+## pak solves a dependency request as a single problem, so one such repo makes the WHOLE solve
+## fail and reports every other package as a "dependency conflict" -- which reads like a far
+## bigger problem than it is, and cost several CI rounds to unpick on 2026-08-20.
+##
+## The schedule is not decoration: the worst instance so far needed NO local change at all.
+## `FOR-CAST/workflowtools@development` silently fell 9 commits behind `main`, leaving the pin
+## resolving to 0.0.13 while burnSummaries requires >= 0.0.16 for archive_extract_once(). Only a
+## periodic re-resolve catches drift that happens entirely on the remote.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - modules/**
+      - packages/**
+      - scripts/audit-dep-branches.R
+      - .github/workflows/dep-branch-audit.yaml
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '17 6 * * 1'   # Mondays 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Audit dependency branches
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      ## the script shells out to `gh`, which is preinstalled on the runner
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      ## submodules are required: the audit reads each module's reqdPkgs from modules/<m>/<m>.R
+      ## and each local package's Remotes from packages/<p>/DESCRIPTION.
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      ## The script is pure base R + the gh CLI, so there is nothing to install beyond R itself.
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Audit dependency branches
+        run: Rscript scripts/audit-dep-branches.R

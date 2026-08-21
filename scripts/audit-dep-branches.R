@@ -21,21 +21,27 @@
 ##   * it resolves branch names to COMMITS before comparing, so two names that point at the same
 ##     commit (e.g. after a fast-forward) are reported as agreeing, not as a conflict.
 ##
-## Requires the `gh` CLI, authenticated. Exits 1 if any real conflict is found, so it can gate CI.
+## Pure base R + the `gh` CLI (authenticated); no package dependencies, so CI needs no install
+## step. Exits 1 if any real conflict is found, so it can gate a workflow.
 
 `%||%` <- function(a, b) if (is.null(a) || !length(a)) b else a
 
 ## branch may be "" (meaning "the repo default"), which %||% deliberately does NOT treat as absent
 orDefault <- function(branch, fallback) if (nzchar(branch)) branch else fallback
 
+## system2() hands the argument vector to a shell, so anything containing a space (the Accept
+## header below) has to be quoted or it splits into two arguments.
 gh <- function(...) {
-  out <- suppressWarnings(system2("gh", c(...), stdout = TRUE, stderr = FALSE))
+  out <- suppressWarnings(system2("gh", shQuote(c(...)), stdout = TRUE, stderr = FALSE))
   if (!is.null(attr(out, "status")) && attr(out, "status") != 0L) return("")
   paste(out, collapse = "\n")
 }
 
 .descCache <- new.env(parent = emptyenv())
 .shaCache <- new.env(parent = emptyenv())
+## An audit that cannot see a dependency must NOT report "clean" -- a silent false pass is worse
+## than no audit at all. Anything unreadable is collected here and makes the run inconclusive.
+.unreadable <- new.env(parent = emptyenv())
 
 ## DESCRIPTION of `repo` on `branch` (NULL/"" = repo default), as a single string.
 remoteDescription <- function(repo, branch) {
@@ -43,10 +49,11 @@ remoteDescription <- function(repo, branch) {
   if (!is.null(.descCache[[key]])) return(.descCache[[key]])
   url <- paste0("repos/", repo, "/contents/DESCRIPTION",
                 if (nzchar(branch)) paste0("?ref=", branch) else "")
-  b64 <- gh("api", url, "--jq", ".content")
-  txt <- if (nzchar(b64)) {
-    tryCatch(rawToChar(base64enc::base64decode(gsub("\\s", "", b64))), error = function(e) "")
-  } else ""
+  ## The `raw` media type returns the file's text directly, so this needs no base64 decoder and
+  ## therefore no extra package -- the script stays pure base R + the `gh` CLI, which is what
+  ## lets it run in CI without an install step.
+  txt <- gh("api", url, "-H", "Accept: application/vnd.github.raw")
+  if (!nzchar(txt)) assign(key, TRUE, envir = .unreadable)
   .descCache[[key]] <- txt
   txt
 }
@@ -58,6 +65,7 @@ remoteSha <- function(repo, branch) {
   br <- orDefault(branch, gh("repo", "view", repo, "--json", "defaultBranchRef",
                             "--jq", ".defaultBranchRef.name"))
   sha <- substr(gh("api", paste0("repos/", repo, "/commits/", br), "--jq", ".sha"), 1L, 12L)
+  if (!nzchar(sha)) assign(paste0(key, " (commit)"), TRUE, envir = .unreadable)
   .shaCache[[key]] <- if (nzchar(sha)) sha else "?"
   .shaCache[[key]]
 }
@@ -146,5 +154,11 @@ for (repo in sort(ls(wanted))) {
     }
   }
 }
-message(sprintf("\n=> %d real conflict(s), %d benign.", nReal, nBenign))
-quit(status = if (nReal > 0L) 1L else 0L)
+bad <- sort(ls(.unreadable))
+if (length(bad)) {
+  message(sprintf("\n  UNREADABLE (%d) -- result is INCONCLUSIVE, not clean:", length(bad)))
+  for (b in bad) message("     ", b)
+  message("  Check `gh auth status`, repo visibility, and API rate limits.")
+}
+message(sprintf("\n=> %d real conflict(s), %d benign, %d unreadable.", nReal, nBenign, length(bad)))
+quit(status = if (nReal > 0L || length(bad) > 0L) 1L else 0L)
