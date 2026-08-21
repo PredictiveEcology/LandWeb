@@ -10,16 +10,19 @@ name: dep-branch-audit
 ## resolving to 0.0.13 while burnSummaries requires >= 0.0.16 for archive_extract_once(). Only a
 ## periodic re-resolve catches drift that happens entirely on the remote.
 
+## `targets` is where the v3 work happens; `main` is the repo default.
+## NB GitHub runs `schedule:` (and offers `workflow_dispatch:`) ONLY from the DEFAULT branch, so
+## the weekly re-resolve below does not fire until this file reaches `main`.
 on:
   push:
-    branches: [main]
+    branches: [main, targets]
     paths:
       - modules/**
       - packages/**
       - scripts/audit-dep-branches.R
       - .github/workflows/dep-branch-audit.yaml
   pull_request:
-    branches: [main]
+    branches: [main, targets]
   schedule:
     - cron: '17 6 * * 1'   # Mondays 06:17 UTC
   workflow_dispatch:
