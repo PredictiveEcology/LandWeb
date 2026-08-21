@@ -133,6 +133,28 @@ for (d in Sys.glob(file.path("packages", "*", "DESCRIPTION"))) {
   }
 }
 
+## --- local coverage: declared submodules that are not actually present ------------------------
+##
+## A submodule that is not checked out contributes no reqdPkgs/Remotes, which would quietly shrink
+## what the audit can see. Report those. AUDIT_SKIP_PATHS lists paths that are known-unavailable
+## ON PURPOSE (e.g. a private repo CI cannot clone) so that a deliberate gap reads differently
+## from an accidental one.
+skipPaths <- trimws(strsplit(Sys.getenv("AUDIT_SKIP_PATHS", ""), ",", fixed = TRUE)[[1L]])
+skipPaths <- skipPaths[nzchar(skipPaths)]
+missingSub <- character()
+if (file.exists(".gitmodules")) {
+  decl <- suppressWarnings(system2("git",
+    c("config", "-f", ".gitmodules", "--get-regexp", shQuote("^submodule\\..*\\.path$")),
+    stdout = TRUE, stderr = FALSE))
+  for (line in decl) {
+    sp <- sub("^\\S+\\s+", "", line)
+    if (!nzchar(sp) || sp %in% skipPaths) next
+    src <- if (startsWith(sp, "modules/")) file.path(sp, paste0(basename(sp), ".R")) else
+           if (startsWith(sp, "packages/")) file.path(sp, "DESCRIPTION") else NA_character_
+    if (!is.na(src) && !file.exists(src)) missingSub <- c(missingSub, sp)
+  }
+}
+
 ## --- report -----------------------------------------------------------------------------------
 
 nReal <- 0L
@@ -154,11 +176,20 @@ for (repo in sort(ls(wanted))) {
     }
   }
 }
+if (length(skipPaths)) {
+  message(sprintf("\n  skipped by AUDIT_SKIP_PATHS (%d, declared): %s",
+                  length(skipPaths), paste(skipPaths, collapse = ", ")))
+}
+if (length(missingSub)) {
+  message(sprintf("\n  NOT CHECKED OUT (%d) -- coverage is reduced:", length(missingSub)))
+  for (s in missingSub) message("     ", s)
+}
 bad <- sort(ls(.unreadable))
 if (length(bad)) {
   message(sprintf("\n  UNREADABLE (%d) -- result is INCONCLUSIVE, not clean:", length(bad)))
   for (b in bad) message("     ", b)
   message("  Check `gh auth status`, repo visibility, and API rate limits.")
 }
-message(sprintf("\n=> %d real conflict(s), %d benign, %d unreadable.", nReal, nBenign, length(bad)))
-quit(status = if (nReal > 0L || length(bad) > 0L) 1L else 0L)
+message(sprintf("\n=> %d real conflict(s), %d benign, %d unreadable, %d not checked out.",
+                nReal, nBenign, length(bad), length(missingSub)))
+quit(status = if (nReal > 0L || length(bad) > 0L || length(missingSub) > 0L) 1L else 0L)

@@ -39,13 +39,28 @@ jobs:
     env:
       ## the script shells out to `gh`, which is preinstalled on the runner
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ## packages/crew.ssh is a PRIVATE repo. Declaring it here keeps a deliberate gap visibly
+      ## different from an accidental one: without it the audit reports "coverage is reduced" and
+      ## fails. It declares no `Remotes:` field, so nothing is actually lost -- revisit if that
+      ## changes.
+      AUDIT_SKIP_PATHS: packages/crew.ssh
 
     steps:
-      ## submodules are required: the audit reads each module's reqdPkgs from modules/<m>/<m>.R
-      ## and each local package's Remotes from packages/<p>/DESCRIPTION.
+      ## NOT `submodules: true`: the repo-scoped GITHUB_TOKEN cannot clone the private
+      ## packages/crew.ssh, and one unclonable submodule fails the whole checkout step.
       - uses: actions/checkout@v4
-        with:
-          submodules: true
+
+      ## The audit reads each module's reqdPkgs from modules/<m>/<m>.R and each local package's
+      ## Remotes from packages/<p>/DESCRIPTION, so those submodules do need to be present.
+      ## Initialise them one at a time and carry on past any that cannot be cloned -- the audit
+      ## reports whatever it could not see rather than silently auditing less.
+      - name: Check out the submodules the audit reads
+        run: |
+          for p in $(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' | awk '{print $2}'); do
+            case " $AUDIT_SKIP_PATHS " in *" $p "*) echo "skip (declared): $p"; continue ;; esac
+            git submodule update --init --depth 1 -- "$p" \
+              || echo "::warning title=submodule::could not initialise $p"
+          done
 
       ## The script is pure base R + the gh CLI, so there is nothing to install beyond R itself.
       - uses: r-lib/actions/setup-r@v2
