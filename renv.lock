@@ -335,14 +335,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3.9022",
+      "Version": "1.0.3.9023",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "a6a3c3581283136dc1eae050f060bbe70c855151",
+      "RemoteSha": "5875f3f3dc35f5bdb79c6420d3f24d24c76fcf78",
       "Requirements": [
         "R",
         "SpaDES.tools",
@@ -371,7 +371,7 @@
         "withr",
         "workflowtools"
       ],
-      "Hash": "4e64a9ceff9bfbadb41d9a73abad9817"
+      "Hash": "9afea8d77933088cc102c1bd63874ec6"
     },
     "MASS": {
       "Package": "MASS",
@@ -881,14 +881,14 @@
     },
     "SpaDES.tools": {
       "Package": "SpaDES.tools",
-      "Version": "2.1.2",
+      "Version": "2.1.2.9000",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.tools",
       "RemoteRef": "development",
-      "RemoteSha": "0d0af74bb352d647dfbb9ea0e047af6ea6136231",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "430d2950b5acedd00bae2edadc33f1082e638ea0",
       "Requirements": [
         "R",
         "Rcpp",
@@ -903,7 +903,7 @@
         "stats",
         "terra"
       ],
-      "Hash": "b96c3fc97dea4b23e8a3fe564840f15f"
+      "Hash": "b41fc5604e3150352a0dbc8ccec35ba5"
     },
     "SparseGrid": {
       "Package": "SparseGrid",
