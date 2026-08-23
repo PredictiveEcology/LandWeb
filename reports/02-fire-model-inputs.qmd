@@ -108,6 +108,157 @@ probability all come from LandMine's own parameters and its `DEoptim` calibratio
 the LTHFC polygons. This is why a v8c-to-v10 swap is cleanly interpretable: it moves area between
 FRI classes and nothing else.
 
+# Fire-spread calibration
+
+The spread parameters named above --- the four `spawnNewActive` probabilities, the two
+`sizeCutoffs`, and `spreadProb` --- are not measured. They are fitted by `DEoptim` against the
+landscape statistics @Andison:1996 reported, on a uniform, fully-flammable synthetic landscape so
+the fit is not conditioned on any one study area's fuel pattern.
+
+Two properties of that fit matter for reading everything below.
+
+**The targets are defined in hectares, and Andison rasterized at 50 m (quarter-hectare) pixels.**
+LandWeb runs much coarser, so fire sizes are specified in hectares and converted per resolution
+(`LandWebUtils::landmine_optim_fireSizes()`). A fixed pixel-count vector would mean a different
+physical fire at each resolution, which is what previously placed the 240 m calibration outside
+the 10--3,000 ha range the shape relationship was fitted over.
+
+**Remnant islands cannot be reproduced equally at all resolutions.** Andison's Table 3.6 puts 65 %
+of island area in the 2--5 ha class for fires under 1,000 ha; at 240 m a single pixel is already
+5.76 ha, so that class cannot exist and the island target is unreachable however the parameters are
+set. The island term is therefore down-weighted with coarsening resolution
+(`LandWebUtils::landmine_optim_islandWeight()`, `min(1, 50 / pixelSize)`), so the optimizer is not
+driven by a statistic the grid forbids at the expense of ones it can reproduce.
+
+```{r}
+#| label: calib-load
+.calibDir <- c("outputs/_calibration", "../outputs/_calibration")
+.calibDir <- .calibDir[dir.exists(.calibDir)][1]
+.readCalib <- function(res, what) {
+  if (is.na(.calibDir)) return(NULL)
+  f <- file.path(.calibDir, sprintf("landmine_%s_%dm.rds", what, res))
+  if (file.exists(f)) readRDS(f) else NULL
+}
+.calibRes <- c(240, 120)
+.deopt <- stats::setNames(lapply(.calibRes, .readCalib, what = "DEoptim_result"), .calibRes)
+.comps <- stats::setNames(lapply(.calibRes, .readCalib, what = "calib_components"), .calibRes)
+.haveCalib <- any(!vapply(.deopt, is.null, logical(1)))
+```
+
+```{r}
+#| label: calib-guard
+#| results: asis
+if (!.haveCalib) {
+  cat(
+    "::: {.callout-warning}\n",
+    "## Calibration outputs not present\n\n",
+    "No `landmine_DEoptim_result_*.rds` was found under `outputs/_calibration/`. ",
+    "Run the calibration (`LandWebUtils::landmine_optim_calibrate()`) to populate this section; ",
+    "the figures below are regenerated from those artifacts on every render.\n",
+    ":::\n",
+    sep = ""
+  )
+}
+```
+
+## Calibrated parameters
+
+```{r}
+#| label: tbl-calib-params
+#| tbl-cap: "Fitted fire-spread parameters by resolution. `spawnNewActive` and `sizeCutoffs` are fitted as base-10 logarithms and shown here on the natural scale. Fire sizes were held identical in hectares across resolutions, so differences reflect resolution, sampling noise, or both --- see the caveats below."
+if (.haveCalib) {
+  .rows <- lapply(names(.deopt), function(r) {
+    d <- .deopt[[r]]
+    if (is.null(d)) return(NULL)
+    p <- LandWebUtils::landmine_optim_unpack(d$optim$bestmem)
+    data.frame(
+      resolution = paste0(r, " m"),
+      spawn1 = p$spawnNewActive[1], spawn2 = p$spawnNewActive[2],
+      spawn3 = p$spawnNewActive[3], spawn4 = p$spawnNewActive[4],
+      cutoff1_ha = p$sizeCutoffs[1], cutoff2_ha = p$sizeCutoffs[2],
+      spreadProb = p$spreadProb,
+      islandWeight = LandWebUtils::landmine_optim_islandWeight(as.numeric(r)),
+      objective = d$optim$bestval
+    )
+  })
+  .tbl <- do.call(rbind, .rows)
+  knitr::kable(.tbl, digits = c(0, 4, 4, 4, 4, 0, 0, 3, 3, 4))
+}
+```
+
+## Convergence
+
+```{r}
+#| label: fig-calib-convergence
+#| fig-cap: "Best-of-population objective across DEoptim generations, with a dotted line at the last improvement. A flat tail means the run converged; a still-falling curve means it hit `itermax` while improving. On these fits improvement stops well before the end, so iteration count is not the limiting factor --- objective noise is, which is what replication addresses."
+#| fig-width: 7
+#| fig-height: 3.5
+if (.haveCalib) {
+  for (r in names(.deopt)) {
+    if (is.null(.deopt[[r]])) next
+    print(
+      LandWebUtils::landmine_plot_calibConvergence(.deopt[[r]]) +
+        ggplot2::labs(title = sprintf("Calibration convergence (%s m pixels)", r))
+    )
+  }
+}
+```
+
+## Fit against Andison's statistics
+
+```{r}
+#| label: fig-calib-shape
+#| fig-cap: "Simulated fire shape against the relationship Andison fitted, `SHAPE = 1.770 + 0.041 log10(AREA)^4`. The solid line is his **empirical** fit; the dashed line is the fit to his own model's output, shown only for context --- targeting it would be circular. The shaded band marks the 10--3,000 ha range the relationship was fitted over. Small fires at coarse resolution are quantization-limited: a 50 ha fire is only 9 pixels at 240 m and cannot express a convoluted perimeter."
+#| fig-width: 7
+#| fig-height: 4.5
+if (.haveCalib) {
+  for (r in names(.comps)) {
+    if (is.null(.comps[[r]])) next
+    print(
+      LandWebUtils::landmine_plot_calibShape(.comps[[r]]) +
+        ggplot2::labs(title = sprintf("Fire shape vs. area (%s m pixels)", r))
+    )
+  }
+}
+```
+
+```{r}
+#| label: fig-calib-islands
+#| fig-cap: "Simulated remnant-island fraction against Andison Table 3.5 (empirical column; the model column of that table is not a target). Islands under 2 ha are excluded, following Andison. This statistic is resolution-limited by construction --- see the down-weighting note above --- so departures at coarse resolution are expected rather than diagnostic of a poor fit."
+#| fig-width: 7
+#| fig-height: 4.5
+if (.haveCalib) {
+  for (r in names(.comps)) {
+    if (is.null(.comps[[r]])) next
+    print(
+      LandWebUtils::landmine_plot_calibIslands(.comps[[r]]) +
+        ggplot2::labs(title = sprintf("Remnant islands (%s m pixels)", r))
+    )
+  }
+}
+```
+
+## How much to trust these values
+
+Three caveats belong with any use of the fitted parameters.
+
+**The objective identifies some parameters and not others.** Fitted against the previous objective,
+43 repeat runs of the same configuration scattered four of the seven parameters across more than
+90 % of their search interval, and repeat solutions proved statistically indistinguishable from one
+another --- and from some randomly drawn parameter vectors. The current objective adds constraints
+and does separate fitted from random parameters, but it still cannot rank near-equivalent solutions.
+Treat any single fit as one draw from a broad optimum rather than as a point estimate.
+
+**A stochastic objective invites over-fitting to its own random draws.** Common random numbers make
+parameter vectors comparable, but let the optimizer exploit the particular realization it was given.
+Re-evaluating a fit at independent seeds is the check that matters, and is reported with each run.
+
+**Fire sizes here are a heuristic, not a fit to observed fires.** The truncated-Pareto shape
+governing fire sizes is set by a rule of thumb ("95 % of area in 5 % of fires"), not fitted to NBAC
+or NFDB. Those records are used to *compare against* simulated output in the burn summaries, but the
+simulated size distribution was never fitted to them --- so agreement there is a weaker check than it
+may appear.
+
 # The v10 update: Northwest Alberta NRV (2026)
 
 The v10 layer incorporates a major revision to the fire regime of **northwest Alberta**, produced by
