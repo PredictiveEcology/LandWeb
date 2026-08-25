@@ -6,6 +6,9 @@
 ##
 ## USAGE (run on the node itself, or over ssh from the controller):
 ##   ssh pinus 'cd ~/GitHub/LandWeb && scripts/launch-mainsim.sh [TARGET]'
+##   ssh pinus 'cd ~/GitHub/LandWeb && LW_SHORTCUT=1 scripts/launch-mainsim.sh [TARGET]'
+##     ^ builds ONLY the named target from stored upstream values (tar_make(shortcut = TRUE)),
+##       without rebuilding outdated dependencies. See the LW_SHORTCUT note below.
 ##   TARGET defaults to `mainSim_WesternAlbertaUpland`; pass any target name to build it
 ##   (its upstream deps build first; completed/stored targets are skipped).
 ##
@@ -36,7 +39,22 @@ if [[ -f _hosts.R ]]; then
 fi
 
 TARGET="${1:-mainSim_WesternAlbertaUpland}"
-SCREEN_NAME="landweb_${TARGET}"
+
+## LW_SHORTCUT=1 -> tar_make(shortcut = TRUE): build ONLY the named target(s) from the stored
+## upstream values, without checking or rebuilding their dependencies. Use when an upstream
+## stage is outdated for a reason you deliberately want to exclude from this run -- e.g.
+## rebuilding mainSim against the EXISTING dataPrep to isolate a change to the fire model from
+## a pending change to the land-cover inputs. Verify the stored upstream is the one you mean.
+SHORTCUT="${LW_SHORTCUT:-0}"
+if [[ "${SHORTCUT}" == "1" ]]; then
+  SHORTCUT_ARG=", shortcut = TRUE"
+  SCREEN_SUFFIX="_shortcut"
+else
+  SHORTCUT_ARG=""
+  SCREEN_SUFFIX=""
+fi
+
+SCREEN_NAME="landweb_${TARGET}${SCREEN_SUFFIX}"
 TS="$(date '+%Y%m%dT%H%M%S')"
 LOG="${PROJECT_DIR}/logs/${SCREEN_NAME}_${TS}.log"   # logs live in logs/, never outputs/ (see CLAUDE.md)
 mkdir -p "$(dirname "$LOG")"
@@ -51,7 +69,7 @@ fi
 R_SCRIPT="
   setwd('${PROJECT_DIR}')
   message('=== ${SCREEN_NAME} launch ${TS} on ', Sys.info()[['nodename']], ' ===')
-  targets::tar_make(names = tidyselect::any_of('${TARGET}'), reporter = 'verbose')
+  targets::tar_make(names = tidyselect::any_of('${TARGET}'), reporter = 'verbose'${SHORTCUT_ARG})
   message('=== ${SCREEN_NAME} done ${TS} ===')
 "
 
