@@ -261,7 +261,7 @@ study_area_targets <- function(sa) {
     NRV_summary = list(mode = "single", .useCache = FALSE)
   )
 
-  list(
+  main_targets <- list(
     ## Stage 1: preamble. Saves its spatial handoff objects (so they appear in
     ## outputs(sim)) and exposes small tables in-memory via `plain`.
     tar_simspades(
@@ -608,6 +608,92 @@ study_area_targets <- function(sa) {
       }), sa)
     )
   )
+
+  ## ---- gated maxReburns diagnostic --------------------------------------------
+  ## One-off experiment: does raising the phase-2 reburn ceiling keep converting sim-years,
+  ## or is there a floor of years that can never reach their annual area target? Since the
+  ## 2026-08 LandMine recalibration the ceiling binds in 64% of sim-years (was 13%), and the
+  ## observed hazard DECLINES (0.041 at round 11 -> 0.021 at round 19), so a constant-hazard
+  ## extrapolation (cap ~110 for 90% convergence) and a power-law one (asymptote ~73%, never
+  ## converging) disagree wildly past round ~40. This measures the tail rather than
+  ## extrapolating 10x beyond the data, and LandMine >= 1.0.2 logs which FRI zone is short.
+  ##
+  ## Deliberately NOT a variant of mainSim_<sa>:
+  ##   - its own out_dir, so it cannot overwrite the production per-rep outputs;
+  ##   - the objects/inputs spec is COPIED, not shared, so editing it can never invalidate
+  ##     mainSim_<sa> (a 22 h rebuild);
+  ##   - gated behind an env var, so a plain tar_make() never picks up a ~40 h experiment.
+  ## Enable with LANDWEB_MAXREBURNS_DIAG=1. Delete this block once the question is settled.
+  if (!nzchar(Sys.getenv("LANDWEB_MAXREBURNS_DIAG", ""))) {
+    return(main_targets)
+  }
+
+  p_diag <- p_mainSim
+  p_diag$LandMine$maxReburns <- c(1L, 200L)
+  diag_dir <- file.path("outputs", "_calibration", "maxreburns_diag", sa)
+
+  c(main_targets, list(
+    tar_simspades(
+      paste0("mainSim_diag_", sa),
+      modules = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
+      loadOrder = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
+      out_dir = diag_dir,
+      log_file = file.path(diag_dir, "logs", "mainSim_diag.log"),
+      params = p_diag,
+      times = list(start = 0, end = local$sim_end),
+      paths = local$paths,
+      mem_workers = 1L, ## a single rep, so it need not share the node's terra memory budget
+      objects = suffix_refs(quote(c(
+        list(
+          cohortData = dataPrep$cohortData,
+          species = dataPrep$species,
+          speciesEcoregion = dataPrep$speciesEcoregion,
+          ecoregion = dataPrep$ecoregion,
+          minRelativeB = dataPrep$minRelativeB,
+          sufficientLight = dataPrep$sufficientLight,
+          sppEquiv = dataPrep$sppEquiv,
+          sppColorVect = dataPrep$sppColorVect,
+          speciesParams = dataPrep$speciesParams,
+          speciesTable = dataPrep$speciesTable,
+          ROSTable = preamble$ROSTable
+        ),
+        ## Fire layers + reporting polygon are touched in .inputObjects() (burnSummaries
+        ## derives rstTimeSinceFire from fireReturnInterval; LandMine reads flammableMap/
+        ## studyAreaReporting), which runs during simInit() -- before inputs= load. Pass
+        ## them in-memory via sim_objects() (loaded lazily on the worker), matching the
+        ## dataPrep stage; otherwise rstTimeSinceFire is NULL at LandMine's compareGeom.
+        sim_objects(
+          preamble,
+          objects = c("flammableMap", "fireReturnInterval", "studyAreaReporting"),
+          files = preamble_files
+        ),
+        ## studyArea + rasterToMatch are ALSO touched in Biomass_core's .inputObjects()
+        ## (it CRS-compares studyArea vs rasterToMatch and vs studyAreaReporting, e.g.
+        ## Biomass_core.R:2539/2555) -- which runs during simInit() BEFORE inputs= load.
+        ## Supplying them via inputs= leaves them NULL at that point, so the compare sees
+        ## an NA-CRS studyArea vs the loaded studyAreaReporting and spuriously reprojects
+        ## (modifies) studyAreaReporting. Pass them in-memory too, matching studyAreaReporting.
+        sim_objects(
+          dataPrep,
+          objects = c("studyArea", "rasterToMatch"),
+          files = dataPrep_files
+        )
+      )), sa),
+      inputs = suffix_refs(quote(
+        sim_inputs(
+          dataPrep,
+          objects = c(
+            "biomassMap", "rawBiomassMap", "ecoregionMap", "pixelGroupMap", "rstLCC",
+            "standAgeMap", "speciesLayers", "rasterToMatch_biomassParam",
+            "studyArea_biomassParam"
+          ),
+          files = dataPrep_files
+        )
+      ), sa),
+      seed = 1L, ## rep 1's seed: the recalibrated rep01 with ONLY the ceiling changed
+      plain = c("cohortData", "simulationOutput")
+    )
+  ))
 }
 
 ## ---- gated extended analyses --------------------------------------------------
