@@ -6515,14 +6515,14 @@
     },
     "workflowtools": {
       "Package": "workflowtools",
-      "Version": "0.0.17",
+      "Version": "0.0.18",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "workflowtools",
       "RemoteRef": "main",
-      "RemoteSha": "2fbf7f00dee3b3b975e584f3473e251a02bdab99",
+      "RemoteSha": "fba6f2cbeb0baeb9a2c3b6649a043505134819b3",
       "Requirements": [
         "R",
         "archive",
@@ -6548,7 +6548,7 @@
         "usethis",
         "utils"
       ],
-      "Hash": "23d06aac275c0c11f02ee4da8b32c967"
+      "Hash": "e20d7fd34227f8b02df718f2045b7abb"
     },
     "xfun": {
       "Package": "xfun",
