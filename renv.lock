@@ -856,14 +856,14 @@
     },
     "SpaDES.targets": {
       "Package": "SpaDES.targets",
-      "Version": "0.0.0.9018",
+      "Version": "0.0.0.9019",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "SpaDES.targets",
       "RemoteRef": "main",
-      "RemoteSha": "a24234a03c8a6008e6b64d9b46c665ddc7a2c65a",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "26d9d724d7a591ce7b247fd4fafc1c6677d51c18",
       "Requirements": [
         "R",
         "cli",
@@ -876,7 +876,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "94d6cd616667b6f2063f0640f55f638a"
+      "Hash": "24e7fa965d75ac42313f9ea11882fa60"
     },
     "SpaDES.tools": {
       "Package": "SpaDES.tools",
@@ -6515,14 +6515,14 @@
     },
     "workflowtools": {
       "Package": "workflowtools",
-      "Version": "0.0.16",
+      "Version": "0.0.17",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "workflowtools",
       "RemoteRef": "main",
-      "RemoteSha": "4364b9661987f2b699dfe7876423230b8d2e57b4",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "2fbf7f00dee3b3b975e584f3473e251a02bdab99",
       "Requirements": [
         "R",
         "archive",
@@ -6548,7 +6548,7 @@
         "usethis",
         "utils"
       ],
-      "Hash": "05cad38697c205fc443cf5481d425bdc"
+      "Hash": "23d06aac275c0c11f02ee4da8b32c967"
     },
     "xfun": {
       "Package": "xfun",
