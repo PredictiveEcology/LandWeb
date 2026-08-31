@@ -334,14 +334,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3.9026",
+      "Version": "1.0.3.9028",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "development",
-      "RemoteSha": "0806cdb0356fcb7e52ffbd04ded7e6eebda8030c",
+      "RemoteSha": "dcb110cb8289262f560be6b4c6df00c4bfa24013",
       "Requirements": [
         "R",
         "SpaDES.tools",
@@ -370,7 +370,7 @@
         "withr",
         "workflowtools"
       ],
-      "Hash": "9d6a7685a74c0190eb77249651c5bc11"
+      "Hash": "2c60d37e747ec3db20a4bc673e51def4"
     },
     "MASS": {
       "Package": "MASS",
