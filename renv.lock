@@ -6040,15 +6040,20 @@
     },
     "terra": {
       "Package": "terra",
-      "Version": "1.9-34",
-      "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Version": "1.9-48",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "rspatial",
+      "RemoteRepo": "terra",
+      "RemoteRef": "master",
+      "RemoteSha": "df01870325236c25b650ebaaf30ff380fdfe92a7",
       "Requirements": [
         "R",
         "Rcpp",
         "methods"
       ],
-      "Hash": "d8dcf526f65fbf4202cd189c15ea8bd1"
+      "Hash": "9e0c228d888f013bade673e29affdd8e"
     },
     "testthat": {
       "Package": "testthat",
