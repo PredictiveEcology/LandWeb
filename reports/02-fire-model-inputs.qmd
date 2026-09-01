@@ -29,6 +29,25 @@ library(kableExtra)
 ## display absolute pipeline paths as short project-relative paths
 relpath <- function(p) sub("^.*/((?:inputs|outputs)/.*)$", "\\1", p, perl = TRUE)
 
+## Per-run FRI attainment diagnostics, written by LandMine's summary events. Study-area
+## specific, so they live under outputs/<studyArea>/mainSim/. Prefer the multi-replicate
+## files; fall back to rep01. Missing artifacts degrade to a short note rather than an error.
+.fri <- function(f) {
+  roots <- c("outputs", "../outputs")
+  cand <- unlist(lapply(roots, function(r) {
+    d <- list.dirs(r, recursive = FALSE)
+    c(file.path(d, "mainSim", f), file.path(d, "mainSim", "rep01", f))
+  }))
+  cand <- cand[file.exists(cand)]
+  if (length(cand)) cand[1] else NA_character_
+}
+fri_diag_csv <- .fri("LandMine_FRI_diagnostics_multi.csv")
+if (is.na(fri_diag_csv)) fri_diag_csv <- .fri("LandMine_FRI_diagnostics.csv")
+fri_diag <- if (!is.na(fri_diag_csv)) fread(fri_diag_csv) else NULL
+
+fri_map_png <- .fri("figures/LandMine/LandMine_FRI_zones_diagnostic_multi.png")
+if (is.na(fri_map_png)) fri_map_png <- .fri("figures/LandMine/LandMine_FRI_zones_diagnostic.png")
+
 ## Read the LTHFC version summary from the pipeline; fall back to the seeded
 ## extended-analyses CSV so this report also renders standalone.
 lthfc_csv <- tryCatch(
@@ -444,6 +463,73 @@ The **SLS v3** layer is the Spray Lake Sawmills variant of the map (a near-full-
 local patch); it was the source from which the Spray Lake / Crowsnest polygons were taken to build
 the interim `v8d` patch (`R/new_lthfc.R`). It is included here for the requested comparison but is
 not the current pipeline input.
+
+\newpage
+
+# Fire-return-interval attainment
+
+Whether the simulation actually *delivers* the intervals mapped above is a separate question from
+what the layer says. LandMine writes a per-zone attainment check every run; this section reads it.
+
+```{r}
+#| label: fri-verdict
+#| results: asis
+if (is.null(fri_diag)) {
+  cat("_No FRI diagnostics found. They are written by LandMine's summary events; ",
+      "run the main simulation to populate them._\n", sep = "")
+} else {
+  cat("Source: `", relpath(fri_diag_csv), "`.\n\n", sep = "")
+  cat(LandWebUtils::landmine_fri_verdict(fri_diag), "\n", sep = "")
+}
+```
+
+```{r}
+#| label: tbl-fri-attainment
+#| tbl-cap: "Achieved versus target fire-return interval by zone. `ratio` is achieved/target over the area the fire model can actually burn, so a value above 1 means the zone burns too rarely. `% in study area` is the share of each zone inside that burnable area: where it is low, the uncorrected ratio (`ratio, all pixels`) is badly inflated, because pixels the model cannot reach still sit in the denominator."
+if (!is.null(fri_diag)) {
+  tab <- fri_diag[, .(
+    `target (yr)` = LTHFC,
+    `achieved (yr)` = round(FRI, 1),
+    ratio = round(ratio, 2),
+    status,
+    `% in study area` = round(pctInStudyArea, 1),
+    `% flammable` = round(pctFlam, 1),
+    `ratio, all pixels` = round(ratioUnmasked, 2)
+  )]
+  kbl(tab, booktabs = TRUE, linesep = "") |>
+    kable_styling(latex_options = c("hold_position", "scale_down"))
+}
+```
+
+```{r}
+#| label: fig-fri-drivers
+#| fig-cap: "What separates any off-target zones from the rest. Points are FRI zones, labelled by target interval; above the dotted line a zone burns too rarely. The y axis is log2, so equal distances are equal factors."
+#| fig-width: 8
+#| fig-height: 4
+if (!is.null(fri_diag)) {
+  LandWebUtils::landmine_plot_fri_drivers(fri_diag, "")
+}
+```
+
+```{r}
+#| label: fig-fri-zones
+#| fig-cap: "FRI zones by target interval (left) and by achieved/target ratio (right). Red marks zones burning too rarely, blue too often; near-neutral is on target."
+if (!is.na(fri_map_png)) {
+  knitr::include_graphics(normalizePath(fri_map_png))
+}
+```
+
+::: {.callout-note}
+## Reading the two ratio columns
+
+LandMine masks both its rate-of-spread map and its spread probability to the study area, so a
+pixel outside that polygon can be neither ignited nor spread into. The fire-return-interval raster
+is not similarly masked and routinely overhangs the polygon. Any such pixel therefore enters a
+zone's achieved-interval denominator while contributing no opportunity to burn, which is what
+`ratio, all pixels` reports and what earlier `LandMine_FRI_summary.csv` files contain. Where
+`% in study area` is well below 100, the two columns diverge sharply, and only `ratio` is
+meaningful.
+:::
 
 # Expected effect on the simulated fire regime
 
