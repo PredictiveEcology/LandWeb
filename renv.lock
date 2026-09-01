@@ -2204,14 +2204,14 @@
     },
     "fireregimetools": {
       "Package": "fireregimetools",
-      "Version": "0.1.0.9002",
+      "Version": "0.1.0.9003",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "fireregimetools",
       "RemoteRef": "main",
-      "RemoteSha": "548d283f3ee437056718cc80ec2628410530bee8",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "c5ce22c75c609df486657420c3847c69f30cb9ac",
       "Requirements": [
         "R",
         "arrow",
@@ -2225,7 +2225,7 @@
         "tidyterra",
         "utils"
       ],
-      "Hash": "acbbd1bd33c53fb66e7382f60f692f10"
+      "Hash": "4bfd083577359d630f509e87f9f4d344"
     },
     "fontawesome": {
       "Package": "fontawesome",
