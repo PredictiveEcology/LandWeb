@@ -2204,14 +2204,14 @@
     },
     "fireregimetools": {
       "Package": "fireregimetools",
-      "Version": "0.1.0.9006",
+      "Version": "0.1.0.9008",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "fireregimetools",
-      "RemoteRef": "main",
-      "RemoteSha": "3ebf57eff7433b70fda9a48d9be1e3a64493b391",
+      "RemoteRef": "development",
+      "RemoteSha": "236a7656995420fc1f864742d4f861ae7ad0e27f",
       "Requirements": [
         "R",
         "arrow",
@@ -2225,7 +2225,7 @@
         "tidyterra",
         "utils"
       ],
-      "Hash": "821097a36cd8e1109c1dbd4852be70f9"
+      "Hash": "f91ef5d92fceea093ea2501f9177088e"
     },
     "fontawesome": {
       "Package": "fontawesome",
@@ -4109,14 +4109,14 @@
     },
     "nrvtools": {
       "Package": "nrvtools",
-      "Version": "0.2.11",
+      "Version": "0.3.2",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "nrvtools",
       "RemoteRef": "development",
-      "RemoteSha": "f023220e7bd46ef3422bde6e405c7fb5c473cbaf",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "995c1704da0ef3565380a9c08cc68138cac96c4c",
       "Requirements": [
         "R",
         "arrow",
@@ -4139,7 +4139,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "59ef02f4b91bea3dcdf2dcd6254b4510"
+      "Hash": "749b03f05467933cc90b758dcddde3c8"
     },
     "numDeriv": {
       "Package": "numDeriv",
@@ -5706,23 +5706,22 @@
     },
     "spatialutils": {
       "Package": "spatialutils",
-      "Version": "0.0.0.9012",
+      "Version": "0.0.1",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "spatialutils",
       "RemoteRef": "main",
-      "RemoteSha": "46183d3d810636ca8497ac7a07e72ce9691e4556",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "1d1dc46ed95e8b8a7a4ffeb773802b02a6c83170",
       "Requirements": [
         "R",
         "dplyr",
         "rlang",
         "sf",
-        "smoothr",
         "terra"
       ],
-      "Hash": "297793565ff5cfbb0f4d0e6a799f47dc"
+      "Hash": "7bdd4a1720639b3a1d7466dd4da71cba"
     },
     "spatstat.data": {
       "Package": "spatstat.data",
@@ -6548,14 +6547,14 @@
     },
     "workflowtools": {
       "Package": "workflowtools",
-      "Version": "0.0.18",
+      "Version": "0.0.19",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "workflowtools",
       "RemoteRef": "main",
-      "RemoteSha": "fba6f2cbeb0baeb9a2c3b6649a043505134819b3",
+      "RemoteSha": "b787ef3bf803578fcc906277747a3070c036fc2b",
       "Requirements": [
         "R",
         "archive",
@@ -6581,7 +6580,7 @@
         "usethis",
         "utils"
       ],
-      "Hash": "e20d7fd34227f8b02df718f2045b7abb"
+      "Hash": "2bae3721f24a5f62cf71c97aefd5e5fd"
     },
     "xfun": {
       "Package": "xfun",
