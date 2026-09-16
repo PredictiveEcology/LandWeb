@@ -177,8 +177,82 @@ build_input_manifest <- function(
       local_path = file.path(inputs_dir, "CurrentCondition"),
       version_or_vintage = "v2 era",
       license = "Access controlled / proprietary (CASFRI)",
-      description = "The v2 current-condition species/age rasters (CurrentCondition/, Pickell*.tif, CASFRI GIDs), to be superseded by the 2026 AVI+VRI+SBFI composite (not yet staged locally).",
-      extra = list(status = "superseded; 2026 composite pending local staging")
+      description = "The v2 current-condition species/age rasters (CurrentCondition/, Pickell*.tif, CASFRI GIDs), superseded for stand age by cc-age-2025.",
+      extra = list(status = "superseded for stand age by cc-age-2025")
+    ),
+    list(
+      id = "cc-age-2025",
+      name = "fRI Research current-condition stand age composite (age_in2025)",
+      source = list(type = "drive", url = "https://drive.google.com/drive/folders/18pZzNEkiybF0KNq0FZjRMj_Ix4v_cKRl"),
+      local_path = file.path(inputs_dir, "age_in2025.tif"),
+      version_or_vintage = "age at 2025 (delivered 2026-08-21)",
+      license = "Access controlled / proprietary (AB AVIE not redistributable)",
+      description = paste(
+        "30 m per-pixel stand age for 2025, built by fRI Research in ArcGIS as the per-pixel MINIMUM",
+        "of four sources: BC VEG_COMP 2025, AB AVIE (to 2021), AB Crown AVI (to 2019) and CanLAD",
+        "(1985-2024). NoData is 65535, which terra does NOT pick up from the tag -- it must be set",
+        "explicitly. KNOWN LIMITATION: inventory input exists only in AB and BC; elsewhere CanLAD is",
+        "the sole source and cannot date an undisturbed stand, so no pixel exceeds ~40 years and",
+        "78-100% carries no age at all. The gap is filled from ntems-forest-age-2022.",
+        "local_path is the delivered copy at the inputs root (so retrieved_at is the delivery date);",
+        "LandWeb_preamble downloads and extracts its own copy under inputs/age2025/."
+      ),
+      extra = list(nodata = "65535", gap_fill = "ntems-forest-age-2022")
+    ),
+    list(
+      id = "ntems-forest-age-2022",
+      name = "NTEMS Canada forest age, 2022",
+      source = list(type = "http_download", url = "https://opendata.nfis.org/mapserver/nfis-change_eng.html"),
+      local_path = file.path(inputs_dir, "CA_forest_age_2022", "CA_forest_age_2022.tif"),
+      version_or_vintage = "2022 vintage (disturbance window 1985-2022)",
+      license = "OGL-Canada-2.0",
+      description = paste(
+        "30 m per-pixel forest age for every treed pixel in Canada's ~650 Mha of forested ecosystems,",
+        "from three approaches: Landsat disturbance detection (1985+), spectral recovery (back to",
+        "1965), and allometric modelling for stands showing neither. Values are 0-150, 151 meaning",
+        "'>150' (age is not resolved beyond that), and 255 non-treed -- 255 must be flagged NA or it",
+        "enters a composite as a 255-year stand. Fills cc-age-2025's gaps outside AB/BC. This is also",
+        "the source SBFI's own stand age is derived from, so the two are methodologically consistent.",
+        "A companion _approach raster records which method produced each pixel (1/2/3; 0 non-treed).",
+        "NOTE: on its own Lambert variant (NAD83 LCC, standard parallels 49/77, central meridian -95),",
+        "NOT co-registered with cc-age-2025, so combining them is a true reprojection."
+      ),
+      citation = list(bibtex_key = "maltman2023forestage", external = TRUE),
+      extra = list(nodata = "255", age_cap = "151 means >150", fills = "cc-age-2025")
+    ),
+    list(
+      id = "canlad-v1-2024",
+      name = "Canada Landsat Disturbance with pest (CanLaD), 1985-2024",
+      source = list(type = "http_download", url = "https://doi.org/10.23687/902801fd-4d9d-4df4-9e95-319e429545cc"),
+      local_path = file.path(inputs_dir, "CanLad", "v1", "Disturbances_Latest", "canlad_1985_2024_latest_year.tif"),
+      version_or_vintage = "v1, disturbances 1985-2024",
+      license = "OGL-Canada-2.0",
+      description = paste(
+        "30 m Canada-wide detection and attribution of fire, harvest and pest-outbreak disturbance",
+        "since 1985. Not consumed directly by the pipeline: it enters via cc-age-2025, where fRI",
+        "Research used it as one of the four composited sources. Recorded here because it is the",
+        "ONLY age source outside AB/BC in that composite, which is why the composite's coverage",
+        "collapses there -- CanLAD is censored at 1985 by construction and cannot date an",
+        "undisturbed stand. A v1.1 extending to 2025 is also staged locally."
+      ),
+      ## Verbatim entry rather than the generated @misc: the author list and title are transcribed
+      ## from the dataset's own _readme.txt citation block, which is the authoritative wording.
+      ## There is no accompanying paper to cite -- the readme lists one as "to be published".
+      citation = list(
+        bibtex_key = "canlad-dataset",
+        doi = "10.23687/902801fd-4d9d-4df4-9e95-319e429545cc",
+        bibtex_entry = paste(
+          "@misc{canlad-dataset,",
+          "  author  = {Perbet, Pauline and Guindon, Luc and Correia, David L. P. and Villemaire, Philippe and {Reisi Gahrouei}, O. and St-Amant, R.},",
+          "  title   = {Canada {L}andsat {D}isturbance with pest ({CanLaD}): a {C}anada-wide {L}andsat-based 30-m resolution product of fire, harvest and pest outbreak detection and attribution since 1985},",
+          "  year    = {2025},",
+          "  doi     = {10.23687/902801fd-4d9d-4df4-9e95-319e429545cc},",
+          "  note    = {Natural Resources Canada, Canadian Forest Service}",
+          "}",
+          sep = "\n"
+        )
+      ),
+      extra = list(consumed_via = "cc-age-2025")
     )
   )
 
