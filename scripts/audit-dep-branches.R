@@ -90,6 +90,27 @@ splitRef <- function(ref) {
   list(repo = parts[1L], branch = if (length(parts) > 1L) parts[2L] else "")
 }
 
+## The text of `reqdPkgs = list(...)`, bounded by counting parentheses rather than by guessing the
+## indentation of the closing one. A `\n  )` anchor overshoots: `reqdPkgs` closes at FOUR spaces
+## inside `defineModule(sim, list(`, so the first two-space `)` is the end of `defineModule` itself
+## and the match swallows the whole metadata block -- every parameter default included. That made
+## the audit read an ordinary file-path default (`CA_forest_age_2022/CA_forest_age_2022.tif`) as a
+## GitHub ref and fail the run as UNREADABLE.
+reqdPkgsBlock <- function(txt) {
+  at <- regexpr("reqdPkgs\\s*=\\s*list\\(", txt, perl = TRUE)
+  if (at < 0L) return(character())
+  chars <- strsplit(substring(txt, at + attr(at, "match.length") - 1L), "", fixed = TRUE)[[1L]]
+  depth <- 0L
+  for (i in seq_along(chars)) {
+    if (chars[i] == "(") depth <- depth + 1L
+    if (chars[i] == ")") {
+      depth <- depth - 1L
+      if (depth == 0L) return(paste(chars[seq_len(i)], collapse = ""))
+    }
+  }
+  character() ## unbalanced: treat as no block rather than guess
+}
+
 wanted <- new.env(parent = emptyenv())
 note <- function(repo, branch, who) {
   key <- repo
@@ -116,7 +137,7 @@ for (f in Sys.glob(file.path("modules", "*", "*.R"))) {
   mod <- basename(dirname(f))
   if (tools::file_path_sans_ext(basename(f)) != mod) next
   txt <- paste(readLines(f, warn = FALSE), collapse = "\n")
-  m <- regmatches(txt, regexpr("reqdPkgs\\s*=\\s*list\\((?s).*?\\n  \\)", txt, perl = TRUE))
+  m <- reqdPkgsBlock(txt)
   if (!length(m)) next
   refs <- regmatches(m, gregexpr('"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(@[A-Za-z0-9_.-]+)?', m))[[1L]]
   for (ref in unique(sub('^"', "", refs))) {
