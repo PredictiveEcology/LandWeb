@@ -485,7 +485,8 @@ delivered rasters themselves.
 
 ## Species percent
 
-Documented by fRI's *Current Condition flow chart* and the accompanying Python scripts.
+Documented by fRI's *Current Condition flow chart* and the accompanying Python scripts. The
+national backfill layer is the Satellite-Based Forest Inventory [SBFI, @wulder2024sbfi].
 
 ```
 BC Forest Veg Composite 2024 --> BC species percent  --.
