@@ -2210,7 +2210,7 @@
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "fireregimetools",
-      "RemoteRef": "development",
+      "RemoteRef": "main",
       "RemoteSha": "236a7656995420fc1f864742d4f861ae7ad0e27f",
       "Requirements": [
         "R",
@@ -2225,7 +2225,7 @@
         "tidyterra",
         "utils"
       ],
-      "Hash": "f91ef5d92fceea093ea2501f9177088e"
+      "Hash": "1a2fb391770a38a09a3d2cdf4d9f117f"
     },
     "fontawesome": {
       "Package": "fontawesome",
