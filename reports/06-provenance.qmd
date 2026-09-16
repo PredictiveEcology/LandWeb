@@ -470,6 +470,93 @@ point to. Fleshing those narratives out (and the FLM-calibration best-practices 
 
 \newpage
 
+# Externally prepared input: fRI Research's current-condition layers {#sec-fri-current-condition}
+
+The caribou ranges are assembled here from published sources, and the land-cover raster is derived
+here from one. The current-condition vegetation and age layers are neither: they are prepared
+**outside this pipeline**, at fRI Research, and delivered as finished rasters.
+
+That is not a convenience. Alberta's AVIE inventory is held under a data-sharing agreement and
+cannot be redistributed, so the steps that consume it cannot run here. What we receive is the
+output of a manual ArcGIS workflow, and the most this repository can do is **record faithfully how
+that output was produced** --- which is the purpose of this section. The method below is
+reconstructed from fRI's own flow chart and scripts, and from the lineage metadata embedded in the
+delivered rasters themselves.
+
+## Species percent
+
+Documented by fRI's *Current Condition flow chart* and the accompanying Python scripts.
+
+```
+BC Forest Veg Composite 2024 --> BC species percent  --.
+                                 (nulls recoded to 0)   \
+AB AVIE 2024 ---------------> AB species percent  ------+--> AB-BC composite
+                                 (nulls recoded to 0)   /    (overlap: MAXIMUM retained)
+                                                       /              |
+CDN SBFI 2020 --------------> SBFI species percent ---'               |  AB/BC primary;
+                                 (water removed)                      |  SBFI fills the
+                                                                      v  REMAINDER OF AOI
+                                                              composite species percent
+```
+
+| step | tool / script |
+|---|---|
+| add + summarise species percent fields | ArcGIS tool *1. Generate Species Percent Fields* |
+| same, for SBFI tiles | `BatchSpeciesPercent_SBFI.py` |
+| dissolve tiles by species + percent, merge 10 at a time | `BatchSpeciesPercentDissolve_SBFI.py` |
+| recode null attributes to 0 | `ZeroOutNullsInTable.py` |
+| polygons to raster | ArcGIS tool *2. Convert Species Percent Polygons to Raster* |
+| identify water in SBFI | `ExtractWaterFromSBFI2020.py` |
+| remove identified water | `RemoveWaterFromOutputs.py` |
+| merge all sources | `CombineMultiSourceSpeciesPercent.py` |
+
+## Stand age
+
+There is **no script** for age: it was built in ArcGIS ModelBuilder. The method is recovered from
+`age_in2025.tif.xml`, the delivered raster's own lineage record:
+
+```
+CellStatistics( AB_crown_age_2025 ; AB_AVI_age_2025 ; BC_Age_2025 ; canlad_age )
+                statistic = MINIMUM      ignore_nodata = DATA
+```
+
+with the four inputs derived as:
+
+| source | vintage | expression |
+|---|---|---|
+| BC `VEG_COMP_LYR_R1_POLY_2025` | 2025 | `2025 - ([reference year] - [projected age 1])` (BC records no origin year) |
+| AB AVIE | origins to 2021 | `2025 - origin` |
+| AB Crown AVI | origins to 2019 | `2025 - origin` |
+| `canlad_1985_2024_ending_year` | 1985--2024 | `2025 - last year of disturbance` |
+
+`MINIMUM` while ignoring NoData implements the intended hierarchy: inventory first, Crown filling
+AVIE's gaps, CanLAD filling what remains and winning wherever it recorded a newer disturbance.
+
+## The asymmetry between the two pipelines
+
+Read together, these two workflows treat SBFI **oppositely**:
+
+| | AB / BC | rest of AOI |
+|---|---|---|
+| **species percent** | AVIE + BC composite (primary) | **SBFI fills the remainder** |
+| **stand age** | AVIE + Crown AVI + BC composite | **CanLAD only** |
+
+Species percent has national coverage because SBFI backfills it. Age does not, because SBFI was
+never brought into the age composite --- and CanLAD, being disturbance detection over 1985--2024,
+cannot assign an age to a stand it never saw disturbed.
+
+The consequence is measurable in the delivered raster: outside AB and BC **no pixel exceeds 40
+years** and 78--100% of the area carries no age at all, against roughly 20% expected over 120 years
+from the fire-return intervals themselves. Seven of the eighteen study-area groups are affected.
+Since the same analyst applied the national backfill on the species side, this reads as an
+oversight rather than a methodological choice.
+
+LandWeb therefore fills the age gap itself, from the per-pixel NTEMS forest age
+(@maltman2023forestage) that SBFI summarises --- the same source, one step earlier in its own
+processing chain. See `LandWeb_preamble`.
+
+\newpage
+
 # References {.unnumbered}
 
 ::: {#refs}
