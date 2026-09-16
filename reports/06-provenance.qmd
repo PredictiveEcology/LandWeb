@@ -634,8 +634,8 @@ derived from the fire-return intervals and so is independent of *every* age prod
 | study-area group | FRI | expected %Old | `age_in2025` | NTEMS |
 |---|---:|---:|---:|---:|
 | Peace Lowland | 48.7 | 8.6 | 18.9 | 6.4 |
-| Lac Seul Upland | 70.0 | 18.0 | --- | 21.3 |
-| Churchill River Upland | 73.3 | 19.4 | --- | 5.3 |
+| Lac Seul Upland | 70.0 | 18.0 | --- | 28.0 |
+| Churchill River Upland | 73.3 | 19.4 | --- | 9.6 |
 | Clear Hills Upland | 80.5 | 20.7 | 33.3 | 18.9 |
 | Western Alberta Upland | 82.3 | 22.9 | 32.9 | 18.2 |
 
@@ -656,10 +656,33 @@ neighbouring groups is direct evidence that a correction fitted here would not t
 Saskatchewan. `age_in2025` is nonetheless kept authoritative wherever it has a value, on the
 grounds that switching source *within* a study area would be worse than a bias at its edge.
 
-One group remains unexplained: Churchill River Upland reports 5.3% old against 19.4% expected. The
-equilibrium assumes a stationary fire regime, and recent decades in the boreal have burned harder
-than the long-term average, so a genuinely young landscape is plausible --- but the gap is larger
-than the other groups', and results for that group should be read with that in mind.
+A corroborating detail: in Lac Seul Upland the earlier SBFI figure is 28.1% and NTEMS gives 28.0%.
+That the two agree to a tenth of a percent is about as direct a confirmation as available that
+SBFI's stand age *is* this product, summarised to polygons.
+
+### What the old-seral estimate actually rests on
+
+One limitation should be read alongside any old-forest result outside AB and BC. NTEMS derives age
+three ways, and **all** of its old-seral signal comes from the third. Broken down by the companion
+`_approach` raster, the disturbance and recovery approaches contribute 0.0% old in every group
+tested, while the allometric approach contributes 6.8--33.0%. This is structural rather than
+incidental: disturbance detection reaches back only to 1985 (about 40 years) and recovery only to
+1965 (about 60), so neither can ever produce a 120-year stand. The allometric approach covers
+77--93% of treed pixels in these groups, and 78.3% nationally.
+
+Old-seral area outside AB and BC is therefore **modelled rather than observed**, and rests on the
+one component that carries the 150-year cap. No independent alternative exists --- SBFI's old
+forest is this same model summarised, and SCANFI's is far too low --- so this is a limitation to
+state, not a reason to prefer another source. It matters most where current condition is compared
+against the simulated natural-range envelope, since a modelled input is being set against a
+modelled envelope.
+
+One group does not fit the pattern. Churchill River Upland reports 9.6% old against 19.4% expected,
+and its allometric pixels give 12.4% where other groups give 20--33%. We checked whether its rate
+of detected disturbance accounts for this, and it does not generalise: the ratio of detected
+disturbance to expectation runs from 0.13 to 0.55 across these groups with no correspondence to the
+old-share ratios. We have therefore left it unexplained rather than rationalised, and results for
+that group should be read with the discrepancy in mind.
 
 See `LandWeb_preamble` for the wiring.
 
