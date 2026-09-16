@@ -611,9 +611,57 @@ from the fire-return intervals themselves. Seven of the eighteen study-area grou
 Since the same analyst applied the national backfill on the species side, this reads as an
 oversight rather than a methodological choice.
 
+## Closing the age gap with NTEMS {#sec-fri-age-fill}
+
 LandWeb therefore fills the age gap itself, from the per-pixel NTEMS forest age
-(@maltman2023forestage) that SBFI summarises --- the same source, one step earlier in its own
-processing chain. See `LandWeb_preamble`.
+[@maltman2023forestage] that SBFI summarises --- the same source, one step earlier in its own
+processing chain. Going to that source rather than asking for a rasterised SBFI age avoids a second
+request, avoids the loss that rasterising SBFI's polygon `AGE_MEDIAN` would have caused, and keeps
+the age and species layers methodologically consistent outside AB and BC, since SBFI's own age *is*
+this product summarised.
+
+Filling with a different source at a provincial boundary is not free, and the size of the step is
+worth stating plainly. Where the two sources overlap --- inside AB and BC, where `age_in2025` has
+inventory input --- they disagree substantially: correlation is weak (Spearman $\rho$ = 0.20--0.35
+per pixel), NTEMS runs younger (median 65--75 against 95), and NTEMS reports roughly half the
+old-seral area.
+
+Taken alone that looks like a good inventory being degraded by a modelled fill. Judged against the
+fire regime itself, it is the other way round. The equilibrium expectation
+$P(\text{age} \geq 120) = e^{-120/\mathrm{FRI}}$, area-weighted over the LTHFC v10 polygons, is
+derived from the fire-return intervals and so is independent of *every* age product:
+
+| study-area group | FRI | expected %Old | `age_in2025` | NTEMS |
+|---|---:|---:|---:|---:|
+| Peace Lowland | 48.7 | 8.6 | 18.9 | 6.4 |
+| Lac Seul Upland | 70.0 | 18.0 | --- | 21.3 |
+| Churchill River Upland | 73.3 | 19.4 | --- | 5.3 |
+| Clear Hills Upland | 80.5 | 20.7 | 33.3 | 18.9 |
+| Western Alberta Upland | 82.3 | 22.9 | 32.9 | 18.2 |
+
+: Old-seral area (percent of treed pixels aged 120 years or more) from each source, against the
+expectation implied by the fire-return interval. Dashes mark groups where `age_in2025` has no
+inventory input and therefore reports no old forest at all. {#tbl-age-vs-fri}
+
+Across the three groups where both sources exist --- spanning fire-return intervals from 49 to 82
+years --- NTEMS sits at 0.74--0.91 of expectation. It is consistently just *below*, which is what
+harvest in a managed landscape should do. `age_in2025` sits at 1.44--2.20 times *above* expectation,
+which harvest cannot explain. So the two are better read as two measurement systems ---
+photo-interpreted stand age against satellite-modelled age --- with the independent yardstick
+falling between them, nearer NTEMS.
+
+Correcting NTEMS onto the inventory's scale was considered and rejected: the three adjacent AB/BC
+groups imply corrections of $-4.5$, $-10.3$ and $-19.6$ years, and a fourfold spread across
+neighbouring groups is direct evidence that a correction fitted here would not transfer to
+Saskatchewan. `age_in2025` is nonetheless kept authoritative wherever it has a value, on the
+grounds that switching source *within* a study area would be worse than a bias at its edge.
+
+One group remains unexplained: Churchill River Upland reports 5.3% old against 19.4% expected. The
+equilibrium assumes a stationary fire regime, and recent decades in the boreal have burned harder
+than the long-term average, so a genuinely young landscape is plausible --- but the gap is larger
+than the other groups', and results for that group should be read with that in mind.
+
+See `LandWeb_preamble` for the wiring.
 
 \newpage
 
