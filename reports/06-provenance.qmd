@@ -488,16 +488,40 @@ delivered rasters themselves.
 Documented by fRI's *Current Condition flow chart* and the accompanying Python scripts. The
 national backfill layer is the Satellite-Based Forest Inventory [SBFI, @wulder2024sbfi].
 
-```
-BC Forest Veg Composite 2024 --> BC species percent  --.
-                                 (nulls recoded to 0)   \
-AB AVIE 2024 ---------------> AB species percent  ------+--> AB-BC composite
-                                 (nulls recoded to 0)   /    (overlap: MAXIMUM retained)
-                                                       /              |
-CDN SBFI 2020 --------------> SBFI species percent ---'               |  AB/BC primary;
-                                 (water removed)                      |  SBFI fills the
-                                                                      v  REMAINDER OF AOI
-                                                              composite species percent
+```{r}
+#| label: fig-fri-species
+#| fig-cap: "fRI Research's species-percent workflow. Alberta and British Columbia inventories are the primary rasters; where they overlap the maximum is retained. SBFI backfills the remainder of the area of interest, giving the layer national coverage. Compare @fig-fri-age, where that backfill is absent."
+#| fig-width: 7.5
+#| fig-height: 4.2
+nodes <- data.frame(
+  x = c(1.6, 5.0, 8.4,  1.6, 5.0, 8.4,  3.3, 5.0),
+  y = c(4.0, 4.0, 4.0,  2.9, 2.9, 2.9,  1.8, 0.7),
+  lab = c("BC Forest Veg\nComposite 2024", "AB AVIE 2024", "CDN SBFI 2020",
+          "BC species %\n(nulls -> 0)", "AB species %\n(nulls -> 0)",
+          "SBFI species %\n(water removed)",
+          "AB-BC composite\n(overlap: maximum)", "composite species percent"),
+  fill = c(rep("#dbe9f6", 3), rep("#fbf1cf", 3), "#fbf1cf", "#f6ead4"),
+  w = c(rep(1.45, 7), 2.6), h = c(rep(0.42, 7), 0.34),
+  stringsAsFactors = FALSE
+)
+edges <- data.frame(
+  x    = c(1.6, 5.0, 8.4, 1.6, 5.0, 3.3, 8.4),
+  y    = c(3.58, 3.58, 3.58, 2.48, 2.48, 1.38, 2.48),
+  xend = c(1.6, 5.0, 8.4, 3.3, 3.3, 5.0, 5.0),
+  yend = c(3.32, 3.32, 3.32, 2.22, 2.22, 1.04, 1.04)
+)
+ggplot() +
+  geom_rect(data = nodes, aes(xmin = x - w, xmax = x + w, ymin = y - h, ymax = y + h, fill = fill),
+    colour = "grey55", linewidth = 0.4) +
+  geom_text(data = nodes, aes(x = x, y = y, label = lab), size = 2.9, lineheight = 0.95) +
+  geom_segment(data = edges, aes(x = x, y = y, xend = xend, yend = yend),
+    arrow = arrow(length = unit(0.16, "cm"), type = "closed"),
+    colour = "grey35", linewidth = 0.5) +
+  annotate("text", x = 8.4, y = 1.75, label = "fills the remainder\nof the AOI",
+    size = 2.6, fontface = "italic", colour = "grey30", hjust = 0.5) +
+  scale_fill_identity() +
+  coord_cartesian(xlim = c(0, 10), ylim = c(0.2, 4.6), clip = "off") +
+  theme_void()
 ```
 
 | step | tool / script |
@@ -516,9 +540,44 @@ CDN SBFI 2020 --------------> SBFI species percent ---'               |  AB/BC p
 There is **no script** for age: it was built in ArcGIS ModelBuilder. The method is recovered from
 `age_in2025.tif.xml`, the delivered raster's own lineage record:
 
-```
-CellStatistics( AB_crown_age_2025 ; AB_AVI_age_2025 ; BC_Age_2025 ; canlad_age )
-                statistic = MINIMUM      ignore_nodata = DATA
+```{r}
+#| label: fig-fri-age
+#| fig-cap: "fRI Research's stand-age workflow, recovered from the delivered raster's ModelBuilder lineage. Four inputs are combined by cell-wise MINIMUM ignoring NoData, which implements the intended hierarchy: inventory first, Crown filling AVIE's gaps, CanLAD filling what remains and winning wherever it saw a newer disturbance. The dashed node is the contrast with @fig-fri-species: SBFI backfills species percent nationally but was never brought into the age composite, so outside AB and BC the only source is disturbance detection."
+#| fig-width: 7.5
+#| fig-height: 4.2
+nodes <- data.frame(
+  x = c(1.3, 3.7, 6.1, 8.5,  5.0, 5.0),
+  y = c(4.0, 4.0, 4.0, 4.0,  2.6, 1.3),
+  lab = c("AB Crown AVI\norigins <= 2019", "AB AVIE\norigins <= 2021",
+          "BC VEG_COMP\nR1 POLY 2025", "CanLAD\n1985-2024",
+          "CellStatistics\nMINIMUM, ignore NoData", "age_in2025"),
+  fill = c(rep("#dbe9f6", 4), "#fbf1cf", "#f6ead4"),
+  w = c(rep(1.05, 4), 1.9, 1.3), h = c(rep(0.40, 4), 0.38, 0.30),
+  stringsAsFactors = FALSE
+)
+edges <- data.frame(
+  x    = c(1.3, 3.7, 6.1, 8.5, 5.0),
+  y    = c(3.60, 3.60, 3.60, 3.60, 2.22),
+  xend = c(4.2, 4.6, 5.4, 5.8, 5.0),
+  yend = c(2.98, 2.98, 2.98, 2.98, 1.60)
+)
+ggplot() +
+  geom_rect(data = nodes, aes(xmin = x - w, xmax = x + w, ymin = y - h, ymax = y + h, fill = fill),
+    colour = "grey55", linewidth = 0.4) +
+  geom_text(data = nodes, aes(x = x, y = y, label = lab), size = 2.9, lineheight = 0.95) +
+  geom_segment(data = edges, aes(x = x, y = y, xend = xend, yend = yend),
+    arrow = arrow(length = unit(0.16, "cm"), type = "closed"),
+    colour = "grey35", linewidth = 0.5) +
+  ## the absent input, drawn to make the asymmetry with fig-fri-species visible
+  annotate("rect", xmin = 0.25, xmax = 2.35, ymin = 2.22, ymax = 2.98,
+    fill = "white", colour = "grey60", linewidth = 0.4, linetype = "dashed") +
+  annotate("text", x = 1.3, y = 2.60, label = "SBFI\nNOT used here",
+    size = 2.9, lineheight = 0.95, fontface = "italic", colour = "grey35") +
+  annotate("segment", x = 2.35, y = 2.60, xend = 3.05, yend = 2.60,
+    linetype = "dashed", colour = "grey60", linewidth = 0.4) +
+  scale_fill_identity() +
+  coord_cartesian(xlim = c(0, 10), ylim = c(0.8, 4.6), clip = "off") +
+  theme_void()
 ```
 
 with the four inputs derived as:
