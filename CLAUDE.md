@@ -65,3 +65,17 @@ logs/                   # run + crew worker logs — NEVER put logs in outputs/
 
 When adding a new output-producing stage, decide whether it is study-area-specific (→ nest
 under `outputs/<studyArea>/`) or independent (→ `outputs/` root), and set `out_dir` accordingly.
+
+## Stage invalidation — code changes re-run stages
+
+`_targets.R` sets `options(SpaDES.targets.fingerprint = TRUE)`, so every `tar_simspades()` stage
+re-runs when its **code** changes, not only its params: its modules' git commits (plus any
+uncommitted diff) and the commits of GitHub-installed packages in their `reqdPkgs` are part of
+the stage command (`SpaDES.targets::stage_fingerprint()`).
+
+- Committing to a module, or bumping a GitHub-installed companion package in `renv.lock`, marks
+  every stage that uses it outdated. That includes the ~2 h `_factorial` stage when its modules
+  change.
+- The fingerprint reads the packages **installed** in the session that sources `_targets.R`. Run
+  `tar_make()`/`tar_outdated()` only on hosts whose library matches `renv.lock` (sync first), or
+  the shared `_targets` store will look outdated from that host.

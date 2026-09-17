@@ -107,6 +107,25 @@ tar_option_set(
   workspace_on_error = TRUE ## save a workspace on error (tar_traceback()/tar_workspace()) while the pipeline is under active development
 )
 
+## Re-run a stage when its CODE changes, not only its params. Without this, a tar_simspades()
+## command names its modules only as strings, so module edits never invalidate a stage:
+## tar_make() reported preamble_WesternAlbertaUpland up to date across LandWeb_preamble
+## 1.0.2 -> 1.0.7, including a switch of the current-condition age source. With it, each stage's
+## command carries its modules' git commits (+ any uncommitted diff) and the commit of every
+## GitHub-installed package in their reqdPkgs (SpaDES.targets::stage_fingerprint()).
+##
+## Consequences worth knowing:
+##  - Every stage, factorial included, rebuilt once when this was turned on (2026-09-16).
+##  - factorial (~2 h) rebuilds whenever Biomass_speciesFactorial or a package it lists changes.
+##  - The fingerprint reads the packages INSTALLED in the session that sources this file. The shared
+##    `_targets` store is only consistent if every host that runs tar_make()/tar_outdated() has a
+##    library matching renv.lock -- a drifted controller library reports everything as outdated.
+## Must be set before any tar_simspades() call below.
+options(
+  SpaDES.targets.fingerprint = TRUE,
+  SpaDES.targets.fingerprint_packages = "remote"
+)
+
 res <- local$res
 
 ## ---- per-study-area static-branching helper -----------------------------------
