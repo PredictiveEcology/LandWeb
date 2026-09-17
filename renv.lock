@@ -4990,14 +4990,14 @@
     },
     "reproducible": {
       "Package": "reproducible",
-      "Version": "3.1.1.9118",
+      "Version": "3.2.1.9035",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "reproducible",
       "RemoteRef": "development",
-      "RemoteSha": "a87e080c7a00c200870d24bb42cdbf58b77d3636",
+      "RemoteSha": "43ed330863c93c105b769b66ab0117991bfc8539",
       "Requirements": [
         "R",
         "cli",
@@ -5013,7 +5013,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "32a95dc3904639ac3facf0279ba1c58f"
+      "Hash": "d517cf394c5709ec2dfa1f11f335623d"
     },
     "reshape": {
       "Package": "reshape",
