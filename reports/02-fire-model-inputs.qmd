@@ -89,8 +89,7 @@ band <- function(b, v) cmp[bin == b][[v]]
 ::: {.callout-warning}
 **Draft report: pending human review**
 
-Portions of this document were drafted with the help of generative AI (large language models) and
-have not yet been fully reviewed by the co-authors.
+Portions of this document were drafted with the help of generative AI (large language models) and have not yet been fully reviewed by the co-authors.
 Content may be incomplete, inaccurate, or misattributed.
 This notice will be removed once a complete review has been carried out.
 :::
@@ -98,56 +97,36 @@ This notice will be removed once a complete review has been carried out.
 # Overview
 
 LandWeb simulates wildfire with an implementation of **LandMine** [@Andison:1996; @Andison:1998].
-The single most important spatial input to that fire model is the **LTHFC** (Long-Term Historic
-Fire Cycle) polygon layer: each polygon carries an integer **fire-return interval (FRI, years)**
-that sets how often that part of the landscape burns. This report documents the current **v10**
-LTHFC layer --- in particular the **June 2026 Northwest Alberta (NWAB) update**
-[@peterson-nwab-data; @peterson-nwab-final] --- and compares it against the previously used **v8c**
-layer and the **Spray Lake Sawmills (SLS v3)** variant.
+The single most important spatial input to that fire model is the **LTHFC** (Long-Term Historic Fire Cycle) polygon layer: each polygon carries an integer **fire-return interval (FRI, years)** that sets how often that part of the landscape burns.
+This report documents the current **v10** LTHFC layer --- in particular the **June 2026 Northwest Alberta (NWAB) update** [@peterson-nwab-data; @peterson-nwab-final] --- and compares it against the previously used **v8c** layer and the **Spray Lake Sawmills (SLS v3)** variant.
 
-The key message is a clean modelling seam: **v10 changes only the fire-return interval assigned to
-each zone. Everything else in the fire model is unchanged.** Any change in simulated fire regime
-attributable to inputs therefore traces to the FRI-by-zone values documented here.
+The key message is a clean modelling seam: **v10 changes only the fire-return interval assigned to each zone. Everything else in the fire model is unchanged.**
+Any change in simulated fire regime attributable to inputs therefore traces to the FRI-by-zone values documented here.
 
 # How LandMine uses the LTHFC layer
 
-The LTHFC polygons enter the pipeline as a fire-return-interval raster and drive ignition
-frequency:
+The LTHFC polygons enter the pipeline as a fire-return-interval raster and drive ignition frequency:
 
-- `LandWeb_preamble` downloads the v10 layer, renames its FRI field to `fireReturnInterval`, cleans
-  the polygons (`LandWebUtils::polygonClean(type = "LandWeb", minFRI = ...)`), and rasterizes
-  `fireReturnInterval` onto the study-area grid.
-- `LandMine` consumes `fireReturnInterval` (years) together with a separate flammability mask
-  (`rstFlammable`). The number of fires ignited per year in a zone is derived from that zone's area
-  and its FRI (zone area / mean fire size / FRI).
+- `LandWeb_preamble` downloads the v10 layer, renames its FRI field to `fireReturnInterval`, cleans the polygons (`LandWebUtils::polygonClean(type = "LandWeb", minFRI = ...)`), and rasterizes `fireReturnInterval` onto the study-area grid.
+- `LandMine` consumes `fireReturnInterval` (years) together with a separate flammability mask (`rstFlammable`).
+  The number of fires ignited per year in a zone is derived from that zone's area and its FRI (zone area / mean fire size / FRI).
 
-Crucially, **only the fire-return interval comes from the LTHFC layer.** The fire-size distribution
-(a Truncated Pareto), the rate of spread (`ROSTable`, `ROSother`), and the per-pixel spread
-probability all come from LandMine's own parameters and its `DEoptim` calibration table --- not from
-the LTHFC polygons. This is why a v8c-to-v10 swap is cleanly interpretable: it moves area between
-FRI classes and nothing else.
+Crucially, **only the fire-return interval comes from the LTHFC layer.**
+The fire-size distribution (a Truncated Pareto), the rate of spread (`ROSTable`, `ROSother`), and the per-pixel spread probability all come from LandMine's own parameters and its `DEoptim` calibration table --- not from the LTHFC polygons.
+This is why a v8c-to-v10 swap is cleanly interpretable: it moves area between FRI classes and nothing else.
 
 # Fire-spread calibration
 
-The spread parameters named above --- the four `spawnNewActive` probabilities, the two
-`sizeCutoffs`, and `spreadProb` --- are not measured. They are fitted by `DEoptim` against the
-landscape statistics @Andison:1996 reported, on a uniform, fully-flammable synthetic landscape so
-the fit is not conditioned on any one study area's fuel pattern.
+The spread parameters named above --- the four `spawnNewActive` probabilities, the two `sizeCutoffs`, and `spreadProb` --- are not measured.
+They are fitted by `DEoptim` against the landscape statistics @Andison:1996 reported, on a uniform, fully-flammable synthetic landscape so the fit is not conditioned on any one study area's fuel pattern.
 
 Two properties of that fit matter for reading everything below.
 
-**The targets are defined in hectares, and Andison rasterized at 50 m (quarter-hectare) pixels.**
-LandWeb runs much coarser, so fire sizes are specified in hectares and converted per resolution
-(`LandWebUtils::landmine_optim_fireSizes()`). A fixed pixel-count vector would mean a different
-physical fire at each resolution, which is what previously placed the 240 m calibration outside
-the 10--3,000 ha range the shape relationship was fitted over.
+**The targets are defined in hectares, and Andison rasterized at 50 m (quarter-hectare) pixels.** LandWeb runs much coarser, so fire sizes are specified in hectares and converted per resolution (`LandWebUtils::landmine_optim_fireSizes()`).
+A fixed pixel-count vector would mean a different physical fire at each resolution, which is what previously placed the 240 m calibration outside the 10--3,000 ha range the shape relationship was fitted over.
 
-**Remnant islands cannot be reproduced equally at all resolutions.** Andison's Table 3.6 puts 65 %
-of island area in the 2--5 ha class for fires under 1,000 ha; at 240 m a single pixel is already
-5.76 ha, so that class cannot exist and the island target is unreachable however the parameters are
-set. The island term is therefore down-weighted with coarsening resolution
-(`LandWebUtils::landmine_optim_islandWeight()`, `min(1, 50 / pixelSize)`), so the optimizer is not
-driven by a statistic the grid forbids at the expense of ones it can reproduce.
+**Remnant islands cannot be reproduced equally at all resolutions.** Andison's Table 3.6 puts 65 % of island area in the 2--5 ha class for fires under 1,000 ha; at 240 m a single pixel is already 5.76 ha, so that class cannot exist and the island target is unreachable however the parameters are set.
+The island term is therefore down-weighted with coarsening resolution (`LandWebUtils::landmine_optim_islandWeight()`, `min(1, 50 / pixelSize)`), so the optimizer is not driven by a statistic the grid forbids at the expense of ones it can reproduce.
 
 ```{r}
 #| label: calib-load
@@ -261,44 +240,27 @@ if (.haveCalib) {
 
 Three caveats belong with any use of the fitted parameters.
 
-**The objective identifies some parameters and not others.** Fitted against the previous objective,
-43 repeat runs of the same configuration scattered four of the seven parameters across more than
-90 % of their search interval, and repeat solutions proved statistically indistinguishable from one
-another --- and from some randomly drawn parameter vectors. The current objective adds constraints
-and does separate fitted from random parameters, but it still cannot rank near-equivalent solutions.
+**The objective identifies some parameters and not others.** Fitted against the previous objective, 43 repeat runs of the same configuration scattered four of the seven parameters across more than 90 % of their search interval, and repeat solutions proved statistically indistinguishable from one another --- and from some randomly drawn parameter vectors.
+The current objective adds constraints and does separate fitted from random parameters, but it still cannot rank near-equivalent solutions.
 Treat any single fit as one draw from a broad optimum rather than as a point estimate.
 
-**A stochastic objective invites over-fitting to its own random draws.** Common random numbers make
-parameter vectors comparable, but let the optimizer exploit the particular realization it was given.
+**A stochastic objective invites over-fitting to its own random draws.** Common random numbers make parameter vectors comparable, but let the optimizer exploit the particular realization it was given.
 Re-evaluating a fit at independent seeds is the check that matters, and is reported with each run.
 
-**Fire sizes here are a heuristic, not a fit to observed fires.** The truncated-Pareto shape
-governing fire sizes is set by a rule of thumb ("95 % of area in 5 % of fires"), not fitted to NBAC
-or NFDB. Those records are used to *compare against* simulated output in the burn summaries, but the
-simulated size distribution was never fitted to them --- so agreement there is a weaker check than it
-may appear.
+**Fire sizes here are a heuristic, not a fit to observed fires.** The truncated-Pareto shape governing fire sizes is set by a rule of thumb ("95 % of area in 5 % of fires"), not fitted to NBAC or NFDB.
+Those records are used to *compare against* simulated output in the burn summaries, but the simulated size distribution was never fitted to them --- so agreement there is a weaker check than it may appear.
 
 # The v10 update: Northwest Alberta NRV (2026)
 
-The v10 layer incorporates a major revision to the fire regime of **northwest Alberta**, produced by
-braiding Western science with Indigenous and long-time-resident knowledge
-[@peterson-nwab-data; @peterson-nwab-final]. It replaces the original characterization from the
-LandWeb pre-industrial fire-regime synthesis [@Andison:2019], which had assigned NW Alberta a
-**default 100-year** fire cycle --- a value the synthesis itself flagged as lowest-confidence and
-likely too long.
+The v10 layer incorporates a major revision to the fire regime of **northwest Alberta**, produced by braiding Western science with Indigenous and long-time-resident knowledge [@peterson-nwab-data; @peterson-nwab-final].
+It replaces the original characterization from the LandWeb pre-industrial fire-regime synthesis [@Andison:2019], which had assigned NW Alberta a **default 100-year** fire cycle --- a value the synthesis itself flagged as lowest-confidence and likely too long.
 
 ## Method (in brief)
 
-1. **Time-since-fire** reconstruction from four stand-origin layers (reference years 1990 and 2023,
-   each in *Liberal* and *Conservative* confidence in mapped fires), built from a hierarchical
-   source-priority rule set (fire-history records, then undisturbed AVI, pre-harvest AVI, minimum
-   harvest age, adjacency, and the 1949--1956 Broad-Scale Inventory).
-2. **Fire cycle** estimated as the slope of cumulative undisturbed area against time-since-fire on a
-   semi-log plot [the method of Reed et al. 1998, per @peterson-nwab-data]. An inflection near
-   **1960** separates the pre-industrial regime (fire cycles of about 43--53 yr) from the
-   fire-control era (about 354--460 yr).
-3. **Three scenarios** bracket the estimate --- *Shortest*, *Intermediate*, and *Longest* --- cut to
-   Canadian eco-districts so the zones integrate seamlessly into the larger LandWeb map.
+1. **Time-since-fire** reconstruction from four stand-origin layers (reference years 1990 and 2023, each in *Liberal* and *Conservative* confidence in mapped fires), built from a hierarchical source-priority rule set (fire-history records, then undisturbed AVI, pre-harvest AVI, minimum harvest age, adjacency, and the 1949--1956 Broad-Scale Inventory).
+2. **Fire cycle** estimated as the slope of cumulative undisturbed area against time-since-fire on a semi-log plot [the method of Reed et al. 1998, per @peterson-nwab-data].
+   An inflection near **1960** separates the pre-industrial regime (fire cycles of about 43--53 yr) from the fire-control era (about 354--460 yr).
+3. **Three scenarios** bracket the estimate --- *Shortest*, *Intermediate*, and *Longest* --- cut to Canadian eco-districts so the zones integrate seamlessly into the larger LandWeb map.
 
 The project recommends, and LandWeb adopts, the **Intermediate** scenario.
 
@@ -320,17 +282,12 @@ knitr::kable(fri_nsr, align = "lrrr", booktabs = TRUE,
   column_spec(3, bold = TRUE)
 ```
 
-Against the original 100-year default, the adopted intervals of **40--55 years** roughly *halve*
-the fire cycle across NW Alberta, which (per the Final Report) raises the modelled proportion of
-young forest and lowers old forest in the natural range of variation for that region.
+Against the original 100-year default, the adopted intervals of **40--55 years** roughly *halve* the fire cycle across NW Alberta, which (per the Final Report) raises the modelled proportion of young forest and lowers old forest in the natural range of variation for that region.
 
 # Version comparison: v10 vs v8c vs SLS v3
 
-This section is derived directly from the LTHFC shapefiles in `inputs/` by
-`R/lthfc_summary.R` (area-by-FRI over each layer). The three layers span slightly different extents
-and schemas: **v10** (`r km("v10")` km^2^, field `LTFC10`, LCC projection), **v8c**
-(`r km("v8c")` km^2^, field `LTHFC`, UTM 11N), and **SLS v3**
-(`r km("sls_v3")` km^2^, field `LTHFC`, UTM 11N).
+This section is derived directly from the LTHFC shapefiles in `inputs/` by `R/lthfc_summary.R` (area-by-FRI over each layer).
+The three layers span slightly different extents and schemas: **v10** (`r km("v10")` km^2^, field `LTFC10`, LCC projection), **v8c** (`r km("v8c")` km^2^, field `LTHFC`, UTM 11N), and **SLS v3** (`r km("sls_v3")` km^2^, field `LTHFC`, UTM 11N).
 
 ## Where the change is
 
@@ -378,8 +335,8 @@ p +
   labs(x = NULL, y = NULL)
 ```
 
-The two versions are near-identical outside Northwest Alberta; within the outlined AOI, v10 shifts
-toward red (shorter fire cycles). The difference map below isolates that change directly.
+The two versions are near-identical outside Northwest Alberta; within the outlined AOI, v10 shifts toward red (shorter fire cycles).
+The difference map below isolates that change directly.
 
 ```{r}
 #| label: fig-lthfc-diff
@@ -442,34 +399,24 @@ ggplot(pd, aes(bin, area_km2 / 1000, fill = version)) +
   theme(legend.position = "top")
 ```
 
-The signature of the NW Alberta update is visible at the landscape scale: relative to v8c, v10 moves
-roughly **`r round((band("41-60","v10") - band("41-60","v8c"))/1000)` thousand km^2^** of
-additional area into the **41-60 year** band (`r round(band("41-60","v8c")/1000)` to
-`r round(band("41-60","v10")/1000)` thousand km^2^), drawing it down from the **81-120**
-and **over-120** year bands. Note this is a *partial* update: v10 revises NW Alberta only, so most of
-the map retains its earlier intervals, and full re-integration of the Intermediate scenario across
-the whole LandWeb LTHFC map remains outstanding [@peterson-nwab-final].
+The signature of the NW Alberta update is visible at the landscape scale: relative to v8c, v10 moves roughly **`r round((band("41-60","v10") - band("41-60","v8c"))/1000)` thousand km^2^** of additional area into the **41-60 year** band (`r round(band("41-60","v8c")/1000)` to `r round(band("41-60","v10")/1000)` thousand km^2^), drawing it down from the **81-120** and **over-120** year bands.
+Note this is a *partial* update: v10 revises NW Alberta only, so most of the map retains its earlier intervals, and full re-integration of the Intermediate scenario across the whole LandWeb LTHFC map remains outstanding [@peterson-nwab-final].
 
 ## The schema and non-burnable-coding change
 
-The v10 layer is not just new values --- it is a new schema. The FRI field was renamed
-(`LTHFC` to `LTFC10`), the projection changed (UTM 11N to LCC), and non-burnable land is
-handled differently: **v8c encoded `r format(round(nonburn[version == "v8c", nonburn_km2]), big.mark = ",")` km^2^
-as fire-return interval `0`**, whereas v10 carries no `0` class and instead marks water via a lakes
-attribute. Downstream, `minFRI` in the preamble still maps very-short intervals to non-burnable; with
-v10's 35-year minimum nothing is dropped at the pipeline's current `minFRI = 25`.
+The v10 layer is not just new values --- it is a new schema.
+The FRI field was renamed (`LTHFC` to `LTFC10`), the projection changed (UTM 11N to LCC), and non-burnable land is handled differently: **v8c encoded `r format(round(nonburn[version == "v8c", nonburn_km2]), big.mark = ",")` km^2^ as fire-return interval `0`**, whereas v10 carries no `0` class and instead marks water via a lakes attribute.
+Downstream, `minFRI` in the preamble still maps very-short intervals to non-burnable; with v10's 35-year minimum nothing is dropped at the pipeline's current `minFRI = 25`.
 
-The **SLS v3** layer is the Spray Lake Sawmills variant of the map (a near-full-extent layer, not a
-local patch); it was the source from which the Spray Lake / Crowsnest polygons were taken to build
-the interim `v8d` patch (`R/new_lthfc.R`). It is included here for the requested comparison but is
-not the current pipeline input.
+The **SLS v3** layer is the Spray Lake Sawmills variant of the map (a near-full-extent layer, not a local patch); it was the source from which the Spray Lake / Crowsnest polygons were taken to build the interim `v8d` patch (`R/new_lthfc.R`).
+It is included here for the requested comparison but is not the current pipeline input.
 
 \newpage
 
 # Fire-return-interval attainment
 
-Whether the simulation actually *delivers* the intervals mapped above is a separate question from
-what the layer says. LandMine writes a per-zone attainment check every run; this section reads it.
+Whether the simulation actually *delivers* the intervals mapped above is a separate question from what the layer says.
+LandMine writes a per-zone attainment check every run; this section reads it.
 
 ```{r}
 #| label: fri-verdict
@@ -522,22 +469,16 @@ if (!is.na(fri_map_png)) {
 ::: {.callout-note}
 ## Reading the two ratio columns
 
-LandMine masks both its rate-of-spread map and its spread probability to the study area, so a
-pixel outside that polygon can be neither ignited nor spread into. The fire-return-interval raster
-is not similarly masked and routinely overhangs the polygon. Any such pixel therefore enters a
-zone's achieved-interval denominator while contributing no opportunity to burn, which is what
-`ratio, all pixels` reports and what earlier `LandMine_FRI_summary.csv` files contain. Where
-`% in study area` is well below 100, the two columns diverge sharply, and only `ratio` is
-meaningful.
+LandMine masks both its rate-of-spread map and its spread probability to the study area, so a pixel outside that polygon can be neither ignited nor spread into.
+The fire-return-interval raster is not similarly masked and routinely overhangs the polygon.
+Any such pixel therefore enters a zone's achieved-interval denominator while contributing no opportunity to burn, which is what `ratio, all pixels` reports and what earlier `LandMine_FRI_summary.csv` files contain.
+Where `% in study area` is well below 100, the two columns diverge sharply, and only `ratio` is meaningful.
 :::
 
 # Expected effect on the simulated fire regime
 
-Because LandMine derives ignition frequency directly from FRI, shortening NW Alberta's fire cycle
-increases the number of fires there, which over a multi-century run raises the proportion of
-young/recently-burned forest and lowers old forest --- shifting the seral-stage natural range of
-variation for that region. Quantifying that shift in simulated outputs (v2 vs v3) is the subject of
-the output-comparison report.
+Because LandMine derives ignition frequency directly from FRI, shortening NW Alberta's fire cycle increases the number of fires there, which over a multi-century run raises the proportion of young/recently-burned forest and lowers old forest --- shifting the seral-stage natural range of variation for that region.
+Quantifying that shift in simulated outputs (v2 vs v3) is the subject of the output-comparison report.
 
 \newpage
 
@@ -550,16 +491,13 @@ the output-comparison report.
 
 # Provenance {.unnumbered}
 
-- **v10 source:** the NWAB Intermediate fire-return intervals [@peterson-nwab-data], cut into the
-  LandWeb LTHFC map; `inputs/landweb_ltfc_v10.shp` (field `LTFC10`). Original fire-cycle
-  characterization from @Andison:2019.
-- **Comparison layers:** `inputs/landweb_ltfc_v8c.shp` (field `LTHFC`),
-  `inputs/ltfc_sls_v3.shp` (field `LTHFC`).
+- **v10 source:** the NWAB Intermediate fire-return intervals [@peterson-nwab-data], cut into the LandWeb LTHFC map; `inputs/landweb_ltfc_v10.shp` (field `LTFC10`).
+  Original fire-cycle characterization from @Andison:2019.
+- **Comparison layers:** `inputs/landweb_ltfc_v8c.shp` (field `LTHFC`), `inputs/ltfc_sls_v3.shp` (field `LTHFC`).
 - **Data file:** `` `r relpath(lthfc_csv)` ``
-- **Method:** `R/lthfc_summary.R`, built by the gated `lthfc_version_summary_csv` target. Areas are
-  geodesic (each layer reprojected to EPSG:4326, then `sf::st_area`) so the differently-projected
-  layers are comparable. The scan is light and cached as a `format = "file"` target; delete the CSV
-  to recompute.
+- **Method:** `R/lthfc_summary.R`, built by the gated `lthfc_version_summary_csv` target.
+  Areas are geodesic (each layer reprojected to EPSG:4326, then `sf::st_area`) so the differently-projected layers are comparable.
+  The scan is light and cached as a `format = "file"` target; delete the CSV to recompute.
 - **FRI-by-NSR table** reproduced from @peterson-nwab-data, Table 2-5.
 
 {{< include _provenance-appendix.qmd >}}

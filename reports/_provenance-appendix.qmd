@@ -22,12 +22,10 @@ library(kableExtra)
 }
 ```
 
-This appendix pins the rendered PDF to the code, environment, and revisions that produced it, so a
-result can be reproduced or a difference attributed to code vs. inputs vs. randomness. It is
-generated at render time from the `workflowtools` `info_*()` family.
+This appendix pins the rendered PDF to the code, environment, and revisions that produced it, so a result can be reproduced or a difference attributed to code vs. inputs vs. randomness.
+It is generated at render time from the `workflowtools` `info_*()` family.
 
-**Build identity.** LandWeb repository, branch `` `r .pv_branch` ``, commit `` `r .pv_head` ``,
-rendered `` `r .pv_when` `` with `` `r .pv_rver` `` on `` `r .pv_os` `` (`` `r .pv_libs` ``).
+**Build identity.** LandWeb repository, branch `` `r .pv_branch` ``, commit `` `r .pv_head` ``, rendered `` `r .pv_when` `` with `` `r .pv_rver` `` on `` `r .pv_os` `` (`` `r .pv_libs` ``).
 
 ```{r}
 #| label: prov-appendix-modules
@@ -44,5 +42,4 @@ if (!is.null(.pv_sm) && nrow(as.data.table(.pv_sm))) {
 }
 ```
 
-The full `sessionInfo()` and the exact `renv.lock` package pins accompany the run; input datasets
-are recorded in `_input_manifest.json` (report 06).
+The full `sessionInfo()` and the exact `renv.lock` package pins accompany the run; input datasets are recorded in `_input_manifest.json` (report 06).

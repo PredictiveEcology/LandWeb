@@ -45,47 +45,31 @@ sa_facet_pngs <- Filter(Negate(is.na), lapply(1:3, function(i) .ref(sprintf("stu
 ::: {.callout-warning}
 **Draft report: pending human review**
 
-Portions of this document were drafted with the help of generative AI (large language models) and
-have not yet been fully reviewed by the co-authors.
+Portions of this document were drafted with the help of generative AI (large language models) and have not yet been fully reviewed by the co-authors.
 Content may be incomplete, inaccurate, or misattributed.
 This notice will be removed once a complete review has been carried out.
 :::
 
 # What LandWeb is
 
-LandWeb is a data-driven modelling configuration for simulating the **Historic (Natural) Range of
-Variation (H/NRV)** of forest condition across most of the western Canadian boreal forest
-(~3 million km^2^). Rather than a single model, it couples two well-established simulation models
-inside the `SpaDES` platform [@R-SpaDES.core] --- a workflow embodiment of the PERFICT approach to
-predictive ecology [@McIntire:2022; @Barros2023]:
+LandWeb is a data-driven modelling configuration for simulating the **Historic (Natural) Range of Variation (H/NRV)** of forest condition across most of the western Canadian boreal forest (~3 million km^2^).
+Rather than a single model, it couples two well-established simulation models inside the `SpaDES` platform [@R-SpaDES.core] --- a workflow embodiment of the PERFICT approach to predictive ecology [@McIntire:2022; @Barros2023]:
 
-- **vegetation dynamics** --- an implementation of the LANDIS-II Biomass Succession model
-  [@SchellerMladenoff2004; @Scheller2007], simulating growth, mortality, dispersal, and
-  post-disturbance regeneration of tree-species cohorts on each pixel; and
-- **wildfire** --- an implementation of the LandMine landscape-disturbance model
-  [@Andison:1996; @Andison:1998], igniting and spreading fires at rates set by a long-term
-  historic fire-cycle (LTHFC) map.
+- **vegetation dynamics** --- an implementation of the LANDIS-II Biomass Succession model [@SchellerMladenoff2004; @Scheller2007], simulating growth, mortality, dispersal, and post-disturbance regeneration of tree-species cohorts on each pixel; and
+- **wildfire** --- an implementation of the LandMine landscape-disturbance model [@Andison:1996; @Andison:1998], igniting and spreading fires at rates set by a long-term historic fire-cycle (LTHFC) map.
 
-Run over many centuries and many stochastic replicates, the simulation produces a *distribution* of
-plausible pre-industrial landscape states --- the natural range of variation --- against which the
-current landscape can be compared. The pre-industrial fire regime that anchors the fire model comes
-from a long-term historic fire-cycle synthesis for the western boreal [@Andison:2019].
+Run over many centuries and many stochastic replicates, the simulation produces a *distribution* of plausible pre-industrial landscape states --- the natural range of variation --- against which the current landscape can be compared.
+The pre-industrial fire regime that anchors the fire model comes from a long-term historic fire-cycle synthesis for the western boreal [@Andison:2019].
 
 # The v3 update at a glance
 
-v3 is primarily a **rebuild of the modelling infrastructure and a refresh of the input data**, not a
-change of ecological content. The main changes (each documented in its own report, below):
+v3 is primarily a **rebuild of the modelling infrastructure and a refresh of the input data**, not a change of ecological content.
+The main changes (each documented in its own report, below):
 
-- **Inputs.** Tree-species / biomass / age initial conditions move from the Beaudoin *k*NN 2001 maps
-  [@BeaudoinEtAl2014] to SCANFI 2020 [@scanfi-v2] (report 01); the fire-cycle map is updated to
-  **v10**, incorporating the June-2026 Northwest Alberta work [@peterson-nwab-data] (report 02).
-- **Orchestration.** The manual `SpaDES` script chain is replaced by a **`targets` pipeline** that
-  owns caching and dispatch, with the `SpaDES` modules retained as the simulation engine (report 03).
-- **Scope.** Simulations are run per **ecoregion-based study-area group** --- ecologically coherent
-  bundles of adjacent forest tenures --- rather than as one monolithic run, with the per-tenure
-  breakdown recovered through the reporting polygons.
-- **Post-processing.** Three v2 summary modules are consolidated into the new `NRV_summary` module
-  plus the `nrvtools` package (report 03).
+- **Inputs.** Tree-species / biomass / age initial conditions move from the Beaudoin *k*NN 2001 maps [@BeaudoinEtAl2014] to SCANFI 2020 [@scanfi-v2] (report 01); the fire-cycle map is updated to **v10**, incorporating the June-2026 Northwest Alberta work [@peterson-nwab-data] (report 02).
+- **Orchestration.** The manual `SpaDES` script chain is replaced by a **`targets` pipeline** that owns caching and dispatch, with the `SpaDES` modules retained as the simulation engine (report 03).
+- **Scope.** Simulations are run per **ecoregion-based study-area group** --- ecologically coherent bundles of adjacent forest tenures --- rather than as one monolithic run, with the per-tenure breakdown recovered through the reporting polygons.
+- **Post-processing.** Three v2 summary modules are consolidated into the new `NRV_summary` module plus the `nrvtools` package (report 03).
 
 # Modelling workflow
 
@@ -122,63 +106,41 @@ ggplot(wf) +
   theme_void()
 ```
 
-The `targets` pipeline runs the data-preparation stage once per study area (caching the
-study-area-independent species trait factorial), then crosses the prepared data with a set of
-stochastic replicates for the main simulation, and reduces the replicates into the NRV summaries.
-The generic `SpaDES`-to-`targets` glue lives in the owned `SpaDES.targets` package; heavy stages are
-dispatched across a small compute cluster via `crew.ssh` (report 03).
+The `targets` pipeline runs the data-preparation stage once per study area (caching the study-area-independent species trait factorial), then crosses the prepared data with a set of stochastic replicates for the main simulation, and reduces the replicates into the NRV summaries.
+The generic `SpaDES`-to-`targets` glue lives in the owned `SpaDES.targets` package; heavy stages are dispatched across a small compute cluster via `crew.ssh` (report 03).
 
 # Study areas
 
-v3 runs the model over a set of **ecoregion-based study-area groups** rather than one monolithic
-continental run (the v2 `LandWeb_full` run is dropped) or one run per forest tenure. Each group
-bundles forest tenures that are both **geographically adjacent** and **in the same ecological
-region**; it is parameterized, simulated, and summarized as a unit, and the per-tenure numbers
-partners need come from the *reporting polygons* (next section), not from running each tenure
-separately.
+v3 runs the model over a set of **ecoregion-based study-area groups** rather than one monolithic continental run (the v2 `LandWeb_full` run is dropped) or one run per forest tenure.
+Each group bundles forest tenures that are both **geographically adjacent** and **in the same ecological region**; it is parameterized, simulated, and summarized as a unit, and the per-tenure numbers partners need come from the *reporting polygons* (next section), not from running each tenure separately.
 
 ## Why groups, and why ecoregions
 
 Two problems drove the design, and neither is solved by running tenures individually.
 
-**Small tenures cannot be parameterized alone.** Species traits are fitted from permanent sample
-plot (PSP) data cropped to the study area. Run a small tenure by itself and its PSP catchment is too
-small --- per-species samples fall below the 50-plot minimum and the trait fit fails outright. This
-is not hypothetical: a solo run of a ~2,700 km^2^ Alberta tenure dies in
-`Biomass_speciesParameters` for exactly this reason. Small tenures therefore have to be run *inside*
-a larger area.
+**Small tenures cannot be parameterized alone.** Species traits are fitted from permanent sample plot (PSP) data cropped to the study area.
+Run a small tenure by itself and its PSP catchment is too small --- per-species samples fall below the 50-plot minimum and the trait fit fails outright.
+This is not hypothetical: a solo run of a ~2,700 km^2^ Alberta tenure dies in `Biomass_speciesParameters` for exactly this reason.
+Small tenures therefore have to be run *inside* a larger area.
 
-**But a larger area must be ecologically coherent.** Species traits legitimately differ between
-ecological regions, so a PSP pool that spans very different ecology produces fits that are wrong
-everywhere in it. Bundling tenures purely by proximity --- or by corporate ownership --- would do
-exactly that.
+**But a larger area must be ecologically coherent.** Species traits legitimately differ between ecological regions, so a PSP pool that spans very different ecology produces fits that are wrong everywhere in it.
+Bundling tenures purely by proximity --- or by corporate ownership --- would do exactly that.
 
-Two ecological units are therefore involved, at different levels, and it is worth keeping them
-apart:
+Two ecological units are therefore involved, at different levels, and it is worth keeping them apart:
 
-- **Group membership** --- which tenures are simulated together, and what the group is called ---
-  is set by **ecoregion**: each tenure is assigned to the ecoregion it mostly falls in, and the
-  group takes that ecoregion's name (`studyAreaCrosswalk(eco_field = "REGION_NAM")`). All 18 group
-  names are ecoregion names.
-- **The PSP catchment** used to fit species traits (`studyAreaANPP`) is **coarser still**: it is
-  the set of **ecoprovinces** the study area intersects. A single ecoregion does not supply enough
-  plots, which is exactly the failure that motivated the regrouping.
+- **Group membership** --- which tenures are simulated together, and what the group is called --- is set by **ecoregion**: each tenure is assigned to the ecoregion it mostly falls in, and the group takes that ecoregion's name (`studyAreaCrosswalk(eco_field = "REGION_NAM")`).
+  All 18 group names are ecoregion names.
+- **The PSP catchment** used to fit species traits (`studyAreaANPP`) is **coarser still**: it is the set of **ecoprovinces** the study area intersects.
+  A single ecoregion does not supply enough plots, which is exactly the failure that motivated the regrouping.
 
-So the groups are ecoregion-*defined* but their trait data are pooled at the ecoprovince level ---
-deliberately, to trade a little ecological specificity for a sample size that supports a fit.
+So the groups are ecoregion-*defined* but their trait data are pooled at the ecoprovince level --- deliberately, to trade a little ecological specificity for a sample size that supports a fit.
 
-A third consideration settled *how* membership is defined. The former study-area registry was keyed
-to companies and referenced tenure polygons by ID, and neither survives contact with updated
-boundary data: tenure IDs are re-issued between versions, and tenures change hands, so a polygon
-labelled for one licensee in an older file may belong to another today. Group membership is
-therefore established by **verified spatial overlap against the current boundary layer**, never by
-inherited labels --- geography and ecology are stable, corporate identity is not. The grouping is
-recorded in an explicit crosswalk (`LandWebUtils::studyAreaCrosswalk()`), which retains `company`
-and `province` columns so a licensee-driven rerun still maps cleanly onto the groups holding their
-tenures.
+A third consideration settled *how* membership is defined.
+The former study-area registry was keyed to companies and referenced tenure polygons by ID, and neither survives contact with updated boundary data: tenure IDs are re-issued between versions, and tenures change hands, so a polygon labelled for one licensee in an older file may belong to another today.
+Group membership is therefore established by **verified spatial overlap against the current boundary layer**, never by inherited labels --- geography and ecology are stable, corporate identity is not.
+The grouping is recorded in an explicit crosswalk (`LandWebUtils::studyAreaCrosswalk()`), which retains `company` and `province` columns so a licensee-driven rerun still maps cleanly onto the groups holding their tenures.
 
-The grouping layer is a parameter, not a constant: a coarser layer (ecoprovinces) yields fewer,
-larger groups and a finer one (ecodistricts) subdivides any group that proves too large to run.
+The grouping layer is a parameter, not a constant: a coarser layer (ecoprovinces) yields fewer, larger groups and a finer one (ecodistricts) subdivides any group that proves too large to run.
 
 ## The groups
 
@@ -222,44 +184,30 @@ if (length(sa_facet_pngs)) {
 }
 ```
 
-`r if (!is.null(sa_tab)) sprintf("The %d groups cover %s km^2^ across %d member tenures in British Columbia, Alberta, Saskatchewan, Manitoba, Ontario, and the Northwest Territories. They span roughly %s-fold in area (%s--%s km^2^), so run cost varies accordingly.", nrow(sa_tab), format(sum(sa_tab$area_km2), big.mark = ","), sum(sa_tab$n_members), round(max(sa_tab$area_km2) / min(sa_tab$area_km2)), format(min(sa_tab$area_km2), big.mark = ","), format(max(sa_tab$area_km2), big.mark = ","))`
-`r if (!is.null(sa_tab)) sprintf("The v3 pipeline was first validated end-to-end on **WesternAlbertaUpland** (group %d), whose %d member tenures make it the densest-tenure group and therefore the most demanding test of the per-tenure reporting described next.", sa_tab[group == "WesternAlbertaUpland", id], sa_tab[group == "WesternAlbertaUpland", n_members])`
+`r if (!is.null(sa_tab)) sprintf("The %d groups cover %s km^2^ across %d member tenures in British Columbia, Alberta, Saskatchewan, Manitoba, Ontario, and the Northwest Territories. They span roughly %s-fold in area (%s--%s km^2^), so run cost varies accordingly.", nrow(sa_tab), format(sum(sa_tab$area_km2), big.mark = ","), sum(sa_tab$n_members), round(max(sa_tab$area_km2) / min(sa_tab$area_km2)), format(min(sa_tab$area_km2), big.mark = ","), format(max(sa_tab$area_km2), big.mark = ","))` `r if (!is.null(sa_tab)) sprintf("The v3 pipeline was first validated end-to-end on **WesternAlbertaUpland** (group %d), whose %d member tenures make it the densest-tenure group and therefore the most demanding test of the per-tenure reporting described next.", sa_tab[group == "WesternAlbertaUpland", id], sa_tab[group == "WesternAlbertaUpland", n_members])`
 
 # Reporting polygons
 
-Results are summarized over **reporting polygons**: the tenure boundaries themselves, a set of
-sub-region layers (caribou ranges, Alberta Natural Subregions, BC biogeoclimatic zones, national
-ecozones/ecoregions, NWT ecoregions, parks), and --- restored in v3 --- the **crossings** of each
-tenure with each sub-region layer, so a partner sees their own share of each sub-region rather
-than a study-area-wide total. Crossed units are named `<tenure> <layer>` (e.g. `SprayLake ANSR`),
-and the sub-regions within them `<sub-region> <tenure>`. Crossing happens *before* the
-name-grouping that aggregates a sub-region's disjoint parts, so two tenures' shares of the same
-sub-region are never pooled.
+Results are summarized over **reporting polygons**: the tenure boundaries themselves, a set of sub-region layers (caribou ranges, Alberta Natural Subregions, BC biogeoclimatic zones, national ecozones/ecoregions, NWT ecoregions, parks), and --- restored in v3 --- the **crossings** of each tenure with each sub-region layer, so a partner sees their own share of each sub-region rather than a study-area-wide total.
+Crossed units are named `<tenure> <layer>` (e.g. `SprayLake ANSR`), and the sub-regions within them `<sub-region> <tenure>`.
+Crossing happens *before* the name-grouping that aggregates a sub-region's disjoint parts, so two tenures' shares of the same sub-region are never pooled.
 
 ::: {.callout-note}
 ## Caveats on the caribou range reporting
 
-**Alberta range granularity --- REVISIT.** Alberta caribou units are reported at the **range**
-level (`LOCALRANGE`, 15 ranges), matching v2. The source layer also carries a finer **sub-range**
-attribute (`SUBUNIT`, 26 units) which would, for example, report Algar, Egg-Pony, Wiau, Agnes,
-Bohn, Christina, and Wandering separately instead of together as East Side Athabasca. Range was
-chosen for continuity with v2 reporting, but the appropriate granularity should be confirmed with
-partners before the v3 reporting is finalized.
+**Alberta range granularity --- REVISIT.** Alberta caribou units are reported at the **range** level (`LOCALRANGE`, 15 ranges), matching v2.
+The source layer also carries a finer **sub-range** attribute (`SUBUNIT`, 26 units) which would, for example, report Algar, Egg-Pony, Wiau, Agnes, Bohn, Christina, and Wandering separately instead of together as East Side Athabasca.
+Range was chosen for continuity with v2 reporting, but the appropriate granularity should be confirmed with partners before the v3 reporting is finalized.
 
-**Northwest Territories ranges --- interim source.** The current combined caribou layer contains
-no NWT ranges, so NWT caribou reporting is supplemented with the single `Northwest Territories
-(NWT)` range polygon from the layer used before that update. NWT tenures therefore get one
-whole-territory caribou unit rather than a sub-region breakdown. A replacement has been identified
---- the Government of the Northwest Territories' *Boreal Caribou Range Planning Regions*, which
-subdivides the NT1 range into six named regions (Southern NWT, Sahtú, Wek'èezhìi, Gwich'in,
-Inuvialuit, Yukon) --- pending agreement on folding it into the maintained caribou layer.
+**Northwest Territories ranges --- interim source.** The current combined caribou layer contains no NWT ranges, so NWT caribou reporting is supplemented with the single `Northwest Territories (NWT)` range polygon from the layer used before that update.
+NWT tenures therefore get one whole-territory caribou unit rather than a sub-region breakdown.
+A replacement has been identified --- the Government of the Northwest Territories' *Boreal Caribou Range Planning Regions*, which subdivides the NT1 range into six named regions (Southern NWT, Sahtú, Wek'èezhìi, Gwich'in, Inuvialuit, Yukon) --- pending agreement on folding it into the maintained caribou layer.
 :::
 
 # This report suite
 
-The v3 documentation is organized as a numbered suite (this overview is report 00), plus the
-separate user manual. Reports are rendered from the pipeline so their figures and numbers stay
-consistent with the model.
+The v3 documentation is organized as a numbered suite (this overview is report 00), plus the separate user manual.
+Reports are rendered from the pipeline so their figures and numbers stay consistent with the model.
 
 ```{r}
 #| label: tbl-suite
@@ -295,10 +243,7 @@ knitr::kable(suite, align = "ll", booktabs = TRUE) |>
 
 # Provenance {.unnumbered}
 
-- **Source:** this overview is narrative; the workflow figure (@fig-workflow) is a fixed schematic
-  built in `ggplot2` from the current v3 module set (cf. the DiagrammeR source in
-  `R/model_workflow.R`).
-- **Method:** rendered by the gated `landweb.extended_analyses` factory as a
-  `tar_quarto()` target on the control node; no pipeline data dependencies.
+- **Source:** this overview is narrative; the workflow figure (@fig-workflow) is a fixed schematic built in `ggplot2` from the current v3 module set (cf. the DiagrammeR source in `R/model_workflow.R`).
+- **Method:** rendered by the gated `landweb.extended_analyses` factory as a `tar_quarto()` target on the control node; no pipeline data dependencies.
 
 {{< include _provenance-appendix.qmd >}}

@@ -46,33 +46,25 @@ clog <- fread(clog_csv)
 ::: {.callout-warning}
 **Draft report: pending human review**
 
-Portions of this document were drafted with the help of generative AI (large language models) and
-have not yet been fully reviewed by the co-authors.
+Portions of this document were drafted with the help of generative AI (large language models) and have not yet been fully reviewed by the co-authors.
 Content may be incomplete, inaccurate, or misattributed.
 This notice will be removed once a complete review has been carried out.
 :::
 
 # Overview
 
-LandWeb v3 is a substantial rebuild of the modelling infrastructure rather than a change of
-ecological content. The simulation science --- the `LandR` Biomass vegetation modules
-[@R-LandR] and the LandMine fire model --- is retained, but the way those modules are
-**orchestrated, cached, and dispatched** has been rewritten, and the input data modernized (see the
-study-area vegetation and fire-model-inputs reports). This report reconstructs the code and module
-changes across the v2 (2020--2023) to v3 (2024--2026) window.
+LandWeb v3 is a substantial rebuild of the modelling infrastructure rather than a change of ecological content.
+The simulation science --- the `LandR` Biomass vegetation modules [@R-LandR] and the LandMine fire model --- is retained, but the way those modules are **orchestrated, cached, and dispatched** has been rewritten, and the input data modernized (see the study-area vegetation and fire-model-inputs reports).
+This report reconstructs the code and module changes across the v2 (2020--2023) to v3 (2024--2026) window.
 
-NEWS files were not maintained across this window, so the change history here is reconstructed from
-each module's and package's **git log**. The per-component commit counts, last-update dates, and
-currently-pinned revisions are generated automatically (see the Appendix) and are therefore
-current as of this render.
+NEWS files were not maintained across this window, so the change history here is reconstructed from each module's and package's **git log**.
+The per-component commit counts, last-update dates, and currently-pinned revisions are generated automatically (see the Appendix) and are therefore current as of this render.
 
 # From manual orchestration to a targets pipeline
 
-The defining v3 change is orchestration. In v2, a chain of hand-run scripts
-(`00-main.R` ... `03-main-sim.R`) drove `simInit()`/`spades()` calls in sequence, persisting whole
-`simList` objects between stages and relying on the `reproducible` [@R-reproducible] cache for
-invalidation. In v3, a **`targets` pipeline** owns orchestration and caching; the SpaDES modules
-[@R-SpaDES.core] remain the simulation engine but are wrapped as targets.
+The defining v3 change is orchestration.
+In v2, a chain of hand-run scripts (`00-main.R` ... `03-main-sim.R`) drove `simInit()`/`spades()` calls in sequence, persisting whole `simList` objects between stages and relying on the `reproducible` [@R-reproducible] cache for invalidation.
+In v3, a **`targets` pipeline** owns orchestration and caching; the SpaDES modules [@R-SpaDES.core] remain the simulation engine but are wrapped as targets.
 
 | Concern | v2 (manual SpaDES) | v3 (targets pipeline) |
 |---|---|---|
@@ -83,29 +75,20 @@ invalidation. In v3, a **`targets` pipeline** owns orchestration and caching; th
 | Reps / scaling | ~15 reps/area, one machine | many reps; multi-node via `crew.ssh` |
 | Post-processing | 3 summary modules | consolidated into `NRV_summary` + `nrvtools` |
 
-The motivation was reliability, not preference: the `reproducible` cache and `saveSimList()` were
-fragile with environment references and `terra` pointers, and upstream framework churn (below) kept
-breaking long-running configurations. Routing caching and orchestration through `targets` --- which
-invalidates by content and rebuilds only what changed --- removed a large, recurring source of
-failure and made the multi-machine rep-scaling tractable. This is the PERFICT-style continuous,
-tested, reusable workflow argued for in @McIntire:2022 and @Barros2023, realized for LandWeb.
+The motivation was reliability, not preference: the `reproducible` cache and `saveSimList()` were fragile with environment references and `terra` pointers, and upstream framework churn (below) kept breaking long-running configurations.
+Routing caching and orchestration through `targets` --- which invalidates by content and rebuilds only what changed --- removed a large, recurring source of failure and made the multi-machine rep-scaling tractable.
+This is the PERFICT-style continuous, tested, reusable workflow argued for in @McIntire:2022 and @Barros2023, realized for LandWeb.
 
 # SpaDES module changes
 
-Each module is documented below with a high-level summary followed by grouped detail, reconstructed
-from its git history; commit magnitudes and current pins are in the Appendix. The recurring
-cross-cutting themes are **SCANFI data adoption** (replacing kNN/Beaudoin and NTEMS/Pickell inputs),
-the **qs2** serialization switch, **terra** migration, and adoption of **FOR-CAST forks** of the
-`Biomass_*` modules (pinned, self-backported). Modules are ordered by pipeline stage: data
-preparation, simulation, post-processing, then the retiring modules.
+Each module is documented below with a high-level summary followed by grouped detail, reconstructed from its git history; commit magnitudes and current pins are in the Appendix.
+The recurring cross-cutting themes are **SCANFI data adoption** (replacing kNN/Beaudoin and NTEMS/Pickell inputs), the **qs2** serialization switch, **terra** migration, and adoption of **FOR-CAST forks** of the `Biomass_*` modules (pinned, self-backported).
+Modules are ordered by pipeline stage: data preparation, simulation, post-processing, then the retiring modules.
 
 ## LandWeb_preamble
 
-The study-area/data-prep setup underwent a large Phase-0 rewrite onto `terra`/`tidyterra` for the
-`targets` pipeline, swapped in SCANFI as the current-conditions data source (with hand-rolled
-prepInputs/Drive workarounds), reworked the species set and labelling, and added Spray Lake + C5
-(Douglas-fir) landbases. As of mid-2026 Phase-0 runs end-to-end for SprayLake; several data steps
-(30 m CC maps, NTEMS age adjustment, mergeSlivers migration) remain TODO.
+The study-area/data-prep setup underwent a large Phase-0 rewrite onto `terra`/`tidyterra` for the `targets` pipeline, swapped in SCANFI as the current-conditions data source (with hand-rolled prepInputs/Drive workarounds), reworked the species set and labelling, and added Spray Lake + C5 (Douglas-fir) landbases.
+As of mid-2026 Phase-0 runs end-to-end for SprayLake; several data steps (30 m CC maps, NTEMS age adjustment, mergeSlivers migration) remain TODO.
 
 ### Phase-0 terra/targets port
 - ~938-line rewrite of `LandWeb_preamble.R` porting the module to `terra`/`tidyterra` for the targets pipeline; Phase-0 runs for SprayLake (c00e79a, 2026-06).
@@ -137,11 +120,9 @@ prepInputs/Drive workarounds), reworked the species set and labelling, and added
 
 ## Biomass_speciesData
 
-Migrated from raster/sp to terra/sf, then in v3's defining change switched its default tree-species
-cover source from NFI kNN to the 30 m SCANFI product (with kNN and several proprietary inventories
-retained as selectable `types`). Alongside this it gained more robust species inclusion/exclusion,
-CRS handling, caching tags, and modernized plotting/metadata. Runs on the FOR-CAST fork line (merged
-to main 2026-06-29).
+Migrated from raster/sp to terra/sf, then in v3's defining change switched its default tree-species cover source from NFI kNN to the 30 m SCANFI product (with kNN and several proprietary inventories retained as selectable `types`).
+Alongside this it gained more robust species inclusion/exclusion, CRS handling, caching tags, and modernized plotting/metadata.
+Runs on the FOR-CAST fork line (merged to main 2026-06-29).
 
 ### SCANFI species-layer adoption (replacing kNN)
 - Changed the default `types` parameter from "KNN" to "SCANFI", the 30 m Spatialized Canadian National Forest Inventory product, driven via `LandR::prepSpeciesLayers_SCANFI` (2e3fdc0, 2025-09).
@@ -163,12 +144,8 @@ to main 2026-06-29).
 
 ## Biomass_borealDataPrep
 
-Ingests national forest-inventory rasters (land cover, stand age, species cover, biomass) and fits
-the statistical models (biomass vs. age/cover, maxB, maxANPP, species establishment, per ecoregion x
-land-cover group) that parameterize `Biomass_core`. The headline v3 changes were a full terra
-migration, moving the input data pipeline from CASFRI/kNN/NTEMS to SCANFI, new longevity-vs-age and
-young-biomass corrections, and hardening of the nested `Biomass_core` run; it remains the heaviest
-and most actively developed module (currently v1.5.12).
+Ingests national forest-inventory rasters (land cover, stand age, species cover, biomass) and fits the statistical models (biomass vs. age/cover, maxB, maxANPP, species establishment, per ecoregion x land-cover group) that parameterize `Biomass_core`.
+The headline v3 changes were a full terra migration, moving the input data pipeline from CASFRI/kNN/NTEMS to SCANFI, new longevity-vs-age and young-biomass corrections, and hardening of the nested `Biomass_core` run; it remains the heaviest and most actively developed module (currently v1.5.12).
 
 ### Input data: terra migration and SCANFI/NTEMS
 - Ported all spatial I/O from sp/raster to terra `SpatRaster`/`SpatVector`, replacing `compareRaster`/`spTransform`/`postProcess` with `.compareRas`/`projectTo`/`postProcessTo` (2023).
@@ -199,11 +176,8 @@ and most actively developed module (currently v1.5.12).
 
 ## Biomass_speciesParameters
 
-Substantially reworked in v3: the GAMM-based growth-curve machinery was replaced with lighter
-non-linear growth curves fit to a modernized PSPclean data pipeline, the big-data backend moved from
-the deprecated disk.frame to arrow, and a new opt-in LANDIS mode exposes fitted curves as LANDIS-II
-Biomass Succession inputs. Runs on the FOR-CAST fork line (merged to main 2026-06-29), currently
-v3.0.1.
+Substantially reworked in v3: the GAMM-based growth-curve machinery was replaced with lighter non-linear growth curves fit to a modernized PSPclean data pipeline, the big-data backend moved from the deprecated disk.frame to arrow, and a new opt-in LANDIS mode exposes fitted curves as LANDIS-II Biomass Succession inputs.
+Runs on the FOR-CAST fork line (merged to main 2026-06-29), currently v3.0.1.
 
 ### PSP data / PSPclean pipeline
 - Removed ~200 lines of in-module PSP input handling in favour of the external PSPclean package; added New Brunswick data (2023-12).
@@ -228,10 +202,7 @@ v3.0.1.
 
 ## Biomass_speciesFactorial
 
-A smaller module retooled in v3 for the targets pipeline: `registerOutputs` wiring, qs2/arrow storage
-backends, decoupled (no-longer-always-run) execution, and a June-2026 push to pin and correctly
-resource the nested Biomass_core run. Runs on the FOR-CAST fork line (merged to main 2026-06-29),
-currently v1.0.4.
+A smaller module retooled in v3 for the targets pipeline: `registerOutputs` wiring, qs2/arrow storage backends, decoupled (no-longer-always-run) execution, and a June-2026 push to pin and correctly resource the nested Biomass_core run. Runs on the FOR-CAST fork line (merged to main 2026-06-29), currently v1.0.4.
 
 ### registerOutputs wiring for targets
 - Introduced `registerOutputs` to expose factorial products to the pipeline (2026-01); iterated through breakage after an earlier "can't registerOutputs until it's fixed" hold; final fix required strict character-type arguments (2026-06).
@@ -249,9 +220,7 @@ currently v1.0.4.
 
 ## Biomass_core
 
-The most heavily developed of the simulation modules: a new diagnostic/transition plotting suite,
-ggplot2 v4 and cli migration, a SCANFI-driven v2.0.0 species-layer refactor, restored LandR.CS
-climate-sensitive support, and a long tail of cohort-correctness and dependency modernisation.
+The most heavily developed of the simulation modules: a new diagnostic/transition plotting suite, ggplot2 v4 and cli migration, a SCANFI-driven v2.0.0 species-layer refactor, restored LandR.CS climate-sensitive support, and a long tail of cohort-correctness and dependency modernisation.
 Active on the adopted FOR-CAST fork line (main merged 2026-06-29), currently v2.0.2.
 
 ### Diagnostic and transition plotting
@@ -276,9 +245,7 @@ Active on the adopted FOR-CAST fork line (main merged 2026-06-29), currently v2.
 
 ## Biomass_regeneration
 
-The lightest-touch module: essentially maintenance in the v3 window, focused on aligning cohort
-definitions with Biomass_core/LandR, finishing the terra migration, and metadata/manual
-housekeeping. Stable; currently v1.0.1.
+The lightest-touch module: essentially maintenance in the v3 window, focused on aligning cohort definitions with Biomass_core/LandR, finishing the terra migration, and metadata/manual housekeeping. Stable; currently v1.0.1.
 
 ### LandR cohort-definition alignment
 - Added `loadOrder = list(after = "Biomass_core")` (2024-01); adopted the updated `LandR::cohortDefinitionCols()`, ensuring cohorts are not defined by `ecoregionGroup` or `B` (2024).
@@ -289,11 +256,8 @@ housekeeping. Stable; currently v1.0.1.
 
 ## LandMine
 
-The fire model was ported off `raster`/`quickPlot` onto `terra`/`ggplot2` and its spread parameters
-re-fit with DEoptim for 240 m pixels, while the reburn logic, "burny" discontinuous-fuel handling,
-and reproducible/SpaDES plumbing were hardened. As of mid-2026 the terra rewrite runs and object
-names are aligned to the scfm/fireSense convention; a few pieces (registerOutputs) are freshly
-re-enabled.
+The fire model was ported off `raster`/`quickPlot` onto `terra`/`ggplot2` and its spread parameters re-fit with DEoptim for 240 m pixels, while the reburn logic, "burny" discontinuous-fuel handling, and reproducible/SpaDES plumbing were hardened.
+As of mid-2026 the terra rewrite runs and object names are aligned to the scfm/fireSense convention; a few pieces (registerOutputs) are freshly re-enabled.
 
 ### terra migration (away from raster/quickPlot)
 - Large 2025-10 rewrite converting all I/O metadata from `Raster` to `SpatRaster`, dropping `quickPlot`/`fasterize`/`magrittr` for `terra`/`tidyterra`; replaced `compareRaster` with `terra::compareGeom` and `raster()`/`freq` with `terra::rast`/`terra::freq` (aea149b, 2025-10).
@@ -315,10 +279,8 @@ re-enabled.
 
 ## NRV_summary
 
-New-for-v3 consolidated post-processing module (first drafted Oct 2022 from a BC NRV script, matured
-2024-2026); it computes natural-range-of-variation summaries (leading vegetation, age classes, large
-patches, seral stages) over reporting polygons and **supersedes the older `LandWeb_summary`,
-`timeSinceFire`, and `LandWeb_output` modules**. Functional in both single and multi modes.
+New-for-v3 consolidated post-processing module (first drafted Oct 2022 from a BC NRV script, matured 2024-2026); it computes natural-range-of-variation summaries (leading vegetation, age classes, large patches, seral stages) over reporting polygons and **supersedes the older `LandWeb_summary`, `timeSinceFire`, and `LandWeb_output` modules**.
+Functional in both single and multi modes.
 
 ### Module consolidation and single/multi mode
 - Converted the standalone BC NRV post-processing script into a SpaDES module (2022-10).
@@ -327,13 +289,9 @@ patches, seral stages) over reporting polygons and **supersedes the older `LandW
 
 ### Caribou reporting units: v2 → v3 crosswalk
 
-v3 assembles caribou ranges from the six jurisdictional sources
-(`LandWebUtils::buildCaribouRanges()`; see the provenance report for *why*), where v2 labelled its
-boreal units from ECCC's national layer --- `Bistcho (BIS)`, `Saskatchewan Boreal Plains (BPL)`, and so
-on. **The ground barely moved, but the unit names did**, and reporting units are keyed by name
-(`refCode` is slugged from it). A v2-to-v3 comparison therefore **cannot match on name**; it has to match
-on geometry. `scripts/make_caribou_crosswalk.R` produces that mapping once, to
-`outputs/_reference/caribouCrosswalk.csv`.
+v3 assembles caribou ranges from the six jurisdictional sources (`LandWebUtils::buildCaribouRanges()`; see the provenance report for *why*), where v2 labelled its boreal units from ECCC's national layer --- `Bistcho (BIS)`, `Saskatchewan Boreal Plains (BPL)`, and so on.
+**The ground barely moved, but the unit names did**, and reporting units are keyed by name (`refCode` is slugged from it).
+A v2-to-v3 comparison therefore **cannot match on name**; it has to match on geometry. `scripts/make_caribou_crosswalk.R` produces that mapping once, to `outputs/_reference/caribouCrosswalk.csv`.
 
 ```{r}
 #| label: tbl-caribou-crosswalk
@@ -383,21 +341,14 @@ if (!is.null(cw)) {
 }
 ```
 
-The two **`retired`** units are `Burnt Pine` and `Central Rockies`. Both are British Columbia mountain
-herds that the v2-era data carried with status `Herd` and that British Columbia **now flags as
-`Extirpated`** --- so their disappearance is v3's extirpation filter working as intended, not a gap.
-(All five herds British Columbia currently flags extirpated are mountain ecotype; the other three fall
-outside this area of interest.)
+The two **`retired`** units are `Burnt Pine` and `Central Rockies`.
+Both are British Columbia mountain herds that the v2-era data carried with status `Herd` and that British Columbia **now flags as `Extirpated`** --- so their disappearance is v3's extirpation filter working as intended, not a gap.
+(All five herds British Columbia currently flags extirpated are mountain ecotype; the other three fall outside this area of interest.)
 
-The eighteen **`added`** units are almost all **Ontario** (`Brightsand`, `Churchill`, `James Bay`,
-`Kinloch`, `Missisa`, `Nipigon`, `Ozhiski`, `Pagwachuan`, `Spirit`, `Swan`, `Sydney`, `Berens`,
-`Atikaki-Berens`), which v2's consolidated layer simply did not contain, plus the Manitoba provincial
-units (`Molson`, `Owl-Flintstone`, `Partridge Crop`) that v2 sourced from a *separate* per-study-area
-layer rather than the consolidated one, `Sahtu` from the GNWT sub-regions, and `Wells Gray South`. So
-these are units v3 gains by assembling all six jurisdictions uniformly, not units invented from nowhere.
+The eighteen **`added`** units are almost all **Ontario** (`Brightsand`, `Churchill`, `James Bay`, `Kinloch`, `Missisa`, `Nipigon`, `Ozhiski`, `Pagwachuan`, `Spirit`, `Swan`, `Sydney`, `Berens`, `Atikaki-Berens`), which v2's consolidated layer simply did not contain, plus the Manitoba provincial units (`Molson`, `Owl-Flintstone`, `Partridge Crop`) that v2 sourced from a *separate* per-study-area layer rather than the consolidated one, `Sahtu` from the GNWT sub-regions, and `Wells Gray South`.
+So these are units v3 gains by assembling all six jurisdictions uniformly, not units invented from nowhere.
 
-The remaining classes fall out by jurisdiction in a way that tracks exactly which source v2 had been
-using:
+The remaining classes fall out by jurisdiction in a way that tracks exactly which source v2 had been using:
 
 - **`renamed` is entirely Alberta** (10 pairs, all 100% overlap both ways). v2 took Alberta's *boreal* ranges from ECCC and v3 takes them from Alberta, and the two polygons are geometrically identical --- so only the label changes (`Cold Lake (CLA)` → `Cold Lake`).
 - **`identical` is Alberta and British Columbia mountain/northern herds**, which v2 already sourced provincially, so nothing changed at all.
@@ -408,19 +359,10 @@ using:
 ::: {.callout-note}
 ## Resolved: Alberta reports at subunit granularity
 
-The crosswalk exposed a choice that no single setting resolves, and it has been settled in favour of the
-**finer** option. v3 labels Alberta on `SUBUNIT`, which reproduces v2 for the **mountain** ranges
-(`A La Peche`, `Narraway` and `Redrock-Prairie Creek` were three separate v2 units, all subunits of the
-one `LOCALRANGE` `"West Central"`) and reports **finer than v2** for exactly one boreal range:
-`East Side Athabasca River` resolves into its 7 subunits --- `Agnes`, `Algar`, `Bohn`, `Christina`,
-`Egg-Pony`, `Wandering`, `Wiau`.
+The crosswalk exposed a choice that no single setting resolves, and it has been settled in favour of the **finer** option. v3 labels Alberta on `SUBUNIT`, which reproduces v2 for the **mountain** ranges (`A La Peche`, `Narraway` and `Redrock-Prairie Creek` were three separate v2 units, all subunits of the one `LOCALRANGE` `"West Central"`) and reports **finer than v2** for exactly one boreal range: `East Side Athabasca River` resolves into its 7 subunits --- `Agnes`, `Algar`, `Bohn`, `Christina`, `Egg-Pony`, `Wandering`, `Wiau`.
 
-Neither setting reproduces v2 alone, because v2 did not use one source for Alberta: its boreal units
-came from ECCC at range level and its mountain units from Alberta at subunit level. `LOCALRANGE` would
-invert the problem, matching v2's boreal ranges while collapsing the three mountain ranges into one.
-Since `East Side Athabasca River` is the **only** Alberta range where the two granularities differ ---
-every other one is 1:1 with both v2 and ECCC --- the finer breakdown is kept, and v2 comparisons for
-that one range aggregate its 7 subunits.
+Neither setting reproduces v2 alone, because v2 did not use one source for Alberta: its boreal units came from ECCC at range level and its mountain units from Alberta at subunit level. `LOCALRANGE` would invert the problem, matching v2's boreal ranges while collapsing the three mountain ranges into one.
+Since `East Side Athabasca River` is the **only** Alberta range where the two granularities differ --- every other one is 1:1 with both v2 and ECCC --- the finer breakdown is kept, and v2 comparisons for that one range aggregate its 7 subunits.
 :::
 ### reportingPolygons named-list (replacing the map/ml god-object)
 - Removed the `ml` (map list) output object entirely (2026-03).
@@ -440,10 +382,8 @@ that one range aggregate its 7 subunits.
 
 ## burnSummaries
 
-Fire/burn post-processing module extracted from the main LandWeb repo (Sep 2023) for v3; it derives
-burn maps, fire-size distributions, cumulative (mean-annual) burn history, and time-since-fire from
-simulation outputs, comparing simulated to observed/expected fire regimes. Functional in single and
-multi modes, currently v1.0.2.9001.
+Fire/burn post-processing module extracted from the main LandWeb repo (Sep 2023) for v3; it derives burn maps, fire-size distributions, cumulative (mean-annual) burn history, and time-since-fire from simulation outputs, comparing simulated to observed/expected fire regimes.
+Functional in single and multi modes, currently v1.0.2.9001.
 
 ### Module origin and single/multi mode
 - Moved burn post-processing out of the main LandWeb repo into a self-contained module (2023-09); reached v1.0.0 with an scfm update and terra adoption (2024-06).
@@ -461,9 +401,8 @@ multi modes, currently v1.0.2.9001.
 
 ## LandWeb_summary
 
-The v2 post-processing/reporting module that aggregated per-rep LandR outputs into leading-species,
-large-patch, and stand-age products. **In v3 it is superseded by NRV_summary + nrvtools**, which fold
-in-simulation per-rep saves and post-hoc aggregation into one two-phase workflow.
+The v2 post-processing/reporting module that aggregated per-rep LandR outputs into leading-species, large-patch, and stand-age products.
+**In v3 it is superseded by NRV_summary + nrvtools**, which fold in-simulation per-rep saves and post-hoc aggregation into one two-phase workflow.
 
 ### Reporting-polygon and tiling refactor
 - Moved from a monolithic `map` object toward a `reportingPolygons` list (WIP, 2025-08); removed the `.makeTiles` parameter, dropping the old tiling path (2026-01).
@@ -477,9 +416,8 @@ in-simulation per-rep saves and post-hoc aggregation into one two-phase workflow
 
 ## LandWeb_output
 
-The v2 module that wrote per-simulation LandR output maps (notably the stand-age map) to disk for
-downstream reporting. **In v3 it is retired**, superseded by NRV_summary's in-simulation per-rep
-saves plus nrvtools.
+The v2 module that wrote per-simulation LandR output maps (notably the stand-age map) to disk for downstream reporting.
+**In v3 it is retired**, superseded by NRV_summary's in-simulation per-rep saves plus nrvtools.
 
 ### terra adoption and stand-age from cohorts
 - Switched from raster to terra (2023-09); produced `standAgeMap` from `cohortData` (biomass-weighted ages), bumping the LandR version requirement (2023-10).
@@ -489,9 +427,8 @@ saves plus nrvtools.
 
 ## timeSinceFire
 
-The v2 module that computed and wrote the time-since-fire (TSF) raster used by stand-age and
-reporting. **In v3 it is retired**: TSF is now derived post-hoc, and its role is superseded by
-NRV_summary + nrvtools.
+The v2 module that computed and wrote the time-since-fire (TSF) raster used by stand-age and reporting.
+**In v3 it is retired**: TSF is now derived post-hoc, and its role is superseded by NRV_summary + nrvtools.
 
 ### terra/raster migration and paths
 - Reverted to raster from terra to fix a `compareGeom()` `ext`/`extent` mismatch (2023-09), then later re-migrated to terra with refreshed docs (2025-10); removed a duplicate metadata block left by a merge (2026-02).
@@ -502,8 +439,7 @@ NRV_summary + nrvtools.
 
 ## HSI_Caribou_MB
 
-Manitoba caribou habitat-suitability-index module; only light maintenance since 2023, and retained
-(not retired) in v3.
+Manitoba caribou habitat-suitability-index module; only light maintenance since 2023, and retained (not retired) in v3.
 
 ### Maintenance
 - Fixed a partial-match warning by renaming the `rasterListByPoly()` argument `poly` to `polys` (2024-02).
@@ -511,20 +447,18 @@ Manitoba caribou habitat-suitability-index module; only light maintenance since 
 
 # Owned R packages
 
-Much of v3 lives in packages the project owns and CI-tests, several created specifically for the
-refactor. These absorb the generic glue (so the modules stay thin) and the LandWeb-specific logic.
+Much of v3 lives in packages the project owns and CI-tests, several created specifically for the refactor.
+These absorb the generic glue (so the modules stay thin) and the LandWeb-specific logic.
 
 ## SpaDES.targets
 
-A new-for-v3 package that is the SpaDES-to-targets firewall and glue: it runs a
-`simInitAndSpades()` stage in-process as a `targets` stage and, instead of serializing the whole
-`simList`, returns a manifest of the files the stage saved (discovered from `outputs(sim)`) as
-`format = "file"` targets, plus a hard options "firewall" that disables the destructive/non-headless
-`reproducible`/`SpaDES.core` behaviours. Entire history is June 2026.
+A new-for-v3 package that is the SpaDES-to-targets firewall and glue: it runs a `simInitAndSpades()` stage in-process as a `targets` stage and, instead of serializing the whole `simList`, returns a manifest of the files the stage saved (discovered from `outputs(sim)`) as `format = "file"` targets, plus a hard options "firewall" that disables the destructive/non-headless `reproducible`/`SpaDES.core` behaviours.
+Entire history is June 2026.
 
 ### The options firewall
 - `spades_safe_options()` / `with_spades_safe_options()`: the single adapter that makes `targets` the sole cache and disables destructive/non-headless-safe behaviours -- `reproducible.useCache/useMemoise/useCloud = FALSE`, `spades.saveSimOnExit = FALSE` (never serialize a simList), `spades.browserOnError = FALSE` and `reproducible.interactiveOnDownloadFail = FALSE` (guard a worker hanging on `browser()`/a download prompt), and recoveryMode/futureEvents/allowInitDuringSimInit off.
-- A `strict = TRUE` switch turns development diagnostics back on; production default leaves them off for speed/memory. A cross-version rename shim sets both retired and current option names (e.g. `reproducible.rasterRead = "terra::rast"`); audited against SpaDES.core 3.1.2.9016 / reproducible 3.1.1.9062.
+- A `strict = TRUE` switch turns development diagnostics back on; production default leaves them off for speed/memory.
+  A cross-version rename shim sets both retired and current option names (e.g. `reproducible.rasterRead = "terra::rast"`); audited against SpaDES.core 3.1.2.9016 / reproducible 3.1.1.9062.
 
 ### The outputs(sim) manifest API
 - `extract_outputs()` reads the files a stage actually saved after a run and returns a `manifest` plus a `files` vector, capturing per-timestep saves, module `registerOutputs()` dumps, and `Plots()` figures with no a-priori declaration (replaced the older `extract_components()`, a breaking change) (2026-06-26).
@@ -541,9 +475,8 @@ A new-for-v3 package that is the SpaDES-to-targets firewall and glue: it runs a
 
 ## spatialutils
 
-A new-for-v3 package collecting generic, project-agnostic `sf`/`terra` spatial helpers: a robust
-vector-prep pipeline, polygon cleaning/overlay operations, and small convenience wrappers. It
-underpins the v3 reporting/preamble geometry handling.
+A new-for-v3 package collecting generic, project-agnostic `sf`/`terra` spatial helpers: a robust vector-prep pipeline, polygon cleaning/overlay operations, and small convenience wrappers.
+It underpins the v3 reporting/preamble geometry handling.
 
 ### Vector prep pipeline
 - `prep_vector()` (2026-06-25) crops, masks, and reprojects a vector to a study area while guaranteeing valid topology: source-CRS pre-crop, `terra::makeValid()` repair, optional `mask`, and a configurable `buffer`.
@@ -558,10 +491,8 @@ underpins the v3 reporting/preamble geometry handling.
 
 ## nrvtools
 
-A new-for-v3 package providing reusable analytics for Natural Range of Variability (NRV) simulation
-outputs: patch- and landscape-level metrics, seral-stage mapping, configurable metric sets, baked-in
-Canadian ecological polygons, and ggplot2 summary plots. It is the shared engine behind the v3
-NRV_summary/burnSummaries reporting.
+A new-for-v3 package providing reusable analytics for Natural Range of Variability (NRV) simulation outputs: patch- and landscape-level metrics, seral-stage mapping, configurable metric sets, baked-in Canadian ecological polygons, and ggplot2 summary plots.
+It is the shared engine behind the v3 NRV_summary/burnSummaries reporting.
 
 ### Patch and landscape metrics engine
 - Core exports `calculatePatchMetrics()`/`calculatePatchMetricsSeral()` (v0.0.2, 2024-05) and `calculateLandscapeMetrics()`, plus lower-level `patchStats()`/`patchAreas()`/`summarizePatchMetrics()` helpers.
@@ -580,10 +511,8 @@ NRV_summary/burnSummaries reporting.
 
 ## workflowtools
 
-A new-for-v3 grab-bag of project-workflow helpers for large SpaDES/targets projects: idempotent
-"once" download/extract helpers, Google Drive and Microsoft Teams/SharePoint sync, an input-data
-manifest with one-way BibTeX export, and git+renv reproducibility/provenance capture. First committed
-2023-09, reaching v0.0.13 (2026-06-09).
+A new-for-v3 grab-bag of project-workflow helpers for large SpaDES/targets projects: idempotent "once" download/extract helpers, Google Drive and Microsoft Teams/SharePoint sync, an input-data manifest with one-way BibTeX export, and git+renv reproducibility/provenance capture.
+First committed 2023-09, reaching v0.0.13 (2026-06-09).
 
 ### Idempotent "once" fetch/extract helpers
 - `download_once()` and `drive_download_once()` skip the transfer when the destination exists; `archive_extract_once()` skips re-extraction when the target files are present (selection by filename or numeric index, plus `force`) (2026-03).
@@ -602,10 +531,9 @@ manifest with one-way BibTeX export, and git+renv reproducibility/provenance cap
 
 ## crew.ssh
 
-A new-for-v3, experimental, currently private `crew` launcher plugin that runs `targets` workers on
-remote machines over SSH, to distribute a pipeline across several computers on a trusted local
-network. Workers are placed across nodes by per-node capacity weight so heterogeneous machines share
-one controller -- a lightweight counterpart to `crew.cluster`. All history is June 2026 (v0.0.4).
+A new-for-v3, experimental, currently private `crew` launcher plugin that runs `targets` workers on remote machines over SSH, to distribute a pipeline across several computers on a trusted local network.
+Workers are placed across nodes by per-node capacity weight so heterogeneous machines share one controller -- a lightweight counterpart to `crew.cluster`.
+All history is June 2026 (v0.0.4).
 
 ### SSH launcher, controller, and node model
 - `crew_class_launcher_ssh` (R6) places workers across nodes in proportion to per-node capacities; `crew_controller_ssh()` creates the SSH controller; `crew_ssh_node()` describes one machine (host, capacity, optional `rscript`/`projdir`/`ssh_options`) for heterogeneous clusters.
@@ -620,9 +548,7 @@ one controller -- a lightweight counterpart to `crew.cluster`. All history is Ju
 
 ## LandWebUtils
 
-Pre-existing LandWeb-specific helper package, **heavily refactored for v3**: migrated off `sp`/`raster`
-to `sf`/`terra`, slimmed its dependency stack (notably dropping `LandR`), and gained a
-reporting-polygon/study-area builder plus test and formatting infrastructure.
+Pre-existing LandWeb-specific helper package, **heavily refactored for v3**: migrated off `sp`/`raster` to `sf`/`terra`, slimmed its dependency stack (notably dropping `LandR`), and gained a reporting-polygon/study-area builder plus test and formatting infrastructure.
 
 ### Consolidating LandWeb and LandMine logic
 - Absorbed LandWeb-specific functions formerly in `LandR` (2023-01) and the LandMine module functions (2023-09): `landmine_burn1()`, the `landmine_optim_*` cluster/fit family, and diagnostic plots `landmine_plot_FRI`/`_LTHFC`/`_areaBurnedOverTime`; extended `landmine_burn1()` for "burny" scenarios and switched optimization to `parallelly` clusters (2024-2025).
@@ -640,24 +566,15 @@ reporting-polygon/study-area builder plus test and formatting infrastructure.
 
 # Framework changes and the dependency firewall
 
-The recurring difficulty across v3 was not the ecological code but upstream framework practice.
-`SpaDES.core` [@R-SpaDES.core] and `reproducible` [@R-reproducible] ship large, non-atomic commits
-(fixes bundled with regressions) and periodically change user-facing APIs; because fixes are not
-backported, the only way to obtain one is the unstable development branch. LandWeb v3 insulates
-itself with a layered strategy:
+The recurring difficulty across v3 was not the ecological code but upstream framework practice. `SpaDES.core` [@R-SpaDES.core] and `reproducible` [@R-reproducible] ship large, non-atomic commits (fixes bundled with regressions) and periodically change user-facing APIs; because fixes are not backported, the only way to obtain one is the unstable development branch.
+LandWeb v3 insulates itself with a layered strategy:
 
-- **Pin exact revisions.** Modules and framework packages are pinned to specific SHAs (the
-  `Biomass_*` modules to FOR-CAST forks' `main`, not upstream `development`), so an upstream change
-  cannot silently alter a run.
-- **One anti-corruption layer.** All `SpaDES.core` / `reproducible` touch-points funnel through the
-  owned `SpaDES.targets` package. Its `spades_safe_options()` asserts a hardened set of ~14 options
-  (disabling destructive/unsafe development defaults, and `reproducible.useCache = FALSE` so
-  `targets` owns all caching). An upstream break becomes one adapter fix, not many.
-- **Refactor what we own; wrap the rest.** Owned modules (`LandWeb_preamble`, `burnSummaries`,
-  `NRV_summary`) are refactored directly; the shared `Biomass_*` modules + `LandMine` are wrapped
-  and fork-pinned.
-- **Discrete object hand-off.** Events increasingly pass plain objects rather than serialized
-  `simList`s, so `targets` can drive the modules directly.
+- **Pin exact revisions.** Modules and framework packages are pinned to specific SHAs (the `Biomass_*` modules to FOR-CAST forks' `main`, not upstream `development`), so an upstream change cannot silently alter a run.
+- **One anti-corruption layer.** All `SpaDES.core` / `reproducible` touch-points funnel through the owned `SpaDES.targets` package.
+  Its `spades_safe_options()` asserts a hardened set of ~14 options (disabling destructive/unsafe development defaults, and `reproducible.useCache = FALSE` so `targets` owns all caching).
+  An upstream break becomes one adapter fix, not many.
+- **Refactor what we own; wrap the rest.** Owned modules (`LandWeb_preamble`, `burnSummaries`, `NRV_summary`) are refactored directly; the shared `Biomass_*` modules + `LandMine` are wrapped and fork-pinned.
+- **Discrete object hand-off.** Events increasingly pass plain objects rather than serialized `simList`s, so `targets` can drive the modules directly.
 
 Concrete upstream issues encountered and worked around:
 
@@ -670,66 +587,47 @@ Concrete upstream issues encountered and worked around:
 | reproducible #447 (WONTFIX) | service-account Drive auth deprecated | direct `googledrive::drive_auth()` |
 | nested-module `reqdPkgs` | inner `simInit` skips loading required pkgs | re-assert `loadReqdPkgs = TRUE` before nested run |
 
-Platform-wise, v3 moved to **R 4.6** (from 4.5), forcing a clang-21 rebuild and a full `renv`
-relock, and adopted `qs2`, `cli`, `tidyterra`, `exactextractr`, `landscapemetrics`, and
-`parallelly`.
+Platform-wise, v3 moved to **R 4.6** (from 4.5), forcing a clang-21 rebuild and a full `renv` relock, and adopted `qs2`, `cli`, `tidyterra`, `exactextractr`, `landscapemetrics`, and `parallelly`.
 
 # Current-conditions land cover: a deliberate change from v2 {#sec-cc-lcc-change}
 
-v2 took current conditions from a 250 m `LandType1.tif` carrying six classes (0--2 tree,
-3 shrub/wetland/grassland, 4 water/rock/ice, 5 no-data/cropland). v3 replaces it with the **2020
-Land Cover of Canada** (NALCMS/CCRS, 30 m) --- see report 06 for why that product rather than
-SCANFI. Three consequences are behaviour changes rather than ports, and are recorded here because
-none is evident from reading the code.
+v2 took current conditions from a 250 m `LandType1.tif` carrying six classes (0--2 tree, 3 shrub/wetland/grassland, 4 water/rock/ice, 5 no-data/cropland). v3 replaces it with the **2020 Land Cover of Canada** (NALCMS/CCRS, 30 m) --- see report 06 for why that product rather than SCANFI.
+Three consequences are behaviour changes rather than ports, and are recorded here because none is evident from reading the code.
 
-**1. Urban is now reclassified rather than treated as barren.** v2's current-conditions layer had
-*no* urban class. In the interim v3 state urban was invisible: SCANFI folds it into the `30`
-(rock/barren) code, so urban pixels became a non-tree class and were then dropped from
-`rasterToMatch` along with the rest of the non-forest landscape. They are now sent to `99` and
-reclassified by `LandR::convertUnwantedLCC()`, which draws each replaced pixel's new class from the
-available classes around it. That is the appropriate treatment for an HRV/NRV simulation, which
-approximates a **pre-industrial** landscape.
+**1. Urban is now reclassified rather than treated as barren.** v2's current-conditions layer had *no* urban class.
+In the interim v3 state urban was invisible: SCANFI folds it into the `30` (rock/barren) code, so urban pixels became a non-tree class and were then dropped from `rasterToMatch` along with the rest of the non-forest landscape.
+They are now sent to `99` and reclassified by `LandR::convertUnwantedLCC()`, which draws each replaced pixel's new class from the available classes around it.
+That is the appropriate treatment for an HRV/NRV simulation, which approximates a **pre-industrial** landscape.
 
-**2. The current-condition reference is no longer the simulation's own year-0 state.**
-`NRV_summary` read `rep01/vegTypeMap_year0000.tif` as the current-conditions snapshot. Once urban is
-imputed to forest (change 1), that snapshot would report imputed forest as **real current forest**
---- precisely what the change exists to avoid. The year-0 rasters are now masked by a reporting copy
-of the land cover in which urban is retained. Urban is the only class that needs this: water,
-barren and snow-ice are sent to `NA` on both sides.
+**2. The current-condition reference is no longer the simulation's own year-0 state.** `NRV_summary` read `rep01/vegTypeMap_year0000.tif` as the current-conditions snapshot.
+Once urban is imputed to forest (change 1), that snapshot would report imputed forest as **real current forest** --- precisely what the change exists to avoid.
+The year-0 rasters are now masked by a reporting copy of the land cover in which urban is retained.
+Urban is the only class that needs this: water, barren and snow-ice are sent to `NA` on both sides.
 
-**3. The envelope and the current-condition marker are therefore computed on landscapes that
-differ.** Urban pixels are forest in the simulated envelope and non-forest in the reported current
-condition. This is intentional. Land conversion is a genuine component of departure from HRV, and
-netting it out by using one layer for both would make it invisible.
+**3. The envelope and the current-condition marker are therefore computed on landscapes that differ.** Urban pixels are forest in the simulated envelope and non-forest in the reported current condition.
+This is intentional.
+Land conversion is a genuine component of departure from HRV, and netting it out by using one layer for both would make it invisible.
 
-The magnitude is small but was measured rather than assumed. Across the 54 FMA reporting polygons
-(72.7 Mha), urban covers **0.50% at 30 m and 0.15% at the 240 m simulation resolution** --- modal
-aggregation suppresses it 3.4x. Twenty-five of 54 FMAs fall below 0.1%; the maximum in any single
-FMA is 1.44% (Cranbrook TSA, whose valley settlements are compact enough to win 240 m cells).
+The magnitude is small but was measured rather than assumed.
+Across the 54 FMA reporting polygons (72.7 Mha), urban covers **0.50% at 30 m and 0.15% at the 240 m simulation resolution** --- modal aggregation suppresses it 3.4x.
+Twenty-five of 54 FMAs fall below 0.1%; the maximum in any single FMA is 1.44% (Cranbrook TSA, whose valley settlements are compact enough to win 240 m cells).
 Per-FMA values are in `outputs/_reference/urban_footprint_byFMA.csv`.
 
-So the change is principled rather than material: it will not move the headline NRV results, but it
-makes the comparison mean what it claims to mean.
+So the change is principled rather than material: it will not move the headline NRV results, but it makes the comparison mean what it claims to mean.
 
 # Module supersession
 
-Three v2 post-processing modules are retired in v3, consolidated into one module plus one
-CI-tested package:
+Three v2 post-processing modules are retired in v3, consolidated into one module plus one CI-tested package:
 
-- `LandWeb_summary` + `timeSinceFire` + `LandWeb_output` are retired into **`NRV_summary`**
-  (the module) and **`nrvtools`** (the reusable analytics + plotting package).
-- Time-since-fire is derived in post-processing from burn maps rather than tracked by a dedicated
-  simulation module.
-- The reporting-polygon build moved out of `LandWeb_preamble` into a data-driven builder
-  (`LandWebUtils::buildReportingPolygons()`), feeding the summaries stage.
+- `LandWeb_summary` + `timeSinceFire` + `LandWeb_output` are retired into **`NRV_summary`** (the module) and **`nrvtools`** (the reusable analytics + plotting package).
+- Time-since-fire is derived in post-processing from burn maps rather than tracked by a dedicated simulation module.
+- The reporting-polygon build moved out of `LandWeb_preamble` into a data-driven builder (`LandWebUtils::buildReportingPolygons()`), feeding the summaries stage.
 
-The `LandWeb_full` study area is also dropped: v3 simulates and reports per FMA rather than
-maintaining a single expensive full-extent run.
+The `LandWeb_full` study area is also dropped: v3 simulates and reports per FMA rather than maintaining a single expensive full-extent run.
 
 # Appendix: change summary (auto-generated) {.unnumbered}
 
-Generated from each component's git log at render time (`R/module_changelog.R`); `commits` counts
-commits since 2023-01-01, the v3 window.
+Generated from each component's git log at render time (`R/module_changelog.R`); `commits` counts commits since 2023-01-01, the v3 window.
 
 ```{r}
 #| label: tbl-changelog-modules
@@ -766,12 +664,8 @@ knitr::kable(
 
 # Provenance {.unnumbered}
 
-- **Source:** the git history of the module submodules (`modules/`) and owned packages
-  (`packages/`), plus the refactor design notes (`_tmp_refactor_targets.md`,
-  `_tmp_spades_targets_bchrv_gaps.md`, `_tmp_upstream_issues.md`).
+- **Source:** the git history of the module submodules (`modules/`) and owned packages (`packages/`), plus the refactor design notes (`_tmp_refactor_targets.md`, `_tmp_spades_targets_bchrv_gaps.md`, `_tmp_upstream_issues.md`).
 - **Data file:** `` `r relpath(clog_csv)` ``
-- **Method:** the change-summary tables are built by `R/module_changelog.R` (target
-  `module_changelog_csv`), which runs `git log` per component at render time; the narrative themes
-  are hand-curated from the same history.
+- **Method:** the change-summary tables are built by `R/module_changelog.R` (target `module_changelog_csv`), which runs `git log` per component at render time; the narrative themes are hand-curated from the same history.
 
 {{< include _provenance-appendix.qmd >}}
