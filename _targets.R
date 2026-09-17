@@ -357,7 +357,11 @@ study_area_targets <- function(sa) {
           ),
           files = preamble_files
         ),
-        sim_objects(speciesData, objects = "speciesLayers", files = speciesData_files)
+        ## empty species layers would otherwise pass as a valid "no tree species" run upstream
+        LandWebUtils::landweb_require_species(
+          sim_objects(speciesData, objects = "speciesLayers", files = speciesData_files),
+          "speciesLayers"
+        )
       )), sa),
       plain = c(
         "cohortData", "species", "speciesEcoregion", "ecoregion", "minRelativeB",
@@ -400,13 +404,13 @@ study_area_targets <- function(sa) {
       mem_workers = local$local_workers,
       objects = suffix_refs(quote(c(
         list(
-          cohortData = dataPrep$cohortData,
+          cohortData = LandWebUtils::landweb_require_species(dataPrep$cohortData, "cohortData"),
           species = dataPrep$species,
           speciesEcoregion = dataPrep$speciesEcoregion,
           ecoregion = dataPrep$ecoregion,
           minRelativeB = dataPrep$minRelativeB,
           sufficientLight = dataPrep$sufficientLight,
-          sppEquiv = dataPrep$sppEquiv,
+          sppEquiv = LandWebUtils::landweb_require_species(dataPrep$sppEquiv, "sppEquiv"),
           sppColorVect = dataPrep$sppColorVect,
           speciesParams = dataPrep$speciesParams,
           speciesTable = dataPrep$speciesTable,
@@ -587,7 +591,7 @@ study_area_targets <- function(sa) {
         c(
           list(
             reportingPolygons = reportingPolygons,
-            sppEquiv = dataPrep$sppEquiv,
+            sppEquiv = LandWebUtils::landweb_require_species(dataPrep$sppEquiv, "sppEquiv"),
             sppColorVect = dataPrep$sppColorVect
           ),
           sim_objects(preamble, objects = "studyAreaReporting", files = preamble_files)
@@ -664,13 +668,13 @@ study_area_targets <- function(sa) {
       mem_workers = 1L, ## a single rep, so it need not share the node's terra memory budget
       objects = suffix_refs(quote(c(
         list(
-          cohortData = dataPrep$cohortData,
+          cohortData = LandWebUtils::landweb_require_species(dataPrep$cohortData, "cohortData"),
           species = dataPrep$species,
           speciesEcoregion = dataPrep$speciesEcoregion,
           ecoregion = dataPrep$ecoregion,
           minRelativeB = dataPrep$minRelativeB,
           sufficientLight = dataPrep$sufficientLight,
-          sppEquiv = dataPrep$sppEquiv,
+          sppEquiv = LandWebUtils::landweb_require_species(dataPrep$sppEquiv, "sppEquiv"),
           sppColorVect = dataPrep$sppColorVect,
           speciesParams = dataPrep$speciesParams,
           speciesTable = dataPrep$speciesTable,
