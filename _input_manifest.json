@@ -12,7 +12,7 @@
       },
       "retrieved_at": "2026-07-02T22:35:14Z",
       "local_path": "inputs/CanLad/v1/Disturbances_Latest/canlad_1985_2024_latest_year.tif",
-      "description": "30 m Canada-wide detection and attribution of fire, harvest and pest-outbreak disturbance since 1985. Not consumed directly by the pipeline: it enters via cc-age-2025, where fRI Research used it as one of the four composited sources. Recorded here because it is the ONLY age source outside AB/BC in that composite, which is why the composite's coverage collapses there -- CanLAD is censored at 1985 by construction and cannot date an undisturbed stand. A v1.1 extending to 2025 is also staged locally.",
+      "description": "30 m Canada-wide detection and attribution of fire, harvest and pest-outbreak disturbance since 1985. Not consumed directly by the pipeline: it enters via cc-age-2025, where fRI Research used it as one of the four composited sources. Recorded here because it is the ONLY age source outside AB/BC in that composite, which is why the composite's coverage collapses there -- CanLAD is censored at 1985 by construction and cannot date an undisturbed stand. Classes are 1 wildfire, 2 harvesting, 3 other (windthrow, partial harvest, fire unconfirmed by NBAC), 4 water extension, 5 defoliation followed by harvest, 6-8 low/medium/high defoliation; only 1, 2 and 5 replace the stand, which matters because cc-age-2025 ages every class alike. A v1.1 extending to 2025 is also staged locally: it adds the 2025 year plus a cleanup pass (Sentinel-2 against false-positive defoliation, fires validated against NBAC) -- NOT pest attribution, which v1 already carries.",
       "version_or_vintage": "v1, disturbances 1985-2024",
       "license": "OGL-Canada-2.0",
       "citation": {
@@ -157,12 +157,13 @@
       },
       "retrieved_at": "2026-08-21T15:13:50Z",
       "local_path": "inputs/age_in2025.tif",
-      "description": "30 m per-pixel stand age for 2025, built by fRI Research in ArcGIS as the per-pixel MINIMUM of four sources: BC VEG_COMP 2025, AB AVIE (to 2021), AB Crown AVI (to 2019) and CanLAD (1985-2024). NoData is 65535, which terra does NOT pick up from the tag -- it must be set explicitly. KNOWN LIMITATION: inventory input exists only in AB and BC; elsewhere CanLAD is the sole source and cannot date an undisturbed stand, so no pixel exceeds ~40 years and 78-100% carries no age at all. The gap is filled from ntems-forest-age-2022. local_path is the delivered copy at the inputs root (so retrieved_at is the delivery date); LandWeb_preamble downloads and extracts its own copy under inputs/age2025/.",
+      "description": "30 m per-pixel stand age for 2025, built by fRI Research in ArcGIS as the per-pixel MINIMUM of four sources: BC VEG_COMP 2025, AB AVIE (to 2021), AB Crown AVI (to 2019) and CanLAD (1985-2024). NoData is 65535, which terra does NOT pick up from the tag -- it must be set explicitly. KNOWN LIMITATION: inventory input exists only in AB and BC; elsewhere CanLAD is the sole source and cannot date an undisturbed stand, so no pixel exceeds ~40 years and 78-100% carries no age at all. The gap is filled from ntems-forest-age-2022. SECOND KNOWN LIMITATION: the CanLAD step uses the disturbance year regardless of TYPE, so classes that do not replace the stand reset age too -- defoliation (6-8), 'other' (3: windthrow, partial harvest, unconfirmed fire) and water extension (4). Verified per pixel 2026-09-17: outside AB/BC every CanLAD-dated pixel carries 2025 - ending_year in every class, and those classes are 33% of dated pixels in LacSeulUpland (23% defoliation), 12% in ChurchillRiverUpland and 2.8% in WesternAlbertaUpland, where they also override AVIE through the MINIMUM. Old-seral area is understated as a result: LacSeul reads 23.3% old with the NTEMS fill against 26.9% if those classes did not reset age. fRI was asked on 2026-09-17 to rebuild keeping only CanLAD classes 1, 2 and 5. local_path is the delivered copy at the inputs root (so retrieved_at is the delivery date); LandWeb_preamble downloads and extracts its own copy under inputs/age2025/.",
       "version_or_vintage": "age at 2025 (delivered 2026-08-21)",
       "license": "Access controlled / proprietary (AB AVIE not redistributable)",
       "extra": {
         "nodata": "65535",
-        "gap_fill": "ntems-forest-age-2022"
+        "gap_fill": "ntems-forest-age-2022",
+        "canlad_classes": "all 8 reset age; only 1/2/5 are stand-replacing"
       }
     },
     {

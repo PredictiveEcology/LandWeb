@@ -194,10 +194,23 @@ build_input_manifest <- function(
         "explicitly. KNOWN LIMITATION: inventory input exists only in AB and BC; elsewhere CanLAD is",
         "the sole source and cannot date an undisturbed stand, so no pixel exceeds ~40 years and",
         "78-100% carries no age at all. The gap is filled from ntems-forest-age-2022.",
+        "SECOND KNOWN LIMITATION: the CanLAD step uses the disturbance year regardless of TYPE, so",
+        "classes that do not replace the stand reset age too -- defoliation (6-8), 'other' (3:",
+        "windthrow, partial harvest, unconfirmed fire) and water extension (4). Verified per pixel",
+        "2026-09-17: outside AB/BC every CanLAD-dated pixel carries 2025 - ending_year in every",
+        "class, and those classes are 33% of dated pixels in LacSeulUpland (23% defoliation), 12% in",
+        "ChurchillRiverUpland and 2.8% in WesternAlbertaUpland, where they also override AVIE through",
+        "the MINIMUM. Old-seral area is understated as a result: LacSeul reads 23.3% old with the",
+        "NTEMS fill against 26.9% if those classes did not reset age. fRI was asked on 2026-09-17 to",
+        "rebuild keeping only CanLAD classes 1, 2 and 5.",
         "local_path is the delivered copy at the inputs root (so retrieved_at is the delivery date);",
         "LandWeb_preamble downloads and extracts its own copy under inputs/age2025/."
       ),
-      extra = list(nodata = "65535", gap_fill = "ntems-forest-age-2022")
+      extra = list(
+        nodata = "65535",
+        gap_fill = "ntems-forest-age-2022",
+        canlad_classes = "all 8 reset age; only 1/2/5 are stand-replacing"
+      )
     ),
     list(
       id = "ntems-forest-age-2022",
@@ -233,7 +246,12 @@ build_input_manifest <- function(
         "Research used it as one of the four composited sources. Recorded here because it is the",
         "ONLY age source outside AB/BC in that composite, which is why the composite's coverage",
         "collapses there -- CanLAD is censored at 1985 by construction and cannot date an",
-        "undisturbed stand. A v1.1 extending to 2025 is also staged locally."
+        "undisturbed stand. Classes are 1 wildfire, 2 harvesting, 3 other (windthrow, partial",
+        "harvest, fire unconfirmed by NBAC), 4 water extension, 5 defoliation followed by harvest,",
+        "6-8 low/medium/high defoliation; only 1, 2 and 5 replace the stand, which matters because",
+        "cc-age-2025 ages every class alike. A v1.1 extending to 2025 is also staged locally: it adds",
+        "the 2025 year plus a cleanup pass (Sentinel-2 against false-positive defoliation, fires",
+        "validated against NBAC) -- NOT pest attribution, which v1 already carries."
       ),
       ## Verbatim entry rather than the generated @misc: the author list and title are transcribed
       ## from the dataset's own _readme.txt citation block, which is the authoritative wording.

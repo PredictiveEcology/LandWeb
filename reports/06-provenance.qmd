@@ -592,6 +592,30 @@ with the four inputs derived as:
 `MINIMUM` while ignoring NoData implements the intended hierarchy: inventory first, Crown filling
 AVIE's gaps, CanLAD filling what remains and winning wherever it recorded a newer disturbance.
 
+### Every CanLAD class resets stand age, not only the stand-replacing ones {#sec-canlad-classes}
+
+The CanLAD expression above uses the disturbance year without reference to the disturbance **type**, and CanLAD attributes eight of them: 1 wildfire, 2 harvesting, 3 other (windthrow, partial harvest, and fire the National Burned Area Composite has not confirmed), 4 water extension, 5 defoliation followed by harvest, and 6--8 low, medium and high defoliation.
+Only the first, second and fifth replace a stand.
+A spruce budworm outbreak does not restart succession, and neither does a partial harvest, but in `age_in2025` both produce a stand under 40 years old.
+
+The behaviour was confirmed pixel by pixel against `canlad_1985_2024_latest_type` and `canlad_1985_2024_ending_year`: outside Alberta and British Columbia, **every** CanLAD-dated pixel carries `2025 - ending year` in **every** class.
+Inside Alberta the same records win through the `MINIMUM`, overriding the inventory age on 99.7% of defoliated pixels.
+
+| study-area group | dated pixels from classes 3/4/6--8 | of which defoliation (6--8) |
+|---|---:|---:|
+| Lac Seul Upland (ON) | 33% | 23% |
+| Churchill River Upland (SK/MB) | 12% | 10% |
+| Western Alberta Upland (AB) | 2.8% | 2.1% |
+
+: Share of pixels carrying an age in `age_in2025` whose age comes from a CanLAD class that does not replace the stand. {#tbl-canlad-classes}
+
+The cost falls on exactly the quantity this project reports.
+NTEMS puts 34--39% of Lac Seul's defoliated pixels at 120 years or more, so with the NTEMS fill in place that group reads 23.3% old where it would read 26.9% if defoliation, "other" and water extension left age alone.
+
+fRI Research was asked on 2026-09-17 to rebuild the composite keeping only classes 1, 2 and 5.
+Nothing is corrected downstream in the meantime: outside AB and BC the affected pixels could be returned to the NTEMS fill, but inside AB and BC the inventory age a CanLAD record overwrote is not recoverable from the delivered raster, so a partial fix would repair one part of the domain and leave a different treatment in the other.
+**Old-seral area in current condition is therefore under-reported wherever insect defoliation is extensive**, most of all in Lac Seul Upland.
+
 ## The asymmetry between the two pipelines
 
 Read together, these two workflows treat SBFI **oppositely**:
