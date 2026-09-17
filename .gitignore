@@ -79,6 +79,7 @@ Thumbs.db
 _tmp*
 _TODO_*
 tmp/
+__pycache__/
 
 ## run/scratch logs (pipeline + crew worker logs live here; see CLAUDE.md)
 logs

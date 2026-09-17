@@ -79,3 +79,13 @@ the stage command (`SpaDES.targets::stage_fingerprint()`).
 - The fingerprint reads the packages **installed** in the session that sources `_targets.R`. Run
   `tar_make()`/`tar_outdated()` only on hosts whose library matches `renv.lock` (sync first), or
   the shared `_targets` store will look outdated from that host.
+
+## Reports — prose is written one sentence per line
+
+Every `reports/*.qmd` keeps **one sentence per line**, with no hard wrap at a column. A reworded
+sentence then shows up as a one-line diff instead of reflowing its whole paragraph, which keeps
+review and `git blame` usable on prose.
+
+`scripts/reflow_sentences.py` applies the convention (`--check` reports without writing). It leaves
+code chunks, YAML, tables, captions and div fences alone, and refuses to write a file whose pandoc
+AST the rewrite would change, so structure cannot break silently.
