@@ -15,69 +15,34 @@
 ## Delete `out_csv` (or bump the version stamp in its name) to force a fresh scan.
 
 ## SCANFI code -> common name + the simulated LandWeb species it merges into.
-## (Mirrors the InitSpecies() dictionary in LandWeb_preamble.R; THUJ_PLI/TSUG_HET fold into Abie_spp.)
+## The merges come from LandWebUtils::landweb_species_map(), the same definition LandWeb_preamble uses.
 .scanfi_species_lookup <- function() {
+  map <- LandWebUtils::landweb_species_map()
+  common_name <- c(
+    ABIE_BAL = "balsam fir",
+    ABIE_LAS = "subalpine fir",
+    BETU_PAP = "white birch",
+    LARI_LAR = "tamarack",
+    LARI_OCC = "western larch",
+    PICE_ENG = "Engelmann spruce",
+    PICE_ENG_GLA = "Engelmann x white spruce",
+    PICE_GLA = "white spruce",
+    PICE_MAR = "black spruce",
+    PINU_BAN = "jack pine",
+    PINU_CON_CON = "shore pine",
+    PINU_CON_LAT = "lodgepole pine",
+    POPU_BAL = "balsam poplar",
+    POPU_TRE = "trembling aspen",
+    PSEU_MEN = "Douglas-fir",
+    PSEU_MEN_GLA = "Douglas-fir (interior)",
+    THUJ_PLI = "western redcedar",
+    TSUG_HET = "western hemlock"
+  )
+  stopifnot(setequal(names(map), names(common_name)))
   data.table::data.table(
-    species = c(
-      "ABIE_BAL",
-      "ABIE_LAS",
-      "BETU_PAP",
-      "LARI_LAR",
-      "LARI_OCC",
-      "PICE_ENG",
-      "PICE_ENG_GLA",
-      "PICE_GLA",
-      "PICE_MAR",
-      "PINU_BAN",
-      "PINU_CON_CON",
-      "PINU_CON_LAT",
-      "POPU_BAL",
-      "POPU_TRE",
-      "PSEU_MEN",
-      "PSEU_MEN_GLA",
-      "THUJ_PLI",
-      "TSUG_HET"
-    ),
-    common_name = c(
-      "balsam fir",
-      "subalpine fir",
-      "white birch",
-      "tamarack",
-      "western larch",
-      "Engelmann spruce",
-      "Engelmann x white spruce",
-      "white spruce",
-      "black spruce",
-      "jack pine",
-      "shore pine",
-      "lodgepole pine",
-      "balsam poplar",
-      "trembling aspen",
-      "Douglas-fir",
-      "Douglas-fir (interior)",
-      "western redcedar",
-      "western hemlock"
-    ),
-    landweb_species = c(
-      "Abie_spp",
-      "Abie_spp",
-      "Popu_spp",
-      "Lari_spp",
-      "Lari_spp",
-      "Pice_gla",
-      "Pice_gla",
-      "Pice_gla",
-      "Pice_mar",
-      "Pinu_spp",
-      "Pinu_spp",
-      "Pinu_spp",
-      "Popu_spp",
-      "Popu_spp",
-      "Pseu_men",
-      "Pseu_men",
-      "Abie_spp",
-      "Abie_spp"
-    )
+    species = names(map),
+    common_name = unname(common_name[names(map)]),
+    landweb_species = unname(map)
   )
 }
 
