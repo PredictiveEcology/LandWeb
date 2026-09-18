@@ -78,6 +78,6 @@ file.copy(
 )
 file.copy(from = dirname(pdfArchiveDir), to = docsDir, recursive = TRUE)
 
-## remove temporary .Rmds
-file.remove(.copyModuleRmds)
+## remove the generated chapters; they are staged under the book root
+unlink("_manual_rmds", recursive = TRUE)
 setwd(prjDir)
