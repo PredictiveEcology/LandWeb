@@ -238,7 +238,7 @@ if (.haveCalib) {
 
 ## How much to trust these values
 
-Three caveats belong with any use of the fitted parameters.
+Four caveats belong with any use of the fitted parameters.
 
 **The objective identifies some parameters and not others.** Fitted against the previous objective, 43 repeat runs of the same configuration scattered four of the seven parameters across more than 90 % of their search interval, and repeat solutions proved statistically indistinguishable from one another --- and from some randomly drawn parameter vectors.
 The current objective adds constraints and does separate fitted from random parameters, but it still cannot rank near-equivalent solutions.
@@ -249,6 +249,15 @@ Re-evaluating a fit at independent seeds is the check that matters, and is repor
 
 **Fire sizes here are a heuristic, not a fit to observed fires.** The truncated-Pareto shape governing fire sizes is set by a rule of thumb ("95 % of area in 5 % of fires"), not fitted to NBAC or NFDB.
 Those records are used to *compare against* simulated output in the burn summaries, but the simulated size distribution was never fitted to them --- so agreement there is a weaker check than it may appear.
+
+**Simulated and "expected" fire sizes agree for essentially every fire, and that agreement carries no information.** The burn summaries report `simSize` against `expSize`, and the two match for 100 % of the 1,081,686 fires in the v3 Western Alberta Upland run.
+Most of those fires really do reach their target, so the agreement is not fabricated.
+The difficulty is that a fire falling short has no way to appear in the record at all: within the first round of retries a stalled fire is dropped and re-ignited keeping its full original target, and after that its target is rewritten to the area that did burn, with the shortfall re-issued as new fires.
+Every recorded fire therefore matches its target, whether or not it ever reached one.
+The behaviour is deliberate, and follows from what the model is calibrated to --- fire return intervals, meaning area burned per year, not the number of fires --- so annual area burned is preserved while the realized size distribution is pushed away from the calibrated heavy tail.
+The observable signature of stalling is therefore an inflated fire *count* at a small mean size (that same run: 1,082 fires/yr, mean 33.8 pixels), and the size distribution has to be judged directly against the calibrated distribution or the fire records, never against `expSize`.
+LandMine 1.0.13 adds `fireID`, `attempt` and `targetSize` to its per-fire output so that attainment becomes measurable: rows are grouped back into whole fires, and a fire is short only when it exhausted its reburn budget.
+Figures in this report still predate that change, so the caveat above governs them.
 
 # The v10 update: Northwest Alberta NRV (2026)
 
