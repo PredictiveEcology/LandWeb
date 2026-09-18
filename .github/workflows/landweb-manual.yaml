@@ -40,6 +40,9 @@ jobs:
 
       - uses: r-lib/actions/setup-tinytex@v2
 
+      ## TODO: pin to a tag once one exists. The published v0.4/v0.5 still add the
+      ## ubuntugis PPA, whose libgdal does not match what the P3M binaries were built
+      ## against; only `main` has that removed.
       - uses: PredictiveEcology/actions/install-spatial-deps@main
 
       - name: Install additional system dependencies
@@ -48,6 +51,7 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y \
           libarchive-dev \
+          libgit2-dev \
           libmagick++-dev
 
       - uses: r-lib/actions/setup-r@v2
@@ -61,16 +65,19 @@ jobs:
         # with:
         #   profile: '"manual"'
 
-      ## With `output_dir` set, bookdown writes knitr's cache to
-      ## <book_filename>_cache/ and the figures to <book_filename>_files/ --
-      ## there is no `_bookdown_files`, so caching that path saved nothing and
-      ## warned on every build.
+      ## With `output_dir` set, a SUCCESSFUL render leaves knitr's cache at
+      ## manual/<book_filename>_cache/ and the figures at <book_filename>_files/ --
+      ## `delete_merged_file` removes LandWeb_manual.Rmd before bookdown's on.exit runs,
+      ## so nothing is stowed under `_bookdown_files`. A render that ERRORS still has
+      ## that .Rmd on disk, and bookdown then moves both into manual/_bookdown_files/ --
+      ## hence all three paths, so a failed build still saves a cache for the retry.
       - name: Cache bookdown results
         uses: actions/cache@v6
         with:
           path: |
             manual/*_cache
             manual/*_files
+            manual/_bookdown_files
           key: bookdown-${{ hashFiles('**/*Rmd') }}
           restore-keys: bookdown-
 
@@ -79,8 +86,11 @@ jobs:
           source("manual/build.R")
         shell: Rscript {0}
 
+      ## `targets` builds to prove the manual still renders; only `main` publishes.
+      ## Without the ref guard every push to a development branch would overwrite the
+      ## live site (deploy uses clean: false, so it cannot even be undone by a rebuild).
       - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           clean: false

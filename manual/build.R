@@ -1,11 +1,10 @@
 ## this manual must be knitted by running this script
 
-library(bibtex)
 library(bookdown)
-library(data.table)
-library(knitr)
-library(RefManageR)
+library(knitr) ## module chapters may assume it is attached
 library(SpaDES.docs)
+## bibtex, data.table and RefManageR are used INSIDE SpaDES.docs, not here. RefManageR
+## is only a Suggests there, so it has to stay in renv.lock (currently 1.4.0).
 
 prjDir <- SpaDES.config::findProjectPath(from_wd = FALSE)
 manDir <- file.path(prjDir, "manual") ## raw files; edit these, not the ones in `docsDir`!
@@ -14,8 +13,10 @@ manDir <- file.path(prjDir, "manual") ## raw files; edit these, not the ones in 
 paths <- manualPaths(prjDir = manDir)
 
 ## bookdown writes referenced resources here; created ahead of the render so the
-## directory exists whether or not this build produces figures
-Require::checkPath(file.path(paths$docs, "figures"), create = TRUE)
+## directory exists whether or not this build produces figures. NOTE this is the
+## PUBLISHED figures dir -- `paths$figures` is the source one (manual/figures), which
+## holds the images index.Rmd references and must not be confused with it.
+docsFigures <- Require::checkPath(file.path(paths$docs, "figures"), create = TRUE)
 
 ## references ---------------------------------------
 
@@ -23,11 +24,13 @@ writePkgBib(file.path(paths$citations, "packages.bib"))
 
 downloadCSL("ecology-letters", paths$citations)
 
-## references.bib is both an input and the output: the manual accumulates into
-## its own bibliography, and every input is read before anything is written
+## references.bib is OUTPUT ONLY. It used to be its own input as well, so the manual
+## accumulated into its own bibliography -- which worked locally and silently lost every
+## manual-only entry on CI, where citations/ is gitignored and starts empty. The curated
+## entries now live in the tracked references_manual.bib instead.
 collapseModuleBibs(
   modulePath = file.path(prjDir, "modules"),
-  extraBibs = file.path(paths$citations, c("packages.bib", "references.bib")),
+  extraBibs = file.path(paths$citations, c("packages.bib", "references_manual.bib")),
   outFile = file.path(paths$citations, "references.bib")
 )
 
@@ -44,12 +47,18 @@ withr::with_dir(normalizePath(manDir), {
   Sys.setenv(R_USE_REQUIRE = "false")
   Sys.getenv("R_USE_REQUIRE")
 
+  ## A module with an .Rmd but no chapter in _bookdown.yml would be prepared and then
+  ## left out of the book, which prepManualRmds() warns about on every build. Derive the
+  ## ignore list from the chapter list rather than hand-maintaining a second copy of it:
+  ## whatever _bookdown.yml does not reference is deliberately not in the manual.
+  ## (Today that is HSI_Caribou_MB. To document it, add a chapter -- nothing here.)
+  .chapters <- yaml::read_yaml("_bookdown.yml")$rmd_files
+  .charted <- basename(sub("2\\.Rmd$", "", grep("_manual_rmds/", .chapters, value = TRUE)))
+  .ignore <- setdiff(basename(list.dirs("../modules", recursive = FALSE)), .charted)
+
   ## NOTE: need dot because knitting is doing `rm(list = ls())`
-  ## HSI_Caribou_MB ships an .Rmd but has no chapter in _bookdown.yml, so it
-  ## would be prepared and then left out of the book. Excluded explicitly;
-  ## if it should be documented, add a chapter and drop it from here.
   .copyModuleRmds <- prepManualRmds("../modules", rebuildCache = FALSE, ## use rel path!
-                                    ignoreModules = "HSI_Caribou_MB")
+                                    ignoreModules = .ignore)
 
   ## render the book using new env -- see <https://stackoverflow.com/a/46083308>
   bookdown::render_book(output_format = "all", envir = new.env())
@@ -65,6 +74,10 @@ withr::with_dir(normalizePath(manDir), {
     archiveDir = file.path(manDir, "archive", "pdf")
   )
 
-  ## remove the temporary .Rmds
-  unlink("_manual_rmds", recursive = TRUE)
+  ## index.Rmd links archived PDFs as `archive/pdf/<file>`, i.e. relative to the PUBLISHED
+  ## site, so the archive has to be copied into docs/ or those links 404.
+  file.copy(file.path(manDir, "archive"), paths$docs, recursive = TRUE)
+
+  ## remove the temporary .Rmds, at wherever prepManualRmds() actually staged them
+  unlink(unique(dirname(.copyModuleRmds)), recursive = TRUE)
 })

@@ -1,9 +1,15 @@
-## bookdown's knitr cache and figures, named after `book_filename`
-LandWeb_manual_cache/
 ## generated chapters (SpaDES.docs::prepManualRmds)
 _manual_rmds/
-citations/*
-libs/
+## where bookdown stows the knitr cache and figures when a render ERRORS
+_bookdown_files/
+## knitr figures, named after `book_filename` (the matching *_cache is covered
+## by the repo-root .gitignore)
 LandWeb_manual_files/
 LandWeb_manual.Rmd
+libs/
+## citations/ is build output -- packages.bib and references.bib are generated on
+## every build -- EXCEPT the hand-curated entries, which are an INPUT and so must
+## be tracked, or a CI build assembles a bibliography without them.
+citations/*
+!citations/references_manual.bib
 !tables/*
