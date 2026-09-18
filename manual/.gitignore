@@ -1,4 +1,7 @@
-_bookdown_files/
+## bookdown's knitr cache and figures, named after `book_filename`
+LandWeb_manual_cache/
+## generated chapters (SpaDES.docs::prepManualRmds)
+_manual_rmds/
 citations/*
 libs/
 LandWeb_manual_files/

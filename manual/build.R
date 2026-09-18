@@ -1,19 +1,5 @@
 ## this manual must be knitted by running this script
 
-prjDir <- SpaDES.config::findProjectPath(from_wd = FALSE)
-
-manDir <- file.path(prjDir, "manual") ## raw files; edit these, not the ones in `docsDir`!
-
-docsDir <- file.path(manDir, "_bookdown.yml") |>
-  yaml::read_yaml() |>
-  purrr::pluck("output_dir") |>
-  fs::path_abs()
-
-bibDir <- file.path(manDir, "citations") |> fs::dir_create()
-figDir <- file.path(docsDir, "figures") |> fs::dir_create()
-
-# load packages -------------------------------------
-
 library(bibtex)
 library(bookdown)
 library(data.table)
@@ -21,43 +7,37 @@ library(knitr)
 library(RefManageR)
 library(SpaDES.docs)
 
+prjDir <- SpaDES.config::findProjectPath(from_wd = FALSE)
+manDir <- file.path(prjDir, "manual") ## raw files; edit these, not the ones in `docsDir`!
+
+## the book root is manual/, and its _bookdown.yml sets output_dir to ../docs
+paths <- manualPaths(prjDir = manDir)
+
+## bookdown writes referenced resources here; created ahead of the render so the
+## directory exists whether or not this build produces figures
+Require::checkPath(file.path(paths$docs, "figures"), create = TRUE)
+
 ## references ---------------------------------------
 
-## automatically create a bib database for R packages
-allPkgs <- c("base", .packages(all.available = TRUE, lib.loc = .libPaths()))
-suppressWarnings({
-  ## TODO: using allPkgs, not all pkgs have dates/years
-  write_bib(allPkgs, file.path(bibDir, "packages.bib"))
-})
+writePkgBib(file.path(paths$citations, "packages.bib"))
 
-## collapse all chapter .bib files into one ------
-bibFiles <- c(
-  list.files(file.path(prjDir, "modules"), "references_", recursive = TRUE, full.names = TRUE),
-  file.path(bibDir, "packages.bib"),
-  file.path(bibDir, "references.bib")
+downloadCSL("ecology-letters", paths$citations)
+
+## references.bib is both an input and the output: the manual accumulates into
+## its own bibliography, and every input is read before anything is written
+collapseModuleBibs(
+  modulePath = file.path(prjDir, "modules"),
+  extraBibs = file.path(paths$citations, c("packages.bib", "references.bib")),
+  outFile = file.path(paths$citations, "references.bib")
 )
-bibdata <- lapply(bibFiles, function(f) {
-  if (file.exists(f)) RefManageR::ReadBib(f)
-})
-bibdata <- Reduce(merge, bibdata)
-
-WriteBib(bibdata, file = file.path(bibDir, "references.bib"))
-
-csl <- file.path(bibDir, "ecology-letters.csl")
-if (!file.exists(csl)) {
-  download.file("https://www.zotero.org/styles/ecology-letters?source=1", destfile = csl)
-}
 
 ## RENDER BOOK ------------------------------------------
 
 withr::with_dir(normalizePath(manDir), {
-  ## prevents GitHub from rendering book using Jekyll
-  if (!file.exists(file.path(prjDir, ".nojekyll"))) {
-    file.create(file.path(prjDir, ".nojekyll"))
-  }
-
-  ## set manual version
-  Sys.setenv(LANDWEB_VERSION = read.dcf("../DESCRIPTION")[4]) ## version
+  ## set manual version. By field, not by position: read.dcf(...)[4] was Version
+  ## only because it happened to be the fourth field, and any field added above
+  ## it would have put the wrong string on the title page.
+  Sys.setenv(LANDWEB_VERSION = read.dcf("../DESCRIPTION", fields = "Version")[1])
   Sys.getenv("LANDWEB_VERSION")
 
   ## don't use Require for package installation etc.
@@ -65,19 +45,26 @@ withr::with_dir(normalizePath(manDir), {
   Sys.getenv("R_USE_REQUIRE")
 
   ## NOTE: need dot because knitting is doing `rm(list = ls())`
-  .copyModuleRmds <- prepManualRmds("../modules", rebuildCache = FALSE) ## use rel path!
+  ## HSI_Caribou_MB ships an .Rmd but has no chapter in _bookdown.yml, so it
+  ## would be prepared and then left out of the book. Excluded explicitly;
+  ## if it should be documented, add a chapter and drop it from here.
+  .copyModuleRmds <- prepManualRmds("../modules", rebuildCache = FALSE, ## use rel path!
+                                    ignoreModules = "HSI_Caribou_MB")
 
   ## render the book using new env -- see <https://stackoverflow.com/a/46083308>
   bookdown::render_book(output_format = "all", envir = new.env())
 
-  pdfArchiveDir <- file.path(manDir, "archive", "pdf") |> fs::dir_create()
-  file.copy(
-    from = file.path(docsDir, "LandWeb_manual.pdf"),
-    to = file.path(pdfArchiveDir, paste0("LandWeb-manual-v", Sys.getenv("LANDWEB_VERSION"), ".pdf")),
-    overwrite = TRUE
-  )
-  file.copy(from = dirname(pdfArchiveDir), to = docsDir, recursive = TRUE)
+  ## .nojekyll has to be inside the published directory: the deploy pushes the
+  ## contents of docs/, so a file at the project root never reaches the site.
+  stagePagesFiles(paths$docs)
 
-  ## remove temporary .Rmds
-  file.remove(.copyModuleRmds)
+  archiveManualPDF(
+    file.path(paths$docs, "LandWeb_manual.pdf"),
+    version = Sys.getenv("LANDWEB_VERSION"),
+    prefix = "LandWeb-manual",
+    archiveDir = file.path(manDir, "archive", "pdf")
+  )
+
+  ## remove the temporary .Rmds
+  unlink("_manual_rmds", recursive = TRUE)
 })

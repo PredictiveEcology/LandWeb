@@ -4,9 +4,9 @@ name: landweb-manual
 
 on:
   push:
-    branches: [main]
+    branches: [main, targets]
   pull_request:
-    branches: [main]
+    branches: [main, targets]
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -32,7 +32,7 @@ jobs:
       RENV_PATHS_ROOT: ~/.cache/R/renv
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: true
 
@@ -40,7 +40,7 @@ jobs:
 
       - uses: r-lib/actions/setup-tinytex@v2
 
-      - uses: PredictiveEcology/actions/install-spatial-deps@v0.4
+      - uses: PredictiveEcology/actions/install-spatial-deps@main
 
       - name: Install additional system dependencies
         if: runner.os == 'Linux'
@@ -54,17 +54,23 @@ jobs:
         with:
           extra-repositories: 'https://predictiveecology.r-universe.dev/'
           Ncpus: 2
-          r-version: 4.5.1
+          r-version: 4.6.1
           use-public-rspm: false
 
       - uses: r-lib/actions/setup-renv@v2
         # with:
         #   profile: '"manual"'
 
+      ## With `output_dir` set, bookdown writes knitr's cache to
+      ## <book_filename>_cache/ and the figures to <book_filename>_files/ --
+      ## there is no `_bookdown_files`, so caching that path saved nothing and
+      ## warned on every build.
       - name: Cache bookdown results
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
-          path: manual/_bookdown_files
+          path: |
+            manual/*_cache
+            manual/*_files
           key: bookdown-${{ hashFiles('**/*Rmd') }}
           restore-keys: bookdown-
 
