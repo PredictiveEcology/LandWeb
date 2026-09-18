@@ -79,5 +79,5 @@ withr::with_dir(normalizePath(manDir), {
   file.copy(from = dirname(pdfArchiveDir), to = docsDir, recursive = TRUE)
 
   ## remove temporary .Rmds
-  file.remove(.copyModuleRmds)
+  unlink("_manual_rmds", recursive = TRUE)
 })

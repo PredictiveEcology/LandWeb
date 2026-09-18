@@ -4,3 +4,6 @@ libs/
 LandWeb_manual_files/
 LandWeb_manual.Rmd
 !tables/*
+
+## generated chapters (SpaDES.docs::prepManualRmds)
+_manual_rmds/

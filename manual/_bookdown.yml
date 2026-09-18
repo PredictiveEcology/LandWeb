@@ -12,22 +12,22 @@ rmd_files:
   - 01-getting-started.Rmd
   - 02-running-landweb.Rmd
   - 03-section-study-areas.Rmd
-  - ../modules/LandWeb_preamble/LandWeb_preamble2.Rmd
+  - _manual_rmds/LandWeb_preamble2.Rmd
   - 04-section-vegetation-submodel.Rmd
-  - ../modules/Biomass_speciesFactorial/Biomass_speciesFactorial2.Rmd
-  - ../modules/Biomass_speciesParameters/Biomass_speciesParameters2.Rmd
-  - ../modules/Biomass_speciesData/Biomass_speciesData2.Rmd
-  - ../modules/Biomass_borealDataPrep/Biomass_borealDataPrep2.Rmd
-  - ../modules/Biomass_core/Biomass_core2.Rmd
-  - ../modules/Biomass_regeneration/Biomass_regeneration2.Rmd
+  - _manual_rmds/Biomass_speciesFactorial2.Rmd
+  - _manual_rmds/Biomass_speciesParameters2.Rmd
+  - _manual_rmds/Biomass_speciesData2.Rmd
+  - _manual_rmds/Biomass_borealDataPrep2.Rmd
+  - _manual_rmds/Biomass_core2.Rmd
+  - _manual_rmds/Biomass_regeneration2.Rmd
   - 05-section-fire-submodel.Rmd
-  - ../modules/LandMine/LandMine2.Rmd
+  - _manual_rmds/LandMine2.Rmd
   - 06-section-model-outputs.Rmd
-  - ../modules/burnSummaries/burnSummaries2.Rmd
+  - _manual_rmds/burnSummaries2.Rmd
   ## NRV_summary supersedes the retired LandWeb_output / timeSinceFire / LandWeb_summary modules,
   ## whose chapters were removed here (their module dirs no longer exist, so prepManualRmds() could
   ## not generate them and the build failed).
-  - ../modules/NRV_summary/NRV_summary2.Rmd
+  - _manual_rmds/NRV_summary2.Rmd
   - 07-section-web-app.Rmd
   - 08-section-modifying-landweb.Rmd
   - 99-references.Rmd
