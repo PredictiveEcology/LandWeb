@@ -45,22 +45,31 @@ jobs:
       ## against; only `main` has that removed.
       - uses: PredictiveEcology/actions/install-spatial-deps@main
 
-      - name: Install additional system dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y \
-          libarchive-dev \
-          libgit2-dev \
-          libglpk-dev \
-          libmagick++-dev
-
       - uses: r-lib/actions/setup-r@v2
         with:
           extra-repositories: 'https://predictiveecology.r-universe.dev/'
           Ncpus: 2
           r-version: 4.6.1
           use-public-rspm: false
+
+      ## `setup-renv` restores a lockfile and does NOT resolve system requirements, unlike
+      ## `setup-r-dependencies`, which delegates to pak and installs them itself. The apt
+      ## list here used to be hand-written, and each omission failed the same way: a binary
+      ## package installs, then fails to LOAD on a missing .so minutes later. Derive it from
+      ## renv.lock instead, so it tracks the lockfile. `--vanilla` keeps renv's autoloader
+      ## from bootstrapping the project library before the list has even been computed.
+      - name: Install system dependencies derived from renv.lock
+        if: runner.os == 'Linux'
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          Rscript --vanilla -e 'if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv", repos = "https://cloud.r-project.org")'
+          Rscript --vanilla .github/scripts/sysreqs.R renv.lock "$RUNNER_TEMP/sysreqs.txt"
+          echo "::group::system dependencies derived from renv.lock"
+          cat "$RUNNER_TEMP/sysreqs.txt"
+          echo "::endgroup::"
+          sudo -E apt-get update -y
+          xargs -a "$RUNNER_TEMP/sysreqs.txt" sudo -E apt-get install -y --no-install-recommends
 
       - uses: r-lib/actions/setup-renv@v2
         # with:
