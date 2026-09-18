@@ -91,10 +91,34 @@ jobs:
           key: bookdown-${{ hashFiles('**/*Rmd') }}
           restore-keys: bookdown-
 
+      ## tinytex::latexmk() cleans its aux files on exit, taking LandWeb_manual.log
+      ## with it -- the one file the error message tells you to read. Turn that off
+      ## here rather than in build.R, so a local build keeps its usual behaviour.
       - name: Build LandWeb manual
         run: |
+          options(tinytex.clean = FALSE)
           source("manual/build.R")
         shell: Rscript {0}
+
+      ## A LaTeX failure reports a line number in the GENERATED .tex, which is not
+      ## reproducible from the sources alone: the chapters are staged by
+      ## prepManualRmds() and the figures are knitted. Without these, diagnosing a
+      ## render error means rebuilding the whole book somewhere else.
+      - name: Upload manual build artefacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manual-build-debug
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            manual/LandWeb_manual.tex
+            manual/LandWeb_manual.log
+            manual/*.log
+            manual/_manual_rmds/
+            manual/LandWeb_manual_files/
+            docs/LandWeb_manual.tex
+            docs/LandWeb_manual.log
 
       ## `targets` builds to prove the manual still renders; only `main` publishes.
       ## Without the ref guard every push to a development branch would overwrite the

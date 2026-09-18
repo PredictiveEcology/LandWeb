@@ -6,6 +6,9 @@ _bookdown_files/
 ## by the repo-root .gitignore)
 LandWeb_manual_files/
 LandWeb_manual.Rmd
+## build artefacts kept for debugging (keep_tex + tinytex.clean = FALSE)
+LandWeb_manual.tex
+*.log
 libs/
 ## citations/ is build output -- packages.bib and references.bib are generated on
 ## every build -- EXCEPT the hand-curated entries, which are an INPUT and so must
