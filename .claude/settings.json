@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "ai-workflows": {
+      "source": { "source": "github", "repo": "FOR-CAST/ai_workflows" }
+    },
+    "posit-dev-skills": {
+      "source": { "source": "github", "repo": "posit-dev/skills" }
+    }
+  },
+  "enabledPlugins": {
+    "r-bundle-spades@ai-workflows": true
+  }
+}
