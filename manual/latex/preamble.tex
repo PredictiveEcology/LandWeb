@@ -70,12 +70,16 @@
   \usepackage{letltxmacro}
   \setlength{\XeTeXLinkMargin}{1pt}
   \LetLtxMacro\SavedIncludeGraphics\includegraphics
-  \def\includegraphics#1#{% #1 catches optional stuff (star/opt. arg.)
-    \IncludeGraphicsAux{#1}%
-  }%
-  \newcommand*{\IncludeGraphicsAux}[2]{%
+  %% NB: the obvious `\def\includegraphics#1#{...}` idiom CANNOT be used here. Its
+  %% delimited parameter scans to the FIRST `{`, which pandoc >= 3 makes the one
+  %% inside `alt={...}` rather than the filename group -- so the image argument is
+  %% mis-parsed and the build dies with `Argument of \Gin@ii has an extra }`.
+  %% \RenewDocumentCommand parses the optional argument properly, braces and all.
+  \RenewDocumentCommand\includegraphics{s O{} m}{%
     \XeTeXLinkBox{%
-      \SavedIncludeGraphics#1{#2}%
+      \IfBooleanTF{#1}%
+        {\SavedIncludeGraphics*[#2]{#3}}%
+        {\SavedIncludeGraphics[#2]{#3}}%
     }%
   }%
 \fi
