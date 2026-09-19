@@ -1,0 +1,8 @@
+{
+  "rBinary": "Rscript-4.6.1",
+  "packageInstall": "renv",
+  "publishRequiresApproval": true,
+  "controllerHosts": ["the-control-node"],
+  "hostPatterns": ["the-control-node", "worker-one", "worker-two"],
+  "longRunPatterns": ["tar_make", "spades", "simInitAndSpades", "quarto render"]
+}
