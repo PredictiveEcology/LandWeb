@@ -25,6 +25,9 @@ bookdown::pdf_book:
   dev: "cairo_pdf"
   fig_crop: false
   highlight_bw: false
+  ## kept so a LaTeX failure leaves LandWeb_manual.tex on disk to inspect;
+  ## without it rmarkdown's on.exit cleanup removes the .tex even on error.
+  keep_tex: true
   latex_engine: xelatex
   # pandoc_args: [--top-level-division=chapter, --wrap=none]
   pandoc_args: --top-level-division=chapter
