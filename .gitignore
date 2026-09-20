@@ -87,3 +87,6 @@ logs/
 
 ## !! Module data should be gitignored in the respective module's data dir !!
 ## !! inputs/ has its own .gitignore file too !!
+
+## the Claude Code project config is shared; everything else here stays ignored
+!.claude/settings.json

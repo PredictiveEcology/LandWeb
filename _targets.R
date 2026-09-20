@@ -231,7 +231,13 @@ study_area_targets <- function(sa) {
       LCCClassesToReplaceNNMethod = "nearestWeighted",
       pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 1000 / (250 / res)^2,
       speciesTableAreas = c("BSW", "BP", "MC"),
-      subsetDataAgeModel = 100L, subsetDataBiomassModel = 100L,
+      ## ecoregion x site x composition, so a species on upland and on wet ground gets its own
+      ## maxB/maxANPP/SEP. Needs `rstWetland`, which defaults to CWIM v3A (`wetlandSource`).
+      ## NOT the module default, which is the single land-cover axis.
+      stratumType = "siteComposition",
+      ## subsetDataAgeModel/subsetDataBiomassModel are deliberately NOT pinned: they track
+      ## `LandR::subsetDataSize()` (500/group), which upstream raised from 50 for better-
+      ## conditioned fits. We previously pinned 100.
       useCloudCacheForStats = FALSE, .plotInitialTime = 0, .useCache = FALSE
       ## TODO: speciesUpdateFunction (2 quotes) + minRelativeBFunction =
       ## quote(myMinRelativeB(pixelCohortData)) -- port verbatim from box/landweb.R
