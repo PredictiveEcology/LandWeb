@@ -45,19 +45,19 @@
     },
     "BioSIM": {
       "Package": "BioSIM",
-      "Version": "1.1.1",
+      "Version": "1.1.2",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteUsername": "RNCan",
       "RemoteRepo": "BioSimClient_R",
       "RemoteRef": "main",
-      "RemoteSha": "0c110a09596df50bc24aa8122f07f3aeefe7e389",
+      "RemoteSha": "212023f34e76ba8bc6228e2e738325b6d33c49eb",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "J4R",
         "R"
       ],
-      "Hash": "70c2faaa0735902affefb0b33c0c2716"
+      "Hash": "954f363920c53751687b141815184f6f"
     },
     "CFtime": {
       "Package": "CFtime",
@@ -131,14 +131,15 @@
     },
     "Deriv": {
       "Package": "Deriv",
-      "Version": "4.3.0",
+      "Version": "4.3.5",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
+        "R",
         "Rcpp",
         "methods"
       ],
-      "Hash": "70e217897316149c9c655ad78b379fa1"
+      "Hash": "73a3fb5ea6944ef1b904ab54def99c88"
     },
     "DiagrammeR": {
       "Package": "DiagrammeR",
@@ -214,9 +215,9 @@
     },
     "Hmisc": {
       "Package": "Hmisc",
-      "Version": "5.2-6",
+      "Version": "5.3-0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "Formula",
         "R",
@@ -238,7 +239,7 @@
         "rpart",
         "viridisLite"
       ],
-      "Hash": "30eba6d0597b6af63edeb31056fdbab1"
+      "Hash": "f3fdfee5b4f9cd35a8da2f89942efe8b"
     },
     "J4R": {
       "Package": "J4R",
@@ -435,28 +436,27 @@
     },
     "NLMR": {
       "Package": "NLMR",
-      "Version": "1.2.0",
+      "Version": "1.4.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteUsername": "ropensci",
       "RemoteRepo": "NLMR",
       "RemoteRef": "main",
-      "RemoteSha": "7d5434d6c50b571d95c742f6e73f678c3f26636f",
+      "RemoteSha": "9f8c0db8c4543db6e3ea84c62b6a092406eaca54",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
         "Rcpp",
         "checkmate",
         "dplyr",
-        "fasterize",
-        "raster",
         "sf",
         "spatstat.geom",
         "spatstat.random",
         "stats",
+        "terra",
         "tibble"
       ],
-      "Hash": "bc54436f28b63a9617f660f8954f117a"
+      "Hash": "478a89c1cc20e31f82324004be3ae135"
     },
     "PSPclean": {
       "Package": "PSPclean",
@@ -543,10 +543,10 @@
     },
     "RANN": {
       "Package": "RANN",
-      "Version": "2.6.2",
+      "Version": "2.6.3",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "Hash": "3c15b582f2cb4394b4b2a1ba85a1e987"
+      "Repository": "CRAN",
+      "Hash": "9580967514e0c49969578af93feebdf3"
     },
     "RApiSerialize": {
       "Package": "RApiSerialize",
@@ -637,7 +637,7 @@
     },
     "RcppArmadillo": {
       "Package": "RcppArmadillo",
-      "Version": "15.4.2-1",
+      "Version": "15.6.0-1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -647,7 +647,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "f7694f9bd161314b273073279998a69b"
+      "Hash": "42ca2009fc269c88b7558555e9c0b984"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
@@ -664,13 +664,13 @@
     },
     "RcppParallel": {
       "Package": "RcppParallel",
-      "Version": "6.2.0",
+      "Version": "6.2.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "ae97343f2392836689f02881879ff787"
+      "Hash": "a070451e28c139ebec7d4be832f1ab3a"
     },
     "Rdpack": {
       "Package": "Rdpack",
@@ -1100,9 +1100,9 @@
     },
     "arrow": {
       "Package": "arrow",
-      "Version": "25.0.0",
+      "Version": "25.0.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "R6",
@@ -1118,7 +1118,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "d8c220599be46a5d07f6837e715bfe13"
+      "Hash": "b029a47a9e75c4bdddfbaf6229cde94c"
     },
     "askpass": {
       "Package": "askpass",
@@ -1172,9 +1172,9 @@
     },
     "bbmle": {
       "Package": "bbmle",
-      "Version": "1.0.25.1",
+      "Version": "1.0.26",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "MASS",
         "Matrix",
@@ -1187,13 +1187,13 @@
         "stats",
         "stats4"
       ],
-      "Hash": "f32b6a1dfc5c80504326aa3474b10fe6"
+      "Hash": "396a7b1942d021991ee82d978ff6a00d"
     },
     "bdsmatrix": {
       "Package": "bdsmatrix",
       "Version": "1.3-7",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Requirements": [
         "R",
         "methods"
@@ -1261,7 +1261,7 @@
     },
     "bit64": {
       "Package": "bit64",
-      "Version": "4.8.4",
+      "Version": "4.8.6",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1272,7 +1272,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "80a9831ac0f71e2b53c9572ab97c490f"
+      "Hash": "36ab281fe85b6294eb3d9f220880383c"
     },
     "bitops": {
       "Package": "bitops",
@@ -1316,9 +1316,9 @@
     },
     "bookdown": {
       "Package": "bookdown",
-      "Version": "0.47",
+      "Version": "0.48",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "htmltools",
@@ -1329,7 +1329,7 @@
         "xfun",
         "yaml"
       ],
-      "Hash": "8c7d79b102e6beb6c37699f87e2996a5"
+      "Hash": "0e20678bb18907a132328f16a81210fb"
     },
     "boot": {
       "Package": "boot",
@@ -1416,7 +1416,7 @@
       "Package": "bslib",
       "Version": "0.12.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Requirements": [
         "R",
         "base64enc",
@@ -1438,7 +1438,7 @@
       "Package": "cachem",
       "Version": "1.1.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "fastmap",
         "rlang"
@@ -1620,14 +1620,14 @@
     },
     "collapse": {
       "Package": "collapse",
-      "Version": "2.1.7",
+      "Version": "2.1.8",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "Rcpp"
       ],
-      "Hash": "9c35542dc0acb8ff66128047585a7fef"
+      "Hash": "f2a7be839496c450f60a05b5b3dff99b"
     },
     "collections": {
       "Package": "collections",
@@ -1654,7 +1654,7 @@
       "Package": "commonmark",
       "Version": "2.0.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Hash": "8cba62334c1088d21689d353a7e87663"
     },
     "corrplot": {
@@ -1739,9 +1739,9 @@
     },
     "crew": {
       "Package": "crew",
-      "Version": "1.3.2",
+      "Version": "1.3.3",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "R6",
@@ -1761,7 +1761,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "6323f4601c398d39cd3640871f05bf42"
+      "Hash": "1402ed8db7162e1941b5948c9bd5b729"
     },
     "crew.ssh": {
       "Package": "crew.ssh",
@@ -1785,7 +1785,7 @@
       "Package": "crosstalk",
       "Version": "1.2.2",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R6",
         "htmltools",
@@ -1796,24 +1796,24 @@
     },
     "curl": {
       "Package": "curl",
-      "Version": "7.1.0",
+      "Version": "8.0.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "2e004ed19964915a8faf48a574439be9"
+      "Hash": "6b0b58d319e1cfbc7565adef80027f9f"
     },
     "data.table": {
       "Package": "data.table",
-      "Version": "1.18.4",
+      "Version": "1.18.6.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "methods"
       ],
-      "Hash": "da9ddede68a6f6e5d3098c0ab81b6e1f"
+      "Hash": "c0ce0fcc27807c5a19d135914fdc0359"
     },
     "dbplyr": {
       "Package": "dbplyr",
@@ -1922,9 +1922,9 @@
     },
     "diffobj": {
       "Package": "diffobj",
-      "Version": "0.3.8",
+      "Version": "0.3.9",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Requirements": [
         "R",
         "crayon",
@@ -1933,7 +1933,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "fc69a29e9a851af8d0d07b3d4ed1dea4"
+      "Hash": "c82d2df0001653a4619514755befe72f"
     },
     "digest": {
       "Package": "digest",
@@ -2227,7 +2227,7 @@
       "Package": "fontawesome",
       "Version": "0.5.3",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "htmltools",
@@ -2704,7 +2704,7 @@
     },
     "ggspatial": {
       "Package": "ggspatial",
-      "Version": "1.1.10",
+      "Version": "1.1.11",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2721,26 +2721,29 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "a065e21174bbce1866deff1e30d26ca5"
+      "Hash": "4ba92c750ec47b7f68f04c04b252d2ac"
     },
     "ggthemes": {
       "Package": "ggthemes",
-      "Version": "5.2.0",
+      "Version": "6.0.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
+        "cli",
         "ggplot2",
         "graphics",
         "grid",
         "lifecycle",
         "methods",
         "purrr",
+        "rlang",
         "scales",
+        "stats",
         "stringr",
         "tibble"
       ],
-      "Hash": "acbe040c689f2a70facd2f2f3f805c11"
+      "Hash": "f467289516f58dbf8bee601b7359d5ea"
     },
     "gh": {
       "Package": "gh",
@@ -2984,7 +2987,7 @@
       "Package": "htmlTable",
       "Version": "2.5.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Requirements": [
         "R",
         "checkmate",
@@ -3018,7 +3021,7 @@
       "Package": "htmlwidgets",
       "Version": "1.6.4",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "grDevices",
         "htmltools",
@@ -3046,7 +3049,7 @@
     },
     "httr": {
       "Package": "httr",
-      "Version": "1.4.8",
+      "Version": "1.4.9",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3057,7 +3060,7 @@
         "mime",
         "openssl"
       ],
-      "Hash": "10bcae7793493db63a6872096132e10c"
+      "Hash": "bc0b2d531d78701c4cd1221adbf052ce"
     },
     "httr2": {
       "Package": "httr2",
@@ -3123,7 +3126,7 @@
     },
     "insight": {
       "Package": "insight",
-      "Version": "1.5.2",
+      "Version": "1.5.4",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3132,7 +3135,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "7b9afd9199b100e5deaa3f91d6faff2b"
+      "Hash": "2732048678f3de774af9c3d678eb8c2a"
     },
     "interp": {
       "Package": "interp",
@@ -3186,7 +3189,7 @@
       "Package": "jquerylib",
       "Version": "0.1.4",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "htmltools"
       ],
@@ -3268,7 +3271,7 @@
     },
     "knitr": {
       "Package": "knitr",
-      "Version": "1.51",
+      "Version": "1.52",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3280,7 +3283,7 @@
         "xfun",
         "yaml"
       ],
-      "Hash": "27682babb50f03b6eb7939ea69ec79ca"
+      "Hash": "4d63263f549e7fc46135cf1f9916c97f"
     },
     "ks": {
       "Package": "ks",
@@ -3381,7 +3384,7 @@
       "Package": "lazyeval",
       "Version": "0.2.3",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "rlang"
@@ -3412,7 +3415,7 @@
       "Package": "leaflet",
       "Version": "2.2.3",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "RColorBrewer",
@@ -3436,14 +3439,13 @@
     },
     "leaflet.extras": {
       "Package": "leaflet.extras",
-      "Version": "2.0.1.9000",
+      "Version": "2.1.0.9000",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "leaflet.extras",
       "RemoteUsername": "trafficonese",
-      "RemotePkgRef": "trafficonese/leaflet.extras",
-      "RemoteSha": "e619a981fd39be0733ba1c06a6e10e2dcf8d3f77",
+      "RemoteRepo": "leaflet.extras",
+      "RemoteSha": "1131304b66e32c91fe357dbe3c0edaf174f0ace2",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
         "htmltools",
@@ -3452,13 +3454,13 @@
         "magrittr",
         "stringr"
       ],
-      "Hash": "68415b6ede2e29e12f152b15eda9ae49"
+      "Hash": "b0f1135413e2dbfc6fa96388fdb0c727"
     },
     "leaflet.providers": {
       "Package": "leaflet.providers",
       "Version": "3.0.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "htmltools"
@@ -3505,7 +3507,7 @@
     },
     "litedown": {
       "Package": "litedown",
-      "Version": "0.10",
+      "Version": "0.11",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3514,7 +3516,7 @@
         "utils",
         "xfun"
       ],
-      "Hash": "0bb78ad1932aa147c433f16183382219"
+      "Hash": "858c349e42f5f8701215ddfc9fbd6fe4"
     },
     "lme4": {
       "Package": "lme4",
@@ -3559,7 +3561,7 @@
     },
     "lobstr": {
       "Package": "lobstr",
-      "Version": "1.2.1",
+      "Version": "1.2.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3570,7 +3572,7 @@
         "prettyunits",
         "rlang"
       ],
-      "Hash": "9fec72097a9811b221476c2b463a7961"
+      "Hash": "85a711d9512b3d6d8286523702573846"
     },
     "logging": {
       "Package": "logging",
@@ -3777,7 +3779,7 @@
       "Package": "memoise",
       "Version": "2.0.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "cachem",
         "rlang"
@@ -4140,7 +4142,7 @@
       "Package": "numDeriv",
       "Version": "2016.8-1.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Requirements": [
         "R"
       ],
@@ -4158,9 +4160,9 @@
     },
     "openxlsx": {
       "Package": "openxlsx",
-      "Version": "4.2.8.1",
+      "Version": "4.2.9",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "Rcpp",
@@ -4171,7 +4173,7 @@
         "utils",
         "zip"
       ],
-      "Hash": "a1565bd9ee11620aeea591cc037b3aa1"
+      "Hash": "1c1dadea5109c1c3d92cc1967436a503"
     },
     "otel": {
       "Package": "otel",
@@ -4185,15 +4187,15 @@
     },
     "pROC": {
       "Package": "pROC",
-      "Version": "1.19.0.1",
+      "Version": "1.19.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "Rcpp",
         "methods"
       ],
-      "Hash": "983b42de92b81b94e7bcfa59aee6b517"
+      "Hash": "3549391e73e97e8955fe372a8234e2ce"
     },
     "pak": {
       "Package": "pak",
@@ -5081,9 +5083,9 @@
     },
     "rmarkdown": {
       "Package": "rmarkdown",
-      "Version": "2.31",
+      "Version": "2.32",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "bslib",
@@ -5100,7 +5102,7 @@
         "xfun",
         "yaml"
       ],
-      "Hash": "f34039d57d861d2869cbf9be813ed08e"
+      "Hash": "b1ca7a0b03d962df0a17e8079cbaa376"
     },
     "rms": {
       "Package": "rms",
@@ -5182,7 +5184,7 @@
     },
     "rosm": {
       "Package": "rosm",
-      "Version": "0.3.1",
+      "Version": "0.3.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -5194,7 +5196,7 @@
         "rlang",
         "wk"
       ],
-      "Hash": "14c0023fdb16dddf88fd43b321dd1948"
+      "Hash": "99593670ab28b4f1065d29e97c0f84d0"
     },
     "roxygen2": {
       "Package": "roxygen2",
@@ -5312,7 +5314,7 @@
     },
     "s2": {
       "Package": "s2",
-      "Version": "1.1.11",
+      "Version": "1.1.12",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -5320,7 +5322,7 @@
         "Rcpp",
         "wk"
       ],
-      "Hash": "54b09824b3ac78eb4fa44f76c0616131"
+      "Hash": "f5ef897fa7016747ea5dd36bb7eee994"
     },
     "sandwich": {
       "Package": "sandwich",
@@ -5342,7 +5344,7 @@
       "RemoteType": "github",
       "RemoteUsername": "hughjonesd",
       "RemoteRepo": "santoku",
-      "RemoteSha": "be23754d24018b9b0c376ffc6e31c748ebc00931",
+      "RemoteSha": "3781e5a57e3a59a12be58f4b6ef2f6b5bf78dfb4",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
@@ -5353,13 +5355,13 @@
         "rlang",
         "vctrs"
       ],
-      "Hash": "ab7c253a8662181d6cf05f93e6706acb"
+      "Hash": "28b6a80d6e8abb8a65cde0d08358b022"
     },
     "sass": {
       "Package": "sass",
       "Version": "0.4.10",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R6",
         "fs",
@@ -5437,14 +5439,14 @@
     },
     "selectr": {
       "Package": "selectr",
-      "Version": "0.6-0",
+      "Version": "0.7-0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "R6"
       ],
-      "Hash": "c538f20abf5a9a4ab8fac8f1ee3f50e8"
+      "Hash": "ccabc767e3f7ad469e28a2c6eba1f09a"
     },
     "servr": {
       "Package": "servr",
@@ -5475,9 +5477,9 @@
     },
     "sf": {
       "Package": "sf",
-      "Version": "1.1-2",
+      "Version": "1.1-3",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "DBI",
         "R",
@@ -5493,7 +5495,7 @@
         "units",
         "utils"
       ],
-      "Hash": "02483c8ee4115581472646cd5d5984d9"
+      "Hash": "20d487acd286530ae32a07d955d1a77e"
     },
     "sfheaders": {
       "Package": "sfheaders",
@@ -5719,7 +5721,7 @@
       "Package": "spatstat.data",
       "Version": "3.1-9",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Requirements": [
         "Matrix",
         "R",
@@ -5754,7 +5756,7 @@
     },
     "spatstat.geom": {
       "Package": "spatstat.geom",
-      "Version": "3.8-2",
+      "Version": "3.8-3",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -5770,13 +5772,13 @@
         "stats",
         "utils"
       ],
-      "Hash": "1845cc2baa22ffc7bb17f11719234532"
+      "Hash": "0edfa1d2526ef1d84229e35c2658c09c"
     },
     "spatstat.random": {
       "Package": "spatstat.random",
       "Version": "3.5-1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Requirements": [
         "Matrix",
         "R",
@@ -5796,7 +5798,7 @@
       "Package": "spatstat.sparse",
       "Version": "3.2-0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Requirements": [
         "Matrix",
         "R",
@@ -5813,7 +5815,7 @@
       "Package": "spatstat.univar",
       "Version": "3.2-0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Requirements": [
         "R",
         "graphics",
@@ -5824,7 +5826,7 @@
     },
     "spatstat.utils": {
       "Package": "spatstat.utils",
-      "Version": "3.2-4",
+      "Version": "3.2-5",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -5835,7 +5837,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "dd4c04775caa52160354d66ad778ac08"
+      "Hash": "c0d2ffb4c71a37bfcb75c96fb5d50483"
     },
     "spdep": {
       "Package": "spdep",
@@ -6026,25 +6028,21 @@
       "Package": "tensor",
       "Version": "1.5.1",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Hash": "f8a2a103e9fd7dfc81e71b05e2346912"
     },
     "terra": {
       "Package": "terra",
-      "Version": "1.9-48",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "rspatial",
-      "RemoteRepo": "terra",
-      "RemoteRef": "master",
-      "RemoteSha": "df01870325236c25b650ebaaf30ff380fdfe92a7",
+      "Version": "1.9-50",
+      "Source": "Repository",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
       "Requirements": [
         "R",
         "Rcpp",
-        "methods"
+        "methods",
+        "stats"
       ],
-      "Hash": "9e0c228d888f013bade673e29affdd8e"
+      "Hash": "e64a4216e400db78db4f6ed2d72695f4"
     },
     "testthat": {
       "Package": "testthat",
@@ -6165,9 +6163,9 @@
     },
     "tidyterra": {
       "Package": "tidyterra",
-      "Version": "1.2.0",
+      "Version": "1.3.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "cli",
@@ -6189,7 +6187,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "6f3c272fc0be0b0225c89076022cb747"
+      "Hash": "7b4ea4b9b4cc793cfc387ab820921aa9"
     },
     "tiler": {
       "Package": "tiler",
@@ -6236,13 +6234,13 @@
     },
     "tinytex": {
       "Package": "tinytex",
-      "Version": "0.60",
+      "Version": "0.61",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "xfun"
       ],
-      "Hash": "263651b52279eaa7835e44aa32f9b754"
+      "Hash": "e98513b92c1ef46d465f869ab27cf6d7"
     },
     "tweenr": {
       "Package": "tweenr",
@@ -6314,7 +6312,7 @@
     },
     "usethis": {
       "Package": "usethis",
-      "Version": "3.2.1",
+      "Version": "3.2.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -6330,19 +6328,17 @@
         "glue",
         "jsonlite",
         "lifecycle",
+        "pak",
         "purrr",
         "rappdirs",
         "rlang",
         "rprojroot",
         "rstudioapi",
-        "stats",
-        "tools",
-        "utils",
         "whisker",
         "withr",
         "yaml"
       ],
-      "Hash": "caa93b7eada0b69e299f61db5984faa7"
+      "Hash": "eec21ae272707e8b5e26d4cd30b794e5"
     },
     "utf8": {
       "Package": "utf8",
@@ -6576,7 +6572,7 @@
     },
     "xfun": {
       "Package": "xfun",
-      "Version": "0.60",
+      "Version": "0.61",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -6585,7 +6581,7 @@
         "stats",
         "tools"
       ],
-      "Hash": "8304c2894061f6ae062996f09dd1528e"
+      "Hash": "963d31271610fe02db20d76dc4b2c773"
     },
     "xml2": {
       "Package": "xml2",
@@ -6647,9 +6643,9 @@
     },
     "yulab.utils": {
       "Package": "yulab.utils",
-      "Version": "0.2.4",
+      "Version": "0.2.5",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "cli",
@@ -6661,7 +6657,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "f99f7e9349cd473c4ff6cc0b413cbd7f"
+      "Hash": "07a277c02ce7b95ecd0ce93acd51fbdb"
     },
     "zip": {
       "Package": "zip",
