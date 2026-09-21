@@ -21,7 +21,9 @@ local <- list(
   #   "MidBorealLowland", "PeaceLowland", "NorthernContinentalDivide", "BigTroutLake",
   #   "SlaveRiverLowland", "WesternBoreal"
   # ),
-  n_reps = 5L,
+  ## 15 reps: within the terra per-worker cap, which is sized by `local_workers` (8) per node,
+  ## not by n_reps -- 15 branches fill the 16 crew.ssh slots (8 pinus + 8 picea) in one wave.
+  n_reps = 15L,
 
   ## SpaDES paths. Heavy IO belongs on docker-visible NVMe scratch, not /home or NFS.
   ## TODO (after a preamble run completes): these paths are NOT reaching the run --

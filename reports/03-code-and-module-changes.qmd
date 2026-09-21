@@ -53,7 +53,8 @@ This notice will be removed once a complete review has been carried out.
 
 # Overview
 
-LandWeb v3 is a substantial rebuild of the modelling infrastructure rather than a change of ecological content.
+LandWeb v3 is primarily a rebuild of the modelling infrastructure rather than of the ecological content.
+The exceptions are set out under [Changes that alter results](#changes-that-alter-results) below, and they are not cosmetic: the leading-species threshold and the mixedwood rule both changed, so v3 vegetation type maps are not directly comparable with v2's.
 The simulation science --- the `LandR` Biomass vegetation modules [@R-LandR] and the LandMine fire model --- is retained, but the way those modules are **orchestrated, cached, and dispatched** has been rewritten, and the input data modernized (see the study-area vegetation and fire-model-inputs reports).
 This report reconstructs the code and module changes across the v2 (2020--2023) to v3 (2024--2026) window.
 
@@ -78,6 +79,42 @@ In v3, a **`targets` pipeline** owns orchestration and caching; the SpaDES modul
 The motivation was reliability, not preference: the `reproducible` cache and `saveSimList()` were fragile with environment references and `terra` pointers, and upstream framework churn (below) kept breaking long-running configurations.
 Routing caching and orchestration through `targets` --- which invalidates by content and rebuilds only what changed --- removed a large, recurring source of failure and made the multi-machine rep-scaling tractable.
 This is the PERFICT-style continuous, tested, reusable workflow argued for in @McIntire:2022 and @Barros2023, realized for LandWeb.
+
+# Changes that alter results {#changes-that-alter-results}
+
+Most of the v3 work leaves model behaviour untouched, but a few changes move the numbers, and they are collected here so a v2-to-v3 comparison is not read as if like were being compared with like.
+
+## Leading-species threshold: 0.80 to 0.75
+
+`vegLeadingProportion` --- the share of a stand a species (or group) must hold to be called leading --- is **0.75 in v3, where v2 used 0.80**.
+
+The reason is agreement with the input data rather than preference.
+The land cover v3 reads is NTEMS/SCANFI.
+SCANFI builds its three treed classes --- treed conifer, treed mixedwood, treed broadleaf --- "by aggregating crown closure values of individual tree species and using the proportion of broadleaf species" [@scanfi-methods], i.e. on the summed share of a species *group* rather than on any single species, which is the same quantity `mixedType = 2` compares.
+The threshold those classes are cut at is 75%, set by the EOSD land cover legend --- "Coniferous trees are 75% or more of total basal area", "Broadleaf trees are 75% or more of total basal area", and Mixed Wood where "Neither coniferous nor broadleaf trees account for 75% or more of total basal area" [@wulder_nelson_2003_eosd, Table 3, p. 15] --- and inherited by the NTEMS/VLCE land cover, whose classes follow that EOSD/NFI hierarchy [@hermosilla2018vlce]. Canada's NFI photo plot scheme draws the same 75% line on total tree *volume* rather than basal area, for its TC/TB/TM classes, with at least 10% crown cover required to be treed at all [@nfi_photoplot_dd_61].
+In both schemes crown closure is a separate axis that sets density, never composition.
+Classifying our stands at 0.80 therefore put a band of stands in a different class from the label carried by the very product their cover came from.
+Classifying our stands at 0.80 meant a band of stands between the two thresholds carried a leading-type label that disagreed with the label in the very product the stand's cover came from. 0.75 is also `LandR`'s `LandR.mixedwoodProp` default since [LandR#234](https://github.com/PredictiveEcology/LandR/pull/234), which replaced an earlier three-option scheme with two options: `LandR.mixedwoodProp` (the group threshold) and `LandR.leadingSpeciesProp` (the single-species threshold, which inherits it).
+
+The threshold is pinned once, in the pipeline's `.globals`, rather than left to each module.
+Module defaults disagree --- 0.8 in LandMine, NRV_summary and HSI_Caribou_MB, `LandR::leadingSpeciesProp()` in the `Biomass_*` modules --- and `paramCheckOtherMods()` makes any disagreement between modules a hard error, so a single pinned value is what keeps the pipeline internally consistent.
+
+Every vegetation type map in the pipeline is affected, because all seven call sites (`Biomass_core`, `Biomass_speciesData`, `LandMine`, `NRV_summary`, `HSI_Caribou_MB`) pass the pinned value explicitly.
+That includes the maps `NRV_summary` derives its leading-vegetation metrics from, so the reported NRV summaries shift accordingly.
+
+## Mixedwood is now judged on the broadleaf group
+
+Under `mixedType = 2` --- which every call site in the pipeline uses --- `LandR` previously tested each broadleaf species separately against the threshold.
+Three broadleaf species at 15% each is 45% broadleaf, mixedwood by the definition, yet was classified pure conifer.
+[LandR#234](https://github.com/PredictiveEcology/LandR/pull/234) changed the comparison to the summed broadleaf share.
+Deciduous conifers are unaffected: `Larix` is typed `Conifer` in `sppEquivalencies_CA`, so tamarack never pushes a stand toward mixedwood.
+
+This change and the threshold change act on the same maps and in the same direction for some stands and opposite directions for others, so their effects cannot be separated after the fact by inspecting outputs alone.
+
+## Parameter estimation in `Biomass_borealDataPrep`
+
+The v3 upstream merge also changed how stand-level parameters are estimated; these are documented with the module below, and each was an explicit choice rather than an inherited default.
+The deciduous cover weight is now **fitted per study area** instead of carrying a hardcoded constant; wetland is read from the Canadian Wetland Inventory Map so treed wetland is distinguishable from upland forest; strata are `ecoregion x site x composition` rather than land cover alone; a `maxB` the fit clamped to zero is floored at the 95th percentile of observed biomass; and the estimation subsample is `LandR::subsetDataSize()` (500 rows per group) rather than a pinned 100.
 
 # SpaDES module changes
 
