@@ -163,7 +163,13 @@ globals <- list(
   successionTimestep = 10L,
   summaryInterval = 50L,
   summaryPeriod = c(700, 1000),
-  vegLeadingProportion = 0.8,
+  ## 0.75, NOT the historical 0.8: this is the threshold NTEMS/SCANFI themselves used when
+  ## building the land cover we read, so classifying our own stands at 0.8 would disagree with
+  ## the labels in the input data. It also matches LandR's `LandR.mixedwoodProp` default since
+  ## PredictiveEcology/LandR#234. Pinned here rather than left to the modules because their
+  ## defaults disagree (0.8 in LandMine/NRV_summary/HSI_Caribou_MB, `LandR::leadingSpeciesProp()`
+  ## in the Biomass_* ones) and `paramCheckOtherMods()` errors if two modules differ.
+  vegLeadingProportion = 0.75,
   .plotInitialTime = 0,
   .plots = "png",
   .sslVerify = 0L,
