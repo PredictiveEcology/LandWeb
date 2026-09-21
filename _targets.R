@@ -225,7 +225,21 @@ study_area_targets <- function(sa) {
   p_dataPrep <- list(
     .globals = globals_sa,
     Biomass_borealDataPrep = list(
-      adjustAgeAndLongevity = TRUE,
+      ## OFF, matching the module default. This rewrites every species' `longevity` from the
+      ## observed age raster (`quantile(age, 0.99) * 1.3`) and caps cohort ages at a hard-coded
+      ## 0.9 of it. On WesternAlbertaUpland it moved all 7 species, by -37% to +94% -- Abie_spp
+      ## 200 -> 388 and Pinu_spp 150 -> 283 are not credible as life-history traits, and the
+      ## age layer's upper tail is exactly where its known problems live.
+      ##
+      ## It has also never actually applied here: LandWeb sets LCCClassesToReplaceNN = 240, and
+      ## upstream PR #116 records that the rebuild that path used to run "re-ran age imputation,
+      ## skipped `adjustAgeAndLongevity`". So no LandWeb result to date has used it, and turning
+      ## it on now would be a new, unvalidated behaviour rather than a restoration.
+      ##
+      ## The feature carries no documented rationale anywhere -- no NEWS, manual, or PR text
+      ## explains when to enable it -- its originating PR was closed unmerged, it has never
+      ## reached upstream `main`, and it is still producing bugs (PredictiveEcology/LandR#245).
+      adjustAgeAndLongevity = FALSE,
       biomassModel = quote(lme4::lmer(
         B ~ logAge * speciesCode + cover * speciesCode + (logAge + cover | ecoregionGroup)
       )),
