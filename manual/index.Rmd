@@ -105,6 +105,5 @@ These are described in further detail in [Model outputs].
 
 ## Previous Manual Versions
 
-If available, archived copies of previous manual versions are provided at the links below.
-
--   [LandR Manual v3.0.0](archive/pdf/LandWeb-manual-v3.0.0.pdf) (*current*)
+Archived copies of previous manual versions are listed on the [archive page](archive/).
+That page is generated from the PDFs actually published, so it cannot fall out of step with them.

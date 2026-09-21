@@ -4,9 +4,9 @@ name: landweb-manual
 
 on:
   push:
-    branches: [main]
+    branches: [main, targets]
   pull_request:
-    branches: [main]
+    branches: [main, targets]
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -32,7 +32,7 @@ jobs:
       RENV_PATHS_ROOT: ~/.cache/R/renv
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: true
 
@@ -40,45 +40,91 @@ jobs:
 
       - uses: r-lib/actions/setup-tinytex@v2
 
+      ## TODO: pin to a tag once one exists. The published v0.4/v0.5 still add the
+      ## ubuntugis PPA, whose libgdal does not match what the P3M binaries were built
+      ## against; only `main` has that removed.
       - uses: PredictiveEcology/actions/install-spatial-deps@main
-
-      - name: Install additional system dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y \
-          libarchive-dev \
-          libcurl4-openssl-dev \
-          libgit2-dev \
-          libglpk-dev \
-          libmagick++-dev \
-          libxml2-dev
 
       - uses: r-lib/actions/setup-r@v2
         with:
           extra-repositories: 'https://predictiveecology.r-universe.dev/'
           Ncpus: 2
-          r-version: 4.5.1
+          r-version: 4.6.1
           use-public-rspm: false
+
+      ## `setup-renv` restores a lockfile and does NOT resolve system requirements, unlike
+      ## `setup-r-dependencies`, which delegates to pak and installs them itself. The apt
+      ## list here used to be hand-written, and each omission failed the same way: a binary
+      ## package installs, then fails to LOAD on a missing .so minutes later. Derive it from
+      ## renv.lock instead, so it tracks the lockfile. `--vanilla` keeps renv's autoloader
+      ## from bootstrapping the project library before the list has even been computed.
+      - name: Install system dependencies derived from renv.lock
+        if: runner.os == 'Linux'
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          Rscript --vanilla -e 'if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv", repos = "https://cloud.r-project.org")'
+          Rscript --vanilla .github/scripts/sysreqs.R renv.lock "$RUNNER_TEMP/sysreqs.txt"
+          echo "::group::system dependencies derived from renv.lock"
+          cat "$RUNNER_TEMP/sysreqs.txt"
+          echo "::endgroup::"
+          sudo -E apt-get update -y
+          xargs -a "$RUNNER_TEMP/sysreqs.txt" sudo -E apt-get install -y --no-install-recommends
 
       - uses: r-lib/actions/setup-renv@v2
         # with:
         #   profile: '"manual"'
 
+      ## With `output_dir` set, a SUCCESSFUL render leaves knitr's cache at
+      ## manual/<book_filename>_cache/ and the figures at <book_filename>_files/ --
+      ## `delete_merged_file` removes LandWeb_manual.Rmd before bookdown's on.exit runs,
+      ## so nothing is stowed under `_bookdown_files`. A render that ERRORS still has
+      ## that .Rmd on disk, and bookdown then moves both into manual/_bookdown_files/ --
+      ## hence all three paths, so a failed build still saves a cache for the retry.
       - name: Cache bookdown results
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
-          path: manual/_bookdown_files
+          path: |
+            manual/*_cache
+            manual/*_files
+            manual/_bookdown_files
           key: bookdown-${{ hashFiles('**/*Rmd') }}
           restore-keys: bookdown-
 
+      ## tinytex::latexmk() cleans its aux files on exit, taking LandWeb_manual.log
+      ## with it -- the one file the error message tells you to read. Turn that off
+      ## here rather than in build.R, so a local build keeps its usual behaviour.
       - name: Build LandWeb manual
         run: |
+          options(tinytex.clean = FALSE)
           source("manual/build.R")
         shell: Rscript {0}
 
+      ## A LaTeX failure reports a line number in the GENERATED .tex, which is not
+      ## reproducible from the sources alone: the chapters are staged by
+      ## prepManualRmds() and the figures are knitted. Without these, diagnosing a
+      ## render error means rebuilding the whole book somewhere else.
+      - name: Upload manual build artefacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: manual-build-debug
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            manual/LandWeb_manual.tex
+            manual/LandWeb_manual.log
+            manual/*.log
+            manual/_manual_rmds/
+            manual/LandWeb_manual_files/
+            docs/LandWeb_manual.tex
+            docs/LandWeb_manual.log
+
+      ## `targets` builds to prove the manual still renders; only `main` publishes.
+      ## Without the ref guard every push to a development branch would overwrite the
+      ## live site (deploy uses clean: false, so it cannot even be undone by a rebuild).
       - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           clean: false
