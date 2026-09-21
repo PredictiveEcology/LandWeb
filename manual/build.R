@@ -74,9 +74,15 @@ withr::with_dir(normalizePath(manDir), {
     archiveDir = file.path(manDir, "archive", "pdf")
   )
 
-  ## index.Rmd links archived PDFs as `archive/pdf/<file>`, i.e. relative to the PUBLISHED
-  ## site, so the archive has to be copied into docs/ or those links 404.
-  file.copy(file.path(manDir, "archive"), paths$docs, recursive = TRUE)
+  ## The archived PDFs are tracked in the repo, but the published branch is rebuilt by
+  ## every deploy, so they have to be copied into docs/ or their links 404.
+  ## publishManualArchive() also writes an index page built from the files actually
+  ## present, which is why index.Rmd links the page instead of listing versions itself.
+  publishManualArchive(
+    archiveDir = file.path(manDir, "archive", "pdf"),
+    docsDir = paths$docs,
+    manualName = "LandWeb manual"
+  )
 
   ## remove the temporary .Rmds, at wherever prepManualRmds() actually staged them
   unlink(unique(dirname(.copyModuleRmds)), recursive = TRUE)

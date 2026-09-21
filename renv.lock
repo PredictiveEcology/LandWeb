@@ -802,14 +802,14 @@
     },
     "SpaDES.docs": {
       "Package": "SpaDES.docs",
-      "Version": "0.3.0",
+      "Version": "0.4.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.docs",
-      "RemoteRef": "main",
-      "RemoteSha": "d8abaf24dc10e55a1202d174e99f52316e0c0d26",
+      "RemoteRef": "v0.4.0",
+      "RemoteSha": "fcad5690c33484eab67074b011b1aec07a1ca6b5",
       "Requirements": [
         "R",
         "Require",
@@ -821,7 +821,7 @@
         "utils",
         "yaml"
       ],
-      "Hash": "5ca0e65b9e59b41a0fee0f5c4876b24b"
+      "Hash": "8a54ec8d1f0debd5ef5013141dc22abc"
     },
     "SpaDES.project": {
       "Package": "SpaDES.project",
