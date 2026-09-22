@@ -15,7 +15,9 @@
 *.xml
 *.zip
 
-docs/\.~lock\.LandWeb_module_diagram\.odp#
+## rendered manual site: manual/build.R writes it and CI deploys it from the
+## runner, so a committed copy is never read -- only rewritten by local renders
+/docs/
 
 ## cache files
 *_cache
