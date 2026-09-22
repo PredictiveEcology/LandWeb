@@ -1,14 +1,29 @@
 {
-  "extraKnownMarketplaces": {
-    "ai-workflows": {
-      "source": { "source": "github", "repo": "FOR-CAST/ai_workflows" }
-    },
-    "posit-dev-skills": {
-      "source": { "source": "github", "repo": "posit-dev/skills" }
-    }
-  },
   "enabledPlugins": {
     "r-bundle-spades@ai-workflows": true,
-    "r-bundle-targets@ai-workflows": true
+    "r-bundle-targets@ai-workflows": true,
+    "r-bundle-research@ai-workflows": true,
+    "r-targets@ai-workflows": true,
+    "r-project-core@ai-workflows": true,
+    "r-geospatial@ai-workflows": true,
+    "r-reporting@ai-workflows": true,
+    "r-code-review@ai-workflows": true,
+    "r-package-dev@ai-workflows": true,
+    "r-lib@posit-dev-skills": true,
+    "r-spades@ai-workflows": true
+  },
+  "extraKnownMarketplaces": {
+    "ai-workflows": {
+      "source": {
+        "source": "github",
+        "repo": "FOR-CAST/ai_workflows"
+      }
+    },
+    "posit-dev-skills": {
+      "source": {
+        "source": "github",
+        "repo": "posit-dev/skills"
+      }
+    }
   }
 }
