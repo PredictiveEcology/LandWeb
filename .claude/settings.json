@@ -25,5 +25,8 @@
         "repo": "posit-dev/skills"
       }
     }
+  },
+  "env": {
+    "FORCAST_LONGRUN_PATTERNS": "tar_make.*LandWeb|LandWeb.*tar_make"
   }
 }
