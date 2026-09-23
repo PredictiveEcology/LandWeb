@@ -535,7 +535,7 @@
       "Package": "R6",
       "Version": "2.6.1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R"
       ],
@@ -852,14 +852,14 @@
     },
     "SpaDES.targets": {
       "Package": "SpaDES.targets",
-      "Version": "0.0.0.9021",
+      "Version": "0.0.0.9022",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "SpaDES.targets",
       "RemoteRef": "main",
-      "RemoteSha": "6d3557946d89ea2498817bce6595b0c7dee60cbe",
+      "RemoteSha": "82d3434fb43f5960d78c4ac7c91e3f73f11dac2e",
       "Requirements": [
         "R",
         "cli",
@@ -872,7 +872,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "c3a75134d8679e48eda49ed0ad040dcc"
+      "Hash": "1050c921ffb11c339a74c952b8050825"
     },
     "SpaDES.tools": {
       "Package": "SpaDES.tools",
@@ -1144,7 +1144,7 @@
       "Package": "backports",
       "Version": "1.5.1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R"
       ],
@@ -1449,7 +1449,7 @@
       "Package": "callr",
       "Version": "3.8.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "R6",
@@ -1539,7 +1539,7 @@
       "Package": "cli",
       "Version": "3.6.6",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "utils"
@@ -1705,7 +1705,7 @@
       "Package": "cpp11",
       "Version": "0.5.5",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R"
       ],
@@ -1808,7 +1808,7 @@
       "Package": "data.table",
       "Version": "1.18.6.1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R",
         "methods"
@@ -2085,7 +2085,7 @@
       "Package": "evaluate",
       "Version": "1.0.5",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R"
       ],
@@ -2337,7 +2337,7 @@
       "Package": "fs",
       "Version": "2.1.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "methods"
@@ -2825,7 +2825,7 @@
       "Package": "glue",
       "Version": "1.8.1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "methods"
@@ -2961,7 +2961,7 @@
       "Package": "highr",
       "Version": "0.12",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "xfun"
@@ -3098,7 +3098,7 @@
       "Package": "igraph",
       "Version": "2.3.3",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "Matrix",
         "R",
@@ -3273,7 +3273,7 @@
       "Package": "knitr",
       "Version": "1.52",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R",
         "evaluate",
@@ -3487,7 +3487,7 @@
       "Package": "lifecycle",
       "Version": "1.0.5",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "cli",
@@ -3642,7 +3642,7 @@
       "Package": "magrittr",
       "Version": "2.0.5",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R"
       ],
@@ -4179,7 +4179,7 @@
       "Package": "otel",
       "Version": "0.2.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R"
       ],
@@ -4323,7 +4323,7 @@
       "Package": "pillar",
       "Version": "1.11.1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "cli",
         "glue",
@@ -4376,7 +4376,7 @@
       "Package": "pkgconfig",
       "Version": "2.0.3",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "utils"
       ],
@@ -4565,7 +4565,7 @@
       "Package": "prettyunits",
       "Version": "1.2.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R"
       ],
@@ -4575,7 +4575,7 @@
       "Package": "processx",
       "Version": "3.9.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "R6",
@@ -4644,7 +4644,7 @@
       "Package": "ps",
       "Version": "1.9.3",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "utils"
@@ -6035,7 +6035,7 @@
       "Package": "terra",
       "Version": "1.9-50",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R",
         "Rcpp",
@@ -6092,7 +6092,7 @@
       "Package": "tibble",
       "Version": "3.3.1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "cli",
@@ -6149,7 +6149,7 @@
       "Package": "tidyselect",
       "Version": "1.2.1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "cli",
@@ -6344,7 +6344,7 @@
       "Package": "utf8",
       "Version": "1.2.6",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R"
       ],
@@ -6380,7 +6380,7 @@
       "Package": "vctrs",
       "Version": "0.7.3",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "cli",
@@ -6515,7 +6515,7 @@
       "Package": "withr",
       "Version": "3.0.3",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "grDevices",
@@ -6638,7 +6638,7 @@
       "Package": "yaml",
       "Version": "2.3.12",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Hash": "7cd77cb32abd9220d744307e9fc94ffb"
     },
     "yulab.utils": {
