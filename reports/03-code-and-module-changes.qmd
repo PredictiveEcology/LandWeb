@@ -701,7 +701,7 @@ knitr::kable(
 
 # Provenance {.unnumbered}
 
-- **Source:** the git history of the module submodules (`modules/`) and owned packages (`packages/`), plus the refactor design notes (`_tmp_refactor_targets.md`, `_tmp_spades_targets_bchrv_gaps.md`, `_tmp_upstream_issues.md`).
+- **Source:** the git history of the module submodules (`modules/`) and owned packages (`packages/`), plus the project's internal (unpublished) design notes for the `targets` refactor.
 - **Data file:** `` `r relpath(clog_csv)` ``
 - **Method:** the change-summary tables are built by `R/module_changelog.R` (target `module_changelog_csv`), which runs `git log` per component at render time; the narrative themes are hand-curated from the same history.
 

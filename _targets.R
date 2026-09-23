@@ -1,6 +1,6 @@
 # _targets.R -- LandWeb pipeline (per-study-area STATIC branching; N replicates via map(rep_index)).
 #
-# Proves the outputs-manifest pattern (Part J of the refactor plan): each stage
+# Proves the outputs-manifest pattern: each stage
 # runs simInitAndSpades in-process, declares what to save via outputs_spec()
 # (simInit `outputs`), and emits (a) a primary target holding the manifest of
 # files the run saved -- discovered dynamically from outputs(sim), so per-stage

@@ -10,7 +10,7 @@ local <- list(
   ## studyAreaCrosswalk.rds): each unions the v10 FMA/TSA/FML tenure polygons within one ecoregion
   ## so studyAreaANPP captures enough PSP data -- a lone small FMA (e.g. Edson) starved
   ## Biomass_speciesParameters. mainSim branches over rep_index (pattern = map(rep_index)).
-  ## Bring groups in incrementally during development; see _tmp_studyarea_regrouping.md.
+  ## Bring groups in incrementally during development.
   study_areas = c("WesternAlbertaUpland"),
   ## ALL 18 groups, largest -> smallest by pixel count (~0.04-1.85 Mpix @240m). Uncomment (or
   ## subset) to scale up; keep the single-area line above active while testing:
@@ -29,7 +29,7 @@ local <- list(
   ## TODO (after a preamble run completes): these paths are NOT reaching the run --
   ## inputPath(sim) resolved to /mnt/projects/HRV/LandWeb/inputs, not "inputs" below.
   ## Fix the _local.R -> simInitAndSpades(paths=) propagation so inputs/scratch land
-  ## where _local.R says (esp. for the docker-visible-NVMe scratch story, Part E).
+  ## where _local.R says (esp. so scratch can live on docker-visible NVMe).
   paths = list(
     modulePath = "modules",
     inputPath = "inputs",
@@ -64,7 +64,7 @@ local <- list(
   ## TODO: evaluate whether running at 120 m is an improvement and practical
   ## (output quality vs ~4x RAM/scratch/runtime). Must be applied GLOBALLY (all
   ## study areas at the same resolution) so results are comparable -- an
-  ## all-or-nothing fleet-wide choice, not per-area. See Part F.
+  ## all-or-nothing fleet-wide choice, not per-area.
   res = 240L,
 
   ## simulation length (years)
