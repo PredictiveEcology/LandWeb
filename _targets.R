@@ -75,7 +75,12 @@ primary_controller <- if (length(getOption("crew.ssh.nodes"))) {
     ## NULL -> this session's Rscript path (homogeneous installs); override via crew.ssh.rscript
     rscript = getOption("crew.ssh.rscript"),
     seconds_idle = Inf,
-    crashes_max = 25L
+    crashes_max = 25L,
+    ## a worker that dies takes its rep's progress with it, so keep its output:
+    ## the ssh client's streams carry both the remote R's messages and ssh's own
+    ## ("Timeout, server ... not responding"), which is the only evidence of why
+    ## a mass worker loss happened. Matches the local fallback's log directory.
+    log_directory = file.path("logs", "crew")
   )
 } else {
   ## local fallback -- a pool sized by local$local_workers on whatever machine runs tar_make (e.g.
