@@ -1,6 +1,6 @@
 #' Copy a rendered report PDF into the git-tracked `reports/pdf/` directory
 #'
-#' Reports render on a worker to the NFS-shared `outputs/reports/` (per
+#' Reports render to the NFS-shared `outputs/_reports/` (per
 #' `_quarto.yml::project.output-dir`); this copies the final PDF to the
 #' git-tracked `reports/pdf/` so it travels with the repo. Use as a
 #' `format = "file"`, `deployment = "main"` target (runs on the controller,

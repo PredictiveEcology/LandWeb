@@ -23,10 +23,11 @@ outputs/
       _aggregates/      #   writes its own postprocess/ subdir under the study area)
         <refCode>/replicate=repNN/part-0.parquet   # per-refCode NRV aggregates
       figures/{lm,pm,boxplots,histograms}/
-    reports/            # rendered Quarto reports for this study area
+    reports/            # rendered per-study-area Quarto reports (04, 05)
   _factorial/           # SHARED, study-area-INDEPENDENT — DO NOT nest per study area
   _extended_analyses/   # SHARED, LTHFC domain-wide analyses
   _reference/           # shared reference layers
+  _reports/             # SHARED, domain-wide Quarto reports (00-03, 06)
 logs/                   # run + crew worker logs — NEVER put logs in outputs/
 ```
 
@@ -60,7 +61,8 @@ logs/                   # run + crew worker logs — NEVER put logs in outputs/
   study area is baked into the per-replicate path). `_factorial`/`_extended_analyses` omit the
   `sa_dir` prefix. Phase-0 runs a single study area, so `sa_dir` is a scalar; when stages
   branch per-FMA this becomes the per-branch study-area name.
-- `_quarto.yml` `project.output-dir` points at `outputs/<studyArea>/reports/`.
+- `_quarto.yml` `project.output-dir` points at the shared `outputs/_reports/`; a per-study-area
+  report overrides it per render with `--output-dir outputs/<studyArea>/reports`.
 - The local-fallback crew controller logs to `logs/crew/`.
 
 When adding a new output-producing stage, decide whether it is study-area-specific (→ nest
