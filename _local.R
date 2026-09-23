@@ -52,7 +52,13 @@ local <- list(
   ## tar_simspades caps terra memory at mem_frac * node RAM / local_workers (SpaDES.targets
   ## reads SpaDES.targets.mem_workers, set from this value in _targets.R). Capped by
   ## availableCores; ignored on the control node (crew.ssh across _hosts.R nodes).
-  local_workers = 8L,
+  ##
+  ## This is workers-per-node, so the right value depends on where tar_make runs: 8 matched
+  ## the per-node crew.ssh cap when the controller fanned 15 reps across two nodes. Running
+  ## node-hosted on a single large node instead, 15 puts every rep in one wave and sizes the
+  ## terra cap to match (mem_frac * node RAM / 15). It is baked into the mainSim command hash
+  ## (mem_workers below), so changing it invalidates mainSim -- and only mainSim.
+  local_workers = 15L,
 
   ## raster resolution / pixel size (m); LandWeb default 240 (also supports 120)
   ## TODO: evaluate whether running at 120 m is an improvement and practical
