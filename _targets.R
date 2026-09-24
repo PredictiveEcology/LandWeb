@@ -75,7 +75,10 @@ primary_controller <- if (length(getOption("crew.ssh.nodes"))) {
     ## NULL -> this session's Rscript path (homogeneous installs); override via crew.ssh.rscript
     rscript = getOption("crew.ssh.rscript"),
     seconds_idle = Inf,
-    crashes_max = 25L,
+    ## per-task and CONSECUTIVE (crew clears a task's count as soon as it returns a
+    ## non-crash outcome), so this is "how many times may one rep restart". See the
+    ## note on the local controller below for why it is no longer 25.
+    crashes_max = 2L,
     ## a worker that dies takes its rep's progress with it, so keep its output:
     ## the ssh client's streams carry both the remote R's messages and ssh's own
     ## ("Timeout, server ... not responding"), which is the only evidence of why
@@ -88,19 +91,21 @@ primary_controller <- if (length(getOption("crew.ssh.nodes"))) {
   ## branches run in one wave. Still capped by availableCores. seconds_idle = Inf keeps workers for
   ## the whole run.
   ##
-  ## crashes_max MUST be set here to match the crew.ssh controller above. crew's DEFAULT is 5, and
-  ## a node-hosted run is the LONG one (it is the reboot-survivable mode used for multi-day mainSim
-  ## runs), so the default made it the LEAST crash-tolerant path -- the exact opposite of what is
-  ## wanted. That default ended the 2026-08-06 WesternAlbertaUpland run after 39.6 h with
-  ## "crashed 6 consecutive time(s)" and ZERO completed reps: a rep restarts from year 0 on each
-  ## retry, so a rep that takes ~6 days can absorb several worker deaths and still be the run's only
-  ## hope of finishing. NB this raises tolerance, it does not fix the underlying silent worker
-  ## deaths (clustered, no R error, not OOM -- suspected forking inside the mirai daemons).
+  ## crashes_max MUST be set here to match the crew.ssh controller above. It counts CONSECUTIVE
+  ## crashes PER TASK -- crew clears a task's count as soon as that task returns a non-crash
+  ## outcome -- so it means "how many times may one rep restart from year 0", not a budget for
+  ## the run as a whole. It was 25 to ride out worker deaths that looked random and unattributable;
+  ## they turned out to be crew.ssh tearing a tunnel down after 90 s of silence, whereupon mirai's
+  ## autoexit killed the worker (fixed in crew.ssh 0.0.6). With the cause gone the tolerance is
+  ## not needed, and its cost is real: a rep is ~14 h, so every retry discards that much, and 25
+  ## would let a single rep churn for weeks before the pipeline admitted failure. 2 absorbs a
+  ## genuine transient -- a reboot, an OOM kill -- while surfacing a systematic fault in about a
+  ## day rather than a fortnight.
   crew::crew_controller_local(
     name = "primary",
     workers = min(parallelly::availableCores(omit = 1), local$local_workers),
     seconds_idle = Inf,
-    crashes_max = 25L,
+    crashes_max = 2L,
     options_local = crew::crew_options_local(log_directory = file.path("logs", "crew"))
   )
 }
