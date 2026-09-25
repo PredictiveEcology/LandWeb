@@ -633,7 +633,12 @@ study_area_targets <- function(sa) {
           sim_objects(preamble, objects = "studyAreaReporting", files = preamble_files)
         )
       }), sa),
-      inputs = suffix_refs(quote(sim_inputs(dataPrep, objects = "speciesLayers", files = dataPrep_files)), sa)
+      ## LandTypeCC_reporting (urban retained) corrects the current-condition snapshot; without it
+      ## NRV_summary warns and reports year-0 state, counting urban imputed to forest as forest.
+      inputs = suffix_refs(quote(rbind(
+        sim_inputs(dataPrep, objects = "speciesLayers", files = dataPrep_files),
+        sim_inputs(preamble, objects = "LandTypeCC_reporting", files = preamble_files)
+      )), sa)
     ),
 
     ## burnSummaries (mode="multi"): mean-annual cumulative burn maps + across-rep
