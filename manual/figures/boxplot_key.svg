@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='331.20pt' height='266.40pt' viewBox='0 0 331.20 266.40'>
+<g class='svglite'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+    .svglite g.glyphgroup path {
+      fill: inherit;
+      stroke: none;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: #FFFFFF;'/>
+<defs>
+  <clipPath id='cpMC4wMHwzMzEuMjB8MC4wMHwyNjYuNDA='>
+    <rect x='0.00' y='0.00' width='331.20' height='266.40' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHwzMzEuMjB8MC4wMHwyNjYuNDA=)'>
+<rect x='0.00' y='0.00' width='331.20' height='266.40' style='stroke-width: 1.55; stroke: none; fill: #FFFFFF;' />
+<rect x='7.97' y='7.97' width='315.26' height='250.46' style='stroke-width: 1.55; stroke: none; fill: #FFFFFF;' />
+<line x1='49.86' y1='125.61' x2='88.44' y2='125.61' style='stroke-width: 1.71; stroke: #727A35; stroke-linecap: butt;' />
+<line x1='157.33' y1='125.61' x2='226.23' y2='125.61' style='stroke-width: 1.71; stroke: #727A35; stroke-linecap: butt;' />
+<rect x='88.44' y='97.28' width='68.89' height='56.67' style='stroke-width: 1.71; stroke: #727A35; stroke-linecap: butt; stroke-linejoin: miter; fill: #C9CFA4;' />
+<line x1='118.75' y1='153.95' x2='118.75' y2='97.28' style='stroke-width: 3.41; stroke: #3A4210; stroke-linecap: butt;' />
+<circle cx='248.27' cy='125.61' r='2.65' style='stroke-width: 1.03; stroke: #727A35; fill: #727A35;' />
+<circle cx='264.81' cy='125.61' r='2.65' style='stroke-width: 1.03; stroke: #727A35; fill: #727A35;' />
+<circle cx='198.67' cy='125.61' r='6.72' style='stroke-width: 1.70; stroke: #FFFFFF; fill: #E0452B;' />
+<line x1='122.89' y1='95.25' x2='122.89' y2='69.95' style='stroke-width: 0.85; stroke: #5F6B78; stroke-linecap: butt;' />
+<text x='122.89' y='38.33' text-anchor='middle' style='font-size: 15.00px;fill: #1E2833; font-family: "Carlito";' textLength='121.98px' lengthAdjust='spacingAndGlyphs'>Box: the middle half</text>
+<text x='122.89' y='54.53' text-anchor='middle' style='font-size: 15.00px;fill: #1E2833; font-family: "Carlito";' textLength='125.72px' lengthAdjust='spacingAndGlyphs'>of the 105 simulated</text>
+<text x='122.89' y='70.73' text-anchor='middle' style='font-size: 15.00px;fill: #1E2833; font-family: "Carlito";' textLength='66.84px' lengthAdjust='spacingAndGlyphs'>landscapes</text>
+<line x1='118.75' y1='155.97' x2='55.37' y2='188.35' style='stroke-width: 0.85; stroke: #5F6B78; stroke-linecap: butt;' />
+<text x='55.37' y='205.31' text-anchor='middle' style='font-size: 15.00px;fill: #1E2833; font-family: "Carlito";' textLength='78.33px' lengthAdjust='spacingAndGlyphs'>Line: median</text>
+<line x1='217.96' y1='123.59' x2='253.78' y2='83.11' style='stroke-width: 0.85; stroke: #5F6B78; stroke-linecap: butt;' />
+<text x='264.81' y='59.58' text-anchor='middle' style='font-size: 15.00px;fill: #1E2833; font-family: "Carlito";' textLength='109.55px' lengthAdjust='spacingAndGlyphs'>Whiskers: the rest</text>
+<text x='264.81' y='75.78' text-anchor='middle' style='font-size: 15.00px;fill: #1E2833; font-family: "Carlito";' textLength='109.66px' lengthAdjust='spacingAndGlyphs'>of the usual range</text>
+<line x1='256.54' y1='130.67' x2='275.83' y2='176.21' style='stroke-width: 0.85; stroke: #5F6B78; stroke-linecap: butt;' />
+<text x='281.34' y='189.11' text-anchor='middle' style='font-size: 15.00px;fill: #1E2833; font-family: "Carlito";' textLength='83.42px' lengthAdjust='spacingAndGlyphs'>Dots: unusual</text>
+<text x='281.34' y='205.31' text-anchor='middle' style='font-size: 15.00px;fill: #1E2833; font-family: "Carlito";' textLength='61.25px' lengthAdjust='spacingAndGlyphs'>snapshots</text>
+<line x1='198.67' y1='133.71' x2='165.60' y2='216.69' style='stroke-width: 0.85; stroke: #5F6B78; stroke-linecap: butt;' />
+<text x='165.60' y='233.69' text-anchor='middle' style='font-size: 15.00px; font-weight: bold;fill: #1E2833; font-family: "Carlito";' textLength='85.66px' lengthAdjust='spacingAndGlyphs'>Today's forest</text>
+</g>
+</g>
+</svg>
