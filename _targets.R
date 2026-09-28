@@ -148,6 +148,18 @@ res <- local$res
 ## `<stage>_files` symbol must map to `<stage>_<sa>_files`, NOT `<stage>_files_<sa>` --
 ## otherwise the file-dependency edge is silently dropped and Phase-2 summaries could
 ## run before Phase-1 finishes.
+## Installed identity (Version@RemoteSha) of co-developed packages that a PLAIN target calls.
+## targets hashes a command but not the package code it runs, and the stage fingerprint covers
+## only tar_simspades() stages, so installing LandWebUtils 1.0.3.9039 left reportingPolygons "up to
+## date" and the 2026-09-25 rebuild summarised the old, unmerged slivers. Baking this into the
+## command reads the INSTALLED library, as the stage fingerprint does.
+pkg_fingerprint <- function(pkgs) {
+  vapply(pkgs, function(p) {
+    d <- utils::packageDescription(p)
+    paste0(d$Version, "@", if (is.null(d$RemoteSha)) "" else d$RemoteSha)
+  }, character(1))
+}
+
 sa_syms <- c(
   "preamble", "preamble_files", "speciesData", "speciesData_files",
   "dataPrep", "dataPrep_files", "mainSim_files", "reportingPolygons"
@@ -517,6 +529,7 @@ study_area_targets <- function(sa) {
     tar_target_raw(
       paste0("reportingPolygons_", sa),
       suffix_refs(bquote({
+        pkgs <- .(pkg_fingerprint(c("LandWebUtils", "spatialutils"))) ## re-run when either changes
         ## studyAreaREPORTING, not studyArea: the latter is BUFFERED (for WesternAlbertaUpland,
         ## 155,581 km2 vs 66,422 km2), and clipping the tenure layer to it pulls in neighbouring
         ## tenures that are not members of this study-area group -- two BC TSAs, in that case --
