@@ -25,7 +25,10 @@ build_input_manifest <- function(
     list(
       id = "scanfi-species-2020",
       name = "SCANFI v2 per-species crown closure (2020)",
-      source = list(type = "drive", url = "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"),
+      source = list(
+        type = "drive",
+        url = "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"
+      ),
       local_path = file.path(inputs_dir, "SCANFI_spsCC_ABIE_BAL_2020_v2_20260119.tif"),
       version_or_vintage = "2020, v2 (stamp 20260119)",
       license = "OGL-Canada-2.0",
@@ -35,7 +38,10 @@ build_input_manifest <- function(
     list(
       id = "scanfi-structure-2020",
       name = "SCANFI v2 stand age and biomass (2020)",
-      source = list(type = "drive", url = "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"),
+      source = list(
+        type = "drive",
+        url = "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"
+      ),
       local_path = file.path(inputs_dir, "SCANFI_age_median_2020_v2_20260119.tif"),
       version_or_vintage = "2020, v2 (stamp 20260119)",
       license = "OGL-Canada-2.0",
@@ -45,8 +51,14 @@ build_input_manifest <- function(
     list(
       id = "scanfi-lcc-2020",
       name = "SCANFI v2 land cover, reclassified to NFI/EOSD codes (2020)",
-      source = list(type = "drive", url = "https://drive.google.com/file/d/1EGp7LUA7cXMR6KpXDmu617xsjwGM6aIx"),
-      local_path = file.path(inputs_dir, "SCANFI_att_nfiLandcover_CanadaLCCclassCodes_2020_v2_20260119.tif"),
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/file/d/1EGp7LUA7cXMR6KpXDmu617xsjwGM6aIx"
+      ),
+      local_path = file.path(
+        inputs_dir,
+        "SCANFI_att_nfiLandcover_CanadaLCCclassCodes_2020_v2_20260119.tif"
+      ),
       version_or_vintage = "2020, v2 (stamp 20260119); derived, reclassified",
       license = "OGL-Canada-2.0 (upstream); hosted copy access-controlled",
       description = paste0(
@@ -71,8 +83,10 @@ build_input_manifest <- function(
     list(
       id = "canlcc-2020",
       name = "2020 Land Cover of Canada (NALCMS, 30 m)",
-      source = list(type = "http_download",
-                    url = "https://open.canada.ca/data/en/dataset/ee1580ab-a23d-4f86-a09b-79763677eb47"),
+      source = list(
+        type = "http_download",
+        url = "https://open.canada.ca/data/en/dataset/ee1580ab-a23d-4f86-a09b-79763677eb47"
+      ),
       local_path = file.path(inputs_dir, "landcover-2020-classification.tif"),
       version_or_vintage = "2020 edition (Landsat OLI, mostly 2020 with some 2019/2021)",
       license = "OGL-Canada-2.0",
@@ -88,8 +102,10 @@ build_input_manifest <- function(
       ),
       citation = list(bibtex_key = "LatifovicEtAl2017", external = TRUE),
       extra = list(
-        cog_url = paste0("https://datacube-prod-data-public.s3.ca-central-1.amazonaws.com/",
-                         "store/land/landcover/landcover-2020-classification.tif"),
+        cog_url = paste0(
+          "https://datacube-prod-data-public.s3.ca-central-1.amazonaws.com/",
+          "store/land/landcover/landcover-2020-classification.tif"
+        ),
         crs = "EPSG:3979",
         note = "Series is 2010/2015/2020; no 2025 edition released as of 2026-08."
       )
@@ -97,7 +113,10 @@ build_input_manifest <- function(
     list(
       id = "knn-beaudoin-2001",
       name = "Beaudoin kNN forest attributes (2001 base year)",
-      source = list(type = "http_download", url = "https://open.canada.ca/data/en/dataset/ec9e2659-1c29-4ddb-87a2-6aced147a990"),
+      source = list(
+        type = "http_download",
+        url = "https://open.canada.ca/data/en/dataset/ec9e2659-1c29-4ddb-87a2-6aced147a990"
+      ),
       local_path = file.path(inputs_dir, "NFI_MODIS250m_2001_kNN_Species_Pice_Mar_v1.tif"),
       version_or_vintage = "2001 base year, v1 (250 m)",
       license = "OGL-Canada-2.0",
@@ -107,7 +126,10 @@ build_input_manifest <- function(
     list(
       id = "lthfc-v10",
       name = "LandWeb long-term historic fire-cycle map, v10 (2026)",
-      source = list(type = "drive", url = "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"),
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"
+      ),
       local_path = file.path(inputs_dir, "landweb_ltfc_v10.shp"),
       version_or_vintage = "v10 (2026; NW Alberta = NWAB Intermediate)",
       license = "Access controlled (LandWeb hosted Drive)",
@@ -117,7 +139,10 @@ build_input_manifest <- function(
     list(
       id = "lthfc-v8c",
       name = "LandWeb long-term historic fire-cycle map, v8c (previous)",
-      source = list(type = "drive", url = "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"),
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"
+      ),
       local_path = file.path(inputs_dir, "landweb_ltfc_v8c.shp"),
       version_or_vintage = "v8c (NAD83 / UTM 11N; field LTHFC)",
       license = "Access controlled (LandWeb hosted Drive)",
@@ -126,7 +151,10 @@ build_input_manifest <- function(
     list(
       id = "ltfc-sls-v3",
       name = "Spray Lake Sawmills fire-cycle variant (SLS v3)",
-      source = list(type = "drive", url = "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"),
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"
+      ),
       local_path = file.path(inputs_dir, "ltfc_sls_v3.shp"),
       version_or_vintage = "v3 (NAD83 / UTM 11N; field LTHFC)",
       license = "Access controlled (LandWeb hosted Drive)",
@@ -164,7 +192,10 @@ build_input_manifest <- function(
     list(
       id = "lthfc-nwab-aoi",
       name = "Northwest Alberta area-of-interest outline",
-      source = list(type = "manual_drop", url = "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"),
+      source = list(
+        type = "manual_drop",
+        url = "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"
+      ),
       local_path = file.path(inputs_dir, "LTHFC_NW_AB.gpkg"),
       version_or_vintage = "2026",
       license = "Access controlled (LandWeb hosted Drive)",
@@ -173,7 +204,10 @@ build_input_manifest <- function(
     list(
       id = "current-condition-v2",
       name = "Current-condition layers, v2 era (CASFRI / Pickell / AVI-derived)",
-      source = list(type = "drive", url = "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"),
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/drive/folders/1LsYuuYICkcpElAkEABFM5zJXf5tTyMLG"
+      ),
       local_path = file.path(inputs_dir, "CurrentCondition"),
       version_or_vintage = "v2 era",
       license = "Access controlled / proprietary (CASFRI)",
@@ -183,7 +217,10 @@ build_input_manifest <- function(
     list(
       id = "cc-age-2025",
       name = "fRI Research current-condition stand age composite (age_in2025)",
-      source = list(type = "drive", url = "https://drive.google.com/drive/folders/18pZzNEkiybF0KNq0FZjRMj_Ix4v_cKRl"),
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/drive/folders/18pZzNEkiybF0KNq0FZjRMj_Ix4v_cKRl"
+      ),
       local_path = file.path(inputs_dir, "age_in2025.tif"),
       version_or_vintage = "age at 2025 (delivered 2026-08-21)",
       license = "Access controlled / proprietary (AB AVIE not redistributable)",
@@ -215,7 +252,10 @@ build_input_manifest <- function(
     list(
       id = "ntems-forest-age-2022",
       name = "NTEMS Canada forest age, 2022",
-      source = list(type = "http_download", url = "https://opendata.nfis.org/mapserver/nfis-change_eng.html"),
+      source = list(
+        type = "http_download",
+        url = "https://opendata.nfis.org/mapserver/nfis-change_eng.html"
+      ),
       local_path = file.path(inputs_dir, "CA_forest_age_2022", "CA_forest_age_2022.tif"),
       version_or_vintage = "2022 vintage (disturbance window 1985-2022)",
       license = "OGL-Canada-2.0",
@@ -236,8 +276,17 @@ build_input_manifest <- function(
     list(
       id = "canlad-v1-2024",
       name = "Canada Landsat Disturbance with pest (CanLaD), 1985-2024",
-      source = list(type = "http_download", url = "https://doi.org/10.23687/902801fd-4d9d-4df4-9e95-319e429545cc"),
-      local_path = file.path(inputs_dir, "CanLad", "v1", "Disturbances_Latest", "canlad_1985_2024_latest_year.tif"),
+      source = list(
+        type = "http_download",
+        url = "https://doi.org/10.23687/902801fd-4d9d-4df4-9e95-319e429545cc"
+      ),
+      local_path = file.path(
+        inputs_dir,
+        "CanLad",
+        "v1",
+        "Disturbances_Latest",
+        "canlad_1985_2024_latest_year.tif"
+      ),
       version_or_vintage = "v1, disturbances 1985-2024",
       license = "OGL-Canada-2.0",
       description = paste(
@@ -283,41 +332,60 @@ build_input_manifest <- function(
   caribou <- tryCatch(LandWebUtils::caribouRangeLayers(), error = function(e) NULL)
   if (!is.null(caribou)) {
     LIC <- c(
-      AB = "Alberta Open Government Licence", BC = "OGL-BC-2.0",
-      SK = "Saskatchewan Open Data Licence", MB = "By request (Govt. of Manitoba); not openly licensed",
-      NWT = "GNWT open data", ON = "OGL-Ontario-1.0"
+      AB = "Alberta Open Government Licence",
+      BC = "OGL-BC-2.0",
+      SK = "Saskatchewan Open Data Licence",
+      MB = "By request (Govt. of Manitoba); not openly licensed",
+      NWT = "GNWT open data",
+      ON = "OGL-Ontario-1.0"
     )
     VIN <- c(
-      AB = "published 2012", BC = "BC Data Catalogue WFS (live)", SK = "published 2020",
-      MB = "delineated 2015, provided 2018 (current)", NWT = "GNWT layer 97, modified 2023-06-23",
+      AB = "published 2012",
+      BC = "BC Data Catalogue WFS (live)",
+      SK = "published 2020",
+      MB = "delineated 2015, provided 2018 (current)",
+      NWT = "GNWT layer 97, modified 2023-06-23",
       ON = "LIO release 2019-09-26"
     )
-    ds <- c(ds, lapply(seq_len(nrow(caribou)), function(i) {
-      r <- caribou[i, ]
-      list(
-        id = paste0("caribou-ranges-", tolower(r$juris)),
-        name = paste0(r$key, " (caribou reporting ranges: ", r$juris, ")"),
-        source = list(type = if (r$source == "drive") "drive" else "http_download", url = r$id),
-        local_path = file.path(inputs_dir, "reportingPolygons", "Caribou_Ranges",
-                               paste0("caribou_", r$juris)),
-        version_or_vintage = unname(VIN[[r$juris]]),
-        license = unname(LIC[[r$juris]]),
-        description = paste0(
-          "Jurisdictional caribou range boundaries for ", r$juris,
-          "; one of six sources assembled into LandWeb's caribou reporting layer by ",
-          "LandWebUtils::buildCaribouRanges(). Labelled on ", r$labelCols,
-          if (!is.na(r$extirpated)) "; locally extirpated herds excluded" else "", "."
-        ),
-        extra = list(assembled_into = "caribou-ranges", jurisdiction = r$juris)
-      )
-    }))
+    ds <- c(
+      ds,
+      lapply(seq_len(nrow(caribou)), function(i) {
+        r <- caribou[i, ]
+        list(
+          id = paste0("caribou-ranges-", tolower(r$juris)),
+          name = paste0(r$key, " (caribou reporting ranges: ", r$juris, ")"),
+          source = list(type = if (r$source == "drive") "drive" else "http_download", url = r$id),
+          local_path = file.path(
+            inputs_dir,
+            "reportingPolygons",
+            "Caribou_Ranges",
+            paste0("caribou_", r$juris)
+          ),
+          version_or_vintage = unname(VIN[[r$juris]]),
+          license = unname(LIC[[r$juris]]),
+          description = paste0(
+            "Jurisdictional caribou range boundaries for ",
+            r$juris,
+            "; one of six sources assembled into LandWeb's caribou reporting layer by ",
+            "LandWebUtils::buildCaribouRanges(). Labelled on ",
+            r$labelCols,
+            if (!is.na(r$extirpated)) "; locally extirpated herds excluded" else "",
+            "."
+          ),
+          extra = list(assembled_into = "caribou-ranges", jurisdiction = r$juris)
+        )
+      })
+    )
   }
 
   records <- lapply(ds, function(d) {
-    do.call(workflowtools::input_manifest_record, c(
-      d[setdiff(names(d), "local_path_when")],
-      list(retrieved_at = when(d$local_path))
-    ))
+    do.call(
+      workflowtools::input_manifest_record,
+      c(
+        d[setdiff(names(d), "local_path_when")],
+        list(retrieved_at = when(d$local_path))
+      )
+    )
   })
   workflowtools::write_input_manifest(records, path = out)
   out
