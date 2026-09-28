@@ -271,14 +271,14 @@
     },
     "LandR": {
       "Package": "LandR",
-      "Version": "1.2.0.9033",
+      "Version": "1.2.0.9034",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandR",
       "RemoteRef": "development",
-      "RemoteSha": "47ebc09199744ce9208a6a1b221253e319c9d8d4",
+      "RemoteSha": "314e79a7f5ebb73ebc7f55200f681b5c5d1407fd",
       "Requirements": [
         "Formula",
         "MuMIn",
@@ -310,7 +310,7 @@
         "utils",
         "viridis"
       ],
-      "Hash": "46f24c2a3d2ed4c8758c394add81f3fd"
+      "Hash": "6e50f3f42d4a7d6f4fb21a242b33eece"
     },
     "LandR.CS": {
       "Package": "LandR.CS",
