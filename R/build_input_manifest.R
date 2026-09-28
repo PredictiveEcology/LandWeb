@@ -25,28 +25,44 @@ build_input_manifest <- function(
     list(
       id = "scanfi-species-2020",
       name = "SCANFI v2 per-species crown closure (2020)",
+      ## LandR's 2020 SCANFI v2 species folder (LandR:::loadSCANFISpeciesLayers)
       source = list(
         type = "drive",
-        url = "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"
+        url = "https://drive.google.com/file/d/15T4HIFeqzwp0TuOuxmYoexuXdLFnCZBi"
       ),
       local_path = file.path(inputs_dir, "SCANFI_spsCC_ABIE_BAL_2020_v2_20260119.tif"),
       version_or_vintage = "2020, v2 (stamp 20260119)",
-      license = "OGL-Canada-2.0",
-      description = "30 m per-species percent crown-closure rasters; the v3 species initial-conditions source (SCANFI_spsCC_<code>_2020_v2_20260119.tif).",
+      license = "OGL-Canada-2.0 (public release); per-species layers access-controlled",
+      description = paste0(
+        "30 m per-species percent crown-closure rasters; the v3 species initial-conditions source ",
+        "(SCANFI_spsCC_<code>_2020_v2_20260119.tif). Not in the public v2 release, which publishes ",
+        "only 10 species-group layers that are sums of these (e.g. white spruce is inside ",
+        "'otherConiferous'). Distributed through the SCANFI team's restricted Google Drive folder ",
+        "and mirrored by PredictiveEcology."
+      ),
       citation = list(bibtex_key = "scanfi-v2", external = TRUE)
     ),
     list(
       id = "scanfi-structure-2020",
       name = "SCANFI v2 stand age and biomass (2020)",
       source = list(
-        type = "drive",
+        type = "http_download",
         url = "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"
       ),
       local_path = file.path(inputs_dir, "SCANFI_age_median_2020_v2_20260119.tif"),
       version_or_vintage = "2020, v2 (stamp 20260119)",
       license = "OGL-Canada-2.0",
-      description = "30 m SCANFI attribute rasters (median stand age, biomass) used for v3 age/biomass initial conditions. Land cover is NOT this record: the pipeline consumes a derived reclassification, registered separately as scanfi-lcc-2020.",
-      citation = list(bibtex_key = "scanfi-methods", external = TRUE)
+      description = paste0(
+        "30 m SCANFI attribute rasters (median stand age, biomass) used for v3 age/biomass initial ",
+        "conditions. Land cover is NOT this record: the pipeline consumes a derived reclassification, ",
+        "registered separately as scanfi-lcc-2020. The pipeline fetches these through LandR (Google ",
+        "Drive or the PredictiveEcology mirror); they are the same files as the public v2 release ",
+        "(identical size and sampled checksums, checked 2026-09-28)."
+      ),
+      citation = list(bibtex_key = "scanfi-methods", external = TRUE),
+      extra = list(
+        download_url = "https://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/SCANFI/v2/"
+      )
     ),
     list(
       id = "scanfi-lcc-2020",
