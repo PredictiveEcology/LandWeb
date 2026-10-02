@@ -10,6 +10,7 @@
     "rgeos",
     "scfmutils",
     "SpaDES",
+    "SpaDES.project",
     "SpaDES.shiny"
   ],
   "package.dependency.fields": [
