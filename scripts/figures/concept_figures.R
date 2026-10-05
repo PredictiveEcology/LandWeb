@@ -1,8 +1,8 @@
 ## Concept figures for LandWeb talks and the manual. Synthetic data only: no model outputs.
 ##
 ## Writes PNG + SVG to fig_dir() (default manual/figures):
-##   nrv_concept           -- 15 simulated runs fluctuating inside a bounded range; today's value
-##   nrv_concept_compare   -- the same range with three "today" values: above, within, below
+##   nrv_concept           -- 15 simulated runs fluctuating inside a bounded range
+##   nrv_concept_compare   -- the same range with its zones labelled: above, within, below
 ##   model_schematic       -- two landscape layers (year t, t + dt): fire, seed dispersal, cohorts
 ##   reporting_overlap     -- a management unit + a caribou range = their overlap
 ##   boxplot_key           -- how to read a LandWeb boxplot
@@ -60,7 +60,10 @@ lab <- function(
   )
 }
 
-nrv_base <- function(today, x_max = 1250) {
+## No "today" marker on these: today has no position on the simulated-years axis, and the talks
+## use a red dot for today elsewhere (boxplots), so a dot here would read as a time.
+y_top <- 66
+nrv_base <- function(x_max = 1250) {
   xmax <- max(years)
   ggplot2::ggplot() +
     ggplot2::annotate(
@@ -94,23 +97,6 @@ nrv_base <- function(today, x_max = 1250) {
       colour = col[["olive"]],
       linewidth = 0.8
     ) +
-    ggplot2::geom_point(
-      data = today,
-      ggplot2::aes(x, y),
-      shape = 21,
-      size = 5.5,
-      stroke = 1.2,
-      fill = col[["today"]],
-      colour = "white"
-    ) +
-    ggplot2::geom_text(
-      data = today,
-      ggplot2::aes(x + 22, y, label = label),
-      hjust = 0,
-      family = "Carlito",
-      size = 16 / ggplot2::.pt,
-      colour = col[["ink"]]
-    ) +
     ggplot2::scale_x_continuous(
       "Simulated years",
       breaks = seq(0, 1000, 200),
@@ -118,7 +104,7 @@ nrv_base <- function(today, x_max = 1250) {
     ) +
     ggplot2::scale_y_continuous(
       "Old forest (% of forest area)",
-      limits = c(0, 75),
+      limits = c(0, y_top),
       expand = ggplot2::expansion(mult = 0)
     ) +
     ggplot2::coord_cartesian(xlim = c(0, x_max), clip = "off") +
@@ -126,23 +112,22 @@ nrv_base <- function(today, x_max = 1250) {
     ggplot2::theme(panel.grid.major.x = ggplot2::element_blank())
 }
 
-p <- nrv_base(data.frame(x = 1060, y = q[[5]] + 14, label = "Today")) +
+p <- nrv_base(x_max = 1220) +
   lab(1030, mean(q[c(1, 5)]), "Natural range\nof variation", size = 16) +
   lab(
     15,
-    72,
+    y_top - 2,
     "Each grey line is one simulated run; one is highlighted",
     size = 13,
     colour = col[["muted"]]
   )
 save_figure(p, "nrv_concept", width = 12.3, height = 5.2, dir = out, svg = TRUE)
 
-cmp <- data.frame(
-  x = 1060,
-  y = c(q[[5]] + 12, q[[3]], max(q[[1]] - 8, 2)),
-  label = c("Above the range", "Within the range", "Below the range")
-)
-p <- nrv_base(cmp, x_max = 1560)
+## zone labels: above the band, within it, below it
+p <- nrv_base(x_max = 1400) +
+  lab(1030, (q[[5]] + y_top) / 2, "Above\nthe range", size = 16) +
+  lab(1030, q[[3]], "Within\nthe range", size = 16) +
+  lab(1030, q[[1]] / 2, "Below\nthe range", size = 16)
 save_figure(p, "nrv_concept_compare", width = 8.2, height = 5, dir = out, svg = TRUE)
 
 ## ---- two-layer model schematic ----------------------------------------------------------------
@@ -285,20 +270,22 @@ p <- ggplot2::ggplot() +
   lab(cell_i - 0.5 + shear * ny, y_above, "One cell:\ntree cohorts", hjust = 0.5, vjust = 0) +
   lab(cell_i - 0.5, y_below, "Cohorts\nage", hjust = 0.5, vjust = 1) +
   ggplot2::geom_tile(
-    data = data.frame(x = -3.1 + 0.42 * (0:3), y = z_bot - 0.95, f = landweb_age$class),
+    data = data.frame(x = -3.0 + 0.42 * (0:3), y = z_bot - 0.75, f = landweb_age$class),
     ggplot2::aes(x, y, fill = f),
     width = 0.4,
     height = 0.32,
     colour = "white"
   ) +
-  lab(-3.3, z_bot - 0.4, "Forest age", size = 13, colour = col[["muted"]], vjust = 0) +
-  lab(-3.4, z_bot - 0.95, "young", hjust = 1, size = 12, colour = col[["muted"]]) +
-  lab(-1.55, z_bot - 0.95, "old", size = 12, colour = col[["muted"]]) +
+  lab(-3.2, z_bot - 0.45, "Forest age", size = 13, colour = col[["muted"]], vjust = 0) +
+  lab(-3.2, z_bot - 1.1, "young", size = 12, colour = col[["muted"]], vjust = 1) +
+  lab(-1.54, z_bot - 1.1, "old", hjust = 1, size = 12, colour = col[["muted"]], vjust = 1) +
   ggplot2::scale_fill_manual(values = state_fill, guide = "none") +
-  ggplot2::coord_fixed(clip = "off") +
+  ## explicit limits, no expansion and no side margin: the canvas holds the drawing and its labels
+  ## and nothing else, so the figure can be scaled up to the slide's height
+  ggplot2::coord_fixed(xlim = c(-3.4, 17.5), ylim = c(-1.75, 9.2), expand = FALSE, clip = "off") +
   theme_landweb_void() +
-  ggplot2::theme(plot.margin = ggplot2::margin(10, 10, 10, 120))
-save_figure(p, "model_schematic", width = 8.4, height = 4.2, dir = out, svg = TRUE)
+  ggplot2::theme(plot.margin = ggplot2::margin(4, 4, 4, 4))
+save_figure(p, "model_schematic", width = 8.6, height = 4.5, dir = out, svg = TRUE)
 
 ## ---- reporting-unit overlap -------------------------------------------------------------------
 blob <- function(cx, cy, r, seed_val, aspect = 0.8, n = 90) {
@@ -387,6 +374,22 @@ save_figure(p, "reporting_overlap", width = 11.8, height = 3.9, dir = out, svg =
 ## Same marks as the data boxplots in scripts/figures/nrv_output_figures.R.
 bx <- list(lo = 0.08, q1 = 0.22, med = 0.33, q3 = 0.47, hi = 0.72, out = c(0.8, 0.86))
 today <- 0.62
+## Horizontal curly brace over [x0, x1]: tips at y, centre point at y + h. A brace marks a RANGE;
+## a leader line reads as pointing at a single value.
+brace <- function(x0, x1, y, h, n = 120) {
+  t <- seq(0, 1, length.out = n)
+  rise <- (stats::plogis(40 * (t - 0.1)) + stats::plogis(40 * (t - 0.9))) / 2
+  xm <- (x0 + x1) / 2
+  left <- data.frame(x = x0 + (xm - x0) * t, y = y + h * rise)
+  right <- data.frame(x = x1 + (xm - x1) * t, y = y + h * rise)
+  ggplot2::annotate(
+    "path",
+    x = c(left$x, rev(right$x)),
+    y = c(left$y, rev(right$y)),
+    colour = col[["muted"]],
+    linewidth = 0.6
+  )
+}
 lead_line <- function(x, xend, y, yend) {
   ggplot2::annotate(
     "segment",
@@ -447,19 +450,20 @@ p <- ggplot2::ggplot() +
     fill = col[["today"]],
     colour = "white"
   ) +
-  lead_line((bx$q1 + bx$q3) / 2, (bx$q1 + bx$q3) / 2, 0.3, 0.55) +
+  brace(bx$q1, bx$q3, 0.34, 0.14) +
   lab(
     (bx$q1 + bx$q3) / 2,
-    0.75,
-    "Box: the middle half\nof the 105 simulated\nlandscapes",
-    hjust = 0.5
+    0.56,
+    "Box: the middle\nhalf of the simulated\nlandscapes",
+    hjust = 0.5,
+    vjust = 0
   ) +
   lead_line(bx$med, 0.1, -0.3, -0.62) +
   lab(0.1, -0.74, "Line: median", hjust = 0.5) +
   lead_line(0.69, 0.82, 0.02, 0.42) +
   lab(0.86, 0.62, "Whiskers: the rest\nof the usual range", hjust = 0.5) +
   lead_line(0.83, 0.9, -0.05, -0.5) +
-  lab(0.92, -0.66, "Dots: unusual\nsnapshots", hjust = 0.5) +
+  lab(0.92, -0.6, "Dots: outliers", hjust = 0.5) +
   lead_line(today, 0.5, -0.08, -0.9) +
   lab(0.5, -1.02, "Today's forest", hjust = 0.5, face = "bold") +
   ggplot2::coord_cartesian(xlim = c(-0.02, 1.02), ylim = c(-1.2, 1.05), clip = "off") +

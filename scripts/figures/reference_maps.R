@@ -41,10 +41,11 @@ message(sprintf(
 
 ## View: the whole domain west to east as far as just past Manitoba. The domain continues into
 ## northwestern Ontario, which is not a partner jurisdiction, so the map stops at the MB border.
+## No province labels: the outlines of western Canada are recognisable without them.
 bb <- sf::st_bbox(domain)
 mb_xmax <- sf::st_bbox(prov[prov$NAME_1 == "Manitoba", ])[["xmax"]]
 pad <- 60000
-view_x <- c(bb[["xmin"]] - 4 * pad, mb_xmax + pad)
+view_x <- c(bb[["xmin"]] - pad, mb_xmax + pad)
 view_y <- c(bb[["ymin"]] - pad, bb[["ymax"]] + pad)
 view <- sf::st_as_sfc(sf::st_bbox(
   c(xmin = view_x[1], xmax = view_x[2], ymin = view_y[1], ymax = view_y[2]),
@@ -52,30 +53,13 @@ view <- sf::st_as_sfc(sf::st_bbox(
 ))
 prov_view <- suppressWarnings(sf::st_intersection(sf::st_make_valid(prov), view))
 
-## Province labels at hand-placed lon/lat points clear of the management units.
-prov_lab <- sf::st_as_sf(
-  data.frame(
-    abbr = c("BC", "AB", "SK", "MB", "NWT"),
-    lon = c(-126.5, -111.8, -105.5, -97.5, -118.5),
-    lat = c(56.5, 58.2, 56.8, 57.0, 62.3)
-  ),
-  coords = c("lon", "lat"),
-  crs = 4326
-) |>
-  sf::st_transform(crs)
+## Size each canvas to the map's own shape so the map fills the slide's height; on a 16:9 slide
+## the height runs out first, so a legend goes beside the map, not under it.
+map_h <- 5.6
+map_w <- map_h * diff(view_x) / diff(view_y)
 
 base_map <- function() {
   ggplot2::geom_sf(data = prov_view, fill = "#F4F5F7", colour = "#C4CAD1", linewidth = 0.3)
-}
-prov_labels <- function() {
-  ggplot2::geom_sf_text(
-    data = prov_lab,
-    ggplot2::aes(label = abbr),
-    family = "Carlito",
-    size = 14 / ggplot2::.pt,
-    colour = col[["muted"]],
-    fontface = "bold"
-  )
 }
 
 p <- ggplot2::ggplot() +
@@ -83,38 +67,45 @@ p <- ggplot2::ggplot() +
   ggplot2::geom_sf(data = domain, fill = col[["range"]], colour = NA, alpha = 0.7) +
   ggplot2::geom_sf(data = units, fill = col[["navy"]], colour = "white", linewidth = 0.15) +
   ggplot2::geom_sf(data = prov_view, fill = NA, colour = "#AEB5BD", linewidth = 0.3) +
-  prov_labels() +
   ggplot2::coord_sf(xlim = view_x, ylim = view_y, expand = FALSE, datum = NA) +
-  theme_landweb_void()
-save_figure(p, "landweb_units_map", width = 7.6, height = 5.7, dir = out)
+  theme_landweb_void() +
+  ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
+save_figure(p, "landweb_units_map", width = map_w + 0.1, height = map_h + 0.1, dir = out)
 
 ## ---- fire cycle ---------------------------------------------------------------------------------
+## Polygons are binned to 25-year classes (and dissolved by class, so shared edges do not show as
+## hairlines); the legend is a continuous colourbar, which stays compact however many classes the
+## data reach.
 message(
   "v10 fire cycle (years) quantiles: ",
   paste(stats::quantile(lthfc$fri, c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1)), collapse = " ")
 )
-brks <- c(0, 25, 50, 75, 100, 150, Inf)
-labs <- c("< 25", "25-50", "50-75", "75-100", "100-150", "150+")
-lthfc$fri_class <- cut(lthfc$fri, brks, labels = labs, right = FALSE)
-## dissolve by class so shared polygon edges do not show as hairlines
-fc <- stats::aggregate(
-  lthfc["fri_class"],
-  by = list(cls = lthfc$fri_class),
-  FUN = function(x) x[1]
-)
-ramp <- grDevices::colorRampPalette(c("#B22222", "#E8702A", "#F2C12E", "#FFF1A8"))(length(labs))
+bin <- 25
+lthfc$fri_bin <- floor(lthfc$fri / bin) * bin + bin / 2
+fc <- stats::aggregate(lthfc["fri_bin"], by = list(mid = lthfc$fri_bin), FUN = function(x) x[1])
+fri_max <- ceiling(max(lthfc$fri) / bin) * bin
 p <- ggplot2::ggplot() +
   base_map() +
-  ggplot2::geom_sf(data = fc, ggplot2::aes(fill = cls), colour = NA) +
+  ggplot2::geom_sf(data = fc, ggplot2::aes(fill = mid), colour = NA) +
   ggplot2::geom_sf(data = prov_view, fill = NA, colour = "#8E959D", linewidth = 0.3) +
-  prov_labels() +
-  ggplot2::scale_fill_manual(
-    "Fire cycle (years)",
-    values = stats::setNames(ramp, labs),
-    drop = FALSE,
-    guide = ggplot2::guide_legend(nrow = 1, title.position = "top")
+  ggplot2::scale_fill_gradientn(
+    "Long-term\nfire cycle\n(years)",
+    colours = c("#B22222", "#E8702A", "#F2C12E", "#FFF1A8"),
+    limits = c(0, fri_max),
+    breaks = seq(0, fri_max, by = 2 * bin),
+    ## bar size set in the guide's own theme: a colourbar's length is 5 x legend.key.height, so
+    ## setting the key height in the plot theme gave a 16-inch bar
+    guide = ggplot2::guide_colourbar(
+      theme = ggplot2::theme(
+        legend.key.height = grid::unit(3.2, "in"),
+        legend.key.width = grid::unit(0.3, "in")
+      )
+    )
   ) +
   ggplot2::coord_sf(xlim = view_x, ylim = view_y, expand = FALSE, datum = NA) +
-  theme_landweb_void(base_size = 14) +
-  ggplot2::theme(legend.key.width = ggplot2::unit(0.35, "in"))
-save_figure(p, "landweb_fire_cycle", width = 6.3, height = 5.7, dir = out)
+  theme_landweb_void(base_size = 15) +
+  ggplot2::theme(
+    legend.position = "right",
+    plot.margin = ggplot2::margin(2, 2, 2, 2)
+  )
+save_figure(p, "landweb_fire_cycle", width = map_w + 1.5, height = map_h + 0.1, dir = out)
