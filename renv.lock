@@ -271,14 +271,14 @@
     },
     "LandR": {
       "Package": "LandR",
-      "Version": "1.2.0.9045",
+      "Version": "1.2.0.9047",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandR",
       "RemoteRef": "development",
-      "RemoteSha": "e49deb12744c2f8230ed5d468714ae20ffe896f8",
+      "RemoteSha": "8ae6d9200a2b242c004920efbd50dc6de61de0c9",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "Formula",
         "MuMIn",
@@ -309,7 +309,7 @@
         "utils",
         "viridis"
       ],
-      "Hash": "48949cd522cf80edf7e85415c90c2d24"
+      "Hash": "df9ede5717010cc5f162c92e96f651f1"
     },
     "LandR.CS": {
       "Package": "LandR.CS",
@@ -707,14 +707,14 @@
     },
     "Require": {
       "Package": "Require",
-      "Version": "2.1.1.9001",
+      "Version": "2.1.1.9002",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "Require",
       "RemoteRef": "development",
-      "RemoteSha": "fd33c6ad93e2c73c80fafeb275d710addbc2e925",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "e41bb255c1e4e5b7514eca0c125e9c376d794375",
       "Requirements": [
         "R",
         "callr",
@@ -726,7 +726,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "6a549912c900b1010c5d5f5e550f4d37"
+      "Hash": "90c28144f515fb5fbc521cd64e9a22db"
     },
     "RhpcBLASctl": {
       "Package": "RhpcBLASctl",
@@ -769,14 +769,14 @@
     },
     "SpaDES.core": {
       "Package": "SpaDES.core",
-      "Version": "3.2.1.9033",
+      "Version": "3.2.1.9035",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.core",
       "RemoteRef": "development",
-      "RemoteSha": "b79fb260c797d2f10a773cb4bf72e620a0a393ed",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "d70b4bff7f1a9fca3059df429265f3bcfaae2305",
       "Requirements": [
         "R",
         "Require",
@@ -797,7 +797,7 @@
         "utils",
         "whisker"
       ],
-      "Hash": "f1e69e83b1de5583b2583c1e93153b08"
+      "Hash": "57942762a559a5ebe12f8754d02fdfa4"
     },
     "SpaDES.docs": {
       "Package": "SpaDES.docs",
@@ -2696,13 +2696,14 @@
     },
     "ggthemes": {
       "Package": "ggthemes",
-      "Version": "6.0.0",
+      "Version": "7.0.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "cli",
         "ggplot2",
+        "grDevices",
         "graphics",
         "grid",
         "lifecycle",
@@ -2711,10 +2712,9 @@
         "rlang",
         "scales",
         "stats",
-        "stringr",
         "tibble"
       ],
-      "Hash": "f467289516f58dbf8bee601b7359d5ea"
+      "Hash": "b9c694acb46f4de147187b6705298529"
     },
     "gh": {
       "Package": "gh",
@@ -3468,13 +3468,13 @@
     },
     "listenv": {
       "Package": "listenv",
-      "Version": "1.0.0",
+      "Version": "1.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "c5a4adae4290385ff5819e02ff9b9931"
+      "Hash": "44cdfbb2bc2bef5b9f99a6783da3b13a"
     },
     "litedown": {
       "Package": "litedown",
@@ -4954,14 +4954,14 @@
     },
     "reproducible": {
       "Package": "reproducible",
-      "Version": "3.2.1.9059",
+      "Version": "3.2.1.9065",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "reproducible",
       "RemoteRef": "development",
-      "RemoteSha": "982011135db4667cc13982c6777287db8a966287",
+      "RemoteSha": "2c901dd2293d4cde0ccac24a8749ed15b6dc08fa",
       "Requirements": [
         "R",
         "cli",
@@ -4977,7 +4977,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "671394bb9d28facf99f0647cd117d9db"
+      "Hash": "2234e45965bd36184c91e43bb7338114"
     },
     "reshape": {
       "Package": "reshape",

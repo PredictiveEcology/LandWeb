@@ -271,6 +271,10 @@ study_area_targets <- function(sa) {
       ## deterministic + seed-free, and a grid-aligned crop matches the full extent,
       ## so a small dev subset agrees with the scaled-up run (LandR >= 1.2.0.9005)
       LCCClassesToReplaceNNMethod = "nearestWeighted",
+      ## OFF, not the module's 0.07 default (set from BC ELFs). On WesternAlbertaUpland 0.07
+      ## removes 31 of 200 species x ecoregion combinations (8% of starting cohorts), including
+      ## all Douglas-fir; whether it suits Alberta's ecoregions is still open.
+      minSpeciesEcoregionShare = 0,
       pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 1000 / (250 / res)^2,
       speciesTableAreas = c("BSW", "BP", "MC"),
       ## ecoregion x site x composition, so a species on upland and on wet ground gets its own
@@ -384,6 +388,10 @@ study_area_targets <- function(sa) {
       paths = local$paths,
       out_dir = file.path("outputs", sa, "dataPrep"),
       log_file = file.path("outputs", sa, "logs", "dataPrep.log"),
+      ## Biomass_speciesParameters fits growth curves from random starts on jittered PSP data, and
+      ## a species whose fit fails gets averaged traits; unseeded, Pice_gla's fit succeeded in
+      ## some runs and failed in others on the same data.
+      seed = 1L,
       ## Spatial handoff objects pass in-memory via sim_objects() (loaded on the worker),
       ## NOT as file inputs: Biomass_borealDataPrep/Biomass_speciesParameters read several
       ## (studyArea, rasterToMatch, ...) in .inputObjects(), which runs during simInit() --
