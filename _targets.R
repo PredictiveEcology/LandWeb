@@ -290,6 +290,9 @@ study_area_targets <- function(sa) {
       ## + 00-main.R:299-301 when wiring the real run.
     ),
     Biomass_speciesParameters = list(
+      ## 40, not the module default 50: on WesternAlbertaUpland NFI plots give black spruce 42
+      ## plot-years. Provincial PSPs are not usable here (raw data, no data-share agreement).
+      minimumPlots = 40,
       PSPdataTypes = "NFI", quantileAgeSubset = 98L, speciesFittingApproach = "focal"
     )
   )

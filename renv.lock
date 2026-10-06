@@ -271,14 +271,14 @@
     },
     "LandR": {
       "Package": "LandR",
-      "Version": "1.2.0.9047",
+      "Version": "1.2.0.9050",
       "Source": "GitHub",
       "RemoteType": "github",
+      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandR",
       "RemoteRef": "development",
-      "RemoteSha": "8ae6d9200a2b242c004920efbd50dc6de61de0c9",
-      "RemoteHost": "api.github.com",
+      "RemoteSha": "2f95ac3a11e127cc101feaa7044cabdc67e8d5ca",
       "Requirements": [
         "Formula",
         "MuMIn",
@@ -309,7 +309,7 @@
         "utils",
         "viridis"
       ],
-      "Hash": "df9ede5717010cc5f162c92e96f651f1"
+      "Hash": "75ac0b44dbdee3ee088ae6d53450774d"
     },
     "LandR.CS": {
       "Package": "LandR.CS",
@@ -333,14 +333,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3.9039",
+      "Version": "1.0.3.9041",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "main",
-      "RemoteSha": "39058a2567685d1b2442e3e3cb9bf2478e83435b",
+      "RemoteSha": "364a8f61b0bba4bb045cb9faacc2004e6cb21594",
       "Requirements": [
         "R",
         "SpaDES.tools",
@@ -369,7 +369,7 @@
         "withr",
         "workflowtools"
       ],
-      "Hash": "0b1d817f7adca4efba69dd6f457f0810"
+      "Hash": "54d8573404233021a9795d8dcfcb251d"
     },
     "MASS": {
       "Package": "MASS",
@@ -1161,6 +1161,34 @@
       ],
       "Hash": "396a7b1942d021991ee82d978ff6a00d"
     },
+    "bcdata": {
+      "Package": "bcdata",
+      "Version": "0.5.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "DBI",
+        "cli",
+        "crul",
+        "dbplyr",
+        "dplyr",
+        "glue",
+        "jsonlite",
+        "leaflet",
+        "methods",
+        "purrr",
+        "readr",
+        "readxl",
+        "rlang",
+        "sf",
+        "stats",
+        "tibble",
+        "tidyselect",
+        "utils",
+        "xml2"
+      ],
+      "Hash": "1524a00cb489003504f1b76b7a3c69fa"
+    },
     "bdsmatrix": {
       "Package": "bdsmatrix",
       "Version": "1.3-7",
@@ -1465,6 +1493,18 @@
       ],
       "Hash": "c7c7994c2f70d512b0016b6fb34c54e9"
     },
+    "cellranger": {
+      "Package": "cellranger",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "rematch",
+        "tibble"
+      ],
+      "Hash": "f61dbaec772ccd2e17705c1e872e9e7c"
+    },
     "checkmate": {
       "Package": "checkmate",
       "Version": "2.3.4",
@@ -1764,6 +1804,23 @@
         "lazyeval"
       ],
       "Hash": "8b008bc619e0bbebb5646b3d37efdad1"
+    },
+    "crul": {
+      "Package": "crul",
+      "Version": "1.6.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R6",
+        "curl",
+        "httpcode",
+        "jsonlite",
+        "lifecycle",
+        "mime",
+        "rlang",
+        "urltools"
+      ],
+      "Hash": "3aeb4061f5f9c25b3621a14c8e024a48"
     },
     "curl": {
       "Package": "curl",
@@ -3002,6 +3059,13 @@
         "yaml"
       ],
       "Hash": "04291cc45198225444a397606810ac37"
+    },
+    "httpcode": {
+      "Package": "httpcode",
+      "Version": "0.3.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "13641a1c6d2cc98801b76764078e17ea"
     },
     "httpuv": {
       "Package": "httpuv",
@@ -4903,6 +4967,21 @@
       ],
       "Hash": "4425ad9e28b8e3351184ca2739995b87"
     },
+    "readxl": {
+      "Package": "readxl",
+      "Version": "1.5.0.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "cellranger",
+        "cpp11",
+        "progress",
+        "tibble",
+        "utils"
+      ],
+      "Hash": "4a7247857644db69be2682d9afae9857"
+    },
     "reformulas": {
       "Package": "reformulas",
       "Version": "0.4.4",
@@ -4915,6 +4994,13 @@
         "stats"
       ],
       "Hash": "f7f3d0b52f1eb2745d13ae785ec275d4"
+    },
+    "rematch": {
+      "Package": "rematch",
+      "Version": "2.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "cbff1b666c6fa6d21202f07e2318d4f1"
     },
     "rematch2": {
       "Package": "rematch2",
@@ -6211,6 +6297,16 @@
       ],
       "Hash": "e98513b92c1ef46d465f869ab27cf6d7"
     },
+    "triebeard": {
+      "Package": "triebeard",
+      "Version": "0.4.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "Rcpp"
+      ],
+      "Hash": "642507a148b0dd9b5620177e0a044413"
+    },
     "tweenr": {
       "Package": "tweenr",
       "Version": "2.0.3",
@@ -6278,6 +6374,19 @@
         "xml2"
       ],
       "Hash": "579c2dd1e3e8ab71a37753a58ee86db1"
+    },
+    "urltools": {
+      "Package": "urltools",
+      "Version": "1.7.3.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "methods",
+        "triebeard"
+      ],
+      "Hash": "0951eeef49e3df040dfc67ce75a052ac"
     },
     "usethis": {
       "Package": "usethis",
