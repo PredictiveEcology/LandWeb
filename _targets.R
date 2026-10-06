@@ -162,7 +162,7 @@ pkg_fingerprint <- function(pkgs) {
 
 sa_syms <- c(
   "preamble", "preamble_files", "speciesData", "speciesData_files",
-  "dataPrep", "dataPrep_files", "mainSim_files", "reportingPolygons"
+  "dataPrep", "dataPrep_files", "mainSim_files", "reportingPolygons", "sppEquivTraits"
 )
 suffix_refs <- function(expr, sa, syms = sa_syms) {
   target_name <- function(s) {
@@ -382,6 +382,22 @@ study_area_targets <- function(sa) {
       outputs = quote(outputs_spec(raster = "speciesLayers"))
     ),
 
+    ## Each merged species group takes the traits of its member with the most SCANFI cover in this
+    ## study area. LandR merges a group's traits by the minimum across its members, which gave
+    ## Pice_gla Engelmann spruce's 30 m seed dispersal although it is mostly white spruce. Member
+    ## cover comes from the per-species SCANFI layers the speciesData stage writes to its out_dir.
+    tar_target_raw(
+      paste0("sppEquivTraits_", sa),
+      suffix_refs(bquote({
+        pkgs <- .(pkg_fingerprint("LandWebUtils")) ## re-run when it changes
+        speciesData_files ## dependency anchor: the member cover layers come from this stage
+        LandWebUtils::landweb_dominant_sppEquiv(
+          preamble$sppEquiv,
+          LandWebUtils::landweb_member_cover(file.path("outputs", .(sa), "speciesData"))
+        )
+      }), sa)
+    ),
+
     ## Stage 3b: dataPrep -- Biomass_borealDataPrep + Biomass_speciesParameters, consuming the
     ## SHARED factorial paths (unsuffixed `factorial` target) via `objects`.
     tar_simspades(
@@ -404,7 +420,7 @@ study_area_targets <- function(sa) {
           speciesParams = preamble$speciesParams,
           speciesTable = preamble$speciesTable,
           sppColorVect = preamble$sppColorVect,
-          sppEquiv = preamble$sppEquiv,
+          sppEquiv = sppEquivTraits,
           cohortDataFactorial_path = factorial$cohortDataFactorial_path,
           speciesTableFactorial_path = factorial$speciesTableFactorial_path
         ),
