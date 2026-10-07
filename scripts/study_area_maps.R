@@ -359,8 +359,8 @@ ggplot2::ggsave(f_gg_fmas, gg_fmas, width = 16, height = 12)
 
 ## upload to Google Drive -----------------------------------------------------
 
-## fmt: skip
-googledrive::drive_auth(path = fs::dir_ls(".", type = "file", regexp = "landweb.*[.]json$"))
+## the LandWeb service-account key, set by .Rprofile from LandWeb.Renviron
+googledrive::drive_auth(path = Sys.getenv("GOOGLEDRIVE_AUTH"))
 
 all_plots <- c(f_gg_caribou, f_gg_ecozones, f_gg_fmas, f_gg_lthfc, f_gg_provs)
 purrr::walk(.x = all_plots, .f = function(f) {

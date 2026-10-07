@@ -37,7 +37,6 @@ uploads/
 rsconnect/shinyapps.io/landweb/LandWebDemo.dcf
 .Rapp.history
 .RData
-*.Renviron
 .Rhistory
 .Rproj.user/
 
@@ -66,13 +65,19 @@ _targets/
 ## crew.ssh cluster config -- control-node-only, has real hostnames (see _hosts.R.example)
 _hosts.R
 
-## OAuth tokens
+## secrets / credentials / tokens
+*.Renviron
+LandWeb.Renviron
 .httr-oauth
-.httr-oauth-SUSPENDED
+.httr-oauth-*
 *.json
 !renv/settings.json
 ## provenance manifest (report 06); committed so it travels with the repo
 !_input_manifest.json
+## Drive service-account key: it lives outside the repo (~/.config/landweb/). Its usual names are
+## listed after the ! entries above so none of them can re-include a stray copy.
+landweb-*.json
+drive-sa*.json
 
 ## misc OS files
 Thumbs.db

@@ -468,6 +468,13 @@ During first-run of the model, all required data will be downloaded to the `inpu
 
 To request access, please contact Alex Chubaty ([achubaty\@for-cast.ca](mailto:achubaty@for-cast.ca){.email}).
 
+Pipeline runs (`targets::tar_make()` and its workers) download as the LandWeb Google service account, not as you.
+Its key file is never kept in the repository.
+On every machine that runs the pipeline, store it as `~/.config/landweb/drive-sa.json`, readable only by you (`chmod 700 ~/.config/landweb` and `chmod 600` on the file).
+Then create an untracked `LandWeb.Renviron` in the project root containing the single line `GOOGLEDRIVE_AUTH=~/.config/landweb/drive-sa.json`.
+At startup, `.Rprofile` ignores Google key paths set anywhere else (such as `~/.Renviron`), reads `LandWeb.Renviron`, and refuses a key that is not from the LandWeb Google Cloud project.
+Interactive sessions use your own Google login.
+
 ## Getting help
 
 - <https://github.com/PredictiveEcology/LandWeb/issues>
