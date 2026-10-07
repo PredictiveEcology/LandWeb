@@ -162,7 +162,7 @@ pkg_fingerprint <- function(pkgs) {
 
 sa_syms <- c(
   "preamble", "preamble_files", "speciesData", "speciesData_files",
-  "dataPrep", "dataPrep_files", "mainSim_files", "reportingPolygons", "sppEquivTraits"
+  "dataPrep", "dataPrep_files", "mainSim_files", "reportingPolygons", "sppList"
 )
 suffix_refs <- function(expr, sa, syms = sa_syms) {
   target_name <- function(s) {
@@ -229,6 +229,11 @@ study_area_targets <- function(sa) {
     .globals = globals_sa,
     LandWeb_preamble = list(
       bufferDist = 20000, bufferDistLarge = 50000, dispersalType = "default",
+      ## Biomass_speciesParameters takes its plots from the ecozones the study area touches, not the
+      ## ecoprovinces: with species fitted one by one, ecoprovinces gave WAU its own growth curves for
+      ## aspen only (on a count of each species' own plot-years); ecozones also give lodgepole pine,
+      ## subalpine fir and white and black spruce theirs. The study-area groups are unchanged.
+      anppEcoLevel = "ecozone",
       friMultiple = 1L, pixelSize = res, mergeSlivers = FALSE, minFRI = 25L,
       ROStype = "default", treeClassesLCC = c(81, 210, 220, 230, 240),
       .plotInitialTime = 0, .useCache = FALSE
@@ -290,9 +295,11 @@ study_area_targets <- function(sa) {
       ## + 00-main.R:299-301 when wiring the real run.
     ),
     Biomass_speciesParameters = list(
-      ## 40, not the module default 50: on WesternAlbertaUpland NFI plots give black spruce 42
-      ## plot-years. Provincial PSPs are not usable here (raw data, no data-share agreement).
-      minimumPlots = 40,
+      ## Counts the fitted species' own plot-years (Biomass_speciesParameters >= 3.0.2.9005; the
+      ## module counted a plot-year again for each co-dominant species before: black spruce's "42"
+      ## on WesternAlbertaUpland was 25 plot-years on 17 plots). 25 is about the module default of 50
+      ## on its old count. Provincial PSPs are not usable here (raw data, no data-share agreement).
+      minimumPlots = 25,
       PSPdataTypes = "NFI", quantileAgeSubset = 98L, speciesFittingApproach = "focal"
     )
   )
@@ -303,9 +310,9 @@ study_area_targets <- function(sa) {
       growthInitialTime = 0, initialBiomassSource = "cohortData", mixedType = 2L,
       seedingAlgorithm = "wardDispersal", .plotInitialTime = 0, .plotInterval = 100L,
       ## Biomass_core-only param (no other pipeline module uses it): keep it OUT of the
-      ## shared `globals` so it doesn't invalidate the cached factorial/dataPrep. Default
-      ## "LandR" has a one-to-many mapping to the 7 LandWeb groups (e.g. Abie_spp <-
-      ## Abie_bal/Abie_las/Thuj_pli/Tsug_het), which fails plotSummaryBySpecies' assertion.
+      ## shared `globals` so it doesn't invalidate the cached factorial/dataPrep. Biomass_core's
+      ## plots are per simulated unit (`LandWeb`); default "LandR" maps one unit to several
+      ## codes (e.g. Abie_spp <- Abie_bal/Abie_las), which fails plotSummaryBySpecies' assertion.
       sppEquivPlotCol = "LandWeb",
       ## vegetation-transition plots, built natively by Biomass_core (supersedes the
       ## former standalone transition-plot script). Times mirror the NRV summary outputs
@@ -320,6 +327,9 @@ study_area_targets <- function(sa) {
       calibrate = FALSE, fireInitialTime = 1, .plotInitialTime = 0, .useCache = FALSE
     ),
     LandMine = list(
+      ## species run one by one where common enough; fuel comes from the leading REPORTING group
+      ## (biomass summed within it), as when the merged groups were simulated
+      sppEquivColFuel = "LandWebReport",
       biggestPossibleFireSizeHa = 3e5, burnInitialTime = 1L, maxReburns = c(1L, 20L),
       maxRetriesPerID = 9L, minPropBurn = 0.90, mode = "single", ROSother = 30L,
       ROStype = "default", useSeed = NULL, .plotInitialTime = 1, .plotInterval = 100,
@@ -345,7 +355,7 @@ study_area_targets <- function(sa) {
       paths = local$paths,
       out_dir = file.path("outputs", sa, "preamble"),
       log_file = file.path("outputs", sa, "logs", "preamble.log"),
-      plain = c("sppEquiv", "sppColorVect", "speciesParams", "speciesTable", "ROSTable"),
+      plain = c("sppEquiv", "sppColorVect", "speciesTable", "ROSTable"),
       outputs = quote(outputs_spec(
         raster = c(
           "rasterToMatch", "rasterToMatch_biomassParam",
@@ -382,18 +392,22 @@ study_area_targets <- function(sa) {
       outputs = quote(outputs_spec(raster = "speciesLayers"))
     ),
 
-    ## Each merged species group takes the traits of its member with the most SCANFI cover in this
-    ## study area. LandR merges a group's traits by the minimum across its members, which gave
-    ## Pice_gla Engelmann spruce's 30 m seed dispersal although it is mostly white spruce. Member
-    ## cover comes from the per-species SCANFI layers the speciesData stage writes to its out_dir.
+    ## The species this study area simulates (LandWebUtils::landweb_species_units()): each species runs
+    ## on its own where it holds at least 1% of the study area's tree cover, measured as dataPrep will
+    ## see it (after its 5% per-cohort floor); the rest of its LandWeb group stays together, joins the
+    ## group's largest member, or is dropped. Hybrid spruce joins its dominant parent; cedar and hemlock
+    ## stay with the firs. Data only: the species table, colours, and which species layers make up
+    ## each unit (dataPrep sums them; a SpatRaster cannot be stored as a plain target).
     tar_target_raw(
-      paste0("sppEquivTraits_", sa),
+      paste0("sppList_", sa),
       suffix_refs(bquote({
-        pkgs <- .(pkg_fingerprint("LandWebUtils")) ## re-run when it changes
-        speciesData_files ## dependency anchor: the member cover layers come from this stage
-        LandWebUtils::landweb_dominant_sppEquiv(
+        pkgs <- .(pkg_fingerprint(c("LandWebUtils", "LandR"))) ## re-run when either changes
+        LandWebUtils::landweb_species_units(
           preamble$sppEquiv,
-          LandWebUtils::landweb_member_cover(file.path("outputs", .(sa), "speciesData"))
+          sim_objects(speciesData, objects = "speciesLayers", files = speciesData_files)[["speciesLayers"]],
+          studyArea = sim_objects(preamble, objects = "studyAreaReporting", files = preamble_files)[["studyAreaReporting"]],
+          threshold = .(1), ## percent of tree cover
+          floor = .(5) ## Biomass_borealDataPrep's minCoverThreshold
         )
       }), sa)
     ),
@@ -415,32 +429,38 @@ study_area_targets <- function(sa) {
       ## NOT as file inputs: Biomass_borealDataPrep/Biomass_speciesParameters read several
       ## (studyArea, rasterToMatch, ...) in .inputObjects(), which runs during simInit() --
       ## before inputs= load. terra layers load lazily, so this stays cheap.
-      objects = suffix_refs(quote(c(
-        list(
-          speciesParams = preamble$speciesParams,
-          speciesTable = preamble$speciesTable,
-          sppColorVect = preamble$sppColorVect,
-          sppEquiv = sppEquivTraits,
-          cohortDataFactorial_path = factorial$cohortDataFactorial_path,
-          speciesTableFactorial_path = factorial$speciesTableFactorial_path
-        ),
-        sim_objects(
-          preamble,
-          objects = c(
-            "rstLCC", "rasterToMatch", "rasterToMatch_biomassParam", "standAgeMap",
-            "studyArea", "studyAreaANPP", "studyArea_biomassParam", "studyAreaReporting"
+      objects = suffix_refs(bquote({
+        pkgs <- .(pkg_fingerprint("LandWebUtils")) ## re-run when it changes: landweb_sum_layers()
+        c(
+          list(
+            speciesTable = preamble$speciesTable,
+            sppColorVect = sppList$sppColorVect,
+            sppEquiv = sppList$sppEquiv,
+            cohortDataFactorial_path = factorial$cohortDataFactorial_path,
+            speciesTableFactorial_path = factorial$speciesTableFactorial_path
           ),
-          files = preamble_files
-        ),
-        ## empty species layers would otherwise pass as a valid "no tree species" run upstream
-        LandWebUtils::landweb_require_species(
-          sim_objects(speciesData, objects = "speciesLayers", files = speciesData_files),
-          "speciesLayers"
+          sim_objects(
+            preamble,
+            objects = c(
+              "rstLCC", "rasterToMatch", "rasterToMatch_biomassParam", "standAgeMap",
+              "studyArea", "studyAreaANPP", "studyArea_biomassParam", "studyAreaReporting"
+            ),
+            files = preamble_files
+          ),
+          ## the species layers summed into the study area's units; empty layers would otherwise pass
+          ## as a valid "no tree species" run upstream
+          LandWebUtils::landweb_require_species(
+            list(speciesLayers = LandWebUtils::landweb_sum_layers(
+              sim_objects(speciesData, objects = "speciesLayers", files = speciesData_files)[["speciesLayers"]],
+              sppList$layerMap
+            )),
+            "speciesLayers"
+          )
         )
-      )), sa),
+      }), sa),
       plain = c(
         "cohortData", "species", "speciesEcoregion", "ecoregion", "minRelativeB",
-        "sufficientLight", "sppEquiv", "sppColorVect", "speciesParams", "speciesTable"
+        "sufficientLight", "sppEquiv", "sppColorVect", "speciesTable"
       ),
       outputs = quote(outputs_spec(
         raster = c(
@@ -487,7 +507,6 @@ study_area_targets <- function(sa) {
           sufficientLight = dataPrep$sufficientLight,
           sppEquiv = LandWebUtils::landweb_require_species(dataPrep$sppEquiv, "sppEquiv"),
           sppColorVect = dataPrep$sppColorVect,
-          speciesParams = dataPrep$speciesParams,
           speciesTable = dataPrep$speciesTable,
           ROSTable = preamble$ROSTable
         ),
@@ -631,6 +650,9 @@ study_area_targets <- function(sa) {
         .globals = globals_sa,
         NRV_summary = list(
           mode = "multi",
+          ## leading types and large patches by the original LandWeb groups, not by simulated unit:
+          ## the maps are rebuilt from the saved cohorts with species recoded to their group
+          sppEquivColReporting = "LandWebReport",
           ## reuse a complete _aggregates parquet dataset (skip the ~2h landscape-metric recompute) to
           ## iterate on plots/CSVs only. Off by default; opt in per-run via the env var (evaluated here
           ## on the controller, so the flag is baked into the target). MUST be FALSE for a fresh run.
@@ -668,7 +690,8 @@ study_area_targets <- function(sa) {
           list(
             reportingPolygons = reportingPolygons,
             sppEquiv = LandWebUtils::landweb_require_species(dataPrep$sppEquiv, "sppEquiv"),
-            sppColorVect = dataPrep$sppColorVect
+            sppColorVect = dataPrep$sppColorVect,
+            sppColorVectReporting = sppList$sppColorVectReport
           ),
           sim_objects(preamble, objects = "studyAreaReporting", files = preamble_files)
         )
@@ -757,7 +780,6 @@ study_area_targets <- function(sa) {
           sufficientLight = dataPrep$sufficientLight,
           sppEquiv = LandWebUtils::landweb_require_species(dataPrep$sppEquiv, "sppEquiv"),
           sppColorVect = dataPrep$sppColorVect,
-          speciesParams = dataPrep$speciesParams,
           speciesTable = dataPrep$speciesTable,
           ROSTable = preamble$ROSTable
         ),
