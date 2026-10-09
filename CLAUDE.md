@@ -25,6 +25,7 @@ outputs/
       figures/{lm,pm,boxplots,histograms}/
     reports/            # rendered per-study-area Quarto reports (04, 05)
   _factorial/           # SHARED, study-area-INDEPENDENT — DO NOT nest per study area
+  _growthCurves/        # SHARED, study-area-INDEPENDENT growth-curve fit (every species, once)
   _extended_analyses/   # SHARED, LTHFC domain-wide analyses
   _reference/           # shared reference layers
   _reports/             # SHARED, domain-wide Quarto reports (00-03, 06)
@@ -41,6 +42,9 @@ logs/                   # run + crew worker logs — NEVER put logs in outputs/
     `.studyAreaName = "_factorial_"` sentinel so it is built **once and reused across study
     areas**. Nesting it per-area would defeat that and force a costly (~2 h) rebuild per area.
   - `_extended_analyses` — LTHFC domain-wide, not per-FMA.
+  - `_growthCurves` — the growth-curve traits, fitted once for every species from the plots in
+    the ecoprovinces touching the LandWeb area, and applied to each study area's units
+    (`speciesTraits_<sa>`).
 - **Logs go in `logs/`, never in `outputs/`.** Both `outputs/` and `logs/` are git-ignored.
 - Figures are **stage-based**: they land under each stage's `out_dir/figures/<module>/`
   (SpaDES `figurePath` follows `outputPath`), so everything for a study area is under

@@ -162,7 +162,7 @@ pkg_fingerprint <- function(pkgs) {
 
 sa_syms <- c(
   "preamble", "preamble_files", "speciesData", "speciesData_files",
-  "dataPrep", "dataPrep_files", "mainSim_files", "reportingPolygons", "sppList"
+  "dataPrep", "dataPrep_files", "mainSim_files", "reportingPolygons", "sppList", "speciesTraits"
 )
 suffix_refs <- function(expr, sa, syms = sa_syms) {
   target_name <- function(s) {
@@ -216,6 +216,36 @@ p_factorial <- list(
   Biomass_speciesFactorial = list(factorialSize = "large")
 )
 
+## ---- shared, study-area-INDEPENDENT growth curves ------------------------------
+## Growth-curve traits (growthcurve, mortalityshape, mANPPproportion, inflationFactor, longevity) are
+## fitted ONCE, for every species LandWeb maps from SCANFI, from the NFI and BC provincial plots in the
+## ecoprovinces that touch the LandWeb area; each study area's units then take their dominant
+## species' traits (speciesTraits_<sa>). Fitted per study area, as before, a species' curve depended on
+## the few plots that area's ecozones held, and differed between areas. Like the factorial, the stage
+## is pinned to a sentinel `.studyAreaName`, and its settings live here rather than in `globals`, whose
+## every change would rebuild the factorial.
+## Shared with the per-area stages, so that the fit's species table and fitting area are built as theirs:
+lthfc_minFRI <- 25L ## LandWeb_preamble's minFRI, for the LandWeb area
+species_table_areas <- c("BSW", "BP", "MC") ## Biomass_borealDataPrep's speciesTableAreas
+globals_growthCurves <- modifyList(globals, list(.studyAreaName = "_growthCurves_"))
+p_growthCurves <- list(
+  .globals = globals_growthCurves,
+  Biomass_speciesParameters = list(
+    ## Counts the fitted species' own plot-years (Biomass_speciesParameters >= 3.0.2.9005; the module
+    ## counted a plot-year again for each co-dominant species before: black spruce's "42" on
+    ## WesternAlbertaUpland was 25 plot-years on 17 plots). 25 is about the module default of 50 on its
+    ## old count. Alberta and Saskatchewan provincial plots are not available to the LandWeb account.
+    minimumPlots = 25,
+    ## the plot data come in through `objects` (target growthPSP); this names them for the module
+    PSPdataTypes = c("NFI", "BC"),
+    quantileAgeSubset = 98L,
+    speciesFittingApproach = "focal",
+    ## explicit: the module's default reads an R option, which targets does not track
+    mergeHybridSprucePSP = "engelmann",
+    balanceGrowth = FALSE
+  )
+)
+
 ## ---- per-study-area stage factory ---------------------------------------------
 ## Returns the list of study-area-specific targets for one study area `sa`, with
 ## "_<sa>"-suffixed names, outputs/<sa>/ output dirs, and every cross-stage reference
@@ -229,12 +259,10 @@ study_area_targets <- function(sa) {
     .globals = globals_sa,
     LandWeb_preamble = list(
       bufferDist = 20000, bufferDistLarge = 50000, dispersalType = "default",
-      ## Biomass_speciesParameters takes its plots from the ecozones the study area touches, not the
-      ## ecoprovinces: with species fitted one by one, ecoprovinces gave WAU its own growth curves for
-      ## aspen only (on a count of each species' own plot-years); ecozones also give lodgepole pine,
-      ## subalpine fir and white and black spruce theirs. The study-area groups are unchanged.
+      ## studyAreaANPP (the ecozones the study area touches) no longer feeds the growth curves, which
+      ## are fitted once for all of LandWeb (growthCurves); kept as a record of the area's own pool.
       anppEcoLevel = "ecozone",
-      friMultiple = 1L, pixelSize = res, mergeSlivers = FALSE, minFRI = 25L,
+      friMultiple = 1L, pixelSize = res, mergeSlivers = FALSE, minFRI = lthfc_minFRI,
       ROStype = "default", treeClassesLCC = c(81, 210, 220, 230, 240),
       .plotInitialTime = 0, .useCache = FALSE
     )
@@ -281,7 +309,7 @@ study_area_targets <- function(sa) {
       ## all Douglas-fir; whether it suits Alberta's ecoregions is still open.
       minSpeciesEcoregionShare = 0,
       pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 1000 / (250 / res)^2,
-      speciesTableAreas = c("BSW", "BP", "MC"),
+      speciesTableAreas = species_table_areas,
       ## ecoregion x site x composition, so a species on upland and on wet ground gets its own
       ## maxB/maxANPP/SEP. Needs `rstWetland`, which defaults to CWIM v3A (`wetlandSource`).
       ## NOT the module default, which is the single land-cover axis.
@@ -293,14 +321,6 @@ study_area_targets <- function(sa) {
       ## TODO: speciesUpdateFunction (2 quotes) + minRelativeBFunction =
       ## quote(myMinRelativeB(pixelCohortData)) -- port verbatim from box/landweb.R
       ## + 00-main.R:299-301 when wiring the real run.
-    ),
-    Biomass_speciesParameters = list(
-      ## Counts the fitted species' own plot-years (Biomass_speciesParameters >= 3.0.2.9005; the
-      ## module counted a plot-year again for each co-dominant species before: black spruce's "42"
-      ## on WesternAlbertaUpland was 25 plot-years on 17 plots). 25 is about the module default of 50
-      ## on its old count. Provincial PSPs are not usable here (raw data, no data-share agreement).
-      minimumPlots = 25,
-      PSPdataTypes = "NFI", quantileAgeSubset = 98L, speciesFittingApproach = "focal"
     )
   )
 
@@ -412,21 +432,20 @@ study_area_targets <- function(sa) {
       }), sa)
     ),
 
-    ## Stage 3b: dataPrep -- Biomass_borealDataPrep + Biomass_speciesParameters, consuming the
-    ## SHARED factorial paths (unsuffixed `factorial` target) via `objects`.
+    ## Stage 3b: dataPrep -- Biomass_borealDataPrep. The growth-curve traits are applied after it,
+    ## from the shared fit, by speciesTraits_<sa>.
     tar_simspades(
       paste0("dataPrep_", sa),
-      modules = c("Biomass_borealDataPrep", "Biomass_speciesParameters"),
+      modules = "Biomass_borealDataPrep",
       params = p_dataPrep,
       paths = local$paths,
       out_dir = file.path("outputs", sa, "dataPrep"),
       log_file = file.path("outputs", sa, "logs", "dataPrep.log"),
-      ## Biomass_speciesParameters fits growth curves from random starts on jittered PSP data, and
-      ## a species whose fit fails gets averaged traits; unseeded, Pice_gla's fit succeeded in
-      ## some runs and failed in others on the same data.
+      ## seeded since Biomass_speciesParameters ran here (its fits drew random starts); kept so
+      ## that any random draw in data preparation repeats.
       seed = 1L,
       ## Spatial handoff objects pass in-memory via sim_objects() (loaded on the worker),
-      ## NOT as file inputs: Biomass_borealDataPrep/Biomass_speciesParameters read several
+      ## NOT as file inputs: Biomass_borealDataPrep reads several
       ## (studyArea, rasterToMatch, ...) in .inputObjects(), which runs during simInit() --
       ## before inputs= load. terra layers load lazily, so this stays cheap.
       objects = suffix_refs(bquote({
@@ -435,15 +454,13 @@ study_area_targets <- function(sa) {
           list(
             speciesTable = preamble$speciesTable,
             sppColorVect = sppList$sppColorVect,
-            sppEquiv = sppList$sppEquiv,
-            cohortDataFactorial_path = factorial$cohortDataFactorial_path,
-            speciesTableFactorial_path = factorial$speciesTableFactorial_path
+            sppEquiv = sppList$sppEquiv
           ),
           sim_objects(
             preamble,
             objects = c(
               "rstLCC", "rasterToMatch", "rasterToMatch_biomassParam", "standAgeMap",
-              "studyArea", "studyAreaANPP", "studyArea_biomassParam", "studyAreaReporting"
+              "studyArea", "studyArea_biomassParam", "studyAreaReporting"
             ),
             files = preamble_files
           ),
@@ -469,6 +486,22 @@ study_area_targets <- function(sa) {
         ),
         vect = c("studyArea", "studyArea_biomassParam")
       ))
+    ),
+
+    ## Stage 3c: each unit takes the growth-curve traits of its dominant species from the shared fit,
+    ## and maxB and maxANPP follow them, as Biomass_speciesParameters did inside dataPrep. A plain
+    ## target, so a new fit re-runs this step and the simulations, not data preparation.
+    tar_target_raw(
+      paste0("speciesTraits_", sa),
+      suffix_refs(bquote({
+        pkgs <- .(pkg_fingerprint(c("LandWebUtils", "LandR")))
+        sp <- LandWebUtils::landweb_unit_growth_traits(dataPrep$species, growthTraits, sppList$units)
+        tabs <- LandR::modifySpeciesAndSpeciesEcoregionTable(
+          speciesEcoregion = dataPrep$speciesEcoregion,
+          speciesTable = sp
+        )
+        list(species = tabs$newSpeciesTable, speciesEcoregion = tabs$newSpeciesEcoregion)
+      }), sa)
     ),
 
     ## Stage 4: mainSim (two-phase Phase 1). burnSummaries + NRV_summary run here in
@@ -500,8 +533,8 @@ study_area_targets <- function(sa) {
       objects = suffix_refs(quote(c(
         list(
           cohortData = LandWebUtils::landweb_require_species(dataPrep$cohortData, "cohortData"),
-          species = dataPrep$species,
-          speciesEcoregion = dataPrep$speciesEcoregion,
+          species = speciesTraits$species,
+          speciesEcoregion = speciesTraits$speciesEcoregion,
           ecoregion = dataPrep$ecoregion,
           minRelativeB = dataPrep$minRelativeB,
           sufficientLight = dataPrep$sufficientLight,
@@ -773,8 +806,8 @@ study_area_targets <- function(sa) {
       objects = suffix_refs(quote(c(
         list(
           cohortData = LandWebUtils::landweb_require_species(dataPrep$cohortData, "cohortData"),
-          species = dataPrep$species,
-          speciesEcoregion = dataPrep$speciesEcoregion,
+          species = speciesTraits$species,
+          speciesEcoregion = speciesTraits$speciesEcoregion,
           ecoregion = dataPrep$ecoregion,
           minRelativeB = dataPrep$minRelativeB,
           sufficientLight = dataPrep$sufficientLight,
@@ -858,6 +891,73 @@ list(
     log_file = file.path("outputs", "_factorial", "logs", "factorial.log"),
     plain = c("cohortDataFactorial_path", "speciesTableFactorial_path")
   ),
+
+  ## Stage 3a': growth curves -- SHARED, study-area-independent, fitted once for every species and
+  ## reused by every study area (see p_growthCurves). The fitting area, the plot data and BC's BEC
+  ## zones are targets of their own, so that a change in any of them is tracked.
+  tar_target_raw("growthCurvesArea", bquote({
+    pkgs <- .(pkg_fingerprint(c("LandWebUtils", "reproducible", "workflowtools")))
+    LandWebUtils::landweb_anpp_area(
+      LandWebUtils::landweb_area(LandWebUtils::polygonClean(
+        LandWebUtils::landweb_lthfc(.(local$paths$inputPath)),
+        type = "LandWeb",
+        minFRI = .(lthfc_minFRI)
+      )),
+      ecoLevel = "ecoprovince",
+      destinationPath = .(local$paths$inputPath)
+    )
+  })),
+  tar_target_raw("growthPSP", bquote({
+    pkgs <- .(pkg_fingerprint("PSPclean"))
+    PSPclean::getPSP(PSPdataTypes = c("NFI", "BC"), destinationPath = .(local$paths$inputPath), forGMCS = FALSE)
+  })),
+  tar_target_raw("growthBECzones", bquote({
+    pkgs <- .(pkg_fingerprint("LandWebUtils"))
+    LandWebUtils::landweb_bec_zones(growthPSP$PSPgis, growthPSP$PSPmeasure, growthCurvesArea)
+  })),
+  tar_target_raw("growthSppEquiv", bquote({
+    pkgs <- .(pkg_fingerprint(c("LandWebUtils", "LandR")))
+    LandWebUtils::landweb_growth_sppEquiv(LandWebUtils::landweb_species_sppEquiv(LandR::sppEquivalencies_CA))
+  })),
+  ## the species table as Biomass_borealDataPrep builds it, one row per species
+  tar_target_raw("growthSpeciesTable", bquote({
+    pkgs <- .(pkg_fingerprint("LandR"))
+    speciesTable <- LandR::getSpeciesTable(dPath = .(local$paths$inputPath))
+    species <- LandR::prepSpeciesTable(
+      speciesTable = speciesTable,
+      sppEquiv = growthSppEquiv,
+      areas = .(species_table_areas),
+      sppEquivCol = "LandWeb"
+    )
+    LandR::speciesTableUpdate(species, speciesTable, growthSppEquiv, "LandWeb")
+  })),
+  tar_simspades(
+    "growthCurves",
+    modules = "Biomass_speciesParameters",
+    params = p_growthCurves,
+    paths = local$paths,
+    out_dir = file.path("outputs", "_growthCurves"),
+    log_file = file.path("logs", "growthCurves.log"),
+    ## the fits draw random starts on jittered plot data
+    seed = 1L,
+    objects = quote({
+      factorial_files ## re-fit when the factorial's files change, not only its paths
+      list(
+        sppEquiv = growthSppEquiv,
+        species = growthSpeciesTable,
+        studyAreaANPP = growthCurvesArea,
+        PSPmeasure_sppParams = growthPSP$PSPmeasure,
+        PSPplot_sppParams = growthPSP$PSPplot,
+        PSPgis_sppParams = growthPSP$PSPgis,
+        BECzonesBC = growthBECzones,
+        cohortDataFactorial_path = factorial$cohortDataFactorial_path,
+        speciesTableFactorial_path = factorial$speciesTableFactorial_path
+      )
+    }),
+    plain = "species"
+  ),
+  ## the traits only, so that a re-fit giving the same traits re-runs nothing downstream
+  tar_target(growthTraits, LandWebUtils::landweb_growth_traits(growthCurves$species)),
 
   ## per-study-area stages, branched statically over local$study_areas. targets
   ## flattens this nested list; each area contributes preamble/speciesData/dataPrep/
