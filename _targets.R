@@ -218,12 +218,12 @@ p_factorial <- list(
 
 ## ---- shared, study-area-INDEPENDENT growth curves ------------------------------
 ## Growth-curve traits (growthcurve, mortalityshape, mANPPproportion, inflationFactor, longevity) are
-## fitted ONCE, for every species LandWeb maps from SCANFI, from the NFI and BC provincial plots in the
-## ecoprovinces that touch the LandWeb area; each study area's units then take their dominant
-## species' traits (speciesTraits_<sa>). Fitted per study area, as before, a species' curve depended on
-## the few plots that area's ecozones held, and differed between areas. Like the factorial, the stage
-## is pinned to a sentinel `.studyAreaName`, and its settings live here rather than in `globals`, whose
-## every change would rebuild the factorial.
+## fitted ONCE, for every species LandWeb maps from SCANFI, from the NFI plots and the BC, Alberta and
+## Saskatchewan provincial plots in the ecoprovinces that touch the LandWeb area; each study area's
+## units then take the traits of their best-covered fitted member (speciesTraits_<sa>). Fitted per
+## study area, as before, a species' curve depended on the few plots that area's ecozones held, and
+## differed between areas. Like the factorial, the stage is pinned to a sentinel `.studyAreaName`,
+## and its settings live here rather than in `globals`, whose every change would rebuild the factorial.
 ## Shared with the per-area stages, so that the fit's species table and fitting area are built as theirs:
 lthfc_minFRI <- 25L ## LandWeb_preamble's minFRI, for the LandWeb area
 species_table_areas <- c("BSW", "BP", "MC") ## Biomass_borealDataPrep's speciesTableAreas
@@ -234,10 +234,13 @@ p_growthCurves <- list(
     ## Counts the fitted species' own plot-years (Biomass_speciesParameters >= 3.0.2.9005; the module
     ## counted a plot-year again for each co-dominant species before: black spruce's "42" on
     ## WesternAlbertaUpland was 25 plot-years on 17 plots). 25 is about the module default of 50 on its
-    ## old count. Alberta and Saskatchewan provincial plots are not available to the LandWeb account.
+    ## old count.
     minimumPlots = 25,
     ## the plot data come in through `objects` (target growthPSP); this names them for the module
-    PSPdataTypes = c("NFI", "BC"),
+    PSPdataTypes = c("NFI", "BC", "AB", "SK"),
+    ## trees of 9 cm DBH and up, NFI's threshold: the provincial plots also record smaller trees (AB
+    ## from 0.1 cm, BC 2 cm, SK 5.9 cm), whose biomass the NFI plots would not count
+    minDBH = 9L,
     quantileAgeSubset = 98L,
     speciesFittingApproach = "focal",
     ## explicit: the module's default reads an R option, which targets does not track
@@ -488,9 +491,10 @@ study_area_targets <- function(sa) {
       ))
     ),
 
-    ## Stage 3c: each unit takes the growth-curve traits of its dominant species from the shared fit,
-    ## and maxB and maxANPP follow them, as Biomass_speciesParameters did inside dataPrep. A plain
-    ## target, so a new fit re-runs this step and the simulations, not data preparation.
+    ## Stage 3c: each unit takes the growth-curve traits of its best-covered member that the shared fit
+    ## estimated (its dominant species' imputed traits if none was), and maxB and maxANPP follow them,
+    ## as Biomass_speciesParameters did inside dataPrep. A plain target, so a new fit re-runs this step
+    ## and the simulations, not data preparation.
     tar_target_raw(
       paste0("speciesTraits_", sa),
       suffix_refs(bquote({
@@ -908,8 +912,15 @@ list(
     )
   })),
   tar_target_raw("growthPSP", bquote({
-    pkgs <- .(pkg_fingerprint("PSPclean"))
-    PSPclean::getPSP(PSPdataTypes = c("NFI", "BC"), destinationPath = .(local$paths$inputPath), forGMCS = FALSE)
+    pkgs <- .(pkg_fingerprint(c("PSPclean", "LandWebUtils")))
+    ## without the trees recorded as damaged or killed by bark beetles or defoliators: LandWeb simulates
+    ## neither, and the fit would read their losses as senescence
+    PSPclean::getPSP(
+      PSPdataTypes = .(p_growthCurves$Biomass_speciesParameters$PSPdataTypes),
+      destinationPath = .(local$paths$inputPath),
+      forGMCS = FALSE,
+      codesToExclude = LandWebUtils::landweb_damage_codes()
+    )
   })),
   tar_target_raw("growthBECzones", bquote({
     pkgs <- .(pkg_fingerprint("LandWebUtils"))
