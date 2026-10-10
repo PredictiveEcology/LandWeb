@@ -79,8 +79,7 @@ primary_controller <- if (length(getOption("crew.ssh.nodes"))) {
     ## non-crash outcome), so this is "how many times may one rep restart". See the
     ## note on the local controller below for why it is no longer 25.
     crashes_max = 2L,
-    ## tasks a worker runs before a new one replaces it: unlimited unless _hosts.R sets it (1 for a
-    ## run of the growth-curve refits, so that each refit starts on fresh memory)
+    ## tasks a worker runs before a new one replaces it: unlimited unless _hosts.R sets it
     tasks_max = getOption("crew.ssh.tasks_max", Inf),
     ## a worker that dies takes its rep's progress with it, so keep its output:
     ## the ssh client's streams carry both the remote R's messages and ssh's own
@@ -887,10 +886,9 @@ if (isTRUE(getOption("landweb.extended_analyses", FALSE))) {
 ## resampled plot data are stored, and nothing downstream reads the refits: the simulations use the
 ## fit to all plots. At ~1.8 h and ~40 GB each they would hold workers the simulations need, so they
 ## are off by default: build them on their own with LANDWEB_GROWTH_UNCERTAINTY=TRUE (see _local.R)
-## and tar_make(names = growthTraitsUncertainty). For that run, _hosts.R can raise the node caps and
-## set crew.ssh.tasks_max = 1L, so that each refit starts in a new worker rather than on memory a
-## previous task left behind. With the gate off they are not in the pipeline: tar_prune() would
-## delete their results.
+## and tar_make(names = growthTraitsUncertainty); for that run, _hosts.R can raise the node caps
+## (~42 GB per refit). With the gate off they are not in the pipeline: tar_prune() would delete
+## their results.
 growth_uncertainty_targets <- list()
 if (isTRUE(getOption("landweb.growth_uncertainty", FALSE))) {
   growth_uncertainty_targets <- list(
