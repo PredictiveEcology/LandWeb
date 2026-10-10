@@ -891,6 +891,11 @@ if (isTRUE(getOption("landweb.extended_analyses", FALSE))) {
 ## their results.
 growth_uncertainty_targets <- list()
 if (isTRUE(getOption("landweb.growth_uncertainty", FALSE))) {
+  ## Workers load their upstream values from the shared store. Left at "auto", targets loads them in
+  ## the controller for a target that branches over a stem (growth_resample) and ships them with
+  ## every branch: the plot data and BEC zones sent to ~30 concurrent refits filled 32 GB there.
+  retrieval_default <- tar_option_get("retrieval")
+  tar_option_set(retrieval = "worker")
   growth_uncertainty_targets <- list(
     tar_target(growth_resample, seq_len(growth_resamples), iteration = "vector"),
     tar_simspades(
@@ -940,6 +945,7 @@ if (isTRUE(getOption("landweb.growth_uncertainty", FALSE))) {
       LandWebUtils::landweb_growth_trait_frequency(growthTraitsResampled, growthTraits)
     }))
   )
+  tar_option_set(retrieval = retrieval_default)
 }
 
 ## ---- pipeline -----------------------------------------------------------------
