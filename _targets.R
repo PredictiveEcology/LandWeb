@@ -248,6 +248,14 @@ p_growthCurves <- list(
     balanceGrowth = FALSE
   )
 )
+## The fit repeated on bootstrap samples of whole plots, to show how much each species' traits depend
+## on which plots were measured (growthCurvesResampled). Plotting is off: the module's figures for
+## every refit would show nothing that growthTraitsUncertainty does not.
+growth_resamples <- 200L
+p_growthCurvesResampled <- modifyList(
+  p_growthCurves,
+  list(.globals = modifyList(globals_growthCurves, list(.plots = NA_character_)))
+)
 
 ## ---- per-study-area stage factory ---------------------------------------------
 ## Returns the list of study-area-specific targets for one study area `sa`, with
@@ -968,7 +976,61 @@ list(
     plain = "species"
   ),
   ## the traits only, so that a re-fit giving the same traits re-runs nothing downstream
-  tar_target(growthTraits, LandWebUtils::landweb_growth_traits(growthCurves$species)),
+  tar_target_raw("growthTraits", bquote({
+    pkgs <- .(pkg_fingerprint("LandWebUtils"))
+    LandWebUtils::landweb_growth_traits(growthCurves$species)
+  })),
+  ## Uncertainty of the shared fit: refits on growth_resamples bootstrap samples of whole plots, each
+  ## its own branch with its own seed, as mainSim's replicates are. The sample is drawn inside the
+  ## branch, so no resampled plot data are stored. Nothing downstream reads the refits: the
+  ## simulations use the fit to all plots.
+  tar_target(growth_resample, seq_len(growth_resamples), iteration = "vector"),
+  tar_simspades(
+    "growthCurvesResampled",
+    modules = "Biomass_speciesParameters",
+    params = p_growthCurvesResampled,
+    paths = local$paths,
+    pattern = quote(map(growth_resample)),
+    iteration = "list",
+    out_dir = quote(
+      file.path("outputs", "_growthCurves", "resamples", sprintf("r%03d", growth_resample))
+    ),
+    log_file = quote(file.path("logs", "growthCurves", sprintf("resample%03d.log", growth_resample))),
+    seed = quote(growth_resample),
+    objects = bquote({
+      factorial_files ## re-fit when the factorial's files change, not only its paths
+      pkgs <- .(pkg_fingerprint("LandWebUtils"))
+      psp <- LandWebUtils::landweb_resample_psp(growthPSP, growthCurvesArea, seed = growth_resample)
+      list(
+        sppEquiv = growthSppEquiv,
+        species = growthSpeciesTable,
+        studyAreaANPP = growthCurvesArea,
+        PSPmeasure_sppParams = psp$PSPmeasure,
+        PSPplot_sppParams = psp$PSPplot,
+        PSPgis_sppParams = psp$PSPgis,
+        BECzonesBC = growthBECzones,
+        cohortDataFactorial_path = factorial$cohortDataFactorial_path,
+        speciesTableFactorial_path = factorial$speciesTableFactorial_path
+      )
+    }),
+    plain = "species"
+  ),
+  tar_target_raw(
+    "growthTraitsResampled",
+    bquote({
+      pkgs <- .(pkg_fingerprint("LandWebUtils"))
+      cbind(
+        resample = growth_resample,
+        LandWebUtils::landweb_growth_traits(growthCurvesResampled$species)
+      )
+    }),
+    pattern = quote(map(growthCurvesResampled, growth_resample))
+  ),
+  ## how often each species' set of traits was chosen, and whether the fit to all plots chose it
+  tar_target_raw("growthTraitsUncertainty", bquote({
+    pkgs <- .(pkg_fingerprint("LandWebUtils"))
+    LandWebUtils::landweb_growth_trait_frequency(growthTraitsResampled, growthTraits)
+  })),
 
   ## per-study-area stages, branched statically over local$study_areas. targets
   ## flattens this nested list; each area contributes preamble/speciesData/dataPrep/
