@@ -80,3 +80,11 @@ local <- list(
 options(
   landweb.extended_analyses = isTRUE(as.logical(Sys.getenv("LANDWEB_EXTENDED_ANALYSES", "FALSE")))
 )
+
+## Opt-in growth-curve uncertainty -- OFF by default. When TRUE, the pipeline adds the refits of the
+## shared growth-curve fit on bootstrap samples of plots (~1.8 h and ~40 GB each) and their summary,
+## growthTraitsUncertainty. Build them on their own: LANDWEB_GROWTH_UNCERTAINTY=TRUE and
+## tar_make(names = growthTraitsUncertainty). Read on the control node only, like the gate above.
+options(
+  landweb.growth_uncertainty = isTRUE(as.logical(Sys.getenv("LANDWEB_GROWTH_UNCERTAINTY", "FALSE")))
+)

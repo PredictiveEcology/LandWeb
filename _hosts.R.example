@@ -8,6 +8,9 @@
 options(
   ## host = per-node worker capacity (RAM-bound). TUNE before real runs.
   crew.ssh.nodes = c(host1 = 8L, host2 = 8L),
+  ## tasks a worker runs before a new one replaces it (default: unlimited). 1L for a run of the
+  ## growth-curve refits, so that each refit starts on fresh memory.
+  # crew.ssh.tasks_max = 1L,
   ## project path on every node (identical across nodes)
   crew.ssh.projdir = "/home/you/GitHub/LandWeb",
   ## RECOMMENDED dial-back: a reverse SSH tunnel -- no inbound firewall port, works

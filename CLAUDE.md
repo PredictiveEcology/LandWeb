@@ -47,7 +47,7 @@ logs/                   # run + crew worker logs — NEVER put logs in outputs/
     the ecoprovinces touching the LandWeb area, and applied to each study area's units
     (`speciesTraits_<sa>`). `resamples/rNNN/` holds the refits on bootstrap samples of whole plots
     (`growthCurvesResampled`; logs in `logs/growthCurves/`), which only `growthTraitsUncertainty`
-    reads.
+    reads. The refits are opt-in (`LANDWEB_GROWTH_UNCERTAINTY=TRUE`; see `_local.R`).
 - **Logs go in `logs/`, never in `outputs/`.** Both `outputs/` and `logs/` are git-ignored.
 - Figures are **stage-based**: they land under each stage's `out_dir/figures/<module>/`
   (SpaDES `figurePath` follows `outputPath`), so everything for a study area is under
