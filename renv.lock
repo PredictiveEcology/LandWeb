@@ -333,14 +333,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3.9046",
+      "Version": "1.0.3.9048",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "main",
-      "RemoteSha": "f8a5c39d3d962b0f0009f2c612c86a2c755bce18",
+      "RemoteSha": "d4fe70c70362c77fa386d645f54f68c335475004",
       "Requirements": [
         "R",
         "SpaDES.tools",
@@ -354,6 +354,7 @@
         "graphics",
         "map",
         "methods",
+        "nngeo",
         "pemisc",
         "purrr",
         "rasterVis",
@@ -369,7 +370,7 @@
         "withr",
         "workflowtools"
       ],
-      "Hash": "9d944e0f223de5c36ae7be11bc5b6c50"
+      "Hash": "16cc9c1a5b97d38c5b94f610abf9596c"
     },
     "MASS": {
       "Package": "MASS",
@@ -459,15 +460,14 @@
     },
     "PSPclean": {
       "Package": "PSPclean",
-      "Version": "1.0.0.9006",
+      "Version": "1.0.0.9007",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "PSPclean",
       "RemoteUsername": "ianmseddy",
-      "RemotePkgRef": "ianmseddy/PSPclean@development",
+      "RemoteRepo": "PSPclean",
       "RemoteRef": "development",
-      "RemoteSha": "b878a1ae39a0a834aa5ccdcb4d96be1fa7c4a8d9",
+      "RemoteSha": "7d6b8643033e883e97c72bbbbb373545ccab5e93",
       "Requirements": [
         "LandR",
         "R",
@@ -479,7 +479,7 @@
         "sf",
         "terra"
       ],
-      "Hash": "4d8d7850e7814200e84837360bd4658c"
+      "Hash": "3f33611db95afead95176ed01dd44b50"
     },
     "PresenceAbsence": {
       "Package": "PresenceAbsence",
