@@ -886,9 +886,10 @@ if (isTRUE(getOption("landweb.extended_analyses", FALSE))) {
 ## resampled plot data are stored, and nothing downstream reads the refits: the simulations use the
 ## fit to all plots. At ~1.8 h and ~40 GB each they would hold workers the simulations need, so they
 ## are off by default: build them on their own with LANDWEB_GROWTH_UNCERTAINTY=TRUE (see _local.R)
-## and tar_make(names = growthTraitsUncertainty); for that run, _hosts.R can raise the node caps
-## (~42 GB per refit). With the gate off they are not in the pipeline: tar_prune() would delete
-## their results.
+## and tar_make(names = growthTraitsUncertainty). For that run, _hosts.R sets the node caps and
+## crew.ssh.tasks_max = 1L (crew.ssh >= 0.0.8): a refit peaks at ~80 GB in a fresh worker, and a
+## worker kept ~30 GB from one refit to the next. With the gate off they are not in the pipeline:
+## tar_prune() would delete their results.
 growth_uncertainty_targets <- list()
 if (isTRUE(getOption("landweb.growth_uncertainty", FALSE))) {
   ## Workers load their upstream values from the shared store. Left at "auto", targets loads them in

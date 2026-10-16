@@ -8,7 +8,8 @@
 options(
   ## host = per-node worker capacity (RAM-bound). TUNE before real runs.
   crew.ssh.nodes = c(host1 = 8L, host2 = 8L),
-  ## tasks a worker runs before a new one replaces it (default: unlimited, a persistent pool)
+  ## tasks a worker runs before a new one replaces it (default: unlimited, a persistent pool). 1L
+  ## starts every task in a fresh worker; crew.ssh >= 0.0.8 keeps the caps while workers are replaced.
   # crew.ssh.tasks_max = 1L,
   ## project path on every node (identical across nodes)
   crew.ssh.projdir = "/home/you/GitHub/LandWeb",
