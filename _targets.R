@@ -259,6 +259,24 @@ p_growthCurvesResampled <- modifyList(
   p_growthCurves,
   list(.globals = modifyList(globals_growthCurves, list(.plots = NA_character_)))
 )
+## The traits only, so that a re-fit giving the same traits re-runs nothing downstream. A CSV of them
+## (growthTraits' columns) named by LANDWEB_GROWTH_TRAITS_FILE (see _local.R) replaces the fit's, for a
+## test run with traits estimated another way: the per-area traits, simulations and summaries re-run,
+## and unsetting it restores the fit's traits. Unset, the target is as before.
+growth_traits_target <- function(file) {
+  if (is.na(file)) {
+    return(tar_target_raw("growthTraits", bquote({
+      pkgs <- .(pkg_fingerprint("LandWebUtils"))
+      LandWebUtils::landweb_growth_traits(growthCurves$species)
+    })))
+  }
+  list(
+    tar_target_raw("growthTraits_file", file, format = "file"),
+    tar_target_raw("growthTraits", quote(
+      LandWebUtils::landweb_growth_traits(data.table::fread(growthTraits_file))
+    ))
+  )
+}
 
 ## ---- per-study-area stage factory ---------------------------------------------
 ## Returns the list of study-area-specific targets for one study area `sa`, with
@@ -885,7 +903,7 @@ if (isTRUE(getOption("landweb.extended_analyses", FALSE))) {
 ## The shared fit repeated on growth_resamples bootstrap samples of whole plots, each refit its own
 ## branch with its own seed, as mainSim's replicates are. The sample is drawn inside the branch, so no
 ## resampled plot data are stored, and nothing downstream reads the refits: the simulations use the
-## fit to all plots. At ~1.8 h and ~40 GB each they would hold workers the simulations need, so they
+## fit to all plots. At ~1 h and ~80 GB each they would hold workers the simulations need, so they
 ## are off by default: build them on their own with LANDWEB_GROWTH_UNCERTAINTY=TRUE (see _local.R)
 ## and tar_make(names = growthTraitsUncertainty). For that run, _hosts.R sets the node caps and
 ## crew.ssh.tasks_max = 1L (crew.ssh >= 0.0.8): a refit peaks at ~80 GB in a fresh worker, and a
@@ -1045,11 +1063,7 @@ list(
     }),
     plain = "species"
   ),
-  ## the traits only, so that a re-fit giving the same traits re-runs nothing downstream
-  tar_target_raw("growthTraits", bquote({
-    pkgs <- .(pkg_fingerprint("LandWebUtils"))
-    LandWebUtils::landweb_growth_traits(growthCurves$species)
-  })),
+  growth_traits_target(getOption("landweb.growth_traits_file", NA_character_)),
   ## growth-curve uncertainty, opt-in: an empty list unless landweb.growth_uncertainty is set
   growth_uncertainty_targets,
 

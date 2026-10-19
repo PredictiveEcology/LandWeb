@@ -82,9 +82,20 @@ options(
 )
 
 ## Opt-in growth-curve uncertainty -- OFF by default. When TRUE, the pipeline adds the refits of the
-## shared growth-curve fit on bootstrap samples of plots (~1.8 h and ~40 GB each) and their summary,
+## shared growth-curve fit on bootstrap samples of plots (~1 h and ~80 GB each) and their summary,
 ## growthTraitsUncertainty. Build them on their own: LANDWEB_GROWTH_UNCERTAINTY=TRUE and
 ## tar_make(names = growthTraitsUncertainty). Read on the control node only, like the gate above.
 options(
   landweb.growth_uncertainty = isTRUE(as.logical(Sys.getenv("LANDWEB_GROWTH_UNCERTAINTY", "FALSE")))
+)
+
+## Optional growth-trait table -- unset by default. LANDWEB_GROWTH_TRAITS_FILE names a CSV of the shared
+## fit's traits (target growthTraits' columns) that replaces the fit's own, for a test run with traits
+## estimated another way; the fit itself is not re-run. Read on the control node only, like the gates above.
+options(
+  landweb.growth_traits_file = if (nzchar(Sys.getenv("LANDWEB_GROWTH_TRAITS_FILE"))) {
+    Sys.getenv("LANDWEB_GROWTH_TRAITS_FILE")
+  } else {
+    NA_character_
+  }
 )
