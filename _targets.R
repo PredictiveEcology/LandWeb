@@ -56,6 +56,7 @@ source("R/lthfc_summary.R")
 source("R/module_changelog.R")
 source("R/publish_pdf.R")
 source("R/targets_extended_analyses.R")
+source("R/growth_uncertainty.R")
 
 ## Optional multi-node SSH cluster (CONTROL NODE ONLY). When _hosts.R defines crew.ssh.nodes,
 ## heavy module execution (preamble/speciesData/dataPrep/mainSim) is dispatched to the compute
@@ -940,11 +941,9 @@ if (isTRUE(getOption("landweb.growth_uncertainty", FALSE))) {
       }),
       pattern = quote(map(growthCurvesResampled, growth_resample))
     ),
-    ## how often each species' set of traits was chosen, and whether the fit to all plots chose it
-    tar_target_raw("growthTraitsUncertainty", bquote({
-      pkgs <- .(pkg_fingerprint("LandWebUtils"))
-      LandWebUtils::landweb_growth_trait_frequency(growthTraitsResampled, growthTraits)
-    }))
+    ## per species and trait: the spread over the refits that fitted the species, against the fit to
+    ## all plots (R/growth_uncertainty.R)
+    tar_target(growthTraitsUncertainty, growth_trait_spread(growthTraitsResampled, growthTraits))
   )
   tar_option_set(retrieval = retrieval_default)
 }
