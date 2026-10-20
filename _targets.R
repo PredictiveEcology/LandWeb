@@ -555,7 +555,6 @@ study_area_targets <- function(sa) {
           sufficientLight = dataPrep$sufficientLight,
           sppEquiv = LandWebUtils::landweb_require_species(dataPrep$sppEquiv, "sppEquiv"),
           sppColorVect = dataPrep$sppColorVect,
-          speciesTable = dataPrep$speciesTable,
           ROSTable = preamble$ROSTable
         ),
         ## Fire layers + reporting polygon, in-memory via sim_objects() (loaded lazily on the
@@ -846,7 +845,6 @@ study_area_targets <- function(sa) {
           sufficientLight = dataPrep$sufficientLight,
           sppEquiv = LandWebUtils::landweb_require_species(dataPrep$sppEquiv, "sppEquiv"),
           sppColorVect = dataPrep$sppColorVect,
-          speciesTable = dataPrep$speciesTable,
           ROSTable = preamble$ROSTable
         ),
         ## Fire layers + reporting polygon, in-memory via sim_objects() (loaded lazily on the
