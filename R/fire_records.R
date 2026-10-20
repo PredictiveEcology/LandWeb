@@ -22,27 +22,30 @@ fire_records_fetch <- function(dest) {
       fireregimetools::fetch_nfdb_polys(probe, dest = normalizePath(dest))
     },
     error = function(e) {
-      shp <- list.files(dest, "NBAC_.*\\.shp$|NFDB_poly_.*\\.shp$", full.names = TRUE)
-      fire_records_check(dest, shp)
+      fire_records_check(dest, unlist(fire_records_sets(dest), use.names = FALSE))
       stop(e)
     }
   )
 
-  nbac <- fire_records_shp(dest, "NBAC_.*\\.shp$")
-  nfdb <- fire_records_shp(dest, "NFDB_poly_.*\\.shp$")
-  fire_records_one_release(nbac)
-  fire_records_one_release(nfdb)
-  shp <- c(nbac, nfdb)
+  sets <- fire_records_sets(dest)
+  none <- names(sets)[lengths(sets) == 0L]
+  if (length(none)) {
+    stop("no ", paste(none, collapse = " or "), " fire records in ", dest)
+  }
+  shp <- unlist(sets, use.names = FALSE)
   fire_records_check(dest, shp)
+  for (set in sets) {
+    fire_records_one_release(set)
+  }
   ## burnSummaries takes NFDB polygons only for the years NBAC (1972 on) lacks
-  year <- unlist(lapply(fire_records_sidecar(nfdb, "dbf"), function(f) {
+  year <- unlist(lapply(fire_records_sidecar(sets$NFDB, "dbf"), function(f) {
     d <- foreign::read.dbf(f, as.is = TRUE)
     as.numeric(d[[intersect(c("YEAR", "FIRE_YEAR"), names(d))[1L]]])
   }))
   if (!any(year > 0 & year < 1972, na.rm = TRUE)) {
     stop(
       "no NFDB fire before 1972 in ",
-      paste(nfdb, collapse = ", "),
+      paste(sets$NFDB, collapse = ", "),
       ": burnSummaries uses NFDB only for the years NBAC (1972 on) lacks. The current ",
       "NFDB_poly.zip holds none; they are in NFDB_poly_pre1972.zip, which fireregimetools does ",
       "not fetch, so use the 20210707 release instead"
@@ -81,22 +84,22 @@ fire_records_check <- function(dest, shp) {
   invisible(shp)
 }
 
-## The shapefiles fireregimetools' fetch returns for `pattern`: those at the top level of `dest`, or
-## if there are none, anywhere below it.
-fire_records_shp <- function(dest, pattern) {
-  found <- list.files(dest, pattern = pattern, full.names = TRUE)
-  if (!length(found)) {
-    found <- list.files(dest, pattern = pattern, full.names = TRUE, recursive = TRUE)
-  }
-  if (!length(found)) {
-    stop("no fire records matching '", pattern, "' in ", dest)
-  }
-  sort(found)
+## The shapefiles of each record set that fireregimetools' fetch reads: for each pattern, those at
+## the top level of `dest`, or if there are none, anywhere below it.
+fire_records_sets <- function(dest, full.names = TRUE) {
+  lapply(c(NBAC = "NBAC_.*\\.shp$", NFDB = "NFDB_poly_.*\\.shp$"), function(pattern) {
+    found <- list.files(dest, pattern = pattern, full.names = full.names)
+    if (!length(found)) {
+      found <- list.files(dest, pattern = pattern, full.names = full.names, recursive = TRUE)
+    }
+    sort(found)
+  })
 }
 
-## Stop when `shp` holds more than one release of a record set (the 8-digit date in the file names),
-## or copies in more than one directory: burnSummaries' fetch reads every shapefile that matches, so
-## a fire in two of them would count twice.
+## Stop when the shapefiles `shp` of one record set would give burnSummaries a fire twice: its fetch
+## reads every one that matches, so they must be one release (the 8-digit date in their names), in
+## one directory, with no record (a row of the attribute table, on the columns they share) in two of
+## them. A release in several partitions passes; a copy of one beside it does not.
 fire_records_one_release <- function(shp) {
   release <- paste(dirname(shp), sub("^.*?([0-9]{8}).*$", "\\1", basename(shp), perl = TRUE))
   if (length(unique(release)) > 1L) {
@@ -105,6 +108,20 @@ fire_records_one_release <- function(shp) {
       paste(shp, collapse = ", "),
       ". burnSummaries reads them all, so a fire in two of them would count twice: keep one"
     )
+  }
+  if (length(shp) > 1L) {
+    tables <- lapply(fire_records_sidecar(shp, "dbf"), foreign::read.dbf, as.is = TRUE)
+    cols <- Reduce(intersect, lapply(tables, names))
+    rows <- lapply(tables, function(d) unique(do.call(paste, c(unname(d[cols]), sep = "\r"))))
+    key <- unlist(rows, use.names = FALSE)
+    twice <- unique(rep(seq_along(rows), lengths(rows))[key %in% key[duplicated(key)]])
+    if (length(twice)) {
+      stop(
+        "the same fire records in more than one shapefile: ",
+        paste(shp[sort(twice)], collapse = ", "),
+        ". burnSummaries reads them all, so it would count those fires twice: keep one"
+      )
+    }
   }
   invisible(shp)
 }

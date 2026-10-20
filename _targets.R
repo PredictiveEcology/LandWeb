@@ -1091,10 +1091,10 @@ list(
   ## with an R error the lock goes at once and they all fetch together; if it is killed, they wait
   ## an hour first. A damaged extraction that has its stamp is read as-is by every branch, and
   ## fire_records_fetch() stops on it. error = "trim": a failed fetch or check skips only the
-  ## summaries_burn_<sa> branches; targets 1.12.0's tar_validate() rejects "trim"
-  ## (ropensci/targets#1587), so with that release "abridge": running targets finish, and no new
-  ## ones start. format = "file": the summaries read these files, not this value, so their content
-  ## is what re-runs the summaries when the records change.
+  ## summaries_burn_<sa> stages, and the rest of the pipeline runs on. Before targets 1.12.0.9001,
+  ## tar_validate() rejects "trim" though tar_make() runs it (ropensci/targets#1587), so
+  ## tar_validate() gets "abridge" there. format = "file": the summaries read these files, not
+  ## this value, so their content is what re-runs the summaries when the records change.
   tar_target_raw(
     "fireRecords",
     bquote({
@@ -1102,14 +1102,20 @@ list(
       pkgs <- .(pkg_fingerprint("fireregimetools")) ## re-run when it changes
       ## the shapefiles fire_records_fetch() checks, as listed when this file is sourced: adding or
       ## removing one re-runs the checks
-      shp <- .(sort(c(
-        list.files(fire_records_dir, "NBAC_.*[.]shp$"),
-        list.files(fire_records_dir, "NFDB_poly_.*[.]shp$")
-      ), method = "radix"))
+      shp <- .(sort(
+        unlist(fire_records_sets(fire_records_dir, full.names = FALSE), use.names = FALSE),
+        method = "radix"
+      ))
       fire_records_fetch(.(fire_records_dir))
     }),
     format = "file",
-    error = if (utils::packageVersion("targets") > "1.12.0") "trim" else "abridge"
+    error = if (
+      identical(tar_call(), "tar_validate") && utils::packageVersion("targets") < "1.12.0.9001"
+    ) {
+      "abridge"
+    } else {
+      "trim"
+    }
   ),
 
   ## per-study-area stages, branched statically over local$study_areas. targets
