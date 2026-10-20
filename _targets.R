@@ -322,6 +322,9 @@ study_area_targets <- function(sa) {
       ## removes 31 of 200 species x ecoregion combinations (8% of starting cohorts), including
       ## all Douglas-fir; whether it suits Alberta's ecoregions is still open.
       minSpeciesEcoregionShare = 0,
+      ## OFF, not the module default: its spin-up regrows young stands in post-1950 burns with
+      ## traits not yet fitted to the plot data, losing their spruce; they keep SCANFI's biomass.
+      overrideBiomassInFires = FALSE,
       pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 1000 / (250 / res)^2,
       speciesTableAreas = species_table_areas,
       ## ecoregion x site x composition, so a species on upland and on wet ground gets its own
