@@ -519,6 +519,29 @@ study_area_targets <- function(sa) {
       }), sa)
     ),
 
+    ## The species tables mainSim runs with, saved as CSV beside its replicates (as BC_HRV saves
+    ## them) so that a run's outputs, and its archive, show the parameters it used. Nothing empties
+    ## outputs/<sa>/mainSim itself: a mainSim branch clears only its own rep dir, and the summaries
+    ## run with clean_out_dir = FALSE.
+    tar_target_raw(
+      paste0("speciesTables_", sa),
+      suffix_refs(bquote({
+        tabs <- list(
+          species = speciesTraits$species,
+          speciesEcoregion = speciesTraits$speciesEcoregion,
+          minRelativeB = dataPrep$minRelativeB,
+          sufficientLight = dataPrep$sufficientLight,
+          ecoregion = dataPrep$ecoregion
+        )
+        out <- file.path("outputs", .(sa), "mainSim")
+        dir.create(out, recursive = TRUE, showWarnings = FALSE)
+        files <- file.path(out, paste0(names(tabs), ".csv"))
+        for (i in seq_along(tabs)) data.table::fwrite(tabs[[i]], files[i])
+        files
+      }), sa),
+      format = "file"
+    ),
+
     ## Stage 4: mainSim (two-phase Phase 1). burnSummaries + NRV_summary run here in
     ## mode="single" (params above), replacing timeSinceFire (burnSummaries owns
     ## rstTimeSinceFire -- increments yearly, resets on burn) and LandWeb_output
