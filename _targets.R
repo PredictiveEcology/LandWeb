@@ -556,8 +556,9 @@ study_area_targets <- function(sa) {
     tar_simspades(
       paste0("mainSim_", sa),
       modules = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
-      ## explicit load order: Biomass_core's `after = "Biomass_speciesParameters"` metadata refers to a
-      ## module absent from this stage, breaking auto-inference; set it like the old 03-main-sim.R did.
+      ## explicit load order; it meets every module's metadata constraints. SpaDES.core 3.2.1.9035
+      ## can infer one, but the inference draws random numbers inside simInit() and would change
+      ## every replicate's random stream, so the order stays explicit for reproducibility.
       loadOrder = c("Biomass_core", "LandMine", "Biomass_regeneration", "burnSummaries", "NRV_summary"),
       pattern = quote(map(rep_index)),
       iteration = "list",
