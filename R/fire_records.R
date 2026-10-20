@@ -3,6 +3,9 @@
 ## inputPath, which every summaries_burn_<sa> shares; target fireRecords runs the same fetch once,
 ## before any of them, so that they find a verified extraction and only read it. A project helper
 ## rather than part of fireregimetools, whose every change re-runs mainSim (burnSummaries lists it).
+## The shapefile patterns and search order here, and the NFDB year columns, copy fireregimetools
+## internals (.fire_archive_files(), the patterns in fetch_nbac_polys() and fetch_nfdb_polys(), and
+## load_nfdb_polys(); R/fire_data.R): re-check them whenever it changes.
 
 ## @param dest directory the records are fetched into: summaries_burn's inputPath.
 ## @return the shapefiles, each with its sidecar files, that burnSummaries' own fetch will read.
@@ -10,24 +13,72 @@ fire_records_fetch <- function(dest) {
   dir.create(dest, showWarnings = FALSE, recursive = TRUE)
   ## the fetchers burnSummaries calls, with their default archive URLs and the module's (absolute)
   ## directory, so the downloads, extractions and stamps are the ones its own fetch will find. They
-  ## also load the records inside a study area; a 1 km square keeps that step short.
+  ## also load the records inside a study area; a 1 km square keeps that step short. A missing .shx
+  ## or .dbf stops that step, so on an error the damage checks run first, to say what is wrong.
   probe <- terra::vect("POLYGON ((0 0, 1000 0, 1000 1000, 0 1000, 0 0))", crs = "EPSG:3978")
-  fireregimetools::fetch_nbac_polys(probe, dest = normalizePath(dest))
-  fireregimetools::fetch_nfdb_polys(probe, dest = normalizePath(dest))
+  tryCatch(
+    {
+      fireregimetools::fetch_nbac_polys(probe, dest = normalizePath(dest))
+      fireregimetools::fetch_nfdb_polys(probe, dest = normalizePath(dest))
+    },
+    error = function(e) {
+      shp <- list.files(dest, "NBAC_.*\\.shp$|NFDB_poly_.*\\.shp$", full.names = TRUE)
+      fire_records_check(dest, shp)
+      stop(e)
+    }
+  )
 
-  shp <- c(fire_records_shp(dest, "NBAC_.*\\.shp$"), fire_records_shp(dest, "NFDB_poly_.*\\.shp$"))
+  nbac <- fire_records_shp(dest, "NBAC_.*\\.shp$")
+  nfdb <- fire_records_shp(dest, "NFDB_poly_.*\\.shp$")
+  fire_records_one_release(nbac)
+  fire_records_one_release(nfdb)
+  shp <- c(nbac, nfdb)
+  fire_records_check(dest, shp)
+  ## burnSummaries takes NFDB polygons only for the years NBAC (1972 on) lacks
+  year <- unlist(lapply(fire_records_sidecar(nfdb, "dbf"), function(f) {
+    d <- foreign::read.dbf(f, as.is = TRUE)
+    as.numeric(d[[intersect(c("YEAR", "FIRE_YEAR"), names(d))[1L]]])
+  }))
+  if (!any(year > 0 & year < 1972, na.rm = TRUE)) {
+    stop(
+      "no NFDB fire before 1972 in ",
+      paste(nfdb, collapse = ", "),
+      ": burnSummaries uses NFDB only for the years NBAC (1972 on) lacks. The current ",
+      "NFDB_poly.zip holds none; they are in NFDB_poly_pre1972.zip, which fireregimetools does ",
+      "not fetch, so use the 20210707 release instead"
+    )
+  }
+
   files <- unlist(lapply(shp, function(f) {
     parts <- list.files(dirname(f), full.names = TRUE)
     parts[startsWith(basename(parts), sub("shp$", "", basename(f)))]
   }))
-  ## a stamped extraction is trusted without a size check, and a truncated .shp still reads as the
-  ## full feature count when its .shx is intact (the 2026 NBAC failure), so check the headers here
-  idx <- files[tolower(tools::file_ext(files)) %in% c("shp", "shx")]
-  short <- idx[!vapply(idx, fire_records_whole, logical(1))]
-  if (length(short)) {
-    stop("fire records shorter or longer than their headers say: ", paste(short, collapse = ", "))
+  sort(files, method = "radix")
+}
+
+## Stop, saying how to repair them, if any of the shapefiles `shp` in `dest` is damaged. A stamped
+## extraction is trusted without a size check, and a .shp or .dbf cut short loses the records past
+## the cut with no error (terra drops them with GDAL warnings only; sf kept the full feature count
+## in the 2026 NBAC failure), so each file is checked against its header here.
+fire_records_check <- function(dest, shp) {
+  bad <- unlist(lapply(shp, fire_records_damage))
+  if (length(bad)) {
+    stamps <- list.files(dest, "^[.].*[.]complete$", all.files = TRUE)
+    if (!length(stamps)) {
+      stamps <- "none"
+    }
+    stop(
+      "damaged fire records: ",
+      paste(bad, collapse = "; "),
+      ". To repair them, remove the archive's stamp from ",
+      dest,
+      " (found: ",
+      paste(stamps, collapse = ", "),
+      "), keeping its .zip, and run fireRecords again: the fetch then checks the files against ",
+      "the archive and extracts it again if they fall short"
+    )
   }
-  sort(files)
+  invisible(shp)
 }
 
 ## The shapefiles fireregimetools' fetch returns for `pattern`: those at the top level of `dest`, or
@@ -43,6 +94,55 @@ fire_records_shp <- function(dest, pattern) {
   sort(found)
 }
 
+## Stop when `shp` holds more than one release of a record set (the 8-digit date in the file names),
+## or copies in more than one directory: burnSummaries' fetch reads every shapefile that matches, so
+## a fire in two of them would count twice.
+fire_records_one_release <- function(shp) {
+  release <- paste(dirname(shp), sub("^.*?([0-9]{8}).*$", "\\1", basename(shp), perl = TRUE))
+  if (length(unique(release)) > 1L) {
+    stop(
+      "fire records from more than one release (or directory): ",
+      paste(shp, collapse = ", "),
+      ". burnSummaries reads them all, so a fire in two of them would count twice: keep one"
+    )
+  }
+  invisible(shp)
+}
+
+## The `ext` file (shx or dbf, in either case) beside each shapefile in `shp`, or NA if none.
+fire_records_sidecar <- function(shp, ext) {
+  vapply(
+    shp,
+    function(f) {
+      side <- paste0(sub("shp$", "", f), c(ext, toupper(ext)))
+      c(side[file.exists(side)], NA_character_)[1L]
+    },
+    character(1),
+    USE.NAMES = FALSE
+  )
+}
+
+## What is wrong with shapefile `f`, if anything: no .shx or .dbf beside it, one of the three not as
+## long as its header says, or a .dbf without one record for each entry in the .shx.
+fire_records_damage <- function(f) {
+  shx <- fire_records_sidecar(f, "shx")
+  dbf <- fire_records_sidecar(f, "dbf")
+  if (is.na(shx) || is.na(dbf)) {
+    absent <- paste(c(".shx", ".dbf")[is.na(c(shx, dbf))], collapse = " or ")
+    return(paste(f, "has no", absent, "beside it"))
+  }
+  n <- fire_records_dbf_n(dbf)
+  short <- c(f, shx, dbf)[!c(fire_records_whole(f), fire_records_whole(shx), !is.na(n))]
+  if (length(short)) {
+    return(paste(short, "is shorter or longer than its header says"))
+  }
+  n_shx <- (file.size(shx) - 100) / 8
+  if (n != n_shx) {
+    return(sprintf("%s holds %.0f records but %s indexes %.0f shapes", dbf, n, shx, n_shx))
+  }
+  character(0)
+}
+
 ## TRUE when a .shp or .shx file is as long as its header says (bytes 25-28: the length in 16-bit
 ## words, big-endian, after the file code 9994).
 fire_records_whole <- function(f) {
@@ -52,4 +152,19 @@ fire_records_whole <- function(f) {
   length(h) == 28L &&
     sum(h[1:4] * 256^(3:0)) == 9994 &&
     2 * sum(h[25:28] * 256^(3:0)) == file.size(f)
+}
+
+## The number of records in a .dbf (bytes 5-8 of its header), or NA when the file is not as long as
+## its header says: the header length (bytes 9-10) plus that many records of the record length
+## (bytes 11-12), all little-endian, with or without an end-of-file byte.
+fire_records_dbf_n <- function(f) {
+  con <- file(f, "rb")
+  on.exit(close(con))
+  h <- as.integer(readBin(con, "raw", 12L))
+  if (length(h) < 12L) {
+    return(NA_real_)
+  }
+  n <- sum(h[5:8] * 256^(0:3))
+  extra <- file.size(f) - sum(h[9:10] * 256^(0:1)) - n * sum(h[11:12] * 256^(0:1))
+  if (extra %in% 0:1) n else NA_real_
 }

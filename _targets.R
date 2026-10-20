@@ -280,11 +280,15 @@ growth_traits_target <- function(file) {
 }
 
 ## ---- shared, study-area-INDEPENDENT fire records ------------------------------
-## burnSummaries (mode = "multi") fetches the national NBAC + NFDB fire polygons into its inputPath
-## and reads them there. Every summaries_burn_<sa> takes this directory as that inputPath, and
-## target fireRecords fetches the records into it once, before any of them runs. For newer records,
-## name a new, empty directory here: fireRecords then downloads the current NFDB release and
-## fireregimetools' pinned NBAC release into it.
+## burnSummaries (mode = "multi") fetches the national fire records into its inputPath and reads
+## them there: NBAC perimeters, and NFDB polygons to backfill the years NBAC lacks. Every
+## summaries_burn_<sa> takes this directory as that inputPath, and target fireRecords fetches the
+## records into it once, before any summaries_burn runs. Records already there are never replaced,
+## not even when fireregimetools pins a new NBAC release, so newer records need a new, empty
+## directory on storage the controller and every worker see. Not for NFDB yet: the current
+## NFDB_poly.zip holds no fire before 1972, the only years the backfill takes, and those are in
+## NFDB_poly_pre1972.zip, which fireregimetools does not fetch; copy the 20210707 release's
+## NFDB_poly.zip into the new directory first, or fireRecords stops.
 fire_records_dir <- local$paths$inputPath
 
 ## ---- per-study-area stage factory ---------------------------------------------
@@ -1081,19 +1085,31 @@ list(
 
   ## Fire records -- SHARED, study-area-independent: the NBAC + NFDB polygons that every
   ## summaries_burn_<sa> reads, fetched into fire_records_dir once, before any of them runs
-  ## (R/fire_records.R). Without it, when the records are not yet in place (a new directory, a
-  ## damaged extraction), 18 branches fetch them at once: fireregimetools' lock holds the others
-  ## back for an hour at most (also when its holder has died), after which each downloads,
-  ## extracts and replaces the same files while the others read them. format = "file": the
-  ## summaries read these files, not this value, so their content is what re-runs the summaries
-  ## when the records change.
+  ## (R/fire_records.R). Without it, when the records are not yet in place (a new directory, or an
+  ## unstamped extraction that falls short of its archive), up to 18 branches fetch at once, and
+  ## fireregimetools' lock holds the others back only while its holder runs: if the holder fails
+  ## with an R error the lock goes at once and they all fetch together; if it is killed, they wait
+  ## an hour first. A damaged extraction that has its stamp is read as-is by every branch, and
+  ## fire_records_fetch() stops on it. error = "trim": a failed fetch or check skips only the
+  ## summaries_burn_<sa> branches; targets 1.12.0's tar_validate() rejects "trim"
+  ## (ropensci/targets#1587), so with that release "abridge": running targets finish, and no new
+  ## ones start. format = "file": the summaries read these files, not this value, so their content
+  ## is what re-runs the summaries when the records change.
   tar_target_raw(
     "fireRecords",
     bquote({
-      pkgs <- .(pkg_fingerprint("fireregimetools")) ## re-run when it changes: it does the fetching
+      ## a new NBAC release pinned in fireregimetools still needs a new fire_records_dir
+      pkgs <- .(pkg_fingerprint("fireregimetools")) ## re-run when it changes
+      ## the shapefiles fire_records_fetch() checks, as listed when this file is sourced: adding or
+      ## removing one re-runs the checks
+      shp <- .(sort(c(
+        list.files(fire_records_dir, "NBAC_.*[.]shp$"),
+        list.files(fire_records_dir, "NFDB_poly_.*[.]shp$")
+      ), method = "radix"))
       fire_records_fetch(.(fire_records_dir))
     }),
-    format = "file"
+    format = "file",
+    error = if (utils::packageVersion("targets") > "1.12.0") "trim" else "abridge"
   ),
 
   ## per-study-area stages, branched statically over local$study_areas. targets
