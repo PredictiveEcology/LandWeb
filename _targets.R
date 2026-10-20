@@ -367,6 +367,9 @@ study_area_targets <- function(sa) {
       ## species run one by one where common enough; fuel comes from the leading REPORTING group
       ## (biomass summed within it), as when the merged groups were simulated
       sppEquivColFuel = "LandWebReport",
+      ## fire-size shape, fitted once so every replicate shares it: set.seed(1L);
+      ## LandWebUtils::landmine_estimate_kBest(3e5). Refit if biggestPossibleFireSizeHa changes.
+      kBest = 0.65580339012603162,
       biggestPossibleFireSizeHa = 3e5, burnInitialTime = 1L, maxReburns = c(1L, 20L),
       maxRetriesPerID = 9L, minPropBurn = 0.90, mode = "single", ROSother = 30L,
       ROStype = "default", useSeed = NULL, .plotInitialTime = 1, .plotInterval = 100,
