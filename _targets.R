@@ -558,16 +558,33 @@ study_area_targets <- function(sa) {
           speciesTable = dataPrep$speciesTable,
           ROSTable = preamble$ROSTable
         ),
-        ## Fire layers + reporting polygon are touched in .inputObjects() (burnSummaries
-        ## derives rstTimeSinceFire from fireReturnInterval; LandMine reads flammableMap/
-        ## studyAreaReporting), which runs during simInit() -- before inputs= load. Pass
-        ## them in-memory via sim_objects() (loaded lazily on the worker), matching the
-        ## dataPrep stage; otherwise rstTimeSinceFire is NULL at LandMine's compareGeom.
+        ## Fire layers + reporting polygon, in-memory via sim_objects() (loaded lazily on the
+        ## worker) as in the dataPrep stage, so that they are present in .inputObjects(), which
+        ## runs during simInit() -- before inputs= load.
         sim_objects(
           preamble,
           objects = c("flammableMap", "fireReturnInterval", "studyAreaReporting"),
           files = preamble_files
         ),
+        ## Year-0 time since fire: the current-condition stand age (dataPrep's standAgeMap), as in
+        ## v2. Left out, burnSummaries' .inputObjects() builds it from SCANFI 2020 stand age, which
+        ## the preamble rejects as a current-condition age. LandMine reads it for rate of spread
+        ## (age classes split at 40 and 120 years) from year 1, and NRV_summary's current-condition
+        ## age classes use its year-0 copy. Cropped from the biomass-parameter grid to the
+        ## simulation's; NA where not flammable, as burnSummaries does; rounded half up, as
+        ## LandR::asInteger() rounds dataPrep's cohort ages.
+        list(rstTimeSinceFire = {
+          dp <- sim_objects(
+            dataPrep, objects = c("standAgeMap", "rasterToMatch"), files = dataPrep_files
+          )
+          flam <- sim_objects(
+            preamble, objects = "flammableMap", files = preamble_files
+          )[["flammableMap"]]
+          age <- terra::crop(dp[["standAgeMap"]], dp[["rasterToMatch"]], mask = TRUE)
+          tsf <- terra::as.int(floor(terra::ifel(flam == 1L, age, NA) + 0.5))
+          names(tsf) <- "rstTimeSinceFire"
+          tsf
+        }),
         ## studyArea + rasterToMatch are ALSO touched in Biomass_core's .inputObjects()
         ## (it CRS-compares studyArea vs rasterToMatch and vs studyAreaReporting, e.g.
         ## Biomass_core.R:2539/2555) -- which runs during simInit() BEFORE inputs= load.
@@ -609,9 +626,9 @@ study_area_targets <- function(sa) {
     ## (LandWebUtils::reportingPolygonLayers()) fetched from Drive/URL, clipped to the
     ## study area, kept only where they intersect -- the polygon sets NRV_summary
     ## summarizes metrics over. Stored as a named list of `sf` (serializable;
-    ## NRV_summary st_as_sf()-es each element anyway), so a plain cached target. The
-    ## sim-sourced "CC SAM"/"CC TSF"/"ecoregionLayer" entries are merged in at the
-    ## summaries stage, not here. NOTE: swapping the reporting datasets later is a
+    ## NRV_summary st_as_sf()-es each element anyway), so a plain cached target. No
+    ## "CC SAM"/"CC TSF" layers: NRV_summary reads current-condition stand age and time since
+    ## fire from rep01's year-0 rasters. NOTE: swapping the reporting datasets later is a
     ## light edit to LandWebUtils::reportingPolygonLayers(); this wiring is unaffected.
     ##
     ## Each layer is keyed by its curated NAME_SHORT (= what `refCode` is slugged from), and
@@ -727,11 +744,9 @@ study_area_targets <- function(sa) {
       paths = local$paths,
       ## reportingPolygons (geographic layers) + the sim objects the lm/pm events
       ## read in-memory (studyAreaReporting, sppEquiv, sppColorVect; speciesLayers
-      ## via inputs). TODO (module-contract, resolve at the first data-backed run):
-      ## merge the sim-sourced "CC SAM" (current-condition standAgeMap) / "CC TSF" /
-      ## "ecoregionLayer" entries into reportingPolygons -- patchMetrics reads
-      ## reportingPolygons[["CC SAM"]] -- AND have NRV_summary exclude those special
-      ## keys from mod$rptPolyNames so they are not iterated as reporting polygons.
+      ## via inputs). The current-condition stand age and time since fire are rep01's year-0
+      ## rasters, which NRV_summary reads itself; "ecoregionLayer" is read only by its BC
+      ## seral-stage event ("bc"), which LandWeb does not run.
       objects = suffix_refs(quote({
         mainSim_files # dependency anchor: Phase-1 per-rep files must exist first
         c(
@@ -831,16 +846,33 @@ study_area_targets <- function(sa) {
           speciesTable = dataPrep$speciesTable,
           ROSTable = preamble$ROSTable
         ),
-        ## Fire layers + reporting polygon are touched in .inputObjects() (burnSummaries
-        ## derives rstTimeSinceFire from fireReturnInterval; LandMine reads flammableMap/
-        ## studyAreaReporting), which runs during simInit() -- before inputs= load. Pass
-        ## them in-memory via sim_objects() (loaded lazily on the worker), matching the
-        ## dataPrep stage; otherwise rstTimeSinceFire is NULL at LandMine's compareGeom.
+        ## Fire layers + reporting polygon, in-memory via sim_objects() (loaded lazily on the
+        ## worker) as in the dataPrep stage, so that they are present in .inputObjects(), which
+        ## runs during simInit() -- before inputs= load.
         sim_objects(
           preamble,
           objects = c("flammableMap", "fireReturnInterval", "studyAreaReporting"),
           files = preamble_files
         ),
+        ## Year-0 time since fire: the current-condition stand age (dataPrep's standAgeMap), as in
+        ## v2. Left out, burnSummaries' .inputObjects() builds it from SCANFI 2020 stand age, which
+        ## the preamble rejects as a current-condition age. LandMine reads it for rate of spread
+        ## (age classes split at 40 and 120 years) from year 1, and NRV_summary's current-condition
+        ## age classes use its year-0 copy. Cropped from the biomass-parameter grid to the
+        ## simulation's; NA where not flammable, as burnSummaries does; rounded half up, as
+        ## LandR::asInteger() rounds dataPrep's cohort ages.
+        list(rstTimeSinceFire = {
+          dp <- sim_objects(
+            dataPrep, objects = c("standAgeMap", "rasterToMatch"), files = dataPrep_files
+          )
+          flam <- sim_objects(
+            preamble, objects = "flammableMap", files = preamble_files
+          )[["flammableMap"]]
+          age <- terra::crop(dp[["standAgeMap"]], dp[["rasterToMatch"]], mask = TRUE)
+          tsf <- terra::as.int(floor(terra::ifel(flam == 1L, age, NA) + 0.5))
+          names(tsf) <- "rstTimeSinceFire"
+          tsf
+        }),
         ## studyArea + rasterToMatch are ALSO touched in Biomass_core's .inputObjects()
         ## (it CRS-compares studyArea vs rasterToMatch and vs studyAreaReporting, e.g.
         ## Biomass_core.R:2539/2555) -- which runs during simInit() BEFORE inputs= load.
