@@ -566,13 +566,15 @@ study_area_targets <- function(sa) {
           objects = c("flammableMap", "fireReturnInterval", "studyAreaReporting"),
           files = preamble_files
         ),
-        ## Year-0 time since fire: the current-condition stand age (dataPrep's standAgeMap), as in
-        ## v2. Left out, burnSummaries' .inputObjects() builds it from SCANFI 2020 stand age, which
-        ## the preamble rejects as a current-condition age. LandMine reads it for rate of spread
-        ## (age classes split at 40 and 120 years) from year 1, and NRV_summary's current-condition
-        ## age classes use its year-0 copy. Cropped from the biomass-parameter grid to the
-        ## simulation's; NA where not flammable, as burnSummaries does; rounded half up, as
-        ## LandR::asInteger() rounds dataPrep's cohort ages.
+        ## Year-0 time since fire: the current-condition stand age (dataPrep's standAgeMap), the
+        ## layer that also sets the cohorts' ages, as v2 used its current-condition age layer. Left
+        ## out, burnSummaries' .inputObjects() builds it from SCANFI 2020 stand age (truncated to
+        ## whole years, NFDB fires to 2020), which the preamble rejects as a current-condition age.
+        ## LandMine reads it for rate of spread (age classes split at 40 and 120 years) from year 1.
+        ## NRV_summary's current-condition age classes read the saved year-0 file, which is this
+        ## value + 1: burnSummaries ages it at time 0 before saving. Cropped from the
+        ## biomass-parameter grid to the simulation's; NA where not flammable, as burnSummaries
+        ## does; rounded half up, as LandR::asInteger() rounds dataPrep's pixel ages.
         list(rstTimeSinceFire = {
           dp <- sim_objects(
             dataPrep, objects = c("standAgeMap", "rasterToMatch"), files = dataPrep_files
@@ -742,11 +744,12 @@ study_area_targets <- function(sa) {
       ),
       times = list(start = 0, end = local$sim_end),
       paths = local$paths,
-      ## reportingPolygons (geographic layers) + the sim objects the lm/pm events
-      ## read in-memory (studyAreaReporting, sppEquiv, sppColorVect; speciesLayers
-      ## via inputs). The current-condition stand age and time since fire are rep01's year-0
-      ## rasters, which NRV_summary reads itself; "ecoregionLayer" is read only by its BC
-      ## seral-stage event ("bc"), which LandWeb does not run.
+      ## reportingPolygons (geographic layers) and studyAreaReporting, read by the lm/pm/lw
+      ## events; sppEquiv and sppColorVectReporting, read by InitMulti for the reporting-group
+      ## maps. sppColorVect and speciesLayers (via inputs) are read only in mode = "single". The
+      ## current-condition stand age and time since fire are rep01's year-0 rasters, which
+      ## NRV_summary reads itself; "ecoregionLayer" is read only by its BC seral-stage event
+      ## ("bc"), which LandWeb does not run.
       objects = suffix_refs(quote({
         mainSim_files # dependency anchor: Phase-1 per-rep files must exist first
         c(
@@ -854,13 +857,15 @@ study_area_targets <- function(sa) {
           objects = c("flammableMap", "fireReturnInterval", "studyAreaReporting"),
           files = preamble_files
         ),
-        ## Year-0 time since fire: the current-condition stand age (dataPrep's standAgeMap), as in
-        ## v2. Left out, burnSummaries' .inputObjects() builds it from SCANFI 2020 stand age, which
-        ## the preamble rejects as a current-condition age. LandMine reads it for rate of spread
-        ## (age classes split at 40 and 120 years) from year 1, and NRV_summary's current-condition
-        ## age classes use its year-0 copy. Cropped from the biomass-parameter grid to the
-        ## simulation's; NA where not flammable, as burnSummaries does; rounded half up, as
-        ## LandR::asInteger() rounds dataPrep's cohort ages.
+        ## Year-0 time since fire: the current-condition stand age (dataPrep's standAgeMap), the
+        ## layer that also sets the cohorts' ages, as v2 used its current-condition age layer. Left
+        ## out, burnSummaries' .inputObjects() builds it from SCANFI 2020 stand age (truncated to
+        ## whole years, NFDB fires to 2020), which the preamble rejects as a current-condition age.
+        ## LandMine reads it for rate of spread (age classes split at 40 and 120 years) from year 1.
+        ## NRV_summary's current-condition age classes read the saved year-0 file, which is this
+        ## value + 1: burnSummaries ages it at time 0 before saving. Cropped from the
+        ## biomass-parameter grid to the simulation's; NA where not flammable, as burnSummaries
+        ## does; rounded half up, as LandR::asInteger() rounds dataPrep's pixel ages.
         list(rstTimeSinceFire = {
           dp <- sim_objects(
             dataPrep, objects = c("standAgeMap", "rasterToMatch"), files = dataPrep_files
