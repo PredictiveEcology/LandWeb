@@ -1090,11 +1090,10 @@ list(
   ## fireregimetools' lock holds the others back only while its holder runs: if the holder fails
   ## with an R error the lock goes at once and they all fetch together; if it is killed, they wait
   ## an hour first. A damaged extraction that has its stamp is read as-is by every branch, and
-  ## fire_records_fetch() stops on it. error = "trim": a failed fetch or check skips only the
-  ## summaries_burn_<sa> stages, and the rest of the pipeline runs on. Before targets 1.12.0.9001,
-  ## tar_validate() rejects "trim" though tar_make() runs it (ropensci/targets#1587), so
-  ## tar_validate() gets "abridge" there. format = "file": the summaries read these files, not
-  ## this value, so their content is what re-runs the summaries when the records change.
+  ## fire_records_fetch() stops on it. error = "abridge": it has no upstream targets, so it runs
+  ## first, and a failure stops the run there, with its message, before other stages start. format
+  ## = "file": the summaries read these files, not this value, so their content is what re-runs the
+  ## summaries when the records change.
   tar_target_raw(
     "fireRecords",
     bquote({
@@ -1109,13 +1108,7 @@ list(
       fire_records_fetch(.(fire_records_dir))
     }),
     format = "file",
-    error = if (
-      identical(tar_call(), "tar_validate") && utils::packageVersion("targets") < "1.12.0.9001"
-    ) {
-      "abridge"
-    } else {
-      "trim"
-    }
+    error = "abridge"
   ),
 
   ## per-study-area stages, branched statically over local$study_areas. targets
