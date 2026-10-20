@@ -324,6 +324,8 @@ study_area_targets <- function(sa) {
       minSpeciesEcoregionShare = 0,
       ## OFF, not the module default: its spin-up regrows young stands in post-1950 burns with
       ## traits not yet fitted to the plot data, losing their spruce; they keep SCANFI's biomass.
+      ## OFF also rounds ages up to 70 to the nearest 20 y like older ones (ON keeps them exact):
+      ## 1-9 become 0 and do not age until Biomass_core's year-10 reclassification sets them to 11.
       overrideBiomassInFires = FALSE,
       pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 1000 / (250 / res)^2,
       speciesTableAreas = species_table_areas,
