@@ -1,4 +1,12 @@
 {
+  "env": {
+    "FORCAST_LONGRUN_PATTERNS": "tar_make.*LandWeb|LandWeb.*tar_make"
+  },
+  "permissions": {
+    "deny": [
+      "Read(~/.config/landweb/**)"
+    ]
+  },
   "enabledPlugins": {
     "r-bundle-spades@ai-workflows": true,
     "r-bundle-targets@ai-workflows": true,
@@ -25,13 +33,5 @@
         "repo": "posit-dev/skills"
       }
     }
-  },
-  "env": {
-    "FORCAST_LONGRUN_PATTERNS": "tar_make.*LandWeb|LandWeb.*tar_make"
-  },
-  "permissions": {
-    "deny": [
-      "Read(~/.config/landweb/**)"
-    ]
   }
 }
