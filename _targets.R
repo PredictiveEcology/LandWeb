@@ -130,7 +130,8 @@ tar_option_set(
 ##
 ## Consequences worth knowing:
 ##  - Every stage, factorial included, rebuilt once when this was turned on (2026-09-16).
-##  - factorial (~2 h) rebuilds whenever Biomass_speciesFactorial or a package it lists changes.
+##  - factorial (~2 h) rebuilds whenever Biomass_speciesFactorial, the Biomass_core it runs
+##    (fingerprint_modules), or a package either lists changes.
 ##  - The fingerprint reads the packages INSTALLED in the session that sources this file. The shared
 ##    `_targets` store is only consistent if every host that runs tar_make()/tar_outdated() has a
 ##    library matching renv.lock -- a drifted controller library reports everything as outdated.
@@ -1089,6 +1090,8 @@ list(
   tar_simspades(
     "factorial",
     modules = "Biomass_speciesFactorial",
+    ## it runs Biomass_core inside it, so Biomass_core's code is fingerprinted too
+    fingerprint_modules = "Biomass_core",
     params = p_factorial,
     paths = local$paths,
     out_dir = file.path("outputs", "_factorial"),
