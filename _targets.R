@@ -324,8 +324,9 @@ study_area_targets <- function(sa) {
       minSpeciesEcoregionShare = 0,
       ## OFF, not the module default: its spin-up regrows young stands in post-1950 burns with
       ## traits not yet fitted to the plot data, losing their spruce; they keep SCANFI's biomass.
-      ## OFF also rounds ages up to 70 to the nearest 20 y like older ones (ON keeps them exact):
-      ## 1-9 become 0 and do not age until Biomass_core's year-10 reclassification sets them to 11.
+      ## Ages up to 70 (dataYear - earliestFireYear) stay exact either way from
+      ## Biomass_borealDataPrep 1.8.0.9004; before it, OFF rounded them to the nearest 20 y like
+      ## older ones, so 1-9 became 0, an age Biomass_core never ages or grows.
       overrideBiomassInFires = FALSE,
       pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 1000 / (250 / res)^2,
       speciesTableAreas = species_table_areas,
@@ -472,20 +473,33 @@ study_area_targets <- function(sa) {
       ## before inputs= load. terra layers load lazily, so this stays cheap.
       objects = suffix_refs(bquote({
         pkgs <- .(pkg_fingerprint("LandWebUtils")) ## re-run when it changes: landweb_sum_layers()
+        pre <- sim_objects(
+          preamble,
+          objects = c(
+            "rstLCC", "rasterToMatch", "rasterToMatch_biomassParam", "standAgeMap",
+            "studyArea", "studyArea_biomassParam", "studyAreaReporting"
+          ),
+          files = preamble_files
+        )
         c(
           list(
             speciesTable = preamble$speciesTable,
             sppColorVect = sppList$sppColorVect,
             sppEquiv = sppList$sppEquiv
           ),
-          sim_objects(
-            preamble,
-            objects = c(
-              "rstLCC", "rasterToMatch", "rasterToMatch_biomassParam", "standAgeMap",
-              "studyArea", "studyArea_biomassParam", "studyAreaReporting"
-            ),
-            files = preamble_files
-          ),
+          pre,
+          ## SCANFI's own stand age, as Biomass_borealDataPrep builds it when given none: SCANFI v2
+          ## for dataYear, bilinear onto the biomass-parameter grid, with the NFDB fires of 1950 to
+          ## dataYear as time since fire. Used ONLY as the age covariate of dataPrep's maxB/maxANPP
+          ## fit, whose biomass is SCANFI's; the cohorts keep LandWeb's stand age (standAgeMap).
+          ## SCANFI is read as a window of the remote COG; the NFDB comes from `inputs`, as for the
+          ## module's own fire perimeters.
+          list(standAgeMapForMaxB = LandR::prepInputsStandAgeMap(
+            rasterToMatch = pre$rasterToMatch_biomassParam,
+            dataSource = "SCANFI",
+            dataYear = .(globals$dataYear),
+            destinationPath = .(local$paths$inputPath)
+          )),
           ## the species layers summed into the study area's units; empty layers would otherwise pass
           ## as a valid "no tree species" run upstream
           LandWebUtils::landweb_require_species(
