@@ -494,13 +494,14 @@ study_area_targets <- function(sa) {
           ## dataYear as time since fire. Used ONLY as the age covariate of dataPrep's maxB/maxANPP
           ## fit, whose biomass is SCANFI's; the cohorts keep LandWeb's stand age (standAgeMap).
           ## SCANFI is read as a window of the remote COG; the NFDB comes from `inputs`, as for the
-          ## module's own fire perimeters.
-          list(standAgeMapForMaxB = LandR::prepInputsStandAgeMap(
+          ## module's own fire perimeters. Built with the random stream saved and restored: building
+          ## it draws random numbers, which would otherwise shift dataPrep's seeded age imputation.
+          list(standAgeMapForMaxB = withr::with_preserve_seed(LandR::prepInputsStandAgeMap(
             rasterToMatch = pre$rasterToMatch_biomassParam,
             dataSource = "SCANFI",
             dataYear = .(globals$dataYear),
             destinationPath = .(local$paths$inputPath)
-          )),
+          ))),
           ## the species layers summed into the study area's units; empty layers would otherwise pass
           ## as a valid "no tree species" run upstream
           LandWebUtils::landweb_require_species(
