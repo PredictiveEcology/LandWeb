@@ -9,7 +9,8 @@
 ## report (05): v2-vs-v3 area, % overlap / added / dropped, and a difference map.
 ##
 ## Sources (both already in the LandWeb LCC, GRS80/NAD83, metres):
-##  - v3: `outputs/<sa>/preamble/studyAreaReporting_year1.shp` -- the v10 FMA reporting
+##  - v3: `outputs/<sa>/preamble/studyAreaReporting_year1.gpkg` (`.shp` before SpaDES.targets
+##        0.0.0.9025) -- the v10 FMA reporting
 ##        boundary the preamble clips + dissolves for study area <sa>.
 ##  - v2: `outputs_v2/<sa>_*logROS/ml_preamble.rds` -- v2's own reporting polygon, a
 ##        named layer inside the retired `map`-package object (the authoritative v2
@@ -94,11 +95,16 @@ read_v2_fma_boundary <- function(study_area, v2_root = "outputs_v2") {
 ## from the branched preamble output. Returns an sf POLYGON (1 feature) in the target
 ## CRS, or NULL if the v3 preamble output is unavailable.
 read_v3_fma_boundary <- function(study_area, outputs_dir = "outputs") {
-  shp <- file.path(outputs_dir, study_area, "preamble", "studyAreaReporting_year1.shp")
-  if (!file.exists(shp)) {
+  ## SpaDES.targets >= 0.0.0.9025 saves stage vectors as GeoPackage; older runs left a shapefile
+  f <- file.path(
+    outputs_dir, study_area, "preamble",
+    paste0("studyAreaReporting_year1", c(".gpkg", ".shp"))
+  )
+  f <- f[file.exists(f)]
+  if (!length(f)) {
     return(NULL)
   }
-  s <- sf::st_make_valid(sf::st_read(shp, quiet = TRUE))
+  s <- sf::st_make_valid(sf::st_read(f[1], quiet = TRUE))
   if (is.na(sf::st_crs(s))) {
     sf::st_crs(s) <- .fma_target_crs()
   }
