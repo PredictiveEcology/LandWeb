@@ -421,6 +421,8 @@ Since `East Side Athabasca River` is the **only** Alberta range where the two gr
 
 Fire/burn post-processing module extracted from the main LandWeb repo (Sep 2023) for v3; it derives burn maps, fire-size distributions, cumulative (mean-annual) burn history, and time-since-fire from simulation outputs, comparing simulated to observed/expected fire regimes.
 Functional in single and multi modes, currently v1.0.2.9001.
+It tracks time since fire during the simulation, adding a year each year and resetting burned pixels to 0; LandMine reads it every burn year for rate of spread.
+Its year-0 value is dataPrep's stand-age map (the current-condition composite), and the saved year-0 file is that value + 1, because burnSummaries ages it at time 0 before saving.
 
 ### Module origin and single/multi mode
 - Moved burn post-processing out of the main LandWeb repo into a self-contained module (2023-09); reached v1.0.0 with an scfm update and terra adoption (2024-06).
@@ -465,14 +467,14 @@ The v2 module that wrote per-simulation LandR output maps (notably the stand-age
 ## timeSinceFire
 
 The v2 module that computed and wrote the time-since-fire (TSF) raster used by stand-age and reporting.
-**In v3 it is retired**: TSF is now derived post-hoc, and its role is superseded by NRV_summary + nrvtools.
+**In v3 it is retired**: burnSummaries tracks TSF during the simulation, and NRV_summary + nrvtools cover the reporting.
 
 ### terra/raster migration and paths
 - Reverted to raster from terra to fix a `compareGeom()` `ext`/`extent` mismatch (2023-09), then later re-migrated to terra with refreshed docs (2025-10); removed a duplicate metadata block left by a merge (2026-02).
 - Switched to `inputPath()` over `dataPath()`; removed a stray `browser()` (2023-09).
 
 ### Retirement in v3
-- TSF is now computed post-hoc rather than as a standalone module; NRV_summary + nrvtools cover the downstream need.
+- burnSummaries tracks TSF during the simulation in place of a standalone module; NRV_summary + nrvtools cover the downstream reporting.
 
 ## HSI_Caribou_MB
 
@@ -657,7 +659,7 @@ So the change is principled rather than material: it will not move the headline 
 Three v2 post-processing modules are retired in v3, consolidated into one module plus one CI-tested package:
 
 - `LandWeb_summary` + `timeSinceFire` + `LandWeb_output` are retired into **`NRV_summary`** (the module) and **`nrvtools`** (the reusable analytics + plotting package).
-- Time-since-fire is derived in post-processing from burn maps rather than tracked by a dedicated simulation module.
+- Time since fire is tracked during the simulation by burnSummaries rather than by a dedicated module.
 - The reporting-polygon build moved out of `LandWeb_preamble` into a data-driven builder (`LandWebUtils::buildReportingPolygons()`), feeding the summaries stage.
 
 The `LandWeb_full` study area is also dropped: v3 simulates and reports per FMA rather than maintaining a single expensive full-extent run.

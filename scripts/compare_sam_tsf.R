@@ -84,7 +84,7 @@ pFacet <- .base(ggplot(df, aes(x = age, colour = metric, fill = metric))) +
 .png(pOverlay, "overlay")
 .png(pFacet, "facet")
 
-## TODO: extend to the current-condition (CC) layers once NRV_summary's reportingPolygons carries
-## them (see the module-contract TODO in _targets.R, the "CC SAM"/"CC TSF" entries). Three more
+## TODO: extend to the current-condition (CC) rasters NRV_summary writes under
+## outputs/<sa>/mainSim/_cc/ (cc_standAgeMap.tif, cc_rstTimeSinceFire.tif). Three more
 ## comparisons fall out: CC-SAM vs CC-TSF; CC-TSF vs simulated TSF; CC-SAM vs simulated SAM --
 ## the last two being the v3 "does the simulation start where the landscape actually is?" check.
