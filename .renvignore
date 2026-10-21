@@ -22,6 +22,9 @@ _tmp/
 _tmp_*.R
 _TODO_*.R
 
+## run + crew worker logs (gitignored; hundreds of files on the compute nodes)
+logs/
+
 ## symlinked shared-storage data dirs (slow to scan; no project deps)
 inputs/
 outputs/
