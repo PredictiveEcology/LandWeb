@@ -329,9 +329,11 @@ study_area_targets <- function(sa) {
       ## older ones, so 1-9 became 0, which Biomass_core does not advance until its year-10 age
       ## reclassification sets it to 11.
       overrideBiomassInFires = FALSE,
-      ## 100 g/m2, not the module's 1000 / (250 / res)^2 (921.6 at 240 m): that class rounds
-      ## co-occurring species to equal biomass, and the name-order tie-break then picks the
-      ## leading species on 5.29% of pixels (1.26% at 100). Pixel groups x3.9, run time +2-5%.
+      ## 100 g/m2, the module default, not LandWeb v2's 1000 / (250 / res)^2 (921.6 at 240 m). Cohort
+      ## B is rounded to this class before pixel grouping and before the maxB/maxANPP fit. 921.6
+      ## rounded co-occurring species to equal biomass, so a name-order tie-break chose the leading
+      ## group on 5.5% of pixels (1.3% at 100), and dropped cohorts under 461 g/m2. At 100, maxB is
+      ## x1.02 biomass-weighted (fir -11%, jack pine -9%, black spruce +5%); pixel groups x3.9.
       pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 100,
       speciesTableAreas = species_table_areas,
       ## ecoregion x site x composition, so a species on upland and on wet ground gets its own
