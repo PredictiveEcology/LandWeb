@@ -326,7 +326,8 @@ study_area_targets <- function(sa) {
       ## traits not yet fitted to the plot data, losing their spruce; they keep SCANFI's biomass.
       ## Ages up to 70 (dataYear - earliestFireYear) stay exact either way from
       ## Biomass_borealDataPrep 1.8.0.9004; before it, OFF rounded them to the nearest 20 y like
-      ## older ones, so 1-9 became 0, an age Biomass_core never ages or grows.
+      ## older ones, so 1-9 became 0, which Biomass_core does not advance until its year-10 age
+      ## reclassification sets it to 11.
       overrideBiomassInFires = FALSE,
       pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 1000 / (250 / res)^2,
       speciesTableAreas = species_table_areas,
