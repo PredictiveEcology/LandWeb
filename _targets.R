@@ -329,7 +329,10 @@ study_area_targets <- function(sa) {
       ## older ones, so 1-9 became 0, which Biomass_core does not advance until its year-10 age
       ## reclassification sets it to 11.
       overrideBiomassInFires = FALSE,
-      pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 1000 / (250 / res)^2,
+      ## 100 g/m2, not the module's 1000 / (250 / res)^2 (921.6 at 240 m): that class rounds
+      ## co-occurring species to equal biomass, and the name-order tie-break then picks the
+      ## leading species on 5.29% of pixels (1.26% at 100). Pixel groups x3.9, run time +2-5%.
+      pixelGroupAgeClass = 20L, pixelGroupBiomassClass = 100,
       speciesTableAreas = species_table_areas,
       ## ecoregion x site x composition, so a species on upland and on wet ground gets its own
       ## maxB/maxANPP/SEP. Needs `rstWetland`, which defaults to CWIM v3A (`wetlandSource`).
