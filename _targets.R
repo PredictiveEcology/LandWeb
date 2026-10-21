@@ -57,6 +57,7 @@ source("R/module_changelog.R")
 source("R/publish_pdf.R")
 source("R/targets_extended_analyses.R")
 source("R/growth_uncertainty.R")
+source("R/fire_records.R")
 
 ## Optional multi-node SSH cluster (CONTROL NODE ONLY). When _hosts.R defines crew.ssh.nodes,
 ## heavy module execution (preamble/speciesData/dataPrep/mainSim) is dispatched to the compute
@@ -277,6 +278,18 @@ growth_traits_target <- function(file) {
     ))
   )
 }
+
+## ---- shared, study-area-INDEPENDENT fire records ------------------------------
+## burnSummaries (mode = "multi") fetches the national fire records into its inputPath and reads
+## them there: NBAC perimeters, and NFDB polygons to backfill the years NBAC lacks. Every
+## summaries_burn_<sa> takes this directory as that inputPath, and target fireRecords fetches the
+## records into it once, before any summaries_burn runs. Records already there are never replaced,
+## not even when fireregimetools pins a new NBAC release, so newer records need a new, empty
+## directory on storage the controller and every worker see. Not for NFDB yet: the current
+## NFDB_poly.zip holds no fire before 1972, the only years the backfill takes, and those are in
+## NFDB_poly_pre1972.zip, which fireregimetools does not fetch; copy the 20210707 release's
+## NFDB_poly.zip into the new directory first, or fireRecords stops.
+fire_records_dir <- local$paths$inputPath
 
 ## ---- per-study-area stage factory ---------------------------------------------
 ## Returns the list of study-area-specific targets for one study area `sa`, with
@@ -773,8 +786,9 @@ study_area_targets <- function(sa) {
     ## burnSummaries (mode="multi"): mean-annual cumulative burn maps + across-rep
     ## fire-size distribution (fireregimetools' arrow-native open_burn_dataset /
     ## fire_size_histogram). Reads per-rep burnMap/flammableMap + the fire-size
-    ## parquet partitions from outputs/<sa>/mainSim/rep%02d/ and downloads NFDB polygons
-    ## into inputPath; needs no in-memory sim objects.
+    ## parquet partitions from outputs/<sa>/mainSim/rep%02d/, and the NBAC + NFDB polygons
+    ## that fireRecords fetched into fire_records_dir (the module's own fetch there then only
+    ## reads them); needs no in-memory sim objects.
     tar_simspades(
       paste0("summaries_burn_", sa),
       modules = "burnSummaries",
@@ -791,12 +805,14 @@ study_area_targets <- function(sa) {
         )
       ),
       times = list(start = 0, end = local$sim_end),
-      paths = local$paths,
+      ## the module fetches the fire records into its inputPath: where fireRecords put them
+      paths = modifyList(local$paths, list(inputPath = fire_records_dir)),
       ## burnSummaries mode="multi" .inputObjects requires reportingPolygons
       ## (stopifnot(suppliedElsewhere(...))). It is not otherwise used by the multi
       ## events, but must be supplied. mainSim_files is the Phase-1 dependency anchor.
       objects = suffix_refs(quote({
         mainSim_files # dependency anchor: Phase-1 per-rep burn/flammable maps first
+        fireRecords # dependency anchor: the fire records, fetched once for every study area
         list(reportingPolygons = reportingPolygons)
       }), sa)
     )
@@ -1066,6 +1082,34 @@ list(
   growth_traits_target(getOption("landweb.growth_traits_file", NA_character_)),
   ## growth-curve uncertainty, opt-in: an empty list unless landweb.growth_uncertainty is set
   growth_uncertainty_targets,
+
+  ## Fire records -- SHARED, study-area-independent: the NBAC + NFDB polygons that every
+  ## summaries_burn_<sa> reads, fetched into fire_records_dir once, before any of them runs
+  ## (R/fire_records.R). Without it, when the records are not yet in place (a new directory, or an
+  ## unstamped extraction that falls short of its archive), up to 18 branches fetch at once, and
+  ## fireregimetools' lock holds the others back only while its holder runs: if the holder fails
+  ## with an R error the lock goes at once and they all fetch together; if it is killed, they wait
+  ## an hour first. A damaged extraction that has its stamp is read as-is by every branch, and
+  ## fire_records_fetch() stops on it. error = "abridge": it has no upstream targets, so it runs
+  ## first, and a failure stops the run there, with its message, before other stages start. format
+  ## = "file": the summaries read these files, not this value, so their content is what re-runs the
+  ## summaries when the records change.
+  tar_target_raw(
+    "fireRecords",
+    bquote({
+      ## a new NBAC release pinned in fireregimetools still needs a new fire_records_dir
+      pkgs <- .(pkg_fingerprint("fireregimetools")) ## re-run when it changes
+      ## the shapefiles fire_records_fetch() checks, as listed when this file is sourced: adding or
+      ## removing one re-runs the checks
+      shp <- .(sort(
+        unlist(fire_records_sets(fire_records_dir, full.names = FALSE), use.names = FALSE),
+        method = "radix"
+      ))
+      fire_records_fetch(.(fire_records_dir))
+    }),
+    format = "file",
+    error = "abridge"
+  ),
 
   ## per-study-area stages, branched statically over local$study_areas. targets
   ## flattens this nested list; each area contributes preamble/speciesData/dataPrep/
