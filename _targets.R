@@ -252,7 +252,7 @@ p_growthCurves <- list(
     mergeHybridSprucePSP = "engelmann",
     balanceGrowth = FALSE,
     ## caching off, as in every stage: the module default caches .inputObjects and init, and with
-    ## reproducible.useCache = FALSE SpaDES.core >= 3.2.1.9045 then errors "argument is of length zero"
+    ## reproducible.useCache = FALSE SpaDES.core >= 3.2.1.9040 then errors "argument is of length zero"
     .useCache = FALSE
   )
 )
