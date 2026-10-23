@@ -11,7 +11,12 @@ local <- list(
   ## so studyAreaANPP captures enough PSP data -- a lone small FMA (e.g. Edson) starved
   ## Biomass_speciesParameters. mainSim branches over rep_index (pattern = map(rep_index)).
   ## Bring groups in incrementally during development.
-  study_areas = c("WesternAlbertaUpland"),
+  study_areas = c(
+    "WesternAlbertaUpland",
+    ## the six largest groups, mainSim only for now (10-23; postprocess waits on an NRV_summary fix)
+    "ChurchillRiverUpland", "NorthernAlbertaUplands", "ClearHillsUpland", "MidBorealUplands",
+    "WabascaLowland", "CentralCanadianRockyMountains"
+  ),
   ## ALL 18 groups, largest -> smallest by pixel count (~0.04-1.85 Mpix @240m). Uncomment (or
   ## subset) to scale up; keep the single-area line above active while testing:
   # study_areas = c(
