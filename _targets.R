@@ -295,6 +295,14 @@ growth_traits_target <- function(file) {
 ## NFDB_poly.zip into the new directory first, or fireRecords stops.
 fire_records_dir <- local$paths$inputPath
 
+## The preamble stops when more than `ccAgeMaxMissing` (25%) of an area's forest has no current-condition
+## age. Raised only where the gap is understood. InterlakePlain: 28.9% at 30 m, half of it Prairies aspen
+## outside the NTEMS map, half LCC forest that NTEMS calls wetland or herbs (MidBorealLowland's gap, which
+## passes at 14.9%). The 240 m aggregation and dataPrep's age imputation fill these pixels, as they do
+## MidBorealLowland's; flag both areas when reporting current condition. Others keep the default, so
+## their preamble commands are unchanged.
+cc_age_max_missing <- c(InterlakePlain = 30)
+
 ## ---- per-study-area stage factory ---------------------------------------------
 ## Returns the list of study-area-specific targets for one study area `sa`, with
 ## "_<sa>"-suffixed names, outputs/<sa>/ output dirs, and every cross-stage reference
@@ -316,6 +324,9 @@ study_area_targets <- function(sa) {
       .plotInitialTime = 0, .useCache = FALSE
     )
   )
+  if (sa %in% names(cc_age_max_missing)) {
+    p_preamble$LandWeb_preamble$ccAgeMaxMissing <- cc_age_max_missing[[sa]]
+  }
 
   p_speciesData <- list(
     .globals = globals_sa,
