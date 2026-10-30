@@ -37,11 +37,11 @@ collapseModuleBibs(
 ## RENDER BOOK ------------------------------------------
 
 withr::with_dir(normalizePath(manDir), {
-  ## set manual version. By field, not by position: read.dcf(...)[4] was Version
-  ## only because it happened to be the fourth field, and any field added above
-  ## it would have put the wrong string on the title page.
-  Sys.setenv(LANDWEB_VERSION = read.dcf("../DESCRIPTION", fields = "Version")[1])
-  Sys.getenv("LANDWEB_VERSION")
+  ## from DESCRIPTION by field, never by position: read.dcf(...)[4] was Version
+  ## only because it happened to be the fourth field. index.Rmd's subtitle reads
+  ## LANDWEB_VERSION from the environment, because the YAML header is parsed
+  ## before any of the book's code runs, so that name is passed explicitly.
+  version <- manualVersion("../DESCRIPTION", legacy = "LANDWEB_VERSION")
 
   ## don't use Require for package installation etc.
   Sys.setenv(R_USE_REQUIRE = "false")
@@ -60,8 +60,11 @@ withr::with_dir(normalizePath(manDir), {
   .copyModuleRmds <- prepManualRmds("../modules", rebuildCache = FALSE, ## use rel path!
                                     ignoreModules = .ignore)
 
-  ## render the book using new env -- see <https://stackoverflow.com/a/46083308>
-  bookdown::render_book(output_format = "all", envir = new.env())
+  ## renderManual() keeps the site when another format fails and still requires
+  ## the site itself: bookdown knits once and writes each format in turn, so a
+  ## failing PDF would otherwise discard a website already on disk.
+  ## new env -- see <https://stackoverflow.com/a/46083308>
+  renderManual(outputDir = paths$docs, output_format = "all", envir = new.env())
 
   ## .nojekyll has to be inside the published directory: the deploy pushes the
   ## contents of docs/, so a file at the project root never reaches the site.
@@ -69,7 +72,7 @@ withr::with_dir(normalizePath(manDir), {
 
   archiveManualPDF(
     file.path(paths$docs, "LandWeb_manual.pdf"),
-    version = Sys.getenv("LANDWEB_VERSION"),
+    version = version,
     prefix = "LandWeb-manual",
     archiveDir = file.path(manDir, "archive", "pdf")
   )

@@ -1,25 +1,5 @@
-## clean workspace
-rm(list = ls(all.names = FALSE))
-
-# example R options set globally
-options(
-  width = 60
-)
-
-## knitr-related options
-options(
-  knitr.graphics.rel_path = FALSE,
-  knitr.table.format = function() {
-    if (knitr::is_latex_output())
-      "latex" else "pipe"
-  }
-)
-
-# chunk options set globally
-knitr::opts_chunk$set(
-  fig.pos = "H",
-  out.extra = "",
-  size = "tiny",
-  tidy = TRUE,
-  tidy.opts = list(width.cutoff = 60)
-)
+## Runs before every chapter, in a fresh session.
+##
+## The settings live in SpaDES.docs so the three manuals cannot drift apart
+## again; this file and the other two had already diverged in two places.
+SpaDES.docs::manualChunkOptions()
