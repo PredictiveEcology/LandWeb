@@ -98,3 +98,8 @@ review and `git blame` usable on prose.
 `scripts/reflow_sentences.py` applies the convention (`--check` reports without writing). It leaves
 code chunks, YAML, tables, captions and div fences alone, and refuses to write a file whose pandoc
 AST the rewrite would change, so structure cannot break silently.
+
+Page breaks are `{{< pagebreak >}}`, never raw `\newpage` or `\clearpage`. In PDF output,
+`reports/_filters/clearpage.lua` (registered in `_quarto.yml`) makes the shortcode a `\clearpage`,
+which places pending figures first. `tests/testthat/test-report-conventions.R` checks both; run it
+with `Rscript-4.6.1 scripts/run-tests.R` (CI: `.github/workflows/tests.yaml`).
