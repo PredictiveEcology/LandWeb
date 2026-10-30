@@ -801,14 +801,14 @@
     },
     "SpaDES.docs": {
       "Package": "SpaDES.docs",
-      "Version": "0.5.0",
+      "Version": "0.6.1",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.docs",
-      "RemoteRef": "v0.5.0",
-      "RemoteSha": "5d36c322429fb897636fc3378fb73b4b8b543abd",
+      "RemoteRef": "main",
+      "RemoteSha": "4007e183053cf6b093dfd4bea508bcc7790f246d",
       "Requirements": [
         "R",
         "Require",
@@ -820,7 +820,7 @@
         "utils",
         "yaml"
       ],
-      "Hash": "7d31e5639a749c02bbc88623137757ed"
+      "Hash": "c5f06e1a0f7e4098f753bcf902694f1d"
     },
     "SpaDES.targets": {
       "Package": "SpaDES.targets",
@@ -1421,7 +1421,7 @@
       "Package": "bslib",
       "Version": "0.12.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "base64enc",
@@ -1443,7 +1443,7 @@
       "Package": "cachem",
       "Version": "1.1.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "fastmap",
         "rlang"
@@ -2188,7 +2188,7 @@
       "Package": "fastmap",
       "Version": "1.2.0",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Hash": "aa5e1cd11c2d15497494c5292d7ffcc8"
     },
     "fastmatch": {
@@ -2260,7 +2260,7 @@
       "Package": "fontawesome",
       "Version": "0.5.3",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "htmltools",
@@ -3038,7 +3038,7 @@
       "Package": "htmltools",
       "Version": "0.5.9",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R",
         "base64enc",
@@ -3229,7 +3229,7 @@
       "Package": "jquerylib",
       "Version": "0.1.4",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "htmltools"
       ],
@@ -3819,7 +3819,7 @@
       "Package": "memoise",
       "Version": "2.0.1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "cachem",
         "rlang"
@@ -3893,7 +3893,7 @@
       "Package": "mime",
       "Version": "0.13",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "tools"
       ],
@@ -4242,7 +4242,7 @@
       "Package": "pak",
       "Version": "0.11.1",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
       "Requirements": [
         "R",
         "tools",
@@ -4857,7 +4857,7 @@
       "Package": "rappdirs",
       "Version": "0.3.4",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R"
       ],
@@ -5338,7 +5338,7 @@
       "Package": "rstudioapi",
       "Version": "0.19.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Hash": "db86914207e4e0f112b60ebbc3e1793c"
     },
     "rsvg": {
@@ -5426,7 +5426,7 @@
       "Package": "sass",
       "Version": "0.4.10",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Requirements": [
         "R6",
         "fs",
@@ -6018,7 +6018,7 @@
       "Package": "sys",
       "Version": "3.4.3",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "https://packagemanager.posit.co/cran/latest",
       "Hash": "de342ebfebdbf40477d0758d05426646"
     },
     "systemfonts": {
@@ -6661,7 +6661,7 @@
       "Package": "xfun",
       "Version": "0.62",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "grDevices",
