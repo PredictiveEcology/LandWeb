@@ -84,7 +84,7 @@ setcolorder(cmp, c("bin", "v8c", "v10"))
 band <- function(b, v) cmp[bin == b][[v]]
 ```
 
-\newpage
+{{< pagebreak >}}
 
 ::: {.callout-warning}
 **Draft report: pending human review**
@@ -420,7 +420,7 @@ Downstream, `minFRI` in the preamble still maps very-short intervals to non-burn
 The **SLS v3** layer is the Spray Lake Sawmills variant of the map (a near-full-extent layer, not a local patch); it was the source from which the Spray Lake / Crowsnest polygons were taken to build the interim `v8d` patch (`R/new_lthfc.R`).
 It is included here for the requested comparison but is not the current pipeline input.
 
-\newpage
+{{< pagebreak >}}
 
 # Fire-return-interval attainment
 
@@ -489,14 +489,14 @@ Where `% in study area` is well below 100, the two columns diverge sharply, and 
 Because LandMine derives ignition frequency directly from FRI, shortening NW Alberta's fire cycle increases the number of fires there, which over a multi-century run raises the proportion of young/recently-burned forest and lowers old forest --- shifting the seral-stage natural range of variation for that region.
 Quantifying that shift in simulated outputs (v2 vs v3) is the subject of the output-comparison report.
 
-\newpage
+{{< pagebreak >}}
 
 # References {.unnumbered}
 
 ::: {#refs}
 :::
 
-\newpage
+{{< pagebreak >}}
 
 # Provenance {.unnumbered}
 

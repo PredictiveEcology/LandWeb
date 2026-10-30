@@ -52,7 +52,7 @@ cb_tot <- if (!is.null(cb_tab)) cb_tab[layer == "regional" & source == "(all sou
 if (!is.null(cb_tot) && !nrow(cb_tot)) cb_tot <- NULL
 ```
 
-\newpage
+{{< pagebreak >}}
 
 ::: {.callout-warning}
 **Draft report: pending human review**
@@ -369,7 +369,7 @@ The table below maps the provenance design onto the standards the project aims t
 The manifest + build-provenance appendix are the *runtime evidence* an ODD/TRACE narrative would point to.
 Fleshing those narratives out (and the FLM-calibration best-practices alignment, [@Reese:2024], report 07) is the next step for the co-authors.
 
-\newpage
+{{< pagebreak >}}
 
 # Externally prepared input: fRI Research's current-condition layers {#sec-fri-current-condition}
 
@@ -579,14 +579,14 @@ We have therefore left it unexplained rather than rationalised, and results for 
 
 See `LandWeb_preamble` for the wiring.
 
-\newpage
+{{< pagebreak >}}
 
 # References {.unnumbered}
 
 ::: {#refs}
 :::
 
-\newpage
+{{< pagebreak >}}
 
 # Provenance {.unnumbered}
 

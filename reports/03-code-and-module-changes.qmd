@@ -41,7 +41,7 @@ clog_csv <- tryCatch(
 clog <- fread(clog_csv)
 ```
 
-\newpage
+{{< pagebreak >}}
 
 ::: {.callout-warning}
 **Draft report: pending human review**
@@ -692,14 +692,14 @@ knitr::kable(
   kable_styling(font_size = 8, latex_options = "hold_position")
 ```
 
-\newpage
+{{< pagebreak >}}
 
 # References {.unnumbered}
 
 ::: {#refs}
 :::
 
-\newpage
+{{< pagebreak >}}
 
 # Provenance {.unnumbered}
 

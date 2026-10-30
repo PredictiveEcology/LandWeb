@@ -12,6 +12,13 @@ project:
   render:
     - reports/*.qmd
 
+## Page breaks are written `{{< pagebreak >}}`, which works in every output format. In LaTeX the
+## shortcode emits `\newpage`; this filter turns that into `\clearpage`, which places pending floats
+## first. It must run after Quarto's own filters have resolved the shortcode.
+filters:
+  - path: reports/_filters/clearpage.lua
+    at: post-quarto
+
 ## DRAFT watermark on every report (temporary; remove when the reports are finalised).
 format:
   pdf:

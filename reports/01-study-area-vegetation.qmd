@@ -60,7 +60,7 @@ n_grp_knn <- length(unique(knn$landweb_species))
 n_grp_scanfi <- length(unique(veg$landweb_species))
 ```
 
-\newpage
+{{< pagebreak >}}
 
 ::: {.callout-warning}
 **Draft report: pending human review**
@@ -144,7 +144,7 @@ Because both fold into `Abie_spp` (the closest shade-tolerant softwood), the mer
 
 `PINU_CON_CON` (shore pine, the coastal *Pinus contorta* variety) is effectively absent across the study area (`r format(veg[species == "PINU_CON_CON", n_cover_gt0], big.mark = ",")` cells), so it is left merged into `Pinu_spp`, where --- like all pines --- it is harmless.
 
-\newpage
+{{< pagebreak >}}
 
 # Initial conditions: Beaudoin kNN (2001) to SCANFI (2020)
 
@@ -212,14 +212,14 @@ These initial-condition differences are one of the contributors to any change in
 Two related initial-condition changes are out of scope here: (1) the **stand-age and biomass** layers (kNN 250 m vs SCANFI 30 m), whose study-area-wide comparison needs the gated 30 m scan; and (2) the **current-condition** update from the earlier CASFRI/Pickell-era layers to the 2026 merged Alberta AVI + BC VRI + national SBFI composite, which is pending that composite being staged locally.
 :::
 
-\newpage
+{{< pagebreak >}}
 
 # References {.unnumbered}
 
 ::: {#refs}
 :::
 
-\newpage
+{{< pagebreak >}}
 
 # Provenance {.unnumbered}
 

@@ -52,9 +52,10 @@ outputs_v2
 outputs_v2/
 
 ## ignore legacy report output dirs (reports/2020, reports/2026, ...) but track
-## the pipeline's Quarto sources and published PDFs.
+## the pipeline's Quarto sources, their Lua filters and published PDFs.
 reports/*
 !reports/*.qmd
+!reports/_filters/
 !reports/pdf/
 
 ## targets pipeline data store (keep _targets.R / _local.R, ignore the store).
