@@ -1038,9 +1038,14 @@
     },
     "archive": {
       "Package": "archive",
-      "Version": "1.1.14",
-      "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/noble/latest",
+      "Version": "1.1.14.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "r-lib",
+      "RemoteRepo": "archive",
+      "RemoteRef": "1906089191ad3aad571db28bed4323468995010a",
+      "RemoteSha": "1906089191ad3aad571db28bed4323468995010a",
       "Requirements": [
         "R",
         "cli",
@@ -1048,7 +1053,7 @@
         "rlang",
         "tibble"
       ],
-      "Hash": "43d695aa4ec0bae9a4dc19d9010e8de4"
+      "Hash": "2c520c25727540fe834f476c753d6321"
     },
     "arm": {
       "Package": "arm",
@@ -6617,14 +6622,14 @@
     },
     "workflowtools": {
       "Package": "workflowtools",
-      "Version": "0.0.21",
+      "Version": "0.0.22.9002",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "workflowtools",
-      "RemoteRef": "development",
-      "RemoteSha": "88fb17176c83152e1cc79bf5a72d3881336fb1c7",
+      "RemoteRef": "main",
+      "RemoteSha": "190b582a34fc8db30065223b1bec95edf92cb84c",
       "Requirements": [
         "R",
         "archive",
@@ -6650,7 +6655,7 @@
         "usethis",
         "utils"
       ],
-      "Hash": "045a7b968781347dc6d84dcc2405e49c"
+      "Hash": "cba49489d8ba53cb02c3313d61891d5f"
     },
     "xfun": {
       "Package": "xfun",
