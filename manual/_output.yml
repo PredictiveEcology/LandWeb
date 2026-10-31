@@ -1,6 +1,5 @@
 bookdown::bs4_book:
   css: css/style.css
-  download: ["pdf", "epub"]
   edit: null
   footnotes_inline: false
   repo:

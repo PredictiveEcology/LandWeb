@@ -103,6 +103,32 @@ Simulation outputs are summarized for several publicly available reporting polyg
 
 These are described in further detail in [Model outputs].
 
+## This Version
+
+```{r thisVersion, eval = TRUE, echo = FALSE, results = 'asis'}
+## bs4_book has no download menu -- `download:` is a gitbook option it accepts
+## and ignores -- so this build's PDF and EPUB are linked here. The paths are
+## relative to the published book, where both files sit beside index.html, so
+## no GitHub URL is needed.
+##
+## The formats are taken from _output.yml rather than from what is on disk.
+## bookdown renders bs4_book first, so at the moment this chunk runs the PDF and
+## EPUB have not been written yet, and testing for them would drop the links
+## from every build -- which is how `download:` appeared to work and did
+## nothing. If a format stops building, build.R reports it as a warning on the
+## run.
+bookFile <- yaml::read_yaml("_bookdown.yml")$book_filename
+declared <- names(yaml::read_yaml("_output.yml"))
+formats <- c(PDF = "pdf_book", EPUB = "epub_book")
+formats <- formats[vapply(formats, \(f) any(grepl(f, declared, fixed = TRUE)), logical(1))]
+
+if (length(formats)) {
+  cat(paste0("-   [LandWeb Manual v", Sys.getenv("LANDWEB_VERSION"), " (",
+             names(formats), ")](", bookFile, ".", tolower(names(formats)), ")\n"),
+      sep = "")
+}
+```
+
 ## Previous Manual Versions
 
 Archived copies of previous manual versions are listed on the [archive page](archive/).
