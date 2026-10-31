@@ -5,7 +5,7 @@ bookdown::bs4_book:
   footnotes_inline: false
   repo:
     base: https://github.com/PredictiveEcology/LandWeb
-    branch: master
+    branch: main
   split_bib: false       # otherwise refs printed twice
   theme:
     fg: "#2b2121"
