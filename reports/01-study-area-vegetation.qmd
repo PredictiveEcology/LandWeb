@@ -73,9 +73,14 @@ This notice will be removed once a complete review has been carried out.
 # Overview
 
 This report summarizes the SCANFI v2 (2020) [@scanfi-v2] per-species **crown-closure prevalence** over the **full LandWeb study area** (`r format(round(area_km2), big.mark = ",")` km^2^, `r format(area_cells, big.mark = ",")` forested 30 m cells).
-For each SCANFI source species that maps to a simulated LandWeb species it reports the number (and %) of forested study-area cells carrying *any* cover.
+For each SCANFI source species that maps to a LandWeb species group it reports the number (and %) of forested study-area cells carrying *any* cover.
 
-One primary purpose is to document the evidence behind the **`THUJ_PLI`/`TSUG_HET` → `Abie_spp` merge** in `LandWeb_preamble`: western redcedar and western hemlock are a *localized* SCANFI over-attribution in the SW Alberta Rockies, not a study-area-wide signal.
+LandWeb sorts the SCANFI species into seven species groups.
+Within each study area, a species is simulated on its own where it holds at least 1% of the area's tree cover.
+The other species of its group are simulated together if, combined, they reach 1%; otherwise they join the group's largest species that runs on its own, or are left out if there is none.
+Results are reported by the species groups of the original LandWeb current-condition data --- white spruce, black spruce (with the larches), pine, fir and deciduous --- with Douglas-fir reported on its own.
+
+One primary purpose is to document the evidence for keeping **western redcedar and western hemlock with the firs** rather than simulating either on its own: in SCANFI they are a *localized* over-attribution in the SW Alberta Rockies, not a study-area-wide signal.
 
 It also documents the **change in starting conditions from v2 to v3**: the underlying tree-species product moved from the Beaudoin *k*NN (2001) maps [@BeaudoinEtAl2014] to SCANFI (2020) [@scanfi-v2] (see [Initial conditions: Beaudoin kNN (2001) to SCANFI (2020)]).
 
@@ -83,7 +88,7 @@ It also documents the **change in starting conditions from v2 to v3**: the under
 
 ```{r}
 #| label: tbl-composition
-#| tbl-cap: "SCANFI species prevalence over the LandWeb study area, by cells with any cover (sorted). `LandWeb species` is the simulated species each SCANFI code merges into."
+#| tbl-cap: "SCANFI species prevalence over the LandWeb study area, by cells with any cover (sorted). `LandWeb species` is the LandWeb species group each SCANFI code belongs to."
 knitr::kable(
   veg[, .(
     `SCANFI code` = species,
@@ -111,7 +116,7 @@ ggplot(veg, aes(reorder(common_name, pct_forested), pct_forested, fill = suspect
 
 The composition is a textbook western-boreal signature --- black spruce dominant, then tamarack, aspen, jack pine, and white spruce.
 
-# Coastal over-attribution (the merge rationale)
+# Coastal over-attribution (why cedar and hemlock stay with the firs)
 
 ```{r}
 #| label: tbl-suspects
@@ -137,12 +142,15 @@ Western hemlock (`TSUG_HET`) covers only **`r sprintf("%.2f", pct("TSUG_HET"))`%
 By contrast, a stand-alone count over the **Spray Lake FMA** (SW Alberta Rockies) put western hemlock on **~25%** of pixels: a ~175× concentration in the SW corner, exactly where SCANFI bleeds coastal species across the BC boundary.
 Where these species do appear they can reach high cover (up to `r veg[species == "TSUG_HET", cover_max]`% hemlock), but the footprint is tiny and localized.
 
-Because both fold into `Abie_spp` (the closest shade-tolerant softwood), the merge:
+Neither species is therefore ever simulated on its own, whatever its share of a study area's tree cover.
+Both are simulated with the firs, the closest shade-tolerant softwoods: they join whichever simulated fir --- a single species, or the remaining firs together --- holds the most cover in the study area (or are left out where no fir is simulated), and are reported as fir.
+Their traits have also not yet been reviewed for LandWeb.
+Keeping them with the firs:
 
-- removes a stand-alone species that has no usable known-age / non-zero-biomass cohorts in the SW --- the cause of the `Biomass_borealDataPrep` non-conformable ("code 235") crash; and
+- avoids simulating, as a species of its own, cover that has no usable known-age / non-zero-biomass cohorts in the SW --- which crashed data preparation when they were first simulated separately; and
 - relabels only ~0.3% of the study area's cover, leaving the rest untouched.
 
-`PINU_CON_CON` (shore pine, the coastal *Pinus contorta* variety) is effectively absent across the study area (`r format(veg[species == "PINU_CON_CON", n_cover_gt0], big.mark = ",")` cells), so it is left merged into `Pinu_spp`, where --- like all pines --- it is harmless.
+`PINU_CON_CON` (shore pine, the coastal *Pinus contorta* variety) is effectively absent across the study area (`r format(veg[species == "PINU_CON_CON", n_cover_gt0], big.mark = ",")` cells); it is simulated as part of lodgepole pine, the same species, and reported as pine.
 
 {{< pagebreak >}}
 
@@ -154,7 +162,7 @@ The v2 model built its starting species/biomass/age conditions from the Beaudoin
 
 ```{r}
 #| label: tbl-resolved
-#| tbl-cap: "Tree species each inventory resolves, grouped by simulated LandWeb species. SCANFI (v3) resolves larch and Douglas-fir --- absent from the kNN product (v2) --- and additionally splits Engelmann spruce and the two *Pinus contorta* varieties."
+#| tbl-cap: "Tree species each inventory resolves, grouped by LandWeb species group. SCANFI (v3) resolves larch and Douglas-fir --- absent from the kNN product (v2) --- and additionally splits Engelmann spruce and the two *Pinus contorta* varieties."
 knitr::kable(
   grp_cmp[, .(
     `LandWeb species` = landweb_species,
@@ -169,7 +177,7 @@ knitr::kable(
 
 The kNN product resolves **`r n_grp_knn`** LandWeb species groups; SCANFI resolves **`r n_grp_scanfi`**.
 The two SCANFI adds are consequential: **`r paste(scanfi_only, collapse = " and ")`** --- i.e. **larch/tamarack** and **Douglas-fir**, which have no kNN layer at all.
-SCANFI also resolves Engelmann spruce (folded into `Pice_gla`) and both *Pinus contorta* varieties, where kNN carried a single lumped fir group and a single lodgepole layer.
+SCANFI also resolves Engelmann spruce (in the white spruce group, `Pice_gla`) and both *Pinus contorta* varieties, where kNN carried a single lumped fir group and a single lodgepole layer.
 
 ## Composition shift
 
@@ -190,7 +198,7 @@ knitr::kable(
 
 ```{r}
 #| label: fig-knn-composition
-#| fig-cap: "Beaudoin kNN (2001) mean cover by species over the LandWeb study area, coloured by simulated LandWeb species. The kNN product carries no larch or Douglas-fir layer."
+#| fig-cap: "Beaudoin kNN (2001) mean cover by species over the LandWeb study area, coloured by LandWeb species group. The kNN product carries no larch or Douglas-fir layer."
 ggplot(knn, aes(reorder(common_name, mean_cover), mean_cover, fill = landweb_species)) +
   geom_col() +
   coord_flip() +

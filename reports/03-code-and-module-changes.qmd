@@ -141,6 +141,10 @@ As of mid-2026 Phase-0 runs end-to-end for SprayLake; several data steps (30 m C
 - Simulate more tree species with reworked species params (bd3b1d2, 2025-09).
 - Relabelled western redcedar/western hemlock (`THUJ_PLI`/`TSUG_HET`) to `Abie_spp` (fir), treating them as SCANFI over-attribution in AB (a101a9f, 2026-06).
 - Labelled Pinus contorta varieties (shore vs lodgepole) and dropped the vestigial `PINU_CON` in InitSpecies (8033234, 2026-06); added generic names and leading for Douglas-fir (a2b9ca6, 2024-09).
+- Gave each species its own code in place of its fixed species group, which is kept alongside (bf89e9b, 2026-10).
+  Which species are simulated on their own is now decided per study area, after the species-data stage: a species runs on its own where it holds at least 1% of the study area's tree cover, and the rest of its group stays together, joins the group's largest species, or is dropped.
+  Western redcedar and western hemlock are never split out and stay with the firs; hybrid spruce joins whichever parent species has more cover in the study area.
+  Results are reported by six groups: white spruce, black spruce (with the larches), pine, fir, Douglas-fir and deciduous.
 
 ### Google Drive service-account auth and large-file downloads
 - Fetch the v10 LTHFC map via `workflowtools::drive_download_once` (googledrive direct, service-account auth) to bypass reproducible's Drive path that lost SA auth (reproducible #447) (c00e79a, 2026-06).
@@ -215,6 +219,7 @@ The headline v3 changes were a full terra migration, moving the input data pipel
 
 Substantially reworked in v3: the GAMM-based growth-curve machinery was replaced with lighter non-linear growth curves fit to a modernized PSPclean data pipeline, the big-data backend moved from the deprecated disk.frame to arrow, and a new opt-in LANDIS mode exposes fitted curves as LANDIS-II Biomass Succession inputs.
 Runs on the FOR-CAST fork line (merged to main 2026-06-29), currently v3.0.1.
+In the v3 pipeline it no longer runs inside each study area's data preparation: it runs once, in a shared stage, fitting growth curves for every species from the national forest inventory plots and the BC, Alberta and Saskatchewan provincial plots in the ecoprovinces that touch the LandWeb area, and each study area's simulated species take their traits from that fit (285a8fd8, 2026-10).
 
 ### PSP data / PSPclean pipeline
 - Removed ~200 lines of in-module PSP input handling in favour of the external PSPclean package; added New Brunswick data (2023-12).
@@ -662,7 +667,7 @@ Three v2 post-processing modules are retired in v3, consolidated into one module
 - Time since fire is tracked during the simulation by burnSummaries rather than by a dedicated module.
 - The reporting-polygon build moved out of `LandWeb_preamble` into a data-driven builder (`LandWebUtils::buildReportingPolygons()`), feeding the summaries stage.
 
-The `LandWeb_full` study area is also dropped: v3 simulates and reports per FMA rather than maintaining a single expensive full-extent run.
+The `LandWeb_full` study area is also dropped: v3 simulates ecoregion-based study-area groups and reports per tenure, rather than maintaining a single expensive full-extent run.
 
 # Appendix: change summary (auto-generated) {.unnumbered}
 
