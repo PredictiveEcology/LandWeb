@@ -20,6 +20,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 library(data.table)
+library(ggplot2)
 library(kableExtra)
 nn <- function(x) if (is.null(x) || !length(x)) "" else as.character(x)
 
