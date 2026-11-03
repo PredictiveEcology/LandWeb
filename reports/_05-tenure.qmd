@@ -1,0 +1,159 @@
+## {@name@} {#sec-t-{@slug@}}
+
+```{r}
+#| include: false
+t <- "{@tenure@}"
+tr <- ten[tenure == t]
+## the name before a full stop, so "Ltd." does not end a caption with ".."
+name_end <- sub("[.]$", "", tr$name)
+pt <- rd$pct_type[tenure == t]
+fa <- rd$forest[poly == t]
+type_area <- setNames(fa$area_ha, fa$vegType)
+types_shown <- fa[vegType != "All species" & area_ha >= min_ha, vegType]
+types_small <- setdiff(fa[vegType != "All species" & area_ha > 0, vegType], types_shown)
+af <- pt[vegType == "All species"][match(des$age_classes, ageClass)]
+af[, phrase := report05_position_phrase(position, min, max, cc_rank)]
+
+## age-class shares by vegetation type: all forest first, then the types big enough to show
+panel_types <- c("All species", sort(types_shown))
+panel_lab <- function(v) {
+  factor(
+    sprintf("%s (%s ha)", report05_veg_label(v), report05_ha(type_area[v])),
+    levels = sprintf("%s (%s ha)", report05_veg_label(panel_types), report05_ha(type_area[panel_types]))
+  )
+}
+tn <- rd$type_nrv[poly == t & vegType %in% panel_types][, panel := panel_lab(vegType)]
+tc <- rd$type_cc[poly == t & vegType %in% panel_types][, panel := panel_lab(vegType)]
+p_type <- report05_boxplot(tn, tc, des$age_classes, "Share of the type's forest area (%)")
+h_type <- 1.6 * ceiling(length(panel_types) / 2) + 0.6
+report05_save_png(p_type, fig_dir, paste0(t, "_types"), 6.5, h_type)
+cap_type <- sprintf(
+  "Simulated range (boxes) and current condition (red circles) of the share of forest in each age class, by vegetation type, in %s. The forested area of each type in the current condition is in brackets.",
+  name_end
+)
+
+## all forest by ecological sub-region
+fs <- rd$forest_sub[tenure == t & vegType == "All species"]
+subs_shown <- fs[area_ha >= min_ha][order(-area_ha), subregion]
+subs_small <- fs[area_ha < min_ha & area_ha > 0, subregion]
+has_subs <- length(subs_shown) > 0L
+if (has_subs) {
+  sub_area <- setNames(fs$area_ha, fs$subregion)
+  sub_lab <- function(s) {
+    factor(
+      sprintf("%s (%s ha)", s, report05_ha(sub_area[s])),
+      levels = sprintf("%s (%s ha)", subs_shown, report05_ha(sub_area[subs_shown]))
+    )
+  }
+  sn <- rd$sub_nrv[tenure == t & subregion %in% subs_shown][, panel := sub_lab(subregion)]
+  sc <- rd$sub_cc[tenure == t & subregion %in% subs_shown][, panel := sub_lab(subregion)]
+  p_sub <- report05_boxplot(sn, sc, des$age_classes, "Share of forest area (%)")
+  h_sub <- 1.6 * ceiling(length(subs_shown) / 2) + 0.6
+  report05_save_png(p_sub, fig_dir, paste0(t, "_subregions"), 6.5, h_sub)
+  cap_sub <- sprintf(
+    "Simulated range (boxes) and current condition (red circles) of the share of all forest in each age class, by %s, in %s. The forested area of each %s in the current condition is in brackets.",
+    tr$sub_kind, name_end, tr$sub_kind
+  )
+}
+
+## old forest in large patches
+pn <- rd$patch_nrv[poly == t]
+pc <- rd$patch_cc[poly == t]
+pp <- rd$pct_patch[tenure == t][order(min_patch_ha)]
+p_patch <- report05_patch_hist(pn, pc)
+report05_save_png(p_patch, fig_dir, paste0(t, "_oldpatches"), 6.5, 4.6)
+cap_patch <- sprintf(
+  "Simulated range (grey bars, %d simulated landscapes) and current condition (red line) of the area of old forest in patches of at least %s ha, in %s.",
+  n_snap, paste(report05_ha(des$patch_sizes_ha), collapse = ", "), name_end
+)
+```
+
+```{r}
+#| output: asis
+cat(
+  sprintf(
+    "%s covers %s ha, of which %s ha (%s%%) had a forested vegetation type in the current condition.",
+    tr$name, report05_ha(tr$area_ha), report05_ha(tr$forest_ha), report05_pct(tr$forest_ha / tr$area_ha)
+  ),
+  af[, sprintf(
+    "%s forest makes up %s%% of all forest today, %s (simulated median %s%%).",
+    ageClass, report05_pct(cc), phrase, report05_pct(p50)
+  )],
+  "@fig-type-{@slug@} shows the same comparison for each vegetation type.",
+  if (length(types_small)) {
+    sprintf(
+      "%s %s less than %s ha of forest and %s left out of the figure.",
+      paste(report05_veg_label(types_small), collapse = ", "),
+      if (length(types_small) == 1L) "has" else "have",
+      report05_ha(min_ha),
+      if (length(types_small) == 1L) "is" else "are"
+    )
+  },
+  sep = "\n"
+)
+```
+
+```{r}
+#| label: fig-type-{@slug@}
+#| fig-cap: !expr cap_type
+#| fig-height: !expr h_type
+#| fig-width: 6.5
+p_type
+```
+
+```{r}
+#| output: asis
+if (is.na(tr$sub_layer)) {
+  cat("No ecological sub-region layer covers this tenure.\n")
+} else if (!has_subs) {
+  cat(sprintf("No %s in this tenure holds %s ha of forest or more.\n", tr$sub_kind, report05_ha(min_ha)))
+} else {
+  cat(
+    sprintf("@fig-sub-{@slug@} shows all forest by %s.", tr$sub_kind),
+    if (length(subs_small)) {
+      sprintf(
+        "Left out as smaller than %s ha of forest: %s.",
+        report05_ha(min_ha), paste(subs_small, collapse = ", ")
+      )
+    },
+    sep = "\n"
+  )
+}
+```
+
+```{r}
+#| label: fig-sub-{@slug@}
+#| eval: !expr has_subs
+#| include: !expr has_subs
+#| fig-cap: !expr if (has_subs) cap_sub else ""
+#| fig-height: !expr if (has_subs) h_sub else 3
+#| fig-width: 6.5
+p_sub
+```
+
+```{r}
+#| output: asis
+cat(
+  pp[, sprintf(
+    "Old forest in patches of %s ha or more covered %s to %s ha in the simulated landscapes (median %s ha), against %s ha today, %s.",
+    report05_ha(min_patch_ha), report05_ha(min), report05_ha(max), report05_ha(p50), report05_ha(cc),
+    data.table::fcase(
+      position == "below", "below the simulated range",
+      position == "above", "above the simulated range",
+      default = sprintf("at the %s percentile of the simulated values", report05_ordinal(round(cc_rank)))
+    )
+  )],
+  "@fig-patch-{@slug@} shows the simulated distributions.",
+  sep = "\n"
+)
+```
+
+```{r}
+#| label: fig-patch-{@slug@}
+#| fig-cap: !expr cap_patch
+#| fig-height: 4.6
+#| fig-width: 6.5
+p_patch
+```
+
+{{< pagebreak >}}

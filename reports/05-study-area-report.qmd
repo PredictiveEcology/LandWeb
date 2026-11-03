@@ -1,0 +1,538 @@
+---
+title: "Understanding historical landscape patterns"
+author: "LandWeb v3 (authors to be confirmed)"
+date: today
+format:
+  pdf:
+    pdf-engine: pdflatex
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fontsize: 11pt
+fig-width: 6.5
+fig-height: 6
+tbl-pos: "H"
+params:
+  study_area: "WesternAlbertaUpland"
+  data_file: ""
+  fig_dir: ""
+  min_area_ha: 1000
+editor_options:
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup
+#| include: false
+## One template, rendered once per study-area group by render_report05() (R/render_report.R), which
+## passes the data from build_report05_data() (R/report_data.R) as `data_file`. Rendered by hand
+## without it, the data are rebuilt from the targets store. execute-dir is the project root.
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center")
+library(data.table)
+library(ggplot2)
+library(kableExtra)
+source("R/report05_helpers.R")
+
+sa <- params$study_area
+rd <- if (nzchar(params$data_file)) {
+  readRDS(params$data_file)
+} else {
+  source("R/fma_boundary_change.R")
+  source("R/report_data.R")
+  build_report05_data_from_store(sa)
+}
+fig_dir <- if (nzchar(params$fig_dir)) params$fig_dir else file.path("outputs", sa, "reports", "figures")
+dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
+## absolute paths: knitr::knit_child() leaves the working directory at reports/
+fig_dir <- normalizePath(fig_dir)
+tenure_child <- normalizePath("reports/_05-tenure.qmd")
+knit_child_here <- function(...) {
+  owd <- getwd()
+  on.exit(setwd(owd), add = TRUE)
+  knitr::knit_child(...)
+}
+min_ha <- params$min_area_ha
+
+label <- rd$study_area_label
+des <- rd$design
+ten <- rd$tenures[order(name)]
+n_ten <- nrow(ten)
+n_snap <- length(des$reps) * length(des$times)
+age_lab <- report05_age_class_labels(des$age_classes, des$age_cutoffs)
+types_all <- setdiff(unique(rd$pct_type$vegType), "All species")
+slug <- function(x) gsub("[^a-z0-9]+", "-", tolower(x))
+ha <- report05_ha
+pct <- report05_pct
+
+## all forest, per tenure: the current condition and where it sits in the simulated range
+pt_all <- rd$pct_type[vegType == "All species"]
+pt_all[, name := ten$name[match(tenure, ten$tenure)]]
+outside <- pt_all[position %in% c("below", "above")]
+
+## v2 -> v3 boundary comparison
+bstats <- rbindlist(
+  lapply(rd$boundary, function(b) cbind(b$stats, reason = b$reason)),
+  use.names = TRUE,
+  fill = TRUE
+)
+bstats[, name := ten$name[match(tenure, ten$tenure)]]
+compared <- bstats[is.na(reason)]
+not_compared <- bstats[!is.na(reason)]
+
+## the current condition leaves out urban areas when the run had an urban mask (NRV_summary's _cc map)
+urban_clause <- if (grepl("/_cc/", rd$sources$cc_vtm, fixed = TRUE)) {
+  "; urban areas, which the simulations fill with forest, are left out"
+} else {
+  ""
+}
+
+## growth-curve traits
+gr <- rd$growth
+imputed <- gr[source != "fitted"]
+```
+
+{{< pagebreak >}}
+
+::: {.callout-warning}
+**Draft report: pending human review**
+
+Portions of this document were drafted with the help of generative AI (large language models) and have not yet been fully reviewed by the co-authors.
+Content may be incomplete, inaccurate, or misattributed.
+Sections marked *Draft for the authors* hold placeholders for interpretation that only the authors can write.
+The numbers in this report are computed from the simulation outputs when the report is built; Appendix B lists the few that come from other records.
+:::
+
+# Disclaimer {.unnumbered}
+
+Any opinions expressed in this report are those of the authors, and do not necessarily reflect those of the organizations for which they work or fRI Research.
+
+# Acknowledgements {.unnumbered}
+
+::: {.callout-note}
+## Draft for the authors
+
+The funding partners, contributors, computing resources, and the land acknowledgement for this area, as in the 2021 reports.
+:::
+
+# Executive summary {.unnumbered}
+
+This report compares the current condition of the forest in the `r label` study-area group with its simulated natural range of variation (NRV), separately for each of its `r n_ten` tenures.
+The NRV is described by `r n_snap` simulated pre-industrial landscapes per tenure.
+The current share of all forest in each age class, and its place in that range, are in @tbl-exec-summary.
+
+```{r}
+#| output: asis
+if (nrow(outside)) {
+  cat(
+    sprintf(
+      "The current condition lies outside the simulated range in %d of the %d combinations of tenure and age class:",
+      nrow(outside), nrow(pt_all)
+    ),
+    "",
+    outside[
+      order(name, match(ageClass, des$age_classes)),
+      sprintf(
+        "- %s, %s forest: %s%%, %s the simulated range (%s-%s%%).",
+        name, tolower(ageClass), pct(cc), position, pct(min), pct(max)
+      )
+    ],
+    "",
+    sep = "\n"
+  )
+} else {
+  cat("In every tenure, the current share of each age class lies within the simulated range.\n")
+}
+```
+
+```{r}
+#| label: tbl-exec-summary
+#| tbl-cap: "Current share of all forest in each age class (%), and where it sits in the simulated range, by tenure."
+es <- pt_all[, .(
+  name,
+  ac = factor(ageClass, levels = des$age_classes),
+  cell = sprintf("%s (%s)", pct(cc), report05_position_short(position))
+)]
+es <- dcast(es, name ~ ac, value.var = "cell")
+setnames(es, "name", "Tenure")
+kbl(es, format = "latex", booktabs = TRUE, align = c("l", rep("c", length(des$age_classes)))) |>
+  kable_styling(latex_options = c("hold_position", "scale_down"), font_size = 8)
+```
+
+::: {.callout-note}
+## Draft for the authors
+
+What these results mean for the management of these tenures.
+:::
+
+# Introduction
+
+::: {.callout-note}
+## Draft for the authors
+
+Adapted from the 2021 reports, whose introduction cites the supporting literature; those citations are not carried over yet.
+:::
+
+Forest management in North America has moved steadily towards sustaining all forest values, and using the forest patterns that natural processes created before industrial development as a guide is one of the foundations of ecosystem-based management.
+Reliable landscape snapshots from before industrial development are rare, because of fire control, cultural disturbance, and the lack of historical records.
+In the absence of detailed and repeated historical data, spatial simulation modelling is the remaining means to explore how forest patterns vary over time at the landscape scale.
+A simulation model creates many possible pre-industrial landscapes; each is measured in the same way, and together the measurements describe the natural range of variation.
+This report describes the NRV of a small number of landscape metrics for the tenures in the `r label` study-area group and compares them with the current condition, using version 3 of the LandWeb model.
+
+# Goal
+
+The goal of the LandWeb project is to understand some simple pre-industrial landscape-scale patterns in the western boreal forest relative to the current condition.
+This goal is both narrow (it captures only landscape-scale patterns) and humble (it captures only a small number of simple metrics).
+This report gives the results for the tenures in the `r label` study-area group.
+
+# Desired conditions and outcomes
+
+## Indicators
+
+The LandWeb partners identified two classes of indicators: the area in each seral stage by major vegetation type, and the sizes of old-forest patches.
+This report gives both for every tenure, under the following rules.
+
+- A forested pixel's vegetation type is its leading species group where that group holds at least `r pct(des$veg_leading_prop)`% of the stand's biomass, and mixedwood otherwise.
+  The types are `r paste(tolower(report05_veg_label(sort(types_all))), collapse = ", ")`.
+- Seral stages are age classes: `r paste(tolower(age_lab), collapse = "; ")`.
+- Old-forest patch results are the total area of old forest in patches of at least `r paste(ha(des$patch_sizes_ha), collapse = ", ")` ha, all forest types combined.
+- Results are summarised for each tenure and, within each tenure, for its ecological sub-regions.
+
+## Current condition as a reference point
+
+The current condition is the starting state of the simulations, measured with exactly the same rules as the simulated landscapes.
+Its vegetation types come from the initial forest composition, and its ages from the current-condition stand-age map`r urban_clause`.
+
+## Desired conditions
+
+::: {.callout-note}
+## Draft for the authors
+
+The desired conditions and outcomes agreed with the partners for this area.
+:::
+
+# Study area
+
+```{r}
+#| output: asis
+cat(
+  sprintf(
+    "The %s study-area group covers %s ha in %d tenures, of which %s ha (%s%%) had a forested vegetation type in the current condition (@tbl-tenures, @fig-map).",
+    label, ha(rd$group_area_ha), n_ten, ha(rd$group_forest_ha), pct(rd$group_forest_ha / rd$group_area_ha)
+  ),
+  "The group was simulated as one landscape, so that fire and seed dispersal cross tenure boundaries as they would in the forest; results are reported for each tenure.",
+  sep = "\n"
+)
+```
+
+```{r}
+#| label: fig-map
+#| fig-cap: !expr sprintf("The %s study-area group (black outline) and its tenures, numbered as in @tbl-tenures.", label)
+#| fig-height: 6.5
+map_ten <- rd$map$tenures
+map_ten$label <- match(map_ten$Name, ten$tenure) ## numbered as in the tenure table
+p_map <- report05_map(rd$map$group, map_ten)
+report05_save_png(p_map, fig_dir, "studyArea", 6.5, 6.5)
+p_map
+```
+
+```{r}
+#| label: tbl-tenures
+#| tbl-cap: "Area of each tenure, the area with a forested vegetation type in the current condition, and the layer that splits the tenure into ecological sub-regions."
+tt <- ten[, .(
+  Map = seq_len(.N),
+  Tenure = name,
+  `Area (ha)` = ha(area_ha),
+  `Forest (ha)` = ha(forest_ha),
+  `Forest (%)` = pct(forest_ha / area_ha),
+  `Sub-regions` = fifelse(is.na(sub_kind), "none", paste0(sub_kind, "s"))
+)]
+kbl(tt, format = "latex", booktabs = TRUE, align = "rlrrrl") |>
+  kable_styling(latex_options = c("hold_position", "scale_down"), font_size = 8)
+```
+
+## Current-condition data
+
+```{r}
+#| output: asis
+cv <- rd$caveats
+lines <- character(0)
+if (!is.na(cv$cc_age_gap)) {
+  lines <- c(
+    lines,
+    sprintf(
+      "In this study-area group, %s%% of the forest (measured at 30 m) has no current-condition stand age from the forest inventory or its national fill.",
+      format(cv$cc_age_gap, nsmall = 1)
+    ),
+    "Those pixels take the ages that the coarser simulation grid and the model's data preparation impute, so the current-condition age classes here are less certain than in other groups."
+  )
+}
+if (length(cv$bc_tenures)) {
+  bc_names <- ten$name[match(cv$bc_tenures, ten$tenure)]
+  lines <- c(
+    lines,
+    sprintf(
+      "Current-condition stand ages in the British Columbia %s (%s) are provisional: the BC inventory ages in the current-condition age layer read about %d years too old, and a corrected layer is pending.",
+      if (length(bc_names) == 1L) "tenure" else "tenures",
+      paste(bc_names, collapse = ", "),
+      cv$bc_age_bias_years
+    )
+  )
+}
+if (!length(lines)) {
+  lines <- "No known gap or bias in the current-condition stand ages applies to this study-area group."
+}
+cat(lines, sep = "\n")
+```
+
+# Simulations
+
+```{r}
+#| output: asis
+cat(
+  sprintf(
+    "The natural range of variation comes from %d replicate simulations of the study-area group on a %s m grid (%s ha per pixel).",
+    length(des$reps), des$pixel_m, format(des$pixel_ha)
+  ),
+  sprintf(
+    "Each replicate was sampled every %d years from year %d to year %d, giving %d simulated landscapes for each reporting unit.",
+    unique(diff(des$times))[1L], min(des$times), max(des$times), n_snap
+  ),
+  "Sampling starts long after the simulations begin, to reduce the influence of the starting landscape, with its record of fire control and harvesting, on the results.",
+  "The model, its inputs and the changes since the 2021 reports are described in reports 00 to 03 of this series.",
+  sep = "\n"
+)
+```
+
+## Growth curves of the simulated species
+
+Each simulated species takes its growth-curve traits from a curve fitted to permanent-sample-plot data, or, where too few plots exist to fit one, from the mean of the hardwood or softwood curves (imputed).
+A species simulated as a group of closely related species takes the curve of its most common member that has a fitted curve.
+
+```{r}
+#| output: asis
+if (nrow(imputed)) {
+  cat(sprintf(
+    "The growth traits of %s were imputed rather than fitted (@tbl-growth).\n",
+    paste(imputed$members, collapse = "; ")
+  ))
+} else {
+  cat(sprintf("All %d simulated species take a fitted growth curve (@tbl-growth).\n", nrow(gr)))
+}
+```
+
+```{r}
+#| label: tbl-growth
+#| tbl-cap: "Source of each simulated species' growth-curve traits."
+gt <- gr[, .(
+  `Simulated species (members)` = members,
+  `Growth curve of` = fifelse(is.na(traits_from), "", traits_from),
+  Source = source
+)]
+kbl(gt, format = "latex", booktabs = TRUE) |>
+  kable_styling(latex_options = "hold_position", font_size = 8)
+```
+
+## Reporting boundaries since the earlier reports
+
+The tenure boundaries in this version come from an updated FMA map, so a tenure's reporting boundary can differ from the one used in the earlier LandWeb reports (model version 2), and with it every number compared between the two.
+
+```{r}
+#| output: asis
+if (nrow(compared)) {
+  cat(
+    compared[, sprintf(
+      "For %s, the version 2 reporting boundary covered %s ha and the current one covers %s ha (%s%s%%); %s%% of the version 2 area is still inside, %s ha was added and %s ha dropped (@fig-boundary-%s).",
+      name, ha(area_v2_ha), ha(area_v3_ha), fifelse(pct_change >= 0, "+", ""), format(round(pct_change, 1), nsmall = 1),
+      format(round(pct_overlap_of_v2, 1), nsmall = 1), ha(area_added_ha), ha(area_dropped_ha), slug(tenure)
+    )],
+    sep = "\n"
+  )
+  cat("\n")
+}
+if (nrow(not_compared)) {
+  ## fma_boundary_compare()'s reasons, in the report's words
+  why <- c(
+    "no v2 run is mapped to this tenure" = "no version 2 model run is matched to them yet",
+    "the v2 run's outputs were not found" = "the version 2 run's outputs were not available when this report was built",
+    "the v2 run saved no reporting polygons" = "their version 2 run saved no reporting polygons",
+    "the tenure has no v3 reporting polygon" = "they have no reporting polygon in this version"
+  )
+  cat("\n")
+  for (r in unique(not_compared$reason)) {
+    nm <- sort(not_compared[reason == r, name])
+    cat(sprintf(
+      "The boundary change is not characterised for %d of the %d tenures, because %s: %s.\n",
+      length(nm), nrow(bstats), if (is.na(why[r])) r else why[[r]], paste(nm, collapse = "; ")
+    ))
+  }
+  cat("Matching the remaining version 2 runs to their tenures is planned with the report comparing the two model versions.\n")
+}
+```
+
+```{r}
+#| label: tbl-boundary
+#| tbl-cap: "Reporting boundary of each tenure in the earlier reports (v2) and in this report (v3), in hectares."
+bt <- bstats[order(name), .(
+  Tenure = name,
+  v2 = fifelse(is.na(area_v2_ha), "not compared", ha(area_v2_ha)),
+  v3 = ha(area_v3_ha),
+  `Change (%)` = fifelse(is.na(pct_change), "", format(round(pct_change, 1), nsmall = 1)),
+  `v2 area kept (%)` = fifelse(is.na(pct_overlap_of_v2), "", format(round(pct_overlap_of_v2, 1), nsmall = 1)),
+  Added = fifelse(is.na(area_added_ha), "", ha(area_added_ha)),
+  Dropped = fifelse(is.na(area_dropped_ha), "", ha(area_dropped_ha))
+)]
+kbl(bt, format = "latex", booktabs = TRUE, align = "lrrrrrr") |>
+  kable_styling(latex_options = c("hold_position", "scale_down"), font_size = 8)
+```
+
+```{r}
+#| output: asis
+## one difference map per compared tenure
+for (t in compared$tenure) {
+  g <- rd$boundary[[t]]$geoms
+  p <- report05_boundary_map(g)
+  report05_save_png(p, fig_dir, paste0(t, "_boundary"), 6.5, 5)
+  nm <- ten$name[match(t, ten$tenure)]
+  cat(knit_child_here(
+    text = c(
+      sprintf("```{r}\n#| label: fig-boundary-%s", slug(t)),
+      sprintf("#| fig-cap: \"Reporting boundary of %s in the earlier reports (v2, dashed) and in this report (v3, solid), with the area added and dropped.\"", nm),
+      "#| fig-height: 5",
+      "p",
+      "```"
+    ),
+    envir = environment(),
+    quiet = TRUE
+  ), sep = "\n")
+}
+```
+
+{{< pagebreak >}}
+
+# Results
+
+## Reading the figures
+
+Box-and-whisker plots summarise the `r n_snap` simulated landscapes.
+The box spans the middle half of the values (25th to 75th percentile), the line inside it is the median, the whiskers reach the most extreme values within one and a half box lengths, and the dots beyond them are the rarer values.
+Each set of four boxes covers the four age classes of one vegetation type, so that the four values from one simulated landscape add up to all of that type's forest.
+The red circle in each row is the current condition.
+Old-forest patch results are histograms of the area of old forest in large patches across the simulated landscapes, with the current condition as a red line.
+Vegetation types and sub-regions with less than `r ha(min_ha)` ha of forest in the current condition are left out of the figures, as too small to summarise at this scale; Appendix A gives the values for all of them.
+
+{{< pagebreak >}}
+
+```{r}
+#| output: asis
+for (i in seq_len(n_ten)) {
+  child <- knitr::knit_expand(
+    tenure_child,
+    tenure = ten$tenure[i],
+    name = ten$name[i],
+    slug = slug(ten$tenure[i]),
+    delim = c("{@", "@}")
+  )
+  cat(knit_child_here(text = child, envir = environment(), quiet = TRUE), sep = "\n")
+}
+```
+
+# Discussion
+
+::: {.callout-note}
+## Draft for the authors
+
+Overall patterns; vegetation types and the active land base; possible sources of error in the model; implications.
+The 2021 reports' discussion is the model for this section.
+:::
+
+# Recommendations
+
+::: {.callout-note}
+## Draft for the authors
+
+Recommendations for the partners, from the results above.
+:::
+
+{{< pagebreak >}}
+
+# Appendix A: Percentile tables {.unnumbered}
+
+The tables give, for each tenure, the current share of forest in each age class and the percentiles of the simulated shares, in percent.
+Table A1 is by vegetation type and Table A2 by ecological sub-region; every type and sub-region with forest in the current condition is included.
+
+```{r}
+#| output: asis
+pcols <- c("min", "p12.5", "p25", "p50", "p75", "p87.5", "max")
+pnames <- c("Min", "12.5", "25", "50", "75", "87.5", "Max")
+ptab <- function(d, first, first_name, caption) {
+  d <- copy(d)
+  d[, (pcols) := lapply(.SD, pct), .SDcols = pcols]
+  d[, cc := pct(cc)]
+  d[, ageClass := factor(ageClass, levels = des$age_classes)]
+  setorderv(d, c("key", "ageClass"))
+  d[, show := fifelse(seq_len(.N) == 1L, as.character(get(first)), ""), by = key]
+  out <- d[, c("show", "ageClass", "cc", pcols), with = FALSE]
+  setnames(out, c(first_name, "Age class", "Current", pnames))
+  kbl(
+    out,
+    format = "latex",
+    booktabs = TRUE,
+    caption = caption,
+    align = c("l", "l", rep("r", 8L)),
+    linesep = c("", "", "", "\\addlinespace"),
+    label = NA
+  ) |>
+    add_header_above(c(" " = 3, "Simulated percentiles (%)" = 7)) |>
+    kable_styling(latex_options = "hold_position", font_size = 8)
+}
+
+cat("\n## A1: By vegetation type {.unnumbered}\n\n")
+for (i in seq_len(n_ten)) {
+  t <- ten$tenure[i]
+  fa <- rd$forest[poly == t & area_ha > 0]
+  d <- rd$pct_type[tenure == t & vegType %in% fa$vegType]
+  d[, type := report05_veg_label(vegType)]
+  d[, key := fifelse(vegType == "All species", "0", type)]
+  cat(ptab(d, "type", "Vegetation type", sprintf("A1. %s: share of each vegetation type's forest by age class.", ten$name[i])))
+  cat("\n\n")
+}
+
+cat("\n{{< pagebreak >}}\n\n## A2: By ecological sub-region {.unnumbered}\n\n")
+for (i in seq_len(n_ten)) {
+  t <- ten$tenure[i]
+  fs <- rd$forest_sub[tenure == t & vegType == "All species" & area_ha > 0]
+  d <- if (is.null(rd$pct_sub)) NULL else rd$pct_sub[tenure == t & subregion %in% fs$subregion]
+  if (is.null(d) || !nrow(d)) {
+    cat(sprintf("%s has no ecological sub-regions with forest in the current condition.\n\n", ten$name[i]))
+    next
+  }
+  d[, key := subregion]
+  cap <- sprintf("A2. %s: share of all forest by age class, by %s.", ten$name[i], ten$sub_kind[i])
+  cat(ptab(d, "subregion", tools::toTitleCase(ten$sub_kind[i]), cap))
+  cat("\n\n")
+}
+```
+
+{{< pagebreak >}}
+
+# Appendix B: Data and code {.unnumbered}
+
+This report was built from the LandWeb v3 `targets` pipeline outputs for study area `` `r sa` `` on `r rd$built`.
+
+- Tenure polygons and their ecological sub-regions: target `` `r paste0("reportingPolygons_", sa)` `` (the `FMA` layer and each tenure's sub-region layer, listed in @tbl-codes).
+- Simulated and current-condition values: NRV_summary's parquet datasets under `` `r report05_relpath(file.path(rd$sources$postprocess_dir, "_aggregates"))` `` (`lw_FMA`, `lw_FMA_CC` and the matching `lw_<tenure>_<layer>` datasets; metrics `leadingProp` and `totalArea_ge<size>ha`).
+- Forested areas: `nrvtools::subregion_forested_area()` on the current-condition vegetation-type map, `` `r sub(paste0("^", rd$sources$postprocess_dir, "/"), "", rd$sources$cc_vtm)` `` in the same directory.
+- Growth-curve sources: column `growthTraitSource` of target `` `r paste0("speciesTraits_", sa)` ``; species names from target `` `r paste0("sppList_", sa)` ``.
+- Reporting-boundary comparison: `fma_boundary_compare()` (`R/fma_boundary_change.R`), against the version 2 runs' `ml_preamble.rds` under `outputs_v2/`.
+- Current-condition age caveats: `report05_cc_age_gaps()` and `report05_bc_age_bias_years()` in `R/report_data.R`, which record measurements the run does not save.
+- Report data: target `` `r paste0("report05Data_", sa)` `` (`build_report05_data()`); rendering: `render_report05()` (`R/render_report.R`); the figure threshold `min_area_ha` is `r ha(min_ha)` ha.
+- Standalone copies of the figures: `` `r report05_relpath(fig_dir)` ``.
+
+```{r}
+#| label: tbl-codes
+#| tbl-cap: "Tenure codes used in file and target names."
+kbl(ten[, .(Code = tenure, Tenure = name, `Sub-region layer` = fifelse(is.na(sub_layer), "", sub_layer))], format = "latex", booktabs = TRUE) |>
+  kable_styling(latex_options = c("hold_position", "scale_down"), font_size = 8)
+```
+
+{{< include _provenance-appendix.qmd >}}

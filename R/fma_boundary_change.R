@@ -1,28 +1,26 @@
-## FMA reporting-boundary change, v2 -> v3, per study area.
+## FMA reporting-boundary change, v2 -> v3, per tenure (reports 04, 05).
 ##
-## v3 adopts the v10 FMA shapefile (`inputs/FMA_Boundary_Updated.shp`), whose
-## per-study-area reporting boundary differs from v2's (e.g. SprayLake's v3 reporting
-## FMA is ~20% larger than v2's -- surfaced during the Leading/LargePatches port as
-## 39,245 vs 32,560 forested px at 250 m). Because every NRV/fire summary keys on the
-## reporting polygon, this boundary change shifts every v2-vs-v3 comparison, so it MUST
-## be characterized in the v2-vs-v3 diff report (04) and every per-study-area summary
-## report (05): v2-vs-v3 area, % overlap / added / dropped, and a difference map.
+## v3 adopts the v10 FMA shapefile, whose tenure boundaries differ from v2's (e.g. SprayLake's v3
+## reporting FMA is ~20% larger than v2's). Every NRV summary keys on the reporting polygon, so a
+## boundary change shifts every v2-vs-v3 comparison and must be characterized in the v2-vs-v3 diff
+## report (04) and in every per-study-area report (05): v2 and v3 area, overlap, added and dropped
+## area, and a difference map.
 ##
-## Sources (both already in the LandWeb LCC, GRS80/NAD83, metres):
-##  - v3: `outputs/<sa>/preamble/studyAreaReporting_year1.gpkg` (`.shp` before SpaDES.targets
-##        0.0.0.9025) -- the v10 FMA reporting
-##        boundary the preamble clips + dissolves for study area <sa>.
-##  - v2: `outputs_v2/<sa>_*logROS/ml_preamble.rds` -- v2's own reporting polygon, a
-##        named layer inside the retired `map`-package object (the authoritative v2
-##        baseline the Leading/LargePatches port used to confirm exact parity). The v2
-##        run dirs do NOT save a plain reporting shapefile, so this is the only source.
+## v3 study areas are ecoregion GROUPS of tenures, while v2 ran one FMA per study area, so the
+## comparison is per tenure (the v3 reporting unit):
+##  - v3: the tenure's polygon in the `FMA` layer of `reportingPolygons_<sa>` (keyed by `Name`, the
+##        curated NAME_SHORT code).
+##  - v2: the tenure's reporting polygon inside `outputs_v2/<run>_*logROS/ml_preamble.rds`, a named
+##        layer of the retired `map`-package object (the only place a v2 run saved it).
+## Only tenures in .fma_v2_lookup() are compared; for the rest the result says no v2 run is mapped.
 ##
-## Modelled on R/lthfc_summary.R: two cache-aware producers for `format = "file"`
-## targets (a stats CSV + a difference-map GeoPackage). Delete the output to force a
-## fresh computation.
+## Geometry: repaired with spatialutils::repair_geoms() (terra::makeValid() on the invalid features
+## only); sf::st_make_valid() collapses the v10 layer's reversed-winding polygons to slivers. Set
+## operations stay in terra for the same reason. Areas are planar, in the LandWeb Lambert conformal
+## conic projection, as are the forested areas the reports quote from the simulation grid.
 
-## Canonical LandWeb LCC (matches both the v3 preamble output and the v2 `map` CRS;
-## the two differ only in datum spelling -- GRS80 vs NAD83 -- which are equivalent).
+## Canonical LandWeb LCC (matches both the v3 reporting polygons and the v2 `map` CRS; the two differ
+## only in datum spelling -- GRS80 vs NAD83 -- which are equivalent).
 .fma_target_crs <- function() {
   paste(
     "+proj=lcc +lat_0=0 +lon_0=-95 +lat_1=49 +lat_2=77",
@@ -30,185 +28,210 @@
   )
 }
 
-## study-area name -> the reporting-polygon layer name inside the v2 `map` object.
-## v2 named its layers by the informal FMA label ("Spray Lake"), not the study-area
-## token ("SprayLake") nor the v3 FMA_NAME ("Spray Lake Sawmills (1980) Ltd.").
-.fma_v2_layer_lookup <- function() {
-  c(
-    SprayLake = "Spray Lake",
-    Edson = "Edson"
+## v3 tenure code -> the v2 run (base name under `outputs_v2/`) and that run's reporting layer in its
+## `map` object. v2 named its layers by informal labels ("Spray Lake", "EdsonFP"), not by the v3 codes.
+## Each pair was checked against the data: the v2 layer's `Name` equals the v3 `FMA_NAME`
+## ("West Fraser Mills Ltd. (Edson)" in both). Report 04 extends this to the other v2 runs.
+.fma_v2_lookup <- function() {
+  data.frame(
+    tenure = c("SprayLake", "WF_Edson"),
+    run = c("SprayLake", "Edson"),
+    layer = c("Spray Lake", "EdsonFP"),
+    stringsAsFactors = FALSE
   )
 }
 
-## Locate the v2 baseline run dir for a study area: base-name match under `v2_root`,
-## EXCLUDING the trial `*_v3*` dirs (those are v3 runs, not the v2 baseline), and
-## preferring the canonical `*highDispersal_logROS` run when several match.
-.fma_v2_run_dir <- function(study_area, v2_root = "outputs_v2") {
+## Locate the v2 baseline run dir for a v2 run token: base-name match under `v2_root`, EXCLUDING the
+## trial `*_v3*` dirs (those are v3 runs, not the v2 baseline), and preferring the canonical
+## `*highDispersal_logROS` run when several match. NA if none.
+.fma_v2_run_dir <- function(run, v2_root = "outputs_v2") {
+  if (is.na(v2_root) || !dir.exists(v2_root)) {
+    return(NA_character_)
+  }
   hits <- list.dirs(v2_root, recursive = FALSE, full.names = TRUE)
   base <- basename(hits)
-  keep <- startsWith(base, paste0(study_area, "_")) & !grepl("_v3", base, fixed = TRUE)
+  keep <- startsWith(base, paste0(run, "_")) & !grepl("_v3", base, fixed = TRUE)
   hits <- hits[keep]
   if (!length(hits)) {
     return(NA_character_)
   }
   pref <- grepl("highDispersal_logROS$", basename(hits))
-  if (any(pref)) hits <- hits[pref]
+  if (any(pref)) {
+    hits <- hits[pref]
+  }
   hits[[1L]]
 }
 
-## Extract, validate, reproject and dissolve v2's own reporting boundary for a study
-## area from its `ml_preamble.rds` `map` object. Returns an sf POLYGON (1 feature) in
-## the target CRS, or NULL if the v2 run / layer is unavailable.
-read_v2_fma_boundary <- function(study_area, v2_root = "outputs_v2") {
-  run_dir <- .fma_v2_run_dir(study_area, v2_root)
-  if (is.na(run_dir)) {
+## Repair, project and dissolve a polygon layer to one feature in the target CRS.
+.fma_dissolve <- function(v, crs) {
+  v <- spatialutils::repair_geoms(v)
+  if (!nrow(v)) {
     return(NULL)
+  }
+  v <- terra::project(v, crs)
+  v <- terra::aggregate(v)
+  terra::values(v) <- NULL
+  v
+}
+
+#' v2 reporting boundary of a tenure
+#'
+#' @param tenure v3 tenure code (`Name` in the `FMA` reporting layer), e.g. `"WF_Edson"`.
+#' @param v2_root Directory holding the v2 baseline runs (default `"outputs_v2"`).
+#'
+#' @return A list: `geom` (a one-feature `SpatVector` in the LandWeb LCC, or `NULL`), `run` (the v2
+#'   run directory's basename, or `NA`), and `reason` (why `geom` is `NULL`, else `NA`).
+read_v2_fma_boundary <- function(tenure, v2_root = "outputs_v2") {
+  out <- function(geom = NULL, run = NA_character_, reason = NA_character_) {
+    list(geom = geom, run = run, reason = reason)
+  }
+  lk <- .fma_v2_lookup()
+  i <- match(tenure, lk$tenure)
+  if (is.na(i)) {
+    return(out(reason = "no v2 run is mapped to this tenure"))
+  }
+  run_dir <- .fma_v2_run_dir(lk$run[[i]], v2_root)
+  if (is.na(run_dir)) {
+    return(out(reason = "the v2 run's outputs were not found"))
   }
   ml_rds <- file.path(run_dir, "ml_preamble.rds")
   if (!file.exists(ml_rds)) {
-    return(NULL)
+    return(out(run = basename(run_dir), reason = "the v2 run saved no reporting polygons"))
   }
   x <- readRDS(ml_rds)
-  avail <- names(x)
-  layer <- .fma_v2_layer_lookup()[[study_area]]
-  if (is.null(layer) || !(layer %in% avail)) {
-    ## fall back to a case/space-insensitive match against the study-area token
-    norm <- function(s) tolower(gsub("[^a-z]", "", tolower(s)))
-    layer <- avail[norm(avail) == norm(study_area)][1L]
-  }
-  if (is.na(layer) || !(layer %in% avail)) {
+  layer <- lk$layer[[i]]
+  if (!exists(layer, envir = x@.xData, inherits = FALSE)) {
     stop(
-      "No v2 reporting layer for study area '", study_area, "' in ", ml_rds,
-      ".\n  Available layers: ", paste(avail, collapse = " | ")
+      "No v2 reporting layer '",
+      layer,
+      "' in ",
+      ml_rds,
+      ".\n  Available layers: ",
+      paste(ls(x@.xData), collapse = " | "),
+      call. = FALSE
     )
   }
-  poly <- x@.xData[[layer]]
-  s <- sf::st_make_valid(sf::st_as_sf(poly))
-  if (is.na(sf::st_crs(s))) {
-    sf::st_crs(s) <- x@CRS@projargs
+  v <- terra::vect(sf::st_as_sf(get(layer, envir = x@.xData, inherits = FALSE)))
+  if (!nzchar(terra::crs(v))) {
+    terra::crs(v) <- x@CRS@projargs
   }
-  s <- sf::st_transform(s, .fma_target_crs())
-  sf::st_sf(source = "v2", study_area = study_area, geometry = sf::st_union(sf::st_geometry(s)))
+  out(geom = .fma_dissolve(v, .fma_target_crs()), run = basename(run_dir))
 }
 
-## Read, validate, reproject and dissolve v3's reporting boundary for a study area
-## from the branched preamble output. Returns an sf POLYGON (1 feature) in the target
-## CRS, or NULL if the v3 preamble output is unavailable.
-read_v3_fma_boundary <- function(study_area, outputs_dir = "outputs") {
-  ## SpaDES.targets >= 0.0.0.9025 saves stage vectors as GeoPackage; older runs left a shapefile
-  f <- file.path(
-    outputs_dir, study_area, "preamble",
-    paste0("studyAreaReporting_year1", c(".gpkg", ".shp"))
-  )
-  f <- f[file.exists(f)]
-  if (!length(f)) {
+#' v3 reporting boundary of a tenure
+#'
+#' @param tenure v3 tenure code.
+#' @param fma The `FMA` layer of `reportingPolygons_<sa>` (`sf` or `SpatVector`, with `Name`).
+#'
+#' @return A one-feature `SpatVector` in the LandWeb LCC, or `NULL` if the tenure is absent.
+read_v3_fma_boundary <- function(tenure, fma) {
+  v <- if (inherits(fma, "SpatVector")) fma else terra::vect(fma)
+  v <- v[v$Name %in% tenure, ]
+  if (!nrow(v)) {
     return(NULL)
   }
-  s <- sf::st_make_valid(sf::st_read(f[1], quiet = TRUE))
-  if (is.na(sf::st_crs(s))) {
-    sf::st_crs(s) <- .fma_target_crs()
-  }
-  s <- sf::st_transform(s, .fma_target_crs())
-  sf::st_sf(source = "v3", study_area = study_area, geometry = sf::st_union(sf::st_geometry(s)))
+  .fma_dissolve(v, .fma_target_crs())
 }
 
-#' v2-vs-v3 FMA reporting-boundary change summary (reports 04, 05)
+#' Compare a tenure's v2 and v3 reporting boundaries
 #'
-#' Cache-aware producer for a `format = "file"` target: returns `out_csv`
-#' unchanged if it already exists, else computes the v2-vs-v3 reporting-boundary
-#' areas, overlap, added and dropped area (ha) for `study_area` and writes a
-#' one-row CSV. Areas are planimetric in the LandWeb LCC (equal-ish for these
-#' small FMAs; the reports quote them as hectares).
+#' @inheritParams read_v3_fma_boundary
+#' @inheritParams read_v2_fma_boundary
 #'
-#' @param out_csv path to write (and the value returned, for the file target).
-#' @param study_area study-area token (e.g. "SprayLake").
-#' @param outputs_dir dir holding the v3 branched outputs (default "outputs").
-#' @param v2_root dir holding the v2 baseline runs (default "outputs_v2").
-#' @return `out_csv`.
-fma_boundary_change_summary <- function(out_csv, study_area,
-                                        outputs_dir = "outputs", v2_root = "outputs_v2") {
-  if (file.exists(out_csv)) {
-    return(out_csv) # already computed -- reuse
+#' @return A list: `stats`, a one-row `data.frame` (tenure, v2 run, the v2 and v3 areas, their
+#'   intersection and union, the area added in v3 and dropped from v2, all in ha, and the percent
+#'   overlaps; `NA` where not compared); `reason` (`NA` when compared); and `geoms`, a named list of
+#'   `sf` layers (`v2`, `v3`, `added`, `dropped`) for the difference map, or `NULL`.
+fma_boundary_compare <- function(tenure, fma, v2_root = "outputs_v2") {
+  v3 <- read_v3_fma_boundary(tenure, fma)
+  v2 <- read_v2_fma_boundary(tenure, v2_root)
+  ha <- function(g) {
+    if (is.null(g) || !nrow(g)) 0 else sum(terra::expanse(g, unit = "ha", transform = FALSE))
   }
-  v2 <- read_v2_fma_boundary(study_area, v2_root)
-  v3 <- read_v3_fma_boundary(study_area, outputs_dir)
-  ha <- function(g) if (is.null(g) || !nrow(g)) NA_real_ else sum(as.numeric(sf::st_area(g))) / 1e4
-  a2 <- ha(v2)
-  a3 <- ha(v3)
-  inter <- add <- drop <- uni <- NA_real_
-  if (!is.null(v2) && !is.null(v3)) {
-    g2 <- sf::st_geometry(v2)
-    g3 <- sf::st_geometry(v3)
-    inter <- sum(as.numeric(sf::st_area(sf::st_intersection(g2, g3)))) / 1e4
-    uni <- sum(as.numeric(sf::st_area(sf::st_union(g2, g3)))) / 1e4
-    dd <- sf::st_difference(g2, g3)
-    ad <- sf::st_difference(g3, g2)
-    drop <- if (length(dd)) sum(as.numeric(sf::st_area(dd))) / 1e4 else 0
-    add <- if (length(ad)) sum(as.numeric(sf::st_area(ad))) / 1e4 else 0
-  }
-  out <- data.frame(
-    study_area = study_area,
-    area_v2_ha = a2,
-    area_v3_ha = a3,
-    area_change_ha = a3 - a2,
-    pct_change = 100 * (a3 - a2) / a2,
-    area_intersection_ha = inter,
-    area_union_ha = uni,
-    area_added_ha = add, # in v3, not in v2
-    area_dropped_ha = drop, # in v2, not in v3
-    pct_overlap_of_v2 = 100 * inter / a2,
-    pct_overlap_of_v3 = 100 * inter / a3,
-    iou = inter / uni,
+  stats <- data.frame(
+    tenure = tenure,
+    v2_run = v2$run,
+    area_v2_ha = NA_real_,
+    area_v3_ha = if (is.null(v3)) NA_real_ else ha(v3),
+    area_intersection_ha = NA_real_,
+    area_union_ha = NA_real_,
+    area_added_ha = NA_real_, ## in v3, not in v2
+    area_dropped_ha = NA_real_, ## in v2, not in v3
     stringsAsFactors = FALSE
   )
+  if (is.null(v2$geom) || is.null(v3)) {
+    stats[c("pct_change", "pct_overlap_of_v2", "pct_overlap_of_v3")] <- NA_real_
+    reason <- if (is.null(v3)) "the tenure has no v3 reporting polygon" else v2$reason
+    return(list(stats = stats, reason = reason, geoms = NULL))
+  }
+  g2 <- v2$geom
+  inter <- terra::intersect(g2, v3)
+  added <- terra::erase(v3, g2)
+  dropped <- terra::erase(g2, v3)
+  stats$area_v2_ha <- ha(g2)
+  stats$area_intersection_ha <- ha(inter)
+  stats$area_union_ha <- ha(terra::aggregate(rbind(g2, v3)))
+  stats$area_added_ha <- ha(added)
+  stats$area_dropped_ha <- ha(dropped)
+  stats$pct_change <- 100 * (stats$area_v3_ha - stats$area_v2_ha) / stats$area_v2_ha
+  stats$pct_overlap_of_v2 <- 100 * stats$area_intersection_ha / stats$area_v2_ha
+  stats$pct_overlap_of_v3 <- 100 * stats$area_intersection_ha / stats$area_v3_ha
+  as_sf <- function(g) if (is.null(g) || !nrow(g)) NULL else sf::st_as_sf(g)
+  list(
+    stats = stats,
+    reason = NA_character_,
+    geoms = list(v2 = as_sf(g2), v3 = as_sf(v3), added = as_sf(added), dropped = as_sf(dropped))
+  )
+}
+
+#' v2-vs-v3 reporting-boundary change summary, as a CSV (report 04)
+#'
+#' Cache-aware producer for a `format = "file"` target: returns `out_csv` unchanged if it exists,
+#' else writes one row per tenure from [fma_boundary_compare()].
+#'
+#' @param out_csv Path to write (and the value returned, for the file target).
+#' @param tenures v3 tenure codes.
+#' @inheritParams fma_boundary_compare
+#'
+#' @return `out_csv`.
+fma_boundary_change_summary <- function(out_csv, tenures, fma, v2_root = "outputs_v2") {
+  if (file.exists(out_csv)) {
+    return(out_csv)
+  }
+  rows <- lapply(tenures, function(t) {
+    cmp <- fma_boundary_compare(t, fma, v2_root)
+    cbind(cmp$stats, reason = cmp$reason)
+  })
   dir.create(dirname(out_csv), recursive = TRUE, showWarnings = FALSE)
-  utils::write.csv(out, out_csv, row.names = FALSE)
+  utils::write.csv(do.call(rbind, rows), out_csv, row.names = FALSE)
   out_csv
 }
 
-#' v2-vs-v3 FMA reporting-boundary difference map data (reports 04, 05)
+#' v2-vs-v3 reporting-boundary difference map, as a GeoPackage (report 04)
 #'
-#' Cache-aware producer for a `format = "file"` target: writes a GeoPackage with
-#' four layers in the LandWeb LCC --- `v2` and `v3` (the two reporting boundaries),
-#' `added` (in v3 but not v2) and `dropped` (in v2 but not v3). The report draws v2
-#' vs v3 outlines and shades the added/dropped slivers. Returns `out_gpkg` unchanged
-#' if it already exists.
+#' Cache-aware producer for a `format = "file"` target: writes the `v2`, `v3`, `added` and `dropped`
+#' layers of every compared tenure, with a `tenure` column. Returns `out_gpkg` unchanged if it exists.
 #'
-#' @param out_gpkg path to write (and the value returned, for the file target).
-#' @param study_area study-area token (e.g. "SprayLake").
-#' @param outputs_dir dir holding the v3 branched outputs (default "outputs").
-#' @param v2_root dir holding the v2 baseline runs (default "outputs_v2").
+#' @param out_gpkg Path to write (and the value returned, for the file target).
+#' @inheritParams fma_boundary_change_summary
+#'
 #' @return `out_gpkg`.
-fma_boundary_change_map <- function(out_gpkg, study_area,
-                                    outputs_dir = "outputs", v2_root = "outputs_v2") {
+fma_boundary_change_map <- function(out_gpkg, tenures, fma, v2_root = "outputs_v2") {
   if (file.exists(out_gpkg)) {
     return(out_gpkg)
   }
-  v2 <- read_v2_fma_boundary(study_area, v2_root)
-  v3 <- read_v3_fma_boundary(study_area, outputs_dir)
   dir.create(dirname(out_gpkg), recursive = TRUE, showWarnings = FALSE)
-  if (file.exists(out_gpkg)) file.remove(out_gpkg)
-  wrote <- FALSE
-  write_layer <- function(g, layer) {
-    if (is.null(g) || !length(sf::st_geometry(g)) || all(sf::st_is_empty(g))) {
-      return(invisible())
+  layers <- list()
+  for (t in tenures) {
+    g <- fma_boundary_compare(t, fma, v2_root)$geoms
+    for (k in names(g)) {
+      if (!is.null(g[[k]])) {
+        layers[[k]] <- rbind(layers[[k]], sf::st_sf(tenure = t, geometry = sf::st_geometry(g[[k]])))
+      }
     }
-    sf::st_write(g, out_gpkg, layer = layer, quiet = TRUE, append = wrote)
-    wrote <<- TRUE
   }
-  write_layer(v2, "v2")
-  write_layer(v3, "v3")
-  if (!is.null(v2) && !is.null(v3)) {
-    g2 <- sf::st_geometry(v2)
-    g3 <- sf::st_geometry(v3)
-    added <- sf::st_difference(g3, g2)
-    dropped <- sf::st_difference(g2, g3)
-    if (length(added)) {
-      write_layer(sf::st_sf(kind = "added", geometry = added), "added")
-    }
-    if (length(dropped)) {
-      write_layer(sf::st_sf(kind = "dropped", geometry = dropped), "dropped")
-    }
+  for (k in names(layers)) {
+    sf::st_write(layers[[k]], out_gpkg, layer = k, quiet = TRUE, append = file.exists(out_gpkg))
   }
   out_gpkg
 }

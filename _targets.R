@@ -58,6 +58,11 @@ source("R/publish_pdf.R")
 source("R/targets_extended_analyses.R")
 source("R/growth_uncertainty.R")
 source("R/fire_records.R")
+## Report 05, the per-study-area report: its data, render and targets (R/targets_reports.R)
+source("R/fma_boundary_change.R")
+source("R/report_data.R")
+source("R/render_report.R")
+source("R/targets_reports.R")
 
 ## Optional multi-node SSH cluster (CONTROL NODE ONLY). When _hosts.R defines crew.ssh.nodes,
 ## heavy module execution (preamble/speciesData/dataPrep/mainSim) is dispatched to the compute
@@ -1220,6 +1225,16 @@ list(
   ## flattens this nested list; each area contributes preamble/speciesData/dataPrep/
   ## mainSim/reportingPolygons/summaries_nrv/summaries_burn, all "_<sa>"-suffixed.
   lapply(local$study_areas, study_area_targets),
+
+  ## Report 05, one PDF per study-area group, results by tenure (R/targets_reports.R): its data and
+  ## its render on a worker, then the copy into reports/pdf/. Its template files are one shared target.
+  report05_template_target(),
+  lapply(
+    local$study_areas,
+    report05_targets,
+    pkg_fp = pkg_fingerprint(c("LandWebUtils", "nrvtools", "spatialutils")),
+    veg_leading_prop = globals$vegLeadingProportion
+  ),
 
   ## Gated extended analyses (empty list unless landweb.extended_analyses is set
   ## in _local.R). targets flattens nested lists, so this splices in cleanly.

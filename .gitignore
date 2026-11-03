@@ -98,3 +98,6 @@ logs/
 
 ## the Claude Code project config is shared; everything else here stays ignored
 !.claude/settings.json
+
+## per-study-area copies of report 05 that R/render_report.R renders and removes
+reports/*.render.qmd

@@ -1,16 +1,25 @@
 project:
   type: default
+  # Run report code from the project root, as the pipeline does, so tar_read() finds _targets/ and
+  # project-relative paths (outputs/..., R/...) resolve though the .qmd files live in reports/.
+  execute-dir: project
   # render to the NFS-shared outputs/ (a symlink); the publish_* targets copy the
   # final PDF to the git-tracked reports/pdf/ on the controller.
   # Reports 00-03 and 06 cover the whole LandWeb domain, so they are study-area-
   # independent and render to the shared, underscore-prefixed outputs/_reports/.
   # Per-study-area reports (04, 05) must override this per render with
-  # `--output-dir outputs/<studyArea>/reports` (tar_quarto(quarto_args = ...)).
+  # `--output-dir outputs/<studyArea>/reports` (render_report_isolated(), R/render_report.R).
   output-dir: outputs/_reports
   # Only the pipeline's Quarto reports belong to this project. The legacy bookdown
   # manual/ (manual/LandWeb_manual.Rmd) is NOT quarto-valid, so scope explicitly.
   render:
     - reports/*.qmd
+
+## Let pandoc find project-root assets referenced from reports/*.qmd ("..", the project root from
+## reports/).
+resource-path:
+  - "."
+  - ".."
 
 ## Page breaks are written `{{< pagebreak >}}`, which works in every output format. In LaTeX the
 ## shortcode emits `\newpage`; this filter turns that into `\clearpage`, which places pending floats
