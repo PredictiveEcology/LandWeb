@@ -287,7 +287,7 @@ sa_map <- function(standalone = FALSE) {
         "A study area is the FILLED tenures inside each bold outline. Its membership and name come",
         "from the ECOREGION it mostly falls in (dashed, no fill; these run to ~187,000 km\u00b2, so they",
         "\nlook large here) -- a number labels the tenure group, not the ecoregion outline near it.",
-        "Ecoprovinces, the coarser unit the PSP trait pool is drawn from, are on the per-group plate,",
+        "Ecoprovince boundaries, shown for ecological context, are on the per-group plate,",
         "\nnot this map. Each group has a unique colour + hatch (key below); neighbours always differ",
         "in colour."
       )
@@ -381,7 +381,7 @@ sa_facets <- function(page = 1L, perPage = 6L, ncol = 3L) {
         "All panels share ONE map scale, so the groups are directly comparable in size",
         "(they differ ~45-fold in area, ~6-fold across).\nTenure labels are the curated short names",
         "used throughout the reporting; panel numbers match the overview map.\nDashed lines are",
-        "ecoprovince boundaries -- the unit the PSP trait pool is drawn from; the tan area is the",
+        "ecoprovince boundaries, shown for ecological context; the tan area is the",
         "ECOREGION the group is NAMED for, which is what defines its membership.",
         collapse = " "
       ),
