@@ -752,7 +752,7 @@ study_area_targets <- function(sa) {
         )[["studyAreaReporting"]]
         polys <- LandWebUtils::buildReportingPolygons(
           studyArea = saPoly,
-          destinationPath = file.path(local$paths$inputPath, "reportingPolygons"),
+          destinationPath = file.path(.(local$paths$inputPath), "reportingPolygons"),
           targetCRS = LandWebUtils::LandWebCRS
         )
         ## active/passive landbase-status sub-zones -- gated by the TENURES actually present
@@ -762,7 +762,7 @@ study_area_targets <- function(sa) {
         landbase <- LandWebUtils::buildLandbasePolygons(
           studyArea = saPoly,
           tenures = polys[["FMA"]]$Name,
-          destinationPath = file.path(local$paths$inputPath, "landbase"),
+          destinationPath = file.path(.(local$paths$inputPath), "landbase"),
           targetCRS = LandWebUtils::LandWebCRS
         )
         ## tenure x sub-region (and tenure x landbase, and the tenure x landbase x Caribou
@@ -777,7 +777,7 @@ study_area_targets <- function(sa) {
         ## across two study-area reports. The crosswalk is the cached rds the preamble's
         ## prepStudyArea() already built, so this is a read, not a rebuild.
         cw <- LandWebUtils::studyAreaCrosswalk(
-          destinationPath = local$paths$inputPath,
+          destinationPath = .(local$paths$inputPath),
           targetCRS = LandWebUtils::LandWebCRS
         )
         crossed <- LandWebUtils::buildCrossedReportingPolygons(
@@ -1088,9 +1088,9 @@ if (isTRUE(getOption("landweb.growth_uncertainty", FALSE))) {
 ## ---- pipeline -----------------------------------------------------------------
 list(
   ## record target: the study areas this pipeline covers (for inspection / reports)
-  tar_target(study_areas, local$study_areas),
+  tar_target(study_areas, c(!!!local$study_areas)),
   ## shared rep-branch source (each mainSim_<sa> maps over this)
-  tar_target(rep_index, seq_len(local$n_reps), iteration = "vector"),
+  tar_target(rep_index, seq_len(!!local$n_reps), iteration = "vector"),
 
   ## Stage 3a: factorial -- SHARED, study-area-independent, built ONCE. Its only input,
   ## argsForFactorial, is defaulted via `factorialSize`. Split into its own target so the
