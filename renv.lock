@@ -2394,12 +2394,11 @@
     },
     "future": {
       "Package": "future",
-      "Version": "1.76.0",
+      "Version": "1.82.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
-        "digest",
         "globals",
         "listenv",
         "parallel",
@@ -2407,25 +2406,26 @@
         "tools",
         "utils"
       ],
-      "Hash": "1715c7eb48d2d38ee5784bf8e857544b"
+      "Hash": "b6593a46efe4190b7411be426a05d960"
     },
     "future.apply": {
       "Package": "future.apply",
-      "Version": "1.20.2",
+      "Version": "1.21.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "future",
         "globals",
         "parallel",
+        "stats",
         "utils"
       ],
-      "Hash": "d1fe7b3f0899c110c2a6ccc460328ea9"
+      "Hash": "8291d4a21fa14c7a173055b3906a62f2"
     },
     "future.callr": {
       "Package": "future.callr",
-      "Version": "1.0.0",
+      "Version": "1.0.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2434,7 +2434,7 @@
         "future",
         "parallelly"
       ],
-      "Hash": "4d590c3469d45f1c5ca5e05e56f7b594"
+      "Hash": "fb03184fbd19b794964ec7d600ba5cdf"
     },
     "gargle": {
       "Package": "gargle",
@@ -2845,14 +2845,14 @@
     },
     "globals": {
       "Package": "globals",
-      "Version": "0.19.1",
+      "Version": "0.20.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "codetools"
       ],
-      "Hash": "7ccd5e4cffcdc6ab901626110b203584"
+      "Hash": "8217a9261e579e41048f24ead31ca568"
     },
     "glue": {
       "Package": "glue",
@@ -4270,15 +4270,16 @@
     },
     "parallelly": {
       "Package": "parallelly",
-      "Version": "1.48.0",
+      "Version": "1.50.0",
       "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/__linux__/resolute/latest",
+      "Repository": "CRAN",
       "Requirements": [
+        "R",
         "parallel",
         "tools",
         "utils"
       ],
-      "Hash": "a21defc75d66882933d80b7ae824a7b1"
+      "Hash": "526cfdf9ac721841a30b99680e02042e"
     },
     "patchwork": {
       "Package": "patchwork",
