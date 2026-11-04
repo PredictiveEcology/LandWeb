@@ -925,7 +925,8 @@ study_area_targets <- function(sa) {
     ## fire_size_histogram). Reads per-rep burnMap/flammableMap + the fire-size
     ## parquet partitions from outputs/<sa>/mainSim/rep%02d/, and the NBAC + NFDB polygons
     ## that fireRecords fetched into fire_records_dir (the module's own fetch there then only
-    ## reads them); needs no in-memory sim objects.
+    ## reads them). Both burn maps, historic and simulated, cover only the cells where LandMine
+    ## ignites fires: inside its studyArea, with a fire return interval (burnSummaries 1.1.0.9003).
     tar_simspades(
       paste0("summaries_burn_", sa),
       modules = "burnSummaries",
@@ -946,11 +947,17 @@ study_area_targets <- function(sa) {
       paths = modifyList(local$paths, list(inputPath = fire_records_dir)),
       ## burnSummaries mode="multi" .inputObjects requires reportingPolygons
       ## (stopifnot(suppliedElsewhere(...))). It is not otherwise used by the multi
-      ## events, but must be supplied. mainSim_files is the Phase-1 dependency anchor.
+      ## events, but must be supplied. studyArea and fireReturnInterval come from where mainSim
+      ## takes LandMine's; left out, the burn maps would cover every flammable cell of the grid.
+      ## mainSim_files is the Phase-1 dependency anchor.
       objects = suffix_refs(quote({
         mainSim_files # dependency anchor: Phase-1 per-rep burn/flammable maps first
         fireRecords # dependency anchor: the fire records, fetched once for every study area
-        list(reportingPolygons = reportingPolygons)
+        c(
+          list(reportingPolygons = reportingPolygons),
+          sim_objects(preamble, objects = "fireReturnInterval", files = preamble_files),
+          sim_objects(dataPrep, objects = "studyArea", files = dataPrep_files)
+        )
       }), sa)
     )
   )
