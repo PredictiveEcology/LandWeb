@@ -188,7 +188,10 @@ suffix_refs <- function(expr, sa, syms = sa_syms) {
 ## study_area_targets() (globals_sa), and to the `_factorial_` sentinel for the
 ## shared factorial (globals_factorial). No target ever consumes this base directly.
 globals <- list(
-  dataYear = 2020L,
+  ## SCANFI v2 year of dataPrep's biomass, species cover and maxB-fit stand age, and of the
+  ## preamble's land cover (LandWeb_preamble >= 1.0.15); also the latest fire in dataPrep's fire
+  ## raster. 2025 is the year of the current-condition stand age (fRI's `age_in2025`).
+  dataYear = 2025L,
   fireTimestep = 1L,
   initialB = 10,
   sppEquivCol = "LandWeb",
@@ -219,7 +222,9 @@ globals <- list(
 ## only study-area-coupled entry in `globals`, so this decouples the factorial from the study area.
 ## It is built ONCE (outside the per-area loop) and reused across areas; it still rebuilds on its
 ## true inputs (factorialSize, initialB, maxBInFactorial, minCohortBiomass) or a module change.
-globals_factorial <- modifyList(globals, list(.studyAreaName = "_factorial_"))
+## `dataYear` stays at the value the factorial was built with: the module reads none, and a new
+## value in its command would rebuild it (~3 h) for nothing.
+globals_factorial <- modifyList(globals, list(.studyAreaName = "_factorial_", dataYear = 2020L))
 
 p_factorial <- list(
   .globals = globals_factorial,
@@ -237,7 +242,11 @@ p_factorial <- list(
 ## Shared with the per-area stages, so that the fit's species table and fitting area are built as theirs:
 lthfc_minFRI <- 25L ## LandWeb_preamble's minFRI, for the LandWeb area
 species_table_areas <- c("BSW", "BP", "MC") ## Biomass_borealDataPrep's speciesTableAreas
-globals_growthCurves <- modifyList(globals, list(.studyAreaName = "_growthCurves_"))
+## `dataYear` as for the factorial: Biomass_speciesParameters reads none.
+globals_growthCurves <- modifyList(
+  globals,
+  list(.studyAreaName = "_growthCurves_", dataYear = 2020L)
+)
 p_growthCurves <- list(
   .globals = globals_growthCurves,
   Biomass_speciesParameters = list(
@@ -297,8 +306,28 @@ growth_traits_target <- function(file) {
 ## directory on storage the controller and every worker see. Not for NFDB yet: the current
 ## NFDB_poly.zip holds no fire before 1972, the only years the backfill takes, and those are in
 ## NFDB_poly_pre1972.zip, which fireregimetools does not fetch; copy the 20210707 release's
-## NFDB_poly.zip into the new directory first, or fireRecords stops.
+## NFDB_poly.zip into the new directory first, or fireRecords stops. There is no reason to: the
+## 2025 release's pre-1972 archive holds the same 18,326 pre-1972 records as the 20210707 release,
+## and NBAC (20260513) already reaches 2025.
 fire_records_dir <- local$paths$inputPath
+
+## ---- shared, study-area-INDEPENDENT fire perimeters for data preparation -----
+## dataPrep_<sa> rasterizes these into one fire-year raster per study area, the latest fire at or
+## before dataYear in each pixel from 1950 (earliestFireYear): Biomass_borealDataPrep's
+## `firePerimeters`, and the time since fire in standAgeMapForMaxB. NBAC (1972-2025), and for the
+## years before NBAC begins the NFDB's pre-1972 archive, as burnSummaries combines them; the
+## NFDB's own record from 1972 ends in 2024 (release 20250630). For the NFDB alone, to 2024, use
+## dir "nfdb_20250630" and url .../nfdb/fire_poly/current_version/NFDB_poly.zip (the same
+## urlPre1972). LandR reads every shapefile it extracts here, so the directory holds only these
+## two archives; target firePerimeterRecords fetches and extracts them once.
+fire_perimeters <- list(
+  dir = file.path(local$paths$inputPath, "fire_perimeters_2025"),
+  url = "https://cwfis.cfs.nrcan.gc.ca/downloads/nbac/NBAC_1972to2025_20260513_shp.zip",
+  urlPre1972 = paste0(
+    "https://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_poly/current_version/",
+    "NFDB_poly_pre1972.zip"
+  )
+)
 
 ## The preamble stops when more than `ccAgeMaxMissing` (25%) of an area's forest has no current-condition
 ## age. Raised only where the gap is understood. InterlakePlain: 28.9% at 30 m, half of it Prairies aspen
@@ -375,7 +404,7 @@ study_area_targets <- function(sa) {
       minSpeciesEcoregionShare = 0,
       ## OFF, not the module default: its spin-up regrows young stands in post-1950 burns with
       ## traits not yet fitted to the plot data, losing their spruce; they keep SCANFI's biomass.
-      ## Ages up to 70 (dataYear - earliestFireYear) stay exact either way from
+      ## Ages up to 75 (dataYear - earliestFireYear) stay exact either way from
       ## Biomass_borealDataPrep 1.8.0.9004; before it, OFF rounded them to the nearest 20 y like
       ## older ones, so 1-9 became 0, which Biomass_core does not advance until its year-10 age
       ## reclassification sets it to 11.
@@ -530,6 +559,7 @@ study_area_targets <- function(sa) {
       ## before inputs= load. terra layers load lazily, so this stays cheap.
       objects = suffix_refs(bquote({
         pkgs <- .(pkg_fingerprint("LandWebUtils")) ## re-run when it changes: landweb_sum_layers()
+        firePerimeterRecords # dependency anchor: the fire archives, fetched once for all areas
         pre <- sim_objects(
           preamble,
           objects = c(
@@ -538,25 +568,40 @@ study_area_targets <- function(sa) {
           ),
           files = preamble_files
         )
+        ## The latest fire at or before dataYear in each pixel, from earliestFireYear, on the
+        ## biomass-parameter grid (fire_perimeters). Passed to Biomass_borealDataPrep, which
+        ## otherwise builds its own from the NFDB in `inputs` (the 20210707 release, to 2020), and
+        ## used as the time since fire of standAgeMapForMaxB. Random stream saved and restored, as
+        ## below.
+        fires <- withr::with_preserve_seed(LandR::prepInputsFireYear(
+          url = .(fire_perimeters$url),
+          urlPre1972 = .(fire_perimeters$urlPre1972),
+          destinationPath = .(fire_perimeters$dir),
+          rasterToMatch = pre$rasterToMatch_biomassParam,
+          fireField = "YEAR",
+          earliestYear = .(p_dataPrep$Biomass_borealDataPrep$earliestFireYear),
+          latestYear = .(globals$dataYear)
+        ))
         c(
           list(
             speciesTable = preamble$speciesTable,
             sppColorVect = sppList$sppColorVect,
-            sppEquiv = sppList$sppEquiv
+            sppEquiv = sppList$sppEquiv,
+            firePerimeters = fires
           ),
           pre,
           ## SCANFI's own stand age, as Biomass_borealDataPrep builds it when given none: SCANFI v2
-          ## for dataYear, bilinear onto the biomass-parameter grid, with the NFDB fires of 1950 to
-          ## dataYear as time since fire. Used ONLY as the age covariate of dataPrep's maxB/maxANPP
-          ## fit, whose biomass is SCANFI's; the cohorts keep LandWeb's stand age (standAgeMap).
-          ## SCANFI is read as a window of the remote COG; the NFDB comes from `inputs`, as for the
-          ## module's own fire perimeters. Built with the random stream saved and restored: building
-          ## it draws random numbers, which would otherwise shift dataPrep's seeded age imputation.
+          ## for dataYear, bilinear onto the biomass-parameter grid, with `fires` as time since
+          ## fire. Used ONLY as the age covariate of dataPrep's maxB/maxANPP fit, whose biomass is
+          ## SCANFI's; the cohorts keep LandWeb's stand age (standAgeMap). SCANFI is read as a
+          ## window of the remote COG. Built with the random stream saved and restored: building it
+          ## draws random numbers, which would otherwise shift dataPrep's seeded age imputation.
           list(standAgeMapForMaxB = withr::with_preserve_seed(LandR::prepInputsStandAgeMap(
             rasterToMatch = pre$rasterToMatch_biomassParam,
             dataSource = "SCANFI",
             dataYear = .(globals$dataYear),
-            destinationPath = .(local$paths$inputPath)
+            destinationPath = .(local$paths$inputPath),
+            firePerimeters = fires
           ))),
           ## the species layers summed into the study area's units; empty layers would otherwise pass
           ## as a valid "no tree species" run upstream
@@ -576,7 +621,8 @@ study_area_targets <- function(sa) {
       outputs = quote(outputs_spec(
         raster = c(
           "biomassMap", "rawBiomassMap", "ecoregionMap", "pixelGroupMap", "rstLCC",
-          "standAgeMap", "speciesLayers", "rasterToMatch", "rasterToMatch_biomassParam"
+          "standAgeMap", "speciesLayers", "rasterToMatch", "rasterToMatch_biomassParam",
+          "firePerimeters" ## the fire years dataPrep used, for checking a run
         ),
         vect = c("studyArea", "studyArea_biomassParam")
       ))
@@ -671,8 +717,9 @@ study_area_targets <- function(sa) {
         ),
         ## Year-0 time since fire: the current-condition stand age (dataPrep's standAgeMap), the
         ## layer that also sets the cohorts' ages, as v2 used its current-condition age layer. Left
-        ## out, burnSummaries' .inputObjects() builds it from SCANFI 2020 stand age (truncated to
-        ## whole years, NFDB fires to 2020), which the preamble rejects as a current-condition age.
+        ## out, burnSummaries' .inputObjects() builds it from SCANFI's dataYear stand age (truncated
+        ## to whole years, NFDB fires to 2020), which the preamble rejects as a current-condition
+        ## age.
         ## LandMine reads it for rate of spread (age classes split at 40 and 120 years) from year 1.
         ## NRV_summary's current-condition age classes read the saved year-0 file, which is this
         ## value + 1: burnSummaries ages it at time 0 before saving. Cropped from the
@@ -1091,6 +1138,39 @@ list(
   growth_traits_target(getOption("landweb.growth_traits_file", NA_character_)),
   ## growth-curve uncertainty, opt-in: an empty list unless landweb.growth_uncertainty is set
   growth_uncertainty_targets,
+
+  ## Fire perimeters for data preparation -- SHARED, study-area-independent: the archives every
+  ## dataPrep_<sa> rasterizes (fire_perimeters), downloaded and extracted once, before any of them
+  ## runs, so that 18 branches do not extract them into one directory at once; after it LandR finds
+  ## them verified and only reads them. Through the same LandR call as dataPrep's, on a 1 km square
+  ## (LandR reads each file whole, then crops). error = "abridge" and format = "file" as for
+  ## fireRecords below.
+  tar_target_raw(
+    "firePerimeterRecords",
+    bquote({
+      probe <- terra::rast(
+        terra::ext(0, 1000, 0, 1000),
+        resolution = 1000,
+        crs = "EPSG:3978",
+        vals = 1L
+      )
+      LandR::prepInputsFireYear(
+        url = .(fire_perimeters$url),
+        urlPre1972 = .(fire_perimeters$urlPre1972),
+        destinationPath = .(fire_perimeters$dir),
+        rasterToMatch = probe,
+        fireField = "YEAR"
+      )
+      files <- list.files(
+        .(fire_perimeters$dir),
+        pattern = "[.](shp|shx|dbf|prj)$",
+        full.names = TRUE
+      )
+      sort(files, method = "radix")
+    }),
+    format = "file",
+    error = "abridge"
+  ),
 
   ## Fire records -- SHARED, study-area-independent: the NBAC + NFDB polygons that every
   ## summaries_burn_<sa> reads, fetched into fire_records_dir once, before any of them runs
