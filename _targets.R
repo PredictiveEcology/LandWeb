@@ -939,6 +939,10 @@ study_area_targets <- function(sa) {
           mode = "multi",
           reps = seq_len(local$n_reps),
           simTimes = c(0, local$sim_end),
+          ## the historic burn rate over the NBAC era, one satellite record for every area (user
+          ## 2026-11-10); otherwise the span runs from the first fire in the burnable cells, which
+          ## starts late where a province's NFDB record does (burnSummaries >= 1.1.0.9004)
+          historicYears = c(1972L, 2025L),
           .useCache = FALSE
         )
       ),

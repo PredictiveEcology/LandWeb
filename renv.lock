@@ -769,14 +769,14 @@
     },
     "SpaDES.core": {
       "Package": "SpaDES.core",
-      "Version": "3.2.1.9048",
+      "Version": "3.2.1.9064",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "SpaDES.core",
       "RemoteRef": "development",
-      "RemoteSha": "c1d62b2b802b7255bb50a0774404d98b9714af36",
+      "RemoteSha": "22a5c8ab50ac6796c062f329fed6fe48c3bfb0ca",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "R",
         "Require",
@@ -797,7 +797,7 @@
         "utils",
         "whisker"
       ],
-      "Hash": "9bddb22240e478f176d53881b7340ca0"
+      "Hash": "45fc5b15e8f22296db9c6ddbdff4ebfc"
     },
     "SpaDES.docs": {
       "Package": "SpaDES.docs",
@@ -6623,14 +6623,14 @@
     },
     "workflowtools": {
       "Package": "workflowtools",
-      "Version": "0.0.22.9002",
+      "Version": "0.0.22.9006",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "workflowtools",
       "RemoteRef": "main",
-      "RemoteSha": "190b582a34fc8db30065223b1bec95edf92cb84c",
+      "RemoteSha": "b1b51943335f067aac5575b774d44f91551b4d3c",
       "Requirements": [
         "R",
         "archive",
@@ -6656,7 +6656,7 @@
         "usethis",
         "utils"
       ],
-      "Hash": "cba49489d8ba53cb02c3313d61891d5f"
+      "Hash": "6aa82bf6412f872386549b53c8995bf5"
     },
     "xfun": {
       "Package": "xfun",
