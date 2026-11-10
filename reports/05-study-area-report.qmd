@@ -63,6 +63,10 @@ types_all <- setdiff(unique(rd$pct_type$vegType), "All species")
 slug <- function(x) gsub("[^a-z0-9]+", "-", tolower(x))
 ha <- report05_ha
 pct <- report05_pct
+## "a", "a and b", "a, b and c"
+and_list <- function(x) {
+  if (length(x) < 2L) x else paste(paste(x[-length(x)], collapse = ", "), "and", x[[length(x)]])
+}
 
 ## all forest, per tenure: the current condition and where it sits in the simulated range
 pt_all <- rd$pct_type[vegType == "All species"]
@@ -191,7 +195,7 @@ This report gives the results for the tenures in the `r label` study-area group.
 The LandWeb partners identified two classes of indicators: the area in each seral stage by major vegetation type, and the sizes of old-forest patches.
 This report gives both for every tenure, under the following rules.
 
-- A forested pixel's vegetation type is its leading species group where that group holds at least `r pct(des$veg_leading_prop)`% of the stand's biomass, and mixedwood otherwise.
+- The vegetation type of a pixel simulated as forest is its leading species group where that group holds at least `r pct(des$veg_leading_prop)`% of the stand's biomass, and mixedwood otherwise.
   The types are `r paste(tolower(report05_veg_label(sort(types_all))), collapse = ", ")`.
 - Seral stages are age classes: `r paste(tolower(age_lab), collapse = "; ")`.
 - Old-forest patch results are the total area of old forest in patches of at least `r paste(ha(des$patch_sizes_ha), collapse = ", ")` ha, all forest types combined.
@@ -216,9 +220,15 @@ The desired conditions and outcomes agreed with the partners for this area.
 #| output: asis
 cat(
   sprintf(
-    "The %s study-area group covers %s ha in %d tenures, of which %s ha (%s%%) had a forested vegetation type in the current condition (@tbl-tenures, @fig-map).",
+    "The %s study-area group covers %s ha in %d tenures, of which %s ha (%s%%) is simulated as forest (@tbl-tenures, @fig-map).",
     label, ha(rd$group_area_ha), n_ten, ha(rd$group_forest_ha), pct(rd$group_forest_ha / rd$group_area_ha)
   ),
+  "The area simulated as forest is the land that the 2025 SCANFI forest map shows as treed, or as forest land that has recently lost its trees, including land that the 2020 Land Cover of Canada (LCC 2020) maps as shrubland, grassland or wetland; the model burns and regrows all of it as forest.",
+  sprintf(
+    "LCC 2020 maps %s%% of the area simulated as forest in this group as forest; @tbl-tenures gives the share in each tenure.",
+    pct(rd$group_lcc2020_forest)
+  ),
+  "In this report, \"forest\" means the area simulated as forest.",
   "The group was simulated as one landscape, so that fire and seed dispersal cross tenure boundaries as they would in the forest; results are reported for each tenure.",
   sep = "\n"
 )
@@ -237,16 +247,17 @@ p_map
 
 ```{r}
 #| label: tbl-tenures
-#| tbl-cap: "Area of each tenure, the area with a forested vegetation type in the current condition, and the layer that splits the tenure into ecological sub-regions."
+#| tbl-cap: "Area of each tenure, the area simulated as forest, the share of that area that the 2020 Land Cover of Canada (LCC 2020) maps as forest, and the layer that splits the tenure into ecological sub-regions."
 tt <- ten[, .(
   Map = seq_len(.N),
   Tenure = name,
   `Area (ha)` = ha(area_ha),
-  `Forest (ha)` = ha(forest_ha),
-  `Forest (%)` = pct(forest_ha / area_ha),
+  `Simulated as forest (ha)` = ha(forest_ha),
+  `Simulated as forest (%)` = pct(forest_ha / area_ha),
+  `LCC 2020 forest (%)` = fifelse(is.na(lcc2020_forest), "", pct(lcc2020_forest)),
   `Sub-regions` = fifelse(is.na(sub_kind), "none", paste0(sub_kind, "s"))
 )]
-kbl(tt, format = "latex", booktabs = TRUE, align = "rlrrrl") |>
+kbl(tt, format = "latex", booktabs = TRUE, align = "rlrrrrl") |>
   kable_styling(latex_options = c("hold_position", "scale_down"), font_size = 8)
 ```
 
@@ -260,7 +271,7 @@ if (!is.na(cv$cc_age_gap)) {
   lines <- c(
     lines,
     sprintf(
-      "In this study-area group, %s%% of the forest (measured at 30 m) has no current-condition stand age from the forest inventory or its national fill.",
+      "In this study-area group, %s%% of the land that LCC 2020 maps as forest (measured at 30 m) has no current-condition stand age from the forest inventory or its national fill.",
       format(cv$cc_age_gap, nsmall = 1)
     ),
     "Those pixels take the ages that the coarser simulation grid and the model's data preparation impute, so the current-condition age classes here are less certain than in other groups."
@@ -415,7 +426,9 @@ for (t in compared$tenure) {
 
 Box-and-whisker plots summarise the `r n_snap` simulated landscapes.
 The box spans the middle half of the values (25th to 75th percentile), the line inside it is the median, the whiskers reach the most extreme values within one and a half box lengths, and the dots beyond them are the rarer values.
-Each set of four boxes covers the four age classes of one vegetation type, so that the four values from one simulated landscape add up to all of that type's forest.
+Each set of four boxes covers the four age classes of one vegetation type, in the simulated landscapes where that type leads some of the forest; in each of those landscapes, the four values add up to all of that type's forest.
+A landscape without the type has no age structure for it and is left out of its boxes.
+Where a type leads in fewer than all `r n_snap` landscapes, the number it leads in follows its area; a type that never leads in the simulations has no boxes.
 The red circle in each row is the current condition.
 Old-forest patch results are histograms of the area of old forest in large patches across the simulated landscapes, with the current condition as a red line.
 Vegetation types and sub-regions with less than `r ha(min_ha)` ha of forest in the current condition are left out of the figures, as too small to summarise at this scale; Appendix A gives the values for all of them.
@@ -459,30 +472,34 @@ Recommendations for the partners, from the results above.
 
 The tables give, for each tenure, the current share of forest in each age class and the percentiles of the simulated shares, in percent.
 Table A1 is by vegetation type and Table A2 by ecological sub-region; every type and sub-region with forest in the current condition is included.
+The percentiles summarise the simulated landscapes in which the type or sub-region has forest, whose number, out of `r n_snap`, is in the column "Landscapes"; a dash marks a type that never leads in the simulations.
 
 ```{r}
 #| output: asis
 pcols <- c("min", "p12.5", "p25", "p50", "p75", "p87.5", "max")
 pnames <- c("Min", "12.5", "25", "50", "75", "87.5", "Max")
+pct_or_dash <- function(x) fifelse(is.na(x), "--", pct(x))
 ptab <- function(d, first, first_name, caption) {
   d <- copy(d)
-  d[, (pcols) := lapply(.SD, pct), .SDcols = pcols]
+  d[, (pcols) := lapply(.SD, pct_or_dash), .SDcols = pcols]
   d[, cc := pct(cc)]
   d[, ageClass := factor(ageClass, levels = des$age_classes)]
   setorderv(d, c("key", "ageClass"))
   d[, show := fifelse(seq_len(.N) == 1L, as.character(get(first)), ""), by = key]
-  out <- d[, c("show", "ageClass", "cc", pcols), with = FALSE]
-  setnames(out, c(first_name, "Age class", "Current", pnames))
+  ## the landscapes the percentiles summarise, once per type or sub-region
+  d[, n_show := fifelse(seq_len(.N) == 1L, as.character(max(n)), ""), by = key]
+  out <- d[, c("show", "ageClass", "cc", "n_show", pcols), with = FALSE]
+  setnames(out, c(first_name, "Age class", "Current", "Landscapes", pnames))
   kbl(
     out,
     format = "latex",
     booktabs = TRUE,
     caption = caption,
-    align = c("l", "l", rep("r", 8L)),
+    align = c("l", "l", rep("r", 9L)),
     linesep = c("", "", "", "\\addlinespace"),
     label = NA
   ) |>
-    add_header_above(c(" " = 3, "Simulated percentiles (%)" = 7)) |>
+    add_header_above(c(" " = 4, "Simulated percentiles (%)" = 7)) |>
     kable_styling(latex_options = "hold_position", font_size = 8)
 }
 
@@ -521,7 +538,9 @@ This report was built from the LandWeb v3 `targets` pipeline outputs for study a
 
 - Tenure polygons and their ecological sub-regions: target `` `r paste0("reportingPolygons_", sa)` `` (the `FMA` layer and each tenure's sub-region layer, listed in @tbl-codes).
 - Simulated and current-condition values: NRV_summary's parquet datasets under `` `r report05_relpath(file.path(rd$sources$postprocess_dir, "_aggregates"))` `` (`lw_FMA`, `lw_FMA_CC` and the matching `lw_<tenure>_<layer>` datasets; metrics `leadingProp` and `totalArea_ge<size>ha`).
-- Forested areas: `nrvtools::subregion_forested_area()` on the current-condition vegetation-type map, `` `r sub(paste0("^", rd$sources$postprocess_dir, "/"), "", rd$sources$cc_vtm)` `` in the same directory.
+  The zero rows NRV_summary writes for a vegetation type absent from a simulated landscape (`` `r rd$sources$lw_zeros_file` ``) are left out of `leadingProp` and kept for the patch areas.
+- Area simulated as forest: `nrvtools::subregion_forested_area()` on the current-condition vegetation-type map, `` `r sub(paste0("^", rd$sources$postprocess_dir, "/"), "", rd$sources$cc_vtm)` `` in the same directory.
+- LCC 2020 forest share: the preamble's LCC 2020 layer on the simulation grid (most common 30 m class per pixel), `` `r sub(paste0("^", dirname(rd$sources$postprocess_dir), "/"), "", rd$sources$lcc2020)` `` beside `postprocess/`; forest is LCC 2020 classes `r paste(rd$sources$lcc2020_forest_classes, collapse = ", ")` (`LandWebUtils::lcc2020_classes()`).
 - Growth-curve sources: column `growthTraitSource` of target `` `r paste0("speciesTraits_", sa)` ``; species names from target `` `r paste0("sppList_", sa)` ``.
 - Reporting-boundary comparison: `fma_boundary_compare()` (`R/fma_boundary_change.R`), against the version 2 runs' `ml_preamble.rds` under `outputs_v2/`.
 - Current-condition age caveats: `report05_cc_age_gaps()` and `report05_bc_age_bias_years()` in `R/report_data.R`, which record measurements the run does not save.

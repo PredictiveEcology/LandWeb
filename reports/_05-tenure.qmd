@@ -16,20 +16,40 @@ af[, phrase := report05_position_phrase(position, min, max, cc_rank)]
 
 ## age-class shares by vegetation type: all forest first, then the types big enough to show
 panel_types <- c("All species", sort(types_shown))
-panel_lab <- function(v) {
-  factor(
-    sprintf("%s (%s ha)", report05_veg_label(v), report05_ha(type_area[v])),
-    levels = sprintf("%s (%s ha)", report05_veg_label(panel_types), report05_ha(type_area[panel_types]))
+## the simulated landscapes in which each type leads some forest (its boxes summarise only those)
+pres <- rd$type_presence[tenure == t]
+n_present <- setNames(pres$n_present, pres$vegType)
+panel_text <- function(v) {
+  k <- n_present[v]
+  sprintf(
+    "%s (%s ha%s)",
+    report05_veg_label(v),
+    report05_ha(type_area[v]),
+    ifelse(!is.na(k) & k < n_snap, sprintf("; leads in %d of %d", k, n_snap), "")
   )
 }
+panel_lab <- function(v) factor(panel_text(v), levels = panel_text(panel_types))
+types_part <- panel_types[n_present[panel_types] > 0L & n_present[panel_types] < n_snap]
+types_never <- panel_types[n_present[panel_types] == 0L]
 tn <- rd$type_nrv[poly == t & vegType %in% panel_types][, panel := panel_lab(vegType)]
 tc <- rd$type_cc[poly == t & vegType %in% panel_types][, panel := panel_lab(vegType)]
 p_type <- report05_boxplot(tn, tc, des$age_classes, "Share of the type's forest area (%)")
+if (length(types_never)) {
+  ## no boxes to draw: say so in the panel, between the middle two age classes
+  p_type <- p_type +
+    ggplot2::geom_text(
+      data = data.table(panel = panel_lab(types_never)),
+      ggplot2::aes(x = 50, y = (length(des$age_classes) + 1) / 2),
+      label = "Never leads in the simulations",
+      inherit.aes = FALSE,
+      size = 2.6
+    )
+}
 h_type <- 1.6 * ceiling(length(panel_types) / 2) + 0.6
 report05_save_png(p_type, fig_dir, paste0(t, "_types"), 6.5, h_type)
 cap_type <- sprintf(
-  "Simulated range (boxes) and current condition (red circles) of the share of forest in each age class, by vegetation type, in %s. The forested area of each type in the current condition is in brackets.",
-  name_end
+  "Simulated range (boxes) and current condition (red circles) of the share of forest in each age class, by vegetation type, in %s. The current area of each type is in brackets, followed by the number of the %d simulated landscapes in which it leads where that is fewer than all; its boxes summarise only those landscapes.",
+  name_end, n_snap
 )
 
 ## all forest by ecological sub-region
@@ -51,7 +71,7 @@ if (has_subs) {
   h_sub <- 1.6 * ceiling(length(subs_shown) / 2) + 0.6
   report05_save_png(p_sub, fig_dir, paste0(t, "_subregions"), 6.5, h_sub)
   cap_sub <- sprintf(
-    "Simulated range (boxes) and current condition (red circles) of the share of all forest in each age class, by %s, in %s. The forested area of each %s in the current condition is in brackets.",
+    "Simulated range (boxes) and current condition (red circles) of the share of all forest in each age class, by %s, in %s. The current area simulated as forest in each %s is in brackets.",
     tr$sub_kind, name_end, tr$sub_kind
   )
 }
@@ -70,16 +90,37 @@ cap_patch <- sprintf(
 
 ```{r}
 #| output: asis
+## "fir leads in 13, white spruce in 66": the verb once
+leads_in <- function(v) {
+  x <- sprintf("%s in %d", tolower(report05_veg_label(v)), n_present[v])
+  x[[1L]] <- sub(" in ", " leads in ", x[[1L]], fixed = TRUE)
+  and_list(x)
+}
 cat(
   sprintf(
-    "%s covers %s ha, of which %s ha (%s%%) had a forested vegetation type in the current condition.",
-    tr$name, report05_ha(tr$area_ha), report05_ha(tr$forest_ha), report05_pct(tr$forest_ha / tr$area_ha)
+    "%s covers %s ha, of which %s ha (%s%%) is simulated as forest%s.",
+    tr$name, report05_ha(tr$area_ha), report05_ha(tr$forest_ha), report05_pct(tr$forest_ha / tr$area_ha),
+    if (is.na(tr$lcc2020_forest)) "" else sprintf("; LCC 2020 maps %s%% of that area as forest", report05_pct(tr$lcc2020_forest))
   ),
   af[, sprintf(
     "%s forest makes up %s%% of all forest today, %s (simulated median %s%%).",
     ageClass, report05_pct(cc), phrase, report05_pct(p50)
   )],
   "@fig-type-{@slug@} shows the same comparison for each vegetation type.",
+  if (length(types_part)) {
+    sprintf(
+      "Of the %d simulated landscapes, %s; each type's boxes summarise only the landscapes in which it leads.",
+      n_snap, leads_in(types_part)
+    )
+  },
+  if (length(types_never)) {
+    sprintf(
+      "%s never %s in the simulated landscapes of this tenure, so the figure shows only %s current condition.",
+      sub("^(.)", "\\U\\1", tolower(and_list(report05_veg_label(types_never))), perl = TRUE),
+      if (length(types_never) == 1L) "leads" else "lead",
+      if (length(types_never) == 1L) "its" else "their"
+    )
+  },
   if (length(types_small)) {
     sprintf(
       "%s %s less than %s ha of forest and %s left out of the figure.",
