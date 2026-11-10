@@ -23,7 +23,8 @@ jobs:
   build-manual-site:
     if: "!contains(github.event.commits[0].message, '[skip-ci]')"
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    ## a cold renv cache (e.g. a new runner image) builds much of the lock from source
+    timeout-minutes: 180
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -71,8 +72,12 @@ jobs:
           sudo -E apt-get update -y
           xargs -a "$RUNNER_TEMP/sysreqs.txt" sudo -E apt-get install -y --no-install-recommends
 
+      ## `bypass-cache: never` saves the library cache even when the job fails or times out.
+      ## The default saves nothing after a failed cold build, so every retry started from
+      ## scratch: the first build on Ubuntu 26.04 (2026-11-10) hit the time limit here.
       - uses: r-lib/actions/setup-renv@v2
-        # with:
+        with:
+          bypass-cache: never
         #   profile: '"manual"'
 
       ## With `output_dir` set, a SUCCESSFUL render leaves knitr's cache at
