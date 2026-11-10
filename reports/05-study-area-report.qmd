@@ -52,6 +52,10 @@ knit_child_here <- function(...) {
   knitr::knit_child(...)
 }
 min_ha <- params$min_area_ha
+## a tenure where at least this share of the land base starts without trees gets a sentence on
+## what counting that land would do to its young share (user's choice, 2026-11-10)
+bare_min <- 0.05
+pct1 <- function(x) sprintf("%.1f", 100 * x)
 
 label <- rd$study_area_label
 des <- rd$design
@@ -229,6 +233,7 @@ cat(
     pct(rd$group_lcc2020_forest)
   ),
   "In this report, \"forest\" means the area simulated as forest.",
+  "Land where the 2025 SCANFI map shows too little tree cover for the model to start a stand, mostly sparse stands and recently disturbed forest, starts without trees: the model lets it regrow as forest, but it has no vegetation type at the start and is left out of the current condition (@tbl-tenures gives its share of each tenure's land base).",
   "The group was simulated as one landscape, so that fire and seed dispersal cross tenure boundaries as they would in the forest; results are reported for each tenure.",
   sep = "\n"
 )
@@ -247,7 +252,7 @@ p_map
 
 ```{r}
 #| label: tbl-tenures
-#| tbl-cap: "Area of each tenure, the area simulated as forest, the share of that area that the 2020 Land Cover of Canada (LCC 2020) maps as forest, and the layer that splits the tenure into ecological sub-regions."
+#| tbl-cap: "Area of each tenure, the area simulated as forest, the share of that area that the 2020 Land Cover of Canada (LCC 2020) maps as forest, the share of the land base that starts without trees, and the layer that splits the tenure into ecological sub-regions."
 tt <- ten[, .(
   Map = seq_len(.N),
   Tenure = name,
@@ -255,9 +260,10 @@ tt <- ten[, .(
   `Simulated as forest (ha)` = ha(forest_ha),
   `Simulated as forest (%)` = pct(forest_ha / area_ha),
   `LCC 2020 forest (%)` = fifelse(is.na(lcc2020_forest), "", pct(lcc2020_forest)),
+  `Starts without trees (% of land base)` = fifelse(is.na(bare), "", pct1(bare)),
   `Sub-regions` = fifelse(is.na(sub_kind), "none", paste0(sub_kind, "s"))
 )]
-kbl(tt, format = "latex", booktabs = TRUE, align = "rlrrrrl") |>
+kbl(tt, format = "latex", booktabs = TRUE, align = "rlrrrrrl") |>
   kable_styling(latex_options = c("hold_position", "scale_down"), font_size = 8)
 ```
 
@@ -541,6 +547,7 @@ This report was built from the LandWeb v3 `targets` pipeline outputs for study a
   The zero rows NRV_summary writes for a vegetation type absent from a simulated landscape (`` `r rd$sources$lw_zeros_file` ``) are left out of `leadingProp` and kept for the patch areas.
 - Area simulated as forest: `nrvtools::subregion_forested_area()` on the current-condition vegetation-type map, `` `r sub(paste0("^", rd$sources$postprocess_dir, "/"), "", rd$sources$cc_vtm)` `` in the same directory.
 - LCC 2020 forest share: the preamble's LCC 2020 layer on the simulation grid (most common 30 m class per pixel), `` `r sub(paste0("^", dirname(rd$sources$postprocess_dir), "/"), "", rd$sources$lcc2020)` `` beside `postprocess/`; forest is LCC 2020 classes `r paste(rd$sources$lcc2020_forest_classes, collapse = ", ")` (`LandWebUtils::lcc2020_classes()`).
+- Land that starts without trees: land-base pixels (`` `r sub(paste0("^", dirname(rd$sources$postprocess_dir), "/"), "", rd$sources$year0[["rtm"]])` ``) in pixel group 0 of `` `r sub(paste0("^", dirname(rd$sources$postprocess_dir), "/"), "", rd$sources$year0[["pgm"]])` ``, with no vegetation type; their age class is from `` `r sub(paste0("^", dirname(rd$sources$postprocess_dir), "/"), "", rd$sources$year0[["tsf"]])` ``.
 - Growth-curve sources: column `growthTraitSource` of target `` `r paste0("speciesTraits_", sa)` ``; species names from target `` `r paste0("sppList_", sa)` ``.
 - Reporting-boundary comparison: `fma_boundary_compare()` (`R/fma_boundary_change.R`), against the version 2 runs' `ml_preamble.rds` under `outputs_v2/`.
 - Current-condition age caveats: `report05_cc_age_gaps()` and `report05_bc_age_bias_years()` in `R/report_data.R`, which record measurements the run does not save.

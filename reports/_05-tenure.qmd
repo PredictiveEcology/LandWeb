@@ -106,6 +106,15 @@ cat(
     "%s forest makes up %s%% of all forest today, %s (simulated median %s%%).",
     ageClass, report05_pct(cc), phrase, report05_pct(p50)
   )],
+  if (!is.na(tr$bare) && tr$bare >= bare_min) {
+    yb <- rd$cc_with_bare[tenure == t & ageClass == des$age_classes[[1L]]]
+    if (nrow(yb)) {
+      sprintf(
+        "%s%% of this tenure's land base starts without trees; counted by its time since fire, that land would make %s forest %s%% of all forest today instead of %s%%.",
+        pct1(tr$bare), tolower(des$age_classes[[1L]]), report05_pct(yb$cc_with_bare), report05_pct(yb$cc)
+      )
+    }
+  },
   "@fig-type-{@slug@} shows the same comparison for each vegetation type.",
   if (length(types_part)) {
     sprintf(

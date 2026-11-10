@@ -182,6 +182,43 @@ report05_bc_age_bias_years <- function() 20L
   ]
 }
 
+## Land that starts without trees: land-base pixels (`rtm`) that Biomass_borealDataPrep gave no
+## cohorts (pixelGroup 0 in `pgm`, year 0), so they have no vegetation type in the current condition
+## and are left out of it; mostly sparse stands (every species at or below `minCoverThreshold`) and
+## recently disturbed forest. Per polygon name: land-base and bare pixels, and pixels counted in the
+## current condition's age classes (a vegetation type and an age class), all forest and bare, by age
+## class of the current-condition time since fire (`tsf`), binned as nrvtools:::.age_class_raster()
+## bins it (intervals closed on the right).
+.report05_bare_start <- function(vtm, rtm, pgm, tsf, polys, age_classes, age_cutoffs) {
+  for (r in list(rtm, pgm, tsf)) {
+    if (!terra::compareGeom(vtm, r, stopOnError = FALSE)) {
+      stop("a year-0 layer is not on the vegetation-type map's grid", call. = FALSE)
+    }
+  }
+  polys <- terra::project(polys, vtm)
+  ext <- terra::extract(vtm, polys, cells = TRUE)
+  vcol <- setdiff(names(ext), c("ID", "cell"))[[1L]]
+  a <- terra::values(tsf, mat = FALSE)[ext[["cell"]]]
+  ac <- findInterval(a, age_cutoffs[-1L], left.open = TRUE) + 1L
+  ac[is.na(a) | a <= age_cutoffs[[1L]] - 0.1] <- NA_integer_
+  pg <- terra::values(pgm, mat = FALSE)[ext[["cell"]]]
+  d <- data.table::data.table(
+    poly = as.character(polys[["Name"]][[1L]])[ext[["ID"]]],
+    veg = !is.na(as.character(ext[[vcol]])),
+    landbase = !is.na(terra::values(rtm, mat = FALSE)[ext[["cell"]]]),
+    ageClass = age_classes[ac]
+  )
+  d[, bare := landbase & !veg & !is.na(pg) & pg == 0]
+  d <- d[!is.na(poly)]
+  counts <- d[, .(n_landbase = sum(landbase), n_bare = sum(bare)), by = poly]
+  by_ac <- d[
+    !is.na(ageClass),
+    .(n_forest = sum(veg), n_bare = sum(bare)),
+    by = .(poly, ageClass)
+  ]
+  list(counts = counts, by_age_class = by_ac)
+}
+
 ## NRV_summary's file of zero rows for the vegetation types a polygon shows but lacks in a snapshot
 ## (`.fillLeadingZeros()`, its default `zerosFile`), one per `replicate=<id>/` of a dataset.
 .report05_lw_zeros_file <- "lw_zeros.parquet"
@@ -479,6 +516,40 @@ build_report05_data <- function(
   age_classes <- LandWebUtils:::.ageClasses
   age_cutoffs <- LandWebUtils:::.ageClassCutOffs
 
+  ## land that starts without trees (left out of the current condition), from the year-0 maps
+  sa_dir <- dirname(postprocess_dir)
+  tsf0 <- file.path(sa_dir, "mainSim", c("_cc/rep01", "rep01"), "rstTimeSinceFire_year0000.tif")
+  year0 <- c(
+    rtm = file.path(sa_dir, "preamble", "rasterToMatch_year1.tif"),
+    pgm = file.path(sa_dir, "mainSim", "rep01", "pixelGroupMap_year0000.tif"),
+    tsf = tsf0[file.exists(tsf0)][1L] ## the urban-masked copy, as for the vegetation-type map
+  )
+  if (anyNA(year0) || !all(file.exists(year0))) {
+    stop("missing year-0 maps under ", sa_dir, call. = FALSE)
+  }
+  bs <- .report05_bare_start(
+    vtm,
+    terra::rast(year0[["rtm"]]),
+    terra::rast(year0[["pgm"]]),
+    terra::rast(year0[["tsf"]]),
+    fma,
+    age_classes,
+    age_cutoffs
+  )
+  at <- match(tenures$tenure, bs$counts$poly)
+  tenures[, bare := bs$counts$n_bare[at] / bs$counts$n_landbase[at]]
+  ## the current all-forest age-class shares with that land counted by its time since fire: the
+  ## bare pixels added to the forest pixels behind each share (NRV_summary's share, our counts)
+  cc_with_bare <- merge(
+    bs$by_age_class[, .(tenure = poly, ageClass, n_forest, n_bare)],
+    pct_type[vegType == "All species", .(tenure, ageClass, cc)],
+    by = c("tenure", "ageClass")
+  )
+  cc_with_bare[,
+    cc_with_bare := (cc * sum(n_forest) + n_bare) / (sum(n_forest) + sum(n_bare)),
+    by = tenure
+  ]
+
   list(
     study_area = study_area,
     study_area_label = label,
@@ -501,6 +572,7 @@ build_report05_data <- function(
     patch_nrv = patch_nrv,
     patch_cc = patch_cc,
     pct_type = pct_type,
+    cc_with_bare = cc_with_bare,
     type_presence = type_presence,
     pct_sub = pct_sub,
     pct_patch = pct_patch,
@@ -528,6 +600,7 @@ build_report05_data <- function(
       lcc2020 = lcc2020_file,
       lcc2020_forest_classes = LandWebUtils::lcc2020_classes()[["forest"]],
       lw_zeros_file = .report05_lw_zeros_file,
+      year0 = year0,
       sub_layers = sub_layers
     )
   )
