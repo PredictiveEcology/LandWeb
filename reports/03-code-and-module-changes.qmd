@@ -39,6 +39,19 @@ clog_csv <- tryCatch(
   }
 )
 clog <- fread(clog_csv)
+
+## module and package versions for the prose, read at render time from the module metadata and
+## renv.lock (R/module_changelog.R), so the text cannot fall behind the pinned revisions
+root <- if (dir.exists("modules")) "." else ".."
+source(file.path(root, "R", "module_changelog.R"))
+ver <- function(name) {
+  v <- component_version(name, root = root)
+  if (is.na(v)) "unknown" else v
+}
+since <- function(name) {
+  v <- component_first_commit(name, root = root)
+  if (is.na(v)) "on an unknown date" else v
+}
 ```
 
 {{< pagebreak >}}
@@ -59,7 +72,8 @@ The simulation science --- the `LandR` Biomass vegetation modules [@R-LandR] and
 This report reconstructs the code and module changes across the v2 (2020--2023) to v3 (2024--2026) window.
 
 NEWS files were not maintained across this window, so the change history here is reconstructed from each module's and package's **git log**.
-The per-component commit counts, last-update dates, and currently-pinned revisions are generated automatically (see the Appendix) and are therefore current as of this render.
+The module and package versions quoted in the text are read when the report is rendered, from each module's own metadata and from the project's package lock file.
+The per-component commit counts, last-update dates and pinned revisions in the Appendix are generated from git.
 
 # From manual orchestration to a targets pipeline
 
@@ -186,7 +200,7 @@ Runs on the FOR-CAST fork line (merged to main 2026-06-29).
 ## Biomass_borealDataPrep
 
 Ingests national forest-inventory rasters (land cover, stand age, species cover, biomass) and fits the statistical models (biomass vs. age/cover, maxB, maxANPP, species establishment, per ecoregion x land-cover group) that parameterize `Biomass_core`.
-The headline v3 changes were a full terra migration, moving the input data pipeline from CASFRI/kNN/NTEMS to SCANFI, new longevity-vs-age and young-biomass corrections, and hardening of the nested `Biomass_core` run; it remains the heaviest and most actively developed module (currently v1.5.12).
+The headline v3 changes were a full terra migration, moving the input data pipeline from CASFRI/kNN/NTEMS to SCANFI, new longevity-vs-age and young-biomass corrections, and hardening of the nested `Biomass_core` run; it remains the heaviest and most actively developed module, at version `r ver("Biomass_borealDataPrep")` in this report's revision.
 
 ### Input data: terra migration and SCANFI/NTEMS
 - Ported all spatial I/O from sp/raster to terra `SpatRaster`/`SpatVector`, replacing `compareRaster`/`spTransform`/`postProcess` with `.compareRas`/`projectTo`/`postProcessTo` (2023).
@@ -218,7 +232,7 @@ The headline v3 changes were a full terra migration, moving the input data pipel
 ## Biomass_speciesParameters
 
 Substantially reworked in v3: the GAMM-based growth-curve machinery was replaced with lighter non-linear growth curves fit to a modernized PSPclean data pipeline, the big-data backend moved from the deprecated disk.frame to arrow, and a new opt-in LANDIS mode exposes fitted curves as LANDIS-II Biomass Succession inputs.
-Runs on the FOR-CAST fork line (merged to main 2026-06-29), currently v3.0.1.
+Runs on the FOR-CAST fork line (merged to main 2026-06-29), at version `r ver("Biomass_speciesParameters")` in this report's revision.
 In the v3 pipeline it no longer runs inside each study area's data preparation: it runs once, in a shared stage, fitting growth curves for every species from the national forest inventory plots and the BC, Alberta and Saskatchewan provincial plots in the ecoprovinces that touch the LandWeb area, and each study area's simulated species take their traits from that fit (285a8fd8, 2026-10).
 
 ### PSP data / PSPclean pipeline
@@ -244,7 +258,7 @@ In the v3 pipeline it no longer runs inside each study area's data preparation: 
 
 ## Biomass_speciesFactorial
 
-A smaller module retooled in v3 for the targets pipeline: `registerOutputs` wiring, qs2/arrow storage backends, decoupled (no-longer-always-run) execution, and a June-2026 push to pin and correctly resource the nested Biomass_core run. Runs on the FOR-CAST fork line (merged to main 2026-06-29), currently v1.0.4.
+A smaller module retooled in v3 for the targets pipeline: `registerOutputs` wiring, qs2/arrow storage backends, decoupled (no-longer-always-run) execution, and a June-2026 push to pin and correctly resource the nested Biomass_core run. Runs on the FOR-CAST fork line (merged to main 2026-06-29), at version `r ver("Biomass_speciesFactorial")` in this report's revision.
 
 ### registerOutputs wiring for targets
 - Introduced `registerOutputs` to expose factorial products to the pipeline (2026-01); iterated through breakage after an earlier "can't registerOutputs until it's fixed" hold; final fix required strict character-type arguments (2026-06).
@@ -263,7 +277,7 @@ A smaller module retooled in v3 for the targets pipeline: `registerOutputs` wiri
 ## Biomass_core
 
 The most heavily developed of the simulation modules: a new diagnostic/transition plotting suite, ggplot2 v4 and cli migration, a SCANFI-driven v2.0.0 species-layer refactor, restored LandR.CS climate-sensitive support, and a long tail of cohort-correctness and dependency modernisation.
-Active on the adopted FOR-CAST fork line (main merged 2026-06-29), currently v2.0.2.
+Active on the adopted FOR-CAST fork line (main merged 2026-06-29), at version `r ver("Biomass_core")` in this report's revision.
 
 ### Diagnostic and transition plotting
 - Added a species transition-plot subsystem: new `.plotTransitionField`/`.plotTransitionTimes` params, a `plotTransitions` event, and `vegTransitions()`/`plotVegTransitions()` driven by `studyAreaReporting` zones (217ae38, 2026-01).
@@ -287,7 +301,7 @@ Active on the adopted FOR-CAST fork line (main merged 2026-06-29), currently v2.
 
 ## Biomass_regeneration
 
-The lightest-touch module: essentially maintenance in the v3 window, focused on aligning cohort definitions with Biomass_core/LandR, finishing the terra migration, and metadata/manual housekeeping. Stable; currently v1.0.1.
+The lightest-touch module: essentially maintenance in the v3 window, focused on aligning cohort definitions with Biomass_core/LandR, finishing the terra migration, and metadata/manual housekeeping. Stable; at version `r ver("Biomass_regeneration")` in this report's revision.
 
 ### LandR cohort-definition alignment
 - Added `loadOrder = list(after = "Biomass_core")` (2024-01); adopted the updated `LandR::cohortDefinitionCols()`, ensuring cohorts are not defined by `ecoregionGroup` or `B` (2024).
@@ -425,7 +439,7 @@ Since `East Side Athabasca River` is the **only** Alberta range where the two gr
 ## burnSummaries
 
 Fire/burn post-processing module extracted from the main LandWeb repo (Sep 2023) for v3; it derives burn maps, fire-size distributions, cumulative (mean-annual) burn history, and time-since-fire from simulation outputs, comparing simulated to observed/expected fire regimes.
-Functional in single and multi modes, currently v1.0.2.9001.
+Functional in single and multi modes, at version `r ver("burnSummaries")` in this report's revision.
 It tracks time since fire during the simulation, adding a year each year and resetting burned pixels to 0; LandMine reads it every burn year for rate of spread.
 Its year-0 value is dataPrep's stand-age map (the current-condition composite), and the saved year-0 file is that value + 1, because burnSummaries ages it at time 0 before saving.
 
@@ -497,7 +511,7 @@ These absorb the generic glue (so the modules stay thin) and the LandWeb-specifi
 ## SpaDES.targets
 
 A new-for-v3 package that is the SpaDES-to-targets firewall and glue: it runs a `simInitAndSpades()` stage in-process as a `targets` stage and, instead of serializing the whole `simList`, returns a manifest of the files the stage saved (discovered from `outputs(sim)`) as `format = "file"` targets, plus a hard options "firewall" that disables the destructive/non-headless `reproducible`/`SpaDES.core` behaviours.
-Entire history is June 2026.
+First committed `r since("SpaDES.targets")`, and at version `r ver("SpaDES.targets")` in this report's revision.
 
 ### The options firewall
 - `spades_safe_options()` / `with_spades_safe_options()`: the single adapter that makes `targets` the sole cache and disables destructive/non-headless-safe behaviours -- `reproducible.useCache/useMemoise/useCloud = FALSE`, `spades.saveSimOnExit = FALSE` (never serialize a simList), `spades.browserOnError = FALSE` and `reproducible.interactiveOnDownloadFail = FALSE` (guard a worker hanging on `browser()`/a download prompt), and recoveryMode/futureEvents/allowInitDuringSimInit off.
@@ -556,7 +570,7 @@ It is the shared engine behind the v3 NRV_summary/burnSummaries reporting.
 ## workflowtools
 
 A new-for-v3 grab-bag of project-workflow helpers for large SpaDES/targets projects: idempotent "once" download/extract helpers, Google Drive and Microsoft Teams/SharePoint sync, an input-data manifest with one-way BibTeX export, and git+renv reproducibility/provenance capture.
-First committed 2023-09, reaching v0.0.13 (2026-06-09).
+First committed `r since("workflowtools")`, and at version `r ver("workflowtools")` in this report's revision.
 
 ### Idempotent "once" fetch/extract helpers
 - `download_once()` and `drive_download_once()` skip the transfer when the destination exists; `archive_extract_once()` skips re-extraction when the target files are present (selection by filename or numeric index, plus `force`) (2026-03).
@@ -575,9 +589,9 @@ First committed 2023-09, reaching v0.0.13 (2026-06-09).
 
 ## crew.ssh
 
-A new-for-v3, experimental, currently private `crew` launcher plugin that runs `targets` workers on remote machines over SSH, to distribute a pipeline across several computers on a trusted local network.
+A new-for-v3, experimental `crew` launcher plugin that runs `targets` workers on remote machines over SSH, to distribute a pipeline across several computers on a trusted local network.
 Workers are placed across nodes by per-node capacity weight so heterogeneous machines share one controller -- a lightweight counterpart to `crew.cluster`.
-All history is June 2026 (v0.0.4).
+First committed `r since("crew.ssh")`, and at version `r ver("crew.ssh")` in this report's revision.
 
 ### SSH launcher, controller, and node model
 - `crew_class_launcher_ssh` (R6) places workers across nodes in proportion to per-node capacities; `crew_controller_ssh()` creates the SSH controller; `crew_ssh_node()` describes one machine (host, capacity, optional `rscript`/`projdir`/`ssh_options`) for heterogeneous clusters.

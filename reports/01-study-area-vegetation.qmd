@@ -75,6 +75,11 @@ This notice will be removed once a complete review has been carried out.
 This report summarizes the SCANFI v2 (2020) [@scanfi-v2] per-species **crown-closure prevalence** over the **full LandWeb study area** (`r format(round(area_km2), big.mark = ",")` km^2^, `r format(area_cells, big.mark = ",")` forested 30 m cells).
 For each SCANFI source species that maps to a LandWeb species group it reports the number (and %) of forested study-area cells carrying *any* cover.
 
+::: {.callout-note}
+**SCANFI year.** The simulations now start from SCANFI's 2025 maps, from the same SCANFI v2 product [@scanfi-v2].
+The figures and tables in this report summarize its 2020 maps; the summary has not been redone for 2025.
+:::
+
 LandWeb sorts the SCANFI species into seven species groups.
 Within each study area, a species is simulated on its own where it holds at least 1% of the area's tree cover.
 The other species of its group are simulated together if, combined, they reach 1%; otherwise they join the group's largest species that runs on its own, or are left out if there is none.
@@ -82,7 +87,7 @@ Results are reported by the species groups of the original LandWeb current-condi
 
 One primary purpose is to document the evidence for keeping **western redcedar and western hemlock with the firs** rather than simulating either on its own: in SCANFI they are a *localized* over-attribution in the SW Alberta Rockies, not a study-area-wide signal.
 
-It also documents the **change in starting conditions from v2 to v3**: the underlying tree-species product moved from the Beaudoin *k*NN (2001) maps [@BeaudoinEtAl2014] to SCANFI (2020) [@scanfi-v2] (see [Initial conditions: Beaudoin kNN (2001) to SCANFI (2020)]).
+It also documents the **change in starting conditions from v2 to v3**: the underlying tree-species product moved from the Beaudoin *k*NN (2001) maps [@BeaudoinEtAl2014] to SCANFI [@scanfi-v2], compared here on SCANFI's 2020 maps (@sec-initial-conditions).
 
 # Study area composition
 
@@ -154,9 +159,12 @@ Keeping them with the firs:
 
 {{< pagebreak >}}
 
-# Initial conditions: Beaudoin kNN (2001) to SCANFI (2020)
+# Initial conditions: Beaudoin kNN (2001) to SCANFI {#sec-initial-conditions}
 
-The v2 model built its starting species/biomass/age conditions from the Beaudoin *k*NN maps [@BeaudoinEtAl2014] --- 250 m, 2001 base year, derived by *k*-nearest-neighbours from MODIS imagery and NFI photo-plots. v3 replaces these with SCANFI (2020) [@scanfi-v2; @scanfi-methods] at 30 m. Because the model's initial vegetation is read directly from this product, the switch changes the composition the simulation starts from, in two ways: **which species are resolved**, and **their mapped extent**.
+The v2 model built its starting species/biomass/age conditions from the Beaudoin *k*NN maps [@BeaudoinEtAl2014] --- 250 m, 2001 base year, derived by *k*-nearest-neighbours from MODIS imagery and NFI photo-plots.
+In v3, species cover and biomass come from SCANFI [@scanfi-v2; @scanfi-methods] at 30 m instead, from its 2025 maps, and stand age from a separate current-condition age layer (report 06).
+The comparison in this section uses SCANFI's 2020 maps; it has not been repeated with the 2025 maps.
+Because the model's initial vegetation is read directly from this product, the switch changes the composition the simulation starts from, in two ways: **which species are resolved**, and **their mapped extent**.
 
 ## Species the two products resolve
 
@@ -212,7 +220,7 @@ The two products' resolutions (250 m vs 30 m) make the raw prevalence values not
 
 ## Bearing on simulated outcomes
 
-Because the initial cohort composition is seeded from this product, the v3 starting landscape carries a **richer species pool** (`r n_grp_scanfi` vs `r n_grp_knn` LandWeb groups) with larch and Douglas-fir newly present, Engelmann spruce distinguished, and a two-decade-newer vintage (2001 to 2020) that already reflects the intervening disturbance and growth.
+Because the initial cohort composition is seeded from this product, the v3 starting landscape carries a **richer species pool** (`r n_grp_scanfi` vs `r n_grp_knn` LandWeb groups) with larch and Douglas-fir newly present, Engelmann spruce distinguished, and a newer vintage (2025, against kNN's 2001) that reflects the disturbance and growth in between.
 These initial-condition differences are one of the contributors to any change in simulated outcomes between v2 and v3, alongside the fire-input update (report 02) and the code/module changes (report 03); the output comparison (report 04) is where their combined effect is quantified.
 
 ::: {.callout-note}
@@ -233,6 +241,7 @@ Two related initial-condition changes are out of scope here: (1) the **stand-age
 
 - **Sources:** SCANFI v2 species crown-closure layers [@scanfi-v2], derived via the SCANFI approach [@scanfi-methods] (`SCANFI_spsCC_<code>_2020_v2_20260119.tif`); and the Beaudoin *k*NN 2001 species layers [@BeaudoinEtAl2014] (`NFI_MODIS250m_2001_kNN_Species_<Sp>_v1.tif`).
   Both masked to the LandWeb study area (the LTHFC v10 union, `landweb_ltfc_v10`).
+  The simulations read the 2025 SCANFI layers (`SCANFI_spsCC_<code>_2025_v2_20260119.tif`); this summary has not been rerun on them.
 - **Data files:** `` `r relpath(scanfi_csv)` `` (SCANFI); `` `r relpath(knn_csv)` `` (kNN).
 - **Method:** `R/scanfi_veg_summary.R` (multi-hour over the ~3.0 M km^2^ study area at 30 m) and `R/knn_veg_summary.R` (~40 s at 250 m), both cache-aware `format = "file"` targets built by the gated `landweb.extended_analyses` factory; reused unless the CSV is deleted or a version stamp in its name changes.
 

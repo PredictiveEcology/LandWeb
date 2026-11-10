@@ -53,3 +53,46 @@ module_changelog <- function(
   data.table::fwrite(dt, out_csv)
   out_csv
 }
+
+## ---- versions and first commits for report 03's prose ------------------------------------------
+## Read when the report renders, from the project's own records, so the text cannot fall behind the
+## pinned revisions the way hand-typed "currently vX" claims did.
+
+#' Version of a SpaDES module or an owned package, as the project records it
+#'
+#' A module's version is the `version` entry of its `defineModule()` metadata in the submodule
+#' checkout (`modules/<name>/<name>.R`), read as text because sourcing a module file needs
+#' SpaDES.core. A package's is its `renv.lock` entry, the version the pipeline installs.
+#'
+#' @param name Module or package name.
+#' @param root Project root.
+#' @return The version string, or `NA` if neither record has one.
+component_version <- function(name, root = ".") {
+  mod_file <- file.path(root, "modules", name, paste0(name, ".R"))
+  if (file.exists(mod_file)) {
+    txt <- paste(readLines(mod_file, warn = FALSE), collapse = "\n")
+    pat <- paste0(
+      "version\\s*=\\s*list\\(\\s*",
+      gsub(".", "\\.", name, fixed = TRUE),
+      "\\s*=\\s*(?:numeric_version\\(\\s*)?\"([^\"]+)\""
+    )
+    m <- regmatches(txt, regexec(pat, txt, perl = TRUE))[[1L]]
+    return(if (length(m) == 2L) m[[2L]] else NA_character_)
+  }
+  lock <- file.path(root, "renv.lock")
+  v <- if (file.exists(lock)) jsonlite::read_json(lock)$Packages[[name]]$Version
+  if (is.null(v)) NA_character_ else v
+}
+
+#' Month of the first commit of a module or owned package
+#'
+#' @inheritParams component_version
+#' @return `"YYYY-MM"` from the submodule checkout's git history, or `NA`.
+component_first_commit <- function(name, root = ".") {
+  d <- file.path(root, c("modules", "packages"), name)
+  d <- d[dir.exists(d)]
+  if (!length(d)) {
+    return(NA_character_)
+  }
+  .git_out(d[[1L]], c("log", "--reverse", "--format=%ad", "--date=format:%Y-%m"))
+}
