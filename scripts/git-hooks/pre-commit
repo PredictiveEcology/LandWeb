@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+## LandWeb pre-commit hook: when renv.lock is staged, DESCRIPTION's exact pins and Remotes must be the
+## ones R/project_description.R builds from it (renv >= 1.3 enforces them on install). The hook runs that
+## generator, which reads the lock and never snapshots over it (workflowtools >= 0.0.22.9005,
+## `take_snapshot = FALSE`), and refuses the commit if DESCRIPTION changed, so the rewritten file can be
+## reviewed and staged.
+## Install once per clone (a global core.hooksPath dispatcher runs .git/hooks/pre-commit too):
+##   ln -s ../../scripts/git-hooks/pre-commit .git/hooks/pre-commit
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+git diff --cached --name-only | grep -qx 'renv.lock' || exit 0
+
+if ! git diff --quiet -- renv.lock; then
+  echo "pre-commit: renv.lock has unstaged changes. Stage or stash them, so DESCRIPTION is built from the lock being committed." >&2
+  exit 1
+fi
+
+## the generator is light, but this may run on a low-RAM control node: cap it
+systemd-run --user --scope -q -p MemoryMax=2G -p MemorySwapMax=0 \
+  Rscript-4.6.1 R/project_description.R > /dev/null 2>&1 || {
+  echo "pre-commit: R/project_description.R failed; run it by hand to see why." >&2
+  exit 1
+}
+
+if [ "$(git hash-object DESCRIPTION)" != "$(git rev-parse :DESCRIPTION 2>/dev/null)" ]; then
+  echo "pre-commit: DESCRIPTION did not match the staged renv.lock. R/project_description.R has rewritten it:" >&2
+  git --no-pager diff --stat -- DESCRIPTION >&2
+  echo "Review it, then: git add DESCRIPTION" >&2
+  exit 1
+fi

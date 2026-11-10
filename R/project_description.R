@@ -1,4 +1,7 @@
 options(renv.lockfile.version = 1) ## TODO: fix workflowtools#1
+## usethis leaves an existing DESCRIPTION alone in a non-interactive session unless told it may
+## overwrite it (it allows that only in a git project)
+options(usethis.overwrite = TRUE)
 
 workflowtools::description(
   fields = list(
@@ -27,5 +30,6 @@ workflowtools::description(
     License = "GPL-3",
     Depends = "R (== 4.6)"
   ),
-  snapshot = "renv.lock"
+  snapshot = "renv.lock",
+  take_snapshot = FALSE ## read the lock as it is; TRUE would snapshot the library over it
 )
