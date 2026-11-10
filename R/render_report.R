@@ -59,13 +59,39 @@ render_report_isolated <- function(
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   out <- file.path(output_dir, output_file)
   unlink(out) ## a stale PDF must not pass for this render's
-  quarto::quarto_render(
-    input = tmp_input,
-    output_file = output_file,
-    execute_params = execute_params,
-    metadata = metadata,
-    quarto_args = c("--output-dir", output_dir),
-    quiet = quiet
+  ## quarto::quarto_render() keeps quarto's own message out of its error when `quiet`; the failed
+  ## processx::run() under it holds the output (`stderr`). Write it beside the PDF and quote its end.
+  log_file <- file.path(output_dir, paste0(stub, ".quarto.log"))
+  tryCatch(
+    quarto::quarto_render(
+      input = tmp_input,
+      output_file = output_file,
+      execute_params = execute_params,
+      metadata = metadata,
+      quarto_args = c("--output-dir", output_dir),
+      quiet = quiet
+    ),
+    error = function(e) {
+      p <- e
+      while (!is.null(p) && is.null(p$stderr) && is.null(p$stdout)) {
+        p <- p$parent
+      }
+      txt <- if (is.null(p)) conditionMessage(e) else c(p$stdout, p$stderr)
+      writeLines(txt, log_file)
+      lines <- strsplit(paste(txt, collapse = "\n"), "\n", fixed = TRUE)[[1L]]
+      stop(
+        "render_report_isolated(): quarto failed on ",
+        template,
+        " (",
+        Sys.info()[["nodename"]],
+        "); ",
+        "its output is in ",
+        log_file,
+        ". Last lines:\n",
+        paste(utils::tail(lines, 15L), collapse = "\n"),
+        call. = FALSE
+      )
+    }
   )
 
   ## In project mode quarto mirrors the input's project-relative directory under the output
