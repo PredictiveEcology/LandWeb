@@ -21,7 +21,7 @@
 #' @param execute_params Named list passed to the template's `params`.
 #' @param metadata Named list of document metadata (e.g. `title`, `subtitle`), or `NULL`.
 #' @param reports_dir Directory holding the templates (default `"reports"`).
-#' @param quiet Passed to [quarto::quarto_render()].
+#' @param quiet Passed to [quarto::quarto_render()]. `TRUE` hides quarto's error message too.
 #'
 #' @return Path to the rendered PDF, `file.path(output_dir, output_file)`.
 render_report_isolated <- function(
@@ -31,7 +31,7 @@ render_report_isolated <- function(
   execute_params = list(),
   metadata = NULL,
   reports_dir = "reports",
-  quiet = TRUE
+  quiet = FALSE
 ) {
   if (!file.exists(template)) {
     stop("render_report_isolated(): template not found: ", template, call. = FALSE)
@@ -59,8 +59,9 @@ render_report_isolated <- function(
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   out <- file.path(output_dir, output_file)
   unlink(out) ## a stale PDF must not pass for this render's
-  ## quarto::quarto_render() keeps quarto's own message out of its error when `quiet`; the failed
-  ## processx::run() under it holds the output (`stderr`). Write it beside the PDF and quote its end.
+  ## quarto::quarto_render() keeps quarto's own message out of its error; the failed processx::run()
+  ## under it holds the output (`stderr`). Write it beside the PDF and quote its end. With `quiet`,
+  ## the quarto CLI gets `--quiet` and prints nothing, errors included, so the log would be empty.
   log_file <- file.path(output_dir, paste0(stub, ".quarto.log"))
   tryCatch(
     quarto::quarto_render(
@@ -129,7 +130,7 @@ render_report_isolated <- function(
 #' @param data The list from [build_report05_data()].
 #' @param template Report template.
 #' @param output_dir Output directory (default `outputs/<study_area>/reports`).
-#' @param quiet Passed to [quarto::quarto_render()].
+#' @param quiet Passed to [quarto::quarto_render()]. `TRUE` hides quarto's error message too.
 #'
 #' @return Character vector: the PDF path first, then the figure PNGs.
 render_report05 <- function(
@@ -137,7 +138,7 @@ render_report05 <- function(
   data,
   template = "reports/05-study-area-report.qmd",
   output_dir = file.path("outputs", study_area, "reports"),
-  quiet = TRUE
+  quiet = FALSE
 ) {
   data_file <- tempfile(paste0("report05_", study_area, "_"), fileext = ".rds")
   saveRDS(data, data_file)
