@@ -150,11 +150,14 @@ get_targets_extended_analyses <- function(local) {
       data_sources_bib,
       {
         input_manifest_file # dep: rebuild when the manifest changes
+        ## the sync returns a summary list; a file target must return its path
+        out <- "citations/data-sources.bib"
         workflowtools::sync_manifest_to_bibtex(
           manifest = "_input_manifest.json",
-          out = "citations/data-sources.bib",
+          out = out,
           references_bib = "citations/references.bib"
         )
+        out
       },
       format = "file",
       deployment = "main"
