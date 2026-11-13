@@ -96,6 +96,95 @@ build_input_manifest <- function(
         )
       )
     ),
+    ## The 2025 layers of the same SCANFI v2 run: what the per-study-area stages read (dataYear =
+    ## 2025 in _targets.R). The 2020 records above stay for the shared stages pinned to 2020.
+    list(
+      id = "scanfi-species-2025",
+      name = "SCANFI v2 per-species crown closure (2025)",
+      ## LandR's 2025 SCANFI v2 species folder (LandR::prepSpeciesLayers_SCANFI)
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/file/d/1jS2sscKe_tcw4qDC-9297_jrulFduyKg"
+      ),
+      local_path = file.path(inputs_dir, "SCANFI_spsCC_ABIE_BAL_2025_v2_20260119.tif"),
+      version_or_vintage = "2025, v2 (stamp 20260119)",
+      license = "OGL-Canada-2.0 (public release); per-species layers access-controlled",
+      description = paste(
+        "30 m per-species percent crown-closure rasters for 2025",
+        "(SCANFI_spsCC_<code>_2025_v2_20260119.tif), the species cover the per-study-area",
+        "simulations start from (Biomass_speciesData). As for 2020, the public v2 release has",
+        "only the 10 species-group layers for 2025. LandR reads the SCANFI team's restricted Drive",
+        "folder through the PredictiveEcology mirror of it (LandR::scanfiUrlRemap())."
+      ),
+      citation = list(bibtex_key = "scanfi-v2", external = TRUE),
+      extra = list(
+        mirror_url = paste0(
+          "https://object-arbutus.alliancecan.ca/",
+          "529feda02d404836b0e91b1d360b4df0:predictiveecology/",
+          "?prefix=SCANFI_v2%2F2025%2F&delimiter=/"
+        )
+      )
+    ),
+    list(
+      id = "scanfi-structure-2025",
+      name = "SCANFI v2 stand age, biomass, canopy height and closure (2025)",
+      source = list(
+        type = "http_download",
+        url = "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"
+      ),
+      local_path = file.path(inputs_dir, "SCANFI_age_median_2025_v2_20260119.tif"),
+      version_or_vintage = "2025, v2 (stamp 20260119)",
+      license = "OGL-Canada-2.0",
+      description = paste(
+        "30 m SCANFI attribute rasters for 2025 that data preparation reads: biomass",
+        "(rawBiomassMap); median stand age, only as the age covariate of the maxB/maxANPP fit",
+        "(standAgeMapForMaxB; the cohorts take their age from cc-age-2025); and canopy height and",
+        "closure, only to fit the deciduous cover weight. LandR fetches them by Drive id through",
+        "the PredictiveEcology mirror. Each local file has the size of the file of the same name",
+        "in the public v2 release (checked 2026-11-13)."
+      ),
+      citation = list(bibtex_key = "scanfi-methods", external = TRUE),
+      extra = list(
+        download_url = "https://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/SCANFI/v2/",
+        files = paste(
+          "SCANFI_age_median_2025_v2_20260119.tif, SCANFI_att_biomass_2025_v2_20260119.tif,",
+          "SCANFI_att_height_2025_v2_20260119.tif, SCANFI_att_closure_2025_v2_20260119.tif"
+        )
+      )
+    ),
+    list(
+      id = "scanfi-lcc-2025",
+      name = "SCANFI v2 land cover, reclassified to NFI/EOSD codes (2025)",
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/file/d/1eb1zEWC3VRycA_aRzTB2ODhWDLZis-YG"
+      ),
+      local_path = file.path(
+        inputs_dir,
+        "SCANFI_att_nfiLandcover_CanadaLCCclassCodes_2025_v2_20260119.tif"
+      ),
+      version_or_vintage = "2025, v2 (stamp 20260119); derived, reclassified",
+      license = "OGL-Canada-2.0 (upstream); hosted copy access-controlled",
+      description = paste(
+        "DERIVED product, as scanfi-lcc-2020 but for 2025: SCANFI's 8-class nfiLandcover",
+        "relabelled 1:1 into NFI/EOSD codes by LandR::convert_SCANFI_LCC_codes(). LandWeb_preamble",
+        "builds rstLCC and rasterToMatch from it, read from the access-controlled Drive copy. The",
+        "preamble also reads the 1985, 1995, 2005 and 2015 layers of the same series: ground",
+        "SCANFI shows treed in any of those years or 2025 counts as forest land. Upstream source",
+        "is SCANFI_att_nfiLandcover_2025_v2_20260119.tif on the NRCan FTP."
+      ),
+      citation = list(bibtex_key = "scanfi-methods", external = TRUE),
+      extra = list(
+        derived = TRUE,
+        derived_from = "scanfi-structure-2025",
+        derivation = "LandR::convert_SCANFI_LCC_codes()",
+        upstream_url = paste0(
+          "https://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/SCANFI/v2/",
+          "SCANFI_att_nfiLandcover_2025_v2_20260119.tif"
+        ),
+        forest_land_years = "1985, 1995, 2005, 2015, 2025"
+      )
+    ),
     list(
       id = "canlcc-2020",
       name = "2020 Land Cover of Canada (NALCMS, 30 m)",
@@ -336,6 +425,88 @@ build_input_manifest <- function(
         )
       ),
       extra = list(consumed_via = "cc-age-2025")
+    ),
+    ## Fire records (_targets.R, R/fire_records.R). Two consumers, two NFDB releases: data
+    ## preparation (target firePerimeterRecords) reads inputs/fire_perimeters_2025/, the burn
+    ## summaries (target fireRecords) read the NBAC and NFDB shapefiles at the top of inputs/. The
+    ## local_path of each is its zip, so retrieved_at is the download date: extraction keeps the
+    ## dates stored in the archive.
+    list(
+      id = "nbac-1972-2025",
+      name = "National Burned Area Composite (NBAC), 1972-2025",
+      source = list(
+        type = "http_download",
+        url = "https://cwfis.cfs.nrcan.gc.ca/downloads/nbac/NBAC_1972to2025_20260513_shp.zip"
+      ),
+      local_path = file.path(inputs_dir, "NBAC_1972to2025_20260513_shp.zip"),
+      version_or_vintage = "release 20260513 (fires 1972-2025)",
+      license = "OGL-Canada-2.0",
+      description = paste(
+        "Annual burned-area polygons for Canada from 1972, the best available perimeter of each",
+        "fire from agency and satellite mapping (NBAC_merged_1972_to_2025_20260513.shp). Read",
+        "twice: the burn summaries' historic burn map (this copy, through fireregimetools) and",
+        "data preparation's fire-year raster, the latest fire since 1950 in each pixel (the copy",
+        "in fire_perimeters_2025/, through LandR::prepInputsFireYear()). Both copies have the size",
+        "of the archive CWFIS serves (checked 2026-11-13)."
+      ),
+      citation = list(bibtex_key = "nbac-2026", external = TRUE),
+      extra = list(
+        also_at = file.path(inputs_dir, "fire_perimeters_2025", "NBAC_1972to2025_20260513_shp.zip"),
+        methods_citation = "hall2020nbac",
+        catalogue_url = paste0(
+          "https://cwfis.cfs.nrcan.gc.ca/en/catalogue/results/",
+          "537a1fd0-698e-4a7b-85a1-e02581ae78b2"
+        )
+      )
+    ),
+    list(
+      id = "nfdb-poly-pre1972-20250630",
+      name = "Canadian National Fire Database fire polygons before 1972 (release 20250630)",
+      source = list(
+        type = "http_download",
+        url = paste0(
+          "https://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_poly/current_version/",
+          "NFDB_poly_pre1972.zip"
+        )
+      ),
+      local_path = file.path(inputs_dir, "fire_perimeters_2025", "NFDB_poly_pre1972.zip"),
+      version_or_vintage = "release 20250630 (NFDB_poly_pre1972_20250630.shp); fires before 1972",
+      license = "OGL-Canada-2.0",
+      description = paste(
+        "Agency-mapped fire perimeters for the years before NBAC begins. Data preparation dates",
+        "fires from NBAC for 1972 on and from these before it (LandR::prepInputsFireYear(),",
+        "urlPre1972). In this release the main NFDB_poly.zip holds no fire before 1972; they are",
+        "only in this archive. The local zip has the size of the one CWFIS serves (checked",
+        "2026-11-13)."
+      ),
+      citation = list(bibtex_key = "nfdb-2025", external = TRUE),
+      extra = list(
+        catalogue_url = paste0(
+          "https://cwfis.cfs.nrcan.gc.ca/en/catalogue/results/",
+          "668421c2-4477-410b-9dd0-aea980c5b4f0"
+        )
+      )
+    ),
+    list(
+      id = "nfdb-poly-20210707",
+      name = "Canadian National Fire Database fire polygons (release 20210707)",
+      source = list(
+        type = "http_download",
+        url = "https://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_poly/current_version/NFDB_poly.zip"
+      ),
+      local_path = file.path(inputs_dir, "NFDB_poly.zip"),
+      version_or_vintage = "release 20210707 (NFDB_poly_20210707.shp)",
+      license = "NFDB End-User Agreement in the archive: internal use only, no redistribution",
+      description = paste(
+        "Agency-mapped fire perimeters, all years. The burn summaries' historic burn map takes",
+        "NBAC and fills the years before 1972 from these; fire_records_fetch() stops if they hold",
+        "none. An earlier release kept on disk: the URL, fireregimetools' default and the one the",
+        "local download stamp names, now serves a later release (778,498,701 bytes against this",
+        "copy's 544,459,716) with no fire before 1972, and the CWFIS download area keeps only",
+        "current_version/ (checked 2026-11-13). Cited as the archive's NFDB_documentation_EN.pdf",
+        "asks."
+      ),
+      citation = list(bibtex_key = "nfdb-2021", external = TRUE)
     )
   )
 

@@ -99,11 +99,10 @@ knitr::kable(
   column_spec(4, width = "12em")
 ```
 
-The manifest does not yet cover every input of the current run.
-Its SCANFI records are for the 2020 layers, while the per-study-area simulations now start from the 2025 layers of the same SCANFI v2 product [@scanfi-v2].
-The fire records are not registered either.
-Data preparation dates the fires since 1950 from the National Burned Area Composite (NBAC, 1972--2025, release 20260513) and the National Fire Database's pre-1972 archive (release 20250630).
-The historic burn map, against which the simulated burning is compared, takes NBAC and fills the years before 1972, which NBAC does not cover, from the National Fire Database's 20210707 release.
+The manifest records the SCANFI layers of both years: the 2020 layers, from which the shared growth-curve and trait tables were built, and the 2025 layers of the same SCANFI v2 product [@scanfi-v2], from which the per-study-area simulations start.
+It also records the fire records.
+Data preparation dates the fires since 1950 from the National Burned Area Composite (NBAC, 1972--2025, release 20260513) [@nbac-2026; @hall2020nbac] and the National Fire Database's pre-1972 archive (release 20250630) [@nfdb-2025].
+The historic burn map, against which the simulated burning is compared, takes NBAC and fills the years before 1972, which NBAC does not cover, from the National Fire Database's 20210707 release [@nfdb-2021].
 
 The manifest is hand-curated (run `R/build_input_manifest.R` to regenerate) and committed to the repo, so it travels with the code.
 It deliberately omits content hashes for the multi-GB rasters; `sha256` can be added per record where a hash is worth carrying.
@@ -193,11 +192,11 @@ Until this revision the manifest carried one record, `scanfi-structure-2020`, co
 That is correct for age and biomass.
 For land cover it was wrong on three counts at once: the file the pipeline consumes is a **derived** reclassification rather than the published layer, the DOI does not resolve to it, and the copy actually fetched is an access-controlled Drive object rather than an openly downloadable one.
 Land cover is now registered separately as **`scanfi-lcc-2020`**, flagged `derived = TRUE` with a `derived_from` pointer, so the manifest states what is really being read.
-The simulations now read the 2025 land cover, which has the same structure; its record has not been added yet (see the manifest section above).
+The simulations now read the 2025 land cover, which has the same structure and is registered the same way, as `scanfi-lcc-2025`.
 
 ## Provenance chain
 
-The chain for the 2025 land cover the simulations start from; for 2020, the year the manifest records, only the year and the Drive copy (`1EGp7LUA7cXMR6KpXDmu617xsjwGM6aIx`) differ:
+The chain for the 2025 land cover the simulations start from; for 2020, only the year and the Drive copy (`1EGp7LUA7cXMR6KpXDmu617xsjwGM6aIx`) differ:
 
 ```
 SCANFI_att_nfiLandcover_2025_v2_20260119.tif          published layer, 8 classes (1-8), Byte

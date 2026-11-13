@@ -267,3 +267,87 @@
   month       = jul,
   url         = {https://nfi.nfis.org/resources/photoplot/PP_Data_Dictionary_6.1.pdf}
 }
+
+% --- Fire records: reports 00, 02 and 06 ---
+% Data citations in the wording CWFIS asks for ("please acknowledge the source using the following
+% citation"), with the year of the release used. NBAC: catalogue record
+% 537a1fd0-698e-4a7b-85a1-e02581ae78b2 (publication date 2026-05-13 = release 20260513). NFDB
+% 20250630: catalogue record 668421c2-4477-410b-9dd0-aea980c5b4f0 (publication date 2025-06-30). NFDB
+% 20210707: the citation in that release's own NFDB_documentation_EN.pdf, which gives the year.
+@misc{nbac-2026,
+  author    = {{Canadian Forest Service}},
+  title     = {{N}ational {B}urned {A}rea {C}omposite ({NBAC})},
+  year      = {2026},
+  publisher = {Natural Resources Canada, Canadian Forest Service, Northern Forestry Centre, Edmonton, Alberta},
+  note      = {Release 20260513, fires 1972--2025},
+  url       = {https://cwfis.cfs.nrcan.gc.ca}
+}
+
+@misc{nfdb-2025,
+  author    = {{Canadian Forest Service}},
+  title     = {{C}anadian {N}ational {F}ire {D}atabase -- {A}gency {F}ire {D}ata},
+  year      = {2025},
+  publisher = {Natural Resources Canada, Canadian Forest Service, Northern Forestry Centre, Edmonton, Alberta},
+  note      = {Fire polygons before 1972, release 20250630},
+  url       = {https://cwfis.cfs.nrcan.gc.ca}
+}
+
+@misc{nfdb-2021,
+  author    = {{Canadian Forest Service}},
+  title     = {{C}anadian {N}ational {F}ire {D}atabase -- {A}gency {F}ire {D}ata},
+  year      = {2021},
+  publisher = {Natural Resources Canada, Canadian Forest Service, Northern Forestry Centre, Edmonton, Alberta},
+  note      = {Fire polygons, release 20210707},
+  url       = {https://cwfis.cfs.nrcan.gc.ca/ha/nfdb}
+}
+
+% NBAC methods paper, cited by CWFIS as the reference for the product. Checked against Crossref.
+@article{hall2020nbac,
+  author  = {Hall, R. J. and Skakun, R. S. and Metsaranta, J. M. and Landry, R. and Fraser, R. H. and Raymond, D. and Gartrell, M. and Decker, V. and Little, J.},
+  title   = {Generating annual estimates of forest fire disturbance in {C}anada: the {N}ational {B}urned {A}rea {C}omposite},
+  journal = {International Journal of Wildland Fire},
+  year    = {2020},
+  volume  = {29},
+  number  = {10},
+  pages   = {878--891},
+  doi     = {10.1071/WF19201}
+}
+
+% --- Current-condition and v2 vegetation inputs: reports 01, 02, 03 and 06 ---
+% The v2 current-condition layers (README.md; manual key Pickell:2016). Checked against the report's
+% title page (University of British Columbia, December 2016, 27 pp.).
+@techreport{Pickell:2016,
+  author      = {Pickell, Paul D. and Coops, Nicholas C.},
+  title       = {Development of historical forest attribute layers using {Landsat} time series and {kNN} imputation for the western {Canadian} boreal forest},
+  institution = {University of British Columbia},
+  address     = {Vancouver, BC},
+  year        = {2016},
+  month       = dec,
+  note        = {A report prepared for the LandWeb project}
+}
+
+% The AVI standard in force (it supersedes v2.1.1, 2005). Checked against the PDF's title page and its
+% Open Government record (ISBN, January 2022).
+@techreport{avi-standards-2022,
+  author      = {{Alberta Agriculture, Forestry and Rural Economic Development}},
+  title       = {{A}lberta {V}egetation {I}nventory {S}tandards. {V}ersion 2.1.5},
+  institution = {Government of Alberta},
+  type        = {Standard},
+  address     = {Edmonton, AB},
+  year        = {2022},
+  month       = jan,
+  isbn        = {978-1-4601-5305-5},
+  url         = {https://open.alberta.ca/publications/alberta-vegetation-inventory-standards}
+}
+
+% BC VRI rank-1 layer, the release (VEG_COMP_LYR_R1_POLY_2025) in fRI's 2025 stand-age composite.
+% Author, title and URL from the BC Data Catalogue record. Its suggested citation still reads
+% "(2024). VRI - 2024 - ...", one release behind the record, so it is not copied. No year: the 2025
+% release (stand growth to 2025) was posted on 2026-05-20, and which year the provider dates it by is
+% not stated; confirm before citing.
+@misc{vri-r1-2025,
+  author    = {{Forest Analysis and Inventory Branch}},
+  title     = {{VRI} - 2025 - {F}orest {V}egetation {C}omposite {R}ank 1 {L}ayer ({R1})},
+  publisher = {British Columbia Data Catalogue},
+  url       = {https://catalogue.data.gov.bc.ca/dataset/2ebb35d8-c82f-4a17-9c96-612ac3532d55}
+}

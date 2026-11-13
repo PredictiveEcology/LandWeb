@@ -269,6 +269,65 @@
       "license": "Access controlled (LandWeb hosted Drive)"
     },
     {
+      "id": "nbac-1972-2025",
+      "name": "National Burned Area Composite (NBAC), 1972-2025",
+      "source": {
+        "type": "http_download",
+        "url": "https://cwfis.cfs.nrcan.gc.ca/downloads/nbac/NBAC_1972to2025_20260513_shp.zip"
+      },
+      "retrieved_at": "2026-07-06T15:28:10Z",
+      "local_path": "inputs/NBAC_1972to2025_20260513_shp.zip",
+      "description": "Annual burned-area polygons for Canada from 1972, the best available perimeter of each fire from agency and satellite mapping (NBAC_merged_1972_to_2025_20260513.shp). Read twice: the burn summaries' historic burn map (this copy, through fireregimetools) and data preparation's fire-year raster, the latest fire since 1950 in each pixel (the copy in fire_perimeters_2025/, through LandR::prepInputsFireYear()). Both copies have the size of the archive CWFIS serves (checked 2026-11-13).",
+      "version_or_vintage": "release 20260513 (fires 1972-2025)",
+      "license": "OGL-Canada-2.0",
+      "citation": {
+        "bibtex_key": "nbac-2026",
+        "external": true
+      },
+      "extra": {
+        "also_at": "inputs/fire_perimeters_2025/NBAC_1972to2025_20260513_shp.zip",
+        "methods_citation": "hall2020nbac",
+        "catalogue_url": "https://cwfis.cfs.nrcan.gc.ca/en/catalogue/results/537a1fd0-698e-4a7b-85a1-e02581ae78b2"
+      }
+    },
+    {
+      "id": "nfdb-poly-20210707",
+      "name": "Canadian National Fire Database fire polygons (release 20210707)",
+      "source": {
+        "type": "http_download",
+        "url": "https://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_poly/current_version/NFDB_poly.zip"
+      },
+      "retrieved_at": "2023-01-17T16:07:25Z",
+      "local_path": "inputs/NFDB_poly.zip",
+      "description": "Agency-mapped fire perimeters, all years. The burn summaries' historic burn map takes NBAC and fills the years before 1972 from these; fire_records_fetch() stops if they hold none. An earlier release kept on disk: the URL, fireregimetools' default and the one the local download stamp names, now serves a later release (778,498,701 bytes against this copy's 544,459,716) with no fire before 1972, and the CWFIS download area keeps only current_version/ (checked 2026-11-13). Cited as the archive's NFDB_documentation_EN.pdf asks.",
+      "version_or_vintage": "release 20210707 (NFDB_poly_20210707.shp)",
+      "license": "NFDB End-User Agreement in the archive: internal use only, no redistribution",
+      "citation": {
+        "bibtex_key": "nfdb-2021",
+        "external": true
+      }
+    },
+    {
+      "id": "nfdb-poly-pre1972-20250630",
+      "name": "Canadian National Fire Database fire polygons before 1972 (release 20250630)",
+      "source": {
+        "type": "http_download",
+        "url": "https://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_poly/current_version/NFDB_poly_pre1972.zip"
+      },
+      "retrieved_at": "2026-11-04T02:03:15Z",
+      "local_path": "inputs/fire_perimeters_2025/NFDB_poly_pre1972.zip",
+      "description": "Agency-mapped fire perimeters for the years before NBAC begins. Data preparation dates fires from NBAC for 1972 on and from these before it (LandR::prepInputsFireYear(), urlPre1972). In this release the main NFDB_poly.zip holds no fire before 1972; they are only in this archive. The local zip has the size of the one CWFIS serves (checked 2026-11-13).",
+      "version_or_vintage": "release 20250630 (NFDB_poly_pre1972_20250630.shp); fires before 1972",
+      "license": "OGL-Canada-2.0",
+      "citation": {
+        "bibtex_key": "nfdb-2025",
+        "external": true
+      },
+      "extra": {
+        "catalogue_url": "https://cwfis.cfs.nrcan.gc.ca/en/catalogue/results/668421c2-4477-410b-9dd0-aea980c5b4f0"
+      }
+    },
+    {
       "id": "ntems-forest-age-2022",
       "name": "NTEMS Canada forest age, 2022",
       "source": {
@@ -348,6 +407,30 @@
       }
     },
     {
+      "id": "scanfi-lcc-2025",
+      "name": "SCANFI v2 land cover, reclassified to NFI/EOSD codes (2025)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1eb1zEWC3VRycA_aRzTB2ODhWDLZis-YG"
+      },
+      "retrieved_at": "2026-10-20T22:05:28Z",
+      "local_path": "inputs/SCANFI_att_nfiLandcover_CanadaLCCclassCodes_2025_v2_20260119.tif",
+      "description": "DERIVED product, as scanfi-lcc-2020 but for 2025: SCANFI's 8-class nfiLandcover relabelled 1:1 into NFI/EOSD codes by LandR::convert_SCANFI_LCC_codes(). LandWeb_preamble builds rstLCC and rasterToMatch from it, read from the access-controlled Drive copy. The preamble also reads the 1985, 1995, 2005 and 2015 layers of the same series: ground SCANFI shows treed in any of those years or 2025 counts as forest land. Upstream source is SCANFI_att_nfiLandcover_2025_v2_20260119.tif on the NRCan FTP.",
+      "version_or_vintage": "2025, v2 (stamp 20260119); derived, reclassified",
+      "license": "OGL-Canada-2.0 (upstream); hosted copy access-controlled",
+      "citation": {
+        "bibtex_key": "scanfi-methods",
+        "external": true
+      },
+      "extra": {
+        "derived": true,
+        "derived_from": "scanfi-structure-2025",
+        "derivation": "LandR::convert_SCANFI_LCC_codes()",
+        "upstream_url": "https://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/SCANFI/v2/SCANFI_att_nfiLandcover_2025_v2_20260119.tif",
+        "forest_land_years": "1985, 1995, 2005, 2015, 2025"
+      }
+    },
+    {
       "id": "scanfi-species-2020",
       "name": "SCANFI v2 per-species crown closure (2020)",
       "source": {
@@ -362,6 +445,26 @@
       "citation": {
         "bibtex_key": "scanfi-v2",
         "external": true
+      }
+    },
+    {
+      "id": "scanfi-species-2025",
+      "name": "SCANFI v2 per-species crown closure (2025)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1jS2sscKe_tcw4qDC-9297_jrulFduyKg"
+      },
+      "retrieved_at": "2026-11-04T01:46:00Z",
+      "local_path": "inputs/SCANFI_spsCC_ABIE_BAL_2025_v2_20260119.tif",
+      "description": "30 m per-species percent crown-closure rasters for 2025 (SCANFI_spsCC_<code>_2025_v2_20260119.tif), the species cover the per-study-area simulations start from (Biomass_speciesData). As for 2020, the public v2 release has only the 10 species-group layers for 2025. LandR reads the SCANFI team's restricted Drive folder through the PredictiveEcology mirror of it (LandR::scanfiUrlRemap()).",
+      "version_or_vintage": "2025, v2 (stamp 20260119)",
+      "license": "OGL-Canada-2.0 (public release); per-species layers access-controlled",
+      "citation": {
+        "bibtex_key": "scanfi-v2",
+        "external": true
+      },
+      "extra": {
+        "mirror_url": "https://object-arbutus.alliancecan.ca/529feda02d404836b0e91b1d360b4df0:predictiveecology/?prefix=SCANFI_v2%2F2025%2F&delimiter=/"
       }
     },
     {
@@ -382,6 +485,27 @@
       },
       "extra": {
         "download_url": "https://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/SCANFI/v2/"
+      }
+    },
+    {
+      "id": "scanfi-structure-2025",
+      "name": "SCANFI v2 stand age, biomass, canopy height and closure (2025)",
+      "source": {
+        "type": "http_download",
+        "url": "https://doi.org/10.23687/07653869-f303-46c2-a04e-9ab479b73cbf"
+      },
+      "retrieved_at": "2026-11-04T01:44:51Z",
+      "local_path": "inputs/SCANFI_age_median_2025_v2_20260119.tif",
+      "description": "30 m SCANFI attribute rasters for 2025 that data preparation reads: biomass (rawBiomassMap); median stand age, only as the age covariate of the maxB/maxANPP fit (standAgeMapForMaxB; the cohorts take their age from cc-age-2025); and canopy height and closure, only to fit the deciduous cover weight. LandR fetches them by Drive id through the PredictiveEcology mirror. Each local file has the size of the file of the same name in the public v2 release (checked 2026-11-13).",
+      "version_or_vintage": "2025, v2 (stamp 20260119)",
+      "license": "OGL-Canada-2.0",
+      "citation": {
+        "bibtex_key": "scanfi-methods",
+        "external": true
+      },
+      "extra": {
+        "download_url": "https://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/SCANFI/v2/",
+        "files": "SCANFI_age_median_2025_v2_20260119.tif, SCANFI_att_biomass_2025_v2_20260119.tif, SCANFI_att_height_2025_v2_20260119.tif, SCANFI_att_closure_2025_v2_20260119.tif"
       }
     }
   ]
