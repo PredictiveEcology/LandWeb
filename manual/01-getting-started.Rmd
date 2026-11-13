@@ -204,7 +204,7 @@ sudo npm install -g mapshaper
 
 #### R and Rstudio
 
-1. Download and install R version 4.5.1, using `rig` (<https://github.com/r-lib/rig>), which simplifies management of multiple R installations, and allows easy switching among them.
+1. Download and install R version 4.6.1, using `rig` (<https://github.com/r-lib/rig>), which simplifies management of multiple R installations, and allows easy switching among them.
 
 
 :::{.rmdimportant}
@@ -219,7 +219,7 @@ winget install posit.rig
 2. Install R:
 
 ```shell
-rig add 4.5.1
+rig add 4.6.1
 rig system make-links
 rig system rtools install 45
 ```
@@ -236,7 +236,7 @@ brew install --cask rig
 2. Install R:
 
 ```zsh
-rig add 4.5.1
+rig add 4.6.1
 
 rig system fix-permissions
 rig system make-links
@@ -261,11 +261,11 @@ sudo apt install r-rig
 2. Install R:
 
 ```bash
-rig add 4.5.1
+rig add 4.6.1
 
 rig system make-links
 
-sudo ln -s /opt/R/4.5.1/bin/Rscript /usr/local/bin/Rscript-4.5.1
+sudo ln -s /opt/R/4.6.1/bin/Rscript /usr/local/bin/Rscript-4.6.1
 
 rig list
 ```

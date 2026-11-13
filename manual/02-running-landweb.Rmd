@@ -1,9 +1,14 @@
 # Running LandWeb
 
+LandWeb runs as a `targets` pipeline.
+`_targets.R` defines each step of a run (data preparation, simulation, summaries and the study area report) as a target, and `targets::tar_make()` builds every target that is missing or out of date.
+Finished targets are kept in the `_targets/` store, so a later run skips any step whose inputs have not changed.
+The numbered scripts in the project root (`00-main.R` to `04-post-sim.R`) are from LandWeb v2 and are not used by the pipeline.
+
 1. Launch Rstudio and open the LandWeb Rstudio project (`LandWeb.Rproj`);
 
 :::{.rmdimportant}
-Be sure to use R 4.5.1 when running the model!
+Be sure to use R 4.6.1 when running the model!
 
 If using `rig` to manage multiple R versions, use the following to launch Rstudio with the correct version of R:
 
@@ -13,165 +18,85 @@ rig rstudio renv.lock
 ```
 :::
 
-2. Open the file `00-main.R` and run each line in sequence, responding to any prompts as required.
-
-:::{.rmdwarning}
-Before you can run the model, ensure that all necessary package versions are installed by restoring from the project's snapshot file.
+2. Install the package versions the project uses by restoring them from its lockfile (`renv.lock`):
 
 ```r
 options(renv.config.pak.enabled = FALSE)
 renv::restore()
 ```
-:::
-
-## Model setup and configuration
-
-```{r setup-running-landweb, echo=FALSE, eval=TRUE, include=FALSE, message=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = FALSE, results = "hold") ## change to eval = TRUE if all chunks are to be evaluated
-
-library("ggplot2")
-library("sf")
-```
-
-The default settings for study area, model version, and scenario are defined in `01a-globalvars.R`.
-These defaults are defined as 'dot-variables' (e.g., `.studyAreaName`) and can be set externally to the main script
-(e.g., if `.studyAreaName` is defined before running `01a-globalvars.R`, then the user-set value will be used, rather than the default defined in that script).
 
 :::{.rmdnote}
-Advanced setup and model run customization is described in [Advanced setup].
+On a machine with no packages installed yet, the restore can stop while installing `SpaDES.core`, with the error "there is no package called 'ggplot2'".
+Packages are installed in parallel, and `SpaDES.core` was built before `ggplot2` was ready.
+Restart R and run `renv::restore()` again; the second pass completes.
 :::
 
-### Select a study area
+3. Choose the study areas and the number of replicates in `_local.R` (see [Configuring a run]).
 
-The model can be run over the entire study area, for certain individual provinces (currently only AB, SK, MB, NWT), or groups of predefined FMAs (see Fig. 1 and Table 1).
+4. Start the run with `targets::tar_make()` (see [Running the model]).
 
-#### FMA boundaries
+## Configuring a run
 
-Currently, only a subset of the FMAs within the LandWeb study area are predefined to be run on their own (i.e., without needing to run the model over the entire study area; see Table 2).
+### Where settings live
 
-\newpage
-\blandscape
+- `_local.R` holds the settings you will usually change:
+  - `study_areas`: the study areas to run (see [Choosing study areas]);
+  - `n_reps`: the number of replicate simulations per study area;
+  - `res`: pixel size in metres (240);
+  - `sim_end`: simulation length in years (1000);
+  - `local_workers`: how many workers run at once when the whole run is on one machine.
+    It also sets each simulation's share of the machine's memory, so changing it re-runs the simulations;
+  - `paths`: where inputs, outputs and temporary files go.
+    `scratchPath` holds temporary raster files while a simulation runs; it must be a writable directory, ideally on a fast local disk, on every machine that runs simulations.
+- `_targets.R` holds the module parameters of each stage.
+  Change model parameters here.
+- `_hosts.R` (optional, not tracked by git) lists the compute nodes for a run spread over several machines (see [Running on several machines]).
 
-```{r fma-map, echo = FALSE, eval = "true", fig.keep = "all", message = FALSE, out.width = "90%", results = "hide", fig.cap = "\\label{fig:fma-map} FMAs within the LandWeb study area, identified by polygon IDs, which are described in Table 1. Polygon fill colours are used only to differentiate neighbouring FMAs."}
-prjDir <- SpaDES.config::findProjectPath(from_wd = FALSE)
+`_local.R` is read only on the machine that runs `tar_make()`; the worker processes that run the simulations do not read it.
 
-canProvs <- geodata::gadm(
-  country = "CAN",
-  level = 1,
-  path = file.path(prjDir, "inputs")
-) |>
-  sf::st_as_sf()
-lwProvs <- c("British Columbia", "Alberta", "Saskatchewan", "Manitoba")
+Changing a setting or a module parameter re-runs the stages that use it and everything downstream of them.
+Every stage uses `paths`, so changing it re-runs the whole pipeline; changing `res` re-runs every study-area stage.
+A stage also re-runs when its code changes: a new commit to one of its modules, or a new version of a GitHub-installed package that one of its modules uses.
 
-fshp2 <- file.path(
-  prjDir,
-  "inputs",
-  "FMA_Boundaries",
-  "FMA_Boundary_CustomProj",
-  "FMA_Boundary_Updated.shp"
-)
-fcsv2 <- file.path(prjDir, "manual", "tables", "FMA_Boundary_Updated.csv")
-fgg2 <- file.path(prjDir, "manual", "figures", "FMA_Boundary_Updated.png")
+### Scenario
 
-if (file.exists(fshp2)) {
-  sf2 <- sf::st_read(fshp2, quiet = TRUE) |>
-    sf::st_zm()
+LandWeb v2 (the 2019 runs) increased seed dispersal distances (`dispersalType = "high"`) to ensure sufficient regeneration following fire, and used `ROStype = "log"`.
+These adjustments made the model behave more like a state-transition model than a process-based one.
+LandWeb v3 uses the default for both (`dispersalType = "default"` and `ROStype = "default"`, set in `_targets.R`), so it behaves like the standard LANDIS-II model.
 
-  data.frame(ID = sf2$OBJECTID_1, Name = sf2$Name) |>
-    write.csv(fcsv2, row.names = FALSE)
+### Choosing study areas
 
-  centroids_sf2 <- cbind(
-    suppressWarnings(sf::st_centroid(sf2)),
-    suppressWarnings(sf::st_coordinates(sf::st_centroid(sf2$geometry)))
-  )
+LandWeb v3 is run on 18 study areas.
+Each is a group of forest tenures (FMAs, TSAs and FMLs) assigned to one ecoregion, and is named after that ecoregion, *e.g.* `WesternAlbertaUpland`.
+Report 00 (`reports/pdf/00-overview.pdf`) maps the groups and lists the tenures in each.
 
-  gg2 <- ggplot2::ggplot(data = sf2) +
-    ggplot2::geom_sf(data = canProvs[canProvs$NAME_1 %in% lwProvs, ]) +
-    ggplot2::geom_sf(
-      data = sf2,
-      mapping = ggplot2::aes(fill = as.factor(OBJECTID_1 %% 10))
-    ) +
-    ggplot2::scale_fill_brewer(type = "div", palette = "Spectral") +
-    ggplot2::geom_text(
-      data = centroids_sf2,
-      mapping = ggplot2::aes(x = X, y = Y, label = OBJECTID_1),
-      size = 2
-    ) +
-    ggplot2::labs(title = "FMA boundaries within the LandWeb study area") +
-    ggplot2::xlab("Longitude") +
-    ggplot2::ylab("Latitude") +
-    ggplot2::guides(fill = "none") +
-    ggplot2::theme_bw()
-  ggplot2::ggsave(fgg2, gg2)
-  gg2
-} else {
-  knitr::include_graphics(fgg2)
-}
+To choose which study areas to run, list them in `study_areas` in `_local.R`, *e.g.*:
+
+```r
+study_areas = c("WesternAlbertaUpland", "ClearHillsUpland"),
 ```
 
-\elandscape
-\newpage
+Each study area gets its own copy of every study-area stage, named with the study area as a suffix:
 
-```{r fma-table, echo = FALSE, eval = TRUE, message = FALSE, warning = FALSE}
-read.csv(fcsv2) |>
-  knitr::kable(
-    caption = "FMA polygon IDs (from Figure 1) and their corresponding FMA names.",
-    booktabs = TRUE,
-    longtable = TRUE
-  ) |>
-  kableExtra::kable_styling(latex_options = c("striped", "repeat_header"))
-```
+- `preamble_<studyArea>`: study area boundaries, land cover, stand age and fire return intervals (`LandWeb_preamble`);
+- `speciesData_<studyArea>`: species cover (`Biomass_speciesData`);
+- `dataPrep_<studyArea>`: initial cohorts and species-ecoregion parameters (`Biomass_borealDataPrep`);
+- `mainSim_<studyArea>`: the simulations, one branch per replicate (`Biomass_core`, `LandMine`, `Biomass_regeneration`, `burnSummaries`, `NRV_summary`);
+- `summaries_nrv_<studyArea>` and `summaries_burn_<studyArea>`: summaries across replicates (see [Post-processing analyses]);
+- `report05_<studyArea>`: the study area report.
 
-#### Choosing a study area
+Replicate *n* of a study area always uses random seed *n*.
 
-The model can be run on any of several pre-defined study areas summarized in the table below.
-To select one of these predefined study areas, set `.studyAreaName` to use one of the following, corresponding to the polygon IDs in the map above.
+Two stages are shared by all study areas and built only once:
 
-```{r studyarea-table, echo = FALSE, eval = TRUE, message = FALSE, warning = FALSE}
-LandWebUtils::LandWebStudyAreas |>
-  knitr::kable(
-    caption = "Model study areas with corresponding FMA polygon IDs (from Figure 1).",
-    booktabs = TRUE
-  ) |>
-  kableExtra::kable_styling(latex_options = "striped") # font_size = 10
-```
+- `factorial`: a table of simulated growth for combinations of species traits (`Biomass_speciesFactorial`);
+- `growthCurves`: the growth-curve fit for every species, from forest plot data (`Biomass_speciesParameters`).
 
-To run an entire province use one of `"provAB"`, `"provMB"`, `"provNWT"`, or `"provSK"`.
-
-To run the entire LandWeb study area, use `"LandWeb_full"`.
-
-To run on a small test area use `"random"`.
-
-\newpage
-
-### Select a scenario
-
-In version 2.0.0 of the LandWeb model, seed dispersal distances needed to be adjusted to ensure sufficient regeneration following fire.
-These adjustments cause the model to behave more like a state-transition model, rather than a process-based one. 
-
-Version 3.0.0 relaxes these parameter forcings to behave like the standard LANDIS-II model.
-
-The fire scenario is principally set via `.version` but can be overridden by specifying `.ROStype`:
-
-**Fire Scenario** | **Description**
-------------------|---------------------------------------------------------------------------------
-`default`         | default rate of spread values
-`burny`           | Increases the flammability of non-forest types to facilitate fire spread in landscapes with discontinuous fuels.
-
-To define a scenario to run, select one dispersal scenario and one fire scenario from the tables above.
-All LandWeb v2.0.0 runs from 2019 were run using `.dispersalType = "high"` and `.ROStype = "log"`.
-Using v3.0.0 of the model, `.dispersalType = "default"` and `.ROStype = "default"`.
-
-### Replication
-
-To run multiple replicates of a given run, set `.rep` to an integer corresponding to the replicate id.
-All replicate runs use a different random seed, and this seed is saved as on output for reuse in the event that a replicate needs to be rerun.
-To rerun a replicate using a different seed, be sure to delete that run's `seed.rds` file.
-The seed used is also saved in human-readable `seed.txt` file.
+Adding a study area does not rebuild them.
 
 ## Running the model
 
-**NOTE:** The first time the model is run, it will automatically download additional data and install additional R packages, which can take some time to complete.
+**NOTE:** The first time the model is run, it will automatically download additional data and may install additional R packages, which can take some time to complete.
 
 :::{.rmdcaution}
 Due to a server configuration problem, the following national ecolocation polygons should be downloaded manually to the `inputs/` directory:
@@ -181,99 +106,158 @@ Due to a server configuration problem, the following national ecolocation polygo
 - **ecozones**: [ecozone_shp.zip](http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip)
 :::
 
-### Interactive R session
-
-When working in an R session, be sure to set the working directory to the LandWeb project directory.
-The first time running the model, open the file `00-main.R`, and step through each line to ensure any prompts etc. are answered correctly.
-
-```r
-.mode <- "development"
-.studyAreaName <- "random"
-.rep <- 1L
-
-source("00-main.R")
-```
-
 :::{.rmdimportant}
-When authenticating with Google Drive, be sure to check the box to allow access to files.
+Pipeline runs download from Google Drive as the LandWeb service account.
+Set up its key file on every machine that runs the pipeline before the first run (see [Data requirements]).
 :::
 
-### Commandline interface
+### Starting a run
 
-In addition to running the model in an interactive R session, we provide a command line interface to run replicates of the model for the study areas defined above (i.e., batch mode).
+From an R session in the project directory, check what a run would build:
 
-For example, to run replicate number 7 of the model at $250 m$ resolution using FRI multiple of $1$ for Alberta FMU L11, use:
+```r
+targets::tar_outdated()   ## targets that would be built
+targets::tar_visnetwork() ## the pipeline as a graph
+```
+
+Then start the run:
+
+```r
+targets::tar_make()
+```
+
+or, from a terminal:
 
 ```bash
 cd ~/GitHub/LandWeb
-
-## ./run_fmu.sh <FMU> <FRI> <RES> <REP>
-./run_fmu.sh L11 1 250 7
+Rscript-4.6.1 -e 'targets::tar_make()'
 ```
 
-FMU command line runs do not use modified dispersal nor fire scenarios, and thus only require the study area, replicate, and FRI multiple to be defined.
+`tar_make()` builds the targets in order of their dependencies, and runs independent targets, such as different study areas and replicates, at the same time in separate worker processes.
+Only one `tar_make()` can run on a store at a time.
 
-To run replicate number 7 of the model for the entire province of Alberta, use:
+:::{.rmdimportant}
+A full run takes days: one replicate of a large study area can take most of a day.
+On Linux, start it as a `systemd` user unit, so that it keeps running after you log out or close Rstudio:
 
 ```bash
 cd ~/GitHub/LandWeb
-
-## ./run_fma.sh <FMU> <REP>
-./run_fma.sh provAB 7
-# ./run_fma_win.sh provAB 7 ## if on Windows!
+mkdir -p logs
+systemd-run --user --collect --unit=landweb-run --working-directory="$PWD" \
+  bash -c "Rscript-4.6.1 -e 'targets::tar_make()' > logs/landweb-run.log 2>&1"
 ```
 
-FMA command line runs use `highDispersal_logROS` scenarios at $250 m$ resolution, and thus only require the study area and replicate to be defined.
+Follow it with `tail -f logs/landweb-run.log`, or with `targets::tar_progress()` from an R session.
+Stop it with `systemctl --user stop landweb-run`.
+The unit keeps running after you log out only if lingering is enabled for your account (`loginctl enable-linger`).
+:::
 
-To run the entire LandWeb study area, only a replicate number needs to be passed.
-For example:
+### Outputs and logs
 
-```bash
-## ./run_landweb.sh <REP>
-./run_landweb.sh 7
+Each study area's results are under `outputs/<studyArea>/`.
+Results shared by all study areas are in directories at the `outputs/` root whose names start with an underscore.
+
+```
+outputs/
+  <studyArea>/
+    preamble/  speciesData/  dataPrep/  data preparation, each with figures/
+    mainSim/
+      rep01/ ... repNN/     one directory per replicate, with figures/
+      figures/              figures across replicates
+      *.csv, *.tif          fire summaries across replicates, and the
+                            species tables the simulations used
+    postprocess/            NRV summaries: tables (csv/) and figures/
+    reports/                the study area report, 05-<studyArea>.pdf
+    logs/                   one log per stage and replicate
+  _factorial/               shared species trait table (built once)
+  _growthCurves/            shared growth-curve fit (built once)
+logs/                       run logs; worker logs in logs/crew/
 ```
 
-LandWeb command line run set the dispersal and fire scenarios as above, and the pixel resolution (`.pixelSize`) at $250 m$, and thus only require the study area and replicate to be defined.
+- `outputs/<studyArea>/logs/` holds the log of each stage (`preamble.log`, `dataPrep.log`, `mainSim_rep01.log`, ...), with its warnings in a matching `*_warnings.txt` file.
+- `logs/crew/` holds the logs of the worker processes.
+- The output of `tar_make()` itself goes wherever you send it; the example above writes it to `logs/landweb-run.log`.
+
+The study area report is also copied into `reports/pdf/`.
+
+To find out why a target failed, `targets::tar_meta(fields = error, complete_only = TRUE)` lists the failed targets with their error messages; the stage's log has the details.
+
+### Rebuilding part of a run
+
+`targets::tar_make(names = ...)` builds the named targets, together with any outdated targets they depend on.
+Because a stage re-runs whenever its modules, or the GitHub-installed packages they use, change, an existing store can show most stages as outdated after a package update, even though their stored results are still the ones you want.
+A plain `tar_make()` or `tar_make(names = ...)` would then re-run the whole chain, which takes days.
+To rebuild only the named targets, from the stored results of the targets upstream of them, add `shortcut = TRUE`:
+
+```r
+targets::tar_make(names = mainSim_WesternAlbertaUpland, shortcut = TRUE)
+targets::tar_make(names = mainSim_WesternAlbertaUpland_files, shortcut = TRUE)
+targets::tar_make(
+  names = c(summaries_nrv_WesternAlbertaUpland, summaries_burn_WesternAlbertaUpland),
+  shortcut = TRUE
+)
+```
+
+Each module stage (`preamble`, `speciesData`, `dataPrep`, `mainSim` and the summaries) has a companion target, `<stage>_<studyArea>_files`, that records the files the stage wrote, and the stages downstream depend on it.
+The shared stages have one too (`factorial_files`, `growthCurves_files`).
+After rebuilding a stage with `shortcut = TRUE`, rebuild its `_files` target as well, as above.
+Otherwise the downstream stages still see the old files, and are skipped as up to date.
+
+The check for code changes reads the packages installed on the machine that loads `_targets.R`.
+Run `tar_outdated()` and `tar_make()` only where the project library matches `renv.lock` (run `renv::restore()` first); elsewhere the whole store looks outdated.
 
 ## Post-processing analyses
 
-After having run several reps of the model on a given study area, results are combined in subsequent post-processing analyses to generate the following outputs for each set of reporting polygons within the study area:
+The pipeline summarizes each study area's replicates once all of them have finished; there is no separate post-processing step.
+`n_reps` in `_local.R` sets how many replicates the summaries combine.
 
-- boxplots of leading vegetation cover;
-- histograms of leading vegetation cover;
-- histograms of large patches.
-
-To run processing, use `.mode = "postprocess"` and be sure to set the number of replicates run in the config.
+- `summaries_nrv_<studyArea>` (`NRV_summary`) builds the natural range of variation of landscape and patch metrics, leading vegetation cover, and large patches, for each set of reporting polygons within the study area.
+  Its outputs, including boxplots and histograms of leading vegetation cover and histograms of large patches, are in `outputs/<studyArea>/postprocess/`.
+- `summaries_burn_<studyArea>` (`burnSummaries`) builds the fire-size distribution and the mean annual burn maps, simulated and historic, across replicates, in `outputs/<studyArea>/mainSim/`.
+- `report05_<studyArea>` renders the study area report from these summaries.
 
 ## Advanced setup
 
-### Customizing model run configuration
+### Running on several machines
 
-See `box/landweb.R` file, and `02a-user-config.R`.
+The pipeline can send its heavy stages to other machines (compute nodes) over SSH, using the `crew.ssh` package.
+On the machine that runs `tar_make()` (the control node), copy `_hosts.R.example` to `_hosts.R` and edit it: list the compute nodes and how many workers each can run (`crew.ssh.nodes`), the project path (`crew.ssh.projdir`), and the shared directories to link into the project on each node (`crew.ssh.symlinks`).
+`_hosts.R` holds machine names, so it is not tracked by git.
+Without it, `tar_make()` runs up to `local_workers` workers on its own machine.
 
-(TODO)
+This needs:
 
-### Cache backend
+- SSH access without a password prompt from the control node to each compute node;
+- the project cloned at the same path on every machine;
+- `_targets/`, `inputs/` and `outputs/` on storage that every machine shares.
 
-Simulation caching is provided by the `reproducible` and `SpaDES.core` packages, and is enabled by default.
+Before each run, bring every compute node up to date with the control node:
 
-The default cache uses a SQLite database backend and stores cache files in `cache/`.
-However, other database backends can also be used, and advanced users running multiple parallel simulations may wish to set up and use a PostgreSQL database for this cache.
-
-See <https://github.com/PredictiveEcology/SpaDES/wiki/Using-alternate-database-backends-for-Cache> and ensure the following options are added to your user-specific config in `02a-user-config.R`:
-
-```r
-reproducible.cacheSaveFormat = "qs",
-reproducible.conn = SpaDES.config::dbConnCache("postgresql"),
+```bash
+cd ~/GitHub/LandWeb
+Rscript-4.6.1 scripts/sync-nodes.R --dry-run  ## show what it would do
+Rscript-4.6.1 scripts/sync-nodes.R
 ```
+
+On each node, `sync-nodes.R` fast-forwards the project's git branch from GitHub, updates the submodules, re-creates the shared-directory links, and runs `renv::restore()`.
+Nodes pull from GitHub and restore the committed `renv.lock`, so commit and push your changes first.
+Do not sync while a run is in progress: it would change the packages under the running workers.
+
+### Caching
+
+The pipeline turns off SpaDES caching (`reproducible.useCache = FALSE`, and `.useCache = FALSE` for each module); the `_targets/` store decides what re-runs.
 
 ### Speeding up disk-based operations
 
-Caching and other disk-based file operations benefit from using an solid state drive (SSD) instead of a conventional spinning hard drive.
-Advanced users can move their `cache/` directory to an SSD mountpoint and create a symlink to this location in the project directory.
-Likewise, users can configure a scratch path for temporary raster file operations to point to an SSD location.
+Disk-based file operations benefit from using a solid state drive (SSD) instead of a conventional spinning hard drive.
+Point `scratchPath` in `_local.R` at an SSD on each machine that runs simulations.
+`inputs/`, `outputs/` and `_targets/` can be symbolic links to other storage, *e.g.* a larger shared drive.
 
 ## Additional Resources
+
+The `targets` user manual:
+
+- <https://books.ropensci.org/targets/>
 
 Debugging in R and Rstudio:
 
