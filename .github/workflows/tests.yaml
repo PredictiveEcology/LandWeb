@@ -6,7 +6,7 @@ name: tests
 ## setup-renv job instead.
 on:
   push:
-    branches: [main, targets]
+    branches: [main, development]
     paths:
       - reports/**
       - _quarto.yml
@@ -14,7 +14,7 @@ on:
       - scripts/run-tests.R
       - .github/workflows/tests.yaml
   pull_request:
-    branches: [main, targets]
+    branches: [main, development]
     paths:
       - reports/**
       - _quarto.yml

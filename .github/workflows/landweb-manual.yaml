@@ -4,9 +4,9 @@ name: landweb-manual
 
 on:
   push:
-    branches: [main, targets]
+    branches: [main, development]
   pull_request:
-    branches: [main, targets]
+    branches: [main, development]
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -125,7 +125,7 @@ jobs:
             docs/LandWeb_manual.tex
             docs/LandWeb_manual.log
 
-      ## `targets` builds to prove the manual still renders; only `main` publishes.
+      ## `development` builds to prove the manual still renders; only `main` publishes.
       ## Without the ref guard every push to a development branch would overwrite the
       ## live site (deploy uses clean: false, so it cannot even be undone by a rebuild).
       - name: Deploy to GitHub pages 🚀
