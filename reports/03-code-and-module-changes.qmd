@@ -68,6 +68,7 @@ This notice will be removed once a complete review has been carried out.
 
 LandWeb v3 is primarily a rebuild of the modelling infrastructure rather than of the ecological content.
 The exceptions are set out under [Changes that alter results](#changes-that-alter-results) below, and they are not cosmetic: the leading-species threshold and the mixedwood rule both changed, so v3 vegetation type maps are not directly comparable with v2's.
+Regeneration after fire also changed: v2 made every species resprout, while in v3 each species regenerates by its own mode (see [Regeneration after fire](#regeneration-after-fire)).
 The simulation science --- the `LandR` Biomass vegetation modules [@R-LandR] and the LandMine fire model --- is retained, but the way those modules are **orchestrated, cached, and dispatched** has been rewritten, and the input data modernized (see the study-area vegetation and fire-model-inputs reports).
 This report reconstructs the code and module changes across the v2 (2020--2023) to v3 (2024--2026) window.
 
@@ -129,6 +130,45 @@ This change and the threshold change act on the same maps and in the same direct
 
 The v3 upstream merge also changed how stand-level parameters are estimated; these are documented with the module below, and each was an explicit choice rather than an inherited default.
 The deciduous cover weight is now **fitted per study area** instead of carrying a hardcoded constant; wetland is read from the Canadian Wetland Inventory Map so treed wetland is distinguishable from upland forest; strata are `ecoregion x site x composition` rather than land cover alone; a `maxB` the fit clamped to zero is floored at the 95th percentile of observed biomass; and the estimation subsample is `LandR::subsetDataSize()` (500 rows per group) rather than a pinned 100.
+
+## Regeneration after fire
+
+v2 made every species resprout after fire.
+All five of its species groups, conifers included, were set to resprout with probability 1 at any age from 0 to 400 years, so a burned stand regrew with the species it had before the fire.
+The v2.0.0 release notes describe this as reparameterizing the model to emulate a state-transition model, to ensure burned pixels regenerate.
+In v3, each species instead regenerates by its own LANDIS-II mode.
+Jack pine, lodgepole pine and black spruce regenerate from serotinous cones; aspen, balsam poplar and paper birch resprout; and the other conifers regenerate only from seed dispersing from unburned stands.
+
+Regeneration from cones or from seed must then pass a random draw against the species' establishment probability in the pixel's stratum, which data preparation estimates from how often the species is present in that stratum in the current-condition forest data.
+Resprouting does not depend on it.
+
+Since October 2026, v3 simulates a species on its own wherever it holds at least 1% of a study area's tree cover (see `LandWeb_preamble` below), so each such species has its own establishment probability rather than its group's.
+A species that is uncommon in a stratum gets a low one, and after a fire it regenerates from cones in only a small share of the pixels where it burned.
+In Western Alberta Upland, the one study area where jack pine and lodgepole pine are simulated separately, jack pine's establishment probability in the November 2026 run is below 0.1 in 14 of the 31 strata where it has one, while lodgepole pine is the less common of the two in seven strata.
+A serotinous species that is a small part of its stratum therefore tends to lose ground at each fire.
+A resprouting broadleaf regenerates with its resprouting probability wherever it burns within its resprouting ages, whatever its share of the stratum.
+
+Data preparation also gives a species no establishment probability in a stratum where it has no cohort at the start of the simulation, so it can never establish there.
+This rule predates v3, but it used to apply to whole groups and now applies to each species: in Western Alberta Upland, jack pine can never establish in six strata where lodgepole pine grows.
+
+Each species simulated on its own also takes its own regeneration traits, and a group still simulated together takes those of its member with the most cover.
+Paper birch is simulated on its own in 8 of the 18 study areas, where it resprouts with probability 0.5 between ages 10 and 70; aspen resprouts with probability 0.9 between ages 10 and 150.
+Where birch is simulated together with aspen, it resprouts as aspen does.
+
+How far these rules shift the simulated landscape, for example toward broadleaf stands, was not measured.
+The runs archived from before species were simulated separately also differ from later runs in their growth curves and in several `LandR` fixes, so comparing them would not isolate the effect.
+
+## Large-patch connectivity and land-base boundaries
+
+**Large-patch connectivity.** The large-patch summaries treat cells as one patch only where they share an edge (rook, or 4-neighbour, connectivity), as v2 did, and LandWeb runs set this explicitly.
+The `patchDirections` parameter of `NRV_summary` can also be set to queen (8-neighbour) connectivity, which v2 never used.
+Queen connectivity also joins cells that touch only at a corner, so it gives fewer and larger patches, and large-patch results from a run that uses it are not comparable with v2's.
+
+**Land-base unit boundaries.** The active and passive land-base units are made by merging each land base's polygons by status.
+In v2 they were merged exactly, as polygons.
+In v3 they are mapped onto a 30 m grid and the merged areas traced back into polygons (`spatialutils::prep_landbase()`), because an exact merge of the larger land bases takes minutes to hours.
+Unit boundaries therefore follow the 30 m grid, far finer than the 240 m cells the simulated maps are summarised on.
+Checked against areas computed exactly from the source polygons, the units' areas differ by about 0.1% or less.
 
 # SpaDES module changes
 
