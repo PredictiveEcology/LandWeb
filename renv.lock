@@ -333,14 +333,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.0.3.9052",
+      "Version": "1.1.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "main",
-      "RemoteSha": "9e6b2e8818a9c4620e5ba65171ec710a9db581e5",
+      "RemoteSha": "26157e4dcc03a2497f0bbb51863e6759d6b22c86",
       "Requirements": [
         "R",
         "SpaDES.tools",
@@ -370,7 +370,7 @@
         "withr",
         "workflowtools"
       ],
-      "Hash": "4df5f4815793a2f7ca32474ef066f41c"
+      "Hash": "d2c8e4a8282fb3acd440292580fdc87c"
     },
     "MASS": {
       "Package": "MASS",
@@ -5765,14 +5765,14 @@
     },
     "spatialutils": {
       "Package": "spatialutils",
-      "Version": "0.0.1.9001",
+      "Version": "0.0.2",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "spatialutils",
       "RemoteRef": "main",
-      "RemoteSha": "adc935038e33baa6f8f6f694afd65b1da3c4c555",
+      "RemoteSha": "3e851ccb6b46e5cca000ab71a4c0417791628170",
       "Requirements": [
         "R",
         "dplyr",
@@ -5780,7 +5780,7 @@
         "sf",
         "terra"
       ],
-      "Hash": "97edcf95eb1785543c93a4f096adaf97"
+      "Hash": "b27929e240e8e81dc25c53ee5be21ba9"
     },
     "spatstat.data": {
       "Package": "spatstat.data",
