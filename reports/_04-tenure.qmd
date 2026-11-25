@@ -1,0 +1,152 @@
+## {@name@} {#sec-t-{@slug@}}
+
+```{r}
+#| include: false
+t <- "{@tenure@}"
+tr <- ten[tenure == t]
+## the name before a full stop, so "Ltd." does not end a caption with ".."
+name_end <- sub("[.]$", "", tr$name)
+b <- rd$boundary[[t]]
+st <- b$stats
+has_map <- is.na(b$reason) && !is.null(b$geoms)
+
+## vegetation types with forest in either version, today or in any simulated landscape
+tn_all <- rd$type_nrv[tenure == t]
+tc_all <- rd$type_cc[tenure == t]
+panel_types <- c("All species", sort(setdiff(unique(c(tn_all$vegType, tc_all$vegType)), "All species")))
+panel_lab <- function(v) factor(report05_veg_label(v), levels = report05_veg_label(panel_types))
+tn <- tn_all[vegType %in% panel_types][, panel := panel_lab(vegType)]
+tc <- tc_all[vegType %in% panel_types][, panel := panel_lab(vegType)]
+p_type <- report04_boxplot(tn, tc, ac, "Share of the type's forest area (%)")
+h_type <- 1.7 * ceiling(length(panel_types) / 2) + 0.8
+report05_save_png(p_type, fig_dir, paste0(t, "_types"), 6.5, h_type)
+
+p_patch <- report04_patch_hist(rd$patch_nrv[tenure == t], rd$patch_cc[tenure == t])
+report05_save_png(p_patch, fig_dir, paste0(t, "_oldpatches"), 6.5, 4)
+
+dt <- rd$delta_type[tenure == t]
+dall <- dt[vegType == "All species"][match(ac, ageClass)]
+## the types that lead at least 5% of the forest in either version's median landscape
+major <- rd$pct_share[tenure == t & p50 >= 0.05, unique(vegType)]
+dtypes <- dt[vegType %in% major & !is.na(d_p50)]
+dp <- rd$delta_patch[tenure == t][order(min_patch_ha)]
+cw_t <- cwp[tenure == t]
+## captions here, not in the chunk options: a colon in an option's text breaks its YAML
+cap_bnd <- sprintf(
+  "Reporting boundary of %s in version 2 (dashed) and version 3 (solid), with the area added and dropped.",
+  name_end
+)
+cap_type <- sprintf(
+  "Simulated range (boxes) and current condition (red circles) of the share of forest in each age class, by vegetation type, in %s: version 2 (blue) and version 3 (green).",
+  name_end
+)
+cap_patch <- sprintf(
+  "Simulated area of old forest in large patches in %s, in the landscapes of version 2 (top, blue) and version 3 (bottom, green), with each version's current condition (red line).",
+  name_end
+)
+cap_delta <- sprintf(
+  "Current and simulated median share of each vegetation type's forest by age class in %s, in percent, and the change in the median from version 2 to version 3, in percentage points.",
+  name_end
+)
+```
+
+```{r}
+#| output: asis
+src <- if (cw_t$zone != tr$name) {
+  sprintf("Version 2 called this tenure \"%s\".", cw_t$zone)
+}
+others <- cw_t$n_in_layer - 1L
+src <- c(
+  src,
+  if (others > 0L) {
+    sprintf(
+      "Its version 2 results come from a run that also reported on %d other %s.",
+      others, if (others == 1L) "tenure" else "tenures"
+    )
+  }
+)
+bnd <- if (is.na(b$reason)) {
+  sprintf(
+    "Its version 2 reporting boundary covered %s ha and the version 3 one covers %s ha (%s%%); %s%% of the version 2 area is inside the version 3 boundary, %s ha was added and %s ha dropped (@fig-bnd-{@slug@}).",
+    ha(st$area_v2_ha), ha(st$area_v3_ha), signed1(st$pct_change),
+    format(round(st$pct_overlap_of_v2, 1), nsmall = 1), ha(st$area_added_ha), ha(st$area_dropped_ha)
+  )
+} else {
+  sprintf("The change in its reporting boundary could not be measured (%s).", b$reason)
+}
+age <- dall[, sprintf(
+  "%s forest makes up a median %s%% of all forest in the version 2 landscapes and %s%% in version 3; today it is %s%% in version 2's current condition and %s%% in version 3's.",
+  ageClass, pct(p50_v2), pct(p50_v3), pct(cc_v2), pct(cc_v3)
+)]
+big <- if (nrow(dtypes)) {
+  x <- dtypes[which.max(abs(d_p50))]
+  sprintf(
+    "Among the vegetation types that lead at least 5%% of the forest in either version's median landscape, the median that changes most is the share of %s forest that is %s: %s%% in version 2 and %s%% in version 3 (@fig-type-{@slug@}).",
+    tolower(report05_veg_label(x$vegType)), tolower(x$ageClass), pct(x$p50_v2), pct(x$p50_v3)
+  )
+}
+cat(c(src, bnd, "", age, big), sep = "\n")
+```
+
+```{r}
+#| label: fig-bnd-{@slug@}
+#| eval: !expr has_map
+#| include: !expr has_map
+#| fig-cap: !expr cap_bnd
+#| fig-height: 4.5
+p_bnd <- report05_boundary_map(b$geoms)
+report05_save_png(p_bnd, fig_dir, paste0(t, "_boundary"), 6.5, 4.5)
+p_bnd
+```
+
+```{r}
+#| label: fig-type-{@slug@}
+#| fig-cap: !expr cap_type
+#| fig-height: !expr h_type
+#| fig-width: 6.5
+p_type
+```
+
+```{r}
+#| output: asis
+cat(
+  dp[, sprintf(
+    "Old forest in patches of %s ha or more: a median %s ha in the version 2 landscapes and %s ha in version 3, against %s ha and %s ha in their current conditions.",
+    ha(min_patch_ha), ha(p50_v2), ha(p50_v3), ha(cc_v2), ha(cc_v3)
+  )],
+  "@fig-patch-{@slug@} shows the distributions.",
+  sep = "\n"
+)
+```
+
+```{r}
+#| label: fig-patch-{@slug@}
+#| fig-cap: !expr cap_patch
+#| fig-height: 4
+#| fig-width: 6.5
+p_patch
+```
+
+```{r}
+#| label: tbl-delta-{@slug@}
+#| tbl-cap: !expr cap_delta
+d <- copy(dt)
+d[, type := report05_veg_label(vegType)]
+d[, key := fifelse(vegType == "All species", "0", type)]
+d[, ageClass := factor(ageClass, levels = ac)]
+setorderv(d, c("key", "ageClass"))
+d[, show := fifelse(seq_len(.N) == 1L, type, ""), by = key]
+out <- d[, .(
+  `Vegetation type` = show,
+  `Age class` = as.character(ageClass),
+  `Current v2` = fifelse(is.na(cc_v2), "--", pct(cc_v2)),
+  `Current v3` = fifelse(is.na(cc_v3), "--", pct(cc_v3)),
+  `Median v2` = pct(p50_v2),
+  `Median v3` = pct(p50_v3),
+  Change = signed1(100 * d_p50)
+)]
+kbl(out, format = "latex", booktabs = TRUE, align = "llrrrrr", linesep = c("", "", "", "\\addlinespace")) |>
+  kable_styling(latex_options = "hold_position", font_size = 7)
+```
+
+{{< pagebreak >}}

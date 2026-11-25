@@ -64,6 +64,9 @@ source("R/fma_boundary_change.R")
 source("R/report_data.R")
 source("R/render_report.R")
 source("R/targets_reports.R")
+## Report 04, v2 vs v3 output differences (gated with the domain-wide reports below)
+source("R/report04_data.R")
+source("R/targets_report04.R")
 
 ## Optional multi-node SSH cluster (CONTROL NODE ONLY). When _hosts.R defines crew.ssh.nodes,
 ## heavy module execution (preamble/speciesData/dataPrep/mainSim) is dispatched to the compute
@@ -981,7 +984,14 @@ study_area_targets <- function(sa) {
 ## inspection only fire on the control node).
 extended_targets <- list()
 if (isTRUE(getOption("landweb.extended_analyses", FALSE))) {
-  extended_targets <- get_targets_extended_analyses(local)
+  extended_targets <- c(
+    get_targets_extended_analyses(local),
+    ## report 04, v2 vs v3 output differences (R/targets_report04.R): one domain-wide PDF
+    report04_targets(
+      local$study_areas,
+      pkg_fp = pkg_fingerprint(c("LandWebUtils", "nrvtools", "spatialutils"))
+    )
+  )
 }
 
 ## ---- opt-in growth-curve uncertainty ------------------------------------------
