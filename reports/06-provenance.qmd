@@ -339,7 +339,7 @@ A record is written to the sidecar when it names a BibTeX key, is not marked `ex
 
 **Adopted convention.** Every source a report cites has its entry in `references.bib`: the sources also cited as methods (SCANFI, Beaudoin *k*NN, the NWAB reports) and the data-only sources alike (NBAC and the National Fire Database releases, for example).
 A manifest record that cites one of them names its key and is marked `external`, so the sync does not copy it.
-At present the only record that carries its own BibTeX is CanLAD's dataset citation, so it is the only entry in `data-sources.bib`.
+At present no record carries its own BibTeX, so `data-sources.bib` holds only its header.
 The reports list only `references.bib` in their front matter, so a source whose entry exists only in `data-sources.bib` cannot be cited until that entry moves to `references.bib`.
 
 # Per-report build-provenance appendix
@@ -496,13 +496,13 @@ with the four inputs derived as:
 | BC `VEG_COMP_LYR_R1_POLY_2025` [@vri-r1-2025] | 2025 | `2025 - ([reference year] - [projected age 1])` (BC records no origin year) |
 | AB AVIE | origins to 2021 | `2025 - origin` |
 | AB Crown AVI [@avi-standards-2022] | origins to 2019 | `2025 - origin` |
-| `canlad_1985_2024_ending_year` | 1985--2024 | `2025 - last year of disturbance` |
+| `canlad_1985_2024_ending_year` [@canlad-dataset] | 1985--2024 | `2025 - last year of disturbance` |
 
 `MINIMUM` while ignoring NoData implements the intended hierarchy: inventory first, Crown filling AVIE's gaps, CanLAD filling what remains and winning wherever it recorded a newer disturbance.
 
 ### Every CanLAD class resets stand age, not only the stand-replacing ones {#sec-canlad-classes}
 
-The CanLAD expression above uses the disturbance year without reference to the disturbance **type**, and CanLAD attributes eight of them: 1 wildfire, 2 harvesting, 3 other (windthrow, partial harvest, and fire the National Burned Area Composite has not confirmed), 4 water extension, 5 defoliation followed by harvest, and 6--8 low, medium and high defoliation.
+The CanLAD expression above uses the disturbance year without reference to the disturbance **type**, and CanLAD [@canlad-dataset] attributes eight of them: 1 wildfire, 2 harvesting, 3 other (windthrow, partial harvest, and fire the National Burned Area Composite has not confirmed), 4 water extension, 5 defoliation followed by harvest, and 6--8 low, medium and high defoliation.
 Only the first, second and fifth replace a stand.
 A spruce budworm outbreak does not restart succession, and neither does a partial harvest, but in `age_in2025` both produce a stand under 40 years old.
 

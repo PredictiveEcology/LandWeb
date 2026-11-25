@@ -407,22 +407,12 @@ build_input_manifest <- function(
         "the 2025 year plus a cleanup pass (Sentinel-2 against false-positive defoliation, fires",
         "validated against NBAC) -- NOT pest attribution, which v1 already carries."
       ),
-      ## Verbatim entry rather than the generated @misc: the author list and title are transcribed
-      ## from the dataset's own _readme.txt citation block, which is the authoritative wording.
-      ## There is no accompanying paper to cite -- the readme lists one as "to be published".
+      ## Report 06 cites it, so its entry is in references.bib like every cited source. There is no
+      ## accompanying paper to cite -- the readme lists one as "to be published".
       citation = list(
         bibtex_key = "canlad-dataset",
         doi = "10.23687/902801fd-4d9d-4df4-9e95-319e429545cc",
-        bibtex_entry = paste(
-          "@misc{canlad-dataset,",
-          "  author  = {Perbet, Pauline and Guindon, Luc and Correia, David L. P. and Villemaire, Philippe and {Reisi Gahrouei}, O. and St-Amant, R.},",
-          "  title   = {Canada {L}andsat {D}isturbance with pest ({CanLaD}): a {C}anada-wide {L}andsat-based 30-m resolution product of fire, harvest and pest outbreak detection and attribution since 1985},",
-          "  year    = {2025},",
-          "  doi     = {10.23687/902801fd-4d9d-4df4-9e95-319e429545cc},",
-          "  note    = {Natural Resources Canada, Canadian Forest Service}",
-          "}",
-          sep = "\n"
-        )
+        external = TRUE
       ),
       extra = list(consumed_via = "cc-age-2025")
     ),
