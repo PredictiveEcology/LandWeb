@@ -35,7 +35,7 @@ jobs:
   image:
     if: github.repository == 'PredictiveEcology/LandWeb'
     runs-on: ubuntu-24.04
-    timeout-minutes: 300
+    timeout-minutes: 180
     permissions:
       contents: read
       packages: write
@@ -92,6 +92,8 @@ jobs:
       ## outlive the runner, so actions/cache carries it between runs: loaded into the mount
       ## before the build and copied back out after it. A cache saved for an earlier renv.lock is
       ## restored when none matches, so a lockfile change installs only the packages that changed.
+      ## The copy steps must not use --no-cache, which gives a build fresh, empty cache mounts;
+      ## the STAMP build arg is what keeps them from being served from the layer cache.
       - name: Restore the renv cache
         id: renv-cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -109,20 +111,22 @@ jobs:
           CACHE_DIR: ${{ runner.temp }}/renv-cache
         run: |
           du -sh "$CACHE_DIR"
-          docker buildx build --builder "$BUILDER" --no-cache --output type=cacheonly \
-            --file - "$CACHE_DIR" <<'EOF'
+          docker buildx build --builder "$BUILDER" --output type=cacheonly \
+            --build-arg STAMP="$(date +%s%N)" --file - "$CACHE_DIR" <<'EOF'
           FROM busybox:1.37
+          ARG STAMP
           RUN --mount=type=cache,id=renv-cache,target=/renv/cache,sharing=locked \
               --mount=type=bind,target=/src \
               cp -a /src/. /renv/cache/
           EOF
           rm -rf "$CACHE_DIR"
 
-      ## The step's own time limit is under the job's, so a build that runs out of time still
-      ## leaves time to save the renv cache for the next attempt.
+      ## A cold build took 18 min in a trial capped like a runner (4 CPUs, 16 GB). The step's own
+      ## time limit is under the job's, so a build that runs out of time still leaves time to save
+      ## the renv cache for the next attempt.
       - name: Build and push the image
         id: build
-        timeout-minutes: 240
+        timeout-minutes: 120
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
@@ -147,10 +151,11 @@ jobs:
         run: |
           rm -rf "$CACHE_DIR"
           mkdir -p "$RUNNER_TEMP/empty-context"
-          docker buildx build --builder "$BUILDER" --no-cache \
+          docker buildx build --builder "$BUILDER" \
             --output "type=local,dest=$CACHE_DIR" \
-            --file - "$RUNNER_TEMP/empty-context" <<'EOF'
+            --build-arg STAMP="$(date +%s%N)" --file - "$RUNNER_TEMP/empty-context" <<'EOF'
           FROM busybox:1.37 AS cache
+          ARG STAMP
           RUN --mount=type=cache,id=renv-cache,target=/renv/cache,sharing=locked \
               mkdir /out && cp -a /renv/cache/. /out/
           FROM scratch

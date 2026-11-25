@@ -28,13 +28,15 @@ ARG QUARTO_VERSION=1.9.38
 RUN /rocker_scripts/install_quarto.sh "${QUARTO_VERSION}"
 
 ## System libraries for the packages in renv.lock, derived from the lockfile by the script the
-## manual's CI uses. It needs renv, installed into a throwaway library.
+## manual's CI uses. It needs renv, installed into a throwaway library. Debian's texlive is left
+## out: TeX Live is installed above, and Debian's older pdflatex would come first on PATH.
 WORKDIR /tmp/sysreqs
 COPY renv.lock .github/scripts/sysreqs.R ./
 RUN mkdir lib \
     && R_LIBS=/tmp/sysreqs/lib Rscript --vanilla \
       -e 'install.packages("renv", lib = "/tmp/sysreqs/lib", repos = Sys.getenv("CRAN"))' \
     && R_LIBS=/tmp/sysreqs/lib Rscript --vanilla sysreqs.R renv.lock apt.txt \
+    && sed -i -E '/^(texlive|tex-common)/d' apt.txt \
     && apt-get update \
     && xargs -a apt.txt apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/* /tmp/sysreqs
@@ -54,7 +56,8 @@ WORKDIR ${PROJECT_DIR}
 ## The renv cache lives in a BuildKit cache mount, which the workflow carries between runs; the
 ## GitHub token (for the GitHub-hosted packages) is a BuildKit secret, so it is in no layer.
 ## pizzarr is built from source with Rust (rustc >= 1.91); the toolchain stays in its own cache
-## mount, out of the image.
+## mount, out of the image. The downloads renv and biocmake keep under /root/.cache (~0.8 GB) are
+## removed in the same step, so they never reach a layer.
 COPY renv.lock .Rprofile ./
 COPY renv/activate.R renv/settings.json renv/
 ## SC2016: the single-quoted R code is meant for R, not the shell.
@@ -76,6 +79,7 @@ RUN --mount=type=cache,id=renv-cache,target=/renv/cache,sharing=locked \
       if (format(getRversion()) != lock$R$Version) \
         stop("R ", getRversion(), " is not the R ", lock$R$Version, " in renv.lock: set R_VERSION"); \
       renv::restore(prompt = FALSE)' \
+    && rm -rf /root/.cache/R \
     && mkdir -p cache inputs outputs logs \
     && chown -R rstudio:rstudio /home/rstudio/GitHub
 
