@@ -296,6 +296,7 @@ Both versions are measured with the same rules, as in the 2021 reports and repor
 - Vegetation type: the leading species group of a stand, or mixedwood; the rule that assigns a stand its type changed (report 03, "Leading-species threshold" and "Mixedwood is now judged on the broadleaf group").
 - Old-forest patch results: the total area of old forest, all types combined, in patches of at least `r and_list(ha(sort(unique(rd$patch_nrv$min_patch_ha))))` ha.
 - The percentiles of both versions are computed the same way, from each version's simulated landscapes.
+- Results by ecological sub-region (Alberta natural subregions, BC biogeoclimatic zones) are compared, for all forest, wherever both versions report the same sub-region of a tenure (@sec-subregions).
 
 ## Changes between the versions {#sec-changes}
 
@@ -573,6 +574,27 @@ report05_save_png(p, fig_dir, "old_forest_patches_share", 6.5, 1 + 0.26 * n_ten)
 p
 ```
 
+## Ecological sub-regions {#sec-subregions}
+
+```{r}
+#| output: asis
+n_sub_ten <- uniqueN(rd$delta_sub$tenure)
+reasons <- rd$sub_reasons[!tenure %in% rd$delta_sub$tenure, .N, by = reason]
+cat(
+  sprintf(
+    "Both versions report all forest by ecological sub-region for %d of the %d tenures, in %d tenure and sub-region combinations; each tenure's section has the table, and the CSV supplement (Appendix A) the full percentiles.",
+    n_sub_ten, n_ten, uniqueN(rd$delta_sub[, .(tenure, subregion)])
+  ),
+  if (nrow(reasons)) {
+    sprintf(
+      "For the other tenures: %s.",
+      paste(sprintf("%s (%d)", reasons$reason, reasons$N), collapse = "; ")
+    )
+  },
+  sep = "\n"
+)
+```
+
 {{< pagebreak >}}
 
 # Results by tenure
@@ -631,7 +653,7 @@ if (is.na(pct_csv)) {
 ```
 
 It has one row per tenure, version, metric and class.
-The metrics are the share of each vegetation type's forest in each age class, the share of forest each type leads, and the area of old forest in patches of at least 100, 500, 1,000 and 5,000 ha, in hectares and as a share of the version's area simulated as forest.
+The metrics are the share of each vegetation type's forest in each age class, the share of all forest in each age class by ecological sub-region, the share of forest each type leads, and the area of old forest in patches of at least 100, 500, 1,000 and 5,000 ha, in hectares and as a share of the version's area simulated as forest.
 For each, it gives the current condition, the number of simulated landscapes, and the minimum, 12.5th, 25th, 50th, 75th and 87.5th percentiles and maximum of the simulated values.
 
 {{< pagebreak >}}

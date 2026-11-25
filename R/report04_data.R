@@ -217,6 +217,87 @@ v2_type_share <- function(nrv) {
   out[, .(vegType, rep, time, value = type_pixels / all_pixels)]
 }
 
+#' Read a tenure's all-forest age-class shares by sub-region from a v2 run
+#'
+#' v2 named a sub-region polygon `"<sub-region> <tenure>"` (the tenure as in its tenure layer), or
+#' `"<sub-region> LandWeb Study Area"` in runs of a single tenure. A sub-region layer that names no
+#' tenure (v2's BC run named BEC zones only, over two TSAs) cannot be split by tenure. Whatever the
+#' names, the sub-regions are kept only if their forest adds up to the tenure's in every simulated
+#' landscape (within `tol`), so a layer cut to another area is never read as the tenure's.
+#'
+#' @param run_dir A v2 run directory.
+#' @param layer The run's sub-region layer ([v2_subregion_layers()]).
+#' @param zone The tenure's name in the run (`zone` in [v2_v3_crosswalk()]).
+#' @param tenure_nrv The tenure's own `nrv` table from [read_v2_leading()].
+#' @param single Whether the run's tenure layer holds this tenure only.
+#' @param tol Largest relative difference allowed between the sum of the sub-regions' forest and the
+#'   tenure's.
+#'
+#' @return A list: `nrv` (`subregion`, `ageClass`, `rep`, `time`, `value`), `cc` (`subregion`,
+#'   `ageClass`, `value`) and `reason` (`NA`, or why the sub-regions were not used, with `nrv` and
+#'   `cc` then `NULL`).
+read_v2_subregions <- function(run_dir, layer, zone, tenure_nrv, single = FALSE, tol = 0.02) {
+  out <- function(nrv = NULL, cc = NULL, reason = NA_character_) {
+    list(nrv = nrv, cc = cc, reason = reason)
+  }
+  f <- file.path(run_dir, "boxplots", paste0("leading_", .v2_layer_token(layer), ".csv"))
+  if (!file.exists(f)) {
+    return(out(reason = "the version 2 run has no summary by sub-region"))
+  }
+  cols <- c("zone", "vegCover", "ageClass", "proportionCC", "group", "proportion", "totalPixels")
+  d <- data.table::fread(f, select = cols, na.strings = c("NA", "NaN", ""))
+  d <- d[d[["vegCover"]] == "All species"]
+  ## compared outside `[`: inside it, `zone` is the column
+  suffix <- paste0(" ", c(zone, if (single) "LandWeb Study Area"))
+  hit <- Reduce(`|`, lapply(suffix, function(s) endsWith(d[["zone"]], s)))
+  if (!any(hit)) {
+    return(out(reason = "version 2 summarised these sub-regions over several tenures together"))
+  }
+  d <- d[hit]
+  sub_of <- d[["zone"]]
+  for (s in suffix) {
+    sub_of <- ifelse(endsWith(sub_of, s), substr(sub_of, 1L, nchar(sub_of) - nchar(s)), sub_of)
+  }
+  snap <- .v2_snapshot(d[["group"]])
+  nrv <- unique(data.table::data.table(
+    subregion = sub_of,
+    ageClass = as.character(d[["ageClass"]]),
+    rep = snap$rep,
+    time = snap$time,
+    value = as.numeric(d[["proportion"]]),
+    type_pixels = as.numeric(d[["totalPixels"]])
+  ))
+  ## the sub-regions' forest must add up to the tenure's, landscape by landscape
+  sub_tot <- unique(nrv[, .(subregion, rep, time, type_pixels)])[,
+    .(sub = sum(type_pixels)),
+    by = .(rep, time)
+  ]
+  ten_tot <- unique(data.table::as.data.table(tenure_nrv)[
+    vegType == "All species",
+    .(rep, time, all = type_pixels)
+  ])
+  chk <- merge(ten_tot, sub_tot, by = c("rep", "time"), all.x = TRUE)
+  chk[is.na(sub), sub := 0]
+  off <- max(abs(chk$sub - chk$all) / chk$all)
+  if (!is.finite(off) || off > tol) {
+    return(out(
+      reason = sprintf(
+        "version 2's sub-regions do not add up to the tenure (off by up to %.0f%%)",
+        100 * min(off, 9.99)
+      )
+    ))
+  }
+  cc <- unique(data.table::data.table(
+    subregion = sub_of,
+    ageClass = as.character(d[["ageClass"]]),
+    value = as.numeric(d[["proportionCC"]])
+  ))
+  out(
+    nrv = nrv[type_pixels > 0 & !is.na(value), .(subregion, ageClass, rep, time, value)],
+    cc = cc[!is.na(value)]
+  )
+}
+
 #' Read one polygon's old-forest patch areas from a v2 run
 #'
 #' `histograms/largePatches_<layer>_<size>.csv` has one row per polygon (`polygonName`), vegetation
@@ -405,6 +486,37 @@ build_report04_sa <- function(
   forest_v3 <- .report05_forest_area(vtm, fma, "FMA")[vegType == "All species"]
   ten[, forest_v3_ha := forest_v3$area_ha[match(tenure, forest_v3$poly)]]
 
+  ## v3 all forest by sub-region: report 05's layer for each tenure (Alberta natural subregions, BC
+  ## BEC zones), read as report 05 reads it; the crossed polygons are named "<sub-region> <tenure>"
+  sub_kinds <- c("ANSR", "BEC")
+  v3_sub <- data.table::rbindlist(
+    lapply(ten$tenure, function(t) {
+      l <- .report05_subregion_layer(rp, t)
+      if (is.na(l) || !sub("^.* ", "", l) %in% sub_kinds) {
+        return(NULL)
+      }
+      lw_s <- lapply(.report05_lw(agg, l, "leadingProp", "All species"), .report05_drop_absent)
+      data.table::rbindlist(list(
+        if (!is.null(lw_s$nrv)) lw_s$nrv[, .(kind = "nrv", rep, time, poly, ageClass, value)],
+        if (!is.null(lw_s$cc)) lw_s$cc[, .(kind = "cc", rep, time, poly, ageClass, value)]
+      ))[, `:=`(tenure = t, subregion = sub(paste0(" ", t, "$"), "", poly))]
+    }),
+    use.names = TRUE
+  )
+  if (!nrow(v3_sub)) {
+    v3_sub <- data.table::data.table(
+      kind = character(0),
+      rep = integer(0),
+      time = integer(0),
+      tenure = character(0),
+      subregion = character(0),
+      ageClass = character(0),
+      value = numeric(0)
+    )
+  }
+  v3_sub_nrv <- v3_sub[kind == "nrv", .(tenure, subregion, ageClass, rep, time, value)]
+  v3_sub_cc <- v3_sub[kind == "cc", .(tenure, subregion, ageClass, value)]
+
   ## v2 and the boundary comparison, tenure by tenure
   simplify <- function(x) {
     if (is.null(x)) NULL else sf::st_simplify(x, preserveTopology = TRUE, dTolerance = 100)
@@ -460,6 +572,22 @@ build_report04_sa <- function(
       )
       out$v2$cc_check <- max(abs(chk$value_map - chk$value_saved), na.rm = TRUE)
     }
+    ## all forest by sub-region, where the run summarised the tenure's sub-regions
+    sl <- v2_subregion_layers()[t]
+    if (!is.na(sl)) {
+      sr <- read_v2_subregions(
+        rd,
+        sl,
+        ten$zone[[i]],
+        lead$nrv,
+        single = sum(crosswalk$run == ten$run[[i]] & crosswalk$layer == ten$layer[[i]]) == 1L
+      )
+      out$v2$sub_reason <- sr$reason
+      if (is.na(sr$reason)) {
+        out$v2$sub_nrv <- sr$nrv[, .(tenure = t, subregion, ageClass, rep, time, value)]
+        out$v2$sub_cc <- sr$cc[, .(tenure = t, subregion, ageClass, value)]
+      }
+    }
     out$boundary$geoms <- lapply(cmp$geoms, simplify)
     out
   })
@@ -468,11 +596,13 @@ build_report04_sa <- function(
   v2 <- lapply(per, `[[`, "v2")
   v2 <- v2[!vapply(v2, is.null, logical(1))]
   bind <- function(k, v3d) {
+    ## a table no v2 tenure has (sub-regions) is an empty data.table, which `:=` cannot extend
+    v2d <- data.table::rbindlist(lapply(v2, `[[`, k), use.names = TRUE)
+    if (nrow(v2d)) {
+      v2d[, version := "v2"]
+    }
     data.table::rbindlist(
-      list(
-        data.table::rbindlist(lapply(v2, `[[`, k), use.names = TRUE)[, version := "v2"],
-        data.table::copy(v3d)[, version := "v3"]
-      ),
+      list(v2d, data.table::copy(v3d)[, version := "v3"]),
       use.names = TRUE,
       fill = TRUE
     )
@@ -513,6 +643,18 @@ build_report04_sa <- function(
     type_cc = bind("type_cc", v3_type_cc),
     share_nrv = bind("share_nrv", v3_share_nrv),
     share_cc = bind("share_cc", v3_share_cc),
+    sub_nrv = bind("sub_nrv", v3_sub_nrv),
+    sub_cc = bind("sub_cc", v3_sub_cc),
+    sub_reasons = data.table::data.table(
+      tenure = names(v2),
+      reason = vapply(
+        v2,
+        function(x) {
+          if (is.null(x$sub_reason)) "no version 2 summary by sub-region" else x$sub_reason
+        },
+        character(1)
+      )
+    ),
     patch_nrv = bind("patch_nrv", v3_patch_nrv),
     patch_cc = bind("patch_cc", v3_patch_cc),
     design = design,
@@ -637,6 +779,8 @@ build_report04_data <- function(parts, crosswalk = v2_v3_crosswalk()) {
     c("tenure", "min_patch_ha")
   )
   share <- report04_compare(share_nrv, share_cc, c("tenure", "vegType"))
+  ## all forest by sub-region, where both versions have the sub-region (matched by name)
+  subr <- report04_compare(rb("sub_nrv"), rb("sub_cc"), c("tenure", "subregion", "ageClass"))
 
   ## the crosswalk's tenures with no group in this pipeline, or no v3 polygon
   cw <- data.table::as.data.table(crosswalk)
@@ -669,6 +813,9 @@ build_report04_data <- function(parts, crosswalk = v2_v3_crosswalk()) {
     delta_patch_share = patch_share$delta,
     pct_share = share$long,
     delta_share = share$delta,
+    pct_sub = subr$long,
+    delta_sub = subr$delta,
+    sub_reasons = rb("sub_reasons"),
     design = rb("design"),
     runs = rb("runs"),
     checks = rb("checks"),
@@ -693,8 +840,11 @@ write_report04_percentiles <- function(data, out_csv) {
   pcols <- c("min", "p12.5", "p25", "p50", "p75", "p87.5", "max")
   ten <- data.table::as.data.table(data$tenures)
   one <- function(d, metric, unit, scale) {
+    if (is.null(d) || !nrow(d)) {
+      return(NULL)
+    }
     d <- data.table::copy(data.table::as.data.table(d))
-    for (k in c("vegType", "ageClass")) {
+    for (k in c("vegType", "ageClass", "subregion")) {
       if (!k %in% names(d)) d[, (k) := NA_character_]
     }
     if (!"min_patch_ha" %in% names(d)) {
@@ -711,6 +861,7 @@ write_report04_percentiles <- function(data, out_csv) {
       version,
       metric = metric,
       vegetation_type = vegType,
+      subregion,
       age_class = ageClass,
       min_patch_ha,
       unit = unit,
@@ -728,12 +879,22 @@ write_report04_percentiles <- function(data, out_csv) {
   out <- data.table::rbindlist(list(
     one(data$pct_type, "share of the type's forest in the age class", "%", 100),
     one(data$pct_share, "share of forest the type leads", "%", 100),
+    one(data$pct_sub, "share of the sub-region's forest in the age class", "%", 100),
     one(data$pct_patch, "old forest in patches of at least min_patch_ha", "ha", 1),
     one(data$pct_patch_share, "old forest in patches of at least min_patch_ha", "% of forest", 100)
   ))
   data.table::setorderv(
     out,
-    c("tenure", "metric", "unit", "vegetation_type", "age_class", "min_patch_ha", "version"),
+    c(
+      "tenure",
+      "metric",
+      "unit",
+      "vegetation_type",
+      "subregion",
+      "age_class",
+      "min_patch_ha",
+      "version"
+    ),
     na.last = TRUE
   )
   dir.create(dirname(out_csv), recursive = TRUE, showWarnings = FALSE)

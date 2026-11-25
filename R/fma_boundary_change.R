@@ -147,6 +147,39 @@ v2_v3_crosswalk <- function() {
   x
 }
 
+#' The v2 sub-region layer of each compared tenure
+#'
+#' The layer, in the primary run of [v2_v3_crosswalk()], that summarised the tenure by Alberta natural
+#' subregion (ANSR) or BC biogeoclimatic zone (BGCZ), as v3 does (report 05's table A2). Its summary
+#' file is `boxplots/leading_<layer>.csv`. Tenures elsewhere (NT, SK, MB) have none.
+#'
+#' @return A named character vector, tenure -> layer.
+v2_subregion_layers <- function() {
+  c(
+    ANC = "ANC ANSR",
+    AlPac = "Alpac ANSR",
+    BlueRidge = "West Fraser Blue Ridge ANSR",
+    CanforWhitecourt = "Millar Western ANSR",
+    DawsonCreek_TSA = "LP BC BGCZ",
+    FortStJohn_TSA = "LP BC BGCZ",
+    Manning = "Manning ANSR",
+    Mercer_E = "DMI ANSR",
+    Mercer_W = "DMI ANSR",
+    MillarWestern = "West Fraser N ANSR",
+    SprayLake = "Spray Lake ANSR",
+    Sundre = "SundreFP ANSR",
+    Tolko_HP = "Tolko AB South ANSR",
+    Tolko_Norbord_LC = "Tolko AB North ANSR",
+    Tolko_Vand_WF_SL = "Tolko AB South ANSR",
+    Vanderwell = "Vanderwell ANSR",
+    WF_Edson = "West Fraser S ANSR",
+    WF_Hinton = "West Fraser S ANSR",
+    WF_Tolko = "West Fraser N ANSR",
+    WeyCo_GrandePr = "WeyCo GP ANSR",
+    WeyCo_Pembina = "WeyCo PT ANSR"
+  )
+}
+
 #' Why each crosswalk row is, or is not, the v2 run compared
 #'
 #' @return A named character vector: the `basis` codes of [v2_v3_crosswalk()] and what each means.

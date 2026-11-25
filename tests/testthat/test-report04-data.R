@@ -262,6 +262,79 @@ test_that("write_report04_percentiles() writes every metric for both versions", 
   expect_true(all(is.na(x[unit != "%"]$vegetation_type) | x[unit != "%"]$vegetation_type == ""))
 })
 
+## A v2 sub-region file: two sub-regions of tenure "T" (named "<sub-region> T"), one of another
+## tenure, for two landscapes; T's own forest is 10 pixels (6 + 4) in each.
+write_v2_subregions <- function(
+  run_dir,
+  zones = c("Upland T", "Lowland T", "Upland U"),
+  pixels = c(6, 4, 9)
+) {
+  grid <- expand.grid(
+    ageClass = c("Young", "Old"),
+    zone = zones,
+    group = c("rep01_year0700._.X", "rep02_year0800._.X"),
+    stringsAsFactors = FALSE
+  )
+  grid$vegCover <- "All species"
+  grid$totalPixels <- pixels[match(grid$zone, zones)]
+  grid$NPixels <- grid$totalPixels / 2
+  grid$proportion <- 0.5
+  grid$proportionCC <- ifelse(grid$ageClass == "Old", 0.3, 0.7)
+  dir.create(file.path(run_dir, "boxplots"), recursive = TRUE, showWarnings = FALSE)
+  utils::write.csv(grid, file.path(run_dir, "boxplots", "leading_X_ANSR.csv"))
+}
+tenure_nrv <- data.table::data.table(
+  vegType = "All species",
+  ageClass = "Old",
+  rep = c(1L, 2L),
+  time = c(700L, 800L),
+  value = 0.5,
+  n_pixels = 5,
+  type_pixels = 10
+)
+
+test_that("read_v2_subregions() keeps the tenure's sub-regions when they add up to it", {
+  run <- withr::local_tempdir()
+  write_v2_subregions(run)
+  x <- r04$read_v2_subregions(run, "X ANSR", "T", tenure_nrv)
+  expect_true(is.na(x$reason))
+  expect_setequal(unique(x$nrv$subregion), c("Upland", "Lowland"))
+  expect_identical(nrow(x$nrv), 2L * 2L * 2L)
+  expect_setequal(x$cc$value, c(0.3, 0.7))
+})
+
+test_that("read_v2_subregions() refuses sub-regions that are not the tenure's", {
+  run <- withr::local_tempdir()
+  ## named for no tenure (v2's BC zones)
+  write_v2_subregions(run, zones = c("Upland", "Lowland"), pixels = c(6, 4))
+  x <- r04$read_v2_subregions(run, "X ANSR", "T", tenure_nrv)
+  expect_match(x$reason, "several tenures together")
+  expect_null(x$nrv)
+  ## a single-tenure run names them for the study area; they must still add up to the tenure
+  run2 <- withr::local_tempdir()
+  write_v2_subregions(
+    run2,
+    zones = c("Upland LandWeb Study Area", "Lowland LandWeb Study Area"),
+    pixels = c(6, 4)
+  )
+  expect_true(is.na(r04$read_v2_subregions(run2, "X ANSR", "T", tenure_nrv, single = TRUE)$reason))
+  expect_match(r04$read_v2_subregions(run2, "X ANSR", "T", tenure_nrv)$reason, "several tenures")
+  run3 <- withr::local_tempdir()
+  write_v2_subregions(
+    run3,
+    zones = c("Upland LandWeb Study Area", "Lowland LandWeb Study Area"),
+    pixels = c(6, 7)
+  )
+  expect_match(
+    r04$read_v2_subregions(run3, "X ANSR", "T", tenure_nrv, single = TRUE)$reason,
+    "do not add up"
+  )
+  expect_match(
+    r04$read_v2_subregions(run3, "Y ANSR", "T", tenure_nrv)$reason,
+    "no summary by sub-region"
+  )
+})
+
 ## ---- current-condition maps -------------------------------------------------------------------
 
 test_that("v2_cc_composition() counts forest with a type and an age inside the polygon", {

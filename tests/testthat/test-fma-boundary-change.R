@@ -35,6 +35,14 @@ test_that("each crosswalk row says why it is or is not the run compared", {
   expect_true(all(n_runs[chosen] > 1L))
 })
 
+test_that("each v2 sub-region layer belongs to a compared tenure's primary run", {
+  cw <- fbc$v2_v3_crosswalk()
+  sl <- fbc$v2_subregion_layers()
+  expect_true(all(names(sl) %in% cw$tenure[cw$primary]))
+  expect_false(anyDuplicated(names(sl)) > 0L)
+  expect_true(all(grepl(" (ANSR|BGCZ)$", sl)))
+})
+
 test_that("WF_Edson is compared from the run its 2021 report used", {
   cw <- fbc$v2_v3_crosswalk()
   e <- cw[cw$tenure == "WF_Edson" & cw$primary, ]

@@ -50,6 +50,14 @@ cap_patch_tbl <- sprintf(
   "Old forest in large patches in %s: the simulated median and the current condition of each version, in hectares and as a share of that version's area simulated as forest.",
   name_end
 )
+## all forest by sub-region, where both versions report the same sub-region (matched by name)
+ds <- rd$delta_sub[tenure == t]
+has_sub <- nrow(ds) > 0L
+sub_reason <- rd$sub_reasons[tenure == t]$reason
+cap_sub <- sprintf(
+  "Current and simulated median share of all forest by age class in each sub-region of %s that both versions report, in percent, and the change in the median from version 2 to version 3, in percentage points.",
+  name_end
+)
 cap_delta <- sprintf(
   "Current and simulated median share of each vegetation type's forest by age class in %s, in percent, and the change in the median from version 2 to version 3, in percentage points.",
   name_end
@@ -169,6 +177,42 @@ setorderv(d, c("key", "ageClass"))
 d[, show := fifelse(seq_len(.N) == 1L, type, ""), by = key]
 out <- d[, .(
   `Vegetation type` = show,
+  `Age class` = as.character(ageClass),
+  `Current v2` = fifelse(is.na(cc_v2), "--", pct(cc_v2)),
+  `Current v3` = fifelse(is.na(cc_v3), "--", pct(cc_v3)),
+  `Median v2` = pct(p50_v2),
+  `Median v3` = pct(p50_v3),
+  Change = signed1(100 * d_p50)
+)]
+kbl(out, format = "latex", booktabs = TRUE, align = "llrrrrr", linesep = c("", "", "", "\\addlinespace")) |>
+  kable_styling(latex_options = "hold_position", font_size = 7)
+```
+
+```{r}
+#| output: asis
+if (has_sub) {
+  cat(sprintf(
+    "@tbl-sub-{@slug@} compares all forest by ecological sub-region, for the %d sub-regions both versions report.\n",
+    uniqueN(ds$subregion)
+  ))
+} else if (length(sub_reason) && !is.na(sub_reason)) {
+  cat(sprintf("Results by ecological sub-region are not compared for this tenure: %s.\n", sub_reason))
+} else {
+  cat("Version 2 and version 3 report no common ecological sub-region for this tenure.\n")
+}
+```
+
+```{r}
+#| label: tbl-sub-{@slug@}
+#| eval: !expr has_sub
+#| include: !expr has_sub
+#| tbl-cap: !expr cap_sub
+d <- copy(ds)
+d[, ageClass := factor(ageClass, levels = ac)]
+setorderv(d, c("subregion", "ageClass"))
+d[, show := fifelse(seq_len(.N) == 1L, subregion, ""), by = subregion]
+out <- d[, .(
+  `Sub-region` = show,
   `Age class` = as.character(ageClass),
   `Current v2` = fifelse(is.na(cc_v2), "--", pct(cc_v2)),
   `Current v3` = fifelse(is.na(cc_v3), "--", pct(cc_v3)),
