@@ -5,7 +5,7 @@ if (file.exists("~/.Renviron")) {
 }
 
 if (file.exists("LandWeb.Renviron")) {
-  readRenviron("LandWeb.Renviron") ## database credentials
+  readRenviron("LandWeb.Renviron") ## GOOGLEDRIVE_AUTH
 }
 
 ## packages, paths and options ----------------------------------------------------------------
