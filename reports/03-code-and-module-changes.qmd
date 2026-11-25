@@ -112,9 +112,9 @@ Classifying our stands at 0.80 therefore put a band of stands in a different cla
 Classifying our stands at 0.80 meant a band of stands between the two thresholds carried a leading-type label that disagreed with the label in the very product the stand's cover came from. 0.75 is also `LandR`'s `LandR.mixedwoodProp` default since [LandR#234](https://github.com/PredictiveEcology/LandR/pull/234), which replaced an earlier three-option scheme with two options: `LandR.mixedwoodProp` (the group threshold) and `LandR.leadingSpeciesProp` (the single-species threshold, which inherits it).
 
 The threshold is pinned once, in the pipeline's `.globals`, rather than left to each module.
-Module defaults disagree --- 0.8 in LandMine, NRV_summary and HSI_Caribou_MB, `LandR::leadingSpeciesProp()` in the `Biomass_*` modules --- and `paramCheckOtherMods()` makes any disagreement between modules a hard error, so a single pinned value is what keeps the pipeline internally consistent.
+Module defaults disagree --- 0.8 in LandMine and NRV_summary, `LandR::leadingSpeciesProp()` in the `Biomass_*` modules --- and `paramCheckOtherMods()` makes any disagreement between modules a hard error, so a single pinned value is what keeps the pipeline internally consistent.
 
-Every vegetation type map in the pipeline is affected, because all seven call sites (`Biomass_core`, `Biomass_speciesData`, `LandMine`, `NRV_summary`, `HSI_Caribou_MB`) pass the pinned value explicitly.
+Every vegetation type map in the pipeline is affected, because all six call sites (`Biomass_core`, `Biomass_speciesData`, `LandMine`, `NRV_summary`) pass the pinned value explicitly.
 That includes the maps `NRV_summary` derives its leading-vegetation metrics from, so the reported NRV summaries shift accordingly.
 
 ## Mixedwood is now judged on the broadleaf group
@@ -537,7 +537,9 @@ The v2 module that computed and wrote the time-since-fire (TSF) raster used by s
 
 ## HSI_Caribou_MB
 
-Manitoba caribou habitat-suitability-index module; only light maintenance since 2023, and retained (not retired) in v3.
+Manitoba caribou habitat-suitability-index module.
+**In v3 it is retired**: it was written for v2 and never ported, so no v3 stage ran it.
+The module is still available from [FOR-CAST/HSI_Caribou_MB](https://github.com/FOR-CAST/HSI_Caribou_MB).
 
 ### Maintenance
 - Fixed a partial-match warning by renaming the `rasterListByPoly()` argument `poly` to `polys` (2024-02).

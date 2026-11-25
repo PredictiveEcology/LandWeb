@@ -22,9 +22,6 @@
 	path = modules/LandWeb_preamble
 	url = https://github.com/fRI-Research/LandWeb_preamble
 	branch = development
-[submodule "modules/HSI_Caribou_MB"]
-	path = modules/HSI_Caribou_MB
-	url = https://github.com/FOR-CAST/HSI_Caribou_MB
 [submodule "modules/burnSummaries"]
 	path = modules/burnSummaries
 	url = https://github.com/PredictiveEcology/burnSummaries

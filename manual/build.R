@@ -51,7 +51,7 @@ withr::with_dir(normalizePath(manDir), {
   ## left out of the book, which prepManualRmds() warns about on every build. Derive the
   ## ignore list from the chapter list rather than hand-maintaining a second copy of it:
   ## whatever _bookdown.yml does not reference is deliberately not in the manual.
-  ## (Today that is HSI_Caribou_MB. To document it, add a chapter -- nothing here.)
+  ## (Today every module has a chapter. To document a new one, add a chapter -- nothing here.)
   .chapters <- yaml::read_yaml("_bookdown.yml")$rmd_files
   .charted <- basename(sub("2\\.Rmd$", "", grep("_manual_rmds/", .chapters, value = TRUE)))
   .ignore <- setdiff(basename(list.dirs("../modules", recursive = FALSE)), .charted)
