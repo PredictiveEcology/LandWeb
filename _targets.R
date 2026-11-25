@@ -425,9 +425,12 @@ study_area_targets <- function(sa) {
       ## `LandR::subsetDataSize()` (500/group), which upstream raised from 50 for better-
       ## conditioned fits. We previously pinned 100.
       useCloudCacheForStats = FALSE, .plotInitialTime = 0, .useCache = FALSE
-      ## TODO: v2's speciesUpdateFunction (2 quotes; box/landweb.R:358-366 at 9f2a56f3) and
-      ## minRelativeBFunction = quote(myMinRelativeB(pixelCohortData)) (00-main.R:282-301 at
-      ## 9f2a56f3) were not ported; v3 runs use Biomass_borealDataPrep's defaults for both.
+      ## speciesUpdateFunction and minRelativeBFunction keep Biomass_borealDataPrep's defaults
+      ## (decided 2026-11-25). v2's own versions (box/landweb.R:358-366, 00-main.R:282-301 at
+      ## 9f2a56f3) give the same minRelativeB (0.15-0.55 per ecoregion group). v2 also applied
+      ## group shade tolerances equal to speciesTableUpdate()'s, so the only difference is for
+      ## species now simulated on their own, which keep their own values (paper birch 2, not 1;
+      ## Engelmann spruce 3, not 2).
     )
   )
 
