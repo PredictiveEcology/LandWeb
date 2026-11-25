@@ -333,13 +333,14 @@ It also arrives on a different grid (`NAD_1983_Lambert_Conformal_Conic`, latitud
 
 # Bibliography auto-sync
 
-`workflowtools::sync_manifest_to_bibtex()` reads the manifest and writes a sidecar `citations/data-sources.bib`, so that data-source citations do not have to be hand-maintained alongside the methods references.
-It is wired as the `data_sources_bib` pipeline target and deduplicates against the hand-maintained `citations/references.bib`.
+`workflowtools::sync_manifest_to_bibtex()` reads the manifest and writes a sidecar `citations/data-sources.bib`.
+It is wired as the `data_sources_bib` pipeline target, which depends on `_input_manifest.json` and so rebuilds whenever the manifest changes.
+A record is written to the sidecar when it names a BibTeX key, is not marked `external`, and its key is not already in the hand-maintained `citations/references.bib` (such a key is skipped with a warning); the entry is the BibTeX the record carries, or else a minimal `@misc` built from its name, URL and vintage.
 
-**Adopted convention.** Data sources that are *also* cited as methods (SCANFI, Beaudoin *k*NN, the NWAB reports) keep a single hand-maintained entry in `references.bib` and are marked `external` in the manifest (so they are not duplicated into `data-sources.bib`).
-Any data source that needs a citation but does *not* already have one in `references.bib` carries its BibTeX in the manifest record and is emitted to `data-sources.bib` automatically.
-Reports list both `.bib` files in their front matter, so either path resolves.
-This keeps the methods bibliography curated while making data-only citations a by-product of registering the dataset --- no separate hand-maintenance.
+**Adopted convention.** Every source a report cites has its entry in `references.bib`: the sources also cited as methods (SCANFI, Beaudoin *k*NN, the NWAB reports) and the data-only sources alike (NBAC and the National Fire Database releases, for example).
+A manifest record that cites one of them names its key and is marked `external`, so the sync does not copy it.
+At present the only record that carries its own BibTeX is CanLAD's dataset citation, so it is the only entry in `data-sources.bib`.
+The reports list only `references.bib` in their front matter, so a source whose entry exists only in `data-sources.bib` cannot be cited until that entry moves to `references.bib`.
 
 # Per-report build-provenance appendix
 
@@ -492,9 +493,9 @@ with the four inputs derived as:
 
 | source | vintage | expression |
 |---|---|---|
-| BC `VEG_COMP_LYR_R1_POLY_2025` | 2025 | `2025 - ([reference year] - [projected age 1])` (BC records no origin year) |
+| BC `VEG_COMP_LYR_R1_POLY_2025` [@vri-r1-2025] | 2025 | `2025 - ([reference year] - [projected age 1])` (BC records no origin year) |
 | AB AVIE | origins to 2021 | `2025 - origin` |
-| AB Crown AVI | origins to 2019 | `2025 - origin` |
+| AB Crown AVI [@avi-standards-2022] | origins to 2019 | `2025 - origin` |
 | `canlad_1985_2024_ending_year` | 1985--2024 | `2025 - last year of disturbance` |
 
 `MINIMUM` while ignoring NoData implements the intended hierarchy: inventory first, Crown filling AVIE's gaps, CanLAD filling what remains and winning wherever it recorded a newer disturbance.

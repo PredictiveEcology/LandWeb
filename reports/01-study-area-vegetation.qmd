@@ -225,7 +225,7 @@ These initial-condition differences are one of the contributors to any change in
 
 ::: {.callout-note}
 **Scope of this comparison.** This section compares *species composition* only.
-Two related initial-condition changes are out of scope here: (1) the **stand-age and biomass** layers (kNN 250 m vs SCANFI 30 m), whose study-area-wide comparison needs the gated 30 m scan; and (2) the **current-condition** update from the earlier CASFRI/Pickell-era layers to the 2026 merged Alberta AVI + BC VRI + national SBFI composite, which is pending that composite being staged locally.
+Two related initial-condition changes are out of scope here: (1) the **stand-age and biomass** layers (kNN 250 m vs SCANFI 30 m), whose study-area-wide comparison needs the gated 30 m scan; and (2) the **current-condition** update from the earlier CASFRI/Pickell-era layers [@Pickell:2016] to the 2026 merged Alberta AVI [@avi-standards-2022] + BC VRI + national SBFI [@wulder2024sbfi] composite, which is pending that composite being staged locally.
 :::
 
 {{< pagebreak >}}

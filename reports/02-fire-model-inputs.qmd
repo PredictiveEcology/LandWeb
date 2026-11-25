@@ -247,7 +247,7 @@ Treat any single fit as one draw from a broad optimum rather than as a point est
 **A stochastic objective invites over-fitting to its own random draws.** Common random numbers make parameter vectors comparable, but let the optimizer exploit the particular realization it was given.
 Re-evaluating a fit at independent seeds is the check that matters, and is reported with each run.
 
-**Fire sizes here are a heuristic, not a fit to observed fires.** The truncated-Pareto shape governing fire sizes is set by a rule of thumb ("95 % of area in 5 % of fires"), not fitted to NBAC or NFDB.
+**Fire sizes here are a heuristic, not a fit to observed fires.** The truncated-Pareto shape governing fire sizes is set by a rule of thumb ("95 % of area in 5 % of fires"), not fitted to the National Burned Area Composite [NBAC, @nbac-2026; @hall2020nbac] or the National Fire Database [NFDB, @nfdb-2021].
 Those records are used to *compare against* simulated output in the burn summaries, but the simulated size distribution was never fitted to them --- so agreement there is a weaker check than it may appear.
 
 **Simulated and "expected" fire sizes agree for essentially every fire, and that agreement carries no information.** The burn summaries report `simSize` against `expSize`, and the two match for 100 % of the 1,081,686 fires in the v3 Western Alberta Upland run.
@@ -266,7 +266,7 @@ It replaces the original characterization from the LandWeb pre-industrial fire-r
 
 ## Method (in brief)
 
-1. **Time-since-fire** reconstruction from four stand-origin layers (reference years 1990 and 2023, each in *Liberal* and *Conservative* confidence in mapped fires), built from a hierarchical source-priority rule set (fire-history records, then undisturbed AVI, pre-harvest AVI, minimum harvest age, adjacency, and the 1949--1956 Broad-Scale Inventory).
+1. **Time-since-fire** reconstruction from four stand-origin layers (reference years 1990 and 2023, each in *Liberal* and *Conservative* confidence in mapped fires), built from a hierarchical source-priority rule set (fire-history records, then undisturbed Alberta Vegetation Inventory [AVI, @avi-standards-2022], pre-harvest AVI, minimum harvest age, adjacency, and the 1949--1956 Broad-Scale Inventory).
 2. **Fire cycle** estimated as the slope of cumulative undisturbed area against time-since-fire on a semi-log plot [the method of Reed et al. 1998, per @peterson-nwab-data].
    An inflection near **1960** separates the pre-industrial regime (fire cycles of about 43--53 yr) from the fire-control era (about 354--460 yr).
 3. **Three scenarios** bracket the estimate --- *Shortest*, *Intermediate*, and *Longest* --- cut to Canadian eco-districts so the zones integrate seamlessly into the larger LandWeb map.

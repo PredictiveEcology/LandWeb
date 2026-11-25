@@ -69,8 +69,8 @@ The main changes (each documented in its own report, below):
 
 - **Inputs.** The starting tree-species cover and biomass move from the Beaudoin *k*NN 2001 maps [@BeaudoinEtAl2014] to SCANFI 2025 [@scanfi-v2] (report 01), and stand ages come from a current-condition age layer built from forest inventories and satellite data (report 06).
   The fire-cycle map is updated to **v10**, incorporating the June-2026 Northwest Alberta work [@peterson-nwab-data] (report 02).
-- **Fire records.** The record of observed fires, against which the simulated burning is compared, now runs to 2025: the National Burned Area Composite (NBAC) for 1972--2025, with the National Fire Database (NFDB) for the years before 1972, which NBAC does not cover.
-  In data preparation, NBAC and the NFDB's pre-1972 records date the fires since 1950, which set stand age in burned areas when each species' maximum biomass and productivity are estimated.
+- **Fire records.** The record of observed fires, against which the simulated burning is compared, now runs to 2025: the National Burned Area Composite (NBAC) for 1972--2025 [@nbac-2026; @hall2020nbac], with the National Fire Database (NFDB) for the years before 1972, which NBAC does not cover [@nfdb-2021].
+  In data preparation, NBAC and the NFDB's pre-1972 records [@nfdb-2025] date the fires since 1950, which set stand age in burned areas when each species' maximum biomass and productivity are estimated.
 - **Orchestration.** The hand-run sequence of `SpaDES` scripts is replaced by an automated pipeline, built with the R package `targets`, that reruns only the steps whose inputs or code changed; the `SpaDES` modules remain the simulation engine (report 03).
 - **Scope.** Simulations are run per **ecoregion-based study-area group** --- ecologically coherent bundles of adjacent forest tenures --- rather than as one monolithic run, with the per-tenure breakdown recovered through the reporting polygons.
 - **Post-processing.** The three v2 summary modules are merged into one new module, NRV_summary, whose analyses live in a separate, tested R package (report 03).
@@ -252,7 +252,7 @@ knitr::kable(suite, align = "ll", booktabs = TRUE) |>
 - **Source:** this overview is narrative; the workflow figure (@fig-workflow) is a fixed schematic built in `ggplot2` from the current v3 module set (cf. the DiagrammeR source in `R/model_workflow.R`).
 - **Method:** rendered by the gated `landweb.extended_analyses` factory as a `tar_quarto()` target on the control node; no pipeline data dependencies.
 - **Pipeline:** the shared steps are targets `factorial` (`Biomass_speciesFactorial`, the growth-curve library) and `growthCurves` (`Biomass_speciesParameters`, the fit), built once in `outputs/_factorial/` and `outputs/_growthCurves/`; the `SpaDES`-to-`targets` glue is the `SpaDES.targets` package, and heavy stages run on remote workers through `crew.ssh`.
-- **Fire records:** NBAC `NBAC_1972to2025_20260513`; NFDB pre-1972 archive release 20250630 (`NFDB_poly_pre1972.zip`, data preparation); NFDB release 20210707 (the backfill of the historic burn map).
+- **Fire records:** NBAC `NBAC_1972to2025_20260513` [@nbac-2026]; NFDB pre-1972 archive release 20250630 (`NFDB_poly_pre1972.zip`, data preparation) [@nfdb-2025]; NFDB release 20210707 (the backfill of the historic burn map) [@nfdb-2021].
 - **Study-area grouping:** the membership table is `LandWebUtils::studyAreaCrosswalk()`, summarised in `outputs/_reference/studyAreaGroups.csv` by `scripts/make_sa_reference.R`.
 - **Reporting-unit names:** crossed units are named `<tenure> <layer>` (e.g. `SprayLake ANSR`), and the sub-regions within them `<sub-region> <tenure>`.
 
