@@ -50,6 +50,16 @@ test_that("WF_Edson is compared from the run its 2021 report used", {
   expect_identical(e$basis, "report_2021")
 })
 
+test_that("the tenures no 2021 report covers use the run the authors chose", {
+  cw <- fbc$v2_v3_crosswalk()
+  p <- cw[cw$tenure %in% c("Tolko_Vand_WF_SL", "WF_Tolko") & cw$primary, ]
+  expect_identical(sort(p$tenure), c("Tolko_Vand_WF_SL", "WF_Tolko"))
+  expect_true(all(p$run == "WestFraser_N"))
+  expect_true(all(p$basis == "author_choice"))
+  ## the sub-region layer follows the chosen run
+  expect_identical(unname(fbc$v2_subregion_layers()["Tolko_Vand_WF_SL"]), "West Fraser N ANSR")
+})
+
 test_that("crosswalk codes have the shape of curated NAME_SHORT codes", {
   cw <- fbc$v2_v3_crosswalk()
   expect_true(all(grepl("^[A-Za-z0-9]+(_[A-Za-z0-9]+)*$", cw$tenure)))

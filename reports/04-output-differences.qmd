@@ -218,7 +218,7 @@ no_dot <- function(x) sub("[.]$", "", x)
 if (nrow(alt)) {
   multi <- unique(alt$tenure)
   by_report <- multi[basis_of(multi) == "report_2021"]
-  by_tie <- multi[basis_of(multi) == "no_report_tie"]
+  by_authors <- multi[basis_of(multi) == "author_choice"]
   cat(
     sprintf(
       "%d %s reported on by more than one version 2 run, and the runs give different results for them; Appendix B lists the runs not used.",
@@ -231,10 +231,10 @@ if (nrow(alt)) {
         if (length(by_report) == 1L) "its" else "their"
       )
     },
-    if (length(by_tie)) {
+    if (length(by_authors)) {
       sprintf(
-        "No 2021 report covers %s, and the runs' polygons for %s are the same, so each is compared with the run named for its first-listed licensee; this choice is unconfirmed.",
-        no_dot(and_list(sort(name_of(by_tie)))), if (length(by_tie) == 1L) "it" else "them"
+        "No 2021 report covers %s; the authors chose, for %s, the run with the most recent summaries.",
+        no_dot(and_list(sort(name_of(by_authors)))), if (length(by_authors) == 1L) "it" else "each"
       )
     },
     sep = "\n"
@@ -479,8 +479,23 @@ Which changes in @sec-changes move the age structure, and in which direction.
 
 The 2021 reports tested version 2 against an assumption made at the start of the project: that the average share of each vegetation type in the simulated landscapes should be close to its share today [@Andison:2021pembina, section 6.6.1].
 Version 2 failed that test, replacing conifer species with pioneer hardwood species and fir at a rate the authors judged unrealistic.
-The short-term fix was to make every species resprout after fire, which emulates a state-transition model; the reports note that this still produced some unlikely shifts in vegetation type.
-Version 3 drops that fix (report 03, "Regeneration after fire").
+The short-term fix was to make every species group resprout after fire, which emulates a state-transition model; the reports note that this still produced some unlikely shifts in vegetation type.
+Not every version 2 run used that fix: the runs with aspen dispersal made in March 2019 forced no resprouting, while the Manning run (August 2019) and the runs from 2020 on did (report 03, "Regeneration after fire").
+Version 3 forces no resprouting: each species regenerates after fire by its own mode.
+
+```{r}
+#| output: asis
+## the compared tenures whose v2 run is one of the 2019 runs with aspen dispersal
+sim_when <- rd$runs[setting == "simulated", .(tenure, when = value)]
+asp <- rd$runs[setting == "dispersal" & value == "aspen", tenure]
+early <- sort(name_of(sim_when[tenure %in% asp & nzchar(when) & when < "2020-01-01", tenure]))
+if (length(early)) {
+  cat(sprintf(
+    "Of the tenures compared here, the version 2 results for %s come from those 2019 runs with aspen dispersal.\n",
+    no_dot(and_list(early))
+  ))
+}
+```
 
 @fig-composition compares, for each tenure, the simulated median share of forest that each type leads with the type's share in the same version's current condition.
 
@@ -773,7 +788,7 @@ when <- rd$runs[setting == "summaries_written", .(tenure, when = value)]
 why_run <- c(
   only_run = "only run",
   report_2021 = "2021 report",
-  no_report_tie = "unconfirmed"
+  author_choice = "authors' choice: most recent summaries"
 )
 rt <- merge(ten, when, by = "tenure", all.x = TRUE)[order(name), .(
   Tenure = name,

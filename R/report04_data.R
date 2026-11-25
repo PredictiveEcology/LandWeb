@@ -57,6 +57,13 @@
   f[[1L]]
 }
 
+## When a v2 run was simulated: the date of the first replicate's saved year-1000 state. Maps
+## derived from it can be newer (WestFraser_N's were rewritten in 2023).
+.v2_simulated <- function(run_dir) {
+  f <- Sys.glob(file.path(run_dir, "rep*", "simulationOutput_year1000.rds"))
+  if (length(f)) format(min(file.mtime(f)), "%Y-%m-%d") else ""
+}
+
 ## "rep01_year0700._.Spray Lake" -> rep 1, year 700
 .v2_snapshot <- function(group) {
   ok <- grepl("^rep[0-9]+_year[0-9]+", group)
@@ -104,12 +111,14 @@
 #'
 #' The seed dispersal and rate-of-spread settings are in the run's directory name
 #' (`<run>_<dispersal>Dispersal_<rate>ROS`); the pixel size is the resolution of its
-#' current-condition map; a run with an INFO.md adds the settings recorded there (e.g.
-#' `forceResprout`, `succession`, `friMultiple`).
+#' current-condition map; when it was simulated is the modification date of the first replicate's
+#' saved year-1000 state (`simulationOutput_year1000.rds`, blank if none); a run with an INFO.md adds
+#' the settings recorded there (e.g. `forceResprout`, `succession`, `friMultiple`).
 #'
 #' @param run_dir A v2 run directory.
 #'
-#' @return A named character vector: `dispersal`, `rate_of_spread`, `pixel_m`, then INFO.md's entries.
+#' @return A named character vector: `dispersal`, `rate_of_spread`, `pixel_m`, `simulated` (a date),
+#'   then INFO.md's entries.
 read_v2_run_settings <- function(run_dir) {
   b <- basename(run_dir)
   if (!grepl("^.+_[a-z]+Dispersal_[a-zA-Z]+ROS$", b)) {
@@ -120,6 +129,7 @@ read_v2_run_settings <- function(run_dir) {
     dispersal = sub("^.+_([a-z]+)Dispersal_[a-zA-Z]+ROS$", "\\1", b),
     rate_of_spread = sub("^.+_([a-zA-Z]+)ROS$", "\\1", b),
     pixel_m = format(terra::res(vtm)[[1L]]),
+    simulated = .v2_simulated(run_dir),
     .v2_info_md(run_dir)
   )
 }

@@ -69,8 +69,8 @@ cap_delta <- sprintf(
 src <- if (cw_t$zone != tr$name) {
   sprintf("Version 2 called this tenure \"%s\".", cw_t$zone)
 }
-if (tr$basis == "no_report_tie") {
-  src <- c(src, "No 2021 report covers this tenure and the version 2 runs that include it give different results; the run compared here is the one named for its first-listed licensee, and that choice is unconfirmed.")
+if (tr$basis == "author_choice") {
+  src <- c(src, "No 2021 report covers this tenure, and the version 2 runs that include it give different results; the authors chose the run with the most recent summaries, and Appendix B lists the others.")
 } else if (tr$basis == "report_2021") {
   src <- c(src, "Its version 2 results come from the run its 2021 report used.")
 }

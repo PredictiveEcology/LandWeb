@@ -42,10 +42,10 @@
 ##
 ## A tenure that several v2 runs summarised has one `primary` row, the run compared: the run its 2021
 ## report used, found by matching the report's numbers (WF_Edson: the 2021 Edson Forest Products report's
-## old-forest patch ranges are WestFraser_S's, not those of the Edson run). Where no 2021 report covers
-## the tenure (Tolko_Vand_WF_SL, WF_Tolko), the runs' polygons are the same and overlap it equally, so
-## the run named for its first-listed licensee is taken and `basis` flags the choice. The other rows
-## record the alternatives.
+## old-forest patch ranges are WestFraser_S's, not those of the Edson run). No 2021 report covers
+## Tolko_Vand_WF_SL or WF_Tolko, and the runs' polygons for them are the same; the authors chose
+## WestFraser_N for both, the run with the most recent summaries (2023; user decision 2026-11-25). The
+## other rows record the alternatives.
 
 #' The v2 runs compared with v3, by v3 tenure
 #'
@@ -115,9 +115,9 @@ v2_v3_crosswalk <- function() {
       "Tolko AB North",
       "Tolko Industries Ltd., Footner Forest Products Ltd. and La Crete Sawmills Ltd."
     ),
-    row("Tolko_Vand_WF_SL", "Tolko_AB_S", "Tolko AB South", tvw, basis = "no_report_tie"),
+    row("Tolko_Vand_WF_SL", "WestFraser_N", "West Fraser N", tvw, basis = "author_choice"),
+    row("Tolko_Vand_WF_SL", "Tolko_AB_S", "Tolko AB South", tvw, FALSE),
     row("Tolko_Vand_WF_SL", "Vanderwell", "Vanderwell", tvw, FALSE),
-    row("Tolko_Vand_WF_SL", "WestFraser_N", "West Fraser N", tvw, FALSE),
     row("Vanderwell", "Vanderwell", "Vanderwell", "Vanderwell Contractors (1971) Ltd."),
     row(
       "WF_Edson",
@@ -128,7 +128,7 @@ v2_v3_crosswalk <- function() {
     ),
     row("WF_Edson", "Edson", "EdsonFP", "West Fraser Mills Ltd. (Edson)", FALSE),
     row("WF_Hinton", "WestFraser_S", "West Fraser S", "West Fraser Mills Ltd. (Hinton)"),
-    row("WF_Tolko", "WestFraser_N", "West Fraser N", wft, basis = "no_report_tie"),
+    row("WF_Tolko", "WestFraser_N", "West Fraser N", wft, basis = "author_choice"),
     row("WF_Tolko", "Tolko_AB_S", "Tolko AB South", wft, FALSE),
     row(
       "WeyCo_GrandePr",
@@ -170,7 +170,7 @@ v2_subregion_layers <- function() {
     Sundre = "SundreFP ANSR",
     Tolko_HP = "Tolko AB South ANSR",
     Tolko_Norbord_LC = "Tolko AB North ANSR",
-    Tolko_Vand_WF_SL = "Tolko AB South ANSR",
+    Tolko_Vand_WF_SL = "West Fraser N ANSR",
     Vanderwell = "Vanderwell ANSR",
     WF_Edson = "West Fraser S ANSR",
     WF_Hinton = "West Fraser S ANSR",
@@ -187,9 +187,9 @@ v2_primary_basis <- function() {
   c(
     only_run = "the tenure's only version 2 run",
     report_2021 = "the run the tenure's 2021 report used, matched by the report's numbers",
-    no_report_tie = paste(
-      "no 2021 report covers the tenure and the runs' polygons overlap it equally;",
-      "the run named for the tenure's first-listed licensee"
+    author_choice = paste(
+      "no 2021 report covers the tenure, and the authors chose this run:",
+      "of the runs that include it, it has the most recent summaries"
     ),
     alternative = "another version 2 run of a tenure that is compared from its primary run"
   )
