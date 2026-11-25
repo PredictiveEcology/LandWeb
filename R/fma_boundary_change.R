@@ -1,7 +1,7 @@
 ## FMA reporting-boundary change, v2 -> v3, per tenure (reports 04, 05).
 ##
 ## v3 adopts the v10 FMA shapefile, whose tenure boundaries differ from v2's (e.g. SprayLake's v3
-## reporting FMA is ~20% larger than v2's). Every NRV summary keys on the reporting polygon, so a
+## reporting FMA is ~15% larger than v2's). Every NRV summary keys on the reporting polygon, so a
 ## boundary change shifts every v2-vs-v3 comparison and must be characterized in the v2-vs-v3 diff
 ## report (04) and in every per-study-area report (05): v2 and v3 area, overlap, added and dropped
 ## area, and a difference map.
@@ -12,7 +12,8 @@
 ##        curated NAME_SHORT code).
 ##  - v2: the tenure's reporting polygon inside `outputs_v2/<run>_*logROS/ml_preamble.rds`, a named
 ##        layer of the retired `map`-package object (the only place a v2 run saved it).
-## Only tenures in .fma_v2_lookup() are compared; for the rest the result says no v2 run is mapped.
+## Only tenures with a primary row in v2_v3_crosswalk() are compared; for the rest the result says no
+## v2 run is mapped.
 ##
 ## Geometry: repaired with spatialutils::repair_geoms() (terra::makeValid() on the invalid features
 ## only); sf::st_make_valid() collapses the v10 layer's reversed-winding polygons to slivers. Set
@@ -28,38 +29,172 @@
   )
 }
 
-## v3 tenure code -> the v2 run (base name under `outputs_v2/`) and that run's reporting layer in its
-## `map` object. v2 named its layers by informal labels ("Spray Lake", "EdsonFP"), not by the v3 codes.
-## Each pair was checked against the data: the v2 layer's `Name` equals the v3 `FMA_NAME`
-## ("West Fraser Mills Ltd. (Edson)" in both). Report 04 extends this to the other v2 runs.
-.fma_v2_lookup <- function() {
+## ---- v2 runs -> v3 tenures -------------------------------------------------------------------
+##
+## v2 ran one study area per tenure or licensee (`outputs_v2/<run>_<dispersal>_logROS/`) and
+## summarised each of its reporting layers polygon by polygon; v3 reports by tenure, keyed by the
+## curated `NAME_SHORT` code (LandWebUtils::tenureShortNames()). v2_v3_crosswalk() matches each v2
+## polygon to the v3 tenure it is, by geometry: each primary pair overlaps by at least 93% of the v2
+## polygon and 56% of the v3 tenure, and 20 of the 27 by more than 99% of both (measured 2026-11-25
+## against the v10 FMA layer; reports 04 and 05 show each tenure's change). Names are no guide: the
+## polygon v2 called "Millar Western Forest Products Ltd." is v3's CanforWhitecourt, and v2's
+## "West Fraser Mills Ltd. (Slave Lake)" is v3's MillarWestern.
+##
+## A tenure that several v2 runs summarised has one `primary` row, the run compared: the run whose
+## layer holds only that tenure where there is one, else the run named for the tenure's first-listed
+## licensee. The other rows record the alternatives.
+
+#' The v2 runs compared with v3, by v3 tenure
+#'
+#' @return A `data.frame`, one row per v2 polygon and v3 tenure that are the same unit: `tenure` (v3
+#'   `NAME_SHORT`), `run` (the v2 run's base name, see [v2_run_dir()]), `layer` (the reporting layer
+#'   in the run's `ml_preamble.rds`; its summary files use the name with spaces replaced by
+#'   underscores), `zone` (the polygon's `Name` in that layer and in the summary files),
+#'   `primary` (`TRUE` for the one row per tenure that is compared), and `patch_layer` (the layer's
+#'   name in the run's patch-area files, `histograms/largePatches_<layer>_<size>.csv`: the same,
+#'   except that v2's DMI run wrote those under "Mercer").
+v2_v3_crosswalk <- function() {
+  row <- function(tenure, run, layer, zone, primary = TRUE, patch_layer = layer) {
+    data.frame(
+      tenure = tenure,
+      run = run,
+      layer = layer,
+      zone = zone,
+      primary = primary,
+      patch_layer = patch_layer,
+      stringsAsFactors = FALSE
+    )
+  }
+  tvw <- paste(
+    "Tolko Industries Ltd., Vanderwell Contractors (1971) Ltd. and",
+    "West Fraser Mills Ltd. (Slave Lake)"
+  )
+  wft <- "West Fraser Mills Ltd. and Tolko Industries Ltd."
+  x <- rbind(
+    row("ANC", "ANC", "ANC", "ANC Timber Ltd."),
+    row("AlPac", "AlPac", "Alpac", "ALPAC Forest Products Incorporated"),
+    row("BlueRidge", "BlueRidge", "West Fraser Blue Ridge", "Blue Ridge Lumber Inc."),
+    row(
+      "CanforWhitecourt",
+      "MillarWestern",
+      "Millar Western",
+      "Millar Western Forest Products Ltd."
+    ),
+    row("DawsonCreek_TSA", "LP_BC", "LP BC", "Dawson Creek"),
+    row("FortStJohn_TSA", "LP_BC", "LP BC", "Fort St. John"),
+    row("MB_FML3", "LP_MB", "LP MB", "Mountain"),
+    row("Manning", "Manning", "Manning", "Manning Diversified Forest Products Ltd."),
+    row("Mercer_E", "DMI", "DMI AB E", "Mercer Peace River Pulp Ltd. (East)", TRUE, "Mercer AB E"),
+    row("Mercer_E", "DMI", "DMI Full", "Mercer Peace River Pulp Ltd. (East)", FALSE, "Mercer Full"),
+    row("Mercer_W", "DMI", "DMI Full", "Mercer Peace River Pulp Ltd. (West)", TRUE, "Mercer Full"),
+    row("MillarWestern", "WestFraser_N", "West Fraser N", "West Fraser Mills Ltd. (Slave Lake)"),
+    row("NT_FtProvidence", "FMANWT2", "FMANWT FP", "Fort Providence"),
+    row("NT_FtResolution", "FMANWT", "FMANWT FR", "Fort Resolution"),
+    row("SK_BronsonGreen", "Tolko_SK", "Tolko SK", "Meadow Lake OSB"),
+    row("SK_MeadowLake", "Mistik", "Mistik", "Mistik"),
+    row("SK_PasquiaPorc", "WeyCo_SK", "WeyCo SK", "Pasquia-Porcupine"),
+    row("SprayLake", "SprayLake", "Spray Lake", "Spray Lake Sawmills (1980) Ltd."),
+    row("Sundre", "Sundre", "SundreFP", "Sundre Forest Products Inc."),
+    row("Tolko_HP", "Tolko_AB_S", "Tolko AB South", "Tolko Industries Ltd. (High Prairie)"),
+    row(
+      "Tolko_Norbord_LC",
+      "Tolko_AB_N",
+      "Tolko AB North",
+      "Tolko Industries Ltd., Footner Forest Products Ltd. and La Crete Sawmills Ltd."
+    ),
+    row("Tolko_Vand_WF_SL", "Tolko_AB_S", "Tolko AB South", tvw),
+    row("Tolko_Vand_WF_SL", "Vanderwell", "Vanderwell", tvw, FALSE),
+    row("Tolko_Vand_WF_SL", "WestFraser_N", "West Fraser N", tvw, FALSE),
+    row("Vanderwell", "Vanderwell", "Vanderwell", "Vanderwell Contractors (1971) Ltd."),
+    row("WF_Edson", "Edson", "EdsonFP", "West Fraser Mills Ltd. (Edson)"),
+    row("WF_Edson", "WestFraser_S", "West Fraser S", "West Fraser Mills Ltd. (Edson)", FALSE),
+    row("WF_Hinton", "WestFraser_S", "West Fraser S", "West Fraser Mills Ltd. (Hinton)"),
+    row("WF_Tolko", "WestFraser_N", "West Fraser N", wft),
+    row("WF_Tolko", "Tolko_AB_S", "Tolko AB South", wft, FALSE),
+    row(
+      "WeyCo_GrandePr",
+      "WeyCo_GP",
+      "WeyCo GP",
+      "Weyerhaeuser Company Limited (Grande Prairie)"
+    ),
+    row(
+      "WeyCo_Pembina",
+      "WeyCo_PT",
+      "WeyCo PT",
+      "Weyerhaeuser Company Limited (Pembina Timberland)"
+    )
+  )
+  rownames(x) <- NULL
+  x
+}
+
+#' v2 polygons with no v3 tenure of their own
+#'
+#' The polygons of the v2 runs' tenure layers that [v2_v3_crosswalk()] leaves out, and why.
+#'
+#' @return A `data.frame`: `run`, `layer`, `zone`, `reason`.
+v2_unmatched <- function() {
   data.frame(
-    tenure = c("SprayLake", "WF_Edson"),
-    run = c("SprayLake", "Edson"),
-    layer = c("Spray Lake", "EdsonFP"),
+    run = c("SprayLake", "DMI", "DMI"),
+    layer = c("Spray Lake C5", "DMI AB NW", "DMI AB SW"),
+    zone = c("C5", "Mercer Peace River Pulp Ltd. (West)", "Mercer Peace River Pulp Ltd. (West)"),
+    reason = c(
+      "a forest management unit, not a tenure; the Crowsnest FMA lies within it",
+      "part of Mercer_W, which is compared as a whole (layer DMI Full)",
+      "part of Mercer_W, which is compared as a whole (layer DMI Full)"
+    ),
     stringsAsFactors = FALSE
   )
 }
 
-## Locate the v2 baseline run dir for a v2 run token: base-name match under `v2_root`, EXCLUDING the
-## trial `*_v3*` dirs (those are v3 runs, not the v2 baseline), and preferring the canonical
-## `*highDispersal_logROS` run when several match. NA if none.
-.fma_v2_run_dir <- function(run, v2_root = "outputs_v2") {
+## The v2 baseline runs: one per tenure or licensee, with the log rate of spread and high (else
+## aspen) seed dispersal. Trial v3 runs (`*_v3*`), FMU, provincial and whole-area runs, and the
+## dispersal, succession, resolution and rate-of-spread experiments are not baselines.
+.v2_baseline_runs <- c(
+  "ANC",
+  "AlPac",
+  "BlueRidge",
+  "DMI",
+  "Edson",
+  "FMANWT",
+  "FMANWT2",
+  "LP_BC",
+  "LP_MB",
+  "Manning",
+  "MillarWestern",
+  "Mistik",
+  "SprayLake",
+  "Sundre",
+  "Tolko_AB_N",
+  "Tolko_AB_S",
+  "Tolko_SK",
+  "Vanderwell",
+  "WestFraser_N",
+  "WestFraser_S",
+  "WeyCo_GP",
+  "WeyCo_PT",
+  "WeyCo_SK"
+)
+
+#' Locate a v2 baseline run
+#'
+#' The run directory is `<run>_highDispersal_logROS` where it exists, else
+#' `<run>_aspenDispersal_logROS`, matched exactly, so a trial v3 run (`SprayLake_v3`), a variant
+#' (`SprayLake_highDispersal_logROS_lthfc_8c`, `ANC_aspenDispersal_logROS_fri1_res50`,
+#' `SprayLake_highDispersal_burnyROS`) or a run sharing the prefix (`FMANWT2_...` for `FMANWT`) is
+#' never taken.
+#'
+#' @param run The run's base name (`run` in [v2_v3_crosswalk()]).
+#' @param v2_root Directory holding the v2 runs.
+#'
+#' @return The run directory, or `NA` if neither exists (or `v2_root` is `NA` or missing).
+v2_run_dir <- function(run, v2_root = "outputs_v2") {
   if (is.na(v2_root) || !dir.exists(v2_root)) {
     return(NA_character_)
   }
-  hits <- list.dirs(v2_root, recursive = FALSE, full.names = TRUE)
-  base <- basename(hits)
-  keep <- startsWith(base, paste0(run, "_")) & !grepl("_v3", base, fixed = TRUE)
-  hits <- hits[keep]
-  if (!length(hits)) {
-    return(NA_character_)
-  }
-  pref <- grepl("highDispersal_logROS$", basename(hits))
-  if (any(pref)) {
-    hits <- hits[pref]
-  }
-  hits[[1L]]
+  cand <- file.path(v2_root, paste0(run, c("_highDispersal_logROS", "_aspenDispersal_logROS")))
+  cand <- cand[dir.exists(cand)]
+  if (length(cand)) cand[[1L]] else NA_character_
 }
 
 ## Repair, project and dissolve a polygon layer to one feature in the target CRS.
@@ -85,12 +220,13 @@ read_v2_fma_boundary <- function(tenure, v2_root = "outputs_v2") {
   out <- function(geom = NULL, run = NA_character_, reason = NA_character_) {
     list(geom = geom, run = run, reason = reason)
   }
-  lk <- .fma_v2_lookup()
+  lk <- v2_v3_crosswalk()
+  lk <- lk[lk$primary, , drop = FALSE]
   i <- match(tenure, lk$tenure)
   if (is.na(i)) {
     return(out(reason = "no v2 run is mapped to this tenure"))
   }
-  run_dir <- .fma_v2_run_dir(lk$run[[i]], v2_root)
+  run_dir <- v2_run_dir(lk$run[[i]], v2_root)
   if (is.na(run_dir)) {
     return(out(reason = "the v2 run's outputs were not found"))
   }
@@ -115,6 +251,12 @@ read_v2_fma_boundary <- function(tenure, v2_root = "outputs_v2") {
   if (!nzchar(terra::crs(v))) {
     terra::crs(v) <- x@CRS@projargs
   }
+  ## a layer can hold several tenures (v2's Tolko AB South holds three): keep this one's polygon
+  zone <- lk$zone[[i]]
+  if (!"Name" %in% names(v) || !any(v$Name %in% zone)) {
+    stop("No polygon '", zone, "' in v2 reporting layer '", layer, "' of ", ml_rds, call. = FALSE)
+  }
+  v <- v[v$Name %in% zone, ]
   out(geom = .fma_dissolve(v, .fma_target_crs()), run = basename(run_dir))
 }
 
