@@ -434,10 +434,10 @@ study_area_targets <- function(sa) {
       useCloudCacheForStats = FALSE, .plotInitialTime = 0, .useCache = FALSE
       ## speciesUpdateFunction and minRelativeBFunction keep Biomass_borealDataPrep's defaults
       ## (decided 2026-11-25). v2's own versions (box/landweb.R:358-366, 00-main.R:282-301 at
-      ## 9f2a56f3) give the same minRelativeB (0.15-0.55 per ecoregion group). v2 also applied
-      ## group shade tolerances equal to speciesTableUpdate()'s, so the only difference is for
-      ## species now simulated on their own, which keep their own values (paper birch 2, not 1;
-      ## Engelmann spruce 3, not 2).
+      ## 9f2a56f3) give the same minRelativeB (0.15-0.55 per ecoregion group). v2's other species
+      ## settings varied by run vintage: its 2020+ code used v3's fir/white spruce/black spruce
+      ## shade tolerances (3/2/3) and made every group resprout after fire, but the 2019 runs saved
+      ## 4/3/4, and the 2019 aspen-dispersal runs no post-fire regeneration. See report 03.
     )
   )
 
