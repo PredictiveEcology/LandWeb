@@ -13,6 +13,20 @@ editor_options:
 
 --------------------------------------------------------------------------------
 
+### LandWeb v3.0.0 (in development)
+
+v3 rebuilds the modelling infrastructure and refreshes the input data; some changes also alter the simulated ecology.
+Report 03 (`reports/pdf/03-code-and-module-changes.pdf`) sets out the changes and why they were made, and each module's own `NEWS.md` lists its changes.
+
+- **Inputs:** species cover and biomass from SCANFI, replacing the 2001 *k*NN maps; a current-condition stand age layer; fire-cycle map v10; and fire records to 2025.
+- **Vegetation:** species are simulated individually where they are common enough, with growth curves from one fit shared by all study areas; each species regenerates after fire by its own mode, where v2 made every species resprout.
+- **Vegetation types:** a species or group leads a stand at 75% (80% in v2), and mixedwood is judged on the summed share of broadleaf species.
+- **Study areas:** the model runs on 18 ecoregion-based groups of forest tenures, rather than on the whole LandWeb area or on single tenures, with results for each tenure from the reporting polygons.
+- **Workflow:** a `targets` pipeline replaces the hand-run scripts; `NRV_summary` and `burnSummaries` replace `timeSinceFire`, `LandWeb_output` and `LandWeb_summary`.
+- **Outputs:** PDF reports (00 to 07) replace the web app, which is no longer hosted.
+
+--------------------------------------------------------------------------------
+
 ### LandWeb v2.0.1
 
 **App changes**

@@ -102,6 +102,15 @@ Simulation outputs are summarized for each forest tenure and for several sub-reg
 
 These are described in further detail in [Model outputs].
 
+## Version history
+
+```{r news, eval = TRUE, echo = FALSE, results = 'asis'}
+## The project's NEWS.md, from its first version heading on. The lines above that heading are a
+## link written as raw HTML, which the PDF and EPUB formats drop.
+news <- readLines(file.path(SpaDES.config::findProjectPath(from_wd = FALSE), "NEWS.md"))
+cat(news[grep("^### ", news)[1]:length(news)], sep = "\n")
+```
+
 ## This Version
 
 ```{r thisVersion, eval = TRUE, echo = FALSE, results = 'asis'}
