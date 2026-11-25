@@ -10,7 +10,8 @@
 # the files via sim_inputs() (simInit `inputs`) and read plain objects as
 # `<name>$obj`. No simList crosses a target boundary.
 #
-# Module params are ported from 00-main.R / 03-main-sim.R + box/landweb.R. The
+# Module params are ported from the v2 scripts 00-main.R / 03-main-sim.R and
+# box/landweb.R, removed in #157 (last present at 9f2a56f3). The
 # mainSim module set is the v3 5-module set; the NRV_summary consolidation has
 # retired timeSinceFire, LandWeb_output, AND LandWeb_summary (all three submodules
 # removed). burnSummaries owns rstTimeSinceFire; NRV_summary owns the per-year veg
@@ -424,9 +425,9 @@ study_area_targets <- function(sa) {
       ## `LandR::subsetDataSize()` (500/group), which upstream raised from 50 for better-
       ## conditioned fits. We previously pinned 100.
       useCloudCacheForStats = FALSE, .plotInitialTime = 0, .useCache = FALSE
-      ## TODO: speciesUpdateFunction (2 quotes) + minRelativeBFunction =
-      ## quote(myMinRelativeB(pixelCohortData)) -- port verbatim from box/landweb.R
-      ## + 00-main.R:299-301 when wiring the real run.
+      ## TODO: v2's speciesUpdateFunction (2 quotes; box/landweb.R:358-366 at 9f2a56f3) and
+      ## minRelativeBFunction = quote(myMinRelativeB(pixelCohortData)) (00-main.R:282-301 at
+      ## 9f2a56f3) were not ported; v3 runs use Biomass_borealDataPrep's defaults for both.
     )
   )
 
@@ -847,7 +848,7 @@ study_area_targets <- function(sa) {
     ##
     ## out_dir = outputs/<sa>/mainSim -- the PARENT of the rep dirs: both modules read
     ## outputPath(sim)/rep%02d/ and write their aggregates back into outputPath(sim)
-    ## (the v2 postprocess pattern from box/landweb.R, where the summary outputPath
+    ## (the v2 postprocess pattern from box/landweb.R at 9f2a56f3, where the summary outputPath
     ## is the per-study-area parent, not a per-rep subdir). clean_out_dir = FALSE so
     ## run_simspades does NOT wipe outputs/<sa>/mainSim first -- that would delete the rep
     ## outputs being aggregated. The bare `mainSim_files` reference is a dependency

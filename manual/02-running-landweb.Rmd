@@ -3,7 +3,7 @@
 LandWeb runs as a `targets` pipeline.
 `_targets.R` defines each step of a run (data preparation, simulation, summaries and the study area report) as a target, and `targets::tar_make()` builds every target that is missing or out of date.
 Finished targets are kept in the `_targets/` store, so a later run skips any step whose inputs have not changed.
-The numbered scripts in the project root (`00-main.R` to `04-post-sim.R`) are from LandWeb v2 and are not used by the pipeline.
+The `targets` pipeline replaces the scripts that ran LandWeb v2 (`00-main.R` to `04-post-sim.R` and `batch_runs/`), which have been removed.
 
 1. Launch Rstudio and open the LandWeb Rstudio project (`LandWeb.Rproj`);
 

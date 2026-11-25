@@ -408,8 +408,6 @@ local({
   descriptions <- c(
     "R" = "additional R helper scripts",
     "_targets" = "`targets` pipeline store (metadata + cached objects)",
-    "batch_runs" = "scripts for running multiple simulations",
-    "box" = "contains LandWeb config, used by the 'box' package",
     "cache" = "all simulation cache files stored here",
     "citations" = "bibliographies and citation styles",
     "docker" = "Dockerfiles, scripts, and documentation",
