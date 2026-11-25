@@ -44,7 +44,11 @@ tsf <- terra::rast(.f("rstTimeSinceFire", "tif"))
 ## v2 saved pixelGroupMap as INT2U, which overflowed the group IDs, so the v2 version of this
 ## script had to pull the layer out of a saved simList instead. v3 writes it as UInt32 -- the
 ## .tif is now authoritative and can be read directly.
-cd <- qs2::qs_read(.f("cohortData", "qs2"))
+## cohortData: NRV_summary's parquet dataset (`cohortData/year=<YYYY>/part-0.parquet`) when the run
+## wrote one, else the older `.qs2`.
+fcd <- file.path(repDir, "cohortData", sprintf("year=%04d", year), "part-0.parquet")
+if (!file.exists(fcd)) fcd <- .f("cohortData", "qs2")
+cd <- nrvtools::read_cohort_data(fcd)
 pgm <- terra::rast(.f("pixelGroupMap", "tif"))
 
 samOldest <- LandR::standAgeMapGenerator(cd, pgm, weight = NA) |> terra::rast()
