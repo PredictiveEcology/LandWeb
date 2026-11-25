@@ -791,11 +791,11 @@ why_run <- c(
   author_choice = "authors' choice: most recent summaries"
 )
 rt <- merge(ten, when, by = "tenure", all.x = TRUE)[order(name), .(
-  Tenure = name,
+  ## without the legal suffixes ("Ltd."), so the table stays legible when scaled to the page
+  Tenure = gsub(" (Ltd\\.|Inc\\.|Limited|Incorporated)(?=[ ,)]|$)", "", name, perl = TRUE),
   Code = tenure,
   `Group (v3)` = study_area,
-  `Run (v2)` = basename(run_dir),
-  `Layer (v2)` = layer,
+  `Run (v2)` = sub("_logROS$", "", basename(run_dir)),
   `Why this run` = unname(why_run[basis]),
   `Forest v2 (ha)` = ha(forest_v2_cc_ha),
   `Forest v3 (ha)` = ha(forest_v3_ha),
