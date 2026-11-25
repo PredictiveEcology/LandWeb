@@ -333,14 +333,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.1.0",
+      "Version": "1.1.0.9001",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "main",
-      "RemoteSha": "26157e4dcc03a2497f0bbb51863e6759d6b22c86",
+      "RemoteSha": "97a0463044fda7b9002794a7903cafef3c8b89e5",
       "Requirements": [
         "R",
         "SpaDES.tools",
@@ -351,8 +351,6 @@
         "ggplot2",
         "googledrive",
         "grDevices",
-        "graphics",
-        "map",
         "methods",
         "nngeo",
         "pemisc",
@@ -370,7 +368,7 @@
         "withr",
         "workflowtools"
       ],
-      "Hash": "d2c8e4a8282fb3acd440292580fdc87c"
+      "Hash": "b45657cf92c306cdab568195e115de8d"
     },
     "MASS": {
       "Package": "MASS",
@@ -1734,21 +1732,21 @@
     },
     "crew.ssh": {
       "Package": "crew.ssh",
-      "Version": "0.0.9.9000",
+      "Version": "0.0.10",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "crew.ssh",
       "RemoteRef": "main",
-      "RemoteSha": "d43a96e0462295a75951461931c4caa0a75b4029",
+      "RemoteSha": "b64da0cc190228d99ff8cc9eaba2fad136dd88e1",
       "Requirements": [
         "R",
         "R6",
         "crew",
         "processx"
       ],
-      "Hash": "b70c5b453db246691d7b7fa36c66e541"
+      "Hash": "619f29bcae0a47332e2116ac4622ce8d"
     },
     "crosstalk": {
       "Package": "crosstalk",
@@ -3640,34 +3638,6 @@
         "R"
       ],
       "Hash": "665e77ab6e5f37a7913226d40b324e37"
-    },
-    "map": {
-      "Package": "map",
-      "Version": "1.1.2.9002",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteUsername": "PredictiveEcology",
-      "RemoteRepo": "map",
-      "RemoteRef": "development",
-      "RemoteSha": "a896da06f948933e324917875885daf84b269147",
-      "Requirements": [
-        "R",
-        "data.table",
-        "digest",
-        "methods",
-        "parallelly",
-        "pemisc",
-        "raster",
-        "reproducible",
-        "sf",
-        "stats",
-        "terra",
-        "tiler",
-        "utils",
-        "withr"
-      ],
-      "Hash": "cb463c9f67067d09df3bb6d3f2add21a"
     },
     "mapproj": {
       "Package": "mapproj",
@@ -6190,24 +6160,6 @@
       ],
       "Hash": "7b4ea4b9b4cc793cfc387ab820921aa9"
     },
-    "tiler": {
-      "Package": "tiler",
-      "Version": "0.3.3",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "tiler",
-      "RemoteUsername": "ropensci",
-      "RemotePkgRef": "ropensci/tiler@master",
-      "RemoteRef": "master",
-      "RemoteSha": "c4f970fc39f2cd8baa858fd6022dc1f068461a76",
-      "Requirements": [
-        "png",
-        "raster",
-        "sp"
-      ],
-      "Hash": "36ac53d24b2df86320517f38a51267c3"
-    },
     "timeDate": {
       "Package": "timeDate",
       "Version": "4052.112",
@@ -6566,7 +6518,7 @@
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "workflowtools",
       "RemoteRef": "main",
-      "RemoteSha": "0ffb589b89679ca6d2cf30cda48c8d7afed828a8",
+      "RemoteSha": "fedef540f754830a54d39f4ce0499cad20bb9038",
       "Requirements": [
         "R",
         "archive",
@@ -6592,7 +6544,7 @@
         "usethis",
         "utils"
       ],
-      "Hash": "8c81b22933ad0c3cf41832d5b6953cfc"
+      "Hash": "2d6b05b17cf903e495577d86c3230707"
     },
     "xfun": {
       "Package": "xfun",
