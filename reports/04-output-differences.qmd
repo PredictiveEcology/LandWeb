@@ -353,10 +353,15 @@ why_changed <- function(r) {
   if (is.na(r$area_v2_map_ha)) {
     return(paste(head, "Version 2's run saved no FMA map to check the change against."))
   }
-  sim <- if (!is.na(r$area_added_outside_v2_sim_ha) && r$area_added_outside_v2_sim_ha < 1) {
+  sim <- if (is.na(r$area_added_outside_v2_sim_ha)) {
+    ""
+  } else if (r$area_added_outside_v2_sim_ha < 1) {
     " The added area lies inside the area version 2 simulated, so version 2's polygon was not cut to its study area."
   } else {
-    ""
+    sprintf(
+      " Of the added area, %s ha lies outside the area version 2 simulated (its tenure plus a buffer).",
+      ha(r$area_added_outside_v2_sim_ha)
+    )
   }
   if (r$area_dropped_ha > r$area_added_ha) {
     paste0(
