@@ -14,10 +14,14 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 ## TeX Live for the PDF reports: rocker/geospatial:4.6.1 has none. This is rocker's own script
 ## with the dated CTAN snapshot rocker/verse:4.6.1 uses; when a report needs a LaTeX package not
-## installed here, Quarto installs it from the same snapshot.
+## installed here, Quarto installs it from the same snapshot. The script writes the whole PATH
+## into Renviron.site, which overrides every R process's PATH (so R CMD INSTALL could not find
+## the Rust compiler below); append to the inherited PATH instead.
 ARG CTAN_REPO=https://www.texlive.info/tlnet-archive/2026/10/28/tlnet
 ENV PATH=${PATH}:/usr/local/texlive/bin/linux
-RUN /rocker_scripts/install_texlive.sh "${CTAN_REPO}"
+# hadolint ignore=SC2016
+RUN /rocker_scripts/install_texlive.sh "${CTAN_REPO}" \
+    && sed -i 's|^PATH=.*|PATH=${PATH}:/usr/local/texlive/bin/linux|' "${R_HOME}/etc/Renviron.site"
 
 ## Quarto at the version the report tests use (.github/workflows/tests.yaml).
 ARG QUARTO_VERSION=1.9.38

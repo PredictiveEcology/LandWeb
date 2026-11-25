@@ -134,8 +134,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
 
-      ## Runs after a failed build too: a retry then starts from the packages already installed
-      ## instead of from scratch. Skipped when the cache matched renv.lock exactly.
+      ## Runs after a failed build too, so a build that fails after the restore (in the load test
+      ## or the push) still keeps its packages for the retry. A failed restore leaves nothing to
+      ## keep: renv rolls back the whole install, cache entries included. Skipped when the cache
+      ## matched renv.lock exactly.
       - name: Copy the renv cache out of BuildKit
         id: extract
         if: always() && steps.renv-cache.outputs.cache-hit != 'true' && steps.build.outcome != 'skipped'
