@@ -164,7 +164,18 @@ save_figure(p, "veg_transitions", width = 12.3, height = 5.1, dir = out)
 ## ---- shared raster helpers ---------------------------------------------------------------------
 age_levels <- c("Burned < 10 y", landweb_age$label)
 age_cols <- stats::setNames(c(col[["rust"]], landweb_age$colour), age_levels)
-classify_age <- function(r) {
+## Stand-age maps are rounded down to the decade (40 means 40-49 years), so there a class starts at
+## its cutoff. Time since fire is in whole years, and the summaries put each cutoff in the class below
+## (40 is Young, 41 Immature): `tsf = TRUE`. Both keep "Burned" for under 10 years.
+classify_age <- function(r, tsf = FALSE) {
+  if (tsf) {
+    rcl <- matrix(
+      c(-Inf, 9.5, 1, 9.5, 40, 2, 40, 80, 3, 80, 120, 4, 120, Inf, 5),
+      ncol = 3,
+      byrow = TRUE
+    )
+    return(terra::classify(r, rcl, right = TRUE))
+  }
   rcl <- matrix(
     c(-Inf, 10, 1, 10, 40, 2, 40, 80, 3, 80, 120, 4, 120, Inf, 5),
     ncol = 3,
@@ -266,7 +277,7 @@ thumb_window <- function(r, km = 180) {
 }
 for (y in samp_years) {
   r <- terra::rast(file.path(rep_dir, sprintf("rstTimeSinceFire_year%04d.tif", y)))
-  r <- thumb_window(classify_age(r))
+  r <- thumb_window(classify_age(r, tsf = TRUE))
   p <- ggplot2::ggplot(map_df(r, age_levels), ggplot2::aes(x, y, fill = v)) +
     ggplot2::geom_raster() +
     ggplot2::scale_fill_manual(values = age_cols, guide = "none") +
