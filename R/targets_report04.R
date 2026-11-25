@@ -31,7 +31,8 @@ report04_extra_files <- c(
   "R/report04_helpers.R",
   "R/report05_helpers.R",
   "_quarto.yml",
-  "reports/_filters/clearpage.lua"
+  "reports/_filters/clearpage.lua",
+  "citations/references.bib"
 )
 
 #' Report 04 targets
