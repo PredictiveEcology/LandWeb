@@ -480,19 +480,18 @@ Which changes in @sec-changes move the age structure, and in which direction.
 The 2021 reports tested version 2 against an assumption made at the start of the project: that the average share of each vegetation type in the simulated landscapes should be close to its share today [@Andison:2021pembina, section 6.6.1].
 Version 2 failed that test, replacing conifer species with pioneer hardwood species and fir at a rate the authors judged unrealistic.
 The short-term fix was to make every species group resprout after fire, which emulates a state-transition model; the reports note that this still produced some unlikely shifts in vegetation type.
-Not every version 2 run used that fix: the runs with aspen dispersal made in March 2019 forced no resprouting, while the Manning run (August 2019) and the runs from 2020 on did (report 03, "Regeneration after fire").
+Not every version 2 run used that fix: the runs made in March 2019, all with aspen dispersal, forced no resprouting, while every later run compared here forced it (report 03, "Regeneration after fire").
 Version 3 forces no resprouting: each species regenerates after fire by its own mode.
 
 ```{r}
 #| output: asis
-## the compared tenures whose v2 run is one of the 2019 runs with aspen dispersal
-sim_when <- rd$runs[setting == "simulated", .(tenure, when = value)]
-asp <- rd$runs[setting == "dispersal" & value == "aspen", tenure]
-early <- sort(name_of(sim_when[tenure %in% asp & nzchar(when) & when < "2020-01-01", tenure]))
-if (length(early)) {
+## the compared tenures whose v2 run forced no resprouting, by the species table the run saved
+## (v2_saved_regeneration() in R/report04_data.R)
+no_rs <- sort(name_of(rd$runs[setting == "resprout" & value == "none", tenure]))
+if (length(no_rs)) {
   cat(sprintf(
-    "Of the tenures compared here, the version 2 results for %s come from those 2019 runs with aspen dispersal.\n",
-    no_dot(and_list(early))
+    "Of the tenures compared here, the version 2 results for %s come from runs that forced no resprouting.\n",
+    no_dot(and_list(no_rs))
   ))
 }
 ```

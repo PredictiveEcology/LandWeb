@@ -154,6 +154,48 @@ test_that("the v2 INFO.md model settings are read, and nothing about the machine
   expect_identical(r04$.v2_info_md(run), c(dispersalType = "high", pixelSize = "250"))
 })
 
+test_that("every v2 run in the crosswalk has its saved regeneration settings, once", {
+  regen <- r04$v2_saved_regeneration()
+  expect_false(anyDuplicated(regen$run_dir) > 0L)
+  runs <- unique(r04$v2_v3_crosswalk()$run)
+  has <- vapply(runs, function(r) sum(startsWith(regen$run_dir, paste0(r, "_"))), integer(1))
+  expect_true(all(has == 1L), info = paste(runs[has != 1L], collapse = ", "))
+  expect_true(all(regen$resprout %in% c("all", "none")))
+  ## a run that forces no resprouting has no aspen resprouting ages, and one that does has them
+  expect_identical(regen$aspen_resprout_ages == "", regen$resprout == "none")
+  expect_true(all(grepl("^[1-5]/[1-5]/[1-5]$", regen$shade)))
+  expect_true(all(grepl("^rep[0-9]+/mySimOut", regen$source)))
+})
+
+test_that("the saved regeneration settings are added for each tenure of a known run", {
+  runs <- data.table::data.table(
+    tenure = c("A", "A", "B", "C"),
+    run_dir = c(
+      "R1_highDispersal_logROS",
+      "R1_highDispersal_logROS",
+      "R1_highDispersal_logROS",
+      "R2"
+    ),
+    setting = c("dispersal", "simulated", "dispersal", "dispersal"),
+    value = c("high", "2019-09-10", "high", "aspen")
+  )
+  regen <- data.frame(
+    run_dir = "R1_highDispersal_logROS",
+    resprout = "all",
+    aspen_resprout_ages = "0-400",
+    shade = "3/2/3",
+    source = "rep01/x.rds"
+  )
+  out <- r04$.v2_add_regeneration(runs, regen)
+  expect_identical(out[seq_len(nrow(runs))], runs)
+  expect_identical(out[tenure == "A" & setting == "shade", value], "3/2/3")
+  expect_identical(out[tenure == "B" & setting == "resprout", value], "all")
+  ## a run with no saved settings gets none, and nothing is repeated
+  expect_identical(nrow(out[tenure == "C"]), 1L)
+  expect_identical(nrow(out[tenure == "A" & setting == "resprout"]), 1L)
+  expect_identical(nrow(r04$.v2_add_regeneration(runs[0L], regen)), 0L)
+})
+
 test_that("v2 labels map onto the v3 reporting codes", {
   expect_identical(
     r04$.v2_veg_type(c("All species", "Bl Spruce", "Wh Spruce", "Doug fir", "Decid")),

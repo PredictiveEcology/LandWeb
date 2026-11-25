@@ -134,6 +134,94 @@ read_v2_run_settings <- function(run_dir) {
   )
 }
 
+## ---- v2 regeneration settings, as each run saved them -------------------------------------
+##
+## The v2 runs did not all regenerate burned stands the same way, and neither a run's name nor its
+## date says how: an INFO.md written when a run's summaries were redone records that later session's
+## settings, not the simulation's. The table below is what each run's own saved simulation state
+## holds: the `species` table in `rep*/mySimOut*.rds` (for AlPac and FMANWT2, `mySimOut_1000.qs`,
+## readable with the `qs` package), identical in the first and last replicate of every run (read
+## 2026-11-25). Every run that forced resprouting gave each species group resprouting probability 1
+## from age 0 to 400, except aspen's start age where noted.
+
+#' The regeneration settings each v2 run saved
+#'
+#' @return A `data.frame`, one row per v2 run directory (`run_dir`, its base name): `resprout`
+#'   (`"all"` when every species group resprouts after fire, `"none"` when no group has a post-fire
+#'   regeneration mode), `aspen_resprout_ages` (the ages at which the aspen group resprouts after
+#'   fire, `""` when it does not), `shade` (the shade tolerances of fir, white spruce and black
+#'   spruce, on LANDIS-II's 1 to 5 scale) and `source` (the file read, relative to the run directory).
+v2_saved_regeneration <- function() {
+  row <- function(run_dir, resprout, aspen, shade, source) {
+    data.frame(
+      run_dir = run_dir,
+      resprout = resprout,
+      aspen_resprout_ages = aspen,
+      shade = shade,
+      source = source,
+      stringsAsFactors = FALSE
+    )
+  }
+  ## simulated March 2019: no forced resprouting
+  march <- c("ANC", "DMI", "LP_MB", "Tolko_AB_S", "Tolko_SK")
+  ## simulated September 2019
+  sept <- c(
+    Edson = "rep02",
+    FMANWT = "rep02",
+    LP_BC = "rep02",
+    MillarWestern = "rep02",
+    Mistik = "rep02",
+    Vanderwell = "rep02",
+    WestFraser_N = "rep01",
+    WestFraser_S = "rep01",
+    WeyCo_GP = "rep02",
+    WeyCo_PT = "rep02",
+    WeyCo_SK = "rep02"
+  )
+  ## simulated 2020 (AlPac, FMANWT2) and 2024-25
+  later <- c(
+    AlPac_highDispersal_logROS = "rep01/mySimOut_1000.qs",
+    FMANWT2_highDispersal_logROS = "rep01/mySimOut_1000.qs",
+    SprayLake_highDispersal_logROS = "rep01/mySimOut_1000.rds",
+    BlueRidge_highDispersal_logROS = "rep01/mySimOut_1000.rds",
+    Sundre_highDispersal_logROS = "rep01/mySimOut_1000.rds",
+    Tolko_AB_N_aspenDispersal_logROS = "rep01/mySimOut_1000.rds"
+  )
+  rbind(
+    row(paste0(march, "_aspenDispersal_logROS"), "none", "", "4/3/4", "rep01/mySimOut.rds"),
+    row("Manning_highDispersal_logROS", "all", "0-400", "4/3/4", "rep01/mySimOut.rds"),
+    row(
+      paste0(names(sept), "_highDispersal_logROS"),
+      "all",
+      "0-400",
+      "3/2/3",
+      file.path(unname(sept), "mySimOut_0100.rds")
+    ),
+    row(names(later), "all", "25-400", "3/2/3", unname(later))
+  )
+}
+
+## Add each compared run's saved regeneration settings to the run-settings table (`tenure`,
+## `run_dir`, `setting`, `value`), one row per setting; a run missing from `regen` gets none.
+.v2_add_regeneration <- function(runs, regen = v2_saved_regeneration()) {
+  if (!nrow(runs)) {
+    return(runs)
+  }
+  long <- data.table::melt(
+    data.table::as.data.table(regen),
+    id.vars = "run_dir",
+    variable.name = "setting",
+    value.name = "value",
+    variable.factor = FALSE
+  )
+  ## one run can cover several tenures (WestFraser_N), each of which gets every setting
+  add <- merge(unique(runs[, .(tenure, run_dir)]), long, by = "run_dir", allow.cartesian = TRUE)
+  data.table::rbindlist(
+    list(runs, add[, .(tenure, run_dir, setting, value)]),
+    use.names = TRUE
+  )
+}
+
 #' Read one polygon's age-class shares from a v2 run
 #'
 #' `boxplots/leading_<layer>.csv` has one row per polygon (`zone`), vegetation type (`vegCover`), age
@@ -848,7 +936,7 @@ build_report04_data <- function(parts, crosswalk = v2_v3_crosswalk()) {
     delta_sub = subr$delta,
     sub_reasons = rb("sub_reasons"),
     design = rb("design"),
-    runs = rb("runs"),
+    runs = .v2_add_regeneration(rb("runs")),
     checks = rb("checks"),
     age_classes = LandWebUtils:::.ageClasses,
     age_cutoffs = LandWebUtils:::.ageClassCutOffs,
