@@ -173,6 +173,23 @@ get_targets_extended_analyses <- function(local) {
       publish_pdf(report_provenance),
       format = "file",
       deployment = "main"
+    ),
+
+    ## --- Report 07: best-practices alignment (PERFICT + NRV practice) ---
+    ## Reads the autocorrelation and replicate analyses from outputs/_extended_analyses/ when present
+    ## (scripts/nrv_percentile_stability.R writes the latter) and says "pending" otherwise; neither is a
+    ## target, so re-render it after they change.
+    tarchetypes::tar_quarto(
+      report_best_practices,
+      path = "reports/07-best-practices.qmd",
+      extra_files = report_extra_files,
+      deployment = "main"
+    ),
+    tar_target(
+      report_best_practices_pub,
+      publish_pdf(report_best_practices),
+      format = "file",
+      deployment = "main"
     )
   )
 }

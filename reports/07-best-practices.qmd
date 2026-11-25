@@ -1,0 +1,543 @@
+---
+title: "LandWeb v3: Best-Practices Alignment"
+subtitle: "Reproducible, updatable modelling (PERFICT) and natural-range-of-variation practice"
+author: "Alex M. Chubaty"
+date: today
+format:
+  pdf:
+    pdf-engine: pdflatex
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    fontsize: 11pt
+fig-width: 8
+fig-height: 4
+bibliography:
+  - ../citations/references.bib
+csl: ../citations/ecology-letters.csl
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(data.table)
+library(ggplot2)
+library(kableExtra)
+
+## Files are tried from the project root (the render's execute-dir) and from reports/, so the report
+## also renders standalone. A missing file gives NA, and the text that needs it says so.
+.find <- function(f) {
+  cand <- c(f, file.path("..", f))
+  cand <- cand[file.exists(cand)]
+  if (length(cand)) cand[[1L]] else NA_character_
+}
+.lines <- function(f) {
+  p <- .find(f)
+  if (is.na(p)) character(0) else readLines(p, warn = FALSE)
+}
+## the numbers captured by `pattern` at its first match in a project file (NA if none)
+.src_num <- function(f, pattern, n = 1L) {
+  m <- regmatches(.lines(f), regexec(pattern, .lines(f)))
+  m <- Filter(length, m)
+  if (!length(m)) {
+    return(rep(NA_real_, n))
+  }
+  as.numeric(m[[1L]][-1L])
+}
+fmt <- function(x) if (is.na(x)) "(not found)" else format(x, big.mark = ",", scientific = FALSE)
+yr <- function(x) if (is.na(x)) "(not found)" else as.character(x)
+
+## simulation design, read from the pipeline's own settings
+n_reps <- .src_num("_local.R", "n_reps = ([0-9]+)L")
+sim_end <- .src_num("_local.R", "sim_end = ([0-9]+)L")
+interval <- .src_num("_targets.R", "summaryInterval = ([0-9]+)L")
+period <- .src_num("_targets.R", "summaryPeriod = c\\(([0-9]+), ([0-9]+)\\)", 2L)
+buffer_km <- .src_num("_targets.R", "bufferDist = ([0-9]+),") / 1000
+n_per_rep <- floor(diff(period) / interval) + 1
+n_snap <- n_reps * n_per_rep
+min_ha <- .src_num("reports/05-study-area-report.qmd", "min_area_ha: ([0-9]+)")
+
+## input manifest: records whose licence names an access restriction or a non-open licence
+mf <- .find("_input_manifest.json")
+rec <- if (!is.na(mf)) jsonlite::read_json(mf)$records else list()
+lic <- vapply(rec, function(r) paste(unlist(r$license), collapse = " "), character(1))
+n_rec <- length(rec)
+n_restr <- sum(grepl("access|request|internal|non-commercial|proprietary|not openly", lic, ignore.case = TRUE))
+n_hash <- sum(vapply(rec, function(r) !is.null(r$sha256), logical(1)))
+n_manual <- sum(vapply(rec, function(r) identical(r$source$type, "manual_drop"), logical(1)))
+
+## pinned environment
+lock <- if (!is.na(.find("renv.lock"))) jsonlite::read_json(.find("renv.lock")) else NULL
+r_ver <- if (!is.null(lock)) lock$R$Version else NA
+n_pkgs <- if (!is.null(lock)) length(lock$Packages) else NA
+n_gh <- if (!is.null(lock)) sum(vapply(lock$Packages, function(p) identical(p$Source, "GitHub"), logical(1))) else NA
+
+## modules, packages and their automated tests
+gm <- .lines(".gitmodules")
+mods <- sub(".*= ", "", grep("path = modules/", gm, value = TRUE))
+pkgs <- sub(".*= ", "", grep("path = packages/", gm, value = TRUE))
+.has <- function(dirs, f) sum(!is.na(vapply(file.path(dirs, f), .find, character(1))))
+n_mod_ci <- .has(mods, ".github/workflows/testthat-module.yaml")
+n_mod_meta <- .has(mods, "tests/testthat/test-metadata.R")
+n_pkg_ci <- .has(pkgs, ".github/workflows/R-CMD-check.yaml")
+n_pkg_cov <- .has(pkgs, ".github/workflows/test-coverage.yaml")
+n_pkg_3os <- sum(vapply(pkgs, function(p) {
+  w <- .lines(file.path(p, ".github/workflows/R-CMD-check.yaml"))
+  any(grepl("macos", w)) && any(grepl("windows", w)) && any(grepl("ubuntu", w))
+}, logical(1)))
+last_tag <- tryCatch(
+  system2("git", c("tag", "--list", "v*", "--sort=-v:refname"), stdout = TRUE, stderr = FALSE)[1],
+  error = function(e) NA_character_
+)
+
+## autocorrelation of the simulated landscapes (outputs/_extended_analyses/nrv_autocorrelation/)
+ac_dir <- "outputs/_extended_analyses/nrv_autocorrelation"
+ac_csv <- .find(file.path(ac_dir, "summary.csv"))
+ac <- if (!is.na(ac_csv)) fread(ac_csv) else NULL
+ac_png <- if (!is.na(.find(ac_dir))) {
+  list.files(.find(ac_dir), "[.]png$", full.names = TRUE)[1]
+} else {
+  NA_character_
+}
+## the effective-snapshot column, matched by name so the section reads the file as written
+ac_eff <- if (!is.null(ac)) grep("effective", names(ac), ignore.case = TRUE, value = TRUE)[1] else NA
+
+## percentile stability as replicates are added (scripts/nrv_percentile_stability.R)
+ps_csv <- .find("outputs/_extended_analyses/nrv_percentile_stability/summary.csv")
+ps <- if (!is.na(ps_csv)) fread(ps_csv) else NULL
+ps_at <- function(ind, kk, col) {
+  if (is.null(ps)) {
+    return(NA_real_)
+  }
+  stats::median(ps[indicator == ind & k == kk][[col]], na.rm = TRUE)
+}
+pct1 <- function(x) if (is.na(x)) "(pending)" else sprintf("%.1f", x)
+```
+
+{{< pagebreak >}}
+
+::: {.callout-warning}
+**Draft report: pending human review**
+
+Portions of this document were drafted with the help of generative AI (large language models) and have not yet been fully reviewed by the co-authors.
+Content may be incomplete, inaccurate, or misattributed.
+The ratings in the summary scorecard are a draft for the co-authors to confirm or change.
+This notice will be removed once a complete review has been carried out.
+:::
+
+# Overview
+
+This report measures LandWeb v3 against two sets of practice.
+The first is PERFICT, a set of principles for ecological models that are rerun and re-evaluated as data and methods change [@McIntire:2022; @Barros2023].
+The second is the practice built up for natural (or historical) range of variation analyses used in forest management [@Landres:1999; @Morgan:1994; @Keane:2009].
+
+For each practice the report gives what v3 does, the report in this series where the detail is, what is missing, the fix for each gap and its status.
+It does not repeat the other reports.
+Two analyses are new here: how alike successive simulated landscapes within one replicate are (@sec-autocorr), and how much the results depend on the number of replicates (@sec-replicates).
+Appendix A lists the files, settings and commits behind each statement, Appendix B indexes the documentation of LandWeb v3 under the TRACE structure, and Appendix C gives the methods of the two analyses.
+
+# Summary scorecard {#sec-scorecard}
+
+::: {.callout-note}
+## Draft ratings for the co-authors
+
+*Meets*: the practice is in place, with at most minor open items.
+*Partly*: in place for some of what the practice asks, with open gaps.
+*Not yet*: not done.
+The co-authors review and sign off on each rating.
+:::
+
+| Practice | Rating | Main gap | Section |
+|:-----------------------|:--------|:----------------------------------------------|:-------|
+| Predict and update | Partly | Updates start by hand; no record per delivery of what changed | @sec-predict |
+| Evaluate | Partly | No check of simulated vegetation dynamics; a failed check does not stop a delivery | @sec-evaluate |
+| Reusable | Partly | Same-seed reruns not tested; seeds not printed in the reports | @sec-reusable |
+| Freely accessible (FAIR) | Partly | `r n_restr` of `r n_rec` inputs restricted; no archived v3 release | @sec-free |
+| Interoperable | Meets | Forked vegetation modules; output tables not documented as a schema | @sec-interop |
+| Continuous and tested | Partly | Code that computes report numbers is untested; no tests of dynamics | @sec-tested |
+| Model description (ODD, TRACE) | Partly | No ODD or TRACE document | @sec-odd |
+| What the reference represents | Partly | Climate held constant; insects and wind not simulated | @sec-reference |
+| Simulation design | Partly | Stationarity judged by eye; independence of landscapes being measured | @sec-design |
+| Reporting units and scale | Partly | No minimum size for a reporting unit | @sec-units |
+| Indicators and the current condition | Partly | No combined departure measure; no uncertainty range on the current condition | @sec-indicators |
+| Sensitivity to model choices | Not yet | No sensitivity runs | @sec-sensitivity |
+| Alberta NRV guidance | Pending | Guidance not yet reviewed (#146) | @sec-alberta |
+
+{{< pagebreak >}}
+
+# Part I: Reproducible, updatable modelling {#sec-part1}
+
+PERFICT stands for frequent **P**redictions and **E**valuations of **R**eusable, **F**reely accessible, **I**nteroperable models, built within **C**ontinuous workflows that are routinely **T**ested [@McIntire:2022].
+Barros et al. [-@Barros2023] apply the principles across seven parts of a model application, from data acquisition and parameter estimation through prediction and validation to testing the code.
+The other standards the LandWeb documentation refers to are listed with PERFICT in @tbl-standards.
+
+| Standard | What it asks for | Assessed in |
+|:--------------------|:------------------------------------------|:--------------|
+| PERFICT [@McIntire:2022; @Barros2023] | Reusable, tested, continuously updated predictive models | @sec-predict to @sec-tested |
+| FAIR [@Wilkinson:2016] | Findable, accessible, interoperable and reusable data and workflows | @sec-free |
+| Ten Simple Rules [@Sandve:2013] | Version control, recorded seeds, every step scripted, intermediate results kept | @sec-reusable, @sec-tested |
+| ODD [@Grimm:2006; @Grimm:2020] | A standard description of a simulation model | @sec-odd |
+| TRACE [@Grimm:2014] | Documented model development, testing and analysis | @sec-odd, Appendix B |
+
+: Standards for reproducible modelling referred to in the LandWeb v3 reports. {#tbl-standards}
+
+## Predict and update {#sec-predict}
+
+PERFICT asks for models whose predictions are repeated and updated as new data arrive, in a workflow cheap enough to rerun often [@McIntire:2022; @Dietze:2018].
+For an NRV analysis, the prediction is the simulated range itself, together with the fire and forest behaviour that produces it and can be compared with records.
+
+LandWeb v3 runs as a pipeline, built with the R package `targets` [@Landau:2021], that records how every result was made and reruns only the steps whose inputs or code changed (report 03).
+A change to the code of a simulation module reruns every stage that uses it.
+The inputs were refreshed for v3: SCANFI 2025 forest cover, fire records to 2025, and the v10 fire-cycle map (reports 00, 02 and 06).
+Each study-area group reruns on its own when its boundaries or inputs change (report 00).
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| A rerun starts when someone decides on one; nothing flags a new release of an input. | Check each registered input's source for a newer release on a schedule. | Open |
+| No record, per delivery, of what changed for a study area since the last delivery. | An output manifest for each run (report 06), and a dated list of changes in each report 05 appendix. | Output manifest planned (report 06) |
+
+## Evaluate {#sec-evaluate}
+
+PERFICT asks that predictions be compared with data the model was not fitted to, and that the comparison be repeated as the model changes [@McIntire:2022; @Augusiak:2014].
+
+For fire, every run reports the simulated fire-return interval of each fire-cycle zone against its target (report 02, "Fire-return-interval attainment").
+The fire-spread parameters are fitted to Andison's landscape fire statistics, and report 02 sets out which parameters that fit constrains and which it leaves loose.
+The burn summaries compare simulated burning with the national fire records.
+For vegetation, each species' growth curve is fitted to national and provincial forest plots (reports 00 and 05), and the fit can be repeated on bootstrap samples of plots to measure its uncertainty.
+For the current condition, the share of old forest in the current-condition age layer was checked against the share the fire cycles predict for a landscape in balance with them (report 06).
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| Nothing checks the simulated vegetation dynamics. In v2 runs of Saskatchewan and Manitoba, black-spruce-leading forest fell to a small fraction of its starting area, and v3 would not flag that. | Regional validation: vegetation and fire checks on every full run, starting with Saskatchewan and Manitoba. | Planned; first phase done |
+| A failed check does not stop a delivery. | Validation results hold a delivery unless the co-authors waive them in writing. | Planned |
+| Simulated fire sizes follow a rule of thumb (95% of the area burned in 5% of the fires), not the fire records. | Kept; simulated sizes are compared with the records in the burn summaries. | Decided |
+| Whether each fire reached its intended size is recorded but not checked. | Run the per-fire attainment check in the burn summaries. | Open |
+| The bootstrap refits of the growth curves predate the current model versions and are reported nowhere. | Rebuild them and report each trait's spread in report 01. | Open |
+
+## Reusable {#sec-reusable}
+
+@McIntire:2022 list five properties of a reusable model component: it is scripted; the same inputs and random seed give the same answer; different inputs give a different but equivalent answer; it runs on the common computer platforms; and it carries metadata on how it connects to other components.
+
+Every LandWeb v3 step, from downloading the inputs to building the reports, is scripted in one pipeline; `r n_manual` of the `r n_rec` inputs must be placed by hand.
+The random seeds are fixed: data preparation uses one seed, and each replicate takes its replicate number as its seed.
+One template runs every study-area group, each with its own inputs (report 00).
+The `r length(pkgs)` R packages the project maintains are tested on Linux on every change, and `r n_pkg_3os` of them on Windows and macOS as well.
+Each of the `r length(mods)` simulation modules declares its inputs, outputs and parameters, and `r n_mod_meta` have tests that check those declarations.
+Package versions are pinned: R `r r_ver` and `r fmt(n_pkgs)` packages, `r n_gh` of them from GitHub.
+A container image holding that environment is being set up to build automatically (#145).
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| No test that rerunning a replicate with the same seed gives the same outputs. | Rerun one replicate of one group and compare it with the archived run. | Open |
+| The reports do not print the seeds, though report 06 says they will. | Add the base seed and the per-replicate rule to the build-provenance appendix. | Open |
+| The full pipeline has run only on the project's Linux compute nodes. | Run it inside the container image. | In progress (#145) |
+
+## Freely accessible {#sec-free}
+
+PERFICT and the FAIR principles ask for open code and data that others can find, obtain and reuse [@McIntire:2022; @Wilkinson:2016].
+
+The `r length(mods) + length(pkgs)` module and package repositories and the LandWeb repository are public on GitHub.
+Every input dataset has a record of its source, version, licence, retrieval date and citation in the input manifest, and its citation reaches the bibliographies automatically (report 06).
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| `r n_restr` of the `r n_rec` inputs are restricted or not openly licensed: inventory-based layers, hosted copies of large files, the Manitoba caribou ranges, the archived national fire database, and boundary data under a non-commercial licence. | For each, state how to obtain access, and use an open equivalent where one exists. | Open; the national caribou layer was assessed (report 06) |
+| No archived release or DOI for the v3 code; the latest release tag is `r last_tag`. | Tag a v3 release and archive it with a DOI and a citation file. | Open |
+| Results are shared on an access-controlled drive and not archived. | Archive the summary tables (not the maps) with a DOI at each delivery, as partner agreements allow. | Decision needed |
+| `r n_hash` of the `r n_rec` manifest records carry a checksum. | Add checksums for the files small enough to hash routinely. | Open |
+| The outputs are not yet listed in a manifest like the inputs. | An output manifest built from the pipeline's own records (report 06). | Planned |
+
+## Interoperable {#sec-interop}
+
+PERFICT asks for modules that can run alone or inside a larger model and that exchange information only through declared inputs and outputs [@McIntire:2022].
+
+Each LandWeb module declares the objects it needs and the objects it makes.
+The burn summaries read the output of other fire models as well as LandMine (report 03).
+The NRV analyses live in a separate R package (`nrvtools`) that other projects can call without the LandWeb-specific module.
+Most outputs are Parquet tables, CSV files and GeoTIFF rasters, which software other than R can read.
+All contact with the SpaDES framework passes through one adapter package, so a change in the framework is absorbed in one place (report 03).
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| Several vegetation modules run from forks, so their use elsewhere depends on keeping the forks in step with the shared versions. | Send each fix upstream as well as to the fork. | Ongoing; forks last synchronised October 2026 |
+| The columns of the NRV output tables are not published as a schema. | Document them in the NRV_summary and `nrvtools` documentation. | Open |
+
+## Continuous and tested {#sec-tested}
+
+PERFICT asks for code tests and ecological checks that run automatically with the workflow [@McIntire:2022]; the Ten Simple Rules ask for the same scripted, version-controlled steps [@Sandve:2013].
+
+Automated tests run on every change for `r n_mod_ci` of the `r length(mods)` modules and `r n_pkg_ci` of the `r length(pkgs)` packages, with test coverage measured for `r n_pkg_cov` of the packages.
+The page-break convention of these reports is tested too.
+A further check finds any two components that ask for different versions of the same package.
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| The project code that turns simulation outputs into report numbers (percentiles, boundary comparisons) has no tests. | Tests with small hand-built cases whose answers are known. | Open |
+| Module tests check interfaces and single functions, not simulated dynamics. | Short validation runs (@sec-evaluate). | Planned |
+| Pipeline steps outside the simulation stages rerun on a package change only if their command names that package. | Name the package in those commands, and add a check that finds steps that do not. | Done for the known cases; check open |
+
+## Model description: ODD and TRACE {#sec-odd}
+
+ODD is a standard structure for describing a simulation model [@Grimm:2006; @Grimm:2020].
+TRACE is a standard structure for documenting how a model was developed, tested and analysed for decision support [@Grimm:2014], using the evaluation terms of @Augusiak:2014.
+
+Most of the content both ask for exists: each module's documentation (built and checked automatically), the user manual (being revised, #128), and reports 00 to 06.
+No document follows either structure.
+Appendix B indexes the existing material under the eight TRACE elements, which shows where the gaps are.
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| No ODD description of LandWeb v3. | Write one from the module documentation, following the 2020 update of the protocol. | Open |
+| No TRACE document. | Appendix B is its index; fill the gaps it shows. | Index drafted (Appendix B) |
+
+{{< pagebreak >}}
+
+# Part II: Natural range of variation practice {#sec-part2}
+
+The natural (or historical) range of variation describes how a landscape varied before industrial development, and serves as a reference for judging how far management has moved it [@Landres:1999; @Morgan:1994; @Keane:2009].
+In the boreal forest, the natural fire regime has been proposed as the model for management [@Hunter:1993; @Bergeron:2002].
+NRV analyses have been proposed for boreal forest agreements [@Andison:2016] and have been applied in planning, for example in Ontario's boreal landscape guide [@OMNR:2014] and in central British Columbia [@Wong:2004].
+This part takes five questions the practice raises: what the reference stands for, how the simulations that produce it are designed, at what scale results are reported, how the current condition is compared with the range, and how sensitive the range is to the model's choices.
+
+## What the reference represents {#sec-reference}
+
+The range depends on the period, processes and human influences it stands for, so the practice is to state them [@Morgan:1994; @Keane:2009].
+
+The LandWeb v3 reference is pre-industrial.
+Fire is set by the long-term historic fire-cycle map [@Andison:2019], updated for northwest Alberta in 2026 with fire histories that combine Western science with Indigenous and long-time-resident knowledge (report 02).
+No harvest, roads or fire control are simulated.
+In the simulation, urban land takes the land cover of its surroundings, as an approximation of the pre-industrial landscape; in the current condition it stays non-forest, so that land conversion counts as departure from the range (report 03).
+Fire cycles vary across the Canadian boreal forest [@Bergeron:2002]; the map carries that variation from zone to zone, and each zone keeps one fire cycle for the whole simulation.
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| Climate is held at the period the fire records and the fire-cycle map represent, and there is no range for a future climate [@Millar:2007; @Keane:2009]. | Simulate future climates as a separate range, compared with the historical one [@Keane:2018]. | Decision needed |
+| Insects, disease, wind and partial fire mortality are not simulated, as the 2021 reports also noted. | Name them in each report 05 discussion as known sources of error. | Open (author text) |
+
+## Simulation design {#sec-design}
+
+The practice for simulated ranges sets out four requirements.
+The simulated landscape must be large enough for the largest fires, with room for fires to enter the reported area from outside; Keane et al. suggest a buffer of 3 to 5 km [-@Keane:2009, p. 1029].
+The start of each run is discarded until the starting landscape no longer shows; simulated attributes tend to settle within 100 to 500 years [@Keane:2009, p. 1029].
+Snapshots are taken far enough apart to be close to independent; LANDFIRE used 50 years [@Keane:2009, p. 1031].
+Replicate runs add samples without lengthening the runs [@Keane:2009, p. 1030].
+An estimate of the range also depends on the time span and extent it comes from [@Wong:2004].
+
+Each LandWeb v3 group is simulated as one landscape with a `r fmt(buffer_km)` km buffer, and results are reported for the area inside the buffer.
+The first `r yr(period[1])` years of each `r yr(sim_end)`-year run are discarded.
+Landscapes are then sampled every `r fmt(interval)` years to year `r yr(period[2])`, in `r fmt(n_reps)` replicates: `r fmt(n_snap)` simulated landscapes per reporting unit (report 05).
+How the v2 reports described their sampling, and how that compares with v3, is in report 04.
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| Whether the sampled years are free of trends has been judged from plots. | A trend test over the sampled years, written for NRV_summary, applied at the next module update. | In progress |
+| Successive landscapes within a replicate are not independent. | Measured here (@sec-autocorr); measured directly from yearly series at the next full rebuild. | In progress |
+| Whether `r fmt(n_reps)` replicates are enough had not been tested. | Measured here (@sec-replicates). | `r if (is.null(ps)) "In progress" else "Done (this report)"` |
+| The NRV tables carry a 95% interval of the mean, which is not the range and assumes independent landscapes. | Say so in the module documentation, and never report it as the range. | Open |
+
+### Independence of successive landscapes {#sec-autocorr}
+
+Two landscapes `r fmt(interval)` years apart in one replicate share much of their forest, so they carry less information than two independent landscapes.
+The analysis measures how quickly that resemblance fades and converts the `r fmt(n_snap)` landscapes into an equivalent number of independent ones (Appendix C).
+It uses the yearly maps saved for years 601 to 650 and the snapshots from year `r yr(period[1])` to `r yr(period[2])`, because the current runs did not record yearly series; the full check runs at the next rebuild.
+
+```{r}
+#| label: ac-text
+#| output: asis
+if (is.null(ac)) {
+  cat("*Pending: the autocorrelation analysis has not yet written its results (`", ac_dir, "/summary.csv`).*\n", sep = "")
+} else if (!is.na(ac_eff)) {
+  e <- ac[[ac_eff]]
+  cat(sprintf(
+    "Across the %d study-area groups, the %s simulated landscapes per reporting unit are worth between %s and %s independent ones (@tbl-autocorr).\n",
+    nrow(ac), fmt(n_snap), fmt(round(min(e, na.rm = TRUE))), fmt(round(max(e, na.rm = TRUE)))
+  ))
+} else {
+  cat("The results for each study-area group are in @tbl-autocorr.\n")
+}
+```
+
+```{r}
+#| label: tbl-autocorr
+#| tbl-cap: "Autocorrelation of the simulated landscapes, by study-area group: the series that decorrelates slowest, its lag-1 autocorrelation (phi) and decorrelation time (tau, years), the correlation r of landscapes one sampling interval apart, the equivalent number of independent landscapes, the replicates needed for 50 and 100 of them, and the spacing at which r falls below 0.1. Column names are those of the analysis output."
+if (!is.null(ac)) {
+  num <- names(ac)[vapply(ac, is.numeric, logical(1))]
+  out <- copy(ac)
+  out[, (num) := lapply(.SD, function(v) round(v, 2)), .SDcols = num]
+  kbl(out, booktabs = TRUE, longtable = TRUE) |>
+    kable_styling(latex_options = c("repeat_header", "scale_down"), font_size = 7)
+}
+```
+
+```{r}
+#| label: autocorr-png
+#| fig-cap: "Autocorrelation of the simulated landscapes (figure written by the autocorrelation analysis)."
+#| out-width: "100%"
+if (!is.na(ac_png)) knitr::include_graphics(normalizePath(ac_png))
+```
+
+### Number of replicates {#sec-replicates}
+
+Each result in report 05 places the current condition in the simulated range: below it, in its lower quarter, its middle half, its upper quarter, or above it.
+The analysis rebuilds that range from subsets of the `r fmt(n_reps)` replicates and counts how often the position changes (Appendix C).
+The subsets come from the same run, so they show how much a result depends on which replicates it rests on, not what further replicates would add.
+
+```{r}
+#| label: ps-text
+#| output: asis
+if (is.null(ps)) {
+  cat("*Pending: the replicate analysis has not yet written its results (`outputs/_extended_analyses/nrv_percentile_stability/summary.csv`).*\n")
+} else {
+  kmax <- max(ps$k)
+  worst <- max(ps[indicator == "age_shares" & k == 10L, pct_position_changed])
+  q10 <- ps_at("age_shares", 10L, "quartile_shift")
+  r10 <- ps_at("age_shares", 10L, "range_shift")
+  cat(
+    sprintf(
+      "With %d of the %d replicates, the position of the current condition changes for %s%% of the age-class results in the median study-area group, and with %d replicates for %s%% (%s%% in the most affected group; @fig-replicates).",
+      kmax, max(ps$n_reps), pct1(ps_at("age_shares", kmax, "pct_position_changed")),
+      10L, pct1(ps_at("age_shares", 10L, "pct_position_changed")), pct1(worst)
+    ),
+    sprintf(
+      "With 10 replicates, the 25th and 75th percentiles of the age-class shares move on average by %s%% of the width of the full range, and the minimum and maximum by %s%%.",
+      pct1(100 * q10), pct1(100 * r10)
+    ),
+    if (isTRUE(r10 > q10)) {
+      "The ends of the range depend more on which replicates are included than its quartiles do, so the middle half is the steadier reference."
+    },
+    "",
+    sep = "\n"
+  )
+}
+```
+
+```{r}
+#| label: fig-replicates
+#| fig-cap: "Share of results whose position in the simulated range (below, lower quarter, middle half, upper quarter, above) differs from the position given by all replicates, when the range is built from fewer replicates. Grey lines are study-area groups; the black line is their median."
+#| fig-height: 3.8
+if (!is.null(ps)) {
+  lab <- c(age_shares = "Age-class shares within vegetation types", old_patches = "Old forest in large patches")
+  ggplot(ps, aes(x = k, y = pct_position_changed, group = study_area)) +
+    geom_line(colour = "grey70", linewidth = 0.4) +
+    stat_summary(aes(group = 1), fun = stats::median, geom = "line", colour = "black", linewidth = 0.9) +
+    facet_wrap(~indicator, labeller = as_labeller(lab)) +
+    labs(x = sprintf("Replicates used (of %d)", max(ps$n_reps)), y = "Positions that differ (%)") +
+    theme_bw()
+}
+```
+
+## Reporting units and scale {#sec-units}
+
+The range depends on scale.
+Whether a landscape's composition holds steady depends on the size of its disturbances relative to its own size [@Turner:1993], and the age structure a fire regime produces depends on the extent it is measured over [@Boychuk:1997].
+Simulated ranges summarised over areas smaller than 100 km^2^ were more than twice as variable as those from larger areas [@Karau:2007; @Keane:2009, p. 1031], and Keane et al. suggest reporting areas of 10,000 to 100,000 ha, depending on the question [-@Keane:2009, p. 1031].
+
+LandWeb v3 simulates each group whole and summarises the results for each tenure and for each tenure's share of each sub-region (report 00).
+Ontario does the same: management-unit ranges are taken from simulations of the whole landscape-guide region [@OMNR:2014, p. 21].
+Each sub-region layer is crossed with the tenures before its pieces are combined, so two tenures' shares of a sub-region are never pooled.
+The figures leave out vegetation types and sub-regions with less than `r fmt(min_ha)` ha of forest (report 05).
+Changes in tenure boundaries since v2 are measured for each tenure (report 05).
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| No minimum size for a reporting unit: small sub-regions are reported with wide ranges and no warning. | Mark units below a set size in report 05, for example 10,000 ha, the low end of the range Keane et al. suggest. | Decision needed |
+
+### Alberta NRV guidance {#sec-alberta}
+
+::: {.callout-note}
+## Placeholder: new Alberta NRV guidance (#146)
+
+The new Alberta guidance on NRV analyses is still to be reviewed.
+This section will list the analyses it requires, what LandWeb v3 already provides for each, and the gaps.
+Issue #146 also asks for summaries by Alberta natural subregion as a reference; v3 already reports each tenure's share of each natural subregion (report 00), and the review will settle whether summaries of whole natural subregions are needed as well.
+:::
+
+## Indicators and the current condition {#sec-indicators}
+
+The current condition is compared with the simulated range indicator by indicator [@Hessburg:1999], or the comparisons are combined into one index of departure [@Keane:2018].
+Ontario sets its desirable levels at the middle 50% of the simulated range, because the extremes include landscapes close to ecological thresholds [@OMNR:2014, p. 24].
+Comparing the current age structure of an eastern boreal landscape with a modelled range of age structures suggested that logging had already shifted it [@Cyr:2009].
+
+The LandWeb partners chose the indicators: the area in each seral stage by vegetation type, and the area of old forest in large patches (report 05).
+The current condition is measured with the same rules, on the same grid, as the simulated landscapes.
+Each result is placed below, in the lower quarter, the middle half or the upper quarter of the simulated range, or above it, and given its percentile rank; the middle half is Ontario's desirable band.
+Known gaps in the current-condition stand ages are stated for each group (reports 05 and 06).
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| No single measure of departure across all age classes and vegetation types. | Add a departure index alongside the class-by-class positions [@Keane:2018]. | Decision needed |
+| The current condition has no uncertainty range; known gaps in its ages are stated in words. | Turn the measured gaps into a range for the current condition where they can be quantified. | Open |
+| The landscape and patch metrics the NRV package computes are not reported. | Decide with the partners whether any should join the indicators. | Decision needed |
+
+## Sensitivity to model choices {#sec-sensitivity}
+
+The range depends on the model's design, including which disturbances it simulates and in how much detail [@Keane:2009, p. 1033], so the practice is to report how much.
+
+LandWeb v3 runs one version of each uncertain input: the *Intermediate* of the three northwest Alberta fire-cycle scenarios (report 02), one rule for fire sizes, one growth-curve fit, and one set of fire-spread parameters, although report 02 shows that the spread fit leaves several of its parameters poorly constrained.
+
+| Gap | Fix | Status |
+|:----------------------------------|:----------------------------------|:--------------|
+| No runs with the other northwest Alberta fire-cycle scenarios. | Run one affected group under the *Shortest* and *Longest* scenarios. | Open (needs new runs) |
+| Growth-curve uncertainty is not carried into the simulations. | Run replicates with traits from the bootstrap refits. | Open (needs new runs) |
+| Fire-spread parameter uncertainty is not carried into the simulations. | Run replicates with other parameter sets that fit equally well. | Open (needs new runs) |
+
+{{< pagebreak >}}
+
+# References {.unnumbered}
+
+::: {#refs}
+:::
+
+{{< pagebreak >}}
+
+# Appendix A: Evidence {.unnumbered}
+
+| Statement | Where it is set or recorded |
+|:------------------------------|:----------------------------------------------|
+| Pipeline and reruns | `_targets.R`; option `SpaDES.targets.fingerprint` (commit 10a10135) reruns a stage when its modules or GitHub packages change |
+| Seeds | `_targets.R`: data preparation `seed = 1L`; main simulation `seed = quote(rep_index)` |
+| Sampling design | `_targets.R` globals `summaryPeriod`, `summaryInterval`; `_local.R` `n_reps`, `sim_end` |
+| Buffer | `_targets.R` LandWeb_preamble parameters `bufferDist`, `bufferDistLarge`; reporting uses `studyAreaReporting` |
+| Positions in the range | `report05_percentiles()` in `R/report_data.R` |
+| Interval of the mean in NRV tables | `nrvtools::summarize_nrv()`, columns `se` and `ci` |
+| Autocorrelation | NRV_summary `autocorr` event (FOR-CAST/NRV_summary a955911); results in `outputs/_extended_analyses/nrv_autocorrelation/` |
+| Trend test over the sampled years | NRV_summary `stability` event (on its development branch) |
+| Replicate analysis | `scripts/nrv_percentile_stability.R`; results in `outputs/_extended_analyses/nrv_percentile_stability/` |
+| Input manifest | `_input_manifest.json`, built by `R/build_input_manifest.R` |
+| Pinned environment | `renv.lock`; container `docker/LandWeb-standalone.Dockerfile`, built by `.github/workflows/docker-image.yaml` |
+| Automated tests | modules: `.github/workflows/testthat-module.yaml`, `tests/testthat/test-metadata.R`; packages: `R-CMD-check.yaml`, `test-coverage.yaml`; this repository: `.github/workflows/tests.yaml`, `dep-branch-audit.yaml` |
+| Public repositories | the URLs in `.gitmodules`; visibility checked on GitHub, 2026-11-25 |
+
+{{< pagebreak >}}
+
+# Appendix B: Documentation under the TRACE elements {.unnumbered}
+
+| TRACE element [@Grimm:2014] | Where LandWeb v3 documents it | Gap |
+|:----------------------------|:----------------------------------|:--------------------|
+| 1. Problem formulation | Report 00 ("What LandWeb is"); report 05 ("Goal", "Desired conditions and outcomes") | Desired conditions are author text still to write |
+| 2. Model description | Module documentation; user manual (#128); report 00 ("Modelling workflow") | No ODD description (@sec-odd) |
+| 3. Data evaluation | Reports 01 (vegetation inputs), 02 (fire inputs) and 06 (provenance and current-condition layers) | |
+| 4. Conceptual model evaluation | Report 03 ("Changes that alter results"); report 02 ("How LandMine uses the LTHFC layer") | No single list of model assumptions |
+| 5. Implementation verification | Module and package tests (Appendix A); report 03 ("Framework changes and the dependency firewall") | No tests of simulated dynamics (@sec-tested) |
+| 6. Model output verification | Report 02 (calibration fit, fire-return-interval attainment); report 06 (old forest against the fire-cycle expectation) | No vegetation check (@sec-evaluate) |
+| 7. Model analysis | This report (@sec-autocorr, @sec-replicates) | No sensitivity analysis (@sec-sensitivity) |
+| 8. Model output corroboration | Burn summaries against the national fire records | No comparison of simulated vegetation with independent data (@sec-evaluate) |
+
+{{< pagebreak >}}
+
+# Appendix C: Methods of the two analyses {.unnumbered}
+
+**Autocorrelation.** For each landscape series (for example the share of old forest), the lag-1 autocorrelation $\phi$ is the mean, over replicates, of the correlation between the series and itself one year later.
+An AR(1) process with that $\phi$ decorrelates over $\tau = (1 + \phi) / (1 - \phi)$ years.
+With $r$ the correlation of landscapes one sampling interval apart, $n$ landscapes are worth $n (1 - r) / (1 + r)$ independent ones.
+The study-area group's result is that of the series that decorrelates slowest.
+The method is NRV_summary's `autocorr` event (FOR-CAST/NRV_summary a955911); this report applies it to the yearly maps saved for years 601 to 650 and to the snapshots, and the full check (`recordAnnualSeries = TRUE`) runs at the next rebuild.
+
+**Replicates.** For each study-area group, the per-replicate values report 05 summarises are summarised again from subsets of $k$ of the `r fmt(n_reps)` replicates, with report 05's own function.
+For each $k$, all subsets are used when there are at most 200, and otherwise 200 drawn at random.
+Each subset's positions (below, lower quarter, middle half, upper quarter, above) are compared with those from all replicates.
+The quartile shift is the mean change in the 25th and 75th percentiles, and the range shift the mean change in the minimum and maximum, both as a share of the width of the range from all replicates.
+The script is `scripts/nrv_percentile_stability.R`.
+
+{{< include _provenance-appendix.qmd >}}

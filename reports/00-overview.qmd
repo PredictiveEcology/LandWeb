@@ -227,8 +227,8 @@ suite <- data.table(
     "Code and module changes v2 to v3: per-module/package history; SpaDES framework breakage and the targets switch.",
     "Output differences v2 vs v3: how the simulated NRV and burn summaries change (planned).",
     "Per-study-area summary: the templated NRV report, rendered once per study-area group with results for each tenure in it --- the client-facing deliverable (planned).",
-    "Provenance: the input-data manifest, how the assembled and derived inputs were built, and reproducibility standards (the output manifest is still planned).",
-    "Best-practices alignment vs forest-landscape-model calibration guidance (planned, optional).",
+    "Provenance: the input-data manifest and how the assembled and derived inputs were built (the output manifest is still planned).",
+    "Best-practices alignment: v3 against the PERFICT principles and natural-range-of-variation practice, with each gap, its fix and its status (draft).",
     "User guide / manual (migrating from bookdown to a Quarto book), tracked by issue #128."
   )
 )

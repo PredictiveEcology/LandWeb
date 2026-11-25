@@ -66,7 +66,7 @@ gap_of <- function(sa) sprintf("%.1f", age_gaps[study_area == sa, pct_forest_una
 **Draft report: pending human review**
 
 Portions of this document were drafted with the help of generative AI and have not been fully reviewed.
-The input manifest, the bibliography sync, and the per-report build-provenance appendix are **implemented**; the **output manifest** and the **ODD / TRACE narratives** are designed here but not yet fully built (see the relevant sections).
+The input manifest, the bibliography sync, and the per-report build-provenance appendix are **implemented**; the **output manifest** is designed here but not yet fully built, and the **ODD / TRACE narratives** are outstanding (report 07).
 :::
 
 # Overview
@@ -79,7 +79,7 @@ The design has five parts, at different stages of maturity:
 2. an **auto-synced bibliography** (implemented) --- data-source citations derived from the manifest;
 3. a **per-report build-provenance appendix** (implemented) --- repo commit, pinned module/package revisions, and software environment stamped into every rendered report (see the appendix to this document, and the shared `_provenance-appendix.qmd` include);
 4. **output provenance and lineage** (design below; partly implemented) --- each output artifact tied to its producing `targets` target, the module revisions that generated it, its input lineage, and the run parameters (study area, replicates, seed); and
-5. **reproducibility-standards alignment** (below) --- how the above maps onto FAIR, PERFICT, the Ten Simple Rules, ODD, and TRACE.
+5. **reproducibility-standards alignment** --- how the above maps onto FAIR, PERFICT, the Ten Simple Rules, ODD, and TRACE, now assessed in report 07.
 
 # Input-data manifest
 
@@ -376,19 +376,8 @@ This is scoped to land with the main-simulation and summary stages (reports 04/0
 
 # Reproducibility standards
 
-LandWeb v3 targets a **PERFICT**-style workflow [@McIntire:2022; @Barros2023] --- frequent **P**redictions and **E**valuations of **R**eusable, **F**reely-accessible, **I**nteroperable models, built in **C**ontinuous, **T**ested workflows --- and the manifest, appendix, and `targets` graph are the runtime evidence for that claim.
-The table below maps the provenance design onto the standards the project aims to meet; the "status" column is an honest self-assessment for the co-authors to refine.
-
-| Standard | What it asks for | LandWeb v3 status |
-|---|---|---|
-| **FAIR** [@Wilkinson:2016] | Findable, Accessible, Interoperable, Reusable data + workflows | Inputs are registered with source, license, and citation (manifest); outputs FAIR-ify once the output manifest lands. Access to some inputs is controlled (proprietary/Drive). |
-| **PERFICT** [@McIntire:2022; @Barros2023] | Reusable, tested, continuous predictive-ecology workflows | Core aim of the v3 rebuild: `targets` continuous workflow, owned CI-tested packages, per-FMA reuse. |
-| **Ten Simple Rules** [@Sandve:2013] | Version control, recorded seeds, tracked intermediate steps, avoid manual steps | Met by `targets` (recorded seeds/hashes, no manual steps) + pinned revisions; NEWS now documents module history (report 03). |
-| **ODD** [@Grimm:2006] | A standard narrative description of the model | Partly served by the manual (#128) + report 00; a formal ODD write-up is outstanding. |
-| **TRACE** [@Grimm:2014] | Documented model development, testing, and analysis | Partly served by reports 01-03 (data, methods, changes) + module tests; a consolidated TRACE document is outstanding. |
-
-The manifest + build-provenance appendix are the *runtime evidence* an ODD/TRACE narrative would point to.
-Fleshing those narratives out (and the FLM-calibration best-practices alignment, [@Reese:2024], report 07) is the next step for the co-authors.
+How LandWeb v3 measures up against the standards for reproducible modelling (PERFICT, FAIR, the Ten Simple Rules, ODD and TRACE) is assessed in report 07, which also lists each gap with its fix and status.
+The input manifest and the build-provenance appendix described here are the evidence that assessment draws on for provenance.
 
 {{< pagebreak >}}
 
