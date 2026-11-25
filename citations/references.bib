@@ -124,29 +124,31 @@
   month       = aug
 }
 
-% --- Code & framework: report 03 (reused from manual/citations/references.bib) ---
+% --- Code & framework: report 03 ---
+% The versions renv.lock pins, as citation() gives them for the installed package (title, aut-role
+% authors, the year of DESCRIPTION's Date, version and commit, url).
 @Manual{R-SpaDES.core,
   title  = {{SpaDES.core}: Core Utilities for Developing and Running Spatially Explicit Discrete Event Models},
   author = {Alex M Chubaty and Eliot J B McIntire},
-  year   = {2025},
-  note   = {R package version 2.1.6},
-  url    = {https://spades-core.predictiveecology.org/}
+  year   = {2026},
+  note   = {R package version 3.2.1.9077, commit 100a11a23b2776791beb34d588347f1225289322},
+  url    = {https://github.com/PredictiveEcology/SpaDES.core}
 }
 
 @Manual{R-reproducible,
   title  = {{reproducible}: Enhance Reproducibility of R Code},
   author = {Eliot J B McIntire and Alex M Chubaty and Tati Micheletti and Ceres Barros and Ian Eddy},
-  year   = {2024},
-  note   = {R package version 2.1.2},
+  year   = {2026},
+  note   = {R package version 3.2.1.9090},
   url    = {https://reproducible.predictiveecology.org}
 }
 
 @Manual{R-LandR,
   title  = {{LandR}: Landscape Ecosystem Modelling in R},
   author = {Eliot J B McIntire and Alex M Chubaty and Ceres Barros and Ian M S Eddy},
-  year   = {2025},
-  note   = {R package version 1.1.5.9054},
-  url    = {https://landr.predictiveecology.org}
+  year   = {2026},
+  note   = {R package version 1.2.0.9064, commit a359a35479bd3c353061851f04c9ea803c1da924},
+  url    = {https://github.com/PredictiveEcology/LandR}
 }
 
 @article{Barros2023,
@@ -270,7 +272,7 @@
   address     = {Victoria, BC, Canada},
   year        = {2003},
   month       = jan,
-  pages       = {81},
+  note        = {81 pp.},
   url         = {https://a100.gov.bc.ca/pub/acat/documents/r40902/LANDCOVER_EOSD_legend_report-v2_1389718180168_9717533180.pdf}
 }
 
@@ -356,14 +358,13 @@
 }
 
 % BC VRI rank-1 layer, the release (VEG_COMP_LYR_R1_POLY_2025) in fRI's 2025 stand-age composite.
-% Author, title and URL from the BC Data Catalogue record. Its suggested citation still reads
-% "(2024). VRI - 2024 - ...", one release behind the record, so it is not copied.
-% _todo: year. Checked 2026-11-25, the record still gives none for this release: the title says 2025,
-% the suggested citation and the "Published" date (2024-02-27) say 2024, and the record was last
-% modified 2026-05-27. Confirm with the Forest Analysis and Inventory Branch before adding one.
+% Author, title and URL from the BC Data Catalogue record; the year from its suggested citation and
+% "Published" date (2024-02-27). The suggested citation's title still reads "VRI - 2024 - ...", one
+% release behind the record's own title, so the title is the record's.
 @misc{vri-r1-2025,
   author    = {{Forest Analysis and Inventory Branch}},
   title     = {{VRI} - 2025 - {F}orest {V}egetation {C}omposite {R}ank 1 {L}ayer ({R1})},
+  year      = {2024},
   publisher = {British Columbia Data Catalogue},
   url       = {https://catalogue.data.gov.bc.ca/dataset/2ebb35d8-c82f-4a17-9c96-612ac3532d55}
 }
