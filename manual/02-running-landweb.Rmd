@@ -142,6 +142,8 @@ systemd-run --user --collect --unit=landweb-run --working-directory="$PWD" \
 Follow it with `tail -f logs/landweb-run.log`, or with `targets::tar_progress()` from an R session.
 Stop it with `systemctl --user stop landweb-run`.
 The unit keeps running after you log out only if lingering is enabled for your account (`loginctl enable-linger`).
+
+On a group of machines (see [Running on several machines]), a run can instead be hosted on one compute node, where it keeps running if the control node reboots (see [Hosting a run on a compute node]).
 :::
 
 ### Outputs and logs
@@ -234,6 +236,35 @@ Rscript-4.6.1 scripts/sync-nodes.R
 On each node, `sync-nodes.R` fast-forwards the project's git branch from GitHub, updates the submodules, re-creates the shared-directory links, and runs `renv::restore()`.
 Nodes pull from GitHub and restore the committed `renv.lock`, so commit and push your changes first.
 Do not sync while a run is in progress: it would change the packages under the running workers.
+
+### Hosting a run on a compute node
+
+With machines set up as above, a run can be hosted in two ways:
+
+- **From the control node**, where `_hosts.R` is present: `tar_make()` runs on the control node and sends the heavy stages to the compute nodes with `crew.ssh`.
+  This spreads a run over every node, but the run stops if the control node reboots.
+- **On one compute node**, with `scripts/node-tar-make.sh`: `tar_make()` and all its workers run on that node, using its own pool of up to `local_workers` workers.
+  The run keeps going if the control node reboots or your ssh session drops.
+  Use it for a run that one node can carry.
+
+`node-tar-make.sh` refuses to run where `_hosts.R` exists, so it cannot be started on the control node by mistake.
+Start it from the project directory on the compute node, as its own `systemd` unit, with `scripts/start-unit.sh <tag>`:
+
+```bash
+cd ~/GitHub/LandWeb
+## check the target names against the pipeline; builds nothing
+scripts/node-tar-make.sh --dry-run mainSim_WesternAlbertaUpland
+
+scripts/start-unit.sh wau scripts/node-tar-make.sh mainSim_WesternAlbertaUpland
+```
+
+- With no target names, it builds the whole pipeline.
+- `--shortcut` builds only the named targets, from the stored results upstream of them (see [Rebuilding part of a run]).
+- The unit is named `landweb-<tag>`, and its output goes to `logs/landweb-<tag>.log`; the pipeline's own log is `logs/node-tar-make_<target>_<time>.log`.
+- Stop the run with `systemctl --user stop landweb-<tag>`, which stops its workers too.
+
+Only one `tar_make()` can run on the shared `_targets/` store at a time, wherever it is hosted.
+Run `scripts/node-tar-make.sh --help` for the other options.
 
 ### Caching
 
