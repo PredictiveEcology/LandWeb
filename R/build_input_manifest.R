@@ -507,11 +507,242 @@ build_input_manifest <- function(
         "asks."
       ),
       citation = list(bibtex_key = "nfdb-2021", external = TRUE)
+    ),
+    ## Tenures, ecological frameworks and reporting layers (LandWebUtils). A field this file cannot
+    ## fill from the source is NA (null in the JSON), and `extra$_todo` says what is missing.
+    list(
+      id = "fma-boundaries-v10",
+      name = "LandWeb forest tenure boundaries, v10 (FMAs_LandWebltfc_map_v10_LCC1)",
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/file/d/1c5vkNPG81DB5wkAVT3CP_h2jFCUDqCoL"
+      ),
+      local_path = file.path(
+        inputs_dir,
+        "1c5vkNPG81DB5wkAVT3CP_h2jFCUDqCoL",
+        "1c5vkNPG81DB5wkAVT3CP_h2jFCUDqCoL.zip"
+      ),
+      version_or_vintage = "v10 (delivered by fRI Research 2026-05-07)",
+      license = "Access controlled (LandWeb hosted Drive)",
+      description = paste(
+        "Forest tenure polygons across the LandWeb area, combined from each jurisdiction's own tenure",
+        "layer, so each names its areas in a different field (AB and NWT FMA_NAME, BC TSA_NUMB_1, SK",
+        "FOREST_NAM, MB FML_NAME, ON FMU_NAME); the Name field is corrupt for most rows. Supersedes",
+        "FMA_Boundary_Updated_2024. The preamble builds every study area from it",
+        "(LandWebUtils::prepFMAs()), and it is the tenure layer of the reporting polygons (the copy in",
+        "also_at)."
+      ),
+      extra = list(
+        also_at = file.path(
+          inputs_dir,
+          "reportingPolygons",
+          "FMA_Boundaries_Updated",
+          "FMA_Boundaries_Updated.zip"
+        ),
+        `_todo` = "which jurisdictional tenure layers, of which dates and licences, it combines"
+      )
+    ),
+    list(
+      id = "ab-natural-subregions",
+      name = "Alberta Natural Subregions, clipped to the LandWeb area",
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/file/d/1hW6zy0CpUBdk-K2IAjzW4INjVl1J4aLJ"
+      ),
+      local_path = file.path(
+        inputs_dir,
+        "reportingPolygons",
+        "Alberta_Natural_Subregions",
+        "Alberta_Natural_Subregions.zip"
+      ),
+      version_or_vintage = "2005 coverage (nsr2005_final), clipped 2018-03-26",
+      license = NA_character_,
+      description = paste(
+        "DERIVED: Alberta's natural subregions, the ANSR reporting layer that tenures are crossed with",
+        "(labelled on Name). Its processing history (AB_Natural_Sub_Regions.shp.xml) records the 2005",
+        "coverage nsr2005_final clipped to the study area and projected to Lambert conformal conic on",
+        "2018-03-26."
+      ),
+      extra = list(derived = TRUE, `_todo` = "publisher and licence of nsr2005_final")
+    ),
+    list(
+      id = "bc-bec-zones",
+      name = "BC biogeoclimatic (BEC) zones, clipped to the LandWeb area",
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/file/d/1NS15Gd7dHEhvPOy-Ol_LBtf-4Ch6mPnS"
+      ),
+      local_path = file.path(
+        inputs_dir,
+        "reportingPolygons",
+        "BC_Biogeoclimatic_zones",
+        "BC_Biogeoclimatic_zones.zip"
+      ),
+      version_or_vintage = "WHSE_FOREST_VEGETATION.BEC_BIOGEOCLIMATIC_POLY, clipped 2018-03-26",
+      license = "OGL-BC-2.0 (upstream); hosted copy access-controlled",
+      description = paste(
+        "DERIVED: the BEC reporting layer that tenures are crossed with (labelled on ZONE_NAME). Its",
+        "processing history (BC_Bio_Geoclimatic_Zones.shp.xml) records the BC Geographic Warehouse",
+        "layer WHSE_FOREST_VEGETATION.BEC_BIOGEOCLIMATIC_POLY clipped to the study area and projected",
+        "to Lambert conformal conic on 2018-03-26. The growth-curve fit reads BEC zones separately, live",
+        "from the same warehouse layer (LandWebUtils::landweb_bec_zones(), target growthBECzones), so",
+        "that copy is kept only in the targets store."
+      ),
+      extra = list(
+        derived = TRUE,
+        catalogue_url = "https://catalogue.data.gov.bc.ca/dataset/f358a53b-ffde-4830-a325-a5a03ff672c3",
+        `_todo` = "BEC map version the 2018 clip was taken from"
+      )
+    ),
+    list(
+      id = "nwt-ecoregions",
+      name = "Northwest Territories ecoregions (NWT_Ecoregions)",
+      source = list(
+        type = "drive",
+        url = "https://drive.google.com/file/d/1iRAQfARkmS6-XVHFnTkB-iltzMNPAczC"
+      ),
+      local_path = file.path(
+        inputs_dir,
+        "reportingPolygons",
+        "Northwest_Territories_Ecoregions",
+        "Northwest_Territories_Ecoregions.zip"
+      ),
+      version_or_vintage = "metadata dated 2019-02-06; shapefile dated 2021-02-17",
+      license = NA_character_,
+      description = paste(
+        "The NWT ecosystem classification, the NT_Ecoregion reporting layer that tenures are crossed",
+        "with (labelled on the level IV ecoregion name, ECO4_NAM_1). Its metadata",
+        "(NWT_Ecoregions.shp.xml) credits the Government of the NWT, Department of Environment and",
+        "Natural Resources, and its Ecosystem Classification Group."
+      ),
+      extra = list(`_todo` = "the URL it was downloaded from, and its licence")
+    ),
+    ## The National Ecological Framework layers are fetched from AAFC's ecostrat pages; their licence
+    ## is that of AAFC's Open Government record for the framework (catalogue_url).
+    list(
+      id = "nef-ecoregions",
+      name = "National Ecological Framework for Canada: ecoregions",
+      source = list(
+        type = "http_download",
+        url = "https://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip"
+      ),
+      local_path = file.path(inputs_dir, "Ecoregions", "ecoregion_shp.zip"),
+      version_or_vintage = "1995 framework (ecoregions.shp dated 2008-07-31)",
+      license = "OGL-Canada-2.0",
+      description = paste(
+        "Agriculture and Agri-Food Canada's national ecoregions. They group the v10 tenures into the",
+        "study areas (LandWebUtils::studyAreaCrosswalk()), and they are the Ecoregion reporting layer",
+        "that tenures are crossed with (labelled on REGION_NAM; the copy in also_at)."
+      ),
+      extra = list(
+        also_at = file.path(
+          inputs_dir,
+          "reportingPolygons",
+          "National_Ecoregions",
+          "ecoregion_shp.zip"
+        ),
+        catalogue_url = "https://open.canada.ca/data/en/dataset/3ef8e8a9-8d05-4fea-a8bf-7f5023d2b6e1"
+      )
+    ),
+    list(
+      id = "nef-ecozones",
+      name = "National Ecological Framework for Canada: ecozones",
+      source = list(
+        type = "http_download",
+        url = "https://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip"
+      ),
+      local_path = file.path(
+        inputs_dir,
+        "reportingPolygons",
+        "National_Ecozones",
+        "ecozone_shp.zip"
+      ),
+      version_or_vintage = "1995 framework (ecozones.shp dated 2008-07-31)",
+      license = "OGL-Canada-2.0",
+      description = paste(
+        "Agriculture and Agri-Food Canada's national ecozones: the Ecozone reporting layer that",
+        "tenures are crossed with (labelled on ZONE_NAME), and the units the preamble takes",
+        "studyAreaANPP from (the ecozones touching each buffered study area,",
+        "LandWebUtils::landweb_anpp_area()). The preamble's copy, in also_at, has the same size but",
+        "carries the server's file date (2012-01-20) rather than its download date, so local_path is",
+        "the reporting copy."
+      ),
+      extra = list(
+        also_at = file.path(inputs_dir, "ecozone_shp.zip"),
+        catalogue_url = "https://open.canada.ca/data/en/dataset/3ef8e8a9-8d05-4fea-a8bf-7f5023d2b6e1"
+      )
+    ),
+    list(
+      id = "nef-ecoprovinces",
+      name = "National Ecological Framework for Canada: ecoprovinces",
+      source = list(
+        type = "http_download",
+        url = "https://sis.agr.gc.ca/cansis/nsdb/ecostrat/province/ecoprovince_shp.zip"
+      ),
+      local_path = file.path(inputs_dir, "ecoprovince_shp.zip"),
+      version_or_vintage = "ecoprovinces added 1999 (ecoprovinces.shp dated 2008-07-31)",
+      license = "OGL-Canada-2.0",
+      description = paste(
+        "Agriculture and Agri-Food Canada's national ecoprovinces. The shared growth-curve fit uses",
+        "the plots in the ecoprovinces that touch the LandWeb area (target growthCurvesArea,",
+        "LandWebUtils::landweb_anpp_area())."
+      ),
+      extra = list(
+        catalogue_url = "https://open.canada.ca/data/en/dataset/3ef8e8a9-8d05-4fea-a8bf-7f5023d2b6e1"
+      )
+    ),
+    ## Wetland and forest-land layers read by data preparation and the preamble.
+    list(
+      id = "cwim-v3a",
+      name = "Canadian Wetland Inventory Map, version 3A (CWIM3A)",
+      source = list(
+        type = "http_download",
+        url = paste0(
+          "https://datacube-prod-data-public.s3.amazonaws.com/store/land/wetlands/",
+          "wetland-inventory/canadian-wetland-inventory-v3a-classification.tif"
+        )
+      ),
+      local_path = file.path(inputs_dir, "canadian-wetland-inventory-v3a-classification.tif"),
+      version_or_vintage = "v3A (published 2024-06-01; imagery 2016-2020)",
+      license = "OGL-Canada-2.0",
+      description = paste(
+        "Natural Resources Canada's 10 m national wetland map (1 bog, 2 fen, 3 marsh, 4 swamp, 5",
+        "shallow water). SCANFI land cover has no wetland class, so data preparation takes wet ground",
+        "from this layer (Biomass_borealDataPrep, wetlandSource = 'CWIM'): LandR::prepInputs_CWIM()",
+        "counts bog, fen, marsh and swamp, and calls a cell wet when they cover at least half of it.",
+        "The result adds wetland and treed wetland to the land cover and is the site axis of the",
+        "siteComposition strata, so a species on upland and on wet ground gets its own maxB, maxANPP",
+        "and establishment probability. The local file has the size of the one the URL serves",
+        "(checked 2026-11-25)."
+      ),
+      extra = list(
+        catalogue_url = "https://open.canada.ca/data/en/dataset/87127901-bd6d-46de-9142-e1362d980174"
+      )
+    ),
+    list(
+      id = "fao-forest-2022",
+      name = "Canada forest area by the FAO definition, 2022 (CA_FAO_forest_2022)",
+      source = list(
+        type = "http_download",
+        url = "https://opendata.nfis.org/downloads/forest_change/CA_FAO_forest_2022.zip"
+      ),
+      local_path = file.path(inputs_dir, "CA_FAO_forest_2022.zip"),
+      version_or_vintage = "2022",
+      license = "OGL-Canada-2.0",
+      description = paste(
+        "30 m forest area for 2022 by the FAO definition, which counts land use: 1 current forest, 2",
+        "forest whose trees were removed by a stand-replacing disturbance (fire, harvest) and will",
+        "return, 0 non-forest. The preamble's forest-land mask (LandR::forestLandMask()) takes classes",
+        "1 and 2 as forest land, with the ground SCANFI shows treed in any of its forest-land years",
+        "(scanfi-lcc-2025). The local zip has the size of the one NFIS serves (checked 2026-11-25)."
+      ),
+      citation = list(bibtex_key = "WulderEtAl2020", external = TRUE)
     )
   )
 
   ## The caribou range sources are DERIVED from LandWebUtils::caribouRangeLayers() rather than
-  ## hand-listed here -- the one deliberate exception to this file being hand-curated. There are six
+  ## hand-listed here -- one of two deliberate exceptions to this file being hand-curated (the
+  ## landbase sources below are the other). There are six
   ## of them, from six different authorities with different vintages and licences, and they are the
   ## dataset most likely to change (a provincial re-delineation). If
   ## the package's source table and this manifest were maintained separately they would drift, and the
@@ -560,6 +791,76 @@ build_input_manifest <- function(
             "."
           ),
           extra = list(assembled_into = "caribou-ranges", jurisdiction = r$juris)
+        )
+      })
+    )
+  }
+
+  ## The active/passive landbase sources are derived from LandWebUtils::landbaseLayers() for the
+  ## same reason as the caribou ranges: eight coverages from different tenure holders, each reissued
+  ## on its holder's schedule. LB_DRIVE is what each Drive copy is (its name, and the date Drive last
+  ## modified it), keyed by Drive id; the providers' own vintages and licence terms are not recorded.
+  landbase <- tryCatch(LandWebUtils::landbaseLayers(), error = function(e) NULL)
+  if (!is.null(landbase)) {
+    LB_DRIVE <- list(
+      `1FpMg6dJ4eblMjMkEHdcoFAYSDyo1OvTv` = c("C5_info_for_Landweb.gdb.zip", "2024-06-27"),
+      `1Mk5L6287sKFGLY4ZfwWIUAczF5AGqAOV` = c("BRL_Landbase_2024.gdb.zip", "2024-12-24"),
+      `1oX9crrPy_PaZRwb09j9LsHB37PY3hY7s` = c("ActivePassive_Landbases_Cleaned.gdb", "2026-06-04"),
+      `1akMUL-lRumTfmmWG7WF7-9KDrFxTPN3Z` = c("CLS_Clipped_S21.zip", "2023-02-06"),
+      `1qzWhMR-nP_2N2KLL84ZHCVGNNlWxd2bZ` = c("UpperHay_RFMP_CLB_27MAR2024.gdb.zip", "2024-10-23"),
+      `1oh_w9nALKufCQXb1PR3VIlChPHPysHF4` = c("SFP_Landbase_2024.gdb.zip", "2024-12-24"),
+      `1lY0p6Ms84paja9p1lmGXz5jaCgv2_VkY` = c("Manning_LBStatus_clean.zip", "2023-01-20")
+    )
+    ds <- c(
+      ds,
+      lapply(seq_len(nrow(landbase)), function(i) {
+        r <- landbase[i, ]
+        drv <- LB_DRIVE[[r$id]] %||% c(NA_character_, NA_character_)
+        gdb <- identical(r$source, "drive_gdb")
+        ## where buildLandbasePolygons() puts it: a Drive gdb folder under its own name, else
+        ## <slug>/<slug>.zip, the slug as LandWebUtils:::.slug() makes it
+        slug <- gsub("^_+|_+$", "", gsub("[^A-Za-z0-9]+", "_", r$key))
+        list(
+          id = paste0(
+            "landbase-",
+            tolower(gsub("[^A-Za-z0-9]+", "-", sub(" Landbase$", "", r$key)))
+          ),
+          name = paste0(r$key, " (active/passive landbase status)"),
+          source = list(
+            type = "drive",
+            url = paste0(
+              if (gdb) {
+                "https://drive.google.com/drive/folders/"
+              } else {
+                "https://drive.google.com/file/d/"
+              },
+              r$id
+            )
+          ),
+          local_path = if (gdb && !is.na(drv[[1L]])) {
+            file.path(inputs_dir, "landbase", drv[[1L]])
+          } else if (gdb) {
+            file.path(inputs_dir, "landbase")
+          } else {
+            file.path(inputs_dir, "landbase", slug, paste0(slug, ".zip"))
+          },
+          version_or_vintage = NA_character_,
+          license = "Access controlled (LandWeb hosted Drive)",
+          description = paste0(
+            "Contributing (active) and non-contributing (passive) landbase of the ",
+            r$tenure,
+            " tenure, read from field ",
+            r$status_col,
+            if (!is.na(r$layer)) paste0(" of layer ", r$layer) else "",
+            ". LandWebUtils::buildLandbasePolygons() fetches it only for a study area that holds ",
+            "the tenure, and crosses it with the tenure as reporting units."
+          ),
+          extra = list(
+            drive_file = drv[[1L]],
+            drive_modified = drv[[2L]],
+            tenure = r$tenure,
+            `_todo` = "holder, vintage and licence terms"
+          )
         )
       })
     )

@@ -107,8 +107,8 @@ The historic burn map, against which the simulated burning is compared, takes NB
 The manifest is hand-curated (run `R/build_input_manifest.R` to regenerate) and committed to the repo, so it travels with the code.
 It deliberately omits content hashes for the multi-GB rasters; `sha256` can be added per record where a hash is worth carrying.
 
-One group of records is **derived rather than hand-listed**: the six caribou range sources are generated from `LandWebUtils::caribouRangeLayers()`.
-That is the deliberate exception to the rule above, for the reason given in the next section --- they are the inputs most likely to change, and a hand-copied list would drift from the code that actually fetches them.
+Two groups of records are **derived rather than hand-listed**: the six caribou range sources are generated from `LandWebUtils::caribouRangeLayers()`, and the tenures' active/passive landbase sources from `LandWebUtils::landbaseLayers()`.
+They are the deliberate exceptions to the rule above: they are the inputs most likely to change (a province re-delineates its caribou ranges, a tenure holder reissues its landbase), and a hand-copied list would drift from the code that actually fetches them.
 
 # Multi-source assembly: caribou ranges {#sec-caribou-provenance}
 

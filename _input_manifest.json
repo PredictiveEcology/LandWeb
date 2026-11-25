@@ -4,6 +4,41 @@
   "version": "1",
   "records": [
     {
+      "id": "ab-natural-subregions",
+      "name": "Alberta Natural Subregions, clipped to the LandWeb area",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1hW6zy0CpUBdk-K2IAjzW4INjVl1J4aLJ"
+      },
+      "retrieved_at": "2026-07-01T15:05:05Z",
+      "local_path": "inputs/reportingPolygons/Alberta_Natural_Subregions/Alberta_Natural_Subregions.zip",
+      "description": "DERIVED: Alberta's natural subregions, the ANSR reporting layer that tenures are crossed with (labelled on Name). Its processing history (AB_Natural_Sub_Regions.shp.xml) records the 2005 coverage nsr2005_final clipped to the study area and projected to Lambert conformal conic on 2018-03-26.",
+      "version_or_vintage": "2005 coverage (nsr2005_final), clipped 2018-03-26",
+      "license": null,
+      "extra": {
+        "derived": true,
+        "_todo": "publisher and licence of nsr2005_final"
+      }
+    },
+    {
+      "id": "bc-bec-zones",
+      "name": "BC biogeoclimatic (BEC) zones, clipped to the LandWeb area",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1NS15Gd7dHEhvPOy-Ol_LBtf-4Ch6mPnS"
+      },
+      "retrieved_at": "2026-07-01T15:05:09Z",
+      "local_path": "inputs/reportingPolygons/BC_Biogeoclimatic_zones/BC_Biogeoclimatic_zones.zip",
+      "description": "DERIVED: the BEC reporting layer that tenures are crossed with (labelled on ZONE_NAME). Its processing history (BC_Bio_Geoclimatic_Zones.shp.xml) records the BC Geographic Warehouse layer WHSE_FOREST_VEGETATION.BEC_BIOGEOCLIMATIC_POLY clipped to the study area and projected to Lambert conformal conic on 2018-03-26. The growth-curve fit reads BEC zones separately, live from the same warehouse layer (LandWebUtils::landweb_bec_zones(), target growthBECzones), so that copy is kept only in the targets store.",
+      "version_or_vintage": "WHSE_FOREST_VEGETATION.BEC_BIOGEOCLIMATIC_POLY, clipped 2018-03-26",
+      "license": "OGL-BC-2.0 (upstream); hosted copy access-controlled",
+      "extra": {
+        "derived": true,
+        "catalogue_url": "https://catalogue.data.gov.bc.ca/dataset/f358a53b-ffde-4830-a325-a5a03ff672c3",
+        "_todo": "BEC map version the 2018 clip was taken from"
+      }
+    },
+    {
       "id": "canlad-v1-2024",
       "name": "Canada Landsat Disturbance with pest (CanLaD), 1985-2024",
       "source": {
@@ -183,6 +218,56 @@
       }
     },
     {
+      "id": "cwim-v3a",
+      "name": "Canadian Wetland Inventory Map, version 3A (CWIM3A)",
+      "source": {
+        "type": "http_download",
+        "url": "https://datacube-prod-data-public.s3.amazonaws.com/store/land/wetlands/wetland-inventory/canadian-wetland-inventory-v3a-classification.tif"
+      },
+      "retrieved_at": "2026-10-21T18:41:19Z",
+      "local_path": "inputs/canadian-wetland-inventory-v3a-classification.tif",
+      "description": "Natural Resources Canada's 10 m national wetland map (1 bog, 2 fen, 3 marsh, 4 swamp, 5 shallow water). SCANFI land cover has no wetland class, so data preparation takes wet ground from this layer (Biomass_borealDataPrep, wetlandSource = 'CWIM'): LandR::prepInputs_CWIM() counts bog, fen, marsh and swamp, and calls a cell wet when they cover at least half of it. The result adds wetland and treed wetland to the land cover and is the site axis of the siteComposition strata, so a species on upland and on wet ground gets its own maxB, maxANPP and establishment probability. The local file has the size of the one the URL serves (checked 2026-11-25).",
+      "version_or_vintage": "v3A (published 2024-06-01; imagery 2016-2020)",
+      "license": "OGL-Canada-2.0",
+      "extra": {
+        "catalogue_url": "https://open.canada.ca/data/en/dataset/87127901-bd6d-46de-9142-e1362d980174"
+      }
+    },
+    {
+      "id": "fao-forest-2022",
+      "name": "Canada forest area by the FAO definition, 2022 (CA_FAO_forest_2022)",
+      "source": {
+        "type": "http_download",
+        "url": "https://opendata.nfis.org/downloads/forest_change/CA_FAO_forest_2022.zip"
+      },
+      "retrieved_at": "2026-10-20T21:48:08Z",
+      "local_path": "inputs/CA_FAO_forest_2022.zip",
+      "description": "30 m forest area for 2022 by the FAO definition, which counts land use: 1 current forest, 2 forest whose trees were removed by a stand-replacing disturbance (fire, harvest) and will return, 0 non-forest. The preamble's forest-land mask (LandR::forestLandMask()) takes classes 1 and 2 as forest land, with the ground SCANFI shows treed in any of its forest-land years (scanfi-lcc-2025). The local zip has the size of the one NFIS serves (checked 2026-11-25).",
+      "version_or_vintage": "2022",
+      "license": "OGL-Canada-2.0",
+      "citation": {
+        "bibtex_key": "WulderEtAl2020",
+        "external": true
+      }
+    },
+    {
+      "id": "fma-boundaries-v10",
+      "name": "LandWeb forest tenure boundaries, v10 (FMAs_LandWebltfc_map_v10_LCC1)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1c5vkNPG81DB5wkAVT3CP_h2jFCUDqCoL"
+      },
+      "retrieved_at": "2026-06-30T15:31:49Z",
+      "local_path": "inputs/1c5vkNPG81DB5wkAVT3CP_h2jFCUDqCoL/1c5vkNPG81DB5wkAVT3CP_h2jFCUDqCoL.zip",
+      "description": "Forest tenure polygons across the LandWeb area, combined from each jurisdiction's own tenure layer, so each names its areas in a different field (AB and NWT FMA_NAME, BC TSA_NUMB_1, SK FOREST_NAM, MB FML_NAME, ON FMU_NAME); the Name field is corrupt for most rows. Supersedes FMA_Boundary_Updated_2024. The preamble builds every study area from it (LandWebUtils::prepFMAs()), and it is the tenure layer of the reporting polygons (the copy in also_at).",
+      "version_or_vintage": "v10 (delivered by fRI Research 2026-05-07)",
+      "license": "Access controlled (LandWeb hosted Drive)",
+      "extra": {
+        "also_at": "inputs/reportingPolygons/FMA_Boundaries_Updated/FMA_Boundaries_Updated.zip",
+        "_todo": "which jurisdictional tenure layers, of which dates and licences, it combines"
+      }
+    },
+    {
       "id": "gadm-canada-provinces",
       "name": "GADM Canada provincial/territorial boundaries (level 1)",
       "source": {
@@ -210,6 +295,158 @@
       "citation": {
         "bibtex_key": "BeaudoinEtAl2014",
         "external": true
+      }
+    },
+    {
+      "id": "landbase-manning",
+      "name": "Manning Landbase (active/passive landbase status)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1lY0p6Ms84paja9p1lmGXz5jaCgv2_VkY"
+      },
+      "retrieved_at": "2026-10-26T19:51:46Z",
+      "local_path": "inputs/landbase/Manning_Landbase/Manning_Landbase.zip",
+      "description": "Contributing (active) and non-contributing (passive) landbase of the Manning tenure, read from field LBC_LBStat. LandWebUtils::buildLandbasePolygons() fetches it only for a study area that holds the tenure, and crosses it with the tenure as reporting units.",
+      "version_or_vintage": null,
+      "license": "Access controlled (LandWeb hosted Drive)",
+      "extra": {
+        "drive_file": "Manning_LBStatus_clean.zip",
+        "drive_modified": "2023-01-20",
+        "tenure": "Manning",
+        "_todo": "holder, vintage and licence terms"
+      }
+    },
+    {
+      "id": "landbase-spray-lake-c5",
+      "name": "Spray Lake C5 Landbase (active/passive landbase status)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1FpMg6dJ4eblMjMkEHdcoFAYSDyo1OvTv"
+      },
+      "retrieved_at": "2026-10-26T19:51:39Z",
+      "local_path": "inputs/landbase/Spray_Lake_C5_Landbase/Spray_Lake_C5_Landbase.zip",
+      "description": "Contributing (active) and non-contributing (passive) landbase of the Crowsnest tenure, read from field f_active of layer lb_20230901_tsa. LandWebUtils::buildLandbasePolygons() fetches it only for a study area that holds the tenure, and crosses it with the tenure as reporting units.",
+      "version_or_vintage": null,
+      "license": "Access controlled (LandWeb hosted Drive)",
+      "extra": {
+        "drive_file": "C5_info_for_Landweb.gdb.zip",
+        "drive_modified": "2024-06-27",
+        "tenure": "Crowsnest",
+        "_todo": "holder, vintage and licence terms"
+      }
+    },
+    {
+      "id": "landbase-sundre-fp",
+      "name": "Sundre FP Landbase (active/passive landbase status)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1oh_w9nALKufCQXb1PR3VIlChPHPysHF4"
+      },
+      "retrieved_at": "2026-08-18T15:12:26Z",
+      "local_path": "inputs/landbase/Sundre_FP_Landbase/Sundre_FP_Landbase.zip",
+      "description": "Contributing (active) and non-contributing (passive) landbase of the Sundre tenure, read from field LBC_LBStatus. LandWebUtils::buildLandbasePolygons() fetches it only for a study area that holds the tenure, and crosses it with the tenure as reporting units.",
+      "version_or_vintage": null,
+      "license": "Access controlled (LandWeb hosted Drive)",
+      "extra": {
+        "drive_file": "SFP_Landbase_2024.gdb.zip",
+        "drive_modified": "2024-12-24",
+        "tenure": "Sundre",
+        "_todo": "holder, vintage and licence terms"
+      }
+    },
+    {
+      "id": "landbase-tolko-ab-north",
+      "name": "Tolko AB North Landbase (active/passive landbase status)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1qzWhMR-nP_2N2KLL84ZHCVGNNlWxd2bZ"
+      },
+      "retrieved_at": "2026-10-26T19:52:06Z",
+      "local_path": "inputs/landbase/Tolko_AB_North_Landbase/Tolko_AB_North_Landbase.zip",
+      "description": "Contributing (active) and non-contributing (passive) landbase of the Tolko_Norbord_LC tenure, read from field LBC_Landbase. LandWebUtils::buildLandbasePolygons() fetches it only for a study area that holds the tenure, and crosses it with the tenure as reporting units.",
+      "version_or_vintage": null,
+      "license": "Access controlled (LandWeb hosted Drive)",
+      "extra": {
+        "drive_file": "UpperHay_RFMP_CLB_27MAR2024.gdb.zip",
+        "drive_modified": "2024-10-23",
+        "tenure": "Tolko_Norbord_LC",
+        "_todo": "holder, vintage and licence terms"
+      }
+    },
+    {
+      "id": "landbase-west-fraser-blue-ridge",
+      "name": "West Fraser Blue Ridge Landbase (active/passive landbase status)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1Mk5L6287sKFGLY4ZfwWIUAczF5AGqAOV"
+      },
+      "retrieved_at": "2026-08-18T14:42:35Z",
+      "local_path": "inputs/landbase/West_Fraser_Blue_Ridge_Landbase/West_Fraser_Blue_Ridge_Landbase.zip",
+      "description": "Contributing (active) and non-contributing (passive) landbase of the BlueRidge tenure, read from field LBC_LBStatus. LandWebUtils::buildLandbasePolygons() fetches it only for a study area that holds the tenure, and crosses it with the tenure as reporting units.",
+      "version_or_vintage": null,
+      "license": "Access controlled (LandWeb hosted Drive)",
+      "extra": {
+        "drive_file": "BRL_Landbase_2024.gdb.zip",
+        "drive_modified": "2024-12-24",
+        "tenure": "BlueRidge",
+        "_todo": "holder, vintage and licence terms"
+      }
+    },
+    {
+      "id": "landbase-west-fraser-n-cls-s17",
+      "name": "West Fraser N CLS S17 Landbase (active/passive landbase status)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/drive/folders/1oX9crrPy_PaZRwb09j9LsHB37PY3hY7s"
+      },
+      "retrieved_at": "2026-11-05T04:12:16Z",
+      "local_path": "inputs/landbase/ActivePassive_Landbases_Cleaned.gdb",
+      "description": "Contributing (active) and non-contributing (passive) landbase of the Tolko_Vand_WF_SL tenure, read from field STATUS of layer CLS_Clipped_S17_Clean. LandWebUtils::buildLandbasePolygons() fetches it only for a study area that holds the tenure, and crosses it with the tenure as reporting units.",
+      "version_or_vintage": null,
+      "license": "Access controlled (LandWeb hosted Drive)",
+      "extra": {
+        "drive_file": "ActivePassive_Landbases_Cleaned.gdb",
+        "drive_modified": "2026-06-04",
+        "tenure": "Tolko_Vand_WF_SL",
+        "_todo": "holder, vintage and licence terms"
+      }
+    },
+    {
+      "id": "landbase-west-fraser-n-cls-s20",
+      "name": "West Fraser N CLS S20 Landbase (active/passive landbase status)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/drive/folders/1oX9crrPy_PaZRwb09j9LsHB37PY3hY7s"
+      },
+      "retrieved_at": "2026-11-05T04:12:16Z",
+      "local_path": "inputs/landbase/ActivePassive_Landbases_Cleaned.gdb",
+      "description": "Contributing (active) and non-contributing (passive) landbase of the MillarWestern tenure, read from field STATUS of layer CLS_Clipped_S20_Clean. LandWebUtils::buildLandbasePolygons() fetches it only for a study area that holds the tenure, and crosses it with the tenure as reporting units.",
+      "version_or_vintage": null,
+      "license": "Access controlled (LandWeb hosted Drive)",
+      "extra": {
+        "drive_file": "ActivePassive_Landbases_Cleaned.gdb",
+        "drive_modified": "2026-06-04",
+        "tenure": "MillarWestern",
+        "_todo": "holder, vintage and licence terms"
+      }
+    },
+    {
+      "id": "landbase-west-fraser-n-cls-s21",
+      "name": "West Fraser N CLS S21 Landbase (active/passive landbase status)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1akMUL-lRumTfmmWG7WF7-9KDrFxTPN3Z"
+      },
+      "retrieved_at": "2026-10-30T01:21:03Z",
+      "local_path": "inputs/landbase/West_Fraser_N_CLS_S21_Landbase/West_Fraser_N_CLS_S21_Landbase.zip",
+      "description": "Contributing (active) and non-contributing (passive) landbase of the WF_Tolko tenure, read from field F_CONDITIO. LandWebUtils::buildLandbasePolygons() fetches it only for a study area that holds the tenure, and crosses it with the tenure as reporting units.",
+      "version_or_vintage": null,
+      "license": "Access controlled (LandWeb hosted Drive)",
+      "extra": {
+        "drive_file": "CLS_Clipped_S21.zip",
+        "drive_modified": "2023-02-06",
+        "tenure": "WF_Tolko",
+        "_todo": "holder, vintage and licence terms"
       }
     },
     {
@@ -288,6 +525,56 @@
         "also_at": "inputs/fire_perimeters_2025/NBAC_1972to2025_20260513_shp.zip",
         "methods_citation": "hall2020nbac",
         "catalogue_url": "https://cwfis.cfs.nrcan.gc.ca/en/catalogue/results/537a1fd0-698e-4a7b-85a1-e02581ae78b2"
+      }
+    },
+    {
+      "id": "nef-ecoprovinces",
+      "name": "National Ecological Framework for Canada: ecoprovinces",
+      "source": {
+        "type": "http_download",
+        "url": "https://sis.agr.gc.ca/cansis/nsdb/ecostrat/province/ecoprovince_shp.zip"
+      },
+      "retrieved_at": "2025-10-15T02:23:55Z",
+      "local_path": "inputs/ecoprovince_shp.zip",
+      "description": "Agriculture and Agri-Food Canada's national ecoprovinces. The shared growth-curve fit uses the plots in the ecoprovinces that touch the LandWeb area (target growthCurvesArea, LandWebUtils::landweb_anpp_area()).",
+      "version_or_vintage": "ecoprovinces added 1999 (ecoprovinces.shp dated 2008-07-31)",
+      "license": "OGL-Canada-2.0",
+      "extra": {
+        "catalogue_url": "https://open.canada.ca/data/en/dataset/3ef8e8a9-8d05-4fea-a8bf-7f5023d2b6e1"
+      }
+    },
+    {
+      "id": "nef-ecoregions",
+      "name": "National Ecological Framework for Canada: ecoregions",
+      "source": {
+        "type": "http_download",
+        "url": "https://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip"
+      },
+      "retrieved_at": "2026-07-29T18:39:11Z",
+      "local_path": "inputs/Ecoregions/ecoregion_shp.zip",
+      "description": "Agriculture and Agri-Food Canada's national ecoregions. They group the v10 tenures into the study areas (LandWebUtils::studyAreaCrosswalk()), and they are the Ecoregion reporting layer that tenures are crossed with (labelled on REGION_NAM; the copy in also_at).",
+      "version_or_vintage": "1995 framework (ecoregions.shp dated 2008-07-31)",
+      "license": "OGL-Canada-2.0",
+      "extra": {
+        "also_at": "inputs/reportingPolygons/National_Ecoregions/ecoregion_shp.zip",
+        "catalogue_url": "https://open.canada.ca/data/en/dataset/3ef8e8a9-8d05-4fea-a8bf-7f5023d2b6e1"
+      }
+    },
+    {
+      "id": "nef-ecozones",
+      "name": "National Ecological Framework for Canada: ecozones",
+      "source": {
+        "type": "http_download",
+        "url": "https://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip"
+      },
+      "retrieved_at": "2026-07-01T15:05:17Z",
+      "local_path": "inputs/reportingPolygons/National_Ecozones/ecozone_shp.zip",
+      "description": "Agriculture and Agri-Food Canada's national ecozones: the Ecozone reporting layer that tenures are crossed with (labelled on ZONE_NAME), and the units the preamble takes studyAreaANPP from (the ecozones touching each buffered study area, LandWebUtils::landweb_anpp_area()). The preamble's copy, in also_at, has the same size but carries the server's file date (2012-01-20) rather than its download date, so local_path is the reporting copy.",
+      "version_or_vintage": "1995 framework (ecozones.shp dated 2008-07-31)",
+      "license": "OGL-Canada-2.0",
+      "extra": {
+        "also_at": "inputs/ecozone_shp.zip",
+        "catalogue_url": "https://open.canada.ca/data/en/dataset/3ef8e8a9-8d05-4fea-a8bf-7f5023d2b6e1"
       }
     },
     {
@@ -381,6 +668,22 @@
       "citation": {
         "bibtex_key": "peterson-nwab-final",
         "external": true
+      }
+    },
+    {
+      "id": "nwt-ecoregions",
+      "name": "Northwest Territories ecoregions (NWT_Ecoregions)",
+      "source": {
+        "type": "drive",
+        "url": "https://drive.google.com/file/d/1iRAQfARkmS6-XVHFnTkB-iltzMNPAczC"
+      },
+      "retrieved_at": "2026-07-01T15:05:14Z",
+      "local_path": "inputs/reportingPolygons/Northwest_Territories_Ecoregions/Northwest_Territories_Ecoregions.zip",
+      "description": "The NWT ecosystem classification, the NT_Ecoregion reporting layer that tenures are crossed with (labelled on the level IV ecoregion name, ECO4_NAM_1). Its metadata (NWT_Ecoregions.shp.xml) credits the Government of the NWT, Department of Environment and Natural Resources, and its Ecosystem Classification Group.",
+      "version_or_vintage": "metadata dated 2019-02-06; shapefile dated 2021-02-17",
+      "license": null,
+      "extra": {
+        "_todo": "the URL it was downloaded from, and its licence"
       }
     },
     {
