@@ -37,6 +37,8 @@ source("R/report05_helpers.R")
 source("R/report04_helpers.R")
 
 rd <- if (nzchar(params$data_file)) readRDS(params$data_file) else tar_read(report04Data)
+## the CSV supplement of full percentile tables (target report04PercentilesCsv); none by hand
+pct_csv <- if (nzchar(params$data_file)) NA_character_ else tar_read(report04PercentilesCsv)
 
 fig_dir <- file.path("outputs", "_reports", "figures", "04-output-differences")
 dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
@@ -99,9 +101,14 @@ comp_types <- intersect(c("Fir", "Decid", "Pine", "Bl_Spruce", "Wh_Spruce", "Dou
 ## per version and type: tenures, and those simulated above their current share
 comp_count <- comp[, .(n = .N, above = sum(dep > 0), median_dep = stats::median(dep)), by = .(version, vegType)]
 
-## old forest in large patches
+## old forest in large patches, in ha and as a share of each version's area simulated as forest
 patch_long <- rd$pct_patch
 patch_delta <- rd$delta_patch
+patch_share_long <- rd$pct_patch_share
+patch_share_delta <- rd$delta_patch_share
+
+## why each tenure is compared from its v2 run (v2_primary_basis(), R/fma_boundary_change.R)
+basis_of <- function(t) ten$basis[match(t, ten$tenure)]
 ```
 
 {{< pagebreak >}}
@@ -207,14 +214,29 @@ kbl(
 ## tenures that another version 2 run also reported on
 alt <- rd$crosswalk[primary == FALSE & tenure %in% ten$tenure]
 alt <- alt[run != cwp$run[match(tenure, cwp$tenure)]]
+no_dot <- function(x) sub("[.]$", "", x)
 if (nrow(alt)) {
+  multi <- unique(alt$tenure)
+  by_report <- multi[basis_of(multi) == "report_2021"]
+  by_tie <- multi[basis_of(multi) == "no_report_tie"]
   cat(
     sprintf(
-      "%d %s reported on by more than one version 2 run: %s.",
-      uniqueN(alt$tenure), if (uniqueN(alt$tenure) == 1L) "tenure was" else "tenures were",
-      sub("[.]$", "", and_list(sort(name_of(unique(alt$tenure)))))
+      "%d %s reported on by more than one version 2 run, and the runs give different results for them; Appendix B lists the runs not used.",
+      length(multi), if (length(multi) == 1L) "tenure was" else "tenures were"
     ),
-    "Each is compared with one of them: the run that reported on that tenure alone where there is one, and otherwise the run named for the tenure's first-listed licensee (Appendix B).",
+    if (length(by_report)) {
+      sprintf(
+        "%s %s compared with the run that %s 2021 report used, found by matching the numbers in the report to the runs' results.",
+        no_dot(and_list(sort(name_of(by_report)))), if (length(by_report) == 1L) "is" else "are",
+        if (length(by_report) == 1L) "its" else "their"
+      )
+    },
+    if (length(by_tie)) {
+      sprintf(
+        "No 2021 report covers %s, and the runs' polygons for %s are the same, so each is compared with the run named for its first-listed licensee; this choice is unconfirmed.",
+        no_dot(and_list(sort(name_of(by_tie)))), if (length(by_tie) == 1L) "it" else "them"
+      )
+    },
     sep = "\n"
   )
   cat("\n")
@@ -319,6 +341,56 @@ if (nrow(cmp)) {
     ),
     sep = "\n"
   )
+}
+## a tenure whose area changed by 1% or more: did the tenure change, or did v2 report on part of it?
+## (fma_boundary_compare(): v2's own FMA map and the area v2 simulated)
+changed <- cmp[abs(pct_change) >= 1][order(-abs(pct_change))]
+why_changed <- function(r) {
+  head <- sprintf(
+    "%s (%s%%): version 2 reported on %s ha and version 3 on %s ha.",
+    no_dot(r$name), signed1(r$pct_change), ha(r$area_v2_ha), ha(r$area_v3_ha)
+  )
+  if (is.na(r$area_v2_map_ha)) {
+    return(paste(head, "Version 2's run saved no FMA map to check the change against."))
+  }
+  sim <- if (!is.na(r$area_added_outside_v2_sim_ha) && r$area_added_outside_v2_sim_ha < 1) {
+    " The added area lies inside the area version 2 simulated, so version 2's polygon was not cut to its study area."
+  } else {
+    ""
+  }
+  if (r$area_dropped_ha > r$area_added_ha) {
+    paste0(
+      head,
+      sprintf(
+        " Version 3 drops %s ha of the version 2 polygon and adds %s ha; version 2's own FMA map gave the tenure %s ha.",
+        ha(r$area_dropped_ha), ha(r$area_added_ha), ha(r$area_v2_map_ha)
+      )
+    )
+  } else if (r$area_added_in_v2_map_ha >= 0.5 * r$area_added_ha) {
+    paste0(
+      head,
+      sprintf(
+        " Version 2's own FMA map gave the tenure %s ha, so %s ha of the %s ha added in version 3 was already part of the tenure in version 2, but left out of the area its run reported on.",
+        ha(r$area_v2_map_ha), ha(r$area_added_in_v2_map_ha), ha(r$area_added_ha)
+      ),
+      sim
+    )
+  } else {
+    same <- abs(r$area_v2_map_ha - r$area_v2_ha) < 0.01 * r$area_v2_ha
+    paste0(
+      head,
+      sprintf(
+        " Version 2's own FMA map gave the tenure %s ha%s, so the %s ha added in version 3 comes from the version 3 map drawing the tenure larger.",
+        ha(r$area_v2_map_ha), if (same) ", the polygon its run reported on" else "", ha(r$area_added_ha)
+      ),
+      sim
+    )
+  }
+}
+if (nrow(changed)) {
+  cat("", "Where the area changed by 1% or more:", "", sep = "\n")
+  for (i in seq_len(nrow(changed))) cat("- ", why_changed(changed[i]), "\n", sep = "")
+  cat("\n")
 }
 nc <- bs[!is.na(reason)]
 if (nrow(nc)) {
@@ -452,10 +524,18 @@ patch_lines <- vapply(sort(unique(patch_delta$min_patch_ha)), function(s) {
     ha(s), sum(d$d_p50 > 0), nrow(d)
   )
 }, character(1))
+share_lines <- vapply(sort(unique(patch_share_delta$min_patch_ha)), function(s) {
+  d <- patch_share_delta[min_patch_ha == s]
+  sprintf(
+    "As a share of each version's forest, old forest in patches of %s ha or more is larger in version 3 in %d of %d tenures.",
+    ha(s), sum(d$d_p50 > 0), nrow(d)
+  )
+}, character(1))
 cat(
-  "@fig-patches shows the median and middle half of the simulated area of old forest in large patches, and the current condition, in both versions.",
-  "The areas are in hectares, so they also change with the reporting boundary (@sec-boundaries) and with the area simulated as forest (Appendix B).",
+  "@fig-patches shows the median and middle half of the simulated area of old forest in large patches, and the current condition, in both versions, in hectares; @fig-patches-share shows the same as a share of each version's area simulated as forest.",
+  "Hectares also change with the reporting boundary (@sec-boundaries) and with the area each version simulates as forest, which the share removes.",
   patch_lines,
+  share_lines,
   sep = "\n"
 )
 ```
@@ -471,6 +551,20 @@ d[, facet := factor(
 )]
 p <- report04_range_plot(d, scale = 1 / 1000, xlab = "Area of old forest (thousand ha)", free_x = TRUE)
 report05_save_png(p, fig_dir, "old_forest_patches", 6.5, 1 + 0.26 * n_ten)
+p
+```
+
+```{r}
+#| label: fig-patches-share
+#| fig-cap: "Simulated area of old forest in patches of at least the size shown, as a share of each version's area simulated as forest, by tenure: the median (dot) and middle half (bar) of the simulated landscapes, and the current condition (red circle), in version 2 (blue) and version 3 (green)."
+#| fig-height: !expr 1 + 0.26 * n_ten
+d <- copy(patch_share_long)[, name := name_of(tenure)]
+d[, facet := factor(
+  sprintf("%s ha or more", ha(min_patch_ha)),
+  levels = sprintf("%s ha or more", ha(sort(unique(min_patch_ha))))
+)]
+p <- report04_range_plot(d, xlab = "Old forest in large patches (% of forest)")
+report05_save_png(p, fig_dir, "old_forest_patches_share", 6.5, 1 + 0.26 * n_ten)
 p
 ```
 
@@ -519,46 +613,21 @@ Which differences matter for the partners' use of the results; which changes in 
 
 # Appendix A: Percentile tables {.unnumbered}
 
-For each tenure, the tables give the current share of forest in each age class and the percentiles of the simulated shares, in percent, by vegetation type, for both versions.
-The percentiles summarise the simulated landscapes in which the type leads some forest, whose number is in the column "Landscapes"; a dash marks a type that never leads in that version's simulations.
-Percentiles by ecological sub-region are not compared yet.
+Each tenure's section gives a short summary: the current share of forest in each age class and the median of the simulated shares, for both versions.
+The full percentile tables, for both versions and every tenure, are in a CSV file written beside this report:
 
 ```{r}
 #| output: asis
-pcols <- c("min", "p12.5", "p25", "p50", "p75", "p87.5", "max")
-pnames <- c("Min", "12.5", "25", "50", "75", "87.5", "Max")
-pct_or_dash <- function(x) fifelse(is.na(x), "--", pct(x))
-for (i in seq_len(n_ten)) {
-  t <- ten$tenure[i]
-  d <- copy(rd$pct_type[tenure == t])
-  d[, type := report05_veg_label(vegType)]
-  d[, key := fifelse(vegType == "All species", "0", type)]
-  d[, ageClass := factor(ageClass, levels = ac)]
-  d[, (pcols) := lapply(.SD, pct_or_dash), .SDcols = pcols]
-  d[, cc := fifelse(is.na(cc), "--", pct(cc))]
-  setorderv(d, c("key", "ageClass", "version"))
-  d[, show := fifelse(seq_len(.N) == 1L, type, ""), by = key]
-  d[, age := fifelse(seq_len(.N) == 1L, as.character(ageClass), ""), by = .(key, ageClass)]
-  out <- d[, c("show", "age", "version", "cc", "n", pcols), with = FALSE]
-  out[, version := sub("^v", "", version)]
-  setnames(out, c("Vegetation type", "Age class", "Version", "Current", "Landscapes", pnames))
-  cat(
-    kbl(
-      out,
-      format = "latex",
-      booktabs = TRUE,
-      longtable = TRUE,
-      caption = sprintf("A1. %s: share of each vegetation type's forest by age class, versions 2 and 3.", sub("[.]$", "", ten$name[i])),
-      align = c("l", "l", "c", rep("r", 9L)),
-      linesep = c("", "\\addlinespace"),
-      label = NA
-    ) |>
-      add_header_above(c(" " = 5, "Simulated percentiles (%)" = 7)) |>
-      kable_styling(latex_options = c("hold_position", "repeat_header"), font_size = 7)
-  )
-  cat("\n\n")
+if (is.na(pct_csv)) {
+  cat("`outputs/_reports/reports/04-output-differences-percentiles.csv` (target `report04PercentilesCsv`; not written for a render by hand).\n")
+} else {
+  cat(sprintf("`%s`.\n", report05_relpath(pct_csv)))
 }
 ```
+
+It has one row per tenure, version, metric and class.
+The metrics are the share of each vegetation type's forest in each age class, the share of forest each type leads, and the area of old forest in patches of at least 100, 500, 1,000 and 5,000 ha, in hectares and as a share of the version's area simulated as forest.
+For each, it gives the current condition, the number of simulated landscapes, and the minimum, 12.5th, 25th, 50th, 75th and 87.5th percentiles and maximum of the simulated values.
 
 {{< pagebreak >}}
 
@@ -570,22 +639,29 @@ This report was built from the LandWeb v3 `targets` pipeline on `r rd$built`.
 - Version 3 values: NRV_summary's parquet datasets under `outputs/<group>/postprocess/_aggregates/` (`lw_FMA` and `lw_FMA_CC`; metrics `leadingProp`, `leadingShare` and `totalArea_ge<size>ha`), read as report 05 reads them; area simulated as forest from the current-condition vegetation-type map in `_reportingMaps/`.
 - Version 2 values: each run's summary files under `outputs_v2/<run>/` (`boxplots/leading_<layer>.csv`, `histograms/largePatches_<layer>_<size>.csv`), and for the share of forest by vegetation type today, the run's current-condition maps (`CurrentConditionVTM`, `CurrentConditionTSF.tif`).
   Read back over each version 2 polygon, those maps reproduce the current-condition age-class shares that version 2 saved to within `r format(signif(100 * max(rd$checks$v2_cc_map_vs_saved, na.rm = TRUE), 2))` percentage points.
-- Version 2 area simulated as forest: the mean, over the simulated landscapes, of the forest pixels in each polygon.
+- Version 2 area simulated as forest: the mean, over the simulated landscapes, of the forest pixels in each polygon; the share of forest in old-forest patches uses each version's current-condition forest (version 2: the pixels of its current-condition maps with a vegetation type and an age; version 3: the area simulated as forest, as in report 05).
+- Which version 2 run is compared for a tenure that several runs covered: the run its 2021 report used, found by matching the report's old-forest patch ranges to the runs' summary files, else the run named for the tenure's first-listed licensee (column "Why this run").
 - Matching of version 2 polygons to version 3 tenures: `v2_v3_crosswalk()` and `v2_unmatched()` in `R/fma_boundary_change.R`; run directories by `v2_run_dir()`, which takes `<run>_highDispersal_logROS`, else `<run>_aspenDispersal_logROS`.
 - Reporting-boundary comparison: `fma_boundary_compare()` (`R/fma_boundary_change.R`), against the version 2 runs' `ml_preamble.rds`.
 - Standalone copies of the figures: `` `r report05_relpath(fig_dir)` ``.
 
 ```{r}
 #| label: tbl-runs
-#| tbl-cap: "Version 2 run, polygon, area simulated as forest in each version, and the date of the version 2 summary files, by tenure."
+#| tbl-cap: "Version 2 run, polygon and why that run, the area simulated as forest in each version's current condition, and the date of the version 2 summary files, by tenure."
 when <- rd$runs[setting == "summaries_written", .(tenure, when = value)]
+why_run <- c(
+  only_run = "only run",
+  report_2021 = "2021 report",
+  no_report_tie = "unconfirmed"
+)
 rt <- merge(ten, when, by = "tenure", all.x = TRUE)[order(name), .(
   Tenure = name,
   Code = tenure,
   `Group (v3)` = study_area,
   `Run (v2)` = basename(run_dir),
   `Layer (v2)` = layer,
-  `Forest v2 (ha)` = ha(forest_v2_ha),
+  `Why this run` = unname(why_run[basis]),
+  `Forest v2 (ha)` = ha(forest_v2_cc_ha),
   `Forest v3 (ha)` = ha(forest_v3_ha),
   `v2 summaries` = when
 )]

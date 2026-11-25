@@ -353,7 +353,7 @@ build_report04_sa <- function(
     return(NULL)
   }
   ten[, study_area := study_area]
-  ten <- merge(ten, cw[, .(tenure, run, layer, zone, patch_layer)], by = "tenure")
+  ten <- merge(ten, cw[, .(tenure, run, layer, zone, patch_layer, basis)], by = "tenure")
   ten[, run_dir := vapply(run, v2_run_dir, character(1), v2_root = v2_root)]
   if (anyNA(ten$run_dir)) {
     stop(
@@ -449,6 +449,8 @@ build_report04_sa <- function(
     if (!is.null(cmp$geoms$v2)) {
       comp <- v2_cc_composition(rd, terra::vect(cmp$geoms$v2), age_classes, age_cutoffs)
       out$v2$share_cc <- comp$share[, .(tenure = t, vegType, value)]
+      ## the area v2 simulated as forest today, the denominator of its patch shares
+      out$v2$forest_cc_ha <- sum(comp$share$n_pixels) * pix_ha
       ## the maps must reproduce the current-condition shares v2 saved
       chk <- merge(
         comp$by_age,
@@ -475,15 +477,15 @@ build_report04_sa <- function(
       fill = TRUE
     )
   }
-  ten[,
-    forest_v2_ha := vapply(
-      tenure,
-      function(t) {
-        if (is.null(v2[[t]])) NA_real_ else v2[[t]]$forest_ha
-      },
+  v2_num <- function(k) {
+    vapply(
+      ten$tenure,
+      function(t) if (is.null(v2[[t]][[k]])) NA_real_ else v2[[t]][[k]],
       numeric(1)
     )
-  ]
+  }
+  ten[, forest_v2_ha := v2_num("forest_ha")]
+  ten[, forest_v2_cc_ha := v2_num("forest_cc_ha")]
   runs <- data.table::rbindlist(lapply(names(v2), function(t) {
     info <- v2[[t]]$info
     data.table::data.table(
@@ -569,6 +571,38 @@ report04_compare <- function(nrv, cc, by) {
   list(long = long, delta = w[])
 }
 
+#' Old-forest patch areas as shares of each version's area simulated as forest
+#'
+#' The denominators are the area each version simulates as forest in its current condition: v2's from
+#' its current-condition maps (`forest_v2_cc_ha`), v3's from its current-condition vegetation-type map
+#' (`forest_v3_ha`), so that a change of boundary or of forest extent does not read as a change in
+#' old forest.
+#'
+#' @param d Patch values (`tenure`, `version`, `value` in ha, ...).
+#' @param tenures One row per tenure with `forest_v2_cc_ha` and `forest_v3_ha`.
+#'
+#' @return `d` with `value` as a proportion of the version's forest area.
+report04_patch_share <- function(d, tenures) {
+  d <- data.table::copy(data.table::as.data.table(d))
+  tenures <- data.table::as.data.table(tenures)
+  fa <- data.table::rbindlist(list(
+    data.table::data.table(
+      tenure = tenures$tenure,
+      version = "v2",
+      forest_ha = tenures$forest_v2_cc_ha
+    ),
+    data.table::data.table(
+      tenure = tenures$tenure,
+      version = "v3",
+      forest_ha = tenures$forest_v3_ha
+    )
+  ))
+  d <- merge(d, fa, by = c("tenure", "version"), all.x = TRUE, sort = FALSE)
+  d[, value := value / forest_ha]
+  d[, forest_ha := NULL]
+  d[]
+}
+
 #' Combine the study-area groups' report 04 data
 #'
 #' @param parts A list of [build_report04_sa()] results (`NULL`s are dropped).
@@ -597,6 +631,11 @@ build_report04_data <- function(parts, crosswalk = v2_v3_crosswalk()) {
 
   type <- report04_compare(type_nrv, type_cc, c("tenure", "vegType", "ageClass"))
   patch <- report04_compare(patch_nrv, patch_cc, c("tenure", "min_patch_ha"))
+  patch_share <- report04_compare(
+    report04_patch_share(patch_nrv, tenures),
+    report04_patch_share(patch_cc, tenures),
+    c("tenure", "min_patch_ha")
+  )
   share <- report04_compare(share_nrv, share_cc, c("tenure", "vegType"))
 
   ## the crosswalk's tenures with no group in this pipeline, or no v3 polygon
@@ -626,6 +665,8 @@ build_report04_data <- function(parts, crosswalk = v2_v3_crosswalk()) {
     delta_type = type$delta,
     pct_patch = patch$long,
     delta_patch = patch$delta,
+    pct_patch_share = patch_share$long,
+    delta_patch_share = patch_share$delta,
     pct_share = share$long,
     delta_share = share$delta,
     design = rb("design"),
@@ -635,4 +676,67 @@ build_report04_data <- function(parts, crosswalk = v2_v3_crosswalk()) {
     age_cutoffs = LandWebUtils:::.ageClassCutOffs,
     sources = lapply(parts, `[[`, "sources")
   )
+}
+
+#' Write report 04's percentile tables as a CSV supplement
+#'
+#' The report shows a short table per tenure; this file holds every percentile of every metric, for
+#' both versions: the share of each vegetation type's forest in each age class (percent), the share
+#' of forest each type leads (percent), and the old forest in large patches (ha, and percent of the
+#' version's area simulated as forest).
+#'
+#' @param data The list from [build_report04_data()].
+#' @param out_csv Path to write (and the value returned, for a `format = "file"` target).
+#'
+#' @return `out_csv`.
+write_report04_percentiles <- function(data, out_csv) {
+  pcols <- c("min", "p12.5", "p25", "p50", "p75", "p87.5", "max")
+  ten <- data.table::as.data.table(data$tenures)
+  one <- function(d, metric, unit, scale) {
+    d <- data.table::copy(data.table::as.data.table(d))
+    for (k in c("vegType", "ageClass")) {
+      if (!k %in% names(d)) d[, (k) := NA_character_]
+    }
+    if (!"min_patch_ha" %in% names(d)) {
+      d[, min_patch_ha := NA_integer_]
+    }
+    places <- if (unit == "ha") 0L else 2L
+    d[,
+      (c("cc", pcols)) := lapply(.SD, function(x) round(scale * x, places)),
+      .SDcols = c("cc", pcols)
+    ]
+    d[, .(
+      tenure,
+      tenure_name = ten$name[match(tenure, ten$tenure)],
+      version,
+      metric = metric,
+      vegetation_type = vegType,
+      age_class = ageClass,
+      min_patch_ha,
+      unit = unit,
+      current = cc,
+      landscapes = n,
+      min,
+      p12_5 = p12.5,
+      p25,
+      p50,
+      p75,
+      p87_5 = p87.5,
+      max
+    )]
+  }
+  out <- data.table::rbindlist(list(
+    one(data$pct_type, "share of the type's forest in the age class", "%", 100),
+    one(data$pct_share, "share of forest the type leads", "%", 100),
+    one(data$pct_patch, "old forest in patches of at least min_patch_ha", "ha", 1),
+    one(data$pct_patch_share, "old forest in patches of at least min_patch_ha", "% of forest", 100)
+  ))
+  data.table::setorderv(
+    out,
+    c("tenure", "metric", "unit", "vegetation_type", "age_class", "min_patch_ha", "version"),
+    na.last = TRUE
+  )
+  dir.create(dirname(out_csv), recursive = TRUE, showWarnings = FALSE)
+  data.table::fwrite(out, out_csv)
+  out_csv
 }

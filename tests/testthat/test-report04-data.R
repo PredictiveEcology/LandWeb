@@ -206,6 +206,62 @@ test_that("report04_compare() leaves out groups that only one version has", {
   expect_identical(x$delta$vegType, "Fir")
 })
 
+test_that("report04_patch_share() divides by each version's own forest area", {
+  d <- data.table::data.table(
+    tenure = c("A", "A", "B"),
+    version = c("v2", "v3", "v3"),
+    min_patch_ha = 100L,
+    value = c(50, 300, 10)
+  )
+  ten <- data.table::data.table(
+    tenure = c("A", "B"),
+    forest_v2_cc_ha = c(100, 1),
+    forest_v3_ha = c(600, 40)
+  )
+  x <- r04$report04_patch_share(d, ten)
+  data.table::setkey(x, tenure, version)
+  expect_equal(x$value, c(0.5, 0.5, 0.25))
+  expect_identical(nrow(x), 3L)
+})
+
+test_that("write_report04_percentiles() writes every metric for both versions", {
+  pc <- function(...) {
+    data.table::data.table(
+      ...,
+      min = 0.1,
+      p12.5 = 0.2,
+      p25 = 0.3,
+      p50 = 0.4,
+      p75 = 0.5,
+      p87.5 = 0.6,
+      max = 0.7,
+      n = 5L,
+      cc = 0.25
+    )
+  }
+  data <- list(
+    tenures = data.table::data.table(tenure = "A", name = "Tenure A"),
+    pct_type = pc(tenure = "A", vegType = "Fir", ageClass = c("Young", "Old"), version = "v2"),
+    pct_share = pc(tenure = "A", vegType = "Fir", version = c("v2", "v3")),
+    pct_patch = pc(tenure = "A", min_patch_ha = 100L, version = "v3")[,
+      (c("min", "p50", "cc")) := list(10, 1234.4, 99.6)
+    ],
+    pct_patch_share = pc(tenure = "A", min_patch_ha = 100L, version = "v3")
+  )
+  f <- file.path(withr::local_tempdir(), "sub", "pct.csv")
+  expect_identical(r04$write_report04_percentiles(data, f), f)
+  x <- data.table::fread(f)
+  expect_identical(nrow(x), 6L)
+  expect_setequal(unique(x$unit), c("%", "ha", "% of forest"))
+  expect_true(all(x$tenure_name == "Tenure A"))
+  ## shares in percent with two places, areas in whole hectares
+  expect_equal(x[unit == "%" & age_class == "Old"]$p50, 40)
+  expect_equal(x[unit == "ha"]$p50, 1234)
+  expect_equal(x[unit == "ha"]$current, 100)
+  ## patch rows have no vegetation type (an empty field)
+  expect_true(all(is.na(x[unit != "%"]$vegetation_type) | x[unit != "%"]$vegetation_type == ""))
+})
+
 ## ---- current-condition maps -------------------------------------------------------------------
 
 test_that("v2_cc_composition() counts forest with a type and an age inside the polygon", {

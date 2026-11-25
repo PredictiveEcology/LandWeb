@@ -12,12 +12,17 @@
 ##                         worker; `summaries_nrv_<sa>_files` is named in the command so that a re-run
 ##                         of the summaries re-runs it.
 ##   report04Data          build_report04_data(): the groups combined into the tables the report shows.
+##   report04PercentilesCsv  write_report04_percentiles(): every percentile of every metric, for both
+##                         versions, as a CSV supplement beside the PDF (the report shows a summary).
 ##   report_output_differences      tar_quarto() render of reports/04-output-differences.qmd into
 ##                                  outputs/_reports/, on the controller as for reports 00-03 and 06.
 ##   report_output_differences_pub  publish_pdf(): the PDF copied into the git-tracked reports/pdf/.
 ##
 ## The v2 runs are read from `v2_root` (relative, as each worker sees it); they never change, so no
 ## target tracks them.
+
+## the CSV supplement of percentile tables, beside the rendered PDF (project-relative)
+report04_percentiles_csv <- "outputs/_reports/reports/04-output-differences-percentiles.csv"
 
 ## files the report renders from that tar_quarto() does not find in the .qmd itself
 report04_extra_files <- c(
@@ -61,6 +66,12 @@ report04_targets <- function(study_areas, pkg_fp, v2_root = "outputs_v2") {
     targets::tar_target_raw(
       "report04Data",
       bquote(build_report04_data(.(parts), crosswalk = v2_v3_crosswalk()))
+    ),
+    ## the full percentile tables, a CSV beside the PDF; the report names it, so it renders after
+    targets::tar_target_raw(
+      "report04PercentilesCsv",
+      bquote(write_report04_percentiles(report04Data, .(report04_percentiles_csv))),
+      format = "file"
     ),
     tarchetypes::tar_quarto(
       report_output_differences,
