@@ -369,7 +369,7 @@ if (nrow(compared)) {
 if (nrow(not_compared)) {
   ## fma_boundary_compare()'s reasons, in the report's words
   why <- c(
-    "no v2 run is mapped to this tenure" = "no version 2 model run is matched to them yet",
+    "no v2 run is mapped to this tenure" = "version 2 did not simulate them",
     "the v2 run's outputs were not found" = "the version 2 run's outputs were not available when this report was built",
     "the v2 run saved no reporting polygons" = "their version 2 run saved no reporting polygons",
     "the tenure has no v3 reporting polygon" = "they have no reporting polygon in this version"
@@ -378,12 +378,20 @@ if (nrow(not_compared)) {
   for (r in unique(not_compared$reason)) {
     nm <- sort(not_compared[reason == r, name])
     cat(sprintf(
-      "The boundary change is not characterised for %d of the %d tenures, because %s: %s.\n",
+      "There is no earlier boundary to compare for %d of the %d tenures, because %s: %s.\n",
       length(nm), nrow(bstats), if (is.na(why[r])) r else why[[r]], paste(nm, collapse = "; ")
     ))
   }
-  cat("Matching the remaining version 2 runs to their tenures is planned with the report comparing the two model versions.\n")
 }
+cat(
+  "",
+  sprintf(
+    "Version 2 simulated %d of the %d tenures that this version reports on, and report 04 compares the results of the two versions for those %d.",
+    rd$v2_coverage[["v2"]], rd$v2_coverage[["v3"]], rd$v2_coverage[["v2"]]
+  ),
+  "The other tenures have no version 2 results.",
+  sep = "\n"
+)
 ```
 
 ```{r}

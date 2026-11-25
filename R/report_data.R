@@ -577,6 +577,11 @@ build_report05_data <- function(
     pct_sub = pct_sub,
     pct_patch = pct_patch,
     boundary = boundary,
+    ## how many of v3's tenures v2 simulated (the crosswalk, R/fma_boundary_change.R)
+    v2_coverage = c(
+      v2 = length(unique(v2_v3_crosswalk()$tenure)),
+      v3 = nrow(LandWebUtils::tenureShortNames())
+    ),
     growth = .report05_growth_sources(species_traits$species, spp_list),
     design = list(
       reps = sort(unique(snapshots$rep)),
