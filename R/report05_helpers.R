@@ -49,20 +49,18 @@ report05_position_short <- function(position) {
   )[position])
 }
 
-## age classes as "Young (< 40 years)", ... from the lower bounds
+## age classes as "Young (0 to 40 years)", "Immature (41 to 80 years)", ..., "Old (over 120 years)",
+## from their lower bounds (`cutoffs`, whole years). The classes are closed on the right
+## (nrvtools:::.age_class_raster(); findInterval(left.open = TRUE) in .report05_bare_start()), so an
+## age equal to a cutoff is in the class below it: each class after the first starts one year above
+## its cutoff, and the last has no upper bound.
 report05_age_class_labels <- function(classes, cutoffs) {
   n <- length(classes)
-  lab <- character(n)
-  for (i in seq_len(n)) {
-    lab[i] <- if (i == 1L) {
-      sprintf("%s (under %d years)", classes[i], cutoffs[i + 1L])
-    } else if (i == n) {
-      sprintf("%s (%d years and older)", classes[i], cutoffs[i])
-    } else {
-      sprintf("%s (%d to %d years)", classes[i], cutoffs[i], cutoffs[i + 1L])
-    }
+  if (n < 2L || length(cutoffs) != n) {
+    stop("need at least two age classes, and one cutoff for each", call. = FALSE)
   }
-  lab
+  ages <- sprintf("%d to %d years", c(cutoffs[[1L]], cutoffs[-c(1L, n)] + 1L), cutoffs[-1L])
+  sprintf("%s (%s)", classes, c(ages, sprintf("over %d years", cutoffs[[n]])))
 }
 
 #' Box plots of the simulated age-class shares, current condition as red circles

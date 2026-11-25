@@ -10,6 +10,7 @@ on:
     paths:
       - reports/**
       - _quarto.yml
+      - R/report05_helpers.R
       - tests/**
       - scripts/run-tests.R
       - .github/workflows/tests.yaml
@@ -18,6 +19,7 @@ on:
     paths:
       - reports/**
       - _quarto.yml
+      - R/report05_helpers.R
       - tests/**
       - scripts/run-tests.R
       - .github/workflows/tests.yaml
