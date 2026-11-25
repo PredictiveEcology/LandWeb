@@ -10,7 +10,7 @@ sys.source(file.path(root, "R", "fma_boundary_change.R"), envir = fbc)
 
 test_that("the crosswalk has one primary v2 polygon per tenure, and no gaps", {
   cw <- fbc$v2_v3_crosswalk()
-  expect_named(cw, c("tenure", "run", "layer", "zone", "primary", "patch_layer"))
+  expect_named(cw, c("tenure", "run", "layer", "zone", "primary", "patch_layer", "basis"))
   expect_false(anyNA(cw))
   expect_true(all(nzchar(as.matrix(cw[c("tenure", "run", "layer", "zone", "patch_layer")]))))
   expect_type(cw$primary, "logical")
@@ -19,6 +19,27 @@ test_that("the crosswalk has one primary v2 polygon per tenure, and no gaps", {
   expect_setequal(unique(cw$tenure), primaries)
   ## a v2 polygon is one tenure, never two
   expect_false(anyDuplicated(cw[c("run", "layer", "zone")]) > 0L)
+})
+
+test_that("each crosswalk row says why it is or is not the run compared", {
+  cw <- fbc$v2_v3_crosswalk()
+  basis <- fbc$v2_primary_basis()
+  expect_true(all(cw$basis %in% names(basis)))
+  expect_true(all(cw$basis[!cw$primary] == "alternative"))
+  expect_false(any(cw$basis[cw$primary] == "alternative"))
+  ## a tenure's only run needs no choice; a choice needs an alternative
+  n_runs <- table(cw$tenure[!duplicated(cw[c("tenure", "run")])])
+  only <- cw$tenure[cw$primary & cw$basis == "only_run"]
+  expect_true(all(n_runs[only] == 1L))
+  chosen <- cw$tenure[cw$primary & cw$basis != "only_run"]
+  expect_true(all(n_runs[chosen] > 1L))
+})
+
+test_that("WF_Edson is compared from the run its 2021 report used", {
+  cw <- fbc$v2_v3_crosswalk()
+  e <- cw[cw$tenure == "WF_Edson" & cw$primary, ]
+  expect_identical(e$run, "WestFraser_S")
+  expect_identical(e$basis, "report_2021")
 })
 
 test_that("crosswalk codes have the shape of curated NAME_SHORT codes", {

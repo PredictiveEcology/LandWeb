@@ -40,9 +40,12 @@
 ## polygon v2 called "Millar Western Forest Products Ltd." is v3's CanforWhitecourt, and v2's
 ## "West Fraser Mills Ltd. (Slave Lake)" is v3's MillarWestern.
 ##
-## A tenure that several v2 runs summarised has one `primary` row, the run compared: the run whose
-## layer holds only that tenure where there is one, else the run named for the tenure's first-listed
-## licensee. The other rows record the alternatives.
+## A tenure that several v2 runs summarised has one `primary` row, the run compared: the run its 2021
+## report used, found by matching the report's numbers (WF_Edson: the 2021 Edson Forest Products report's
+## old-forest patch ranges are WestFraser_S's, not those of the Edson run). Where no 2021 report covers
+## the tenure (Tolko_Vand_WF_SL, WF_Tolko), the runs' polygons are the same and overlap it equally, so
+## the run named for its first-listed licensee is taken and `basis` flags the choice. The other rows
+## record the alternatives.
 
 #' The v2 runs compared with v3, by v3 tenure
 #'
@@ -50,11 +53,20 @@
 #'   `NAME_SHORT`), `run` (the v2 run's base name, see [v2_run_dir()]), `layer` (the reporting layer
 #'   in the run's `ml_preamble.rds`; its summary files use the name with spaces replaced by
 #'   underscores), `zone` (the polygon's `Name` in that layer and in the summary files),
-#'   `primary` (`TRUE` for the one row per tenure that is compared), and `patch_layer` (the layer's
+#'   `primary` (`TRUE` for the one row per tenure that is compared), `patch_layer` (the layer's
 #'   name in the run's patch-area files, `histograms/largePatches_<layer>_<size>.csv`: the same,
-#'   except that v2's DMI run wrote those under "Mercer").
+#'   except that v2's DMI run wrote those under "Mercer"), and `basis`, why a row is or is not the one
+#'   compared (see [v2_primary_basis()]).
 v2_v3_crosswalk <- function() {
-  row <- function(tenure, run, layer, zone, primary = TRUE, patch_layer = layer) {
+  row <- function(
+    tenure,
+    run,
+    layer,
+    zone,
+    primary = TRUE,
+    patch_layer = layer,
+    basis = if (primary) "only_run" else "alternative"
+  ) {
     data.frame(
       tenure = tenure,
       run = run,
@@ -62,6 +74,7 @@ v2_v3_crosswalk <- function() {
       zone = zone,
       primary = primary,
       patch_layer = patch_layer,
+      basis = basis,
       stringsAsFactors = FALSE
     )
   }
@@ -102,14 +115,20 @@ v2_v3_crosswalk <- function() {
       "Tolko AB North",
       "Tolko Industries Ltd., Footner Forest Products Ltd. and La Crete Sawmills Ltd."
     ),
-    row("Tolko_Vand_WF_SL", "Tolko_AB_S", "Tolko AB South", tvw),
+    row("Tolko_Vand_WF_SL", "Tolko_AB_S", "Tolko AB South", tvw, basis = "no_report_tie"),
     row("Tolko_Vand_WF_SL", "Vanderwell", "Vanderwell", tvw, FALSE),
     row("Tolko_Vand_WF_SL", "WestFraser_N", "West Fraser N", tvw, FALSE),
     row("Vanderwell", "Vanderwell", "Vanderwell", "Vanderwell Contractors (1971) Ltd."),
-    row("WF_Edson", "Edson", "EdsonFP", "West Fraser Mills Ltd. (Edson)"),
-    row("WF_Edson", "WestFraser_S", "West Fraser S", "West Fraser Mills Ltd. (Edson)", FALSE),
+    row(
+      "WF_Edson",
+      "WestFraser_S",
+      "West Fraser S",
+      "West Fraser Mills Ltd. (Edson)",
+      basis = "report_2021"
+    ),
+    row("WF_Edson", "Edson", "EdsonFP", "West Fraser Mills Ltd. (Edson)", FALSE),
     row("WF_Hinton", "WestFraser_S", "West Fraser S", "West Fraser Mills Ltd. (Hinton)"),
-    row("WF_Tolko", "WestFraser_N", "West Fraser N", wft),
+    row("WF_Tolko", "WestFraser_N", "West Fraser N", wft, basis = "no_report_tie"),
     row("WF_Tolko", "Tolko_AB_S", "Tolko AB South", wft, FALSE),
     row(
       "WeyCo_GrandePr",
@@ -126,6 +145,21 @@ v2_v3_crosswalk <- function() {
   )
   rownames(x) <- NULL
   x
+}
+
+#' Why each crosswalk row is, or is not, the v2 run compared
+#'
+#' @return A named character vector: the `basis` codes of [v2_v3_crosswalk()] and what each means.
+v2_primary_basis <- function() {
+  c(
+    only_run = "the tenure's only version 2 run",
+    report_2021 = "the run the tenure's 2021 report used, matched by the report's numbers",
+    no_report_tie = paste(
+      "no 2021 report covers the tenure and the runs' polygons overlap it equally;",
+      "the run named for the tenure's first-listed licensee"
+    ),
+    alternative = "another version 2 run of a tenure that is compared from its primary run"
+  )
 }
 
 #' v2 polygons with no v3 tenure of their own
@@ -215,10 +249,19 @@ v2_run_dir <- function(run, v2_root = "outputs_v2") {
 #' @param v2_root Directory holding the v2 baseline runs (default `"outputs_v2"`).
 #'
 #' @return A list: `geom` (a one-feature `SpatVector` in the LandWeb LCC, or `NULL`), `run` (the v2
-#'   run directory's basename, or `NA`), and `reason` (why `geom` is `NULL`, else `NA`).
+#'   run directory's basename, or `NA`), `reason` (why `geom` is `NULL`, else `NA`), and, to tell a
+#'   tenure that changed from one v2 reported on only in part, `map_geom` (the tenure's polygon in
+#'   the run's own copy of the v2 FMA map, layer "FMA Boundaries Updated") and `sim_geom` (the area
+#'   the run simulated, its study-region layer "<name> SR..."), each `NULL` where the run has none.
 read_v2_fma_boundary <- function(tenure, v2_root = "outputs_v2") {
-  out <- function(geom = NULL, run = NA_character_, reason = NA_character_) {
-    list(geom = geom, run = run, reason = reason)
+  out <- function(
+    geom = NULL,
+    run = NA_character_,
+    reason = NA_character_,
+    map_geom = NULL,
+    sim_geom = NULL
+  ) {
+    list(geom = geom, run = run, reason = reason, map_geom = map_geom, sim_geom = sim_geom)
   }
   lk <- v2_v3_crosswalk()
   lk <- lk[lk$primary, , drop = FALSE]
@@ -247,17 +290,36 @@ read_v2_fma_boundary <- function(tenure, v2_root = "outputs_v2") {
       call. = FALSE
     )
   }
-  v <- terra::vect(sf::st_as_sf(get(layer, envir = x@.xData, inherits = FALSE)))
-  if (!nzchar(terra::crs(v))) {
-    terra::crs(v) <- x@CRS@projargs
+  get_layer <- function(nm) {
+    v <- terra::vect(sf::st_as_sf(get(nm, envir = x@.xData, inherits = FALSE)))
+    if (!nzchar(terra::crs(v))) {
+      terra::crs(v) <- x@CRS@projargs
+    }
+    v
   }
+  v <- get_layer(layer)
   ## a layer can hold several tenures (v2's Tolko AB South holds three): keep this one's polygon
   zone <- lk$zone[[i]]
   if (!"Name" %in% names(v) || !any(v$Name %in% zone)) {
     stop("No polygon '", zone, "' in v2 reporting layer '", layer, "' of ", ml_rds, call. = FALSE)
   }
   v <- v[v$Name %in% zone, ]
-  out(geom = .fma_dissolve(v, .fma_target_crs()), run = basename(run_dir))
+  ## the same tenure in the FMA map v2 drew its reporting polygons from, and the simulated area
+  map_geom <- NULL
+  if (exists("FMA Boundaries Updated", envir = x@.xData, inherits = FALSE)) {
+    m <- get_layer("FMA Boundaries Updated")
+    if ("Name" %in% names(m) && any(m$Name %in% zone)) {
+      map_geom <- .fma_dissolve(m[m$Name %in% zone, ], .fma_target_crs())
+    }
+  }
+  sr <- grep(" SR( |$)", ls(x@.xData), value = TRUE)
+  sim_geom <- if (length(sr) == 1L) .fma_dissolve(get_layer(sr), .fma_target_crs()) else NULL
+  out(
+    geom = .fma_dissolve(v, .fma_target_crs()),
+    run = basename(run_dir),
+    map_geom = map_geom,
+    sim_geom = sim_geom
+  )
 }
 
 #' v3 reporting boundary of a tenure
@@ -299,6 +361,9 @@ fma_boundary_compare <- function(tenure, fma, v2_root = "outputs_v2") {
     area_union_ha = NA_real_,
     area_added_ha = NA_real_, ## in v3, not in v2
     area_dropped_ha = NA_real_, ## in v2, not in v3
+    area_v2_map_ha = NA_real_, ## the tenure in v2's own FMA map
+    area_added_in_v2_map_ha = NA_real_, ## added area that v2's map had in the tenure
+    area_added_outside_v2_sim_ha = NA_real_, ## added area that v2 did not simulate
     stringsAsFactors = FALSE
   )
   if (is.null(v2$geom) || is.null(v3)) {
@@ -318,6 +383,22 @@ fma_boundary_compare <- function(tenure, fma, v2_root = "outputs_v2") {
   stats$pct_change <- 100 * (stats$area_v3_ha - stats$area_v2_ha) / stats$area_v2_ha
   stats$pct_overlap_of_v2 <- 100 * stats$area_intersection_ha / stats$area_v2_ha
   stats$pct_overlap_of_v3 <- 100 * stats$area_intersection_ha / stats$area_v3_ha
+  ## did the tenure change between the maps, or did v2 report on part of it?
+  if (!is.null(v2$map_geom)) {
+    stats$area_v2_map_ha <- ha(v2$map_geom)
+    stats$area_added_in_v2_map_ha <- if (nrow(added)) {
+      ha(terra::intersect(added, v2$map_geom))
+    } else {
+      0
+    }
+  }
+  if (!is.null(v2$sim_geom)) {
+    stats$area_added_outside_v2_sim_ha <- if (nrow(added)) {
+      ha(terra::erase(added, v2$sim_geom))
+    } else {
+      0
+    }
+  }
   as_sf <- function(g) if (is.null(g) || !nrow(g)) NULL else sf::st_as_sf(g)
   list(
     stats = stats,
