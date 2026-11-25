@@ -1,10 +1,10 @@
 name: tests
 
-## The suite needs only testthat, withr, yaml and data.table plus the Quarto CLI, so this job skips
-## renv: restoring LandWeb's full lockfile (the spatial stack and many GitHub packages) would be a
-## cold build of hours for four CRAN packages. A test that needs the project's own packages or the
-## spatial stack skips here (report 04's LandWebUtils and terra checks run on the compute nodes),
-## or needs a setup-renv job.
+## The suite needs only testthat, withr, yaml, data.table, zip and targets plus the Quarto CLI, so this
+## job skips renv: restoring LandWeb's full lockfile (the spatial stack and many GitHub packages) would
+## be a cold build of hours for six CRAN packages. The upload tests use a fake Drive, so they need no
+## googledrive. A test that needs the project's own packages or the spatial stack skips here (report
+## 04's LandWebUtils and terra checks run on the compute nodes), or needs a setup-renv job.
 on:
   push:
     branches: [main, development]
@@ -60,7 +60,7 @@ jobs:
           version: 1.9.38
 
       - name: Install test packages
-        run: install.packages(c("testthat", "withr", "yaml", "data.table"), repos = Sys.getenv("RSPM", "https://cloud.r-project.org"))
+        run: install.packages(c("testthat", "withr", "yaml", "data.table", "zip", "targets"), repos = Sys.getenv("RSPM", "https://cloud.r-project.org"))
         shell: Rscript {0}
 
       - name: Tests

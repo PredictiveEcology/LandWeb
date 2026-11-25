@@ -67,6 +67,10 @@ source("R/targets_reports.R")
 ## Report 04, v2 vs v3 output differences (gated with the domain-wide reports below)
 source("R/report04_data.R")
 source("R/targets_report04.R")
+## Uploads to the "LandWeb Results" shared drive, gated by landweb.upload (R/targets_upload.R)
+source("R/drive_sync.R")
+source("R/upload_bundle.R")
+source("R/targets_upload.R")
 
 ## Optional multi-node SSH cluster (CONTROL NODE ONLY). When _hosts.R defines crew.ssh.nodes,
 ## heavy module execution (preamble/speciesData/dataPrep/mainSim) is dispatched to the compute
@@ -1061,6 +1065,17 @@ if (isTRUE(getOption("landweb.growth_uncertainty", FALSE))) {
   tar_option_set(retrieval = retrieval_default)
 }
 
+## ---- opt-in uploads to Drive --------------------------------------------------
+## Empty unless LANDWEB_UPLOAD (_local.R) is dry or TRUE: then a bundle and an upload per study-area
+## group, plus the domain-wide reports when the extended analyses are on too (R/targets_upload.R).
+upload_targets_list <- upload_targets(
+  landweb_upload_mode(getOption("landweb.upload", "FALSE")),
+  study_areas = local$study_areas,
+  extended = isTRUE(getOption("landweb.extended_analyses", FALSE)),
+  n_reps = local$n_reps,
+  sim_end = local$sim_end
+)
+
 ## ---- pipeline -----------------------------------------------------------------
 list(
   ## record target: the study areas this pipeline covers (for inspection / reports)
@@ -1242,5 +1257,8 @@ list(
 
   ## Gated extended analyses (empty list unless landweb.extended_analyses is set
   ## in _local.R). targets flattens nested lists, so this splices in cleanly.
-  extended_targets
+  extended_targets,
+
+  ## Gated uploads (empty list unless landweb.upload is dry or TRUE in _local.R)
+  upload_targets_list
 )

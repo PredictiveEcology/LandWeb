@@ -97,6 +97,13 @@ options(
   landweb.growth_uncertainty = isTRUE(as.logical(Sys.getenv("LANDWEB_GROWTH_UNCERTAINTY", "FALSE")))
 )
 
+## Opt-in uploads to the "LandWeb Results" shared drive -- OFF by default. LANDWEB_UPLOAD=dry builds
+## each study area's bundle in outputs/<sa>/upload/ and plans its upload without writing to Drive;
+## LANDWEB_UPLOAD=TRUE uploads. Run them on their own, on a finished run (R/targets_upload.R):
+## tar_make(names = tidyselect::starts_with("upload"), shortcut = TRUE). Read on the control node
+## only, like the gates above.
+options(landweb.upload = Sys.getenv("LANDWEB_UPLOAD", "FALSE"))
+
 ## Optional growth-trait table -- unset by default. LANDWEB_GROWTH_TRAITS_FILE names a CSV of the shared
 ## fit's traits (target growthTraits' columns) that replaces the fit's own, for a test run with traits
 ## estimated another way; the fit itself is not re-run. Read on the control node only, like the gates above.
