@@ -1,0 +1,39 @@
+## Build-context filter for LandWeb-standalone.Dockerfile (BuildKit reads it in place of a root
+## .dockerignore). The workflow builds from a fresh checkout, which has none of these; they matter
+## for a build from a working tree, which would otherwise copy the host's renv library, secrets,
+## host config and data links into the image.
+
+## renv library and staging (the image restores its own)
+renv/library/
+renv/staging/
+renv/sandbox/
+
+## secrets and host config
+**/*.Renviron
+.httr-oauth*
+landweb-*.json
+drive-sa*.json
+_hosts.R
+.claude/settings.local.json
+.claude/worktrees/
+
+## data, pipeline store, logs and scratch
+inputs
+outputs
+outputs_v2
+_targets
+cache
+logs
+_tmp*
+_TODO_*
+
+## rendered manual, build caches and editor state
+docs
+manual/*_cache
+manual/*_files
+manual/_bookdown_files
+.quarto
+.Rproj.user
+.Rhistory
+.superpowers
+.vscode

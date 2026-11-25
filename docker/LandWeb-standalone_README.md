@@ -1,86 +1,87 @@
-# Docker images for LandWeb
+# LandWeb Docker image
 
-1. build the container (once; don't need to rebuild unless there's a major change):
+The image runs LandWeb in RStudio Server.
+It holds R at the version in `renv.lock` (on `rocker/geospatial`), the project's R packages restored from `renv.lock`, TeX Live and Quarto for the reports, and the project with its submodules at `/home/rstudio/GitHub/LandWeb`.
+It holds no data: mount `inputs/` and `outputs/` from the host.
+
+## Getting the image
+
+GitHub Actions builds the image (`.github/workflows/docker-image.yaml`) and pushes it to the GitHub Container Registry:
+
+| Tag | Built from |
+|---|---|
+| `latest` | the newest build of `main`, or the newest release |
+| `3.0.0` (etc.) | a published release, tagged `v3.0.0` |
+| `YYYY-MM-DD` | the monthly rebuild of `main`, or a by-hand build of `main` |
+| `<branch>` | a by-hand build of another branch (for testing) |
 
 ```bash
-cd ~/GitHub/LandWeb
-
-eval `ssh-agent -s`
-ssh-add ~/.ssh/id_ed25519_GitHub
+docker pull ghcr.io/predictiveecology/landweb:latest
 ```
 
-## main
+To build by hand, run the workflow from the repository's Actions tab ("Run workflow"), or:
 
 ```bash
-docker build . \
-  --ssh default \
-  --build-arg GH_ORG=PredictiveEcology \
-  --build-arg GH_REPO=LandWeb \
-  --build-arg GH_TAG=main \
-  --build-arg USERID=$(id -u) \
-  --build-arg GROUPID=$(id -g) \
-  -f docker/LandWeb-standalone.Dockerfile \
-  -t achubaty/landweb-standalone:latest
-
-## optionally, push to docker hub
-docker push achubaty/landweb-standalone:latest
+gh workflow run docker-image.yaml --ref main
 ```
 
-## development
+## Running a container
 
 ```bash
-docker build . \
-  --ssh default \
-  --build-arg GH_ORG=PredictiveEcology \
-  --build-arg GH_REPO=LandWeb \
-  --build-arg GH_TAG=development \
-  -f docker/LandWeb-standalone.Dockerfile \
-  -t achubaty/landweb-standalone:development
-
-## optionally, push to docker hub
-docker push achubaty/landweb-standalone:development
-```
-
-2. launch an instance of the container:
-
-**NOTE:** the first time launching the container will take a while, as packages need to be restored, but this will be much faster if providing a pre-populated `renv` package cache.
-
-```bash
-PROJ_PATHS_INPUTS_CONTAINER=/home/rstudio/GitHub/LandWeb/inputs
-PROJ_PATHS_INPUTS_HOST=/mnt/projects/HRV/LandWeb/inputs
-
-PROJ_PATHS_OUTPUTS_CONTAINER=/home/rstudio/GitHub/LandWeb/outputs
-PROJ_PATHS_OUTPUTS_HOST=/mnt/projects/HRV/LandWeb/outputs
-
-RENV_PATHS_CACHE_CONTAINER=/renv/cache
-RENV_PATHS_CACHE_HOST=/mnt/shared_cache/renv/cache
+INPUTS_HOST=/path/to/LandWeb/inputs
+OUTPUTS_HOST=/path/to/LandWeb/outputs
+PROJ_CONTAINER=/home/rstudio/GitHub/LandWeb
 
 docker run -d -it \
   -e USERID=$(id -u) \
   -e GROUPID=$(id -g) \
-  -e GITHUB_PAT=$(cat ${HOME}/.Renviron | grep GITHUB_PAT | cut -d '=' -f 2) \
-  -e PASSWORD='myPassword' \
-  -e RENV_PATHS_CACHE=$RENV_PATHS_CACHE_CONTAINER \
-  -v $RENV_PATHS_CACHE_HOST:$RENV_PATHS_CACHE_CONTAINER \
+  -e PASSWORD='<mySecretPassword>' \
+  -e GITHUB_PAT=$(grep GITHUB_PAT ~/.Renviron | cut -d '=' -f 2) \
   --memory=128g \
   --cpus=32 \
   -p 127.0.0.1:8080:8787 \
-  --mount type=bind,source=$PROJ_PATHS_INPUTS_HOST,target=$PROJ_PATHS_INPUTS_CONTAINER \
-  --mount type=bind,source=$PROJ_PATHS_OUTPUTS_HOST,target=$PROJ_PATHS_OUTPUTS_CONTAINER \
+  --mount type=bind,source=$INPUTS_HOST,target=$PROJ_CONTAINER/inputs \
+  --mount type=bind,source=$OUTPUTS_HOST,target=$PROJ_CONTAINER/outputs \
   --name landweb01 \
-  achubaty/landweb-standalone:development
+  ghcr.io/predictiveecology/landweb:latest
 ```
 
-3. to connect to the container, open ssh tunnel, then open browser at `localhost:8080`:
+- `USERID` and `GROUPID` make the container's `rstudio` user your user, so files written to the mounted directories are yours.
+- `GITHUB_PAT` is needed only to install further packages from GitHub inside the container.
+- To share a host renv cache with the container, add `-e RENV_PATHS_CACHE=/renv/cache -v /path/to/renv/cache:/renv/cache`.
+  The image does not need one: its packages are in the project library.
+
+Open RStudio in a browser at `localhost:8080`, and log in as `rstudio` with the password above.
+If the container runs on a remote machine, forward the port first:
 
 ```bash
-ssh picea.for-cast.ca -L8080:localhost:8080
+ssh <host> -L8080:localhost:8080
 ```
 
-4. once finished, you can stop and destroy the container:
+When finished, stop and remove the container:
 
 ```bash
 docker stop landweb01
 docker rm landweb01
 ```
 
+## Building locally
+
+The workflow is the usual way to build.
+To test a change to the Dockerfile, build from the repository on GitHub, which gives a context of tracked files only, submodules included:
+
+```bash
+docker buildx build \
+  --file docker/LandWeb-standalone.Dockerfile \
+  --build-arg R_VERSION=$(jq -r .R.Version renv.lock) \
+  --secret id=github_pat,env=GITHUB_PAT \
+  --tag landweb:test \
+  "https://github.com/PredictiveEcology/LandWeb.git#development"
+```
+
+Building from a working tree (context `.`) also works; `docker/LandWeb-standalone.Dockerfile.dockerignore` keeps the host's renv library, secrets and data links out of the image, but anything else untracked goes in.
+
+`R_VERSION` must be the R version in `renv.lock`; the build stops if it is not.
+The `github_pat` secret raises GitHub's rate limit for the packages renv installs from GitHub; it never enters an image layer.
+BuildKit keeps the renv package cache in a cache mount between local builds, so a rebuild after a change to `renv.lock` installs only the packages that changed.
+A first build restores about 450 packages; expect it to take an hour or more.

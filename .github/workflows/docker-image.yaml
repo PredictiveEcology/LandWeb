@@ -1,0 +1,169 @@
+## Builds the LandWeb Docker image (docker/LandWeb-standalone.Dockerfile) and pushes it to the
+## GitHub Container Registry as ghcr.io/predictiveecology/landweb. See
+## docker/LandWeb-standalone_README.md.
+##
+## Tags: a release pushes its version (v3.0.0 -> 3.0.0) and `latest`; a build of main (monthly, or
+## by hand) pushes its date (YYYY-MM-DD) and `latest`; a by-hand build of another branch pushes
+## only the branch name, so testing never moves `latest`.
+
+name: docker-image
+
+on:
+  release:
+    types: [published]
+  ## Monthly, from main (the default branch), to pick up updates to the base image. GitHub stops
+  ## scheduled runs in a public repository after 60 days without activity.
+  schedule:
+    - cron: "23 7 3 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+## One build at a time, so two builds never race to push `latest`. A queued build waits for the
+## running one rather than cancelling it.
+concurrency:
+  group: docker-image
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/predictiveecology/landweb
+  ## The renv cache keeps old package versions as renv.lock moves on; bump this to start afresh.
+  RENV_CACHE_VERSION: v1
+
+jobs:
+  image:
+    if: github.repository == 'PredictiveEcology/LandWeb'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      ## The build needs about 20 GB of disk; the runner ships toolchains this job never uses.
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      ## The checkout, submodules included, is the image's copy of the project. No token is left
+      ## in .git/config, which is copied into the image.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Read the R version from renv.lock
+        id: lock
+        run: echo "r-version=$(jq -r .R.Version renv.lock)" >> "$GITHUB_OUTPUT"
+
+      ## Garbage collection is off so BuildKit cannot prune the renv cache mount before the
+      ## steps below copy it out. The runner is discarded after the job.
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        id: buildx
+        with:
+          buildkitd-config-inline: |
+            [worker.oci]
+              gc = false
+
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        id: meta
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
+        with:
+          images: ${{ env.IMAGE }}
+          flavor: latest=false
+          tags: |
+            type=semver,pattern={{version}},value=${{ github.event.release.tag_name }},enable=${{ github.event_name == 'release' }}
+            type=raw,value={{date 'YYYY-MM-DD'}},enable=${{ github.event_name != 'release' && github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ (github.event_name == 'release' && !github.event.release.prerelease) || github.ref == 'refs/heads/main' }}
+            type=ref,event=branch,enable=${{ github.ref != 'refs/heads/main' }}
+
+      ## The renv package cache. renv.lock restores ~450 packages, ~40 of them built from GitHub
+      ## sources. BuildKit keeps the cache in a cache mount (see the Dockerfile), which does not
+      ## outlive the runner, so actions/cache carries it between runs: loaded into the mount
+      ## before the build and copied back out after it. A cache saved for an earlier renv.lock is
+      ## restored when none matches, so a lockfile change installs only the packages that changed.
+      - name: Restore the renv cache
+        id: renv-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/renv-cache
+          key: docker-renv-${{ env.RENV_CACHE_VERSION }}-R${{ steps.lock.outputs.r-version }}-${{ hashFiles('renv.lock') }}
+          restore-keys: |
+            docker-renv-${{ env.RENV_CACHE_VERSION }}-R${{ steps.lock.outputs.r-version }}-${{ hashFiles('renv.lock') }}-partial-
+            docker-renv-${{ env.RENV_CACHE_VERSION }}-R${{ steps.lock.outputs.r-version }}-
+
+      - name: Load the renv cache into BuildKit
+        if: steps.renv-cache.outputs.cache-matched-key != ''
+        env:
+          BUILDER: ${{ steps.buildx.outputs.name }}
+          CACHE_DIR: ${{ runner.temp }}/renv-cache
+        run: |
+          du -sh "$CACHE_DIR"
+          docker buildx build --builder "$BUILDER" --no-cache --output type=cacheonly \
+            --file - "$CACHE_DIR" <<'EOF'
+          FROM busybox:1.37
+          RUN --mount=type=cache,id=renv-cache,target=/renv/cache,sharing=locked \
+              --mount=type=bind,target=/src \
+              cp -a /src/. /renv/cache/
+          EOF
+          rm -rf "$CACHE_DIR"
+
+      ## The step's own time limit is under the job's, so a build that runs out of time still
+      ## leaves time to save the renv cache for the next attempt.
+      - name: Build and push the image
+        id: build
+        timeout-minutes: 240
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: docker/LandWeb-standalone.Dockerfile
+          build-args: R_VERSION=${{ steps.lock.outputs.r-version }}
+          secrets: github_pat=${{ secrets.GITHUB_TOKEN }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+
+      ## Runs after a failed build too: a retry then starts from the packages already installed
+      ## instead of from scratch. Skipped when the cache matched renv.lock exactly.
+      - name: Copy the renv cache out of BuildKit
+        id: extract
+        if: always() && steps.renv-cache.outputs.cache-hit != 'true' && steps.build.outcome != 'skipped'
+        env:
+          BUILDER: ${{ steps.buildx.outputs.name }}
+          CACHE_DIR: ${{ runner.temp }}/renv-cache
+        run: |
+          rm -rf "$CACHE_DIR"
+          mkdir -p "$RUNNER_TEMP/empty-context"
+          docker buildx build --builder "$BUILDER" --no-cache \
+            --output "type=local,dest=$CACHE_DIR" \
+            --file - "$RUNNER_TEMP/empty-context" <<'EOF'
+          FROM busybox:1.37 AS cache
+          RUN --mount=type=cache,id=renv-cache,target=/renv/cache,sharing=locked \
+              mkdir /out && cp -a /renv/cache/. /out/
+          FROM scratch
+          COPY --from=cache /out /
+          EOF
+          du -sh "$CACHE_DIR"
+          if [ -n "$(ls -A "$CACHE_DIR")" ]; then
+            echo "saved=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      ## A failed build saves under a key of its own, which leaves the lockfile's own key free for
+      ## the complete cache of a later, successful build.
+      - name: Save the renv cache
+        if: always() && steps.extract.outputs.saved == 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/renv-cache
+          key: ${{ steps.build.outcome == 'success' && steps.renv-cache.outputs.cache-primary-key || format('{0}-partial-{1}-{2}', steps.renv-cache.outputs.cache-primary-key, github.run_id, github.run_attempt) }}
