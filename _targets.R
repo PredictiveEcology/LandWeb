@@ -357,7 +357,7 @@ study_area_targets <- function(sa) {
   p_preamble <- list(
     .globals = globals_sa,
     LandWeb_preamble = list(
-      bufferDist = 20000, bufferDistLarge = 50000, dispersalType = "default",
+      bufferDist = 20000, bufferDistLarge = 50000,
       ## studyAreaANPP (the ecozones the study area touches) no longer feeds the growth curves, which
       ## are fitted once for all of LandWeb (growthCurves); kept as a record of the area's own pool.
       anppEcoLevel = "ecozone",
