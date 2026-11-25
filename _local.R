@@ -29,9 +29,11 @@ local <- list(
   #   "MidBorealLowland", "PeaceLowland", "NorthernContinentalDivide", "BigTroutLake",
   #   "SlaveRiverLowland", "WesternBoreal"
   # ),
-  ## 15 reps: within the terra per-worker cap, which is sized by `local_workers` (8) per node,
-  ## not by n_reps -- 15 branches fill the 16 crew.ssh slots (8 pinus + 8 picea) in one wave.
-  n_reps = 15L,
+  ## 50 reps (user, 2026-11-25): successive NRV snapshots within a rep are strongly correlated, so
+  ## 15 reps gave only ~18-31 effective samples per area for leading-type shares; 50 give ~59-104
+  ## (outputs/_extended_analyses/nrv_autocorrelation/). The terra per-worker cap is sized by
+  ## `local_workers` (8) per node, not by n_reps.
+  n_reps = 50L,
 
   ## SpaDES paths. Heavy IO belongs on docker-visible NVMe scratch, not /home or NFS.
   ## `inputs` and `outputs` are symlinks into the shared NFS project directory, so
