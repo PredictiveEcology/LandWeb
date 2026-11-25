@@ -229,6 +229,10 @@ v2_type_share <- function(nrv) {
 #' @param layer The run's sub-region layer ([v2_subregion_layers()]).
 #' @param zone The tenure's name in the run (`zone` in [v2_v3_crosswalk()]).
 #' @param tenure_nrv The tenure's own `nrv` table from [read_v2_leading()].
+#' @param others The names of the other tenures in the run's tenure layer: a sub-region belongs to the
+#'   tenure whose name is the longest that ends it ("<sub-region> Tolko ..., West Fraser Mills Ltd.
+#'   (Slave Lake)" is the joint tenure's, though it also ends with "West Fraser Mills Ltd. (Slave
+#'   Lake)").
 #' @param single Whether the run's tenure layer holds this tenure only.
 #' @param tol Largest relative difference allowed between the sum of the sub-regions' forest and the
 #'   tenure's.
@@ -236,7 +240,15 @@ v2_type_share <- function(nrv) {
 #' @return A list: `nrv` (`subregion`, `ageClass`, `rep`, `time`, `value`), `cc` (`subregion`,
 #'   `ageClass`, `value`) and `reason` (`NA`, or why the sub-regions were not used, with `nrv` and
 #'   `cc` then `NULL`).
-read_v2_subregions <- function(run_dir, layer, zone, tenure_nrv, single = FALSE, tol = 0.02) {
+read_v2_subregions <- function(
+  run_dir,
+  layer,
+  zone,
+  tenure_nrv,
+  others = character(0),
+  single = FALSE,
+  tol = 0.02
+) {
   out <- function(nrv = NULL, cc = NULL, reason = NA_character_) {
     list(nrv = nrv, cc = cc, reason = reason)
   }
@@ -250,6 +262,12 @@ read_v2_subregions <- function(run_dir, layer, zone, tenure_nrv, single = FALSE,
   ## compared outside `[`: inside it, `zone` is the column
   suffix <- paste0(" ", c(zone, if (single) "LandWeb Study Area"))
   hit <- Reduce(`|`, lapply(suffix, function(s) endsWith(d[["zone"]], s)))
+  ## not a sub-region of another tenure whose longer name also ends with this one's
+  longer <- setdiff(others, zone)
+  longer <- longer[endsWith(longer, paste0(" ", zone)) | endsWith(longer, zone)]
+  for (o in longer) {
+    hit <- hit & !endsWith(d[["zone"]], paste0(" ", o))
+  }
   if (!any(hit)) {
     return(out(reason = "version 2 summarised these sub-regions over several tenures together"))
   }
@@ -580,6 +598,9 @@ build_report04_sa <- function(
         sl,
         ten$zone[[i]],
         lead$nrv,
+        others = unique(crosswalk$zone[
+          crosswalk$run == ten$run[[i]] & crosswalk$layer == ten$layer[[i]]
+        ]),
         single = sum(crosswalk$run == ten$run[[i]] & crosswalk$layer == ten$layer[[i]]) == 1L
       )
       out$v2$sub_reason <- sr$reason

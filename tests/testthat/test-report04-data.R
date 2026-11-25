@@ -335,6 +335,22 @@ test_that("read_v2_subregions() refuses sub-regions that are not the tenure's", 
   )
 })
 
+test_that("read_v2_subregions() gives a sub-region to the tenure with the longest matching name", {
+  run <- withr::local_tempdir()
+  ## "Joint and T" also ends with "T"
+  write_v2_subregions(
+    run,
+    zones = c("Upland T", "Lowland T", "Upland Joint and T"),
+    pixels = c(6, 4, 9)
+  )
+  x <- r04$read_v2_subregions(run, "X ANSR", "T", tenure_nrv, others = c("T", "Joint and T"))
+  expect_true(is.na(x$reason))
+  expect_setequal(unique(x$nrv$subregion), c("Upland", "Lowland"))
+  ## without knowing the other tenure, the joint tenure's sub-region leaks in and the sum fails
+  y <- r04$read_v2_subregions(run, "X ANSR", "T", tenure_nrv)
+  expect_match(y$reason, "do not add up")
+})
+
 ## ---- current-condition maps -------------------------------------------------------------------
 
 test_that("v2_cc_composition() counts forest with a type and an age inside the polygon", {
