@@ -512,11 +512,105 @@ report05_save_png(p, fig_dir, "composition_departure", 6.5, 1.2 + 0.26 * n_ten)
 p
 ```
 
+### The current condition each version is measured against {#sec-yardstick}
+
+The two versions start from different maps of today's forest.
+Version 3's current condition is its own starting landscape, built from the 2025 SCANFI forest map; version 2's is the inventory-based map it started from.
+The figures for each tenure compare each version with its own current condition.
+The table and figure below (@tbl-yardstick, @fig-yardstick) set version 3's simulations against both maps, to show how much of each difference lies between the two maps rather than between the simulations and their start.
+
+```{r}
+#| include: false
+## per tenure and type: each version's simulated range and both current conditions (the tenures
+## where both versions have a current condition for the type)
+yd <- dcast(
+  rd$pct_share[, .(tenure, vegType, version, p25, p50, p75, cc)],
+  tenure + vegType ~ version,
+  value.var = c("p25", "p50", "p75", "cc")
+)
+yd <- yd[!is.na(cc_v2) & !is.na(cc_v3) & !is.na(p50_v3) & !is.na(p50_v2)]
+yd[, `:=`(
+  v3_own = 100 * (p50_v3 - cc_v3),
+  v3_vs_v2cc = 100 * (p50_v3 - cc_v2),
+  v2_own = 100 * (p50_v2 - cc_v2),
+  cc_gap = 100 * (cc_v2 - cc_v3)
+)]
+yd_sum <- yd[vegType %in% comp_types, .(
+  n = .N,
+  sim_v3 = 100 * stats::median(p50_v3),
+  cc_v3 = 100 * stats::median(cc_v3),
+  cc_v2 = 100 * stats::median(cc_v2),
+  v3_own = stats::median(v3_own),
+  v3_vs_v2cc = stats::median(v3_vs_v2cc),
+  v2_own = stats::median(v2_own),
+  cc_gap = stats::median(cc_gap)
+), by = vegType][order(match(vegType, comp_types))]
+```
+
+```{r}
+#| output: asis
+dec <- yd_sum[vegType == "Decid"]
+if (nrow(dec)) {
+  cat(
+    sprintf(
+      "For deciduous-led forest, version 3's simulated median lies a median of %s percentage points from its own current condition and %s points from version 2's, across %d tenures; the two current-condition maps themselves differ by a median of %s points.",
+      signed1(dec$v3_own), signed1(dec$v3_vs_v2cc), dec$n, signed1(dec$cc_gap)
+    ),
+    sprintf(
+      "Version 2's simulated median lies a median of %s points from its own current condition.",
+      signed1(dec$v2_own)
+    ),
+    sep = "\n"
+  )
+}
+```
+
+```{r}
+#| label: tbl-yardstick
+#| tbl-cap: "Share of forest led by each vegetation type, median across tenures: version 3's simulated median, both versions' current conditions, and the differences, in percent and percentage points. Medians of differences are taken tenure by tenure, so they need not equal the differences of the medians."
+kbl(
+  yd_sum[, .(
+    `Vegetation type` = report05_veg_label(vegType),
+    Tenures = n,
+    `v3 simulated` = sprintf("%.0f", sim_v3),
+    `v3 current` = sprintf("%.0f", cc_v3),
+    `v2 current` = sprintf("%.0f", cc_v2),
+    `v3 sim. - v3 current` = signed1(v3_own),
+    `v3 sim. - v2 current` = signed1(v3_vs_v2cc),
+    `v2 sim. - v2 current` = signed1(v2_own),
+    `v2 current - v3 current` = signed1(cc_gap)
+  )],
+  format = "latex",
+  booktabs = TRUE,
+  align = "lrrrrrrrr"
+) |>
+  kable_styling(latex_options = c("hold_position", "scale_down"), font_size = 7)
+```
+
+```{r}
+#| label: fig-yardstick
+#| fig-cap: "Version 3's simulated share of forest led by each vegetation type, by tenure (green: median and middle half of the simulated landscapes), against version 3's current condition (red circle) and version 2's (blue diamond)."
+#| fig-height: !expr 1.2 + 0.26 * n_ten
+#| fig-width: 6.5
+d <- yd[vegType %in% comp_types][, name := name_of(tenure)]
+d[, facet := factor(report05_veg_label(vegType), levels = report05_veg_label(comp_types))]
+p <- report04_yardstick_plot(d)
+report05_save_png(p, fig_dir, "composition_yardstick", 6.5, 1.2 + 0.26 * n_ten)
+p
+```
+
 ::: {.callout-note}
 ## Draft for the authors
 
 Whether version 3 fixes or repeats version 2's shift towards fir and pioneer hardwoods, and what the remaining departures mean.
 The departures here are the simulations' own; whether today's forest is the right yardstick is the question the 2021 reports raise.
+:::
+
+::: {.callout-important}
+## Draft for the authors: causes of the deciduous shift (pending)
+
+Why version 3 simulates more deciduous-led forest than its current condition holds is under test (a regeneration test is running).
+This report does not yet attribute the shift to any cause; the authors will add the explanation when the test is done.
 :::
 
 ## Old forest in large patches {#sec-patches}

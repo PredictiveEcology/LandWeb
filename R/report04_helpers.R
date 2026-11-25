@@ -199,3 +199,46 @@ report04_departure_plot <- function(delta) {
     ggplot2::theme_bw(base_size = 8) +
     ggplot2::theme(legend.position = "top")
 }
+
+#' Version 3's simulated forest composition against both versions' current conditions
+#'
+#' @param d One row per tenure and vegetation type: `name`, `facet` (type label), `p25_v3`, `p50_v3`,
+#'   `p75_v3`, `cc_v3`, `cc_v2` (proportions).
+report04_yardstick_plot <- function(d) {
+  d <- data.table::copy(data.table::as.data.table(d))
+  d[, name := .report04_name_axis(name)]
+  ggplot2::ggplot(d, ggplot2::aes(y = name)) +
+    ggplot2::geom_linerange(
+      ggplot2::aes(xmin = 100 * p25_v3, xmax = 100 * p75_v3),
+      colour = .report04_fills[["v3"]],
+      linewidth = 0.9
+    ) +
+    ggplot2::geom_point(
+      ggplot2::aes(x = 100 * p50_v3),
+      colour = .report04_fills[["v3"]],
+      size = 1.1
+    ) +
+    ggplot2::geom_point(
+      ggplot2::aes(x = 100 * cc_v3, shape = "Version 3 current condition"),
+      colour = "red",
+      fill = NA,
+      stroke = 0.6,
+      size = 1.6
+    ) +
+    ggplot2::geom_point(
+      ggplot2::aes(x = 100 * cc_v2, shape = "Version 2 current condition"),
+      colour = .report04_fills[["v2"]],
+      fill = NA,
+      stroke = 0.6,
+      size = 1.6
+    ) +
+    ggplot2::scale_shape_manual(
+      values = c(`Version 3 current condition` = 21, `Version 2 current condition` = 23),
+      name = NULL
+    ) +
+    ggplot2::facet_wrap(~facet, nrow = 1L) +
+    ggplot2::scale_x_continuous(breaks = c(0, 50, 100)) +
+    ggplot2::labs(x = "Share of forest (%)", y = NULL) +
+    ggplot2::theme_bw(base_size = 8) +
+    ggplot2::theme(legend.position = "top")
+}
