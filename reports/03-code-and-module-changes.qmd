@@ -68,7 +68,7 @@ This notice will be removed once a complete review has been carried out.
 
 LandWeb v3 is primarily a rebuild of the modelling infrastructure rather than of the ecological content.
 The exceptions are set out under [Changes that alter results](#changes-that-alter-results) below, and they are not cosmetic: the leading-species threshold and the mixedwood rule both changed, so v3 vegetation type maps are not directly comparable with v2's.
-Regeneration after fire also changed: v2 made every species resprout, while in v3 each species regenerates by its own mode (see [Regeneration after fire](#regeneration-after-fire)).
+Regeneration after fire also changed: most v2 runs made every species group resprout after fire, while in v3 each species regenerates by its own mode (see [Regeneration after fire](#regeneration-after-fire), which also describes the v2 runs that differ).
 The simulation science --- the `LandR` Biomass vegetation modules [@R-LandR] and the LandMine fire model --- is retained, but the way those modules are **orchestrated, cached, and dispatched** has been rewritten, and the input data modernized (see the study-area vegetation and fire-model-inputs reports).
 This report reconstructs the code and module changes across the v2 (2020--2023) to v3 (2024--2026) window.
 
@@ -133,14 +133,51 @@ The deciduous cover weight is now **fitted per study area** instead of carrying 
 
 ## Regeneration after fire
 
-v2 made every species resprout after fire.
-All five of its species groups, conifers included, were set to resprout with probability 1 at any age from 0 to 400 years, so a burned stand regrew with the species it had before the fire.
-The v2.0.0 release notes describe this as reparameterizing the model to emulate a state-transition model, to ensure burned pixels regenerate.
-In v3, each species instead regenerates by its own LANDIS-II mode.
+v2's settings for regeneration after fire, seed dispersal and shade tolerance were not the same in every run.
+They depend on when a run was made and on its seed-dispersal setting, high dispersal or aspen dispersal, which is part of the run's name.
+The values below are those saved with the archived v2 runs, or set in the v2 code of the time.
+
+**v2 runs from 2019.** The five runs with aspen dispersal made in March 2019 (ANC, DMI, Louisiana-Pacific Manitoba, Tolko Alberta South and Tolko Saskatchewan) did not force any species to resprout.
+Their saved species tables give no species group a post-fire regeneration mode: none was set to resprout or to regenerate from serotinous cones.
+The Manning run (August 2019, high dispersal) set all five species groups, conifers included, to resprout with probability 1 at any age from 0 to 400 years, so a burned stand regrew with the species it had before the fire.
+
+**v2 runs from 2020 on.** From 2020, the v2 code made every species group resprout in the same way, with either dispersal setting.
+The v2.0.0 release notes (October 2019) describe forced resprouting as reparameterizing the model to emulate a state-transition model, to ensure burned pixels regenerate.
+
+**v3.** In v3, each species instead regenerates by its own LANDIS-II mode.
 Jack pine, lodgepole pine and black spruce regenerate from serotinous cones; aspen, balsam poplar and paper birch resprout; and the other conifers regenerate only from seed dispersing from unburned stands.
 
-Regeneration from cones or from seed must then pass a random draw against the species' establishment probability in the pixel's stratum, which data preparation estimates from how often the species is present in that stratum in the current-condition forest data.
+**Seed dispersal.** Each species has an effective and a maximum seed-dispersal distance: seed reaches a pixel readily within the effective distance, less often out to the maximum, and never beyond it.
+Both v2 settings replaced the species' default distances, while v3 keeps the LANDIS-II defaults (@tbl-seed-dispersal).
+Under high dispersal, conifer seed travelled up to 1,250 m (fir and spruce) or 3,000 m (pine), and under aspen dispersal up to 125 m for every conifer group.
+In v3, aspen and balsam poplar seed travels up to 5,000 m, further than under either v2 setting.
+
+| Species | v2, high dispersal | v2, aspen dispersal | v3 |
+|---|---|---|---|
+| Fir | 250 / 1,250 | 0 / 125 | 25 / 160 (balsam fir) |
+| White spruce | 100 / 1,250 | 0 / 125 | 100 / 303 |
+| Black spruce | 320 / 1,250 | 0 / 125 | 80 / 200 |
+| Tamarack | not simulated | not simulated | 50 / 200 |
+| Jack pine | 300 / 3,000 | 0 / 125 | 30 / 100 |
+| Lodgepole pine | 300 / 3,000 | 0 / 125 | 60 / 200 |
+| Aspen | 500 / 3,000 | 100 / 235 | 1,000 / 5,000 |
+| Balsam poplar | not simulated | not simulated | 1,000 / 5,000 |
+| Paper birch | 500 / 3,000 | 100 / 235 | 200 / 5,000 |
+
+: Seed-dispersal distances, effective / maximum (m). v2 simulated jack pine with lodgepole pine, and paper birch with aspen, as one group each. The v3 values for paper birch apply where it is simulated on its own. {#tbl-seed-dispersal}
+
+**Shade tolerance.** A species can establish beneath a standing canopy only where the canopy is open enough for its shade tolerance, on a scale of 1 (least tolerant) to 5 (most tolerant).
+This governs establishment between fires rather than after them, but it too changed between v2 runs.
+All six 2019 runs, Manning included, saved shade tolerances of 4 for fir, 3 for white spruce and 4 for black spruce.
+From 2020, the v2 code set them one class lower, at 3, 2 and 3, and v3 uses the same values.
+The pine and deciduous groups had tolerance 1 in v2, as pines, aspen and balsam poplar have in v3; paper birch has 2 where v3 simulates it on its own.
+
+**Establishment probability.** Regeneration from cones or from seed must also pass a random draw against the species' establishment probability in the pixel's stratum, which data preparation estimates from how often the species is present in that stratum in the current-condition forest data.
 Resprouting does not depend on it.
+Data preparation also multiplies each species' establishment probability by one minus half its resprouting probability, because part of a resprouting species' presence in the forest data is credited to resprouting rather than to seed.
+In v3 this leaves the conifers' establishment probabilities unchanged, as they do not resprout, and lowers aspen's and balsam poplar's (resprouting probability 0.9) to 0.55 of their unscaled values, and paper birch's (0.5) to 0.75.
+In the v2 runs that forced resprouting, every species group had resprouting probability 1 when its establishment probabilities were estimated, so the rule halved them all, conifers included.
+The five 2019 runs with aspen dispersal saved an establishment probability of 1 for every species group in every ecoregion.
 
 Since October 2026, v3 simulates a species on its own wherever it holds at least 1% of a study area's tree cover (see `LandWeb_preamble` below), so each such species has its own establishment probability rather than its group's.
 A species that is uncommon in a stratum gets a low one, and after a fire it regenerates from cones in only a small share of the pixels where it burned.
