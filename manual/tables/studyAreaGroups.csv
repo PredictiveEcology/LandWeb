@@ -1,0 +1,19 @@
+"id","group","province","n_members","members","area_km2","mpix"
+1,"BigTroutLake","ON",2,"ON_Kenogami, ON_Ogoki",10018,0.17
+2,"CentralCanadianRockyMountains","BC",3,"DawsonCreek_TSA, Mackenzie_TSA, PrinceGeo_TSA",52696,0.92
+3,"ChurchillRiverUpland","MB/SK",3,"MB_FML2, SK_NorthCentral, SK_NorthEast",106440,1.85
+4,"ClearHillsUpland","AB/BC",3,"FortStJohn_TSA, Manning, Mercer_W",62549,1.09
+5,"HayRiverLowland","AB/NT",2,"NT_FtProvidence, Tolko_Norbord_LC",40925,0.71
+6,"InterlakePlain","MB",1,"MB_FML3",25400,0.44
+7,"LacSeulUpland","ON",6,"ON_Caribou, ON_LacSeul, ON_RedLake, ON_TroutLake, ON_WhiskeyJack, ON_Whitefeather",51936,0.9
+8,"LakeoftheWoods","ON",5,"ON_BoundaryWtrs, ON_Dryden, ON_EnglishRiver, ON_Kenora, ON_Wabigoon",30746,0.53
+9,"MidBorealLowland","SK",1,"SK_PasquiaPorc",19463,0.34
+10,"MidBorealUplands","AB/SK",7,"SK_BronsonGreen, SK_Glaslyn, SK_MeadowLake, SK_PrinceAlbert, Tolko_HP, Tolko_Vand_WF_SL, Vanderwell",62474,1.08
+11,"NorthernAlbertaUplands","BC",1,"FortNelson_TSA",76645,1.33
+12,"NorthernContinentalDivide","AB/BC",3,"Cranbrook_TSA, Crowsnest, SprayLake",12750,0.22
+13,"PeaceLowland","AB",1,"Mercer_E",16260,0.28
+14,"SlaveRiverLowland","NT",1,"NT_FtResolution",7479,0.13
+15,"WabascaLowland","AB",1,"AlPac",61010,1.06
+16,"WesternAlbertaUpland","AB",10,"ANC, BlueRidge, Canfor, CanforWhitecourt, MillarWestern, Sundre, WeyCo_GrandePr, WeyCo_Pembina, WF_Edson, WF_Hinton",64284,1.12
+17,"WesternBoreal","AB",1,"WF_Tolko",2363,0.04
+18,"WesternContinentalRanges","BC",3,"Golden_TSA, Invermere_TSA, RobsonValley_TSA",22840,0.4

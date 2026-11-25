@@ -11,22 +11,22 @@ Parks and other protected areas are not reported: they lie outside the forest te
 
 ## Reports
 
-Report 05 is built for every study area in every run.
-The other reports cover the whole LandWeb area; the pipeline builds them only when the extended analyses are turned on (`LANDWEB_EXTENDED_ANALYSES=TRUE`, see `_local.R`).
+Report 05 is built for every study area in every run, and rendered to `outputs/<studyArea>/reports/05-<studyArea>.pdf`.
+The other reports cover the whole LandWeb area and are rendered to `outputs/_reports/`; the pipeline builds them only when the extended analyses are turned on (`LANDWEB_EXTENDED_ANALYSES=TRUE`, see `_local.R`).
 Every report is also copied into `reports/pdf/`, which is tracked by git.
 
 Table: (\#tab:reports) The LandWeb v3 reports.
 
-| Report | Content | Rendered to |
-|:-----------|:------------------------------------------------------|:---------------------------------------|
-| 00 Overview | what LandWeb is, the v3 changes at a glance, the study areas and reporting polygons, and how to read the reports | `outputs/_reports/` |
-| 01 Study-area vegetation | species composition from SCANFI, and the change of initial conditions from the v2 *k*NN maps to SCANFI | `outputs/_reports/` |
-| 02 Fire-model inputs | the long-term historic fire cycle map used by LandMine, and its v10 update | `outputs/_reports/` |
-| 03 Code and module changes | what changed from v2 to v3, and why | `outputs/_reports/` |
-| 04 Output differences | v2 and v3 results compared, tenure by tenure (in progress) | `outputs/_reports/` |
-| 05 Study area report | the natural range of variation of each tenure in one study area, against its current condition | `outputs/<studyArea>/reports/05-<studyArea>.pdf` |
-| 06 Provenance | the input data, their sources and versions, and how a run can be reproduced | `outputs/_reports/` |
-| 07 Best-practices alignment | how LandWeb follows good practice for reproducible, updatable modelling and natural range of variation analysis | `outputs/_reports/` |
+| Report | Content |
+|-------:|:----------------------------------------------------------------------------------|
+| 00 | **Overview:** what LandWeb is, the v3 changes at a glance, the study areas and reporting polygons, and how to read the reports |
+| 01 | **Study-area vegetation:** species composition from SCANFI, and the change of initial conditions from the v2 *k*NN maps to SCANFI |
+| 02 | **Fire-model inputs:** the long-term historic fire cycle map used by LandMine, and its v10 update |
+| 03 | **Code and module changes:** what changed from v2 to v3, and why |
+| 04 | **Output differences:** v2 and v3 results compared, tenure by tenure (in progress) |
+| 05 | **Study area report:** the natural range of variation of each tenure in one study area, against its current condition |
+| 06 | **Provenance:** the input data, their sources and versions, and how a run can be reproduced |
+| 07 | **Best-practices alignment:** how LandWeb follows good practice for reproducible, updatable modelling and natural range of variation analysis |
 
 ## Output files
 
@@ -37,24 +37,29 @@ Each stage's figures are in a `figures/` directory within its own directory.
 The simulations save their maps at year 0, which is the current condition, and every 50 years from year 700 to year 1000 (the summary period).
 The natural range of variation is summarised over the replicates and the years of the summary period.
 
-Table: (\#tab:output-files) Where LandWeb v3 writes its outputs. `<studyArea>` is a study area name (see [Study areas]) and `NN` a replicate number.
+Table: (\#tab:output-files) Outputs of each study area, in `outputs/<studyArea>/`. `<studyArea>` is a study area name (see [Study areas]) and `NN` a replicate number.
 
 | Directory | Contents |
-|:-----------------------------------------|:------------------------------------------------------|
-| `outputs/<studyArea>/preamble/` | study area boundaries, land cover, stand age, fire return intervals and flammability |
-| `outputs/<studyArea>/speciesData/` | species cover layers from SCANFI |
-| `outputs/<studyArea>/dataPrep/` | initial biomass, stand age and species layers, and the ecological strata used to estimate species parameters |
-| `outputs/<studyArea>/mainSim/repNN/` | one replicate: maps of time since fire, stand age, vegetation type and area burned, the cohort data behind them, fire sizes, and the LandMine fire-regime diagnostics |
-| `outputs/<studyArea>/mainSim/` | fire summaries across replicates: fire sizes (`burnSummaries_fireSizes_allReps.csv`) and maps of the mean annual burn rate, simulated and historic (`meanAnnualCumulBurnMap.tif`, `meanAnnualCumulBurnMapHistoric.tif`) |
-| `outputs/<studyArea>/postprocess/` | natural range of variation summaries, as tables (`csv/`) and figures (`figures/`): landscape metrics (`lm/`), patch metrics (`pm/`), and leading vegetation cover and large patches (`boxplots/`, `histograms/`), each by reporting polygon |
-| `outputs/<studyArea>/postprocess/_aggregates/` | the per-replicate values behind those summaries (Parquet files) |
-| `outputs/<studyArea>/reports/` | the study area report (report 05), and its figures as PNG files |
-| `outputs/<studyArea>/logs/` | one log per stage and replicate |
-| `outputs/_factorial/` | the table of simulated growth for combinations of species traits, built once for all study areas |
-| `outputs/_growthCurves/` | the growth-curve fit for every species, built once for all study areas |
-| `outputs/_extended_analyses/` | analyses of the whole LandWeb area, for the domain-wide reports |
-| `outputs/_reference/` | reference layers and figures, such as the study area map |
-| `outputs/_reports/` | the domain-wide reports |
+|:----------------------------------------|:----------------------------------------------------|
+| `preamble/` | study area boundaries, land cover, stand age, fire return intervals and flammability |
+| `speciesData/` | species cover layers from SCANFI |
+| `dataPrep/` | initial biomass, stand age and species layers, and the ecological strata used to estimate species parameters |
+| `mainSim/repNN/` | one replicate: maps of time since fire, stand age, vegetation type and area burned, the cohort data behind them, fire sizes, and the LandMine fire-regime diagnostics |
+| `mainSim/` | fire summaries across replicates: fire sizes (`burnSummaries_fireSizes_allReps.csv`) and maps of the mean annual burn rate, simulated and historic (`meanAnnualCumulBurnMap.tif`, `meanAnnualCumulBurnMapHistoric.tif`) |
+| `postprocess/` | natural range of variation summaries, as tables (`csv/`) and figures (`figures/`): landscape metrics (`lm/`), patch metrics (`pm/`), and leading vegetation cover and large patches (`boxplots/`, `histograms/`), each by reporting polygon |
+| `postprocess/_aggregates/` | the per-replicate values behind those summaries (Parquet files) |
+| `reports/` | the study area report (report 05), and its figures as PNG files |
+| `logs/` | one log per stage and replicate |
+
+Table: (\#tab:output-shared) Outputs shared by all study areas, in `outputs/`.
+
+| Directory | Contents |
+|:----------------------------------------|:----------------------------------------------------|
+| `_factorial/` | the table of simulated growth for combinations of species traits, built once for all study areas |
+| `_growthCurves/` | the growth-curve fit for every species, built once for all study areas |
+| `_extended_analyses/` | analyses of the whole LandWeb area, for the domain-wide reports |
+| `_reference/` | reference layers and figures, such as the study area map |
+| `_reports/` | the domain-wide reports |
 
 The `outputs/` and `logs/` directories are not tracked by git.
 [Outputs and logs] describes the logs.

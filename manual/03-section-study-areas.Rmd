@@ -43,37 +43,46 @@ The ecoregion grouping was kept.
 
 ## The groups
 
-```{r sa-groups-map, eval = TRUE, echo = FALSE, fig.align = "center", fig.cap = "LandWeb v3 study areas. Each bold outline is one study area, the union of its member forest tenures, whose boundaries are drawn within it. Each study area has its own colour and hatching, and neighbouring study areas always differ in colour; the numbers match Table \\@ref(tab:sa-groups). Provinces and the ecoregions the study areas are named for (dashed) are shown for context.", out.width = "100%"}
+(ref:sa-groups-map-cap) LandWeb v3 study areas. Each bold outline is one study area, the union of its member forest tenures, whose boundaries are drawn within it. Each study area has its own colour and hatching, and neighbouring study areas always differ in colour; the numbers match Table \@ref(tab:sa-groups). Provinces and the ecoregions the study areas are named for (dashed) are shown for context.
+
+```{r sa-groups-map, eval = TRUE, echo = FALSE, fig.align = "center", fig.cap = "(ref:sa-groups-map-cap)", out.width = "100%"}
 ## copy of outputs/_reference/studyAreaGroups_report.png, made by scripts/make_sa_reference.R
 ## (outputs/ is not available to the manual build)
 knitr::include_graphics(Require::normPath(c("figures/studyAreaGroups.png")))
 ```
 
-The 18 study areas hold 54 tenures in British Columbia, Alberta, Saskatchewan, Manitoba, Ontario and the Northwest Territories, covering 726,278 km^2^ in all.
-They range from 2,363 km^2^ (WesternBoreal) to 106,440 km^2^ (ChurchillRiverUpland), so the time and memory a run needs vary accordingly.
+```{r sa-groups-data, include = FALSE}
+## copy of outputs/_reference/studyAreaGroups.csv, written by scripts/make_sa_reference.R
+## (outputs/ is not available to the manual build)
+saGroups <- utils::read.csv(file.path("tables", "studyAreaGroups.csv"))
+saSmall <- saGroups[which.min(saGroups$area_km2), ]
+saLarge <- saGroups[which.max(saGroups$area_km2), ]
+km2 <- function(x) format(x, big.mark = ",")
+```
 
-Table: (\#tab:sa-groups) LandWeb v3 study areas and their member forest tenures, by the short names used in the reports. Provinces: AB Alberta, BC British Columbia, MB Manitoba, NT Northwest Territories, ON Ontario, SK Saskatchewan.
+The `r nrow(saGroups)` study areas hold `r sum(saGroups$n_members)` tenures in British Columbia, Alberta, Saskatchewan, Manitoba, Ontario and the Northwest Territories, covering `r km2(sum(saGroups$area_km2))` km^2^ in all.
+They range from `r km2(saSmall$area_km2)` km^2^ (`r saSmall$group`) to `r km2(saLarge$area_km2)` km^2^ (`r saLarge$group`), so the time and memory a run needs vary accordingly.
 
-| \# | Study area | Province | Tenures | Area (km^2^) |
-|---:|:-------------------------------|:------|:------------------------------------------------------------|--------:|
-| 1 | BigTroutLake | ON | ON_Kenogami, ON_Ogoki | 10,018 |
-| 2 | CentralCanadianRockyMountains | BC | DawsonCreek_TSA, Mackenzie_TSA, PrinceGeo_TSA | 52,696 |
-| 3 | ChurchillRiverUpland | MB/SK | MB_FML2, SK_NorthCentral, SK_NorthEast | 106,440 |
-| 4 | ClearHillsUpland | AB/BC | FortStJohn_TSA, Manning, Mercer_W | 62,549 |
-| 5 | HayRiverLowland | AB/NT | NT_FtProvidence, Tolko_Norbord_LC | 40,925 |
-| 6 | InterlakePlain | MB | MB_FML3 | 25,400 |
-| 7 | LacSeulUpland | ON | ON_Caribou, ON_LacSeul, ON_RedLake, ON_TroutLake, ON_WhiskeyJack, ON_Whitefeather | 51,936 |
-| 8 | LakeoftheWoods | ON | ON_BoundaryWtrs, ON_Dryden, ON_EnglishRiver, ON_Kenora, ON_Wabigoon | 30,746 |
-| 9 | MidBorealLowland | SK | SK_PasquiaPorc | 19,463 |
-| 10 | MidBorealUplands | AB/SK | SK_BronsonGreen, SK_Glaslyn, SK_MeadowLake, SK_PrinceAlbert, Tolko_HP, Tolko_Vand_WF_SL, Vanderwell | 62,474 |
-| 11 | NorthernAlbertaUplands | BC | FortNelson_TSA | 76,645 |
-| 12 | NorthernContinentalDivide | AB/BC | Cranbrook_TSA, Crowsnest, SprayLake | 12,750 |
-| 13 | PeaceLowland | AB | Mercer_E | 16,260 |
-| 14 | SlaveRiverLowland | NT | NT_FtResolution | 7,479 |
-| 15 | WabascaLowland | AB | AlPac | 61,010 |
-| 16 | WesternAlbertaUpland | AB | ANC, BlueRidge, Canfor, CanforWhitecourt, MillarWestern, Sundre, WeyCo_GrandePr, WeyCo_Pembina, WF_Edson, WF_Hinton | 64,284 |
-| 17 | WesternBoreal | AB | WF_Tolko | 2,363 |
-| 18 | WesternContinentalRanges | BC | Golden_TSA, Invermere_TSA, RobsonValley_TSA | 22,840 |
+```{r sa-groups, echo = FALSE}
+knitr::kable(
+  saGroups[, c("id", "group", "province", "members", "area_km2")],
+  col.names = c("#", "Study area", "Province", "Tenures", "Area (km\u00b2)"),
+  align = "rlllr",
+  format.args = list(big.mark = ","),
+  row.names = FALSE,
+  booktabs = TRUE,
+  caption = paste(
+    "LandWeb v3 study areas and their member forest tenures, by the short names used in the reports.",
+    "Provinces: AB Alberta, BC British Columbia, MB Manitoba, NT Northwest Territories,",
+    "ON Ontario, SK Saskatchewan."
+  )
+) |>
+  kableExtra::kable_styling(
+    latex_options = c("striped", "scale_down", "hold_position"),
+    font_size = if (knitr::is_latex_output()) 8 else NULL
+  ) |>
+  kableExtra::column_spec(4, width = "18em")
+```
 
 To choose which study areas a run simulates, see [Choosing study areas].
 
