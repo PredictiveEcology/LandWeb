@@ -1,3 +1,84 @@
 # Study areas {-}
 
-Lorem ipsum ... (TODO)
+LandWeb v3 is run on 18 study areas.
+Each study area is a group of forest tenures (forest management agreement areas, timber supply areas, forest management licences and units) that fall mostly in the same ecoregion, and it is named after that ecoregion, *e.g.* `WesternAlbertaUpland`.
+Each group is prepared, simulated and summarised as one unit.
+The results for each tenure come from the run of the group it belongs to, through the reporting polygons (see [Model outputs]), rather than from a run of the tenure on its own.
+v3 runs neither the whole LandWeb area at once nor each tenure on its own.
+
+## How a group is formed
+
+1. Each tenure in the current LandWeb tenure boundary layer is merged into one polygon.
+   Tenures smaller than 100 km^2^ are dropped as slivers left over from the boundary data.
+2. Each tenure is assigned to the ecoregion it shares the most area with, using the national ecoregion polygons (see [Public data sources]).
+3. The tenures assigned to the same ecoregion form a group, named after the ecoregion with spaces and punctuation removed ("Western Alberta Upland" becomes `WesternAlbertaUpland`).
+4. The group's study area is the union of its tenures.
+   A tenure can extend beyond the ecoregion it was assigned to.
+
+Membership is decided by overlap with the current boundary layer, never by tenure numbers or company names carried over from older files: tenure numbers are re-issued between versions of the boundary data, and tenures change hands.
+The grouping record also keeps each tenure's company and province, so a rerun requested by one company can be traced to the groups that hold its tenures.
+
+The grouping layer can be changed.
+A coarser layer (ecoprovinces) gives fewer, larger groups, and a finer one (ecodistricts) would split a group that proves too large to run.
+
+When a group is simulated, its study area is buffered by 20 km so that fire and seed can reach its edges from the surrounding forest, and its data preparation uses the forest data within 50 km of it.
+Results are summarised only for the group's own tenures.
+
+## Why groups, and why ecoregions
+
+The model is spatially explicit: fires spread and seeds disperse from cell to cell.
+A run has a hard edge, and no fire or seed enters from beyond it.
+A tenure simulated on its own therefore gives different results from the same ground simulated as part of a larger area, and separate runs of neighbouring tenures cannot be stitched together.
+Groups of tenures also have practical advantages over a single run of the whole LandWeb area:
+
+- **Memory.** The largest extents need more memory than a compute server has.
+- **Re-running.** Tenure boundaries and input data are updated at different times in different places.
+  In one large run, any such update would mean re-simulating everything; with groups, only the group affected is re-run.
+- **Data preparation.** Each species' maximum biomass, maximum productivity and establishment probability are estimated for each group from the forest data in and around it, rather than from a larger area.
+
+Ecoregions were chosen when each group's species growth curves were still fitted from the permanent sample plots (PSPs) in and around it.
+A small tenure on its own held too few plots for a fit, and the plots pooled for a fit had to come from similar forest, so tenures were grouped by ecoregion.
+Growth curves are now fitted once for all of LandWeb, from the National Forest Inventory plots and the British Columbia, Alberta and Saskatchewan provincial PSPs in the ecoprovinces that touch the LandWeb area, and every study area takes its species' growth traits from that single fit.
+The ecoregion grouping was kept.
+
+## The groups
+
+```{r sa-groups-map, eval = TRUE, echo = FALSE, fig.align = "center", fig.cap = "LandWeb v3 study areas. Each bold outline is one study area, the union of its member forest tenures, whose boundaries are drawn within it. Each study area has its own colour and hatching, and neighbouring study areas always differ in colour; the numbers match Table \\@ref(tab:sa-groups). Provinces and the ecoregions the study areas are named for (dashed) are shown for context.", out.width = "100%"}
+## copy of outputs/_reference/studyAreaGroups_report.png, made by scripts/make_sa_reference.R
+## (outputs/ is not available to the manual build)
+knitr::include_graphics(Require::normPath(c("figures/studyAreaGroups.png")))
+```
+
+The 18 study areas hold 54 tenures in British Columbia, Alberta, Saskatchewan, Manitoba, Ontario and the Northwest Territories, covering 726,278 km^2^ in all.
+They range from 2,363 km^2^ (WesternBoreal) to 106,440 km^2^ (ChurchillRiverUpland), so the time and memory a run needs vary accordingly.
+
+Table: (\#tab:sa-groups) LandWeb v3 study areas and their member forest tenures, by the short names used in the reports. Provinces: AB Alberta, BC British Columbia, MB Manitoba, NT Northwest Territories, ON Ontario, SK Saskatchewan.
+
+| \# | Study area | Province | Tenures | Area (km^2^) |
+|---:|:-------------------------------|:------|:------------------------------------------------------------|--------:|
+| 1 | BigTroutLake | ON | ON_Kenogami, ON_Ogoki | 10,018 |
+| 2 | CentralCanadianRockyMountains | BC | DawsonCreek_TSA, Mackenzie_TSA, PrinceGeo_TSA | 52,696 |
+| 3 | ChurchillRiverUpland | MB/SK | MB_FML2, SK_NorthCentral, SK_NorthEast | 106,440 |
+| 4 | ClearHillsUpland | AB/BC | FortStJohn_TSA, Manning, Mercer_W | 62,549 |
+| 5 | HayRiverLowland | AB/NT | NT_FtProvidence, Tolko_Norbord_LC | 40,925 |
+| 6 | InterlakePlain | MB | MB_FML3 | 25,400 |
+| 7 | LacSeulUpland | ON | ON_Caribou, ON_LacSeul, ON_RedLake, ON_TroutLake, ON_WhiskeyJack, ON_Whitefeather | 51,936 |
+| 8 | LakeoftheWoods | ON | ON_BoundaryWtrs, ON_Dryden, ON_EnglishRiver, ON_Kenora, ON_Wabigoon | 30,746 |
+| 9 | MidBorealLowland | SK | SK_PasquiaPorc | 19,463 |
+| 10 | MidBorealUplands | AB/SK | SK_BronsonGreen, SK_Glaslyn, SK_MeadowLake, SK_PrinceAlbert, Tolko_HP, Tolko_Vand_WF_SL, Vanderwell | 62,474 |
+| 11 | NorthernAlbertaUplands | BC | FortNelson_TSA | 76,645 |
+| 12 | NorthernContinentalDivide | AB/BC | Cranbrook_TSA, Crowsnest, SprayLake | 12,750 |
+| 13 | PeaceLowland | AB | Mercer_E | 16,260 |
+| 14 | SlaveRiverLowland | NT | NT_FtResolution | 7,479 |
+| 15 | WabascaLowland | AB | AlPac | 61,010 |
+| 16 | WesternAlbertaUpland | AB | ANC, BlueRidge, Canfor, CanforWhitecourt, MillarWestern, Sundre, WeyCo_GrandePr, WeyCo_Pembina, WF_Edson, WF_Hinton | 64,284 |
+| 17 | WesternBoreal | AB | WF_Tolko | 2,363 |
+| 18 | WesternContinentalRanges | BC | Golden_TSA, Invermere_TSA, RobsonValley_TSA | 22,840 |
+
+To choose which study areas a run simulates, see [Choosing study areas].
+
+## Where the grouping is recorded
+
+`LandWebUtils::studyAreaCrosswalk()` builds the grouping, one row per tenure, from the tenure boundary layer and the ecoregion polygons, and `LandWeb_preamble` uses it to make each study area's boundary.
+`scripts/make_sa_reference.R` writes the grouping as a table (`outputs/_reference/studyAreaGroups.csv`) and draws the map above, with a standalone copy that has its own legend (`outputs/_reference/studyAreaGroups.png`).
+Report 00 (`reports/pdf/00-overview.pdf`) shows the same map, with a panel per study area naming its tenures.
