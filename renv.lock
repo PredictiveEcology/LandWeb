@@ -586,42 +586,6 @@
       ],
       "Hash": "eb27346f8a098a11a57428fdc3164bc8"
     },
-    "RPostgres": {
-      "Package": "RPostgres",
-      "Version": "1.4.10",
-      "Source": "Repository",
-      "Repository": "https://packagemanager.posit.co/cran/latest",
-      "Requirements": [
-        "DBI",
-        "R",
-        "bit64",
-        "blob",
-        "cpp11",
-        "hms",
-        "lubridate",
-        "methods",
-        "withr"
-      ],
-      "Hash": "d30e8baa3875dbb0a2b9444ff2c37211"
-    },
-    "RSQLite": {
-      "Package": "RSQLite",
-      "Version": "3.53.3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "DBI",
-        "R",
-        "bit64",
-        "blob",
-        "cpp11",
-        "memoise",
-        "methods",
-        "pkgconfig",
-        "rlang"
-      ],
-      "Hash": "f252254bcfd13666b673cd465c8711ad"
-    },
     "Rcpp": {
       "Package": "Rcpp",
       "Version": "1.1.2",
@@ -1347,17 +1311,6 @@
         "stats"
       ],
       "Hash": "d39b147eb7fe9df64a1a55f72346360c"
-    },
-    "box": {
-      "Package": "box",
-      "Version": "1.2.3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "tools"
-      ],
-      "Hash": "0cc5804990054199ebe6910b73569f22"
     },
     "brew": {
       "Package": "brew",
@@ -4126,23 +4079,6 @@
         "stats"
       ],
       "Hash": "e587e7a30c737ad415590976481332e4"
-    },
-    "notifications": {
-      "Package": "notifications",
-      "Version": "0.0.1",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "notifications",
-      "RemoteUsername": "FOR-CAST",
-      "RemotePkgRef": "FOR-CAST/notifications@main",
-      "RemoteRef": "main",
-      "RemoteSha": "ff7a8b7cbad58665dfa2dbab72107a1d0d61e5c2",
-      "Requirements": [
-        "httr",
-        "yaml"
-      ],
-      "Hash": "0f04e9d4d839d9b839d5cfdc9b2e1203"
     },
     "nrvtools": {
       "Package": "nrvtools",
