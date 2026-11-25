@@ -772,11 +772,11 @@ For each, it gives the current condition, the number of simulated landscapes, an
 This report was built from the LandWeb v3 `targets` pipeline on `r rd$built`.
 
 - Report data: target `report04Data` (`build_report04_data()`, `R/report04_data.R`), from one target per study-area group, `report04Tenures_<group>` (`build_report04_sa()`).
-- Version 3 values: NRV_summary's parquet datasets under `outputs/<group>/postprocess/_aggregates/` (`lw_FMA` and `lw_FMA_CC`; metrics `leadingProp`, `leadingShare` and `totalArea_ge<size>ha`), read as report 05 reads them; area simulated as forest from the current-condition vegetation-type map in `_reportingMaps/`.
-- Version 2 values: each run's summary files under `outputs_v2/<run>/` (`boxplots/leading_<layer>.csv`, `histograms/largePatches_<layer>_<size>.csv`), and for the share of forest by vegetation type today, the run's current-condition maps (`CurrentConditionVTM`, `CurrentConditionTSF.tif`).
+- Version 3 values: NRV_summary's parquet datasets `lw_FMA` and `lw_FMA_CC`, and each tenure's sub-region datasets, in `_aggregates/` under each group's `postprocess/` directory (metrics `leadingProp`, `leadingShare` and `totalArea_ge<size>ha`), read as report 05 reads them; area simulated as forest from the current-condition vegetation-type map in `_reportingMaps/`.
+- Version 2 values: each run's summary files in its folder under `outputs_v2/`: the age-class shares in `boxplots/` (`leading_<layer>.csv`, also for the sub-region layers) and the patch areas in `histograms/` (`largePatches_<layer>_<size>.csv`); for the share of forest by vegetation type today, the run's current-condition maps (`CurrentConditionVTM`, `CurrentConditionTSF.tif`).
   Read back over each version 2 polygon, those maps reproduce the current-condition age-class shares that version 2 saved to within `r format(signif(100 * max(rd$checks$v2_cc_map_vs_saved, na.rm = TRUE), 2))` percentage points.
 - Version 2 area simulated as forest: the mean, over the simulated landscapes, of the forest pixels in each polygon; the share of forest in old-forest patches uses each version's current-condition forest (version 2: the pixels of its current-condition maps with a vegetation type and an age; version 3: the area simulated as forest, as in report 05).
-- Which version 2 run is compared for a tenure that several runs covered: the run its 2021 report used, found by matching the report's old-forest patch ranges to the runs' summary files, else the run named for the tenure's first-listed licensee (column "Why this run").
+- Which version 2 run is compared for a tenure that several runs covered: the run its 2021 report used, found by matching the report's old-forest patch ranges to the runs' summary files; where no 2021 report covers the tenure, the run the authors chose, the one with the most recent summaries (column "Why this run"; @tbl-not-compared lists the other runs).
 - Matching of version 2 polygons to version 3 tenures: `v2_v3_crosswalk()` and `v2_unmatched()` in `R/fma_boundary_change.R`; run directories by `v2_run_dir()`, which takes `<run>_highDispersal_logROS`, else `<run>_aspenDispersal_logROS`.
 - Reporting-boundary comparison: `fma_boundary_compare()` (`R/fma_boundary_change.R`), against the version 2 runs' `ml_preamble.rds`.
 - Standalone copies of the figures: `` `r report05_relpath(fig_dir)` ``.
@@ -801,8 +801,9 @@ rt <- merge(ten, when, by = "tenure", all.x = TRUE)[order(name), .(
   `Forest v3 (ha)` = ha(forest_v3_ha),
   `v2 summaries` = when
 )]
-kbl(rt, format = "latex", booktabs = TRUE, longtable = TRUE) |>
-  kable_styling(latex_options = c("hold_position", "repeat_header"), font_size = 6)
+## one page wide: scaled to the text width (a longtable cannot be)
+kbl(rt, format = "latex", booktabs = TRUE) |>
+  kable_styling(latex_options = c("hold_position", "scale_down"), font_size = 6)
 ```
 
 ```{r}
