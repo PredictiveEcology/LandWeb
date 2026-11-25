@@ -33,7 +33,10 @@ year <- if (length(args) >= 3L) as.integer(args[[3]]) else 1000L
 
 ## v3 layout: outputs/<studyArea>/mainSim/rep<NN>/<object>_year<YYYY>.<ext>, year zero-padded to 4.
 repDir <- file.path("outputs", studyArea, "mainSim", sprintf("rep%02d", repNum))
-outDir <- reproducible::checkPath(file.path("outputs", studyArea, "mainSim", "figures"), create = TRUE)
+outDir <- reproducible::checkPath(
+  file.path("outputs", studyArea, "mainSim", "figures"),
+  create = TRUE
+)
 .f <- function(object, ext) file.path(repDir, sprintf("%s_year%04d.%s", object, year, ext))
 
 stopifnot(dir.exists(repDir))
@@ -47,7 +50,9 @@ tsf <- terra::rast(.f("rstTimeSinceFire", "tif"))
 ## cohortData: NRV_summary's parquet dataset (`cohortData/year=<YYYY>/part-0.parquet`) when the run
 ## wrote one, else the older `.qs2`.
 fcd <- file.path(repDir, "cohortData", sprintf("year=%04d", year), "part-0.parquet")
-if (!file.exists(fcd)) fcd <- .f("cohortData", "qs2")
+if (!file.exists(fcd)) {
+  fcd <- .f("cohortData", "qs2")
+}
 cd <- nrvtools::read_cohort_data(fcd)
 pgm <- terra::rast(.f("pixelGroupMap", "tif"))
 
@@ -68,8 +73,10 @@ df <- df[!is.na(age)]
   p +
     geom_histogram(alpha = 0.3, position = "identity", bins = 50) +
     labs(
-      x = "stand age (years)", y = "pixel count",
-      colour = NULL, fill = NULL,
+      x = "stand age (years)",
+      y = "pixel count",
+      colour = NULL,
+      fill = NULL,
       subtitle = sprintf("%s, rep %02d, year %d", studyArea, repNum, year)
     ) +
     theme_bw()
