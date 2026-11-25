@@ -25,9 +25,16 @@ get_targets_extended_analyses <- function(local) {
   out_gpkg_lthfc <- file.path(outputs_dir, "_extended_analyses", "lthfc_change_map.gpkg")
   out_tif_lthfc <- file.path(outputs_dir, "_extended_analyses", "lthfc_diff.tif")
   out_csv_clog <- file.path(outputs_dir, "_extended_analyses", "module_changelog.csv")
-  ## tar_quarto() tracks a report's .qmd and its includes, not the project config or its filters, so
-  ## an edit to either alone would leave the PDFs stale. Name them for every report.
-  report_extra_files <- c("_quarto.yml", "reports/_filters/clearpage.lua")
+  ## tar_quarto() tracks a report's .qmd and its includes, not the project config, its filters or
+  ## the bibliography, so an edit to any of them alone would leave the PDFs stale. Name them for
+  ## every report.
+  report_extra_files <- c(
+    "_quarto.yml",
+    "reports/_filters/clearpage.lua",
+    "citations/references.bib"
+  )
+  ## reports 06 and 07 also read the input manifest at render time
+  report_manifest_files <- c(report_extra_files, "_input_manifest.json")
 
   list(
     ## The expensive scan, gated + cache-aware. Paths are baked in as literals
@@ -165,7 +172,7 @@ get_targets_extended_analyses <- function(local) {
     tarchetypes::tar_quarto(
       report_provenance,
       path = "reports/06-provenance.qmd",
-      extra_files = report_extra_files,
+      extra_files = report_manifest_files,
       deployment = "main"
     ),
     tar_target(
@@ -182,7 +189,7 @@ get_targets_extended_analyses <- function(local) {
     tarchetypes::tar_quarto(
       report_best_practices,
       path = "reports/07-best-practices.qmd",
-      extra_files = report_extra_files,
+      extra_files = report_manifest_files,
       deployment = "main"
     ),
     tar_target(
