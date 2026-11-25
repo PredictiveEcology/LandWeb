@@ -11,7 +11,7 @@ editor_options:
 :::{.rmdnote}
 **Minimum system requirements:**
 
--   Windows 10, macOS 10.13 High Sierra, or Ubuntu 20.04 LTS;
+-   Windows 10, macOS 11 Big Sur, or Ubuntu 24.04 LTS;
 -   20 GB of storage space, plus additional storage for model outputs;
 -   128 GB RAM to run the model over the full area (less for sub-areas);
 -   High-speed internet connection.
@@ -31,35 +31,62 @@ Thus, using these images are preferred over 'bare-metal' installation.
 
 Install Docker for your system following <https://docs.docker.com/get-docker/>.
 
-Next, pull the image from Docker Hub:
+The image runs LandWeb in Rstudio Server.
+It holds R at the version in `renv.lock` (R 4.6.1), the project's R packages, TeX Live and Quarto for the reports, and the LandWeb code with its submodules.
+It holds no data and no credentials.
+GitHub Actions builds it from the `rocker/geospatial` image (`.github/workflows/docker-image.yaml`) and publishes it to the GitHub Container Registry.
+
+Pull the image:
 
 ```bash
-docker pull achubaty/landweb:latest
+docker pull ghcr.io/predictiveecology/landweb:latest
 ```
 
-And launch a new container based on this image (adjusting `PASSWORD`, `memory`, and `cpus` as needed):
+`latest` is the newest build of the `main` branch, or the newest release.
+Each release also has its own tag (*e.g.*, `3.0.0`), and each monthly rebuild of `main` a dated one (`YYYY-MM-DD`).
+
+Launch a container from the image, with your `inputs/` and `outputs/` directories mounted from the host (adjust the two paths, `PASSWORD`, `memory`, and `cpus` as needed):
 
 ```bash
+INPUTS_HOST=/path/to/LandWeb/inputs
+OUTPUTS_HOST=/path/to/LandWeb/outputs
+PROJ_CONTAINER=/home/rstudio/GitHub/LandWeb
+
 docker run -d -it \
-  -e GITHUB_PAT=$(cat ${HOME}/.Renviron | grep GITHUB_PAT | cut -d '=' -f 2) \
+  -e USERID=$(id -u) \
+  -e GROUPID=$(id -g) \
   -e PASSWORD='<mySecretPassword>' \
+  -e GITHUB_PAT=$(grep GITHUB_PAT ~/.Renviron | cut -d '=' -f 2) \
   --memory=128g \
   --cpus=32 \
   -p 127.0.0.1:8080:8787 \
-  --name LandWeb \
-  achubaty/landweb:latest
+  --mount type=bind,source=$INPUTS_HOST,target=$PROJ_CONTAINER/inputs \
+  --mount type=bind,source=$OUTPUTS_HOST,target=$PROJ_CONTAINER/outputs \
+  --name landweb01 \
+  ghcr.io/predictiveecology/landweb:latest
 ```
+
+- `USERID` and `GROUPID` make the container's `rstudio` user your own user, so the files written to the mounted directories belong to you.
+- `GITHUB_PAT` is needed only to install further packages from GitHub inside the container.
 
 Once the container is running, open your web browser and go to `localhost:8080`.
-
-Log in to the Rstudio session as user `rstudio` and password `<mySecretPassword>` (change this password when launching container above).
-
-Once finished, you can stop and destroy the container:
+Log in to the Rstudio session as user `rstudio` with the password you set above.
+If the container runs on a remote machine, forward the port first:
 
 ```bash
-docker stop LandWeb
-docker rm LandWeb
+ssh <host> -L8080:localhost:8080
 ```
+
+A pipeline run inside the container downloads data as the LandWeb service account, so it needs the key file described in [Data requirements].
+
+Once finished, stop and remove the container:
+
+```bash
+docker stop landweb01
+docker rm landweb01
+```
+
+`docker/LandWeb-standalone_README.md` describes the image in more detail, including how to build it yourself.
 
 ### Bare metal installation
 
@@ -98,47 +125,31 @@ This will facilitate software updates and will handle various package dependency
 
 ##### Ubuntu Linux
 
+Install the build tools, and TeX Live for the PDF reports and manual:
+
 ```bash
 sudo apt-get update
 
 sudo apt-get -y install \
-    build-essential \
     biber \
+    build-essential \
     ccache \
     cmake \
     curl \
-    libarchive-dev \
-    libcairo2-dev \
-    libcurl4-openssl-dev \
-    libgit2-dev \
-    libglpk-dev \
-    libgmp3-dev \
-    libicu-dev \
-    libjq-dev \
-    libmagick++-dev \
-    libnode-dev \
-    libpng-dev \
-    libprotobuf-dev \
-    libprotoc-dev \
-    libssh2-1-dev \
-    libssl-dev \
-    libxml2-dev \
-    libxt-dev \
+    git \
     make \
-    p7zip-full p7zip-rar \
-    pandoc pandoc-citeproc \
-    protobuf-compiler \
+    pandoc \
     qpdf \
-    screen \
-    sysstat \
     texinfo texlive-base texlive-bibtex-extra \
     texlive-fonts-extra texlive-latex-extra texlive-xetex \
+    unzip \
     wget \
     xauth \
     xfonts-base \
-    xvfb \
-    zlib1g-dev
+    xvfb
 ```
+
+The system libraries that LandWeb's R packages need are installed once R and the code are in place (see [System libraries for R packages on Ubuntu](#sysreqs)).
 
 #### Geospatial libraries
 
@@ -164,20 +175,8 @@ brew install udunits
 
 ##### Ubuntu Linux
 
-The default Ubuntu 20.04 LTS package repositories ship older versions of the geospatial libraries we will be using, so we will need to to add some additional repositories to get the latest versions.
-
-```bash
-## add GIS repository
-sudo add-apt-repository ppa:ubuntugis-unstable/ppa
-sudo apt-get update
-```
-
-Install additional system dependencies that serve as prerequisites for running the LandWeb model in R.
-
-```{r get-sysdeps-pkgs, eval = FALSE, include = FALSE}
-## get list of apt package dependencies using e.g.,
-remotes::system_requirements("ubuntu", "20.04", "~/GitHub/PredictiveEcology/SpaDES.core")
-```
+Install the geospatial libraries from Ubuntu's own package repositories, as the project's continuous integration and Docker image do.
+Ubuntu 24.04 and later ship versions recent enough for LandWeb, so no extra repository is needed.
 
 ```bash
 sudo apt-get -y install \
@@ -185,22 +184,15 @@ sudo apt-get -y install \
     libgdal-dev \
     libgeos-dev \
     libproj-dev \
+    libsqlite3-dev \
     libudunits2-dev \
-    python3-gdal
+    pkg-config
 ```
 
-Optionally, we install `mapshaper` geospatial library which is used to speed up polygon simplification.
-
-```bash
-## mapshaper installation
-sudo apt-get remove -y libnode-dev
-
-curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-
-sudo apt install nodejs
-sudo npm install npm@latest -g
-sudo npm install -g mapshaper
-```
+:::{.rmdcaution}
+Do not add the `ubuntugis` PPA.
+It installs a newer GDAL than Ubuntu's own, and the prebuilt Linux R packages from Posit Package Manager, which are built against Ubuntu's GDAL, then fail to load (*e.g.*, "`libgdal.so.34`: cannot open shared object file").
+:::
 
 #### R and Rstudio
 
@@ -298,6 +290,43 @@ Windows users should install Rstudio *as administrator*.
 
 [^ccache]: <http://dirk.eddelbuettel.com/blog/2017/11/27/#011_faster_package_installation_one>
 
+#### Quarto
+
+The LandWeb reports (`reports/*.qmd`) are rendered with Quarto (<https://quarto.org>), including the study area report that each run builds.
+Install Quarto 1.9.38, the version the project's tests use (`.github/workflows/tests.yaml`); another version can lay out page breaks in the PDF reports differently.
+
+:::{.rmdimportant}
+**Windows**
+
+```shell
+winget install --id Posit.Quarto --version 1.9.38
+```
+
+**macOS**
+
+```zsh
+curl -LO https://github.com/quarto-dev/quarto-cli/releases/download/v1.9.38/quarto-1.9.38-macos.pkg
+sudo installer -pkg quarto-1.9.38-macos.pkg -target /
+```
+
+**Ubuntu Linux**
+
+```bash
+curl -LO https://github.com/quarto-dev/quarto-cli/releases/download/v1.9.38/quarto-1.9.38-linux-amd64.deb
+sudo apt-get install ./quarto-1.9.38-linux-amd64.deb
+```
+:::
+
+The reports are PDFs, so Quarto also needs LaTeX.
+On Ubuntu, the TeX Live packages installed above provide it.
+On Windows and macOS, install TinyTeX with Quarto:
+
+```bash
+quarto install tinytex
+```
+
+Check the installation with `quarto check`.
+
 #### Version control
 
 `git` is the version control software used throughout this project, and is required to 'checkout' specific versions of the code as well as to make changes and 'push' these changes to the model code repository.
@@ -369,25 +398,72 @@ All package code is automatically and regularly tested using cross-platform cont
 mkdir -p ~/GitHub
 cd ~/GitHub
 
-## get development branch (app and deploy are private submodules)
+## get the development branch, with its submodules
 git clone -b development --recurse-submodules \
   -j8  https://github.com/PredictiveEcology/LandWeb
 ```
 
+### Home directories on Windows {#windows-home}
+
+The paths used to set up LandWeb on Windows assume the usual Windows home directories:
+
+- R's home directory (`~` in R and Rstudio) is `C:/Users/<name>/Documents`;
+- the home directory of Git Bash and other terminals is `C:/Users/<name>`.
+
+`~/GitHub` therefore names a different directory in R than in a terminal.
+Make the clone reachable from both by creating a directory junction, in a Command Prompt window:
+
+```shell
+mklink /J C:\Users\<name>\Documents\GitHub C:\Users\<name>\GitHub
+```
+
+Paths that R reads, such as the Google service account key in [Data requirements], start from R's home directory.
+
 :::{.rmdimportant}
-Windows users should ensure the `GitHub/` directory is accessible at both `~/GitHub` and `~/Documents/GitHub` by creating a directory junction:
+**Corporate machines with OneDrive**
+
+Some corporate Windows machines move the Documents folder to OneDrive (*e.g.*, `C:/Users/<name>/OneDrive - <Company>/Documents`), and R's home directory moves with it.
+Check where yours is, from R:
+
+```r
+normalizePath("~")
+```
+
+If it is not `C:\Users\<name>\Documents`, set the environment variable `R_USER` to that folder.
+R uses `R_USER` as its home directory whenever it is set, ahead of the Documents folder, so this restores the usual setup.
+Set it as a Windows user environment variable, either in a Command Prompt or PowerShell window:
+
+```shell
+setx R_USER "C:\Users\<name>\Documents"
+```
+
+or from the Start menu, under *Edit environment variables for your account*.
+Do not set it in an `.Renviron` file: R finds `.Renviron` in its home directory, so by the time the file is read the home directory is already set.
+Create the folder if it does not exist, then restart Rstudio and any open terminals so that they pick up the new value.
+:::
+
+### System libraries for R packages on Ubuntu {#sysreqs}
+
+The R packages LandWeb uses need further system libraries.
+Derive the list from the project's lockfile (`renv.lock`) and install it, as the project's continuous integration and Docker image do (`.github/scripts/sysreqs.R`).
+The script needs the `renv` package, which is installed here into a temporary library:
 
 ```bash
-mklink /J C:\\Users\\username\\Documents\\GitHub C:\\Users\\username\\GitHub
+cd ~/GitHub/LandWeb
+mkdir -p /tmp/sysreqs-lib
+Rscript-4.6.1 --vanilla -e 'install.packages("renv", lib = "/tmp/sysreqs-lib", repos = "https://cloud.r-project.org")'
+R_LIBS=/tmp/sysreqs-lib Rscript-4.6.1 --vanilla .github/scripts/sysreqs.R renv.lock /tmp/sysreqs.txt
+
+sudo apt-get update
+xargs -a /tmp/sysreqs.txt sudo apt-get install -y --no-install-recommends
 ```
-:::
 
 ## Project directory structure
 
 Model code is organized by the following directories and summarized in the table below.
 
 :::{.rmdtip}
-It may be useful to store data in a different location, but to map this location back to the e.g., `cache/`, `inputs/`, and/or `outputs/` directories using symbolic links.
+It may be useful to store data in a different location, but to map this location back to the `inputs/` and/or `outputs/` directories using symbolic links.
 See R's `?file.link` to set these up on your machine.
 :::
 
@@ -395,8 +471,8 @@ See R's `?file.link` to set these up on your machine.
 prjDir <- SpaDES.config::findProjectPath(from_wd = FALSE)
 
 ## create these directories if they don't exist (e.g., GHA)
-file.path(prjDir, c("cache", "inputs", "outputs")) |>
-  fs::dir_create() 
+file.path(prjDir, c("inputs", "outputs")) |>
+  fs::dir_create()
 ```
 
 ```{r dir-structure, echo = FALSE, eval = TRUE}
@@ -406,12 +482,11 @@ file.path(prjDir, c("cache", "inputs", "outputs")) |>
 ## "arguments imply differing number of rows"). Unknown directories now degrade gracefully.
 local({
   descriptions <- c(
-    "R" = "additional R helper scripts",
+    "R" = "R functions used by the pipeline and reports",
     "_targets" = "`targets` pipeline store (metadata + cached objects)",
-    "cache" = "all simulation cache files stored here",
     "citations" = "bibliographies and citation styles",
-    "docker" = "Dockerfiles, scripts, and documentation",
-    "docs" = "rendered model and app documentation",
+    "docker" = "Dockerfile and documentation",
+    "docs" = "rendered manual",
     "inputs" = "all model data inputs stored here",
     "logs" = "run and worker logs",
     "manual" = "raw files for generating documentation manual",
@@ -419,10 +494,10 @@ local({
     "outputs" = "all per-run model outputs stored here",
     "outputs_v2" = "archived LandWeb v2 outputs (reference for v2-vs-v3 comparisons)",
     "packages" = "package code (git submodules)",
-    "regmod" = "regression model helpers",
     "renv" = "project package management directory",
     "reports" = "automated Quarto reports",
-    "scripts" = "standalone utility scripts"
+    "scripts" = "standalone utility scripts",
+    "tests" = "tests of the project's R functions and reports"
   )
   dirs <- fs::dir_ls(prjDir, recurse = 0, type = c("directory", "symlink")) |> fs::path_file()
   data.frame(
@@ -470,6 +545,7 @@ Pipeline runs (`targets::tar_make()` and its workers) download as the LandWeb Go
 Its key file is never kept in the repository.
 On every machine that runs the pipeline, store it as `~/.config/landweb/drive-sa.json`, readable only by you (`chmod 700 ~/.config/landweb` and `chmod 600` on the file).
 Then create an untracked `LandWeb.Renviron` in the project root containing the single line `GOOGLEDRIVE_AUTH=~/.config/landweb/drive-sa.json`.
+On Windows, `~` in this path is R's home directory (see [Home directories on Windows](#windows-home)).
 At startup, `.Rprofile` ignores Google key paths set anywhere else (such as `~/.Renviron`), reads `LandWeb.Renviron`, and refuses a key that is not from the LandWeb Google Cloud project.
 Interactive sessions use your own Google login.
 

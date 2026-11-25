@@ -66,9 +66,9 @@ Detailed descriptions of these sources are provided in the relevant sections of 
 - LANDIS-II species traits: <https://github.com/dcyr/LANDIS-II_IA_generalUseFiles>;
 - LANDIS-II parameterization tables and data: <https://github.com/LANDIS-II-Foundation/Extensions-Succession-Archive/master/biomass-succession-archive/trunk/tests/v6.0-2.0/>;
 - Canada biomass, stand volume, and species data [from @BeaudoinEtAl2014]: <http://tree.pfc.forestry.ca>;
-- National ecodistrict polygons: <http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip>;
-- National ecoregion polygons: <http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip>;
-- National ecozone polygons: <http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip>.
+- National ecodistrict polygons: <https://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip>;
+- National ecoregion polygons: <https://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip>;
+- National ecozone polygons: <https://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip>.
 
 #### Proprietary data sources
 

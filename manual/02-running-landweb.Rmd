@@ -98,14 +98,6 @@ Adding a study area does not rebuild them.
 
 **NOTE:** The first time the model is run, it will automatically download additional data and may install additional R packages, which can take some time to complete.
 
-:::{.rmdcaution}
-Due to a server configuration problem, the following national ecolocation polygons should be downloaded manually to the `inputs/` directory:
-
-- **ecodistricts**: [ecodistrict_shp.zip](http://sis.agr.gc.ca/cansis/nsdb/ecostrat/district/ecodistrict_shp.zip)
-- **ecoregions**: [ecoregion_shp.zip](http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip)
-- **ecozones**: [ecozone_shp.zip](http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip)
-:::
-
 :::{.rmdimportant}
 Pipeline runs download from Google Drive as the LandWeb service account.
 Set up its key file on every machine that runs the pipeline before the first run (see [Data requirements]).
