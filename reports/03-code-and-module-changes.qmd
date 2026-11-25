@@ -173,7 +173,7 @@ Checked against areas computed exactly from the source polygons, the units' area
 # SpaDES module changes
 
 Each module is documented below with a high-level summary followed by grouped detail, reconstructed from its git history; commit magnitudes and current pins are in the Appendix.
-The recurring cross-cutting themes are **SCANFI data adoption** (replacing kNN/Beaudoin and NTEMS/Pickell inputs), the **qs2** serialization switch, **terra** migration, and adoption of **FOR-CAST forks** of the `Biomass_*` modules (pinned, self-backported).
+The recurring cross-cutting themes are **SCANFI data adoption** (replacing kNN/Beaudoin [@BeaudoinEtAl2014] and NTEMS/Pickell [@Pickell:2016] inputs), the **qs2** serialization switch, **terra** migration, and adoption of **FOR-CAST forks** of the `Biomass_*` modules (pinned, self-backported).
 Modules are ordered by pipeline stage: data preparation, simulation, post-processing, then the retiring modules.
 
 ## LandWeb_preamble
@@ -494,7 +494,7 @@ Its year-0 value is dataPrep's stand-age map (the current-condition composite), 
 - Accepts differently-named fireSense objects (`flammableRTM` for `flammableMap`, `nonForest_timeSinceDisturbance` for `rstTimeSinceFire`); declares `loadOrder = list(after = c("fireSense", "LandMine", "scfmSpread"))` (2026-03).
 
 ### NFDB retrieval workaround and cumulative burn map
-- Introduced the historical cumulative (mean-annual) burn map from NFDB fire polygons (2023).
+- Introduced the historical cumulative (mean-annual) burn map from NFDB fire polygons [@nfdb-2021] (2023).
 - Replaced the failing `prepInputs()` NFDB fetch with a manual `download.file` + `archive::archive_extract`, dropping invalid geometries via `terra::is.valid` (avoiding slow `makeValid`) and combining via `tidyterra::bind_spat_rows`; added `archive`/`purrr` to `reqdPkgs` (2026-03).
 
 ## LandWeb_summary
@@ -722,6 +722,7 @@ Three v2 post-processing modules are retired in v3, consolidated into one module
 - `LandWeb_summary` + `timeSinceFire` + `LandWeb_output` are retired into **`NRV_summary`** (the module) and **`nrvtools`** (the reusable analytics + plotting package).
 - Time since fire is tracked during the simulation by burnSummaries rather than by a dedicated module.
 - The reporting-polygon build moved out of `LandWeb_preamble` into a data-driven builder (`LandWebUtils::buildReportingPolygons()`), feeding the summaries stage.
+- `HSI_Caribou_MB`, the v2 caribou habitat module for Manitoba, is retired without a replacement; it remains available from its own repository (see [above](#hsi_caribou_mb)).
 
 The `LandWeb_full` study area is also dropped: v3 simulates ecoregion-based study-area groups and reports per tenure, rather than maintaining a single expensive full-extent run.
 
