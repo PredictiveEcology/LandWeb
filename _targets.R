@@ -482,7 +482,9 @@ study_area_targets <- function(sa) {
     ## timeSinceFire; NRV_summary generates the vegTypeMap/standAgeMap per-year dumps ->
     ## supersedes LandWeb_output. So both retired modules drop out of the module set below.
     burnSummaries = list(mode = "single", .useCache = FALSE),
-    NRV_summary = list(mode = "single", .useCache = FALSE)
+    ## recordAnnualSeries: one row of landscape scalars per simulated year (annualSeries.csv),
+    ## for the "autocorr" analysis in the summaries; adds ~8% to a replicate (user, 2026-11-25).
+    NRV_summary = list(mode = "single", recordAnnualSeries = TRUE, .useCache = FALSE)
   )
 
   main_targets <- list(
@@ -895,7 +897,7 @@ study_area_targets <- function(sa) {
           ## target. Pairs with LANDWEB_REUSE_NRV_AGGREGATES for a fast, focused figure re-render.
           postprocessEvents = local({
             e <- Sys.getenv("LANDWEB_POSTPROCESS_EVENTS", "")
-            if (nzchar(e)) trimws(strsplit(e, ",")[[1L]]) else c("lm", "pm", "lw", "am")
+            if (nzchar(e)) trimws(strsplit(e, ",")[[1L]]) else c("lm", "pm", "lw", "am", "autocorr")
           }),
           ## lw large-patch connectivity: 4 = rook (4-connected, matches v2's GDAL polygonize);
           ## 8 = queen (8-connected) is a v3-only departure. See NRV_summary `patchDirections`.
