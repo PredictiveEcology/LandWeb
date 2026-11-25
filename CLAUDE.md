@@ -25,7 +25,8 @@ outputs/
       figures/{lm,pm,boxplots,histograms}/
     reports/            # rendered per-study-area Quarto reports (04, 05)
     upload/             # the files upload_<sa> sends to Drive v3/<studyArea>/ (gated, LANDWEB_UPLOAD):
-                        #   report 05, figures loose + zipped, tables zip, burn CSVs, RUN_INFO.md
+                        #   report 05, figures loose + zipped, stand-age GIF, tables zip, burn
+                        #   CSVs, RUN_INFO.md
   _factorial/           # SHARED, study-area-INDEPENDENT — DO NOT nest per study area
   _growthCurves/        # SHARED, study-area-INDEPENDENT growth-curve fit (every species, once)
     resamples/r001/ …   #   the fit repeated on bootstrap samples of plots (uncertainty)

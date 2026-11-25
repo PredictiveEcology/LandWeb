@@ -9,8 +9,9 @@ source(file.path(root, "R", "upload_bundle.R"), local = TRUE)
 
 ## A fake run of study area "X" below `dir`: what report 05, NRV_summary and burnSummaries write,
 ## plus what must stay local (aggregates, reporting maps, burn rasters, logs). Returns the values
-## of the three upstream targets.
-fake_run <- function(dir) {
+## of the three upstream targets. `animation = FALSE` for a run whose NRV_summary made no stand-age
+## animation.
+fake_run <- function(dir, animation = TRUE) {
   put <- function(path, text = path) {
     f <- file.path(dir, path)
     dir.create(dirname(f), recursive = TRUE, showWarnings = FALSE)
@@ -29,7 +30,8 @@ fake_run <- function(dir) {
     put("outputs/X/postprocess/figures/lm/Layer One/per-metric/core.png"),
     put("outputs/X/postprocess/figures/pm/Layer One/ca.png"),
     put("outputs/X/postprocess/_aggregates/lm_LayerOne/replicate=rep01/part-0.parquet"),
-    put("outputs/X/postprocess/_reportingMaps/rep01/vegTypeMap_year0000.tif")
+    put("outputs/X/postprocess/_reportingMaps/rep01/vegTypeMap_year0000.tif"),
+    if (animation) put("outputs/X/mainSim/figures/NRV_summary/standAge_animation.gif")
   )
   burn <- c(
     put("outputs/X/mainSim/burnSummaries_fireSizes_allReps.csv"),
@@ -66,6 +68,7 @@ expected <- c(
   "figures/lm/Layer One/area.png",
   "figures/lm/Layer One/per-metric/core.png",
   "figures/pm/Layer One/ca.png",
+  "figures/standAge_animation.gif",
   "figures/studyArea.png"
 )
 
@@ -132,6 +135,29 @@ test_that("RUN_INFO.md says which run the files come from, and names no host or 
   expect_false(grepl(normalizePath("~"), all_txt, fixed = TRUE))
   expect_false(grepl(normalizePath(dir), all_txt, fixed = TRUE))
   expect_false(grepl("sessionInfo|R_LIBS|[.]libPaths", all_txt))
+})
+
+test_that("the stand-age animation goes under figures/ when the run made one", {
+  dir <- withr::local_tempdir()
+  withr::local_dir(dir)
+  run <- fake_run(dir)
+  bundle(run, project_dir = dir)
+  expect_identical(
+    unname(tools::md5sum("outputs/X/upload/figures/standAge_animation.gif")),
+    unname(tools::md5sum("outputs/X/mainSim/figures/NRV_summary/standAge_animation.gif"))
+  )
+  info <- readLines("outputs/X/upload/RUN_INFO.md")
+  expect_true(any(grepl("`figures/standAge_animation.gif`: stand-age classes", info, fixed = TRUE)))
+
+  ## without it, the bundle is the same less the animation
+  dir2 <- withr::local_tempdir()
+  withr::local_dir(dir2)
+  files <- bundle(fake_run(dir2, animation = FALSE), project_dir = dir2)
+  expect_setequal(
+    substring(files, nchar("outputs/X/upload/") + 1L),
+    setdiff(expected, "figures/standAge_animation.gif")
+  )
+  expect_false(any(grepl("animation", readLines("outputs/X/upload/RUN_INFO.md"))))
 })
 
 test_that("the bundle directory must be named upload, and bundle paths must be unique", {

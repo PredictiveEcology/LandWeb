@@ -9,7 +9,8 @@
 ##   burnSummaries_*.csv              burnSummaries' tables
 ##   <sa>_tables.zip                  NRV_summary's tables (postprocess/csv/), as csv/...
 ##   <sa>_figures_<kind>.zip          NRV_summary's figures (postprocess/figures/<kind>/), as <kind>/...
-##   figures/                         report 05's figures and the burn-summary figures
+##   figures/                         report 05's figures, the burn-summary figures and
+##                                    NRV_summary's stand-age animation (a GIF), when the run made one
 ##   figures/<kind>/...               NRV_summary's figures, loose, as in the zips
 ##
 ## Loose files are hard links to the run's own files where the file system allows (the bundle is on
@@ -20,13 +21,15 @@
 #'
 #' @param study_area Study-area group name.
 #' @param report Value of `report05_<sa>`: the report PDF and its figure PNGs.
-#' @param nrv_files Value of `summaries_nrv_<sa>_files`: every file NRV_summary wrote.
+#' @param nrv_files Value of `summaries_nrv_<sa>_files`: every file NRV_summary wrote, the
+#'   stand-age animation (`<nrv_fig_dir>/*.gif`) among them when its "am" event ran.
 #' @param burn_files Value of `summaries_burn_<sa>_files`: the files burnSummaries saved. Its
 #'   figures are not among them, so they are listed from `burn_fig_dir`.
 #' @param n_reps,sim_end Replicates and simulated years of the run, for RUN_INFO.md.
 #' @param out_dir The bundle directory. Removed and rebuilt, so it must be named `upload`.
 #' @param postprocess_dir NRV_summary's output directory.
 #' @param burn_fig_dir burnSummaries' figure directory.
+#' @param nrv_fig_dir NRV_summary's figure directory in mode "multi", which holds the animation.
 #' @param project_dir The LandWeb checkout, for the commits in RUN_INFO.md.
 #'
 #' @return Paths of the bundle's files, sorted.
@@ -40,6 +43,7 @@ build_upload_bundle <- function(
   out_dir = file.path("outputs", study_area, "upload"),
   postprocess_dir = file.path("outputs", study_area, "postprocess"),
   burn_fig_dir = file.path("outputs", study_area, "mainSim", "figures", "burnSummaries"),
+  nrv_fig_dir = file.path("outputs", study_area, "mainSim", "figures", "NRV_summary"),
   project_dir = "."
 ) {
   if (!identical(basename(out_dir), "upload")) {
@@ -56,6 +60,8 @@ build_upload_bundle <- function(
   burn_csvs <- sort(burn_files[grepl("^burnSummaries_.*[.]csv$", basename(burn_files))])
   burn_pngs <- sort(list.files(burn_fig_dir, pattern = "[.]png$", full.names = TRUE))
   report_pngs <- sort(report[grepl("[.]png$", report)])
+  ## none when the run left out the animation event ("am")
+  nrv_gifs <- sort(nrv_files[dirname(nrv_files) == nrv_fig_dir & grepl("[.]gif$", nrv_files)])
 
   ## loose files: source -> path in the bundle
   fig_rel <- substring(nrv_figs, nchar(fig_prefix) + 1L) ## <kind>/...
@@ -64,6 +70,7 @@ build_upload_bundle <- function(
     stats::setNames(burn_csvs, basename(burn_csvs)),
     stats::setNames(report_pngs, file.path("figures", basename(report_pngs))),
     stats::setNames(burn_pngs, file.path("figures", basename(burn_pngs))),
+    stats::setNames(nrv_gifs, file.path("figures", basename(nrv_gifs))),
     stats::setNames(nrv_figs, file.path("figures", fig_rel))
   )
   dup <- unique(names(loose)[duplicated(names(loose))])
@@ -114,7 +121,8 @@ build_upload_bundle <- function(
     sim_end = sim_end,
     outputs = c(nrv_files, burn_files),
     report = pdf,
-    project_dir = project_dir
+    project_dir = project_dir,
+    animations = file.path("figures", basename(nrv_gifs))
   )
   writeLines(format_run_info(info), file.path(out_dir, "RUN_INFO.md"), useBytes = TRUE)
 
@@ -152,6 +160,7 @@ upload_zip <- function(zipfile, files, root, compression_level) {
 #' @param report The report PDF; its modification time dates the report.
 #' @param project_dir The LandWeb checkout.
 #' @param built When the bundle was built.
+#' @param animations Bundle paths of the stand-age animations, if any.
 #'
 #' @return A list for [format_run_info()].
 upload_run_info <- function(
@@ -161,7 +170,8 @@ upload_run_info <- function(
   outputs,
   report,
   project_dir = ".",
-  built = Sys.time()
+  built = Sys.time(),
+  animations = character()
 ) {
   git <- function(args) {
     out <- tryCatch(
@@ -192,7 +202,8 @@ upload_run_info <- function(
     commit = if (length(head)) head[[1L]] else NA_character_,
     branch = if (length(branch)) branch[[1L]] else NA_character_,
     renv_lock_md5 = if (file.exists(lock)) unname(tools::md5sum(lock)) else NA_character_,
-    components = parse_submodule_status(git(c("submodule", "status")))
+    components = parse_submodule_status(git(c("submodule", "status"))),
+    animations = animations
   )
 }
 
@@ -267,6 +278,13 @@ format_run_info <- function(info) {
     "",
     paste0("- `05-", sa, ".pdf`: the study-area report."),
     "- `figures/`: the report's figures and the fire-summary figures.",
+    if (length(info$animations)) {
+      paste0(
+        "- `",
+        info$animations,
+        "`: stand-age classes through the simulated years, in the first replicate."
+      )
+    },
     paste0(
       "- `figures/<kind>/`: the natural-range-of-variation figures by kind ",
       "(`lm` landscape metrics, `pm` patch metrics, `boxplots` leading vegetation types by age ",

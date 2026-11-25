@@ -61,12 +61,26 @@ test_that("dry and TRUE differ only in the uploads' dry_run, so the bundles are 
   expect_match(command_of(real$upload_reports), "dry_run = FALSE", fixed = TRUE)
 })
 
+test_that("each uploaded report is a _pub target the extended-analyses gate defines", {
+  defined <- unlist(lapply(
+    file.path(root, "R", c("targets_extended_analyses.R", "targets_report04.R")),
+    function(f) all.names(parse(f))
+  ))
+  expect_true(all(upload_report_names %in% defined))
+  expect_true(all(endsWith(upload_report_names, "_pub")))
+})
+
 test_that("the domain-wide reports go to the existing _REPORTS folder, only with the extended analyses", {
   off <- flat(upload_targets("TRUE", "X", extended = FALSE, n_reps = 50L, sim_end = 1000L))
   expect_false("upload_reports" %in% vapply(off, name_of, character(1)))
   t <- upload_reports_target(dry_run = FALSE)
   expect_identical(t$settings$deployment, "main")
   expect_true(all(upload_report_names %in% all.names(t$command$expr)))
+  ## reports 00-04, 06 and 07
+  expect_length(upload_report_names, 7L)
+  expect_true(all(
+    c("report_output_differences_pub", "report_best_practices_pub") %in% upload_report_names
+  ))
   expect_match(command_of(t), "create_folders = FALSE", fixed = TRUE)
   expect_match(command_of(t), "path = \"_REPORTS\"", fixed = TRUE)
   expect_match(command_of(t), landweb_drive$drive, fixed = TRUE)

@@ -11,8 +11,9 @@
 ##
 ## Per study-area group `sa`, branched statically as report 05 is:
 ##   uploadBundle_<sa>  build_upload_bundle() (R/upload_bundle.R): stages in outputs/<sa>/upload/
-##                      exactly the files to send (report 05, figures loose and zipped, tables,
-##                      burn summaries, RUN_INFO.md). On a worker; format = "file".
+##                      exactly the files to send (report 05, figures loose and zipped, the
+##                      stand-age animation, tables, burn summaries, RUN_INFO.md). On a worker;
+##                      format = "file".
 ##   upload_<sa>        drive_sync() (R/drive_sync.R) of the bundle to v3/<sa>/, updated in place.
 ##                      On the main process (deployment = "main"), so uploads run one at a time.
 ##                      Returns a manifest: each file's action, md5 and Drive id.
@@ -35,13 +36,16 @@ landweb_drive <- list(
   reports = "_REPORTS"
 )
 
-## the domain-wide reports uploaded: the _pub targets, whose values are the PDFs in reports/pdf/
+## the domain-wide reports uploaded (00-04, 06, 07): the _pub targets, whose values are the PDFs in
+## reports/pdf/. All are defined under the extended-analyses gate, as upload_reports is.
 upload_report_names <- c(
   "report_overview_pub",
   "report_study_area_vegetation_pub",
   "report_fire_model_inputs_pub",
   "report_code_module_changes_pub",
-  "report_provenance_pub"
+  "report_output_differences_pub",
+  "report_provenance_pub",
+  "report_best_practices_pub"
 )
 
 #' The upload gate's value
