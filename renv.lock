@@ -4146,14 +4146,14 @@
     },
     "nrvtools": {
       "Package": "nrvtools",
-      "Version": "0.3.4.9003",
+      "Version": "0.4.0",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "FOR-CAST",
       "RemoteRepo": "nrvtools",
       "RemoteRef": "main",
-      "RemoteSha": "0cfba68c2655c6464e2ec01207611852c1f842c5",
+      "RemoteSha": "3cea0e6b15969b9e73d2affbff1a97014730eade",
       "Requirements": [
         "R",
         "arrow",
@@ -4177,7 +4177,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "64790da7af8b04a95e2826b5cf2f26c0"
+      "Hash": "8042ccb6a91d49162b1b19d411832c82"
     },
     "numDeriv": {
       "Package": "numDeriv",
