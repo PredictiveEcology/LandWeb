@@ -127,9 +127,15 @@ primary_controller <- if (length(getOption("crew.ssh.nodes"))) {
   )
 }
 
+## Workers load their upstream values from the shared store. Left at "auto", targets loads them in
+## the controller for a target that branches over a stem and sends a copy with every branch. For
+## mainSim_<sa> (over rep_index) that is dataPrep's cohortData, 40-130 MB per task, and a burst of
+## 38 queued tasks took the controller to its 4 GB cap; for the growth refits (over growth_resample)
+## the plot data and BEC zones sent to ~30 concurrent refits filled 32 GB.
 tar_option_set(
   packages = "SpaDES.targets", # for unqualified sim_inputs()/outputs_spec() in target commands
   format = "rds",
+  retrieval = "worker",
   controller = primary_controller,
   workspace_on_error = TRUE ## save a workspace on error (tar_traceback()/tar_workspace()) while the pipeline is under active development
 )
@@ -1037,11 +1043,8 @@ if (isTRUE(getOption("landweb.extended_analyses", FALSE))) {
 ## tar_prune() would delete their results.
 growth_uncertainty_targets <- list()
 if (isTRUE(getOption("landweb.growth_uncertainty", FALSE))) {
-  ## Workers load their upstream values from the shared store. Left at "auto", targets loads them in
-  ## the controller for a target that branches over a stem (growth_resample) and ships them with
-  ## every branch: the plot data and BEC zones sent to ~30 concurrent refits filled 32 GB there.
-  retrieval_default <- tar_option_get("retrieval")
-  tar_option_set(retrieval = "worker")
+  ## retrieval = "worker" (set with the other options above) keeps the refits' inputs out of the
+  ## controller.
   growth_uncertainty_targets <- list(
     tar_target(growth_resample, seq_len(growth_resamples), iteration = "vector"),
     tar_simspades(
@@ -1089,7 +1092,6 @@ if (isTRUE(getOption("landweb.growth_uncertainty", FALSE))) {
     ## all plots (R/growth_uncertainty.R)
     tar_target(growthTraitsUncertainty, growth_trait_spread(growthTraitsResampled, growthTraits))
   )
-  tar_option_set(retrieval = retrieval_default)
 }
 
 ## ---- opt-in uploads to Drive --------------------------------------------------
