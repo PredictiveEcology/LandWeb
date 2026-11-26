@@ -92,6 +92,8 @@ jobs:
       ## outlive the runner, so actions/cache carries it between runs: loaded into the mount
       ## before the build and copied back out after it. A cache saved for an earlier renv.lock is
       ## restored when none matches, so a lockfile change installs only the packages that changed.
+      ## The cache travels as one tar file (~1 GB, ~42,000 files): exporting the files themselves
+      ## (`--output type=local`) stalled after 0.4 GB in the trial, and a tar both ways took 33 s.
       ## The copy steps must not use --no-cache, which gives a build fresh, empty cache mounts;
       ## the STAMP build arg is what keeps them from being served from the layer cache.
       - name: Restore the renv cache
@@ -110,18 +112,18 @@ jobs:
           BUILDER: ${{ steps.buildx.outputs.name }}
           CACHE_DIR: ${{ runner.temp }}/renv-cache
         run: |
-          du -sh "$CACHE_DIR"
+          du -sh "$CACHE_DIR/renv-cache.tar"
           docker buildx build --builder "$BUILDER" --output type=cacheonly \
             --build-arg STAMP="$(date +%s%N)" --file - "$CACHE_DIR" <<'EOF'
           FROM busybox:1.37
           ARG STAMP
           RUN --mount=type=cache,id=renv-cache,target=/renv/cache,sharing=locked \
               --mount=type=bind,target=/src \
-              cp -a /src/. /renv/cache/
+              tar -xf /src/renv-cache.tar -C /renv/cache
           EOF
           rm -rf "$CACHE_DIR"
 
-      ## A cold build took 18 min in a trial capped like a runner (4 CPUs, 16 GB). The step's own
+      ## A cold build took 16-18 min in a trial capped like a runner (4 CPUs, 16 GB). The step's own
       ## time limit is under the job's, so a build that runs out of time still leaves time to save
       ## the renv cache for the next attempt.
       - name: Build and push the image
@@ -150,9 +152,9 @@ jobs:
           CACHE_DIR: ${{ runner.temp }}/renv-cache
         run: |
           rm -rf "$CACHE_DIR"
-          mkdir -p "$RUNNER_TEMP/empty-context"
+          mkdir -p "$CACHE_DIR" "$RUNNER_TEMP/empty-context"
           docker buildx build --builder "$BUILDER" \
-            --output "type=local,dest=$CACHE_DIR" \
+            --output "type=tar,dest=$CACHE_DIR/renv-cache.tar" \
             --build-arg STAMP="$(date +%s%N)" --file - "$RUNNER_TEMP/empty-context" <<'EOF'
           FROM busybox:1.37 AS cache
           ARG STAMP
@@ -161,8 +163,9 @@ jobs:
           FROM scratch
           COPY --from=cache /out /
           EOF
-          du -sh "$CACHE_DIR"
-          if [ -n "$(ls -A "$CACHE_DIR")" ]; then
+          entries=$(tar -tf "$CACHE_DIR/renv-cache.tar" | wc -l)
+          echo "renv cache: $(du -sh "$CACHE_DIR/renv-cache.tar" | cut -f1), $entries entries"
+          if [ "$entries" -gt 0 ]; then
             echo "saved=true" >> "$GITHUB_OUTPUT"
           fi
 
