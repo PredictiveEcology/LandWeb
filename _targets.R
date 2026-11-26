@@ -180,7 +180,8 @@ pkg_fingerprint <- function(pkgs) {
 
 sa_syms <- c(
   "preamble", "preamble_files", "speciesData", "speciesData_files",
-  "dataPrep", "dataPrep_files", "mainSim_files", "reportingPolygons", "sppList", "speciesTraits"
+  "dataPrep", "dataPrep_files", "mainSim_files", "minRelB", "reportingPolygons", "sppList",
+  "speciesTraits"
 )
 suffix_refs <- function(expr, sa, syms = sa_syms) {
   target_name <- function(s) {
@@ -433,13 +434,24 @@ study_area_targets <- function(sa) {
       ## conditioned fits. We previously pinned 100.
       useCloudCacheForStats = FALSE, .plotInitialTime = 0, .useCache = FALSE
       ## speciesUpdateFunction and minRelativeBFunction keep Biomass_borealDataPrep's defaults
-      ## (decided 2026-11-25). v2's own versions (box/landweb.R:358-366, 00-main.R:282-301 at
-      ## 9f2a56f3) give the same minRelativeB (0.15-0.55 per ecoregion group). v2's other species
-      ## settings varied by run vintage: its 2020+ code used v3's fir/white spruce/black spruce
-      ## shade tolerances (3/2/3) and made every group resprout after fire, but the 2019 runs saved
-      ## 4/3/4, and the 2019 aspen-dispersal runs no post-fire regeneration. See report 03.
+      ## (decided 2026-11-25), but mainSim replaces the minRelativeB thresholds (minRelB_<sa>).
+      ## v2 set both itself (box/landweb.R:358-366, 00-main.R:282-301 at 9f2a56f3), and its
+      ## settings varied by run vintage. Its 2020+ code set minRelativeB to 0.15-0.55 (LandR's
+      ## default since 2025), used v3's fir/white spruce/black spruce shade tolerances (3/2/3) and
+      ## made every group resprout after fire. The 2019 runs saved D. Cyr's minRelativeB
+      ## (0.2/0.4/0.5/0.7/0.9) and shade tolerances 4/3/4, and the 2019 aspen-dispersal runs no
+      ## post-fire regeneration. See report 03.
     )
   )
+
+  ## minRelativeB: the relative biomass (B / maxB) at which a site reaches shade classes 1-5.
+  ## mainSim uses LANDIS-II's values (Biomass Succession 5.0-7.0 test inputs), not LandR's
+  ## default (0.15-0.55), whose classes 3-5 were lowered from 0.50/0.75/0.85 (LandR b261cc91)
+  ## in an attempt to get conifers established under deciduous and old shade-tolerant stands.
+  ## v3's sufficientLight table lets a shade-tolerance-3 conifer (fir, black spruce) establish
+  ## up to shade class 2: B/maxB < 0.35 with LandR's values, < 0.56 with these. Decided
+  ## 2026-11-26, after table changes tested in two study areas.
+  minRelativeB_landis <- c(X1 = 0.25, X2 = 0.45, X3 = 0.56, X4 = 0.70, X5 = 0.90)
 
   p_mainSim <- list(
     .globals = globals_sa,
@@ -658,6 +670,19 @@ study_area_targets <- function(sa) {
       }), sa)
     ),
 
+    ## mainSim's minRelativeB: dataPrep's table (one row per ecoregion group) with the thresholds
+    ## set to minRelativeB_landis. A plain target, so changing them re-runs the simulations, not
+    ## data preparation.
+    tar_target_raw(
+      paste0("minRelB_", sa),
+      suffix_refs(bquote({
+        mrb <- dataPrep$minRelativeB
+        thresholds <- .(minRelativeB_landis)
+        for (x in names(thresholds)) mrb[[x]] <- unname(thresholds[[x]])
+        mrb
+      }), sa)
+    ),
+
     ## The species tables mainSim runs with, saved as CSV beside its replicates (as BC_HRV saves
     ## them) so that a run's outputs, and its archive, show the parameters it used. Nothing empties
     ## outputs/<sa>/mainSim itself: a mainSim branch clears only its own rep dir, and the summaries
@@ -668,7 +693,7 @@ study_area_targets <- function(sa) {
         tabs <- list(
           species = speciesTraits$species,
           speciesEcoregion = speciesTraits$speciesEcoregion,
-          minRelativeB = dataPrep$minRelativeB,
+          minRelativeB = minRelB,
           sufficientLight = dataPrep$sufficientLight,
           ecoregion = dataPrep$ecoregion
         )
@@ -714,7 +739,7 @@ study_area_targets <- function(sa) {
           species = speciesTraits$species,
           speciesEcoregion = speciesTraits$speciesEcoregion,
           ecoregion = dataPrep$ecoregion,
-          minRelativeB = dataPrep$minRelativeB,
+          minRelativeB = minRelB,
           sufficientLight = dataPrep$sufficientLight,
           sppEquiv = LandWebUtils::landweb_require_species(dataPrep$sppEquiv, "sppEquiv"),
           sppColorVect = dataPrep$sppColorVect,
