@@ -208,6 +208,15 @@ Where birch is simulated together with aspen, it resprouts as aspen does.
 How far these rules shift the simulated landscape, for example toward broadleaf stands, was not measured.
 The runs archived from before species were simulated separately also differ from later runs in their growth curves and in several `LandR` fixes, so comparing them would not isolate the effect.
 
+**Starting biomass of new cohorts.** Every cohort that establishes during a v3 simulation, whether from seed, from serotinous cones or by resprouting, starts with 10 g/m$^2$ of aboveground biomass.
+Each species' growth curve was chosen by matching biomass in permanent sample plots against a library of simulated curves, in which every cohort started at 0.2% of the maximum biomass it could reach.
+A new cohort therefore starts on its fitted curve only where the species' maximum biomass is 5,000 g/m$^2$.
+Where the maximum is higher, as it is for 90% of species-ecoregion combinations in Western Alberta Upland in the October 2026 run, the cohort starts below its curve and takes 1 to 9 years longer to reach the curve's starting point.
+The lag is longer for species with a higher maximum biomass and for those whose growth curve rises more slowly at first.
+Where the maximum is lower, the cohort starts above its curve.
+The offset is small next to stand development over centuries, but it differs between species and ecoregions, so it does not cancel out between species competing in a stand.
+It does not affect the cohorts present at the start of a simulation, which come from the forest data.
+
 ## Large-patch connectivity and land-base boundaries
 
 **Large-patch connectivity.** The large-patch summaries treat cells as one patch only where they share an edge (rook, or 4-neighbour, connectivity), as v2 did, and LandWeb runs set this explicitly.
