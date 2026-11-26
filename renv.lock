@@ -283,14 +283,14 @@
     },
     "LandWebUtils": {
       "Package": "LandWebUtils",
-      "Version": "1.1.0.9001",
+      "Version": "1.1.1",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "PredictiveEcology",
       "RemoteRepo": "LandWebUtils",
       "RemoteRef": "main",
-      "RemoteSha": "97a0463044fda7b9002794a7903cafef3c8b89e5",
+      "RemoteSha": "86bcaae91891ab2eb59e5097ff4551b66004adbc",
       "Requirements": [
         "R",
         "SpaDES.tools",
@@ -304,7 +304,6 @@
         "methods",
         "nngeo",
         "pemisc",
-        "purrr",
         "rasterVis",
         "reproducible",
         "scales",
@@ -318,7 +317,7 @@
         "withr",
         "workflowtools"
       ],
-      "Hash": "b45657cf92c306cdab568195e115de8d"
+      "Hash": "6861614b90ff984219e93bc06457aea6"
     },
     "MASS": {
       "Package": "MASS",
