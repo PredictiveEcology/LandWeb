@@ -32,7 +32,7 @@ local <- list(
   ## 50 reps (user, 2026-11-25): successive NRV snapshots within a rep are strongly correlated, so
   ## 15 reps gave only ~18-31 effective samples per area for leading-type shares; 50 give ~59-104
   ## (outputs/_extended_analyses/nrv_autocorrelation/). The terra per-worker cap is sized by
-  ## `local_workers` (8) per node, not by n_reps.
+  ## `local_workers` per node, not by n_reps.
   n_reps = 50L,
 
   ## SpaDES paths. Heavy IO belongs on docker-visible NVMe scratch, not /home or NFS.

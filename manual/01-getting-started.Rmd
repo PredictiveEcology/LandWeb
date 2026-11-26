@@ -13,7 +13,7 @@ editor_options:
 
 -   Windows 10, macOS 11 Big Sur, or Ubuntu 24.04 LTS;
 -   20 GB of storage space, plus additional storage for model outputs;
--   128 GB RAM to run the model over the full area (less for sub-areas);
+-   16 GB RAM for each replicate run at the same time (one replicate of the largest study-area group peaks near 14 GB);
 -   High-speed internet connection.
 :::
 
